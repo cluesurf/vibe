@@ -116,6 +116,7 @@ function battery(s: Sub): Record<string, string> {
   for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }
+
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 15, modulus: 3 }) >
     N
@@ -136,6 +137,7 @@ function battery(s: Sub): Record<string, string> {
     from: 2,
     to: 6,
   })
+
   return {
     geometry: `bulk ${s.bulk}D -> space ${s.space}D, degree ${degree}, ${s.flat ? 'FLAT (Euclidean)' : 'hyperbolic'} growth ${growth}`,
     crystallographic: crystallographic
@@ -173,6 +175,7 @@ export default experiment({
     const spinor = row.spinor!.includes('YES')
     const crystallographic = row.crystallographic!.includes('YES')
     const ok = conserved && churns && spinor && crystallographic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -37,6 +37,7 @@ export default experiment({
     })
     const mean = result.means[0]?.[0] ?? Number.NaN
     const ok = result.count > 0 && Number.isFinite(mean)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

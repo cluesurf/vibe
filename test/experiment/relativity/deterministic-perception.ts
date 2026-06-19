@@ -56,10 +56,12 @@ export function deterministicPerception(input?: {
       | 0
       | 1
   }
+
   const q0 = totalCharge(tone)
   for (let t = 0; t < 200; t++) {
     blockBeat(tone, L, t % 2, FWD)
   }
+
   const chargeConserved = totalCharge(tone) === q0
 
   // (2) reversibility: forward T beats then backward T beats recovers the initial state exactly
@@ -71,15 +73,18 @@ export function deterministicPerception(input?: {
       | 0
       | 1
   }
+
   const work = init.slice()
   const T = 80
   for (let t = 0; t < T; t++) {
     blockBeat(work, L, t % 2, FWD)
   }
+
   // reverse: undo each beat in reverse order with the inverse permutation and the same partition parity
   for (let t = T - 1; t >= 0; t--) {
     blockBeat(work, L, t % 2, INV)
   }
+
   let reversible = true
   for (let i = 0; i < L; i++) {
     if (work[i] !== init[i]) {
@@ -99,6 +104,7 @@ export function deterministicPerception(input?: {
       | 0
       | 1
   }
+
   const a = base.slice()
   const b = base.slice()
   b[center] = ((b[center]! + 1) % 3 === 0 ? -1 : b[center]! + 1) as
@@ -108,6 +114,7 @@ export function deterministicPerception(input?: {
   if (b[center] === base[center]) {
     b[center] = (base[center]! === 1 ? 0 : 1) as -1 | 0 | 1
   }
+
   const times: number[] = []
   const spreads: number[] = []
   for (let t = 1; t <= beats; t++) {
@@ -118,6 +125,7 @@ export function deterministicPerception(input?: {
       spreads.push(differenceRmsWidthRing({ a, b, length: L, center }))
     }
   }
+
   const spreadExponent = powerLawExponent({ times, spreads })
   const isBallistic = spreadExponent > 0.8
 
@@ -145,6 +153,7 @@ export default experiment({
     const r = deterministicPerception({ L: 2000 })
     const ok =
       r.solved && r.chargeConserved && r.reversible && r.isBallistic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

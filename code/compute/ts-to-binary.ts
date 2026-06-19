@@ -36,14 +36,17 @@ export function compileToBinary(source: string): CompiledBinary {
     if (!registers.has(name)) {
       registers.set(name, registers.size)
     }
+
     return registers.get(name)!
   }
+
   const parameters = fn.parameters.map(
     p => (p.name as ts.Identifier).text,
   )
   for (const p of parameters) {
     reg(p)
   }
+
   const jump = (): number => reg('$jump') // a scratch register for unconditional back-jumps (both jz branches)
   const one = (): number => reg('$one') // holds the constant 1, for v++
 
@@ -86,12 +89,16 @@ export function compileToBinary(source: string): CompiledBinary {
           init && ts.isNumericLiteral(init) ? Number(init.text) : 0,
         )
       }
+
       return
     }
+
     if (ts.isExpressionStatement(stmt)) {
       compileExpression(stmt.expression)
+
       return
     }
+
     if (ts.isWhileStatement(stmt)) {
       const cond = stmt.expression
       if (
@@ -101,6 +108,7 @@ export function compileToBinary(source: string): CompiledBinary {
       ) {
         throw new Error('only `while (id !== 0)` is supported')
       }
+
       const g = reg((cond.left as ts.Identifier).text)
       const loop = here()
       const jz = emit({ op: 'jz', reg: g, zero: 0, next: 0 })
@@ -108,11 +116,14 @@ export function compileToBinary(source: string): CompiledBinary {
       compileBlock(stmt.statement as ts.Block)
       emit({ op: 'jz', reg: jump(), zero: loop, next: loop }) // unconditional back-jump (both branches -> loop)
       ;(code[jz] as { zero: number }).zero = here() // exit
+
       return
     }
+
     if (ts.isReturnStatement(stmt)) {
       return
     }
+
     throw new Error(
       `unsupported statement: ${ts.SyntaxKind[stmt.kind]}`,
     )
@@ -129,15 +140,19 @@ export function compileToBinary(source: string): CompiledBinary {
       } else {
         throw new Error('unsupported unary')
       }
+
       return
     }
+
     if (ts.isBinaryExpression(expr)) {
       const dst = reg((expr.left as ts.Identifier).text)
       const op = expr.operatorToken.kind
       if (op === ts.SyntaxKind.PlusEqualsToken) {
         add(dst, reg((expr.right as ts.Identifier).text))
+
         return
       }
+
       if (op === ts.SyntaxKind.EqualsToken) {
         if (ts.isNumericLiteral(expr.right)) {
           setConst(dst, Number(expr.right.text))
@@ -148,12 +163,15 @@ export function compileToBinary(source: string): CompiledBinary {
             'assignment rhs must be a number or identifier',
           )
         }
+
         return
       }
+
       throw new Error(
         `unsupported binary operator ${ts.SyntaxKind[op]}`,
       )
     }
+
     throw new Error(
       `unsupported expression: ${ts.SyntaxKind[expr.kind]}`,
     )

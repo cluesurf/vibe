@@ -31,6 +31,7 @@ function localPlus(tone: Int8Array, cells: number[]): number {
       n++
     }
   }
+
   return n
 }
 
@@ -84,6 +85,7 @@ export default experiment({
           break
         }
       }
+
       leakDrift = Math.max(
         leakDrift,
         Math.abs(totalCharge(leaking) - globalStart),

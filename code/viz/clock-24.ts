@@ -26,6 +26,7 @@ const COUNT = 12
 const angleDeg = (i: number): number => i * (360 / COUNT) - 90
 const onCircle = (r: number, deg: number): [number, number] => {
   const a = (deg * Math.PI) / 180
+
   return [CX + r * Math.cos(a), CY + r * Math.sin(a)]
 }
 
@@ -40,6 +41,7 @@ function tick(
 ): string {
   const [px, py] = onCircle(r, deg)
   const rx = Math.min(wid, len) * 0.35
+
   return (
     `<rect x="${(px - len / 2).toFixed(2)}" y="${(py - wid / 2).toFixed(2)}" ` +
     `width="${len}" height="${wid}" rx="${rx.toFixed(2)}" fill="${fill}" ` +
@@ -71,6 +73,7 @@ function buildSvg(): string {
   for (let i = 0; i < COUNT; i++) {
     parts.push(tick(R_IN, angleDeg(i), 30, 11, ZINC[400]))
   }
+
   for (let i = 0; i < COUNT; i++) {
     parts.push(tick(R_OUT, angleDeg(i), 46, 15, ZINC[800]))
   }

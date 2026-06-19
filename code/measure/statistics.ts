@@ -6,10 +6,12 @@ export function mean(series: ArrayLike<number>): number {
   if (n === 0) {
     return 0
   }
+
   let s = 0
   for (let i = 0; i < n; i++) {
     s += series[i]!
   }
+
   return s / n
 }
 
@@ -19,11 +21,13 @@ export function populationVariance(series: ArrayLike<number>): number {
   if (n === 0) {
     return 0
   }
+
   const m = mean(series)
   let s = 0
   for (let i = 0; i < n; i++) {
     s += (series[i]! - m) ** 2
   }
+
   return s / n
 }
 
@@ -50,6 +54,7 @@ export function pearson(input: {
     ma += a[i]!
     mb += b[i]!
   }
+
   ma /= n
   mb /= n
   let num = 0
@@ -62,6 +67,7 @@ export function pearson(input: {
     va += da * da
     vb += db * db
   }
+
   return va > epsilon && vb > epsilon ? num / Math.sqrt(va * vb) : 0
 }
 
@@ -76,18 +82,22 @@ export function relativeStandardDeviation(
   if (n === 0) {
     return 0
   }
+
   let m = 0
   let scale = 1e-9
   for (let i = 0; i < n; i++) {
     m += series[i]!
     scale = Math.max(scale, Math.abs(series[i]!))
   }
+
   m /= n
   let v = 0
   for (let i = 0; i < n; i++) {
     v += (series[i]! - m) ** 2
   }
+
   v /= n
+
   return Math.sqrt(v) / scale
 }
 
@@ -105,6 +115,7 @@ export function relativeL2Error(
     num += (a[i]! - b[i]!) ** 2
     den += a[i]! * a[i]!
   }
+
   return den > 0 ? Math.sqrt(num / den) : 0
 }
 
@@ -130,6 +141,7 @@ export function crossJointCounts(input: {
       counts[i]![j]!++
     }
   }
+
   return counts
 }
 
@@ -148,9 +160,11 @@ export function mutualInformationBits(
       total += joint[x]![y] ?? 0
     }
   }
+
   if (total <= 0) {
     return 0
   }
+
   const px = new Array<number>(rows).fill(0)
   const py = new Array<number>(cols).fill(0)
   for (let x = 0; x < rows; x++) {
@@ -160,6 +174,7 @@ export function mutualInformationBits(
       py[y] = (py[y] ?? 0) + p
     }
   }
+
   let mi = 0
   for (let x = 0; x < rows; x++) {
     for (let y = 0; y < cols; y++) {
@@ -172,5 +187,6 @@ export function mutualInformationBits(
       }
     }
   }
+
   return mi
 }

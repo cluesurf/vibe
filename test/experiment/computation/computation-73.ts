@@ -54,8 +54,10 @@ export function computation73(): {
       break
     }
   }
+
   const outDeg = g.neighbors[interior]!.length
   const junctionCapable = outDeg >= 3
+
   return { fibonacciGrowth, junctionCapable, growthRatio }
 }
 
@@ -76,6 +78,7 @@ export default experiment({
   run() {
     const r = computation73()
     const ok = r.fibonacciGrowth && r.junctionCapable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

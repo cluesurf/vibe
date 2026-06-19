@@ -36,6 +36,7 @@ function study(): {
       for (const t of neighborhood) {
         parity ^= t & 1
       }
+
       return (self ^ parity) & 1
     },
   })
@@ -64,6 +65,7 @@ export default experiment({
   run() {
     const r = study()
     const ok = r.isPermutation && r.boundedBelow && r.levels > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -23,6 +23,7 @@ export function specialLinear(prime: number): MatrixModP[] {
       }
     }
   }
+
   return group
 }
 
@@ -69,5 +70,6 @@ export function centre(prime: number): MatrixModP[] {
       result.push([lambda, 0, 0, lambda])
     }
   }
+
   return result
 }

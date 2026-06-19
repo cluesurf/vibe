@@ -14,6 +14,7 @@ import { gramMatrix } from '@/code/substrate/coxeter/schlafli'
 export function reflections(symbol: number[]): number[][][] {
   const gram = gramMatrix(symbol)
   const n = gram.length
+
   return Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (_, k) =>
       Array.from({ length: n }, (_, j) =>
@@ -74,15 +75,19 @@ export function buildCoxeterMatrixMesh(
           next.push(index.get(id)!)
         }
       }
+
       if (index.size >= maxCells) {
         break
       }
     }
+
     if (next.length > 0) {
       shells.push(next.length)
     }
+
     frontier = next
   }
+
   // resolve the adjacency now that all cells are known
   const adjacency = matrices.map(matrix =>
     generators.map(
@@ -90,5 +95,6 @@ export function buildCoxeterMatrixMesh(
         index.get(matrixKey(multiply(matrix, generator))) ?? -1,
     ),
   )
+
   return { shells, adjacency }
 }

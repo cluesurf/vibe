@@ -47,6 +47,7 @@ export default experiment({
         seed: 4242,
       })
       const start = counts[0]!
+
       return start > 0 ? 1 - counts[counts.length - 1]! / start : 0
     }
 

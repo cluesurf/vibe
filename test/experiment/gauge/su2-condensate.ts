@@ -33,6 +33,7 @@ export default experiment({
     const free = densities[0] ?? 0
     const maxSignal = Math.max(...densities)
     const ok = free < 0.005 && maxSignal > free
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -43,6 +43,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const beats = 50
 
     // a deterministic structured initial condition, never random (the methodology rule), a fixed function of the slot index

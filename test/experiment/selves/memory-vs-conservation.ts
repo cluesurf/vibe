@@ -28,6 +28,7 @@ const totalQ = (t: Int8Array): number => {
   for (let i = 0; i < t.length; i++) {
     s += t[i]!
   }
+
   return s
 }
 
@@ -68,14 +69,17 @@ export function memoryVsConservation(input?: { n?: number }): {
           }
         }
       }
+
       fr = nf
     }
   }
+
   const rng = makeRng({ seed: 4 })
   const target = new Int8Array(N) // 0 outside the region
   for (let i = 0; i < region.length; i++) {
     target[region[i]!] = (i % 2 === 0 ? 1 : -1) as -1 | 1
   }
+
   // shuffle within the region to make a real pattern, staying balanced
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
@@ -85,6 +89,7 @@ export function memoryVsConservation(input?: { n?: number }): {
     target[a] = target[b]!
     target[b] = t
   }
+
   const corr = (tone: Int8Array): number => {
     let dot = 0
     let norm = 0
@@ -92,6 +97,7 @@ export function memoryVsConservation(input?: { n?: number }): {
       dot += tone[i]! * target[i]!
       norm += target[i]! * target[i]!
     }
+
     return norm > 0 ? dot / norm : 0
   }
 
@@ -100,17 +106,20 @@ export function memoryVsConservation(input?: { n?: number }): {
   for (const i of region) {
     tone[i] = target[i]!
   }
+
   // a light active background outside, so the medium churns (conserving)
   for (let i = 0; i < N; i++) {
     if (target[i] === 0 && rng.next() < 0.2) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
     }
   }
+
   const qStart = totalQ(tone)
   const corrStart = corr(tone)
   for (let t = 0; t < 80; t++) {
     beat(tone, eu, ev, moved, rng, arrow)
   }
+
   const qEndUnmaintained = totalQ(tone)
   const corrEndUnmaintained = corr(tone)
 
@@ -119,11 +128,13 @@ export function memoryVsConservation(input?: { n?: number }): {
   for (const i of region) {
     tone2[i] = target[i]!
   }
+
   for (let i = 0; i < N; i++) {
     if (target[i] === 0 && rng.next() < 0.2) {
       tone2[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
     }
   }
+
   let rewrites = 0
   const rng2 = makeRng({ seed: 9 })
   for (let t = 0; t < 80; t++) {
@@ -135,6 +146,7 @@ export function memoryVsConservation(input?: { n?: number }): {
       }
     }
   }
+
   const corrEndMaintained = corr(tone2)
   const maintenanceCostPerBeat = rewrites / 80
 
@@ -174,6 +186,7 @@ export default experiment({
     const r = memoryVsConservation({ n: 30000 })
     const ok =
       r.solved && r.qConserved && r.patternDecays && r.maintenanceHolds
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

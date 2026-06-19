@@ -132,6 +132,7 @@ export default experiment({
       r.exceedsFloatWall &&
       r.roundTripsOnDisk &&
       r.facetCount === 12
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

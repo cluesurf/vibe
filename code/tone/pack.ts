@@ -28,8 +28,10 @@ export function toneColor(code: number): [number, number, number] {
   if (code === 1) {
     return [60, 130, 255]
   }
+
   if (code === 2) {
     return [255, 60, 70]
   }
+
   return [0, 0, 0]
 }

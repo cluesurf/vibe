@@ -45,8 +45,10 @@ function measureField(n: number, seed: number): FieldParams {
     if (tone[i] !== 0) {
       nz++
     }
+
     sum += tone[i]!
   }
+
   const density = nz / N
   const mean = sum / N
   // nearest-neighbour connected correlation (the pair structure), robust over all edges
@@ -54,6 +56,7 @@ function measureField(n: number, seed: number): FieldParams {
   for (let k = 0; k < eu.length; k++) {
     c1 += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
   }
+
   c1 /= eu.length
 
   // causal lightcone via butterfly front
@@ -66,6 +69,7 @@ function measureField(n: number, seed: number): FieldParams {
       center = i
     }
   }
+
   const dcenter = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -89,6 +93,7 @@ function measureField(n: number, seed: number): FieldParams {
       arrow: ARROW,
     })
   }
+
   for (let b = 0; b < T; b++) {
     conservingEdgeSweep({
       tone: pert,
@@ -99,6 +104,7 @@ function measureField(n: number, seed: number): FieldParams {
       arrow: ARROW,
     })
   }
+
   let front = 0
   for (let i = 0; i < N; i++) {
     if (base[i] !== pert[i]) {
@@ -108,6 +114,7 @@ function measureField(n: number, seed: number): FieldParams {
       }
     }
   }
+
   const coneSpeed = front / T
 
   return { n: N, density, c1, coneSpeed }
@@ -168,6 +175,7 @@ export default experiment({
       r.c1Match &&
       r.coneMatch &&
       r.pairStructure
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

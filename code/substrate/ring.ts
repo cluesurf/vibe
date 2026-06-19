@@ -7,6 +7,7 @@ export function ringNeighbors(length: number): number[][] {
   for (let x = 0; x < length; x++) {
     neighbors.push([(x - 1 + length) % length, (x + 1) % length])
   }
+
   return neighbors
 }
 
@@ -21,5 +22,6 @@ export function ringEdges(length: number): {
     eu[i] = i
     ev[i] = (i + 1) % length
   }
+
   return { eu, ev }
 }

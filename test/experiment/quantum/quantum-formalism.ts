@@ -23,6 +23,7 @@ function norm(re: Float64Array, im: Float64Array): number {
   for (let i = 0; i < re.length; i++) {
     s += (re[i] ?? 0) ** 2 + (im[i] ?? 0) ** 2
   }
+
   return s
 }
 
@@ -89,6 +90,7 @@ export default experiment({
       r.bornConserved &&
       Math.abs(r.interferenceTerm) > 0.01 &&
       r.quantumSum > r.classicalSum
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

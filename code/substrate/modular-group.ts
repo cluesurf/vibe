@@ -19,6 +19,7 @@ export function normalizeModularMatrix(m: IntegerMatrix): string {
     c = -c
     d = -d
   }
+
   return `${a},${b},${c},${d}`
 }
 
@@ -53,8 +54,10 @@ export function modularGraph(maxNodes: number): Graph {
       index.set(k, i)
       mats.push(m)
     }
+
     return i
   }
+
   add(I)
   const neighbors: number[][] = [[]]
   let frontier = [0]
@@ -64,6 +67,7 @@ export function modularGraph(maxNodes: number): Graph {
       if (mats.length >= maxNodes) {
         break
       }
+
       const g = mats[gi]!
       for (const gen of gens) {
         const h = multiplyIntegerMatrix(g, gen)
@@ -72,15 +76,18 @@ export function modularGraph(maxNodes: number): Graph {
         if (hi >= neighbors.length) {
           neighbors.push([])
         }
+
         if (!(neighbors[gi] ?? []).includes(hi) && hi !== gi) {
           neighbors[gi]!.push(hi)
           neighbors[hi]!.push(gi)
         }
+
         if (hi === before && mats.length < maxNodes) {
           next.push(hi)
         }
       }
     }
+
     frontier = next
   }
 
@@ -108,6 +115,7 @@ export function modularGraph(maxNodes: number): Graph {
     coords[i * 2] = (wnumRe * wdenRe + wnumIm * wdenIm) / wden2
     coords[i * 2 + 1] = (wnumIm * wdenRe - wnumRe * wdenIm) / wden2
   }
+
   const manifold: ManifoldSpec = {
     form: 'hyperbolic',
     dimension: 2,
@@ -120,6 +128,7 @@ export function modularGraph(maxNodes: number): Graph {
     coords,
     manifold,
   }
+
   return makeGraph({ size: n, directed: false, neighbors, embedding })
 }
 
@@ -144,6 +153,7 @@ export function rationalFromContinuedFraction(cf: number[]): {
     if (k === cf.length - 1) {
       steps -= 1
     }
+
     for (let s = 0; s < steps; s++) {
       if (goRight) {
         ln = mn
@@ -152,10 +162,13 @@ export function rationalFromContinuedFraction(cf: number[]): {
         rn = mn
         rd = md
       }
+
       mn = ln + rn
       md = ld + rd
     }
+
     goRight = !goRight
   }
+
   return { num: mn, den: md }
 }

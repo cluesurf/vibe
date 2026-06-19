@@ -26,6 +26,7 @@ function photonGap(input: {
 }): number {
   const m = gaugeBosonMass(input.coupling, input.vev)
   const spectrum = maxwellLatticeSpectrum({ side: input.side, mass: m })
+
   return spectrum.reduce((a, b) => Math.min(a, b), Infinity)
 }
 
@@ -40,6 +41,7 @@ export function higgsStudy(input: { side: number; coupling: number }): {
   const lambda = 0.5
   const vevSymmetric = mexicanHatVacuum(-1, lambda) // mu2 < 0: unbroken
   const vevBroken = mexicanHatVacuum(1, lambda) // mu2 > 0: broken
+
   return {
     vevSymmetric,
     vevBroken,
@@ -75,6 +77,7 @@ export default experiment({
       r.photonGapBroken > 0.5 &&
       Math.abs(r.photonGapBroken - r.expectedGapBroken) < 1e-3 &&
       r.higgsMassBroken > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

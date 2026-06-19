@@ -27,6 +27,7 @@ const FAST_MAX = 0.05
 function attention(interior: number[], signal: number[]): number {
   const a = quantileLabels({ series: interior, bins })
   const b = quantileLabels({ series: signal, bins })
+
   return mutualInformationBits(
     crossJointCounts({
       seriesA: a,

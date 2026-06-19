@@ -71,6 +71,7 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
     b4Inv4 = invDim(B4, 4),
     f4Inv2 = invDim(F4, 2),
     f4Inv4 = invDim(F4, 4)
+
   return { b4Inv4, f4Inv4 }
 }
 
@@ -85,6 +86,7 @@ export default experiment({
   run() {
     const r = emergentSymmetry()
     const ok = r.b4Inv4 === 2 && r.f4Inv4 === 1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

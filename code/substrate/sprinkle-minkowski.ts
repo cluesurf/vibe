@@ -40,13 +40,16 @@ export function sprinkleMinkowski(input: {
       candidate[axis] = x
       radius2 += x * x
     }
+
     if (spaceDim > 0 && radius2 > reach * reach) {
       continue
     }
+
     coords[accepted * d] = t
     for (let axis = 0; axis < spaceDim; axis++) {
       coords[accepted * d + 1 + axis] = candidate[axis] ?? 0
     }
+
     accepted++
   }
 
@@ -55,6 +58,7 @@ export function sprinkleMinkowski(input: {
   for (let i = 0; i < n; i++) {
     order.push(i)
   }
+
   order.sort((x, y) => (coords[x * d] ?? 0) - (coords[y * d] ?? 0))
 
   const sorted = new Float64Array(n * d)
@@ -82,6 +86,7 @@ export function sprinkleMinkowski(input: {
     if (dt <= 0) {
       return false
     }
+
     let space2 = 0
     for (let axis = 1; axis < d; axis++) {
       const dx =
@@ -89,6 +94,7 @@ export function sprinkleMinkowski(input: {
         (sorted[pair.a * d + axis] ?? 0)
       space2 += dx * dx
     }
+
     return dt * dt - space2 >= 0
   }
 
@@ -107,6 +113,7 @@ function sampleBall(input: {
   if (dim <= 0 || input.radius <= 0) {
     return out
   }
+
   // Direction: normalized Gaussian vector. Magnitude: radius * u^(1/dim) for
   // uniform-by-volume radial density.
   let norm2 = 0
@@ -115,14 +122,17 @@ function sampleBall(input: {
     out[i] = g
     norm2 += g * g
   }
+
   const norm = Math.sqrt(norm2)
   if (norm === 0) {
     return out
   }
+
   const radial = input.radius * Math.pow(input.rng.next(), 1 / dim)
   const scale = radial / norm
   for (let i = 0; i < dim; i++) {
     out[i] = (out[i] ?? 0) * scale
   }
+
   return out
 }

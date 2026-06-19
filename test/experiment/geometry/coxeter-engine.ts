@@ -68,6 +68,7 @@ export function coxeterEngine(): {
       depth: c.depth,
       maxChambers: c.maxChambers,
     })
+
     return {
       symbol: `{${c.symbol.join(',')}}`,
       geometry: mesh.geometry,
@@ -90,6 +91,7 @@ export function coxeterEngine(): {
   for (const g of dodeca.generation) {
     perGen.set(g, (perGen.get(g) ?? 0) + 1)
   }
+
   const gens = [...perGen.keys()]
     .filter(g => g >= 0)
     .sort((a, b) => a - b)
@@ -97,6 +99,7 @@ export function coxeterEngine(): {
   const dodecagridGenerations = gens.map(g => {
     const newCells = perGen.get(g) ?? 0
     cum += newCells
+
     return { generation: g, newCells, total: cum }
   })
   // explodes: each early generation grows by more than the last (super-linear)
@@ -145,6 +148,7 @@ export default experiment({
       r.allFacetsCorrect &&
       dodeca?.facetCount === 12 &&
       r.dodecagridExplodes
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

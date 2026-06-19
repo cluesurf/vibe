@@ -37,6 +37,7 @@ function fractionAtSize(input: {
       break
     }
   }
+
   return {
     fraction: boundaryFraction(cells, graph),
     size: cells.length,
@@ -77,6 +78,7 @@ export default experiment({
     const ok =
       flat.fraction < bulk.fraction - 0.3 &&
       square.fraction < bulk.fraction - 0.3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -44,6 +44,7 @@ export function chiralGauge(input: Record<string, never> = {}): {
   const wilsonFixesVector = byDimension.every(
     r => r.wilsonSpecies === 1,
   )
+
   return {
     byDimension,
     doublingShown,
@@ -71,6 +72,7 @@ export default experiment({
       r.chiralityCancels &&
       r.wilsonFixesVector
     const d4 = r.byDimension.find(x => x.dimension === 4)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

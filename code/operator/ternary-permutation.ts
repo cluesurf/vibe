@@ -17,30 +17,39 @@ export function ternaryPairPermutation(
   if (a === -1 && b === -1) {
     return [-1, -1]
   }
+
   if (a === 1 && b === 1) {
     return [1, 1]
   }
+
   if (a === -1 && b === 0) {
     return [0, -1]
   }
+
   if (a === 0 && b === -1) {
     return [-1, 0]
   }
+
   if (a === 1 && b === 0) {
     return [0, 1]
   }
+
   if (a === 0 && b === 1) {
     return [1, 0]
   }
+
   if (a === 0 && b === 0) {
     return create ? [1, -1] : [0, 0]
   }
+
   if (a === 1 && b === -1) {
     return [-1, 1]
   }
+
   if (a === -1 && b === 1) {
     return [0, 0]
   }
+
   return [a, b]
 }
 
@@ -68,6 +77,7 @@ export function parityBlockBeat3D(input: {
             if (base % 2 !== par) {
               continue
             }
+
             const i = index(x, y, z)
             const j = index(x + dx, y + dy, z + dz)
             const [na, nb] = ternaryPairPermutation(

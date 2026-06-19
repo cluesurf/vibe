@@ -56,6 +56,7 @@ export function darkEnergySmeared4D(input: {
     sizes: input.sizes,
     repeats: input.repeats,
   })
+
   return {
     sharpExponent: sharp.exponent,
     smearedExponent: smeared.exponent,
@@ -81,6 +82,7 @@ export default experiment({
     const ok =
       r.smearedExponent < r.sharpExponent &&
       Number.isFinite(r.smearedExponent)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

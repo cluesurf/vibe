@@ -43,6 +43,7 @@ export function makeGaugeField(input: {
     edges.push({ from: e.a, to: e.b })
     edgeIndex.set(edgeKey({ from: e.a, to: e.b }), idx)
   }
+
   return {
     form: 'gauge-field',
     group: input.group,
@@ -60,6 +61,7 @@ export function linkPhase(
   if (field.group.form !== 'u1') {
     return 0
   }
+
   const q = field.group.q
   const forward = field.edgeIndex.get(
     edgeKey({ from: input.from, to: input.to }),
@@ -67,12 +69,14 @@ export function linkPhase(
   if (forward !== undefined) {
     return (2 * Math.PI * (field.link[forward] ?? 0)) / q
   }
+
   const reverse = field.edgeIndex.get(
     edgeKey({ from: input.to, to: input.from }),
   )
   if (reverse !== undefined) {
     return (-2 * Math.PI * (field.link[reverse] ?? 0)) / q
   }
+
   return 0
 }
 

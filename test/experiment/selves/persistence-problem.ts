@@ -56,13 +56,16 @@ export default experiment({
       if (phaseWinding(fieldA) !== 1) {
         windingAlwaysOneA = false
       }
+
       fieldA = phaseRelaxStep(fieldA, 0.2)
       const s = gradientStructure(fieldA)
       if (s > prevA + epsilon) {
         risesA++
       } // a rise means it did not monotonically heal
+
       prevA = s
     }
+
     const finalStructA = gradientStructure(fieldA) / structA0
     const aLastsAndHeals = windingAlwaysOneA && risesA === 0 // identity locked AND monotone heal (settles, lasts)
 
@@ -77,8 +80,10 @@ export default experiment({
       if (phaseWinding(fieldB) !== 0) {
         windingZeroB = false
       }
+
       fieldB = phaseRelaxStep(fieldB, 0.2)
     }
+
     const bHasNoIdentity = windingZeroB // no conserved topological charge to keep
 
     // C, winding-1 with a lump under the reversible wave, the closed control
@@ -96,16 +101,20 @@ export default experiment({
       if (phaseWinding(fieldC) !== 1) {
         windingAlwaysOneC = false
       }
+
       phaseWaveStep(fieldC, velocity, 0.2)
       const s = gradientStructure(fieldC)
       if (s > prevC + epsilon) {
         risesC++
       }
+
       prevC = s
     }
+
     const cRecursNotSettles = windingAlwaysOneC && risesC >= 2 // identity survives turnover, but structure oscillates (recurs)
 
     const ok = aLastsAndHeals && bHasNoIdentity && cRecursNotSettles
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

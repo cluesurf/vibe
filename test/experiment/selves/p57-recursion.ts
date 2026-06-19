@@ -55,6 +55,7 @@ function coarseGrain(
   while (seedSet.size < numSeeds) {
     seedSet.add(rng.nextInt({ max: n }))
   }
+
   const seeds = [...seedSet]
   const cluster = new Int32Array(n).fill(-1)
   let frontier: number[] = []
@@ -72,8 +73,10 @@ function coarseGrain(
         }
       }
     }
+
     frontier = next
   }
+
   // Any unreached node becomes its own cluster.
   let nextC = seeds.length
   for (let v = 0; v < n; v++) {
@@ -81,6 +84,7 @@ function coarseGrain(
       cluster[v] = nextC++
     }
   }
+
   const K = nextC
 
   // Super-tone (cluster majority) and super-coords (centroid).
@@ -88,10 +92,12 @@ function coarseGrain(
   for (let v = 0; v < n; v++) {
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
   }
+
   const superTone = new Int8Array(K)
   for (let c = 0; c < K; c++) {
     superTone[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
   }
+
   const dim = g.embedding?.dimension ?? 2
   const oldCoords = g.embedding?.coords ?? new Float64Array(0)
   const coordSum = new Float64Array(K * dim)
@@ -104,6 +110,7 @@ function coarseGrain(
         (coordSum[c * dim + a] ?? 0) + (oldCoords[v * dim + a] ?? 0)
     }
   }
+
   const coords = new Float64Array(K * dim)
   for (let c = 0; c < K; c++) {
     for (let a = 0; a < dim; a++) {
@@ -133,6 +140,7 @@ function coarseGrain(
       }
     }
   }
+
   const neighbors: number[][] = superNbr.map(s => [...s])
   const manifold = g.embedding?.manifold ?? {
     form: 'hyperbolic' as const,
@@ -158,9 +166,11 @@ function coarseGrain(
     Int8Array.from(superG.neighbors[c] ?? new Uint32Array(0), d => {
       const key = c < d ? `${c},${d}` : `${d},${c}`
       const f = edgeFill.get(key) ?? 0
+
       return f > 0 ? 1 : f < 0 ? -1 : 0
     }),
   )
+
   return { superG, superTone, superFills, cluster, K }
 }
 
@@ -221,6 +231,7 @@ export function recursion(input: { count: number; seed: number }): {
       superTernary = false
     }
   }
+
   const aniso = lorentzIsotropy({
     substrate: cg.superG,
     samples: 2000,
@@ -251,6 +262,7 @@ export function recursion(input: { count: number; seed: number }): {
   for (let i = 0; i < g.size; i++) {
     r0[i] = rng.nextInt({ max: 3 }) - 1
   }
+
   const aggR0 = clusterMajority(cg.cluster, cg.K, r0)
   const aggMicro = clusterMajority(
     cg.cluster,
@@ -308,6 +320,7 @@ export default experiment({
       r.superLorentzSafe &&
       r.inheritedStable &&
       r.towerValid
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -85,8 +85,10 @@ export default experiment({
           will.data[c * degree + rest] = 1
         }
       }
+
       return will
     }
+
     const scratchOf = (will: Will): Will => ({
       mesh: coin,
       data: new Int8Array(will.data.length),
@@ -96,8 +98,10 @@ export default experiment({
       for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
       }
+
       return o
     }
+
     const extent = (will: Will): number => {
       let e = 0
       for (let c = 0; c < coin.cellCount; c++) {
@@ -109,6 +113,7 @@ export default experiment({
             break
           }
         }
+
         if (on) {
           const [x, y, z, w] = coord(c)
           const dd =
@@ -121,6 +126,7 @@ export default experiment({
           }
         }
       }
+
       return e
     }
 
@@ -165,11 +171,14 @@ export default experiment({
         next.data[from * degree + rest] = 0
         next.data[to * degree + rest] = 1
       }
+
       if (open) {
         absorbBoundary(next)
       }
+
       return { will: next, phi: newPhi }
     }
+
     const initialPhi = (will: Will): Int32Array =>
       relaxPotential({
         source: bulkMass({
@@ -199,6 +208,7 @@ export default experiment({
       body = r.will
       phiB = r.phi
     }
+
     const endExtent = extent(body)
     const endOcc = occupiedOf(body).reduce((a, b) => a + b, 0)
     const persists = endExtent === bodyExtent && endOcc === startOcc
@@ -210,10 +220,13 @@ export default experiment({
       for (let k = 0; k < 3; k++) {
         nb = base.neighbour(nb, 0)
       }
+
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
+
       return w
     }
+
     let displaced = farDisplaced()
     let phiD = initialPhi(displaced)
     let displacedScratch = scratchOf(displaced)
@@ -224,6 +237,7 @@ export default experiment({
       displaced = r.will
       phiD = r.phi
     }
+
     const displacedEnd = extent(displaced)
     const selfRepairs =
       displacedStart > bodyExtent && displacedEnd <= bodyExtent
@@ -234,8 +248,10 @@ export default experiment({
       for (let d = 0; d < 8; d++) {
         w.data[center * degree + d] = 1
       }
+
       return w
     }
+
     const radiation = (open: boolean): number => {
       let clean = restBody(),
         pert = withDisturbance()
@@ -259,15 +275,19 @@ export default experiment({
             d++
           }
         }
+
         final = d
       }
+
       return final
     }
+
     const openFinal = radiation(true)
     const closedFinal = radiation(false)
     const radiates = openFinal === 0 && closedFinal > 0
 
     const ok = persists && selfRepairs && radiates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

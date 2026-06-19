@@ -47,6 +47,7 @@ function heightReach(input: {
     if (i === j) {
       j = (j + 1) % n
     }
+
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
     if (cluster) {
@@ -56,6 +57,7 @@ function heightReach(input: {
       } else {
         setBit(asserted, { row: lo, col: hi })
       }
+
       const nf = closure(asserted, n)
       const nh = heightOf(nf, n)
       if (nh >= minHeight && nh <= maxHeight) {
@@ -75,11 +77,13 @@ function heightReach(input: {
       for (let w = 0; w < n * trial.stride; w++) {
         trial.words[w] = closureState.words[w] ?? 0
       }
+
       if (had) {
         clearBit(trial, { row: lo, col: hi })
       } else {
         setBit(trial, { row: lo, col: hi })
       }
+
       const reclosed = closure(trial, n)
       const nh = heightOf(reclosed, n)
       if (
@@ -93,7 +97,9 @@ function heightReach(input: {
       }
     }
   }
+
   const range = maxHeight - minHeight + 1
+
   return { distinct: heights.size, rangeCovered: heights.size / range }
 }
 
@@ -125,6 +131,7 @@ export function largeNCrossing(input: { sizes: number[] }): {
       cluster: true,
       seed: n * 17 + 2,
     })
+
     return {
       size: n,
       maxHeight,
@@ -141,6 +148,7 @@ export function largeNCrossing(input: { sizes: number[] }): {
   const clusterBeatsSinglePair = results.every(
     r => r.clusterReach > 2 * r.singlePairReach,
   )
+
   return {
     results,
     clusterTraverses,
@@ -160,6 +168,7 @@ export default experiment({
   run() {
     const r = largeNCrossing({ sizes: [32, 64] })
     const ok = r.solved && r.clusterTraverses && r.singlePairStuck
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

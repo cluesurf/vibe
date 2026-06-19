@@ -17,6 +17,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 function ringDistance(i: number, j: number, n: number): number {
   const d = Math.abs(i - j)
+
   return Math.min(d, n - d)
 }
 
@@ -31,6 +32,7 @@ function denseLaplacian(graph: Graph): ReturnType<typeof makeDense> {
       m.data[i * n + j] = -1
     }
   }
+
   return m
 }
 
@@ -52,6 +54,7 @@ function interactionRange(input: {
       }
     }
   }
+
   return maxRange
 }
 
@@ -80,7 +83,9 @@ export default experiment({
       minEig = Math.min(minEig, value)
       maxEig = Math.max(maxEig, value)
     }
+
     const ok = range === 1 && minEig >= -1e-6 && maxEig > 1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

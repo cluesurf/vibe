@@ -33,6 +33,7 @@ export default experiment({
         for (let i = 0; i < n; i++) {
           t[i] = i % 2 === 0 ? 1 : -1
         }
+
         return t
       })(),
     )
@@ -45,11 +46,13 @@ export default experiment({
         arrow: 0.1,
         seed: 9,
       })
+
       return attractorSignature({
         tone: r.end,
         neighbors: mesh.neighbors,
       })
     }
+
     const a = sigFrom(new Int8Array(n)) // from the void
     const b = sigFrom(dense) // from a dense start
 

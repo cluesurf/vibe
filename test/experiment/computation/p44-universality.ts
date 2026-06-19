@@ -111,10 +111,12 @@ export function universality(): {
       const l = line[(i - 1 + width) % width] ?? -1
       const c = line[i] ?? -1
       const rr = line[(i + 1) % width] ?? -1
+
       return rule110Fn(l, c, rr)
     })
     line = next
   }
+
   const rule110Evolves = new Set(snapshots).size > 6 // non-trivial, many distinct rows
 
   // 4. THE DECISIVE CHECK: run the gates on the model's OWN dynamics, not as functions. Build each
@@ -135,6 +137,7 @@ export function universality(): {
       if (busValue(tone, O) !== nand(a, b)) {
         substrateNandCorrect = false
       }
+
       if (!isFixedPoint(c, tone)) {
         substrateFixedPoint = false
       }
@@ -159,6 +162,7 @@ export function universality(): {
       if (busValue(tone, xorOut) !== xor(a, b)) {
         substrateXorCorrect = false
       }
+
       if (!isFixedPoint(c, tone)) {
         substrateFixedPoint = false
       }
@@ -194,6 +198,7 @@ export default experiment({
       r.substrateNandCorrect &&
       r.substrateXorCorrect &&
       r.substrateFixedPoint
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

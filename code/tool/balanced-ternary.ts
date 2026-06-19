@@ -23,9 +23,11 @@ export function toBalancedTernary(
     if (remainder === 2) {
       remainder = -1
     } // balance: 2 becomes -1 with a carry
+
     out.push(remainder)
     v = Math.round((v - remainder) / 3)
   }
+
   return out
 }
 
@@ -37,6 +39,7 @@ export function fromBalancedTernary(
   for (let i = digits.length - 1; i >= 0; i--) {
     value = value * 3 + digits[i]!
   }
+
   return value
 }
 
@@ -52,9 +55,11 @@ export function isBalancedTernaryField(
     if (v < -cap || v > cap) {
       return false
     }
+
     if (fromBalancedTernary(toBalancedTernary(v, digits)) !== v) {
       return false
     }
   }
+
   return true
 }

@@ -85,6 +85,7 @@ export default experiment({
     for (let i = 0; i < gliderLength + 3; i++) {
       bStart = mesh.neighbour(bStart, dir)
     }
+
     const b = gliderLine({
       mesh,
       start: bStart,
@@ -95,6 +96,7 @@ export default experiment({
     for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
     }
+
     const startComponents = componentCount(collide) // two disjoint gliders
 
     const collideFinal = run(
@@ -129,6 +131,7 @@ export default experiment({
       interacted &&
       !bound &&
       collideComponents >= 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

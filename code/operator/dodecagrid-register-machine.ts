@@ -22,6 +22,7 @@ export function buildDodecagridRegisterMachine(input: {
     numRegisters: input.numRegisters,
     perRegister: input.perRegister,
   })
+
   return new RegisterMachine({
     tone: new Int8Array(g.cellCount),
     regions,

@@ -63,6 +63,7 @@ export default experiment({
     // the curved bulk must be logarithmic AND the flat control must be linear, both, for the holographic
     // reading to hold. Either alone is not enough.
     const ok = r.hyperbolicIsLog && r.flatIsLinear
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

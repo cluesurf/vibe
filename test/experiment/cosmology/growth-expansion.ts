@@ -33,6 +33,7 @@ export function branchingExpansion(input: {
     rng: makeRng({ seed: input.seed }),
   })
   const rate = geometricGrowthRatio(widthPerGen)
+
   return {
     widthPerGen,
     rate,
@@ -62,6 +63,7 @@ export default experiment({
       grow.rate < 1.45 &&
       grow.dimension > 1 &&
       grow.dimension < 3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

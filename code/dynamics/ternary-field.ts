@@ -39,6 +39,7 @@ export function makeTernaryField(input: {
   for (let x = 0; x < size; x++) {
     u[x] = mod3(fill(x)) as number
   }
+
   // at rest, prev equals curr (zero initial velocity).
   return { prev: u.slice(), curr: u.slice(), size }
 }
@@ -67,15 +68,18 @@ export function stepTernaryField(input: {
         : curr[x + 1]!
     next[x] = mod3(rule(left, curr[x]!, right) - prev[x]!) as number
   }
+
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 4
     for (let x = 0; x < margin; x++) {
       next[x] = leftVacuum as number
     }
+
     for (let x = size - margin; x < size; x++) {
       next[x] = rightVacuum as number
     }
   }
+
   return { prev: curr, curr: next, size }
 }
 
@@ -102,6 +106,7 @@ export function wallCount(u: Int8Array): number {
       count++
     }
   }
+
   return count
 }
 
@@ -113,6 +118,7 @@ export function fieldDifference(a: Int8Array, b: Int8Array): number {
       count++
     }
   }
+
   return count
 }
 
@@ -130,13 +136,16 @@ export function spreadRadius(input: {
       if (x < low) {
         low = x
       }
+
       if (x > high) {
         high = x
       }
     }
   }
+
   if (high < 0) {
     return 0
   }
+
   return Math.max(center - low, high - center)
 }

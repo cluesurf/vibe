@@ -10,6 +10,7 @@ export function dot(a: Vec, b: Vec): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 
@@ -32,6 +33,7 @@ export function scale(v: Vec, s: number): Vec {
 
 export function normalize(v: Vec): Vec {
   const m = norm(v) || 1
+
   return v.map(x => x / m)
 }
 
@@ -41,6 +43,7 @@ export function innerJ(a: Vec, b: Vec, metric: number[]): number {
   for (let i = 0; i < a.length; i++) {
     s += (metric[i] ?? 1) * (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 

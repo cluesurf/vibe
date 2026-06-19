@@ -59,6 +59,7 @@ export default experiment({
         steps,
       })
       const relative = body1.map((r1, i) => r1 - body2[i]!)
+
       return {
         body1: lateAmplitude(body1),
         body2: lateAmplitude(body2),
@@ -73,8 +74,10 @@ export default experiment({
       finals: { body1: number; body2: number }[],
     ): number => {
       const amps = finals.map(f => Math.max(f.body1, f.body2))
+
       return Math.max(...amps) - Math.min(...amps)
     }
+
     const bathIdentitySpread = spread(finalsBath)
     const closedIdentitySpread = spread(finalsClosed)
 
@@ -96,8 +99,10 @@ export default experiment({
         kickStep: Math.floor(steps / 2),
         kickVelocity: 1.0,
       })
+
       return Math.max(lateAmplitude(body1), lateAmplitude(body2))
     }
+
     const bathAfterKick = kickedComposite(true)
     const closedAfterKick = kickedComposite(false)
 
@@ -107,6 +112,7 @@ export default experiment({
     const compositeAgency = bathAfterKick < 0.1 && closedAfterKick > 0.3
 
     const ok = compositeIdentity && bound && compositeAgency
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

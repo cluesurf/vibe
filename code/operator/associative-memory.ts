@@ -23,6 +23,7 @@ export function makeAssociativeMemory(input: {
   wordBits: number
 }): AssociativeMemory {
   const cellCount = input.neighbors.length
+
   return {
     cellCount,
     wordBits: input.wordBits,
@@ -46,6 +47,7 @@ export function ternaryWord(
     word[k] = Math.floor(mixed / p) % 3
     p *= 3
   }
+
   return word
 }
 
@@ -58,6 +60,7 @@ export function storeWord(
   for (let k = 0; k < mem.wordBits; k++) {
     mem.words[base + k] = word[k]! as number
   }
+
   mem.occupied[cell] = 1
 }
 
@@ -76,12 +79,14 @@ export function comparedSlots(
   if (!mask) {
     return wordBits
   }
+
   let n = 0
   for (let k = 0; k < wordBits; k++) {
     if (mask[k]) {
       n++
     }
   }
+
   return n
 }
 
@@ -96,16 +101,19 @@ export function matchScore(
   if (!mem.occupied[cell]) {
     return -1
   }
+
   const base = cell * mem.wordBits
   let s = 0
   for (let k = 0; k < mem.wordBits; k++) {
     if (mask && !mask[k]) {
       continue
     }
+
     if (mem.words[base + k] === comparand[k]) {
       s++
     }
   }
+
   return s
 }
 
@@ -124,6 +132,7 @@ export function search(input: {
       out.push(c)
     }
   }
+
   return out
 }
 
@@ -156,6 +165,7 @@ export function searchBest(input: {
       bestCell = c
     }
   }
+
   return { cell: bestCell, score: bestScore }
 }
 
@@ -178,6 +188,7 @@ export function pickNearest(input: {
       best = r
     }
   }
+
   return best
 }
 
@@ -205,6 +216,7 @@ export function broadcastWave(input: {
       first = d
     }
   }
+
   let coverage = 0
   for (let c = 0; c < depth.length; c++) {
     const d = depth[c]!
@@ -212,6 +224,7 @@ export function broadcastWave(input: {
       coverage = d
     }
   }
+
   return {
     arrivalBeat: depth,
     firstResponderBeat: first === Infinity ? -1 : first,

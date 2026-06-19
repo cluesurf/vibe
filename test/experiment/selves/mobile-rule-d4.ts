@@ -102,6 +102,7 @@ export default experiment({
       !momentumPinningOk &&
       travelMobile >= beats - 1 &&
       travelPinning <= beats - 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

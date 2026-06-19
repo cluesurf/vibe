@@ -19,6 +19,7 @@ export function makeCanvas(input: {
     rgba[offset + 2] = background[2]
     rgba[offset + 3] = 255
   }
+
   return rgba
 }
 

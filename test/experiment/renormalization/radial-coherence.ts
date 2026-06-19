@@ -63,8 +63,10 @@ export function radialCoherence(input?: {
         best = w
       }
     }
+
     parent[i] = best
   }
+
   const ancestor = (i: number, d: number): number => {
     let c = i
     for (let k = 0; k < d; k++) {
@@ -72,8 +74,10 @@ export function radialCoherence(input?: {
       if (p === c) {
         break
       }
+
       c = p
     }
+
     return c
   }
 
@@ -93,8 +97,10 @@ export function radialCoherence(input?: {
         id = remap.size
         remap.set(a, id)
       }
+
       anc[i] = id
     }
+
     radialGroup.push(anc)
     const k = remap.size
     groupCounts.push(k)
@@ -103,6 +109,7 @@ export function radialCoherence(input?: {
     for (let i = 0; i < N; i++) {
       sizes[anc[i]!] = sizes[anc[i]!]! + 1
     }
+
     const order = Array.from({ length: N }, (_, i) => i)
     for (let i = N - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
@@ -110,6 +117,7 @@ export function radialCoherence(input?: {
       order[i] = order[j]!
       order[j] = t
     }
+
     const ng = new Int32Array(N)
     let cursor = 0
     for (let gid = 0; gid < k; gid++) {
@@ -117,6 +125,7 @@ export function radialCoherence(input?: {
         ng[order[cursor++]!] = gid
       }
     }
+
     nullGroup.push(ng)
   }
 
@@ -185,6 +194,7 @@ export default experiment({
   paper: false,
   run() {
     const r = radialCoherence()
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

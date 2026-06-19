@@ -25,9 +25,11 @@ export function s53333Selves(): {
     const df = fNext - f
     charge += (2 / Math.PI) * Math.sin(f) ** 2 * df // d/df of (f - sin f cos f)/pi integrated = winding density
   }
+
   const instantonCharge = Math.round(charge)
   const solitonsExist = Math.abs(instantonCharge) >= 1
   const overDimensional = true // physical space is 4D, one more than the observed 3D
+
   return { solitonsExist, instantonCharge, overDimensional }
 }
 
@@ -43,6 +45,7 @@ export default experiment({
     const r = s53333Selves()
     const ok =
       r.solitonsExist && r.instantonCharge === 1 && r.overDimensional
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

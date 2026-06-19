@@ -67,6 +67,7 @@ export default experiment({
       withinReach &&
       smExcluded &&
       !decaysWithoutLeptoquarks
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

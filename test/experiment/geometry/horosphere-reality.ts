@@ -39,7 +39,9 @@ export function horosphereReality(): {
     const d = bnb[a]!.length
     degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1
   }
+
   const uniform = Object.keys(degreeHistogram).length <= 2
+
   return { bandCount: B, flatGrowth, degreeHistogram }
 }
 
@@ -62,6 +64,7 @@ export default experiment({
     const distinctDegrees = Object.keys(r.degreeHistogram).length
     const flat = r.flatGrowth > 0 && r.flatGrowth < 4
     const ok = flat && r.bandCount > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

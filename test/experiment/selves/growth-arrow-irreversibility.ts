@@ -85,9 +85,11 @@ function loschmidtEcho(input: {
       bornAtPeace(current, input.frontierX)
     }
   }
+
   for (let t = 0; t < input.beats; t++) {
     current = inverseBeat(current, input.inverse)
   }
+
   return disagreementFraction(current.data, input.init.data)
 }
 
@@ -123,6 +125,7 @@ function occupancyProfile(input: {
     if (input.open) {
       bornAtPeace(current, input.frontierX)
     }
+
     if (t >= input.beats / 2) {
       for (let cell = 0; cell < mesh.cellCount; cell++) {
         const x = cell % side
@@ -133,9 +136,11 @@ function occupancyProfile(input: {
           }
         }
       }
+
       samples++
     }
   }
+
   return profile.map(p => p / samples)
 }
 
@@ -216,6 +221,7 @@ export default experiment({
       openEcho > 0.01 &&
       openGradient > closedGradient + 0.2 &&
       closedGradient < 0.2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

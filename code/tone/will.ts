@@ -37,6 +37,7 @@ export function loneParticle(
 ): Will {
   const will = makeWill(mesh)
   will.data[cell * mesh.degree + direction] = tone
+
   return will
 }
 
@@ -59,6 +60,7 @@ export function gliderLine(input: {
     cells.push(cell)
     cell = mesh.neighbour(cell, direction)
   }
+
   return { will, cells }
 }
 
@@ -69,6 +71,7 @@ export function charge(will: Will): number {
   for (let index = 0; index < data.length; index++) {
     sum += data[index] ?? 0
   }
+
   return sum
 }
 
@@ -80,5 +83,6 @@ export function cellTone(will: Will, cell: number): number {
   for (let direction = 0; direction < degree; direction++) {
     sum += will.data[base + direction] ?? 0
   }
+
   return sum
 }

@@ -27,6 +27,7 @@ function shuffled(labels: number[], seed: number): number[] {
     out[i] = out[j]!
     out[j] = tmp
   }
+
   return out
 }
 
@@ -68,6 +69,7 @@ export default experiment({
     ).lambda2
 
     const ok = lambdaReal > lambdaShuffled + 0.15
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

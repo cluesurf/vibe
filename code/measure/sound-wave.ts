@@ -20,6 +20,7 @@ export function coinLines(opposite: number[]): Array<[number, number]> {
       lines.push([direction, other])
     }
   }
+
   return lines
 }
 
@@ -53,6 +54,7 @@ export function densityWaveAlongAxis(input: {
       }
     }
   }
+
   return will
 }
 
@@ -79,6 +81,7 @@ export function stripeContrast(input: {
       lowCount++
     }
   }
+
   return high / highCount - low / lowCount
 }
 
@@ -95,5 +98,6 @@ export function firstMinimumTime(trace: ReadonlyArray<number>): number {
       break
     }
   }
+
   return timeOfMin
 }

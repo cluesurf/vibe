@@ -24,6 +24,7 @@ function distributedWord(index: number, wordBits: number): Int8Array {
     // read the well-mixed high byte, so each slot is an independent ternary symbol
     word[k] = (h >>> 24) % 3
   }
+
   return word
 }
 
@@ -33,6 +34,7 @@ function partialMask(wordBits: number, keep: number): Int8Array {
   for (let k = 0; k < keep && k < wordBits; k++) {
     mask[k] = 1
   }
+
   return mask
 }
 
@@ -71,6 +73,7 @@ export function associativeGradedRecall(input?: {
         ok++
       }
     }
+
     fidelityByKeep.push(total > 0 ? ok / total : 0)
   }
 
@@ -82,6 +85,7 @@ export function associativeGradedRecall(input?: {
       maxDrop = drop
     }
   }
+
   // fidelity should not increase as the cue shrinks
   let monotone = true
   for (let i = 1; i < fidelityByKeep.length; i++) {
@@ -95,6 +99,7 @@ export function associativeGradedRecall(input?: {
     maxDrop < 0.5 &&
     fidelityByKeep[0]! > 0.99 &&
     fidelityByKeep[fidelityByKeep.length - 1]! < fidelityByKeep[0]!
+
   return {
     cellCount: g.cellCount,
     fidelityByKeep,
@@ -114,6 +119,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeGradedRecall({ maxCells: 1200 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

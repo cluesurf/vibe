@@ -32,6 +32,7 @@ const shuf = <T>(a: T[]): T[] => {
     a[i] = a[j]!
     a[j] = t
   }
+
   return a
 }
 
@@ -42,6 +43,7 @@ function stepPerception(t: Int8Array): void {
     if (m[v]) {
       continue
     }
+
     const vx = v % L,
       vy = ((v / L) | 0) % L,
       vz = (v / (L * L)) | 0
@@ -51,6 +53,7 @@ function stepPerception(t: Int8Array): void {
       if (m[w]) {
         continue
       }
+
       const [na, nb] = perm(t[v]!, t[w]!)
       t[v] = na as -1 | 0 | 1
       t[w] = nb as -1 | 0 | 1
@@ -60,6 +63,7 @@ function stepPerception(t: Int8Array): void {
     }
   }
 }
+
 // pure diffusion control: same conservation (swaps charge with a neighbour) but NO annihilate/create structure
 function stepDiffusion(t: Int8Array): void {
   const m = new Uint8Array(L * L * L),
@@ -68,6 +72,7 @@ function stepDiffusion(t: Int8Array): void {
     if (m[v]) {
       continue
     }
+
     const vx = v % L,
       vy = ((v / L) | 0) % L,
       vz = (v / (L * L)) | 0
@@ -77,6 +82,7 @@ function stepDiffusion(t: Int8Array): void {
       if (m[w]) {
         continue
       }
+
       const a = t[v]!
       t[v] = t[w]!
       t[w] = a as -1 | 0 | 1
@@ -86,6 +92,7 @@ function stepDiffusion(t: Int8Array): void {
     }
   }
 }
+
 function coarse(t: Int8Array, b: number): Float64Array {
   const nb = (L / b) ** 3,
     sum = new Float64Array(nb)
@@ -98,8 +105,10 @@ function coarse(t: Int8Array, b: number): Float64Array {
       ((x / b) | 0)
     sum[bc] = sum[bc]! + t[i]!
   }
+
   return sum
 }
+
 function towerOf(step: (t: Int8Array) => void): {
   persist: number[]
   domains: number
@@ -108,9 +117,11 @@ function towerOf(step: (t: Int8Array) => void): {
   for (let i = 0; i < L * L * L; i++) {
     t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
   }
+
   for (let f = 0; f < 40; f++) {
     step(t)
   }
+
   const blocks = [2, 4, 8],
     LAG = 8,
     M = 24
@@ -119,6 +130,7 @@ function towerOf(step: (t: Int8Array) => void): {
     step(t)
     blocks.forEach((b, bi) => ser[bi]!.push(coarse(t, b)))
   }
+
   const persist = blocks.map((_, bi) => {
     let acc = 0,
       c = 0
@@ -130,6 +142,7 @@ function towerOf(step: (t: Int8Array) => void): {
       })
       c++
     }
+
     return Math.round((acc / c) * 100) / 100
   })
   // discreteness: number of sign-domains at the coarsest scale (distinct bounded regions vs one blob)
@@ -143,7 +156,9 @@ function towerOf(step: (t: Int8Array) => void): {
       neg++
     }
   }
+
   const domains = pos + neg
+
   return { persist, domains }
 }
 
@@ -159,6 +174,7 @@ export function nestingControls(): {
     P.persist[P.persist.length - 1]! >
     D.persist[D.persist.length - 1]! + 0.1
   const multiScale = P.persist.filter(x => x > 0.3).length >= 2
+
   return {
     perception: P.persist,
     diffusion: D.persist,
@@ -179,6 +195,7 @@ export default experiment({
     const finalPerception = r.perception[r.perception.length - 1] ?? 0
     const finalDiffusion = r.diffusion[r.diffusion.length - 1] ?? 0
     const ok = !r.beatsDiffusion
+
     return verdict({
       status: ok ? 'pass' : 'partial',
       claim:

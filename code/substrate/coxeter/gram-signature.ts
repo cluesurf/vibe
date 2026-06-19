@@ -16,6 +16,7 @@ export function symbolContainsSubdiagram(
   if (pattern.length === 0 || pattern.length > symbol.length) {
     return false
   }
+
   for (
     let start = 0;
     start + pattern.length <= symbol.length;
@@ -28,10 +29,12 @@ export function symbolContainsSubdiagram(
         break
       }
     }
+
     if (match) {
       return true
     }
   }
+
   return false
 }
 
@@ -44,11 +47,13 @@ export function gramSignature(symbol: number[]): {
   for (let index = 0; index < size; index++) {
     data[index * size + index] = 1
   }
+
   for (let edge = 0; edge < symbol.length; edge++) {
     const value = -Math.cos(Math.PI / symbol[edge]!)
     data[edge * size + (edge + 1)] = value
     data[(edge + 1) * size + edge] = value
   }
+
   const matrix: DenseMatrix = {
     form: 'dense',
     rows: size,
@@ -56,6 +61,7 @@ export function gramSignature(symbol: number[]): {
     data,
   }
   const values = Array.from(eigSymmetric({ matrix }).values)
+
   return {
     negative: values.filter(value => value < -1e-9).length,
     zero: values.filter(value => Math.abs(value) < 1e-9).length,

@@ -38,9 +38,11 @@ function sharedBits(input: { lambda: number; mode: Mode }): {
       b: Math.cos(2 * l) >= 0 ? 0 : 1,
     }
   }
+
   if (input.mode === 'misaligned') {
     return { a: l < Math.PI / 2 ? 0 : 1, b: l < Math.PI / 2 ? 0 : 1 }
   }
+
   return { a: randomBit(l, 1), b: randomBit(l, 2) }
 }
 
@@ -87,6 +89,7 @@ export function measureChshAndDependence(input: {
 
   // Mutual information I(setting; lambda-bin) in bits, from the joint count histogram.
   const mi = mutualInformationBits(joint)
+
   return { s, mutualInfo: mi }
 }
 
@@ -114,6 +117,7 @@ export default experiment({
       aligned.s > 3.5 &&
       misaligned.s < 1.5 &&
       Math.abs(aligned.mutualInfo - misaligned.mutualInfo) < 0.05
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

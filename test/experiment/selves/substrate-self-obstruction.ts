@@ -67,6 +67,7 @@ export default experiment({
           }
         }
       }
+
       return will
     }
 
@@ -88,6 +89,7 @@ export default experiment({
           maxExtent = ext
         }
       }
+
       return maxExtent
     }
 
@@ -128,11 +130,13 @@ export default experiment({
               break
             }
           }
+
           if (differs && dist[c]! > maxCone) {
             maxCone = dist[c]!
           }
         }
       }
+
       return maxCone
     }
 
@@ -153,6 +157,7 @@ export default experiment({
       mobileExtent >= 8 && mobileCone >= boundaryDistance
 
     const ok = pairConfinesNotRadiating && mobileRadiatesNotConfining
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

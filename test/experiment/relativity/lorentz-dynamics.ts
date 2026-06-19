@@ -43,11 +43,13 @@ export default experiment({
       for (let b = 0; b < annulus.bins; b++) {
         total += profile[b] ?? 0
       }
+
       for (let b = 0; b < annulus.bins; b++) {
         accum[b] =
           (accum[b] ?? 0) + (total > 0 ? (profile[b] ?? 0) / total : 0)
       }
     }
+
     const sprinkleAniso = harmonicAnisotropy({ profile: accum })
 
     const lattice = squareLatticeMesh({ side: 21 })
@@ -58,6 +60,7 @@ export default experiment({
     const bothSmall = sprinkleAniso < 0.2 && latticeAniso < 0.2
     const sprinkleNotWorse = sprinkleAniso <= latticeAniso + 0.05
     const ok = bothSmall && sprinkleNotWorse
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

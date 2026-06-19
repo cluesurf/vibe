@@ -49,6 +49,7 @@ export function holography(): {
       rim.push(i)
     }
   }
+
   rim.sort((a, b) => (angle[a] ?? 0) - (angle[b] ?? 0))
 
   // 1. Ryu-Takayanagi: bulk geodesic length vs log(sin(theta/2)), binned and averaged over many
@@ -66,9 +67,11 @@ export function holography(): {
       if (theta > Math.PI) {
         theta = 2 * Math.PI - theta
       }
+
       if (theta < 0.3) {
         continue
       }
+
       const x = Math.log(Math.sin(theta / 2))
       const key = Math.round(x * 8) / 8
       const b = bins.get(key) ?? { sum: 0, count: 0 }
@@ -77,12 +80,14 @@ export function holography(): {
       bins.set(key, b)
     }
   }
+
   const xs: number[] = []
   const ys: number[] = []
   for (const [k, v] of bins) {
     xs.push(k)
     ys.push(v.sum / v.count)
   }
+
   const { slope, r2: logLawR2 } = linearFit({ xs, ys })
   const rtLogLawHolds = logLawR2 > 0.95 && slope > 1.4 && slope < 2.8
 
@@ -112,10 +117,13 @@ export function holography(): {
       if ((radius[node] ?? rMax) < minR) {
         minR = radius[node] ?? rMax
       }
+
       node = parent[node]!
     }
+
     return minR
   }
+
   const nearGeodesicDepth = geodesicMinRadius(near)
   const farGeodesicDepth = geodesicMinRadius(opp)
   // the far geodesic dips deeper (smaller min radius) toward the center than the near one
@@ -150,6 +158,7 @@ export default experiment({
     const r = holography()
     const ok =
       r.solved && r.rtLogLawHolds && r.isShortcut && r.depthIsScale
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

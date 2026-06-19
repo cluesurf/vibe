@@ -60,6 +60,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       nbrSet[b]!.add(a)
     }
   }
+
   const blockNbr: number[][] = nbrSet.map(s => [...s])
 
   // run the base dynamics, record block net charge each beat
@@ -77,6 +78,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       maxd = distP[i]!
     }
   }
+
   // Identify the CONSERVED-CHARGE sector's effective rule. We isolate transport (a dilute +1 charge gas
   // relaxing a radial gradient, hops only, no creation), and ENSEMBLE-AVERAGE over many realizations so
   // the deterministic hydrodynamic limit emerges from the stochastic noise.
@@ -104,10 +106,12 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       const grad = 0.25 * (1 - distP[i]! / (maxd + 1)) // dilute +1 gas, denser near the pole
       tone[i] = (rng.next() < grad ? 1 : 0) as 0 | 1
     }
+
     const q0 = tone.reduce((s, x) => s + x, 0)
     for (let t = 0; t < warmup; t++) {
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
     }
+
     for (let s = 0; s <= numSamples; s++) {
       const bc = blockCharge(tone)
       for (let b = 0; b < numBlocks; b++) {
@@ -115,20 +119,24 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
         if (bc[b]! < alphaMin) {
           alphaMin = bc[b]!
         }
+
         if (bc[b]! > alphaMax) {
           alphaMax = bc[b]!
         }
       }
+
       if (s < numSamples) {
         for (let k = 0; k < tau; k++) {
           conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
         }
       }
     }
+
     if (tone.reduce((s, x) => s + x, 0) !== q0) {
       conserved = false
     }
   }
+
   const alphabetRange = alphaMax - alphaMin
 
   // identify the effective rule on the ensemble-mean trajectory: dQ_B ~ D * Laplacian_B, held-out test
@@ -142,10 +150,12 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       for (const w of blockNbr[b]!) {
         lap += q[w]! - q[b]!
       }
+
       samplesX.push(lap)
       samplesY.push(qn[b]! - q[b]!)
     }
   }
+
   const m = samplesX.length
   const split = Math.floor(m / 2)
   // fit D on the train half: D = sum(x*y)/sum(x*x)
@@ -155,6 +165,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     sxy += samplesX[i]! * samplesY[i]!
     sxx += samplesX[i]! * samplesX[i]!
   }
+
   const diffusionConstant = sxx > 0 ? sxy / sxx : 0
   // R^2 on the test half (out-of-sample = the commuting square)
   let ssRes = 0
@@ -163,12 +174,14 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   for (let i = split; i < m; i++) {
     meanY += samplesY[i]!
   }
+
   meanY /= m - split
   for (let i = split; i < m; i++) {
     const pred = diffusionConstant * samplesX[i]!
     ssRes += (samplesY[i]! - pred) ** 2
     ssTot += (samplesY[i]! - meanY) ** 2
   }
+
   const fitR2 = ssTot > 0 ? 1 - ssRes / ssTot : 0
 
   // the spatial variance of the coarse charge field over time (does it relax slowly = diffusion, or
@@ -182,6 +195,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       break
     }
   }
+
   const varFinal = varAt(meanBC[meanBC.length - 1]!)
 
   const slowDiffusion = diffusionConstant > 0 && fitR2 > 0.5 // a slow Euclidean diffusion mode (rejected)
@@ -222,6 +236,7 @@ export default experiment({
   run() {
     const r = rgStep({ n: 30000 })
     const ok = r.solved && r.alphabetEnriched && r.conserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -32,11 +32,13 @@ function localMove(input: {
   if (a === b) {
     b = (b + 1) % size
   }
+
   const lo = Math.min(a, b)
   const hi = Math.max(a, b)
   if (lo === hi) {
     return
   }
+
   const i = lo * replica.relation.stride + (hi >>> 5)
   const bit = 1 << (hi & 31)
   replica.relation.words[i] = (replica.relation.words[i] ?? 0) ^ bit
@@ -78,6 +80,7 @@ export function parallelTempering(input: {
         relation.words[i] = input.start.future.words[i] ?? 0
       }
     }
+
     const poset = makePosetFromFuture({
       size: n,
       future: transitiveClosure({ size: n, relation }),
@@ -102,6 +105,7 @@ export function parallelTempering(input: {
       if (!replica || beta === undefined) {
         continue
       }
+
       for (let m = 0; m < input.movesPerSweep; m++) {
         localMove({
           replica,
@@ -112,6 +116,7 @@ export function parallelTempering(input: {
         })
       }
     }
+
     // Swap adjacent replicas. Alternate the starting parity each sweep.
     const startPair = sweep % 2
     for (let r = startPair; r + 1 < R; r += 2) {
@@ -122,6 +127,7 @@ export function parallelTempering(input: {
       if (!ra || !rb || ba === undefined || bb === undefined) {
         continue
       }
+
       swapAttempts += 1
       // Accept with min(1, exp((beta_a - beta_b)(S_a - S_b))).
       const delta = (ba - bb) * (ra.action - rb.action)
@@ -131,6 +137,7 @@ export function parallelTempering(input: {
         swapAccepts += 1
       }
     }
+
     // Record observables at each beta slot after burn-in.
     if (sweep >= burnIn) {
       for (let r = 0; r < R; r++) {

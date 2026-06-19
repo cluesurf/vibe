@@ -46,6 +46,7 @@ export default experiment({
           trials: 40000,
           rng,
         })
+
         return { s: r.s }
       },
     }
@@ -58,6 +59,7 @@ export default experiment({
       sIndependent <= 2.1 &&
       sCorrelated > 2 &&
       sCorrelated > sIndependent
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

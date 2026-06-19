@@ -27,6 +27,7 @@ function orderOf(size: number): number {
 function stdev(values: number[]): number {
   const n = values.length
   const mean = values.reduce((a, b) => a + b, 0) / n
+
   return Math.sqrt(
     values.reduce((a, b) => a + (b - mean) * (b - mean), 0) / n,
   )
@@ -45,6 +46,7 @@ function partition(
     if (assigned[seed]) {
       continue
     }
+
     const group: number[] = []
     const queue = [seed]
     while (queue.length > 0 && group.length < targetSize) {
@@ -52,6 +54,7 @@ function partition(
       if (assigned[u]) {
         continue
       }
+
       assigned[u] = 1
       group.push(u)
       for (const w of neighbors[u]!) {
@@ -60,10 +63,12 @@ function partition(
         }
       }
     }
+
     if (group.length > 0) {
       groups.push(group)
     }
   }
+
   return groups
 }
 
@@ -103,10 +108,12 @@ export function cooperationTower(): {
     charge0[i] = rng.next() * 2 - 1
     s += charge0[i]!
   }
+
   const meanc = s / n
   for (let i = 0; i < n; i++) {
     charge0[i]! -= meanc
   }
+
   const chargeSumStart = charge0.reduce((a, b) => a + b, 0)
   const initialStd = stdev(charge0)
 
@@ -129,6 +136,7 @@ export function cooperationTower(): {
           if (j <= i) {
             continue
           }
+
           const flow = 0.02 * (strengths[i]! - strengths[j]!) // stronger gains, conserving
           c[i]! += flow
           c[j]! -= flow
@@ -136,8 +144,10 @@ export function cooperationTower(): {
         }
       }
     }
+
     return { charges: c, wasted }
   }
+
   const variedStrength = Array.from({ length: n }, () => rng.next())
   const equalStrength = Array.from({ length: n }, () => 1)
   const grabbed = grab(variedStrength)
@@ -155,6 +165,7 @@ export function cooperationTower(): {
         if (j <= i) {
           continue
         }
+
         // each gives what is cheap to it for what is dear, a small mutual value gain, charge unchanged
         const give = 0.01
         c[i]! += give
@@ -162,8 +173,10 @@ export function cooperationTower(): {
         valueGain += 0.05 // both better off in their own value-landscapes
       }
     }
+
     return { charges: c, valueGain }
   }
+
   const traded = trade()
 
   // INTEGRATE: merge into groups, share charge to the group mean (balance within), build order.
@@ -179,10 +192,13 @@ export function cooperationTower(): {
       for (const k of g) {
         c[k]! = m
       } // share in balance, no grabbing within
+
       order += orderOf(g.length) // positive-sum, super-linear
     }
+
     return { charges: c, order }
   }
+
   const integrated = integrate(16)
 
   // net order: order built minus work wasted (grab builds nothing and wastes work)
@@ -265,6 +281,7 @@ export default experiment({
       r.conservedIntegrate &&
       r.integrationWins &&
       r.towerGrows
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

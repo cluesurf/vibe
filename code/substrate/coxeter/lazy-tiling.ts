@@ -48,9 +48,11 @@ export function makeLazyTiling(input: {
     if (existing !== undefined) {
       return existing
     }
+
     const id = records.length
     idOf.set(key, id)
     records.push({ matrix, center, spin: null })
+
     return id
   }
 
@@ -61,6 +63,7 @@ export function makeLazyTiling(input: {
     neighborCenter: number[],
   ): number {
     const local = mobiusAdd(negate(cellCenter), neighborCenter)
+
     return Math.atan2(local[1] ?? 0, local[0] ?? 0)
   }
 
@@ -70,6 +73,7 @@ export function makeLazyTiling(input: {
     if (record.spin) {
       return record.spin
     }
+
     const neighbors: { id: number; angle: number }[] = []
     for (let i = 0; i < faces.length; i++) {
       const neighborMatrix = matMul(record.matrix, faces[i]!)
@@ -77,6 +81,7 @@ export function makeLazyTiling(input: {
       if (id === cell) {
         continue
       } // a face that folds back onto the cell itself (degenerate), skip
+
       const angle = twoD
         ? angleFrom(record.center, records[id]!.center)
         : i
@@ -84,12 +89,15 @@ export function makeLazyTiling(input: {
         neighbors.push({ id, angle })
       }
     }
+
     // 2D, order the edges counterclockwise so spin is the cyclic edge index. 3D, keep the face-index order.
     if (twoD) {
       neighbors.sort((a, b) => a.angle - b.angle)
     }
+
     const spin = neighbors.map(n => n.id)
     record.spin = spin
+
     return spin
   }
 
@@ -101,6 +109,7 @@ export function makeLazyTiling(input: {
     const neighbor = here[((spin % degree) + degree) % degree]!
     const there = expand(neighbor)
     const back = there.indexOf(cell)
+
     return { cell: neighbor, back, mirror: false }
   }
 

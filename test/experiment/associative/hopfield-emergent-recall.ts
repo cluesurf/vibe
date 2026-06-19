@@ -36,6 +36,7 @@ function corrupt(input: {
       out[i] = -(out[i] ?? 0) as -1 | 1
     }
   }
+
   return out
 }
 
@@ -52,6 +53,7 @@ function hopfieldRelax(input: {
   for (let t = 0; t < beats; t++) {
     state = hopfieldStep(J, state, zero, null)
   }
+
   return state
 }
 
@@ -76,14 +78,17 @@ function bareRuleRecall(input: {
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     will.data[c * mesh.degree + slot] = cue[c] ?? 0
   }
+
   for (let t = 0; t < beats; t++) {
     will = beat(will, collision)
   }
+
   const out = new Int8Array(cue.length)
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     const v = will.data[c * mesh.degree + slot] ?? 0
     out[c] = v > 0 ? 1 : v < 0 ? -1 : (cue[c] ?? 0)
   }
+
   return out
 }
 
@@ -136,12 +141,15 @@ export function hopfieldEmergentRecall(input?: {
       if (toneOverlap(relaxed, patterns[m]!) >= clean) {
         hopHits++
       }
+
       if (toneOverlap(bare, patterns[m]!) >= clean) {
         bareHits++
       }
+
       total++
     }
   }
+
   const hopfieldRecall = hopHits / total
   const bareRecall = bareHits / total
   // PASS, the emergent dissipative layer cleans the cue to the prototype at high rate AND
@@ -151,6 +159,7 @@ export function hopfieldEmergentRecall(input?: {
     hopfieldRecall > 0.85 &&
     bareRecall < 0.15 &&
     hopfieldRecall > bareRecall + 0.4
+
   return {
     size,
     patternCount,
@@ -171,6 +180,7 @@ export default experiment({
   paper: true,
   run() {
     const r = hopfieldEmergentRecall()
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

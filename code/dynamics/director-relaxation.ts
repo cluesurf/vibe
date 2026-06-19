@@ -11,9 +11,11 @@ function foldModPi(angle: number): number {
   while (d > Math.PI / 2) {
     d -= Math.PI
   }
+
   while (d < -Math.PI / 2) {
     d += Math.PI
   }
+
   return d
 }
 
@@ -29,9 +31,11 @@ export function relaxDirector(input: {
     const next = current.map((p, i) => {
       const right = foldModPi(current[(i + 1) % length]! - p)
       const left = foldModPi(current[(i + length - 1) % length]! - p)
+
       return p + dt * (right + left) // diffuse toward neighbours (mod pi)
     })
     current = next
   }
+
   return current
 }

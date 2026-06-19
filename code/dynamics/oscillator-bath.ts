@@ -40,6 +40,7 @@ export function oscillatorBathTrajectory(
     if (input.kickStep !== undefined && t === input.kickStep) {
       vr += input.kickVelocity ?? 0
     }
+
     const ar = -input.stiffness * r - couple * (r - u[0]!)
     const au = new Array<number>(chain).fill(0)
     for (let x = 0; x < chain; x++) {
@@ -47,6 +48,7 @@ export function oscillatorBathTrajectory(
       const right = x < chain - 1 ? u[x + 1]! : 0
       au[x] = waveSpeed2 * (left - 2 * u[x]! + right)
     }
+
     au[0]! += couple * (r - u[0]!)
     vr += ar * dt
     r += vr * dt
@@ -57,10 +59,12 @@ export function oscillatorBathTrajectory(
       r = -1000
       vr = 0
     }
+
     for (let x = 0; x < chain; x++) {
       w[x]! += au[x]! * dt
       u[x]! += w[x]! * dt
     }
+
     if (input.absorbing) {
       for (let x = chain - sponge; x < chain; x++) {
         const depth = (x - (chain - sponge)) / sponge
@@ -69,8 +73,10 @@ export function oscillatorBathTrajectory(
         w[x]! *= damp
       }
     }
+
     trajectory.push(r)
   }
+
   return trajectory
 }
 
@@ -118,11 +124,13 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
       const right = x < chain - 1 ? u[x + 1]! : 0
       au[x] = waveSpeed2 * (left - 2 * u[x]! + right)
     }
+
     au[0]! += drive
     for (let x = 0; x < chain; x++) {
       w[x]! += au[x]! * dt
       u[x]! += w[x]! * dt
     }
+
     if (input.absorbing) {
       for (let x = chain - sponge; x < chain; x++) {
         const depth = (x - (chain - sponge)) / sponge
@@ -137,6 +145,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
     if (input.kickStep !== undefined && t === input.kickStep) {
       v1 += input.kickVelocity ?? 0
     }
+
     // each body, its own well, mutual attraction toward the other, and coupling to its own bath.
     const a1 =
       -input.stiffness * r1 +
@@ -155,6 +164,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
     body1.push(r1)
     body2.push(r2)
   }
+
   return { body1, body2 }
 }
 
@@ -172,5 +182,6 @@ export function lateAmplitude(
       max = a
     }
   }
+
   return max
 }

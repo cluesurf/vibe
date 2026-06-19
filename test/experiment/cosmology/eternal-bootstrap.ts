@@ -32,13 +32,16 @@ export function eternalBootstrap(): {
     cur0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
     prev0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }
+
   const netCharge = (a: Int8Array): number => {
     let s = 0
     for (let i = 0; i < N; i++) {
       s += signedTone(a[i]!)
     }
+
     return s
   }
+
   let cur = cur0.slice(),
     prev = prev0.slice()
   const c0 = netCharge(cur)
@@ -52,16 +55,19 @@ export function eternalBootstrap(): {
       for (const j of nbCache[i]!) {
         s += cur[j]!
       }
+
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
       nx[i] = v
       if (v !== cur[i]!) {
         changed++
       }
     }
+
     activity.push(changed / N)
     prev = cur
     cur = nx
   }
+
   const earlyAct =
     activity.slice(10, 30).reduce((a, b) => a + b, 0) / 20
   const lateAct = activity.slice(T - 20).reduce((a, b) => a + b, 0) / 20
@@ -78,11 +84,14 @@ export function eternalBootstrap(): {
       for (const j of nbCache[i]!) {
         s += fc[j]!
       }
+
       nx[i] = ((((s - fp[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
+
     fp = fc
     fc = nx
   }
+
   // reverse, prev = (sum cur - next) mod 3, step backward
   let bc = fc.slice(),
     bp = fp.slice()
@@ -93,17 +102,21 @@ export function eternalBootstrap(): {
       for (const j of nbCache[i]!) {
         s += bp[j]!
       }
+
       pr[i] = ((((s - bc[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
+
     bc = bp
     bp = pr
   }
+
   let diff = 0
   for (let i = 0; i < N; i++) {
     if (bc[i] !== cur0[i]) {
       diff++
     }
   }
+
   const reversibleExact = diff === 0
   // (3) the IRREVERSIBLE contrast, a majority / rounding rule, from random init -> decays to a fixed point
   let m = cur0.slice()
@@ -116,16 +129,20 @@ export function eternalBootstrap(): {
       for (const j of nbCache[i]!) {
         s += m[j]!
       }
+
       const v = (Math.round(s / 7) % 3) as 0 | 1 | 2
       nx[i] = v
       if (v !== m[i]!) {
         changed++
       }
     }
+
     irrAct = changed / N
     m = nx
   }
+
   const irreversibleDecays = irrAct < 0.02 // froze
+
   return {
     reversibleEternal,
     reversibleConserved,
@@ -146,6 +163,7 @@ export default experiment({
     const r = eternalBootstrap()
     const ok =
       r.reversibleEternal && r.reversibleExact && r.irreversibleDecays
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -28,6 +28,7 @@ export function darkEnergy4D(input: {
     dimension: 4,
     seedMultiplier: 1000,
   })
+
   return {
     sizes: r.sizes,
     stds: r.stds,
@@ -50,6 +51,7 @@ export default experiment({
       (r.stds[1] ?? 0) < (r.stds[2] ?? 0)
     const ok =
       increasing && r.actionExponent > 0.5 && r.actionExponent < 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

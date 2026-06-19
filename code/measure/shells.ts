@@ -23,6 +23,7 @@ export function bfsShells(input: {
   if (n === 0) {
     return { depth, shellCounts: [] }
   }
+
   depth[root] = 0
   let frontier = [root]
   const shellCounts: number[] = [1]
@@ -40,11 +41,14 @@ export function bfsShells(input: {
         }
       }
     }
+
     if (next.length) {
       shellCounts.push(next.length)
     }
+
     frontier = next
   }
+
   return { depth, shellCounts }
 }
 
@@ -67,6 +71,7 @@ export function branchingRatio(input: {
       count++
     }
   }
+
   return count ? sum / count : 0
 }
 
@@ -86,10 +91,12 @@ export function midShellGrowthRatio(input: {
   if (mid.length < 2) {
     return 0
   }
+
   let sum = 0
   for (let i = 1; i < mid.length; i++) {
     sum += mid[i]! / mid[i - 1]!
   }
+
   return Math.round((sum / (mid.length - 1)) * 100) / 100
 }
 
@@ -109,6 +116,7 @@ export function geometricGrowthRatio(
       count += 1
     }
   }
+
   return count > 0 ? Math.exp(logSum / count) : 1
 }
 
@@ -134,16 +142,19 @@ export function meanShellDistanceStep(input: {
       counts[s]! += 1
     }
   }
+
   const means: number[] = []
   for (let s = 1; s <= maxShell; s++) {
     if (counts[s]! > 0) {
       means.push(sums[s]! / counts[s]!)
     }
   }
+
   let stepSum = 0
   for (let i = 1; i < means.length; i++) {
     stepSum += means[i]! - means[i - 1]!
   }
+
   return means.length > 1 ? stepSum / (means.length - 1) : 0
 }
 
@@ -173,7 +184,9 @@ export function geodesicBall(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return ball
 }

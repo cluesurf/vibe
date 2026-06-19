@@ -25,8 +25,10 @@ export function growBranchingOrder(input: {
     for (let c = 0; c < w; c++) {
       next += 1 + (input.rng.next() < input.spawnProb ? 1 : 0)
     }
+
     widths.push(Math.max(1, next))
   }
+
   const total = widths.reduce((a, b) => a + b, 0)
 
   // Global index and comoving position (in [0,1)) of cell c in generation g.
@@ -36,6 +38,7 @@ export function growBranchingOrder(input: {
     startOf.push(acc)
     acc += widths[g] ?? 0
   }
+
   const posOf = (g: number, c: number): number =>
     (c + 0.5) / (widths[g] ?? 1)
 
@@ -59,9 +62,11 @@ export function growBranchingOrder(input: {
               setBit(future, { row: a, col: child })
             }
           }
+
           hasParent = true
         }
       }
+
       // Guarantee connectivity: attach to the nearest previous cell if the horizon caught none (can
       // happen at the edges of a narrow early front).
       if (!hasParent && wPrev > 0) {
@@ -74,6 +79,7 @@ export function growBranchingOrder(input: {
             best = d
           }
         }
+
         const parent = (startOf[g - 1] ?? 0) + best
         setBit(future, { row: parent, col: child })
         for (let a = 0; a < parent; a++) {
@@ -84,6 +90,7 @@ export function growBranchingOrder(input: {
       }
     }
   }
+
   return {
     poset: makePosetFromFuture({ size: total, future }),
     widthPerGen: widths,

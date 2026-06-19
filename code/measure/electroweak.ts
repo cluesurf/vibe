@@ -13,6 +13,7 @@ export function custodialRho(input: {
 }): number {
   const t = input.isospin
   const t3 = input.isospinComponent
+
   return (t * (t + 1) - t3 * t3) / (2 * t3 * t3)
 }
 

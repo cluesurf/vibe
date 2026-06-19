@@ -36,6 +36,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
   for (let i = 0; i < L; i++) {
     u0[i] = Math.exp(-(((i - L / 2) / width) ** 2))
   }
+
   const uPrev0 = u0.slice() // start at rest (uPrev = u), the packet then splits into two movers
 
   const fineSteps = 120
@@ -55,6 +56,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
       }),
     })
   }
+
   const errorsSmall = rungErrors.every(x => x.error < 0.1)
   const errorsShrink =
     rungErrors.length >= 2 &&
@@ -76,6 +78,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
       }),
     })
   }
+
   const sMean = speeds.reduce((s, x) => s + x.speed, 0) / speeds.length
   const speedInvariant = speeds.every(
     x => Math.abs(x.speed - sMean) < 0.15 * Math.abs(sMean) + 0.05,
@@ -106,6 +109,7 @@ export default experiment({
   run() {
     const r = waveChain()
     const ok = r.solved && r.errorsSmall && r.speedInvariant
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

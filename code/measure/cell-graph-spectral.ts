@@ -29,5 +29,6 @@ export function cellGraphSpectral(input: {
         t2: input.t2,
       }) * 100,
     ) / 100
+
   return { cells: g.cellCount, degree, specDim }
 }

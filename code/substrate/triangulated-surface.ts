@@ -35,12 +35,14 @@ export function triangulatedSurface(input: {
       } else if (input.wrapWidth) {
         addEdge(a, idx(0, j))
       }
+
       // up neighbor
       if (j + 1 < H) {
         addEdge(a, idx(i, j + 1))
       } else if (input.wrapHeight) {
         addEdge(a, idx(i, 0))
       }
+
       // diagonal up-right, the shared edge that splits the square into triangles
       const ni = i + 1 < W ? i + 1 : input.wrapWidth ? 0 : -1
       const nj = j + 1 < H ? j + 1 : input.wrapHeight ? 0 : -1
@@ -51,5 +53,6 @@ export function triangulatedSurface(input: {
   }
 
   const cleaned = neighbors.map(row => [...new Set(row)])
+
   return makeGraph({ size, directed: false, neighbors: cleaned })
 }

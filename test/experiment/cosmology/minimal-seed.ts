@@ -33,6 +33,7 @@ export default experiment({
         t[2 * k] = 1
         t[2 * k + 1] = -1
       }
+
       const r = chargeTrajectory({
         neighbors: mesh.neighbors,
         initial: t,
@@ -41,8 +42,10 @@ export default experiment({
         seed: 9,
       })
       const tail = r.trajectory.slice(-20)
+
       return tail.reduce((a, b) => a + b, 0) / tail.length / n
     }
+
     const fromVoid = lateFrac(0) // the empty seed: nothing
     const fromOne = lateFrac(1) // a single pair
     const fromMany = lateFrac(20) // many pairs

@@ -62,12 +62,14 @@ export function growingCode(input?: { n?: number; beats?: number }): {
       R = dist[i]!
     }
   }
+
   const core: number[] = []
   for (let i = 0; i < N; i++) {
     if (dist[i]! <= 1) {
       core.push(i)
     }
   }
+
   const shellCells: number[][] = Array.from({ length: R + 1 }, () => [])
   for (let i = 0; i < N; i++) {
     shellCells[dist[i]!]!.push(i)
@@ -81,13 +83,16 @@ export function growingCode(input?: { n?: number; beats?: number }): {
       for (const i of core) {
         tone[i] = bit
       }
+
       hopBeat(tone, eu, ev, moved, rng)
       for (const i of core) {
         tone[i] = bit
       }
     }
+
     return tone
   }
+
   const tonePos = encode(1)
   const toneNeg = encode(-1)
 
@@ -109,12 +114,15 @@ export function growingCode(input?: { n?: number; beats?: number }): {
           sum += tone[c]!
         }
       }
+
       if (Math.sign(sum) === bit) {
         ok++
       }
     }
+
     return ok / trials
   }
+
   // scan to EXTREME erasure, the absolute redundancy (count of marked cells) grows with radius even as
   // density dilutes, so the threshold should keep rising into the >95% regime
   const fGrid = [0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.995, 0.998, 0.999]
@@ -129,6 +137,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
         best = f
       }
     }
+
     return best
   }
 
@@ -144,12 +153,14 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     if (cells.length < 20) {
       continue
     }
+
     let nz = 0
     for (const c of cells) {
       if (tonePos[c] !== 0) {
         nz++
       }
     }
+
     shells.push({
       r,
       cells: cells.length,
@@ -167,6 +178,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
       monotonic = false
     }
   }
+
   const first = shells[0]
   const last = shells[shells.length - 1]
   const thresholdRises =
@@ -211,6 +223,7 @@ export default experiment({
       r.complementaryRecovery
     const first = r.shells[0]
     const last = r.shells[r.shells.length - 1]
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

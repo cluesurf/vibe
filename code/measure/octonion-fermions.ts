@@ -34,6 +34,7 @@ function leftMultiplication(a: number): number[][] {
       m[i]![j] = product[i]!
     }
   }
+
   return m
 }
 
@@ -52,6 +53,7 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
       if (ar === 0 && ai === 0) {
         continue
       }
+
       const reRow = re[i]!
       const imRow = im[i]!
       const bRe = b.re[k]!
@@ -62,6 +64,7 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
       }
     }
   }
+
   return complex(re, im)
 }
 
@@ -78,6 +81,7 @@ function addMatrices(...matrices: ComplexMatrix[]): ComplexMatrix {
       }
     }
   }
+
   return complex(re, im)
 }
 
@@ -97,6 +101,7 @@ function dagger(a: ComplexMatrix): ComplexMatrix {
       im[i]![j] = -a.im[j]![i]!
     }
   }
+
   return complex(re, im)
 }
 
@@ -116,6 +121,7 @@ function isZeroMatrix(a: ComplexMatrix): boolean {
       }
     }
   }
+
   return true
 }
 
@@ -131,6 +137,7 @@ function isIdentityMatrix(a: ComplexMatrix): boolean {
       }
     }
   }
+
   return true
 }
 
@@ -144,6 +151,7 @@ const trace = (a: ComplexMatrix): number => {
   for (let i = 0; i < 8; i++) {
     t += a.re[i]![i]!
   }
+
   return t
 }
 
@@ -170,6 +178,7 @@ export function octonionFermionGeneration(): {
       leftMultsAreClifford = false
     } // L^2 = -I
   }
+
   for (let a = 1; a <= 7 && leftMultsAreClifford; a++) {
     for (let b = a + 1; b <= 7; b++) {
       const anti = anticommutator(
@@ -199,6 +208,7 @@ export function octonionFermionGeneration(): {
       } else if (!isZeroMatrix(withDagger)) {
         ladderRelationsHold = false
       }
+
       if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!))) {
         ladderRelationsHold = false
       }
@@ -230,8 +240,10 @@ export function octonionFermionGeneration(): {
         )
       }
     }
+
     multiplicities.push(Math.round(trace(projector)))
   }
+
   // the electric charges, Q = k/3 for the occupied-mode count k
   const electricCharges = [0, 1, 2, 3].map(k => k / 3)
 

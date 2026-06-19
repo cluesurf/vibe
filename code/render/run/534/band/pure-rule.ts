@@ -31,27 +31,35 @@ function perm(a: number, b: number): [number, number] {
   if (a === -1 && b === -1) {
     return [-1, -1]
   } // same sign, inert
+
   if (a === 1 && b === 1) {
     return [1, 1]
   }
+
   if (a === -1 && b === 0) {
     return [0, -1]
   } // hop
+
   if (a === 0 && b === -1) {
     return [-1, 0]
   }
+
   if (a === 1 && b === 0) {
     return [0, 1]
   }
+
   if (a === 0 && b === 1) {
     return [1, 0]
   }
+
   if (a === 0 && b === 0) {
     return [1, -1]
   } // the arrow, peace creates a balanced pair
+
   if (a === 1 && b === -1) {
     return [-1, 1]
   } // the create-flip-annihilate 3-cycle
+
   return [0, 0] // (-1, 1) -> (0, 0), annihilation closes the cycle
 }
 
@@ -68,6 +76,7 @@ function run(): void {
   for (let i = 0; i < n; i++) {
     off[i + 1] = off[i]! + slab.neighbors[i]!.length
   }
+
   const adj = new Int32Array(off[n]!)
   {
     let p = 0
@@ -77,6 +86,7 @@ function run(): void {
       }
     }
   }
+
   console.log(
     `pure rule, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}, no interventions`,
   )
@@ -88,14 +98,17 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -103,6 +116,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -117,16 +131,20 @@ function run(): void {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
     }
+
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(raw.map(c => c.u))
   const cv = median(raw.map(c => c.v))
   const radii = raw
@@ -168,11 +186,13 @@ function run(): void {
       if (matched[v]) {
         continue
       }
+
       for (let p = off[v]!; p < off[v + 1]!; p++) {
         const w = adj[p]!
         if (matched[w]) {
           continue
         }
+
         const [a, b] = perm(tone[v]!, tone[w]!)
         tone[v] = a as -1 | 0 | 1
         tone[w] = b as -1 | 0 | 1
@@ -189,11 +209,13 @@ function run(): void {
       rgba[i * 4 + 2] = 11
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of band) {
       const t = tone[c.index]!
       if (t === 0) {
         continue
       }
+
       const col = COLORS[t === 1 ? 1 : 2]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
@@ -202,6 +224,7 @@ function run(): void {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
@@ -209,6 +232,7 @@ function run(): void {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     if (f % 40 === 0 || f === FRAMES - 1) {
@@ -218,13 +242,16 @@ function run(): void {
         if (tone[i] !== 0) {
           charged++
         }
+
         q += tone[i]!
       }
+
       console.log(
         `  beat ${f}, charged ${((charged / n) * 100).toFixed(0)}%, charge conserved ${q === q0}`,
       )
     }
   }
+
   console.log(
     `wrote ${FRAMES} frames of the pure base rule, assemble with task/render-video.sh`,
   )

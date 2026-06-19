@@ -19,6 +19,7 @@ export function exchangePhase(): {
     const spin = H / 2
     const exchange = Math.cos(Math.PI * H) // e^(i pi H) is +1 (even) or -1 (odd)
     const rotation = Math.cos(2 * Math.PI * spin) // 2-pi rotation sign for spin s = cos(2 pi s)
+
     return {
       H,
       spin,
@@ -29,6 +30,7 @@ export function exchangePhase(): {
   })
   // consistency: rotation sign == exchange sign for every H (spin-statistics)
   const consistent = table.every(r => r.rotation === r.exchange)
+
   return {
     table: table.map(r => ({
       H: r.H,
@@ -50,6 +52,7 @@ export default experiment({
   paper: false,
   run() {
     const r = exchangePhase()
+
     return verdict({
       status: 'open',
       claim:

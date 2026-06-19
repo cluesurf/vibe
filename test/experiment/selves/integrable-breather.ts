@@ -63,6 +63,7 @@ export default experiment({
           }
         }
       }
+
       return will
     }
 
@@ -78,6 +79,7 @@ export default experiment({
           weighted += q * dist[c]!
         }
       }
+
       return weight > 0 ? weighted / weight : 0
     }
 
@@ -104,13 +106,16 @@ export default experiment({
         if (ext > extentMax) {
           extentMax = ext
         }
+
         if (mean < meanMin) {
           meanMin = mean
         }
+
         if (mean > meanMax) {
           meanMax = mean
         }
       }
+
       return { extentMax, meanMin, meanMax }
     }
 
@@ -127,8 +132,10 @@ export default experiment({
           will.data[c * degree + 0] = 1
         }
       }
+
       return will
     }
+
     const launchedTrace = trace(launched(), forward)
 
     // the symmetric breather, the net charge stays CONFINED (small extent) where streaming spreads it, and it
@@ -145,6 +152,7 @@ export default experiment({
 
     const ok =
       confined && breathes && chargeOk && reversible && pinnedNotMoving
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

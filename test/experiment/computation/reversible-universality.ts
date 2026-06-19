@@ -56,9 +56,11 @@ export function reversibleUniversality(): {
       if (images.has(key)) {
         bijection = false
       }
+
       images.add(key)
     }
   }
+
   const ruleIsBijection = bijection && images.size === 9
 
   // (2b) the Toffoli gate is a bijection on the eight three-bit states (a reversible gate)
@@ -72,10 +74,12 @@ export function reversibleUniversality(): {
         if (seen.has(key)) {
           tBij = false
         }
+
         seen.add(key)
       }
     }
   }
+
   const toffoliIsBijection = tBij && seen.size === 8
 
   // (2c) Toffoli with the ancilla z = 1 computes NAND(x, y) on the third output, functional completeness
@@ -88,6 +92,7 @@ export function reversibleUniversality(): {
       }
     }
   }
+
   const toffoliComputesNand = nandOk
 
   // (1) and (3), the structural and primitive prerequisites, each established by a passing experiment
@@ -134,6 +139,7 @@ export default experiment({
       r.ruleIsBijection &&
       r.toffoliComputesNand &&
       r.reversibleUniversal
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

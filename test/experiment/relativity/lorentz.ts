@@ -34,6 +34,7 @@ export function lorentz(): {
       }
     }
   }
+
   // (2) group velocity v = dE/dk, subluminal, -> 1 as m -> 0
   let maxGroupVelocity = 0
   for (const mm of [0.0, 0.3, 0.6]) {
@@ -48,11 +49,14 @@ export function lorentz(): {
         vmax = v
       }
     }
+
     if (mm === 0) {
       maxGroupVelocity = vmax
     }
   }
+
   const masslessIsLightspeed = Math.abs(maxGroupVelocity - 1) < 0.05
+
   return { invariantSmallK, masslessIsLightspeed, maxGroupVelocity }
 }
 
@@ -70,6 +74,7 @@ export default experiment({
       r.invariantSmallK &&
       r.masslessIsLightspeed &&
       Math.abs(r.maxGroupVelocity - 1) < 0.05
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

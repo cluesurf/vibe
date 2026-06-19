@@ -49,10 +49,12 @@ export function effectiveCouplings(
       }
     }
   }
+
   const nbr = nbrSet.map(s => [...s])
   const Jcross = nbr.map((row, c) =>
     Float64Array.from(row, d => crossMap.get(`${c},${d}`) ?? 0),
   )
+
   return { Jself, nbr, Jcross }
 }
 
@@ -70,8 +72,10 @@ export function naiveMacroStep(
     for (let k = 0; k < nb.length; k++) {
       h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
     }
+
     out[c] = sign(h)
   }
+
   return out
 }
 
@@ -89,7 +93,9 @@ export function renormMacroStep(
     for (let k = 0; k < nb.length; k++) {
       h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
     }
+
     out[c] = sign(h)
   }
+
   return out
 }

@@ -88,6 +88,7 @@ export default experiment({
   run() {
     const r = bornInterference({ steps: 80 })
     const ok = r.solved && r.interferes && r.unitary && r.bornRule
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

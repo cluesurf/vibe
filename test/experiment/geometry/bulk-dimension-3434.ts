@@ -45,12 +45,14 @@ export function bulkDimension(): {
       c = i
     }
   }
+
   const bulk = spectralDimension({
     neighbors: g34.neighbors,
     start: c,
     t1: 2,
     t2: 6,
   })
+
   return { d4, d3, bulk }
 }
 
@@ -74,6 +76,7 @@ export default experiment({
       Math.abs(r.d4 - 4) < 0.6 && Math.abs(r.d3 - 3) < 0.6
     const bulkIs4D = Math.abs(r.bulk - 4) < 0.7
     const ok = calibrationOk && bulkIs4D
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

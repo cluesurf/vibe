@@ -30,6 +30,7 @@ function fullBeat(
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -74,6 +75,7 @@ function selfModelAt(
       self.push(i)
     }
   }
+
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
   for (const i of self) {
@@ -82,6 +84,7 @@ function selfModelAt(
       inputAll.push(i)
     }
   }
+
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
@@ -90,6 +93,7 @@ function selfModelAt(
     sectorOf[inputAll[j]!] = s
     sectorCells[s]!.push(inputAll[j]!)
   }
+
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
@@ -101,6 +105,7 @@ function selfModelAt(
         if (isInput[u]) {
           continue
         }
+
         out.push(u)
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -110,10 +115,13 @@ function selfModelAt(
           }
         }
       }
+
       fr = nf
     }
+
     return out
   }
+
   const coreSize = 40
   const core = ballOf(center, coreSize)
   const peripherals = sectorCells.map(sc =>
@@ -124,8 +132,10 @@ function selfModelAt(
     for (const i of cells) {
       s += tone[i]!
     }
+
     return cells.length > 0 ? s / cells.length : 0
   }
+
   const tone = new Int8Array(N)
   const rng = makeRng({ seed })
   const T = 200
@@ -139,25 +149,31 @@ function selfModelAt(
         sigs[s] = -sigs[s]!
       }
     }
+
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     }
+
     fullBeat(tone, eu, ev, moved, rng)
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     }
+
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
     for (let p = 0; p < peripherals.length; p++) {
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
     }
   }
+
   const hubCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
   let periCorr = 0
   for (let p = 0; p < peripherals.length; p++) {
     periCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   }
+
   periCorr /= peripherals.length
+
   return { hubCorr, periCorr }
 }
 
@@ -190,6 +206,7 @@ export function manySelfModels(input?: { n?: number }): {
       hub = i
     }
   }
+
   const distHub = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -212,6 +229,7 @@ export function manySelfModels(input?: { n?: number }): {
 
   const results = centers.map((c, idx) => {
     const r = selfModelAt(g, eu, ev, c, 9 + idx)
+
     return {
       center: c,
       hubCorr: r.hubCorr,
@@ -250,6 +268,7 @@ export default experiment({
       r.allFormSelfModels &&
       r.distinctCenters &&
       r.countSelfModels >= 3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

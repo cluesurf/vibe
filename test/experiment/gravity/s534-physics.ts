@@ -42,6 +42,7 @@ export function s534Physics(): {
   const icosaIsotropic =
     directionFourthMoments(icosahedronVertexDirections()).anisotropy <
     1e-6
+
   return { betheAlpha, growthRatio, icosaIsotropic }
 }
 
@@ -58,6 +59,7 @@ export default experiment({
     const correlatorClean = Math.abs(r.betheAlpha - 2) < 0.1
     const expanding = r.growthRatio > 1
     const ok = correlatorClean && expanding && r.icosaIsotropic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

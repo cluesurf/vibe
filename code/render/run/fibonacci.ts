@@ -98,6 +98,7 @@ function run(): void {
       latched = step.registers[bIndex]!
       boundaries.push(trace.length)
     }
+
     trace.push(step)
     latchedAt.push(latched)
   })
@@ -136,6 +137,7 @@ function run(): void {
     if (!boundary) {
       continue
     }
+
     const pre =
       start === 0 ? initial.slice() : trace[start - 1]!.registers
     const post = trace[i - 1]!.registers
@@ -148,6 +150,7 @@ function run(): void {
         active = r
       }
     }
+
     segments.push({
       pre,
       post,
@@ -182,6 +185,7 @@ function run(): void {
       )
     }
   }
+
   // hold the final answer for a moment
   const lastRegs = trace[trace.length - 1]!.registers
   for (let h = 0; h < 14; h++) {
@@ -309,6 +313,7 @@ function renderFrame(input: {
     centralPolygon: tiling.polygons[0]!,
     text: String(display),
   })
+
   return rgba
 }
 

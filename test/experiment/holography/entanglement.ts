@@ -33,6 +33,7 @@ export function logLawSlope1D(input: { n: number }): number {
     lnL.push(Math.log(L))
     s.push(regionEntanglementEntropy({ c, n: input.n, region }))
   }
+
   return linearFit({ xs: lnL, ys: s }).slope
 }
 
@@ -58,14 +59,17 @@ export function areaLaw2D(input: { side: number }): {
         region.push(y * input.side + x)
       }
     }
+
     ellArr.push(l)
     ell2Arr.push(l * l)
     s.push(regionEntanglementEntropy({ c, n, region }))
   }
+
   // Residual of a linear (boundary) fit versus a quadratic (volume) fit.
   const boundaryFit = linearFit({ xs: ellArr, ys: s }).slope
   const areaResidual = linearFit({ xs: ellArr, ys: s }).residual
   const volumeResidual = linearFit({ xs: ell2Arr, ys: s }).residual
+
   return { boundaryFit, areaBeatsVolume: areaResidual < volumeResidual }
 }
 
@@ -85,6 +89,7 @@ export default experiment({
       slope1D < 0.42 &&
       two.areaBeatsVolume &&
       two.boundaryFit > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

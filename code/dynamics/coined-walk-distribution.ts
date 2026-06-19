@@ -44,11 +44,13 @@ export function coinedWalkQuantumDistribution(input: {
       nr[1]![x + 1]! += c1r
       ni[1]![x + 1]! += c1i
     }
+
     re[0] = nr[0]!
     re[1] = nr[1]!
     im[0] = ni[0]!
     im[1] = ni[1]!
   }
+
   const distribution = new Float64Array(W)
   let norm = 0
   for (let x = 0; x < W; x++) {
@@ -59,6 +61,7 @@ export function coinedWalkQuantumDistribution(input: {
       im[1]![x]! ** 2
     norm += distribution[x]!
   }
+
   return { distribution, norm, offset: off, width: W }
 }
 
@@ -82,12 +85,15 @@ export function coinedWalkClassicalDistribution(input: {
       np[0]![x - 1]! += c0
       np[1]![x + 1]! += c1
     }
+
     p[0] = np[0]!
     p[1] = np[1]!
   }
+
   const distribution = new Float64Array(W)
   for (let x = 0; x < W; x++) {
     distribution[x] = p[0]![x]! + p[1]![x]!
   }
+
   return { distribution, offset: off, width: W }
 }

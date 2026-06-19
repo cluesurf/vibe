@@ -16,6 +16,7 @@ export function decimate(input: {
       survivors.push(a)
     }
   }
+
   // subPoset relabels the survivors 0..k-1 and induces the order via precedes.
   return subPoset(input.poset, { elements: survivors })
 }

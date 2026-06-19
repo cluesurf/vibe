@@ -24,6 +24,7 @@ function halfInteger16(): number[][] {
       }
     }
   }
+
   return half
 }
 
@@ -77,5 +78,6 @@ export function vectorSetsEqual(
 ): boolean {
   const a = vectorSetKey(left)
   const b = vectorSetKey(right)
+
   return a.size === b.size && [...a].every(x => b.has(x))
 }

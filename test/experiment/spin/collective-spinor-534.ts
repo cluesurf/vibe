@@ -46,6 +46,7 @@ export function collectiveSpinor(): {
         }
       }
     }
+
     // every mode gives the same overlap (within rounding): the sign is mode-independent
     for (const overlap of overlaps) {
       if (Math.abs(overlap - overlaps[0]!) > 1e-9) {
@@ -53,6 +54,7 @@ export function collectiveSpinor(): {
       }
     }
   }
+
   return { oddFlipsEveryMode, evenPreservesEveryMode, modeIndependent }
 }
 
@@ -70,6 +72,7 @@ export default experiment({
       r.oddFlipsEveryMode &&
       r.evenPreservesEveryMode &&
       r.modeIndependent
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

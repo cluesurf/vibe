@@ -22,9 +22,11 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
         }
       }
     }
+
     if (max < 1e-14) {
       break
     }
+
     const app = a[p]![p]!
     const aqq = a[q]![q]!
     const apq = a[p]![q]!
@@ -37,6 +39,7 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
       a[k]![p] = c * akp - s * akq
       a[k]![q] = s * akp + c * akq
     }
+
     for (let k = 0; k < 3; k++) {
       const apk = a[p]![k]!
       const aqk = a[q]![k]!
@@ -44,6 +47,7 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
       a[q]![k] = s * apk + c * aqk
     }
   }
+
   return [a[0]![0]!, a[1]![1]!, a[2]![2]!]
 }
 
@@ -65,15 +69,18 @@ export function jacobiEigenvalues(
         off += a[p]![q]! * a[p]![q]!
       }
     }
+
     if (off < tolerance) {
       break
     }
+
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
         if (Math.abs(apq) < 1e-12) {
           continue
         }
+
         const phi = 0.5 * Math.atan2(2 * apq, a[q]![q]! - a[p]![p]!)
         const c = Math.cos(phi)
         const s = Math.sin(phi)
@@ -83,6 +90,7 @@ export function jacobiEigenvalues(
           a[k]![p] = c * kp - s * kq
           a[k]![q] = s * kp + c * kq
         }
+
         for (let k = 0; k < n; k++) {
           const pk = a[p]![k]!
           const qk = a[q]![k]!
@@ -92,6 +100,7 @@ export function jacobiEigenvalues(
       }
     }
   }
+
   return Array.from({ length: n }, (_, i) => a[i]![i]!).sort(
     (x, y) => x - y,
   )
@@ -126,15 +135,18 @@ export function eigSymmetric(input: {
         off += at(p, q) * at(p, q)
       }
     }
+
     if (off < 1e-24) {
       break
     }
+
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = at(p, q)
         if (Math.abs(apq) < 1e-300) {
           continue
         }
+
         const app = at(p, p)
         const aqq = at(q, q)
         const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
@@ -146,12 +158,14 @@ export function eigSymmetric(input: {
           setA(k, p, c * akp - s * akq)
           setA(k, q, s * akp + c * akq)
         }
+
         for (let k = 0; k < n; k++) {
           const apk = at(p, k)
           const aqk = at(q, k)
           setA(p, k, c * apk - s * aqk)
           setA(q, k, s * apk + c * aqk)
         }
+
         for (let k = 0; k < n; k++) {
           const vkp = v[k * n + p] ?? 0
           const vkq = v[k * n + q] ?? 0
@@ -166,6 +180,7 @@ export function eigSymmetric(input: {
   for (let i = 0; i < n; i++) {
     pairs.push({ value: at(i, i), col: i })
   }
+
   pairs.sort((x, y) => x.value - y.value)
 
   const values = new Float64Array(n)
@@ -175,10 +190,12 @@ export function eigSymmetric(input: {
     if (!pair) {
       continue
     }
+
     values[j] = pair.value
     for (let i = 0; i < n; i++) {
       vectors[i * n + j] = v[i * n + pair.col] ?? 0
     }
   }
+
   return { values, vectors }
 }

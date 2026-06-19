@@ -50,22 +50,27 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
           ny /= m
           nz /= m
         }
+
         out[s * 3] = nx
         out[s * 3 + 1] = ny
         out[s * 3 + 2] = nz
       }
     }
   }
+
   return out
 }
+
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
   c[0] = 2 / Math.PI
   for (let k = 1; 2 * k < M; k++) {
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
   }
+
   return c
 }
+
 function jackson(M: number): Float64Array {
   const g = new Float64Array(M),
     Np = M + 1
@@ -75,6 +80,7 @@ function jackson(M: number): Float64Array {
         Math.sin((Math.PI * n) / Np) / Math.tan(Math.PI / Np)) /
       Np
   }
+
   return g
 }
 
@@ -154,8 +160,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter')
+
     return
   }
+
   const device = await adapter.requestDevice()
   const mod = device.createShaderModule({ code: WGSL })
   const mk = (n: number): GPUBuffer =>
@@ -224,6 +232,7 @@ async function run(): Promise<void> {
     )
     device.queue.writeBuffer(uni, 24, new Uint32Array([mom, nPart]))
   }
+
   const wgN = Math.ceil(N / 64),
     wgF = Math.ceil(FN / 256)
 
@@ -262,6 +271,7 @@ async function run(): Promise<void> {
       pass.end()
       device.queue.submit([enc.finish()])
     }
+
     // mom0: dot(xi, t0=B[0]); mom1: t1=B[1]=(1/a)H B[0]; dot(xi,B[1])
     const dotOnly = (cur: GPUBuffer, mom: number): void => {
       setUni(0, 0, mom)
@@ -278,6 +288,7 @@ async function run(): Promise<void> {
       pass.end()
       device.queue.submit([enc.finish()])
     }
+
     dotOnly(B[0]!, 0)
     step(B[0]!, B[1]!, 1 / A, 0, B[0]!, 1, B[1]!) // t1 = (1/a) H t0 ; dot uses B[1]
     let i0 = 0,
@@ -288,6 +299,7 @@ async function run(): Promise<void> {
       i0 = i1
       i1 = itn
     }
+
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
     device.queue.submit([enc.finish()])
@@ -296,6 +308,7 @@ async function run(): Promise<void> {
       new Float32Array(stage.getMappedRange().slice(0)),
     )
     stage.unmap()
+
     return out
   }
 
@@ -313,6 +326,7 @@ async function run(): Promise<void> {
     for (let i = 0; i < FN; i++) {
       xd[i] = rng.next() < 0.5 ? -1 : 1
     }
+
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN)
     device.queue.writeBuffer(B[0]!, 0, xd)
@@ -325,25 +339,30 @@ async function run(): Promise<void> {
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
       }
     }
+
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
   }
+
   const deltaE = Rs.map((R, ri) => {
     let s = 0
     for (let n = 0; n < MCHEB; n++) {
       s += g[n]! * c[n]! * dMu[ri]![n]!
     }
+
     return [R, Math.round(-0.5 * A * s * 100) / 100] as [number, number]
   })
   console.log('\nDelta E_sea(R) (texture soliton, fermion sea):')
   for (const [R, dE] of deltaE) {
     console.log(`  R=${R}: ${dE}`)
   }
+
   let minI = 0
   for (let i = 1; i < deltaE.length; i++) {
     if (deltaE[i]![1] < deltaE[minI]![1]) {
       minI = i
     }
   }
+
   const hasMin = minI > 0 && minI < deltaE.length - 1
   console.log(`  minimum at R=${deltaE[minI]![0]} (interior=${hasMin})`)
   console.log(

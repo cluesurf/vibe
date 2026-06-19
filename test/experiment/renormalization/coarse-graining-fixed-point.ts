@@ -34,6 +34,7 @@ export function isingRG(input: { seed: number }): {
       seed: input.seed,
     })
     const exact = Math.atanh(Math.tanh(K) ** 2)
+
     return { K, kPrimeMeasured: measured, kPrimeExact: exact }
   })
   const matchesRecursion = steps.every(
@@ -53,9 +54,11 @@ export function isingRG(input: { seed: number }): {
     })
     flow.push(K)
   }
+
   const flowsToFixedPoint =
     Math.abs(flow[flow.length - 1] ?? 1) < 0.1 &&
     (flow[flow.length - 1] ?? 1) < (flow[0] ?? 0)
+
   return { steps, flow, matchesRecursion, flowsToFixedPoint }
 }
 
@@ -85,8 +88,10 @@ export function coarseGrainingFixedPoint(input: {
     dims.push(myrheimMeyerDimension({ poset }))
     sizes.push(poset.size)
   }
+
   const d0 = dims[0] ?? 0
   const dimensionInvariant = dims.every(d => Math.abs(d - d0) < 0.3)
+
   return { dims, sizes, dimensionInvariant }
 }
 
@@ -103,6 +108,7 @@ export function renormalization(input: { seed: number }): {
     levels: 4,
     seed: input.seed,
   })
+
   return {
     matchesRecursion: rg.matchesRecursion,
     flowsToFixedPoint: rg.flowsToFixedPoint,
@@ -130,6 +136,7 @@ export default experiment({
       r.matchesRecursion &&
       r.flowsToFixedPoint &&
       r.dimensionInvariant
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

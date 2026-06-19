@@ -36,6 +36,7 @@ function step(tone: Int8Array, f: number): void {
     if (m[v] || tone[v] === 0) {
       continue
     }
+
     const vx = v % L
     const vy = ((v / L) | 0) % L
     const vz = (v / (L * L)) | 0
@@ -47,6 +48,7 @@ function step(tone: Int8Array, f: number): void {
       if (m[w]) {
         continue
       }
+
       const a = tone[v]!
       const b = tone[w]!
       if (a === -b && a !== 0) {
@@ -56,6 +58,7 @@ function step(tone: Int8Array, f: number): void {
         m[w] = 1
         break
       }
+
       if (a !== 0 && b === 0) {
         tone[w] = a as -1 | 1
         tone[v] = 0
@@ -87,8 +90,10 @@ function run(): void {
     const z1 = oy * sinx + oz * cosx
     const x2 = ox * cosy + z1 * siny
     const z2 = -ox * siny + z1 * cosy
+
     return [IMG / 2 + x2 * scale, IMG / 2 - y1 * scale, z2]
   }
+
   const PX = new Int32Array(N)
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
@@ -105,6 +110,7 @@ function run(): void {
       }
     }
   }
+
   const order = Array.from({ length: N }, (_, i) => i).sort(
     (a, b) => z2arr[a]! - z2arr[b]!,
   )
@@ -123,6 +129,7 @@ function run(): void {
       }
     }
   }
+
   const edges: [number, number][] = [
     [0, 1],
     [2, 3],
@@ -151,9 +158,11 @@ function run(): void {
   for (const [x, y, z, s] of seeds) {
     tone[idx(x, y, z)] = s as -1 | 1
   }
+
   for (let k = 0; k < 6; k++) {
     tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1
   } // a 7-cell cluster glider
+
   tone[idx(8, 45, 45)] = 1
 
   const trail = new Float32Array(N)
@@ -202,12 +211,14 @@ function run(): void {
         if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
           continue
         }
+
         const pix = iy * IMG + ix
         accR[pix] = 26
         accG[pix] = 28
         accB[pix] = 34
       }
     }
+
     for (const [a, b] of edges) {
       drawLine(
         corners[a]![0],
@@ -224,6 +235,7 @@ function run(): void {
       if (tr < 0.03) {
         continue
       }
+
       const col = tsign[cell] === 1 ? BLUE : RED
       const d = DEPTH[cell]!
       const a = Math.min(0.95, ALPHA * tr)
@@ -237,6 +249,7 @@ function run(): void {
           if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
             continue
           }
+
           const pix = iy * IMG + ix
           accR[pix] = accR[pix]! * (1 - a) + col[0] * d * a
           accG[pix] = accG[pix]! * (1 - a) + col[1] * d * a
@@ -244,6 +257,7 @@ function run(): void {
         }
       }
     }
+
     const rgba = new Uint8Array(IMG * IMG * 4)
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = Math.min(255, 6 + accR[i]!)
@@ -251,10 +265,12 @@ function run(): void {
       rgba[i * 4 + 2] = Math.min(255, 7 + accB[i]!)
       rgba[i * 4 + 3] = 255
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     step(tone, f)
   }
+
   console.log(
     `wrote ${FRAMES} frames of 3D gliders in the {3,4,3,4} cusp, assemble with task/render-video.sh`,
   )

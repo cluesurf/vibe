@@ -41,6 +41,7 @@ function makeLandscape(L: number): {
       V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
     } // rise to global peak 1.0 at the goal
   }
+
   const start = Math.floor(L * 0.1)
   // the lookahead must see from the local peak to where the value RECOVERS above the local peak (past the
   // valley), that crossing distance is what the planner's horizon must span
@@ -52,7 +53,9 @@ function makeLandscape(L: number): {
       break
     }
   }
+
   const barrierWidth = recover - localPeak
+
   return { V, start, goal, localPeak, barrierWidth }
 }
 
@@ -73,12 +76,15 @@ function runAgent(
         if (q < 0 || q > L) {
           break
         }
+
         if (V[q]! > best) {
           best = V[q]!
         }
       }
+
       return best
     }
+
     const up = horizonBest(1)
     const down = horizonBest(-1)
     const here = V[pos]!
@@ -86,8 +92,10 @@ function runAgent(
     if (up <= here && down <= here) {
       break
     } // stuck, no reachable improvement within the horizon
+
     pos += up >= down ? 1 : -1
   }
+
   return { finalPos: pos, finalV: V[pos]!, steps: 0 }
 }
 
@@ -122,6 +130,7 @@ export function detourPlanning(input?: { L?: number }): {
       thresholdK = K
     }
   }
+
   const plannerK = Math.max(thresholdK, barrierWidth + 2)
   const planner = runAgent(V, start, plannerK)
   const plannerReachedGoal = planner.finalPos >= goal - 1
@@ -160,6 +169,7 @@ export default experiment({
     const r = detourPlanning({ L: 40 })
     const ok =
       r.solved && r.plannerBeatsGreedy && r.thresholdMatchesBarrier
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

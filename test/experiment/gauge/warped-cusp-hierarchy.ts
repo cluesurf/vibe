@@ -82,8 +82,10 @@ export default experiment({
       for (let direction = 0; direction < mesh.degree; direction++) {
         row.push(mesh.neighbour(cell, direction))
       }
+
       flatNeighbors.push(row)
     }
+
     const flat = boundStateDecayExponent({
       neighbors: flatNeighbors,
       cellCount: mesh.cellCount,

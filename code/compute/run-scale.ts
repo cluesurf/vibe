@@ -25,6 +25,7 @@ async function benchOne(
       `buffer ${(byteLength / 1e6).toFixed(0)}MB over device limit ${(Number(device.limits.maxStorageBufferBindingSize) / 1e6).toFixed(0)}MB`,
     )
   }
+
   // 2D dispatch so the workgroup count per dimension stays under 65535
   const groups = Math.ceil(count / WORKGROUP)
   const gx = Math.min(groups, 65535)
@@ -83,6 +84,7 @@ async function benchOne(
     pass.end()
     device.queue.submit([enc.finish()])
   }
+
   await device.queue.onSubmittedWorkDone()
 
   const start = performance.now()
@@ -97,10 +99,12 @@ async function benchOne(
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
+
   await device.queue.onSubmittedWorkDone()
   const seconds = (performance.now() - start) / 1000
   bufs[0]!.destroy()
   bufs[1]!.destroy()
+
   return { cells: count, beatsPerSec: BENCH_BEATS / seconds, ok: true }
 }
 
@@ -108,8 +112,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
   console.log('flat field GPU scale sweep')
   console.log(

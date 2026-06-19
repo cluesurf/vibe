@@ -26,6 +26,7 @@ export function cyclicRotations(
     for (let r = 0; r < count; r++) {
       out.push(ring.slice(r) + ring.slice(0, r))
     }
+
     return out
   }
 }
@@ -44,6 +45,7 @@ export function doubleRingRotations(
         a.slice(r) + a.slice(0, r) + (b.slice(r) + b.slice(0, r)),
       )
     }
+
     return out
   }
 }
@@ -77,12 +79,14 @@ export function compileMargensternCa(input: {
         `${name}: rule "${rule}" is not ${neighbourLen + 2} long`,
       )
     }
+
     const current = rule[0]!
     const neighbours = rule.slice(1, 1 + neighbourLen)
     const next = rule[1 + neighbourLen]!
     for (const ch of rule) {
       states.add(ch)
     }
+
     const key = current + neighbours
     const existing = table.get(key)
     if (existing !== undefined && existing !== next) {
@@ -91,11 +95,14 @@ export function compileMargensternCa(input: {
           `${name}: rule conflict at ${key}: ${existing} vs ${next} (rule ${rule})`,
         )
       }
+
       conflicts++
       continue // keep the first occurrence
     }
+
     table.set(key, next)
   }
+
   return {
     name,
     states: [...states].sort(),
@@ -115,6 +122,7 @@ export function compileMargensternCa(input: {
           return hit
         }
       }
+
       return current
     },
   }

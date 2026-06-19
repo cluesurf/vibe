@@ -21,6 +21,7 @@ export function leapfrogWaveStep(
     const right = u[(i + 1) % L]!
     next[i] = 2 * u[i]! - uPrev[i]! + r2 * (left + right - 2 * u[i]!)
   }
+
   return next
 }
 
@@ -33,8 +34,10 @@ export function blockAverage(u: Float64Array, b: number): Float64Array {
     for (let j = 0; j < b; j++) {
       s += u[I * b + j]!
     }
+
     out[I] = s / b
   }
+
   return out
 }
 
@@ -54,6 +57,7 @@ export function evolveLeapfrogWave(input: {
     uPrev = u
     u = next
   }
+
   return u
 }
 
@@ -84,6 +88,7 @@ export function leapfrogWaveCommutingError(input: {
     r2,
     steps: K,
   })
+
   return relativeL2Error(A, B)
 }
 
@@ -107,8 +112,10 @@ export function leapfrogWaveLevelSpeed(input: {
         f = i
       }
     }
+
     return f
   }
+
   const start = blockAverage(u0, b)
   const f0 = frontOf(start)
   const end = evolveLeapfrogWave({
@@ -118,5 +125,6 @@ export function leapfrogWaveLevelSpeed(input: {
     steps,
   })
   const f1 = frontOf(end)
+
   return (f1 - f0) / steps
 }

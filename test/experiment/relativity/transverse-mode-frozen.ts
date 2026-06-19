@@ -60,6 +60,7 @@ function trace(
       series[series.length - 1]!,
     )
   }
+
   return { minAmplitude, finalAmplitude }
 }
 
@@ -77,6 +78,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const collision = headOnRotate({ opposite })
 
     // the longitudinal (spin-0 sound) mode, the positive control, it propagates

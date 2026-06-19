@@ -31,6 +31,7 @@ const RIGHT_SPINE = new Set<number>()
     LEFT_SPINE.add(n)
     n = sons(n)[0]!
   }
+
   n = 1
   for (let i = 0; i < 90; i++) {
     RIGHT_SPINE.add(n)
@@ -54,6 +55,7 @@ export function pentagridNeighbors(tile: PentaTile): PentaTile[] {
       { q: qm, n: 1 },
     ]
   }
+
   const f = father(n)
   const c = continuator(n)
   const t = nodeType(n)
@@ -67,6 +69,7 @@ export function pentagridNeighbors(tile: PentaTile): PentaTile[] {
       { q, n: c + 2 },
     ]
   }
+
   if (RIGHT_SPINE.has(n)) {
     // the right lateral crosses into quarter q-1
     return [
@@ -77,6 +80,7 @@ export function pentagridNeighbors(tile: PentaTile): PentaTile[] {
       { q: qm, n: f + 1 },
     ]
   }
+
   // an interior tile, all five neighbours in quarter q (the left lateral is f-1 for a 2-node, c-1 for a 3-node)
   return [
     { q, n: f },
@@ -115,6 +119,7 @@ export function buildPentagridPure(input: { maxCells: number }): {
       if (nb.n < 1) {
         continue
       }
+
       const k = key(nb)
       let id = idOf.get(k)
       if (id === undefined) {
@@ -122,23 +127,28 @@ export function buildPentagridPure(input: { maxCells: number }): {
           hit = true
           continue
         }
+
         id = tiles.length
         idOf.set(k, id)
         tiles.push(nb)
         neighbors.push([])
       }
+
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
       }
     }
+
     if (hit) {
       break
     }
   }
+
   let facetCount = 0
   for (const row of neighbors) {
     facetCount = Math.max(facetCount, row.length)
   }
+
   return { cellCount: tiles.length, neighbors, tiles, facetCount }
 }

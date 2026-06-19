@@ -13,6 +13,7 @@ function hubble(rhos: number[]): number {
   for (const r of rhos) {
     tot += r
   }
+
   return Math.sqrt(Math.max(0, tot))
 }
 
@@ -26,15 +27,18 @@ export function friedmannStep(input: {
   const { a, rhos, comps, dt } = input
   const deriv = (rs: number[]): { da: number; dr: number[] } => {
     const h = hubble(rs)
+
     return {
       da: a * h,
       dr: rs.map((r, i) => -3 * h * (1 + (comps[i]?.w ?? 0)) * r),
     }
   }
+
   const k1 = deriv(rhos)
   const k2 = deriv(rhos.map((r, i) => r + 0.5 * dt * (k1.dr[i] ?? 0)))
   const k3 = deriv(rhos.map((r, i) => r + 0.5 * dt * (k2.dr[i] ?? 0)))
   const k4 = deriv(rhos.map((r, i) => r + dt * (k3.dr[i] ?? 0)))
+
   return {
     a: a + (dt / 6) * (k1.da + 2 * k2.da + 2 * k3.da + k4.da),
     rhos: rhos.map(
@@ -86,6 +90,7 @@ export function integrateFriedmann(input: {
     rhos = next.rhos
     time += input.dt
   }
+
   return { t, a, rho: rhoTot, p: pTot }
 }
 
@@ -103,5 +108,6 @@ export function decelerationParameter(input: {
   const aNext = a[i + 1] ?? 0
   const adot = (aNext - aPrev) / (2 * dt)
   const addot = (aNext - 2 * aCur + aPrev) / (dt * dt)
+
   return (-addot * aCur) / Math.max(1e-12, adot * adot)
 }

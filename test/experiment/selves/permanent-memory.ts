@@ -66,6 +66,7 @@ export function permanentMemory(input?: { n?: number }): {
   for (let i = 0; i < N; i++) {
     target[i] = rngT.next() < 0.5 ? 1 : -1
   }
+
   // balance to Q = 0
   let q = sumTone(target)
   for (let i = 0; i < N && q !== 0; i++) {
@@ -88,6 +89,7 @@ export function permanentMemory(input?: { n?: number }): {
   for (let b = 0; b < beats; b++) {
     beat(a, eu, ev, g.offsets, g.adj, moved, rngA)
   }
+
   const unmaintainedFidelity = targetFidelity(a, target)
   const conservedA = sumTone(a) === qa
 
@@ -102,6 +104,7 @@ export function permanentMemory(input?: { n?: number }): {
       maintenanceSwaps += conservingMaintainToTarget(bm, target, N)
     }
   }
+
   const maintainedFidelity = targetFidelity(bm, target)
   const conservedB = sumTone(bm) === qb
 
@@ -138,6 +141,7 @@ export default experiment({
       r.conserved &&
       r.permanentWithMaintenance &&
       r.decaysWithout
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

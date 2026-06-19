@@ -27,6 +27,7 @@ function sumTone(tone: Int8Array, cells: number[]): number {
   for (const c of cells) {
     s += tone[c]!
   }
+
   return s
 }
 
@@ -70,6 +71,7 @@ export default experiment({
           selfE.push(sumTone(tone, part.exterior))
         }
       }
+
       ctrlI.push(sumTone(tone, controlPart.interior))
       ctrlS.push(sumTone(tone, controlPart.shell))
       ctrlE.push(sumTone(tone, controlPart.exterior))
@@ -88,6 +90,7 @@ export default experiment({
 
     const ok =
       self.reduction > control.reduction + 0.1 && self.reduction > 0.3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

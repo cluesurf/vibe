@@ -74,6 +74,7 @@ export default experiment({
         for (const t of neighborhood) {
           parity ^= t & 1
         }
+
         return (self ^ parity) & 1
       },
     })
@@ -85,6 +86,7 @@ export default experiment({
       rng,
     })
     const ok = radius <= 2.5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

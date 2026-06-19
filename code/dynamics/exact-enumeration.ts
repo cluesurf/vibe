@@ -28,6 +28,7 @@ export function exactCausalSetAverages(input: {
       pairs.push([i, j])
     }
   }
+
   const P = pairs.length
   const total = 1 << P
 
@@ -53,6 +54,7 @@ export function exactCausalSetAverages(input: {
         }
       }
     }
+
     // Transitivity check over increasing triples.
     let transitive = true
     for (let i = 0; i < n && transitive; i++) {
@@ -60,6 +62,7 @@ export function exactCausalSetAverages(input: {
         if (!rel[i]![j]) {
           continue
         }
+
         for (let k = j + 1; k < n; k++) {
           if (rel[j]![k] && !rel[i]![k]) {
             transitive = false
@@ -68,9 +71,11 @@ export function exactCausalSetAverages(input: {
         }
       }
     }
+
     if (!transitive) {
       continue
     }
+
     count += 1
 
     // Build the poset and evaluate the action and observers.
@@ -82,6 +87,7 @@ export function exactCausalSetAverages(input: {
         }
       }
     }
+
     const poset = makePosetFromFuture({ size: n, future })
     const s = input.action.value({ poset })
     const obs = input.observers.map(f => f({ poset }))
@@ -98,7 +104,9 @@ export function exactCausalSetAverages(input: {
 
   const means: number[][] = Array.from({ length: B }, (_unused, b) => {
     const zb = z[b] ?? 0
+
     return (weighted[b] ?? []).map(x => (zb > 0 ? x / zb : 0))
   })
+
   return { count, z, means }
 }

@@ -60,8 +60,10 @@ export default experiment({
         0,
         new Set(kill.slice(1)),
       )
+
       return killsRoot && oneFewerRecovers ? kill.length : -1
     }
+
     const distance1 = distanceAt(1) // expect 3
     const distance2 = distanceAt(2) // expect 9
     const distance3 = distanceAt(3) // expect 27

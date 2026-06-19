@@ -42,8 +42,10 @@ export function s534Dynamics(): {
         }
       }
     } // stream to neighbor (placed on its returning slot)
+
     charge = next
   }
+
   const t1 = total(charge)
   const chargeConserved = t0 === t1
   // (2) light cone, a single seed spreads one BFS shell per beat -> speed z=1
@@ -55,6 +57,7 @@ export function s534Dynamics(): {
       center = i
     }
   }
+
   const dist = new Int32Array(N).fill(-1)
   dist[center] = 0
   let fr = [center]
@@ -69,11 +72,13 @@ export function s534Dynamics(): {
         }
       }
     }
+
     fr = nf
     if (nf.length) {
       radius++
     }
   }
+
   const lightSpeed = 1 // one shell per beat, by construction of the local rule (finite, z=1)
   // (3) churn, mod-3 wave from random init does not freeze
   let cur = new Int8Array(N),
@@ -81,6 +86,7 @@ export function s534Dynamics(): {
   for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }
+
   const { offsets: off, adj } = toCsr(nb)
   let changes = 0
   for (let t = 0; t < 30; t++) {
@@ -90,16 +96,20 @@ export function s534Dynamics(): {
       for (let q = off[i]!; q < off[i + 1]!; q++) {
         s += cur[adj[q]!]!
       }
+
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
       nx[i] = v
       if (v !== cur[i]!) {
         changes++
       }
     }
+
     prev = cur
     cur = nx
   }
+
   const churns = changes > N // many changes over 30 beats -> not frozen
+
   return { chargeConserved, lightSpeed, churns }
 }
 
@@ -114,6 +124,7 @@ export default experiment({
   run() {
     const r = s534Dynamics()
     const ok = r.chargeConserved && r.churns
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

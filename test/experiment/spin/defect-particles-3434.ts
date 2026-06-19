@@ -21,6 +21,7 @@ type Z = Complex2
 const winding = (theta: number[]): number => phaseWinding(theta)
 const phase = (z: Z): number => Math.atan2(z.im, z.re)
 const energy = (psi: Z[]): number => ringFieldEnergy(psi)
+
 function relax(
   psi: Z[],
   steps: number,
@@ -34,8 +35,10 @@ function relax(
     sampleEvery: 500,
     onSample: cur => hist.push(winding(cur.map(phase))),
   })
+
   return { hist, final }
 }
+
 const fieldWithWinding = (L: number, w: number): Z[] =>
   ringFieldWithWinding(L, w)
 const defectPair = (L: number): Z[] => ringDefectPair(L)
@@ -89,6 +92,7 @@ export default experiment({
     const r = defectParticles()
     const ok =
       r.pairAnnihilates && r.likeChargesPersist && r.chargeConserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

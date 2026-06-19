@@ -21,11 +21,13 @@ function smearedKernel2D(n: number, eps: number): number {
   if (oneMinus <= 0) {
     return n === 0 ? 1 : 0
   }
+
   const base = Math.pow(oneMinus, n)
   const term =
     1 -
     (2 * eps * n) / oneMinus +
     (eps * eps * n * (n - 1)) / (2 * oneMinus * oneMinus)
+
   return base * term
 }
 
@@ -33,6 +35,7 @@ function popcount32(x: number): number {
   let v = x - ((x >>> 1) & 0x55555555)
   v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
   v = (v + (v >>> 4)) & 0x0f0f0f0f
+
   return (v * 0x01010101) >>> 24
 }
 
@@ -60,6 +63,7 @@ export function makeState(
       }
     }
   }
+
   return { size, stride: future.stride, future, past }
 }
 
@@ -77,6 +81,7 @@ function rowSubset(
       return false
     }
   }
+
   return true
 }
 
@@ -93,11 +98,13 @@ function rowsDisjoint(
       return false
     }
   }
+
   return true
 }
 
 export function isRelated(state: State, i: number, j: number): boolean {
   const word = state.future.words[i * state.stride + (j >>> 5)] ?? 0
+
   return (word & (1 << (j & 31))) !== 0
 }
 
@@ -129,6 +136,7 @@ export function toggleKeepsValid(
       s,
     )
   }
+
   return (
     rowSubset(state.past.words, i * s, j * s, s) &&
     rowSubset(state.future.words, j * s, i * s, s)
@@ -141,6 +149,7 @@ function relationCount(state: State): number {
   for (let i = 0; i < words.length; i++) {
     total += popcount32(words[i] ?? 0)
   }
+
   return total
 }
 
@@ -164,10 +173,12 @@ export function height(state: State): number {
             max = lv + 1
           }
         }
+
         bits ^= bit
       }
     }
   }
+
   return max
 }
 
@@ -192,11 +203,13 @@ export function smearedAction(state: State, eps: number): number {
               (state.past.words[bBase + v] ?? 0),
           )
         }
+
         sum += smearedKernel2D(inter, eps)
         bits ^= bit
       }
     }
   }
+
   return -n / 2 + eps * sum
 }
 
@@ -249,11 +262,13 @@ export function sampleUniform(input: {
     if (i === j) {
       j = (j + 1) % n
     }
+
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
     if (lo === hi) {
       continue
     }
+
     const related = isRelated(state, lo, hi)
     if (toggleKeepsValid(state, lo, hi, related)) {
       if (!useAction) {
@@ -290,6 +305,7 @@ export function sampleUniform(input: {
         actLaySum += act
         actLayN += 1
       }
+
       ofSum += pairsTotal > 0 ? relationCount(state) / pairsTotal : 0
       actionSum += act
       samples += 1

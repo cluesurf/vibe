@@ -15,6 +15,7 @@ export function projectiveMultiply(
   p: number,
 ): ProjectiveMatrix {
   const mod = (x: number): number => ((x % p) + p) % p
+
   return [
     mod(A[0] * B[0] + A[1] * B[2]),
     mod(A[0] * B[1] + A[1] * B[3]),
@@ -39,6 +40,7 @@ export function projectiveCanonicalKey(
   ]
   const lead = (m: ProjectiveMatrix): number => m.find(x => x !== 0)!
   const chosen = lead(M) <= Math.floor(p / 2) ? M : neg
+
   return chosen.join(',')
 }
 
@@ -46,6 +48,7 @@ export function projectiveCanonicalKey(
 // unipotents), for the common closed-manifold construction.
 export function standardPslGenerators(p: number): ProjectiveMatrix[] {
   const m = ((-1 % p) + p) % p
+
   return [
     [1, 1, 0, 1],
     [1, m, 0, 1],
@@ -84,6 +87,7 @@ export function pslCayleyGraph(input: {
       }
     }
   }
+
   const keys = [...elems.keys()]
   const id = new Map(keys.map((k, i) => [k, i]))
   const matrices = keys.map(k => elems.get(k)!)
@@ -92,7 +96,9 @@ export function pslCayleyGraph(input: {
     for (const gen of generators) {
       ns.add(id.get(key(projectiveMultiply(gen, M, p)))!)
     }
+
     return [...ns]
   })
+
   return { matrices, adjacency, keys }
 }

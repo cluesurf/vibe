@@ -22,8 +22,10 @@ export function buildViscousQuads(directions: number[][]): number[][] {
       sum[axis] =
         (directions[a]![axis] ?? 0) + (directions[b]![axis] ?? 0)
     }
+
     return sum.map(value => Math.round(value)).join(',')
   }
+
   // group the unordered slot-pairs by their total momentum
   const groups = new Map<string, Array<[number, number]>>()
   for (let a = 0; a < count; a++) {
@@ -32,18 +34,22 @@ export function buildViscousQuads(directions: number[][]): number[][] {
       if (!groups.has(key)) {
         groups.set(key, [])
       }
+
       groups.get(key)!.push([a, b])
     }
   }
+
   const zeroKey = new Array<number>(dimension).fill(0).join(',')
   // process nonzero-momentum groups first (they give viscosity), then the zero-momentum group
   const orderedKeys = [...groups.keys()].sort((left, right) => {
     if (left === zeroKey) {
       return 1
     }
+
     if (right === zeroKey) {
       return -1
     }
+
     return 0
   })
   const quads: number[][] = []
@@ -54,6 +60,7 @@ export function buildViscousQuads(directions: number[][]): number[][] {
       if (used[a] || used[b]) {
         continue
       }
+
       pending.push([a, b])
       if (pending.length === 2) {
         const [p1, p2] = pending
@@ -66,6 +73,7 @@ export function buildViscousQuads(directions: number[][]): number[][] {
       }
     }
   }
+
   return quads
 }
 
@@ -86,12 +94,14 @@ export function controlledViscousRotate(input: {
   if (controlPool.length === 0) {
     return viscousRotate(input)
   } // no control slots free, fall back
+
   return (slots, base) => {
     for (let i = 0; i < gated.length; i++) {
       const control = controlPool[i % controlPool.length]!
       if (slots[base + control] !== 1) {
         continue
       }
+
       const quad = gated[i]!
       const a = base + quad[0]!,
         b = base + quad[1]!,
@@ -122,6 +132,7 @@ export function viscousRotate(input: {
   directions: number[][]
 }): Collision {
   const quads = buildViscousQuads(input.directions)
+
   return (slots, base) => {
     for (const quad of quads) {
       const a = base + quad[0]!,

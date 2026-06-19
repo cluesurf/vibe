@@ -29,9 +29,11 @@ function pairingTerm(input: {
   if (zEven && nEven) {
     return PAIRING / Math.sqrt(a)
   }
+
   if (!zEven && !nEven) {
     return -PAIRING / Math.sqrt(a)
   }
+
   return 0
 }
 
@@ -48,6 +50,7 @@ export function nuclearBindingEnergy(input: {
     input.includeCoulomb === false
       ? 0
       : (COULOMB * z * (z - 1)) / Math.cbrt(a)
+
   return (
     VOLUME * a -
     SURFACE * Math.pow(a, 2 / 3) -
@@ -81,6 +84,7 @@ export function bindingPerNucleonAtMass(input: {
       best = { protonNumber: z, bindingPerNucleon: bpa }
     }
   }
+
   return best
 }
 
@@ -111,5 +115,6 @@ export function bindingCurvePeak(
       }
     }
   }
+
   return best
 }

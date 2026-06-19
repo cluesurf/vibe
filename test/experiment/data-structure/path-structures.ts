@@ -25,6 +25,7 @@ export default experiment({
       node = a.children[node]![0]!
       path.push(node)
     }
+
     // every step is to a physical child (a neighbour), and the depth increases by one per push (LIFO height)
     let everyStepIsChild = true
     let depthIncrements = true
@@ -32,10 +33,12 @@ export default experiment({
       if (a.parent[path[i]!] !== path[i - 1]!) {
         everyStepIsChild = false
       }
+
       if (a.dist[path[i]!] !== a.dist[path[i - 1]!]! + 1) {
         depthIncrements = false
       }
     }
+
     // pop reverses exactly: the parent of each cell is the previous on the stack
     let popReverses = true
     for (let i = path.length - 1; i > 0; i--) {

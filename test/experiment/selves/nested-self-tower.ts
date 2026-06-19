@@ -66,8 +66,10 @@ export default experiment({
         g[i] = g[j]!
         g[j] = t
       }
+
       return g
     }
+
     const mesoR = coarseGrainTpm({
       tpm: micro,
       groups: shuffle(fine, 12),

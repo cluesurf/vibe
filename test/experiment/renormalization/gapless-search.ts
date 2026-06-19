@@ -62,6 +62,7 @@ export function gaplessSearch(input?: {
         | 0
         | 1
     }
+
     for (let t = 0; t < 400; t++) {
       conservingRingSweepTunable({
         tone,
@@ -73,6 +74,7 @@ export function gaplessSearch(input?: {
         hop: 0.5,
       })
     }
+
     const T = 2500
     let nz = 0
     const c = timeAveragedRingCorrelation({
@@ -86,6 +88,7 @@ export function gaplessSearch(input?: {
             nz++
           }
         }
+
         conservingRingSweepTunable({
           tone,
           length: L,
@@ -105,14 +108,17 @@ export function gaplessSearch(input?: {
           rng2 = r
         }
       }
+
       return rng2
     }
+
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
     const range = Math.max(rangeOf(c), rangeOf(cStag))
     // correlation length from the slower-decaying of direct / staggered |C(r)| over r=1..8
     const xiOf = (cc: number[]): number =>
       correlationLengthFromDecay({ correlation: cc, rLo: 1, rHi: 8 })
     const xi = Math.max(xiOf(c), xiOf(cStag))
+
     return { range, xi: isFinite(xi) ? xi : 99, density: nz / (L * T) }
   }
 
@@ -129,6 +135,7 @@ export function gaplessSearch(input?: {
       grid.push({ arrow, share, density, range, correlationLength: xi })
     }
   }
+
   const best = grid.reduce((a, b) => (b.range > a.range ? b : a))
   const maxRange = best.range
   const gaplessFound = maxRange >= 5 // a genuinely long-range regime (vs the massive range ~1)
@@ -157,6 +164,7 @@ export default experiment({
   run() {
     const r = gaplessSearch({ L: 600 })
     const ok = r.solved && r.robustlyMassive && !r.gaplessFound
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -18,10 +18,12 @@ export function cellOutlines(polygons: Vec[][]): SceneEdge[] {
       if (seen.has(key)) {
         continue
       }
+
       seen.add(key)
       edges.push({ a, b })
     }
   }
+
   return edges
 }
 
@@ -45,6 +47,7 @@ export function layoutWedges(
     )
     wedges[w]!.push({ cell, radius: Math.hypot(x, y) })
   }
+
   return wedges.map(list =>
     list.sort((p, q) => p.radius - q.radius).map(e => e.cell),
   )
@@ -73,6 +76,7 @@ export function drawCentralNumber(input: {
     bx += v[0] ?? 0
     by += v[1] ?? 0
   }
+
   bx /= centralPolygon.length
   by /= centralPolygon.length
   let inradiusBall = Infinity
@@ -83,6 +87,7 @@ export function drawCentralNumber(input: {
     const my = ((a[1] ?? 0) + (b[1] ?? 0)) / 2 - by
     inradiusBall = Math.min(inradiusBall, Math.hypot(mx, my))
   }
+
   const scalePx = (size / 2) * margin
   const centerX = size / 2 + scalePx * bx
   const centerY = size / 2 - scalePx * by
@@ -142,12 +147,14 @@ function drawNumber(
     if (!rows) {
       continue
     }
+
     const gx = x0 + d * (glyphW + gap)
     for (let ry = 0; ry < 7; ry++) {
       for (let rx = 0; rx < 5; rx++) {
         if (rows[ry]![rx] !== '1') {
           continue
         }
+
         fillRect(
           rgba,
           size,
@@ -175,10 +182,12 @@ function fillRect(
     if (yy < 0 || yy >= size) {
       continue
     }
+
     for (let xx = x; xx < x + w; xx++) {
       if (xx < 0 || xx >= size) {
         continue
       }
+
       const o = (yy * size + xx) * 4
       rgba[o] = color[0]
       rgba[o + 1] = color[1]

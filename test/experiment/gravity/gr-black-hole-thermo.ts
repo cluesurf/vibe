@@ -41,6 +41,7 @@ function areaLawPrecondition(): {
   for (let l = 6; l <= n / 2; l += 4) {
     lengths.push(l)
   }
+
   const h = staggeredMassChainHamiltonian({ n, mass: 0.7 })
   const c = freeFermionCorrelationMatrix({ h, n })
   const entropies = lengths.map(len =>
@@ -53,6 +54,7 @@ function areaLawPrecondition(): {
   const late = entropies.slice(Math.floor(entropies.length / 2))
   const massiveSpread = Math.max(...late) - Math.min(...late)
   const volumeRate = Math.log(2)
+
   return {
     massiveSpread,
     volumeRate,
@@ -71,6 +73,7 @@ function firstLaw(): { maxRelError: number; ok: boolean } {
       Math.abs(predicted - 2 * dM) / (2 * dM),
     )
   }
+
   return { maxRelError, ok: maxRelError < 1e-4 }
 }
 
@@ -82,6 +85,7 @@ function smarr(): { maxRelError: number; ok: boolean } {
       Math.abs(M - 2 * hawkingTemp(M) * bhEntropy(M)) / M,
     )
   }
+
   return { maxRelError, ok: maxRelError < 1e-9 }
 }
 
@@ -94,6 +98,7 @@ function bekensteinSaturation(): { maxRelError: number; ok: boolean } {
       Math.abs(bhEntropy(M) - bound) / bound,
     )
   }
+
   return { maxRelError, ok: maxRelError < 1e-9 }
 }
 
@@ -101,6 +106,7 @@ function heatCapacityNegative(): boolean {
   const M = 5
   const dM = 1e-6
   const c = 1 / ((hawkingTemp(M + dM) - hawkingTemp(M - dM)) / (2 * dM))
+
   return c < 0
 }
 
@@ -108,6 +114,7 @@ function evaporationExponent(): { exponent: number; ok: boolean } {
   const lifetimeOf = (M0: number): number =>
     schwarzschildEvaporationLifetime({ mass: M0 })
   const exponent = Math.log(lifetimeOf(4) / lifetimeOf(2)) / Math.log(2)
+
   return { exponent, ok: Math.abs(exponent - 3) < 0.1 }
 }
 
@@ -120,6 +127,7 @@ function deSitterFromSubstrate(): { H: number; Lambda: number } {
   })
   const H = Math.log(R) / 3
   const horizon = deSitterHorizon(H)
+
   return { H, Lambda: horizon.cosmologicalConstant }
 }
 
@@ -146,6 +154,7 @@ export default experiment({
       bek.ok &&
       negativeHeatCapacity &&
       ev.ok
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

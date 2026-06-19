@@ -49,6 +49,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
     const adj = torusGrid(spec.target, spec.L)
     const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
     const sd = shellDimension({ shell, rLo: spec.rLo, rHi: spec.rHi })
+
     return { target: spec.target, measured: sd.dimension, r2: sd.r2 }
   })
 
@@ -64,6 +65,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
       rLo: spec.rLo,
       rHi: spec.rHi,
     })
+
     return {
       name: spec.name,
       powerR2: shellPowerR2({ shell, rLo: spec.rLo, rHi: spec.rHi }),
@@ -108,6 +110,7 @@ export default experiment({
       Math.abs((d2?.measured ?? 0) - 2) < 0.2 &&
       Math.abs((d3?.measured ?? 0) - 3) < 0.2 &&
       Math.abs((d4?.measured ?? 0) - 4) < 0.2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

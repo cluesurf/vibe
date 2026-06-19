@@ -29,6 +29,7 @@ function lowestEigenpairs(
   for (let r = 0; r < N; r++) {
     shift = Math.max(shift, -V[r]! + 2 * t + 1)
   }
+
   return lowestEigenpairsOf({
     operator: {
       size: N,
@@ -47,6 +48,7 @@ function spread(state: Float64Array, center: number): number {
   for (let r = 0; r < state.length; r++) {
     s += Math.abs(r - center) * state[r]! * state[r]!
   }
+
   return s
 }
 
@@ -80,6 +82,7 @@ export function boundComposite(input?: {
         V[r] = -V0
       }
     }
+
     return V
   }
 
@@ -99,13 +102,16 @@ export function boundComposite(input?: {
   // a SHALLOW vs DEEP well, count discrete bound levels (E < band bottom) = the atom's internal levels
   const countBound = (V0: number): number => {
     const eigs = lowestEigenpairs(wellOf(V0), t, 4, 2)
+
     return eigs.filter(e => e.energy < bandBottom - 1e-4).length
   }
+
   const boundLevelsShallow = countBound(0.6)
   const boundLevelsDeep = countBound(4.0)
   const discreteInternalLevels = boundLevelsDeep >= 2 // multiple discrete internal energy levels
 
   const solved = trueBoundState && localized && discreteInternalLevels
+
   return {
     N,
     bandBottom,
@@ -137,6 +143,7 @@ export default experiment({
       r.trueBoundState &&
       r.localized &&
       r.discreteInternalLevels
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

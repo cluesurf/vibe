@@ -37,6 +37,7 @@ function bitLength(x: bigint): number {
   if (x <= 0n) {
     return 1
   }
+
   return x.toString(2).length
 }
 
@@ -46,6 +47,7 @@ function wordWidth(...values: bigint[]): number {
   for (const v of values) {
     bits = Math.max(bits, bitLength(v))
   }
+
   return bits
 }
 
@@ -69,6 +71,7 @@ export function runBinary(
     if (!ins || ins.op === 'halt') {
       break
     }
+
     ops++
     let bits = WORD_BITS
     let reg = 0
@@ -107,10 +110,12 @@ export function runBinary(
       kind = 'jz'
       pc = regs[ins.reg] === 0n ? ins.zero : ins.next
     }
+
     totalBits += bits
     if (onStep) {
       onStep({ kind, reg, registers: regs.slice(), bits, width: bits })
     }
   }
+
   return { registers: regs, totalBits, ops }
 }

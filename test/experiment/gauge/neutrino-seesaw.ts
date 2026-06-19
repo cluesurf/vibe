@@ -30,6 +30,7 @@ function seesawMassEv(input: {
 }): number {
   const massGeV =
     (input.diracMassGeV * input.diracMassGeV) / input.majoranaMassGeV
+
   return massGeV * 1e9
 }
 

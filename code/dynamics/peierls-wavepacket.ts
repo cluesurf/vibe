@@ -41,6 +41,7 @@ export function peierlsWavepacketDrift(input: {
       nrm += g * g
     }
   }
+
   psi = psi.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   for (let t = 0; t < steps; t++) {
     const next: C[] = psi.map(z => [...z] as C)
@@ -51,18 +52,22 @@ export function peierlsWavepacketDrift(input: {
         const hop = (j: number, ph: C): void => {
           next[i] = cadd(next[i]!, cscale(cmul(psi[j]!, ph), tau))
         }
+
         hop(idx(wrap(x + 1), y), [1, 0])
         hop(idx(wrap(x - 1), y), [1, 0])
         hop(idx(x, wrap(y + 1)), phase(B * x))
         hop(idx(x, wrap(y - 1)), phase(-B * x))
       }
     }
+
     let n2 = 0
     for (const z of next) {
       n2 += cabs2(z)
     }
+
     psi = next.map(z => cscale(z, 1 / Math.sqrt(n2)))
   }
+
   let ybar = 0,
     wsum = 0
   for (let x = 0; x < L; x++) {
@@ -72,5 +77,6 @@ export function peierlsWavepacketDrift(input: {
       wsum += p
     }
   }
+
   return ybar / wsum // transverse drift
 }

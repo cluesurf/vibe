@@ -51,6 +51,7 @@ export default experiment({
     const cannotExtend = !canExtendKissing(dock, candidates, 60)
     const ok =
       dock.length === 24 && kissing && minAngle === 60 && cannotExtend
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -90,6 +91,7 @@ experiment({
     const eightRegular =
       Object.keys(coordination).length === 1 && coordination[8] === 24
     const reachedDock = relaxedMinAngle >= 60 && eightRegular
+
     return verdict({
       status: reachedDock ? 'pass' : 'open',
       claim:
@@ -125,6 +127,7 @@ experiment({
     const degree = bulkDegree(graph)
     const reproducesDock =
       Math.abs(dimension - 4) < 0.3 && degree === 24
+
     return verdict({
       status: reproducesDock ? 'pass' : 'open',
       claim:

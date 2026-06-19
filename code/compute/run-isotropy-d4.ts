@@ -47,8 +47,10 @@ function offsets24(): Int32Array {
       }
     }
   }
+
   return new Int32Array(o) // 24 * 4
 }
+
 function offsets8(): Int32Array {
   const o: number[] = []
   for (let a = 0; a < 4; a++) {
@@ -58,6 +60,7 @@ function offsets8(): Int32Array {
       o.push(v[0]!, v[1]!, v[2]!, v[3]!)
     }
   }
+
   return new Int32Array(o) // 8 * 4
 }
 
@@ -65,8 +68,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter')
+
     return
   }
+
   const device = await adapter.requestDevice()
   const module = device.createShaderModule({ code: WGSL })
   const pipeline = device.createComputePipeline({
@@ -132,6 +137,7 @@ async function run(): Promise<void> {
       cur = nxt
       nxt = tmp
     }
+
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(reached, 0, stage, 0, N * 4)
     device.queue.submit([enc.finish()])
@@ -145,6 +151,7 @@ async function run(): Promise<void> {
       if (r[i] === 0) {
         continue
       }
+
       const x = i % L,
         y = Math.floor(i / L) % L,
         z = Math.floor(i / (L * L)) % L,
@@ -162,10 +169,12 @@ async function run(): Promise<void> {
       )
       diagExt = Math.max(diagExt, (dx + dy + dz + dw) / 2) // projection on the unit diagonal
     }
+
     const ratio = diagExt / axisExt
     console.log(
       `  ${label}: axis extent ${axisExt}, diagonal extent ${diagExt.toFixed(1)}, isotropy ratio diag/axis = ${ratio.toFixed(2)} (1 = isotropic)`,
     )
+
     return ratio
   }
 

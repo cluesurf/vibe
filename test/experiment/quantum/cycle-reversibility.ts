@@ -42,6 +42,7 @@ export function cycleReversibility(input?: { n?: number }): {
       }
     }
   }
+
   const euA = Int32Array.from(eu)
   const evA = Int32Array.from(ev)
   const flow = new Float64Array(eu.length)
@@ -55,6 +56,7 @@ export function cycleReversibility(input?: { n?: number }): {
     if (k === undefined) {
       return null
     }
+
     return { k, sign: a < b ? 1 : -1 } // flow from a to b
   }
 
@@ -69,6 +71,7 @@ export function cycleReversibility(input?: { n?: number }): {
       nbrSet[v]!.add(g.adj[p]!)
     }
   }
+
   const rngC = makeRng({ seed: 2 })
   let tries = 0
   while (cycles.length < 800 && tries < 40000) {
@@ -78,11 +81,13 @@ export function cycleReversibility(input?: { n?: number }): {
     if (an.length < 2) {
       continue
     }
+
     const b = an[Math.floor(rngC.next() * an.length)]!
     const d = an[Math.floor(rngC.next() * an.length)]!
     if (b === d) {
       continue
     }
+
     // common neighbor c of b and d, c != a
     let c = -1
     for (const x of nbrSet[b]!) {
@@ -91,9 +96,11 @@ export function cycleReversibility(input?: { n?: number }): {
         break
       }
     }
+
     if (c < 0) {
       continue
     }
+
     cycles.push([a, b, c, d])
   }
 
@@ -107,6 +114,7 @@ export function cycleReversibility(input?: { n?: number }): {
       | 0
       | 1
   }
+
   const arrow = 0.1
   const warmup = 40
   const beats = 400
@@ -119,6 +127,7 @@ export function cycleReversibility(input?: { n?: number }): {
       if (moved[v] || moved[w]) {
         continue
       }
+
       const a = tone[v]!
       const b = tone[w]!
       if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -147,6 +156,7 @@ export function cycleReversibility(input?: { n?: number }): {
             tone[v] = -1
             tone[w] = 1
           }
+
           moved[v] = 1
           moved[w] = 1
         }
@@ -165,6 +175,7 @@ export function cycleReversibility(input?: { n?: number }): {
     if (!e1 || !e2 || !e3 || !e4) {
       continue
     }
+
     const circ =
       e1.sign * flow[e1.k]! +
       e2.sign * flow[e2.k]! +
@@ -173,6 +184,7 @@ export function cycleReversibility(input?: { n?: number }): {
     sumAbsCirc += Math.abs(circ)
     cycleCount++
   }
+
   const meanAbsCirculation =
     cycleCount > 0 ? sumAbsCirc / cycleCount : 0
   // floor: a reversible process has zero-mean per-edge flow, so circulation is a sum of 4 zero-mean
@@ -181,6 +193,7 @@ export function cycleReversibility(input?: { n?: number }): {
   for (let k = 0; k < flow.length; k++) {
     sumAbsFlow += Math.abs(flow[k]!)
   }
+
   const meanAbsFlow = sumAbsFlow / flow.length
   const floor = 2 * meanAbsFlow // ~the noise level of summing 4 independent zero-mean edge flows
   const ratio = floor > 0 ? meanAbsCirculation / floor : 0
@@ -208,6 +221,7 @@ export default experiment({
   run() {
     const r = cycleReversibility({ n: 20000 })
     const ok = r.solved && r.reversible
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

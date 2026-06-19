@@ -45,6 +45,7 @@ function twoScale(input: {
       adj[v]?.set(u, 1)
     }
   }
+
   // dense surface
   for (let i = 0; i < fastCount; i++) {
     const u = slowCount + i
@@ -52,6 +53,7 @@ function twoScale(input: {
       add(u, slowCount + rng.nextInt({ max: fastCount }))
     }
   }
+
   // surface-to-subtle coupling
   for (let i = 0; i < fastCount; i++) {
     const u = slowCount + i
@@ -59,10 +61,12 @@ function twoScale(input: {
       add(u, rng.nextInt({ max: slowCount }))
     }
   }
+
   // sparse subtle layer
   for (let i = 0; i < slowCount; i++) {
     add(i, rng.nextInt({ max: slowCount }))
   }
+
   return {
     n,
     slowCount,
@@ -84,9 +88,11 @@ function settleFast(
   for (let i = 0; i < ts.slowCount; i++) {
     t[i] = slowState[i] ?? 0
   }
+
   for (let i = ts.slowCount; i < ts.n; i++) {
     t[i] = fastInit[i - ts.slowCount] ?? 0
   }
+
   for (let sweep = 0; sweep < sweeps; sweep++) {
     for (let s = 0; s < ts.n - ts.slowCount; s++) {
       const v = ts.slowCount + rng.nextInt({ max: ts.n - ts.slowCount })
@@ -96,9 +102,11 @@ function settleFast(
       for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
       }
+
       t[v] = h > 0 ? 1 : h < 0 ? -1 : (t[v] ?? 0)
     }
   }
+
   return t.slice(ts.slowCount)
 }
 
@@ -109,6 +117,7 @@ function differ(a: Int8Array, b: Int8Array): number {
       d++
     }
   }
+
   return d / Math.max(1, a.length)
 }
 
@@ -156,6 +165,7 @@ export function subtleLayerUrges(input: { seed: number }): {
       40,
       makeRng({ seed: seed + 1 }),
     )
+
     return { coupling, steering: differ(fa, fb) }
   })
   const steeringRises =
@@ -223,6 +233,7 @@ export default experiment({
   run() {
     const r = subtleLayerUrges({ seed: 1 })
     const ok = r.solved && r.steeringRises && r.reassertion > 0.8
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

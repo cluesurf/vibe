@@ -22,6 +22,7 @@ export function stream(will: Will): Will {
       output[base + direction] = input[source * degree + direction] ?? 0
     }
   }
+
   return { mesh, data: output }
 }
 
@@ -38,6 +39,7 @@ export function streamInverse(will: Will): Will {
       output[base + direction] = input[source * degree + direction] ?? 0
     }
   }
+
   return { mesh, data: output }
 }
 
@@ -52,6 +54,7 @@ export function collide(will: Will, collision: Collision): void {
 // one beat, collide then stream. Returns the new will, since stream allocates.
 export function beat(will: Will, collision: Collision): Will {
   collide(will, collision)
+
   return stream(will)
 }
 
@@ -68,6 +71,7 @@ export function streamSourceTable(mesh: Mesh): Int32Array {
   if (cached) {
     return cached
   }
+
   const degree = mesh.degree
   const table = new Int32Array(mesh.cellCount * degree)
   for (let cell = 0; cell < mesh.cellCount; cell++) {
@@ -77,7 +81,9 @@ export function streamSourceTable(mesh: Mesh): Int32Array {
       table[base + direction] = source * degree + direction
     }
   }
+
   streamTableCache.set(mesh, table)
+
   return table
 }
 
@@ -105,6 +111,7 @@ export function beatInto(input: {
 export function inverseBeat(will: Will, collision: Collision): Will {
   const back = streamInverse(will)
   collide(back, collision)
+
   return back
 }
 
@@ -119,6 +126,7 @@ export function run(
   if (beats <= 0) {
     return will
   }
+
   const table = streamSourceTable(will.mesh)
   let a: Will = { mesh: will.mesh, data: Int8Array.from(will.data) }
   let b: Will = {
@@ -131,5 +139,6 @@ export function run(
     a = b
     b = swap
   }
+
   return a
 }

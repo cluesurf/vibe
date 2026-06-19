@@ -20,6 +20,7 @@ export function ringHoppingHamiltonian(input: {
     h.data[i * n + j] = t
     h.data[j * n + i] = t
   }
+
   return h
 }
 
@@ -37,10 +38,12 @@ export function staggeredMassChainHamiltonian(input: {
   for (let i = 0; i < n; i++) {
     h.data[i * n + i] = (i % 2 === 0 ? 1 : -1) * mass
   }
+
   for (let i = 0; i < n - 1; i++) {
     h.data[i * n + (i + 1)] = -t
     h.data[(i + 1) * n + i] = -t
   }
+
   return h
 }
 
@@ -62,11 +65,14 @@ export function openChainPotentialApply(input: {
     if (r > 0) {
       v += -t * phi[r - 1]!
     }
+
     if (r < n - 1) {
       v += -t * phi[r + 1]!
     }
+
     out[r] = v
   }
+
   return out
 }
 
@@ -93,6 +99,7 @@ export function gridPotentialApply(input: {
     strides.push(stride)
     stride *= side
   }
+
   for (let r = 0; r < n; r++) {
     let v = potential[r]! * phi[r]!
     let rest = r
@@ -101,12 +108,15 @@ export function gridPotentialApply(input: {
       if (coord > 0) {
         v += -t * phi[r - strides[d]!]!
       }
+
       if (coord < side - 1) {
         v += -t * phi[r + strides[d]!]!
       }
     }
+
     out[r] = v
   }
+
   return out
 }
 
@@ -124,6 +134,7 @@ export function torusHoppingHamiltonian(input: {
   for (let d = 0; d < dimension; d++) {
     n *= side
   }
+
   const h = makeDense({ rows: n, cols: n })
   const strides: number[] = []
   let stride = 1
@@ -131,6 +142,7 @@ export function torusHoppingHamiltonian(input: {
     strides.push(stride)
     stride *= side
   }
+
   for (let v = 0; v < n; v++) {
     let rest = v
     const coord: number[] = []
@@ -138,6 +150,7 @@ export function torusHoppingHamiltonian(input: {
       coord.push(rest % side)
       rest = Math.floor(rest / side)
     }
+
     for (let d = 0; d < dimension; d++) {
       const next = (coord[d]! + 1) % side
       const w = v - coord[d]! * strides[d]! + next * strides[d]!
@@ -145,6 +158,7 @@ export function torusHoppingHamiltonian(input: {
       h.data[w * n + v] = t
     }
   }
+
   return h
 }
 
@@ -171,6 +185,7 @@ export function staggeredMassCubicHamiltonian(input: {
     h.data[i * n + j] = -t
     h.data[j * n + i] = -t
   }
+
   for (let x = 0; x < side; x++) {
     for (let y = 0; y < side; y++) {
       for (let z = 0; z < side; z++) {
@@ -181,11 +196,13 @@ export function staggeredMassCubicHamiltonian(input: {
         } else if (periodic) {
           bond(i, index(0, y, z))
         }
+
         if (y + 1 < side) {
           bond(i, index(x, y + 1, z))
         } else if (periodic) {
           bond(i, index(x, 0, z))
         }
+
         if (z + 1 < side) {
           bond(i, index(x, y, z + 1))
         } else if (periodic) {
@@ -194,5 +211,6 @@ export function staggeredMassCubicHamiltonian(input: {
       }
     }
   }
+
   return h
 }

@@ -27,8 +27,10 @@ export function clockWinding(
     if (diff > states / 2) {
       diff -= states
     }
+
     sum += diff
   }
+
   return Math.round(sum / states)
 }
 
@@ -43,6 +45,7 @@ export function stepClockRing(ring: ClockRing): ClockRing {
       states,
     )
   }
+
   return { prev: curr, curr: next, size, states }
 }
 
@@ -57,5 +60,6 @@ export function makeTwist(input: {
   for (let x = 0; x < size; x++) {
     clock[x] = modn(Math.round((states * turns * x) / size), states)
   }
+
   return { prev: clock.slice(), curr: clock.slice(), size, states }
 }

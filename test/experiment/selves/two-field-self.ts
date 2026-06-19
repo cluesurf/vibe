@@ -52,8 +52,10 @@ export default experiment({
           }),
         ),
       )
+
       return Math.max(...amps) - Math.min(...amps)
     }
+
     const settledTo = (fieldSpeed2: number): number =>
       Math.max(
         ...starts.map(start =>
@@ -101,6 +103,7 @@ export default experiment({
     const localIsNotSelf = localSettle > 0.3 || localAfterKick > 0.3
 
     const ok = propagatingIsSelf && localIsNotSelf
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

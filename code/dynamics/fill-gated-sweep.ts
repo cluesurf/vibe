@@ -24,6 +24,7 @@ export function fillGatedSweep(input: {
     if (moved[v] || moved[w]) {
       continue
     }
+
     const f = fill[i]!
     const tv = tone[v]!
     const tw = tone[w]!
@@ -36,6 +37,7 @@ export function fillGatedSweep(input: {
           tone[v] = -1
           tone[w] = 1
         }
+
         moved[v] = 1
         moved[w] = 1
       }

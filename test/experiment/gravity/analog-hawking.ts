@@ -134,6 +134,7 @@ export default experiment({
       r.redshiftMatches &&
       r.thermalMatches &&
       r.temperatureScales
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

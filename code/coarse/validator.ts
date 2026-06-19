@@ -18,6 +18,7 @@ export function commutingSquareError<State>(input: {
   if (states.length === 0) {
     return 1
   }
+
   let disagree = 0
   for (const s of states) {
     const evolveThenCoarse = coarseMap(microStep(s))
@@ -26,6 +27,7 @@ export function commutingSquareError<State>(input: {
       disagree++
     }
   }
+
   return disagree / states.length
 }
 
@@ -42,6 +44,7 @@ export function mostProbableNext(tpm: number[][]): number[] {
         best = j
       }
     }
+
     return best
   })
 }

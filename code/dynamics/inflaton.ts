@@ -34,8 +34,10 @@ export function inflatonStep(input: {
     pd: number,
   ): { dp: number; dpd: number } => {
     const h = inflatonHubble({ phi: p, phidot: pd, potential })
+
     return { dp: pd, dpd: -3 * h * pd - potentialSlope(p) }
   }
+
   const k1 = deriv(input.phi, input.phidot)
   const k2 = deriv(
     input.phi + 0.5 * dt * k1.dp,
@@ -46,6 +48,7 @@ export function inflatonStep(input: {
     input.phidot + 0.5 * dt * k2.dpd,
   )
   const k4 = deriv(input.phi + dt * k3.dp, input.phidot + dt * k3.dpd)
+
   return {
     phi: input.phi + (dt / 6) * (k1.dp + 2 * k2.dp + 2 * k3.dp + k4.dp),
     phidot:

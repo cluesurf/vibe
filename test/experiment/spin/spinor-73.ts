@@ -17,6 +17,7 @@ export function spinor73(): {
   // dihedral-face computation in algebra/group/dihedral.
   const { hasSpinor, decomposition } =
     dihedralFacePermutationDecomposition(7)
+
   return { hasSpinor, decomposition }
 }
 
@@ -35,6 +36,7 @@ export default experiment({
     const expected = '1xtriv + 1xE1 + 1xE2 + 1xE3'
     const decompositionMatches = r.decomposition === expected
     const ok = r.hasSpinor === false && decompositionMatches
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

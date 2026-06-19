@@ -24,6 +24,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // hopping = -1, on-site potential (-1)^i * mass, half filling (occupy the lowest L/2 single-particle states).
 function correlationMatrix(L: number, mass: number): Float64Array {
   const h = staggeredMassChainHamiltonian({ n: L, mass })
+
   return freeFermionCorrelationMatrix({ h, n: L })
 }
 
@@ -34,6 +35,7 @@ function intervalEntropy(
   len: number,
 ): number {
   const region = Array.from({ length: len }, (_, i) => i)
+
   return regionEntanglementEntropy({ c: C, n: L, region })
 }
 
@@ -91,6 +93,7 @@ export function areaLaw(input?: { L?: number }): {
 
   const groundStateAreaLaw = massiveSaturates && masslessLog
   const solved = groundStateAreaLaw && volumeLaw
+
   return {
     L,
     lengths,
@@ -119,6 +122,7 @@ export default experiment({
     const r = areaLaw({ L: 96 })
     const ok =
       r.solved && r.massiveSaturates && r.masslessLog && r.volumeLaw
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

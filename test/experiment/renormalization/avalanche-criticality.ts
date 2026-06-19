@@ -46,6 +46,7 @@ function avalanches(
       }),
     mode: 'peak',
   })
+
   return { sizes, bg: background }
 }
 
@@ -83,12 +84,14 @@ export function avalancheCriticality(input?: { n?: number }): {
     const span = max / Math.max(median, 1)
     scan.push({ c0, bg, median, max, span })
   }
+
   let bestSpan = 0
   for (const s of scan) {
     if (s.span > bestSpan) {
       bestSpan = s.span
     }
   }
+
   // a scale-free avalanche regime would have avalanches spanning many scales (heavy tail). It does NOT
   // occur, at every background the span is about 1, perturbations spread BALLISTICALLY (the lightcone) to a
   // fixed size. So the SOC/avalanche route to criticality does not apply, the ballistic lightcone (good for
@@ -118,6 +121,7 @@ export default experiment({
   run() {
     const r = avalancheCriticality({ n: 2000 })
     const ok = r.solved && r.ballisticNotCritical && !r.scaleFree
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

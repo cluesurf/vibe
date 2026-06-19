@@ -136,6 +136,7 @@ export default experiment({
       r.jordanDim27 &&
       r.frameIsRankThree &&
       r.threeFoldForced
+
     return verdict({
       status: structureOk ? 'partial' : 'fail',
       claim:

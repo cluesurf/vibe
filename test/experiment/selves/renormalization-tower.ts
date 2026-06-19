@@ -42,6 +42,7 @@ export default experiment({
     })
     const byHand = topUnits * Math.pow(compression, levels)
     const ok = Math.abs(effective - byHand) / byHand < 1e-9
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

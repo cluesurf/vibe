@@ -26,6 +26,7 @@ export function reversibleWaveStep(input: {
     for (let k = 0; k < row.length; k++) {
       sum += current[row[k]!]!
     }
+
     next[i] = (((sum - previous[i]!) % modulus) + modulus) % modulus
   }
 }
@@ -52,6 +53,7 @@ export function reversibleWaveStepNonlinear(input: {
     for (let k = 0; k < row.length; k++) {
       sum += current[row[k]!]!
     }
+
     const c = current[i]!
     const nl = selfCoupling * c * c
     next[i] =

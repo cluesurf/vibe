@@ -59,6 +59,7 @@ function ballSurface(radius: number): number {
       }
     }
   }
+
   return count
 }
 

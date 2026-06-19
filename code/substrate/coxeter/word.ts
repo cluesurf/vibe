@@ -18,10 +18,12 @@ export function coxeterMatrix(symbol: number[]): number[][] {
   for (let i = 0; i < m; i++) {
     M[i]![i] = 1
   }
+
   for (let i = 0; i < symbol.length; i++) {
     M[i]![i + 1] = symbol[i] ?? 2
     M[i + 1]![i] = symbol[i] ?? 2
   }
+
   return M
 }
 
@@ -37,10 +39,12 @@ function braidStep(word: Word, M: number[][]): Word[] {
     if (a === b) {
       continue
     }
+
     const m = M[a]![b]!
     if (p + m > n) {
       continue
     }
+
     let alternating = true
     for (let t = 0; t < m; t++) {
       const expected = t % 2 === 0 ? a : b
@@ -49,15 +53,19 @@ function braidStep(word: Word, M: number[][]): Word[] {
         break
       }
     }
+
     if (!alternating) {
       continue
     }
+
     const rep: number[] = []
     for (let t = 0; t < m; t++) {
       rep.push(t % 2 === 0 ? b : a)
     }
+
     out.push([...word.slice(0, p), ...rep, ...word.slice(p + m)])
   }
+
   return out
 }
 
@@ -70,6 +78,7 @@ function braidClass(word: Word, M: number[][], cap = 20000): Word[] {
   if (hit) {
     return hit
   }
+
   const seen = new Set<string>([k])
   const all: Word[] = [word]
   let frontier: Word[] = [word]
@@ -81,6 +90,7 @@ function braidClass(word: Word, M: number[][], cap = 20000): Word[] {
         if (seen.has(nk)) {
           continue
         }
+
         seen.add(nk)
         all.push(nb)
         next.push(nb)
@@ -88,13 +98,17 @@ function braidClass(word: Word, M: number[][], cap = 20000): Word[] {
           break
         }
       }
+
       if (all.length >= cap) {
         break
       }
     }
+
     frontier = next
   }
+
   braidClassCache.set(k, all)
+
   return all
 }
 
@@ -105,6 +119,7 @@ function lexLess(a: Word, b: Word): boolean {
       return a[i]! < b[i]!
     }
   }
+
   return a.length < b.length
 }
 
@@ -122,13 +137,16 @@ function reduce(word: Word, M: number[][]): Word {
           break
         }
       }
+
       if (cancelled) {
         break
       }
     }
+
     if (!cancelled) {
       return current
     }
+
     current = cancelled
   }
 }
@@ -143,6 +161,7 @@ export function normalForm(word: Word, M: number[][]): Word {
   if (hit) {
     return hit
   }
+
   const reduced = reduce(word, M)
   let best = reduced
   for (const w of braidClass(reduced, M)) {
@@ -150,7 +169,9 @@ export function normalForm(word: Word, M: number[][]): Word {
       best = w
     }
   }
+
   normalFormCache.set(k, best)
+
   return best
 }
 
@@ -191,11 +212,14 @@ export function buildWordMesh(input: {
     if (found !== undefined) {
       return found
     }
+
     const i = words.length
     id.set(k, i)
     words.push(w)
+
     return i
   }
+
   register([])
   const edgesJ: Array<[number, number]> = [] // edges labeled by a cell generator (0..k-1)
   const edgesOut: Array<[number, number]> = [] // edges labeled by the outward generator
@@ -208,6 +232,7 @@ export function buildWordMesh(input: {
         finite = false
         continue
       }
+
       for (let s = 0; s < m; s++) {
         const nf = normalForm([...words[ci]!, s], M)
         const before = id.size
@@ -218,6 +243,7 @@ export function buildWordMesh(input: {
         } else {
           edgesJ.push([ci, ni])
         }
+
         if (isNew) {
           next.push(ni)
           if (words.length >= maxChambers) {
@@ -227,10 +253,12 @@ export function buildWordMesh(input: {
           }
         }
       }
+
       if (words.length >= maxChambers) {
         break
       }
     }
+
     frontier = next
   }
 
@@ -247,13 +275,16 @@ export function buildWordMesh(input: {
     while (parent[r] !== r) {
       r = parent[r]!
     }
+
     while (parent[x] !== r) {
       const nx = parent[x]!
       parent[x] = r
       x = nx
     }
+
     return r
   }
+
   const union = (a: number, b: number): void => {
     const ra = find(a)
     const rb = find(b)
@@ -261,9 +292,11 @@ export function buildWordMesh(input: {
       parent[ra] = rb
     }
   }
+
   for (const [a, b] of edgesJ) {
     union(a, b)
   }
+
   const cellOf = new Map<number, number>()
   for (let i = 0; i < chamberCount; i++) {
     const r = find(i)
@@ -271,6 +304,7 @@ export function buildWordMesh(input: {
       cellOf.set(r, cellOf.size)
     }
   }
+
   const cellCount = cellOf.size
 
   // Cell facet-adjacency: an outward edge between chambers in different cells joins those cells.
@@ -286,6 +320,7 @@ export function buildWordMesh(input: {
       cellNeighbors[cb]!.add(ca)
     }
   }
+
   let cellFacetCount = 0
   for (const s of cellNeighbors) {
     cellFacetCount = Math.max(cellFacetCount, s.size)

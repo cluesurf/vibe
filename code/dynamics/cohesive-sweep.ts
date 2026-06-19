@@ -17,6 +17,7 @@ export function agreeCount(
       c++
     }
   }
+
   return c
 }
 
@@ -50,6 +51,7 @@ export function cohesiveEdgeSweep(input: {
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if (
@@ -83,6 +85,7 @@ export function cohesiveEdgeSweep(input: {
           tone[v] = -1
           tone[w] = 1
         }
+
         moved[v] = 1
         moved[w] = 1
       }

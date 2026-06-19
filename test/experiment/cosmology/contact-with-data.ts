@@ -35,6 +35,7 @@ export function darkEnergyPrediction(): {
   const predicted = 1 / Math.sqrt(v4)
   // Observed Lambda in Planck units (multiply by l_P^2).
   const observed = LAMBDA_OBSERVED * PLANCK_LENGTH * PLANCK_LENGTH
+
   return { predicted, observed, ratio: predicted / observed }
 }
 
@@ -64,6 +65,7 @@ export default experiment({
       de.ratio < 10 &&
       liv.frameworkLinearLIV === false &&
       liv.gribBoundInPlanck > 1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

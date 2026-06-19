@@ -36,10 +36,12 @@ export function coinedWalkMSD(input: {
       m += p * (x - C) ** 2
       norm += p
     }
+
     msd.push(m / norm)
     if (t === steps) {
       break
     }
+
     // coin: rotation by theta mixing the two coin components
     // shift: left-component to x-1, right-component to x+1
     re2.fill(0)
@@ -58,9 +60,11 @@ export function coinedWalkMSD(input: {
       re2[(x + 1) * 2 + 1]! += newBR
       im2[(x + 1) * 2 + 1]! += newBI
     }
+
     reL.set(re2)
     imL.set(im2)
   }
+
   return { msd }
 }
 
@@ -91,9 +95,11 @@ export function continuousQuantumWalkMsd(input: {
       re += amp * Math.cos(lambda * t)
       im += amp * -Math.sin(lambda * t)
     }
+
     const prob = re * re + im * im
     msd += prob * (j - center) * (j - center)
   }
+
   return msd
 }
 
@@ -118,9 +124,11 @@ export function continuousClassicalWalkMsd(input: {
       const lambda = eig.values[k] ?? 0
       p += amp * Math.exp(-lambda * t)
     }
+
     prob[j] = Math.max(0, p)
     norm += prob[j] ?? 0
   }
+
   let msd = 0
   for (let j = 0; j < n; j++) {
     msd +=
@@ -128,6 +136,7 @@ export function continuousClassicalWalkMsd(input: {
       (j - center) *
       (j - center)
   }
+
   return msd
 }
 
@@ -163,6 +172,7 @@ export function measuredCoinedWalkFrequency(input: {
   for (let x = 0; x < size; x++) {
     right[x] = Math.cos(k * x)
   }
+
   const series = new Float64Array(beats)
   const rightNext = new Float64Array(size)
   const leftNext = new Float64Array(size)
@@ -175,6 +185,7 @@ export function measuredCoinedWalkFrequency(input: {
       rightNext[x] = right[(x - 1 + size) % size]!
       leftNext[x] = left[(x + 1) % size]!
     }
+
     // COIN / MASS (massless = identity = pure discrete shift)
     if (mass === 0) {
       right.set(rightNext)
@@ -188,6 +199,7 @@ export function measuredCoinedWalkFrequency(input: {
       }
     }
   }
+
   // DFT: find the dominant frequency bin
   let bestFrequency = 0
   let bestPower = -1
@@ -199,12 +211,14 @@ export function measuredCoinedWalkFrequency(input: {
       re += series[t]! * Math.cos(phase)
       im += series[t]! * Math.sin(phase)
     }
+
     const power = re * re + im * im
     if (power > bestPower) {
       bestPower = power
       bestFrequency = f
     }
   }
+
   return (2 * Math.PI * bestFrequency) / beats
 }
 
@@ -249,6 +263,7 @@ export function diracQuantumWalk(input: {
     R[x0] = [1, 0]
     Lf[x0] = [0, 0]
   }
+
   const c = Math.cos(mass)
   const s = Math.sin(mass)
   const chirality: number[] = []
@@ -267,6 +282,7 @@ export function diracQuantumWalk(input: {
         c * Lf[x]![1],
       ])
     }
+
     // shift: R moves +1, L moves -1
     const R3: C[] = new Array(L)
     const L3: C[] = new Array(L)
@@ -274,6 +290,7 @@ export function diracQuantumWalk(input: {
       R3[wrap(x + 1)] = R2[x]!
       L3[wrap(x - 1)] = L2[x]!
     }
+
     R = R3
     Lf = L3
     let chR = 0
@@ -284,9 +301,11 @@ export function diracQuantumWalk(input: {
       chL += cabs2(Lf[x]!)
       nn += cabs2(R[x]!) + cabs2(Lf[x]!)
     }
+
     chirality.push(chR - chL)
     norm.push(nn)
   }
+
   // centres of the two chiralities (signed displacement from x0)
   let cR = 0
   let wR = 0
@@ -299,6 +318,7 @@ export function diracQuantumWalk(input: {
     cL += dx * cabs2(Lf[x]!)
     wL += cabs2(Lf[x]!)
   }
+
   // combined packet centre (weighted by total probability)
   let cc = 0
   let wc = 0
@@ -308,6 +328,7 @@ export function diracQuantumWalk(input: {
     cc += dx * w
     wc += w
   }
+
   return {
     chirality,
     centerR: cR / (wR || 1),
@@ -340,6 +361,7 @@ export function singleParticleQuantumWalk(input: {
     re[1]![x] = g * Math.cos(k0 * x)
     im[1]![x] = g * Math.sin(k0 * x)
   }
+
   const cm = Math.cos(m)
   const sm = Math.sin(m)
   const centroid = (): number => {
@@ -354,8 +376,10 @@ export function singleParticleQuantumWalk(input: {
       s += x * p
       n += p
     }
+
     return s / n
   }
+
   const xs: number[] = []
   for (let t = 0; t < steps; t++) {
     xs.push(centroid())
@@ -375,9 +399,11 @@ export function singleParticleQuantumWalk(input: {
       nr[1]![xp]! += a1r
       ni[1]![xp]! += a1i
     }
+
     re = nr
     im = ni
   }
+
   // linear fit of centroid vs t (skip first few for transient)
   const ts: number[] = []
   const ys: number[] = []
@@ -385,7 +411,9 @@ export function singleParticleQuantumWalk(input: {
     ts.push(t)
     ys.push(xs[t]!)
   }
+
   const fit = linearFit({ xs: ts, ys })
+
   return {
     speed: Math.abs(fit.slope),
     linearR2: fit.r2,
@@ -440,11 +468,13 @@ export function twoParticleQuantumWalk(input: {
       norm += g * g
     }
   }
+
   const s = 1 / Math.sqrt(norm)
   for (let i = 0; i < N; i++) {
     re[i]! *= s
     im[i]! *= s
   }
+
   const comList: number[] = []
   const relList: number[] = []
   for (let t = 0; t < steps; t++) {
@@ -459,10 +489,12 @@ export function twoParticleQuantumWalk(input: {
             p += re[i]! ** 2 + im[i]! ** 2
           }
         }
+
         com += ((x1 + x2) / 2) * p
         rel += Math.abs(x1 - x2) * p
       }
     }
+
     comList.push(com)
     relList.push(rel)
     // coin on particle 1 (mix c1), then particle 2 (mix c2)
@@ -484,6 +516,7 @@ export function twoParticleQuantumWalk(input: {
         }
       }
     }
+
     const mr = new Float64Array(N)
     const mi = new Float64Array(N)
     for (let x1 = 0; x1 < L; x1++) {
@@ -502,6 +535,7 @@ export function twoParticleQuantumWalk(input: {
         }
       }
     }
+
     // shift both particles, then contact phase when x1==x2
     re = new Float64Array(N)
     im = new Float64Array(N)
@@ -522,6 +556,7 @@ export function twoParticleQuantumWalk(input: {
               vr = r2
               vi = i2
             }
+
             const j = idx(nx1, nx2, c1, c2)
             re[j]! += vr
             im[j]! += vi
@@ -530,6 +565,7 @@ export function twoParticleQuantumWalk(input: {
       }
     }
   }
+
   // CoM linear fit + relative-coordinate growth (bound vs free)
   const ts: number[] = []
   const ys: number[] = []
@@ -537,7 +573,9 @@ export function twoParticleQuantumWalk(input: {
     ts.push(t)
     ys.push(comList[t]!)
   }
+
   const fit = linearFit({ xs: ts, ys })
   const relGrowth = relList[steps - 1]! - relList[0]! // how much the pair spread apart
+
   return { comSpeed: Math.abs(fit.slope), comR2: fit.r2, relGrowth }
 }

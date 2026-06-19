@@ -36,6 +36,7 @@ export default experiment({
       low < 0.05 &&
       s.sprinkle < 0.2 &&
       s.lattice > 0.8
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

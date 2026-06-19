@@ -45,6 +45,7 @@ function colorMatrix(
   if (!dagger) {
     return { re, im }
   }
+
   // Conjugate transpose: swap off-diagonal, negate all imaginary parts.
   return {
     re: [re[0], re[2], re[1], re[3]],
@@ -98,6 +99,7 @@ function randomSu2(
   const q2 = (rng.next() * 2 - 1) * disorder
   const q3 = (rng.next() * 2 - 1) * disorder
   const norm = Math.hypot(1, q1, q2, q3)
+
   return [1 / norm, q1 / norm, q2 / norm, q3 / norm]
 }
 
@@ -163,6 +165,7 @@ function gaugeWilsonDiracSu2(input: {
       })
     }
   }
+
   return d
 }
 
@@ -191,12 +194,14 @@ export function chiralCondensateSignalSU2(input: {
       links1.push(randomSu2(input.disorder, input.rng))
       links2.push(randomSu2(input.disorder, input.rng))
     }
+
     const dw = gaugeWilsonDiracSu2({ length: L, links1, links2 })
     // H_W = gamma5 (D_W - m0). gamma5 acts on spin: rows with spin index 1
     // (local index in {2,3}) flip sign.
     for (let i = 0; i < n; i++) {
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
     }
+
     for (let row = 0; row < n; row++) {
       if (row % 4 >= 2) {
         for (let col = 0; col < n; col++) {
@@ -205,17 +210,20 @@ export function chiralCondensateSignalSU2(input: {
         }
       }
     }
+
     const epsilon = hermitianMatrixSign({ matrix: dw })
     // H_ov = gamma5 + epsilon.
     for (let i = 0; i < n; i++) {
       epsilon.re[i * n + i] =
         (epsilon.re[i * n + i] ?? 0) + (i % 4 < 2 ? 1 : -1)
     }
+
     const eig = eigHermitian({ matrix: epsilon })
     for (let k = 0; k < eig.values.length; k++) {
       if (Math.abs(eig.values[k] ?? 0) < tol) {
         nearZero += 1
       }
+
       totalEig += 1
     }
   }

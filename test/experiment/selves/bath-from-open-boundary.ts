@@ -33,6 +33,7 @@ function totalCharge(will: Will): number {
   for (let i = 0; i < will.data.length; i++) {
     sum += Math.abs(will.data[i]!)
   }
+
   return sum
 }
 
@@ -53,6 +54,7 @@ function centralCharge(input: {
       }
     }
   }
+
   return sum
 }
 
@@ -87,8 +89,10 @@ export default experiment({
       for (let d = 0; d < 8; d++) {
         will.data[center * degree + d] = 1
       }
+
       return will
     }
+
     const startCharge = totalCharge(burst())
     const startCentral = centralCharge({
       will: burst(),
@@ -121,6 +125,7 @@ export default experiment({
         }
       }
     }
+
     const torusChargeFinal = totalCharge(torus)
 
     // the absorbing-boundary run, the bath drains the edge each beat.
@@ -136,6 +141,7 @@ export default experiment({
       openScratch = swap
       absorbBoundary(open)
     }
+
     const openChargeFinal = totalCharge(open)
     const openCentralFinal = centralCharge({
       will: open,
@@ -151,6 +157,7 @@ export default experiment({
 
     const ok =
       torusConserves && torusRecurs && openDissipates && openRelaxes
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

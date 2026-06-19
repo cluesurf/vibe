@@ -36,6 +36,7 @@ export function continuumLimit(input: {
       })
       sum += myrheimMeyerDimension({ poset })
     }
+
     return sum / input.repeats
   })
   const errors = estimates.map(e => Math.abs(e - input.dimension))
@@ -51,6 +52,7 @@ export function continuumLimit(input: {
   // agreement (accurate at every N) is separate from convergence (error shrinking). We report both
   // so a flat or rising error is never printed under a convergence claim.
   const converging = convergenceExponent < 0
+
   return {
     estimates,
     errors,
@@ -83,6 +85,7 @@ export default experiment({
       seed: 1,
     })
     const ok = two.agrees && three.agrees && three.converging
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

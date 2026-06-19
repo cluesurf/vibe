@@ -29,14 +29,17 @@ export function gaugeFromAction(input: { side: number }): {
   for (let i = 0; i < dof; i++) {
     base[i] = rng.next() * 2 - 1
   }
+
   const epsilons = [0.5, 0.2, 0.1, 0.05, 0.02]
   const ratios = epsilons.map(eps => {
     const theta = new Float64Array(dof)
     for (let i = 0; i < dof; i++) {
       theta[i] = eps * (base[i] ?? 0)
     }
+
     return wilsonAction(theta, plaqs) / maxwellAction(theta, plaqs)
   })
+
   return { epsilons, ratios }
 }
 
@@ -52,6 +55,7 @@ export default experiment({
     const r = gaugeFromAction({ side: 4 })
     const last = r.ratios[r.ratios.length - 1] ?? 0
     const ok = last > 0.999 && last < 1.001
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

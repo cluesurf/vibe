@@ -51,6 +51,7 @@ export default experiment({
         field[idx(x, y)] = [1 / n, 0, 0.3 / n]
       }
     }
+
     const perturbedDegree = skyrmionDegree(snapToTrits(field), L)
 
     const chargeAtAllSizes =

@@ -24,6 +24,7 @@ process.on('SIGINT', () => {
     console.error('\nsecond interrupt, exiting now')
     process.exit(130)
   }
+
   interrupted = true
   console.error(
     '\ninterrupted, stopping after the current experiment (press Ctrl+C again to force quit)',
@@ -53,6 +54,7 @@ async function main(): Promise<void> {
       console.error(`stopped before ${experiment.id} (interrupted)`)
       process.exit(130)
     }
+
     // yield so a pending Ctrl+C is delivered between experiments
     await yieldToLoop()
 

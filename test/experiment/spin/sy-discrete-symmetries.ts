@@ -64,15 +64,18 @@ export function syDiscreteSymmetries(): {
         c * Lf[x]![1],
       ])
     }
+
     const R3: C[] = new Array(L),
       L3: C[] = new Array(L)
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!
       L3[wrap(x - 1)] = L2[x]!
     }
+
     R = R3
     Lf = L3
   }
+
   const bwd = (): void => {
     // inverse: unshift then inverse coin (the coin is unitary, its inverse is +i s mixing)
     const R2: C[] = new Array(L),
@@ -81,6 +84,7 @@ export function syDiscreteSymmetries(): {
       R2[x] = R[wrap(x + 1)]!
       L2[x] = Lf[wrap(x - 1)]!
     }
+
     const R3: C[] = new Array(L),
       L3: C[] = new Array(L)
     for (let x = 0; x < L; x++) {
@@ -93,15 +97,19 @@ export function syDiscreteSymmetries(): {
         c * L2[x]![1],
       ])
     }
+
     R = R3
     Lf = L3
   }
+
   for (let t = 0; t < steps; t++) {
     fwd()
   }
+
   for (let t = 0; t < steps; t++) {
     bwd()
   }
+
   let err = 0
   for (let x = 0; x < L; x++) {
     err = Math.max(
@@ -112,6 +120,7 @@ export function syDiscreteSymmetries(): {
       Math.abs(Lf[x]![1] - L0[x]![1]),
     )
   }
+
   const timeReversal = err < 1e-12
 
   // (P on the field) the massless walk commutes with parity: x -> L-1-x and R <-> L gives the same dynamics
@@ -129,8 +138,10 @@ export function syDiscreteSymmetries(): {
         r3[wrap(x + 1)] = rr[x]!
         l3[wrap(x - 1)] = ll[x]!
       }
+
       return [r3, l3]
     }
+
     const parity = (rr: C[], ll: C[]): [C[], C[]] => {
       const r2: C[] = new Array(L),
         l2: C[] = new Array(L)
@@ -138,17 +149,21 @@ export function syDiscreteSymmetries(): {
         r2[x] = ll[wrap(-x)]!
         l2[x] = rr[wrap(-x)]!
       }
+
       return [r2, l2]
     } // x->-x and R<->L
+
     const [pr, pl] = parity(r, l)
     const [a1, a2] = step(pr, pl)
     const [sr, sl] = step(r, l)
     const [b1, b2] = parity(sr, sl)
+
     return {
       applyParityThenStep: [a1, a2],
       stepThenApplyParity: [b1, b2],
     }
   }
+
   const { applyParityThenStep, stepThenApplyParity } = massless()
   let pcErr = 0
   for (let x = 0; x < L; x++) {
@@ -166,6 +181,7 @@ export function syDiscreteSymmetries(): {
       )
     }
   }
+
   const parityCommutes = pcErr < 1e-12
 
   // CPT: C (charge sign flip) is a symmetry of the conserving rule, so C, P, T all exact => CPT exact
@@ -196,6 +212,7 @@ export default experiment({
       r.timeReversal &&
       r.parityCommutes &&
       r.cptExact
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

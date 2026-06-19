@@ -25,6 +25,7 @@ export function comparison534(): {
     t2: 6,
   })
   const betheAlpha = betheCorrelatorExponent(12)
+
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }
 }
 
@@ -39,6 +40,7 @@ export default experiment({
   run() {
     const r = comparison534()
     const ok = r.degree === 12 && Math.abs(r.betheAlpha - 2) < 0.3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

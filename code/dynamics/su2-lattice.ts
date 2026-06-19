@@ -22,6 +22,7 @@ function qmul(a: Quat, b: Quat): Quat {
   const b1 = b[1]
   const b2 = b[2]
   const b3 = b[3]
+
   return [
     a0 * b0 - a1 * b1 - a2 * b2 - a3 * b3,
     a0 * b1 + a1 * b0 + a2 * b3 - a3 * b2,
@@ -44,6 +45,7 @@ function halfTrace(a: Quat): number {
 
 function normalize(a: Quat): Quat {
   const n = Math.hypot(a[0], a[1], a[2], a[3]) || 1
+
   return [a[0] / n, a[1] / n, a[2] / n, a[3] / n]
 }
 
@@ -51,6 +53,7 @@ function normalize(a: Quat): Quat {
 // sets the Metropolis step size.
 function randomNear(input: { eps: number; rng: Rng }): Quat {
   const e = input.eps
+
   return normalize([
     1,
     e * input.rng.nextGaussian(),
@@ -92,6 +95,7 @@ export function makeSu2Lattice(input: {
     stride.push(sites)
     sites *= L
   }
+
   const links = new Float64Array(sites * dim * 4)
   for (let s = 0; s < sites; s++) {
     for (let mu = 0; mu < dim; mu++) {
@@ -103,6 +107,7 @@ export function makeSu2Lattice(input: {
       links[o + 3] = q[3]
     }
   }
+
   return { form: 'su2-lattice', dim, length: L, sites, stride, links }
 }
 
@@ -112,6 +117,7 @@ function stepPlus(
 ): number {
   const st = lat.stride[input.mu] ?? 1
   const c = Math.floor(input.site / st) % lat.length
+
   return c === lat.length - 1
     ? input.site - (lat.length - 1) * st
     : input.site + st
@@ -123,6 +129,7 @@ function stepMinus(
 ): number {
   const st = lat.stride[input.mu] ?? 1
   const c = Math.floor(input.site / st) % lat.length
+
   return c === 0 ? input.site + (lat.length - 1) * st : input.site - st
 }
 
@@ -131,6 +138,7 @@ function getLink(
   input: { site: number; mu: number },
 ): Quat {
   const o = (input.site * lat.dim + input.mu) * 4
+
   return [
     lat.links[o] ?? 0,
     lat.links[o + 1] ?? 0,
@@ -164,6 +172,7 @@ function staple(
     if (nu === mu) {
       continue
     }
+
     const xMu = stepPlus(lat, { site: x, mu })
     const xNu = stepPlus(lat, { site: x, mu: nu })
     // forward staple: U_nu(x+mu) U_mu(x+nu)^dag U_nu(x)^dag
@@ -186,6 +195,7 @@ function staple(
     )
     a = qadd(a, qadd(forward, backward))
   }
+
   return a
 }
 
@@ -216,6 +226,7 @@ export function metropolisSweep(input: {
       }
     }
   }
+
   return proposed === 0 ? 0 : accepted / proposed
 }
 
@@ -247,6 +258,7 @@ export function averagePlaquette(input: {
       }
     }
   }
+
   return count === 0 ? 0 : total / count
 }
 
@@ -264,6 +276,7 @@ export function wilsonLoop(input: {
       if (nu === mu) {
         continue
       }
+
       for (let s = 0; s < lat.sites; s++) {
         let u: Quat = IDENTITY
         let p = s
@@ -271,23 +284,28 @@ export function wilsonLoop(input: {
           u = qmul(u, getLink(lat, { site: p, mu }))
           p = stepPlus(lat, { site: p, mu })
         }
+
         for (let i = 0; i < input.t; i++) {
           u = qmul(u, getLink(lat, { site: p, mu: nu }))
           p = stepPlus(lat, { site: p, mu: nu })
         }
+
         for (let i = 0; i < input.r; i++) {
           p = stepMinus(lat, { site: p, mu })
           u = qmul(u, qdag(getLink(lat, { site: p, mu })))
         }
+
         for (let i = 0; i < input.t; i++) {
           p = stepMinus(lat, { site: p, mu: nu })
           u = qmul(u, qdag(getLink(lat, { site: p, mu: nu })))
         }
+
         total += halfTrace(u)
         count += 1
       }
     }
   }
+
   return count === 0 ? 0 : total / count
 }
 
@@ -310,5 +328,6 @@ export function creutzRatio(input: {
   if (numerator <= 0 || denominator <= 0) {
     return 0
   }
+
   return -Math.log(numerator / denominator)
 }

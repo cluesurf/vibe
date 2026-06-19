@@ -34,8 +34,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells: MAX_CELLS })
@@ -55,6 +57,7 @@ async function run(): Promise<void> {
         }
       }
     }
+
     frontier = next
   }
 
@@ -81,6 +84,7 @@ async function run(): Promise<void> {
       r2,
     })
   }
+
   dots.sort((a, b) => b.r2 - a.r2) // far (boundary) first, centre drawn last on top
   console.log(
     `bulk ${n.toLocaleString()} cells, rendering ${FRAMES} beats on GPU`,
@@ -207,6 +211,7 @@ async function run(): Promise<void> {
       rgba[i + 2] = 11
       rgba[i + 3] = 255
     }
+
     // boundary ring
     for (let a = 0; a < 3600; a++) {
       const th = (a / 3600) * 2 * Math.PI
@@ -219,13 +224,16 @@ async function run(): Promise<void> {
         rgba[o + 2] = 68
       }
     }
+
     for (const d of dots) {
       const tone = currentOf(tones[d.index]!)
       if (tone === 0) {
         continue
       } // peace is black (the background), draw only the charges
+
       drawDot(rgba, d.px, d.py, d.rad, toneColor(tone))
     }
+
     writeFileSync(
       join(outDir, `wave-${String(f).padStart(3, '0')}.png`),
       encodePng(rgba, IMG, IMG),
@@ -234,6 +242,7 @@ async function run(): Promise<void> {
       console.log(`  beat ${f}/${FRAMES}`)
     }
   }
+
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(
     `ffmpeg -framerate 24 -i ${join(outDir, 'wave-%03d.png')} -pix_fmt yuv420p ${join(here, 'nesting-wave-534.mp4')}`,

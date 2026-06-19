@@ -23,6 +23,7 @@ function graph(): {
   for (let i = 0; i < N; i++) {
     off[i + 1] = off[i]! + g.neighbors[i]!.length
   }
+
   const adj = new Int32Array(off[N]!)
   {
     let p = 0
@@ -32,6 +33,7 @@ function graph(): {
       }
     }
   }
+
   let center = 0,
     best = -1
   for (let i = 0; i < N; i++) {
@@ -41,6 +43,7 @@ function graph(): {
       center = i
     }
   }
+
   return { N, off, adj, center }
 }
 
@@ -71,8 +74,10 @@ export function dynamics73(): {
       for (let q = off[i]!; q < off[i + 1]!; q++) {
         s += cur[adj[q]!]!
       }
+
       nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
+
     const t = prev
     prev = cur
     cur = nxt
@@ -83,8 +88,10 @@ export function dynamics73(): {
         mr = dist[i]!
       }
     }
+
     maxReached = Math.max(maxReached, mr <= b + 1 ? mr : b + 1)
   }
+
   const frontSpeed = Math.round((maxReached / 9) * 100) / 100
 
   // (2) perception rule (greedy graph matching per beat) from a seed -> EXACT charge conservation + churn
@@ -94,6 +101,7 @@ export function dynamics73(): {
   for (let k = 0; k < 100; k++) {
     t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   }
+
   const sumBefore = sumOf(t)
   for (let b = 0; b < 50; b++) {
     const used = new Uint8Array(N)
@@ -104,15 +112,18 @@ export function dynamics73(): {
       order[i] = order[j]!
       order[j] = tmp
     }
+
     for (const u of order) {
       if (used[u]) {
         continue
       }
+
       for (let q = off[u]!; q < off[u + 1]!; q++) {
         const w = adj[q]!
         if (used[w]) {
           continue
         }
+
         const [na, nb] = perm(t[u]!, t[w]!)
         t[u] = na as -1 | 0 | 1
         t[w] = nb as -1 | 0 | 1
@@ -122,6 +133,7 @@ export function dynamics73(): {
       }
     }
   }
+
   const conserves = sumOf(t) === sumBefore // the perception rule permutes charges, net charge is exact
   let ch = 0
   for (let i = 0; i < N; i++) {
@@ -129,7 +141,9 @@ export function dynamics73(): {
       ch++
     }
   }
+
   const churnPct = Math.round((100 * ch) / N)
+
   return { conserves, frontSpeed, churnPct }
 }
 
@@ -144,6 +158,7 @@ export default experiment({
   run() {
     const r = dynamics73()
     const ok = r.conserves && r.frontSpeed >= 0.9 && r.churnPct > 5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

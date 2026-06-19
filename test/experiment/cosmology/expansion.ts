@@ -40,6 +40,7 @@ export function deSitterExpansion(input: {
     arr.length ? arr.reduce((p, q) => p + q, 0) / arr.length : 0
   const earlyWidth = mean(widths.slice(0, a))
   const lateWidth = mean(widths.slice(widths.length - a))
+
   return {
     earlyWidth,
     lateWidth,
@@ -62,6 +63,7 @@ export default experiment({
       r.lateWidth > 1.5 * r.earlyWidth &&
       r.dimension > 0 &&
       r.dimension < 6
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

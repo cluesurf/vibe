@@ -26,6 +26,7 @@ export function eigHermitian(input: {
   const set = (r: number, c: number, x: number): void => {
     m.data[r * 2 * n + c] = x
   }
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const a = input.matrix.re[i * n + j] ?? 0
@@ -52,6 +53,7 @@ export function eigHermitian(input: {
       vectorsIm[a * n + i] = eig.vectors[(n + a) * twoN + col] ?? 0
     }
   }
+
   return { values, vectorsRe, vectorsIm }
 }
 
@@ -68,6 +70,7 @@ export function hermitianMatrixSign(input: {
     if (s === 0) {
       continue
     }
+
     for (let a = 0; a < n; a++) {
       const va = eig.vectorsRe[a * n + i] ?? 0
       const vaIm = eig.vectorsIm[a * n + i] ?? 0
@@ -82,6 +85,7 @@ export function hermitianMatrixSign(input: {
       }
     }
   }
+
   return out
 }
 
@@ -97,5 +101,6 @@ export function countNearZeroEigenvalues(input: {
       count += 1
     }
   }
+
   return count
 }

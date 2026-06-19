@@ -36,6 +36,7 @@ function measure(
   for (const b of boundary) {
     isB[b] = 1
   }
+
   // source boundary cell; surface BFS distance to other boundary cells
   const src = boundary[0]!
   const sdist = surfaceDistances({
@@ -50,10 +51,12 @@ function measure(
     if (b === src || sdist[b]! <= 0) {
       continue
     }
+
     const treePath = depth[src]! + depth[b]! - 2 * lcaDepth(src, b)
     const coupling = Math.pow(tau, treePath)
     pts.push([sdist[b]!, coupling])
   }
+
   const maxs = Math.max(...pts.map(x => x[0]))
   const mid = pts.filter(
     x =>
@@ -65,6 +68,7 @@ function measure(
     mid.map(x => x[0]),
     mid.map(x => x[1]),
   )
+
   return { N, slope, pairs: mid.length }
 }
 
@@ -76,6 +80,7 @@ export function gravityTreePath(): {
   const a = measure([5, 3, 4], 40000, 0.5)
   const b = measure([3, 4, 3, 4], 40000, 0.5)
   const calibrated = Math.abs(a.slope + 1) < 0.8
+
   return { fiveSlope: a.slope, fourSlope: b.slope, calibrated }
 }
 
@@ -89,6 +94,7 @@ export default experiment({
   paper: false,
   run() {
     const r = gravityTreePath()
+
     return verdict({
       status: r.calibrated ? 'pass' : 'open',
       claim:

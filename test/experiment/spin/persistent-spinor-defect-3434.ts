@@ -59,6 +59,7 @@ export default experiment({
   run() {
     const r = persistentSpinorDefect()
     const ok = r.halfInteger && r.persists && r.spinorHolonomy
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

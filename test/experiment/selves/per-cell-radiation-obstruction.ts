@@ -59,8 +59,10 @@ export default experiment({
           c++
         }
       }
+
       return c
     }
+
     let coupledPeak = 0
     let coupledFinal = 0
     for (let t = 0; t < steps; t++) {
@@ -73,6 +75,7 @@ export default experiment({
       if (c > coupledPeak) {
         coupledPeak = c
       }
+
       coupledFinal = c
     }
 
@@ -118,6 +121,7 @@ export default experiment({
         boundary: { form: 'absorbing', left: 0, right: 1 },
       })
     }
+
     const radiatingWallsEnd = wallCount(radiating.curr)
     let staticKink: TernaryField = makeKink()
     for (let t = 0; t < steps; t++) {
@@ -127,6 +131,7 @@ export default experiment({
         boundary: { form: 'absorbing', left: 0, right: 1 },
       })
     }
+
     const staticWallsEnd = wallCount(staticKink.curr)
 
     // the honest negative, the radiating rule shatters the kink (no localized identity) and still does not drain
@@ -142,6 +147,7 @@ export default experiment({
       staticKeepsButTraps
 
     const ok = noPerCellSelf
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

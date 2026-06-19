@@ -36,12 +36,14 @@ export function associativeExactRecall(input?: {
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
   }
+
   const recall = exactRecallRate(mem)
   const falsePositive = falsePositiveRate({
     mem,
     trials: 2000,
     rng: makeRng({ seed: 1 }),
   })
+
   return {
     cellCount: g.cellCount,
     recall,
@@ -60,6 +62,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeExactRecall({ maxCells: 1500 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

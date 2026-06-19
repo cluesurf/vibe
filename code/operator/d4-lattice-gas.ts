@@ -33,6 +33,7 @@ export function streamD4(input: {
       }
     }
   }
+
   return out
 }
 
@@ -53,6 +54,7 @@ export function streamD4Inverse(input: {
       }
     }
   }
+
   return out
 }
 
@@ -71,6 +73,7 @@ export function d4CollisionInvolution(input: {
   )
   const A = (1 << 0) | (1 << opp[0]!),
     B = (1 << k) | (1 << opp[k]!)
+
   return occupancy =>
     occupancy.map(o => (o === A ? B : o === B ? A : o))
 }
@@ -82,6 +85,7 @@ export function d4Count(occupancy: ReadonlyArray<number>): number {
     for (let d = 0; d < D4_DIRECTIONS; d++) {
       c += (o >> d) & 1
     }
+
     return s + c
   }, 0)
 }
@@ -103,5 +107,6 @@ export function d4Momentum(input: {
       }
     }
   }
+
   return m
 }

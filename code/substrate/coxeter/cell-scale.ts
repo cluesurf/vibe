@@ -20,9 +20,11 @@ function modpow(base: number, exp: number, p: number): number {
     if (e & 1) {
       r = (r * b) % p
     }
+
     b = (b * b) % p
     e = Math.floor(e / 2)
   }
+
   return r
 }
 
@@ -36,22 +38,27 @@ function modSqrt(a: number, p: number): number {
   if (a === 0) {
     return 0
   }
+
   if (modpow(a, (p - 1) / 2, p) !== 1) {
     return -1
   }
+
   let q = p - 1
   let s = 0
   while (q % 2 === 0) {
     q /= 2
     s++
   }
+
   if (s === 1) {
     return modpow(a, (p + 1) / 4, p)
   }
+
   let z = 2
   while (modpow(z, (p - 1) / 2, p) !== p - 1) {
     z++
   }
+
   let m = s
   let c = modpow(z, q, p)
   let t = modpow(a, q, p)
@@ -63,15 +70,18 @@ function modSqrt(a: number, p: number): number {
       tt = (tt * tt) % p
       i++
     }
+
     let b = c
     for (let j = 0; j < m - i - 1; j++) {
       b = (b * b) % p
     }
+
     m = i
     c = (b * b) % p
     t = (t * c) % p
     r = (r * b) % p
   }
+
   return r
 }
 
@@ -79,14 +89,17 @@ function isPrime(n: number): boolean {
   if (n < 2) {
     return false
   }
+
   if (n % 2 === 0) {
     return n === 2
   }
+
   for (let d = 3; d * d <= n; d += 2) {
     if (n % d === 0) {
       return false
     }
   }
+
   return true
 }
 
@@ -97,8 +110,10 @@ function primeBelow(target: number): number {
     if (isPrime(p)) {
       return p
     }
+
     p -= 40
   }
+
   throw new Error('no prime found')
 }
 
@@ -113,9 +128,11 @@ function matMulMod(a: IMat, b: IMat, p: number): IMat {
       for (let k = 0; k < 4; k++) {
         s = (s + a[i * 4 + k]! * b[k * 4 + j]!) % p
       }
+
       out[i * 4 + j] = s
     }
   }
+
   return out
 }
 
@@ -126,8 +143,10 @@ function matVecMod(a: IMat, x: IVec, p: number): IVec {
     for (let k = 0; k < 4; k++) {
       s = (s + a[i * 4 + k]! * x[k]!) % p
     }
+
     out[i] = s
   }
+
   return out
 }
 
@@ -136,6 +155,7 @@ function identityMod(): IMat {
   for (let i = 0; i < 4; i++) {
     m[i * 4 + i] = 1
   }
+
   return m
 }
 
@@ -183,6 +203,7 @@ function buildGeneratorsMod(p: number): {
     [0, 0, neg(sqrt2), 2],
   ]
   const cartanInvCol3 = invColumnMod(C, 3, p)
+
   return { R, cartanInvCol3 }
 }
 
@@ -197,32 +218,40 @@ function invColumnMod(C: number[][], col: number, p: number): IVec {
     while (piv < n && a[piv]![i] === 0) {
       piv++
     }
+
     if (piv === n) {
       throw new Error('singular Cartan mod p')
     }
+
     if (piv !== i) {
       ;[a[i], a[piv]] = [a[piv]!, a[i]!]
       ;[b[i], b[piv]] = [b[piv]!, b[i]!]
     }
+
     const inv = modInv(a[i]![i]!, p)
     for (let j = 0; j < n; j++) {
       a[i]![j] = (a[i]![j]! * inv) % p
     }
+
     b[i] = (b[i]! * inv) % p
     for (let r = 0; r < n; r++) {
       if (r === i) {
         continue
       }
+
       const f = a[r]![i]!
       if (f === 0) {
         continue
       }
+
       for (let j = 0; j < n; j++) {
         a[r]![j] = (((a[r]![j]! - f * a[i]![j]!) % p) + p) % p
       }
+
       b[r] = (((b[r]! - f * b[i]!) % p) + p) % p
     }
   }
+
   return Int32Array.from(b.map(v => modulo(v, p)))
 }
 
@@ -259,6 +288,7 @@ export function buildDodecagrid(input: {
         stab2.push(matMulMod(g2.R[i]!, stab2[head]!, p2))
       }
     }
+
     if (stab1.length > 100000) {
       break
     }
@@ -310,17 +340,20 @@ export function buildDodecagrid(input: {
           hit = true
           continue
         }
+
         id = cellMat1.length
         cellKey.set(k, id)
         cellMat1.push(ng1)
         cellMat2.push(ng2)
         nbr.push([])
       }
+
       if (id !== head && !nbr[head]!.includes(id)) {
         nbr[head]!.push(id)
         nbr[id]!.push(head)
       }
     }
+
     if (hit) {
       break
     }
@@ -331,10 +364,12 @@ export function buildDodecagrid(input: {
   for (const a of nbr) {
     facetCount = Math.max(facetCount, a.length)
   }
+
   const offsets = new Int32Array(n + 1)
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + nbr[i]!.length
   }
+
   const adj = new Int32Array(offsets[n]!)
   let pos = 0
   for (let i = 0; i < n; i++) {
@@ -373,10 +408,12 @@ export function buildDodecagridFast(input: {
         stab2.push(matMulMod(g2.R[i]!, stab2[head]!, p2))
       }
     }
+
     if (stab1.length > 100000) {
       break
     }
   }
+
   const faces1: IMat[] = []
   const faces2: IMat[] = []
   const faceSeen = new Set<string>()
@@ -398,6 +435,7 @@ export function buildDodecagridFast(input: {
       faces2.push(f2)
     }
   }
+
   const F = faces1.length
   const c01 = g1.cartanInvCol3
   const c02 = g2.cartanInvCol3
@@ -412,6 +450,7 @@ export function buildDodecagridFast(input: {
   while (hashSize < maxCells * 2.5) {
     hashSize *= 2
   }
+
   const mask = hashSize - 1
   const hash = new Int32Array(hashSize) // 0 = empty, else cell index + 1
 
@@ -432,10 +471,12 @@ export function buildDodecagridFast(input: {
         for (let k = 0; k < 4; k++) {
           s = (s + aF[aOff + i * 4 + k]! * b[k * 4 + j]!) % p
         }
+
         out[i * 4 + j] = s
       }
     }
   }
+
   const centerInto = (
     m: Int32Array,
     c: IVec,
@@ -448,22 +489,27 @@ export function buildDodecagridFast(input: {
       for (let k = 0; k < 4; k++) {
         s = (s + m[i * 4 + k]! * c[k]!) % p
       }
+
       out[outOff + i] = s
     }
   }
+
   const hashFp = (fp: Int32Array, off: number): number => {
     let h = 0
     for (let k = 0; k < 8; k++) {
       h = (Math.imul(h, 0x9e3779b1) + fp[off + k]!) | 0
     }
+
     return h >>> 0
   }
+
   const fpEqual = (off: number): boolean => {
     for (let k = 0; k < 8; k++) {
       if (fpStore[off + k] !== fpTmp[k]) {
         return false
       }
     }
+
     return true
   }
 
@@ -472,6 +518,7 @@ export function buildDodecagridFast(input: {
     mat1[i] = i % 5 === 0 ? 1 : 0
     mat2[i] = i % 5 === 0 ? 1 : 0
   }
+
   centerInto(mat1, c01, p1, fpStore, 0)
   centerInto(mat2, c02, p2, fpStore, 4)
   hash[hashFp(fpStore, 0) & mask] = 1
@@ -495,23 +542,29 @@ export function buildDodecagridFast(input: {
           id = cand
           break
         }
+
         slot = (slot + 1) & mask
       }
+
       if (id === -1) {
         if (count >= maxCells) {
           hit = true
           continue
         }
+
         id = count++
         for (let k = 0; k < 16; k++) {
           mat1[id * 16 + k] = tmp1[k]!
           mat2[id * 16 + k] = tmp2[k]!
         }
+
         for (let k = 0; k < 8; k++) {
           fpStore[id * 8 + k] = fpTmp[k]!
         }
+
         hash[slot] = id + 1
       }
+
       if (id !== head) {
         // add id to head's neighbors if not present
         let found = false
@@ -522,6 +575,7 @@ export function buildDodecagridFast(input: {
             break
           }
         }
+
         if (!found && deg[head]! < 12 && deg[id]! < 12) {
           nbrFlat[hb + deg[head]!] = id
           deg[head]!++
@@ -530,6 +584,7 @@ export function buildDodecagridFast(input: {
         }
       }
     }
+
     if (hit) {
       break
     }
@@ -542,10 +597,12 @@ export function buildDodecagridFast(input: {
       facetCount = deg[i]!
     }
   }
+
   const offsets = new Int32Array(n + 1)
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + deg[i]!
   }
+
   const adj = new Int32Array(offsets[n]!)
   let pos = 0
   for (let i = 0; i < n; i++) {
@@ -594,10 +651,12 @@ export function buildSliver(input: {
         stab2.push(matMulMod(g2.R[i]!, stab2[head]!, p2))
       }
     }
+
     if (stab1.length > 100000) {
       break
     }
   }
+
   const faces1: IMat[] = []
   const faces2: IMat[] = []
   const faceSeen = new Set<string>()
@@ -619,6 +678,7 @@ export function buildSliver(input: {
       faces2.push(f2)
     }
   }
+
   const F = faces1.length
   const c01 = g1.cartanInvCol3
   const c02 = g2.cartanInvCol3
@@ -640,10 +700,13 @@ export function buildSliver(input: {
       if (seen.has(k)) {
         return seen.size
       }
+
       seen.add(k)
     }
+
     return seen.size
   }
+
   let ba = 0
   let bb = 1
   let best = 0
@@ -652,12 +715,14 @@ export function buildSliver(input: {
       if (a === b) {
         continue
       }
+
       const d = walkLen(a, b)
       if (d > best) {
         best = d
         ba = a
         bb = b
       }
+
       if (best >= 2 * L) {
         break
       }
@@ -679,8 +744,10 @@ export function buildSliver(input: {
       cellM2.push(m2)
       pos.push(p)
     }
+
     return id
   }
+
   let M1 = identityMod()
   let M2 = identityMod()
   add(M1, M2, 0)
@@ -690,6 +757,7 @@ export function buildSliver(input: {
     M2 = matMulMod(M2, even ? faces2[ba]! : faces2[bb]!, p2)
     add(M1, M2, t + 1)
   }
+
   const spineLength = cellM1.length
   let layerStart = 0
   let layerEnd = cellM1.length
@@ -703,6 +771,7 @@ export function buildSliver(input: {
         )
       }
     }
+
     layerStart = layerEnd
     layerEnd = cellM1.length
   }
@@ -722,16 +791,19 @@ export function buildSliver(input: {
       }
     }
   }
+
   let facetCount = 0
   for (const a of nbr) {
     if (a.length > facetCount) {
       facetCount = a.length
     }
   }
+
   const offsets = new Int32Array(n + 1)
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + nbr[i]!.length
   }
+
   const adj = new Int32Array(offsets[n]!)
   let q = 0
   for (let i = 0; i < n; i++) {
@@ -739,6 +811,7 @@ export function buildSliver(input: {
       adj[q++] = w
     }
   }
+
   const position = Int32Array.from(pos)
 
   return {
@@ -759,45 +832,56 @@ function matInvMod(m: IMat, p: number): IMat {
     for (let j = 0; j < 4; j++) {
       row.push(m[i * 4 + j]!)
     }
+
     for (let j = 0; j < 4; j++) {
       row.push(i === j ? 1 : 0)
     }
+
     a.push(row)
   }
+
   for (let i = 0; i < 4; i++) {
     let piv = i
     while (piv < 4 && a[piv]![i] === 0) {
       piv++
     }
+
     if (piv === 4) {
       throw new Error('singular matrix mod p')
     }
+
     if (piv !== i) {
       ;[a[i], a[piv]] = [a[piv]!, a[i]!]
     }
+
     const inv = modInv(a[i]![i]!, p)
     for (let j = 0; j < 8; j++) {
       a[i]![j] = (a[i]![j]! * inv) % p
     }
+
     for (let r = 0; r < 4; r++) {
       if (r === i) {
         continue
       }
+
       const f = a[r]![i]!
       if (f === 0) {
         continue
       }
+
       for (let j = 0; j < 8; j++) {
         a[r]![j] = (((a[r]![j]! - f * a[i]![j]!) % p) + p) % p
       }
     }
   }
+
   const out = new Int32Array(16)
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
       out[i * 4 + j] = a[i]![j + 4]!
     }
   }
+
   return out
 }
 
@@ -838,6 +922,7 @@ export function makeLazyEngine(): LazyEngine {
         stab2.push(matMulMod(gen2.R[i]!, stab2[head]!, p2))
       }
     }
+
     if (stab1.length > 100000) {
       break
     }
@@ -879,6 +964,7 @@ export function makeLazyEngine(): LazyEngine {
           g2: matMulMod(cell.g2, faces2[i]!, p2),
         })
       }
+
       return out
     },
     fingerprint: (cell: LazyCell): string =>
@@ -915,20 +1001,25 @@ export function buildDodecagridLazy(input: { maxCells: number }): {
           hit = true
           continue
         }
+
         id = cells.length
         idOf.set(k, id)
         cells.push(nc)
         nbr.push([])
       }
+
       if (id !== head && !nbr[head]!.includes(id)) {
         nbr[head]!.push(id)
         nbr[id]!.push(head)
       }
     }
+
     if (hit) {
       break
     }
   }
+
   const { offsets, adj } = toCsr(nbr)
+
   return { offsets, adj, cellCount: cells.length }
 }

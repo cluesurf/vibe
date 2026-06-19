@@ -71,6 +71,7 @@ export default experiment({
           }
         }
       }
+
       return will
     }
 
@@ -96,6 +97,7 @@ export default experiment({
           }
         }
       }
+
       return max
     }
 
@@ -143,11 +145,13 @@ export default experiment({
               break
             }
           }
+
           if (differs && dist[c]! > max) {
             max = dist[c]!
           }
         }
       }
+
       return max
     }
 
@@ -164,6 +168,7 @@ export default experiment({
     const sealsRadiation = leakyCone < boundary
 
     const ok = reversible && chargeOk && confines && sealsRadiation
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

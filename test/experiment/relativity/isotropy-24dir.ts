@@ -20,14 +20,17 @@ function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
   if (kind === 'D4') {
     return rootsD4()
   }
+
   return kind === 'Z3' ? coordinateAxes(3) : coordinateAxes(4)
 }
+
 const omega2 = (R: number[][], k: number[]): number =>
   latticeDispersion({ directions: R, wave: k })
 
 // anisotropy: relative difference of omega^2 between an axis direction and a body-diagonal at the same |k|
 function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {
   const dim = kind === 'Z3' ? 3 : 4
+
   return dispersionAxisDiagonalAnisotropy({
     directions: neighbors(kind),
     dimension: dim,
@@ -50,6 +53,7 @@ export function isotropy24dir(): {
     z4 = anisotropy('Z4', 1.2),
     d4 = anisotropy('D4', 1.2)
   const d4Best = d4 < z4 / 5 && d4 < z3 / 5
+
   return { z3, z4, d4, d4Best }
 }
 
@@ -64,6 +68,7 @@ export default experiment({
   run() {
     const r = isotropy24dir()
     const ok = r.d4Best && r.d4 < 0.02
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

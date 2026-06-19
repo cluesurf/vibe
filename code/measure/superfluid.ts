@@ -19,6 +19,7 @@ export function landauCriticalVelocity(input: {
     const k = (i / steps) * kMax
     vc = Math.min(vc, input.dispersion(k) / k)
   }
+
   return vc
 }
 
@@ -27,9 +28,11 @@ const wrap = (x: number): number => {
   while (v > Math.PI) {
     v -= 2 * Math.PI
   }
+
   while (v <= -Math.PI) {
     v += 2 * Math.PI
   }
+
   return v
 }
 
@@ -48,5 +51,6 @@ export function vortexCirculation(input: {
     const b = (2 * Math.PI * (i + 1)) / points
     sum += wrap(m * b - m * a)
   }
+
   return sum
 }

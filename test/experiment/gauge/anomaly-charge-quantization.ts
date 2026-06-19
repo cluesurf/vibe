@@ -103,6 +103,7 @@ export function anomalyChargeQuantization(
       })
     }
   }
+
   // Quantized means every charge is an integer multiple of 1/3.
   const chargesQuantized = electricCharges.every(
     c => Math.abs(c.charge * 3 - Math.round(c.charge * 3)) < 1e-9,
@@ -148,6 +149,7 @@ export default experiment({
       r.unusedAnomaliesCancel &&
       r.chargesQuantized &&
       r.atomNeutral
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

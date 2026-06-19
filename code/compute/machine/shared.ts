@@ -104,6 +104,7 @@ export function makeVibeComputer(input: {
         ca.step()
         seen.add(ca.headAt())
       }
+
       head = ca.headAt()
       railwayRan = seen.size === cycle.length // the locomotive visited every track cell of the loop
     }
@@ -112,6 +113,7 @@ export function makeVibeComputer(input: {
     for (let c = 0; c < memory.cellCount; c++) {
       storeWord(memory, c, ternaryWord(c, wordBits))
     }
+
     const queryCell = Math.min(42, memory.cellCount - 1)
     const responders = searchExact({
       mem: memory,
@@ -175,18 +177,22 @@ function findCycle(neighbors: number[][]): number[] {
         queue.push(v)
         continue
       }
+
       if (v === parent[u] || v === u) {
         continue
       }
+
       // non-tree edge u-v: build the cycle through the common ancestor
       const up: number[] = []
       for (let x: number = u; x !== -1; x = parent[x]!) {
         up.push(x)
       }
+
       const vp: number[] = []
       for (let x: number = v; x !== -1; x = parent[x]!) {
         vp.push(x)
       }
+
       const seen = new Set(up)
       let lca = -1
       for (const x of vp) {
@@ -195,9 +201,11 @@ function findCycle(neighbors: number[][]): number[] {
           break
         }
       }
+
       if (lca < 0) {
         continue
       }
+
       const a: number[] = []
       for (const x of up) {
         a.push(x)
@@ -205,18 +213,22 @@ function findCycle(neighbors: number[][]): number[] {
           break
         }
       }
+
       const b: number[] = []
       for (const x of vp) {
         if (x === lca) {
           break
         }
+
         b.push(x)
       }
+
       const cycle = [...a, ...b.reverse()]
       if (cycle.length >= 4) {
         return cycle
       }
     }
   }
+
   return []
 }

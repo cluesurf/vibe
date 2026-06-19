@@ -89,8 +89,10 @@ export function lorentzFlow(input?: {
       if (len < 1e-9) {
         continue
       }
+
       dirs.push([d[0]! / len, d[1]! / len, d[2]! / len])
     }
+
     a2.push(angularAnisotropy({ directions: dirs, axes, order: 2 }))
     a4.push(angularAnisotropy({ directions: dirs, axes, order: 4 }))
     a6.push(angularAnisotropy({ directions: dirs, axes, order: 6 }))
@@ -127,6 +129,7 @@ export default experiment({
   run() {
     const r = lorentzFlow({ maxCells: 9000 })
     const ok = r.solved && r.a4Shrinks && r.a6Shrinks && r.rank2AtFloor
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

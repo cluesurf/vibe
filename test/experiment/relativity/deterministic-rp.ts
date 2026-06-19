@@ -99,6 +99,7 @@ export default experiment({
       r.reflectionPositive &&
       r.allOscillate &&
       r.linearMassless
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

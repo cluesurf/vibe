@@ -108,6 +108,7 @@ export function renderDigitFibonacci(input: {
     ) {
       latched = Number(step.registers[bIndex]!)
     }
+
     steps.push(step)
     display.push(latched)
   })
@@ -136,6 +137,7 @@ export function renderDigitFibonacci(input: {
         changed.add(p)
       }
     }
+
     const av = step.registers[step.reg]!
     const pv = prev[step.reg]!
     const mode: 'add' | 'sub' | 'idle' =
@@ -161,6 +163,7 @@ export function renderDigitFibonacci(input: {
       )
     }
   }
+
   const lastRegs = steps[steps.length - 1]!.registers
   for (let h = 0; h < 14; h++) {
     frames.push(
@@ -297,5 +300,6 @@ function renderFrame(input: {
     centralPolygon: tiling.polygons[0]!,
     text: String(display),
   })
+
   return rgba
 }

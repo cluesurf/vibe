@@ -41,8 +41,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   // grow only the horosphere band slab
@@ -65,14 +67,17 @@ async function run(): Promise<void> {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -80,6 +85,7 @@ async function run(): Promise<void> {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -104,10 +110,13 @@ async function run(): Promise<void> {
     const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(raw.map(c => c.u))
   const cv = median(raw.map(c => c.v))
   const radii = raw
@@ -216,6 +225,7 @@ async function run(): Promise<void> {
       rgba[i * 4 + 2] = 11
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of band) {
       if (
         c.px < -RADIUS ||
@@ -225,10 +235,12 @@ async function run(): Promise<void> {
       ) {
         continue
       }
+
       const tone = currentOf(tones[c.index]!)
       if (tone === 0) {
         continue
       }
+
       const col = COLORS[tone]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
@@ -237,6 +249,7 @@ async function run(): Promise<void> {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
@@ -244,8 +257,10 @@ async function run(): Promise<void> {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
   }
+
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log('assemble with, task/render-video.sh')
 }

@@ -53,6 +53,7 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
         stab.push(g)
       }
     }
+
     if (stab.length > 100000) {
       break
     } // safety
@@ -70,6 +71,7 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
       faceNormals.push(fn)
     }
   }
+
   const faces: Mat[] = faceNormals.map(fn =>
     reflectionMatrix(fn, metric),
   )

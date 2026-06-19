@@ -59,14 +59,17 @@ function gliderSelf(): {
         count.set(nk, (count.get(nk) ?? 0) + 1)
       }
     }
+
     const next = new Set<string>()
     for (const [k, c] of count) {
       if (c === 3 || (c === 2 && state.has(k))) {
         next.add(k)
       }
     }
+
     return next
   }
+
   let s = new Set<string>(['0,0', '1,0', '2,0', '2,1', '1,2'])
   const frames: Set<string>[] = [new Set(s)]
   const centroids: number[][] = [centroidOfCellSet(s)]
@@ -75,6 +78,7 @@ function gliderSelf(): {
     frames.push(new Set(s))
     centroids.push(centroidOfCellSet(s))
   }
+
   // identity = overlap of recentered pattern with the recentered pattern one PERIOD (4) later
   let id = 0
   let idc = 0
@@ -85,6 +89,7 @@ function gliderSelf(): {
     )
     idc++
   }
+
   const identity = id / idc
   // turnover = average fraction of occupied cells that differ frame-to-frame (the matter flows)
   let tov = 0
@@ -93,6 +98,7 @@ function gliderSelf(): {
     tov += 1 - cellSetOverlap(frames[t]!, frames[t + 1]!)
     tovc++
   }
+
   const turnover = tov / tovc
   // speed = mean centroid displacement per beat; rgGrowth = radius-of-gyration drift (should stay ~constant)
   let disp = 0
@@ -102,6 +108,7 @@ function gliderSelf(): {
       centroids[t + 1]![1]! - centroids[t]![1]!,
     )
   }
+
   const speed = disp / (centroids.length - 1)
   const rgGrowth =
     radiusOfGyrationOfCellSet(frames[frames.length - 1]!) -
@@ -111,6 +118,7 @@ function gliderSelf(): {
     turnover > 0.3 &&
     speed > 0.1 &&
     Math.abs(rgGrowth) < 1
+
   return { identity, turnover, speed, rgGrowth, isSelf }
 }
 
@@ -143,6 +151,7 @@ function vibeChurn(): {
       seed.push(i)
     }
   }
+
   const occupied = (): Set<string> => {
     const s = new Set<string>()
     for (let i = 0; i < n; i++) {
@@ -152,8 +161,10 @@ function vibeChurn(): {
         )
       }
     }
+
     return s
   }
+
   const rng = makeRng({ seed: 3 })
   const frame0 = occupied()
   const rg0 = radiusOfGyrationOfCellSet(frame0)
@@ -166,10 +177,12 @@ function vibeChurn(): {
       order[i] = order[j]!
       order[j] = t
     }
+
     for (const v of order) {
       if (used[v]) {
         continue
       }
+
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
       const o = Math.floor(rng.next() * deg)
@@ -178,6 +191,7 @@ function vibeChurn(): {
         if (used[w] || w === v) {
           continue
         }
+
         const [na, nb] = perm(tone[v]!, tone[w]!)
         tone[v] = na as -1 | 0 | 1
         tone[w] = nb as -1 | 0 | 1
@@ -187,9 +201,11 @@ function vibeChurn(): {
       }
     }
   }
+
   for (let t = 0; t < 30; t++) {
     step()
   }
+
   const frameT = occupied()
   // identity = overlap of recentered 3D patterns (does the seed keep its shape?), rgGrowth = does it disperse?
   const identity = cellSetOverlap(
@@ -198,6 +214,7 @@ function vibeChurn(): {
   )
   const rgGrowth = radiusOfGyrationOfCellSet(frameT) - rg0
   const isSelf = identity > 0.8 && Math.abs(rgGrowth) < 1
+
   return { identity, rgGrowth, isSelf }
 }
 
@@ -216,6 +233,7 @@ export function propagatingSelves(): {
   const gl = gliderSelf()
   const vc = vibeChurn()
   const separates = gl.isSelf && !vc.isSelf
+
   return {
     gliderIdentity: gl.identity,
     gliderTurnover: gl.turnover,
@@ -239,6 +257,7 @@ export default experiment({
   run() {
     const r = propagatingSelves()
     const ok = r.separates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

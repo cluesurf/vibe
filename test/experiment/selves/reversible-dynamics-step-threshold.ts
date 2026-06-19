@@ -48,6 +48,7 @@ export default experiment({
     for (let t = 0; t < 2000; t++) {
       base = relaxSpins({ spins: base, params, rate: 0.08 })
     }
+
     const startQ = skyrmionDegree(base, params.size)
 
     const chargeRange = (dt: number): { min: number; max: number } => {
@@ -60,12 +61,15 @@ export default experiment({
         if (q < min) {
           min = q
         }
+
         if (q > max) {
           max = q
         }
       }
+
       return { min, max }
     }
+
     const small = chargeRange(0.008) // small step, fine resolution
     const large = chargeRange(0.06) // large step, the coarse-rotation regime
 

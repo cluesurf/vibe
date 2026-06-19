@@ -58,6 +58,7 @@ function evaluate(input: {
         countDisconnectedAsFailure: true,
       })
     : { successRate: 0, meanStretch: 0, trials: 0 }
+
   return {
     name: input.name,
     size: input.substrate.size,
@@ -100,6 +101,7 @@ export default experiment({
       candidate.reach &&
       candidate.anisotropy < 0.25 &&
       candidate.routeSuccess > 0.7
+
     return verdict({
       status: bothWorlds ? 'pass' : 'open',
       claim:

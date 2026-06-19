@@ -21,6 +21,7 @@ export function occupiedSet(will: Will): Set<number> {
       }
     }
   }
+
   return set
 }
 
@@ -40,6 +41,7 @@ export function componentCount(will: Will): number {
     if (seen.has(start)) {
       continue
     }
+
     components++
     const stack = [start]
     seen.add(start)
@@ -54,6 +56,7 @@ export function componentCount(will: Will): number {
       }
     }
   }
+
   return components
 }
 
@@ -64,6 +67,7 @@ export function diameter(will: Will): number {
   if (occupied.length <= 1) {
     return 0
   }
+
   const dist = shellDistances(will.mesh, occupied[0]!)
   let max = 0
   for (const cell of occupied) {
@@ -71,6 +75,7 @@ export function diameter(will: Will): number {
       max = dist[cell]!
     }
   }
+
   return max
 }
 
@@ -87,6 +92,7 @@ export function travelDistance(input: {
       max = dist[cell]!
     }
   }
+
   return max
 }
 
@@ -106,6 +112,7 @@ export function maxOccupancy(
       max = count
     }
   }
+
   return max
 }
 
@@ -129,5 +136,6 @@ export function momentum(
       }
     }
   }
+
   return m
 }

@@ -288,6 +288,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
       return false
     }
   }
+
   return true
 }
 
@@ -431,6 +432,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   for (let s = 0; s < 100; s++) {
     metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
   }
+
   const disordered = averagePlaquette({ lattice: lat })
   check({
     name: 'SU(2) cold is ordered, strong coupling disorders it',
@@ -500,6 +502,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
+
   const profile = pauliLocalityProfile({
     matrix: hamiltonianMatrix({ perm }),
     cells,
@@ -546,6 +549,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   for (let i = 0; i < eig.values.length; i++) {
     lo = Math.min(lo, eig.values[i] ?? 0)
   }
+
   check({
     name: 'commuting-gate rule has a local, bounded-below Hamiltonian',
     ok: length < 2 && lo > -1e-9,
@@ -593,11 +597,13 @@ function allFinite(xs: ArrayLike<number>): boolean {
       m.data[i * cells + (row[k] ?? 0)] = -1
     }
   }
+
   const eig = eigSymmetric({ matrix: m })
   let lo = Infinity
   for (let i = 0; i < eig.values.length; i++) {
     lo = Math.min(lo, eig.values[i] ?? 0)
   }
+
   check({
     name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
     ok: lo > -1e-9 && lo < 1e-6,
@@ -2317,10 +2323,12 @@ function allFinite(xs: ArrayLike<number>): boolean {
     for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
       sa.add(a.adj[p]!)
     }
+
     const sb = new Set<number>()
     for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
       sb.add(b.adj[p]!)
     }
+
     if (sa.size !== sb.size) {
       identical = false
     } else {
@@ -2332,6 +2340,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
       }
     }
   }
+
   check({
     name: 'fast engine (flat typed dedup): identical exact adjacency to the simple engine, facet 12 (scales ~10x further, to tens of millions)',
     ok: identical,

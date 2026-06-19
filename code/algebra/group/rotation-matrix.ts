@@ -23,9 +23,11 @@ export function multiply3(A: Matrix3, B: Matrix3): Matrix3 {
       for (let k = 0; k < 3; k++) {
         s += A[i]![k]! * B[k]![j]!
       }
+
       C[i]![j] = s
     }
   }
+
   return C
 }
 
@@ -54,6 +56,7 @@ export function rotationMatrix3(axis: number[], ang: number): Matrix3 {
     [-k[1]!, k[0]!, 0],
   ]
   const o: Matrix3 = k.map(a => k.map(b => a * b))
+
   return [0, 1, 2].map(i =>
     [0, 1, 2].map(
       j => c * (i === j ? 1 : 0) + s * K[i]![j]! + (1 - c) * o[i]![j]!,

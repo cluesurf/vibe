@@ -131,6 +131,7 @@ export default experiment({
       r.sprinkleIsFlat &&
       r.latticeIsPeaked &&
       r.boostCovariant
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

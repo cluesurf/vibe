@@ -36,6 +36,7 @@ export default experiment({
         center = i
       }
     }
+
     const dist = neighborDistances({
       neighbors,
       size: n,
@@ -47,6 +48,7 @@ export default experiment({
         maxD = dist[i]!
       }
     }
+
     const q = 251 // a prime modulus
 
     // a localized perturbation on the vacuum (all zero), the gravitational pulse at the center
@@ -54,8 +56,10 @@ export default experiment({
       const prev = new Uint8Array(n)
       const cur = new Uint8Array(n)
       cur[center] = 1
+
       return { prev, cur }
     }
+
     const step = (
       prev: Uint8Array,
       cur: Uint8Array,
@@ -80,12 +84,14 @@ export default experiment({
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
       }
+
       let front = 0
       for (let i = 0; i < n; i++) {
         if (cur[i] !== 0 && dist[i]! > front) {
           front = dist[i]!
         }
       }
+
       return front / probe // disturbed-front distance per beat
     }
 
@@ -101,6 +107,7 @@ export default experiment({
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
       }
+
       // backward: from the last pair (prev=u_{T}, cur=u_{T-1}) step recovers u_{T-2}, ... to u_0
       let bprev = cur.slice() // u_T
       let bcur = prev.slice() // u_{T-1}
@@ -109,6 +116,7 @@ export default experiment({
         step(bprev, bcur, bnext, coupling)
         ;[bprev, bcur, bnext] = [bcur, bnext, bprev]
       }
+
       // bcur should be u_0, bprev should be u_1
       let diff = 0
       for (let i = 0; i < n; i++) {
@@ -116,6 +124,7 @@ export default experiment({
           diff++
         }
       }
+
       return diff / n
     }
 
@@ -133,8 +142,10 @@ export default experiment({
             active++
           }
         }
+
         maxActive = Math.max(maxActive, active)
       }
+
       return maxActive <= n // bounded (cannot exceed the lattice, mod-q keeps the values finite, no blow-up)
     }
 
@@ -149,23 +160,28 @@ export default experiment({
           for (const j of neighbors[i]!) {
             s += a[j]!
           }
+
           b[i] = ((s % q) + q) % q
         }
       }
+
       for (let b = 0; b < 40; b++) {
         fwd(cur, next)
         ;[cur, next] = [next, cur]
       }
+
       for (let b = 0; b < 40; b++) {
         fwd(cur, next)
         ;[cur, next] = [next, cur]
       } // "reverse" by re-running, cannot undo
+
       let diff = 0
       for (let i = 0; i < n; i++) {
         if (cur[i] !== start[i]) {
           diff++
         }
       }
+
       return diff / n
     }
 

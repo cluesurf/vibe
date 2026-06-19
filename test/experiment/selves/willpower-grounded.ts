@@ -54,6 +54,7 @@ export function willpowerGrounded(): {
       center = i
     }
   }
+
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -79,9 +80,11 @@ export function willpowerGrounded(): {
           }
         }
       }
+
       frontier = next
     }
   }
+
   const SELF_SIZE = 40
   const CORE_SIZE = 6
   const inSelf = new Uint8Array(n)
@@ -89,9 +92,11 @@ export function willpowerGrounded(): {
   for (let k = 0; k < SELF_SIZE && k < order.length; k++) {
     inSelf[order[k]!] = 1
   }
+
   for (let k = 0; k < CORE_SIZE && k < order.length; k++) {
     inCore[order[k]!] = 1
   }
+
   let selfSize = 0
   for (let i = 0; i < n; i++) {
     if (inSelf[i]) {
@@ -106,8 +111,10 @@ export function willpowerGrounded(): {
         s += t[i]!
       }
     }
+
     return s
   }
+
   const reserve = (t: Int8Array): number => {
     let s = 0
     for (let i = 0; i < n; i++) {
@@ -115,6 +122,7 @@ export function willpowerGrounded(): {
         s += t[i]!
       }
     }
+
     return s
   }
 
@@ -126,6 +134,7 @@ export function willpowerGrounded(): {
         t[i] = 1
       }
     }
+
     return t
   }
 
@@ -155,6 +164,7 @@ export function willpowerGrounded(): {
         break
       }
     }
+
     return { beats, reserveEnd: reserve(t), q0, qEnd: sumTone(t) }
   }
 
@@ -207,6 +217,7 @@ export default experiment({
   run() {
     const r = willpowerGrounded()
     const ok = r.solved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

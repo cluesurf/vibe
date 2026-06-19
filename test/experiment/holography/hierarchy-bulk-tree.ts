@@ -29,6 +29,7 @@ export function hierarchyBulkTree(): {
       center = i
     }
   }
+
   // radial BFS tree, shell sizes = the boundary size at each radius; branching = shell ratio
   const shell = bfsShells({
     neighbors: g.neighbors,
@@ -46,6 +47,7 @@ export function hierarchyBulkTree(): {
     depthForIt = shell.indexOf(testShell)
   const predictedDepth = Math.log(testShell) / Math.log(branching)
   const depthLogsBoundary = Math.abs(depthForIt - predictedDepth) < 2
+
   return { branching, depthLogsBoundary }
 }
 
@@ -60,6 +62,7 @@ export default experiment({
   run() {
     const r = hierarchyBulkTree()
     const ok = r.branching > 1 && r.depthLogsBoundary
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

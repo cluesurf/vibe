@@ -34,6 +34,7 @@ export function refractiveDeflection(input: {
   const gradient = (px: number, py: number): [number, number] => {
     const r2 = px * px + py * py + soft * soft
     const f = -k / (r2 * Math.sqrt(r2))
+
     return [f * px, f * py]
   }
 
@@ -53,5 +54,6 @@ export function refractiveDeflection(input: {
       break
     }
   }
+
   return Math.atan2(ty, tx)
 }

@@ -68,6 +68,7 @@ export default experiment({
         if (dx * dx + dy * dy > radius * radius) {
           continue
         }
+
         const tx = -dy
         const ty = dx
         let best = 0
@@ -79,8 +80,10 @@ export default experiment({
             best = d
           }
         }
+
         will.data[c * degree + best] = 1
       }
+
       return will
     }
 
@@ -100,8 +103,10 @@ export default experiment({
             py += t * dirVec[d]![1]
           }
         }
+
         L += dx * py - dy * px
       }
+
       return L
     }
 
@@ -123,18 +128,22 @@ export default experiment({
             break
           }
         }
+
         if (!on) {
           continue
         }
+
         const r = Math.sqrt(dx * dx + dy * dy)
         if (r > ext) {
           ext = r
         }
+
         total++
         if (r <= 2 * radius) {
           inside++
         }
       }
+
       return { ext, confined: total > 0 ? inside / total : 0 }
     }
 
@@ -158,9 +167,11 @@ export default experiment({
       if (ext > maxExtent) {
         maxExtent = ext
       }
+
       if (confined < minConfined) {
         minConfined = confined
       }
+
       const ratio = Math.abs(circulation(will) / l0)
       if (t > beats / 2 && ratio > lateCirculationMax) {
         lateCirculationMax = ratio

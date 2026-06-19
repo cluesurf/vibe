@@ -24,9 +24,11 @@ export function classicalWalkMSD(input: {
       x += rng.next() < 0.5 ? 1 : -1
     }
   }
+
   for (let t = 0; t <= steps; t++) {
     msd[t]! /= runs
   }
+
   return Array.from(msd)
 }
 
@@ -58,9 +60,11 @@ export function graphWalkMsdExponent(input: {
       }
     }
   }
+
   for (let t = 0; t <= beats; t++) {
     msd[t]! /= runs
   }
+
   let sx = 0
   let sy = 0
   let sxx = 0
@@ -70,6 +74,7 @@ export function graphWalkMsdExponent(input: {
     if (msd[t]! <= 0) {
       continue
     }
+
     const x = Math.log(t)
     const y = Math.log(msd[t]!)
     sx += x
@@ -78,6 +83,7 @@ export function graphWalkMsdExponent(input: {
     sxy += x * y
     m++
   }
+
   return m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
 }
 
@@ -94,8 +100,10 @@ export function randomWalkEndpoint(input: {
     if (nbrs.length === 0) {
       break
     }
+
     cur = nbrs[Math.floor(input.rng.next() * nbrs.length)]!
   }
+
   return cur
 }
 
@@ -113,9 +121,11 @@ export function randomWalkPath(input: {
     if (nbrs.length === 0) {
       break
     }
+
     cur = nbrs[Math.floor(input.rng.next() * nbrs.length)]!
     path.push(cur)
   }
+
   return path
 }
 
@@ -144,16 +154,20 @@ export function persistentWalkMeanDisplacement(input: {
       if (rng.next() < mix) {
         d = Math.floor(rng.next() * directionCount)
       }
+
       const step = directions[d]!
       for (let a = 0; a < dimension; a++) {
         position[a]! += step[a]!
       }
     }
+
     let sumSquares = 0
     for (let a = 0; a < dimension; a++) {
       sumSquares += position[a]! * position[a]!
     }
+
     total += Math.sqrt(sumSquares)
   }
+
   return total / runs
 }

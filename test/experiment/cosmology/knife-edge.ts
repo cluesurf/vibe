@@ -46,6 +46,7 @@ export default experiment({
       deadAtZero.push(z.trajectory[z.trajectory.length - 1]!)
       aliveAtTiny.push(t.trajectory[t.trajectory.length - 1]! / n)
     }
+
     const thresholdAtZero = deadAtZero.every(d => d === 0) // arrow 0 is dead at every size
     const livesAnySize = aliveAtTiny.every(a => a > 0.01) // any positive arrow is alive at every size
     const ok = thresholdAtZero && livesAnySize

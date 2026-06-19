@@ -28,6 +28,7 @@ function study(): {
     rng,
   })
   const c = integrationCorrelates({ substrate, configuration })
+
   return c
 }
 
@@ -44,6 +45,7 @@ export default experiment({
     const ok =
       Number.isFinite(c.markovBlanketScore) &&
       Number.isFinite(c.integrationPhi)
+
     return verdict({
       status: ok ? 'open' : 'fail',
       claim:

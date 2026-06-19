@@ -39,6 +39,7 @@ function gravitonModes(): {
     const latt = Math.sqrt(2 * (1 - Math.cos(kx))) // 1D lattice dispersion
     maxErr = Math.max(maxErr, Math.abs(latt - kx) / kx)
   }
+
   const dispersionOK = maxErr < 0.02 // omega -> |k| at small k (light cone z=1)
   const massless = Math.sqrt(2 * (1 - Math.cos(1e-5))) < 1e-4 // omega(k->0) -> 0, no gap
 
@@ -87,10 +88,12 @@ function gravitonModes(): {
   const survives = symBasis.filter(h => {
     const transverse =
       h[0]![2] === 0 && h[1]![2] === 0 && h[2]![2] === 0
+
     return transverse
   })
   // among survivors {xx, yy, xy}, traceless ties xx,yy -> 2 dof
   free = survives.length - 1 // 3 survivors, 1 trace constraint
+
   return { dispersionOK, polarizationCount: free, massless }
 }
 
@@ -117,6 +120,7 @@ function binaryWaveform(
     distance: 100, // observer distance (far field)
     samples,
   })
+
   return {
     hplus: w.hplus,
     hcross: w.hcross,
@@ -140,6 +144,7 @@ function radiatedPower(
     mass2: m2,
     separation: a,
   })
+
   return {
     measured,
     formula,
@@ -177,6 +182,7 @@ function chirp(
     xs: pts.map(p => p.x),
     ys: pts.map(p => p.y),
   }).slope
+
   return {
     exponent: slope,
     ok: Math.abs(slope + 3 / 8) < 0.03,
@@ -203,6 +209,7 @@ export default experiment({
       gm.polarizationCount === 2 &&
       pw.ok &&
       ch.ok
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

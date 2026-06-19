@@ -27,6 +27,7 @@ function study(): { mean: number; std: number; samples: number[] } {
     })
     dims.push(myrheimMeyerDimension({ poset }))
   }
+
   return {
     mean: meanOf(dims),
     std: standardDeviation(dims),
@@ -47,6 +48,7 @@ export default experiment({
     const meanNear3 = Math.abs(r.mean - 3) < 0.5
     const lowSpread = r.std < 0.3
     const ok = meanNear3 && lowSpread
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

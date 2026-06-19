@@ -20,7 +20,9 @@ export function centroidOfCellSet(cells: Set<string>): number[] {
       sums[d] = (sums[d] ?? 0) + point[d]!
     }
   }
+
   const size = Math.max(1, cells.size)
+
   return sums.map(s => s / size)
 }
 
@@ -33,6 +35,7 @@ export function recenterCellSet(cells: Set<string>): Set<string> {
     const point = parseKey(key)
     out.add(point.map((v, d) => v - (centroid[d] ?? 0)).join(','))
   }
+
   return out
 }
 
@@ -45,6 +48,7 @@ export function cellSetOverlap(a: Set<string>, b: Set<string>): number {
       intersection++
     }
   }
+
   return intersection / Math.max(1, Math.max(a.size, b.size))
 }
 
@@ -59,8 +63,10 @@ export function radiusOfGyrationOfCellSet(cells: Set<string>): number {
     for (let d = 0; d < point.length; d++) {
       d2 += (point[d]! - (centroid[d] ?? 0)) ** 2
     }
+
     sum += d2
   }
+
   return Math.sqrt(sum / Math.max(1, cells.size))
 }
 
@@ -76,6 +82,8 @@ export function jaccardDistance(
       intersection++
     }
   }
+
   const union = a.size + b.size - intersection
+
   return union > 0 ? 1 - intersection / union : 0
 }

@@ -35,6 +35,7 @@ function evaluate(input: { name: string; substrate: Substrate }): {
     samples: 400,
     rng,
   })
+
   return {
     name: input.name,
     size: input.substrate.size,
@@ -81,6 +82,7 @@ export default experiment({
       sprinkleNoFrame &&
       sprinkleMoreIsotropic &&
       tilingReaches
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

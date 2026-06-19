@@ -25,6 +25,7 @@ export function horosphere3434(): {
   for (let i = 0; i < n; i++) {
     sum += slab.neighbors[i]!.length
   }
+
   const center = mostConnectedNode(slab.neighbors)
   // spectral dimension via the lazy-walk return probability, the central difference at
   // t = 16 is the endpoint slope between t = 14 and t = 18.
@@ -35,6 +36,7 @@ export function horosphere3434(): {
     t2: 18,
   })
   const meanDegree = Math.round((sum / n) * 10) / 10
+
   return { cells: n, meanDegree, specDim16 }
 }
 
@@ -56,6 +58,7 @@ export default experiment({
     const r = horosphere3434()
     const thinSlab = r.specDim16 > 2 && r.specDim16 < 3
     const ok = thinSlab && r.cells > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

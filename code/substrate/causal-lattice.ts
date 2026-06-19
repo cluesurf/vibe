@@ -17,6 +17,7 @@ export function causalLattice(input: { half: number }): Poset {
       pts.push([t, x])
     }
   }
+
   const n = pts.length
   const coords = new Float64Array(n * 2)
   pts.forEach(([t, x], i) => {
@@ -27,6 +28,7 @@ export function causalLattice(input: { half: number }): Poset {
   const precedes = (pair: { a: number; b: number }): boolean => {
     const dt = pts[pair.b]![0] - pts[pair.a]![0]
     const dx = pts[pair.b]![1] - pts[pair.a]![1]
+
     return dt > 0 && dt >= Math.abs(dx)
   }
 

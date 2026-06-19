@@ -274,9 +274,11 @@ export function buildPentagridRuleTable(
           `rule conflict at ${key}: ${existing} vs ${next} (rule ${rule})`,
         )
       }
+
       lookup.set(key, next)
     }
   }
+
   return { lookup, size: lookup.size }
 }
 
@@ -289,6 +291,7 @@ export function pentagridNext(
   neighbours: PentaState[],
 ): PentaState {
   const padded = (neighbours.join('') + 'WWWWW').slice(0, 5) // pad short rings (patch boundary) with empty
+
   return table.lookup.get(current + padded) ?? current
 }
 
@@ -305,5 +308,6 @@ export function stepPentagridCA(input: {
     const ring = cyclicNeighbors[cell]!.map(n => states[n]!)
     next[cell] = pentagridNext(table, states[cell]!, ring)
   }
+
   return next
 }

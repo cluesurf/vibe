@@ -62,8 +62,10 @@ function selfDynamics(
   for (let b = 0; b < 50; b++) {
     beat(t2, g, moved, rng2, 0, 0.22)
   }
+
   const passiveFidelity =
     cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
+
   return { leakPerBeat, passiveFidelity }
 }
 
@@ -126,10 +128,12 @@ export function horosphereSelf(input?: {
     const r = rngB.next()
     toneB[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0) as -1 | 0 | 1
   }
+
   const qb0 = totalCharge(toneB)
   for (let t = 0; t < 3; t++) {
     beat(toneB, big, movedB, rngB, 0.01, 0.22)
   }
+
   const bigBuilt = bigCells > 10_000_000
   const bigConserved = totalCharge(toneB) === qb0
   const scaleFactor = Math.round(bigCells / bulkCells)
@@ -178,6 +182,7 @@ export default experiment({
       r.flatMorePassive &&
       r.bigBuilt &&
       r.bigConserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

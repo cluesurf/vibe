@@ -54,6 +54,7 @@ function measure(
     specDimT1: 2,
     specDimT2: 4,
   })
+
   return {
     cells: m.cells,
     degree: m.degree,
@@ -89,6 +90,7 @@ export default experiment({
     manyTessellations()
     const reference = measure([3, 4, 3, 4])
     const ok = reference.cells > 50 && reference.degree > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

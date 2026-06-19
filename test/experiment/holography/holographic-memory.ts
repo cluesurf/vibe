@@ -91,6 +91,7 @@ export function holographicMemory(input?: { n?: number }): {
   for (let k = 0; k < A; k++) {
     holoAnchors.push((k * stride) % N)
   }
+
   // BLOB encoding: the same anchors packed into one local ball
   const blobAnchors = ball(g.offsets, g.adj, N, 0, A)
 
@@ -106,8 +107,10 @@ export function holographicMemory(input?: { n?: number }): {
     for (const i of anchors) {
       t[i] = 1
     }
+
     return t
   }
+
   const survival = (t: Int8Array, anchors: number[]): number =>
     anchors.filter(i => t[i] === 1).length / anchors.length
   // decode the logical bit from the anchor set: sign of the anchor tone sum (correct = +1)
@@ -116,6 +119,7 @@ export function holographicMemory(input?: { n?: number }): {
     for (const i of anchors) {
       s += t[i]!
     }
+
     return s > 0
   }
 
@@ -128,6 +132,7 @@ export function holographicMemory(input?: { n?: number }): {
     holo[i] = 0
     blob[i] = 0
   }
+
   const holoSurvivalInit = survival(holo, holoAnchors)
   const blobSurvivalInit = survival(blob, blobAnchors)
   const holoDecodeInit = decode(holo, holoAnchors)
@@ -140,9 +145,11 @@ export function holographicMemory(input?: { n?: number }): {
   for (let b = 0; b < 20; b++) {
     beat(holo, eu, ev, g.offsets, g.adj, moved, rngH)
   }
+
   for (let b = 0; b < 20; b++) {
     beat(blob, eu, ev, g.offsets, g.adj, moved, rngB)
   }
+
   const holoSurvivalAfter = survival(holo, holoAnchors)
   const blobSurvivalAfter = survival(blob, blobAnchors)
   const holoDecodeAfter = decode(holo, holoAnchors)
@@ -190,6 +197,7 @@ export default experiment({
       r.holographicWins &&
       r.holoDecodeInit &&
       !r.blobDecodeInit
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

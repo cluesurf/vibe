@@ -43,6 +43,7 @@ function randomSubset(n: number, size: number, rng: Rng): number[] {
   while (s.size < size) {
     s.add(rng.nextInt({ max: n }))
   }
+
   return [...s]
 }
 
@@ -95,6 +96,7 @@ export function integratedInformation(input: { seed: number }): {
     if (mem.length < cellSize) {
       continue
     }
+
     const cellSet = new Set(mem)
     const perturbed = mem.slice()
     for (let i = 0; i < 6; i++) {
@@ -102,8 +104,10 @@ export function integratedInformation(input: { seed: number }): {
       while (cellSet.has(out)) {
         out = sr.nextInt({ max: g.size })
       }
+
       perturbed[i] = out
     }
+
     trials++
     if (
       tonePhi(adjacency, mem, pm) > tonePhi(adjacency, perturbed, pm)
@@ -111,6 +115,7 @@ export function integratedInformation(input: { seed: number }): {
       higher++
     }
   }
+
   const localMaxFraction = higher / Math.max(1, trials)
 
   // (3) the decisive check that the measure reads the DYNAMICS, not just the wiring. Take one
@@ -137,6 +142,7 @@ export function integratedInformation(input: { seed: number }): {
   const readsDynamics = tonePhiFillsCut < 0.35 * tonePhiFull
 
   const separation = Math.min(9999, phiCell / Math.max(1e-3, phiRandom))
+
   return {
     phiCell,
     phiRandom,
@@ -173,6 +179,7 @@ export default experiment({
       r.localMaxFraction > 0.7 &&
       r.readsDynamics &&
       r.structuralPhiUnchanged
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

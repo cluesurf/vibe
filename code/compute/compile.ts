@@ -38,6 +38,7 @@ export function compileMachine(
   if (backend === 'unary') {
     return { backend, ...compileToRailway(source) }
   }
+
   // binary and ternary share the (representation-neutral) compiled program
   return { backend, ...compileToBinary(source) }
 }
@@ -54,11 +55,13 @@ export function runMachine(
     )
     inputs.forEach((v, i) => (initial[i] = v))
     const { registers, steps } = runRailway(compiled.program, initial)
+
     return {
       result: BigInt(registers[compiled.returnRegister]!),
       cost: steps,
     }
   }
+
   const initial = new Array<bigint>(compiled.program.registers).fill(0n)
   inputs.forEach((v, i) => (initial[i] = BigInt(v)))
   if (compiled.backend === 'ternary') {
@@ -66,12 +69,15 @@ export function runMachine(
       compiled.program,
       initial,
     )
+
     return {
       result: registers[compiled.returnRegister]!,
       cost: totalTrits,
     }
   }
+
   const { registers, totalBits } = runBinary(compiled.program, initial)
+
   return {
     result: registers[compiled.returnRegister]!,
     cost: totalBits,

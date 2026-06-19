@@ -37,6 +37,7 @@ export function wangLandauCrossing(input: {
     burnInFraction: 0.5,
   })
   const betas = [0, 0.1, 0.25, 0.5, 1]
+
   return {
     size: input.size,
     converged: wl.converged,
@@ -60,6 +61,7 @@ export default experiment({
   run() {
     const r = wangLandauCrossing({ size: 32, maxSteps: 1_000_000 })
     const ok = r.converged && Number.isFinite(r.entropyGap)
+
     return verdict({
       status: ok ? 'pass' : 'partial',
       claim:

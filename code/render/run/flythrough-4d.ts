@@ -40,6 +40,7 @@ function run(): void {
     console.log(
       `${symbolText} is ${scene.dim}D, not a 4D honeycomb. Pick a four-entry symbol like 3-4-3-4.`,
     )
+
     return
   }
 

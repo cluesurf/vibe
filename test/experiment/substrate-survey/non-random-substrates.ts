@@ -38,6 +38,7 @@ function evaluate(
     samples: 3000,
     rng: makeRng({ seed }),
   })
+
   return {
     degree: substrateUndirectedMeanDegree({ substrate: s }),
     anisotropy: aniso.anisotropy,
@@ -104,6 +105,7 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
     const e = evaluate(s, input.seed + 1)
     out[name] = { ...e, lorentzSafe: e.anisotropy < 0.25 }
   }
+
   return out
 }
 
@@ -130,6 +132,7 @@ export default experiment({
       (r['tiling {7,3}']?.anisotropy ?? 1) < 0.1 &&
       (r['tiling {5,4}']?.anisotropy ?? 1) < 0.1
     const ok = hyperbolicSafe && latticeUnsafe && tilingsIsotropic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

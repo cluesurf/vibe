@@ -63,6 +63,7 @@ function run(): void {
         encodePng(rgba, size, size),
       )
     }
+
     // advance just under one full cell over the whole loop, so frame N wraps seamlessly onto frame 0
     cam.advance(1 / frameCount)
   }

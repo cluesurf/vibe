@@ -29,6 +29,7 @@ function study(): { smallestMagnitudes: number[]; nearZero: number } {
   const smallestMagnitudes = result.smallestMagnitudes.map(
     x => Math.round(x * 1000) / 1000,
   )
+
   return { smallestMagnitudes, nearZero: result.zeroModes }
 }
 
@@ -44,6 +45,7 @@ export default experiment({
     const result = study()
     // a flat disk (Betti sum b0 + b1 + b2 = 1) carries one harmonic zero mode.
     const ok = result.nearZero >= 1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

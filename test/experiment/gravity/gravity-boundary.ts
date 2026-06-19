@@ -47,6 +47,7 @@ export function gravityBoundary(): {
     xs: p2.map(p => Math.log(p.r)),
     ys: p2.map(p => p.g),
   }).slope
+
   return { exp3D, slope2DvsLog }
 }
 
@@ -63,6 +64,7 @@ export default experiment({
     const threeDimNewton = Math.abs(r.exp3D + 1) < 0.25
     const twoDimLog = r.slope2DvsLog < 0
     const ok = threeDimNewton && twoDimLog
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

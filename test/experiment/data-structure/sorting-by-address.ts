@@ -17,6 +17,7 @@ const lexCompare = (a: number[], b: number[]): number => {
       return a[i]! - b[i]!
     }
   }
+
   return a.length - b.length
 }
 
@@ -52,6 +53,7 @@ export default experiment({
         strictlyOrdered = false
       }
     }
+
     const totalOrder = stats.allUnique && strictlyOrdered
 
     return verdict({

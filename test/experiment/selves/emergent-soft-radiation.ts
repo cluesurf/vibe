@@ -79,6 +79,7 @@ export default experiment({
           stripeContrast({ will: current, lambda, axisOf, bins: side }),
         )
       }
+
       return firstMinimumTime(trace)
     }
 
@@ -105,6 +106,7 @@ export default experiment({
         Math.abs(s - meanSpeed),
       )
     }
+
     const linearGapless =
       meanSpeed > 0 && maxSpeedDeviation <= meanSpeed * 0.2
 
@@ -112,6 +114,7 @@ export default experiment({
     const soft = periods[periods.length - 1]! >= periods[0]! * 3
 
     const ok = monotonic && linearGapless && soft
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

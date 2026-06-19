@@ -47,6 +47,7 @@ export function bianchiResidual(input: {
         h[j]![i] = v
       }
     }
+
     const g = einsteinOp(h, input.k)
     let hn = 0
     for (let i = 0; i < 3; i++) {
@@ -54,6 +55,7 @@ export function bianchiResidual(input: {
         hn += (h[i]?.[j] ?? 0) ** 2
       }
     }
+
     // k_i G_ij summed over i, for each j, then the norm of that 3-vector.
     let div2 = 0
     for (let j = 0; j < 3; j++) {
@@ -61,11 +63,14 @@ export function bianchiResidual(input: {
       for (let i = 0; i < 3; i++) {
         d += (input.k[i] ?? 0) * (g[i]?.[j] ?? 0)
       }
+
       div2 += d * d
     }
+
     const rel = hn > 0 ? Math.sqrt(div2) / Math.sqrt(hn) : 0
     worst = Math.max(worst, rel)
   }
+
   return worst
 }
 
@@ -75,6 +80,7 @@ export function bianchiResidual(input: {
 export function gravitonSpeed(kMag: number): number {
   const r = gravitonFromAction({ k: [kMag, 0, 0] })
   const omega = Math.sqrt(2 * r.gravitonEigenvalue)
+
   return omega / kMag
 }
 
@@ -89,6 +95,7 @@ export default experiment({
     const res = bianchiResidual({ k: [2, 1, 3], samples: 30, seed: 1 })
     const speed = gravitonSpeed(0.5)
     const ok = res < 1e-10 && Math.abs(speed - 1) < 1e-6
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

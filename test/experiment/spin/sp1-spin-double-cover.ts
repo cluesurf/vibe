@@ -53,6 +53,7 @@ export function sp1SpinDoubleCover(): {
       }
     }
   }
+
   const isGroup = closed && U.length === 24
 
   // (B) conjugation q -> (v -> q v q^-1) is the DOUBLE COVER: 24 quaternions -> 12 rotations, 2-to-1
@@ -79,8 +80,10 @@ export function sp1SpinDoubleCover(): {
     const q = rotQ(theta),
       v: Q = [0, 1, 0, 0],
       r = qmul(qmul(q, v), qconj(q))
+
     return r[1] // x-component, = cos(theta)
   }
+
   const TWO_PI = 2 * Math.PI,
     FOUR_PI = 4 * Math.PI
   const s2 = spinorOverlap(TWO_PI),
@@ -117,6 +120,7 @@ export default experiment({
       r.spinorMinusAt2pi &&
       r.spinorPlusAt4pi &&
       r.vectorPlusAt2pi
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

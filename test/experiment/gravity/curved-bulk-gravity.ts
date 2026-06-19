@@ -36,6 +36,7 @@ export default experiment({
         center = i
       }
     }
+
     const dist = neighborDistances({
       neighbors: hyp.neighbors,
       size: n,
@@ -47,6 +48,7 @@ export default experiment({
         maxD = dist[i]!
       }
     }
+
     const bulk = greensDecayClass({
       neighbors: hyp.neighbors,
       size: n,
@@ -83,6 +85,7 @@ export default experiment({
         }
       }
     }
+
     const flat = greensDecayClass({
       neighbors: flatN,
       size: N,

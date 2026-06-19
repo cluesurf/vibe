@@ -62,6 +62,7 @@ export default experiment({
       causal &&
       clearlyBallistic &&
       cubicBallistic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -78,9 +78,11 @@ export default experiment({
           sw += n * w
         }
       }
+
       if (total === 0) {
         return
       }
+
       const cx = sx / total,
         cy = sy / total,
         cz = sz / total,
@@ -90,13 +92,16 @@ export default experiment({
         if (q[c]! <= 0) {
           continue
         }
+
         let nearby = 0
         for (let d = 0; d < 24; d++) {
           nearby += q[base.neighbour(c, d)]!
         }
+
         if (nearby >= 3) {
           continue
         } // bulk stays, no collapse
+
         let bestNb = -1,
           bestDist = Infinity
         for (let d = 0; d < 24; d++) {
@@ -112,10 +117,12 @@ export default experiment({
             bestNb = nb
           }
         }
+
         if (bestNb >= 0) {
           moves.push([c, bestNb])
         }
       }
+
       for (const [from, to] of moves) {
         if (will.data[from * degree + rest]! > 0) {
           will.data[from * degree + rest] = 0
@@ -139,8 +146,10 @@ export default experiment({
           will.data[c * degree + rest] = 1
         }
       }
+
       return will
     }
+
     const extent = (will: Will): { occ: number; ext: number } => {
       let occ = 0,
         ext = 0
@@ -153,6 +162,7 @@ export default experiment({
             break
           }
         }
+
         if (on) {
           occ++
           const [x, y, z, w] = coord(c)
@@ -166,8 +176,10 @@ export default experiment({
           }
         }
       }
+
       return { occ, ext }
     }
+
     const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
     // one full step, allocation-free, beat src into dst via the table then accrete and absorb in place. dst becomes
     // the new state, the caller ping-pongs src and dst. Identical result to beat then accrete then absorb.
@@ -177,8 +189,10 @@ export default experiment({
       if (open) {
         absorbBoundary(dst)
       }
+
       return dst
     }
+
     const scratchOf = (will: Will): Will => ({
       mesh: coin,
       data: new Int8Array(will.data.length),
@@ -193,6 +207,7 @@ export default experiment({
       bodyScratch = body
       body = next
     }
+
     const endBody = extent(body)
     const persists =
       endBody.occ === startBody.occ && endBody.ext === startBody.ext
@@ -204,10 +219,13 @@ export default experiment({
       for (let k = 0; k < 4; k++) {
         nb = base.neighbour(nb, 0)
       }
+
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
+
       return w
     }
+
     let displaced = farDisplaced()
     let displacedScratch = scratchOf(displaced)
     const displacedStart = extent(displaced).ext
@@ -216,6 +234,7 @@ export default experiment({
       displacedScratch = displaced
       displaced = next
     }
+
     const displacedEnd = extent(displaced).ext
     const selfRepairs =
       displacedStart > startBody.ext + 2 &&
@@ -227,8 +246,10 @@ export default experiment({
       for (let d = 0; d < 8; d++) {
         w.data[center * degree + d] = 1
       }
+
       return w
     }
+
     const diff = (open: boolean): number => {
       let clean = restBody(),
         pert = withDisturbance()
@@ -248,15 +269,19 @@ export default experiment({
             d++
           }
         }
+
         final = d
       }
+
       return final
     }
+
     const openFinal = diff(true)
     const closedFinal = diff(false)
     const radiates = openFinal === 0 && closedFinal > 0
 
     const ok = persists && selfRepairs && radiates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -64,6 +64,7 @@ export default experiment({
       num += (logD[i]! - meanX) * (logM[i]! - meanY)
       den += (logD[i]! - meanX) ** 2
     }
+
     const falloffExponent = den > 0 ? num / den : 0
 
     const attractionPresent = momenta.every(m => m < -0.5) // a real attraction at every distance

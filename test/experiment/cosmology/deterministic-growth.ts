@@ -51,6 +51,7 @@ export function deterministicGrowth(
     chunked.grow(step)
     i += step
   }
+
   const resumableMatchesOneShot =
     chunked.size() === oneShot.size() &&
     adjacencyListsEqual(chunked.adjacency, oneShot.adjacency)
@@ -71,6 +72,7 @@ export function deterministicGrowth(
         break
       }
     }
+
     if (!appendOnly) {
       break
     }
@@ -104,6 +106,7 @@ export function deterministicGrowth(
   for (const row of oneShot.adjacency) {
     maxDegree = Math.max(maxDegree, row.length)
   }
+
   const degreeBounded = maxDegree <= 6
 
   return {
@@ -140,6 +143,7 @@ export default experiment({
       r.appendOnly &&
       r.matchesStaticRings &&
       r.geometryEmerges
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -21,6 +21,7 @@ export function freeFallStep(input: {
     if (!snapshot[c]) {
       continue
     }
+
     let best = -1
     let bestPhi = phi[c]!
     for (let d = 0; d < spatialDegree; d++) {
@@ -34,6 +35,7 @@ export function freeFallStep(input: {
         best = target
       }
     }
+
     if (best >= 0) {
       occupied[c] = 0
       occupied[best] = 1
@@ -41,5 +43,6 @@ export function freeFallStep(input: {
       moved++
     }
   }
+
   return moved
 }

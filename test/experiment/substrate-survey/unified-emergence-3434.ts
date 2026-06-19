@@ -31,6 +31,7 @@ export function unifiedEmergence(): {
     [1, -1].map(s => {
       const q = [0, 0, 0, 0]
       q[i] = s
+
       return q as unknown as Q
     }),
   )
@@ -44,6 +45,7 @@ export function unifiedEmergence(): {
       }
     }
   }
+
   const s8 = half.filter(
     q =>
       [q[1], q[2], q[3]].concat(q[0]).filter(x => x < 0).length % 2 ===
@@ -65,11 +67,14 @@ export function unifiedEmergence(): {
   // 8v transforms as a VECTOR (conjugation q v q^-1): the -1 cancels, vector returns to +1 (BOSON)
   const vectorSign = (v: Q): number => {
     const r = qmul(qmul(rot2pi, v), qconj(rot2pi))
+
     return r.every((x, i) => Math.abs(x - v[i]!) < 1e-9) ? 1 : -1
   }
+
   // 8s/8c transform as SPINORS (left multiply q psi): the -1 hits, spinor goes to -1 (FERMION)
   const spinorSign = (psi: Q): number => {
     const r = qmul(rot2pi, psi)
+
     return r.every((x, i) => Math.abs(x - psi[i]!) < 1e-9)
       ? 1
       : r.every((x, i) => Math.abs(x + psi[i]!) < 1e-9)
@@ -108,6 +113,7 @@ export default experiment({
       r.vectorIsBoson &&
       r.spinorsAreFermions &&
       r.oneSubstrateBothSectors
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

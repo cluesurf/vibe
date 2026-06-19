@@ -29,6 +29,7 @@ export function makeWaveField(input: {
   for (let x = 0; x < size; x++) {
     u[x] = fill(x)
   }
+
   return { prev: u.slice(), curr: u.slice(), size }
 }
 
@@ -54,15 +55,18 @@ export function stepWaveField(input: {
         : curr[x + 1]!
     next[x] = left + right - prev[x]! + accel(curr[x]!)
   }
+
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 6
     for (let x = 0; x < margin; x++) {
       next[x] = leftVacuum
     }
+
     for (let x = size - margin; x < size; x++) {
       next[x] = rightVacuum
     }
   }
+
   return { prev: curr, curr: next, size }
 }
 
@@ -73,18 +77,22 @@ export function doubleWellAccel(input: {
   saturating: boolean
 }): Acceleration {
   const { amplitude, saturating } = input
+
   return (value: number): number => {
     if (value === 0) {
       return 0
     }
+
     const sign = Math.sign(value)
     const magnitude = Math.abs(value)
     if (magnitude === amplitude) {
       return 0
     }
+
     if (magnitude < amplitude) {
       return sign
     } // push out toward the vacuum
+
     return saturating ? -sign : -sign * (magnitude - amplitude) // pull back beyond the vacuum
   }
 }
@@ -97,6 +105,7 @@ export function fieldMaxAbs(u: Int32Array): number {
       max = a
     }
   }
+
   return max
 }
 
@@ -112,5 +121,6 @@ export function domainWallCount(u: Int32Array): number {
       count++
     }
   }
+
   return count
 }

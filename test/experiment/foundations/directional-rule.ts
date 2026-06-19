@@ -63,6 +63,7 @@ export default experiment({
       d4Conserves &&
       d4Reverses &&
       tablePermutes
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

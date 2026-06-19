@@ -24,6 +24,7 @@ export function evolveByEigendecomposition(input: {
       ar += v * (re0[i] ?? 0)
       ai += v * (im0[i] ?? 0)
     }
+
     const lambda = eig.values[k] ?? 0
     const c = Math.cos(lambda * t)
     const s = Math.sin(lambda * t)
@@ -31,6 +32,7 @@ export function evolveByEigendecomposition(input: {
     cRe[k] = ar * c + ai * s
     cIm[k] = ai * c - ar * s
   }
+
   // Project back to the site basis.
   const re = new Float64Array(n)
   const im = new Float64Array(n)
@@ -42,8 +44,10 @@ export function evolveByEigendecomposition(input: {
       r += v * (cRe[k] ?? 0)
       m += v * (cIm[k] ?? 0)
     }
+
     re[i] = r
     im[i] = m
   }
+
   return { re, im }
 }

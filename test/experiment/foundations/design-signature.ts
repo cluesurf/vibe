@@ -30,17 +30,21 @@ function isRich(
     if (tone[i] !== 0) {
       nz++
     }
+
     sum += tone[i]!
   }
+
   const density = nz / N
   const mean = sum / N
   let cc = 0
   for (let k = 0; k < eu.length; k++) {
     cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
   }
+
   const nnCorr = cc / eu.length
   const alive = density > 0.02 && density < 0.7
   const coherent = Math.abs(nnCorr) > 0.004
+
   return { rich: alive && coherent, density, nnCorr }
 }
 
@@ -83,6 +87,7 @@ export function designSignature(input?: { n?: number }): {
           rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
         ) as -1 | 0 | 1
       }
+
       for (let t = 0; t < 60; t++) {
         conservingEdgeSweepTunable({
           tone,
@@ -95,6 +100,7 @@ export function designSignature(input?: { n?: number }): {
           hop: 0.5,
         })
       }
+
       const r = isRich(tone, eu, ev)
       grid.push({ arrow, share, rich: r.rich, density: r.density })
     }
@@ -149,6 +155,7 @@ export default experiment({
     const r = designSignature({ n: 16000 })
     const ok =
       r.solved && !r.fineTuningSignature && r.designerDispensable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

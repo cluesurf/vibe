@@ -30,6 +30,7 @@ export function couplingMeetingTime(input: {
     betaFirst,
     betaSecond,
   } = input
+
   return (
     (inverseAtZeroFirst - inverseAtZeroSecond) /
     ((betaFirst - betaSecond) / TWO_PI)
@@ -47,6 +48,7 @@ export function oneLoopStrongCoupling(input: {
   const inverse =
     1 / couplingAtReference -
     (beta3 / TWO_PI) * Math.log(scale / referenceScale)
+
   return 1 / inverse
 }
 
@@ -70,6 +72,7 @@ export function qcdRunningMassFactor(input: {
     referenceScale,
   })
   const exponent = gamma0 / (2 * Math.abs(beta3))
+
   return (couplingAtReference / couplingHigh) ** exponent
 }
 
@@ -93,6 +96,7 @@ export function predictWeinbergAngle(input: {
   const h = input.hyperchargeNorm ?? 3 / 5
   const [b1, b2, b3] = input.beta
   const k = (b1 - b2) / (b2 - b3)
+
   return (h * A + k * S) / (A * (k + h + 1))
 }
 
@@ -121,6 +125,7 @@ export function gutScaleAndCoupling(input: {
     beta: beta[0],
     t,
   })
+
   return {
     gutScaleGeV: referenceScaleGeV * Math.exp(t),
     unifiedInverseCoupling,
@@ -142,5 +147,6 @@ export function protonLifetimeYears(input: {
     input.gutScaleGeV ** 4 / (alphaGut ** 2 * mProton ** 5)
   const hbarGeVSeconds = 6.582119e-25 // GeV * s
   const secondsPerYear = 3.15576e7
+
   return (lifetimeInverseGeV * hbarGeVSeconds) / secondsPerYear
 }

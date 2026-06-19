@@ -37,6 +37,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const collision = headOnRotate({ opposite }) // the momentum-conserving collision
     const beats = 24
     const shear = {
@@ -72,6 +73,7 @@ export default experiment({
     const openDissipates = openFinal < 0.8 && openTailMax < 0.95
 
     const ok = closedRecurs && openDissipates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -48,8 +48,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   // (1) build the hyperbolic bulk with coordinates
@@ -134,6 +136,7 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
+
   const staging = device.createBuffer({
     size: byteLength,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -143,6 +146,7 @@ async function run(): Promise<void> {
     enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
     device.queue.submit([enc.finish()])
   }
+
   await staging.mapAsync(GPUMapMode.READ)
   const tones = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
@@ -155,8 +159,10 @@ async function run(): Promise<void> {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v)
+
     return v.map(x => x / (m || 1))
   }
+
   // choose an axis least aligned with xi to start, then Gram-Schmidt twice
   let axis = 0
   for (let k = 1; k < dim; k++) {
@@ -164,6 +170,7 @@ async function run(): Promise<void> {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -171,6 +178,7 @@ async function run(): Promise<void> {
       axis2 = k
     }
   }
+
   let e2raw = sub(seedVec(axis2), xi, dot(seedVec(axis2), xi))
   e2raw = sub(e2raw, e1, dot(e2raw, e1))
   const e2 = normalize(e2raw)
@@ -191,11 +199,13 @@ async function run(): Promise<void> {
       tone: currentOf(tones[i]!),
     })
   }
+
   console.log(
     `horosphere band, ${band.length.toLocaleString()} cells extracted from the evolved bulk`,
   )
   if (band.length === 0) {
     console.log('no cells in the band, widen HALF')
+
     return
   }
 
@@ -210,6 +220,7 @@ async function run(): Promise<void> {
     minV = Math.min(minV, c.v)
     maxV = Math.max(maxV, c.v)
   }
+
   const pad = 40
   const spanU = maxU - minU || 1
   const spanV = maxV - minV || 1
@@ -221,11 +232,13 @@ async function run(): Promise<void> {
     rgba[i * 4 + 2] = 11
     rgba[i * 4 + 3] = 255
   }
+
   const COLORS = TONE_COLORS
   for (const c of band) {
     if (c.tone === 0) {
       continue
     } // peace is black, draw only the charges
+
     const cx = pad + ((c.u - minU) / span) * (IMG - 2 * pad)
     const cy = pad + ((c.v - minV) / span) * (IMG - 2 * pad)
     const col = COLORS[c.tone]!
@@ -234,11 +247,13 @@ async function run(): Promise<void> {
         if (dx * dx + dy * dy > RADIUS * RADIUS) {
           continue
         }
+
         const px = Math.round(cx + dx)
         const py = Math.round(cy + dy)
         if (px < 0 || px >= IMG || py < 0 || py >= IMG) {
           continue
         }
+
         const idx = (py * IMG + px) * 4
         rgba[idx] = col[0]
         rgba[idx + 1] = col[1]

@@ -38,15 +38,19 @@ function sprinkleCoords(input: {
       cand[axis] = x
       radius2 += x * x
     }
+
     if (spaceDim > 0 && radius2 > reach * reach) {
       continue
     }
+
     coords[accepted * d] = t
     for (let axis = 0; axis < spaceDim; axis++) {
       coords[accepted * d + 1 + axis] = cand[axis] ?? 0
     }
+
     accepted++
   }
+
   return coords
 }
 
@@ -74,6 +78,7 @@ export function sampledDimension(input: {
     if (b === a) {
       b = (b + 1) % n
     }
+
     const dt = (coords[a * d] ?? 0) - (coords[b * d] ?? 0)
     let dx2 = 0
     for (let axis = 1; axis < d; axis++) {
@@ -81,10 +86,12 @@ export function sampledDimension(input: {
         (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
       dx2 += dx * dx
     }
+
     if (dt * dt > dx2) {
       related++
     }
   }
+
   return dimensionFromOrderingFraction(related / input.pairs)
 }
 
@@ -109,6 +116,7 @@ export function largeNHardening(input: {
   const errors = estimates.map(e => Math.abs(e - input.dimension))
   const errorShrinks =
     (errors[errors.length - 1] ?? 1) < (errors[0] ?? 0)
+
   return { estimates, errors, errorShrinks }
 }
 
@@ -141,6 +149,7 @@ export default experiment({
     })
     const ok =
       Math.abs(samp - 2) < 0.1 && r2.errorShrinks && r3.errorShrinks
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -57,6 +57,7 @@ export default experiment({
         representativeByRotation.set(id, element)
       }
     }
+
     const rotations = [...representativeByRotation.keys()] // 60 rotations = A5
     const opsSplit: GroupOps<SplitElement> = {
       multiply: (left, right) => ({

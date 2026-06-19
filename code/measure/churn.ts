@@ -24,6 +24,7 @@ export function churnCount(input: {
       for (let k = 0; k < row.length; k++) {
         s += cur[row[k]!]!
       }
+
       const v = ((((s - prev[i]!) % modulus) + modulus) % modulus) as
         | 0
         | 1
@@ -33,8 +34,10 @@ export function churnCount(input: {
         changes++
       }
     }
+
     prev = cur
     cur = nx
   }
+
   return changes
 }

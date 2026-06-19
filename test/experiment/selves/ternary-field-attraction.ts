@@ -77,15 +77,19 @@ export default experiment({
           will.data[c * degree + rest] = 1
         }
       }
+
       return will
     }
+
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
       for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
       }
+
       return o
     }
+
     const extent = (will: Will): number => {
       let e = 0
       for (let c = 0; c < coin.cellCount; c++) {
@@ -97,6 +101,7 @@ export default experiment({
             break
           }
         }
+
         if (on) {
           const [x, y, z, w] = coord(c)
           const dd =
@@ -109,8 +114,10 @@ export default experiment({
           }
         }
       }
+
       return e
     }
+
     const bodyExtent = extent(restBody())
 
     // run the cap-bounded (few-trit) attraction on a displaced body, return the final extent (returns to bodyExtent
@@ -121,6 +128,7 @@ export default experiment({
       for (let k = 0; k < disp; k++) {
         nb = base.neighbour(nb, 0)
       }
+
       will.data[center * degree + rest] = 0
       will.data[nb * degree + rest] = 1
       let scratch: Will = {
@@ -176,6 +184,7 @@ export default experiment({
           will.data[to * degree + rest] = 1
         }
       }
+
       return extent(will)
     }
 

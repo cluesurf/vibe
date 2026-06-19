@@ -31,6 +31,7 @@ export function latticeDiracEnergy1d(input: {
   h.data[2] = Math.sin(input.k)
   h.data[3] = -input.m
   const eig = eigSymmetric({ matrix: h })
+
   return Math.max(eig.values[0] ?? 0, eig.values[1] ?? 0)
 }
 
@@ -147,13 +148,16 @@ export function hermitianSign(h: Mat2): Mat2 {
   const s = Math.sqrt(diff * diff + offDiag2)
   if (s < 1e-14) {
     const sgn = t > 0 ? 1 : t < 0 ? -1 : 0
+
     return matScaleReal(IDENTITY2, sgn)
   }
+
   const sPlus = Math.sign(t + s)
   const sMinus = Math.sign(t - s)
   const alpha = (sPlus + sMinus) / 2
   const beta = (sPlus - sMinus) / 2
   const traceless = matAdd(h, matScaleReal(IDENTITY2, -t))
+
   return matAdd(
     matScaleReal(IDENTITY2, alpha),
     matScaleReal(traceless, beta / s),
@@ -168,6 +172,7 @@ export function minSingularValue(d: Mat2): number {
   const t = (a + dd) / 2
   const diff = (a - dd) / 2
   const s = Math.sqrt(diff * diff + cAbs2(m.m01))
+
   return Math.sqrt(Math.max(0, t - s))
 }
 
@@ -176,6 +181,7 @@ export function minSingularValue(d: Mat2): number {
 export function ginspargWilsonResidual(d: Mat2): number {
   const anti = matAdd(matMul(d, GAMMA5), matMul(GAMMA5, d))
   const cubic = matMul(matMul(d, GAMMA5), d)
+
   return matFrobenius(matAdd(anti, matScaleReal(cubic, -1)))
 }
 
@@ -185,6 +191,7 @@ export function naiveDirac2D(input: { k1: number; k2: number }): Mat2 {
     matScaleReal(PAULI_X, Math.sin(input.k1)),
     matScaleReal(PAULI_Y, Math.sin(input.k2)),
   )
+
   return matScaleComplex(part, I_UNIT)
 }
 
@@ -197,6 +204,7 @@ export function wilsonDirac2D(input: {
 }): Mat2 {
   const mass =
     input.m + input.r * (2 - Math.cos(input.k1) - Math.cos(input.k2))
+
   return matAdd(
     naiveDirac2D({ k1: input.k1, k2: input.k2 }),
     matScaleReal(IDENTITY2, mass),
@@ -221,6 +229,7 @@ export function overlapDirac2D(input: {
   const shifted = matAdd(dw, matScaleReal(IDENTITY2, -input.m0))
   const hW = matMul(GAMMA5, shifted)
   const v = hermitianSign(hW)
+
   return matAdd(IDENTITY2, matMul(GAMMA5, v))
 }
 
@@ -235,8 +244,10 @@ export function brillouinZoneCorners(dimension: number): number[][] {
       next.push([...corner, 0])
       next.push([...corner, Math.PI])
     }
+
     out = next
   }
+
   return out
 }
 
@@ -262,11 +273,13 @@ export function latticeFermionDoublers(dimension: number): {
         piCount += 1
       }
     }
+
     netChirality += chirality
     if (piCount === 0) {
       wilsonSpecies += 1
     }
   }
+
   return { naiveSpecies: corners.length, netChirality, wilsonSpecies }
 }
 
@@ -290,11 +303,13 @@ export function scanBrillouin(input: {
       if (minSingularValue(d) < tol) {
         species += 1
       }
+
       const residual = ginspargWilsonResidual(d)
       if (residual > gwResidualMax) {
         gwResidualMax = residual
       }
     }
   }
+
   return { species, gwResidualMax }
 }

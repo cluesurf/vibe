@@ -32,6 +32,7 @@ export function sprinkleDeSitter(input: {
     x.push(input.rng.next() * input.comovingWidth)
     eta.push((1 - Math.exp(-H * t)) / H)
   }
+
   // Sort by proper time so the labelling is topological (past before future).
   const order = Array.from({ length: n }, (_, i) => i).sort(
     (a, b) => (tau[a] ?? 0) - (tau[b] ?? 0),
@@ -52,6 +53,7 @@ export function sprinkleDeSitter(input: {
       }
     }
   }
+
   // Transitive closure (forward pass; labelling is topological).
   for (let k = 0; k < n; k++) {
     for (let i = 0; i < k; i++) {
@@ -64,5 +66,6 @@ export function sprinkleDeSitter(input: {
       }
     }
   }
+
   return { poset: makePosetFromFuture({ size: n, future }), tau: sTau }
 }

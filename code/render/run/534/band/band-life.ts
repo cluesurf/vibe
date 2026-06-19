@@ -59,14 +59,17 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -74,6 +77,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -88,16 +92,20 @@ function run(): void {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
     }
+
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(raw.map(c => c.u))
   const cv = median(raw.map(c => c.v))
   const radii = raw
@@ -122,6 +130,7 @@ function run(): void {
       r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
     ) as -1 | 0 | 1
   }
+
   const moved = new Uint8Array(n)
 
   const outDir = join(
@@ -146,11 +155,13 @@ function run(): void {
       rgba[i * 4 + 2] = 11
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of band) {
       const t = tone[c.index]!
       if (t === 0) {
         continue
       }
+
       const col = COLORS[t === 1 ? 1 : 2]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
@@ -159,6 +170,7 @@ function run(): void {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
@@ -166,6 +178,7 @@ function run(): void {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     // the emergence test, the largest self over time, it should grow as clusters condense
@@ -174,9 +187,11 @@ function run(): void {
       if (f === 0) {
         firstSelf = largest
       }
+
       console.log(`  beat ${f}, largest self ${largest} cells`)
     }
   }
+
   const finalSelf = largestPositiveCluster(tone, g).length
   console.log(
     `emergence test, largest self grew from ${firstSelf} to ${finalSelf} cells, ${finalSelf > firstSelf * 3 ? 'SELVES EMERGED' : 'weak'}`,

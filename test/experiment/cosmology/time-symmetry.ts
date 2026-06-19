@@ -35,6 +35,7 @@ export default experiment({
         center = i
       }
     }
+
     const dist = neighborDistances({
       neighbors: mesh.neighbors,
       size: n,
@@ -48,6 +49,7 @@ export default experiment({
             t[i] = i % 2 === 0 ? 1 : -1
           }
         }
+
         return t
       })(),
     )
@@ -60,8 +62,10 @@ export default experiment({
         arrow,
         seed: 9,
       })
+
       return r.trajectory[r.trajectory.length - 1]! / n
     }
+
     // the void: dead at the symmetric point, alive for any nonzero arrow
     const voidAtZero = endFrac(new Int8Array(n), 0)
     const voidTiny = endFrac(new Int8Array(n), 0.005)

@@ -42,9 +42,11 @@ function solveTime(n: number): {
       rng0.next() < 0.15 ? (rng0.next() < 0.5 ? 1 : -1) : 0
     ) as -1 | 0 | 1
   }
+
   for (let t = 0; t < 30; t++) {
     conservingEdgeSweep({ tone: base, eu, ev, moved, rng: rng0, arrow })
   }
+
   let source = 0
   for (let i = 1; i < N; i++) {
     if (
@@ -70,10 +72,12 @@ function solveTime(n: number): {
           if (dist[w]! > diameter) {
             diameter = dist[w]!
           }
+
           next.push(w)
         }
       }
     }
+
     fr = next
   }
 
@@ -104,10 +108,12 @@ function solveTime(n: number): {
         frontRadius = dist[i]!
       }
     }
+
     if (frontRadius >= targetRadius) {
       return { N, t, diameter }
     }
   }
+
   return { N, t: 60, diameter }
 }
 
@@ -122,6 +128,7 @@ export function hierarchicalSolving(): {
   const sizes = [4000, 16000, 64000]
   const scan = sizes.map(n => {
     const r = solveTime(n)
+
     return { N: r.N, t: r.t, diameter: r.diameter, logN: Math.log(r.N) }
   })
   const first = scan[0]!
@@ -159,6 +166,7 @@ export default experiment({
   run() {
     const r = hierarchicalSolving()
     const ok = r.solved && r.logScaling
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

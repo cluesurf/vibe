@@ -63,6 +63,7 @@ export function associativeSearchLatency(input?: {
   const cubicDelta = cubicRadiusLarge - cubicRadiusSmall
 
   const solved = bulkDelta >= 0 && bulkDelta < cubicDelta
+
   return {
     bulkRadiusSmall,
     bulkRadiusLarge,
@@ -87,6 +88,7 @@ export default experiment({
       smallCells: 750,
       largeCells: 3000,
     })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

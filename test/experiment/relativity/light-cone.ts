@@ -16,6 +16,7 @@ export default experiment({
     const ballistic = radii.every(
       (radius, index) => radius === index + 1,
     )
+
     return verdict({
       status: ballistic ? 'pass' : 'fail',
       claim:

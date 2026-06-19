@@ -76,6 +76,7 @@ export function associativeParallelCost(input?: {
     searchConstant &&
     bulkRadiusDelta <= 2 &&
     bulkRadiusDelta < cubicRadiusDelta
+
   return {
     searchStepsSmall,
     searchStepsLarge,
@@ -101,6 +102,7 @@ export default experiment({
       smallCells: 2000,
       largeCells: 16000,
     })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

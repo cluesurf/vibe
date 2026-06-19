@@ -48,6 +48,7 @@ export default experiment({
     const exponent = smeared.exponent
     const deltaLambdaExp = exponent - 1
     const ok = Math.abs(exponent - 0.5) < 0.25
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

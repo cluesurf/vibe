@@ -23,6 +23,7 @@ function fitness(code: Int8Array, target: Int8Array): number {
       agree++
     }
   }
+
   return (2 * agree) / code.length - 1
 }
 
@@ -31,6 +32,7 @@ function randomCode(m: number, rng: Rng): Int8Array {
   for (let i = 0; i < m; i++) {
     c[i] = rng.next() < 0.5 ? 1 : -1
   }
+
   return c
 }
 
@@ -40,6 +42,7 @@ function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
   for (let i = 0; i < parent.length; i++) {
     child[i] = (rng.next() < mu ? -parent[i]! : parent[i]!) as -1 | 1
   }
+
   return child
 }
 
@@ -65,12 +68,15 @@ function generation(
           best = c
         }
       }
+
       parent = pop[best]!
     } else {
       parent = pop[Math.floor(rng.next() * K)]! // neutral drift, random parent
     }
+
     next.push(reproduce(parent, mu, rng))
   }
+
   return next
 }
 
@@ -111,6 +117,7 @@ export function evolution(input?: {
   for (let g = 0; g < G; g++) {
     pop = generation(pop, target, mu, true, rng)
   }
+
   const selectedFitness = meanFitness(pop, target)
 
   // control, neutral drift (no selection), fitness should NOT rise
@@ -118,6 +125,7 @@ export function evolution(input?: {
   for (let g = 0; g < G; g++) {
     popD = generation(popD, target, mu, false, rng)
   }
+
   const driftFitness = meanFitness(popD, target)
 
   // (3) variation needed, selection with ZERO mutation stalls (no raw material)
@@ -125,6 +133,7 @@ export function evolution(input?: {
   for (let g = 0; g < G; g++) {
     popN = generation(popN, target, 0, true, rng)
   }
+
   const noMutationFitness = meanFitness(popN, target)
 
   // (2) open-ended adaptation, after converging, CHANGE the environment and see fitness re-rise
@@ -134,6 +143,7 @@ export function evolution(input?: {
   for (let g = 0; g < G; g++) {
     popA = generation(popA, target2, mu, true, rng)
   }
+
   const adaptedFitness = meanFitness(popA, target2)
 
   const selectionWorks =
@@ -168,6 +178,7 @@ export default experiment({
   run() {
     const r = evolution({ K: 120, m: 200, generations: 60, mu: 0.03 })
     const ok = r.solved && r.selectionWorks && r.openEnded
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -38,6 +38,7 @@ export function rotateSpinorTimes(
   for (let step = 0; step < turns; step++) {
     current = rotateSpinor(g, current)
   }
+
   return current
 }
 
@@ -51,6 +52,7 @@ export function rotateVectorTimes(
   for (let step = 0; step < turns; step++) {
     current = rotateVector(g, current)
   }
+
   return current
 }
 
@@ -73,6 +75,7 @@ export function rotationMatrixAxisAngle(input: {
     [-k[1]!, k[0]!, 0],
   ]
   const outer = k.map(ki => k.map(kj => ki * kj))
+
   return [0, 1, 2].map(i =>
     [0, 1, 2].map(
       j =>
@@ -95,9 +98,11 @@ export function rotationKey(value: Quaternion, decimals = 4): string {
     quaternion(0, 0, 1, 0),
     quaternion(0, 0, 0, 1),
   ]
+
   return basis
     .map(axis => {
       const rotated = multiply(multiply(value, axis), conjugate(value))
+
       return [rotated.x, rotated.y, rotated.z]
         .map(part => Math.round(part * scale))
         .join(',')

@@ -44,10 +44,12 @@ export function dodecagridNavigation(input: { seed: number }): {
     if (t === s) {
       t = (t + 1) % g.size
     }
+
     const shortest = graphDistance({ substrate: g, from: s, to: t })
     if (shortest <= 0) {
       continue
     } // not connected (or same), skip
+
     attempted += 1
     const hops = greedyRouteHops({ graph: g, source: s, target: t })
     if (hops > 0) {
@@ -59,6 +61,7 @@ export function dodecagridNavigation(input: { seed: number }): {
 
   const successRate = delivered / Math.max(1, attempted)
   const meanStretch = stretchSum / Math.max(1, stretchN)
+
   return {
     cells: g.size,
     pairs: attempted,
@@ -80,6 +83,7 @@ export default experiment({
   run() {
     const r = dodecagridNavigation({ seed: 1 })
     const ok = r.solved && r.successRate > 0.9 && r.meanStretch < 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -73,6 +73,7 @@ export function reflectionPositivity(input?: { n?: number }): {
         if (claimed[u]) {
           continue
         }
+
         out.push(u)
         claimed[u] = 1
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
@@ -83,10 +84,13 @@ export function reflectionPositivity(input?: { n?: number }): {
           }
         }
       }
+
       fr = nf
     }
+
     return out
   }
+
   // a single medium patch (~30 cells), its mean tone decorrelates over a few beats without the sloshing
   // a gradient observable would introduce. Slow enough to be a clean field mode, fast enough to decay.
   const claimed = new Uint8Array(N)
@@ -96,6 +100,7 @@ export function reflectionPositivity(input?: { n?: number }): {
     for (const i of patchA) {
       a += tone[i]!
     }
+
     return a / patchA.length
   }
 
@@ -108,9 +113,11 @@ export function reflectionPositivity(input?: { n?: number }): {
       | 0
       | 1
   }
+
   for (let t = 0; t < 60; t++) {
     beat(tone, eu, ev, moved, rng, ARROW)
   }
+
   const T = 8000
   const series = new Float64Array(T)
   for (let t = 0; t < T; t++) {
@@ -132,6 +139,7 @@ export function reflectionPositivity(input?: { n?: number }): {
     for (let t = start; t < start + len; t++) {
       mean += series[t]!
     }
+
     mean /= len
     const ac: number[] = []
     for (let tau = 0; tau <= maxTau; tau++) {
@@ -141,8 +149,10 @@ export function reflectionPositivity(input?: { n?: number }): {
         s += (series[t]! - mean) * (series[t + tau * stride]! - mean)
         c++
       }
+
       ac.push(s / c)
     }
+
     return (
       symmetricMinEigenvalue(hankelMatrix({ sequence: ac, size: m })) /
       ac[0]!
@@ -154,6 +164,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     mean += series[t]!
   }
+
   mean /= T
   const autocorr: number[] = []
   for (let tau = 0; tau <= maxTau; tau++) {
@@ -161,8 +172,10 @@ export function reflectionPositivity(input?: { n?: number }): {
     for (let t = 0; t + tau < T; t++) {
       s += (series[t]! - mean) * (series[t + tau]! - mean)
     }
+
     autocorr.push(s / (T - tau))
   }
+
   const rawMinEig = hankelMinEig(0, T, 1) // shows the temporal doubler (discrete-update artifact)
   const evenMinEig = hankelMinEig(0, T, 2) // doubler removed: the genuine spectral-positivity test
   // period-2 amplitude (even lags minus odd lags) makes the doubler explicit
@@ -173,6 +186,7 @@ export function reflectionPositivity(input?: { n?: number }): {
       ? (evenSum += autocorr[tau]!)
       : (oddSum += autocorr[tau]!)
   }
+
   const doublerAmplitude = (evenSum - oddSum) / autocorr[0]!
 
   // block-bootstrap noise floor for the doubler-removed (stride-2) eigenvalue
@@ -182,6 +196,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   for (let b = 0; b < blocks; b++) {
     blockEigs.push(hankelMinEig(b * blockLen, blockLen, 2))
   }
+
   const meanBlock = blockEigs.reduce((s, x) => s + x, 0) / blocks
   const stdBlock = Math.sqrt(
     blockEigs.reduce((s, x) => s + (x - meanBlock) ** 2, 0) / blocks,
@@ -219,6 +234,7 @@ export default experiment({
   run() {
     const r = reflectionPositivity({ n: 10000 })
     const ok = r.solved && r.reflectionPositive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

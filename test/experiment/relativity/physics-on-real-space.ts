@@ -24,6 +24,7 @@ const round2 = (x: number): number => Math.round(x * 100) / 100
 function largestComponent(nb: number[][]): number[] {
   return largestComponentNodes(nb)
 }
+
 function spectralDim(
   nb: number[][],
   start: number,
@@ -32,6 +33,7 @@ function spectralDim(
 ): number {
   return round2(spectralDimension({ neighbors: nb, start, t1, t2 }))
 }
+
 // gravity, screened Laplacian Green's function (D - A + m^2) phi = delta, fit phi ~ r^-alpha over mid distances
 function gravityExponent(nb: number[][], start: number): number {
   return round2(gravityExponentMeasure({ neighbors: nb, start }))
@@ -49,6 +51,7 @@ export function physicsOnRealSpace(): void {
       cc = i
     }
   }
+
   const cubeDim = spectralDim(cube.neighbors, cc, 3, 12)
   const cubeGrav = gravityExponent(cube.neighbors, cc)
   // Space B, a generic aperiodic horosphere slice
@@ -70,6 +73,7 @@ export function physicsOnRealSpace(): void {
       }
     }
   }
+
   const lcc = largestComponent(bnb)
   const lmap = new Map(lcc.map((v, i) => [v, i]))
   const lnb: number[][] = lcc.map(
@@ -104,6 +108,7 @@ export default experiment({
         cubeCenter = i
       }
     }
+
     const cubeDim = spectralDim(cube.neighbors, cubeCenter, 3, 12)
     const cubeGrav = gravityExponent(cube.neighbors, cubeCenter)
 
@@ -125,6 +130,7 @@ export default experiment({
         }
       }
     }
+
     const lcc = largestComponent(bnb)
     const lmap = new Map(lcc.map((v, i) => [v, i]))
     const lnb: number[][] = lcc.map(
@@ -142,6 +148,7 @@ export default experiment({
     const sliceDegrades =
       Math.abs(bandDim - 3) > 0.5 || Math.abs(bandGrav - 1) > 0.5
     const ok = cuspHolds && sliceDegrades
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

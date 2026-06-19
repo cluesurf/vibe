@@ -24,6 +24,7 @@ export function skyrmeSign(): {
     const { exchange, skyrme } = directionFieldEnergy3d(
       hedgehogTexture3d({ size: M, radius: R }),
     )
+
     return { R, ex: exchange, sk: skyrme }
   })
   // fit log E vs log R for the exponents
@@ -36,6 +37,7 @@ export function skyrmeSign(): {
     skExp = Math.round(fit('sk') * 100) / 100
   // E(R) = a R^exExp + kappa b R^skExp. With exExp>0 and skExp<0, kappa>0 gives a minimum, kappa<=0 does not.
   const stableForPositiveKappa = exExp > 0.3 && skExp < -0.3
+
   return { exExp, skExp, stableForPositiveKappa }
 }
 
@@ -50,6 +52,7 @@ export default experiment({
   run() {
     const r = skyrmeSign()
     const ok = r.stableForPositiveKappa
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

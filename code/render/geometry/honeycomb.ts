@@ -84,11 +84,13 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     if (!orientUp) {
       return b
     }
+
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const out = b.slice()
     out[0] = orientCos * x - orientSin * y
     out[1] = orientSin * x + orientCos * y
+
     return out
   }
 
@@ -108,10 +110,12 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
       if (norm(a) > BOUNDARY_CLIP || norm(b) > BOUNDARY_CLIP) {
         continue
       }
+
       const key = pairKey(a, b)
       if (seen.has(key)) {
         continue
       }
+
       seen.add(key)
       edges.push({ a, b })
     }
@@ -166,10 +170,12 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
       if (seenCell.has(k)) {
         continue
       }
+
       seenCell.add(k)
       if (cellMat.length >= maxCells) {
         break
       }
+
       cellMat.push(gp)
     }
   }
@@ -200,11 +206,13 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     if (!orientUp) {
       return b
     }
+
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const out = b.slice()
     out[0] = orientCos * x - orientSin * y
     out[1] = orientSin * x + orientCos * y
+
     return out
   }
 
@@ -226,10 +234,12 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
       if (norm(a) > INFINITY_GUARD || norm(b) > INFINITY_GUARD) {
         continue
       }
+
       const key = pairKey(a, b)
       if (seen.has(key)) {
         continue
       }
+
       seen.add(key)
       rawEdges.push({ a, b })
       maxR = Math.max(maxR, norm(a), norm(b))
@@ -294,6 +304,7 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
         p[a] = (p[a] ?? 0) + (c[i] ?? 0) * (basis[i]![a] ?? 0)
       }
     }
+
     return p
   })
 
@@ -304,10 +315,12 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
       centroid[a]! += p[a]! / placed.length
     }
   }
+
   let maxR = 1e-9
   for (const p of placed) {
     maxR = Math.max(maxR, norm(p.map((v, a) => v - centroid[a]!)))
   }
+
   const scale = 0.92 / maxR
   const ball: Vec[] = placed.map(p =>
     p.map((v, a) => (v - centroid[a]!) * scale),
@@ -320,12 +333,14 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
       if (j <= i) {
         continue
       }
+
       const a = ball[i]!
       const b = ball[j]!
       const k = pairKey(a, b)
       if (seen.has(k)) {
         continue
       }
+
       seen.add(k)
       edges.push({ a, b })
     }
@@ -348,9 +363,11 @@ export function buildTilingScene(input: HoneycombOptions): Scene {
   if (geometry === 'spherical') {
     return buildSphericalScene(input)
   }
+
   if (geometry === 'euclidean') {
     return buildEuclideanScene(input)
   }
+
   return buildHoneycombScene(input)
 }
 
@@ -361,6 +378,7 @@ export function hasFiniteCell(symbol: number[]): boolean {
   if (cell.length <= 1) {
     return true
   }
+
   return classifyGeometry(cell) === 'spherical'
 }
 
@@ -373,6 +391,7 @@ function orientation(
   if (!orientUp) {
     return { cos: 1, sin: 0 }
   }
+
   let bestR = -1
   let theta0 = 0
   for (const b of ballVertices) {
@@ -384,8 +403,10 @@ function orientation(
       theta0 = Math.atan2(y, x)
     }
   }
+
   const half = p % 2 === 0 ? Math.PI / p : 0
   const angle = Math.PI / 2 - theta0 - half
+
   return { cos: Math.cos(angle), sin: Math.sin(angle) }
 }
 
@@ -395,11 +416,13 @@ function norm(v: number[]): number {
   for (const x of v) {
     s += x * x
   }
+
   return Math.sqrt(s)
 }
 
 function pairKey(a: number[], b: number[]): string {
   const ka = a.map(x => Math.round(x * 1e4)).join(',')
   const kb = b.map(x => Math.round(x * 1e4)).join(',')
+
   return ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 }

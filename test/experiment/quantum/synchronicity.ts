@@ -64,6 +64,7 @@ export function synchronicity(input: { seed: number }): {
         rng: makeRng({ seed: input.seed + 200 + i }),
       }),
     )
+
     return {
       d,
       correlation: runPair({
@@ -147,6 +148,7 @@ export default experiment({
       r.tracksAncestry &&
       r.monotoneDecreasing &&
       !r.hasDirectLink
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

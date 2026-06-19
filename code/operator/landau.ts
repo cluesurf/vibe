@@ -40,6 +40,7 @@ function ladderMomenta(
       piyIm[m]![n] = -scale * (lower - raise) // pi_y = -i sqrt(qB/2)(a - a-dagger)
     }
   }
+
   return { pixRe, piyIm }
 }
 
@@ -66,6 +67,7 @@ export function diracLandauHamiltonian(input: {
         h.re[at(0, mLevel) * dimension + at(1, nLevel)]! += px
         h.re[at(1, mLevel) * dimension + at(0, nLevel)]! += px
       }
+
       // sigma_y couples spin 0 <-> 1 with pi_y. sigma_y[0][1] = -i, sigma_y[1][0] = +i, and
       // pi_y is purely imaginary, so (-i)(i*piyIm) = +piyIm is real on the (0,1) block.
       const py = piyIm[mLevel]![nLevel]!
@@ -74,10 +76,12 @@ export function diracLandauHamiltonian(input: {
         h.re[at(1, mLevel) * dimension + at(0, nLevel)]! += -py // (+i) * (i py) = -py
       }
     }
+
     // sigma_z m on the spin-diagonal, level-diagonal
     h.re[at(0, mLevel) * dimension + at(0, mLevel)]! += mass
     h.re[at(1, mLevel) * dimension + at(1, mLevel)]! += -mass
   }
+
   return h
 }
 
@@ -102,11 +106,14 @@ export function scalarLandauSquared(input: {
         sum +=
           pixRe[i]![k]! * pixRe[k]![j]! - piyIm[i]![k]! * piyIm[k]![j]!
       }
+
       if (i === j) {
         sum += mass * mass
       }
+
       out.data[i * levels + j] = sum
     }
   }
+
   return out
 }

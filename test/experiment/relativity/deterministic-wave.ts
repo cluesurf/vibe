@@ -60,6 +60,7 @@ export function deterministicWave(input?: {
     prev0[x] = Math.floor(rng0.next() * 3)
     cur0[x] = Math.floor(rng0.next() * 3)
   }
+
   let prev = prev0.slice()
   let cur = cur0.slice()
   for (let t = 0; t < 50; t++) {
@@ -68,6 +69,7 @@ export function deterministicWave(input?: {
     prev = cur
     cur = next
   }
+
   // reverse: the inverse step recovers prev from (cur, next), so step backward with roles swapped
   for (let t = 0; t < 50; t++) {
     const back = new Uint8Array(L)
@@ -75,6 +77,7 @@ export function deterministicWave(input?: {
     cur = prev
     prev = back
   }
+
   let reversible = true
   for (let x = 0; x < L; x++) {
     if (prev[x] !== prev0[x] || cur[x] !== cur0[x]) {
@@ -93,6 +96,7 @@ export function deterministicWave(input?: {
       p0[x] = Math.floor(r.next() * 3)
       c0[x] = Math.floor(r.next() * 3)
     }
+
     let pa = p0.slice()
     let ca = c0.slice()
     let pb = p0.slice()
@@ -116,8 +120,10 @@ export function deterministicWave(input?: {
         )
       }
     }
+
     return { times, spreads }
   }
+
   const det = measureDet()
   const detSpreadExponent = powerLawExponent({
     times: det.times,
@@ -153,6 +159,7 @@ export function deterministicWave(input?: {
             }
           }
         }
+
         const dd = Math.min(
           Math.abs(pos - center),
           L - Math.abs(pos - center),
@@ -160,12 +167,15 @@ export function deterministicWave(input?: {
         sumD2[t]! += dd * dd
       }
     }
+
     for (let t = 5; t <= beats; t += 5) {
       times.push(t)
       spreads.push(Math.sqrt(sumD2[t]! / runs))
     }
+
     return { times, spreads }
   }
+
   const stoch = measureStoch()
   const stochSpreadExponent = powerLawExponent({
     times: stoch.times,
@@ -208,6 +218,7 @@ export default experiment({
       r.reversible &&
       r.detIsBallistic &&
       r.momentumFromDeterminism
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

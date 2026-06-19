@@ -30,19 +30,23 @@ export function swerveWalk(input: {
       if (dt <= 0) {
         continue
       }
+
       const dx = q.x - cur.x
       const interval2 = dt * dt - dx * dx
       if (interval2 <= 0) {
         continue // not timelike-future
       }
+
       const properTime = Math.sqrt(interval2)
       if (properTime < input.tauLo || properTime > input.tauHi) {
         continue
       }
+
       const v = dx / dt
       if (Math.abs(v) >= 0.999) {
         continue
       }
+
       const rapidity = Math.atanh(v)
       const delta = Math.abs(rapidity - xi)
       if (delta < bestDelta) {
@@ -52,13 +56,16 @@ export function swerveWalk(input: {
         bestTau = properTime
       }
     }
+
     if (best === null) {
       break
     }
+
     cur = best
     xi = bestRapidity
     tau += bestTau
     trace.push({ tau, rapidity: xi })
   }
+
   return trace
 }

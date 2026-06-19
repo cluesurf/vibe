@@ -66,6 +66,7 @@ export default experiment({
       const dist = x - center
       decay[x] = dist <= R ? -Math.ceil(R / dist) : 0
     }
+
     const ssShort = confineInWell({
       field: decay,
       length,

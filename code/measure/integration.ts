@@ -25,6 +25,7 @@ function highestDegreeNode(
       best = node
     }
   }
+
   return best
 }
 
@@ -39,6 +40,7 @@ function candidateRegion(input: {
   for (let k = 0; k < row.length; k++) {
     region.add(row[k] ?? 0)
   }
+
   return region
 }
 
@@ -56,6 +58,7 @@ export function algebraicConnectivity(input: {
   if (n < 2) {
     return 0
   }
+
   const indexOf = new Map<number, number>()
   nodes.forEach((node, i) => indexOf.set(node, i))
 
@@ -70,6 +73,7 @@ export function algebraicConnectivity(input: {
         local.push(j)
       }
     }
+
     return local
   })
   const degree = localAdjacency.map(row => row.length)
@@ -83,8 +87,10 @@ export function algebraicConnectivity(input: {
       for (const j of row) {
         value -= x[j] ?? 0
       }
+
       out[i] = value
     }
+
     return out
   }
 
@@ -99,17 +105,20 @@ export function algebraicConnectivity(input: {
     // Deterministic non-constant start, orthogonalised against the ones vector.
     x[i] = i % 2 === 0 ? 1 : -1
   }
+
   const orthogonalize = (v: Float64Array): void => {
     let mean = 0
     for (let i = 0; i < n; i++) {
       mean += v[i] ?? 0
     }
+
     mean /= n
     let norm = 0
     for (let i = 0; i < n; i++) {
       v[i] = (v[i] ?? 0) - mean
       norm += (v[i] ?? 0) * (v[i] ?? 0)
     }
+
     norm = Math.sqrt(norm)
     if (norm > 0) {
       for (let i = 0; i < n; i++) {
@@ -117,6 +126,7 @@ export function algebraicConnectivity(input: {
       }
     }
   }
+
   orthogonalize(x)
 
   let estimate = 0
@@ -128,6 +138,7 @@ export function algebraicConnectivity(input: {
     for (let i = 0; i < n; i++) {
       y[i] = lambdaMax * (x[i] ?? 0) - (lx[i] ?? 0)
     }
+
     orthogonalize(y)
     x = y
     // Rayleigh quotient x^T L x gives the current eigenvalue estimate.
@@ -136,9 +147,12 @@ export function algebraicConnectivity(input: {
     for (let i = 0; i < n; i++) {
       rayleigh += (x[i] ?? 0) * (lxNew[i] ?? 0)
     }
+
     estimate = rayleigh
   }
+
   void ones
+
   return Math.max(0, estimate)
 }
 
@@ -150,6 +164,7 @@ export function integrationCorrelates(input: {
   if (adjacency.length === 0) {
     return { markovBlanketScore: 0, integrationPhi: 0 }
   }
+
   const region = candidateRegion({ adjacency })
 
   // Markov-blanket score: internal edges (both endpoints inside) over boundary
@@ -170,6 +185,7 @@ export function integrationCorrelates(input: {
       }
     }
   }
+
   const markovBlanketScore =
     boundaryEdges === 0
       ? internalEdges > 0
@@ -211,6 +227,7 @@ export function toneIntegration(input: {
   if (n < 2) {
     return 0
   }
+
   const samples = input.samples ?? 24
   const cuts = input.bipartitions ?? 16
   const fillOf = input.fillOf ?? ((): number => 1)
@@ -225,6 +242,7 @@ export function toneIntegration(input: {
         out.push({ j, f: fillOf(node, w) })
       }
     }
+
     return out
   })
   // one rule step for node i: next tone = sign(sum of fill * neighbour tone)
@@ -233,8 +251,10 @@ export function toneIntegration(input: {
     for (const { j, f } of nb[i] ?? []) {
       acc += f * (tone[j] ?? 0)
     }
+
     return acc > 0 ? 1 : acc < 0 ? -1 : (tone[i] ?? 0)
   }
+
   // cross-influence cost of one bipartition mask (part[i] in {0,1})
   const cutCost = (part: Uint8Array): number => {
     let total = 0
@@ -243,14 +263,17 @@ export function toneIntegration(input: {
       for (let i = 0; i < n; i++) {
         tone[i] = input.rng.next() < 0.5 ? -1 : 1
       }
+
       const base = new Int8Array(n)
       for (let i = 0; i < n; i++) {
         base[i] = step(tone, i) as -1 | 0 | 1
       }
+
       const repl = new Int8Array(n)
       for (let i = 0; i < n; i++) {
         repl[i] = input.rng.next() < 0.5 ? -1 : 1
       }
+
       // B -> A: replace side-1 current tones, recompute side-0 next tones
       const tA = Int8Array.from(tone)
       for (let i = 0; i < n; i++) {
@@ -258,6 +281,7 @@ export function toneIntegration(input: {
           tA[i] = repl[i] ?? 0
         }
       }
+
       let changedA = 0
       let sizeA = 0
       for (let i = 0; i < n; i++) {
@@ -268,6 +292,7 @@ export function toneIntegration(input: {
           }
         }
       }
+
       // A -> B
       const tB = Int8Array.from(tone)
       for (let i = 0; i < n; i++) {
@@ -275,6 +300,7 @@ export function toneIntegration(input: {
           tB[i] = repl[i] ?? 0
         }
       }
+
       let changedB = 0
       let sizeB = 0
       for (let i = 0; i < n; i++) {
@@ -285,12 +311,15 @@ export function toneIntegration(input: {
           }
         }
       }
+
       const infA = sizeA > 0 ? changedA / sizeA : 0
       const infB = sizeB > 0 ? changedB / sizeB : 0
       total += Math.min(infA, infB)
     }
+
     return total / samples
   }
+
   // Candidate bipartitions to minimise over (the minimum-information partition). For a small
   // region we enumerate ALL balanced bipartitions, so the weakest cut is genuinely found (node 0
   // fixed to side 0 to avoid counting a partition and its complement twice). For a large region we
@@ -305,17 +334,21 @@ export function toneIntegration(input: {
         for (const i of chosen) {
           part[i] = 1
         }
+
         if (part[0] === 0) {
           masks.push(part)
         }
+
         return
       }
+
       for (let i = start; i < n; i++) {
         chosen.push(i)
         recurse(i + 1)
         chosen.pop()
       }
     }
+
     recurse(0)
   } else {
     for (let c = 0; c < cuts; c++) {
@@ -326,16 +359,20 @@ export function toneIntegration(input: {
         order[i] = order[k] ?? 0
         order[k] = tmp
       }
+
       const part = new Uint8Array(n)
       for (let i = 0; i < n; i++) {
         part[order[i] ?? 0] = i < Math.floor(n / 2) ? 0 : 1
       }
+
       masks.push(part)
     }
   }
+
   let phi = Infinity
   for (const part of masks) {
     phi = Math.min(phi, cutCost(part))
   }
+
   return phi === Infinity ? 0 : phi
 }

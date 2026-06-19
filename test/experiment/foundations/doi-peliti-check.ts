@@ -27,6 +27,7 @@ function buildT(c: number, s: number, h: number): number[][] {
       const ns = 3 * (na + 1) + (nb + 1)
       T[st]![ns]! += p
     }
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       set(0, 0, s) // annihilate
       set(a, b, 1 - s)
@@ -42,6 +43,7 @@ function buildT(c: number, s: number, h: number): number[][] {
       set(a, b, 1) // (+,+) or (-,-): inert
     }
   }
+
   return T
 }
 
@@ -55,15 +57,19 @@ function stationary(T: number[][]): number[] {
         next[b]! += pi[a]! * T[a]![b]!
       }
     }
+
     let sum = 0
     for (const v of next) {
       sum += v
     }
+
     for (let i = 0; i < 9; i++) {
       next[i]! /= sum
     }
+
     pi = next
   }
+
   return pi
 }
 
@@ -118,6 +124,7 @@ export function doiPelitiCheck(): {
       scale += fwd + rev
     }
   }
+
   const detailedBalanceViolation = scale > 0 ? dbv / scale : 0
   const detailedBalance = detailedBalanceViolation < 1e-6
 
@@ -144,6 +151,7 @@ export default experiment({
     const r = doiPelitiCheck()
     const ok =
       r.solved && r.conservesSz && r.unitExchange && r.detailedBalance
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

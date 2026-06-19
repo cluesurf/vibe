@@ -35,6 +35,7 @@ export default experiment({
       seed: 8,
     })
     const ok = aligned > 3.5 && random < 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -65,6 +66,7 @@ experiment({
       seed: 2,
     })
     const ok = near > 3.5 && far < 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

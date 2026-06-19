@@ -51,6 +51,7 @@ function lightCone(
   for (let i = 0; i < n; i++) {
     a[i] = rng.nextInt({ max: 3 }) - 1
   }
+
   let b = Int8Array.from(a)
   b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
   const step = (tone: Int8Array): Int8Array =>
@@ -66,11 +67,13 @@ function lightCone(
         maxDist = Math.max(maxDist, dist[v] ?? 0)
       }
     }
+
     radii.push(maxDist)
     if (maxDist > beat) {
       holds = false
     }
   }
+
   return { holds, propagated: Math.max(...radii) >= 1 }
 }
 
@@ -117,6 +120,7 @@ export function oneRuleAllSectors(input: {
       ys.push(phi[i] ?? 0)
     }
   }
+
   const corr = pearson({ a: xs, b: ys })
 
   // Radiation sector: the rule's light-cone.
@@ -148,6 +152,7 @@ export default experiment({
       r.forceDecays &&
       r.radiationLightCone &&
       r.radiationPropagates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

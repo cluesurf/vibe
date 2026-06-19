@@ -52,6 +52,7 @@ export function solitonMatter(): {
       eInf = E
     }
   }
+
   const minE = Math.min(...binding.map(b => b[1]))
   const bound =
     binding[binding.length - 1]![1] - minE > 1 &&
@@ -64,6 +65,7 @@ export function solitonMatter(): {
   addSky(two, c - 16, c, R, 1)
   addSky(two, c + 16, c, R, 1)
   const massRatio = Math.round((energy(two, kappa) / m1) * 100) / 100
+
   return { binding, bound, massRatio }
 }
 
@@ -78,6 +80,7 @@ export default experiment({
   run() {
     const r = solitonMatter()
     const ok = r.bound && r.massRatio > 1.7 && r.massRatio < 2.3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

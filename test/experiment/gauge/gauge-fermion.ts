@@ -32,6 +32,7 @@ function study(): { potential: number; lowest: number[] } {
   for (let sweep = 0; sweep < 40; sweep++) {
     heatBathSweep({ field, plaquettes, beta: 1.5, rng })
   }
+
   const potential = staticPotentialProxy({ field, plaquettes })
 
   const complex = cellComplexOf({ substrate: graph, maxGrade: 2 })
@@ -59,6 +60,7 @@ export default experiment({
       result.lowest.length === 12 &&
       result.lowest.every(value => Number.isFinite(value)) &&
       Number.isFinite(result.potential)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

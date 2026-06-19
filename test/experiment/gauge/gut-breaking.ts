@@ -45,13 +45,16 @@ export function gutBreaking(): {
       }
     }
   }
+
   const byMinus: Record<number, number> = {}
   for (const w of six) {
     const m = w.filter(x => x < 0).length
     byMinus[m] = (byMinus[m] ?? 0) + 1
   }
+
   const sixteenSplit = `16 = ${byMinus[0]} (singlet 1) + ${byMinus[2]} (10) + ${byMinus[4]} (5bar)`
   const hasSinglet = byMinus[0] === 1
+
   return { su5InSo10, smInSu5, sixteenSplit }
 }
 
@@ -66,6 +69,7 @@ export default experiment({
   run() {
     const r = gutBreaking()
     const ok = r.su5InSo10 && r.smInSu5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

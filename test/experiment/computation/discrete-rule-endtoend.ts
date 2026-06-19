@@ -50,6 +50,7 @@ export function discreteRuleEndToEnd(): {
     init.N[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
     init.S[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
   }
+
   const c0 = charge(init),
     [px0, py0] = momentum(init)
   // forward T steps (collide then stream)
@@ -59,6 +60,7 @@ export function discreteRuleEndToEnd(): {
     collide(s)
     s = stream(s)
   }
+
   const c1 = charge(s),
     [px1, py1] = momentum(s)
   const chargeOk = c1 === c0,
@@ -69,6 +71,7 @@ export function discreteRuleEndToEnd(): {
     r = streamInverse(r)
     collide(r)
   }
+
   let diff = 0
   for (let i = 0; i < N; i++) {
     diff +=
@@ -77,6 +80,7 @@ export function discreteRuleEndToEnd(): {
       Math.abs(r.N[i]! - init.N[i]!) +
       Math.abs(r.S[i]! - init.S[i]!)
   }
+
   const reversible = diff === 0
   // (4) emergent smooth continuum: seed a localized density blob, evolve, coarse-grain, check it spreads SMOOTHLY
   const blob: State = {
@@ -94,11 +98,13 @@ export function discreteRuleEndToEnd(): {
       blob.S[idx(x, y)] = 1
     }
   }
+
   let b = clone(blob)
   for (let t = 0; t < 120; t++) {
     collide(b)
     b = stream(b)
   }
+
   // coarse-grain density over 4x4 blocks, measure smoothness (small block-to-block variation = a smooth field)
   const d = density(b)
   const B = 4,
@@ -109,6 +115,7 @@ export function discreteRuleEndToEnd(): {
       y = (i / L) | 0
     cg[((y / B) | 0) * nb + ((x / B) | 0)]! += d[i]!
   }
+
   let tv = 0,
     cnt = 0
   for (let bx = 0; bx < nb - 1; bx++) {
@@ -117,15 +124,18 @@ export function discreteRuleEndToEnd(): {
       cnt++
     }
   }
+
   const meanAbs = (() => {
     let s2 = 0
     for (let i = 0; i < cg.length; i++) {
       s2 += Math.abs(cg[i]!)
     }
+
     return s2 / cg.length
   })()
   const roughness = tv / cnt / (meanAbs + 1e-9)
   const smooth = roughness < 1.0 // coarse field varies slowly relative to its magnitude (a smooth continuum)
+
   return { chargeOk, momentumOk, reversible, smooth }
 }
 
@@ -147,6 +157,7 @@ export default experiment({
   run() {
     const r = discreteRuleEndToEnd()
     const ok = r.chargeOk && r.momentumOk && r.reversible && r.smooth
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

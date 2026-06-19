@@ -42,6 +42,7 @@ export function emergeSelfShape(input: {
     cx += c % L
     cy += Math.floor(c / L)
   }
+
   cx /= cluster.length
   cy /= cluster.length
   const offsets = cluster.map(
@@ -51,6 +52,7 @@ export function emergeSelfShape(input: {
         Math.round(Math.floor(c / L) - cy),
       ] as const,
   )
+
   return { offsets, size: cluster.length, L }
 }
 
@@ -85,6 +87,7 @@ export function plusCount(tone: Int8Array): number {
       n++
     }
   }
+
   return n
 }
 
@@ -127,6 +130,7 @@ export function runTwoSelfAnnihilation(input: {
     beat(tone, graph, moved, rng, 0, cohesion)
     counts.push(plusCount(tone))
   }
+
   return counts
 }
 
@@ -145,6 +149,7 @@ export function twoSelfSeparation(input: {
   if (clusters.length < 2) {
     return 0
   }
+
   const centroid = (cells: number[]): readonly [number, number] => {
     let cx = 0
     let cy = 0
@@ -152,10 +157,13 @@ export function twoSelfSeparation(input: {
       cx += c % L
       cy += Math.floor(c / L)
     }
+
     return [cx / cells.length, cy / cells.length]
   }
+
   const [ax, ay] = centroid(clusters[0]!)
   const [bx, by] = centroid(clusters[1]!)
+
   return Math.hypot(ax - bx, ay - by)
 }
 
@@ -197,5 +205,6 @@ export function runTwoSelf(input: {
     beat(tone, graph, moved, rng, arrow, cohesion)
     seps.push(twoSelfSeparation({ tone, graph, L, minSize }))
   }
+
   return seps
 }

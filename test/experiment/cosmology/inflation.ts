@@ -50,13 +50,16 @@ export function inflate(input: { phi0: number; m?: number }): {
         Math.max(1e-30, 0.5 * phid * phid + V(phi))
       sampledW = true
     }
+
     if (!exited && eps >= 1) {
       efoldsAtExit = lnA
       exited = true
     }
+
     if (exited) {
       minAccelAfterExit = Math.min(minAccelAfterExit, accel)
     }
+
     // RK4 step on (phi, phid); lnA by H dt.
     const next = inflatonStep({
       phi,
@@ -74,6 +77,7 @@ export function inflate(input: { phi0: number; m?: number }): {
   }
 
   const efoldsAnalytic = (input.phi0 * input.phi0) / 4
+
   return {
     efolds: efoldsAtExit,
     efoldsAnalytic,
@@ -103,6 +107,7 @@ export default experiment({
       r.enoughEfolds &&
       r.efoldsMatchesAnalytic &&
       r.gracefulExit
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

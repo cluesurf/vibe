@@ -97,6 +97,7 @@ export function makeCamera(mode: FoldMode): Camera {
       if (mode === '2d') {
         return
       }
+
       pos3 = mobiusAdd(pos3, scale([0, 1, 0], tanhHalf(step))) as [
         number,
         number,
@@ -114,6 +115,7 @@ export function makeCamera(mode: FoldMode): Camera {
       if (mode === '2d') {
         return
       }
+
       pitch = Math.max(-1.5, Math.min(1.5, pitch + delta))
     },
     zoomBy(factor) {
@@ -139,6 +141,7 @@ export function makeCamera(mode: FoldMode): Camera {
     },
     uniform3D() {
       const f = forward3()
+
       return {
         shift: [-pos3[0], -pos3[1], -pos3[2]],
         eye: scale(f, -params.eyeDist) as [number, number, number],
@@ -153,8 +156,10 @@ export function makeCamera(mode: FoldMode): Camera {
   // the unit look direction from yaw / pitch (yaw 0, pitch 0 looks down -z, matching the headless eye on +z)
   function forward3(): [number, number, number] {
     const cp = Math.cos(pitch)
+
     return [Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp]
   }
+
   // the unit right direction in the horizontal plane
   function right3(): [number, number, number] {
     return [Math.cos(yaw), 0, Math.sin(yaw)]

@@ -16,6 +16,7 @@ const LAMBDA = 18.2787
 // flat 3D lattice: a ball of radius D (Chebyshev) has (2D+1)^3 cells
 function flatRatio(D: number): number {
   const cells = (2 * D + 1) ** 3
+
   return D / (Math.log(cells) / Math.log(LAMBDA))
 }
 
@@ -41,6 +42,7 @@ export default experiment({
         ratios.push(D / (Math.log(cum) / Math.log(LAMBDA)))
       }
     }
+
     // for {3,4,3,4} the ratio D / log_lambda(cells) CONVERGES to ~1 (the bulk radius is logarithmic in cells)
     const lastRatio = ratios[ratios.length - 1]!
     const converging =

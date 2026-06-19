@@ -68,11 +68,13 @@ function run(): void {
       if (tone === 0) {
         continue
       } // leave rest cells as background, so the wavefront reads clearly
+
       faces.push({
         polygon: tiling.polygons[cell]!,
         color: PALETTE[tone]!,
       })
     }
+
     const scene: Scene = {
       dim: 2,
       symbol: symbol.slice(),
@@ -96,6 +98,7 @@ function run(): void {
         encodePng(rgba, size, size),
       )
     }
+
     // advance one beat of the reversible wave, then roll the buffers
     reversibleWaveStep({
       neighbors: tiling.neighbors,
@@ -139,10 +142,12 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       if (seen.has(key)) {
         continue
       }
+
       seen.add(key)
       edges.push({ a, b })
     }
   }
+
   return edges
 }
 

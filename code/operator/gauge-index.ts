@@ -43,6 +43,7 @@ function linkPhase(input: {
   } else if (n2 === L - 1) {
     phase = input.flux * L * n1
   }
+
   return { re: Math.cos(phase), im: Math.sin(phase) }
 }
 
@@ -83,6 +84,7 @@ export function totalFlux(input: {
       total += Math.atan2(p.im, p.re)
     }
   }
+
   return total
 }
 
@@ -141,6 +143,7 @@ export function gaugeWilsonDirac(input: {
           coefficient: -0.5,
         })
       }
+
       // mu = 2 (y direction)
       {
         const u = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
@@ -174,6 +177,7 @@ export function gaugeWilsonDirac(input: {
       }
     }
   }
+
   return d
 }
 
@@ -205,6 +209,7 @@ function hermiticityError(m: ComplexMatrix): number {
       }
     }
   }
+
   return worst
 }
 
@@ -235,6 +240,7 @@ export function overlapIndex(input: {
   for (let i = 0; i < n; i++) {
     dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
   }
+
   gamma5RowsInPlace(dw)
   const hermError = hermiticityError(dw)
 
@@ -244,6 +250,7 @@ export function overlapIndex(input: {
     const lambda = eig.values[i] ?? 0
     asymmetry += lambda > 0 ? 1 : lambda < 0 ? -1 : 0
   }
+
   const index = -0.5 * asymmetry
 
   return {

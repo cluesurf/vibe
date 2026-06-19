@@ -71,10 +71,12 @@ function snapshot(input: { size: number; base: number }): Row {
       ratioCount += 1
     }
   }
+
   const meanGrowthRatio = ratioCount > 0 ? ratioSum / ratioCount : 0
   const iso = lorentzIsotropy({ substrate: graph, samples: 400, rng })
   const greedy = greedyRoutingSuccess({ graph, trials: 400, rng })
   const backtrack = routingWithBacktrack({ graph, trials: 400, rng })
+
   return {
     size: input.size,
     radius,
@@ -103,6 +105,7 @@ export default experiment({
     const allNavigable = rows.every(r => r.backtrack > 0.95)
     const ok = allReach && allIsotropic && allNavigable
     const last = rows[rows.length - 1]!
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

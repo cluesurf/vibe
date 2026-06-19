@@ -32,6 +32,7 @@ export function gravityFreeSpace(): {
     fitResidual = Math.sqrt(fit.residual / dG.length)
   const ok =
     Math.abs(a - 1 / (4 * Math.PI)) < 0.01 && fitResidual < 1e-3
+
   return { coeffA, fitResidual }
 }
 
@@ -48,6 +49,7 @@ export default experiment({
     const expectedCoeff = 1 / (4 * Math.PI)
     const ok =
       Math.abs(r.coeffA - expectedCoeff) < 0.01 && r.fitResidual < 1e-3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

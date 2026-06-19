@@ -26,8 +26,10 @@ function basis(
   for (const [index, value] of entries) {
     v[index] = value
   }
+
   return v
 }
+
 const chain = (dim: number, count: number) =>
   Array.from({ length: count }, (_, i) =>
     basis(dim, [i, 1], [i + 1, -1]),
@@ -96,6 +98,7 @@ export default experiment({
       d4Outer === 6 &&
       dockCrystallographic &&
       !icosaCrystallographic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

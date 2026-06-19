@@ -37,6 +37,7 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   for (let i = 0; i < n; i++) {
     tone[i] = (input.rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   }
+
   // Fills are tones on the notes, ternary, and SYMMETRIC (a note v-w is one shared
   // relational vibe, so fill(v,w) = fill(w,v)). Symmetric couplings make the
   // asynchronous signed-majority dynamics converge to stable structured states, the
@@ -56,20 +57,25 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
       for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
       }
+
       const next: -1 | 0 | 1 = h > 0 ? 1 : h < 0 ? -1 : 0
       if (next !== tone[v]) {
         flips += 1
       }
+
       tone[v] = next
     }
+
     flipFractions.push(flips / n)
   }
+
   let allTernary = true
   for (const t of tone) {
     if (t < -1 || t > 1) {
       allTernary = false
     }
   }
+
   return { flipFractions, allTernary }
 }
 
@@ -108,6 +114,7 @@ export function capstone(input: { count: number; seed: number }): {
       center = i
     }
   }
+
   const growth = ballGrowth({ substrate: g, center, maxRadius: 12 })
   const reach = growthIsExponential({ growth })
 
@@ -142,9 +149,11 @@ export function capstone(input: { count: number; seed: number }): {
     for (let i = 0; i < gc.size; i++) {
       edges += (gc.neighbors[i] ?? new Uint32Array(0)).length
     }
+
     if (edges < prevEdges) {
       arrowMonotone = false
     }
+
     prevEdges = edges
   }
 
@@ -180,6 +189,7 @@ export default experiment({
       r.dynamicsConverges &&
       r.laplacianBoundedBelow &&
       r.arrowMonotone
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -57,6 +57,7 @@ export function signaling(input?: { n?: number }): {
       farBall.push(i)
     }
   }
+
   const moved = new Uint8Array(N)
 
   // SIGNAL: inject a + pulse at self A (node 0 and neighbors), diffuse, measure arrival at the far self
@@ -68,10 +69,12 @@ export function signaling(input?: { n?: number }): {
       injected++
     }
   }
+
   const rng = makeRng({ seed: 3 })
   for (let b = 0; b < 4 * ecc; b++) {
     hopBeat(sig, eu, ev, moved, rng)
   }
+
   const signalAtFar = farBall.filter(i => sig[i] === 1).length
 
   // CONTROL: no signal injected
@@ -80,6 +83,7 @@ export function signaling(input?: { n?: number }): {
   for (let b = 0; b < 4 * ecc; b++) {
     hopBeat(ctrl, eu, ev, moved, rng2)
   }
+
   const controlAtFar = farBall.filter(i => ctrl[i] === 1).length
 
   const signalReachesFar = signalAtFar > 0 && controlAtFar === 0
@@ -114,6 +118,7 @@ export default experiment({
       r.fieldBeneath &&
       r.diameterIsLogarithmic &&
       r.signalReachesFar
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

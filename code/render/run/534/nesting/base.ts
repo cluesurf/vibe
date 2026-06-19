@@ -46,6 +46,7 @@ function shellColor(
   } else {
     ;[r, g, b] = [c, 0, x]
   }
+
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
 }
 
@@ -68,11 +69,14 @@ function run(): void {
         }
       }
     }
+
     if (next.length) {
       shellCounts.push(next.length)
     }
+
     frontier = next
   }
+
   // clean (untruncated) shells: stop at the first shell whose ratio collapses
   let maxClean = 0
   for (let i = 1; i < shellCounts.length; i++) {
@@ -90,8 +94,10 @@ function run(): void {
     if (depth[i]! < 0 || depth[i]! > maxClean) {
       continue
     }
+
     slice.push(i)
   }
+
   console.log(
     `cells ${n}, clean shells 0..${maxClean} (counts ${shellCounts.slice(0, maxClean + 1).join(',')}), drawn cells ${slice.length}`,
   )
@@ -120,6 +126,7 @@ function run(): void {
         setPixel(rgba, IMG, px, py, [70, 70, 78])
       }
     }
+
     // draw cells up to shell f, deepest first so shallow shells sit on top
     for (let s = f; s >= 0; s--) {
       const col = shellColor(s, maxClean)
@@ -127,6 +134,7 @@ function run(): void {
         if (depth[i]! !== s) {
           continue
         }
+
         const x = g.coords[i]![0]!,
           y = g.coords[i]![1]!
         const r2 = norm(g.coords[i]!) ** 2
@@ -144,6 +152,7 @@ function run(): void {
         })
       }
     }
+
     writeFrame({
       dir: outDir,
       index: f,
@@ -154,6 +163,7 @@ function run(): void {
       pad: 3,
     })
   }
+
   console.log(`wrote ${maxClean + 1} frames to ${outDir}`)
   console.log(
     `ffmpeg -framerate 2 -i ${join(outDir, 'nesting-%03d.png')} -vf "scale=${IMG}:${IMG}" -pix_fmt yuv420p ${join(here, 'nesting-534.mp4')}`,

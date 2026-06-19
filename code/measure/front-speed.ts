@@ -24,14 +24,17 @@ export function directionalFrontDistances(input: {
     if (i === center) {
       continue
     }
+
     if (!input.activated(i)) {
       continue
     }
+
     const c = coords[i]!
     const n = norm(c)
     if (n < 1e-9) {
       continue
     }
+
     // nearest probe direction by angle
     let best = 0
     let bestDot = -Infinity
@@ -40,16 +43,19 @@ export function directionalFrontDistances(input: {
       for (let k = 0; k < dim; k++) {
         dot += (c[k]! / n) * directions[m]![k]!
       }
+
       if (dot > bestDot) {
         bestDot = dot
         best = m
       }
     }
+
     const d = poincareDistance(coords[center]!, c)
     if (d > frontDist[best]!) {
       frontDist[best] = d
     }
   }
+
   return frontDist
 }
 
@@ -75,6 +81,7 @@ export function differenceRmsWidthRing(input: {
       sumSquared += d * d
     }
   }
+
   return weight > 0 ? Math.sqrt(sumSquared / weight) : 0
 }
 
@@ -87,15 +94,18 @@ export function rangeAnisotropy(speeds: number[]): {
   if (speeds.length < 2) {
     return { meanSpeed, anisotropy: 1 }
   }
+
   let mn = Infinity
   let mx = -Infinity
   for (const v of speeds) {
     if (v < mn) {
       mn = v
     }
+
     if (v > mx) {
       mx = v
     }
   }
+
   return { meanSpeed, anisotropy: (mx - mn) / meanSpeed }
 }

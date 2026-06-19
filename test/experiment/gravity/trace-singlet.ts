@@ -39,8 +39,10 @@ function orbitCount(roots: number[][]): number {
       parent[a] = parent[parent[a]!]!
       a = parent[a]!
     }
+
     return a
   }
+
   const union = (a: number, b: number): void => {
     const ra = find(a)
     const rb = find(b)
@@ -48,6 +50,7 @@ function orbitCount(roots: number[][]): number {
       parent[ra] = rb
     }
   }
+
   for (let i = 0; i < roots.length; i++) {
     for (const a of roots) {
       const image = index.get(vectorKey(reflectRoot(roots[i]!, a)))
@@ -56,10 +59,12 @@ function orbitCount(roots: number[][]): number {
       }
     }
   }
+
   const seen = new Set<number>()
   for (let i = 0; i < roots.length; i++) {
     seen.add(find(i))
   }
+
   return seen.size
 }
 
@@ -80,6 +85,7 @@ function functionalInvariant(
       }
     }
   }
+
   return true
 }
 
@@ -119,6 +125,7 @@ function traceSourcedBinding(): {
       body[c] = 1
     }
   }
+
   // the source is the TRACE, the F4-invariant total occupation per cell
   const cap = balancedTernaryCap(3)
   const phi = relaxPotential({
@@ -141,6 +148,7 @@ function traceSourcedBinding(): {
   for (let k = 0; k < 3; k++) {
     piece = neighbour(piece, 0)
   }
+
   for (let step = 0; step < 40; step++) {
     let best = -1
     let bestPhi = phi[piece]!
@@ -151,14 +159,17 @@ function traceSourcedBinding(): {
         best = target
       }
     }
+
     if (best < 0) {
       break
     }
+
     piece = best
     if (distance(piece) <= 2) {
       break
     }
   }
+
   return { finalDistance: distance(piece), ternary }
 }
 

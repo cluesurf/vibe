@@ -14,11 +14,14 @@ export function phaseWinding(theta: ReadonlyArray<number>): number {
     while (d > Math.PI) {
       d -= 2 * Math.PI
     }
+
     while (d < -Math.PI) {
       d += 2 * Math.PI
     }
+
     total += d
   }
+
   return Math.round(total / (2 * Math.PI))
 }
 
@@ -36,10 +39,13 @@ export function directorWinding(phi: ReadonlyArray<number>): number {
     while (d > Math.PI / 2) {
       d -= Math.PI
     }
+
     while (d < -Math.PI / 2) {
       d += Math.PI
     }
+
     total += d
   }
+
   return total / Math.PI
 }

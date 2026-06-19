@@ -19,6 +19,7 @@ export function isingDecimationBySummation(coupling: number): number {
   const same = Math.exp(k * (1 + 1)) + Math.exp(k * (-1 - 1))
   // s1 = +1, s2 = -1: sum_s exp(K(s - s)) = 1 + 1 = 2.
   const diff = Math.exp(k * (1 - 1)) + Math.exp(k * (-1 + 1))
+
   // e^{C+K'} = same, e^{C-K'} = diff  =>  K' = (1/2) ln(same/diff).
   return 0.5 * Math.log(same / diff)
 }
@@ -47,6 +48,7 @@ export function sampleIsingChain(
   for (let i = 1; i < n; i++) {
     s[i] = (rng.next() < pAlign ? s[i - 1] : -(s[i - 1] ?? 1)) as -1 | 1
   }
+
   return s
 }
 
@@ -56,6 +58,7 @@ export function nearestNeighborCorrelation(s: Int8Array): number {
   for (let i = 0; i + 1 < s.length; i++) {
     c += (s[i] ?? 0) * (s[i + 1] ?? 0)
   }
+
   return c / Math.max(1, s.length - 1)
 }
 
@@ -76,7 +79,9 @@ export function measuredBlockSpinCoupling(input: {
     for (let i = 0; i < blocked.length; i++) {
       blocked[i] = s[2 * i] ?? 0
     }
+
     acc += nearestNeighborCorrelation(blocked)
   }
+
   return Math.atanh(acc / samples)
 }

@@ -54,6 +54,7 @@ export default experiment({
         }
       }
     }
+
     // and the operator is genuinely nonzero (a real Dirac operator, not the zero map)
     const nonTrivial = operator.some(row =>
       row.some(value => Math.abs(value) > 1e-9),

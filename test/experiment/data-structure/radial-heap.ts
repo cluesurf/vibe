@@ -25,10 +25,12 @@ export default experiment({
       if (parent !== -1 && !(a.dist[parent]! < a.dist[cell]!)) {
         heapOrdered = false
       }
+
       if (a.dist[cell]! > maxDepth) {
         maxDepth = a.dist[cell]!
       }
     }
+
     const peekMinIsRoot = a.dist[a.root] === 0
     const insertDepthLogarithmic = maxDepth <= 4 * Math.log2(cells)
 

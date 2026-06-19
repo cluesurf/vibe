@@ -15,6 +15,7 @@ export function patchesFromAmplitudes(
 ): { counts: number[]; total: number } {
   const counts = amps.map(c => Math.max(1, Math.round(c * c * scale)))
   const total = counts.reduce((a, b) => a + b, 0)
+
   return { counts, total }
 }
 
@@ -37,6 +38,7 @@ export function quadratureAdditivityResidual(
       Math.abs(merged * merged - (a1 * a1 + a2 * a2)),
     )
   }
+
   return maxRes
 }
 
@@ -57,6 +59,7 @@ export function exponentResidual(input: {
     const rhs = Math.pow(a1, input.p) + Math.pow(a2, input.p)
     maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / (rhs || 1))
   }
+
   return maxRel
 }
 
@@ -69,6 +72,7 @@ export function fairSampleFrequencies(input: {
   seed: number
 }): number[] {
   const { counts } = patchesFromAmplitudes(input.amps, input.scale)
+
   return sampleEmpiricalFrequencies({
     counts,
     draws: input.draws,

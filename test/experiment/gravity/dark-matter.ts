@@ -53,6 +53,7 @@ export function rotationCurve(input: {
       phi[i] = phi1[i] ?? 0
     }
   }
+
   // Bin the potential by distance from the center.
   const cx = mid
   const maxR = input.side / 2 - 1
@@ -70,6 +71,7 @@ export function rotationCurve(input: {
       cnt[bin] = (cnt[bin] ?? 0) + 1
     }
   }
+
   const r: number[] = []
   const phiR: number[] = []
   for (let bn = 1; bn <= bins; bn++) {
@@ -78,6 +80,7 @@ export function rotationCurve(input: {
       phiR.push((sum[bn] ?? 0) / (cnt[bn] ?? 1))
     }
   }
+
   // v^2(r) = r * |dphi/dr| (circular-orbit speed squared), with the outer slope and flatness ratio.
   return rotationCurveFromPotential({ radii: r, potential: phiR })
 }
@@ -97,6 +100,7 @@ export default experiment({
       local.flatnessRatio < 0.7 &&
       nonlocal.flatnessRatio > 0.95 &&
       nonlocal.flatnessRatio > local.flatnessRatio
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

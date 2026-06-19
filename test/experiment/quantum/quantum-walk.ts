@@ -44,6 +44,7 @@ export default experiment({
       Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 16 })) /
       Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 4 }))
     const ok = qRatio > 3.5 && cRatio > 1.7 && cRatio < 2.4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

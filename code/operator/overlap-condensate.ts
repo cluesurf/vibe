@@ -44,6 +44,7 @@ function randomLinks(input: {
     u1[s] = (input.rng.next() * 2 - 1) * Math.PI * input.disorder
     u2[s] = (input.rng.next() * 2 - 1) * Math.PI * input.disorder
   }
+
   return { u1, u2 }
 }
 
@@ -115,6 +116,7 @@ function gaugeWilsonDiracRandom(input: {
       })
     }
   }
+
   return d
 }
 
@@ -151,6 +153,7 @@ export function chiralCondensateSignal(input: {
     for (let i = 0; i < n; i++) {
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
     }
+
     for (let row = 0; row < n; row++) {
       if (row % 2 === 1) {
         for (let col = 0; col < n; col++) {
@@ -159,17 +162,20 @@ export function chiralCondensateSignal(input: {
         }
       }
     }
+
     const epsilon = hermitianMatrixSign({ matrix: dw })
     // H_ov = gamma5 + epsilon (gamma5 is +1 on spin-up, -1 on spin-down diagonal).
     for (let i = 0; i < n; i++) {
       epsilon.re[i * n + i] =
         (epsilon.re[i * n + i] ?? 0) + (i % 2 === 0 ? 1 : -1)
     }
+
     const eig = eigHermitian({ matrix: epsilon })
     for (let k = 0; k < eig.values.length; k++) {
       if (Math.abs(eig.values[k] ?? 0) < tol) {
         nearZero += 1
       }
+
       totalEig += 1
     }
   }

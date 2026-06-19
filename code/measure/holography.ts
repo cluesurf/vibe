@@ -23,12 +23,15 @@ const bfsGeodesic = (
           if (neighbor === to) {
             return distance[neighbor]!
           }
+
           next.push(neighbor)
         }
       }
     }
+
     frontier = next
   }
+
   return distance[to]!
 }
 
@@ -46,11 +49,13 @@ const fit = (
     cov += (x[i]! - meanX) * (y[i]! - meanY)
     varX += (x[i]! - meanX) ** 2
   }
+
   const slope = cov / varX
   let residual = 0
   for (let i = 0; i < n; i++) {
     residual += (y[i]! - (meanY + slope * (x[i]! - meanX))) ** 2
   }
+
   return { slope, residual }
 }
 
@@ -76,8 +81,10 @@ const bfsField = (
         }
       }
     }
+
     frontier = next
   }
+
   return distance
 }
 
@@ -114,6 +121,7 @@ export function bulkShortcutScaling(input: {
       center = i
     }
   }
+
   const depth = bfsField(neighbors, center)
   let maxDepth = 0
   for (let i = 0; i < n; i++) {
@@ -121,6 +129,7 @@ export function bulkShortcutScaling(input: {
       maxDepth = depth[i]!
     }
   }
+
   const band = new Set(
     [...Array(n).keys()].filter(i => depth[i]! > maxDepth - bandWidth),
   )
@@ -138,9 +147,11 @@ export function bulkShortcutScaling(input: {
       if (!byL.has(l)) {
         byL.set(l, [])
       }
+
       byL.get(l)!.push(s)
     }
   }
+
   let ls: number[] = []
   let ss: number[] = []
   for (const l of [...byL.keys()].sort((a, b) => a - b)) {
@@ -150,6 +161,7 @@ export function bulkShortcutScaling(input: {
       ss.push(arr.reduce((a, b) => a + b, 0) / arr.length)
     }
   }
+
   // exclude the saturated plateau (S near the graph diameter), keep the strictly informative regime
   const maxS = Math.max(...ss)
   const unsaturated = ss.map(s => s < 0.9 * maxS)
@@ -163,6 +175,7 @@ export function bulkShortcutScaling(input: {
   const linearFit = fit(ls, ss)
   const slope =
     (ss[ss.length - 1]! - ss[0]!) / (ls[ls.length - 1]! - ls[0]!)
+
   return {
     slope,
     logResidual: logFit.residual,
@@ -195,6 +208,7 @@ export function ryuTakayanagiScaling(input: {
       center = i
     }
   }
+
   const depth = new Int32Array(n).fill(-1)
   depth[center] = 0
   let frontier = [center]
@@ -210,8 +224,10 @@ export function ryuTakayanagiScaling(input: {
         }
       }
     }
+
     frontier = next
   }
+
   const center2D = coords[center]!
   const boundary = [...Array(n).keys()]
     .filter(i => depth[i]! >= maxDepth - 1)
@@ -244,6 +260,7 @@ export function ryuTakayanagiScaling(input: {
       )
       count++
     }
+
     return sum / count
   })
 
@@ -252,6 +269,7 @@ export function ryuTakayanagiScaling(input: {
     geodesics,
   )
   const linearFit = fit(arcs, geodesics)
+
   return {
     arcs,
     geodesics,

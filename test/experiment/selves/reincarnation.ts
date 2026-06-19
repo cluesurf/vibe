@@ -32,6 +32,7 @@ function settle(
   for (let i = 0; i < steps; i++) {
     t = hopfieldStep(J, t, zero, null)
   }
+
   return t
 }
 
@@ -59,9 +60,11 @@ export function reincarnation(input: { seed: number }): {
       state[v] = (tr.nextInt({ max: 3 }) - 1) as -1 | 0 | 1 // fresh material
       seen.add(v)
     }
+
     state = settle(J, state, 12) // the self heals the new material into itself
     rounds++
   }
+
   const turnoverReached = seen.size / size
   const persistThroughTurnover = Math.abs(overlap(state, P))
 
@@ -76,6 +79,7 @@ export function reincarnation(input: { seed: number }): {
   for (let i = 0; i < Math.round(seedFraction * size); i++) {
     blank[i] = P[i] as -1 | 0 | 1
   }
+
   const reborn = settle(J, blank, 30)
   const reconstituteFromSeed = Math.abs(overlap(reborn, P))
 
@@ -110,6 +114,7 @@ export default experiment({
       r.persistThroughTurnover > 0.9 &&
       r.dissolvedOverlap < 0.3 &&
       r.reconstituteFromSeed > 0.9
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

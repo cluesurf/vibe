@@ -50,8 +50,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   // build the bulk and its coordinates, and the Busemann function whose level set is the horosphere
@@ -69,14 +71,17 @@ async function run(): Promise<void> {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -84,6 +89,7 @@ async function run(): Promise<void> {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -104,12 +110,15 @@ async function run(): Promise<void> {
     const proj = sub(x, xi, dot(x, xi))
     raw.push({ index: i, u: dot(proj, e1), v: dot(proj, e2) })
   }
+
   // zoom on the dense core, center on the median and scale by a percentile of the spread, so the packed
   // centre fills the frame and the sparse far outliers clip off-screen (they would otherwise shrink it all)
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(raw.map(c => c.u))
   const cv = median(raw.map(c => c.v))
   const radii = raw
@@ -224,22 +233,26 @@ async function run(): Promise<void> {
       rgba[i * 4 + 2] = 11
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of band) {
       const tone = currentOf(tones[c.index]!)
       if (tone === 0) {
         continue
       } // peace is black, the background, draw only the charges
+
       const col = COLORS[tone]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           if (dx * dx + dy * dy > RADIUS * RADIUS) {
             continue
           }
+
           const x = c.px + dx
           const y = c.py + dy
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
@@ -247,8 +260,10 @@ async function run(): Promise<void> {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
   }
+
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(
     'assemble with, ffmpeg -y -framerate 20 -i make/frames/frame_%04d.png -pix_fmt yuv420p make/horosphere.mp4',

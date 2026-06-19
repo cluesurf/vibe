@@ -23,6 +23,7 @@ const growthRatio = (shells: number[]): number => {
   if (count < 4) {
     return 1
   }
+
   return shells[count - 2]! / shells[count - 3]!
 }
 
@@ -73,12 +74,14 @@ export default experiment({
         conservedThroughout = false
       }
     }
+
     const moved = occupation.some((slots, cell) =>
       slots.some((value, d) => value !== initial[cell]![d]),
     ) // the rule did something
     for (let t = 0; t < steps; t++) {
       occupation = collide(stream(occupation), false)
     } // exact inverse, reversed order
+
     const reversible = occupation.every((slots, cell) =>
       slots.every((value, d) => value === initial[cell]![d]),
     )

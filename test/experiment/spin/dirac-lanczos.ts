@@ -24,6 +24,7 @@ type ApplyH = ReturnType<typeof makeDirac>['applyH']
 // largest eigenvalue of H^2 by power iteration (for the fold constant)
 function lambdaMaxH2(applyH: ApplyH): number {
   const rng = makeRng({ seed: 1 })
+
   return largestEigenvalueOfSquare({
     apply: applyH,
     dimension: DIM,
@@ -38,6 +39,7 @@ function lowestAbsEig(
   m: number,
 ): number[] {
   const rng = makeRng({ seed: 7 })
+
   return lowestAbsoluteEigenvalues({
     apply: applyH,
     dimension: DIM,
@@ -57,8 +59,10 @@ export function diracLanczos(): {
   const run = (R: number): number[] => {
     const aH = makeDirac(L, M, R, 'bag').applyH
     const Cf = lambdaMaxH2(aH) * 1.05
+
     return lowestAbsEig(aH, Cf, 90)
   }
+
   // uniform mass reference (R=0 -> uniform M, no winding core), few near-zero modes
   const aU = makeDirac(L, M, 0.001, 'bag').applyH
   const Cu = lambdaMaxH2(aU) * 1.05
@@ -73,6 +77,7 @@ export function diracLanczos(): {
     const gap = sp.find(e => e > 0.08) ?? sp[sp.length - 1]!
     gapVsSize.push([R, Math.round(gap * 1000) / 1000])
   }
+
   return { zeroModesHedgehog, zeroModesFree, gapVsSize }
 }
 
@@ -88,6 +93,7 @@ export default experiment({
     const r = diracLanczos()
     const ok =
       r.zeroModesHedgehog > r.zeroModesFree && r.zeroModesFree === 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -162,6 +162,7 @@ export function genericTessellationEngine(): {
         facet = inspectTessellation(built.graph).facetDegree
       }
     }
+
     const geomOk = d.geometry === c.geometry
     const compactOk = d.compactness === c.compactness
     const buildOk = d.buildable === c.buildable
@@ -170,6 +171,7 @@ export function genericTessellationEngine(): {
       cell3434FacetDegree = facet
       cell3434VertexFigure = '{' + d.vertexFigure.join(',') + '}'
     }
+
     rows.push({
       symbol: '{' + c.symbol.join(',') + '}',
       geometry: d.geometry,
@@ -182,12 +184,14 @@ export function genericTessellationEngine(): {
       buildOk,
     })
   }
+
   const allPass = rows.every(
     r => r.geomOk && r.facetOk && r.compactOk && r.buildOk,
   )
   const head34 =
     cell3434FacetDegree === 24 && cell3434VertexFigure === '{4,3,4}'
   const solved = allPass && head34
+
   return {
     rows,
     cell3434FacetDegree,
@@ -212,6 +216,7 @@ export default experiment({
       r.allPass &&
       r.cell3434FacetDegree === 24 &&
       r.cell3434VertexFigure === '{4,3,4}'
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

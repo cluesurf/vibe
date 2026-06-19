@@ -16,6 +16,7 @@ export interface LatticeGasState {
 
 export function makeLatticeGas(length: number): LatticeGasState {
   const n = length * length
+
   return {
     E: new Int8Array(n),
     W: new Int8Array(n),
@@ -88,6 +89,7 @@ export function stream(
         s.S[latticeIndex(length, x, y + 1)]!
     }
   }
+
   return o
 }
 
@@ -115,6 +117,7 @@ export function streamInverse(
         s.S[latticeIndex(length, x, y - 1)]!
     }
   }
+
   return o
 }
 
@@ -124,6 +127,7 @@ export const latticeCharge = (s: LatticeGasState): number => {
   for (let i = 0; i < s.E.length; i++) {
     c += s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
   }
+
   return c
 }
 
@@ -137,6 +141,7 @@ export const latticeMomentum = (
     px += s.E[i]! - s.W[i]!
     py += s.N[i]! - s.S[i]!
   }
+
   return [px, py]
 }
 
@@ -146,5 +151,6 @@ export function latticeDensity(s: LatticeGasState): Float64Array {
   for (let i = 0; i < s.E.length; i++) {
     d[i] = s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
   }
+
   return d
 }

@@ -48,6 +48,7 @@ function run(): void {
   for (let i = 0; i < n; i++) {
     off[i + 1] = off[i]! + slab.neighbors[i]!.length
   }
+
   const adj = new Int32Array(off[n]!)
   {
     let p = 0
@@ -57,6 +58,7 @@ function run(): void {
       }
     }
   }
+
   console.log(
     `gravity self, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
   )
@@ -68,14 +70,17 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -83,6 +88,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -97,16 +103,20 @@ function run(): void {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
     }
+
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(raw.map(c => c.u))
   const cv = median(raw.map(c => c.v))
   const radii = raw
@@ -131,11 +141,13 @@ function run(): void {
       | 0
       | 1 // BALANCED, net charge 0
   }
+
   const q0 = (() => {
     let s = 0
     for (let i = 0; i < n; i++) {
       s += tone[i]!
     }
+
     return s
   })()
   const moved = new Uint8Array(n)
@@ -156,20 +168,25 @@ function run(): void {
       for (let p = off[i]!; p < off[i + 1]!; p++) {
         s += tone[adj[p]!] === sign ? 1 : 0
       }
+
       d1[i] = s
     }
+
     for (let i = 0; i < n; i++) {
       let s = d1[i]! * (1 - SCREEN)
       for (let p = off[i]!; p < off[i + 1]!; p++) {
         s += SCREEN * d1[adj[p]!]!
       }
+
       out[i] = s
     }
   }
+
   const computeDens = (): void => {
     diffuse(true, d1P, densP)
     diffuse(false, d1M, densM)
   }
+
   // the DRIVE is the DISCRETE arrow (discreteArrow), a deterministic minimal creation schedule, no float, no
   // randomness, keeping the system far from equilibrium so the self flows instead of freezing
   const graph: Graph = { cellCount: n, offsets: off, adj }
@@ -184,6 +201,7 @@ function run(): void {
       if (moved[v] || tone[v] === 0) {
         continue
       }
+
       const dens = tone[v] === 1 ? densP : densM // pull toward SAME-sign mass, like attracts like
       let bestJ = -1
       let bestD = dens[v]!
@@ -192,6 +210,7 @@ function run(): void {
         if (moved[w]) {
           continue
         }
+
         if (tone[w] === -tone[v]!) {
           tone[v] = 0
           tone[w] = 0
@@ -204,6 +223,7 @@ function run(): void {
           bestJ = w
         }
       }
+
       if (bestJ >= 0) {
         tone[bestJ] = tone[v]!
         tone[v] = 0
@@ -235,11 +255,13 @@ function run(): void {
       rgba[i * 4 + 2] = 9
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of band) {
       const t = tone[c.index]!
       if (t === 0) {
         continue
       }
+
       const dfield = t === 1 ? densP : densM
       const inten = 0.15 + 0.85 * Math.min(dfield[c.index]! / DMAX, 1) // brightness by same-sign mass density
       const r8 =
@@ -261,6 +283,7 @@ function run(): void {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = r8
           rgba[idx + 1] = g8
@@ -268,6 +291,7 @@ function run(): void {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     if (f % 40 === 0 || f === FRAMES - 1) {
@@ -279,16 +303,20 @@ function run(): void {
         if (d > maxD) {
           maxD = d
         }
+
         if (tone[i] !== 0) {
           charged++
         }
+
         q += tone[i]!
       }
+
       console.log(
         `  beat ${f}, max density ${maxD.toFixed(0)}, charged ${((charged / n) * 100).toFixed(0)}%, charge conserved ${q === q0}`,
       )
     }
   }
+
   console.log(
     `wrote ${FRAMES} frames, assemble with task/render-video.sh`,
   )

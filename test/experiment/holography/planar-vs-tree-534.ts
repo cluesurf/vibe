@@ -28,14 +28,17 @@ const reachableBoundary = (
         }
       }
     }
+
     frontier = next
   }
+
   let reached = 0
   for (const b of boundary) {
     if (seen[b] === 1) {
       reached += 1
     }
   }
+
   return reached
 }
 
@@ -66,8 +69,10 @@ export default experiment({
           }
         }
       }
+
       frontier = next
     }
+
     const maxDepth = depth.reduce((m, d) => Math.max(m, d), 0)
     const tree: number[][] = Array.from({ length: size }, () => [])
     for (let v = 0; v < size; v++) {
@@ -76,6 +81,7 @@ export default experiment({
         tree[parent[v]!]!.push(v)
       }
     }
+
     const boundary = [...Array(size).keys()].filter(
       c => depth[c]! === maxDepth - 1,
     )

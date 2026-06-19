@@ -14,6 +14,7 @@ export function makeBitMatrix(input: {
   cols: number
 }): BitMatrix {
   const stride = (input.cols + 31) >>> 5
+
   return {
     form: 'bit-matrix',
     rows: input.rows,
@@ -36,6 +37,7 @@ export function getBit(
   input: { row: number; col: number },
 ): boolean {
   const i = input.row * m.stride + (input.col >>> 5)
+
   return ((m.words[i] ?? 0) & (1 << (input.col & 31))) !== 0
 }
 
@@ -58,6 +60,7 @@ export function bitMatricesEqual(
       return false
     }
   }
+
   return true
 }
 
@@ -72,6 +75,7 @@ export function bitMatrixTransitiveClosure(
   for (let i = 0; i < n * f.stride; i++) {
     f.words[i] = asserted.words[i] ?? 0
   }
+
   for (let k = 0; k < n; k++) {
     for (let i = 0; i < n; i++) {
       if (getBit(f, { row: i, col: k })) {
@@ -84,6 +88,7 @@ export function bitMatrixTransitiveClosure(
       }
     }
   }
+
   return f
 }
 
@@ -98,14 +103,17 @@ export function bitMatrixHeight(f: BitMatrix, n: number): number {
         h[j] = Math.max(h[j] ?? 1, (h[i] ?? 1) + 1)
       }
     }
+
     best = Math.max(best, h[j] ?? 1)
   }
+
   return best
 }
 
 function popcount32(x: number): number {
   let v = x - ((x >>> 1) & 0x55555555)
   v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
+
   return (((v + (v >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24
 }
 
@@ -118,6 +126,7 @@ export function popcountRow(
   for (let w = 0; w < m.stride; w++) {
     total += popcount32(m.words[base + w] ?? 0)
   }
+
   return total
 }
 
@@ -132,12 +141,14 @@ export function popcountAnd(
   for (let w = 0; w < m.stride; w++) {
     total += popcount32((m.words[a + w] ?? 0) & (m.words[b + w] ?? 0))
   }
+
   return total
 }
 
 // Lowest-set-bit position of a 32-bit word, safe for bit 31.
 function trailingZeros(word: number): number {
   const lsb = (word & -word) >>> 0
+
   return 31 - Math.clz32(lsb)
 }
 
@@ -164,5 +175,6 @@ export function rowToArray(
 ): Uint32Array {
   const out: number[] = []
   forEachSetBit(m, { row: input.row, visit: col => out.push(col) })
+
   return Uint32Array.from(out)
 }

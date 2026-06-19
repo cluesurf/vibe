@@ -43,6 +43,7 @@ export function associativeSpreadingActivation(input?: {
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
   }
+
   const seed = 0
 
   // every occupied cell is a potential responder, the wave reaches the whole store
@@ -50,6 +51,7 @@ export function associativeSpreadingActivation(input?: {
   for (let c = 0; c < g.cellCount; c++) {
     responders.push(c)
   }
+
   const wave = broadcastWave({
     neighbors: g.neighbors,
     seed,
@@ -77,9 +79,11 @@ export function associativeSpreadingActivation(input?: {
     if (d < 0) {
       continue
     }
+
     sums[d] = (sums[d] ?? 0) + wave.arrivalBeat[c]!
     counts[d] = (counts[d] ?? 0) + 1
   }
+
   let monotone = true
   let prev = -1
   for (let d = 0; d < sums.length; d++) {
@@ -88,6 +92,7 @@ export function associativeSpreadingActivation(input?: {
       if (mean <= prev) {
         monotone = false
       }
+
       prev = mean
     }
   }
@@ -104,6 +109,7 @@ export function associativeSpreadingActivation(input?: {
 
   const solved =
     arrivalMatchesDistance && monotone && bulkCoverage < cubicCoverage
+
   return {
     cellCount: g.cellCount,
     bulkCoverage,
@@ -124,6 +130,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeSpreadingActivation({ maxCells: 1500 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

@@ -31,11 +31,13 @@ function canonicalMirrors(symbol: number[]): number[][] {
       order.push(a)
     }
   }
+
   for (let a = 0; a < dim; a++) {
     if ((frame.metric[a] ?? 1) < 0) {
       order.push(a)
     }
   }
+
   return frame.normals.map(row => order.map(a => row[a] ?? 0))
 }
 
@@ -78,6 +80,7 @@ function page(input: {
   threeD: string[]
 }): string {
   const data = JSON.stringify(input)
+
   return `<!doctype html>
 <html lang="en">
 <head>

@@ -16,6 +16,7 @@ export function groupSpeed(input: {
   const h = input.step ?? 1e-5
   const dwx = (omega(kx + h, ky) - omega(kx - h, ky)) / (2 * h)
   const dwy = (omega(kx, ky + h) - omega(kx, ky - h)) / (2 * h)
+
   return Math.hypot(dwx, dwy)
 }
 
@@ -28,6 +29,7 @@ export function groupVelocity1d(input: {
 }): number {
   const { omega, k } = input
   const h = input.step ?? 1e-6
+
   return (omega(k + h) - omega(k - h)) / (2 * h)
 }
 
@@ -55,9 +57,11 @@ export function groupSpeedAnisotropy(input: {
       }),
     )
   }
+
   const mean = speeds.reduce((p, q) => p + q, 0) / speeds.length
   const max = Math.max(...speeds)
   const min = Math.min(...speeds)
+
   return {
     meanSpeed: mean,
     anisotropy: mean > 0 ? (max - min) / mean : 0,

@@ -37,6 +37,7 @@ function beat(
     if (moved[v] || moved[w]) {
       continue
     }
+
     const tv = tone[v]!
     const tw = tone[w]!
     if (fillSign === -1) {
@@ -49,6 +50,7 @@ function beat(
           tone[v] = -1
           tone[w] = 1
         }
+
         moved[v] = 1
         moved[w] = 1
       }
@@ -128,6 +130,7 @@ export function conservedDynamics(): {
       center = i
     }
   }
+
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -145,14 +148,18 @@ export function conservedDynamics(): {
         inner.push(i)
       }
     }
+
     // alternate +1 / -1 over the inner cells, balanced
     for (let k = 0; k < inner.length; k++) {
       t[inner[k]!] = k % 2 === 0 ? 1 : -1
     }
+
     if (inner.length % 2 === 1) {
       t[inner[inner.length - 1]!] = 0
     } // keep Q = 0
+
     void rng
+
     return t
   }
 
@@ -163,8 +170,10 @@ export function conservedDynamics(): {
         s += Math.abs(t[i]!)
       }
     }
+
     return s
   }
+
   const netInR0 = (t: Int8Array): number => {
     let s = 0
     for (let i = 0; i < n; i++) {
@@ -172,6 +181,7 @@ export function conservedDynamics(): {
         s += t[i]!
       }
     }
+
     return s
   }
 
@@ -183,6 +193,7 @@ export function conservedDynamics(): {
   for (let b = 0; b < 80; b++) {
     beat(diff, edges, 1, rngD, null)
   }
+
   const absChargeDiffused = absInR0(diff)
   const netCenterDiffused = netInR0(diff)
   const conservedDiffusion = sumTone(diff) === q0diff
@@ -194,6 +205,7 @@ export function conservedDynamics(): {
   for (let b = 0; b < 80; b++) {
     beat(pump, edges, 1, rngP, distC)
   }
+
   const netCenterPumped = netInR0(pump)
   const conservedPump = sumTone(pump) === q0pump
 
@@ -204,22 +216,26 @@ export function conservedDynamics(): {
   for (let b = 0; b < 40; b++) {
     beat(pair, edges, -1, rngC, null)
   }
+
   let pairsCreated = 0
   for (let i = 0; i < n; i++) {
     if (pair[i] !== 0) {
       pairsCreated++
     }
   }
+
   const qAfterCreate = sumTone(pair)
   for (let b = 0; b < 120; b++) {
     beat(pair, edges, 1, rngC, null)
   }
+
   let pairsAfterAnnihilation = 0
   for (let i = 0; i < n; i++) {
     if (pair[i] !== 0) {
       pairsAfterAnnihilation++
     }
   }
+
   const conservedPairs =
     qAfterCreate === q0pair && sumTone(pair) === q0pair
 
@@ -273,6 +289,7 @@ export default experiment({
       r.diffusionDrains &&
       r.pumpingConcentrates &&
       r.pairsCreateAndAnnihilate
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

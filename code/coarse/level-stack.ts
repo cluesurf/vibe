@@ -22,6 +22,7 @@ export function effectiveVibeCount(input: {
   for (const level of input.levels) {
     count *= level.compression
   }
+
   return count
 }
 
@@ -33,6 +34,7 @@ export function isCleanLevel(input: {
   errorBound?: number
 }): boolean {
   const bound = input.errorBound ?? 0.25
+
   return (
     input.level.compression > 1 && input.level.commutingError <= bound
   )

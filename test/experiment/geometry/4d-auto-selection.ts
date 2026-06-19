@@ -55,10 +55,12 @@ export function fourDAutoSelection(): {
         }
       }
     }
+
     if (threeDForced) {
       break
     }
   }
+
   const threeDIsCompact = threeDForced !== null && isCompact([5, 3, 4])
   const threeDTernaryQ = 3 // q = 3 in {5,3,4}, the ternary three-valent signature in the substrate
 
@@ -73,6 +75,7 @@ export function fourDAutoSelection(): {
           if (!isIdealFiniteCell(sym)) {
             continue
           }
+
           idealFourD.push(`{${sym.join(',')}}`)
           const vf = vertexFigure(sym)
           if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) {
@@ -82,6 +85,7 @@ export function fourDAutoSelection(): {
       }
     }
   }
+
   const fourDUniqueCandidate =
     idealCubicCuspFourD.length === 1 ? idealCubicCuspFourD[0]! : null
 
@@ -137,6 +141,7 @@ export default experiment({
       r.keepFiveThreeFour &&
       r.fourDUniqueCandidate === '{3,4,3,4}' &&
       !r.fourDForcedBySamePrinciple
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

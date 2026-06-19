@@ -30,6 +30,7 @@ export default experiment({
         monotonic = false
       }
     }
+
     // a stable geometric level fan-out (the level-size ratio), bounded above 1
     const levelFanout = lastCompleteShellRatio(mesh.shells)
     const flatFanout = lastCompleteShellRatio(flat.shells)

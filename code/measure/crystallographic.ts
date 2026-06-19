@@ -18,5 +18,6 @@ export function directionsAreCrystallographic(
       }
     }
   }
+
   return true
 }

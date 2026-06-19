@@ -20,9 +20,11 @@ export function rewriteRule(input: {
       for (let at = 0; at < substrate.size; at++) {
         if (input.match({ substrate, at })) {
           const next = input.apply({ substrate, at })
+
           return { configuration, substrate: next }
         }
       }
+
       // No match: the substrate and tones pass through unchanged.
       return { configuration }
     },

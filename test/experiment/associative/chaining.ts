@@ -20,6 +20,7 @@ function gradientWord(index: number, wordBits: number): Int8Array {
   for (let k = 0; k < wordBits; k++) {
     word[k] = Math.floor(index / Math.pow(2, k % 7)) % 3
   }
+
   return word
 }
 
@@ -59,15 +60,18 @@ export function associativeChaining(input?: {
       if (visited.has(c)) {
         continue
       }
+
       const sc = matchScore(mem, c, comparand)
       if (sc > bestScore) {
         bestScore = sc
         bestCell = c
       }
     }
+
     if (bestCell < 0) {
       break
     }
+
     visited.add(bestCell)
     chain.push(bestCell)
     comparand = readWord(mem, bestCell)
@@ -77,6 +81,7 @@ export function associativeChaining(input?: {
   const distinctVisited = visited.size
   const collapsed = distinctVisited <= 2
   const solved = !collapsed && distinctVisited >= Math.min(5, steps)
+
   return {
     cellCount: g.cellCount,
     distinctVisited,
@@ -96,6 +101,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeChaining({ maxCells: 1500, steps: 12 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

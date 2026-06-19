@@ -34,6 +34,7 @@ function shellGrowthRatio(input: {
       shell.set(d, (shell.get(d) ?? 0) + 1)
     }
   }
+
   let logSum = 0
   let count = 0
   for (let r = lo; r < hi; r++) {
@@ -44,6 +45,7 @@ function shellGrowthRatio(input: {
       count++
     }
   }
+
   return count > 0 ? Math.exp(logSum / count) : 0
 }
 

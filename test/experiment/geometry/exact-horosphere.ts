@@ -124,6 +124,7 @@ export default experiment({
       r.squareCompact &&
       r.squareLeakMatchesTriangular &&
       r.bothFlatBeatBulkLeak
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

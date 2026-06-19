@@ -52,6 +52,7 @@ export function lazyNeighbors(input?: { n?: number }): {
       }
     }
   }
+
   if (identical) {
     for (let i = 0; i < lazy.adj.length; i++) {
       if (lazy.adj[i] !== stored.adj[i]) {
@@ -75,9 +76,11 @@ export function lazyNeighbors(input?: { n?: number }): {
     if (prev && eng.fingerprint(pick) === eng.fingerprint(prev)) {
       pick = ns[(ns.indexOf(pick) + 1) % ns.length]!
     }
+
     prev = cur
     cur = pick
   }
+
   const deepNeighbors = eng.neighbors(cur) // computed with no graph in memory
   const prevFp = eng.fingerprint(prev!)
   const cameFromIsNeighbor = deepNeighbors.some(
@@ -122,6 +125,7 @@ export default experiment({
       r.graphsIdentical &&
       r.cameFromIsNeighbor &&
       r.lazyCellCount === r.storedCellCount
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

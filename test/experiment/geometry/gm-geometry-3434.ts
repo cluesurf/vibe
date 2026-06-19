@@ -38,8 +38,10 @@ export function gmGeometry(): {
         c++
       }
     }
+
     Vr.push(c)
   }
+
   // fit log V ~ dim * log r over r = 3..9
   const exponent = loglogExponentWindow({ values: Vr, lo: 3, hi: 9 })
   const dimensionOk = Math.abs(exponent - 4) < 0.5
@@ -99,6 +101,7 @@ export default experiment({
     const r = gmGeometry()
     const ok =
       r.dimensionOk && r.subexponential && r.metricLinear && r.ricciFlat
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -26,6 +26,7 @@ export function streamCoxeterMeshGas(input: {
       out[target]![d] = state[cell]![d]!
     }
   }
+
   return out
 }
 
@@ -37,6 +38,7 @@ export function collideCoxeterMeshGas(input: {
   forward: boolean
 }): number[][] {
   const { state, rank, forward } = input
+
   return state.map(slots =>
     slots.map(
       (_, d) =>

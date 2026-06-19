@@ -30,7 +30,9 @@ export function s73Selves(): {
       gradAt = x
     }
   }
+
   const hasExchangeStatistics = false // 1D, no braiding, particles cannot be exchanged without colliding
+
   return { solitonsExist, kinkCharge, hasExchangeStatistics }
 }
 
@@ -48,6 +50,7 @@ export default experiment({
       r.solitonsExist &&
       Math.abs(r.kinkCharge) === 1 &&
       !r.hasExchangeStatistics
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

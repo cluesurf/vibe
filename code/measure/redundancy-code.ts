@@ -8,6 +8,7 @@ export function recoverByMajority(
   boundary: ReadonlyArray<number>,
 ): number {
   const ones = boundary.reduce((sum, bit) => sum + bit, 0)
+
   return ones * 2 >= boundary.length ? 1 : 0
 }
 
@@ -21,5 +22,6 @@ export function corruptConnectedRegion(input: {
   for (let index = 0; index < corrupt; index++) {
     boundary[index] = 1 - input.logical
   } // flip a connected block
+
   return boundary
 }

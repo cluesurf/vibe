@@ -20,6 +20,7 @@ const cSub = (a: Cx, b: Cx): Cx => [a[0] - b[0], a[1] - b[1]]
 const cScale = (a: Cx, s: number): Cx => [a[0] * s, a[1] * s]
 const cDiv = (x: Cx, d: Cx): Cx => {
   const dd = d[0] * d[0] + d[1] * d[1]
+
   return [
     (x[0] * d[0] + x[1] * d[1]) / dd,
     (x[1] * d[0] - x[0] * d[1]) / dd,
@@ -60,6 +61,7 @@ function lowerBandProjector(theta: number, k: number): Cx[][] {
       p[a]![b] = cDiv(num, denom)
     }
   }
+
   return p
 }
 
@@ -89,11 +91,13 @@ function correlation(
       }
     }
   }
+
   for (let a = 0; a < 2; a++) {
     for (let b = 0; b < 2; b++) {
       out[a]![b] = cScale(out[a]![b]!, 1 / momentumCount)
     }
   }
+
   return out
 }
 
@@ -117,8 +121,10 @@ export function coinedWalkIntervalEntropy(input: {
       value = correlation(theta, momentumCount, d)
       cache.set(key, value)
     }
+
     return value
   }
+
   for (let i = 0; i < length; i++) {
     for (let j = 0; j < length; j++) {
       const c = corrAt(i - j)
@@ -130,6 +136,7 @@ export function coinedWalkIntervalEntropy(input: {
       }
     }
   }
+
   // real embedding [[A, -B], [B, A]] of the Hermitian matrix A + iB, eigenvalues are each true eigenvalue twice
   const embedded = makeDense({ rows: 2 * m, cols: 2 * m })
   for (let i = 0; i < m; i++) {
@@ -140,11 +147,13 @@ export function coinedWalkIntervalEntropy(input: {
       embedded.data[(i + m) * 2 * m + j] = imag[i * m + j]!
     }
   }
+
   const values = eigSymmetric({ matrix: embedded }).values
   let entropy = 0
   for (const value of values) {
     const z = Math.min(1 - 1e-12, Math.max(1e-12, value ?? 0))
     entropy -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
   }
+
   return entropy / 2
 }

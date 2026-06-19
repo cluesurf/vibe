@@ -24,6 +24,7 @@ export function twoElectronEnergy(input: {
   const z = input.nuclearCharge
   const zeta = input.trialCharge
   const repulsion = input.withRepulsion === false ? 0 : (5 / 8) * zeta
+
   return zeta * zeta - 2 * z * zeta + repulsion
 }
 

@@ -25,6 +25,7 @@ export function rotationCurveFromPotential(input: {
     rr.push(r[k] ?? 0)
     v2.push((r[k] ?? 0) * Math.abs(dphi))
   }
+
   const half = Math.floor(rr.length / 2)
   const outerSlope = linearFit({
     xs: rr.slice(half),
@@ -36,5 +37,6 @@ export function rotationCurveFromPotential(input: {
   const outerMean =
     v2.slice(v2.length - third).reduce((a, b) => a + b, 0) / third
   const flatnessRatio = innerMean > 0 ? outerMean / innerMean : 0
+
   return { r: rr, v2, outerSlope, flatnessRatio }
 }

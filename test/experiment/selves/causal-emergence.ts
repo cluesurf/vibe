@@ -28,6 +28,7 @@ function effectiveInformation(tpm: number[][]): number {
       avg[j]! += tpm[i]![j]! / n
     }
   }
+
   let ei = 0
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -37,6 +38,7 @@ function effectiveInformation(tpm: number[][]): number {
       }
     }
   }
+
   return ei
 }
 
@@ -52,14 +54,18 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
   for (let i = 0; i < K; i++) {
     P[i]![sink] = 1
   } // every leaf -> sink (degenerate)
+
   for (let j = 0; j < K; j++) {
     P[sink]![j] = 1 / K
   } // sink -> uniform over leaves
+
   const groups = new Array<number>(N)
   for (let i = 0; i < K; i++) {
     groups[i] = 0
   } // the leaves are one macro-state (the self)
+
   groups[sink] = 1 // the sink is the other macro-state
+
   return { P, groups }
 }
 
@@ -70,6 +76,7 @@ function coarseGrain(P: number[][], groups: number[]): number[][] {
   for (const g of groups) {
     size[g]!++
   }
+
   const Q: number[][] = Array.from({ length: M }, () =>
     new Array<number>(M).fill(0),
   )
@@ -78,11 +85,13 @@ function coarseGrain(P: number[][], groups: number[]): number[][] {
       Q[groups[i]!]![groups[j]!]! += P[i]![j]!
     }
   }
+
   for (let a = 0; a < M; a++) {
     for (let b = 0; b < M; b++) {
       Q[a]![b]! /= size[a]!
     }
   } // average over the group's micro-states
+
   return Q
 }
 
@@ -116,11 +125,13 @@ export function causalEmergence(input?: { K?: number }): {
         effectiveInformation(f.P),
     })
   }
+
   const growsWithDegeneracy =
     byDegeneracy[byDegeneracy.length - 1]!.emergence >
     byDegeneracy[0]!.emergence + 0.2
 
   const solved = emerges && growsWithDegeneracy
+
   return {
     K,
     microN: K + 1,
@@ -145,6 +156,7 @@ export default experiment({
   run() {
     const r = causalEmergence({ K: 16 })
     const ok = r.solved && r.emerges && r.growsWithDegeneracy
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

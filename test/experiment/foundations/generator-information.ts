@@ -17,6 +17,7 @@ import { automorphismGroupOrder } from '@/code/algebra/group/automorphism'
 function sameSet(left: number[][], right: number[][]): boolean {
   const a = new Set(left.map(vectorKey))
   const b = new Set(right.map(vectorKey))
+
   return a.size === b.size && [...a].every(key => b.has(key))
 }
 
@@ -47,6 +48,7 @@ export default experiment({
       shellSizes.four === 16 &&
       isDock &&
       fullSymmetry === 1152
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -76,6 +78,7 @@ experiment({
     const minimal = constructionAMinimalVectors(code, 4)
     const isDock = sameSet(minimal, rootsD4())
     const ok = code.length === 8 && minimal.length === 24 && isDock
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

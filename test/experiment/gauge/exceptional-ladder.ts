@@ -23,6 +23,7 @@ const rootKey = (root: number[]): string => root.join(',')
 
 function subsetOf(small: number[][], big: number[][]): boolean {
   const set = new Set(big.map(rootKey))
+
   return small.every(root => set.has(rootKey(root)))
 }
 

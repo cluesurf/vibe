@@ -52,6 +52,7 @@ export default experiment({
           bandAct += a
         }
       }
+
       return totalAct > 0 ? bandAct / totalAct / bandShare : 1
     }
 
@@ -64,15 +65,19 @@ export default experiment({
         for (let p = off[i]!; p < off[i + 1]!; p++) {
           s += cur[adj[p]!]!
         }
+
         next[i] = ((s + 27 - prev[i]!) % 3) as 0 | 1 | 2
       }
+
       prev.set(cur)
       cur.set(next)
     }
+
     const r1 = bandActivityRatio()
 
     const settled = r1 > 1.3 * r0 && r1 > 1.3
     const ok = !settled
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

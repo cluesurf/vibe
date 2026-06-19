@@ -64,8 +64,10 @@ export function willSteering(input?: { n?: number }): {
         c++
       }
     }
+
     return c > 0 ? s / c : 0
   }
+
   const selfA = csrBallNodes({
     offsets: g.offsets,
     adj: g.adj,
@@ -78,8 +80,10 @@ export function willSteering(input?: { n?: number }): {
     for (const i of selfA) {
       t[i] = 1
     }
+
     return t
   }
+
   const beats = 12 * dd(dist, far)
   const willM = mk()
   const r1 = makeRng({ seed: 3 })
@@ -94,6 +98,7 @@ export function willSteering(input?: { n?: number }): {
       towardSign: -1,
     })
   }
+
   const mergeWithWill = meanDistTo(willM, distTarget) // lower = moved toward the target
   const noWillM = mk()
   const r2 = makeRng({ seed: 3 })
@@ -108,6 +113,7 @@ export function willSteering(input?: { n?: number }): {
       towardSign: 0,
     })
   }
+
   const mergeNoWill = meanDistTo(noWillM, distTarget)
   const mergeWorks = mergeWithWill < mergeNoWill - 1 // the will moved the self meaningfully toward the target
 
@@ -132,8 +138,10 @@ export function willSteering(input?: { n?: number }): {
     for (let k = 0; k < region.length; k++) {
       t[region[k]!] = k < half ? 1 : -1
     }
+
     return t
   }
+
   const plus = (t: Int8Array): number => {
     let c = 0
     for (let i = 0; i < N; i++) {
@@ -141,8 +149,10 @@ export function willSteering(input?: { n?: number }): {
         c++
       }
     }
+
     return c
   }
+
   void plus
   const willA = mkSplit()
   const r3 = makeRng({ seed: 3 })
@@ -157,6 +167,7 @@ export function willSteering(input?: { n?: number }): {
       towardSign: 1,
     })
   } // pump + away from the - side
+
   const avoidWithWill = meanDistTo(willA, distMinus) // higher = the + fled away from the - threat
   const noWillA = mkSplit()
   const r4 = makeRng({ seed: 3 })
@@ -171,6 +182,7 @@ export function willSteering(input?: { n?: number }): {
       towardSign: 0,
     })
   }
+
   const avoidNoWill = meanDistTo(noWillA, distMinus)
   // the will moves the self about a hop away, near the geometric ceiling (the diameter is tiny, so a hop
   // is a large fraction of the whole universe, the steering is directional, not large in raw hops)
@@ -203,6 +215,7 @@ export default experiment({
   run() {
     const r = willSteering({ n: 120000 })
     const ok = r.solved && r.willSteers && r.mergeWorks && r.avoidWorks
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

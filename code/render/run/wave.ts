@@ -31,8 +31,10 @@ const CRC_TABLE = (() => {
     for (let k = 0; k < 8; k++) {
       c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
     }
+
     t[n] = c >>> 0
   }
+
   return t
 })()
 
@@ -41,6 +43,7 @@ function crc32(buf: Buffer): number {
   for (let i = 0; i < buf.length; i++) {
     c = CRC_TABLE[(c ^ buf[i]!) & 0xff]! ^ (c >>> 8)
   }
+
   return (c ^ 0xffffffff) >>> 0
 }
 
@@ -50,6 +53,7 @@ function pngChunk(type: string, data: Buffer): Buffer {
   const body = Buffer.concat([Buffer.from(type, 'ascii'), data])
   const crc = Buffer.alloc(4)
   crc.writeUInt32BE(crc32(body), 0)
+
   return Buffer.concat([len, body, crc])
 }
 
@@ -73,7 +77,9 @@ function encodePng(
       y * (stride + 1) + 1,
     )
   }
+
   const idat = zlib.deflateSync(raw)
+
   return Buffer.concat([
     signature,
     pngChunk('IHDR', ihdr),
@@ -88,8 +94,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS)',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   const count = SIZE * SIZE

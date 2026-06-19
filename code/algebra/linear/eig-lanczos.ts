@@ -11,6 +11,7 @@ function dot(a: Float64Array, b: Float64Array): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 
@@ -29,11 +30,13 @@ function axpy(
 // Laplacian null eigenvector). Callers may still pass their own rng.
 function deterministicRand(): () => number {
   let a = 0x9e3779b9 >>> 0
+
   return () => {
     a = (a + 0x6d2b79f5) >>> 0
     let t = a
     t = Math.imul(t ^ (t >>> 15), t | 1)
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }
@@ -57,6 +60,7 @@ export function lowestEigenvalues(input: {
   for (let i = 0; i < n; i++) {
     v[i] = rand() - 0.5
   }
+
   let norm = Math.sqrt(dot(v, v))
   for (let i = 0; i < n; i++) {
     v[i] = (v[i] ?? 0) / (norm || 1)
@@ -75,22 +79,27 @@ export function lowestEigenvalues(input: {
     if (j > 0) {
       axpy(w, { alpha: -(beta[j] ?? 0), x: prev })
     }
+
     // full reorthogonalisation against the stored basis (m is small)
     for (let k = 0; k < basis.length; k++) {
       const bk = basis[k]
       if (!bk) {
         continue
       }
+
       const proj = dot(w, bk)
       axpy(w, { alpha: -proj, x: bk })
     }
+
     const b = Math.sqrt(dot(w, w))
     if (j + 1 < m) {
       beta[j + 1] = b
     }
+
     if (b < 1e-12) {
       break
     }
+
     prev = v
     v = new Float64Array(n)
     for (let i = 0; i < n; i++) {
@@ -107,6 +116,8 @@ export function lowestEigenvalues(input: {
       denseSet(t, { row: j + 1, col: j, value: b })
     }
   }
+
   const eig = eigSymmetric({ matrix: t })
+
   return eig.values.slice(0, Math.min(input.count, eig.values.length))
 }

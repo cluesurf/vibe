@@ -62,6 +62,7 @@ export default experiment({
         lines.push([d, o])
       }
     }
+
     const center =
       half +
       half * side +
@@ -89,8 +90,10 @@ export default experiment({
           }
         }
       }
+
       return will
     }
+
     // a hit to the body's OWN charges at the centre (flip them), a real net-charge disturbance to the body itself.
     const hit = (w0: Will): Will => {
       const w = cloneWill(w0)
@@ -99,8 +102,10 @@ export default experiment({
         w.data[center * degree + a] = -1
         w.data[center * degree + zz] = -1
       }
+
       return w
     }
+
     // net-charge rms, the body's size (the vacuum churn is net-zero, so net charge sees the body through it).
     const netRms = (will: Will): number => {
       let total = 0,
@@ -115,6 +120,7 @@ export default experiment({
         for (let d = 0; d < degree; d++) {
           n += will.data[b + d]!
         }
+
         q[c] = n
         if (n > 0) {
           const [x, y, z, w] = coord(c)
@@ -125,9 +131,11 @@ export default experiment({
           sw += n * w
         }
       }
+
       if (total === 0) {
         return 0
       }
+
       const mx = sx / total,
         my = sy / total,
         mz = sz / total,
@@ -145,6 +153,7 @@ export default experiment({
               (w - mw) ** 2)
         }
       }
+
       return Math.sqrt(v / total)
     }
 
@@ -167,6 +176,7 @@ export default experiment({
           rmsMax = r
         }
       }
+
       const trace = (open: boolean): number => {
         let clean = body()
         let pert = hit(body())
@@ -202,16 +212,20 @@ export default experiment({
             absorbBoundary(clean)
             absorbBoundary(pert)
           }
+
           let d = 0
           for (let k = 0; k < clean.data.length; k++) {
             if (clean.data[k] !== pert.data[k]) {
               d++
             }
           }
+
           final = d
         }
+
         return final
       }
+
       return {
         rmsMax,
         openFinal: trace(true),
@@ -233,6 +247,7 @@ export default experiment({
 
     const ok =
       arrowBinds && arrowSeals && momentumRadiates && momentumNoBind
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

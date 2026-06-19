@@ -21,6 +21,7 @@ function directions(): number[][] {
       }
     }
   }
+
   return dirs
 }
 
@@ -30,8 +31,10 @@ const key = (v: number[]): string => v.join(',')
 function* perfectMatchings(remaining: number[]): Generator<number[][]> {
   if (remaining.length === 0) {
     yield []
+
     return
   }
+
   const a = remaining[0]!
   for (let k = 1; k < remaining.length; k++) {
     const b = remaining[k]!
@@ -67,6 +70,7 @@ export function linePairingFamily(): {
       lines.push(c)
     }
   }
+
   const lineIndex = new Map(lines.map((c, k) => [c, k]))
   const lineOfDir = (i: number): number =>
     lineIndex.get(Math.min(i, negOf[i]!))!
@@ -80,10 +84,13 @@ export function linePairingFamily(): {
       for (let c = 0; c < 4; c++) {
         w[perm[c]!] = sign[perm[c]!]! * v[c]!
       }
+
       lp[L] = lineOfDir(idx.get(key(w))!)
     }
+
     return lp
   }
+
   const generators = [
     lineAction([1, 0, 2, 3], [1, 1, 1, 1]),
     lineAction([0, 2, 1, 3], [1, 1, 1, 1]),
@@ -106,9 +113,11 @@ export function linePairingFamily(): {
         break
       }
     }
+
     if (invariant) {
       symmetric++
     }
   }
+
   return { totalPairings: total, symmetricPairings: symmetric }
 }

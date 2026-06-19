@@ -23,8 +23,10 @@ const cAbs = (a: Complex): number => Math.hypot(a[0], a[1])
 const cDiv = (a: Complex, b: Complex): Complex => {
   const d = b[0] * b[0] + b[1] * b[1]
   const n = cMul(a, cConj(b))
+
   return [n[0] / d, n[1] / d]
 }
+
 const cFromPolar = (radius: number, angle: number): Complex => [
   radius * Math.cos(angle),
   radius * Math.sin(angle),
@@ -67,8 +69,10 @@ export function completeTree(input: {
         next.push(id)
       }
     }
+
     frontier = next
   }
+
   return { size: parent.length, parent, children }
 }
 
@@ -86,15 +90,18 @@ export function treeDistance(
     a = parent[a]!
     steps += 1
   }
+
   while (depth[b]! > depth[a]!) {
     b = parent[b]!
     steps += 1
   }
+
   while (a !== b) {
     a = parent[a]!
     b = parent[b]!
     steps += 2
   }
+
   return steps
 }
 
@@ -118,6 +125,7 @@ export function embedTree(input: {
     if (kids.length === 0) {
       return
     }
+
     const here = coords[node]!
     const n = kids.length
     // the root spreads its children over the full circle, an interior node over the cone away from its parent
@@ -141,7 +149,9 @@ export function embedTree(input: {
       place(kid, angle + Math.PI) // the direction back to `here` in the child's frame
     })
   }
+
   place(0, undefined)
+
   return { coords, depth }
 }
 
@@ -164,6 +174,7 @@ export function embeddingDistortion(input: {
       pairs.push({ embedded, tree })
     }
   }
+
   // best uniform scale, minimize the worst ratio by matching the median ratio
   const ratios = pairs
     .map(p => p.embedded / p.tree)
@@ -177,5 +188,6 @@ export function embeddingDistortion(input: {
       worst = ratio
     }
   }
+
   return worst
 }

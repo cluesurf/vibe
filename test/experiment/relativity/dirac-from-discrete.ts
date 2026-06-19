@@ -37,6 +37,7 @@ export function diracFromDiscrete(): {
       masslessOk = false
     }
   }
+
   // (2) MASSIVE (emergent mixing rate m) -> cos E = cos(m) cos(k), the Dirac relation
   const m = 0.6
   let massiveOk = true
@@ -50,7 +51,9 @@ export function diracFromDiscrete(): {
       massiveOk = false
     }
   }
+
   const E0 = measureE(2, m, T)
+
   return { masslessOk, massiveOk }
 }
 
@@ -68,6 +71,7 @@ export default experiment({
     const massCheckK = (2 * Math.PI * 24) / 256
     const massE = measureE(24, mass, 512)
     const ok = r.masslessOk && r.massiveOk
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

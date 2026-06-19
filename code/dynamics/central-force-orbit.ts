@@ -13,6 +13,7 @@ export function centralForceAcceleration(
 ): [number, number] {
   const r = Math.hypot(x, y)
   const f = -1 / Math.pow(r, dimension)
+
   return [f * x, f * y]
 }
 
@@ -39,8 +40,10 @@ export function integrateCentralForceOrbit(input: {
   ): [number, number, number, number] => {
     const [px, py, pvx, pvy] = s
     const [ax, ay] = centralForceAcceleration(px, py, d)
+
     return [pvx, pvy, ax, ay]
   }
+
   let cumAngle = 0
   let prevTheta = Math.atan2(y, x)
   let rPrev = Math.hypot(x, y)
@@ -85,15 +88,18 @@ export function integrateCentralForceOrbit(input: {
         orbits: 0,
       } // escaped or plunged
     }
+
     // unwrap cumulative angle
     const theta = Math.atan2(y, x)
     let dtheta = theta - prevTheta
     if (dtheta > Math.PI) {
       dtheta -= 2 * Math.PI
     }
+
     if (dtheta < -Math.PI) {
       dtheta += 2 * Math.PI
     }
+
     cumAngle += dtheta
     prevTheta = theta
     // periapsis: local minimum of r
@@ -104,9 +110,11 @@ export function integrateCentralForceOrbit(input: {
     ) {
       periapsisAngles.push(cumAngle)
     }
+
     rPrevPrev = rPrev
     rPrev = r
   }
+
   // precession per orbit from consecutive periapsis angles
   const advances: number[] = []
   for (let i = 1; i < periapsisAngles.length; i++) {
@@ -114,6 +122,7 @@ export function integrateCentralForceOrbit(input: {
       (periapsisAngles[i] ?? 0) - (periapsisAngles[i - 1] ?? 0),
     )
   }
+
   const meanAdvance = advances.length
     ? advances.reduce((a, b) => a + b, 0) / advances.length
     : NaN
@@ -123,5 +132,6 @@ export function integrateCentralForceOrbit(input: {
     stable &&
     Number.isFinite(precessionPerOrbit) &&
     Math.abs(precessionPerOrbit) < 0.15
+
   return { stable, closed, precessionPerOrbit, orbits: advances.length }
 }

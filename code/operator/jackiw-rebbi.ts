@@ -28,5 +28,6 @@ export function jackiwRebbiHamiltonian(input: {
       H[2 * (i + 1)]![2 * i + 1] = 0.5
     }
   }
+
   return H
 }

@@ -37,8 +37,10 @@ function unitsAreClosed(level: number): boolean {
       (_, i) => ((i * 5 + offset) % 7) - 3,
     )
     const norm = Math.sqrt(normSquared(v))
+
     return v.map(x => x / norm)
   }
+
   for (let a = 0; a < 4; a++) {
     for (let b = 0; b < 4; b++) {
       const product = cayleyMultiply(make(a), make(b + 1))
@@ -47,6 +49,7 @@ function unitsAreClosed(level: number): boolean {
       }
     }
   }
+
   return true
 }
 

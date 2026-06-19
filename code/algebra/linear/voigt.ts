@@ -25,6 +25,7 @@ export function voigtToSymmetricTensor(vector: number[]): number[][] {
   const xy = (vector[3] ?? 0) / ROOT2
   const xz = (vector[4] ?? 0) / ROOT2
   const yz = (vector[5] ?? 0) / ROOT2
+
   return [
     [vector[0] ?? 0, xy, xz],
     [xy, vector[1] ?? 0, yz],
@@ -48,5 +49,6 @@ export function operatorToVoigtMatrix(
       m.data[r * 6 + a] = col[r] ?? 0
     }
   }
+
   return m
 }

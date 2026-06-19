@@ -57,6 +57,7 @@ export function fibonacciNavigation(input: {
     if ((tree.depth[s] ?? -1) < 0 || (tree.depth[t] ?? -1) < 0) {
       continue
     }
+
     const path = routeByAddress(tree, s, t)
     // Validity: every consecutive pair adjacent, and the path ends at t.
     let valid = path[0] === s && path[path.length - 1] === t
@@ -65,6 +66,7 @@ export function fibonacciNavigation(input: {
         valid = false
       }
     }
+
     if (valid) {
       delivered++
       const hops = path.length - 1
@@ -76,6 +78,7 @@ export function fibonacciNavigation(input: {
       }
     }
   }
+
   // Level-growth in the bulk only: ring sizes grow exponentially until the boundary of
   // the finite generated patch, where they fall off. Measure up to the peak ring.
   let peak = 1
@@ -84,6 +87,7 @@ export function fibonacciNavigation(input: {
       peak = i
     }
   }
+
   const ratios: number[] = []
   for (let i = 2; i <= peak; i++) {
     const prev = tree.levelSizes[i - 1] ?? 0
@@ -91,6 +95,7 @@ export function fibonacciNavigation(input: {
       ratios.push((tree.levelSizes[i] ?? 0) / prev)
     }
   }
+
   const levelGrowthRatio = ratios.length
     ? ratios.reduce((a, b) => a + b, 0) / ratios.length
     : 0
@@ -120,6 +125,7 @@ export default experiment({
       r.meanStretch < 3 &&
       r.levelGrowthRatio > 1.1 &&
       r.meanHops < 2 * r.treeDepth + 1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

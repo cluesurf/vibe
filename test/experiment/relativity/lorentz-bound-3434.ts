@@ -45,6 +45,7 @@ function anisotropyScaling(
           pts.map(p => p[1]),
         )
       : 6
+
   return { exponent, small: anis[anis.length - 1]! }
 }
 

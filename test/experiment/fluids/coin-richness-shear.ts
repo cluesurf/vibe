@@ -40,6 +40,7 @@ function openDissipation(
   for (let d = 0; d < mesh.degree; d++) {
     opposite.push(mesh.opposite(d))
   }
+
   const collision = headOnRotate({ opposite })
   const shear = {
     gradAxis: 1,
@@ -56,6 +57,7 @@ function openDissipation(
     open: true,
     ...shear,
   })
+
   return series[series.length - 1]! // final amplitude relative to start, low = dissipated
 }
 

@@ -46,6 +46,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const viscous = viscousRotate({ directions })
     const committed = headOnRotate({ opposite })
     const beats = 30
@@ -74,9 +75,11 @@ export default experiment({
         if (series[t]! < 1 / Math.E) {
           const prev = series[t - 1]!,
             cur = series[t]!
+
           return t - 1 + (prev - 1 / Math.E) / (prev - cur)
         }
       }
+
       return NaN
     }
 
@@ -93,6 +96,7 @@ export default experiment({
         logTau.push(Math.log(tau))
       }
     }
+
     // least-squares slope of log(tau) vs log(lambda), the transport exponent (1 ballistic, 2 diffusive)
     const mean = (a: number[]) =>
       a.reduce((s, x) => s + x, 0) / a.length
@@ -104,6 +108,7 @@ export default experiment({
       num += (logL[i]! - mL) * (logTau[i]! - mT)
       den += (logL[i]! - mL) ** 2
     }
+
     const exponent = num / den
 
     // the shear does damp under the richer collision (mixing happens), the committed one is inviscid (control)
@@ -115,6 +120,7 @@ export default experiment({
     for (let i = 0; i < probe.data.length; i++) {
       probe.data[i] = i % 2 === 0 ? 1 : 0
     }
+
     const validRule =
       conservesCharge(probe, viscous, 20) &&
       conservesMomentum(probe, viscous, 20, directions) &&

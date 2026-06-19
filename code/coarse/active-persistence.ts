@@ -62,6 +62,7 @@ export function activePersistence(input: {
         }
       }
     }
+
     // the pervasive deterministic decay, erase every decayPeriod-th plus cell outside the refuge source
     let k = 0
     for (let c = 0; c < graph.cellCount; c++) {
@@ -69,9 +70,11 @@ export function activePersistence(input: {
         if (k % decayPeriod === 0) {
           tone[c] = 0
         }
+
         k++
       }
     }
+
     beat(tone, graph, moved, rng, 0, 0.4)
   }
 
@@ -81,11 +84,13 @@ export function activePersistence(input: {
       masked[c] = 0
     }
   }
+
   const cells = largestPositiveCluster(masked, graph)
   let sx = 0
   for (const c of cells) {
     sx += c % L
   }
+
   return {
     survivingSize: cells.length,
     finalX: cells.length ? sx / cells.length : -1,

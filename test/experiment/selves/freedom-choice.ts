@@ -27,6 +27,7 @@ function ternaryVector(n: number, rng: Rng): Int8Array {
   for (let i = 0; i < n; i++) {
     v[i] = (rng.nextInt({ max: 3 }) - 1) as Tone
   }
+
   return v
 }
 
@@ -37,6 +38,7 @@ function makeSelf(input: {
   seed: number
 }): Int8Array[] {
   const rng = makeRng({ seed: input.seed })
+
   return Array.from({ length: input.patterns }, () =>
     ternaryVector(input.n, rng),
   )
@@ -64,6 +66,7 @@ function settle(input: {
       for (let j = 0; j < n; j++) {
         o += (xi[j] ?? 0) * (state[j] ?? 0)
       }
+
       return o / n
     })
     const next = new Int8Array(n)
@@ -74,18 +77,21 @@ function settle(input: {
         h +=
           input.coupling * (input.patterns[m]![i] ?? 0) * (proj[m] ?? 0)
       }
+
       const t: Tone = h > 1e-12 ? 1 : h < -1e-12 ? -1 : 0
       next[i] = t
       if (t !== state[i]) {
         changed = true
       }
     }
+
     state = next
     beats++
     if (!changed) {
       break
     }
   }
+
   return { state, beats }
 }
 
@@ -147,6 +153,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
       pairCount++
     }
   }
+
   const selfDiversity = pairSum / Math.max(1, pairCount)
 
   // 3. The urge matters: same self, several urges, see if the choice changes.
@@ -186,6 +193,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
       ...selfA.map(xi => Math.abs(overlap(out, xi))),
     )
     const urgeOverlap = Math.abs(overlap(out, urge))
+
     return { coupling: c, selfOverlap, urgeOverlap }
   })
   let agencyMonotone = true
@@ -224,10 +232,12 @@ export function freedomChoice(input: { n: number; seed: number }): {
         diff++
       }
     }
+
     if (diff / n > 0.1) {
       differsFromOneStep++
     }
   }
+
   const meanSettlingBeats = beatSum / Math.max(1, beatCount)
   const irreducible = meanSettlingBeats > 1.5 && differsFromOneStep >= 5
 
@@ -257,6 +267,7 @@ export default experiment({
       r.urgeCanFlip &&
       r.agencyMonotone &&
       r.irreducible
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

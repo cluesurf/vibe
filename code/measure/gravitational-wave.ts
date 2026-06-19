@@ -20,6 +20,7 @@ export function chirpMass(input: {
   mass2: number
 }): number {
   const { mass1, mass2 } = input
+
   return Math.pow(mass1 * mass2, 3 / 5) / Math.pow(mass1 + mass2, 1 / 5)
 }
 
@@ -48,6 +49,7 @@ export function binaryQuadrupoleStrain(input: {
     hplus.push(-amp * Math.cos(2 * phi))
     hcross.push(-amp * Math.sin(2 * phi))
   }
+
   return { hplus, hcross, omega }
 }
 
@@ -59,6 +61,7 @@ export function quadrupoleRadiatedPower(input: {
   separation: number
 }): number {
   const { mass1, mass2, separation: a } = input
+
   return (
     ((32 / 5) * (mass1 ** 2 * mass2 ** 2 * (mass1 + mass2))) / a ** 5
   )
@@ -94,9 +97,11 @@ export function petersInspiralTrack(input: {
     if (a <= 0) {
       break
     }
+
     const omega = keplerFrequency({ totalMass: Mtot, separation: a })
     times.push(t)
     gwFrequencies.push((2 * omega) / (2 * Math.PI))
   }
+
   return { times, gwFrequencies, coalescenceTime: t }
 }

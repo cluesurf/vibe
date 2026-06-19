@@ -20,6 +20,7 @@ function reflectionMatrix(
     basis[k] = 1
     columns.push(reflectRoot(basis, root))
   }
+
   // store as rows of images: matrix[k] = image of e_k (a column), composed via composeColumns below.
   return columns
 }
@@ -39,8 +40,10 @@ function composeColumns(
         image[i]! += after[j]![i]! * middle[j]!
       }
     }
+
     result.push(image)
   }
+
   return result
 }
 
@@ -62,6 +65,7 @@ export function weylGroupOrder(roots: number[][]): number {
     e[k] = 1
     identity.push(e)
   }
+
   const generators = roots.map(root =>
     reflectionMatrix(root, dimension),
   )
@@ -81,8 +85,10 @@ export function weylGroupOrder(roots: number[][]): number {
         }
       }
     }
+
     frontier = next
   }
+
   return seen.size
 }
 
@@ -100,6 +106,7 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
         pivot = row
       }
     }
+
     ;[augmented[column], augmented[pivot]] = [
       augmented[pivot]!,
       augmented[column]!,
@@ -108,6 +115,7 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
     for (let j = column; j <= size; j++) {
       augmented[column]![j]! /= diagonal
     }
+
     for (let row = 0; row < size; row++) {
       if (row !== column) {
         const factor = augmented[row]![column]!
@@ -117,6 +125,7 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
       }
     }
   }
+
   return augmented.map(row => row[size]!)
 }
 
@@ -131,12 +140,14 @@ export function automorphismGroupOrder(roots: number[][]): number {
     if (basis.length === dimension) {
       break
     }
+
     const test = [...basis, root]
     const gram = test.map(u => test.map(v => dotVec(u, v)))
     if (Math.abs(determinant(gram)) > 1e-9) {
       basis.push(root)
     }
   }
+
   const rank = basis.length
   const gram = basis.map(u => basis.map(v => dotVec(u, v)))
   const coordinates = roots.map(root =>
@@ -156,13 +167,17 @@ export function automorphismGroupOrder(roots: number[][]): number {
             image[axis]! += coordinate[i]! * picked[i]![axis]!
           }
         }
+
         if (!rootKeys.has(vectorKey(image))) {
           return
         }
       }
+
       count++
+
       return
     }
+
     for (const candidate of roots) {
       let matches =
         Math.abs(dotVec(candidate, candidate) - gram[depth]![depth]!) <
@@ -175,12 +190,15 @@ export function automorphismGroupOrder(roots: number[][]): number {
           matches = false
         }
       }
+
       if (matches) {
         choose(depth + 1, [...picked, candidate])
       }
     }
   }
+
   choose(0, [])
+
   return count
 }
 
@@ -205,9 +223,12 @@ export function diagramAutomorphismOrder(cartan: number[][]): number {
           }
         }
       }
+
       count++
+
       return
     }
+
     for (let k = 0; k < remaining.length; k++) {
       permute(
         remaining.filter((_, index) => index !== k),
@@ -215,7 +236,9 @@ export function diagramAutomorphismOrder(cartan: number[][]): number {
       )
     }
   }
+
   permute(indices, [])
+
   return count
 }
 
@@ -233,9 +256,11 @@ function determinant(matrix: number[][]): number {
         pivot = row
       }
     }
+
     if (Math.abs(working[pivot]![column]!) < 1e-12) {
       return 0
     }
+
     if (pivot !== column) {
       ;[working[column], working[pivot]] = [
         working[pivot]!,
@@ -243,6 +268,7 @@ function determinant(matrix: number[][]): number {
       ]
       result = -result
     }
+
     result *= working[column]![column]!
     for (let row = column + 1; row < size; row++) {
       const factor = working[row]![column]! / working[column]![column]!
@@ -251,5 +277,6 @@ function determinant(matrix: number[][]): number {
       }
     }
   }
+
   return result
 }

@@ -22,6 +22,7 @@ function spinorBranching(): { fourToThree: string; ok: boolean } {
     right = cas(0.5) // both branch to spin 1/2
   const ok =
     Math.abs(left - 0.75) < 1e-9 && Math.abs(right - 0.75) < 1e-9
+
   return {
     fourToThree:
       '4 (4D Dirac) -> 2 + 2 (two 3D Pauli spinors), each spin 1/2 (Casimir 0.75)',
@@ -40,6 +41,7 @@ function directionProjection(radial: number[]): {
   const rhat = radial.map(x => x / rn)
   const proj = dirs.map(d => {
     const dot = d.reduce((s, x, i) => s + x * rhat[i]!, 0)
+
     return d.map((x, i) => x - dot * rhat[i]!)
   })
   // cluster by direction (unit vector up to sign), collect lengths
@@ -50,6 +52,7 @@ function directionProjection(radial: number[]): {
     if (n < 1e-9) {
       continue
     }
+
     const u = p.map(x => x / n)
     let found = false
     for (const s of seen) {
@@ -59,11 +62,13 @@ function directionProjection(radial: number[]): {
         break
       }
     }
+
     if (!found) {
       seen.push(u)
       lengths.push(Math.round(n * 100) / 100)
     }
   }
+
   return {
     distinct: seen.length,
     lengths: [...new Set(lengths)].sort((a, b) => a - b),
@@ -95,6 +100,7 @@ export default experiment({
     // diagonal SU(2), each carrying spin one-half (Casimir 0.75).
     const projection = directionProjection([1, 1, 1, 1])
     const ok = branching.ok && projection.distinct > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -72,8 +72,10 @@ function centroidSeries(input: {
         }
       }
     }
+
     series.push(count > 0 ? sumX / count : 0)
   }
+
   return series
 }
 
@@ -146,6 +148,7 @@ export default experiment({
     // control rule (pinning).
     const ok =
       Math.abs(gainMobile) < 0.05 && Math.abs(gainPinning) < 0.05
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

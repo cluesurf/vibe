@@ -13,6 +13,7 @@ function posetHeight(input: { poset: Poset }): number {
   if (p.size === 0) {
     return 0
   }
+
   // Longest-chain height by repeated relaxation of covering links. Iterating
   // until no value changes converges to the true longest chain regardless of
   // element index order (a Bellman-Ford-style fixpoint on a DAG).
@@ -31,16 +32,19 @@ function posetHeight(input: { poset: Poset }): number {
         }
       }
     }
+
     if (!changed) {
       break
     }
   }
+
   let max = 0
   for (let x = 0; x < p.size; x++) {
     if ((best[x] ?? 0) > max) {
       max = best[x] ?? 0
     }
   }
+
   return max
 }
 
@@ -84,6 +88,7 @@ export function manifoldLikeness(input: { poset: Poset }): {
       // d > 6: decay by one unit of penalty per extra dimension.
       dimScore = Math.max(0, 1 - (estimatedDimension - 6) / 6)
     }
+
     score = dimScore
     if (isKleitmanRothschild) {
       // A KR order is the canonical non-manifold; suppress the score hard.

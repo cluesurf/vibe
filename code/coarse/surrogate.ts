@@ -19,9 +19,11 @@ export function fitMarkovSurrogate(input: {
   const { trajectory, stateCount, lag } = input
   const alpha = input.alpha ?? 1e-3
   const counts = countMatrix({ trajectory, stateCount, lag })
+
   return counts.map(row => {
     const smoothed = row.map(c => c + alpha)
     const sum = smoothed.reduce((a, b) => a + b, 0)
+
     return smoothed.map(c => c / sum)
   })
 }
@@ -44,7 +46,9 @@ export function marginalDistribution(input: {
       counts[j]!++
     }
   }
+
   const sum = counts.reduce((a, b) => a + b, 0)
+
   return counts.map(c => c / sum)
 }
 
@@ -68,6 +72,7 @@ export function predictiveLogLikelihood(input: {
       n++
     }
   }
+
   return n > 0 ? total / n : -Infinity
 }
 
@@ -89,6 +94,7 @@ export function marginalLogLikelihood(input: {
       n++
     }
   }
+
   return n > 0 ? total / n : -Infinity
 }
 
@@ -115,12 +121,15 @@ export function forwardAccuracy(input: {
           best = k
         }
       }
+
       if (best === j) {
         hits++
       }
+
       n++
     }
   }
+
   return n > 0 ? hits / n : 0
 }
 
@@ -134,8 +143,10 @@ export function timeShuffle(input: {
   let s = seed >>> 0
   const next = (): number => {
     s = (Math.imul(s, 1664525) + 1013904223) >>> 0
+
     return s / 4294967296
   }
+
   const out = trajectory.slice()
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(next() * (i + 1))
@@ -143,5 +154,6 @@ export function timeShuffle(input: {
     out[i] = out[j]!
     out[j] = tmp
   }
+
   return out
 }

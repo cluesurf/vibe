@@ -81,30 +81,39 @@ export class VibeBuilder {
   constructor(cfg: VibeConfig) {
     this.cfg = cfg
   }
+
   mesh(k: MeshKind): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, mesh: k })
   }
+
   tone(k: ToneKind): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, tone: k })
   }
+
   fill(k: FillKind): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, fill: k })
   }
+
   rule(k: RuleKind): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, rule: k })
   }
+
   schedule(k: ScheduleKind): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, schedule: k })
   }
+
   grow(k: GrowthKind): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, growth: k })
   }
+
   size(n: number): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, size: n })
   }
+
   seed(s: number): VibeBuilder {
     return new VibeBuilder({ ...this.cfg, seed: s })
   }
+
   config(): VibeConfig {
     return { ...this.cfg }
   }
@@ -113,6 +122,7 @@ export class VibeBuilder {
   describe(): string {
     const c = this.cfg
     const toneSet = c.tone === 'ternary' ? '{-1, 0, +1}' : '{-1, +1}'
+
     return [
       'vibe model',
       `  mesh      ${c.mesh}   (${MESH_NOTE[c.mesh]})`,
@@ -153,6 +163,7 @@ export class VibeWorld {
           ? this.rng.nextInt({ max: 3 }) - 1
           : this.rng.nextInt({ max: 2 }) * 2 - 1
     }
+
     this.fills = buildFills(this.neighbors, cfg, this.rng)
   }
 
@@ -169,9 +180,11 @@ export class VibeWorld {
         for (let k = 0; k < nb.length; k++) {
           h += (fl[k] ?? 0) * (this.tone[nb[k] ?? 0] ?? 0)
         }
+
         this.tone[v] = h > 0 ? 1 : h < 0 ? -1 : 0
       }
     }
+
     return this
   }
 
@@ -194,6 +207,7 @@ export class VibeWorld {
     for (let i = 0; i < n; i++) {
       deg += (this.neighbors[i] ?? new Uint32Array(0)).length
     }
+
     const aniso = lorentzIsotropy({
       substrate: this.substrate,
       samples: 2000,
@@ -209,6 +223,7 @@ export class VibeWorld {
         center = i
       }
     }
+
     const growth = ballGrowth({
       substrate: this.substrate,
       center,
@@ -222,6 +237,7 @@ export class VibeWorld {
     for (const v of spectrum) {
       lapMin = Math.min(lapMin, v)
     }
+
     let minus = 0
     let zero = 0
     let plus = 0
@@ -234,6 +250,7 @@ export class VibeWorld {
         plus += 1
       }
     }
+
     // Integration Phi (P63): the algebraic connectivity of the whole mesh, how strongly it
     // resists being cut into independent parts, the structural correlate of a unity.
     const phi = algebraicConnectivity({
@@ -243,6 +260,7 @@ export class VibeWorld {
     // Recursion (P57 to P60): coarse-grain the settled mesh into coherent domains, the higher
     // vibes. We count those of meaningful size, the genuine wholes-within-the-whole.
     const higherVibes = countHigherVibes(this.neighbors, this.tone, 3)
+
     return {
       meanDegree: deg / Math.max(1, n),
       lorentzAnisotropy: aniso.anisotropy,
@@ -270,6 +288,7 @@ function countHigherVibes(
     if (seen[s]) {
       continue
     }
+
     let size = 0
     let frontier = [s]
     seen[s] = 1
@@ -284,12 +303,15 @@ function countHigherVibes(
           }
         }
       }
+
       frontier = next
     }
+
     if (size >= minSize) {
       count += 1
     }
   }
+
   return count
 }
 
@@ -302,6 +324,7 @@ function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
       rng,
     })
   }
+
   if (cfg.mesh === 'dodecagrid') {
     return hyperbolicDodecagrid({
       depth: 4,
@@ -309,20 +332,24 @@ function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
       maxVertices: cfg.size,
     })
   }
+
   if (cfg.mesh === 'coxeter') {
     return coxeterTessellation({
       schlafli: [7, 3],
       maxVertices: cfg.size,
     })
   }
+
   if (cfg.mesh === 'lattice') {
     const side = Math.max(2, Math.round(Math.sqrt(cfg.size)))
+
     return lattice({
       dimension: 2,
       extent: side,
       signature: 'riemannian',
     })
   }
+
   return sprinkleMinkowski({ dimension: 2, count: cfg.size, rng })
 }
 
@@ -344,13 +371,16 @@ function buildFills(
         }
       }
     }
+
     return fills
   }
+
   const indexOf = neighbors.map(row => {
     const m = new Map<number, number>()
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
+
     return m
   })
   for (let v = 0; v < n; v++) {
@@ -359,6 +389,7 @@ function buildFills(
     if (!fv) {
       continue
     }
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
       if (w > v) {
@@ -372,6 +403,7 @@ function buildFills(
       }
     }
   }
+
   return fills
 }
 

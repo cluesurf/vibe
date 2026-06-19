@@ -24,6 +24,7 @@ export function randomGeometricMesh(input: {
     coords[i * 2] = input.rng.next()
     coords[i * 2 + 1] = input.rng.next()
   }
+
   const neighbors: number[][] = Array.from({ length: n }, () => [])
   const r2 = input.radius * input.radius
   for (let i = 0; i < n; i++) {
@@ -36,6 +37,7 @@ export function randomGeometricMesh(input: {
       }
     }
   }
+
   return { size: n, coords, neighbors }
 }
 
@@ -56,12 +58,14 @@ export function squareLatticeMesh(input: { side: number }): Mesh {
         neighbors[v]?.push(idx(i + 1, j))
         neighbors[idx(i + 1, j)]?.push(v)
       }
+
       if (j + 1 < side) {
         neighbors[v]?.push(idx(i, j + 1))
         neighbors[idx(i, j + 1)]?.push(v)
       }
     }
   }
+
   return { size: n, coords, neighbors }
 }
 
@@ -78,5 +82,6 @@ export function centerNode(mesh: Mesh): number {
       best = i
     }
   }
+
   return best
 }

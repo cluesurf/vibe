@@ -45,7 +45,9 @@ export function experiment(definition: Experiment): Experiment {
   if (registry.has(definition.id)) {
     throw new Error(`duplicate experiment id: ${definition.id}`)
   }
+
   registry.set(definition.id, definition)
+
   return definition
 }
 
@@ -81,6 +83,7 @@ export function runSuite(
         },
       }
     }
+
     return { id: experiment.id, verdict: result }
   })
 }

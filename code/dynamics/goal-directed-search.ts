@@ -18,6 +18,7 @@ export function solveGoalDirected(input: {
   for (let i = 0; i < K; i++) {
     s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
   }
+
   let steps = 0
   let gap = 0
   for (let i = 0; i < K; i++) {
@@ -25,6 +26,7 @@ export function solveGoalDirected(input: {
       gap++
     }
   }
+
   const guard = 1000 * K
   while (gap > 0 && steps < guard) {
     steps++
@@ -35,6 +37,7 @@ export function solveGoalDirected(input: {
       gap--
     }
   }
+
   return steps
 }
 
@@ -49,12 +52,14 @@ export function solveUndirected(input: {
   for (let i = 0; i < K; i++) {
     s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
   }
+
   let gap = 0
   for (let i = 0; i < K; i++) {
     if (s[i] !== target[i]) {
       gap++
     }
   }
+
   for (let steps = 1; steps <= budget; steps++) {
     const i = Math.floor(rng.next() * K)
     const v = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
@@ -64,11 +69,14 @@ export function solveUndirected(input: {
       } else if (v === target[i]) {
         gap--
       }
+
       s[i] = v
     }
+
     if (gap === 0) {
       return { solved: true, steps }
     }
   }
+
   return { solved: false, steps: budget }
 }

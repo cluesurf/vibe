@@ -46,12 +46,14 @@ function runAndCheck(b: number[]): { logMu12: number; a3gap: number } {
   const gap = Math.round((a3 - a12) * 100) / 100 // mismatch, 0 = perfect three-way unification
   const logMu12 =
     Math.round((Math.log10(MZ) + t12 / Math.log(10)) * 10) / 10 // log10(mu) in GeV
+
   return { logMu12, a3gap: gap }
 }
 
 export function rgUnification(): { smGap: number; mssmGap: number } {
   const sm = runAndCheck(bSM)
   const mssm = runAndCheck(bMSSM)
+
   return { smGap: sm.a3gap, mssmGap: mssm.a3gap }
 }
 
@@ -67,6 +69,7 @@ export default experiment({
     const r = rgUnification()
     const ok =
       Math.abs(r.mssmGap) < 1 && Math.abs(r.smGap) > Math.abs(r.mssmGap)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

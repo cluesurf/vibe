@@ -48,18 +48,22 @@ export function absoluteLimits(input?: { n?: number }): {
           block[g.adj[p]!] = nb
         }
       }
+
       nb++
     }
   }
+
   const coarseQ = (t: Int8Array): number => {
     const bc = new Float64Array(nb)
     for (let i = 0; i < N; i++) {
       bc[block[i]!]! += t[i]!
     }
+
     let s = 0
     for (let b = 0; b < nb; b++) {
       s += bc[b]!
     }
+
     return s
   }
 
@@ -71,6 +75,7 @@ export function absoluteLimits(input?: { n?: number }): {
       | 0
       | 1
   }
+
   const q0 = totalQ(tone)
   let coarseMatches = true
   for (let t = 0; t < 60; t++) {
@@ -78,10 +83,12 @@ export function absoluteLimits(input?: { n?: number }): {
     if (totalQ(tone) !== q0) {
       coarseMatches = false
     }
+
     if (coarseQ(tone) !== q0) {
       coarseMatches = false
     }
   }
+
   const fineQConserved = totalQ(tone) === q0
   const coarseEqualsFine = coarseMatches
   // minting attempt, run ONLY the create move aggressively, Q must not rise (it creates balanced pairs)
@@ -98,6 +105,7 @@ export function absoluteLimits(input?: { n?: number }): {
       onlyCreate: true,
     })
   }
+
   const mintingFails = totalQ(mint) === q0m // still zero, only balanced pairs made
 
   // (B) lightcone, fine front speed, then coarse (block) front speed, both finite
@@ -115,6 +123,7 @@ export function absoluteLimits(input?: { n?: number }): {
       | 0
       | 1
   }
+
   const s = base.slice()
   const s2 = base.slice()
   s2[center] = (s2[center] === 0 ? 1 : 0) as -1 | 0 | 1
@@ -125,12 +134,14 @@ export function absoluteLimits(input?: { n?: number }): {
     conservingEdgeSweep({ tone: s, eu, ev, moved, rng: ra, arrow })
     conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow })
   }
+
   let fineFront = 0
   for (let i = 0; i < N; i++) {
     if (s[i] !== s2[i] && distC[i]! > fineFront) {
       fineFront = distC[i]!
     }
   }
+
   const fineSpeed = fineFront / T
   // coarse front, in block-hops, the affected blocks, front measured in coarse distance (cells/block ~ 13)
   const coarseSpeed = fineSpeed / 1 // coarse distance <= fine distance (a block spans many cells), so speed no larger
@@ -166,6 +177,7 @@ export default experiment({
   run() {
     const r = absoluteLimits({ n: 20000 })
     const ok = r.solved && r.chargeAbsolute && r.lightconeAbsolute
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

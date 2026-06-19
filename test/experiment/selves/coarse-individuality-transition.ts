@@ -25,6 +25,7 @@ function withoutTransition(input: {
 }): number[][] {
   const { groups, members, seed } = input
   const rng = makeRng(seed)
+
   return Array.from({ length: groups }, () =>
     Array.from({ length: members }, () => rng.next()),
   )
@@ -41,8 +42,10 @@ function withTransition(input: {
 }): number[][] {
   const { groups, members, seed } = input
   const rng = makeRng(seed)
+
   return Array.from({ length: groups }, () => {
     const founder = rng.next() // group selection has spread founders across the range.
+
     return Array.from(
       { length: members },
       () => founder + (rng.next() - 0.5) * 0.02,
@@ -73,6 +76,7 @@ export default experiment({
     const partitionFlips = off.ratio < 0.7 && on.ratio > 1.5
     const independentReplicationLost = on.within < off.within * 0.5
     const ok = partitionFlips && independentReplicationLost
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

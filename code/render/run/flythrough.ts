@@ -37,8 +37,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU). The flythrough is written and runs where an adapter is present.',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   const foldMode = inside ? '3d-interior' : '3d'
@@ -79,6 +81,7 @@ async function run(): Promise<void> {
         encodePng(rgba, SIZE, SIZE),
       )
     }
+
     camera.moveForward(stepPerFrame)
   }
 

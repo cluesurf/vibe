@@ -20,6 +20,7 @@ const subtreeParity = (
   if (level === 0) {
     return leaves[offset]!
   }
+
   let parity = 0
   const childSpan = branching ** (level - 1)
   for (let c = 0; c < branching; c++) {
@@ -30,6 +31,7 @@ const subtreeParity = (
       branching,
     )
   }
+
   return parity
 }
 

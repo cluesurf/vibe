@@ -62,6 +62,7 @@ export default experiment({
           }
         }
       }
+
       const setWalls = (will: Will): void => {
         for (const cell of wallCells) {
           const base = cell * degree
@@ -94,9 +95,11 @@ export default experiment({
           for (let x = 0; x < side; x++) {
             acc[x]! += prof[x]!
           }
+
           samples++
         }
       }
+
       return acc.map(a => a / samples)
     }
 
@@ -107,6 +110,7 @@ export default experiment({
       for (let x = xA + 2; x <= xA + d - 2; x++) {
         xs.push(x)
       }
+
       return xs
     }
 
@@ -119,6 +123,7 @@ export default experiment({
       const gx = gapInterior(d)
       const supWalls = mean(withWalls, openXs) - mean(withWalls, gx)
       const supFree = mean(free, openXs) - mean(free, gx)
+
       return supWalls - supFree
     })
 
@@ -137,6 +142,7 @@ export default experiment({
     const wallControlClean = freeBaseline < 0.05
 
     const ok = allAttractive && fallsWithDistance && wallControlClean
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

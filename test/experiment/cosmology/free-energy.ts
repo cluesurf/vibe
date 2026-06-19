@@ -46,6 +46,7 @@ function phaseAction(input: {
         : kleitmanRothschildOrder({ size: input.size })
     sum += action.value({ poset })
   }
+
   return sum / input.repeats
 }
 
@@ -99,6 +100,7 @@ function crossingStudy(input: {
   const deltaLogZ = input.betas.map(beta => -g + dS * beta)
   const betaStar = dS > 0 ? g / dS : null
   const manifoldFractionEq = deltaLogZ.map(d => 1 / (1 + Math.exp(-d)))
+
   return {
     size: n,
     g,
@@ -122,6 +124,7 @@ export function p12Crossing(input: { size: number }): {
     betas: [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
     steps: 40000,
   })
+
   return { betaStar: r.betaStar, g: r.g, dS: r.sL - r.sM }
 }
 
@@ -136,6 +139,7 @@ export default experiment({
   run() {
     const r = p12Crossing({ size: 24 })
     const ok = r.dS > 0 && r.betaStar !== null && r.betaStar > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

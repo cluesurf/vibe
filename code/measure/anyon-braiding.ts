@@ -9,9 +9,11 @@ const wrap = (x: number): number => {
   while (v > Math.PI) {
     v -= 2 * Math.PI
   }
+
   while (v <= -Math.PI) {
     v += 2 * Math.PI
   }
+
   return v
 }
 
@@ -26,15 +28,19 @@ export function squareLoop(input: {
   for (let x = cx - r; x < cx + r; x++) {
     points.push([x, cy - r])
   }
+
   for (let y = cy - r; y < cy + r; y++) {
     points.push([cx + r, y])
   }
+
   for (let x = cx + r; x > cx - r; x--) {
     points.push([x, cy + r])
   }
+
   for (let y = cy + r; y > cy - r; y--) {
     points.push([cx - r, y])
   }
+
   return points
 }
 
@@ -57,5 +63,6 @@ export function zNVortexHolonomy(input: {
     const b = loop[(i + 1) % loop.length]!
     sum += (1 / n) * wrap(angle(b[0], b[1]) - angle(a[0], a[1]))
   }
+
   return wrap(sum)
 }

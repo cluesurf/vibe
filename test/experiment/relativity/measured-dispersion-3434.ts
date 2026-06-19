@@ -78,6 +78,7 @@ export default experiment({
       (measuredOmega(0.3 + 1e-4, 0) - measuredOmega(0.3, 0)) / 1e-4
     const massive =
       (measuredOmega(0.3 + 1e-4, 0.5) - measuredOmega(0.3, 0.5)) / 1e-4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

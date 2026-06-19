@@ -40,8 +40,10 @@ function denseStep(input: {
     for (let m = 0; m < patterns.length; m++) {
       h += (weights[m] ?? 0) * (patterns[m]![i] ?? 0)
     }
+
     next[i] = h > 0 ? 1 : h < 0 ? -1 : (state[i] ?? 0)
   }
+
   return next
 }
 
@@ -56,6 +58,7 @@ function classicalRelax(input: {
   for (let t = 0; t < input.beats; t++) {
     s = hopfieldStep(input.J, s, zero, null)
   }
+
   return s
 }
 
@@ -74,6 +77,7 @@ function denseRelax(input: {
       power: input.power,
     })
   }
+
   return s
 }
 
@@ -100,10 +104,12 @@ function recallRate(input: {
         cue[i] = -(cue[i] ?? 0) as -1 | 1
       }
     }
+
     if (nearestPattern(relax(cue, patterns), patterns).index === m) {
       hits++
     }
   }
+
   return hits / patternCount
 }
 
@@ -139,8 +145,10 @@ export function denseVsClassicalCapacity(input?: {
         break
       }
     }
+
     return best
   }
+
   const classicalCapacity = capacityOf((cue, patterns) =>
     classicalRelax({ J: hebbianFills(patterns, size), cue, beats: 8 }),
   )
@@ -149,6 +157,7 @@ export function denseVsClassicalCapacity(input?: {
   )
   // PASS, the dense (higher-order) energy holds strictly more patterns at the matched recall.
   const solved = denseCapacity > classicalCapacity
+
   return { size, classicalCapacity, denseCapacity, solved }
 }
 
@@ -162,6 +171,7 @@ export default experiment({
   paper: true,
   run() {
     const r = denseVsClassicalCapacity()
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

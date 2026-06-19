@@ -83,6 +83,7 @@ export class Camera {
       const c = toPoincare(matVec(g, this.c0), this.timeAxis)
       m = Math.max(m, norm(c))
     }
+
     return m
   }
 
@@ -118,14 +119,17 @@ export class Camera {
         if (norm(a) > 0.9996 || norm(b) > 0.9996) {
           continue
         }
+
         const key = pairKey(a, b)
         if (seen.has(key)) {
           continue
         }
+
         seen.add(key)
         edges.push({ a, b })
       }
     }
+
     return {
       dim: ballDim,
       symbol: this.symbol.slice(),
@@ -150,17 +154,21 @@ export class Camera {
         if (norm(center) > this.windowNorm) {
           continue
         }
+
         const k = pointKey(center)
         if (seen.has(k)) {
           continue
         }
+
         seen.add(k)
         window.push(gp)
       }
+
       if (window.length > 200000) {
         break
       } // safety, a huge window means windowNorm is too close to 1
     }
+
     return window
   }
 
@@ -175,6 +183,7 @@ export class Camera {
         best = i
       }
     }
+
     return best
   }
 }
@@ -184,6 +193,7 @@ function dot(a: Vec, b: Vec): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 
@@ -194,5 +204,6 @@ function norm(v: Vec): number {
 function pairKey(a: Vec, b: Vec): string {
   const ka = a.map(x => Math.round(x * 1e4)).join(',')
   const kb = b.map(x => Math.round(x * 1e4)).join(',')
+
   return ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 }

@@ -35,8 +35,10 @@ function cpuStep(
     for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
       s += currentOf(state[adj[p]!]!)
     }
+
     out[i] = pack((s + 27 - prev) % 3, cur)
   }
+
   return out
 }
 
@@ -44,8 +46,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   // build the exact {5,3,4} bulk graph on the CPU, then upload its adjacency to the GPU
@@ -125,6 +129,7 @@ async function run(): Promise<void> {
       device.queue.submit([enc.finish()])
       src = 1 - src
     }
+
     return src
   }
 
@@ -145,6 +150,7 @@ async function run(): Promise<void> {
     )
     device.queue.submit([enc.finish()])
   }
+
   await staging.mapAsync(GPUMapMode.READ)
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
@@ -153,12 +159,14 @@ async function run(): Promise<void> {
   for (let b = 0; b < CHECK_BEATS; b++) {
     cpu = cpuStep(cpu, g.offsets, g.adj)
   }
+
   let mismatches = 0
   for (let i = 0; i < n; i++) {
     if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
       mismatches++
     }
   }
+
   const ok = mismatches === 0
   console.log(
     `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mismatches} -> ${ok ? 'IDENTICAL' : 'FAIL'}`,

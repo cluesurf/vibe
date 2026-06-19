@@ -37,11 +37,13 @@ export function hebbianFills(
       for (const p of patterns) {
         s += (p[i] ?? 0) * (p[j] ?? 0)
       }
+
       const f = sign(s)
       J[i]![j] = f
       J[j]![i] = f
     }
   }
+
   return J
 }
 
@@ -52,6 +54,7 @@ export function toneOverlap(a: Int8Array, b: Int8Array): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s / a.length
 }
 
@@ -70,6 +73,7 @@ export function mutatePattern(input: {
       out[i] = (rng.next() < 0.5 ? -1 : 1) as -1 | 1
     }
   }
+
   return out
 }
 
@@ -82,6 +86,7 @@ export function bankOverlap(a: Int8Array[], b: Int8Array[]): number {
       toneOverlap(a[m] ?? new Int8Array(0), b[m] ?? new Int8Array(0)),
     )
   }
+
   return s / Math.max(1, a.length)
 }
 
@@ -100,6 +105,7 @@ export function nearestPattern(
       best = k
     }
   })
+
   return { index: best, overlap: bestOv }
 }
 
@@ -118,13 +124,16 @@ export function hopfieldStep(
       next[i] = clamp[i] as -1 | 0 | 1
       continue
     }
+
     const row = J[i] ?? new Int8Array(0)
     let h = bias[i] ?? 0
     for (let j = 0; j < n; j++) {
       h += (row[j] ?? 0) * (tone[j] ?? 0)
     }
+
     next[i] = h > 0 ? 1 : h < 0 ? -1 : (tone[i] ?? 0)
   }
+
   return next
 }
 
@@ -174,12 +183,14 @@ export function runHopfieldPair(input: {
         cueB[i] = qb[i] as -1 | 0 | 1
       }
     }
+
     a = hopfieldStep(Ja, a, zero, cueA)
     b = hopfieldStep(Jb, b, zero, cueB)
     if (phase === dwell - 1) {
       overlaps.push(Math.abs(toneOverlap(a, b)))
     }
   }
+
   return (
     overlaps.reduce((x, y) => x + y, 0) / Math.max(1, overlaps.length)
   )

@@ -23,6 +23,7 @@ export function symmetricEdgeFills(input: {
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
+
     return m
   })
   const fills = neighbors.map(row => new Int8Array(row.length))
@@ -32,6 +33,7 @@ export function symmetricEdgeFills(input: {
     if (!fv) {
       continue
     }
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
       if (w > v) {
@@ -45,6 +47,7 @@ export function symmetricEdgeFills(input: {
       }
     }
   }
+
   return fills
 }
 
@@ -68,8 +71,10 @@ export function signedMajorityStep(input: {
     for (let k = 0; k < nb.length; k++) {
       h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
     }
+
     next[v] = h > 0 ? 1 : h < 0 ? -1 : keepOnTie ? (tone[v] ?? 0) : 0
   }
+
   return next
 }
 
@@ -93,6 +98,7 @@ export function runAsynchronousSignedMajority(input: {
   for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
   }
+
   const fill: Map<number, number>[] = Array.from(
     { length: n },
     () => new Map<number, number>(),
@@ -106,6 +112,7 @@ export function runAsynchronousSignedMajority(input: {
       }
     }
   }
+
   let changedLast = n
   for (let beat = 0; beat < beats; beat++) {
     let changed = 0
@@ -115,14 +122,18 @@ export function runAsynchronousSignedMajority(input: {
       for (const w of neighbors[v]!) {
         h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
       }
+
       const next = h > 0 ? 1 : h < 0 ? -1 : 0
       if (next !== tone[v]) {
         changed++
       }
+
       tone[v] = next as number
     }
+
     changedLast = changed
   }
+
   let minus = 0
   let zero = 0
   let plus = 0
@@ -136,6 +147,7 @@ export function runAsynchronousSignedMajority(input: {
       plus++
     }
   }
+
   return {
     settledFraction: 1 - changedLast / n,
     toneHistogram: { minus, zero, plus },

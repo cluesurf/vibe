@@ -52,6 +52,7 @@ export function boostInvariance(input?: {
       Math.abs(omegaOf(k, 0) - k),
     )
   }
+
   const masslessExact = masslessMaxDeviation < 1e-9
 
   // (2) massive: the Lorentz invariant omega^2 - k^2 ~ m^2 holds out to some k (the IR window)
@@ -61,6 +62,7 @@ export function boostInvariance(input?: {
     if (m === 0) {
       continue
     }
+
     let window = 0
     for (const k of ks) {
       const w = omegaOf(k, m)
@@ -71,6 +73,7 @@ export function boostInvariance(input?: {
         break
       }
     }
+
     massiveWindow = Math.min(massiveWindow, window)
   }
 
@@ -86,20 +89,24 @@ export function boostInvariance(input?: {
         if (m > 0 && k > massiveWindow) {
           continue
         } // only test inside the relativistic window
+
         if (m === 0 && k > 2.5) {
           continue
         } // avoid the lattice cutoff corner
+
         const wB = gamma * (w - v * k)
         const kB = gamma * (k - v * w)
         if (wB <= 0 || Math.abs(kB) > Math.PI) {
           continue
         }
+
         const wExpected = omegaOf(Math.abs(kB), m) // where the dispersion says the boosted mode should sit
         boostResidual += Math.abs(wB - wExpected)
         boostCount++
       }
     }
   }
+
   boostResidual = boostCount > 0 ? boostResidual / boostCount : 1
   const boostInvariantInWindow = boostResidual < 0.05
 
@@ -133,6 +140,7 @@ export default experiment({
       r.masslessExact &&
       r.boostInvariantInWindow &&
       r.fullLorentz
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -30,5 +30,6 @@ export function fieldLaplacianProfile(input: {
       }
     }
   }
+
   return { peakRadius, total }
 }

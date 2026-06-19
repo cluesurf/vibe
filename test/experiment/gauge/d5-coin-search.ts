@@ -27,6 +27,7 @@ export function d5CoinSearch(): {
     { name: '5-orthoplex {3,3,3,4}', v: 10 },
   ]
   const anyRegular5DHas40 = regular5D.some(p => p.v === d5RootCount)
+
   return { cell24IsD4, d5RootCount, anyRegular5DHas40 }
 }
 
@@ -44,6 +45,7 @@ export default experiment({
       r.cell24IsD4 &&
       r.d5RootCount === 40 &&
       r.anyRegular5DHas40 === false
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

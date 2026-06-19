@@ -43,6 +43,7 @@ export function heredity(input?: { n?: number }): {
       center = i
     }
   }
+
   const far = csrFarthestNode({
     offsets: g.offsets,
     adj: g.adj,
@@ -70,6 +71,7 @@ export function heredity(input?: { n?: number }): {
         if (!parentSet.has(u)) {
           daughterCells.push(u)
         }
+
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
           if (!seen[w]) {
@@ -78,9 +80,11 @@ export function heredity(input?: { n?: number }): {
           }
         }
       }
+
       fr = nf
     }
   }
+
   const m = Math.min(parentCells.length, daughterCells.length)
 
   // the parent's heritable pattern: an EXACTLY balanced +/- CODE (information, net charge zero)
@@ -90,6 +94,7 @@ export function heredity(input?: { n?: number }): {
   for (let i = 0; i < m; i++) {
     parentPat[i] = i < half ? 1 : i < 2 * half ? -1 : 0
   }
+
   // shuffle to make it a real pattern, staying exactly balanced
   for (let i = m - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
@@ -110,16 +115,20 @@ export function heredity(input?: { n?: number }): {
       if (r.next() < mu) {
         v = -v as -1 | 1
       } // mutation
+
       daughterPat[i] = v
       charge += v // daughter region was empty (0), so this is the charge created by copying
     }
+
     let agree = 0
     for (let i = 0; i < m; i++) {
       if (daughterPat[i] === parentPat[i]) {
         agree++
       }
     }
+
     const resemblance = (2 * agree) / m - 1 // +1 identical, 0 random, -1 anti
+
     return { resemblance, charge: Math.abs(charge) }
   }
 
@@ -137,6 +146,7 @@ export function heredity(input?: { n?: number }): {
     structureWritten += Math.abs(parentPat[i]!)
     net += parentPat[i]!
   }
+
   const netChargeCreated = Math.abs(net)
 
   const heredityWorks = resemblanceMu0 > 0.95 && resemblanceMu2 > 0.4
@@ -179,6 +189,7 @@ export default experiment({
       r.heredityWorks &&
       r.heritableVariation &&
       r.conservingCreation
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -43,6 +43,7 @@ export default experiment({
       if (!a.complete[c]) {
         continue
       }
+
       for (const v of a.graph.neighbors[c]!) {
         if (a.dist[v] === a.dist[c]) {
           cousins++
@@ -58,10 +59,12 @@ export default experiment({
       if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
         continue
       }
+
       const key = a.address[c]!.join('.')
       if (seen.has(key)) {
         addressDup++
       }
+
       seen.add(key)
       if (decode(a, a.address[c]!) !== c) {
         roundTripFail++
@@ -75,6 +78,7 @@ export default experiment({
       if (!a.complete[c]) {
         continue
       }
+
       totalComplete++
       const predicted = new Set<number>([
         a.parent[c]!,
@@ -91,6 +95,7 @@ export default experiment({
           }
         }
       }
+
       if (same) {
         exact++
       }
@@ -108,6 +113,7 @@ export default experiment({
       totalComplete > 0 &&
       neighborFraction > 0.99 &&
       auto2.deterministic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

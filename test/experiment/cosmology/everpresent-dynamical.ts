@@ -37,8 +37,10 @@ export function everpresentDynamical(input: {
       const lambda = (n - v) / v
       sumSq += lambda * lambda
     }
+
     return Math.sqrt(sumSq / input.repeats)
   })
+
   return { rms, exponent: logLogSlope(input.volumes, rms) }
 }
 
@@ -92,6 +94,7 @@ export default experiment({
   run() {
     const r = everpresent({ seed: 1 })
     const ok = r.solved && r.matchesEverpresent && r.sameOrderAsObserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

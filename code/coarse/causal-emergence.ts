@@ -16,12 +16,14 @@ export function effectiveInformation(tpm: number[][]): number {
   if (n === 0) {
     return 0
   }
+
   const mean = new Array<number>(n).fill(0)
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       mean[j]! += tpm[i]![j]! / n
     }
   }
+
   let ei = 0
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -31,6 +33,7 @@ export function effectiveInformation(tpm: number[][]): number {
       }
     }
   }
+
   return ei
 }
 
@@ -46,6 +49,7 @@ export function coarseGrainTpm(input: {
   for (const g of groups) {
     size[g]!++
   }
+
   const macro: number[][] = Array.from({ length: macroCount }, () =>
     new Array<number>(macroCount).fill(0),
   )
@@ -55,6 +59,7 @@ export function coarseGrainTpm(input: {
       macro[gi]![groups[j]!]! += tpm[i]![j]! / size[gi]!
     }
   }
+
   return macro
 }
 
@@ -102,8 +107,10 @@ export function emergenceGain(input: {
     randomGroups[i] = randomGroups[j]!
     randomGroups[j] = tmp
   }
+
   const eiRandom = effectiveInformation(
     coarseGrainTpm({ tpm: micro, groups: randomGroups }),
   )
+
   return { eiMicro, eiSpatial, eiRandom }
 }

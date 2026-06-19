@@ -24,10 +24,12 @@ export function s534Selves(): {
       r = Math.hypot(dx, dy)
     const f = Math.PI * Math.min(1, r / R)
     const s = Math.sin(f)
+
     return r < 1e-9
       ? [0, 0, 1]
       : [(s * dx) / r, (s * dy) / r, Math.cos(f)]
   }
+
   const cross = (a: number[], b: number[]): number[] => [
     a[1]! * b[2]! - a[2]! * b[1]!,
     a[2]! * b[0]! - a[0]! * b[2]!,
@@ -36,8 +38,10 @@ export function s534Selves(): {
   const tri = (p: number[], q: number[], r: number[]): number => {
     const num = dot(p, cross(q, r))
     const den = 1 + dot(p, q) + dot(q, r) + dot(r, p)
+
     return 2 * Math.atan2(num, den)
   }
+
   let Q = 0
   for (let x = 0; x < L - 1; x++) {
     for (let y = 0; y < L - 1; y++) {
@@ -48,11 +52,13 @@ export function s534Selves(): {
       Q += tri(a, bb, d) + tri(a, d, cc)
     }
   }
+
   Q = Q / (4 * Math.PI)
   const solitonsExist =
     Math.abs(Math.round(Q) - Q) < 0.1 && Math.abs(Math.round(Q)) >= 1
   const fermionic = false // 2D -> the spin-statistics link gives ANYONS, not fermions, and there is no fundamental spinor
   const anyonic = true
+
   return { solitonsExist, fermionic, anyonic }
 }
 
@@ -67,6 +73,7 @@ export default experiment({
   run() {
     const r = s534Selves()
     const ok = r.solitonsExist && r.anyonic && !r.fermionic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

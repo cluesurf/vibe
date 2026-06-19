@@ -13,6 +13,7 @@ export function coordinateAxes(dimension: number): number[][] {
       axes.push(axis)
     }
   }
+
   return axes
 }
 
@@ -36,8 +37,10 @@ export function probeDirections(input: {
     for (let axis = 0; axis < dimension; axis++) {
       raw.push(((index * (alpha[axis] ?? 0.5)) % 1) - 0.5)
     }
+
     const norm = Math.hypot(...raw)
     directions.push(raw.map(value => value / norm))
   }
+
   return directions
 }

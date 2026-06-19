@@ -82,8 +82,10 @@ export default experiment({
           }
         }
       }
+
       return will
     }
+
     const netRms = (will: Will): number => {
       let total = 0,
         sx = 0,
@@ -97,6 +99,7 @@ export default experiment({
         for (let d = 0; d < degree; d++) {
           n += will.data[b + d]!
         }
+
         q[c] = n
         if (n > 0) {
           const [x, y, z, w] = coord(c)
@@ -107,9 +110,11 @@ export default experiment({
           sw += n * w
         }
       }
+
       if (total === 0) {
         return 0
       }
+
       const mx = sx / total,
         my = sy / total,
         mz = sz / total,
@@ -127,6 +132,7 @@ export default experiment({
               (w - mw) ** 2)
         }
       }
+
       return Math.sqrt(v / total)
     }
 
@@ -147,8 +153,10 @@ export default experiment({
         if (r < min) {
           min = r
         }
+
         final = r
       }
+
       return { min, final }
     }
 
@@ -168,6 +176,7 @@ export default experiment({
     const arrowResistsDispersal = bindMove.final < momentum.final
 
     const ok = noneContract
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -78,14 +78,17 @@ export default experiment({
         if (open) {
           absorbBoundary(current)
         }
+
         const c = Math.abs(
           stripeContrast({ will: current, lambda, axisOf, bins: side }),
         )
         if (t > beats / 2 && c > lateMax) {
           lateMax = c
         }
+
         final = c
       }
+
       return { c0, lateMax, final }
     }
 
@@ -100,6 +103,7 @@ export default experiment({
     const openHealsClosedDoesNot = open.final < closed.lateMax * 0.3
 
     const ok = closedRecurs && openDamped && openHealsClosedDoesNot
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

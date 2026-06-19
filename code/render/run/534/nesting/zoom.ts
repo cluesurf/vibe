@@ -46,6 +46,7 @@ function shellColor(
   } else {
     ;[r, g, b] = [c, 0, x]
   }
+
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
 }
 
@@ -66,11 +67,14 @@ function run(): void {
         }
       }
     }
+
     if (next.length) {
       shellCounts.push(next.length)
     }
+
     frontier = next
   }
+
   let maxClean = 0
   for (let i = 1; i < shellCounts.length; i++) {
     if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
@@ -79,6 +83,7 @@ function run(): void {
       break
     }
   }
+
   console.log(
     `cells ${n}, clean shells 0..${maxClean} (${shellCounts.slice(0, maxClean + 1).join(',')})`,
   )
@@ -93,6 +98,7 @@ function run(): void {
     if (depth[i]! < 0 || depth[i]! > maxClean) {
       continue
     }
+
     cells.push({
       x: g.coords[i]![0]!,
       y: g.coords[i]![1]!,
@@ -100,6 +106,7 @@ function run(): void {
       col: shellColor(depth[i]!, maxClean),
     })
   }
+
   cells.sort((a, b) => b.r2 - a.r2)
 
   const here = dirname(fileURLToPath(import.meta.url))
@@ -134,6 +141,7 @@ function run(): void {
       }
     }
   }
+
   for (let f = 0; f < FRAMES; f++) {
     const zoom = Math.exp((f / (FRAMES - 1)) * Math.log(ZOOM_MAX)) // exponential zoom 1 -> ZOOM_MAX
     const scale = baseScale * zoom
@@ -144,18 +152,21 @@ function run(): void {
       rgba[i + 2] = 14
       rgba[i + 3] = 255
     }
+
     for (const c of cells) {
       const px = half + scale * (c.x - TARGET[0]!),
         py = half - scale * (c.y - TARGET[1]!)
       if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20) {
         continue
       }
+
       const rad = Math.max(
         0.6,
         DOT_SCALE * (1 - c.r2) * Math.min(zoom, 6),
       )
       drawDot(rgba, px, py, rad, c.col)
     }
+
     writeFileSync(
       join(outDir, `zoom-${String(f).padStart(3, '0')}.png`),
       encodePng(rgba, IMG, IMG),
@@ -164,6 +175,7 @@ function run(): void {
       console.log(`  frame ${f}/${FRAMES} zoom ${zoom.toFixed(2)}x`)
     }
   }
+
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(
     `ffmpeg -y -framerate 24 -i ${join(outDir, 'zoom-%03d.png')} -pix_fmt yuv420p ${join(here, '..', '..', 'make', '534', 'nesting-zoom-534.mp4')}`,

@@ -125,6 +125,7 @@ export const PALETTE_HEX: Record<Hue, Record<Shade, string>> = {
 // a hex string to a normalized [r, g, b] in 0..1
 export function hexToRgb01(hex: string): [number, number, number] {
   const h = hex.replace('#', '')
+
   return [
     parseInt(h.slice(0, 2), 16) / 255,
     parseInt(h.slice(2, 4), 16) / 255,
@@ -135,6 +136,7 @@ export function hexToRgb01(hex: string): [number, number, number] {
 // a hex string to an integer [r, g, b] in 0..255 (the rasterizer's Rgb)
 export function hexToRgb255(hex: string): [number, number, number] {
   const [r, g, b] = hexToRgb01(hex)
+
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
 }
 
@@ -162,6 +164,7 @@ export function shade(hue: Hue, t: number): [number, number, number] {
   const frac = x - lo
   const a = PALETTE_RGB01[hue][SHADES[lo]!]
   const b = PALETTE_RGB01[hue][SHADES[hi]!]
+
   return [
     a[0] + (b[0] - a[0]) * frac,
     a[1] + (b[1] - a[1]) * frac,

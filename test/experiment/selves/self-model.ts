@@ -37,6 +37,7 @@ function fullBeat(
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -77,6 +78,7 @@ function run(withDynamics: boolean): {
       center = i
     }
   }
+
   const dist = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -101,6 +103,7 @@ function run(withDynamics: boolean): {
       inputAll.push(i)
     }
   }
+
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
@@ -109,6 +112,7 @@ function run(withDynamics: boolean): {
     sectorOf[inputAll[j]!] = s
     sectorCells[s]!.push(inputAll[j]!)
   }
+
   const isInput = new Uint8Array(N)
   for (const i of inputAll) {
     isInput[i] = 1
@@ -125,6 +129,7 @@ function run(withDynamics: boolean): {
         if (isInput[u]) {
           continue
         }
+
         out.push(u)
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -134,10 +139,13 @@ function run(withDynamics: boolean): {
           }
         }
       }
+
       fr = nf
     }
+
     return out
   }
+
   const coreSize = 60
   const core = ballOf(center, coreSize) // the central hub (self-model candidate)
   // peripheral localized regions, one near each sector (controls, same size, but local)
@@ -150,6 +158,7 @@ function run(withDynamics: boolean): {
     for (const i of cells) {
       s += tone[i]!
     }
+
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -166,15 +175,19 @@ function run(withDynamics: boolean): {
         sigs[s] = -sigs[s]!
       }
     }
+
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     }
+
     if (withDynamics) {
       fullBeat(tone, eu, ev, moved, rng)
     }
+
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     }
+
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
     for (let p = 0; p < peripherals.length; p++) {
@@ -187,6 +200,7 @@ function run(withDynamics: boolean): {
   for (let p = 0; p < peripherals.length; p++) {
     randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   }
+
   randomCorr /= peripherals.length
   const shuffledCorr = Math.abs(
     pearson({ a: coreSeries, b: gSeries.slice().reverse() }),
@@ -214,6 +228,7 @@ export function selfModel(): {
   const beatsRandom = live.selfModelCorr > live.randomCorr + 0.1
   const needsDynamics = live.selfModelCorr > dead.selfModelCorr + 0.3
   const emerges = mirrorsWhole && beatsRandom && needsDynamics
+
   return {
     selfModelCorr: live.selfModelCorr,
     randomCorr: live.randomCorr,
@@ -243,6 +258,7 @@ export default experiment({
       r.mirrorsWhole &&
       r.beatsRandom &&
       r.needsDynamics
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

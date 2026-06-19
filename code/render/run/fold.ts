@@ -30,6 +30,7 @@ function parseSymbol(text: string): number[] {
       `bad symbol "${text}", expected dash-separated integers like 7-3 or 5-3-4`,
     )
   }
+
   return nums
 }
 
@@ -45,8 +46,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS). The fold renderer will run where an adapter is present.',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   const scene = createHeadlessFoldScene({ device, symbol, mode })
@@ -61,6 +64,7 @@ async function run(): Promise<void> {
   } else {
     scene.setCamera2D(camera.uniform2D())
   }
+
   const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
 
   const outDir = join(

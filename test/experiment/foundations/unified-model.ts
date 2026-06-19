@@ -42,6 +42,7 @@ export function unifiedModel(input?: { n?: number }): {
       | 0
       | 1
   }
+
   const q0 = sumQ(tone)
   for (let t = 0; t < 80; t++) {
     conservingEdgeSweep({
@@ -66,6 +67,7 @@ export function unifiedModel(input?: { n?: number }): {
       rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
     ) as -1 | 0 | 1
   }
+
   for (let t = 0; t < 80; t++) {
     conservingEdgeSweep({
       tone: dead,
@@ -76,6 +78,7 @@ export function unifiedModel(input?: { n?: number }): {
       arrow: 0,
     })
   }
+
   const deadWithoutArrow = density(dead) < density(tone) * 0.5
 
   // (3) lightcone, a perturbation spreads at a bounded finite speed (same RNG copies, position-indexed not
@@ -89,6 +92,7 @@ export function unifiedModel(input?: { n?: number }): {
       center = i
     }
   }
+
   const distC = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -119,12 +123,14 @@ export function unifiedModel(input?: { n?: number }): {
       arrow: arrow,
     })
   }
+
   let front = 0
   for (let i = 0; i < N; i++) {
     if (s[i] !== s2[i] && distC[i]! > front) {
       front = distC[i]!
     }
   }
+
   const speed = front / T
   const lightcone = speed > 0 && speed < 4 // a finite, bounded propagation speed
 
@@ -136,6 +142,7 @@ export function unifiedModel(input?: { n?: number }): {
   for (let k = 0; k < eu.length; k += 3) {
     sample.push(k)
   }
+
   for (let b = 0; b < 60; b++) {
     const pre = sample.map(
       k => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!),
@@ -154,6 +161,7 @@ export function unifiedModel(input?: { n?: number }): {
         1
     }
   }
+
   let asym = 0
   let total = 0
   for (let a = 0; a < S9; a++) {
@@ -162,6 +170,7 @@ export function unifiedModel(input?: { n?: number }): {
       total += C[a * S9 + bb]! + C[bb * S9 + a]!
     }
   }
+
   const reversible = total > 0 && asym / total < 0.15
 
   // (5) coherence, neighbours are correlated (structure, not white noise), the seed of selves
@@ -172,6 +181,7 @@ export function unifiedModel(input?: { n?: number }): {
     cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
     cnt++
   }
+
   const nnCorr = cc / cnt
   const coherent = Math.abs(nnCorr) > 0.001 // nonzero spatial structure
 
@@ -216,6 +226,7 @@ export default experiment({
       r.lightcone &&
       r.reversible &&
       r.coherent
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

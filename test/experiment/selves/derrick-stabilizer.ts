@@ -22,6 +22,7 @@ export function derrickStabilizer(): {
       l => Math.round(E(l, d, 1, 1) * 100) / 100,
     )
   }
+
   // 3D exchange+Skyrme has an interior minimum (stable); 2D exchange is flat (marginal)
   const vals = [0.25, 0.5, 1, 2, 4].map(l => E(l, 3, 1, 1))
   const minIdx = vals.indexOf(Math.min(...vals))
@@ -35,15 +36,19 @@ export function derrickStabilizer(): {
     for (let x = 0; x < N; x++) {
       loop.push([x, 0])
     }
+
     for (let y = 1; y < N; y++) {
       loop.push([N - 1, y])
     }
+
     for (let x = N - 2; x >= 0; x--) {
       loop.push([x, N - 1])
     }
+
     for (let y = N - 2; y > 0; y--) {
       loop.push([0, y])
     }
+
     let tot = 0
     for (let i = 0; i < loop.length; i++) {
       let dd =
@@ -54,15 +59,20 @@ export function derrickStabilizer(): {
       while (dd > Math.PI) {
         dd -= 2 * Math.PI
       }
+
       while (dd < -Math.PI) {
         dd += 2 * Math.PI
       }
+
       tot += dd
     }
+
     return Math.round(tot / (2 * Math.PI))
   }
+
   const scalarWind = winding(() => 0) // a scalar has no angle, cannot wind
   const dirWind = winding((x, y) => Math.atan2(y - c, x - c)) // a direction field can (a vortex)
+
   return {
     stable3D,
     scalarWinds: scalarWind !== 0,
@@ -81,6 +91,7 @@ export default experiment({
   run() {
     const r = derrickStabilizer()
     const ok = r.stable3D && !r.scalarWinds && r.directionWinds
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

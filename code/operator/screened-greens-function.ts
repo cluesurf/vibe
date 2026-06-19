@@ -21,9 +21,11 @@ export function screenedGreensFunction(input: {
       for (const j of row) {
         s += phi[j]!
       }
+
       phi[i] = s / (row.length + mass2)
     }
   }
+
   return phi
 }
 
@@ -58,15 +60,18 @@ export function clampedLeakyDiffusion(input: {
       if (!pi) {
         continue
       }
+
       const d = off[i + 1]! - off[i]!
       const sh = ((1 - leak) * pi) / d
       for (let q = off[i]!; q < off[i + 1]!; q++) {
         np[adj[q]!] = np[adj[q]!]! + sh
       }
     }
+
     const tmp = p
     p = np
     np = tmp
   }
+
   return p
 }

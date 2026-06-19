@@ -27,6 +27,7 @@ function prefixRelations(poset: Poset, k: number): number {
       }
     }
   }
+
   return count
 }
 
@@ -102,6 +103,7 @@ export default experiment({
   run() {
     const r = csgCosmology({ size: 200, p: 0.08, seed: 1 })
     const ok = r.arrowMonotone && r.dimension > 0 && r.dimension < 4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

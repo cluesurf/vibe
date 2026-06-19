@@ -65,6 +65,7 @@ function buildPairForward(): Array<[Tone, Tone]> {
   table[pairKey(0, 0)] = [1, -1] // the arrow: peace creates a balanced pair
   table[pairKey(1, -1)] = [-1, 1] // the pair flips
   table[pairKey(-1, 1)] = [0, 0] // annihilation closes the cycle
+
   return table
 }
 
@@ -78,6 +79,7 @@ function invertPairTable(
       inverse[pairKey(out[0], out[1])] = [left, right]
     }
   }
+
   return inverse
 }
 
@@ -94,6 +96,7 @@ function linesOf(opposite: number[]): Array<[number, number]> {
       lines.push([direction, other])
     }
   }
+
   return lines
 }
 
@@ -107,6 +110,7 @@ function tableCollision(
   opposite: number[],
 ): Collision {
   const lines = linesOf(opposite)
+
   return (slots, base) => {
     for (const [left, right] of lines) {
       const a = (slots[base + left] ?? 0) as Tone
@@ -151,6 +155,7 @@ function buildBindMoveForward(): Array<[Tone, Tone]> {
   table[pairKey(0, 0)] = [1, -1] // the binding engine, peace creates a balanced pair
   table[pairKey(1, -1)] = [-1, 1] // the pair flips
   table[pairKey(-1, 1)] = [0, 0] // annihilation closes the cycle
+
   return table
 }
 
@@ -188,6 +193,7 @@ function buildLeakyConfineForward(): Array<[Tone, Tone]> {
   table[pairKey(0, 0)] = [0, 0] // peace left alone, NO create move (the vacuum stays empty)
   table[pairKey(1, -1)] = [1, -1] // a neutral pair STREAMS (the phonon, radiation)
   table[pairKey(-1, 1)] = [-1, 1]
+
   return table
 }
 
@@ -218,10 +224,12 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
       lines.push([direction, other])
     }
   }
+
   const linePairs: Array<[[number, number], [number, number]]> = []
   for (let k = 0; k + 1 < lines.length; k += 2) {
     linePairs.push([lines[k]!, lines[k + 1]!])
   }
+
   return (slots, base) => {
     for (const [li, lj] of linePairs) {
       const ai = slots[base + li[0]] ?? 0
@@ -258,6 +266,7 @@ export function stickyReflect(input: {
   opposite: number[]
 }): Collision {
   const lines = linesOf(input.opposite)
+
   return (slots, base, degree) => {
     let count = 0
     for (let direction = 0; direction < degree; direction++) {
@@ -265,9 +274,11 @@ export function stickyReflect(input: {
         count++
       }
     }
+
     if (count < 2) {
       return
     }
+
     for (const [left, right] of lines) {
       const temporary = slots[base + left]!
       slots[base + left] = slots[base + right]!

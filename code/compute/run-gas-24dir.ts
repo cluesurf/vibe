@@ -32,11 +32,13 @@ function dirs(): { vecs: number[][]; swap: number[] } {
       }
     }
   }
+
   const key = (v: number[]): string => v.join(',')
   const idx = new Map(vecs.map((v, i) => [key(v), i]))
   const swap = vecs.map(
     v => idx.get(key([v[1]!, v[0]!, v[2]!, v[3]!]))!,
   ) // swap axes 0,1
+
   return { vecs, swap }
 }
 
@@ -72,8 +74,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter')
+
     return
   }
+
   const device = await adapter.requestDevice()
   const { vecs, swap } = dirs()
   const module = device.createShaderModule({ code: WGSL })
@@ -115,6 +119,7 @@ async function run(): Promise<void> {
   for (let i = 0; i < SZ; i++) {
     init[i] = rng.nextInt({ max: 3 }) - 1
   }
+
   device.queue.writeBuffer(a, 0, init)
   const layout = pipeline.getBindGroupLayout(0)
   const stepOnce = (src: GPUBuffer, dst: GPUBuffer): void => {
@@ -136,6 +141,7 @@ async function run(): Promise<void> {
     pass.end()
     device.queue.submit([enc.finish()])
   }
+
   const readSums = async (
     buf: GPUBuffer,
   ): Promise<{ charge: number; mom: number[] }> => {
@@ -156,8 +162,10 @@ async function run(): Promise<void> {
         }
       }
     }
+
     return { charge, mom }
   }
+
   const s0 = await readSums(a)
   console.log(
     `GPU 24-direction interacting lattice gas, 4D L=${L} (${N.toLocaleString()} cells x 24 dirs), ${T} beats:`,
@@ -171,6 +179,7 @@ async function run(): Promise<void> {
     src = dst
     dst = tmp
   }
+
   const s1 = await readSums(src)
   const chargeOk = s1.charge === s0.charge,
     momOk = s1.mom.every((m, i) => m === s0.mom[i]!)

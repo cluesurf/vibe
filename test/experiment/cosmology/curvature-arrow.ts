@@ -40,6 +40,7 @@ export default experiment({
           c = i
         }
       }
+
       const depth = neighborDistances({
         neighbors: large.neighbors,
         size: n,
@@ -52,8 +53,10 @@ export default experiment({
       })
       const lifeFrac =
         g.trajectory[g.trajectory.length - 1]! / g.bornEnd
+
       return { n, maxDepth: g.maxDepth, orbitGrows, lifeFrac }
     }
+
     const sph = lifeOf([5, 3]) // spherical (finite, closes)
     const hyp2 = lifeOf([7, 3]) // hyperbolic 2D
     const hyp3 = lifeOf([5, 3, 4]) // hyperbolic 3D

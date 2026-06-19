@@ -43,6 +43,7 @@ function fermionBinding(
   for (let r = PAD; r < PAD + wellWidth; r++) {
     potential[r] = -depth
   }
+
   const eigenpairs = lowestEigenpairs({
     operator: {
       size: boxLength,
@@ -53,6 +54,7 @@ function fermionBinding(
     shift: 2 * T + depth + 1,
     seed: 1,
   })
+
   return eigenpairs.reduce(
     (sum, e) => sum + Math.max(0, BAND_BOTTOM - e.energy),
     0,
@@ -67,6 +69,7 @@ function singleParticleGround(): number {
   for (let r = PAD; r < PAD + wellWidth; r++) {
     potential[r] = -V0
   }
+
   return lowestEigenpairs({
     operator: {
       size: boxLength,
@@ -92,6 +95,7 @@ export default experiment({
     // the binding per constituent is the mean depth below the escape threshold of the N filled orbitals.
     const fermionBindingPerParticle = COUNTS.map(count => {
       const wellWidth = Math.round(count / DENSITY)
+
       return fermionBinding(count, wellWidth, V0) / count
     })
     // saturation, the per-constituent binding flattens, the slope over the last counts tends to zero

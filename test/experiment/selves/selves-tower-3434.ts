@@ -49,10 +49,12 @@ function makeStep(
       order[i] = order[j]!
       order[j] = t
     }
+
     for (const v of order) {
       if (used[v]) {
         continue
       }
+
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
       const off = Math.floor(rng.next() * deg)
@@ -61,6 +63,7 @@ function makeStep(
         if (used[w] || w === v) {
           continue
         }
+
         const [na, nb] = pairOp(tone[v]!, tone[w]!)
         tone[v] = na as -1 | 0 | 1
         tone[w] = nb as -1 | 0 | 1
@@ -71,6 +74,7 @@ function makeStep(
     }
   }
 }
+
 const stepPerception = makeStep(perm)
 // pure-diffusion control: swap the two tones (conserves total charge and the multiset, no perception logic).
 // This is dumb transport. If it shows the SAME tower, the tower is a generic conserved-field slow mode.
@@ -91,6 +95,7 @@ function formPersistence(
       numGroups = gi + 1
     }
   }
+
   const series: number[][] = []
   for (let f = 0; f < opts.frames + opts.lag; f++) {
     opts.step(tone, offsets, adj, rng)
@@ -98,8 +103,10 @@ function formPersistence(
     for (let i = 0; i < tone.length; i++) {
       g[groupOf[i]!] = g[groupOf[i]!]! + tone[i]!
     }
+
     series.push(g)
   }
+
   let acc = 0
   let c = 0
   for (let t = 0; t + opts.lag < series.length; t++) {
@@ -110,6 +117,7 @@ function formPersistence(
     })
     c++
   }
+
   return acc / c
 }
 
@@ -125,6 +133,7 @@ function shuffledGroups(
     perm2[i] = perm2[j]!
     perm2[j] = t
   }
+
   return perm2
 }
 
@@ -147,22 +156,27 @@ function cuspTower(): {
   // block-of-size-b grouping from integer coords
   const groupAt = (b: number): number[] => {
     const idx = new Map<string, number>()
+
     return g.coords.map(c => {
       const k = `${Math.floor(c[0]! / b)},${Math.floor(c[1]! / b)},${Math.floor(c[2]! / b)}`
       if (!idx.has(k)) {
         idx.set(k, idx.size)
       }
+
       return idx.get(k)!
     })
   }
+
   const rng = makeRng({ seed: 11 })
   const tone = new Int8Array(n)
   for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   }
+
   for (let f = 0; f < 40; f++) {
     stepPerception(tone, offsets, adj, rng)
   } // settle
+
   const blocks = [1, 2, 4, 6]
   const real: number[] = []
   const diff: number[] = []
@@ -200,12 +214,14 @@ function cuspTower(): {
       ),
     )
   }
+
   const r = (x: number[]): number[] =>
     x.map(v => Math.round(v * 100) / 100)
   // a tower is only GENUINE if the perception rule beats the pure-diffusion control (else it is a generic
   // conserved-field slow mode, NOT selfhood). p208 found it does NOT beat diffusion.
   const beatsDiffusion =
     real[real.length - 1]! > diff[diff.length - 1]! + 0.1
+
   return {
     real: r(real),
     diff: r(diff),
@@ -231,22 +247,27 @@ function bulkTower(): {
   // d small = coarse. Cells shallower than d join their own singleton (kept distinct).
   const groupAtDepth = (d: number): number[] => {
     const idx = new Map<string, number>()
+
     return a.address.map(addr => {
       const k = addr.slice(0, d).join('.') || 'root'
       if (!idx.has(k)) {
         idx.set(k, idx.size)
       }
+
       return idx.get(k)!
     })
   }
+
   const rng = makeRng({ seed: 13 })
   const tone = new Int8Array(n)
   for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   }
+
   for (let f = 0; f < 40; f++) {
     stepPerception(tone, offsets, adj, rng)
   }
+
   const depths = [4, 3, 2, 1] // fine -> coarse (address-prefix length)
   const real: number[] = []
   const diff: number[] = []
@@ -284,10 +305,12 @@ function bulkTower(): {
       ),
     )
   }
+
   const r = (x: number[]): number[] =>
     x.map(v => Math.round(v * 100) / 100)
   const beatsDiffusion =
     real[real.length - 1]! > diff[diff.length - 1]! + 0.1
+
   return {
     real: r(real),
     diff: r(diff),
@@ -309,6 +332,7 @@ export function selvesTower(): {
 } {
   const cusp = cuspTower()
   const bulk = bulkTower()
+
   return {
     cuspBeatsDiffusion: cusp.beatsDiffusion,
     bulkBeatsDiffusion: bulk.beatsDiffusion,
@@ -330,6 +354,7 @@ export default experiment({
   run() {
     const r = selvesTower()
     const ok = !r.cuspBeatsDiffusion && !r.bulkBeatsDiffusion
+
     return verdict({
       status: ok ? 'pass' : 'partial',
       claim:

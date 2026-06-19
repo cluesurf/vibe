@@ -34,6 +34,7 @@ export function childrenOf(address: string): string[] {
   if (colorOf(address) === 'white') {
     kids.push(address + '10')
   }
+
   return kids
 }
 
@@ -47,6 +48,7 @@ export function parentOf(address: string): string | null {
   if (address.length <= 2) {
     return null
   }
+
   return address.slice(0, -2)
 }
 
@@ -70,6 +72,7 @@ export class SplittingTree {
         `root must be a legal Zeckendorf address, got ${rootAddress}`,
       )
     }
+
     this.addresses.push(rootAddress)
     this.parents.push(-1)
     this.childIds.push(null)
@@ -106,6 +109,7 @@ export class SplittingTree {
     if (cached) {
       return cached
     }
+
     const kids: number[] = []
     for (const childAddress of childrenOf(this.addresses[id]!)) {
       let childId = this.idByAddress.get(childAddress)
@@ -116,9 +120,12 @@ export class SplittingTree {
         this.parents.push(id)
         this.childIds.push(null)
       }
+
       kids.push(childId)
     }
+
     this.childIds[id] = kids
+
     return kids
   }
 
@@ -146,6 +153,7 @@ export class SplittingTree {
       current = this.parents[current]!
       path.push(current)
     }
+
     return path
   }
 }

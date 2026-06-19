@@ -38,6 +38,7 @@ export default experiment({
     const closes = commutator12.every((row, rowIndex) =>
       row.every((value, columnIndex) => {
         const target = expected[rowIndex]![columnIndex]!
+
         return (
           Math.abs(value.re - target.re) < 1e-9 &&
           Math.abs(value.im - target.im) < 1e-9

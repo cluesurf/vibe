@@ -54,6 +54,7 @@ export default experiment({
     for (let t = 0; t < relaxSteps; t++) {
       spins = relaxSpins({ spins, params, rate: 0.08 })
     }
+
     const relaxedQ = skyrmionDegree(spins, size)
     const relaxedRadius = skyrmionRadius(spins, size)
     const relaxed = spins.map(s => [...s] as Spin)
@@ -67,10 +68,12 @@ export default experiment({
       if (q < minQ) {
         minQ = q
       }
+
       if (q > maxQ) {
         maxQ = q
       }
     }
+
     const precessedRadius = skyrmionRadius(spins, size)
 
     // 3, the bound identity is robust, Q survives a perturbation (tilt a patch) under precession.
@@ -83,10 +86,12 @@ export default experiment({
         perturbed[at(x, y)] = [1 / n, 0, 0.2 / n]
       }
     }
+
     let pert = perturbed
     for (let t = 0; t < precessSteps; t++) {
       pert = precessSpins({ spins: pert, params, dt, open: false })
     }
+
     const perturbedQ = skyrmionDegree(pert, size)
 
     // the bound soliton exists (relaxed Q minus one, a small fixed radius), is stable under reversible precession (Q

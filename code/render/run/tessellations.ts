@@ -48,14 +48,18 @@ function csvCols(line: string): string[] {
       quoted = !quoted
       continue
     }
+
     if (ch === ',' && !quoted) {
       out.push(cur)
       cur = ''
       continue
     }
+
     cur += ch
   }
+
   out.push(cur)
+
   return out
 }
 
@@ -68,6 +72,7 @@ function parseSymbol(text: string): number[] | null {
   if (nums.some(n => !Number.isInteger(n) || n <= 0)) {
     return null
   }
+
   return nums
 }
 
@@ -97,12 +102,15 @@ function run(): void {
           `${display}  skip (non-integer symbol, not buildable)`,
         )
       }
+
       continue
     }
+
     const key = symbol.join('-')
     if (want.length && !want.includes(key)) {
       continue
     }
+
     const twoD = dimension === 2
     const maxCells = twoD ? 2800 : dimension === 3 ? 600 : 350
     try {
@@ -124,6 +132,7 @@ function run(): void {
       console.log(`${display}  FAILED  ${(error as Error).message}`)
     }
   }
+
   console.log(
     `\ndrew ${drawn} tessellations, skipped ${skipped} non-buildable, into ${outDir}`,
   )

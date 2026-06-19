@@ -24,6 +24,7 @@ function shuffle(labels: number[], seed: number): number[] {
     out[i] = out[j]!
     out[j] = tmp
   }
+
   return out
 }
 
@@ -65,8 +66,10 @@ export default experiment({
       worstMargin = Math.min(worstMargin, real - shuffled)
       worstShuffled = Math.max(worstShuffled, shuffled)
     }
+
     metrics.worstMargin = worstMargin
     const ok = worstMargin > 0.15
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

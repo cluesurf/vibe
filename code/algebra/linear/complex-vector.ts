@@ -20,5 +20,6 @@ export function dotR(a: Cx, b: Cx, dim: number): number {
   for (let i = 0; i < dim; i++) {
     sum += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
   }
+
   return sum
 }

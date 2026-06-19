@@ -26,6 +26,7 @@ export function hamiltonianMatrix(input: {
     if ((visited[start] ?? 0) === 1) {
       continue
     }
+
     // Collect the cycle in order: cycle[j+1] = perm[cycle[j]].
     const cycle: number[] = []
     let cursor = start
@@ -34,10 +35,12 @@ export function hamiltonianMatrix(input: {
       cycle.push(cursor)
       cursor = perm[cursor] ?? cursor
     }
+
     const L = cycle.length
     if (L === 1) {
       continue // fixed point: theta = 0, zero block
     }
+
     // Precompute the wrapped eigenphases.
     const theta = new Float64Array(L)
     for (let m = 0; m < L; m++) {
@@ -45,8 +48,10 @@ export function hamiltonianMatrix(input: {
       if (t > Math.PI) {
         t -= 2 * Math.PI
       }
+
       theta[m] = t
     }
+
     // H[s_a][s_b] over the cycle.
     for (let a = 0; a < L; a++) {
       const sa = cycle[a] ?? 0
@@ -60,11 +65,13 @@ export function hamiltonianMatrix(input: {
           re += th * Math.cos(angle)
           im += th * Math.sin(angle)
         }
+
         h.re[sa * n + sb] = re / L
         h.im[sa * n + sb] = im / L
       }
     }
   }
+
   return h
 }
 
@@ -74,9 +81,11 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
   if (input.sites.length === 0) {
     return 0
   }
+
   if (input.sites.length === 1) {
     return 1
   }
+
   const sorted = [...input.sites].sort((a, b) => a - b)
   // The smallest covering arc excludes the largest empty span between two
   // consecutive occupied sites: extent = cells - (largestStep - 1).
@@ -92,6 +101,7 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
       largestStep = step
     }
   }
+
   return input.cells - largestStep + 1
 }
 
@@ -129,6 +139,7 @@ export function pauliLocalityProfile(input: {
         hasNonIdentity = true
         sites.push(c)
       }
+
       if (op === 1 || op === 2) {
         flipMask |= 1 << c
       }
@@ -147,6 +158,7 @@ export function pauliLocalityProfile(input: {
         if (op === 0 || op === 1) {
           continue // I or X contribute coefficient 1
         }
+
         const bit = (u >> c) & 1
         if (op === 3) {
           // Z: (-1)^bit
@@ -163,12 +175,14 @@ export function pauliLocalityProfile(input: {
           phIm = ni
         }
       }
+
       const hr = h.re[u * n + s] ?? 0
       const hi = h.im[u * n + s] ?? 0
       // trace += phase * H[u][s]
       trRe += phRe * hr - phIm * hi
       trIm += phRe * hi + phIm * hr
     }
+
     const cRe = trRe / n
     const cIm = trIm / n
     const weight = cRe * cRe + cIm * cIm
@@ -176,6 +190,7 @@ export function pauliLocalityProfile(input: {
       weightByRange[0] = (weightByRange[0] ?? 0) + weight
       continue
     }
+
     const range = ringExtent({ sites, cells })
     weightByRange[range] = (weightByRange[range] ?? 0) + weight
   }
@@ -185,6 +200,7 @@ export function pauliLocalityProfile(input: {
   for (let r = 1; r <= cells; r++) {
     total += weightByRange[r] ?? 0
   }
+
   let lengthSum = 0
   const fractions = new Float64Array(cells + 1)
   for (let r = 1; r <= cells; r++) {
@@ -192,6 +208,7 @@ export function pauliLocalityProfile(input: {
     fractions[r] = frac
     lengthSum += r * frac
   }
+
   return {
     weightByRange: fractions,
     localityLength: lengthSum,

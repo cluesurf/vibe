@@ -40,6 +40,7 @@ function agreeCount(
       c++
     }
   }
+
   return c
 }
 
@@ -59,6 +60,7 @@ function beat(
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -78,6 +80,7 @@ function beat(
       } else {
         doHop = rng.next() < 0.5
       }
+
       if (doHop) {
         tone[e] = q
         tone[c] = 0
@@ -93,6 +96,7 @@ function beat(
           tone[v] = -1
           tone[w] = 1
         }
+
         moved[v] = 1
         moved[w] = 1
       }
@@ -129,6 +133,7 @@ function measure(cohesive: boolean): {
   for (let b = 0; b < 40; b++) {
     beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
   }
+
   const longLagCorr = pearson({ a: base, b: work })
   const conservedRun = sumTone(t) === q0
 
@@ -139,6 +144,7 @@ function measure(cohesive: boolean): {
       center = i
     }
   }
+
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -152,6 +158,7 @@ function measure(cohesive: boolean): {
       blob.push(i)
     }
   }
+
   const meanBlob = (arr: Int8Array): number =>
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
@@ -159,11 +166,13 @@ function measure(cohesive: boolean): {
   for (let b = 0; b < 40; b++) {
     beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)
   }
+
   const after = meanBlob(imp)
   let bg = 0
   for (let i = 0; i < n; i++) {
     bg += imp[i]!
   }
+
   bg /= n
   const imprintRetention = (after - bg) / (start - bg || 1)
 
@@ -223,6 +232,7 @@ export default experiment({
     const r = cohesiveMemory()
     const ok =
       r.solved && r.conserved && r.memoryImproved && r.durableSelvesForm
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

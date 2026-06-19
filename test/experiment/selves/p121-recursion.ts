@@ -50,6 +50,7 @@ export function recursion(input?: { n?: number }): {
       center1 = i
     }
   }
+
   const center2 = csrFarthestNode({
     offsets: g.offsets,
     adj: g.adj,
@@ -79,16 +80,20 @@ export function recursion(input?: { n?: number }): {
     if (d1[i]! >= r - 1 && d1[i]! <= r) {
       boundary1.push(i)
     }
+
     if (d1[i]! >= 0 && d1[i]! <= 1) {
       hub1cells.push(i)
     }
+
     if (d2[i]! >= r - 1 && d2[i]! <= r && d1[i]! > r) {
       boundary2.push(i)
     }
+
     if (d2[i]! >= 0 && d2[i]! <= 1 && d1[i]! > r) {
       hub2cells.push(i)
     }
   }
+
   // world input on self 1, sectored
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
@@ -101,6 +106,7 @@ export function recursion(input?: { n?: number }): {
     for (const i of cells) {
       s += tone[i]!
     }
+
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -122,10 +128,12 @@ export function recursion(input?: { n?: number }): {
           sigs[s] = -sigs[s]!
         }
       }
+
       // drive self 1 with the world
       for (const i of boundary1) {
         tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
       }
+
       // model1's current representation of the world
       const m1 = meanOver(tone, hub1cells)
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
@@ -133,6 +141,7 @@ export function recursion(input?: { n?: number }): {
       for (const i of boundary2) {
         tone[i] = s2in
       }
+
       if (withDynamics) {
         conservingEdgeSweepSteered({
           tone,
@@ -144,20 +153,25 @@ export function recursion(input?: { n?: number }): {
           towardSign: 0,
         })
       }
+
       for (const i of boundary1) {
         tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
       }
+
       for (const i of boundary2) {
         tone[i] = s2in
       }
+
       h1.push(meanOver(tone, hub1cells))
       h2.push(meanOver(tone, hub2cells))
       let wsum = 0
       for (let s = 0; s < K; s++) {
         wsum += sigs[s]!
       }
+
       world.push(wsum / K)
     }
+
     return { h1, h2, world }
   }
 
@@ -211,6 +225,7 @@ export default experiment({
       r.realModel &&
       r.modelsTheModel &&
       r.hub1ModelsWorld > 0.4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

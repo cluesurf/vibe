@@ -31,12 +31,14 @@ export function freeFermionCorrelationMatrix(input: {
       if (vik === 0) {
         continue
       }
+
       for (let j = 0; j < n; j++) {
         c[i * n + j] =
           (c[i * n + j] ?? 0) + vik * (eig.vectors[j * n + k] ?? 0)
       }
     }
   }
+
   return c
 }
 
@@ -59,12 +61,14 @@ export function regionEntanglementEntropy(input: {
         ] ?? 0
     }
   }
+
   const eig = eigSymmetric({ matrix: sub })
   let s = 0
   for (let i = 0; i < m; i++) {
     const z = Math.min(1 - 1e-12, Math.max(1e-12, eig.values[i] ?? 0))
     s -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
   }
+
   return s
 }
 
@@ -84,9 +88,11 @@ export function pageAverageEntropy(input: {
     m = n
     n = t
   }
+
   let s = 0
   for (let k = n + 1; k <= m * n; k++) {
     s += 1 / k
   }
+
   return s - (m - 1) / (2 * n)
 }

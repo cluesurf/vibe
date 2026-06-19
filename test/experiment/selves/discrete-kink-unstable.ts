@@ -61,6 +61,7 @@ export default experiment({
         },
       })
     }
+
     const boundedWalls = domainWallCount(bounded.curr)
     const boundedMaxAbs = fieldMaxAbs(bounded.curr)
 
@@ -88,6 +89,7 @@ export default experiment({
         },
       })
     }
+
     const unboundedMaxAbs = fieldMaxAbs(unbounded.curr)
 
     // the honest negative, the bounded scheme shatters (far more than one wall) and the unbounded scheme blows up

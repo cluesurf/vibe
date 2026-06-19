@@ -40,6 +40,7 @@ export function waveIsotropy(input?: {
   const dirs: number[][] = g.neighbors[0]!.map(j => {
     const c = coords[j]!
     const n = norm(c)
+
     return c.map(v => v / Math.max(1e-12, n))
   })
 
@@ -57,6 +58,7 @@ export function waveIsotropy(input?: {
       modulus: 3,
     })
   }
+
   let prev = new Uint8Array(N)
   let cur = new Uint8Array(N)
   cur[0] = 1 // the perturbation
@@ -78,6 +80,7 @@ export function waveIsotropy(input?: {
     cu = pr
     pr = back
   }
+
   let reversible = true
   for (let i = 0; i < N; i++) {
     if (pr[i] !== prev0[i] || cu[i] !== cur0[i]) {
@@ -123,6 +126,7 @@ export default experiment({
   run() {
     const r = waveIsotropy({ maxCells: 13000 })
     const ok = r.solved && r.isotropic && r.reversible
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

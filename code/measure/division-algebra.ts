@@ -9,7 +9,9 @@ export function cayleyConjugate(x: number[]): number[] {
   if (x.length === 1) {
     return [x[0]!]
   }
+
   const half = x.length / 2
+
   return [
     ...cayleyConjugate(x.slice(0, half)),
     ...x.slice(half).map(v => -v),
@@ -22,6 +24,7 @@ export function cayleyMultiply(x: number[], y: number[]): number[] {
   if (x.length === 1) {
     return [x[0]! * y[0]!]
   }
+
   const half = x.length / 2
   const a = x.slice(0, half)
   const b = x.slice(half)
@@ -33,6 +36,7 @@ export function cayleyMultiply(x: number[], y: number[]): number[] {
   const high = cayleyMultiply(d, a).map(
     (v, i) => v + cayleyMultiply(b, cayleyConjugate(c))[i]!,
   )
+
   return [...low, ...high]
 }
 
@@ -43,6 +47,7 @@ export function normSquared(x: number[]): number {
 function unit(dimension: number, index: number): number[] {
   const v = new Array<number>(dimension).fill(0)
   v[index] = 1
+
   return v
 }
 
@@ -67,6 +72,7 @@ export function hasZeroDivisor(level: number): boolean {
       }
     }
   }
+
   return false
 }
 
@@ -90,6 +96,7 @@ export function hasNormComposition(level: number): boolean {
       return false
     }
   }
+
   // also test the basis-unit-sum pairs (the zero-divisor candidates)
   for (let i = 1; i < dimension; i++) {
     for (let j = i + 1; j < Math.min(dimension, i + 12); j++) {
@@ -111,6 +118,7 @@ export function hasNormComposition(level: number): boolean {
       }
     }
   }
+
   return true
 }
 
@@ -127,6 +135,7 @@ export function octonionTrialityCyclic(): boolean {
   const f1 = re(cayleyMultiply(cayleyMultiply(x, y), z))
   const f2 = re(cayleyMultiply(cayleyMultiply(y, z), x))
   const f3 = re(cayleyMultiply(cayleyMultiply(z, x), y))
+
   return f1 === f2 && f2 === f3
 }
 
@@ -151,5 +160,6 @@ export function nonAssociativeTripleCount(): number {
       }
     }
   }
+
   return count
 }

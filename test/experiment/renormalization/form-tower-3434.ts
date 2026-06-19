@@ -30,6 +30,7 @@ export function formTower(): {
   for (let f = 0; f < 60; f++) {
     step()
   }
+
   const blocks = [1, 2, 4, 8]
   const blockGroups = blocks.map(b =>
     cubicBlockGroups({ size: L, blockSize: b }),
@@ -52,6 +53,7 @@ export function formTower(): {
       nulS[bi]!.push(coarse(sh, bi))
     })
   }
+
   const persist = (ser: Float64Array[]): number =>
     Math.round(
       lagAutocorrelation({ series: ser, lag: LAG, epsilon: 1e-9 }) *
@@ -62,6 +64,7 @@ export function formTower(): {
   const tower =
     real[real.length - 1]! > real[0]! + 0.15 &&
     real[real.length - 1]! > (nul[nul.length - 1]! ?? 0) + 0.2
+
   return { real, nul, tower }
 }
 
@@ -75,6 +78,7 @@ export default experiment({
   paper: false,
   run() {
     const r = formTower()
+
     return verdict({
       status: r.tower ? 'pass' : 'fail',
       claim:

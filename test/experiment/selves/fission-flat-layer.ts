@@ -24,6 +24,7 @@ function components(
     if (on[s] !== 1 || comp[s] !== -1) {
       continue
     }
+
     const id = sizes.length
     let size = 0
     let fr = [s]
@@ -39,10 +40,13 @@ function components(
           }
         }
       }
+
       fr = nf
     }
+
     sizes.push(size)
   }
+
   return sizes.sort((a, b) => b - a)
 }
 
@@ -59,17 +63,22 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
     if (x > 0) {
       out.push(i - 1)
     }
+
     if (x < W - 1) {
       out.push(i + 1)
     }
+
     if (y > 0) {
       out.push(i - W)
     }
+
     if (y < H - 1) {
       out.push(i + W)
     }
+
     return out
   }
+
   const on = new Uint8Array(N)
   const r = 9
   const c1x = 22
@@ -85,6 +94,7 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
       }
     }
   }
+
   // erode (peel one boundary layer per beat), the thin neck pinches before the fat lobes vanish
   let lobes = 1
   let bothSubstantial = false
@@ -98,19 +108,23 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
         if (x === 0 || x === W - 1 || y === 0 || y === H - 1) {
           empty++
         }
+
         for (const w of nbr(i)) {
           if (on[w] === 0) {
             empty++
           }
         }
+
         if (empty >= 1) {
           toClear.push(i)
         } // a boundary cell, peel it
       }
     }
+
     for (const i of toClear) {
       on[i] = 0
     }
+
     const sizes = components(on, nbr, N)
     if (sizes.length >= 2) {
       lobes = sizes.length
@@ -120,6 +134,7 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
       }
     }
   }
+
   return { lobes, bothSubstantial }
 }
 
@@ -132,8 +147,10 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
     }
+
     return out
   }
+
   // two ball centers far apart, plus the shortest path between them (the bridge)
   const bfs = (src: number): Int32Array => {
     const d = new Int32Array(N).fill(-1)
@@ -149,10 +166,13 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
           }
         }
       }
+
       fr = nf
     }
+
     return d
   }
+
   const d0 = bfs(0)
   let far = 0
   for (let i = 0; i < N; i++) {
@@ -160,6 +180,7 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
       far = i
     }
   }
+
   const on = new Uint8Array(N)
   const dA = bfs(0)
   const dB = bfs(far)
@@ -168,16 +189,19 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
       on[i] = 1
     }
   } // two balls
+
   // bridge, cells on a shortest path (where dA + dB is minimal)
   let best = Infinity
   for (let i = 0; i < N; i++) {
     best = Math.min(best, dA[i]! + dB[i]!)
   }
+
   for (let i = 0; i < N; i++) {
     if (dA[i]! + dB[i]! <= best + 1) {
       on[i] = 1
     }
   }
+
   let bothSubstantial = false
   for (let beat = 0; beat < 4; beat++) {
     const toClear: number[] = []
@@ -191,14 +215,17 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
         }
       }
     }
+
     for (const i of toClear) {
       on[i] = 0
     }
+
     const sizes = components(on, nbr, N)
     if (sizes.length >= 2 && sizes[0]! > 20 && sizes[1]! > 20) {
       bothSubstantial = true
     }
   }
+
   return { bothSubstantial }
 }
 
@@ -234,6 +261,7 @@ export default experiment({
   run() {
     const r = fissionFlatLayer()
     const ok = r.solved && r.flatFissioned && !r.hyperbolicFissioned
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

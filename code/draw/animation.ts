@@ -16,6 +16,7 @@ export function frameName(input: {
   const prefix = input.prefix ?? 'frame_'
   const pad = input.pad ?? 4
   const extension = input.extension ?? 'png'
+
   return `${prefix}${String(input.index).padStart(pad, '0')}.${extension}`
 }
 

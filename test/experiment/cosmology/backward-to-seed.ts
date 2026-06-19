@@ -31,6 +31,7 @@ export default experiment({
         center = i
       }
     }
+
     const depth = neighborDistances({
       neighbors: mesh.neighbors,
       size: n,
@@ -52,8 +53,10 @@ export default experiment({
           c++
         }
       }
+
       counts.push(c)
     }
+
     const seedSize = counts[counts.length - 1]! // cells at depth 0, the seed
     const peelSteps = counts.length // finite number of backward steps
     let monotonic = true

@@ -53,14 +53,17 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -68,6 +71,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -82,6 +86,7 @@ function run(): void {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
     }
+
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -89,10 +94,13 @@ function run(): void {
     bandCells.push(i)
     uv.push([dot(w, e1), dot(w, e2)])
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(uv.map(c => c[0])),
     cv = median(uv.map(c => c[1]))
   const fdistOf = (j: number): number =>
@@ -117,6 +125,7 @@ function run(): void {
       isSurround[i] = 1
     }
   }
+
   const moved = new Uint8Array(n)
 
   // pixel mapping
@@ -141,6 +150,7 @@ function run(): void {
         c++
       }
     }
+
     return c ? s / c : 0
   }
 
@@ -168,11 +178,13 @@ function run(): void {
       rgba[i * 4 + 2] = 10
       rgba[i * 4 + 3] = 255
     }
+
     for (let j = 0; j < bandCells.length; j++) {
       const t = tone[bandCells[j]!]!
       if (t === 0) {
         continue
       }
+
       const col = COLORS[t === 1 ? 1 : 2]!
       const [cx, cy] = pix[j]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
@@ -182,6 +194,7 @@ function run(): void {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
@@ -189,6 +202,7 @@ function run(): void {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
     if (f % 40 === 0 || f === FRAMES - 1) {
       console.log(
@@ -196,6 +210,7 @@ function run(): void {
       )
     }
   }
+
   const endDist = meanSurroundDist()
   const verdict =
     endDist < startDist * 0.8

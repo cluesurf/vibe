@@ -40,9 +40,11 @@ export function s53333Dynamics(): {
   for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }
+
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 20, modulus: 3 }) >
     N
+
   return { chargeConserved, lightSpeed, churns }
 }
 
@@ -57,6 +59,7 @@ export default experiment({
   run() {
     const r = s53333Dynamics()
     const ok = r.chargeConserved && r.churns
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

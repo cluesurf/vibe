@@ -34,6 +34,7 @@ export function s53333Physics(): {
   // physical-space gravity exponent, the flat layer is 4D, so the Laplacian Green's function ~ 1/r^(d-2) = 1/r^2
   const spaceDim = 4,
     spaceGravityExp = spaceDim - 2
+
   return { betheAlpha, growthRatio, spaceGravityExp }
 }
 
@@ -51,6 +52,7 @@ export default experiment({
       Math.abs(r.betheAlpha - 2) < 0.3 &&
       r.growthRatio > 1.2 &&
       r.spaceGravityExp === 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

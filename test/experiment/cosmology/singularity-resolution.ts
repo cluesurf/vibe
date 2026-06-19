@@ -26,6 +26,7 @@ function sprinkle(input: {
   rng: Rng
 }): Point[] {
   const n = Math.round(input.density * input.tMax * 2 * input.xMax)
+
   return Array.from({ length: n }, () => ({
     t: input.rng.next() * input.tMax,
     x: (input.rng.next() * 2 - 1) * input.xMax,
@@ -55,12 +56,14 @@ export function minimumInterval(input: {
     if (!p || p.t > 6 || Math.abs(p.x) > 6) {
       continue // keep away from the boundary
     }
+
     let best = Infinity
     for (let j = 0; j < pts.length; j++) {
       const q = pts[j]
       if (!q || q.t <= p.t) {
         continue
       }
+
       const dt = q.t - p.t
       const dx = q.x - p.x
       const interval2 = dt * dt - dx * dx
@@ -68,12 +71,15 @@ export function minimumInterval(input: {
         best = Math.min(best, Math.sqrt(interval2))
       }
     }
+
     if (best < Infinity) {
       lengths.push(best)
     }
   }
+
   const meanLength =
     lengths.reduce((a, b) => a + b, 0) / Math.max(1, lengths.length)
+
   return {
     density: input.density,
     meanLength,
@@ -96,6 +102,7 @@ export default experiment({
       b.curvatureCap > a.curvatureCap &&
       Number.isFinite(b.curvatureCap) &&
       a.curvatureCap > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

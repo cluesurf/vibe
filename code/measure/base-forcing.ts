@@ -17,6 +17,7 @@ export function toneAlphabetQualifies(alphabet: number[]): boolean {
   const hasVacuum = alphabet.includes(0)
   const negationClosed = alphabet.every(x => alphabet.includes(-x))
   const nontrivial = alphabet.some(x => x !== -x)
+
   return hasVacuum && negationClosed && nontrivial
 }
 
@@ -36,6 +37,7 @@ export function minimalQualifyingAlphabetSize(): number {
       best = Math.min(best, a.length)
     }
   }
+
   return best
 }
 
@@ -46,12 +48,14 @@ function dynkinDn(n: number): number[][] {
   for (let i = 0; i < n - 3; i++) {
     edges.push([i, i + 1])
   }
+
   edges.push([n - 3, n - 2])
   edges.push([n - 3, n - 1])
   for (const [a, b] of edges) {
     adjacency[a]!.push(b)
     adjacency[b]!.push(a)
   }
+
   return adjacency
 }
 
@@ -59,11 +63,14 @@ function dynkinDn(n: number): number[][] {
 export function dynkinAutomorphismOrder(n: number): number {
   const adjacency = dynkinDn(n)
   const sets = adjacency.map(a => new Set(a))
+
   function* permutations(arr: number[]): Generator<number[]> {
     if (arr.length <= 1) {
       yield arr
+
       return
     }
+
     for (let i = 0; i < arr.length; i++) {
       const rest = [...arr.slice(0, i), ...arr.slice(i + 1)]
       for (const p of permutations(rest)) {
@@ -71,6 +78,7 @@ export function dynkinAutomorphismOrder(n: number): number {
       }
     }
   }
+
   let count = 0
   for (const p of permutations(
     Array.from({ length: n }, (_, i) => i),
@@ -84,10 +92,12 @@ export function dynkinAutomorphismOrder(n: number): number {
         }
       }
     }
+
     if (ok) {
       count++
     }
   }
+
   return count
 }
 
@@ -97,7 +107,9 @@ export function hasTriality(n: number): boolean {
   if (n < 4) {
     return false
   }
+
   // S3 (order 6) contains an order-three element; Z2 (order 2) does not. D4 alone gives order 6.
   const order = dynkinAutomorphismOrder(n)
+
   return order % 3 === 0 && order >= 6
 }

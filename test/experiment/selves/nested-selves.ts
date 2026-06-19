@@ -77,6 +77,7 @@ export function nestedSelves(input: { seed: number }): {
         const v = mem[i] ?? 0
         perturbed[v] = -(base[v] ?? 0) as -1 | 0 | 1
       }
+
       const settled = settleAsync({
         graph: g,
         fills,
@@ -90,6 +91,7 @@ export function nestedSelves(input: { seed: number }): {
           cellBack++
         }
       }
+
       recs.push(cellBack / mem.length)
       const cellSet = new Set(mem)
       let bodySame = 0
@@ -98,15 +100,19 @@ export function nestedSelves(input: { seed: number }): {
         if (cellSet.has(v)) {
           continue
         }
+
         bodyTot++
         if (settled[v] === base[v]) {
           bodySame++
         }
       }
+
       integ.push(bodySame / Math.max(1, bodyTot))
     }
+
     const mean = (a: number[]): number =>
       a.reduce((x, y) => x + y, 0) / a.length
+
     return {
       fraction,
       cellRecovery: mean(recs),
@@ -156,6 +162,7 @@ export default experiment({
       r.smallWoundHeals > 0.85 &&
       r.wholeCellPersists < 0.2 &&
       r.bodyIntegrity > 0.95
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

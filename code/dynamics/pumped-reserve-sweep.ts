@@ -29,6 +29,7 @@ export function pumpedReserveSweep(input: {
     if (moved[v] || moved[w]) {
       continue
     }
+
     const tv = tone[v]!
     const tw = tone[w]!
     let c = -1
@@ -42,6 +43,7 @@ export function pumpedReserveSweep(input: {
     } else {
       continue
     }
+
     const crossing = inSelf[v] !== inSelf[w]
     const interior = inSelf[v] === 1 && inSelf[w] === 1
     let swap = false
@@ -56,6 +58,7 @@ export function pumpedReserveSweep(input: {
     } else {
       swap = rng.next() < 0.5
     }
+
     if (swap) {
       tone[e] = tone[c]!
       tone[c] = 0

@@ -50,6 +50,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const collision = headOnRotate({ opposite })
 
     // a deterministic initial configuration (no random, a fixed coordinate pattern)
@@ -76,8 +77,10 @@ export default experiment({
           return false
         }
       }
+
       return true
     }
+
     const parity = (w: Will): Will =>
       parityReflect({ will: w, directions, side, axis: 0 })
 

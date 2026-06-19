@@ -42,10 +42,12 @@ function run(willpower: number, fieldStrength: number): number {
   if (fieldStrength >= FIELD_OVERRIDE) {
     return SMALL
   }
+
   // is the far reward worth pursuing at all (foresight)
   if (goalWorth() <= SMALL) {
     return SMALL
   }
+
   // pursue it: cross the valley, spending willpower each step
   let w = willpower
   for (let step = 0; step < VALLEY; step++) {
@@ -55,6 +57,7 @@ function run(willpower: number, fieldStrength: number): number {
       return SMALL // willpower ran out mid-valley, relapse to the small pleasure
     }
   }
+
   return BIG // endured the whole valley, reached the big pleasure
 }
 
@@ -84,6 +87,7 @@ export function willFork(): {
   for (let wpw = 0; wpw <= 8; wpw++) {
     willpowerSweep.push({ willpower: wpw, outcome: run(wpw, 0) })
   }
+
   let willpowerThreshold = -1
   for (const s of willpowerSweep) {
     if (s.outcome === BIG) {
@@ -137,6 +141,7 @@ export default experiment({
       r.relapsesWhenDepleted &&
       r.fieldOverrides &&
       r.hasSharpThreshold
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

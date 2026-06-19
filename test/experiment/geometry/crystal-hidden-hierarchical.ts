@@ -98,6 +98,7 @@ export default experiment({
   run() {
     const r = crystalHiddenHierarchical({ seed: 2 })
     const ok = r.indistinguishable && r.crystalIsTreeLike
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

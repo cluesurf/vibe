@@ -21,10 +21,12 @@ export function father(node: number): number {
   if (node <= 1) {
     return 0
   }
+
   const z = toZeckendorf(node)
   const stripped = z.length <= 2 ? '' : z.slice(0, -2)
   const m = stripped === '' ? 0 : fromZeckendorf(stripped)
   const high = z[z.length - 2] === '1' ? 1 : 0
+
   return m + high
 }
 
@@ -37,12 +39,14 @@ export function continuator(node: number): number {
 // continuator has a left sibling that is also its child, i.e. father(continuator - 1) is the node itself.
 export function nodeType(node: number): 2 | 3 {
   const c = continuator(node)
+
   return c > 1 && father(c - 1) === node ? 3 : 2
 }
 
 // the sons of a node, consecutive integers around the continuator, leftmost first
 export function sons(node: number): number[] {
   const c = continuator(node)
+
   return nodeType(node) === 3 ? [c - 1, c, c + 1] : [c, c + 1]
 }
 
@@ -54,6 +58,7 @@ export function depth(node: number): number {
     cur = father(cur)
     d++
   }
+
   return d
 }
 
@@ -65,6 +70,7 @@ export function pathToRoot(node: number): number[] {
     cur = father(cur)
     path.push(cur)
   }
+
   return path
 }
 
@@ -84,8 +90,10 @@ export function route(from: number, to: number): number[] {
       break
     }
   }
+
   const ancestor = down[ancestorIndexInDown]!
   const upPart = up.slice(0, depthOnUp.get(ancestor)! + 1) // from -> ... -> ancestor
   const downPart = down.slice(0, ancestorIndexInDown).reverse() // ancestor's child -> ... -> to
+
   return [...upPart, ...downPart]
 }

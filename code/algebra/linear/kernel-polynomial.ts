@@ -22,6 +22,7 @@ export function absoluteValueCoefficients(count: number): number[] {
   for (let k = 1; 2 * k < count; k++) {
     coefficients[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
   }
+
   return coefficients
 }
 
@@ -36,6 +37,7 @@ export function jacksonKernel(count: number): number[] {
         Math.sin((Math.PI * n) / np) / Math.tan(Math.PI / np)) /
       np
   }
+
   return kernel
 }
 
@@ -57,6 +59,7 @@ export function chebyshevMoments(input: {
     t1.re[i]! /= scale
     t1.im[i]! /= scale
   }
+
   mu[0] = dotR(probe, t0, dim)
   mu[1] = dotR(probe, t1, dim)
   let tn = newCx(dim)
@@ -67,12 +70,14 @@ export function chebyshevMoments(input: {
       tn.re[i] = (2 * product.re[i]!) / scale - t0.re[i]!
       tn.im[i] = (2 * product.im[i]!) / scale - t0.im[i]!
     }
+
     mu[n] = dotR(probe, tn, dim)
     const swap = t0
     t0 = t1
     t1 = tn
     tn = swap
   }
+
   return mu
 }
 
@@ -88,10 +93,12 @@ export function spectralBound(input: {
   for (let i = 0; i < dim; i++) {
     v.re[i] = rng.next() - 0.5
   }
+
   let norm = Math.sqrt(dotR(v, v, dim))
   for (let i = 0; i < dim; i++) {
     v.re[i]! /= norm
   }
+
   const applied = newCx(dim)
   const twice = newCx(dim)
   let lambda = 0
@@ -105,5 +112,6 @@ export function spectralBound(input: {
       v.im[i] = twice.im[i]! / norm
     }
   }
+
   return lambda
 }

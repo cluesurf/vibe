@@ -93,6 +93,7 @@ export default experiment({
       r.honeycomb.anisotropy < 0.2 &&
       r.honeycomb.reach &&
       r.flatLattice.lorentzSafe === false
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
