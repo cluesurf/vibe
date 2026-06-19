@@ -74,6 +74,67 @@ export function lightConeRadii(input: {
   return radii
 }
 
+// The free-streaming light cone on ANY mesh, by graph distance. Seed the centre cell in
+// all directions and stream with NO collision (passThrough), so a free tone advances
+// exactly one cell per beat. The front, the farthest cell differing from the deterministic
+// vacuum by graph distance, is the maximum causal speed, the light cone. On a mesh large
+// enough that the front has not yet reached the boundary it equals the beat count exactly
+// (ballistic, z = 1), the speed interactions can never exceed. Use a side larger than the
+// beat count so the front stays interior (a bigger mesh is a more accurate measurement).
+export function streamingConeRadii(input: {
+  mesh: Mesh
+  beats: number
+}): number[] {
+  const { mesh, beats } = input
+  const degree = mesh.degree
+  const centre = mesh.cellCount >> 1
+  const distance = shellDistances(mesh, centre)
+
+  const base = makeWill(mesh)
+  const perturbed = cloneWill(base)
+  const centreBase = centre * degree
+
+  for (let direction = 0; direction < degree; direction++) {
+    perturbed.data[centreBase + direction] = 1
+  }
+
+  const radii: number[] = []
+
+  let baseState = base
+  let perturbedState = perturbed
+
+  for (let step = 0; step < beats; step++) {
+    baseState = beat(baseState, passThrough)
+    perturbedState = beat(perturbedState, passThrough)
+
+    let maximum = 0
+
+    for (let cell = 0; cell < mesh.cellCount; cell++) {
+      const cellBase = cell * degree
+
+      let differs = false
+
+      for (let direction = 0; direction < degree; direction++) {
+        if (
+          baseState.data[cellBase + direction] !==
+          perturbedState.data[cellBase + direction]
+        ) {
+          differs = true
+          break
+        }
+      }
+
+      if (differs && (distance[cell] ?? 0) > maximum) {
+        maximum = distance[cell] ?? 0
+      }
+    }
+
+    radii.push(maximum)
+  }
+
+  return radii
+}
+
 // The perturbation light cone on ANY mesh, the measured causal structure of the
 // interacting rule. Start from the deterministic vacuum (the create move makes it
 // dynamic on its own, no random fill), perturb one cell, run the directional rule

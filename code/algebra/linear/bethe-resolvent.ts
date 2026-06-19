@@ -36,9 +36,11 @@ export function betheBoundaryExponent(input: {
 }
 
 // Validate the cavity recursion against a directly-solved FINITE rooted tree: build a tree of branching
-// b = z - 1 and the given depth, solve (D - A) phi = delta_root for the static Laplacian by relaxation
-// (the tree is small), and return the level-to-level decay ratio phi(level 3) / phi(level 2), which
-// should match the predicted cavity decay mu. Coordination z is the interior degree.
+// b = z - 1 and the given depth, solve (z I - A) phi = delta_root (the uniform-coordination operator the
+// cavity recursion is for, non-singular at the massless point E = z) by relaxation (the tree is small),
+// and return the level-to-level decay ratio phi(level 3) / phi(level 2), which should match the predicted
+// cavity decay mu. Use a depth a couple of levels beyond level 3 so the measured ratio is in the bulk,
+// away from the leaf boundary. Coordination z is the interior degree.
 export function finiteTreeResolventRatio(input: {
   coordination: number
   depth: number
@@ -95,22 +97,16 @@ export function finiteTreeResolventRatio(input: {
     return Array.from({ length: b }, (_, j) => base + j)
   }
 
-  // solve (D - A) phi = delta_0 by Gauss-Seidel-ish (the tree is small)
+  // Solve (z I - A) phi = delta_0 by Gauss-Seidel (the tree is small). The diagonal is the
+  // UNIFORM coordination z at every node, not each node's actual degree. This is the
+  // operator the infinite-tree cavity recursion is for, non-singular at the massless point
+  // E = z (above the band edge), so phi decays by mu per step. Using the actual degree
+  // would give the graph Laplacian D - A, which is singular (the constant is a zero mode)
+  // and has no solution for a single-node source, so the relaxation would drift to the flat
+  // constant and read a decay ratio of one.
   const phi = new Float64Array(N)
   const src = new Float64Array(N)
   src[0] = 1
-
-  const deg = (i: number): number => {
-    let d = 0
-
-    if (parent(i) >= 0) {
-      d++
-    }
-
-    d += children(i).length
-
-    return d
-  }
 
   for (let it = 0; it < 4000; it++) {
     for (let i = 0; i < N; i++) {
@@ -126,7 +122,7 @@ export function finiteTreeResolventRatio(input: {
         s += phi[c]!
       }
 
-      phi[i] = s / (deg(i) + 0.0)
+      phi[i] = s / z
     }
   }
 
