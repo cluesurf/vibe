@@ -19,19 +19,6 @@
 <br/>
 <br/>
 
-## Foreword
-
-This is going to take a long time to figure out, or maybe shorter. But
-will definitely work on figuring it out over the years, and in the
-meantime, going to be publishing papers as snapshots and such of what
-seems like are possible solutions. If they turn out to be wrong, that's
-part of the process, constant iterating and refinement until something
-works perfectly.
-
-In the meantime, I think the general ideas are the way forward, but the
-exact technical details are the hard things to get perfectly right from
-there.
-
 ## Introduction
 
 [Vibe Theory](https://doi.org/10.5281/zenodo.20665953) treats reality as
@@ -93,11 +80,13 @@ experiments are held to is in
 and the code and test layout is in
 [`note/architecture.md`](note/architecture.md).
 
-The goal is to find out whether this crystal model can actually
+The base of the model is settled, the discrete substrate and its single
+local rule. What remains in progress is the derivation of physics from
+it. The goal is to find out whether this crystal model can actually
 reproduce our universe, by deriving space, matter, gravity, the quantum,
 cosmology, and mind from the one rule, and to be clear at every step
 about what is solid, what is partial, and what is still open. The
-companion papers are snapshots of a _work very much in progress_.
+companion papers are snapshots of that ongoing derivation.
 
 ## Depth levels
 
