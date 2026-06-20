@@ -1,6 +1,6 @@
 {
   "name": "@cluesurf/vibe",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "./host/index.js",
   "type": "module",
