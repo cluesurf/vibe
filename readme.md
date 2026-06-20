@@ -59,12 +59,11 @@ particles and their charges, the gauge group, the Higgs, the shape of
 the mass hierarchy, and the emergent laws of relativity, gravity, the
 quantum, holography, and cosmology. The absolute masses and couplings
 are free, exactly the parameters the Standard Model leaves free, each
-now identified with a specific geometric origin. One deep question is
-still open and flagged as such: whether the model forces exactly the
-three generations of matter we observe. The larger aim is to derive
-space, matter, gravity, the quantum, cosmology, and mind from the one
-rule, and to be clear at every step about what is solid, what is free,
-and what is still open. The companion papers are snapshots of that work.
+now identified with a specific geometric origin. The larger aim is to
+derive space, matter, gravity, the quantum, cosmology, and mind from the
+one rule, and to be clear at every step about what is solid, what is
+free, and what is still open. The companion papers are snapshots of that
+work.
 
 - [Short audio overview of things](https://www.youtube.com/watch?v=9ftVzOO9Y2I)
 - [A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh](https://doi.org/10.5281/zenodo.20768426)
