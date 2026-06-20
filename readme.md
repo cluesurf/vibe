@@ -12,7 +12,7 @@
 
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
-  A Discrete Model of the Universe
+  A Discrete Universe
 </p>
 
 <br/>
@@ -79,12 +79,15 @@ becomes a concrete experiment that either works or does not.
 Everything is finite and deterministic, so every result is exactly
 reproducible. The base never relies on randomness. Real numbers appear
 only as measured outputs (coordinates, eigenvalues, dimensions), never
-as the base, in keeping with the discreteness principle. Each question
-is one experiment in `test/experiment/<category>/`, a single
-`experiment` that returns a structured verdict (status, metrics,
-control, claim) graded by an honest depth level, from `L0` circular
-through `L1` known math and `L2` known physics to `L3` emergent and
-novel. The standard the experiments are held to is in
+as the base, in keeping with the discreteness principle. Much of this
+code was written with AI assistance, which changes nothing about
+trusting it. It is deterministic and reproducible, so you can run it and
+verify every result yourself. Each question is one experiment in
+`test/experiment/<category>/`, a single `experiment` that returns a
+structured verdict (status, metrics, control, claim) graded by an honest
+depth level, from `L0` circular through `L1` known math and `L2` known
+physics to `L3` emergent and novel. The standard the experiments are
+held to is in
 [`note/experimental-methodology.md`](note/experimental-methodology.md),
 and the code and test layout is in
 [`note/architecture.md`](note/architecture.md).
