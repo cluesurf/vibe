@@ -101,28 +101,7 @@ held to is in
 and the code and test layout is in
 [`note/architecture.md`](note/architecture.md).
 
-## Depth levels
-
-Every experiment self-grades by what it actually establishes, not by
-whether it prints PASSED. This is the `depth` column in
-[`test/catalog.csv`](test/catalog.csv), which is sorted so the strongest
-results come first.
-
-| level  | meaning                                                                                                                                                                     |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
-| **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                       |
-| **L1** | known math. Correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                              |
-| **L0** | circular. The answer is put in by hand, so it proves nothing on its own. Kept only as an honest consistency note, never as evidence.                                        |
-
-So L3 is the real prize, L1 and L2 are honest groundwork, and L0 is a
-marker of what is assumed rather than derived. Most results in a young
-program are L1 and L2, and that is fine as long as they are labeled as
-such. The full rubric and the rules the runner enforces (an L3 claim
-must carry a control, for instance) are in
-[`note/experimental-methodology.md`](note/experimental-methodology.md).
-
-## The catalog
+## The Experiment Catalog
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index of every
 experiment in the suite, one row per registered experiment. It is
@@ -130,7 +109,8 @@ generated from the registry itself (`npx tsx test/catalog.ts`, or
 `pnpm call test/catalog.ts`), so the code and the catalog are always the
 same source of truth, and it is sorted strongest-first, by depth, then
 id. It is the fastest way to see, at a glance, everything the model has
-been asked and how strongly each result holds.
+been asked and how strongly each result holds. Regenerate it any time
+the registry changes.
 
 Each row has six columns:
 
@@ -138,18 +118,34 @@ Each row has six columns:
 | ------------ | -------------------------------------------------------------------------------- |
 | `id`         | the experiment's stable identifier, `category/name`                              |
 | `category`   | the area it belongs to (foundations, gauge, gravity, spin, quantum, selves, ...) |
-| `depth`      | the `L0`-`L3` grade for what it establishes (see above)                          |
+| `depth`      | the `L0`-`L3` grade for what it establishes (see the table below)                |
 | `paper`      | `true` if it backs a claim in the papers                                         |
 | `substrates` | which meshes it runs on (`any`, or a list like `3434|534|73`)                    |
 | `title`      | a one-line statement of exactly what it found                                    |
 
-As of the latest run it holds **574 experiments across 17 categories**:
-72 at `L3` (emergent and novel), 362 at `L2` (known physics reproduced),
-126 at `L1` (known math confirmed), and 14 at `L0` (circular, kept as
-consistency notes), with 376 of them backing a specific claim in the
-papers. The largest categories are selves, gauge, foundations,
-cosmology, spin, gravity, and relativity. Regenerate the file any time
-the registry changes by running `pnpm call test/catalog.ts`.
+The `depth` column is the heart of it. Every experiment self-grades by
+what it actually establishes, not by whether it prints PASSED.
+
+| level  | meaning                                                                                                                                                                     |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
+| **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                       |
+| **L1** | known math. Correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                              |
+| **L0** | circular. The answer is put in by hand, so it proves nothing on its own. Kept only as a consistency note, never as evidence.                                               |
+
+So L3 is the real prize, L1 and L2 are groundwork, and L0 is a marker of
+what is assumed rather than derived. Most results in a young program are
+L1 and L2, and that is fine as long as they are labeled as such. The full
+rubric and the rules the runner enforces (an L3 claim must carry a
+control, for instance) are in
+[`note/experimental-methodology.md`](note/experimental-methodology.md).
+
+As of the latest run the catalog holds **574 experiments across 17
+categories**: 72 at `L3` (emergent and novel), 362 at `L2` (known physics
+reproduced), 126 at `L1` (known math confirmed), and 14 at `L0`
+(circular), with 376 of them backing a specific claim in the papers. The
+largest categories are selves, gauge, foundations, cosmology, spin,
+gravity, and relativity.
 
 ## Quick start
 
