@@ -121,7 +121,6 @@ must carry a control, for instance) are in
 ```
 pnpm install
 pnpm test         # the full experiment registry plus the conformance battery
-pnpm test:full    # the above, then the extended check suite
 ```
 
 Every experiment lives in `test/experiment/<category>/<name>.ts` as one
