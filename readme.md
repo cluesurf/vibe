@@ -67,6 +67,9 @@ work.
 
 ## Keys
 
+The base model of reality is settled here pretty much, next is to
+explore the elaborations/implications. Here are the key notes:
+
 - [Short audio overview of things](https://www.youtube.com/watch?v=9ftVzOO9Y2I)
 - [A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh](https://doi.org/10.5281/zenodo.20768426)
 - [Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe](https://doi.org/10.5281/zenodo.20694262)
