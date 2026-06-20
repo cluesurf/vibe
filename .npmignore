@@ -9,3 +9,4 @@ tmp/
 *.out
 *.thm
 *.log
+test/site/
