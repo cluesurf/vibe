@@ -129,27 +129,6 @@ named batteries (conformance, paper) are in `test/suite/`. The build
 fails only on a code crash or a conformance failure, never on an honest
 scientific negative.
 
-## Defining the model
-
-The model reads at a glance through a small DSL
-([code/model/vibe.ts](code/model/vibe.ts)). With no options it is the
-working model, and one-word swaps express variants for comparison. No
-string is ever evaluated, so this is a constructor, not runtime codegen.
-
-```ts
-const model = vibe().size(1500).seed(1) // the working model
-console.log(model.describe()) // print the model at a glance
-const world = model.build().run(40) // build the mesh, run 40 beats
-world.read() // emergent structures read off the same mesh
-```
-
-The substrate generators build the exact regular honeycombs, including
-the two-dimensional `{7,3}`, the three-dimensional `{5,3,4}`, and the
-committed four-dimensional `{3,4,3,4}` with its `O(log n)` addressing,
-alongside random hyperbolic, lattice, and sprinkled comparison meshes.
-Swapping to a flat lattice gives a preferred frame and breaks isotropy,
-which is why a curved mesh is the committed choice.
-
 ## What is inside
 
 - **substrate**: regular `{p,q,...}` hyperbolic honeycombs through the
