@@ -65,6 +65,8 @@ one rule, and to be clear at every step about what is solid, what is
 free, and what is still open. The companion papers are snapshots of that
 work.
 
+## Keys
+
 - [Short audio overview of things](https://www.youtube.com/watch?v=9ftVzOO9Y2I)
 - [A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh](https://doi.org/10.5281/zenodo.20768426)
 - [Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe](https://doi.org/10.5281/zenodo.20694262)
