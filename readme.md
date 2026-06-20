@@ -122,6 +122,35 @@ such. The full rubric and the rules the runner enforces (an L3 claim
 must carry a control, for instance) are in
 [`note/experimental-methodology.md`](note/experimental-methodology.md).
 
+## The catalog
+
+[**`test/catalog.csv`**](test/catalog.csv) is the full index of every
+experiment in the suite, one row per registered experiment. It is
+generated from the registry itself (`npx tsx test/catalog.ts`, or
+`pnpm call test/catalog.ts`), so the code and the catalog are always the
+same source of truth, and it is sorted strongest-first, by depth, then
+id. It is the fastest way to see, at a glance, everything the model has
+been asked and how strongly each result holds.
+
+Each row has six columns:
+
+| column       | meaning                                                                          |
+| ------------ | -------------------------------------------------------------------------------- |
+| `id`         | the experiment's stable identifier, `category/name`                              |
+| `category`   | the area it belongs to (foundations, gauge, gravity, spin, quantum, selves, ...) |
+| `depth`      | the `L0`-`L3` grade for what it establishes (see above)                          |
+| `paper`      | `true` if it backs a claim in the papers                                         |
+| `substrates` | which meshes it runs on (`any`, or a list like `3434|534|73`)                    |
+| `title`      | a one-line statement of exactly what it found                                    |
+
+As of the latest run it holds **574 experiments across 17 categories**:
+72 at `L3` (emergent and novel), 362 at `L2` (known physics reproduced),
+126 at `L1` (known math confirmed), and 14 at `L0` (circular, kept as
+consistency notes), with 376 of them backing a specific claim in the
+papers. The largest categories are selves, gauge, foundations,
+cosmology, spin, gravity, and relativity. Regenerate the file any time
+the registry changes by running `pnpm call test/catalog.ts`.
+
 ## Quick start
 
 ```
