@@ -77,6 +77,11 @@ export function placeSkyrmion2d(input: {
   centerY: number
   radius: number
   charge: number
+  // internal iso-rotation of the in-plane direction (radians). A relative phase between
+  // two skyrmions selects the interaction channel: 0 is the repulsive (same-orientation)
+  // channel, pi is the attractive channel where two same-charge skyrmions bind (the
+  // deuteron analog). Defaults to 0.
+  phase?: number
 }): void {
   const {
     field,
@@ -84,6 +89,7 @@ export function placeSkyrmion2d(input: {
     centerY: cy,
     radius: R,
     charge: ch,
+    phase = 0,
   } = input
 
   const N = field.length
@@ -96,7 +102,7 @@ export function placeSkyrmion2d(input: {
         continue
       }
 
-      const phi = Math.atan2(y - cy, x - cx) * ch,
+      const phi = Math.atan2(y - cy, x - cx) * ch + phase,
         fr = Math.PI * Math.max(0, 1 - r / R)
 
       const nv = normalize3([
