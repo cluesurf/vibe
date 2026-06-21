@@ -124,19 +124,8 @@ id. It is the fastest way to see, at a glance, everything the model has
 been asked and how strongly each result holds. Regenerate it any time
 the registry changes.
 
-Each row has six columns:
-
-| column       | meaning                                                                          |
-| ------------ | -------------------------------------------------------------------------------- | --- | ---- |
-| `id`         | the experiment's stable identifier, `category/name`                              |
-| `category`   | the area it belongs to (foundations, gauge, gravity, spin, quantum, selves, ...) |
-| `depth`      | the `L0`-`L3` grade for what it establishes (see the table below)                |
-| `paper`      | `true` if it backs a claim in the papers                                         |
-| `substrates` | which meshes it runs on (`any`, or a list like `3434                             | 534 | 73`) |
-| `title`      | a one-line statement of exactly what it found                                    |
-
-The `depth` column is the heart of it. Every experiment self-grades by
-what it actually establishes, not by whether it prints PASSED.
+Every experiment self-grades by what it actually establishes, not by
+whether it prints PASSED.
 
 | level  | meaning                                                                                                                                                                     |
 | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
