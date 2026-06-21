@@ -54,7 +54,7 @@ and emotion and thought, is a large-scale pattern in this one colored,
 growing mesh of feeling.
 
 The flat `{7,3}` picture is the easy-to-draw two-dimensional face. The
-committed substrate is one member up the same family of regular
+committed substrate is another member in the same family of regular
 hyperbolic honeycombs, the four-dimensional `{3,4,3,4}`, whose cells are
 24-cells and whose 24 directions form the `D4` root system that carries
 spin. Its flat three-dimensional cusp is the physical space we live in,
