@@ -29,7 +29,7 @@ wound fibers, all the way through. That's 3D, but this is in 4D, and at
 the base that weave is a perfectly regular grid, built from a single
 24-cell reflecting endlessly like a mirror, and it is where all
 experience lives, which is basically all of reality. The thin skin on
-the cusp/edge is physical reality, worked from within like a puppet.
+the cusp is physical reality, worked from within like a puppet.
 Consciousness is the grid. The physical universe is its projection.
 
 [Vibe Theory](https://doi.org/10.5281/zenodo.20694262) treats reality as
