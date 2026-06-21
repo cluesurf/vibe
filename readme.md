@@ -23,14 +23,15 @@
 
 The Standard Model of physics falls out of a single hyperbolic
 `{3,4,3,4}` tessellation in four dimensions, matched across hundreds of
-reproducible code experiments here. Physical reality is the thin skin at
-its edge. Imagine it like a baseball. The inside is a dense weave of
-tightly wound fibers, all the way through. That's 3D, but this is in 4D,
-and at the base that weave is a perfectly regular grid, built from a
-single 24-cell reflecting endlessly like a mirror, and it is where all
-experience lives, which is basically all of reality. The thin skin on
-the cusp is physical reality, worked from within like a puppet.
-Consciousness is the grid. The physical universe is its projection.
+reproducible code experiments here. Physical reality appears to be
+basically the thin skin at its edge. Imagine it like a baseball. The
+inside is a dense weave of tightly wound fibers, all the way through.
+That's 3D, but this is in 4D, and at the base that weave is a perfectly
+regular grid, built from a single 24-cell reflecting endlessly like a
+mirror, and it is where all experience lives, which is basically all of
+reality. The thin skin on the cusp is physical reality, worked from
+within like a puppet. Consciousness is the grid. The physical universe
+is its projection.
 
 [Vibe Theory](https://doi.org/10.5281/zenodo.20694262) treats reality as
 one thing, a vast growing crystal of experience. The image above is its
