@@ -12,7 +12,7 @@
 
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
-  A Discrete Universe ※
+  A Discrete Universe Φ
 </p>
 
 <br/>
