@@ -110,6 +110,45 @@ export function runTrajectory(input: {
   }
 }
 
+// a self made of several sub-policies (sub-selves), each writing toward its own target each beat on a shared
+// world that decays. When the sub-targets agree (a coherent, integrated self) they reinforce and the world
+// reaches the goal. When they disagree (a fragmented self) they overwrite each other and the world is torn.
+// This is how integration becomes agency: a unified self steers, a divided one cancels itself out. Returns the
+// final distance to the all-plus goal.
+export function multiAgentTrajectory(input: {
+  m: number
+  beats: number
+  effort: number
+  targets: Int8Array[]
+}): { finalDistance: number } {
+  const env = initWorld(input.m)
+  const k = input.targets.length
+  const per = Math.max(1, Math.floor(input.effort / Math.max(1, k)))
+
+  for (let beat = 0; beat < input.beats; beat++) {
+    for (let j = 0; j < k; j++) {
+      const target = input.targets[j]!
+      const offset = (beat * 13 + j * 37) % input.m
+
+      // each sub-policy spends its effort only where the world is not yet at its target (no wasted writes)
+      let done = 0
+
+      for (let s = 0; s < input.m && done < per; s++) {
+        const i = (offset + s) % input.m
+
+        if (env[i] !== target[i]) {
+          env[i] = target[i]!
+          done++
+        }
+      }
+    }
+
+    worldStep(env, beat)
+  }
+
+  return { finalDistance: distanceToGoal(env) }
+}
+
 // the impact of steering: how much closer to the goal the steered life ends than the same life unsteered. A
 // positive number is real impact (the steering made a difference). Zero means the steering changed nothing.
 export function steeringImpact(input: {
