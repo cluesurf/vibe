@@ -277,6 +277,27 @@ export function selfCoherence(
   return best
 }
 
+// one consensus step that binds sub-selves into a higher self: each sub-self moves toward the group's aggregate
+// voice (coupling) plus its own inertia. With strong coupling the sub-selves converge to a shared pattern, the
+// higher self's body, and the group acts as one. With zero coupling each keeps to itself and no higher self forms.
+export function consensusStep(
+  subs: Int8Array[],
+  coupling: number,
+): Int8Array[] {
+  const aggregate = aggregateUrge(subs)
+
+  return subs.map(s => {
+    const out = new Int8Array(s.length)
+
+    for (let i = 0; i < s.length; i++) {
+      const h = coupling * (aggregate[i] ?? 0) + (s[i] ?? 0)
+      out[i] = (h > 0 ? 1 : h < 0 ? -1 : 0) as Tone
+    }
+
+    return out
+  })
+}
+
 // settle, but each beat override the first `injectSites` sites with an EXOGENOUS pattern uncorrelated with the self
 // (a deterministic stand-in for an uncaused, not-by-you input). As more sites are pinned to the exogenous values,
 // the act is dictated less by the self and more by the outside, so its self-coherence falls. Used to show that an
