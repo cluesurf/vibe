@@ -19,7 +19,7 @@
 <br/>
 <br/>
 
-## What this repo is
+## Basics
 
 This codebase is a finite, discrete, reproducible simulator that turns
 the theory into runnable measurements. It is the bench where the model
