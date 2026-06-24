@@ -167,6 +167,44 @@ export function rootsB4(): number[][] {
   return roots
 }
 
+// The hypercubic axis directions in `dimension` dimensions: the 2*dimension unit vectors +-e_i. This is the
+// nearest-neighbour coin of the cubic / hypercubic lattice, used as the anisotropic control against the D4
+// 24-direction set in the Lorentz and discreteness tests.
+export function hypercubicAxes(dimension: number): number[][] {
+  const axes: number[][] = []
+
+  for (let axis = 0; axis < dimension; axis++) {
+    for (const sign of [1, -1]) {
+      const direction = new Array<number>(dimension).fill(0)
+      direction[axis] = sign
+      axes.push(direction)
+    }
+  }
+
+  return axes
+}
+
+// A fixed set of normalized 4D probe directions spanning axis, face-diagonal, body-diagonal, and several
+// asymmetric directions. Used to sample the angular anisotropy of a lattice dispersion (the spread of the phase
+// speed across directions), where a single axis-versus-diagonal pair can be accidentally isotropic.
+export function probeDirections4D(): number[][] {
+  const raw = [
+    [1, 0, 0, 0],
+    [1, 1, 0, 0],
+    [1, 1, 1, 0],
+    [1, 1, 1, 1],
+    [2, 1, 0, 0],
+    [3, 1, 1, 0],
+    [2, 1, 1, 1],
+  ]
+
+  return raw.map(v => {
+    const norm = Math.hypot(...v)
+
+    return v.map(x => x / norm)
+  })
+}
+
 // The 12 icosahedron vertex directions, the directions of the {5,3,4} coin (the 12
 // dodecahedron faces). The vertices (0, +-1, +-phi) and its two cyclic rotations,
 // normalized to the unit sphere. Their rotation symmetry is the icosahedral group

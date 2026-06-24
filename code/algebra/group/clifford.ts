@@ -60,6 +60,31 @@ export function cmMultiply(
   return out
 }
 
+// The Kronecker (tensor) product of two complex matrices, A (x) B, the multi-qubit observable assembler. For two
+// 2x2 Paulis this gives the 4x4 two-qubit operator used in the Peres-Mermin contextuality square.
+export function cmKron(
+  a: ComplexMatrix,
+  b: ComplexMatrix,
+): ComplexMatrix {
+  const ar = a.length
+  const ac = a[0]!.length
+  const br = b.length
+  const bc = b[0]!.length
+  const out = cmZero(ar * br, ac * bc)
+
+  for (let i = 0; i < ar; i++) {
+    for (let j = 0; j < ac; j++) {
+      for (let k = 0; k < br; k++) {
+        for (let l = 0; l < bc; l++) {
+          out[i * br + k]![j * bc + l] = cMul(a[i]![j]!, b[k]![l]!)
+        }
+      }
+    }
+  }
+
+  return out
+}
+
 export function cmAdd(
   left: ComplexMatrix,
   right: ComplexMatrix,

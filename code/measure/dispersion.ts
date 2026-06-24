@@ -114,6 +114,80 @@ export function waveModeFrequency(input: {
   }
 }
 
+// The leading order of the angular anisotropy in momentum: the log-log slope of the angular spread of the phase
+// speed (over a probe set of directions) against the momentum scale. A higher order means the anisotropy is more
+// strongly suppressed at small momentum. The D4 24-direction set comes out near order four, while a hypercubic
+// set comes out near order two. This reads the emergent-Lorentz-violation scale off the substrate: a high order
+// means violation is hidden to high energy. (The axis-versus-body-diagonal pair is exactly isotropic for D4 by a
+// special symmetry, so the full angular spread, not that one pair, is needed to expose the residual order.)
+export function anisotropySpreadOrder(input: {
+  directions: number[][]
+  probes: number[][]
+  scales: readonly number[]
+}): { order: number; spreads: number[] } {
+  const spreads = input.scales.map(scale =>
+    dispersionAnisotropyAtScale({
+      directions: input.directions,
+      probes: input.probes,
+      scale,
+    }),
+  )
+
+  const first = spreads[0]!
+  const last = spreads[spreads.length - 1]!
+  const sFirst = input.scales[0]!
+  const sLast = input.scales[input.scales.length - 1]!
+
+  const order =
+    first > 0 && last > 0
+      ? (Math.log(last) - Math.log(first)) /
+        (Math.log(sLast) - Math.log(sFirst))
+      : 0
+
+  return { order, spreads }
+}
+
+// The isotropic discreteness signature: how the phase speed omega/|k| along one axis deviates from its
+// infrared value as the momentum grows, and the leading order of that deviation. The continuum has a constant
+// speed; a discrete lattice bends omega below c at high k, so the relative deviation rises with momentum. The
+// deviation vanishes in the infrared (continuum restored) and its leading log-log order (about two, from the
+// k^4 term in omega^2) plus its coefficient set the momentum scale where discreteness becomes visible.
+export function dispersionSpeedDeviation(input: {
+  directions: number[][]
+  axis: number[]
+  wavenumbers: readonly number[]
+}): { deviations: number[]; leadingOrder: number; infraredSpeed: number } {
+  const speeds = input.wavenumbers.map(k => {
+    const wave = input.axis.map(component => component * k)
+
+    return (
+      Math.sqrt(latticeDispersion({ directions: input.directions, wave })) /
+      k
+    )
+  })
+
+  const infraredSpeed = speeds[0]!
+  const deviations = speeds.map(
+    speed => Math.abs(infraredSpeed - speed) / infraredSpeed,
+  )
+
+  // fit the leading order from the upper part of the range (away from the noisy near-zero infrared point)
+  const lo = Math.max(1, Math.floor(input.wavenumbers.length / 2))
+  const hi = input.wavenumbers.length - 1
+  const dLo = deviations[lo]!
+  const dHi = deviations[hi]!
+  const kLo = input.wavenumbers[lo]!
+  const kHi = input.wavenumbers[hi]!
+
+  const leadingOrder =
+    dLo > 0 && dHi > 0
+      ? (Math.log(dHi) - Math.log(dLo)) /
+        (Math.log(kHi) - Math.log(kLo))
+      : 0
+
+  return { deviations, leadingOrder, infraredSpeed }
+}
+
 // Anisotropy of the lattice dispersion at a momentum scale: the relative spread
 // (standard deviation over mean) of the phase speed omega(k) / |k| as the momentum
 // direction sweeps the probe set, with |k| fixed at `scale`. Zero is perfectly
