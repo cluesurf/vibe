@@ -21,12 +21,12 @@
 
 ## What this repo is
 
-`@cluesurf/vibe` is a finite, discrete, reproducible simulator that
-turns the theory into runnable measurements. It is the bench where the
-model is built, stress-tested, and checked against known physics. It
-generates the discrete substrate (the mesh), runs the one local rule
-over it in discrete beats, and measures what emerges, so each question
-becomes a concrete experiment that either works or does not.
+This codebase is a finite, discrete, reproducible simulator that turns
+the theory into runnable measurements. It is the bench where the model
+is built, stress-tested, and checked against known physics. It generates
+the discrete substrate (the mesh), runs the one local rule over it in
+discrete beats, and measures what emerges, so each question becomes a
+concrete experiment that either works or does not.
 
 Everything is finite and deterministic, so every result is exactly
 reproducible. The base never relies on randomness. Real numbers appear
