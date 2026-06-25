@@ -1,0 +1,28 @@
+experiment,depth,live_status,reference_target,reference_value,measured_value,verdict,note
+quantum/bell-nonlocality,L1,pass,CHSH classical / Tsirelson,2 / 2.828427,2 / 2.828427,match,exact to 1e-9; analytic restatement of textbook CHSH
+quantum/entanglement-bell,L3,pass,Tsirelson bound + concurrence,2.828427 / 1.0,2.828427 / 1.0,match,control product state gives CHSH 2; maximally entangled
+quantum/born-rule,L2,pass,Born exponent,2,2 (residual 3e-11),match,"exponent forced by the functional equation, not assumed"
+quantum/contextuality-peres-mermin,L2,pass,Peres-Mermin quantum / noncontextual,6 / 4,6 / 4,match,classical bound 4 brute-forced over 512 assignments
+quantum/leggett-garg,L2,pass,Leggett-Garg quantum / macrorealist,1.5 / 1,1.5 / 1,match,quantum max at theta = pi/3
+gauge/weinberg-angle-geometric,L1,pass,sin^2(theta_W) at GUT / trace / count,0.375 / 0 / 16,0.375 / 0 / 16,match,3/8 exact from the discrete charge content
+gauge/electroweak-prediction,L1,pass,sin^2(theta_W) at GUT / fermion count,0.375 / 16,0.375 / 16,match,"same group-theory value, second file"
+gauge/weak-angle-prediction,L3,pass,sin^2(theta_W) bare / at M_Z,0.375 / 0.23129,0.375 / 0.2312,match,bare 3/8 is an output; MSSM-run 0.2308 vs measured 0.2312; SM-run 0.2074 misses
+gauge/rg-unification,L2,pass,coupling-unification gap (SM vs MSSM),SM misses / MSSM ~meets,SM -5.61 / MSSM -0.11,mapping-corrected,"measures the three-coupling unification gap, not sin^2 theta_W; curated map said the latter and was wrong"
+gauge/mass-hierarchy,L3,pass,charged-fermion span (decades),~5.53,observed 5.53 / mechanism 2.99,partial,"observed span matches; the rule reproduces ~3 of 5.5 decades, localization length stated not derived"
+gauge/flavor-mixing-pattern,L2,pass,Cabibbo (Gatto) predicted vs observed,0.217 / 0.22501,0.2171 / 0.2245,match-stale-input,"predicted 0.217 matches; the experiment hardcodes observed 0.2245 (pre-2024), reference updated to 0.22501"
+gauge/exceptional-jordan-generations,L1,open,J3(O) dim / generation identification,27 / open,27 / piece 8 vs 16,match,dim 27 forced; the 3-generation identification fails dimensionally (honest open)
+relativity/lorentz-violation-scale,L2,pass,D4 vs cubic anisotropy order,4 / 2,4.04 / 2.01,match,numerical fit; D4 markedly higher order than cubic
+relativity/lorentz-bound-3434,L3,pass,D4 anisotropy exponent (exact),4,6,enriched,"exact D4 moment identities cancel order 2 and 4, leaving order 6; stronger than the fitted ~4"
+relativity/discreteness-signature,L2,pass,dispersion deviation order,2,2.04,match,leading correction near 2; Planck-suppressed
+geometry/dimension,L2,pass,Myrheim-Meyer dimension (2D),2,2.05,match,"causal-set estimator; statistical (random sprinkling), labeled"
+geometry/self-occlusion-fraction,L1,pass,perceived fraction,0.75,0.75,match,3 of 4 dimensions; control directional-facing gives 0.5
+gravity/gr-einstein-equations,L2,pass,area-law saturation + light bending,area-law / bending 2,saturates / bending 2,match,area-law precondition measured; bending ratio 2 is the GR value
+gravity/area-law-universality,L2,pass,area-law exponent,2,1.85 to 1.95,match,mass-independent (universal for gapped fields)
+gravity/gravity-boundary,L1,pass,Newtonian potential exponent,-1,-0.96 to -1.04,match,"lattice Green function, finite-size extrapolated"
+gravity/gr-gravitational-waves,L0,pass,chirp exponent,-0.375,-0.3752,match-circular,"value equals -3/8 but the waveform and Peters formula are hardcoded; L0 circular, not evidence"
+gravity/trace-singlet,L2,pass,F4 order / site count,1152 / 24,1152 / 24,match,24 sites one F4 orbit; the only invariant is the trace singlet
+holography/rt-geodesic-3434,L3,pass,warp factor / RT ratio,18.2787 / 1.0,18.2787 / 0.975,match,deterministic; bulk radius logarithmic in region size
+holography/holographic-3434,L3,pass,boundary dominance (warp-1)/warp,0.9453,0.9453 (warp 18.289),match,flat control gives 0.146 (volume law)
+foundations/octonion-base-generator,L2,pass,octonion / sedenion / D4 / triality,8 / 16 / 24 / 3,div-algebra + zero-divisor + 24 + 3,match,octonion division + sedenion zero divisor + D4 24 + triality 3
+foundations/gauge-group-from-octonions,L2,pass,gauge group dimension,SM group 12,su3 8 + su2 3 + u1 1 = 12 (G2 14),mapping-corrected,"gives the SM gauge group dim 12, not SO(10) dim 45; curated map said SO(10) and was wrong"
+cosmology/expansion-rate,L2,pass,hyperbolic expansion ratio,>1,"{3,4,3,4} = 1.46",match,growth-ratio invariant > 1 for every hyperbolic symbol

@@ -1,0 +1,28 @@
+matrix,quantity,value,uncertainty,unit,source,verified,note
+CKM,|V_ud|,0.97435,0.00016,dimensionless,PDG-2024,2026-06-24,up-down quark mixing (near 1)
+CKM,|V_us|,0.22501,0.00068,dimensionless,PDG-2024,2026-06-24,the Cabibbo element
+CKM,|V_ub|,0.003732,0.000090,dimensionless,PDG-2024,2026-06-24,smallest CKM element
+CKM,|V_cd|,0.22487,0.00068,dimensionless,PDG-2024,2026-06-24,
+CKM,|V_cs|,0.97349,0.00016,dimensionless,PDG-2024,2026-06-24,
+CKM,|V_cb|,0.04183,0.00079,dimensionless,PDG-2024,2026-06-24,
+CKM,|V_td|,0.00858,0.00019,dimensionless,PDG-2024,2026-06-24,
+CKM,|V_ts|,0.04111,0.00077,dimensionless,PDG-2024,2026-06-24,
+CKM,|V_tb|,0.999118,0.000034,dimensionless,PDG-2024,2026-06-24,
+CKM,Cabibbo angle theta_C,13.00,0.04,degrees,PDG-2024,2026-06-24,arcsin(|V_us|=0.22501); was recorded 13.02
+CKM,angle theta_12,13.00,0.04,degrees,PDG-2024,2026-06-24,arcsin(sin theta_12=0.22501); was 13.04
+CKM,angle theta_13,0.214,0.005,degrees,PDG-2024,2026-06-24,arcsin(0.003732); was 0.201
+CKM,angle theta_23,2.40,0.04,degrees,PDG-2024,2026-06-24,arcsin(0.04183); was 2.38
+CKM,CP phase delta,65.7,1.5,degrees,PDG-2024,2026-06-24,delta=1.147 radians
+CKM,Jarlskog invariant J,3.12e-5,0.13e-5,dimensionless,PDG-2024,2026-06-24,measures CP violation (PDG global fit; was 3.08e-5)
+PMNS,sin^2(theta_12),0.307,0.012,dimensionless,NuFIT-6.0,2026-06-24,solar angle (NuFIT 6.0; was 0.304)
+PMNS,angle theta_12,33.68,0.73,degrees,NuFIT-6.0,2026-06-24,was 33.45
+PMNS,sin^2(theta_23),0.561,0.015,dimensionless,NuFIT-6.0,2026-06-24,atmospheric angle, normal ordering (NuFIT 6.0; was 0.573)
+PMNS,angle theta_23,48.5,1.0,degrees,NuFIT-6.0,2026-06-24,near maximal (was 49.2)
+PMNS,sin^2(theta_13),0.02195,0.00058,dimensionless,NuFIT-6.0,2026-06-24,reactor angle (NuFIT 6.0; was 0.02220)
+PMNS,angle theta_13,8.52,0.11,degrees,NuFIT-6.0,2026-06-24,was 8.57
+PMNS,CP phase delta_CP,177,20,degrees,NuFIT-6.0,2026-06-24,best fit, large uncertainty, normal ordering (was 194)
+PMNS,Delta m^2_21,7.49e-5,0.19e-5,eV^2,NuFIT-6.0,2026-06-24,solar splitting (NuFIT 6.0; was 7.42e-5)
+PMNS,Delta m^2_31,2.534e-3,0.025e-3,eV^2,NuFIT-6.0,2026-06-24,atmospheric splitting, normal ordering (NuFIT 6.0; was 2.515e-3)
+PMNS,tribimaximal sin^2(theta_12) target,0.333,0,dimensionless,vibe,derived,the geometric 1/3 pattern (theory-favored), vs observed 0.307
+PMNS,tribimaximal sin^2(theta_23) target,0.5,0,dimensionless,vibe,derived,maximal mixing pattern, vs observed 0.561
+PMNS,tribimaximal sin^2(theta_13) target,0,0,dimensionless,vibe,derived,the pattern predicts 0; observed small but nonzero 0.02195

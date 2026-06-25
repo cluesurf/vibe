@@ -1,0 +1,27 @@
+parameter,category,value,unit,vibe_origin_status,source,verified,note
+electromagnetic coupling alpha_em(0),gauge coupling,1/137.035999,dimensionless,free-input,CODATA-2022,2026-06-24,bare normalization free; geometry fixes ratios and running
+strong coupling alpha_s(M_Z),gauge coupling,0.1180,dimensionless,free-input,PDG-2024,2026-06-24,runs; geometry fixes the running not the bare value (was 0.1179)
+weak mixing angle sin^2(theta_W)(M_Z),gauge coupling,0.23129,dimensionless,geometric-target-at-GUT,PDG-2024,2026-06-24,equals 3/8 = 0.375 at unification (derived); 0.23129 at M_Z after running
+Higgs boson mass m_H,Higgs sector,125.20,GeV,free-input,PDG-2024,2026-06-24,a modulus (PDG-2024; was 125.25)
+Higgs vacuum expectation value v,Higgs sector,246.22,GeV,free-input,PDG-2024,2026-06-24,the electroweak scale
+up quark mass,charged-fermion mass,2.16,MeV,free-input,PDG-2024,2026-06-24,geometric origin = a depth; absolute value free (see particles.csv)
+down quark mass,charged-fermion mass,4.70,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free (was 4.67)
+strange quark mass,charged-fermion mass,93.5,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free (was 93.4)
+charm quark mass,charged-fermion mass,1273.0,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free
+bottom quark mass,charged-fermion mass,4183,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free
+top quark mass,charged-fermion mass,172570,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free (was 172690)
+electron mass,charged-fermion mass,0.51099895,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free
+muon mass,charged-fermion mass,105.6583755,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free
+tau mass,charged-fermion mass,1776.93,MeV,free-input,PDG-2024,2026-06-24,depth; absolute value free (was 1776.86)
+CKM angle theta_12 (Cabibbo),quark mixing,13.00,degrees,geometric-target,PDG-2024,2026-06-24,arcsin(|V_us|=0.22501); Gatto relation prediction to about one percent
+CKM angle theta_13,quark mixing,0.214,degrees,free-input,PDG-2024,2026-06-24,arcsin(|V_ub|=0.003732); was 0.201
+CKM angle theta_23,quark mixing,2.40,degrees,free-input,PDG-2024,2026-06-24,arcsin(|V_cb|=0.04183); was 2.38
+CKM CP phase delta,quark mixing,1.147,radians,free-input,PDG-2024,2026-06-24,about 65.7 degrees (was 1.144)
+neutrino splitting Delta m^2_21,neutrino mass,7.49e-5,eV^2,free-input,NuFIT-6.0,2026-06-24,solar mass-squared difference (NuFIT 6.0; was 7.42e-5)
+neutrino splitting Delta m^2_31,neutrino mass,2.534e-3,eV^2,free-input,NuFIT-6.0,2026-06-24,atmospheric mass-squared difference (normal ordering; was 2.514e-3)
+lightest neutrino mass,neutrino mass,<0.8,eV,free-input,PDG-2024,2026-06-24,KATRIN bound (sum of masses < 0.12 eV, Planck-2018)
+PMNS angle theta_12,neutrino mixing,33.68,degrees,geometric-target,NuFIT-6.0,2026-06-24,close to the tri/trimaximal pattern (NuFIT 6.0; was 33.4)
+PMNS angle theta_23,neutrino mixing,48.5,degrees,geometric-target,NuFIT-6.0,2026-06-24,near maximal mixing (NuFIT 6.0; was 49.0)
+PMNS angle theta_13,neutrino mixing,8.52,degrees,free-input,NuFIT-6.0,2026-06-24,the small reactor angle (NuFIT 6.0; was 8.57)
+PMNS CP phase delta_CP,neutrino mixing,177,degrees,free-input,NuFIT-6.0,2026-06-24,large uncertainty (NuFIT 6.0 best fit; was 194)
+neutrino Majorana phases,neutrino mixing,unknown,degrees,free-input,NuFIT-6.0,2026-06-24,present only if neutrinos are Majorana (2 phases)

@@ -1,0 +1,46 @@
+name,value,category,type,matches_data,source,verified,note
+ternary tone values,3,substrate,derived,n/a,vibe,derived,the minimal alphabet with a vacuum and a mirror
+bulk dimension,4,substrate,derived,yes,vibe,derived,4D bulk; cusp is 3D (the space we see)
+cusp dimension,3,substrate,derived,yes,vibe,derived,physical space is the 3D boundary
+tone words (3 to the 4th),81,substrate,derived,n/a,vibe,derived,all 4-slot ternary words
+perceived fraction of being,3/4,substrate,derived,n/a,vibe,derived,3 of 4 dimensions perceived; radial 4th hidden (self-occlusion experiment)
+octonion dimension,8,algebra,derived,n/a,math:Hurwitz,derived,the largest normed division algebra
+sedenion dimension,16,algebra,derived,n/a,math:Hurwitz,derived,has zero divisors; the control showing 8 is the ceiling
+division-algebra ladder,"1,2,4,8",algebra,derived,n/a,math:Hurwitz,derived,reals complexes quaternions octonions; nothing else
+binary tetrahedral group order,24,group,derived,n/a,math:quaternions-octonions,derived,the 24-cell vertices; double cover of the tetrahedral rotations
+24-cell vertices,24,geometry,derived,n/a,math:polytopes,derived,the directions / D4 roots
+24-cell edges,96,geometry,derived,n/a,math:polytopes,derived,
+24-cell faces (triangles),96,geometry,derived,n/a,math:polytopes,derived,
+24-cell cells (octahedra),24,geometry,derived,n/a,math:polytopes,derived,self-dual: 24 vertices = 24 cells
+D4 root count,24,group,derived,n/a,math:lie-groups,derived,equals the 24-cell vertices
+F4 root count,48,group,derived,n/a,math:lie-groups,derived,the cell symmetry group's roots
+F4 group order,1152,group,derived,n/a,math:lie-groups,derived,the symmetry of the 24-cell / {3,4,3,4}
+E8 root count,240,group,derived,n/a,math:lie-groups,derived,the integral octonion units
+triality reps,8+8+8,group,derived,n/a,math:quaternions-octonions,derived,8v + 8s + 8c of SO(8)
+triality order,3,group,derived,partial,math:quaternions-octonions,derived,the forced threefold; identification with 3 generations is OPEN
+SO(10) dimension,45,group,derived,yes,phys:gut,derived,a grand-unified gauge group on this substrate
+SO(10) spinor (one generation),16,group,derived,yes,phys:gut,derived,15 SM Weyl fermions plus a right-handed neutrino
+Albert algebra J3(O) dimension,27,algebra,derived,partial,math:quaternions-octonions,derived,the second forced threefold; generation identification OPEN
+knit pairings (11 double-factorial),10395,rule,derived,n/a,vibe,derived,collapse to 1 law by the cell symmetry
+warp factor (growth ratio),18.2787,geometry,derived,n/a,vibe,derived,cells per layer of the {3,4,3,4} bulk (hyperbolic); see holography/rt-geodesic-3434
+600-cell as inscribed 24-cells,5,geometry,derived,n/a,math:polytopes,derived,5 disjoint 24-cells inscribe the 600-cell
+charged fermions per generation,9,group,derived,yes,phys:gut,derived,e mu tau u c t d s b
+weak mixing sin^2(theta_W) at GUT,3/8,electroweak,derived,yes-at-GUT,phys:gut,derived,= 0.375 at unification from the charge content; runs to 0.23129 at M_Z
+GUT U(1) normalization factor,5/3,electroweak,derived,yes,phys:gut,derived,the standard SO(10) hypercharge normalization
+hypercharge trace,0,electroweak,derived,yes,phys:gut,derived,sum over the generation vanishes
+Cabibbo angle (Gatto relation),0.217,quark mixing,derived,approx,phys:gatto,derived,tan(theta_C) = sqrt(m_d / m_s) ~ 0.217 vs observed |V_us| = 0.22501
+CHSH classical bound,2,quantum,known,yes,phys:Tsirelson,derived,local hidden-variable maximum (reproduced)
+CHSH Tsirelson bound,2.828427,quantum,known,yes,phys:Tsirelson,derived,2 times sqrt 2; the quantum maximum (reproduced)
+CHSH algebraic maximum,4,quantum,known,yes,phys:Tsirelson,derived,the no-signaling box maximum (not reached by QM)
+Born rule exponent,2,quantum,derived,yes,phys:Born,derived,forced by additivity, not assumed
+Peres-Mermin quantum value,6,quantum,known,yes,phys:contextuality,derived,state-independent contextuality (reproduced)
+Peres-Mermin noncontextual bound,4,quantum,known,yes,phys:contextuality,derived,best classical value assignment (computed)
+Leggett-Garg quantum value,3/2,quantum,known,yes,phys:leggett-garg,derived,temporal Bell; reproduced
+Leggett-Garg macrorealist bound,1,quantum,known,yes,phys:leggett-garg,derived,classical temporal bound
+D4 Lorentz anisotropy order,4,relativity,derived,yes,vibe,derived,leading anisotropy is high order; violation suppressed (lorentz-violation-scale)
+cubic-lattice anisotropy order,2,relativity,derived,n/a,vibe,derived,the control: anisotropic already at order 2
+discreteness dispersion order,2,relativity,derived,n/a,vibe,derived,leading correction to the linear dispersion
+Myrheim-Meyer dimension (2D test),2,geometry,known,yes,phys:dimension,derived,causal-set dimension estimator
+area-law exponent,2,gravity,derived,yes,phys:ryu-takayanagi,derived,entanglement entropy scales as area
+Newtonian potential exponent,-1,gravity,known,yes,vibe,derived,1/r potential recovered (gravity-boundary)
+gravitational-wave chirp exponent,-3/8,gravity,known,yes,vibe,derived,inspiral frequency evolution (GR target reproduced)

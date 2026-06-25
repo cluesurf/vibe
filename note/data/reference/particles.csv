@@ -1,0 +1,19 @@
+name,symbol,kind,generation,mass,mass_unit,mass_uncertainty,electric_charge,spin,color,weak_isospin_T3_left,source,verified,note
+up quark,u,quark,1,2.16,MeV,0.07,+2/3,1/2,triplet,+1/2,PDG-2024,2026-06-24,MS-bar current mass at 2 GeV
+down quark,d,quark,1,4.70,MeV,0.07,-1/3,1/2,triplet,-1/2,PDG-2024,2026-06-24,MS-bar at 2 GeV (PDG-2024; was 4.67)
+strange quark,s,quark,2,93.5,MeV,0.8,-1/3,1/2,triplet,-1/2,PDG-2024,2026-06-24,MS-bar at 2 GeV (PDG-2024; was 93.4)
+charm quark,c,quark,2,1.2730,GeV,0.0046,+2/3,1/2,triplet,+1/2,PDG-2024,2026-06-24,MS-bar mass m_c
+bottom quark,b,quark,3,4.183,GeV,0.007,-1/3,1/2,triplet,-1/2,PDG-2024,2026-06-24,MS-bar mass m_b
+top quark,t,quark,3,172.57,GeV,0.29,+2/3,1/2,triplet,+1/2,PDG-2024,2026-06-24,direct-measurement world average (PDG-2024; was 172.69)
+electron,e,lepton,1,0.51099895000,MeV,0.00000000015,-1,1/2,none,-1/2,PDG-2024,2026-06-24,most precisely known mass
+electron neutrino,nu_e,lepton,1,<0.8,eV,,0,1/2,none,+1/2,PDG-2024,2026-06-24,direct bound KATRIN 2022 (was <1.1 first result); nonzero but tiny
+muon,mu,lepton,2,105.6583755,MeV,0.0000023,-1,1/2,none,-1/2,PDG-2024,2026-06-24,
+muon neutrino,nu_mu,lepton,2,<0.19,MeV,,0,1/2,none,+1/2,PDG-2024,2026-06-24,direct bound; truly sub-eV via oscillation
+tau,tau,lepton,3,1776.93,MeV,0.09,-1,1/2,none,-1/2,PDG-2024,2026-06-24,PDG-2024; was 1776.86
+tau neutrino,nu_tau,lepton,3,<18.2,MeV,,0,1/2,none,+1/2,PDG-2024,2026-06-24,direct bound; truly sub-eV
+photon,gamma,gauge boson,,0,exact,0,0,1,none,0,PDG-2024,2026-06-24,massless; PDG bound < 1e-18 eV
+W boson,W,gauge boson,,80.3692,GeV,0.0133,+1,1,none,,PDG-2024,2026-06-24,PDG world average; excludes CDF-2022 outlier (80.4335)
+Z boson,Z,gauge boson,,91.1880,GeV,0.0020,0,1,none,,PDG-2024,2026-06-24,electroweak neutral
+gluon,g,gauge boson,,0,exact,0,0,1,octet,0,PDG-2024,2026-06-24,massless; strong force; 8 color states
+Higgs boson,H,scalar,,125.20,GeV,0.11,0,0,none,,PDG-2024,2026-06-24,the only fundamental scalar (PDG-2024; was 125.25)
+graviton (hypothetical),G,gauge boson,,0,,,0,2,none,0,vibe,derived,not observed; spin-2 mediator of gravity
