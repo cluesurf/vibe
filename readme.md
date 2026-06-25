@@ -222,6 +222,40 @@ All docs live in `note/`. The entry points:
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
   is how to write an experiment that runs against every regular
   hyperbolic tessellation at once.
+- **[Reference data and verification](note/data/reference/readme.md)** is
+  the measuring stick: the real physics numbers the experiments are
+  checked against, and the live cross-check of each.
+
+## Reference data and verification
+
+The experiments are only as good as the numbers they are compared to, so
+those numbers live in one cited place:
+[`note/data/reference/`](note/data/reference/readme.md).
+
+- **What we gathered.** Every external value an experiment must match or
+  use as a comparison: the fundamental constants, the full Standard Model
+  particle table, the roughly 26 free Standard Model parameters, the CKM
+  and PMNS mixing matrices, the cosmological parameters, and the
+  geometric and group-theory targets the model derives (the ternary 3,
+  the 24 of the cell, the octonion ceiling 8, F4 order 1152,
+  sin^2(theta_W) = 3/8, the Tsirelson bound, the Born exponent, and so
+  on).
+- **What it contains.** Structured CSV plus a machine-readable
+  `reference.json`, with a prose [readme](note/data/reference/readme.md)
+  and a [bibliography](note/data/reference/sources.md). Every single row
+  carries a `source` tag and a `verified` date. The empirical values were
+  fetched from and reconciled against their primary sources on 2026-06-24
+  (CODATA 2022, PDG 2024, NuFIT 6.0, Planck 2018).
+- **How we used it.** The
+  [verification](note/data/reference/verification/readme.md) folder runs
+  the comparison-bearing experiments live and diffs each measured number
+  against the reference value, recording a status per experiment in
+  [`cross-check.csv`](note/data/reference/verification/cross-check.csv).
+  This is the double-and-triple-check rule applied to the data: it
+  confirmed the genuine matches (the quantum bounds, the 3/8 angle, F4,
+  the warp factor, the area law) and caught real problems (two mismapped
+  experiments, one circular result whose number was hardcoded, and one
+  result that is actually stronger than the table recorded).
 
 ## License
 
