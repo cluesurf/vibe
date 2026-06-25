@@ -1,0 +1,36 @@
+experiment,category,quantity,reference_or_target,type,tolerance,status,source,verified,note
+quantum/bell-nonlocality,quantum,CHSH classical bound,2,known,1e-9,reproduced,phys:Tsirelson,derived,local hidden-variable max by brute force
+quantum/bell-nonlocality,quantum,CHSH Tsirelson bound,2.828427 (2 sqrt 2),known,1e-9,reproduced,phys:Tsirelson,derived,quantum maximum on the substrate
+quantum/entanglement-bell,quantum,maximal concurrence,1.0,known,0.001,reproduced,phys:Tsirelson,derived,maximally entangled state
+quantum/born-rule,quantum,Born exponent,2,derived,exact,pass,phys:Born,derived,exponent forced by additivity not assumed
+quantum/contextuality-peres-mermin,quantum,Peres-Mermin quantum value,6,known,1e-9,pass,phys:contextuality,derived,vs noncontextual bound 4 (computed)
+quantum/leggett-garg,quantum,Leggett-Garg value,3/2,known,0.02,pass,phys:leggett-garg,derived,vs macrorealist bound 1
+gauge/weinberg-angle-geometric,electroweak,sin^2(theta_W) at GUT,3/8,derived,1e-12,pass,phys:gut,derived,from the discrete charge content; runs to 0.23129 at M_Z
+gauge/weinberg-angle-geometric,electroweak,hypercharge trace,0,derived,1e-12,pass,phys:gut,derived,sum over the generation vanishes
+gauge/weinberg-angle-geometric,electroweak,fermion count per generation,16,derived,exact,pass,phys:gut,derived,the 16 of SO(10)
+gauge/rg-unification,electroweak,three-coupling unification gap (SM vs MSSM),SM gap 5.61 / MSSM gap 0.11,measured,running,reproduced,PDG-2024,2026-06-24,measures coupling unification not sin^2 theta_W; the sin^2(theta_W)=0.23129 running prediction is in gauge/weak-angle-prediction (corrected by verification)
+gauge/rg-unification,electroweak,GUT U(1) normalization,5/3,derived,exact,pass,phys:gut,derived,standard SO(10) hypercharge normalization
+gauge/mass-hierarchy,electroweak,charged fermions,9,derived,exact,pass,phys:gut,derived,e mu tau u c t d s b
+gauge/mass-hierarchy,electroweak,top-over-electron mass span,~337700,measured,order-of-magnitude,context,PDG-2024,2026-06-24,about 5.5 decades; geometry gives the pattern not the value
+gauge/flavor-mixing-pattern,quark mixing,Cabibbo |V_us|,0.22501,measured,0.03,approx,PDG-2024,2026-06-24,vs Gatto relation sqrt(m_d/m_s) ~ 0.217 (phys:gatto)
+gauge/exceptional-jordan-generations,electroweak,Albert algebra J3(O) dimension,27,derived,exact,open,math:quaternions-octonions,derived,structure forced; identification with 3 generations is open
+gauge/exceptional-jordan-generations,electroweak,naive piece dimension vs generation,8 vs 16,derived,exact,honest-negative,vibe,derived,the naive identification fails dimensionally
+relativity/lorentz-violation-scale,relativity,D4 anisotropy leading order,4,derived,>cubic+1.5,pass,vibe,derived,vs cubic order 2 (control); violation high-order, below bounds
+relativity/discreteness-signature,relativity,dispersion deviation order,2,derived,1.5 to 2.5,pass,vibe,derived,leading correction to the linear dispersion
+geometry/dimension,geometry,Myrheim-Meyer dimension,2,known,0.5,reproduced,phys:dimension,derived,causal-set dimension estimator in 2D
+geometry/self-occlusion-fraction,geometry,perceived fraction,3/4,derived,exact,pass,vibe,derived,3 of 4 dimensions; central-symmetry control gives 1/2
+gravity/gr-einstein-equations,gravity,area-law exponent,2,derived,0.3,reproduced,phys:ryu-takayanagi,derived,entanglement entropy scales as area
+gravity/gravity-boundary,gravity,Newtonian potential exponent,-1,known,convergent,reproduced,vibe,derived,1/r potential recovered
+gravity/gr-gravitational-waves,gravity,chirp exponent,-3/8,known,,circular-L0,vibe,derived,value equals -3/8 but the waveform and Peters decay are hardcoded; L0 circular, not evidence (flagged by verification)
+gravity/trace-singlet,gravity,F4 group order,1152,derived,exact,pass,math:lie-groups,derived,symmetry of the 24-cell
+gravity/trace-singlet,gravity,D4 root count,24,derived,exact,pass,math:lie-groups,derived,the 24 directions
+holography/rt-geodesic-3434,holography,warp factor,18.2787,derived,convergent,pass,vibe,derived,growth ratio of the {3,4,3,4} bulk
+holography/rt-geodesic-3434,holography,Ryu-Takayanagi ratio,1.0,derived,convergent,reproduced,phys:ryu-takayanagi,derived,bulk radius over log-base-warp of cell count
+holography/holographic-3434,holography,boundary dominance,0.945 ((warp-1)/warp),derived,,pass,vibe,derived,almost all cells near the boundary
+foundations/octonion-base-generator,foundations,octonion dimension,8,derived,exact,pass,math:Hurwitz,derived,maximal normed division algebra
+foundations/octonion-base-generator,foundations,sedenion dimension (has zero divisors),16,derived,exact,pass,math:Hurwitz,derived,the control: 8 is the ceiling
+foundations/octonion-base-generator,foundations,D4 root count,24,derived,exact,pass,math:lie-groups,derived,= 24-cell vertices
+foundations/octonion-base-generator,foundations,triality order,3,derived,exact,pass,math:quaternions-octonions,derived,Spin(8) threefold
+foundations/gauge-group-from-octonions,foundations,Standard Model gauge group dimension,12,derived,exact,pass,vibe,derived,su3+su2+u1 = 8+3+1 = 12 (with G2 14 alongside); NOT SO(10) 45 (corrected by verification)
+cosmology/expansion-rate,cosmology,hyperbolic expansion ratio,>1,derived,,reproduced,vibe,derived,exponential growth (the wake = expansion)
+selves (all),model,model-level dynamics,n/a,model,varies,n/a,vibe,derived,freedom/alignment/selves experiments test the model not external physics numbers
