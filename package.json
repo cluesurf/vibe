@@ -23,7 +23,7 @@
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.15",
-    "tsx": "^3.12.7",
+    "tsx": "^4.22.4",
     "typescript": "^5.8.3"
   },
   "dependencies": {
