@@ -50,7 +50,10 @@ export default experiment({
     const spinorNegatedAt2piTurn = quaternionsClose(i2, [-1, 0, 0, 0])
     // the same 360-degree turn (i squared) leaves a vector fixed: vectors return at 2-pi, spinors need 4-pi.
     const vectorAtFullTurn = vectorAction(i2, testVector)
-    const vectorReturnsAt2pi = quaternionsClose(vectorAtFullTurn, testVector)
+    const vectorReturnsAt2pi = quaternionsClose(
+      vectorAtFullTurn,
+      testVector,
+    )
 
     const ok =
       isGroup &&

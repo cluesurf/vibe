@@ -49,7 +49,10 @@ export default experiment({
 
     for (let b = 0; b < beats; b++) {
       real = beat(real, knit)
-      realDrift = Math.max(realDrift, momentumDrift(totalMomentum(real), p0))
+      realDrift = Math.max(
+        realDrift,
+        momentumDrift(totalMomentum(real), p0),
+      )
     }
 
     // CONTROL: the lossy rule drifts the momentum.
@@ -58,7 +61,10 @@ export default experiment({
 
     for (let b = 0; b < beats; b++) {
       lossy = beat(lossy, erasingCollision)
-      lossyDrift = Math.max(lossyDrift, momentumDrift(totalMomentum(lossy), p0))
+      lossyDrift = Math.max(
+        lossyDrift,
+        momentumDrift(totalMomentum(lossy), p0),
+      )
     }
 
     // causal cone: a centered perturbation in vacuum, the radius must grow by one per beat (speed one).

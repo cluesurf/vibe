@@ -76,7 +76,10 @@ export function spinorAction(
   return quaternionMultiply(q, spinor)
 }
 
-export function vectorAction(q: Quaternion, vector: Quaternion): Quaternion {
+export function vectorAction(
+  q: Quaternion,
+  vector: Quaternion,
+): Quaternion {
   return quaternionMultiply(
     quaternionMultiply(q, vector),
     quaternionConjugate(q),

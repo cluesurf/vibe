@@ -84,7 +84,10 @@ export default experiment({
   },
 })
 
-function opposites(mesh: { degree: number; opposite(d: number): number }): number[] {
+function opposites(mesh: {
+  degree: number
+  opposite(d: number): number
+}): number[] {
   const out: number[] = []
 
   for (let d = 0; d < mesh.degree; d++) {

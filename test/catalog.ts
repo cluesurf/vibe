@@ -13,7 +13,7 @@ import { writeFileSync } from 'node:fs'
 import { allExperiments } from '@/test/scaffold/suite'
 import '@/test/experiment/all'
 
-const header = 'id,category,depth,paper,substrates,title'
+const header = 'code,id,category,depth,paper,substrates,title'
 
 // Sort the most important results first: by depth (L3 the emergent-and-novel results first, down to
 // L0 circular last), then by id, then by substrates.
@@ -46,8 +46,9 @@ const rows = allExperiments()
   .map(experiment => {
     const substrates = substratesOf(experiment)
     const title = experiment.title.replace(/"/g, '""')
+    const code = experiment.code ?? ''
 
-    return `${experiment.id},${experiment.category},${experiment.depth},${experiment.paper},${substrates},"${title}"`
+    return `${code},${experiment.id},${experiment.category},${experiment.depth},${experiment.paper},${substrates},"${title}"`
   })
 
 const csv = [header, ...rows].join('\n') + '\n'
