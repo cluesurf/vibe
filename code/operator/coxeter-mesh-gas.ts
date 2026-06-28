@@ -22,8 +22,8 @@ export function streamCoxeterMeshGas(input: {
 
   for (let cell = 0; cell < cells; cell++) {
     for (let d = 0; d < rank; d++) {
-      const target =
-        (adjacency[cell]![d]!) === -1 ? cell : adjacency[cell]![d]!
+      const neighbour = adjacency[cell]![d]!
+      const target = neighbour === -1 ? cell : neighbour
 
       out[target]![d] = state[cell]![d]!
     }
@@ -47,6 +47,23 @@ export function collideCoxeterMeshGas(input: {
         slots[forward ? (d + rank - 1) % rank : (d + 1) % rank]!,
     ),
   )
+}
+
+// A LOSSY control collide: a cyclic permutation as above, then slot 0 of every cell is zeroed, destroying
+// the charge that lands there. This breaks conservation inside cells without touching the streaming, so it
+// is the discriminator for the continuity law: the destroyed charge shows up as a nonzero per-region residual.
+export function eraseCoxeterMeshGas(input: {
+  state: readonly (readonly number[])[]
+  rank: number
+  forward: boolean
+}): number[][] {
+  const collided = collideCoxeterMeshGas(input)
+
+  for (const slots of collided) {
+    slots[0] = 0
+  }
+
+  return collided
 }
 
 // Total charge over all cells and direction slots.

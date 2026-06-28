@@ -62,6 +62,36 @@ export function cellMomentum(
   return momentum
 }
 
+// The coarse-velocity gradient energy of a momentum field: bin the cell momentum into slabs along gradAxis to
+// get the coarse velocity profile u(g), then sum the squared differences of neighbouring slabs (periodic). This
+// is a coarse "enstrophy" the truncated description tracks. When a smooth flow cascades to sharper gradients the
+// coarse energy grows even though the fine bound (sum of tone squared) is held exactly by the reversible rule.
+export function coarseGradientEnergy(input: {
+  will: Will
+  directions: number[][]
+  side: number
+  gradAxis: number
+  momAxis: number
+}): number {
+  const { will, directions, side, gradAxis, momAxis } = input
+
+  const profile = new Array<number>(side).fill(0)
+
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    const g = coordAlong(cell, gradAxis, side)
+    profile[g]! += cellMomentum(will, cell, directions, momAxis)
+  }
+
+  let energy = 0
+
+  for (let g = 0; g < side; g++) {
+    const difference = profile[(g + 1) % side]! - profile[g]!
+    energy += difference * difference
+  }
+
+  return energy
+}
+
 // A deterministic transverse shear, a dense thermal gas (collidable head-on pairs, with empty rotation targets)
 // plus a sinusoidal momAxis-momentum bias varying along gradAxis. No random, the state is a fixed function of the
 // cell coordinate. This is the lattice-gas analogue of a sheared fluid u_momAxis(gradAxis) = A sin(k gradAxis).
