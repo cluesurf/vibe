@@ -25,6 +25,7 @@ export { chainOperators }
 
 export default experiment({
   id: 'quantum/quantum-walk',
+  code: 'E-QTM-0023',
   title:
     'a quantum walk is ballistic while a classical walk is diffusive',
   category: 'quantum',

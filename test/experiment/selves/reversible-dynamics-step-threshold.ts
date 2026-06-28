@@ -25,6 +25,7 @@ import {
 
 export default experiment({
   id: 'selves/reversible-dynamics-step-threshold',
+  code: 'E-SLF-0104',
   title:
     'reversible discrete dynamics conserves the Skyrmion charge at small steps, chaotic at large (coarse) steps',
   category: 'selves',

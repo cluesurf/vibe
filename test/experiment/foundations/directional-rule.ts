@@ -18,6 +18,7 @@ import { conservesCharge, isReversible } from '@/code/check/invariant'
 // by construction.
 export default experiment({
   id: 'foundations/directional-rule',
+  code: 'E-FND-0013',
   title:
     'the directional lattice-gas conserves charge and is exactly reversible',
   category: 'foundations',

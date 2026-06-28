@@ -26,6 +26,7 @@ const RIGHT_OF = 71
 
 export default experiment({
   id: 'selves/active-persistence',
+  code: 'E-SLF-0002',
   title:
     'a self relocates to whichever side a refuge is on and survives a lethal threat, dying with none',
   category: 'selves',

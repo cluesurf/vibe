@@ -34,6 +34,7 @@ function shuffled(labels: number[], seed: number): number[] {
 
 export default experiment({
   id: 'selves/coarse-spectral-gap',
+  code: 'E-SLF-0031',
   title:
     'the Markov model of a real self has a slow mode the time-shuffled control lacks',
   category: 'selves',

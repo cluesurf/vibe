@@ -49,6 +49,7 @@ export function betheGravity(): {
 
 export default experiment({
   id: 'holography/bethe-gravity',
+  code: 'E-HLG-0002',
   title:
     'the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2',
   category: 'holography',

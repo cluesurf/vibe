@@ -60,6 +60,7 @@ export function directionalRule(): {
 
 export default experiment({
   id: 'spin/directional-rule',
+  code: 'E-SPN-0011',
   title:
     'a charge with a direction streams ballistically while a memoryless scalar diffuses',
   category: 'spin',

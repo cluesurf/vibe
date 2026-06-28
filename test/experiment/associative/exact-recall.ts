@@ -55,6 +55,7 @@ export function associativeExactRecall(input?: {
 
 export default experiment({
   id: 'associative/exact-recall',
+  code: 'E-MMR-0005',
   title:
     'a content-addressable memory on the {3,4,3,4} bulk recalls every stored word exactly with no false positives',
   category: 'associative',

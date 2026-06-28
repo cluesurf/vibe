@@ -89,6 +89,7 @@ export function universality(): {
 // holds for any field.
 export default experiment({
   id: 'computation/p213-universality',
+  code: 'E-CMP-0006',
   title:
     'the flat {4,3,4} cusp runs the reversible Margolus billiard-ball CA (ballistic wire plus exact reversibility)',
   category: 'computation',

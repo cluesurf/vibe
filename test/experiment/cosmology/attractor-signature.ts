@@ -14,6 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/attractor-signature',
+  code: 'E-CSM-0002',
   title:
     'the genesis attractor is canonical, a definite density and balance and clustering reached from any start',
   category: 'cosmology',

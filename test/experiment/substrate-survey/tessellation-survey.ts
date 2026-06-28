@@ -102,6 +102,7 @@ export function tessellationSurvey(): {
 
 export default experiment({
   id: 'substrate-survey/tessellation-survey',
+  code: 'E-SBT-0029',
   title:
     'one battery across the whole regular hyperbolic catalog: matter propagates on every one, the spinor coin is exactly the 24-cell-faceted few',
   category: 'substrate-survey',

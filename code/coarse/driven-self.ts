@@ -99,7 +99,7 @@ export function drivenSelf(input: {
     }
 
     for (let j = 0; j < inputCells.length; j++) {
-      tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
+      tone[inputCells[j]!] = signals[inputSector[j]!]!
     }
 
     if (withDynamics) {
@@ -108,7 +108,7 @@ export function drivenSelf(input: {
 
     // re-clamp the input boundary as a steady source, so the interior reads the environment, not a leak.
     for (let j = 0; j < inputCells.length; j++) {
-      tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
+      tone[inputCells[j]!] = signals[inputSector[j]!]!
     }
 
     interior.push(meanOver(interiorCells))

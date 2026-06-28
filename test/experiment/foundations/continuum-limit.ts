@@ -69,6 +69,7 @@ export function continuumLimit(input: {
 
 export default experiment({
   id: 'foundations/continuum-limit',
+  code: 'E-FND-0009',
   title:
     'the dimension estimate agrees with the continuum value at all N',
   category: 'foundations',

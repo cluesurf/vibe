@@ -30,6 +30,7 @@ const growthRatio = (shells: number[]): number => {
 
 export default experiment({
   id: 'substrate-survey/pentacomb-mesh-rule',
+  code: 'E-SBT-0018',
   title:
     'the 5D pentacomb is a curved mesh that runs the reversible conserving rule on its real generated geometry',
   category: 'substrate-survey',

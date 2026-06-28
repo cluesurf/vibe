@@ -43,6 +43,7 @@ export function associativeTessellationSweep(input?: {
 
 export default experiment({
   id: 'associative/tessellation-sweep',
+  code: 'E-MMR-0016',
   title:
     'the content-addressable memory recalls every stored word exactly on every buildable regular hyperbolic tessellation',
   category: 'associative',

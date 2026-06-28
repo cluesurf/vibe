@@ -168,6 +168,7 @@ export function selfMaintenance(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/self-maintenance',
+  code: 'E-SLF-0114',
   title:
     'a self heals its own damage by the rule alone, control with no surround does not',
   category: 'selves',

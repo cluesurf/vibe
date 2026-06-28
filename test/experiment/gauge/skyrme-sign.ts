@@ -46,6 +46,7 @@ export function skyrmeSign(): {
 
 export default experiment({
   id: 'gauge/skyrme-sign',
+  code: 'E-FRC-0046',
   title:
     'on a real 3D texture the exchange energy grows with size and the Skyrme energy falls, the Derrick scaling',
   category: 'gauge',

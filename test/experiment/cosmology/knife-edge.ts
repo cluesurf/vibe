@@ -10,6 +10,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/knife-edge',
+  code: 'E-CSM-0029',
   title:
     'the genesis threshold is exactly arrow zero at every lattice size, the void is a scale-free measure-zero dead point',
   category: 'cosmology',

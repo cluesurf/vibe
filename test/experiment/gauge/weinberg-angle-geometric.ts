@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gauge/weinberg-angle-geometric',
+  code: 'E-FRC-0055',
   title:
     'the weak mixing angle sin^2(theta_W) = 3/8 is pinned by the discrete charge content, and an altered charge breaks it',
   category: 'gauge',
@@ -31,6 +32,7 @@ export default experiment({
     const altered = STANDARD_MODEL_GENERATION.map((f, i) =>
       i === 0 ? { ...f, q: 0.5 } : f,
     )
+
     const sinSquaredAltered = weinbergAngleAtUnification(altered)
 
     const ok =

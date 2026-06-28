@@ -47,6 +47,7 @@ export function branchingExpansion(input: {
 
 export default experiment({
   id: 'cosmology/growth-expansion',
+  code: 'E-CSM-0027',
   title:
     'net-positive birth gives emergent expansion (static control at q=0)',
   category: 'cosmology',

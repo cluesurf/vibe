@@ -137,6 +137,7 @@ export function sliverTransport(input?: {
 
 export default experiment({
   id: 'relativity/sliver-transport',
+  code: 'E-RLT-0034',
   title:
     'a long geodesic tube shows ballistic transport with a finite escape speed',
   category: 'relativity',

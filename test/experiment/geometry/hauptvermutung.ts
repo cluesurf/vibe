@@ -39,6 +39,7 @@ function study(): { mean: number; std: number; samples: number[] } {
 
 export default experiment({
   id: 'geometry/hauptvermutung',
+  code: 'E-GMT-0016',
   title:
     'the recovered dimension is stable (near 3, low spread) across random sprinklings',
   category: 'geometry',

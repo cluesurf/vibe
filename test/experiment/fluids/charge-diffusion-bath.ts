@@ -26,6 +26,7 @@ import {
 
 export default experiment({
   id: 'fluids/charge-diffusion-bath',
+  code: 'E-FLD-0002',
   title:
     'the conserved charge wave recurs in the reversible bulk (not diffusive), real charge diffusion needs the bath',
   category: 'fluids',

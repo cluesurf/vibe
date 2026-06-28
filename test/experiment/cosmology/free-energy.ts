@@ -136,6 +136,7 @@ export function p12Crossing(input: { size: number }): {
 
 export default experiment({
   id: 'cosmology/free-energy',
+  code: 'E-CSM-0022',
   title:
     'the manifold phase wins the sum over histories above a finite coupling',
   category: 'cosmology',

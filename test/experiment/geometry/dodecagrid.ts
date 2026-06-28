@@ -82,6 +82,7 @@ export function dodecagrid(input: { seed: number }): {
 
 export default experiment({
   id: 'geometry/dodecagrid',
+  code: 'E-GMT-0010',
   title:
     'the 3D hyperbolic honeycomb {5,3,4} is Lorentz-safe, a flat cubic lattice is not',
   category: 'geometry',

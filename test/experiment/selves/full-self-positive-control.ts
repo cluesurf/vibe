@@ -27,6 +27,7 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
   id: 'selves/full-self-positive-control',
+  code: 'E-SLF-0052',
   title:
     'positive control: rest slot plus an (explicit, cheat) attraction give a full self (identity, self-repair, radiation)',
   category: 'selves',

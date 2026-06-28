@@ -86,8 +86,8 @@ export function perceptionMatchingSweepCsr(input: {
       }
 
       const [a, b] = perceptionPermutation(tone[v]!, tone[w]!)
-      tone[v] = a as -1 | 0 | 1
-      tone[w] = b as -1 | 0 | 1
+      tone[v] = a
+      tone[w] = b
       matched[v] = 1
       matched[w] = 1
       break
@@ -145,8 +145,8 @@ export function perceptionMatchingSweep3d(input: {
       }
 
       const [na, nb] = perceptionPermutation(tone[v]!, tone[w]!)
-      tone[v] = na as -1 | 0 | 1
-      tone[w] = nb as -1 | 0 | 1
+      tone[v] = na
+      tone[w] = nb
       matched[v] = 1
       matched[w] = 1
       break
@@ -187,8 +187,8 @@ export function perceptionEdgeColoringSweep(input: {
       const u = eu[e]!
       const v = ev[e]!
       const ni = table[3 * (tone[u]! + 1) + (tone[v]! + 1)]!
-      tone[u] = (Math.floor(ni / 3) - 1) as -1 | 0 | 1
-      tone[v] = ((ni % 3) - 1) as -1 | 0 | 1
+      tone[u] = (Math.floor(ni / 3) - 1)
+      tone[v] = ((ni % 3) - 1)
     }
   }
 }
@@ -211,7 +211,7 @@ export function perceptionBlockBeat(input: {
     const w = (i + 1) % length
     const idx = (tone[v]! + 1) * 3 + (tone[w]! + 1)
     const ni = table[idx]!
-    tone[v] = (Math.floor(ni / 3) - 1) as -1 | 0 | 1
-    tone[w] = ((ni % 3) - 1) as -1 | 0 | 1
+    tone[v] = (Math.floor(ni / 3) - 1)
+    tone[w] = ((ni % 3) - 1)
   }
 }

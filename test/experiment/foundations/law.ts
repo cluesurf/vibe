@@ -49,6 +49,7 @@ function singleFlipPerm(cells: number): Int32Array {
 
 export default experiment({
   id: 'foundations/law',
+  code: 'E-FND-0031',
   title:
     'scanning reversible rules for a local bounded-below Hamiltonian',
   category: 'foundations',

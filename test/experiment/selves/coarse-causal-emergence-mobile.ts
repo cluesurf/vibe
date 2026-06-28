@@ -89,6 +89,7 @@ function centroidSeries(input: {
 
 export default experiment({
   id: 'selves/coarse-causal-emergence-mobile',
+  code: 'E-SLF-0024',
   title:
     'mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode (honest negative)',
   category: 'selves',

@@ -340,7 +340,7 @@ export function csrEccentricity(input: {
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
 
-          if (dist[w]! > ecc) {
+          if (dist[w] > ecc) {
             ecc = dist[w]!
             far = w
           }

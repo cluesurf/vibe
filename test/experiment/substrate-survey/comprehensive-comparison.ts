@@ -83,8 +83,8 @@ const SCALE = 12000
 
 function build(s: Sub): CellGraph {
   return s.flat
-    ? buildEuclideanLattice({ symbol: s.sym as never, maxCells: SCALE })
-    : buildCellGraph({ symbol: s.sym as never, maxCells: SCALE })
+    ? buildEuclideanLattice({ symbol: s.sym, maxCells: SCALE })
+    : buildCellGraph({ symbol: s.sym, maxCells: SCALE })
 }
 
 function battery(s: Sub): Record<string, string> {
@@ -119,7 +119,7 @@ function battery(s: Sub): Record<string, string> {
   const cur = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+    cur[i] = Math.floor(rnd() * 3)
   }
 
   const churns =
@@ -168,6 +168,7 @@ function battery(s: Sub): Record<string, string> {
 
 export default experiment({
   id: 'substrate-survey/comprehensive-comparison',
+  code: 'E-SBT-0008',
   title:
     'the same battery on one substrate per dimension, only {3,4,3,4} scores on every physics row',
   category: 'substrate-survey',

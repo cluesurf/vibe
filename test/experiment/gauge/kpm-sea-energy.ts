@@ -110,6 +110,7 @@ export function kpmSeaEnergy(): {
 
 export default experiment({
   id: 'gauge/kpm-sea-energy',
+  code: 'E-FRC-0029',
   title:
     'the 3D Dirac sea energy of a texture soliton, probed for an interior minimum, the Skyrme sign',
   category: 'gauge',

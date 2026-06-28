@@ -106,6 +106,7 @@ export function unifiedEmergence(): {
 
 export default experiment({
   id: 'substrate-survey/unified-emergence-3434',
+  code: 'E-SBT-0030',
   title:
     'one 24-direction substrate splits into 8v+8s+8c, a boson sector and two fermion sectors under one 2pi rotation',
   category: 'substrate-survey',

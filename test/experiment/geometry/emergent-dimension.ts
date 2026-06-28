@@ -96,6 +96,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'geometry/emergent-dimension',
+  code: 'E-GMT-0011',
   title:
     'emergent dimension, flat grids unbiased (2/3/4), curved meshes exponential',
   category: 'geometry',

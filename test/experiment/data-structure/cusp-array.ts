@@ -11,6 +11,7 @@ import { busemannLevels } from '@/code/measure/radial'
 
 export default experiment({
   id: 'data-structure/cusp-array',
+  code: 'E-DST-0008',
   title:
     'SS14: a dense array belongs on the flat horosphere, the bulk interior is too sparse to be an array',
   category: 'data-structure',

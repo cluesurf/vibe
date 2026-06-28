@@ -46,6 +46,7 @@ function singletCount(
 
 export default experiment({
   id: 'gauge/neutrino-seesaw',
+  code: 'E-FRC-0037',
   title:
     'the neutrino seesaw, the so(10) 16-spinor right-handed neutrino gives the observed 0.05 eV scale, the su(5) 15 (no singlet) the control',
   category: 'gauge',

@@ -31,6 +31,7 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
   id: 'selves/rest-slot-identity',
+  code: 'E-SLF-0103',
   title:
     'a rest slot gives a persistent bound identity that radiates free disturbances (0C), self-repair still needs attraction',
   category: 'selves',

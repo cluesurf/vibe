@@ -190,6 +190,7 @@ export function substrateComputer(input?: { n?: number }): {
 
 export default experiment({
   id: 'computation/substrate-computer',
+  code: 'E-CMP-0010',
   title: 'a programmable register machine runs on the charge dynamics',
   category: 'computation',
   substrates: ['534'],

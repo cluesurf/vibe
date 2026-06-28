@@ -52,6 +52,7 @@ export function horosphere3434(): {
 // of a known tessellation.
 export default experiment({
   id: 'geometry/horosphere-3434',
+  code: 'E-GMT-0017',
   title:
     'the generic {3,4,3,4} horosphere band is a thin slab (~2.5D), not clean flat 3D',
   category: 'geometry',

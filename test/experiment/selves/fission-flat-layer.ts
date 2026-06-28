@@ -279,6 +279,7 @@ export function fissionFlatLayer(): {
 
 export default experiment({
   id: 'selves/fission-flat-layer',
+  code: 'E-SLF-0049',
   title:
     'a self divides on the flat layer where the hyperbolic bulk cannot',
   category: 'selves',

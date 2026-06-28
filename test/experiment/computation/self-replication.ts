@@ -13,6 +13,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'computation/self-replication',
+  code: 'E-CMP-0009',
   title:
     'a deterministic constructor makes a growing population of bit-identical copies, while a lossy one breaks heredity',
   category: 'computation',
@@ -20,17 +21,26 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const template = ternaryVector(64, makeRng({ seed: 90011 })).map(v =>
-      v === 0 ? 1 : v,
+    const template = ternaryVector(64, makeRng({ seed: 90011 })).map(
+      v => (v === 0 ? 1 : v),
     )
+
     const generations = 8
 
-    const faithful = replicate({ template, generations, faithful: true })
+    const faithful = replicate({
+      template,
+      generations,
+      faithful: true,
+    })
+
     const lossy = replicate({ template, generations, faithful: false })
 
     const grows = faithful.copies === 2 ** generations
-    const heredityHolds = faithful.allIdentical && faithful.meanIdentity === 1
-    const lossyBreaksHeredity = !lossy.allIdentical && lossy.meanIdentity < 0.999
+    const heredityHolds =
+      faithful.allIdentical && faithful.meanIdentity === 1
+
+    const lossyBreaksHeredity =
+      !lossy.allIdentical && lossy.meanIdentity < 0.999
 
     const ok = grows && heredityHolds && lossyBreaksHeredity
 

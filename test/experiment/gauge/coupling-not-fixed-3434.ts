@@ -83,6 +83,7 @@ export function couplingNotFixed(): {
 
 export default experiment({
   id: 'gauge/coupling-not-fixed-3434',
+  code: 'E-FRC-0009',
   title:
     'the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it',
   category: 'gauge',

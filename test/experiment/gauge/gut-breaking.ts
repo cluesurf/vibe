@@ -65,6 +65,7 @@ export function gutBreaking(): {
 
 export default experiment({
   id: 'gauge/gut-breaking',
+  code: 'E-FRC-0026',
   title:
     'so(10) breaks to su(5) to the Standard Model with the 16-spinor carrying a singlet',
   category: 'gauge',

@@ -101,6 +101,7 @@ export function csgCosmology(input: {
 
 export default experiment({
   id: 'cosmology/p13-cosmology',
+  code: 'E-CSM-0033',
   title: 'growth gives a monotone arrow of time and a finite dimension',
   category: 'cosmology',
   substrates: 'any',

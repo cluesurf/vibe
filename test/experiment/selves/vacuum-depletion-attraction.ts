@@ -31,6 +31,7 @@ import {
 
 export default experiment({
   id: 'selves/vacuum-depletion-attraction',
+  code: 'E-SLF-0147',
   title:
     'attraction from the active vacuum (no new field): depletion repairs range 2, a dedicated emission field range 3',
   category: 'selves',

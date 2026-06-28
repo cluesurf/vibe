@@ -34,9 +34,9 @@ function worldStep(env: Int8Array, beat: number): void {
   for (let i = 0; i < env.length; i++) {
     if ((i + beat) % 8 === 0) {
       if (env[i]! > 0) {
-        env[i] = (env[i]! - 1) as Tone
+        env[i] = (env[i]! - 1)
       } else if (env[i]! < 0) {
-        env[i] = (env[i]! + 1) as Tone
+        env[i] = (env[i]! + 1)
       }
     }
   }
@@ -72,7 +72,7 @@ function act(
     } else {
       // rock: a fixed pattern unrelated to the goal, only one third of its writes happen to land on the goal
       // value, the rest oppose it, so equal effort spent without goal-direction never reaches the goal
-      env[i] = (i % 3 === 0 ? 1 : -1) as Tone
+      env[i] = (i % 3 === 0 ? 1 : -1)
       done++
     }
   }

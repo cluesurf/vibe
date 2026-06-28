@@ -50,7 +50,9 @@ function dirs(): { vecs: number[][]; swap: number[] } {
 
   const key = (v: number[]): string => v.join(',')
   const idx = new Map(vecs.map((v, i) => [key(v), i]))
-  const swap = vecs.map(v => idx.get(key([v[1]!, v[0]!, v[2]!, v[3]!]))!)
+  const swap = vecs.map(
+    v => idx.get(key([v[1]!, v[0]!, v[2]!, v[3]!]))!,
+  )
 
   return { vecs, swap }
 }
@@ -88,6 +90,7 @@ function cpuBeat(
 ): Int32Array {
   const N = L * L * L * L
   const out = new Int32Array(N * DIRN)
+
   const ix = (x: number, y: number, z: number, w: number): number => {
     const a = ((x % L) + L) % L
     const b = ((y % L) + L) % L
@@ -107,9 +110,7 @@ function cpuBeat(
     for (let k = 0; k < DIRN; k++) {
       const o = vecs[k]!
       pop[k] =
-        inp[
-          ix(x - o[0]!, y - o[1]!, z - o[2]!, w - o[3]!) * DIRN + k
-        ]!
+        inp[ix(x - o[0]!, y - o[1]!, z - o[2]!, w - o[3]!) * DIRN + k]!
     }
 
     let mx = 0
@@ -245,6 +246,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'step' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
 
   // each direction is already 4D, filling a vec4<i32> exactly (4 i32, the array stride)
@@ -274,14 +276,15 @@ async function run(): Promise<void> {
           GPUBufferUsage.COPY_DST,
       })
 
-    let a = mk(SZ)
-    let b = mk(SZ)
+    const a = mk(SZ)
+    const b = mk(SZ)
     const offBuf = mk(DIRN * 4)
     const swapBuf = mk(DIRN)
     const uni = device.createBuffer({
       size: 16,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
+
     const stage = device.createBuffer({
       size: SZ * 4,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -305,6 +308,7 @@ async function run(): Promise<void> {
           { binding: 4, resource: { buffer: swapBuf } },
         ],
       })
+
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
       pass.setPipeline(pipeline)
@@ -319,6 +323,7 @@ async function run(): Promise<void> {
       enc.copyBufferToBuffer(buf, 0, stage, 0, SZ * 4)
       device.queue.submit([enc.finish()])
       await stage.mapAsync(GPUMapMode.READ)
+
       const out = new Int32Array(stage.getMappedRange().slice(0))
       stage.unmap()
 
@@ -335,6 +340,7 @@ async function run(): Promise<void> {
 
     for (let t = 1; t <= beats; t++) {
       stepOnce(src, dst)
+
       const tmp = src
       src = dst
       dst = tmp
@@ -356,6 +362,7 @@ async function run(): Promise<void> {
   const checkInit = seedProtoSelf(CHECK_L, 1)
   const cpuOne = cpuBeat(checkInit, CHECK_L, vecs, swap)
   const gpuCheck = await simulate(CHECK_L, 1, 1)
+
   let mismatches = 0
 
   for (let i = 0; i < checkN * DIRN; i++) {
@@ -406,4 +413,6 @@ async function run(): Promise<void> {
   )
 }
 
-run().catch(e => console.error(e instanceof Error ? e.message : String(e)))
+run().catch(e =>
+  console.error(e instanceof Error ? e.message : String(e)),
+)

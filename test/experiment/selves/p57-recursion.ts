@@ -335,6 +335,7 @@ export function recursion(input: { count: number; seed: number }): {
 
 export default experiment({
   id: 'selves/p57-recursion',
+  code: 'E-SLF-0091',
   title:
     'higher vibes are aggregate views (no stored layer), self-similar, inherited-stable, towering',
   category: 'selves',

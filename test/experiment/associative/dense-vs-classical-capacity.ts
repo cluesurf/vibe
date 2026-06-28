@@ -109,7 +109,7 @@ function recallRate(input: {
 
     for (let i = 0; i < size; i++) {
       if (rng.next() < fraction) {
-        cue[i] = -(cue[i] ?? 0) as -1 | 1
+        cue[i] = -(cue[i] ?? 0)
       }
     }
 
@@ -176,6 +176,7 @@ export function denseVsClassicalCapacity(input?: {
 
 export default experiment({
   id: 'associative/dense-vs-classical-capacity',
+  code: 'E-MMR-0004',
   title:
     'a dense higher-order energy stores more patterns than the classical Hopfield at matched recall',
   category: 'associative',

@@ -61,6 +61,7 @@ export function gaugeFromCoinTone(): {
 
 export default experiment({
   id: 'gauge/gauge-from-coin-tone',
+  code: 'E-FRC-0025',
   title:
     'the coin D4 plus the tone as a fifth axis builds D5 = so(10) and embeds the Standard Model',
   category: 'gauge',

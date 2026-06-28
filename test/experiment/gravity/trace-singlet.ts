@@ -193,6 +193,7 @@ function traceSourcedBinding(): {
 
 export default experiment({
   id: 'gravity/trace-singlet',
+  code: 'E-GRV-0038',
   title:
     'gravity is the forced F4-invariant trace, the unique symmetric scalar the 24-cell already carries',
   category: 'gravity',

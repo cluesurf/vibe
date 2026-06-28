@@ -43,7 +43,7 @@ export function s53333Dynamics(): {
   const cur = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+    cur[i] = Math.floor(rnd() * 3)
   }
 
   const churns =
@@ -55,6 +55,7 @@ export function s53333Dynamics(): {
 
 export default experiment({
   id: 'substrate-survey/s53333-dynamics',
+  code: 'E-SBT-0022',
   title:
     'the directional rule ports to the 5D {5,3,3,3,3} bulk, conserving charge and churning',
   category: 'substrate-survey',

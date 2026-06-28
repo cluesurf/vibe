@@ -30,6 +30,7 @@ const stabilizers: Pauli[] = [
 
 export default experiment({
   id: 'holography/happy-code-534',
+  code: 'E-HLG-0008',
   title:
     'the quantum HaPPY [[5,1,3]] perfect code on {5,3,4}, any 2 erasures recover the bulk logical qubit',
   category: 'holography',

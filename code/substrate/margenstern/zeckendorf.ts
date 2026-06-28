@@ -75,7 +75,7 @@ export function isZeckendorf(address: string): boolean {
   return (
     /^[01]+$/.test(address) &&
     !address.includes('11') &&
-    (address.length === 1 || address[0] !== '0')
+    (address.length === 1 || !address.startsWith('0'))
   )
 }
 

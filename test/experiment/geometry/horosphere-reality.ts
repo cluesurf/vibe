@@ -56,6 +56,7 @@ export function horosphereReality(): {
 // false.
 export default experiment({
   id: 'geometry/horosphere-reality',
+  code: 'E-GMT-0019',
   title:
     'the {3,4,3,4} horosphere band is intrinsically flat at finite distance, with a spread of cell degrees',
   category: 'geometry',

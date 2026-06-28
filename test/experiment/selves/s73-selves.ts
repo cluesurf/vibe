@@ -42,6 +42,7 @@ export function s73Selves(): {
 
 export default experiment({
   id: 'selves/s73-selves',
+  code: 'E-SLF-0108',
   title:
     'solitons on the 1D horocycle are kinks with no exchange statistics',
   category: 'selves',

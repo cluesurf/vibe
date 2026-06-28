@@ -19,6 +19,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/lorentz-violation-scale',
+  code: 'E-RLT-0023',
   title:
     'the D4 substrate suppresses Lorentz violation to a higher order in momentum than a hypercubic substrate',
   category: 'relativity',
@@ -33,6 +34,7 @@ export default experiment({
       probes,
       scales,
     })
+
     const cubic = anisotropySpreadOrder({
       directions: hypercubicAxes(4),
       probes,

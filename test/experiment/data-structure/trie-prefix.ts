@@ -27,6 +27,7 @@ const isPrefixPlusOne = (
 
 export default experiment({
   id: 'data-structure/trie-prefix',
+  code: 'E-DST-0025',
   title:
     'SS3: cell addresses form a trie, every address extends its parent by one digit',
   category: 'data-structure',

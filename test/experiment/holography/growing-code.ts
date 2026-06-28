@@ -229,6 +229,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
 
 export default experiment({
   id: 'holography/growing-code',
+  code: 'E-HLG-0007',
   title:
     'the growing holographic code raises its erasure threshold with shell age',
   category: 'holography',

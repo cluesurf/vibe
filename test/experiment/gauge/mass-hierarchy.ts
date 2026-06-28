@@ -147,6 +147,7 @@ export function massHierarchy(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'gauge/mass-hierarchy',
+  code: 'E-FRC-0031',
   title:
     'unfitted geometric spacing gives a multi-decade exponential mass hierarchy beating a power law',
   category: 'gauge',

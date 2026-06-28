@@ -9,9 +9,7 @@ import { makeRng } from '@/code/tool/rng'
 
 // A Hermitian operator as a matrix-vector product: writes H applied to `input`
 // into `output`.
-export interface HermitianOperator {
-  (input: Cx, output: Cx): void
-}
+export type HermitianOperator = (input: Cx, output: Cx) => void
 
 // The Chebyshev coefficients of |x| on [-1, 1]: c0 = 2/pi, c_{2k} =
 // -(4/pi)(-1)^k/(4k^2 - 1), odd coefficients zero. The series that turns moments

@@ -214,8 +214,8 @@ function vibeChurn(): {
         }
 
         const [na, nb] = perm(tone[v]!, tone[w]!)
-        tone[v] = na as -1 | 0 | 1
-        tone[w] = nb as -1 | 0 | 1
+        tone[v] = na
+        tone[w] = nb
         used[v] = 1
         used[w] = 1
         break
@@ -270,6 +270,7 @@ export function propagatingSelves(): {
 
 export default experiment({
   id: 'selves/selves-as-propagating-structures-3434',
+  code: 'E-SLF-0119',
   title:
     'identity-through-turnover scores a glider as a self and the perception-rule seed as churn',
   category: 'selves',

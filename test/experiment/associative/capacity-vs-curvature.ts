@@ -104,6 +104,7 @@ export function associativeCapacityVsCurvature(input?: {
 
 export default experiment({
   id: 'associative/capacity-vs-curvature',
+  code: 'E-MMR-0002',
   title:
     'associative capacity rises and search latency falls with curvature across the tessellation catalog, the flat cubic lattice being the worst on both',
   category: 'associative',

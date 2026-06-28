@@ -30,7 +30,7 @@ function perturbAndWatch(input: {
   const dist = distancesFrom({ graph, source: site })
   const control = base.slice()
   const perturbed = base.slice()
-  perturbed[site] = (perturbed[site] === 1 ? -1 : 1) as -1 | 1
+  perturbed[site] = (perturbed[site] === 1 ? -1 : 1)
 
   const movedA = new Uint8Array(graph.cellCount)
   const movedB = new Uint8Array(graph.cellCount)
@@ -73,6 +73,7 @@ function perturbAndWatch(input: {
 
 export default experiment({
   id: 'selves/coarse-light-cone',
+  code: 'E-SLF-0028',
   title:
     'a self contains and corrects an interior perturbation, the medium spreads it',
   category: 'selves',

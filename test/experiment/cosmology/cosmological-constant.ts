@@ -33,6 +33,7 @@ function actionFluctuation(input: {
 
 export default experiment({
   id: 'cosmology/cosmological-constant',
+  code: 'E-CSM-0006',
   title:
     'the action fluctuation scales as the square root of volume, the everpresent-Lambda law',
   category: 'cosmology',

@@ -111,6 +111,7 @@ export function signaling(input?: { n?: number }): {
 
 export default experiment({
   id: 'holography/signaling',
+  code: 'E-HLG-0020',
   title:
     'a signal crosses the whole universe through the bulk to a far self',
   category: 'holography',

@@ -44,11 +44,13 @@ export function sparkErodes(input: { n: number; trials: number }): {
       const self = makeSelf({ n, patterns: 2, seed: 2000 + k }).map(p =>
         p.map(v => (v === 0 ? 1 : v)),
       )
+
       const urge = ternaryVector(n, makeRng({ seed: 6000 + k }))
       // an exogenous dense pattern, uncorrelated with the self: the uncaused, not-by-you input
-      const exogenous = ternaryVector(n, makeRng({ seed: 90000 + k })).map(
-        v => (v === 0 ? 1 : v),
-      )
+      const exogenous = ternaryVector(
+        n,
+        makeRng({ seed: 90000 + k }),
+      ).map(v => (v === 0 ? 1 : v))
 
       const r = settleWithInjection({
         patterns: self,
@@ -78,11 +80,14 @@ export function sparkErodes(input: { n: number; trials: number }): {
   }
 
   const first = coherenceByFraction[0]!.coherence
-  const last = coherenceByFraction[coherenceByFraction.length - 1]!.coherence
+  const last =
+    coherenceByFraction[coherenceByFraction.length - 1]!.coherence
+
   // the determined self is clearly coherent (far above the near-zero chance overlap of random dense patterns)
   const deterministicHighest =
     coherenceByFraction.every(c => c.coherence <= first + 1e-9) &&
     first > 0.4
+
   // a high uncaused fraction erodes authorship by more than a third, judged relative to the determined baseline
   const bigDrop = last < first * 0.62
 
@@ -96,6 +101,7 @@ export function sparkErodes(input: { n: number; trials: number }): {
 
 export default experiment({
   id: 'selves/uncaused-spark-erodes-authorship',
+  code: 'E-SLF-0145',
   title:
     'an uncaused spark lowers self-coherence, so the deterministic self is the most self-authored',
   category: 'selves',

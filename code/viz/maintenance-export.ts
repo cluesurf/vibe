@@ -150,7 +150,7 @@ export function exportMaintenance(input?: {
   const target = new Int8Array(N)
 
   for (let k = 0; k < region.length; k++) {
-    target[region[k]!] = (k % 2 === 0 ? 1 : -1) as -1 | 1
+    target[region[k]!] = (k % 2 === 0 ? 1 : -1)
   }
 
   const shuffleRng = makeRng({ seed: 4 })
@@ -296,7 +296,7 @@ export function exportMaintenance(input?: {
 
     for (let i = 0; i < N; i++) {
       if (!inRegion[i] && r.next() < mediumDensity) {
-        tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
+        tone[i] = (r.next() < 0.5 ? 1 : -1)
       }
     }
   }

@@ -22,6 +22,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/measurement-settling',
+  code: 'E-QTM-0016',
   title:
     'measurement as deterministic settling, the open edge forms a definite irreversible record, the closed system stays coherent',
   category: 'quantum',

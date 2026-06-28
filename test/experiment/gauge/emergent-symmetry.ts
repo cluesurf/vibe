@@ -85,6 +85,7 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
 
 export default experiment({
   id: 'gauge/emergent-symmetry',
+  code: 'E-FRC-0015',
   title:
     'triality kills the degree-4 anisotropy, so the F4 coin symmetry is continuous to order 6',
   category: 'gauge',

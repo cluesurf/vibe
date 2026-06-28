@@ -14,6 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/minimal-seed',
+  code: 'E-CSM-0031',
   title:
     'the minimal seed is nothing, every seed boots the same attractor, and the rule is non-injective (Garden-of-Eden)',
   category: 'cosmology',

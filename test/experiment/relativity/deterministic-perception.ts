@@ -52,10 +52,7 @@ export function deterministicPerception(input?: {
   const tone = new Int8Array(L)
 
   for (let i = 0; i < L; i++) {
-    tone[i] = (rng.next() < 0.4 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.4 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const q0 = totalCharge(tone)
@@ -71,10 +68,7 @@ export function deterministicPerception(input?: {
   const r2 = makeRng({ seed: 3 })
 
   for (let i = 0; i < L; i++) {
-    init[i] = (r2.next() < 0.4 ? (r2.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    init[i] = (r2.next() < 0.4 ? (r2.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const work = init.slice()
@@ -105,21 +99,15 @@ export function deterministicPerception(input?: {
   const base = new Int8Array(L)
 
   for (let i = 0; i < L; i++) {
-    base[i] = (r3.next() < 0.4 ? (r3.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    base[i] = (r3.next() < 0.4 ? (r3.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const a = base.slice()
   const b = base.slice()
-  b[center] = ((b[center]! + 1) % 3 === 0 ? -1 : b[center]! + 1) as
-    | -1
-    | 0
-    | 1 // perturb one cell
+  b[center] = ((b[center]! + 1) % 3 === 0 ? -1 : b[center]! + 1) // perturb one cell
 
   if (b[center] === base[center]) {
-    b[center] = (base[center]! === 1 ? 0 : 1) as -1 | 0 | 1
+    b[center] = (base[center] === 1 ? 0 : 1)
   }
 
   const times: number[] = []
@@ -152,6 +140,7 @@ export function deterministicPerception(input?: {
 
 export default experiment({
   id: 'relativity/deterministic-perception',
+  code: 'E-RLT-0004',
   title:
     'the perception rule as a reversible block CA is charge-conserving and ballistic',
   category: 'relativity',

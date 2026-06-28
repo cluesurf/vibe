@@ -47,6 +47,7 @@ export function gaugeFromAction(input: { side: number }): {
 
 export default experiment({
   id: 'gauge/gauge-from-action',
+  code: 'E-FRC-0024',
   title:
     'the Maxwell operator is derived from the Wilson gauge action in the small-field limit',
   category: 'gauge',

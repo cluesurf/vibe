@@ -25,7 +25,7 @@ export const SECTOR_ROOT = '10'
 // a tile's color, decided by its last digit, a tile ending in 0 can take the "10" child (so it is a 3-node),
 // a tile ending in 1 cannot (so it is a 2-node)
 export function colorOf(address: string): TileColor {
-  return address[address.length - 1] === '0' ? 'white' : 'black'
+  return address.endsWith('0') ? 'white' : 'black'
 }
 
 // a tile's children addresses, left to right, the preferred son first

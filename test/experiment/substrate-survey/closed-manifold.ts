@@ -59,7 +59,7 @@ export function closedManifold(): {
         s += cur[j]!
       }
 
-      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3)
     }
 
     const tmp = prev
@@ -82,6 +82,7 @@ export function closedManifold(): {
 
 export default experiment({
   id: 'substrate-survey/closed-manifold',
+  code: 'E-SBT-0006',
   title:
     'a boundary-free closed hyperbolic lattice, the Cayley graph of PSL(2,7), removes the all-boundary confound',
   category: 'substrate-survey',

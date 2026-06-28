@@ -14,7 +14,7 @@ export function cellGraphSpectral(input: {
   t2: number
 }): { cells: number; degree: number; specDim: number } {
   const g = buildCellGraph({
-    symbol: input.symbol as never,
+    symbol: input.symbol,
     maxCells: input.maxCells,
   })
 

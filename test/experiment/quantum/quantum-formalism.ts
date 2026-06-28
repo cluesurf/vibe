@@ -83,6 +83,7 @@ export function quantumFormalism(input: { n: number }): {
 
 export default experiment({
   id: 'quantum/quantum-formalism',
+  code: 'E-QTM-0022',
   title: 'unitarity, the Born rule, and interference of amplitudes',
   category: 'quantum',
   substrates: 'any',

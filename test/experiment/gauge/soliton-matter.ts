@@ -68,6 +68,7 @@ function bindingCurve(phase: number): {
   // smallest separation, where two same-charge skyrmions simply fuse into one (a monotone
   // slide to contact, not a bound state). The deepest such interior well is the binding well.
   const eInf = curve[curve.length - 1]![1]
+
   let wellDepth = 0
   let dMin = -1
 
@@ -130,6 +131,7 @@ export function solitonMatter(): {
 
 export default experiment({
   id: 'gauge/soliton-matter',
+  code: 'E-FRC-0047',
   title:
     'two solitons bind in the attractive channel at a finite separation and the rest mass is additive in topological charge',
   category: 'gauge',

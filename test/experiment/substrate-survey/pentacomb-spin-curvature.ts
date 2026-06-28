@@ -41,6 +41,7 @@ const carriesSpinor = (representative: Quaternion): boolean =>
 
 export default experiment({
   id: 'substrate-survey/pentacomb-spin-curvature',
+  code: 'E-SBT-0020',
   title:
     'the 5D pentacomb {3,4,3,3,4} carries the D4 spinor directions AND negative curvature, spin plus curvature from the bare rule',
   category: 'substrate-survey',

@@ -98,6 +98,7 @@ export function cuspConvergence(): void {
 // this substrate, so L2. The small box is the control, it has not yet converged.
 export default experiment({
   id: 'geometry/cusp-convergence',
+  code: 'E-GMT-0007',
   title:
     'a finite cubic cusp chunk becomes continuum-like (dim 3, settled gravity) within a few dozen cells',
   category: 'geometry',

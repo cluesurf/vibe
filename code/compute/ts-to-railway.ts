@@ -45,7 +45,7 @@ export function compileToRailway(
 
   const fn = file.statements.find(ts.isFunctionDeclaration)
 
-  if (!fn || !fn.body) {
+  if (!fn?.body) {
     throw new Error(
       'expected a single function declaration with a body',
     )
@@ -288,7 +288,7 @@ export function compileToRailway(
   // the return register
   const ret = fn.body.statements.find(ts.isReturnStatement)
   const returnRegister =
-    ret && ret.expression && ts.isIdentifier(ret.expression)
+    ret?.expression && ts.isIdentifier(ret.expression)
       ? reg(ret.expression.text)
       : 0
 

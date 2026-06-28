@@ -200,10 +200,10 @@ function run(): void {
     }
   }
 
-  A[ctr] = ((A[ctr]! + 1) % 3) as 0 | 1 | 2
+  A[ctr] = ((A[ctr]! + 1) % 3)
 
   for (const w of nb[ctr]!) {
-    A[w] = ((A[w]! + 1) % 3) as 0 | 1 | 2
+    A[w] = ((A[w]! + 1) % 3)
   }
 
   const beat = (t: Uint8Array): void => {

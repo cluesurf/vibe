@@ -12,6 +12,7 @@ import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
 
 export default experiment({
   id: 'data-structure/lsm-levels',
+  code: 'E-DST-0016',
   title:
     'SS5: the radial shells are geometric LSM levels with a stable fan-out and logarithmic level count',
   category: 'data-structure',

@@ -277,6 +277,7 @@ export function perceptionDynamics(): {
 
 export default experiment({
   id: 'selves/perception-dynamics',
+  code: 'E-SLF-0093',
   title:
     'Q conserved, arrow creates life from peace, no-arrow relaxes, dynamic balance, diffuse and pump',
   category: 'selves',

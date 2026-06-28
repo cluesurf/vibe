@@ -52,6 +52,7 @@ export function s534Physics(): {
 
 export default experiment({
   id: 'gravity/s534-physics',
+  code: 'E-GRV-0032',
   title:
     'the {5,3,4} suite, a Bethe 1/r squared correlator, exponential shell growth, and exact icosahedral 4th-moment isotropy',
   category: 'gravity',

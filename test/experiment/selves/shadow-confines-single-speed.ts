@@ -22,6 +22,7 @@ import {
 
 export default experiment({
   id: 'selves/shadow-confines-single-speed',
+  code: 'E-SLF-0124',
   title:
     'shadow pressure confines a single-speed body at short range (the rest slot is not required for binding)',
   category: 'selves',

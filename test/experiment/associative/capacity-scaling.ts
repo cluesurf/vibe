@@ -54,6 +54,7 @@ export function associativeCapacityScaling(input?: {
 
 export default experiment({
   id: 'associative/capacity-scaling',
+  code: 'E-MMR-0001',
   title:
     'bulk associative capacity grows exponentially with radius while a flat cubic memory grows polynomially',
   category: 'associative',

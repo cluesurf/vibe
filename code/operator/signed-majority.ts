@@ -107,7 +107,7 @@ export function runAsynchronousSignedMajority(input: {
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
+    tone[i] = (rng.nextInt({ max: 3 }) - 1)
   }
 
   const fill: Map<number, number>[] = Array.from(
@@ -145,7 +145,7 @@ export function runAsynchronousSignedMajority(input: {
         changed++
       }
 
-      tone[v] = next as number
+      tone[v] = next
     }
 
     changedLast = changed

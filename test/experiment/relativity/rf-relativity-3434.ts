@@ -150,6 +150,7 @@ export function rfRelativity(): {
 
 export default experiment({
   id: 'relativity/rf-relativity-3434',
+  code: 'E-RLT-0031',
   title:
     'a ballistic light cone, 24-direction isotropy, the Dirac dispersion, and a rising arrow on {3,4,3,4}',
   category: 'relativity',

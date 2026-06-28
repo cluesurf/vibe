@@ -115,6 +115,7 @@ export function phPhoton(): {
 
 export default experiment({
   id: 'gauge/ph-photon-3434',
+  code: 'E-FRC-0041',
   title:
     'the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion',
   category: 'gauge',

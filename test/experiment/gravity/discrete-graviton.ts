@@ -163,6 +163,7 @@ export function discreteGraviton(input: { seed: number }): {
 
 export default experiment({
   id: 'gravity/discrete-graviton',
+  code: 'E-GRV-0009',
   title:
     'discrete graviton is gauge-invariant, massless, two polarizations verified as eigenmodes',
   category: 'gravity',

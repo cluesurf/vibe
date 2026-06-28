@@ -60,6 +60,7 @@ export function hierarchyBulkTree(): {
 
 export default experiment({
   id: 'holography/hierarchy-bulk-tree',
+  code: 'E-HLG-0010',
   title:
     'the {3,4,3,4} bulk radial tree is a self-similar hierarchy with constant branching',
   category: 'holography',

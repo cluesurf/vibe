@@ -52,6 +52,7 @@ function softenedLevels(l: number, count: number): number[] {
 
 export default experiment({
   id: 'spin/hydrogen-spectrum',
+  code: 'E-SPN-0018',
   title:
     'the hydrogen atom, the Rydberg series E_n proportional to -1/n^2 and the accidental l-degeneracy, lifted by a non-Coulomb control',
   category: 'spin',

@@ -42,6 +42,7 @@ import { componentCount, travelDistance } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/capture-needs-dissipation',
+  code: 'E-SLF-0016',
   title:
     'a reversible collision cannot capture, sticky reflection scatters elastically, so binding needs the bath',
   category: 'selves',

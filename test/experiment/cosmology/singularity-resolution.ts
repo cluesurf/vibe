@@ -95,6 +95,7 @@ export function minimumInterval(input: {
 
 export default experiment({
   id: 'cosmology/singularity-resolution',
+  code: 'E-CSM-0038',
   title: 'discreteness caps the curvature (finite, density-set)',
   category: 'cosmology',
   substrates: 'any',

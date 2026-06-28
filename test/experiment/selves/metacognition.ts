@@ -227,13 +227,13 @@ export function metacognition(input?: { n?: number }): {
     }
 
     for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      tone[i] = sigs[sectorOf[i]!]!
     }
 
     fullBeat(tone, eu, ev, moved, rng)
 
     for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      tone[i] = sigs[sectorOf[i]!]!
     }
 
     gSeries.push(meanOver(tone, self))
@@ -288,6 +288,7 @@ export function metacognition(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/metacognition',
+  code: 'E-SLF-0073',
   title:
     'the self-model predicts the self next state, beating local regions',
   category: 'selves',

@@ -114,6 +114,7 @@ export function avalancheCriticality(input?: { n?: number }): {
 
 export default experiment({
   id: 'renormalization/avalanche-criticality',
+  code: 'E-SCL-0001',
   title:
     'no scale-free avalanches at any background, perturbations spread ballistically to a fixed size',
   category: 'renormalization',

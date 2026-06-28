@@ -38,6 +38,7 @@ function localPlus(tone: Int8Array, cells: number[]): number {
 
 export default experiment({
   id: 'selves/surrogate-conservation',
+  code: 'E-SLF-0133',
   title:
     'the base conserves total charge exactly, the local re-estimate drifts, a leaking rule breaks it',
   category: 'selves',

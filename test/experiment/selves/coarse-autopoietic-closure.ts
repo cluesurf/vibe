@@ -73,6 +73,7 @@ function maintain(input: {
 
 export default experiment({
   id: 'selves/coarse-autopoietic-closure',
+  code: 'E-SLF-0022',
   title:
     'the self maintains a stable organization while its cells turn over, the cohesion-off control does not',
   category: 'selves',

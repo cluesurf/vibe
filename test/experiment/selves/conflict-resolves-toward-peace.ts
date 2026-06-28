@@ -75,7 +75,7 @@ export function resolveTowardPeace(input: { n: number }): {
   const opposed = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    opposed[i] = (i % 2 === 0 ? 1 : -1) as -1 | 1
+    opposed[i] = (i % 2 === 0 ? 1 : -1)
   }
 
   // agreeing: all pleasure, no conflict (the control)
@@ -95,6 +95,7 @@ export function resolveTowardPeace(input: { n: number }): {
 
 export default experiment({
   id: 'selves/conflict-resolves-toward-peace',
+  code: 'E-SLF-0034',
   title:
     'opposed tones resolve toward peace while agreeing tones persist, so the base valence arrow points at the center, not the pleasure pole',
   category: 'selves',
@@ -108,9 +109,11 @@ export default experiment({
     const opposedResolves = runs.every(
       r => r.opposedStart > 0.95 && r.opposedEnd < 0.05,
     )
+
     const agreeingPersists = runs.every(
       r => r.agreeingStart > 0.95 && r.agreeingEnd > 0.95,
     )
+
     const conserved = runs.every(r => r.conserved)
 
     const ok = opposedResolves && agreeingPersists && conserved

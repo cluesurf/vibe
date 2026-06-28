@@ -20,6 +20,7 @@ import { shadowPressureRun } from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/shadow-pressure-attraction',
+  code: 'E-SLF-0125',
   title:
     'a vacuum-excluding body attracts a test mass by discrete radiation-pressure shadow (correct sign, reversible bulk)',
   category: 'selves',

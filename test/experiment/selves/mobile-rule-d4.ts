@@ -39,6 +39,7 @@ const singleParticle = (mesh: Mesh, cell: number): Will =>
 
 export default experiment({
   id: 'selves/mobile-rule-d4',
+  code: 'E-SLF-0075',
   title:
     'a momentum-conserving reversible collision makes a particle travel on the D4 coin, the pair table pins it',
   category: 'selves',

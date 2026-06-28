@@ -23,6 +23,7 @@ export function spinor73(): {
 
 export default experiment({
   id: 'spin/spinor-73',
+  code: 'E-SPN-0035',
   title:
     'the {7,3} heptagonal coin carries no spinor, only integer-spin reps of D7',
   category: 'spin',

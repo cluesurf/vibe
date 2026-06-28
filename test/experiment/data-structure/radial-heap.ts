@@ -9,6 +9,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/radial-heap',
+  code: 'E-DST-0019',
   title:
     'SS4: the radial depth is a heap order, peek-min is the root in O(1)',
   category: 'data-structure',

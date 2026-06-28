@@ -137,6 +137,7 @@ export function emergentMacroRule(input: {
 
 export default experiment({
   id: 'renormalization/emergent-macro-rule',
+  code: 'E-SCL-0007',
   title:
     'a renormalized macro-rule emerges on tone-independent blocks in the ordered regime and fails when frustrated',
   category: 'renormalization',

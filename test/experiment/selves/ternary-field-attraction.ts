@@ -27,6 +27,7 @@ import {
 
 export default experiment({
   id: 'selves/ternary-field-attraction',
+  code: 'E-SLF-0138',
   title:
     'the attraction field is ternary tones: one trit per cell repairs range 2, three trits range 3 (no bits, no unbounded integers)',
   category: 'selves',

@@ -71,6 +71,7 @@ export function s534Selves(): {
 
 export default experiment({
   id: 'selves/s534-selves',
+  code: 'E-SLF-0107',
   title:
     'solitons on the 2D horosphere are anyonic, not the 3D fermions of {3,4,3,4}',
   category: 'selves',

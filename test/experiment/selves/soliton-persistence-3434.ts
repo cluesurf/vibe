@@ -90,7 +90,7 @@ export function solitonPersistence(): {
 
   const positions: number[] = []
 
-  let sz = solitonSizes(s)
+  const sz = solitonSizes(s)
 
   for (let t = 0; t < 30; t++) {
     positions.push(centerOfMass(s))
@@ -178,6 +178,7 @@ export function solitonPersistence(): {
 
 export default experiment({
   id: 'selves/soliton-persistence-3434',
+  code: 'E-SLF-0127',
   title:
     'a reversible conserving box-ball rule produces persistent solitons that survive collisions',
   category: 'selves',

@@ -23,6 +23,7 @@ const CONTROL_MAX = 0.05
 
 export default experiment({
   id: 'selves/two-self-interaction',
+  code: 'E-SLF-0144',
   title:
     'two opposite-charge selves annihilate at contact but not at range, same-charge selves never do',
   category: 'selves',

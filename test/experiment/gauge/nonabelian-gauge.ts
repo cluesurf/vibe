@@ -70,6 +70,7 @@ export function nonabelianGauge(): {
 
 export default experiment({
   id: 'gauge/nonabelian-gauge',
+  code: 'E-FRC-0039',
   title:
     'a non-abelian SO(3) Wilson loop is gauge invariant, curved, and order-dependent',
   category: 'gauge',

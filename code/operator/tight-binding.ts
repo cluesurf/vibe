@@ -25,6 +25,29 @@ export function ringHoppingHamiltonian(input: {
   return h
 }
 
+// 1D OPEN chain of `n` sites with uniform hopping `-t`, except ONE bond (between site `bondIndex` and
+// `bondIndex + 1`) weakened to `-t * weight`. With weight = 1 it is the uniform chain, with weight = 0 the
+// chain is cut in two at that bond. Used to tune a single "throat" link and watch the geometry across it
+// pinch off as its entanglement vanishes (the Van Raamsdonk entanglement-geometry test).
+export function weakBondChainHamiltonian(input: {
+  n: number
+  bondIndex: number
+  weight: number
+  hopping?: number
+}): DenseMatrix {
+  const { n, bondIndex, weight } = input
+  const t = input.hopping ?? 1
+  const h = makeDense({ rows: n, cols: n })
+
+  for (let i = 0; i < n - 1; i++) {
+    const w = i === bondIndex ? weight : 1
+    h.data[i * n + (i + 1)] = -t * w
+    h.data[(i + 1) * n + i] = -t * w
+  }
+
+  return h
+}
+
 // 1D OPEN chain of `n` sites with hopping `-t` and a STAGGERED mass: on-site potential
 // (-1)^i * mass. Half filling gives a Dirac field whose gap is set by `mass`: a massive field
 // saturates (area law), the massless (mass = 0) field grows as a conformal log.
@@ -108,7 +131,8 @@ export function gridPotentialApply(input: {
 
   for (let r = 0; r < n; r++) {
     let v = potential[r]! * phi[r]!
-    let rest = r
+
+    const rest = r
 
     for (let d = 0; d < dimension; d++) {
       const coord = Math.floor(rest / strides[d]!) % side

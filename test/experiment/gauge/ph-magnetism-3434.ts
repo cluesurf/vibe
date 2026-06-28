@@ -63,6 +63,7 @@ export function phMagnetism(): {
 
 export default experiment({
   id: 'gauge/ph-magnetism-3434',
+  code: 'E-FRC-0040',
   title:
     'a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control',
   category: 'gauge',

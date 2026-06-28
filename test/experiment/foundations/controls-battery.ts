@@ -198,6 +198,7 @@ export function controlsBattery(): {
 
 export default experiment({
   id: 'foundations/controls-battery',
+  code: 'E-FND-0010',
   title:
     'a negative-control battery, each property test catches a deliberately broken rule',
   category: 'foundations',

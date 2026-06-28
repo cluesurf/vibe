@@ -82,6 +82,7 @@ export function dodecagridNavigation(input: { seed: number }): {
 
 export default experiment({
   id: 'addressing/dodecagrid-navigation',
+  code: 'E-NVG-0003',
   title:
     'greedy hyperbolic-address routing delivers at low stretch on the dodecagrid',
   category: 'addressing',

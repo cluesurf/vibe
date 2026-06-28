@@ -56,13 +56,13 @@ export function collide(s: LatticeGasState): void {
     if (north === 0 && south === 0 && e === w && e !== 0) {
       s.E[i] = 0
       s.W[i] = 0
-      s.N[i] = e as -1 | 1
-      s.S[i] = e as -1 | 1
+      s.N[i] = e
+      s.S[i] = e
     } else if (e === 0 && w === 0 && north === south && north !== 0) {
       s.N[i] = 0
       s.S[i] = 0
-      s.E[i] = north as -1 | 1
-      s.W[i] = north as -1 | 1
+      s.E[i] = north
+      s.W[i] = north
     }
   }
 }

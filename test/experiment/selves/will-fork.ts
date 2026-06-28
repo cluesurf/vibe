@@ -130,6 +130,7 @@ export function willFork(): {
 
 export default experiment({
   id: 'selves/will-fork',
+  code: 'E-SLF-0150',
   title:
     'delays gratification with willpower, relapses when depleted, field overrides, sharp threshold',
   category: 'selves',

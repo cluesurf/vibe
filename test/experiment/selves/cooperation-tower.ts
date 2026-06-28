@@ -206,7 +206,7 @@ export function cooperationTower(): {
       const m = g.reduce((a, k) => a + c[k]!, 0) / g.length
 
       for (const k of g) {
-        c[k]! = m
+        c[k] = m
       } // share in balance, no grabbing within
 
       order += orderOf(g.length) // positive-sum, super-linear
@@ -286,6 +286,7 @@ export function cooperationTower(): {
 
 export default experiment({
   id: 'selves/cooperation-tower',
+  code: 'E-SLF-0035',
   title: 'integration wins on total order and recurs into a tower',
   category: 'selves',
   substrates: 'any',

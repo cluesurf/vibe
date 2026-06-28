@@ -140,6 +140,7 @@ function deSitterFromSubstrate(): { H: number; Lambda: number } {
 
 export default experiment({
   id: 'gravity/gr-black-hole-thermo',
+  code: 'E-GRV-0014',
   title:
     'on the measured area-law entropy, the horizon first law, Smarr, Bekenstein, and M cubed evaporation follow',
   category: 'gravity',

@@ -139,6 +139,7 @@ export function bdSignature(input: {
 
 export default experiment({
   id: 'gravity/graviton-from-action',
+  code: 'E-GRV-0019',
   title: 'graviton operator derived from the action, not typed in',
   category: 'gravity',
   substrates: 'any',
@@ -165,8 +166,18 @@ export default experiment({
     // convergence is the honest evidence that the kinetic operator of the field action
     // emerges from the discrete causal order, not just its sign. A higher density is a more
     // accurate measurement, not a speed knob.
-    const bdLow = bdSignature({ realizations: 40, count: 3000, seed: 1 })
-    const bdHigh = bdSignature({ realizations: 40, count: 6000, seed: 1 })
+    const bdLow = bdSignature({
+      realizations: 40,
+      count: 3000,
+      seed: 1,
+    })
+
+    const bdHigh = bdSignature({
+      realizations: 40,
+      count: 6000,
+      seed: 1,
+    })
+
     const ratioLow = bdLow.diffMean / bdLow.expectedDiff
     const ratioHigh = bdHigh.diffMean / bdHigh.expectedDiff
 

@@ -51,6 +51,7 @@ const sameVector = (a: number[], b: number[]): boolean =>
 
 export default experiment({
   id: 'selves/multi-speed-coin-b4',
+  code: 'E-SLF-0077',
   title:
     'the B4 two-speed coin is mobile and valid but does not lift the binding obstruction, capture is architectural',
   category: 'selves',

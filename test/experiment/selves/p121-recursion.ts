@@ -139,13 +139,13 @@ export function recursion(input?: { n?: number }): {
 
       // drive self 1 with the world
       for (const i of boundary1) {
-        tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+        tone[i] = sigs[sectorOf[i]!]!
       }
 
       // model1's current representation of the world
       const m1 = meanOver(tone, hub1cells)
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
-      const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0) as -1 | 0 | 1
+      const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0)
 
       for (const i of boundary2) {
         tone[i] = s2in
@@ -164,7 +164,7 @@ export function recursion(input?: { n?: number }): {
       }
 
       for (const i of boundary1) {
-        tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+        tone[i] = sigs[sectorOf[i]!]!
       }
 
       for (const i of boundary2) {
@@ -227,6 +227,7 @@ export function recursion(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/p121-recursion',
+  code: 'E-SLF-0086',
   title:
     'hub2 represents hub1, the chain world to model1 to model2 of model1',
   category: 'selves',

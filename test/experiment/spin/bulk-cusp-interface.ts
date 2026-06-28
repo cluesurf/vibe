@@ -96,6 +96,7 @@ export function bulkCuspInterface(): void {
 
 export default experiment({
   id: 'spin/bulk-cusp-interface',
+  code: 'E-SPN-0003',
   title:
     'the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp',
   category: 'spin',

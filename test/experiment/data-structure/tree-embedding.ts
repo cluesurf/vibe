@@ -14,6 +14,7 @@ import {
 
 export default experiment({
   id: 'data-structure/tree-embedding',
+  code: 'E-DST-0024',
   title:
     'DS6: a tree embeds in the hyperbolic disk at low distortion, the Euclidean plane cannot',
   category: 'data-structure',

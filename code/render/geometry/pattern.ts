@@ -37,7 +37,7 @@ export function patternClass(
     case 'characteristic': {
       const z = grid.zeckendorf(cell)
 
-      return z[z.length - 1] === '0' ? 0 : 1
+      return z.endsWith('0') ? 0 : 1
     }
   }
 }

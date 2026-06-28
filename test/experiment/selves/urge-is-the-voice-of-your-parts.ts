@@ -44,6 +44,7 @@ export function voiceOfParts(input: {
     const parts = Array.from({ length: input.parts }, (_, j) =>
       ternaryVector(n, makeRng({ seed: 1000 + k * 17 + j })),
     )
+
     const self = makeSelf({ n, patterns: 2, seed: 4000 + k })
 
     const urge = aggregateUrge(parts)
@@ -109,6 +110,7 @@ export function voiceOfParts(input: {
 
 export default experiment({
   id: 'selves/urge-is-the-voice-of-your-parts',
+  code: 'E-SLF-0146',
   title:
     'the urge is the aggregate of a self parts, the parts are real causes, and the self not the urge resolves the choice',
   category: 'selves',
@@ -117,7 +119,9 @@ export default experiment({
   paper: true,
   run() {
     const sizes = [60, 90, 120]
-    const runs = sizes.map(n => voiceOfParts({ n, parts: 5, trials: 30 }))
+    const runs = sizes.map(n =>
+      voiceOfParts({ n, parts: 5, trials: 30 }),
+    )
 
     const partsAreCausal = runs.every(r => r.partsCausal > 0.6)
     const mutedSilent = runs.every(r => r.mutedNoEffect > 0.98)

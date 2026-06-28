@@ -41,7 +41,7 @@ export function s73Dynamics(): {
   const cur = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+    cur[i] = Math.floor(rnd() * 3)
   }
 
   const churns =
@@ -53,6 +53,7 @@ export function s73Dynamics(): {
 
 export default experiment({
   id: 'substrate-survey/s73-dynamics',
+  code: 'E-SBT-0026',
   title:
     'the directional rule ports to the 2D {7,3} heptagrid, conserving charge and churning',
   category: 'substrate-survey',

@@ -34,7 +34,7 @@ function corrupt(input: {
 
   for (let i = 0; i < out.length; i++) {
     if (rng.next() < fraction) {
-      out[i] = -(out[i] ?? 0) as -1 | 1
+      out[i] = -(out[i] ?? 0)
     }
   }
 
@@ -183,6 +183,7 @@ export function hopfieldEmergentRecall(input?: {
 
 export default experiment({
   id: 'associative/hopfield-emergent-recall',
+  code: 'E-MMR-0007',
   title:
     'attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the honest negative',
   category: 'associative',

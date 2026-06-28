@@ -42,6 +42,7 @@ export function gravityFreeSpace(): {
 
 export default experiment({
   id: 'gravity/gravity-freespace',
+  code: 'E-GRV-0022',
   title:
     'the free-space 3D lattice Green function is exactly 1/(4 pi r), the clean 1/r Newton law',
   category: 'gravity',

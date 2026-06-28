@@ -24,6 +24,7 @@ function sameSet(left: number[][], right: number[][]): boolean {
 // B1, the tone seed: the dock is the norm-2 shell of four ternary tones.
 export default experiment({
   id: 'foundations/generator-tone-shell',
+  code: 'E-FND-0024',
   title:
     'the 24-cell dock is the norm-2 shell of {-1,0,+1}^4, the geometry is the tone',
   category: 'foundations',

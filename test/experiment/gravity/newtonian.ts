@@ -64,6 +64,7 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
 
 export default experiment({
   id: 'gravity/newtonian',
+  code: 'E-GRV-0029',
   title: '3D static potential is Newtonian (1/r is the best fit)',
   category: 'gravity',
   substrates: 'any',

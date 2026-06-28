@@ -15,6 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/exact',
+  code: 'E-FND-0019',
   title:
     'exact Boltzmann averages over every causal set on six elements',
   category: 'foundations',

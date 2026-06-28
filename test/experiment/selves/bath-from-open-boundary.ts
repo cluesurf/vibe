@@ -64,6 +64,7 @@ function centralCharge(input: {
 
 export default experiment({
   id: 'selves/bath-from-open-boundary',
+  code: 'E-SLF-0011',
   title:
     'an absorbing boundary is a bath (the burst radiates away and relaxes), the torus is not (it recurs)',
   category: 'selves',

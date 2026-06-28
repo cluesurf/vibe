@@ -51,6 +51,7 @@ function predictiveInformation(cohesion: number): number {
 
 export default experiment({
   id: 'selves/binding-improves-model',
+  code: 'E-SLF-0013',
   title:
     'a bound self carries more predictive information about its environment than an unbound gas',
   category: 'selves',

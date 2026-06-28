@@ -143,6 +143,7 @@ export function reproduction(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/reproduction',
+  code: 'E-SLF-0101',
   title:
     'fission is suppressed on hyperbolic geometry, a self stays one',
   category: 'selves',

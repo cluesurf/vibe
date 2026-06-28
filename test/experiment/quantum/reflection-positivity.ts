@@ -88,10 +88,7 @@ export function reflectionPositivity(input?: {
   const rng = makeRng({ seed: 3 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   for (let t = 0; t < 120; t++) {
@@ -194,6 +191,7 @@ export function reflectionPositivity(input?: {
 
 export default experiment({
   id: 'quantum/reflection-positivity',
+  code: 'E-QTM-0025',
   title:
     'in the massive regime spatial reflection positivity is undecided',
   category: 'quantum',

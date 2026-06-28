@@ -22,6 +22,7 @@ import type { Collision } from '@/code/rule/collision'
 
 export default experiment({
   id: 'selves/reversible-radiation-pressure',
+  code: 'E-SLF-0105',
   title:
     'reversible radiation pressure on B4 is sub-critical: a slow mass oscillates and disperses, it does not coherently drift toward depletion',
   category: 'selves',
@@ -77,13 +78,13 @@ export default experiment({
         const bEmpty = b0 === 0 && b1 === 0
 
         if (aHeadOn && bEmpty) {
-          slots[base + B[0]] = a0 as Will['data'][number]
-          slots[base + B[1]] = a0 as Will['data'][number]
+          slots[base + B[0]] = a0
+          slots[base + B[1]] = a0
           slots[base + A[0]] = 0
           slots[base + A[1]] = 0
         } else if (bHeadOn && aEmpty) {
-          slots[base + A[0]] = b0 as Will['data'][number]
-          slots[base + A[1]] = b0 as Will['data'][number]
+          slots[base + A[0]] = b0
+          slots[base + A[1]] = b0
           slots[base + B[0]] = 0
           slots[base + B[1]] = 0
         }

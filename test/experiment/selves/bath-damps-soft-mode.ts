@@ -28,6 +28,7 @@ import {
 
 export default experiment({
   id: 'selves/bath-damps-soft-mode',
+  code: 'E-SLF-0010',
   title:
     'the bath damps the emergent soft mode: open radiates the disturbance away and heals, closed recurs',
   category: 'selves',

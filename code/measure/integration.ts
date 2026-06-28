@@ -297,7 +297,7 @@ export function toneIntegration(input: {
       const base = new Int8Array(n)
 
       for (let i = 0; i < n; i++) {
-        base[i] = step(tone, i) as -1 | 0 | 1
+        base[i] = step(tone, i)
       }
 
       const repl = new Int8Array(n)

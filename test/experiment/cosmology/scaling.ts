@@ -43,6 +43,7 @@ function gapAtSize(n: number): number {
 
 export default experiment({
   id: 'cosmology/scaling',
+  code: 'E-CSM-0037',
   title:
     'the manifold and layered phases coexist with a wide gap that persists as size grows',
   category: 'cosmology',

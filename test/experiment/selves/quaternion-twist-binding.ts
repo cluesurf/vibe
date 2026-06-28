@@ -29,6 +29,7 @@ import {
 
 export default experiment({
   id: 'selves/quaternion-twist-binding',
+  code: 'E-SLF-0098',
   title:
     'the DM stabilizer is a pure quaternion rotation (a twist angle, the coin handedness), no real coupling: it binds a stable Skyrmion',
   category: 'selves',

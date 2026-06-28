@@ -63,6 +63,7 @@ export function collectiveSpinor(): {
 
 export default experiment({
   id: 'spin/collective-spinor-534',
+  code: 'E-SPN-0006',
   title:
     'a delocalized collective mode carries the disclination spinor sign for every mode, the topological spin is a field property',
   category: 'spin',

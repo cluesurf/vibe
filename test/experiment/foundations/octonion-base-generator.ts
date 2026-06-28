@@ -35,6 +35,7 @@ import {
 
 export default experiment({
   id: 'foundations/octonion-base-generator',
+  code: 'E-FND-0035',
   title:
     'the base substrate ({3,4,3,4}/24-cell) and the three generations descend from the octonions (the unique maximal division algebra) by triality',
   category: 'foundations',

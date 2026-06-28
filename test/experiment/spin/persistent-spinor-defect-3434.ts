@@ -50,6 +50,7 @@ export function persistentSpinorDefect(): {
 
 export default experiment({
   id: 'spin/persistent-spinor-defect-3434',
+  code: 'E-SPN-0026',
   title:
     'a half-integer disclination is a persistent topological defect carrying the spinor minus sign',
   category: 'spin',

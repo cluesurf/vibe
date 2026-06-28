@@ -37,6 +37,7 @@ function study(): { smallestMagnitudes: number[]; nearZero: number } {
 
 export default experiment({
   id: 'spin/spinor',
+  code: 'E-SPN-0034',
   title:
     'the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum',
   category: 'spin',

@@ -13,6 +13,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gauge/exceptional-jordan-generations',
+  code: 'E-FRC-0017',
   title:
     'the rank-3 Albert algebra is forced with an S_3 slot symmetry, but its three 8-dim pieces are not three 16-fermion generations',
   category: 'gauge',

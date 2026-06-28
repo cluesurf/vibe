@@ -121,10 +121,7 @@ export function cycleReversibility(input?: { n?: number }): {
   const rng = makeRng({ seed: 3 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const arrow = 0.1
@@ -236,6 +233,7 @@ export function cycleReversibility(input?: { n?: number }): {
 
 export default experiment({
   id: 'quantum/cycle-reversibility',
+  code: 'E-QTM-0008',
   title: 'no persistent charge circulation around closed loops',
   category: 'quantum',
   substrates: ['534'],

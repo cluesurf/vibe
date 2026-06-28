@@ -29,6 +29,7 @@ const SOUND_SPEED = 1
 
 export default experiment({
   id: 'fluids/superfluid-signatures',
+  code: 'E-FLD-0007',
   title:
     'the substrate is a superfluid, a finite Landau critical velocity (sound) and quantized circulation, vs the zero-critical-velocity normal fluid',
   category: 'fluids',

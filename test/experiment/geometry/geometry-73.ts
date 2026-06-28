@@ -62,6 +62,7 @@ export function geometry73(): {
 // have degree 7. These are known properties of the tiling, measured here, so L1.
 export default experiment({
   id: 'geometry/geometry-73',
+  code: 'E-GMT-0014',
   title:
     'the {7,3} heptagrid is 2D hyperbolic with exponential shell growth and degree 7',
   category: 'geometry',

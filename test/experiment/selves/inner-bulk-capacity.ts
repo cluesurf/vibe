@@ -20,7 +20,7 @@ type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
 // a neighbors view of a CSR graph, one subarray per cell, for the shell traversal.
 function neighborsOf(graph: Graph): ArrayLike<number>[] {
   return Array.from({ length: graph.cellCount }, (_, u) =>
-    graph.adj.subarray(graph.offsets[u]!, graph.offsets[u + 1]!),
+    graph.adj.subarray(graph.offsets[u], graph.offsets[u + 1]),
   )
 }
 
@@ -31,6 +31,7 @@ const CUSP_MAX = 1.3
 
 export default experiment({
   id: 'selves/inner-bulk-capacity',
+  code: 'E-SLF-0058',
   title:
     'the hyperbolic bulk grows exponentially, the flat cusp polynomially, room for the inner experiencer',
   category: 'selves',

@@ -15,6 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/open-cusp-settling',
+  code: 'E-CSM-0032',
   title:
     'matter does not dynamically settle onto the flat cusp under the pure reversible rule, an honest negative',
   category: 'cosmology',
@@ -37,8 +38,8 @@ export default experiment({
     const rng = makeRng({ seed: 7 })
 
     for (let i = 0; i < n; i++) {
-      cur[i] = rng.nextInt({ max: 3 }) as 0 | 1 | 2
-      prev[i] = rng.nextInt({ max: 3 }) as 0 | 1 | 2
+      cur[i] = rng.nextInt({ max: 3 })
+      prev[i] = rng.nextInt({ max: 3 })
     }
 
     const { offsets: off, adj } = toCsr(g.neighbors)
@@ -72,7 +73,7 @@ export default experiment({
           s += cur[adj[p]!]!
         }
 
-        next[i] = ((s + 27 - prev[i]!) % 3) as 0 | 1 | 2
+        next[i] = ((s + 27 - prev[i]!) % 3)
       }
 
       prev.set(cur)

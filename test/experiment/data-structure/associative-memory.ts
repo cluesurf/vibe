@@ -11,6 +11,7 @@ import { vsaRecallAccuracy } from '@/code/measure/associative-memory'
 
 export default experiment({
   id: 'data-structure/associative-memory',
+  code: 'E-DST-0002',
   title:
     'DS10: associative-memory capacity scales with dimension, exponential in the bulk radius',
   category: 'data-structure',

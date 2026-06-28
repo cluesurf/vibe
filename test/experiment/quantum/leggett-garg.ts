@@ -13,6 +13,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/leggett-garg',
+  code: 'E-QTM-0015',
   title:
     'a coherent qubit reaches the Leggett-Garg value 3/2, violating the macrorealist bound 1',
   category: 'quantum',

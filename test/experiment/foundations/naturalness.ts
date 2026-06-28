@@ -15,6 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/naturalness-shared-past',
+  code: 'E-FND-0034',
   title:
     'an aligned shared past violates CHSH while a generic one does not',
   category: 'foundations',

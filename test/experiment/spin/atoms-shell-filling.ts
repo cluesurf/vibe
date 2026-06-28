@@ -65,6 +65,7 @@ function groupShells(
 
 export default experiment({
   id: 'spin/atoms-shell-filling',
+  code: 'E-SPN-0002',
   title:
     'fermions bound to a central well fill discrete shells in order with periodic magic numbers, where bosons all collapse to the lowest level',
   category: 'spin',

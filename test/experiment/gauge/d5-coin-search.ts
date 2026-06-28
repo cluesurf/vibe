@@ -34,6 +34,7 @@ export function d5CoinSearch(): {
 
 export default experiment({
   id: 'gauge/d5-coin-search',
+  code: 'E-FRC-0010',
   title:
     'no regular honeycomb coin carries D5 = so(10), the geometry tops out at D4',
   category: 'gauge',

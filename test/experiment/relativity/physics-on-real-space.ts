@@ -86,7 +86,7 @@ export function physicsOnRealSpace(): void {
     v =>
       bnb[v]!.map(w => lmap.get(w)).filter(
         x => x !== undefined,
-      ) as number[],
+      ),
   )
 
   const lc0 = mostConnectedNode(lnb)
@@ -98,6 +98,7 @@ export function physicsOnRealSpace(): void {
 
 export default experiment({
   id: 'relativity/physics-on-real-space',
+  code: 'E-RLT-0028',
   title:
     'the flat-layer physics holds on the {4,3,4} cubic cusp and degrades on a generic slice',
   category: 'relativity',
@@ -150,7 +151,7 @@ export default experiment({
       v =>
         bnb[v]!.map(w => lmap.get(w)).filter(
           x => x !== undefined,
-        ) as number[],
+        ),
     )
 
     const bandCenter = mostConnectedNode(lnb)

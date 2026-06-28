@@ -25,6 +25,7 @@ const FAMILY: number[][] = [
 
 export default experiment({
   id: 'data-structure/universal-geometric-profile',
+  code: 'E-DST-0027',
   title:
     'phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding',
   category: 'data-structure',

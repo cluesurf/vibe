@@ -83,6 +83,7 @@ export function associativeSearchLatency(input?: {
 
 export default experiment({
   id: 'associative/search-latency',
+  code: 'E-MMR-0013',
   title:
     'bulk associative search latency scales logarithmically with size, sub-polynomially, versus N^(1/3) for a flat cubic memory',
   category: 'associative',

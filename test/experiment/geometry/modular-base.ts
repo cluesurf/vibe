@@ -82,6 +82,7 @@ export function modularBase(input: { seed: number }): {
 
 export default experiment({
   id: 'geometry/modular-base',
+  code: 'E-GMT-0021',
   title:
     'parameter-free modular base is Lorentz-safe, continued-fraction addressed, golden-ratio central',
   category: 'geometry',

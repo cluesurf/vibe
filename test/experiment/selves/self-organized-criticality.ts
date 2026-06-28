@@ -51,7 +51,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     for (let i = 0; i < N; i++) {
       tone[i] = (
         rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0
-      ) as -1 | 0 | 1
+      )
     }
 
     let last = 0
@@ -95,7 +95,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     for (let i = 0; i < N; i++) {
       base[i] = (
         rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0
-      ) as -1 | 0 | 1
+      )
     }
 
     for (let t = 0; t < 120; t++) {
@@ -175,6 +175,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/self-organized-criticality',
+  code: 'E-SLF-0117',
   title:
     'demand-driven creation self-tunes the activity to one interior set-point from any start',
   category: 'selves',

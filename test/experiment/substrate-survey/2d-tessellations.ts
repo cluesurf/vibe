@@ -75,6 +75,7 @@ export function twodTessellations(): void {
 
 export default experiment({
   id: 'substrate-survey/2d-tessellations',
+  code: 'E-SBT-0001',
   title:
     'a sweep of 2D hyperbolic regular tilings, all give 1D physical space, the most degenerate',
   category: 'substrate-survey',

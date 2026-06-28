@@ -186,6 +186,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
 
 export default experiment({
   id: 'substrate-survey/million-scale',
+  code: 'E-SBT-0015',
   title:
     'the perception dynamics conserve charge, create life, and hold a dynamic balance at scale',
   category: 'substrate-survey',

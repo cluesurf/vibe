@@ -11,6 +11,7 @@ import { outermostShellFraction } from '@/code/substrate/coxeter/growth'
 
 export default experiment({
   id: 'data-structure/interior-empty',
+  code: 'E-DST-0014',
   title:
     'DS13: the hyperbolic bulk is boundary-dominated, almost all cells lie in the outermost shell',
   category: 'data-structure',

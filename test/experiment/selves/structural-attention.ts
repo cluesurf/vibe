@@ -40,6 +40,7 @@ function attention(interior: number[], signal: number[]): number {
 
 export default experiment({
   id: 'selves/structural-attention',
+  code: 'E-SLF-0130',
   title:
     'a self attends to its slow meaningful input far above an equal-size fast-noise input',
   category: 'selves',

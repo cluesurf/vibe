@@ -126,6 +126,7 @@ export function exactScale(input?: { n?: number }): {
 
 export default experiment({
   id: 'substrate-survey/exact-scale',
+  code: 'E-SBT-0010',
   title:
     'the exact {5,3,4} modular-fingerprint engine matches the float engine, exceeds the precision wall, and round-trips through disk',
   category: 'substrate-survey',

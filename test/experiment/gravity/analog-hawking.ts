@@ -124,6 +124,7 @@ export function analogHawking(): {
 
 export default experiment({
   id: 'gravity/analog-hawking',
+  code: 'E-GRV-0001',
   title:
     'ray redshift gives surface gravity, detector thermal at T_H = kappa/2pi',
   category: 'gravity',

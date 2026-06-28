@@ -32,6 +32,7 @@ import {
 
 export default experiment({
   id: 'selves/emergent-soft-radiation',
+  code: 'E-SLF-0045',
   title:
     'a soft (gapless) sound mode emerges from discrete ternary tones: period grows linearly with wavelength, no real numbers',
   category: 'selves',

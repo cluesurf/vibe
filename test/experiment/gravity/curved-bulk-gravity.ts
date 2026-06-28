@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gravity/curved-bulk-gravity',
+  code: 'E-GRV-0007',
   title:
     'curved-bulk gravity is exponentially screened, the 1/r Newton tail is a flat-cusp property not a bulk one',
   category: 'gravity',

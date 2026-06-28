@@ -105,7 +105,7 @@ export function lowestAbsoluteEigenvalues(input: {
     v.re[i] = rand() - 0.5
   }
 
-  let norm = Math.sqrt(realDot(v, v, dimension))
+  const norm = Math.sqrt(realDot(v, v, dimension))
 
   for (let i = 0; i < dimension; i++) {
     v.re[i]! /= norm

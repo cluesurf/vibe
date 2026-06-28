@@ -79,6 +79,7 @@ export function emergentU1Gauge(): {
 
 export default experiment({
   id: 'gauge/emergent-u1-gauge',
+  code: 'E-FRC-0016',
   title:
     'a U(1) Wilson loop equals the enclosed flux and is gauge invariant, the Aharonov-Bohm phase',
   category: 'gauge',

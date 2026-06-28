@@ -116,10 +116,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   const rng = makeRng({ seed: 7 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   for (let t = 0; t < 60; t++) {
@@ -249,6 +246,7 @@ export function reflectionPositivity(input?: { n?: number }): {
 
 export default experiment({
   id: 'quantum/time-reflection-positivity',
+  code: 'E-QTM-0028',
   title: 'the beat-autocorrelation Hankel is PSD within noise',
   category: 'quantum',
   substrates: 'any',

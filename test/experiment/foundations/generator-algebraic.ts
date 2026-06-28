@@ -44,6 +44,7 @@ function sameSet(left: number[][], right: number[][]): boolean {
 // A1, the quaternion seed: the 24 Hurwitz units are the group 2T with a genuine (nonsplit) spinor double cover.
 export default experiment({
   id: 'foundations/generator-quaternion-spinor',
+  code: 'E-FND-0023',
   title:
     'the 24 Hurwitz quaternions are the group 2T with a genuine spinor (nonsplit double cover)',
   category: 'foundations',

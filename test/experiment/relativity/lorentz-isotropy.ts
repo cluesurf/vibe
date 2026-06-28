@@ -79,6 +79,7 @@ export function lorentzIsotropy(input?: {
 
 export default experiment({
   id: 'relativity/lorentz-isotropy',
+  code: 'E-RLT-0021',
   title:
     'the one-step diffusion tensor is isotropic from the icosahedral cell symmetry',
   category: 'relativity',

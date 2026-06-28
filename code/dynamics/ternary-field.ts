@@ -38,7 +38,7 @@ export function makeTernaryField(input: {
   const u = new Int8Array(size)
 
   for (let x = 0; x < size; x++) {
-    u[x] = mod3(fill(x)) as number
+    u[x] = mod3(fill(x))
   }
 
   // at rest, prev equals curr (zero initial velocity).
@@ -70,18 +70,18 @@ export function stepTernaryField(input: {
           : rightVacuum
         : curr[x + 1]!
 
-    next[x] = mod3(rule(left, curr[x]!, right) - prev[x]!) as number
+    next[x] = mod3(rule(left, curr[x]!, right) - prev[x]!)
   }
 
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 4
 
     for (let x = 0; x < margin; x++) {
-      next[x] = leftVacuum as number
+      next[x] = leftVacuum
     }
 
     for (let x = size - margin; x < size; x++) {
-      next[x] = rightVacuum as number
+      next[x] = rightVacuum
     }
   }
 

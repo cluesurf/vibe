@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/genesis-forgetting',
+  code: 'E-CSM-0024',
   title:
     'the deep past washes out, two different starts converge to the same macroscopic state under the arrow',
   category: 'cosmology',

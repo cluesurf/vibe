@@ -87,6 +87,7 @@ function localityOf(cells: number): {
 
 export default experiment({
   id: 'foundations/locality',
+  code: 'E-FND-0032',
   title:
     'the Pauli locality profile of a reversible Hamiltonian, validated by a provable control',
   category: 'foundations',

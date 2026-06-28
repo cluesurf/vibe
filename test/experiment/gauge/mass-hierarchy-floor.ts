@@ -57,6 +57,7 @@ const INTRA_GENERATION: { name: string; ratio: number }[] = [
 
 export default experiment({
   id: 'gauge/mass-hierarchy-floor',
+  code: 'E-FRC-0032',
   title:
     'the marginal floor lambda^(1/2) about 4.3 is the parameter-free minimum inter-generation mass ratio, respected by all fermions, the neutrinos closest, the intra-generation splittings the control',
   category: 'gauge',

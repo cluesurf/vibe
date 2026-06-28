@@ -33,6 +33,7 @@ import {
 
 export default experiment({
   id: 'selves/gravity-bound-self',
+  code: 'E-SLF-0053',
   title:
     'the full self on legitimate ingredients: a discrete gravity field (at the cusp) binds and self-repairs while disturbances radiate',
   category: 'selves',

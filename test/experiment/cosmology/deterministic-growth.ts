@@ -140,6 +140,7 @@ export function deterministicGrowth(
 
 export default experiment({
   id: 'cosmology/deterministic-growth',
+  code: 'E-CSM-0011',
   title:
     'resumable, append-only, faithful, geometry emerges (golden ratio)',
   category: 'cosmology',

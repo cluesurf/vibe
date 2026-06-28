@@ -49,6 +49,7 @@ export function cosmology(): {
 
 export default experiment({
   id: 'cosmology/p237-cosmology',
+  code: 'E-CSM-0034',
   title:
     'the hyperbolic {3,4,3,4} bulk grows exponentially with radius, the eternal expansion',
   category: 'cosmology',

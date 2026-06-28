@@ -128,6 +128,7 @@ function bindingTest(digits: number): {
 
 export default experiment({
   id: 'gravity/ternary-field',
+  code: 'E-GRV-0036',
   title:
     'the gravity field as a stack of tones, three balanced-ternary trits bind, a single trit is too coarse',
   category: 'gravity',

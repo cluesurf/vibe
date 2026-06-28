@@ -170,6 +170,7 @@ function checkAt(maxCells: number): Report {
 
 export default experiment({
   id: 'addressing/addressing-3434-scale',
+  code: 'E-NVG-0002',
   title:
     'the {3,4,3,4} addressing invariants survive growth, clean at two build sizes',
   category: 'addressing',

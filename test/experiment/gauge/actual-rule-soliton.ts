@@ -47,6 +47,7 @@ export function fermionInducedStabilizer(): {
 
 export default experiment({
   id: 'gauge/actual-rule-soliton',
+  code: 'E-FRC-0001',
   title:
     'a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an honest open gate',
   category: 'gauge',

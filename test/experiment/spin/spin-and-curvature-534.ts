@@ -24,6 +24,7 @@ const hasMinusOne = (
 
 export default experiment({
   id: 'spin/spin-and-curvature-534',
+  code: 'E-SPN-0032',
   title:
     '{5,3,4} carries spin AND negative curvature, the trade-off flat {3,4,3,4} cannot resolve',
   category: 'spin',

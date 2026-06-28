@@ -114,6 +114,7 @@ export function effectiveMetric(): {
 
 export default experiment({
   id: 'gravity/effective-metric',
+  code: 'E-GRV-0010',
   title:
     'rays bend toward matter (lensing) scaling with mass, curvature sourced by matter',
   category: 'gravity',

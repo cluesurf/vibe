@@ -15,6 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/uniform',
+  code: 'E-FND-0041',
   title:
     'the uniform-measure sampler reproduces the exact manifold fraction at small size',
   category: 'foundations',

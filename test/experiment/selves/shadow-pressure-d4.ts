@@ -16,6 +16,7 @@ import { shadowPressureD4 } from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/shadow-pressure-d4',
+  code: 'E-SLF-0126',
   title:
     'shadow-pressure attraction on the real 24-direction D4 coin (net momentum points toward a vacuum-excluding body)',
   category: 'selves',
