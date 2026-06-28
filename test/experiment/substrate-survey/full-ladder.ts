@@ -63,6 +63,7 @@ export function fullLadder(input: {
 
 export default experiment({
   id: 'substrate-survey/full-ladder',
+  code: 'E-SBT-0012',
   title:
     'from integer generator data a deterministic automaton grows a Lorentz-safe substrate the model runs on',
   category: 'substrate-survey',

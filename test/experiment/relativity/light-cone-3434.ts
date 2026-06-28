@@ -24,6 +24,7 @@ import {
 
 export default experiment({
   id: 'relativity/light-cone-3434',
+  code: 'E-RLT-0015',
   title:
     'a finite ballistic light cone (z = 1) on the 24-direction {3,4,3,4} coin, with a causal interacting rule',
   category: 'relativity',
@@ -36,11 +37,23 @@ export default experiment({
     // the free-streaming light cone on the 24-direction coin, the maximum signal speed.
     // The mesh side exceeds the beat count so the front stays interior; two sizes for
     // robustness (deterministic, never random seeds).
-    const coneA = streamingConeRadii({ mesh: d4Mesh({ side: 15 }), beats })
-    const coneB = streamingConeRadii({ mesh: d4Mesh({ side: 17 }), beats })
+    const coneA = streamingConeRadii({
+      mesh: d4Mesh({ side: 15 }),
+      beats,
+    })
 
-    const ballisticA = coneA.every((radius, step) => radius === step + 1)
-    const ballisticB = coneB.every((radius, step) => radius === step + 1)
+    const coneB = streamingConeRadii({
+      mesh: d4Mesh({ side: 17 }),
+      beats,
+    })
+
+    const ballisticA = coneA.every(
+      (radius, step) => radius === step + 1,
+    )
+
+    const ballisticB = coneB.every(
+      (radius, step) => radius === step + 1,
+    )
 
     // the same ballistic cone on the 6-direction cubic cusp, so the light cone is the
     // rule's, not specific to the 24-cell coin

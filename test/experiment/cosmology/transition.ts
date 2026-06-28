@@ -59,6 +59,7 @@ function equilibratedHeightRatio(input: {
 
 export default experiment({
   id: 'cosmology/transition',
+  code: 'E-CSM-0041',
   title:
     'the manifold phase is a stable basin under the smeared action and decays under the sharp action',
   category: 'cosmology',

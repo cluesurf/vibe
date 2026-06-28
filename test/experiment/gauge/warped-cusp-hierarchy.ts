@@ -32,6 +32,7 @@ import {
 
 export default experiment({
   id: 'gauge/warped-cusp-hierarchy',
+  code: 'E-FRC-0053',
   title:
     'the fermion mass hierarchy is the warped-cusp (Randall-Sundrum) mechanism, brane Yukawas suppressed by powers of the bulk warp factor lambda per depth, the flat bulk (degenerate) the control',
   category: 'gauge',

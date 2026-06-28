@@ -15,6 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/discrete-genesis',
+  code: 'E-CSM-0013',
   title:
     'genesis on purely ternary integer {3,4,3,4} structures, no decimals, no randomness, no hash',
   category: 'cosmology',

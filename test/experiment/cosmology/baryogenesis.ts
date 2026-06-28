@@ -159,6 +159,7 @@ export function baryogenesis(input: { seed: number }): {
 
 export default experiment({
   id: 'cosmology/baryogenesis',
+  code: 'E-CSM-0004',
   title:
     'emergent asymmetry, all three Sakharov conditions necessary, freeze-out peak at intermediate washout',
   category: 'cosmology',

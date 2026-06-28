@@ -81,10 +81,7 @@ export function nearCriticalRP(input?: {
     const rng = makeRng({ seed: 11 })
 
     for (let i = 0; i < N; i++) {
-      tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-        | -1
-        | 0
-        | 1
+      tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0)
     }
 
     for (let t = 0; t < 120; t++) {
@@ -236,6 +233,7 @@ export function nearCriticalRP(input?: {
 
 export default experiment({
   id: 'quantum/near-critical-rp',
+  code: 'E-QTM-0017',
   title:
     'spatial RP belongs to the emergent flat layer, not the scaffold',
   category: 'quantum',

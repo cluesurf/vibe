@@ -50,6 +50,7 @@ function study(): { potential: number; lowest: number[] } {
 
 export default experiment({
   id: 'gauge/gauge-fermion',
+  code: 'E-FRC-0023',
   title:
     'a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum',
   category: 'gauge',

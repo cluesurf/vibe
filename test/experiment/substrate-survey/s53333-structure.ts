@@ -40,6 +40,7 @@ export function s53333Structure(): {
 
 export default experiment({
   id: 'substrate-survey/s53333-structure',
+  code: 'E-SBT-0024',
   title:
     'the {5,3,3,3,3} bulk builds as a 5D hyperbolic graph, over-dimensional with no spinor',
   category: 'substrate-survey',

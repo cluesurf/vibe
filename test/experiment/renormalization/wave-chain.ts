@@ -103,6 +103,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
 
 export default experiment({
   id: 'renormalization/wave-chain',
+  code: 'E-SCL-0015',
   title:
     'the wave equation commutes up the coarse-graining tower with an invariant speed',
   category: 'renormalization',

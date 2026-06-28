@@ -76,6 +76,7 @@ function evolve(input: { q1: number; q2: number; coupling: number }): {
 
 export default experiment({
   id: 'gauge/two-charge-binding',
+  code: 'E-FRC-0049',
   title:
     'the 1D gauge force confines two opposite charges (bound at any energy), zero coupling lets them escape',
   category: 'gauge',

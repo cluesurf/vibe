@@ -76,10 +76,7 @@ export function absoluteLimits(input?: { n?: number }): {
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const q0 = totalQ(tone)
@@ -130,15 +127,12 @@ export function absoluteLimits(input?: { n?: number }): {
   const base = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const s = base.slice()
   const s2 = base.slice()
-  s2[center] = (s2[center] === 0 ? 1 : 0) as -1 | 0 | 1
+  s2[center] = (s2[center] === 0 ? 1 : 0)
 
   const ra = makeRng({ seed: 31 })
   const rb = makeRng({ seed: 31 })
@@ -184,6 +178,7 @@ export function absoluteLimits(input?: { n?: number }): {
 
 export default experiment({
   id: 'foundations/absolute-limits',
+  code: 'E-FND-0001',
   title:
     'net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level',
   category: 'foundations',

@@ -61,7 +61,7 @@ export function storeWord(
   const base = cell * mem.wordBits
 
   for (let k = 0; k < mem.wordBits; k++) {
-    mem.words[base + k] = word[k]! as number
+    mem.words[base + k] = word[k]!
   }
 
   mem.occupied[cell] = 1

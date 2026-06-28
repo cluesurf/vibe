@@ -46,7 +46,7 @@ function overlay(a: Will, b: Will): Will {
   const data = new Int8Array(a.data.length)
 
   for (let i = 0; i < data.length; i++) {
-    data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+    data[i] = (a.data[i]! + b.data[i]!)
   }
 
   return { mesh: a.mesh, data }
@@ -69,6 +69,7 @@ function cellAt(
 
 export default experiment({
   id: 'selves/emergent-attraction-search',
+  code: 'E-SLF-0043',
   title:
     'the bare reversible rule has no emergent attraction, two separated charges obey exact superposition',
   category: 'selves',
@@ -98,7 +99,7 @@ export default experiment({
       const joint = makeWill(mesh)
 
       for (let i = 0; i < joint.data.length; i++) {
-        joint.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+        joint.data[i] = (a.data[i]! + b.data[i]!)
       }
 
       const jointFinal = run(joint, rule, beats)
@@ -123,7 +124,7 @@ export default experiment({
     const collide = makeWill(mesh)
 
     for (let i = 0; i < collide.data.length; i++) {
-      collide.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+      collide.data[i] = (a.data[i]! + b.data[i]!)
     }
 
     const collideFinal = run(collide, rule, beats)

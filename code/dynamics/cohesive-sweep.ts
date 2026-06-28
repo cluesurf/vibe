@@ -78,7 +78,7 @@ export function cohesiveEdgeSweep(input: {
           agreeCount(tone, offsets, adj, c, q, e) ||
         rng.next() < escapeProbability
       ) {
-        tone[e] = q as -1 | 1
+        tone[e] = q
         tone[c] = 0
         moved[v] = 1
         moved[w] = 1

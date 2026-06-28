@@ -143,6 +143,7 @@ export function hawking(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'gravity/hawking',
+  code: 'E-GRV-0026',
   title:
     'thermal spectrum derived from the Unruh response, T = kappa/2pi, Page curve turns over',
   category: 'gravity',

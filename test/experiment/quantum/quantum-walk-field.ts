@@ -99,6 +99,7 @@ export function quantumWalkField(input?: { steps?: number }): {
 
 export default experiment({
   id: 'quantum/quantum-walk-field',
+  code: 'E-QTM-0024',
   title:
     'the unitary completion is relativistic and reflection-positive',
   category: 'quantum',

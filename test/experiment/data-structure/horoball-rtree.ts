@@ -10,6 +10,7 @@ import { busemannLevels } from '@/code/measure/radial'
 
 export default experiment({
   id: 'data-structure/horoball-rtree',
+  code: 'E-DST-0012',
   title:
     'SS12: nested horoballs are an R-tree hierarchy, a query descends logarithmically many bounding volumes',
   category: 'data-structure',

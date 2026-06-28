@@ -105,6 +105,7 @@ export function gFactor(): {
 
 export default experiment({
   id: 'gauge/g-factor-3434',
+  code: 'E-FRC-0021',
   title:
     'the spinor g-factor is measured as 2 from the Dirac Landau spectrum, not assumed',
   category: 'gauge',

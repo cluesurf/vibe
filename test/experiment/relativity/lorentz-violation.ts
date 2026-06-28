@@ -20,6 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/lorentz-violation',
+  code: 'E-RLT-0022',
   title:
     'a lattice violates Lorentz invariance while a sprinkling is Lorentz-safe',
   category: 'relativity',

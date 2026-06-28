@@ -83,6 +83,7 @@ export function defectParticles(): {
 
 export default experiment({
   id: 'spin/defect-particles-3434',
+  code: 'E-SPN-0008',
   title:
     'topological defects annihilate in opposite-charge pairs and persist as like charges',
   category: 'spin',

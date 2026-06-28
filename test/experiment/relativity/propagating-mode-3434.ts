@@ -82,6 +82,7 @@ function spread(values: number[]): number {
 
 export default experiment({
   id: 'relativity/propagating-mode-3434',
+  code: 'E-RLT-0030',
   title:
     'the momentum-conserving knit carries a propagating massless mode omega = c k, the charge-only rule does not',
   category: 'relativity',

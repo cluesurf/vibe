@@ -133,6 +133,7 @@ export function fourdTessellations(): void {
 
 export default experiment({
   id: 'substrate-survey/4d-tessellations',
+  code: 'E-SBT-0003',
   title:
     'a sweep of 4D regular honeycombs, all give 3D physical space and {3,4,3,4} is the unique D4-facet one',
   category: 'substrate-survey',

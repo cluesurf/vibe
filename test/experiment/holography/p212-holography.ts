@@ -29,6 +29,7 @@ export function holography(): {
 
 export default experiment({
   id: 'holography/p212-holography',
+  code: 'E-HLG-0015',
   title:
     'finite-patch shell extraction cannot read a clean holographic screen dimension',
   category: 'holography',

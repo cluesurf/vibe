@@ -10,7 +10,7 @@ function seedPattern(n: number): Int8Array {
   const a = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    a[i] = ((i * 73 + 17) % 31 < 16 ? 1 : -1) as -1 | 1
+    a[i] = ((i * 73 + 17) % 31 < 16 ? 1 : -1)
   }
 
   return a
@@ -43,7 +43,8 @@ function step(
     const field =
       windowMean(a, i, activateRadius) -
       inhibition * windowMean(a, i, inhibitRadius)
-    next[i] = (field > 0 ? 1 : field < 0 ? -1 : a[i]!) as -1 | 1
+
+    next[i] = (field > 0 ? 1 : field < 0 ? -1 : a[i]!)
   }
 
   return next
@@ -82,7 +83,7 @@ function wallSpacingRegularity(a: Int8Array): number {
   const gaps = positions.map((p, k) => {
     const next = positions[(k + 1) % positions.length]!
 
-    return ((next - p + n) % n) || n
+    return (next - p + n) % n || n
   })
 
   const mean = gaps.reduce((s, g) => s + g, 0) / gaps.length
@@ -99,14 +100,24 @@ export function morphogenesis(input: {
   inhibitRadius: number
   inhibition: number
   beats: number
-}): { walls: number; regularity: number; stable: boolean; balanced: boolean } {
+}): {
+  walls: number
+  regularity: number
+  stable: boolean
+  balanced: boolean
+} {
   let a = seedPattern(input.n)
 
   let previous = a
 
   for (let b = 0; b < input.beats; b++) {
     previous = a
-    a = step(a, input.activateRadius, input.inhibitRadius, input.inhibition)
+    a = step(
+      a,
+      input.activateRadius,
+      input.inhibitRadius,
+      input.inhibition,
+    )
   }
 
   // stable: the last beat changed nothing

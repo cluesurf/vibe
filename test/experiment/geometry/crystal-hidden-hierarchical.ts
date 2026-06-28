@@ -93,6 +93,7 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
 
 export default experiment({
   id: 'geometry/crystal-hidden-hierarchical',
+  code: 'E-GMT-0006',
   title:
     'crystal is indistinguishable from foam inside, tree-like, unlike a flat lattice',
   category: 'geometry',

@@ -39,6 +39,7 @@ export function darkEnergy4D(input: {
 
 export default experiment({
   id: 'cosmology/dark-energy-4d',
+  code: 'E-CSM-0009',
   title: 'the 4D action fluctuation scaling is measured',
   category: 'cosmology',
   substrates: 'any',

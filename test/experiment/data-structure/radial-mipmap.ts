@@ -11,6 +11,7 @@ import { busemannLevels } from '@/code/measure/radial'
 
 export default experiment({
   id: 'data-structure/radial-mipmap',
+  code: 'E-DST-0020',
   title:
     'DS7: the radial Busemann levels form a multiresolution pyramid, fine levels hold geometrically more cells',
   category: 'data-structure',

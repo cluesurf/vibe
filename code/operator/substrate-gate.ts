@@ -138,7 +138,7 @@ export function settle(
       const nv = stepCell(i)
 
       if (nv !== tone[i]) {
-        tone[i] = nv as -1 | 0 | 1
+        tone[i] = nv
         changed = true
       }
     }

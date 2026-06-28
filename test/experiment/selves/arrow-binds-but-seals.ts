@@ -33,6 +33,7 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
   id: 'selves/arrow-binds-but-seals',
+  code: 'E-SLF-0005',
   title:
     'the arrow binds a body but seals radiation, the momentum rule radiates but will not bind, binding and radiation are disjoint',
   category: 'selves',

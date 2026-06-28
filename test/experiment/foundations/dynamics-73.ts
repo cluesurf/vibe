@@ -86,7 +86,7 @@ export function dynamics73(): {
         s += cur[adj[q]!]!
       }
 
-      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3)
     }
 
     const t = prev
@@ -113,7 +113,7 @@ export function dynamics73(): {
   const t = new Int8Array(N)
 
   for (let k = 0; k < 100; k++) {
-    t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
+    t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1)
   }
 
   const sumBefore = sumOf(t)
@@ -142,8 +142,8 @@ export function dynamics73(): {
         }
 
         const [na, nb] = perm(t[u]!, t[w]!)
-        t[u] = na as -1 | 0 | 1
-        t[w] = nb as -1 | 0 | 1
+        t[u] = na
+        t[w] = nb
         used[u] = 1
         used[w] = 1
         break
@@ -168,6 +168,7 @@ export function dynamics73(): {
 
 export default experiment({
   id: 'foundations/dynamics-73',
+  code: 'E-FND-0016',
   title:
     'the directional rule on the {7,3} cell graph conserves charge exactly and gives a z=1 light cone',
   category: 'foundations',

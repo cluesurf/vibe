@@ -123,6 +123,7 @@ export function generationsF4Jordan(): {
 
 export default experiment({
   id: 'spin/generations-f4-jordan',
+  code: 'E-SPN-0016',
   title:
     "the substrate F4 symmetry forces an exceptional rank-three Jordan structure, but three generations stays Boyle's open conjecture",
   category: 'spin',

@@ -21,6 +21,7 @@ import {
 // the whole 24-cell substrate.
 export default experiment({
   id: 'spin/rotation-2pi',
+  code: 'E-SPN-0029',
   title:
     'a spinor on the 24-cell coin gains a minus sign at 2pi, returning only at 4pi',
   category: 'spin',

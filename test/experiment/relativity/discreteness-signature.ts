@@ -14,6 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/discreteness-signature',
+  code: 'E-RLT-0009',
   title:
     'the discrete dispersion bends below the continuum at a leading order in momentum, vanishing in the infrared',
   category: 'relativity',
@@ -31,6 +32,7 @@ export default experiment({
     const vanishesInIR = r.deviations[0]! < 0.01
     const risesWithMomentum =
       r.deviations[r.deviations.length - 1]! > r.deviations[0]! + 0.02
+
     const leadingOrderNearTwo =
       r.leadingOrder > 1.5 && r.leadingOrder < 2.5
 

@@ -432,7 +432,7 @@ export function makeTrackLoop(
 ): RailwayCa {
   const cells: RailwayCell[] = Array.from(
     { length: totalCells },
-    () => ({ role: 'empty', links: [], state: 'empty' as RailDyn }),
+    () => ({ role: 'empty', links: [], state: 'empty' }),
   )
 
   const k = ringIds.length

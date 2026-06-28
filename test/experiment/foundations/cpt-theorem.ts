@@ -36,6 +36,7 @@ import {
 
 export default experiment({
   id: 'foundations/cpt-theorem',
+  code: 'E-FND-0011',
   title:
     'the discrete CPT theorem, the reversible knit has C, P, T symmetries and the combined CPT is a symmetry of the dynamics, the no-T case the control',
   category: 'foundations',
@@ -65,7 +66,7 @@ export default experiment({
           coordinate(cell, 1) +
           d) %
           3) -
-          1) as -1 | 0 | 1
+          1)
       }
     }
 

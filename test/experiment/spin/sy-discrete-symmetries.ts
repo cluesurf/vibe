@@ -141,7 +141,7 @@ export function syDiscreteSymmetries(): {
     applyParityThenStep: C[][]
     stepThenApplyParity: C[][]
   } => {
-    let r: C[] = new Array(L).fill([0, 0]),
+    const r: C[] = new Array(L).fill([0, 0]),
       l: C[] = new Array(L).fill([0, 0])
 
     r[30] = [1, 0]
@@ -218,6 +218,7 @@ export function syDiscreteSymmetries(): {
 
 export default experiment({
   id: 'spin/sy-discrete-symmetries',
+  code: 'E-SPN-0037',
   title: 'C, P, T, and CPT are exact on the {3,4,3,4} substrate',
   category: 'spin',
   substrates: ['3434'],

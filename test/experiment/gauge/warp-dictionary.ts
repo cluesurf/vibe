@@ -37,6 +37,7 @@ import {
 
 export default experiment({
   id: 'gauge/warp-dictionary',
+  code: 'E-FRC-0052',
   title:
     'the fermion mass suppression per warp shell is the overlap floor lambda^(1/2) (about 4.27), distinct from the volume growth lambda and the metric warp',
   category: 'gauge',

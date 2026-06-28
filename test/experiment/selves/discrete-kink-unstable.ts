@@ -25,6 +25,7 @@ import {
 
 export default experiment({
   id: 'selves/discrete-kink-unstable',
+  code: 'E-SLF-0039',
   title:
     'the discrete sine-Gordon kink is unstable: a bounded force shatters it, an unbounded force blows it up',
   category: 'selves',

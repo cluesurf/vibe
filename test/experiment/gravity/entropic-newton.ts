@@ -40,6 +40,7 @@ function strictlyDecreasing(values: number[]): boolean {
 
 export default experiment({
   id: 'gravity/entropic-newton',
+  code: 'E-GRV-0013',
   title:
     'the static Newtonian 1/r force from the measured area law, the Verlinde route, no new field',
   category: 'gravity',

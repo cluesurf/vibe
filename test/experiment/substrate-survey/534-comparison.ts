@@ -32,6 +32,7 @@ export function comparison534(): {
 
 export default experiment({
   id: 'substrate-survey/534-comparison',
+  code: 'E-SBT-0004',
   title:
     'the framework ports to {5,3,4} (3D bulk, clean 1/r^2 correlator), the control isolating what needs {3,4,3,4}',
   category: 'substrate-survey',

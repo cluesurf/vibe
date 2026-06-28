@@ -139,6 +139,7 @@ export function synchronicity(input: { seed: number }): {
 
 export default experiment({
   id: 'quantum/synchronicity',
+  code: 'E-QTM-0027',
   title: 'diverged-but-related subsystems correlate without a link',
   category: 'quantum',
   substrates: 'any',

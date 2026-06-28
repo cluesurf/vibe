@@ -38,6 +38,7 @@ export function manifoldLikenessAt(beta: number): number {
 
 export default experiment({
   id: 'cosmology/dynamics',
+  code: 'E-CSM-0014',
   title:
     'the bare Benincasa-Dowker action exhibits non-manifold dominance, a phase transition where manifold-likeness collapses as the coupling rises',
   category: 'cosmology',

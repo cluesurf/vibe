@@ -30,6 +30,7 @@ import { hasZeroDivisor } from '@/code/measure/division-algebra'
 
 export default experiment({
   id: 'foundations/dynamics-forces-octonions',
+  code: 'E-FND-0017',
   title:
     'the dynamics forces the octonions (reversibility caps dim at 8, fermions require dim 8, they meet at exactly 8), so the base is one root, the dynamics',
   category: 'foundations',

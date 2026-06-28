@@ -203,6 +203,7 @@ export function quantumField(input?: { n?: number }): {
 
 export default experiment({
   id: 'quantum/quantum-field',
+  code: 'E-QTM-0021',
   title:
     'the vacuum is field-like with virtual pairs and a causal cone',
   category: 'quantum',

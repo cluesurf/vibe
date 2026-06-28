@@ -54,6 +54,7 @@ function classify(g: {
 
 export default experiment({
   id: 'gravity/curvature-focusing',
+  code: 'E-GRV-0006',
   title:
     'gravity as curvature, positive curvature focuses geodesics (2A works, the emergent metric sourced by 3A, no base change), the negative bulk defocuses (2B fails locally)',
   category: 'gravity',

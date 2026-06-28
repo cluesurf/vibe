@@ -154,6 +154,7 @@ export function selvesInteracting(input?: {
 
 export default experiment({
   id: 'selves/selves-interacting',
+  code: 'E-SLF-0122',
   title:
     'opposite selves annihilate at contact, same selves merge into one',
   category: 'selves',

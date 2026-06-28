@@ -64,6 +64,7 @@ function ternaryToneSymmetryOrder(): number {
 
 export default experiment({
   id: 'foundations/ternary-not-triality',
+  code: 'E-FND-0039',
   title:
     'the ternary three (vacuum + pair, Z2, partition 1+2) is NOT the triality three (symmetric, S3, partition 3), so the tone is the irreducible atom of distinction',
   category: 'foundations',

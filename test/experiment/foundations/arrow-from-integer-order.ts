@@ -54,6 +54,7 @@ function integerAxes(level: number): {
 
 export default experiment({
   id: 'foundations/arrow-from-integer-order',
+  code: 'E-FND-0002',
   title:
     'the arrow is the order of the INTEGERS (the discrete beat-count), the unique ordered discrete normed ring, the discrete geometry rings (i^2=-1) unordered',
   category: 'foundations',

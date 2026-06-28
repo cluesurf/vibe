@@ -59,6 +59,7 @@ export function bulkDimension(): {
 
 export default experiment({
   id: 'geometry/bulk-dimension-3434',
+  code: 'E-GMT-0002',
   title:
     'the {3,4,3,4} cusp is a flat 3D sheet inside an exponential bulk, so the bulk is 4D, and {5,3,4} reads one dimension lower',
   category: 'geometry',

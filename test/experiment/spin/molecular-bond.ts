@@ -39,6 +39,7 @@ const DISSOCIATION_LIMIT = -0.5
 
 export default experiment({
   id: 'spin/molecular-bond',
+  code: 'E-SPN-0023',
   title:
     'the H2+ molecular bond, a stable molecule at the observed 2.0-Bohr length from the shared electron, the antibonding and no-resonance cases the controls',
   category: 'spin',

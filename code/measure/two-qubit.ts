@@ -134,10 +134,10 @@ export function twoQubitConcurrence(input: {
   im: Float64Array
 }): number {
   const { re, im } = input
-  const a00 = cx(re[0]!, im[0]!)
-  const a11 = cx(re[3]!, im[3]!)
-  const a01 = cx(re[1]!, im[1]!)
-  const a10 = cx(re[2]!, im[2]!)
+  const a00 = cx(re[0]!, im[0])
+  const a11 = cx(re[3]!, im[3])
+  const a01 = cx(re[1]!, im[1])
+  const a10 = cx(re[2]!, im[2])
   const p1 = {
     re: a00.re * a11.re - a00.im * a11.im,
     im: a00.re * a11.im + a00.im * a11.re,

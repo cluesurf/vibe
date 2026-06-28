@@ -127,6 +127,7 @@ export function wordEngine(): {
 
 export default experiment({
   id: 'addressing/word-engine',
+  code: 'E-NVG-0007',
   title:
     'ShortLex normal forms give exact finite group orders and exact cell facet counts',
   category: 'addressing',

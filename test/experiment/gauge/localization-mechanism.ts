@@ -39,6 +39,7 @@ import {
 
 export default experiment({
   id: 'gauge/localization-mechanism',
+  code: 'E-FRC-0030',
   title:
     'the bound state on {3,4,3,4} decays as a power of lambda per shell, the marginal floor lambda^(-1/2), verifying the mass-hierarchy mechanism, the flat D4 lattice (no decay) the control',
   category: 'gauge',

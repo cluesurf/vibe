@@ -81,6 +81,7 @@ export function bornInterference(input?: { steps?: number }): {
 
 export default experiment({
   id: 'quantum/born-interference',
+  code: 'E-QTM-0004',
   title:
     'the unitary rule interferes and gives a genuine Born probability',
   category: 'quantum',

@@ -135,6 +135,7 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'gravity/nonlinear-einstein',
+  code: 'E-GRV-0030',
   title:
     'a(t) integrated forward, power laws emerge, deceleration to acceleration transition',
   category: 'gravity',

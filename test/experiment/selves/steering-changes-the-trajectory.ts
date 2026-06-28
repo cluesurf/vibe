@@ -15,10 +15,7 @@
 // L3 with controls, a model of agency as counterfactual impact, not a base-emergence claim.
 // Run via the suite: npx tsx test/run.ts
 
-import {
-  runTrajectory,
-  steeringImpact,
-} from '@/code/model/trajectory'
+import { runTrajectory, steeringImpact } from '@/code/model/trajectory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -34,8 +31,20 @@ export function steeringResult(input: { m: number; beats: number }): {
   const effort = Math.round(input.m / 8)
 
   // 1. determinism: the steered life replays identically
-  const a = runTrajectory({ ...input, effort, agent: 'self', steered: true })
-  const b = runTrajectory({ ...input, effort, agent: 'self', steered: true })
+  const a = runTrajectory({
+    ...input,
+    effort,
+    agent: 'self',
+    steered: true,
+  })
+
+  const b = runTrajectory({
+    ...input,
+    effort,
+    agent: 'self',
+    steered: true,
+  })
+
   const replayExact = a.distanceOverTime.every(
     (d, i) => d === b.distanceOverTime[i],
   )
@@ -43,11 +52,18 @@ export function steeringResult(input: { m: number; beats: number }): {
   // 2 and 4. impact and compounding (self steered vs self ablated)
   const self = steeringImpact({ ...input, effort, agent: 'self' })
   // the gap opens up over the life, compare a few beats in (still near the start) to the end
-  const gapEarly = self.gapOverTime[Math.min(3, self.gapOverTime.length - 1)] ?? 0
+  const gapEarly =
+    self.gapOverTime[Math.min(3, self.gapOverTime.length - 1)] ?? 0
+
   const gapLate = self.gapOverTime[self.gapOverTime.length - 1] ?? 0
 
   // 3. agency vs mere activity: a rock acts with the same effort but not goal-directedly
-  const rock = runTrajectory({ ...input, effort, agent: 'rock', steered: true })
+  const rock = runTrajectory({
+    ...input,
+    effort,
+    agent: 'rock',
+    steered: true,
+  })
 
   return {
     replayExact,
@@ -62,6 +78,7 @@ export function steeringResult(input: { m: number; beats: number }): {
 
 export default experiment({
   id: 'selves/steering-changes-the-trajectory',
+  code: 'E-SLF-0129',
   title:
     'the same deterministic life steered versus unsteered ends in a different place, and that gap is the impact',
   category: 'selves',
@@ -75,12 +92,17 @@ export default experiment({
     const deterministic = runs.every(r => r.replayExact)
     // the steered life reaches the goal (low distance) while the unsteered one stays far (near 1)
     const realImpact = runs.every(
-      r => r.impact > 0.4 && r.steeredFinal < 0.35 && r.ablatedFinal > 0.85,
+      r =>
+        r.impact > 0.4 &&
+        r.steeredFinal < 0.35 &&
+        r.ablatedFinal > 0.85,
     )
+
     // goal-directed steering beats mere activity by a wide margin
     const agencyNotActivity = runs.every(
       r => r.rockFinal > r.steeredFinal + 0.3,
     )
+
     // the gap grows over the life
     const compounding = runs.every(r => r.gapLate > r.gapEarly + 0.1)
 

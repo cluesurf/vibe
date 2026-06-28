@@ -45,6 +45,7 @@ const closeTo = (spinor: Spinor, target: Spinor): boolean =>
 
 export default experiment({
   id: 'spin/propagating-spinor-534',
+  code: 'E-SPN-0028',
   title:
     'a propagating spinor on curved {5,3,4}, streaming coupled to the spin connection returns minus itself per 2pi loop',
   category: 'spin',

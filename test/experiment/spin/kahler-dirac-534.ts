@@ -19,6 +19,7 @@ const gradeOf = (index: number, bounds: number[][]): number =>
 
 export default experiment({
   id: 'spin/kahler-dirac-534',
+  code: 'E-SPN-0020',
   title:
     'Kahler-Dirac fermions on {5,3,4} forms, D = d + delta squares to the Laplacian',
   category: 'spin',

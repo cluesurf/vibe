@@ -63,6 +63,7 @@ export function meansComputation(input?: { n?: number }): {
 
 export default experiment({
   id: 'computation/means-computation',
+  code: 'E-CMP-0005',
   title: 'the {5,3,4} hosts universal computation via a Minsky machine',
   category: 'computation',
   substrates: ['534'],

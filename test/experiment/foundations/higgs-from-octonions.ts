@@ -38,6 +38,7 @@ import { custodialRho } from '@/code/measure/electroweak'
 
 export default experiment({
   id: 'foundations/higgs-from-octonions',
+  code: 'E-FND-0027',
   title:
     'the Higgs is the quaternionic SU(2) doublet (the internal connection), forced by custodial rho=1, completing the Standard Model from the octonion seed',
   category: 'foundations',

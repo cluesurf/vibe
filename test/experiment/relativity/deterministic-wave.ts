@@ -220,6 +220,7 @@ export function deterministicWave(input?: {
 
 export default experiment({
   id: 'relativity/deterministic-wave',
+  code: 'E-RLT-0007',
   title:
     'a deterministic reversible rule propagates ballistically so momentum emerges',
   category: 'relativity',

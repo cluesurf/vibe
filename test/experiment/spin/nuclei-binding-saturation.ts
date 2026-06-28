@@ -86,6 +86,7 @@ function singleParticleGround(): number {
 
 export default experiment({
   id: 'spin/nuclei-binding-saturation',
+  code: 'E-SPN-0025',
   title:
     'several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead',
   category: 'spin',

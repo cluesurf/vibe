@@ -48,6 +48,7 @@ const reachableBoundary = (
 
 export default experiment({
   id: 'holography/planar-vs-tree-534',
+  code: 'E-HLG-0017',
   title:
     'the planar tiling loops keep more boundary reachable after a cut than the bulk tree (the HaPPY refinement)',
   category: 'holography',
@@ -85,7 +86,7 @@ export default experiment({
 
     for (let v = 0; v < size; v++) {
       if (parent[v] !== -1) {
-        tree[v]!.push(parent[v]!)
+        tree[v]!.push(parent[v])
         tree[parent[v]!]!.push(v)
       }
     }

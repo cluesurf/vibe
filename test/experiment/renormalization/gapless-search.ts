@@ -58,10 +58,7 @@ export function gaplessSearch(input?: {
     const rng = makeRng({ seed: 17 })
 
     for (let i = 0; i < L; i++) {
-      tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-        | -1
-        | 0
-        | 1
+      tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
     }
 
     for (let t = 0; t < 400; t++) {
@@ -162,6 +159,7 @@ export function gaplessSearch(input?: {
 
 export default experiment({
   id: 'renormalization/gapless-search',
+  code: 'E-SCL-0009',
   title:
     'no static gapless critical point over the arrow-share plane, the conserved-exchange field is robustly massive',
   category: 'renormalization',

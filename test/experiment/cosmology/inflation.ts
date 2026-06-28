@@ -97,6 +97,7 @@ export function inflate(input: { phi0: number; m?: number }): {
 
 export default experiment({
   id: 'cosmology/inflation',
+  code: 'E-CSM-0028',
   title:
     'slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)',
   category: 'cosmology',

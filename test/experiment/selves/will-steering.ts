@@ -219,6 +219,7 @@ export function willSteering(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/will-steering',
+  code: 'E-SLF-0151',
   title:
     'with the will a self moves toward a target and away from a threat, unbiased does not',
   category: 'selves',

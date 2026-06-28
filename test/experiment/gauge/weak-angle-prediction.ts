@@ -22,6 +22,7 @@ const BETA_MSSM: [number, number, number] = [33 / 5, 1, -3]
 
 export default experiment({
   id: 'gauge/weak-angle-prediction',
+  code: 'E-FRC-0054',
   title:
     'the weak mixing angle is predicted (not fitted) from 3/8 unification, running to near 0.231 at the Z scale',
   category: 'gauge',

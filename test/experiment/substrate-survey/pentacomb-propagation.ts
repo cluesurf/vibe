@@ -75,6 +75,7 @@ export function pentacombPropagation(): {
 
 export default experiment({
   id: 'substrate-survey/pentacomb-propagation',
+  code: 'E-SBT-0019',
   title:
     'a fermion propagates on the 5D D4 pentacomb, which has the spinor coin AND curvature, resolving the spin-versus-curvature trade',
   category: 'substrate-survey',

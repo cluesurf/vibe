@@ -40,6 +40,7 @@ function braiding(states: number, radius: number): number {
 
 export default experiment({
   id: 'spin/ternary-anyons',
+  code: 'E-SPN-0038',
   title:
     'the ternary tone (Z_3) hosts anyons, a fractional 2pi/3 braiding phase, topological and enclosure-gated, vs the binary boson and fermion',
   category: 'spin',

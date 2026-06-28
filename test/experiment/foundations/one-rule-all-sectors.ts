@@ -55,7 +55,7 @@ function lightCone(
   }
 
   let b = Int8Array.from(a)
-  b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
+  b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1)
 
   const step = (tone: Int8Array): Int8Array =>
     signedMajorityStep({ neighbors: g.neighbors, fills, tone })
@@ -153,6 +153,7 @@ export function oneRuleAllSectors(input: {
 
 export default experiment({
   id: 'foundations/one-rule-all-sectors',
+  code: 'E-FND-0036',
   title:
     'matter, force, and radiation all appear from one operator on one mesh',
   category: 'foundations',

@@ -49,7 +49,7 @@ function perturb(
     const tmp = idx[i]!
     idx[i] = idx[j]!
     idx[j] = tmp
-    out[idx[i]!] = -(p[idx[i]!] ?? 0) as -1 | 0 | 1
+    out[idx[i]!] = -(p[idx[i]!] ?? 0)
   }
 
   return out
@@ -160,6 +160,7 @@ export function selvesAsAttractors(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/selves-as-attractors',
+  code: 'E-SLF-0118',
   title: 'stable basin, persistent identity, capacity grows with size',
   category: 'selves',
   substrates: 'any',

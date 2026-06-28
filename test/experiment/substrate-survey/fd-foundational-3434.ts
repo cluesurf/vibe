@@ -123,6 +123,7 @@ export function fdFoundational(): {
 
 export default experiment({
   id: 'substrate-survey/fd-foundational-3434',
+  code: 'E-SBT-0011',
   title:
     'the D4 lattice-gas rule closes on 24 neighbours and is exactly reversible, conserving count and momentum',
   category: 'substrate-survey',

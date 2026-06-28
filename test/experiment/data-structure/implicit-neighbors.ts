@@ -13,6 +13,7 @@ const coordinateSum = (v: number[]): number =>
 
 export default experiment({
   id: 'data-structure/implicit-neighbors',
+  code: 'E-DST-0013',
   title:
     'DS3: {3,4,3,4} neighbours are computed from the D4 coordinate, zero stored adjacency',
   category: 'data-structure',

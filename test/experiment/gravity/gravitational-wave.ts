@@ -116,6 +116,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
 export default experiment({
   id: 'gravity/gravitational-wave',
+  code: 'E-GRV-0017',
   title:
     'the propagating spin-2 graviton, helicity two (period 180), massless (front speed one), reversible, the gravitational wave',
   category: 'gravity',

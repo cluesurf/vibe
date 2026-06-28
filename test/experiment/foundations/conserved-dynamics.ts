@@ -288,6 +288,7 @@ export function conservedDynamics(): {
 
 export default experiment({
   id: 'foundations/conserved-dynamics',
+  code: 'E-FND-0008',
   title:
     'conserved exchange on {5,3,4} keeps Q exact while charge diffuses, pumps, and pairs',
   category: 'foundations',

@@ -30,6 +30,7 @@ import {
 
 export default experiment({
   id: 'relativity/second-conserved-quantity-3434',
+  code: 'E-RLT-0033',
   title:
     'the momentum-conserving knit has a second conserved current (momentum) deterministically, the pair table does not',
   category: 'relativity',

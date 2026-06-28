@@ -22,6 +22,7 @@ import {
 
 export default experiment({
   id: 'selves/bath-coupled-self',
+  code: 'E-SLF-0009',
   title:
     'coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)',
   category: 'selves',

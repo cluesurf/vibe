@@ -37,6 +37,7 @@ const HE_PLUS_ENERGY = -2
 
 export default experiment({
   id: 'spin/helium-ground-state',
+  code: 'E-SPN-0017',
   title:
     'helium ground-state energy from the screened two-electron variational treatment, within 2 percent of observed, the no-repulsion energy the control',
   category: 'spin',

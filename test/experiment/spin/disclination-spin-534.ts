@@ -83,6 +83,7 @@ export function disclinationSpin(): {
 
 export default experiment({
   id: 'spin/disclination-spin-534',
+  code: 'E-SPN-0012',
   title:
     'a half-winding disclination in the {5,3,4} director field gives the spinor a minus sign while the vector is blind, spin from topology',
   category: 'spin',

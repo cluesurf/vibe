@@ -8,7 +8,7 @@ import { dot } from '@/code/algebra/vector'
 
 export function directionsAreCrystallographic(
   directions: readonly number[][],
-  tolerance: number = 1e-6,
+  tolerance = 1e-6,
 ): boolean {
   for (const a of directions) {
     for (const b of directions) {

@@ -156,13 +156,18 @@ export function dispersionSpeedDeviation(input: {
   directions: number[][]
   axis: number[]
   wavenumbers: readonly number[]
-}): { deviations: number[]; leadingOrder: number; infraredSpeed: number } {
+}): {
+  deviations: number[]
+  leadingOrder: number
+  infraredSpeed: number
+} {
   const speeds = input.wavenumbers.map(k => {
     const wave = input.axis.map(component => component * k)
 
     return (
-      Math.sqrt(latticeDispersion({ directions: input.directions, wave })) /
-      k
+      Math.sqrt(
+        latticeDispersion({ directions: input.directions, wave }),
+      ) / k
     )
   })
 

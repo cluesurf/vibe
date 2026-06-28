@@ -15,6 +15,7 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
 export default experiment({
   id: 'data-structure/addressing',
+  code: 'E-DST-0001',
   title:
     'DS2: the hyperbolic bulk gives unique cell addresses of logarithmic length, far shorter than flat',
   category: 'data-structure',

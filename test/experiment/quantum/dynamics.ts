@@ -17,6 +17,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/dynamics',
+  code: 'E-QTM-0010',
   title:
     'in a natural mesh the CHSH violation decays with separation, unlike flat quantum violation',
   category: 'quantum',

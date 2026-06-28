@@ -178,6 +178,7 @@ export function integratedInformation(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/integrated-information',
+  code: 'E-SLF-0061',
   title:
     'selves are tone-integration local maxima and the measure reads the dynamics',
   category: 'selves',

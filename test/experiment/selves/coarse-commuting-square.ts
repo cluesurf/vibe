@@ -25,6 +25,7 @@ import {
 
 export default experiment({
   id: 'selves/coarse-commuting-square',
+  code: 'E-SLF-0025',
   title:
     'the learned effective rule commutes with one micro beat far better than a random rule',
   category: 'selves',

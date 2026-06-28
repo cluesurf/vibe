@@ -19,6 +19,7 @@ const SIZE = 48
 
 export default experiment({
   id: 'gravity/tempering',
+  code: 'E-GRV-0035',
   title:
     'parallel tempering finds a susceptibility peak and order-parameter coexistence in the causal-set action',
   category: 'gravity',

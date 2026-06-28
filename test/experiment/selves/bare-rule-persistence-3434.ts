@@ -118,6 +118,7 @@ export function bareRulePersistence(): {
 
 export default experiment({
   id: 'selves/bare-rule-persistence-3434',
+  code: 'E-SLF-0008',
   title:
     'a linear field rule loses winding while an amplitude-preserving nonlinear rule locks it',
   category: 'selves',

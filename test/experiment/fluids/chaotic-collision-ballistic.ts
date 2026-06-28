@@ -29,6 +29,7 @@ import {
 
 export default experiment({
   id: 'fluids/chaotic-collision-ballistic',
+  code: 'E-FLD-0001',
   title:
     'a configuration-controlled (chaotic) reversible collision is still ballistic, deterministic chaos does not give viscosity',
   category: 'fluids',

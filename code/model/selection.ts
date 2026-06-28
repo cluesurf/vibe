@@ -18,7 +18,7 @@ function variant(parent: Int8Array, tag: number): Int8Array {
 
   for (let s = 0; s < flips; s++) {
     const i = (tag * 31 + s * 17) % n
-    child[i] = -child[i]! as -1 | 0 | 1
+    child[i] = -child[i]!
   }
 
   return child
@@ -33,9 +33,11 @@ export function evolvePopulation(input: {
   const { n, populationSize, generations, select } = input
 
   // a fixed dense environment to adapt to, and a fixed initial population (deterministic seeds, varied by size)
-  const environment = ternaryVector(n, makeRng({ seed: 70001 + n })).map(v =>
-    v === 0 ? 1 : v,
-  )
+  const environment = ternaryVector(
+    n,
+    makeRng({ seed: 70001 + n }),
+  ).map(v => (v === 0 ? 1 : v))
+
   let population = Array.from({ length: populationSize }, (_, k) =>
     ternaryVector(n, makeRng({ seed: 80001 + k * 13 + n })).map(v =>
       v === 0 ? 1 : v,
@@ -51,15 +53,26 @@ export function evolvePopulation(input: {
   for (let g = 0; g < generations; g++) {
     if (select) {
       // rank by fitness, keep the top half, refill from variants of the survivors
-      const ranked = [...population].sort((a, b) => fitness(b) - fitness(a))
-      const keep = ranked.slice(0, Math.max(1, Math.floor(populationSize / 2)))
-      const offspring = keep.map((parent, k) => variant(parent, g * 97 + k))
+      const ranked = [...population].sort(
+        (a, b) => fitness(b) - fitness(a),
+      )
+
+      const keep = ranked.slice(
+        0,
+        Math.max(1, Math.floor(populationSize / 2)),
+      )
+
+      const offspring = keep.map((parent, k) =>
+        variant(parent, g * 97 + k),
+      )
+
       population = [...keep, ...offspring].slice(0, populationSize)
     } else {
       // the control: replace half without regard to fitness (variants of arbitrary members), so no adaptation
       const offspring = population
         .slice(0, Math.floor(populationSize / 2))
         .map((parent, k) => variant(parent, g * 97 + k))
+
       population = [
         ...population.slice(Math.floor(populationSize / 2)),
         ...offspring,

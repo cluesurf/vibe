@@ -21,6 +21,7 @@ const DISTANCES = [1, 3, 5, 8, 11]
 
 export default experiment({
   id: 'gravity/shadow-pressure-not-newtonian',
+  code: 'E-GRV-0034',
   title:
     'the bare shadow pressure is a distance-independent ballistic deficit, not a 1/r Newtonian tail',
   category: 'gravity',

@@ -45,6 +45,7 @@ export function exchangePhase(): {
 
 export default experiment({
   id: 'spin/exchange-phase',
+  code: 'E-SPN-0013',
   title:
     'an analytic consistency check that the assumed spin-statistics formulas agree, not an emergent result',
   category: 'spin',

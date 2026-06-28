@@ -20,7 +20,7 @@ function measure(
   maxCells: number,
   tau: number,
 ): { N: number; slope: number; pairs: number } {
-  const g = buildCellGraph({ symbol: symbol as never, maxCells })
+  const g = buildCellGraph({ symbol: symbol, maxCells })
   const N = g.cellCount
   const { offsets: off, adj } = toCsr(g.neighbors)
   const rad = g.coords.map(norm)
@@ -91,6 +91,7 @@ export function gravityTreePath(): {
 
 export default experiment({
   id: 'gravity/gravity-treepath',
+  code: 'E-GRV-0025',
   title:
     'a common-ancestor tree-path propagator on the real cell graph, calibrated against {5,3,4}',
   category: 'gravity',

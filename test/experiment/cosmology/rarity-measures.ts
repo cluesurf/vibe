@@ -39,10 +39,7 @@ function evolve(
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
-    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0)
   }
 
   const moved = new Uint8Array(N)
@@ -185,6 +182,7 @@ export function rarityMeasures(input?: { L?: number }): {
 
 export default experiment({
   id: 'cosmology/rarity-measures',
+  code: 'E-CSM-0036',
   title:
     'three independent measures confirm life is a rare, thin, threshold-gated tail of matter',
   category: 'cosmology',

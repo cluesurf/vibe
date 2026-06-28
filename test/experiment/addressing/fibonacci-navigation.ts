@@ -124,6 +124,7 @@ export function fibonacciNavigation(input: {
 
 export default experiment({
   id: 'addressing/fibonacci-navigation',
+  code: 'E-NVG-0004',
   title:
     'address arithmetic routes every signal exactly and efficiently on the heptagrid',
   category: 'addressing',

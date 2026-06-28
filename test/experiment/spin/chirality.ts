@@ -18,6 +18,7 @@ import {
 
 export default experiment({
   id: 'spin/chirality',
+  code: 'E-SPN-0004',
   title:
     'the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry',
   category: 'spin',

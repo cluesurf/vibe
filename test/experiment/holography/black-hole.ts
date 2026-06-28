@@ -64,6 +64,7 @@ export function blackHoleEntropy(input: { side: number }): {
 
 export default experiment({
   id: 'holography/black-hole',
+  code: 'E-HLG-0003',
   title:
     'region entropy scales with horizon area not volume (Bekenstein-Hawking)',
   category: 'holography',

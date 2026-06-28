@@ -47,6 +47,7 @@ export function irreducibility(input: { n: number; trials: number }): {
     urgeWeight: 1,
     init,
   })
+
   const second = settle({
     patterns: selfA,
     coupling: 1,
@@ -54,6 +55,7 @@ export function irreducibility(input: { n: number; trials: number }): {
     urgeWeight: 1,
     init,
   })
+
   const replayExact = hammingFraction(first.state, second.state) === 0
 
   let beatSum = 0
@@ -73,6 +75,7 @@ export function irreducibility(input: { n: number; trials: number }): {
       urgeWeight: 1,
       init,
     })
+
     beatSum += withSelf.beats
 
     if (hammingFraction(withSelf.state, guess) > 0.1) {
@@ -104,6 +107,7 @@ export function irreducibility(input: { n: number; trials: number }): {
 
 export default experiment({
   id: 'selves/choice-determined-yet-irreducible',
+  code: 'E-SLF-0020',
   title:
     'a choice replays exactly yet resists a one-step shortcut, and the self structure is what makes it irreducible',
   category: 'selves',
@@ -119,6 +123,7 @@ export default experiment({
     const irreducibleWithSelf = runs.every(
       r => r.shortcutMissWithSelf > 0.6 && r.meanBeatsWithSelf > 1.5,
     )
+
     const shortcutWorksNoSelf = runs.every(
       r => r.shortcutMissNoSelf < 0.02,
     )

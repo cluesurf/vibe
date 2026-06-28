@@ -67,7 +67,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
           }
 
           nxt[at(x, y, z)] = ((((s - prev[at(x, y, z)]!) % 3) + 3) %
-            3) as 0 | 1 | 2
+            3)
         }
       }
     }
@@ -99,7 +99,7 @@ export function ports(): {
   const t = new Int8Array(L * L * L)
 
   for (let k = 0; k < 200; k++) {
-    t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
+    t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1)
   }
 
   for (let b = 0; b < 40; b++) {
@@ -158,6 +158,7 @@ export function ports(): {
 
 export default experiment({
   id: 'substrate-survey/ports-3434',
+  code: 'E-SBT-0021',
   title:
     'the {5,3,4} behaviours port to the {4,3,4} cubic cusp, a z=1 light cone, churn, and self annihilation',
   category: 'substrate-survey',

@@ -21,6 +21,7 @@ const GAPLESS_THETA = 0.05
 
 export default experiment({
   id: 'gravity/area-law-from-knit-walk',
+  code: 'E-GRV-0002',
   title:
     'the area law from the knit own coined Dirac walk, a massive walk saturates (area law), a gapless walk grows (control)',
   category: 'gravity',

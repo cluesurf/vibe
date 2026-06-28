@@ -49,6 +49,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/validation',
+  code: 'E-FND-0042',
   title:
     'the reversible even-odd rule is local with a bounded interaction radius',
   category: 'foundations',

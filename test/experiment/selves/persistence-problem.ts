@@ -31,6 +31,7 @@ import {
 
 export default experiment({
   id: 'selves/persistence-problem',
+  code: 'E-SLF-0095',
   title:
     'a pattern lasts only if its identity is topological, the bath makes it last, a closed system only recurs',
   category: 'selves',

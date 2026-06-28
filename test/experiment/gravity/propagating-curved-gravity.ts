@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gravity/propagating-curved-gravity',
+  code: 'E-GRV-0031',
   title:
     'a stable, reversible, nonlinear propagating gravity in the curved {5,3,4} bulk, finite speed, exact echo, bounded',
   category: 'gravity',

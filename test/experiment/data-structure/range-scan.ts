@@ -13,6 +13,7 @@ const ballSize = (shells: number[], radius: number): number =>
 
 export default experiment({
   id: 'data-structure/range-scan',
+  code: 'E-DST-0021',
   title:
     'DS14: a range scan in the hyperbolic bulk visits exponentially many cells (the caveat)',
   category: 'data-structure',

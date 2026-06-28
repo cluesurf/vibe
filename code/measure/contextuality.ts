@@ -60,7 +60,11 @@ export function peresMerminSquare(): {
 } {
   const grid = square()
   const rows = grid
-  const cols = [0, 1, 2].map(j => [grid[0]![j]!, grid[1]![j]!, grid[2]![j]!])
+  const cols = [0, 1, 2].map(j => [
+    grid[0]![j]!,
+    grid[1]![j]!,
+    grid[2]![j]!,
+  ])
 
   // every observable squares to the identity (an involution, +-1 spectrum)
   const allInvolutions = grid
@@ -94,6 +98,7 @@ export function peresMerminSquare(): {
   // observable, shared across the contexts it sits in), maximizing the same magic-square combination. The QM
   // value 6 is unreachable classically; the maximum comes out 4.
   let noncontextualBound = -Infinity
+
   const value = new Array<number>(9)
 
   for (let mask = 0; mask < 512; mask++) {
@@ -102,7 +107,9 @@ export function peresMerminSquare(): {
     }
 
     const at = (r: number, col: number): number => value[r * 3 + col]!
-    const rowProd = (r: number): number => at(r, 0) * at(r, 1) * at(r, 2)
+    const rowProd = (r: number): number =>
+      at(r, 0) * at(r, 1) * at(r, 2)
+
     const colProd = (col: number): number =>
       at(0, col) * at(1, col) * at(2, col)
 

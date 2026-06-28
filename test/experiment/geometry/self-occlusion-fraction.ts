@@ -21,6 +21,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'geometry/self-occlusion-fraction',
+  code: 'E-GMT-0023',
   title:
     'the perceivable fraction of Being is 3/4 (270 degrees) from the bulk-cusp dimensional occlusion, while the 24 directions give exactly 1/2',
   category: 'geometry',
@@ -35,6 +36,7 @@ export default experiment({
       [1, 0, 0, 0],
       [1, 1, 1, 1],
     ]
+
     const facings = views.map(directionalFacingFraction)
     const directionalAlwaysHalf = facings.every(
       f => Math.abs(f.fraction - 0.5) < 1e-9 && f.centrallySymmetric,
@@ -49,6 +51,7 @@ export default experiment({
     const dimensionalGives270 =
       Math.abs(dimensional - 0.75) < 1e-12 &&
       Math.abs(tetrahedron - 0.75) < 1e-12
+
     const trialityGives240 = Math.abs(triality - 2 / 3) < 1e-12
     const spinorGivesHalf = Math.abs(spinor - 0.5) < 1e-12
 

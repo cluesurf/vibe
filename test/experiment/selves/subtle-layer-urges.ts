@@ -243,6 +243,7 @@ export function subtleLayerUrges(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/subtle-layer-urges',
+  code: 'E-SLF-0132',
   title: 'deep layer steers the surface and reasserts after disorder',
   category: 'selves',
   substrates: 'any',

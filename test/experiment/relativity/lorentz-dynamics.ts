@@ -20,6 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/lorentz-dynamics',
+  code: 'E-RLT-0019',
   title:
     'the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice',
   category: 'relativity',

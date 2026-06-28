@@ -82,6 +82,7 @@ export function associativePriming(input?: {
 
 export default experiment({
   id: 'associative/priming',
+  code: 'E-MMR-0012',
   title:
     'priming as residual activation, a pre-activated region resolves a related query in fewer beats',
   category: 'associative',

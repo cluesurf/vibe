@@ -176,6 +176,7 @@ export function bulkNonlocality(input?: { n?: number }): {
 
 export default experiment({
   id: 'holography/bulk-nonlocality',
+  code: 'E-HLG-0004',
   title:
     'distant surface points are joined by a short hidden path through the bulk',
   category: 'holography',

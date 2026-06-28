@@ -11,6 +11,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gauge/index-theorem',
+  code: 'E-FRC-0028',
   title:
     'the overlap fermion zero-mode count equals the gauge topological charge, the lattice index theorem',
   category: 'gauge',

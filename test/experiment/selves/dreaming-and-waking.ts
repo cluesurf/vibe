@@ -143,6 +143,7 @@ export function dreamingAndWaking(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/dreaming-and-waking',
+  code: 'E-SLF-0041',
   title:
     'waking is pinned to one veridical memory while dreaming roams the landscape',
   category: 'selves',

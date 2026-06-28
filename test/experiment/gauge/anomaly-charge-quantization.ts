@@ -116,10 +116,10 @@ export function anomalyChargeQuantization(
 
   // A proton is uud (the conjugates of uc, uc, dc give up, up, down quark charges), an electron is
   // the conjugate of ec. Atom neutral means proton charge + electron charge = 0.
-  const upCharge = -((Y['uc'] ?? 0) + 0) // charge of the up quark = -(charge of uc)
-  const downCharge = -((Y['dc'] ?? 0) + 0)
+  const upCharge = -((Y.uc ?? 0) + 0) // charge of the up quark = -(charge of uc)
+  const downCharge = -((Y.dc ?? 0) + 0)
   const proton = 2 * upCharge + downCharge
-  const electron = -((Y['ec'] ?? 0) + 0)
+  const electron = -((Y.ec ?? 0) + 0)
   const atomNeutral = Math.abs(proton + electron) < 1e-9
 
   return {
@@ -141,6 +141,7 @@ export function anomalyChargeQuantization(
 
 export default experiment({
   id: 'gauge/anomaly-charge-quantization',
+  code: 'E-FRC-0003',
   title:
     'anomaly cancellation forces the Standard Model hypercharges and quantized electric charges',
   category: 'gauge',

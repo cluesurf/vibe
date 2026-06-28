@@ -63,6 +63,7 @@ function runConfig(input: {
 
 export default experiment({
   id: 'cosmology/study',
+  code: 'E-CSM-0039',
   title:
     'the smeared causal-set action drives the order parameter toward a 2D manifold reference',
   category: 'cosmology',

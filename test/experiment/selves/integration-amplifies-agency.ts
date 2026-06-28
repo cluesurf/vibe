@@ -49,6 +49,7 @@ export function integrationAgency(input: {
 
 export default experiment({
   id: 'selves/integration-amplifies-agency',
+  code: 'E-SLF-0063',
   title:
     'a coherent self reaches its goal while a fragmented self of the same parts cannot, so integration amplifies agency',
   category: 'selves',

@@ -14,6 +14,7 @@ import { selfTrajectory } from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/renormalization-tower',
+  code: 'E-SLF-0100',
   title:
     'the measured level-0 compression composes into the effective vibe count N_top times C to the L',
   category: 'renormalization',

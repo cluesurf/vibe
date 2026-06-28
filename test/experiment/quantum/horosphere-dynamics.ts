@@ -93,10 +93,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   const rng = makeRng({ seed: 3 })
 
   for (let i = 0; i < hg.length; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   for (let t = 0; t < 60; t++) {
@@ -160,6 +157,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
 
 export default experiment({
   id: 'quantum/horosphere-dynamics',
+  code: 'E-QTM-0014',
   title: 'the field is massive on the emergent flat layer too',
   category: 'quantum',
   substrates: ['534'],

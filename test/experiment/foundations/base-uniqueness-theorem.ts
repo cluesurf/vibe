@@ -62,6 +62,7 @@ const hasTriality = (directional: number[][] | null): boolean =>
 
 export default experiment({
   id: 'foundations/base-uniqueness-theorem',
+  code: 'E-FND-0005',
   title:
     'the 24-cell is the unique self-dual, crystallographic, triality-carrying regular 4-polytope, so the dock is forced',
   category: 'foundations',

@@ -27,6 +27,7 @@ type SplitElement = { rotation: string; sign: number }
 
 export default experiment({
   id: 'spin/cocycle-534',
+  code: 'E-SPN-0005',
   title:
     'the {5,3,4} spinor cover is genuine (nonsplit), the cocycle is nontrivial, a 2pi loop is minus one',
   category: 'spin',

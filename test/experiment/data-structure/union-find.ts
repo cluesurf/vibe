@@ -10,6 +10,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/union-find',
+  code: 'E-DST-0026',
   title:
     'SS15: union-find on the cell tree has logarithmic find depth from short bulk paths',
   category: 'data-structure',

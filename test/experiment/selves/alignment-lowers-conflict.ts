@@ -21,14 +21,18 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // flip a fraction of a pattern's sites deterministically (a moving offset), a fixed structured perturbation
-function noisy(base: Int8Array, fraction: number, offset: number): Int8Array {
+function noisy(
+  base: Int8Array,
+  fraction: number,
+  offset: number,
+): Int8Array {
   const out = Int8Array.from(base)
   const n = base.length
   const flips = Math.round(fraction * n)
 
   for (let s = 0; s < flips; s++) {
     const i = (offset * 7 + s * 13) % n
-    out[i] = -out[i]! as -1 | 0 | 1
+    out[i] = -out[i]!
   }
 
   return out
@@ -51,9 +55,10 @@ export function alignmentConflict(input: {
 
   for (let k = 0; k < input.trials; k++) {
     // a dense plus-or-minus-one shared pattern (no rest sites), so agreement and opposition are clean
-    const base = ternaryVector(input.n, makeRng({ seed: 11000 + k })).map(
-      v => (v === 0 ? 1 : v),
-    )
+    const base = ternaryVector(
+      input.n,
+      makeRng({ seed: 11000 + k }),
+    ).map(v => (v === 0 ? 1 : v))
 
     // aligned: every part is a lightly noisy copy of the one shared pattern
     const aligned = Array.from({ length: input.parts }, (_, j) =>
@@ -81,6 +86,7 @@ export function alignmentConflict(input: {
 
 export default experiment({
   id: 'selves/alignment-lowers-conflict',
+  code: 'E-SLF-0003',
   title:
     'an aligned self has low internal conflict and a decisive urge, a fragmented self is in conflict and torn',
   category: 'selves',
@@ -96,6 +102,7 @@ export default experiment({
     const lowerConflict = runs.every(
       r => r.alignedConflict < 0.1 && r.fragmentedConflict > 0.3,
     )
+
     const moreDecisive = runs.every(
       r => r.alignedDecisive > 0.6 && r.fragmentedDecisive < 0.35,
     )

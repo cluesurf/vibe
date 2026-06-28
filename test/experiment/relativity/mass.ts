@@ -55,6 +55,7 @@ export function massStudy(input: { m: number }): {
 
 export default experiment({
   id: 'relativity/mass-dispersion',
+  code: 'E-RLT-0024',
   title: 'mass gives a gap = m and a relativistic dispersion b ~ m^2',
   category: 'relativity',
   substrates: 'any',

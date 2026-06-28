@@ -13,6 +13,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'selves/morphogenesis-pattern',
+  code: 'E-SLF-0076',
   title:
     'an activator-inhibitor rule self-organizes a regular striped pattern whose wavelength is set by the rule, not the seed',
   category: 'selves',
@@ -29,6 +30,7 @@ export default experiment({
         inhibition: 1,
         beats: 200,
       })
+
       const fine = morphogenesis({
         n,
         activateRadius: 1,
@@ -36,6 +38,7 @@ export default experiment({
         inhibition: 1,
         beats: 200,
       })
+
       const coarseWavelength = n / Math.max(1, coarse.walls)
       const fineWavelength = n / Math.max(1, fine.walls)
 
@@ -49,6 +52,7 @@ export default experiment({
         r.coarse.regularity < 0.2 &&
         r.coarse.walls > 2,
     )
+
     const wavelengthSelected = results.every(
       r => r.coarseWavelength > r.fineWavelength * 1.5,
     )

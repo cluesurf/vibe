@@ -41,7 +41,7 @@ export function directionIntention(): {
     const target = new Int8Array(K)
 
     for (let i = 0; i < K; i++) {
-      target[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
+      target[i] = (rng.next() < 0.5 ? 1 : 0)
     }
 
     const goalSteps = solveGoalDirected({ target, rng })
@@ -82,6 +82,7 @@ export function directionIntention(): {
 
 export default experiment({
   id: 'computation/direction-intention',
+  code: 'E-CMP-0002',
   title:
     'a goal-directed search solves in K steps while an un-goaled one fails',
   category: 'computation',

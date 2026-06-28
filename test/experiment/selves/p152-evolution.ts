@@ -170,6 +170,7 @@ export function evolution(input?: { M?: number }): {
 
 export default experiment({
   id: 'selves/p152-evolution',
+  code: 'E-SLF-0087',
   title:
     'heredity plus variation plus selection drives mean fitness up, beating drift',
   category: 'selves',

@@ -31,8 +31,8 @@ export function eternalBootstrap(): {
     prev0 = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    cur0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
-    prev0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+    cur0[i] = Math.floor(rnd() * 3)
+    prev0[i] = Math.floor(rnd() * 3)
   }
 
   const netCharge = (a: Int8Array): number => {
@@ -100,7 +100,7 @@ export function eternalBootstrap(): {
         s += fc[j]!
       }
 
-      nx[i] = ((((s - fp[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+      nx[i] = ((((s - fp[i]!) % 3) + 3) % 3)
     }
 
     fp = fc
@@ -121,7 +121,7 @@ export function eternalBootstrap(): {
         s += bp[j]!
       }
 
-      pr[i] = ((((s - bc[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+      pr[i] = ((((s - bc[i]!) % 3) + 3) % 3)
     }
 
     bc = bp
@@ -178,6 +178,7 @@ export function eternalBootstrap(): {
 
 export default experiment({
   id: 'cosmology/eternal-bootstrap',
+  code: 'E-CSM-0016',
   title:
     'the reversible rule churns forever from a generic state and is exactly reversible, an irreversible rule decays',
   category: 'cosmology',

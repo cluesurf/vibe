@@ -86,6 +86,7 @@ export function depthHidesOutcome(input: {
       urgeWeight: 1,
       init,
     })
+
     const err = hammingFraction(r.state, guess)
 
     beats.push(r.beats)
@@ -105,6 +106,7 @@ export function depthHidesOutcome(input: {
       urgeWeight: 1,
       init,
     })
+
     controlErrorSum += hammingFraction(c.state, guess)
     controlMaxBeats = Math.max(controlMaxBeats, c.beats)
   }
@@ -123,6 +125,7 @@ export function depthHidesOutcome(input: {
 
 export default experiment({
   id: 'selves/deliberation-depth-hides-the-outcome',
+  code: 'E-SLF-0036',
   title:
     'the deeper a self must deliberate, the more its determined outcome hides from a cheap predictor',
   category: 'selves',
@@ -137,6 +140,7 @@ export default experiment({
     const deepHidesMore = runs.every(
       r => r.deepError > r.shallowError + 0.03,
     )
+
     // a structureless self is exactly the shortcut (zero error) and settles at once (the one
     // update plus its confirming beat), so it has neither real depth nor hiding
     const controlIsPredictable = runs.every(

@@ -100,7 +100,7 @@ async function run(): Promise<void> {
 
   const SZ = N * DIRN
 
-  let a = mk(SZ),
+  const a = mk(SZ),
     b = mk(SZ)
 
   const offBuf = mk(DIRN * 4),

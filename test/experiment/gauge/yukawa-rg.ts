@@ -44,6 +44,7 @@ export function yukawaRG(): {
 
 export default experiment({
   id: 'gauge/yukawa-rg',
+  code: 'E-FRC-0056',
   title:
     'running b-tau unification down gives the observed mass ratio and determinant relation',
   category: 'gauge',

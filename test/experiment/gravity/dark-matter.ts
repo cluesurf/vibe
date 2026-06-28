@@ -93,6 +93,7 @@ export function rotationCurve(input: {
 
 export default experiment({
   id: 'gravity/dark-matter',
+  code: 'E-GRV-0008',
   title:
     'nonlocal gravity flattens the rotation curve (no dark particle)',
   category: 'gravity',

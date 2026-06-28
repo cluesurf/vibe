@@ -35,6 +35,7 @@ import {
 
 export default experiment({
   id: 'selves/fine-group-too-coarse',
+  code: 'E-SLF-0048',
   title:
     'no finite direction group (not even the 600-cell) is fine enough for a stable discrete dynamics, the self is forced emergent',
   category: 'selves',

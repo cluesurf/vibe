@@ -42,6 +42,7 @@ export function dslDemo(): {
 
 export default experiment({
   id: 'foundations/dsl',
+  code: 'E-FND-0015',
   title: 'the DSL builds the committed model and expresses variants',
   category: 'foundations',
   substrates: ['534'],

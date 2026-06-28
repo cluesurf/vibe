@@ -82,7 +82,7 @@ export function selfNesting73(): {
 
   for (let i = 0; i < N; i++) {
     if (dist[i]! < 4) {
-      cur[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+      cur[i] = (Math.floor(rnd() * 3) - 1)
     }
   }
 
@@ -96,7 +96,7 @@ export function selfNesting73(): {
         s += cur[adj[q]!]!
       }
 
-      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3)
     }
 
     const t = prev
@@ -216,6 +216,7 @@ export function selfNesting73(): {
 
 export default experiment({
   id: 'selves/self-nesting-73',
+  code: 'E-SLF-0116',
   title: 'the {7,3} hyperbolic bulk has no radial nesting tower',
   category: 'selves',
   substrates: ['73'],

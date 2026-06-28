@@ -52,6 +52,7 @@ export function ryuTakayanagi73(): {
 
 export default experiment({
   id: 'holography/ryu-takayanagi-73',
+  code: 'E-HLG-0019',
   title:
     'on {7,3} the boundary-interval entanglement follows the logarithmic Ryu-Takayanagi law, while the flat control is linear',
   category: 'holography',

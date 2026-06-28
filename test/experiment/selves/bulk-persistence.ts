@@ -24,6 +24,7 @@ const MINIMAL_MAX = 20
 
 export default experiment({
   id: 'selves/bulk-persistence',
+  code: 'E-SLF-0015',
   title:
     'a stored pattern decays, but redundancy extends its survival and maintenance makes it permanent',
   category: 'selves',

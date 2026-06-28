@@ -16,6 +16,7 @@ import { rootsD4, rootsF4 } from '@/code/algebra/group/root-system'
 // {5,3,4} cannot (they split with no spinor).
 export default experiment({
   id: 'foundations/coin-algebra',
+  code: 'E-FND-0007',
   title:
     'the 24 coin directions are the D4 roots with triality, the spin algebra',
   category: 'foundations',

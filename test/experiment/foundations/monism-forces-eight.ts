@@ -21,6 +21,7 @@ function halfSpinorDim(n: number): number {
 
 export default experiment({
   id: 'foundations/monism-forces-eight',
+  code: 'E-FND-0033',
   title:
     'monism (vector = spinor) forces dimension eight uniquely, the pinch-point floor from the base not from observed families; three generations emerge as the three faces 8v 8s 8c',
   category: 'foundations',

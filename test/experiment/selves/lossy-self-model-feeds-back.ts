@@ -97,6 +97,7 @@ export function lossyModelFeedsBack(input: {
       urgeWeight: 1,
       init: startA,
     }).state
+
     const b1 = settle({
       patterns: self,
       coupling: 2,
@@ -118,6 +119,7 @@ export function lossyModelFeedsBack(input: {
       urgeWeight: 1,
       init: startA,
     }).state
+
     const b0 = settle({
       patterns: self,
       coupling: 0,
@@ -140,6 +142,7 @@ export function lossyModelFeedsBack(input: {
 
 export default experiment({
   id: 'selves/lossy-self-model-feeds-back',
+  code: 'E-SLF-0069',
   title:
     'detail a self cannot see in its coarse model still feeds back into its determined choice',
   category: 'selves',
@@ -156,6 +159,7 @@ export default experiment({
     const feedsBackWithSelf = runs.every(
       r => r.divergenceWithSelf > 0.1,
     )
+
     const noFeedbackInControl = runs.every(
       r => r.divergenceNoSelf < 0.02,
     )

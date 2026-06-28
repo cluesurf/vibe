@@ -60,8 +60,8 @@ function stepPerception(t: Int8Array): void {
       }
 
       const [na, nb] = perm(t[v]!, t[w]!)
-      t[v] = na as -1 | 0 | 1
-      t[w] = nb as -1 | 0 | 1
+      t[v] = na
+      t[w] = nb
       m[v] = 1
       m[w] = 1
       break
@@ -93,7 +93,7 @@ function stepDiffusion(t: Int8Array): void {
 
       const a = t[v]!
       t[v] = t[w]!
-      t[w] = a as -1 | 0 | 1
+      t[w] = a
       m[v] = 1
       m[w] = 1
       break
@@ -127,7 +127,7 @@ function towerOf(step: (t: Int8Array) => void): {
   const t = new Int8Array(L * L * L)
 
   for (let i = 0; i < L * L * L; i++) {
-    t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+    t[i] = (Math.floor(rnd() * 3) - 1)
   }
 
   for (let f = 0; f < 40; f++) {
@@ -205,6 +205,7 @@ export function nestingControls(): {
 
 export default experiment({
   id: 'selves/nesting-controls',
+  code: 'E-SLF-0082',
   title: 'the flat-cusp form-tower against a pure-diffusion control',
   category: 'selves',
   substrates: ['3434'],

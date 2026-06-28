@@ -68,6 +68,7 @@ export function dimensionSelection(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'cosmology/dimension-selection',
+  code: 'E-CSM-0012',
   title:
     'only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
   category: 'cosmology',

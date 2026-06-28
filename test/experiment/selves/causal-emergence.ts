@@ -155,6 +155,7 @@ export function causalEmergence(input?: { K?: number }): {
 
 export default experiment({
   id: 'selves/causal-emergence',
+  code: 'E-SLF-0019',
   title:
     'a coarse-grained macro has more effective information than the degenerate micro',
   category: 'selves',

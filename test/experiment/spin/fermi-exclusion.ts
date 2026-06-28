@@ -37,6 +37,7 @@ const symmetricNormSquared = (a: number[], b: number[]): number =>
 
 export default experiment({
   id: 'spin/fermi-exclusion',
+  code: 'E-SPN-0014',
   title:
     'two identical fermions cannot share a state (the antisymmetric amplitude vanishes) while bosons pile up, the Pauli principle measured',
   category: 'spin',

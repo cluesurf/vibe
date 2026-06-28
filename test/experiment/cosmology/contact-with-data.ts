@@ -51,6 +51,7 @@ export function lorentzPrediction(): {
 
 export default experiment({
   id: 'cosmology/contact-with-data',
+  code: 'E-CSM-0005',
   title:
     'adopted everpresent scaling lands at the observed dark-energy order of magnitude, no linear Lorentz violation',
   category: 'cosmology',

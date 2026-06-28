@@ -26,6 +26,7 @@ export function massRelations(): {
 
 export default experiment({
   id: 'gauge/mass-relations',
+  code: 'E-FRC-0034',
   title:
     'the hypercharge is traceless over the 16, giving the GUT determinant mass relation',
   category: 'gauge',

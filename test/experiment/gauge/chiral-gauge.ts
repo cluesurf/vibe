@@ -61,6 +61,7 @@ export function chiralGauge(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'gauge/chiral-gauge',
+  code: 'E-FRC-0004',
   title:
     'naive lattice fermions double to 2^d species whose chiralities cancel and a Wilson term leaves one',
   category: 'gauge',

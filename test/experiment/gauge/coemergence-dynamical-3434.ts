@@ -103,6 +103,7 @@ export function coemergenceDynamical(): {
 
 export default experiment({
   id: 'gauge/coemergence-dynamical-3434',
+  code: 'E-FRC-0005',
   title:
     'one coupled rule binds the photon and fermion sectors both ways, and decoupling kills both together',
   category: 'gauge',

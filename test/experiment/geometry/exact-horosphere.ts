@@ -114,6 +114,7 @@ export function exactHorosphere(input?: {
 
 export default experiment({
   id: 'geometry/exact-horosphere',
+  code: 'E-GMT-0013',
   title:
     'an exact {4,4} square horosphere of {4,4,3} validates the flat-self idealization',
   category: 'geometry',

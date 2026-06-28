@@ -125,7 +125,7 @@ export function heredity(input?: { n?: number }): {
       let v = parentPat[i]!
 
       if (r.next() < mu) {
-        v = -v as -1 | 1
+        v = -v
       } // mutation
 
       daughterPat[i] = v
@@ -193,6 +193,7 @@ export function heredity(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/heredity',
+  code: 'E-SLF-0055',
   title:
     'a daughter inherits the parent with tunable variation as conserving creation',
   category: 'selves',

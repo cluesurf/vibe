@@ -64,10 +64,7 @@ export function dynamicDispersion(input?: {
   const rng = makeRng({ seed: 19 })
 
   for (let i = 0; i < L; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   for (let t = 0; t < 400; t++) {
@@ -205,6 +202,7 @@ export function dynamicDispersion(input?: {
 
 export default experiment({
   id: 'gauge/dynamic-dispersion',
+  code: 'E-FRC-0011',
   title:
     'the conserved charge has a gapless hydrodynamic mode but it is diffusive not relativistic',
   category: 'gauge',

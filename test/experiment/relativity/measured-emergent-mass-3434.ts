@@ -132,6 +132,7 @@ export function measuredEmergentMass(): {
 
 export default experiment({
   id: 'relativity/measured-emergent-mass-3434',
+  code: 'E-RLT-0026',
   title:
     'the fermion mass is the 8s-8c chirality coupling, measured two agreeing ways, vanishing into a massless Weyl fermion when off',
   category: 'relativity',

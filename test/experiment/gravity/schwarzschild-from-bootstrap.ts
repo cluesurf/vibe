@@ -30,6 +30,7 @@ const RS = 1
 
 export default experiment({
   id: 'gravity/schwarzschild-from-bootstrap',
+  code: 'E-GRV-0033',
   title:
     'the Schwarzschild metric derived by the gravity-gravitates bootstrap, the resummed spatial metric giving the factor-two light bending',
   category: 'gravity',

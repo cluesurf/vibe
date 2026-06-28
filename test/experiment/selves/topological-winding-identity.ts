@@ -23,6 +23,7 @@ import {
 
 export default experiment({
   id: 'selves/topological-winding-identity',
+  code: 'E-SLF-0141',
   title:
     'the self identity is a topological winding, reversibly protected at the 24-cell resolution but not at coarse ternary',
   category: 'selves',
