@@ -1,0 +1,70 @@
+\section{Continuity}
+
+Everything else in the bridge depends on this rung. Until it runs, the claim that the
+coarse-grained face of the base is a conserved-current field theory is a
+well-posed conjecture. After it runs, the central identification is a measured
+fact on the lattice. Coarse-grain the conserved
+tone-current over growing blocks and its discrete divergence is exactly zero at
+every block scale. The charge change inside each block equals minus the net flux
+across its boundary, with no residual. That is the discrete statement of
+$\nabla\!\cdot J = 0$, the one law a conserved-current program posits and forces
+everything else from \cite{herbert2025chronoflux}.
+
+\begin{finding}
+On the flat torus (\texttt{E-GRV-0039}) the per-block residual is an integer-exact zero
+at block scales $1$, $2$, and $4$, with no tolerance allowed. The conserving
+rule is divergence-free at every coarse-graining. The lossy control injects a
+per-cell sink and its residual is $2752$, $704$, and $192$ at the same scales,
+nonzero everywhere and never shrinking. On the genuinely curved $\{3,4,3,4\}$
+mesh (\texttt{E-GRV-0042}) the per-region residual is again integer-exact zero at every
+ball size and every beat over thousands of curved cells, with global
+conservation and exact reversibility, while the lossy rule breaks it by exactly
+the charge it destroys inside each ball. Tier F, \textbf{Derived}.
+\end{finding}
+
+The argument is worth walking through, because the identity is so clean it can
+look like an accident. Every dock carries one tone per direction. From these,
+build two plain things. The density is the signed sum of the tones, one number
+saying how much charge sits at the dock. The current is each tone weighted by
+the direction it points and added, one arrow saying which way the charge flows.
+That pair is the tone-current, built from what is there. Pick
+any patch of docks and call it a block. Its boundary is the set of direction
+links that cross from inside to outside, and each crossing link carries one unit
+of charge stepping over the edge in one beat.
+
+Now ask why the charge inside changes. The rule does two things and neither
+makes nor destroys charge. Collide rotates tone among a dock's head-on
+direction pairs and leaves the dock's total untouched. Stream slides each tone to
+the neighbor it points at, so a charge that leaves one dock arrives whole at the
+next. Nothing evaporates and nothing appears. The only way the charge inside a
+block can change over a beat is for some charge to physically walk across the
+boundary. The change inside equals the net amount that crossed the edge exactly,
+by the way the rule is built. That sentence is the discrete
+divergence theorem.
+
+Block-averaging carries the per-block balance up to the field equation
+untouched. Average over blocks of growing size and the per-dock jitter blurs
+while the density and current settle into smooth fields. The same sum rule,
+holding at every block and every scale, is exactly the statement that the rate
+of change of density plus the divergence of the current is zero. That is
+$\nabla\!\cdot J = 0$, the same sentence read at a coarser grain. The lossy
+control is the load-bearing check. Its sink lets charge vanish from a block
+without crossing the boundary, so the books do not balance and the residual stays
+nonzero at every scale. Closure comes from conservation. It is not a byproduct
+of the smoothing that any coarse-graining produces.
+
+So there are not two laws. A continuum program posits continuity at the field
+scale and forces the rest from it. The base never posits it. The base conserves
+charge dock by dock, and block-averaging cannot break a balance the rule keeps
+exactly at every step. Charge conservation at the cell scale is continuity at
+the field scale, one law seen at two grains. The remaining piece is the
+explicit map from the lattice sum rule to a single named continuum field with
+its flow direction and its stress. The base is literally a lattice gas, the
+canonical engine that produces emergent hydrodynamics from one conserved local
+rule \cite{frisch1986, dhumieres1986}, and the curved run so far streams along
+the Coxeter generators rather than the full 24-direction coin, so carrying the
+complete direction set onto the curved mesh is the next step. The conservation
+is exact because the rule is reversible \cite{kari2005, fredkin1982}, and the
+recovery of a smooth four-dimensional continuum from discrete building blocks is
+the same destination the causal-triangulation program reaches by a different
+road \cite{ambjorn2004, cluesurf2026repo}.
