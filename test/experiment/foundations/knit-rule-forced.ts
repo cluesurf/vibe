@@ -26,6 +26,7 @@ import { linePairingFamily } from '@/code/measure/collision-family'
 
 export default experiment({
   id: 'foundations/knit-rule-forced',
+  code: 'E-FND-0028',
   title:
     'the knit rule is one of 10395 by conservation alone, but the 24-cell symmetry forces a UNIQUE rule (forced up to the natural requirements)',
   category: 'foundations',

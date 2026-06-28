@@ -100,6 +100,7 @@ export function associativeChaining(input?: {
 
 export default experiment({
   id: 'associative/chaining',
+  code: 'E-MMR-0003',
   title:
     'free association as a content-cued walk, each recalled word cues the next nearest memory',
   category: 'associative',

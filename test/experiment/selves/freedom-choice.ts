@@ -26,7 +26,7 @@ function ternaryVector(n: number, rng: Rng): Int8Array {
   const v = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    v[i] = (rng.nextInt({ max: 3 }) - 1) as Tone
+    v[i] = (rng.nextInt({ max: 3 }) - 1)
   }
 
   return v
@@ -284,6 +284,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
 
 export default experiment({
   id: 'selves/freedom-choice',
+  code: 'E-SLF-0051',
   title: 'a choice is determined yet self-authored and irreducible',
   category: 'selves',
   substrates: 'any',

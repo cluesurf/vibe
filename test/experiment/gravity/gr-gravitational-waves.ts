@@ -199,6 +199,7 @@ function chirp(
 
 export default experiment({
   id: 'gravity/gr-gravitational-waves',
+  code: 'E-GRV-0016',
   title:
     'the assumed general-relativistic waveform formulas are internally self-consistent',
   category: 'gravity',

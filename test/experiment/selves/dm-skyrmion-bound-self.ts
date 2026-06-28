@@ -31,6 +31,7 @@ import {
 
 export default experiment({
   id: 'selves/dm-skyrmion-bound-self',
+  code: 'E-SLF-0040',
   title:
     'a DM-stabilized topological soliton is a stable reversibly-bound self: Q conserved, fixed size, robust to perturbation',
   category: 'selves',

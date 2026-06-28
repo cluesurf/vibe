@@ -68,8 +68,8 @@ function makeStep(
         }
 
         const [na, nb] = pairOp(tone[v]!, tone[w]!)
-        tone[v] = na as -1 | 0 | 1
-        tone[w] = nb as -1 | 0 | 1
+        tone[v] = na
+        tone[w] = nb
         used[v] = 1
         used[w] = 1
         break
@@ -183,7 +183,7 @@ function cuspTower(): {
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
+    tone[i] = (rng.nextInt({ max: 3 }) - 1)
   }
 
   for (let f = 0; f < 40; f++) {
@@ -279,7 +279,7 @@ function bulkTower(): {
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
+    tone[i] = (rng.nextInt({ max: 3 }) - 1)
   }
 
   for (let f = 0; f < 40; f++) {
@@ -365,6 +365,7 @@ export function selvesTower(): {
 
 export default experiment({
   id: 'selves/selves-tower-3434',
+  code: 'E-SLF-0123',
   title:
     'the coarse-grained form-tower on {3,4,3,4} does not beat a pure-diffusion control',
   category: 'selves',

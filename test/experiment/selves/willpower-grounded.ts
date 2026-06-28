@@ -224,6 +224,7 @@ export function willpowerGrounded(): {
 
 export default experiment({
   id: 'selves/willpower-grounded',
+  code: 'E-SLF-0152',
   title:
     'a charge reserve depletes when a self pumps against a draining field',
   category: 'selves',
@@ -246,7 +247,8 @@ export default experiment({
       !r.pumpingProlongs || !r.strongerFieldDrainsFaster
 
     return verdict({
-      status: baseMechanicsHold && willpowerModelFails ? 'open' : 'fail',
+      status:
+        baseMechanicsHold && willpowerModelFails ? 'open' : 'fail',
       claim:
         'the conserved charge reserve depletes as a self spends it and total charge is conserved exactly, but the pumped-reserve model of willpower does NOT reproduce willpower behavior: pumping shortens the core hold rather than prolonging it, and a stronger field does not measurably drain faster. The pump is a sixth ingredient beyond the five base things, so this is not base-emergent, and tuning it to force the predictions would be an imposition. Willpower from the base remains an open frontier, reported as an honest negative rather than imposed',
       metrics: {

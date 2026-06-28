@@ -71,6 +71,7 @@ function packet(side: number): Will {
 
 export default experiment({
   id: 'selves/l3-self-from-base-rule',
+  code: 'E-SLF-0067',
   title:
     'the pure reversible base rule confines a packet into a persistent bounded structure, streaming alone spreads it',
   category: 'selves',

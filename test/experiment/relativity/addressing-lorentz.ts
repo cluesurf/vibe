@@ -48,6 +48,7 @@ function evaluate(input: { name: string; substrate: Substrate }): {
 
 export default experiment({
   id: 'relativity/addressing-lorentz',
+  code: 'E-RLT-0001',
   title:
     'a regular lattice singles out a frame, a Minkowski sprinkling does not',
   category: 'relativity',

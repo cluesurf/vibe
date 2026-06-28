@@ -62,7 +62,7 @@ export function reincarnation(input: { seed: number }): {
   while (seen.size < size && rounds < 1000) {
     for (let k = 0; k < Math.round(0.2 * size); k++) {
       const v = tr.nextInt({ max: size })
-      state[v] = (tr.nextInt({ max: 3 }) - 1) as -1 | 0 | 1 // fresh material
+      state[v] = (tr.nextInt({ max: 3 }) - 1) // fresh material
       seen.add(v)
     }
 
@@ -75,7 +75,7 @@ export function reincarnation(input: { seed: number }): {
 
   // 2. Reconstitution from a seed after full dissolution. Randomize everything (the self dies),
   // then plant a fragment of the pattern and let it re-form on the fresh material.
-  let blank = Int8Array.from(
+  const blank = Int8Array.from(
     { length: size },
     () => (tr.nextInt({ max: 3 }) - 1) as -1 | 0 | 1,
   )
@@ -107,6 +107,7 @@ export function reincarnation(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/reincarnation',
+  code: 'E-SLF-0099',
   title:
     'self persists through total turnover and reconstitutes from a seed',
   category: 'selves',

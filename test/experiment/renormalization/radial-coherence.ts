@@ -208,6 +208,7 @@ export function radialCoherence(input?: {
 
 export default experiment({
   id: 'renormalization/radial-coherence',
+  code: 'E-SCL-0010',
   title:
     'coarse-graining up the {5,3,4} reflection tree does not build a persistence tower the fine scale lacks',
   category: 'renormalization',

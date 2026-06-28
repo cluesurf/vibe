@@ -22,6 +22,7 @@ import { bulkShortcutScaling } from '@/code/measure/holography'
 
 export default experiment({
   id: 'holography/bulk-to-cusp-rt',
+  code: 'E-HLG-0005',
   title:
     'the 3D and committed-4D hyperbolic bulks carry the Ryu-Takayanagi shortcut S ~ log L to the flat cusp, the flat control is linear',
   category: 'holography',

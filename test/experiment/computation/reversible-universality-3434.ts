@@ -35,6 +35,7 @@ const ruleStep = (a: number, b: number): [number, number] =>
 
 export default experiment({
   id: 'computation/reversible-universality-3434',
+  code: 'E-CMP-0008',
   title:
     'the committed reversible knit rule on the {3,4,3,4} 24-cell is computationally universal',
   category: 'computation',

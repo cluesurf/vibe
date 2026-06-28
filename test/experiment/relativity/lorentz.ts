@@ -70,6 +70,7 @@ export function lorentz(): {
 
 export default experiment({
   id: 'relativity/lorentz',
+  code: 'E-RLT-0016',
   title:
     'the Dirac dispersion is boost-invariant at small k with a massless light-speed mode',
   category: 'relativity',

@@ -11,6 +11,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'selves/abiogenesis-threshold',
+  code: 'E-SLF-0001',
   title:
     'a self-maintaining region nucleates above a critical seed size and dies below it, the abiogenesis transition',
   category: 'selves',
@@ -36,11 +37,17 @@ export default experiment({
     const subCritical = sweep.filter(s => s.seedRadius <= 3)
     const superCritical = sweep.filter(s => s.seedRadius >= 6)
 
-    const smallDie = subCritical.every(s => !s.survived && s.finalFraction < 0.004)
+    const smallDie = subCritical.every(
+      s => !s.survived && s.finalFraction < 0.004,
+    )
+
     const largePersist = superCritical.every(s => s.survived)
     // a real threshold: persistence is monotone in seed size (no large dies, no small survives)
-    const thresholdSharp =
-      sweep.every((s, i) => i === 0 || !(s.survived === false && sweep[i - 1]!.survived === true))
+    const thresholdSharp = sweep.every(
+      (s, i) =>
+        i === 0 ||
+        !(s.survived === false && sweep[i - 1]!.survived === true),
+    )
 
     const ok = smallDie && largePersist && thresholdSharp
 

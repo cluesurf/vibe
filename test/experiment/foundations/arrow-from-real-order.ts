@@ -54,6 +54,7 @@ function realImaginaryAxes(level: number): {
 
 export default experiment({
   id: 'foundations/arrow-from-real-order',
+  code: 'E-FND-0003',
   title:
     'the arrow is the order of the reals (the unique ordered division algebra), time = the 1 real axis (ordered), space = the 7 imaginary axes (unordered)',
   category: 'foundations',

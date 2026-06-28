@@ -142,6 +142,7 @@ export function selfEmergence(): {
 
 export default experiment({
   id: 'selves/self-emergence',
+  code: 'E-SLF-0112',
   title: 'fixed fills do not self-organize selves, adaptive fills do',
   category: 'selves',
   substrates: 'any',

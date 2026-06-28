@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/time-symmetry',
+  code: 'E-CSM-0040',
   title:
     'the arrow as broken time-reversal symmetry, the symmetric point is the unique dead one',
   category: 'cosmology',

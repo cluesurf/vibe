@@ -140,6 +140,7 @@ export function autonomousSelf(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/autonomous-self',
+  code: 'E-SLF-0007',
   title:
     'a self maintains itself by a purely local rule with no outside knower',
   category: 'selves',

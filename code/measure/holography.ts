@@ -25,7 +25,7 @@ const bfsGeodesic = (
           distance[neighbor] = distance[node]! + 1
 
           if (neighbor === to) {
-            return distance[neighbor]!
+            return distance[neighbor]
           }
 
           next.push(neighbor)
@@ -244,7 +244,7 @@ export function ryuTakayanagiScaling(input: {
       for (const neighbor of neighbors[node]!) {
         if (depth[neighbor] === -1) {
           depth[neighbor] = depth[node]! + 1
-          maxDepth = Math.max(maxDepth, depth[neighbor]!)
+          maxDepth = Math.max(maxDepth, depth[neighbor])
           next.push(neighbor)
         }
       }

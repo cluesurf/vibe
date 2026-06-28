@@ -171,6 +171,7 @@ export function detourPlanning(input?: { L?: number }): {
 
 export default experiment({
   id: 'selves/detour-planning',
+  code: 'E-SLF-0038',
   title:
     'lookahead beats greedy on a barrier when the horizon spans it',
   category: 'selves',

@@ -11,6 +11,7 @@ import { bloomFalsePositiveRate } from '@/code/measure/sketch'
 
 export default experiment({
   id: 'data-structure/boundary-sketch',
+  code: 'E-DST-0004',
   title:
     'DS12: a Bloom filter on the exponential boundary has a false-positive rate that falls with radius',
   category: 'data-structure',

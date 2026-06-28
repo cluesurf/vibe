@@ -196,6 +196,7 @@ export function universality(): {
 
 export default experiment({
   id: 'computation/universality',
+  code: 'E-CMP-0012',
   title:
     'the rule is functionally complete and runs gates on the live dynamics',
   category: 'computation',

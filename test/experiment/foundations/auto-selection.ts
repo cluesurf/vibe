@@ -130,6 +130,7 @@ export function autoSelection(): {
 
 export default experiment({
   id: 'foundations/auto-selection',
+  code: 'E-FND-0004',
   title: 'ternary plus minimal eternal closure forces {5,3,4}',
   category: 'foundations',
   substrates: ['534'],

@@ -66,7 +66,7 @@ function step(tone: Int8Array, f: number): void {
       }
 
       if (a !== 0 && b === 0) {
-        tone[w] = a as -1 | 1
+        tone[w] = a
         tone[v] = 0
         m[v] = 1
         m[w] = 1
@@ -167,7 +167,7 @@ function run(): void {
   ]
 
   for (const [x, y, z, s] of seeds) {
-    tone[idx(x, y, z)] = s as -1 | 1
+    tone[idx(x, y, z)] = s
   }
 
   for (let k = 0; k < 6; k++) {

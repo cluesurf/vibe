@@ -17,6 +17,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/arrow-from-the-wake',
+  code: 'E-CSM-0001',
   title:
     'the arrow derived from growth, the wake gradient alone creates a living universe with no arrow parameter',
   category: 'cosmology',

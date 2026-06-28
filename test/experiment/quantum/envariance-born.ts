@@ -70,6 +70,7 @@ function systemProbs(M: C[][]): number[] {
 
 export default experiment({
   id: 'quantum/envariance-born',
+  code: 'E-QTM-0012',
   title:
     'the Born rule is DERIVED from envariance: equal-amplitude entangled outcomes are swap-symmetric (equiprobable), unequal ones fine-grain to the equal case, giving |amplitude|^2, with a product-state control that has no symmetry',
   category: 'quantum',

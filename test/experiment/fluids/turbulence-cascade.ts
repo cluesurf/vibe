@@ -35,6 +35,7 @@ const INERTIAL_HI = 15
 
 export default experiment({
   id: 'fluids/turbulence-cascade',
+  code: 'E-FLD-0008',
   title:
     'the Kolmogorov turbulent cascade, the energy spectrum E(k) ~ k^(-5/3) in the shell model, the linear no-cascade model the control',
   category: 'fluids',

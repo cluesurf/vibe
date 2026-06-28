@@ -101,6 +101,7 @@ export function measureChshAndDependence(input: {
 
 export default experiment({
   id: 'quantum/alignment',
+  code: 'E-QTM-0001',
   title: 'aligned bits, not bits, buy a CHSH violation',
   category: 'quantum',
   substrates: 'any',

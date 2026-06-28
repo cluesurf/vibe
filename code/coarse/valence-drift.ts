@@ -73,9 +73,9 @@ export function valenceDrift(input: {
       const x = c % L
 
       if (x >= L - margin) {
-        tone[c] = (plusSide === 'right' ? 1 : -1) as -1 | 1
+        tone[c] = (plusSide === 'right' ? 1 : -1)
       } else if (x < margin) {
-        tone[c] = (plusSide === 'right' ? -1 : 1) as -1 | 1
+        tone[c] = (plusSide === 'right' ? -1 : 1)
       }
     }
 

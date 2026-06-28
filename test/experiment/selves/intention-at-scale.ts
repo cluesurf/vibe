@@ -305,6 +305,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/intention-at-scale',
+  code: 'E-SLF-0064',
   title:
     'the will coherently biases the whole self but directed action is geometrically frustrated',
   category: 'selves',

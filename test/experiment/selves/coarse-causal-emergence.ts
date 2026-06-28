@@ -24,6 +24,7 @@ import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/coarse-causal-emergence',
+  code: 'E-SLF-0023',
   title:
     'a structured coarse map keeps more effective information than a random one, measured on real self dynamics',
   category: 'selves',

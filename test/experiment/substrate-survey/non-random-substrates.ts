@@ -113,6 +113,7 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
 
 export default experiment({
   id: 'substrate-survey/non-random-substrates',
+  code: 'E-SBT-0016',
   title:
     'every hyperbolic substrate is Lorentz-safe while the flat lattice is not',
   category: 'substrate-survey',

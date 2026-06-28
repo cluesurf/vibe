@@ -47,6 +47,7 @@ export function bellNonlocality(): {
 
 export default experiment({
   id: 'quantum/bell-nonlocality',
+  code: 'E-QTM-0003',
   title:
     'the local CHSH bound is 2 and the quantum value is 2 sqrt 2, a restated gap',
   category: 'quantum',

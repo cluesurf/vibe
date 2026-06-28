@@ -74,8 +74,11 @@ export function cuspDimension(input: {
   const prox = proximityGraph({ coords: horo.coords })
   const center = centerNearestOrigin(horo.coords)
   const cuspGrowth = growthFromShells(
-    bfsShells({ neighbors: prox, root: center, maxRadius: cuspMaxRadius })
-      .shellCounts,
+    bfsShells({
+      neighbors: prox,
+      root: center,
+      maxRadius: cuspMaxRadius,
+    }).shellCounts,
   )
 
   return {

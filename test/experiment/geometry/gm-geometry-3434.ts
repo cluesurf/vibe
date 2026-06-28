@@ -98,6 +98,7 @@ export function gmGeometry(): {
 // properties of the flat D4 root lattice, so L1.
 export default experiment({
   id: 'geometry/gm-geometry-3434',
+  code: 'E-GMT-0015',
   title:
     'the {3,4,3,4} D4 lattice is flat: polynomial r^4 growth, linear metric, near-zero curvature',
   category: 'geometry',

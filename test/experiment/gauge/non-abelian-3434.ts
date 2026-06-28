@@ -18,6 +18,7 @@ import { complex } from '@/code/algebra/linear/complex'
 
 export default experiment({
   id: 'gauge/non-abelian-3434',
+  code: 'E-FRC-0038',
   title:
     'the {3,4,3,4} vector sector can carry a non-abelian gauge field, the self-interaction vertex',
   category: 'gauge',

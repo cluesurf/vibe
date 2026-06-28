@@ -28,6 +28,7 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
   id: 'selves/co-motion-not-bound',
+  code: 'E-SLF-0021',
   title:
     'co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)',
   category: 'selves',
@@ -71,7 +72,7 @@ export default experiment({
         if (will.data[c * degree + dir] !== 0) {
           const v = will.data[c * degree + dir]!
           will.data[c * degree + dir] = 0
-          will.data[c * degree + 6] = v as -1 | 1
+          will.data[c * degree + 6] = v
           break
         }
       }

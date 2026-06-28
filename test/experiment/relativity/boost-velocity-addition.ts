@@ -142,6 +142,7 @@ export function boostVelocityAddition(): {
 
 export default experiment({
   id: 'relativity/boost-velocity-addition',
+  code: 'E-RLT-0003',
   title: 'boosts are genuine Lorentz transformations',
   category: 'relativity',
   substrates: ['534'],

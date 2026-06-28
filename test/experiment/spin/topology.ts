@@ -44,6 +44,7 @@ function zeroModeCount(input: {
 
 export default experiment({
   id: 'spin/topology',
+  code: 'E-SPN-0040',
   title:
     'the Kahler-Dirac zero-mode count matches the Betti sum across disk, cylinder, and torus',
   category: 'spin',

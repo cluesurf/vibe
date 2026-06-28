@@ -9,6 +9,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/merkle-proof',
+  code: 'E-DST-0017',
   title:
     'DS11: a Merkle inclusion proof on the bulk tree is a logarithmic-length path to the root',
   category: 'data-structure',

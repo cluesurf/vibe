@@ -118,6 +118,7 @@ export function sliceDimension(input: {
 
 export default experiment({
   id: 'cosmology/emergent-spatial-geometry',
+  code: 'E-CSM-0015',
   title: 'slice dimension below spacetime, rising by ~1 (d-1 trend)',
   category: 'cosmology',
   substrates: 'any',

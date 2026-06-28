@@ -29,6 +29,7 @@ import { chargeDensityProfile } from '@/code/measure/profile'
 
 export default experiment({
   id: 'selves/casimir-vacuum-attraction',
+  code: 'E-SLF-0018',
   title:
     'the active vacuum exerts a Casimir attraction, the gap between two walls is suppressed and the force falls with distance',
   category: 'selves',

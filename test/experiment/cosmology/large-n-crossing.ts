@@ -174,6 +174,7 @@ export function largeNCrossing(input: { sizes: number[] }): {
 
 export default experiment({
   id: 'cosmology/large-n-crossing',
+  code: 'E-CSM-0030',
   title: 'cluster move traverses heights, single-pair stuck',
   category: 'cosmology',
   substrates: 'any',

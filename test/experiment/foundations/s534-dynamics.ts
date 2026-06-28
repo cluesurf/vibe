@@ -99,7 +99,7 @@ export function s534Dynamics(): {
     prev = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+    cur[i] = Math.floor(rnd() * 3)
   }
 
   const { offsets: off, adj } = toCsr(nb)
@@ -135,6 +135,7 @@ export function s534Dynamics(): {
 
 export default experiment({
   id: 'foundations/s534-dynamics',
+  code: 'E-FND-0037',
   title:
     'the directional rule streams and conserves charge exactly on the {5,3,4} bulk and the wave churns',
   category: 'foundations',

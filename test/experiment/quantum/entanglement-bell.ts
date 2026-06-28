@@ -90,6 +90,7 @@ export function entanglementBell(): {
 
 export default experiment({
   id: 'quantum/entanglement-bell',
+  code: 'E-QTM-0011',
   title: 'the exchange dynamics violates CHSH at the Tsirelson bound',
   category: 'quantum',
   substrates: 'any',

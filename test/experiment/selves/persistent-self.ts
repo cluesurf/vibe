@@ -98,7 +98,7 @@ export function persistentSelf(input?: { n?: number }): {
   const target = new Int8Array(N)
 
   for (let idx = 0; idx < region.length; idx++) {
-    target[region[idx]!] = (idx % 2 === 0 ? 1 : -1) as -1 | 1
+    target[region[idx]!] = (idx % 2 === 0 ? 1 : -1)
   }
 
   for (let i = region.length - 1; i > 0; i--) {
@@ -125,7 +125,7 @@ export function persistentSelf(input?: { n?: number }): {
   const seedMedium = (tone: Int8Array, r: Rng): void => {
     for (let i = 0; i < N; i++) {
       if (!inRegion[i] && r.next() < 0.25) {
-        tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
+        tone[i] = (r.next() < 0.5 ? 1 : -1)
       }
     }
   }
@@ -230,6 +230,7 @@ export function persistentSelf(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/persistent-self',
+  code: 'E-SLF-0096',
   title:
     'a self-maintaining integrated region keeps its identity and boundary, the unmaintained pattern dissolves',
   category: 'selves',

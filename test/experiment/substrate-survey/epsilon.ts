@@ -46,6 +46,7 @@ function run(input: {
 
 export default experiment({
   id: 'substrate-survey/epsilon',
+  code: 'E-SBT-0009',
   title:
     'the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises',
   category: 'substrate-survey',

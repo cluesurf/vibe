@@ -122,6 +122,7 @@ export function waveIsotropy(input?: {
 
 export default experiment({
   id: 'relativity/wave-isotropy',
+  code: 'E-RLT-0038',
   title:
     'the deterministic reversible wave on the dodecagrid has an isotropic speed',
   category: 'relativity',

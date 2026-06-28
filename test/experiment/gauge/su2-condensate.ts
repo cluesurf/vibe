@@ -13,6 +13,7 @@ import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
 
 export default experiment({
   id: 'gauge/su2-condensate',
+  code: 'E-FRC-0048',
   title:
     'a chiral condensate forms in a dynamical non-abelian SU(2) gauge field, near zero in the free theory',
   category: 'gauge',

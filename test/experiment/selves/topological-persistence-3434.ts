@@ -116,6 +116,7 @@ export function topologicalPersistence(): {
 
 export default experiment({
   id: 'selves/topological-persistence-3434',
+  code: 'E-SLF-0140',
   title:
     'a winding-1 defect persists under relaxation while a winding-0 bump decays',
   category: 'selves',

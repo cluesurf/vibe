@@ -38,11 +38,11 @@ export function surveyTessellation(input: {
   try {
     const g = input.flat
       ? buildEuclideanLattice({
-          symbol: input.symbol as never,
+          symbol: input.symbol,
           maxCells: input.maxCells,
         })
       : buildCellGraph({
-          symbol: input.symbol as never,
+          symbol: input.symbol,
           maxCells: input.maxCells,
         })
 

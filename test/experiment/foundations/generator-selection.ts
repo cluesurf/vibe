@@ -55,6 +55,7 @@ const g2Simple = [
 
 export default experiment({
   id: 'foundations/generator-triality-unique',
+  code: 'E-FND-0025',
   title:
     'D4 is the unique simple root system with triality, which forces the {3,4,3,4} dock',
   category: 'foundations',

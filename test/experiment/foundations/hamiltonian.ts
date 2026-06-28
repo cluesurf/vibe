@@ -58,6 +58,7 @@ function study(): {
 
 export default experiment({
   id: 'foundations/hamiltonian',
+  code: 'E-FND-0026',
   title:
     'a reversible cellular automaton gives a permutation Hamiltonian bounded below',
   category: 'foundations',

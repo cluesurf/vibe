@@ -143,12 +143,12 @@ full rubric and the rules the runner enforces (an L3 claim must carry a
 control, for instance) are in
 [`note/experimental-methodology.md`](note/experimental-methodology.md).
 
-As of the latest run the catalog holds **574 experiments across 17
-categories**: 72 at `L3` (emergent and novel), 362 at `L2` (known
-physics reproduced), 126 at `L1` (known math confirmed), and 14 at `L0`
-(circular), with 376 of them backing a specific claim in the papers. The
+As of the latest run the catalog holds **605 experiments across 18
+categories**: 84 at `L3` (emergent and novel), 379 at `L2` (known
+physics reproduced), 128 at `L1` (known math confirmed), and 14 at `L0`
+(circular), with 402 of them backing a specific claim in the papers. The
 largest categories are selves, gauge, foundations, cosmology, spin,
-gravity, and relativity.
+relativity, and gravity.
 
 ## Quick start
 

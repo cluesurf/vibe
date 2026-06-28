@@ -17,7 +17,11 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // zero a contiguous block of `k` sites starting at `offset` (wrapping), a deterministic corruption of the
 // self's substance, no randomness
-function corrupt(state: Int8Array, offset: number, k: number): Int8Array {
+function corrupt(
+  state: Int8Array,
+  offset: number,
+  k: number,
+): Int8Array {
   const out = Int8Array.from(state)
   const n = state.length
 
@@ -39,6 +43,7 @@ export function identityThroughTurnover(input: {
   const self = makeSelf({ n, patterns: 2, seed: 41000 + n }).map(p =>
     p.map(v => (v === 0 ? 1 : v)),
   )
+
   const pole = self[0]!
 
   // the identity reference: the self's settled attractor
@@ -74,6 +79,7 @@ export function identityThroughTurnover(input: {
 
 export default experiment({
   id: 'selves/identity-persists-through-turnover',
+  code: 'E-SLF-0057',
   title:
     'a self keeps its identity by repair through total substance turnover, while a structureless self dies',
   category: 'selves',
@@ -83,10 +89,21 @@ export default experiment({
   run() {
     const sizes = [80, 120, 160]
     const selfRuns = sizes.map(n =>
-      identityThroughTurnover({ n, coupling: 4, rounds: 16, fraction: 0.25 }),
+      identityThroughTurnover({
+        n,
+        coupling: 4,
+        rounds: 16,
+        fraction: 0.25,
+      }),
     )
+
     const controlRuns = sizes.map(n =>
-      identityThroughTurnover({ n, coupling: 0, rounds: 16, fraction: 0.25 }),
+      identityThroughTurnover({
+        n,
+        coupling: 0,
+        rounds: 16,
+        fraction: 0.25,
+      }),
     )
 
     const selfPersists = selfRuns.every(r => r.finalIdentity > 0.9)

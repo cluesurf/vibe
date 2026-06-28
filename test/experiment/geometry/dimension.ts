@@ -30,6 +30,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // deterministic base rule, and we say so.
 export default experiment({
   id: 'geometry/dimension',
+  code: 'E-GMT-0008',
   title:
     'the 2D smeared path integral stays on near-2-dimensional causal orders',
   category: 'geometry',

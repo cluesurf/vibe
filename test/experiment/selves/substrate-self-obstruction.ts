@@ -34,6 +34,7 @@ import { travelDistance } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/substrate-self-obstruction',
+  code: 'E-SLF-0131',
   title:
     'on the committed coin confinement and radiation conflict, no rule gives a confined body that radiates to the bath',
   category: 'selves',
@@ -111,7 +112,7 @@ export default experiment({
       let pert = cloneWill(packet())
       pert.data[center * degree + 0] = (
         pert.data[center * degree + 0] === 1 ? -1 : 1
-      ) as -1 | 1
+      )
 
       let plainScratch: Will = {
         mesh,

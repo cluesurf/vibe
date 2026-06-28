@@ -45,6 +45,7 @@ export function gravityTree(): {
 
 export default experiment({
   id: 'gravity/gravity-tree',
+  code: 'E-GRV-0024',
   title:
     'the Bethe-lattice band-edge boundary coupling falls as 1/r for every branching, but the tree is dimension-blind',
   category: 'gravity',

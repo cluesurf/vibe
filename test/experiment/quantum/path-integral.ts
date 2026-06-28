@@ -30,6 +30,7 @@ function study(): { meanDimension: number; acceptance: number } {
 
 export default experiment({
   id: 'quantum/path-integral',
+  code: 'E-QTM-0018',
   title:
     'a 2D Lorentzian causal-set path integral recovers a mean dimension near two',
   category: 'quantum',

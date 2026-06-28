@@ -33,6 +33,7 @@ import { makeRng } from '@/code/tool/rng'
 
 export default experiment({
   id: 'selves/composite-self-level',
+  code: 'E-SLF-0033',
   title:
     'a captured composite has the metastable slow mode the self-level needs, a dispersing packet does not',
   category: 'selves',

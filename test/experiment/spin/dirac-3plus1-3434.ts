@@ -21,6 +21,7 @@ import { complex } from '@/code/algebra/linear/complex'
 
 export default experiment({
   id: 'spin/dirac-3plus1-3434',
+  code: 'E-SPN-0009',
   title:
     'the full 3+1D Dirac equation, the Clifford algebra and the relativistic dispersion',
   category: 'spin',

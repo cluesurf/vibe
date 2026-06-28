@@ -62,6 +62,7 @@ export function trialityGenerations(): {
 
 export default experiment({
   id: 'spin/triality-generations',
+  code: 'E-SPN-0041',
   title:
     'SO(8) triality is a real order-3 symmetry but the naive reading gives vector plus two chiralities, not three generations',
   category: 'spin',

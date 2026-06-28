@@ -13,6 +13,7 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 
 export default experiment({
   id: 'substrate-survey/pentacomb-geometric',
+  code: 'E-SBT-0017',
   title:
     'the 5D pentacomb has a genuine hyperbolic embedding, greedy routing on H^5 delivers',
   category: 'substrate-survey',

@@ -70,6 +70,7 @@ function trace(
 
 export default experiment({
   id: 'relativity/transverse-mode-frozen',
+  code: 'E-RLT-0037',
   title:
     'the bare knit propagates the spin-0 mode but freezes the transverse spin-2 graviton, so the graviton is emergent',
   category: 'relativity',

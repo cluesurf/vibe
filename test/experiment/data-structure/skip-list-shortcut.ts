@@ -10,6 +10,7 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
 export default experiment({
   id: 'data-structure/skip-list-shortcut',
+  code: 'E-DST-0022',
   title:
     'DS9: the bulk diameter is logarithmic, every cell is a short path away (the skip-list shortcut)',
   category: 'data-structure',

@@ -20,7 +20,7 @@ function measure(
   symbol: number[],
   maxCells: number,
 ): { N: number; nb: number; slope: number; calibrated: boolean } {
-  const g = buildCellGraph({ symbol: symbol as never, maxCells })
+  const g = buildCellGraph({ symbol: symbol, maxCells })
   const N = g.cellCount
   const { offsets: off, adj } = toCsr(g.neighbors)
   const rad = g.coords.map(norm)
@@ -87,6 +87,7 @@ export function gravity3434(): {
 
 export default experiment({
   id: 'gravity/gravity-3434',
+  code: 'E-GRV-0020',
   title:
     'the naive screened-diffusion gravity propagator is confounded, the gravity law is open',
   category: 'gravity',

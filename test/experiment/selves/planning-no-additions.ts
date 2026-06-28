@@ -124,6 +124,7 @@ export function planningNoAdditions(input?: { L?: number }): {
 
 export default experiment({
   id: 'selves/planning-no-additions',
+  code: 'E-SLF-0097',
   title:
     'a planner built only from the arrow, the rule, and the will crosses a barrier greedy cannot',
   category: 'selves',

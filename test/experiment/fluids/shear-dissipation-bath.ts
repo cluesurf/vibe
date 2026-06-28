@@ -23,6 +23,7 @@ import {
 
 export default experiment({
   id: 'fluids/shear-dissipation-bath',
+  code: 'E-FLD-0006',
   title:
     'a shear recurs on the reversible bulk but dissipates on the open mesh, so viscosity is bath-driven',
   category: 'fluids',

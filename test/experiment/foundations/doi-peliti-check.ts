@@ -152,6 +152,7 @@ export function doiPelitiCheck(): {
 
 export default experiment({
   id: 'foundations/doi-peliti-check',
+  code: 'E-FND-0014',
   title:
     'the rule is a spin-1 charge-conserving reversible exchange model',
   category: 'foundations',

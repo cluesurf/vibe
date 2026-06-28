@@ -22,6 +22,7 @@ const energySquared = (
 
 export default experiment({
   id: 'geometry/three-d-spinor-from-73',
+  code: 'E-GMT-0024',
   title:
     '3D space and a 3D spinor from 2D {7,3}, the deconstructed dimension is the third gamma',
   category: 'geometry',

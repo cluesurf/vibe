@@ -28,6 +28,7 @@ const ABOVE_CHANCE_MIN = 0.03
 
 export default experiment({
   id: 'selves/surrogate-speedup',
+  code: 'E-SLF-0136',
   title:
     'the surrogate tower speedup grows geometrically at bounded fidelity, over-compression collapses it',
   category: 'selves',

@@ -112,6 +112,7 @@ export function sp1SpinDoubleCover(): {
 
 export default experiment({
   id: 'spin/sp1-spin-double-cover',
+  code: 'E-SPN-0031',
   title:
     'the 24 directions of {3,4,3,4} are the binary tetrahedral group, the spin-1/2 double cover',
   category: 'spin',

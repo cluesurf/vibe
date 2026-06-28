@@ -45,6 +45,7 @@ export function s73Physics(): {
 
 export default experiment({
   id: 'substrate-survey/s73-physics',
+  code: 'E-SBT-0027',
   title:
     'the holographic correlator, cosmology, and 7-fold isotropy port to {7,3}, with 1D linear gravity',
   category: 'substrate-survey',

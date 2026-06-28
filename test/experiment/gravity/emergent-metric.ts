@@ -61,6 +61,7 @@ function matterForceExponent(): { exponent: number; binds: boolean } {
 
 export default experiment({
   id: 'gravity/emergent-metric',
+  code: 'E-GRV-0012',
   title:
     'gravity is one emergent metric, the area-law potential gives the matter inverse-square law and the light factor-two bending, no new field',
   category: 'gravity',

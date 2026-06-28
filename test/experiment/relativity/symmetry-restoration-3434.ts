@@ -23,6 +23,7 @@ const anisotropyAtScale = (
 
 export default experiment({
   id: 'relativity/symmetry-restoration-3434',
+  code: 'E-RLT-0036',
   title:
     'discrete F4 restores to continuous rotational isotropy in the infrared on {3,4,3,4}',
   category: 'relativity',

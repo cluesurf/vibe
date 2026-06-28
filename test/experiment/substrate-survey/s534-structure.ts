@@ -41,6 +41,7 @@ export function s534Structure(): {
 
 export default experiment({
   id: 'substrate-survey/s534-structure',
+  code: 'E-SBT-0025',
   title:
     'the 12 icosahedral directions of {5,3,4} are non-crystallographic (measured), so no root-system gauge',
   category: 'substrate-survey',

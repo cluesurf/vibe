@@ -93,6 +93,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
 
 export default experiment({
   id: 'quantum/deterministic-spatial-rp',
+  code: 'E-QTM-0009',
   title:
     'the deterministic field is long-range and reflection-positive',
   category: 'quantum',

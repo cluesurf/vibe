@@ -153,6 +153,7 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
 
 export default experiment({
   id: 'selves/p153-integrated-agent',
+  code: 'E-SLF-0088',
   title:
     'the closed perceive-plan-act loop crosses a sequence of barriers, beating reactive and one-shot',
   category: 'selves',

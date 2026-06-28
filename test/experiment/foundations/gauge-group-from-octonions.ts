@@ -58,6 +58,7 @@ function unitsAreClosed(level: number): boolean {
 
 export default experiment({
   id: 'foundations/gauge-group-from-octonions',
+  code: 'E-FND-0021',
   title:
     'the Standard-Model gauge group SU(3)xSU(2)xU(1) (dims 8+3+1=12) descends from the division-algebra tower, C->U(1), H->SU(2), O->SU(3)',
   category: 'foundations',

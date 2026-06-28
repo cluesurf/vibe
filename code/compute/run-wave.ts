@@ -222,7 +222,7 @@ async function run(): Promise<void> {
     pass.setPipeline(bigField.pipeline)
     pass.setBindGroup(
       0,
-      bigField.bind(bigField.bufs[0]!, bigField.bufs[1]!),
+      bigField.bind(bigField.bufs[0], bigField.bufs[1]),
     )
     pass.dispatchWorkgroups(bigDispatch)
     pass.end()

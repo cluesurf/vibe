@@ -212,8 +212,8 @@ function run(): void {
         }
 
         const [a, b] = perm(tone[v]!, tone[w]!)
-        tone[v] = a as -1 | 0 | 1
-        tone[w] = b as -1 | 0 | 1
+        tone[v] = a
+        tone[w] = b
         matched[v] = 1
         matched[w] = 1
         break

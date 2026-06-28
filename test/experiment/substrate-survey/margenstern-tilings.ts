@@ -87,6 +87,7 @@ export function margensternTilings(input: { seed: number }): Record<
 
 export default experiment({
   id: 'substrate-survey/margenstern-tilings',
+  code: 'E-SBT-0014',
   title:
     'all the Margenstern {p,4} and {p,3} tilings are Lorentz-safe with exponential reach',
   category: 'substrate-survey',

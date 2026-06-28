@@ -119,6 +119,7 @@ export function lazyNeighbors(input?: { n?: number }): {
 
 export default experiment({
   id: 'addressing/lazy-neighbors',
+  code: 'E-NVG-0005',
   title:
     'on-demand neighbor computation reproduces the exact dodecagrid graph with no stored adjacency',
   category: 'addressing',

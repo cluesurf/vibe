@@ -53,7 +53,7 @@ export function coxeterPoincareGraph(
   }
 
   const eig = eigSymmetric({
-    matrix: { form: 'dense', rows: n, cols: n, data } as DenseMatrix,
+    matrix: { form: 'dense', rows: n, cols: n, data },
   })
 
   const values = Array.from(eig.values) // ascending
@@ -80,7 +80,7 @@ export function coxeterPoincareGraph(
       z[k] = sqrtAbs[k]! * q
     }
 
-    const time = Math.abs(z[0]!)
+    const time = Math.abs(z[0])
     const y = new Array(dim).fill(0)
 
     for (let k = 1; k < n; k++) {

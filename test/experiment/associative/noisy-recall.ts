@@ -63,6 +63,7 @@ export function associativeNoisyRecall(input?: {
 
 export default experiment({
   id: 'associative/noisy-recall',
+  code: 'E-MMR-0009',
   title:
     'the bulk associative memory recalls a whole stored word from a corrupted cue, degrading gracefully past a threshold',
   category: 'associative',

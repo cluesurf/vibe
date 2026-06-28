@@ -172,6 +172,7 @@ export function renormalization(input?: {
 
 export default experiment({
   id: 'renormalization/renormalization-keystone',
+  code: 'E-SCL-0011',
   title:
     'the effective field parameters measured on a small slice match those of a much larger field',
   category: 'renormalization',

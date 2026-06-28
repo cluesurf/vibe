@@ -59,6 +59,7 @@ export function primordialSpectrum(input: { seed: number }): {
 
 export default experiment({
   id: 'cosmology/primordial-spectrum',
+  code: 'E-CSM-0035',
   title: 'scale-free Poisson density contrast, exponent -1/2',
   category: 'cosmology',
   substrates: 'any',

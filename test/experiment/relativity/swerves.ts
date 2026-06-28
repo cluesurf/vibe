@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/swerves',
+  code: 'E-RLT-0035',
   title:
     'momentum diffusion from discreteness, variance grows with proper time',
   category: 'relativity',

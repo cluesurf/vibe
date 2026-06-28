@@ -27,6 +27,7 @@ const OBSERVED_Z = 91.188
 
 export default experiment({
   id: 'gauge/electroweak-boson-masses',
+  code: 'E-FRC-0012',
   title:
     'the W and Z masses, M_W/M_Z = cos(theta_W) near the observed value and the custodial rho = 1 from the Higgs doublet, a triplet the control',
   category: 'gauge',

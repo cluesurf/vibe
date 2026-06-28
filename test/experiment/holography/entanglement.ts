@@ -80,6 +80,7 @@ export function areaLaw2D(input: { side: number }): {
 
 export default experiment({
   id: 'holography/entanglement',
+  code: 'E-HLG-0006',
   title:
     'free-fermion entanglement follows a 1D conformal log law and a 2D area law',
   category: 'holography',

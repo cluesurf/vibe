@@ -27,6 +27,7 @@ import { chargeDensityProfile } from '@/code/measure/profile'
 
 export default experiment({
   id: 'selves/casimir-capture-mobile',
+  code: 'E-SLF-0017',
   title:
     'the vacuum Casimir pressure drives two mobile plates together (capture), the inert vacuum leaves them fixed',
   category: 'selves',

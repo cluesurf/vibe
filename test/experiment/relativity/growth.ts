@@ -94,6 +94,7 @@ function snapshot(input: { size: number; base: number }): Row {
 
 export default experiment({
   id: 'relativity/growth',
+  code: 'E-RLT-0012',
   title:
     'an expanding hyperbolic mesh keeps exponential reach, isotropy, and navigability',
   category: 'relativity',

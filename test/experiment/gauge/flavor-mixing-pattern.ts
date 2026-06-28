@@ -40,6 +40,7 @@ const OBSERVED_VUB = 0.0037
 
 export default experiment({
   id: 'gauge/flavor-mixing-pattern',
+  code: 'E-FRC-0020',
   title:
     'flavor mixing tracks the mass hierarchy, the Cabibbo angle from sqrt(m_d/m_s) and small hierarchical quark mixing versus large lepton mixing, anarchy the control',
   category: 'gauge',

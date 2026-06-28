@@ -22,6 +22,7 @@ import {
 
 export default experiment({
   id: 'fluids/no-bulk-viscosity',
+  code: 'E-FLD-0004',
   title:
     'the committed collision has no finite bulk shear viscosity, the shear envelope does not decay (inviscid bulk)',
   category: 'fluids',

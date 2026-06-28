@@ -125,6 +125,7 @@ export function braneworld(): {
 
 export default experiment({
   id: 'gravity/braneworld',
+  code: 'E-GRV-0005',
   title:
     '3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range',
   category: 'gravity',

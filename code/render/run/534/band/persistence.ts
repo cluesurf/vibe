@@ -212,7 +212,7 @@ function run(): void {
     const r = rng.next()
     tone[i] = (
       r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
-    ) as -1 | 0 | 1
+    )
   }
 
   for (const c of selfCells) {

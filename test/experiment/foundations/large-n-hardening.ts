@@ -137,6 +137,7 @@ export function largeNHardening(input: {
 
 export default experiment({
   id: 'foundations/large-n-hardening',
+  code: 'E-FND-0029',
   title:
     'the sampled dimension estimator matches exact and sharpens at large N',
   category: 'foundations',

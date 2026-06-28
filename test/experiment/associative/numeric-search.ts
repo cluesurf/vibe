@@ -98,6 +98,7 @@ export function associativeNumericSearch(input?: {
 
 export default experiment({
   id: 'associative/numeric-search',
+  code: 'E-MMR-0010',
   title:
     'the associative numeric-search primitives (max, min, next-value) work on the bulk at constant pass cost',
   category: 'associative',

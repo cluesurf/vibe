@@ -24,7 +24,7 @@ function combinedUrge(pole: Int8Array, other: Int8Array): Int8Array {
 
   for (let i = 0; i < n; i++) {
     const s = 2 * (pole[i] ?? 0) + (other[i] ?? 0)
-    out[i] = (s > 0 ? 1 : s < 0 ? -1 : 0) as -1 | 0 | 1
+    out[i] = (s > 0 ? 1 : s < 0 ? -1 : 0)
   }
 
   return out
@@ -42,6 +42,7 @@ function coupledResonance(input: {
   rounds: number
 }): number {
   const n = input.poleA.length
+
   let a = Int8Array.from(input.poleA)
   let b = Int8Array.from(input.poleB)
 
@@ -74,9 +75,12 @@ export function resonanceResult(input: { n: number; trials: number }): {
 
   for (let k = 0; k < input.trials; k++) {
     // dense shared attractors, and a pole to drive toward (one of them)
-    const patterns = makeSelf({ n: input.n, patterns: 2, seed: 12000 + k }).map(
-      p => p.map(v => (v === 0 ? 1 : v)),
-    )
+    const patterns = makeSelf({
+      n: input.n,
+      patterns: 2,
+      seed: 12000 + k,
+    }).map(p => p.map(v => (v === 0 ? 1 : v)))
+
     const pole = patterns[0]!
     const antiPole = pole.map(v => -v)
 
@@ -104,6 +108,7 @@ export function resonanceResult(input: { n: number; trials: number }): {
 
 export default experiment({
   id: 'selves/resonance-between-selves',
+  code: 'E-SLF-0102',
   title:
     'two aligned selves lock into resonance while two anti-aligned selves frustrate each other',
   category: 'selves',

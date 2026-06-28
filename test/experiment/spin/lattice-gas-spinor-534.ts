@@ -34,6 +34,7 @@ const directionKey = (vector: number[]): string =>
 
 export default experiment({
   id: 'spin/lattice-gas-spinor-534',
+  code: 'E-SPN-0022',
   title:
     'the bare {5,3,4} lattice-gas rule produces LINEAR modes, not spinors, the spinor needs the spin bundle',
   category: 'spin',

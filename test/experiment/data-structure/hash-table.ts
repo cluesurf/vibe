@@ -9,6 +9,7 @@ import { hashTableProbeStats } from '@/code/measure/sketch'
 
 export default experiment({
   id: 'data-structure/hash-table',
+  code: 'E-DST-0011',
   title:
     'SS2: keys hash to exact cell addresses, lookup is O(1) probes at a reasonable load',
   category: 'data-structure',

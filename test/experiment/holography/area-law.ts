@@ -117,6 +117,7 @@ export function areaLaw(input?: { L?: number }): {
 
 export default experiment({
   id: 'holography/area-law',
+  code: 'E-HLG-0001',
   title:
     'the emergent field ground state is area-law while a thermal state is volume-law',
   category: 'holography',

@@ -29,6 +29,7 @@ const MARGIN = 0.2
 
 export default experiment({
   id: 'selves/surrogate-fidelity',
+  code: 'E-SLF-0134',
   title:
     'a learned surrogate of a self forward-predicts its held-out coarse future, the controls do not',
   category: 'selves',

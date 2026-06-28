@@ -53,6 +53,7 @@ function anisotropyScaling(
 
 export default experiment({
   id: 'relativity/lorentz-bound-3434',
+  code: 'E-RLT-0018',
   title:
     'the deterministic {3,4,3,4} substrate passes the GRB Lorentz bound by D4 symmetry (xi1 = 0, anisotropy order >= 4), with no random sprinkling',
   category: 'relativity',

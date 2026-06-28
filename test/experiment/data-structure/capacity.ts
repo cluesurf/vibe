@@ -11,6 +11,7 @@ import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
 
 export default experiment({
   id: 'data-structure/capacity',
+  code: 'E-DST-0006',
   title:
     'DS1: the 4D hyperbolic bulk holds exponentially more cells per radius than the flat honeycomb',
   category: 'data-structure',

@@ -14,6 +14,7 @@ import {
 
 export default experiment({
   id: 'data-structure/btree-descent',
+  code: 'E-DST-0005',
   title:
     'SS1: a B-tree point query on {3,4,3,4} is a logarithmic-depth descent with no stored child pointers',
   category: 'data-structure',

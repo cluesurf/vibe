@@ -62,6 +62,7 @@ export function higgsStudy(input: { side: number; coupling: number }): {
 
 export default experiment({
   id: 'gauge/higgs',
+  code: 'E-FRC-0027',
   title:
     'symmetry breaking gives a nonzero vacuum value and a massive photon while the symmetric phase stays massless',
   category: 'gauge',

@@ -158,6 +158,7 @@ export function holography(): {
 
 export default experiment({
   id: 'holography/p91-holography',
+  code: 'E-HLG-0016',
   title:
     'Ryu-Takayanagi log law, geodesic shortcut, and depth-as-scale on the {7,3} crystal',
   category: 'holography',

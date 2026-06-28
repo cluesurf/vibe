@@ -17,6 +17,7 @@ import { rotationKey } from '@/code/algebra/group/rotation'
 
 export default experiment({
   id: 'spin/icosian-double-cover-534',
+  code: 'E-SPN-0019',
   title:
     'the icosahedral symmetry of {5,3,4} has a spinor double cover 2I, spin in the projective rep',
   category: 'spin',

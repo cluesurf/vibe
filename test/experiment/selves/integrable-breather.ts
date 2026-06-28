@@ -27,6 +27,7 @@ import { travelDistance } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/integrable-breather',
+  code: 'E-SLF-0060',
   title:
     'a reversible breather (bound oscillating state) exists on the D4 coin, but it is pinned, no moving breather',
   category: 'selves',

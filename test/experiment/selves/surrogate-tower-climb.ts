@@ -24,6 +24,7 @@ const ABOVE_CHANCE_MIN = 0.03
 
 export default experiment({
   id: 'selves/surrogate-tower-climb',
+  code: 'E-SLF-0137',
   title:
     'a temporal surrogate tower climbs several levels with forward accuracy bounded above chance and the control',
   category: 'selves',

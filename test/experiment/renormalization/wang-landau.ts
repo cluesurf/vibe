@@ -53,6 +53,7 @@ export function wangLandauCrossing(input: {
 
 export default experiment({
   id: 'renormalization/wang-landau',
+  code: 'E-SCL-0014',
   title:
     'Wang-Landau measures the entropy gap and a roughly N-independent crossing beta-star in the causal-set action',
   category: 'renormalization',

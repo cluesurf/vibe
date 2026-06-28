@@ -23,6 +23,7 @@ import {
 
 export default experiment({
   id: 'selves/ternary-skyrmion-charge',
+  code: 'E-SLF-0139',
   title:
     'a 3-trit-per-cell direction field encodes the Skyrmion charge exactly (the topological state is fully ternary)',
   category: 'selves',

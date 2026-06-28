@@ -35,7 +35,11 @@ export function newtonFalloffExponent(input: {
   const slopesBySize = [...input.sizes]
     .sort((a, b) => a - b)
     .map(size => {
-      const sol = dCubePoissonGreens({ side: size, dimension: input.dimension })
+      const sol = dCubePoissonGreens({
+        side: size,
+        dimension: input.dimension,
+      })
+
       const profile = radialFieldProfile({
         values: sol.x,
         coord: sol.coord,

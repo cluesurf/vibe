@@ -65,6 +65,7 @@ function openDissipation(
 
 export default experiment({
   id: 'fluids/coin-richness-shear',
+  code: 'E-FLD-0003',
   title:
     'a shear dissipates on the rich 24-direction coin but barely on the impoverished cubic coin, coin richness makes the fluid',
   category: 'fluids',

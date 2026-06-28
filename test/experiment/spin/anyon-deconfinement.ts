@@ -42,6 +42,7 @@ const TONE_STATES = 3 // the ternary tone, Z_3
 
 export default experiment({
   id: 'spin/anyon-deconfinement',
+  code: 'E-SPN-0001',
   title:
     'the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control',
   category: 'spin',

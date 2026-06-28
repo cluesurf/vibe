@@ -55,6 +55,7 @@ function withTransition(input: {
 
 export default experiment({
   id: 'selves/coarse-individuality-transition',
+  code: 'E-SLF-0027',
   title:
     'the transition signatures appear only with imposed group selection and a single-cell bottleneck, not from the base rule',
   category: 'selves',

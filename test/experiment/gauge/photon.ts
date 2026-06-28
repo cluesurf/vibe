@@ -62,6 +62,7 @@ export function photonStudy(input: { side: number }): {
 
 export default experiment({
   id: 'gauge/photon',
+  code: 'E-FRC-0042',
   title:
     'the free U(1) gauge field is massless and gauge-invariant with about a third gauge zero modes',
   category: 'gauge',

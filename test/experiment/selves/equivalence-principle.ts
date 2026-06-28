@@ -28,6 +28,7 @@ const DEGREE = 24
 
 export default experiment({
   id: 'selves/equivalence-principle',
+  code: 'E-SLF-0046',
   title:
     'a self sources gravity in proportion to its mass and falls universally, the equivalence principle on the substrate',
   category: 'selves',

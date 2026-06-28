@@ -25,6 +25,7 @@ export function maintenanceThreshold(input: {
   const self = makeSelf({ n, patterns: 2, seed: 61000 + n }).map(p =>
     p.map(v => (v === 0 ? 1 : v)),
   )
+
   const pole = self[0]!
   const a0 = settle({
     patterns: self,
@@ -63,6 +64,7 @@ export function maintenanceThreshold(input: {
 
 export default experiment({
   id: 'selves/maintenance-threshold',
+  code: 'E-SLF-0070',
   title:
     'a self lives only while repair keeps pace with decay, and dies below that threshold',
   category: 'selves',
@@ -87,10 +89,12 @@ export default experiment({
     const belowDegrades = sweeps.every(
       s => s.find(x => x.repair === 0.1)!.identity < 0.7,
     )
+
     // at or above threshold (repair 0.2 and 0.3 >= decay 0.2) the self is fully vital
     const aboveLives = sweeps.every(
       s => s.find(x => x.repair === 0.3)!.identity > 0.9,
     )
+
     // identity rises monotonically with repair (the threshold is real, not a fluke)
     const monotone = sweeps.every(s => {
       for (let i = 1; i < s.length; i++) {
@@ -98,8 +102,10 @@ export default experiment({
           return false
         }
       }
+
       return true
     })
+
     // control: zero repair is certain and complete death
     const noRepairDies = sweeps.every(
       s => s.find(x => x.repair === 0)!.identity < 0.1,

@@ -29,6 +29,7 @@ function subsetOf(small: number[][], big: number[][]): boolean {
 
 export default experiment({
   id: 'gauge/exceptional-ladder',
+  code: 'E-FRC-0018',
   title:
     'the 24-cell D4 sits at the bottom of the forced exceptional ladder D4 < D5 < E6 < E7 < E8',
   category: 'gauge',

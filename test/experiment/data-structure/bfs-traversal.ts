@@ -9,6 +9,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/bfs-traversal',
+  code: 'E-DST-0003',
   title:
     'SS8: BFS frontier IS the growth shell, traversal is free with no explicit queue',
   category: 'data-structure',

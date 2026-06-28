@@ -49,6 +49,7 @@ function fractionAtSize(input: {
 
 export default experiment({
   id: 'substrate-survey/coarse-substrate-comparison',
+  code: 'E-SBT-0007',
   title:
     'flat and square horospheres support compact low-leak selves, the hyperbolic bulk does not',
   category: 'substrate-survey',

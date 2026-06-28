@@ -7,9 +7,7 @@ import { Tone } from '@/code/tone/will'
 // a bijection that is not an involution (the 9-state pair table below) runs
 // backward through its paired inverse, which the engine applies in inverseBeat.
 
-export interface Collision {
-  (slots: Int8Array, base: number, degree: number): void
-}
+export type Collision = (slots: Int8Array, base: number, degree: number) => void
 
 // The pass-through collision: never changes anything. The trivial reversible map.
 export const passThrough: Collision = () => {}
@@ -245,13 +243,13 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
       const jEmpty = aj === 0 && bj === 0
 
       if (iHeadOn && jEmpty) {
-        slots[base + lj[0]] = ai as Tone
-        slots[base + lj[1]] = ai as Tone
+        slots[base + lj[0]] = ai
+        slots[base + lj[1]] = ai
         slots[base + li[0]] = 0
         slots[base + li[1]] = 0
       } else if (jHeadOn && iEmpty) {
-        slots[base + li[0]] = aj as Tone
-        slots[base + li[1]] = aj as Tone
+        slots[base + li[0]] = aj
+        slots[base + li[1]] = aj
         slots[base + lj[0]] = 0
         slots[base + lj[1]] = 0
       }

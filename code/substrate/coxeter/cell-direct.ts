@@ -602,7 +602,7 @@ export function bandLargestComponentSubgraph(input: {
     v =>
       bnb[v]!.map(w => lmap.get(w)!).filter(
         x => x !== undefined,
-      ) as number[],
+      ),
   )
 
   const coords = lcc.map(v => bcoords[v]!)

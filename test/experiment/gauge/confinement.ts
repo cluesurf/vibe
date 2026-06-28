@@ -82,6 +82,7 @@ function study(input: { beta: number; seed: number }): {
 
 export default experiment({
   id: 'gauge/confinement',
+  code: 'E-FRC-0007',
   title:
     '3D SU(2) lattice gauge theory confines, a positive string tension that weakens with the coupling',
   category: 'gauge',

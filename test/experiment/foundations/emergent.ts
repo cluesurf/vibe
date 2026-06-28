@@ -65,6 +65,7 @@ function interactionRange(input: {
 
 export default experiment({
   id: 'foundations/emergent',
+  code: 'E-FND-0018',
   title:
     'the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once',
   category: 'foundations',

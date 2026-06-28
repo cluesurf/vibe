@@ -32,6 +32,7 @@ import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 
 export default experiment({
   id: 'selves/no-restoring-pressure',
+  code: 'E-SLF-0084',
   title:
     'no restoring pressure: no committed rule contracts a diffuse cloud, so the bound body does not emerge from the pure gas',
   category: 'selves',

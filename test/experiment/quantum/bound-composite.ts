@@ -134,6 +134,7 @@ export function boundComposite(input?: {
 
 export default experiment({
   id: 'quantum/bound-composite',
+  code: 'E-QTM-0006',
   title:
     'two attracting particles form a true bound state with discrete levels',
   category: 'quantum',

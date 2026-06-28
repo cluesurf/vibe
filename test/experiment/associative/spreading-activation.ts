@@ -130,6 +130,7 @@ export function associativeSpreadingActivation(input?: {
 
 export default experiment({
   id: 'associative/spreading-activation',
+  code: 'E-MMR-0015',
   title:
     'spreading activation through semantic memory IS the bulk query wave, made logarithmic by hyperbolic geometry',
   category: 'associative',

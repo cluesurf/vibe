@@ -20,6 +20,7 @@ export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
 
 export default experiment({
   id: 'gauge/gauge-embedding',
+  code: 'E-FRC-0022',
   title:
     'the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)',
   category: 'gauge',

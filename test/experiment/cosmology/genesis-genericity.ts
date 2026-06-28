@@ -10,6 +10,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/genesis-genericity',
+  code: 'E-CSM-0025',
   title:
     'genesis is generic, the peace void self-creates a living universe at every lattice size, not a finite-size fluke',
   category: 'cosmology',

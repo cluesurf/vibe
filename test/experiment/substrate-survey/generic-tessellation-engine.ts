@@ -211,6 +211,7 @@ export function genericTessellationEngine(): {
 
 export default experiment({
   id: 'substrate-survey/generic-tessellation-engine',
+  code: 'E-SBT-0013',
   title:
     'one generic front-end classifies and builds any regular honeycomb from 2D to 4D with correct facet degrees',
   category: 'substrate-survey',

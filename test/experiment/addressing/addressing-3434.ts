@@ -27,6 +27,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'addressing/addressing-3434',
+  code: 'E-NVG-0001',
   title:
     'the {3,4,3,4} cells carry unique O(log n) tree addresses with no cousin edges and exact neighbour reconstruction',
   category: 'addressing',

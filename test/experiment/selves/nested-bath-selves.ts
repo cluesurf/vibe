@@ -26,6 +26,7 @@ import {
 
 export default experiment({
   id: 'selves/nested-bath-selves',
+  code: 'E-SLF-0078',
   title:
     'two bath-coupled bodies bind into a higher composite self with its own identity and agency, selves nest',
   category: 'selves',

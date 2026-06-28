@@ -117,6 +117,7 @@ export function kahlerDiracPropagation(): {
 
 export default experiment({
   id: 'spin/kahler-dirac-propagation-534',
+  code: 'E-SPN-0021',
   title:
     'the Kahler-Dirac fermion on {5,3,4} propagates (the extended phase), localized only by strong deterministic disorder',
   category: 'spin',

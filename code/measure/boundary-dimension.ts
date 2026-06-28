@@ -17,7 +17,7 @@ export function boundaryDimension(input: {
   specDimT2?: number
 }): { cells: number; boundaryCells: number; boundaryDim: number } {
   const g = buildCellGraph({
-    symbol: input.symbol as never,
+    symbol: input.symbol,
     maxCells: input.maxCells,
   })
 

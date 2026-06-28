@@ -37,6 +37,7 @@ import { isReversible, conservesCharge } from '@/code/check/invariant'
 
 export default experiment({
   id: 'selves/leaky-confiner',
+  code: 'E-SLF-0068',
   title:
     'the leaky confiner holds a body but seals its radiation (the perturbation never reaches the bath)',
   category: 'selves',
@@ -115,7 +116,7 @@ export default experiment({
       let pert = cloneWill(packet())
       pert.data[center * degree + 0] = (
         pert.data[center * degree + 0] === 1 ? -1 : 1
-      ) as -1 | 1
+      )
 
       let plainScratch: Will = {
         mesh,

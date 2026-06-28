@@ -10,6 +10,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/first-distinction',
+  code: 'E-CSM-0021',
   title:
     'the first distinction is a single balanced adjacent (+1,-1) pair born from peace, conserving zero',
   category: 'cosmology',

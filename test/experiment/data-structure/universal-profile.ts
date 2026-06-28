@@ -57,6 +57,7 @@ const TESSELLATIONS: number[][] = [
 
 export default experiment({
   id: 'data-structure/universal-profile',
+  code: 'E-DST-0028',
   title:
     'one module gives the data-structure profile of every 2D-to-5D tessellation, all have exponential capacity and logarithmic tree depth',
   category: 'data-structure',

@@ -34,6 +34,7 @@ function sumTone(tone: Int8Array, cells: number[]): number {
 
 export default experiment({
   id: 'selves/coarse-markov-blanket',
+  code: 'E-SLF-0029',
   title:
     'an emergent self screens interior from exterior through its shell more cleanly than medium',
   category: 'selves',

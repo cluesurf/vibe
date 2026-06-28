@@ -84,7 +84,7 @@ async function benchOne(
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(pipeline)
-    pass.setBindGroup(0, bind(bufs[0]!, bufs[1]!))
+    pass.setBindGroup(0, bind(bufs[0], bufs[1]))
     pass.dispatchWorkgroups(gx, gy)
     pass.end()
     device.queue.submit([enc.finish()])
@@ -110,8 +110,8 @@ async function benchOne(
   await device.queue.onSubmittedWorkDone()
 
   const seconds = (performance.now() - start) / 1000
-  bufs[0]!.destroy()
-  bufs[1]!.destroy()
+  bufs[0].destroy()
+  bufs[1].destroy()
 
   return { cells: count, beatsPerSec: BENCH_BEATS / seconds, ok: true }
 }

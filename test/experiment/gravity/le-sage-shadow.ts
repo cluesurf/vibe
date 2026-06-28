@@ -28,6 +28,7 @@ const DISTANCES = [4, 6, 8, 10, 14, 20]
 
 export default experiment({
   id: 'gravity/le-sage-shadow',
+  code: 'E-GRV-0027',
   title:
     'Le Sage shadow gravity, isotropic flux gives the inverse-square force, but the measured first-order drag rules it out as fundamental',
   category: 'gravity',

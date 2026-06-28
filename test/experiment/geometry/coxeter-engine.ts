@@ -141,6 +141,7 @@ export function coxeterEngine(): {
 
 export default experiment({
   id: 'geometry/coxeter-engine',
+  code: 'E-GMT-0004',
   title:
     'Coxeter engine, full facet-adjacency exact (heptagrid 7, dodecagrid 12), dodecagrid runs',
   category: 'geometry',

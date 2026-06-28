@@ -67,10 +67,7 @@ export function flatSpatialRP(input?: {
     const rng = makeRng({ seed: 13 })
 
     for (let i = 0; i < L; i++) {
-      tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-        | -1
-        | 0
-        | 1
+      tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
     }
 
     for (let t = 0; t < 300; t++) {
@@ -181,6 +178,7 @@ export function flatSpatialRP(input?: {
 
 export default experiment({
   id: 'quantum/flat-spatial-rp',
+  code: 'E-QTM-0013',
   title:
     'the field is generically massive on flat too, the rule not geometry',
   category: 'quantum',

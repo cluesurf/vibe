@@ -64,6 +64,7 @@ export function dimensionWindow(input: {
 
 export default experiment({
   id: 'geometry/dimension-window',
+  code: 'E-GMT-0009',
   title:
     'compact hyperbolic crystals only in dimensions 2, 3, 4 (H3 = 4, H4 = 5, H5 plus = 0)',
   category: 'geometry',

@@ -104,7 +104,7 @@ function perturbationRadius(input: {
   let dirty: Will = { mesh, data: base.data.slice() }
   dirty.data[site * mesh.degree] = (
     dirty.data[site * mesh.degree] === 1 ? -1 : 1
-  ) as -1 | 1
+  )
 
   const opposite = Array.from({ length: mesh.degree }, (_, d) =>
     mesh.opposite(d),
@@ -151,6 +151,7 @@ function perturbationRadius(input: {
 
 export default experiment({
   id: 'selves/l3-breather-self-criteria',
+  code: 'E-SLF-0065',
   title:
     'the base-rule breather screens through its shell and contains an interior perturbation more than the vacuum',
   category: 'selves',

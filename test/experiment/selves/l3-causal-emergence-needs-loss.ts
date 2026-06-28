@@ -40,6 +40,7 @@ function chargeHash(will: Will): string {
 
 export default experiment({
   id: 'selves/l3-causal-emergence-needs-loss',
+  code: 'E-SLF-0066',
   title:
     'the reversible base rule is a permutation with no degeneracy, so causal emergence needs information loss',
   category: 'selves',
@@ -61,7 +62,7 @@ export default experiment({
     let will: Will = makeWill(mesh)
 
     for (let i = 0; i < will.data.length; i++) {
-      will.data[i] = (((i * 7 + (i % 5) + 1) % 3) - 1) as -1 | 0 | 1
+      will.data[i] = (((i * 7 + (i % 5) + 1) % 3) - 1)
     }
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat

@@ -41,6 +41,7 @@ function diagonalVacuum(diagonal: number[]): Octonion[][] {
 
 export default experiment({
   id: 'spin/three-generations-breaking-search',
+  code: 'E-SPN-0039',
   title:
     'three generation slots with an exact family symmetry, splittable only by an external vacuum, so the hierarchy stays open',
   category: 'spin',

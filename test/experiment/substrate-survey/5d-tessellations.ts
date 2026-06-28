@@ -82,6 +82,7 @@ export function manyTessellations(): void {
 
 export default experiment({
   id: 'substrate-survey/5d-tessellations',
+  code: 'E-SBT-0005',
   title:
     'a sweep of 5D crystallographic honeycombs, all overshoot to 4D physical space and lose compactness',
   category: 'substrate-survey',

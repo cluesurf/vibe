@@ -88,6 +88,7 @@ export function derrickStabilizer(): {
 
 export default experiment({
   id: 'selves/derrick-stabilizer',
+  code: 'E-SLF-0037',
   title:
     'Derrick scaling needs a Skyrme term in 3D and only a direction field carries winding',
   category: 'selves',

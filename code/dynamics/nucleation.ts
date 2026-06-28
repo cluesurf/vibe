@@ -39,6 +39,7 @@ function plusFraction(
       }
 
       total++
+
       const nx = x + dx
       const ny = y + dy
 
@@ -75,7 +76,7 @@ function step(
       const f = plusFraction(grid, side, x, y, radius)
       const isPlus = grid[y * side + x] === 1
       const becomes = isPlus ? f >= stay : f >= grow
-      next[y * side + x] = (becomes ? 1 : -1) as -1 | 1
+      next[y * side + x] = (becomes ? 1 : -1)
     }
   }
 
@@ -103,12 +104,23 @@ export function nucleate(input: {
   stay: number
   grow: number
   beats: number
-}): { initialFraction: number; finalFraction: number; survived: boolean } {
+}): {
+  initialFraction: number
+  finalFraction: number
+  survived: boolean
+} {
   let grid = seedDroplet(input.side, input.seedRadius)
+
   const initialFraction = plusCount(grid) / grid.length
 
   for (let b = 0; b < input.beats; b++) {
-    grid = step(grid, input.side, input.neighborRadius, input.stay, input.grow)
+    grid = step(
+      grid,
+      input.side,
+      input.neighborRadius,
+      input.stay,
+      input.grow,
+    )
   }
 
   const finalFraction = plusCount(grid) / grid.length
@@ -117,6 +129,7 @@ export function nucleate(input: {
     initialFraction,
     finalFraction,
     // survived: the self-maintaining region held at least most of its seed mass rather than dying out
-    survived: finalFraction > 0.5 * initialFraction && finalFraction > 0.005,
+    survived:
+      finalFraction > 0.5 * initialFraction && finalFraction > 0.005,
   }
 }

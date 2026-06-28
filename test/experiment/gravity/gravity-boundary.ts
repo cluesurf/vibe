@@ -60,6 +60,7 @@ export function gravityBoundary(): {
 
 export default experiment({
   id: 'gravity/gravity-boundary',
+  code: 'E-GRV-0021',
   title:
     'the flat cusp Poisson Green function falls as 1/r in three dimensions and as log r in two, the dimension-correct Newton potentials',
   category: 'gravity',
@@ -71,17 +72,22 @@ export default experiment({
 
     // both the large-box exponent and the infinite-size extrapolation sit within a tenth of
     // minus one, straddling it, so the 3D cusp potential falls as 1/r
-    const largeBoxIsNewton = Math.abs(r.threeDimExponentLargeBox + 1) < 0.1
+    const largeBoxIsNewton =
+      Math.abs(r.threeDimExponentLargeBox + 1) < 0.1
+
     const extrapolatedIsNewton =
       Math.abs(r.threeDimExponentExtrapolated + 1) < 0.1
 
     // the per-size exponents converge monotonically toward minus one as the box grows, the
     // evidence that this is genuinely 1/r and the deviation is the finite boundary
     const slopes = r.threeDimSlopesBySize
+
     let convergesToNewton = true
+
     for (let i = 1; i < slopes.length; i++) {
       if (
-        Math.abs(slopes[i]!.slope + 1) >= Math.abs(slopes[i - 1]!.slope + 1)
+        Math.abs(slopes[i]!.slope + 1) >=
+        Math.abs(slopes[i - 1]!.slope + 1)
       ) {
         convergesToNewton = false
       }

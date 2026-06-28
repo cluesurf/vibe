@@ -44,6 +44,7 @@ const BOTTOM_OVER_STRANGE = 4180 / 93.4
 
 export default experiment({
   id: 'gauge/neutrino-mass-ladder',
+  code: 'E-FRC-0035',
   title:
     'the neutrinos are the mildest sector on the {3,4,3,4} shell ladder (sub-shell spacing), the geometric origin of the large PMNS mixing, the steep-neutrino case the control',
   category: 'gauge',

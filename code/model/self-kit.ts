@@ -269,7 +269,7 @@ export function beat(
         const pHop = 0.1 + cohesion * Math.min(like, 4)
 
         if (rng.next() < pHop) {
-          tone[w] = a as -1 | 1
+          tone[w] = a
           tone[v] = 0
           moved[v] = 1
           moved[w] = 1
@@ -543,10 +543,7 @@ export function emergeSelf(
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
-    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0)
   }
 
   for (let t = 0; t < (opts?.beats ?? 70); t++) {

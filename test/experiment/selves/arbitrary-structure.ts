@@ -53,7 +53,7 @@ function construct(target: Int8Array, rng: Rng): number {
   const s = new Int8Array(M)
 
   for (let i = 0; i < M; i++) {
-    s[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
+    s[i] = (rng.next() < 0.5 ? 1 : -1)
   }
 
   let gap = 0
@@ -145,6 +145,7 @@ export function arbitraryStructure(input?: { M?: number }): {
 
 export default experiment({
   id: 'selves/arbitrary-structure',
+  code: 'E-SLF-0004',
   title:
     'the goal-directed builder reaches and holds several arbitrary balanced targets',
   category: 'selves',

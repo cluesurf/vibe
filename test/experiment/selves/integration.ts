@@ -36,6 +36,7 @@ function study(): {
 
 export default experiment({
   id: 'selves/integration',
+  code: 'E-SLF-0062',
   title:
     'a configuration has a Markov-blanket score and an integration proxy',
   category: 'selves',

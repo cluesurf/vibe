@@ -171,7 +171,7 @@ export function boundStateDecayExponent(input: {
       }
 
       if (i === origin) {
-        acc += wellDepth * psi[origin]!
+        acc += wellDepth * psi[origin]
       }
 
       out[i] = acc

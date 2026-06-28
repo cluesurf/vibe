@@ -36,6 +36,7 @@ const GUT_NORMALIZATION = 5 / 3
 
 export default experiment({
   id: 'gauge/fine-structure-not-geometric',
+  code: 'E-FRC-0019',
   title:
     'the fine-structure constant is not geometric (it runs), the geometry fixes the weak angle 3/8 and the GUT normalization 5/3, leaving exactly one free gauge coupling',
   category: 'gauge',

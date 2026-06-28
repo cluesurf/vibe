@@ -88,8 +88,8 @@ export function parityBlockBeat3D(input: {
               create,
             )
 
-            tone[i] = na as -1 | 0 | 1
-            tone[j] = nb as -1 | 0 | 1
+            tone[i] = na
+            tone[j] = nb
           }
         }
       }

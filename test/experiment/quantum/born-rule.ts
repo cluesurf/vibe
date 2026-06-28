@@ -91,6 +91,7 @@ export function bornRule(input: { seed: number }): {
 
 export default experiment({
   id: 'quantum/born-rule',
+  code: 'E-QTM-0005',
   title: 'the exponent 2 is forced by quadrature plus additivity',
   category: 'quantum',
   substrates: 'any',

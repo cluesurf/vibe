@@ -6,6 +6,7 @@ import { lightConeRadii } from '@/code/measure/light-cone'
 // one cell per beat, a finite frame-independent maximum speed, z = 1.
 export default experiment({
   id: 'relativity/light-cone',
+  code: 'E-RLT-0014',
   title: 'Ballistic z = 1 light cone on the cubic cusp',
   category: 'relativity',
   substrates: ['3434'],
