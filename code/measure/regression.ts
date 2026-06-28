@@ -160,7 +160,12 @@ export function loglogExponentWindow(input: {
     m++
   }
 
-  return (m * sxy - sx * sy) / (m * sxx - sx * sx)
+  // Guard the degenerate fit (fewer than two usable points, or a zero-variance x
+  // window) the same way powerLawExponent does, so a flat or empty window returns a
+  // defined 0 instead of letting a NaN propagate into a verdict.
+  const denominator = m * sxx - sx * sx
+
+  return m > 1 && denominator !== 0 ? (m * sxy - sx * sy) / denominator : 0
 }
 
 // A power-law fit over (x, y) in log-log space: the slope (exponent) plus the largest
@@ -186,7 +191,9 @@ export function powerLawFit(input: {
     varx += (logX[i]! - meanX) * (logX[i]! - meanX)
   }
 
-  const exponent = cov / varx
+  // varx is 0 only when every x is identical (a single distinct radius), where no
+  // exponent is defined; return 0 rather than a NaN, matching the other fits.
+  const exponent = varx === 0 ? 0 : cov / varx
 
   let maxDeviation = 0
 

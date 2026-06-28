@@ -92,6 +92,12 @@ export function logLogExponent(
 // r^(bitExponent), the entropic force is F proportional to 1/N(r), so F proportional to r^(-bitExponent), and the
 // potential is its integral, r^(-(bitExponent - 1)). The area law (bitExponent 2) gives Newton (force r^-2,
 // potential r^-1), a volume law (bitExponent 3) gives the wrong r^-3.
+//
+// The screen-bit exponent is a measured DIMENSIONALITY, so the only meaningful laws are the integer ones: a
+// dilution law (1), the area law (2), the volume law (3). The classifier is therefore "nearest integer is 2",
+// whose decision boundary is the half-integer midpoints 1.5 and 2.5. That boundary is derived from the
+// neighbouring integer laws, not a tuned band, so the default tolerance is exactly 0.5 (an area exponent is
+// Newtonian iff it is closer to 2 than to 1 or 3). `tolerance` can override it for a stricter test.
 export function verlindeForceLaw(input: {
   bitExponent: number
   tolerance?: number
@@ -100,12 +106,12 @@ export function verlindeForceLaw(input: {
   potentialExponent: number
   isNewtonian: boolean
 } {
-  const tolerance = input.tolerance ?? 0.4
+  const tolerance = input.tolerance ?? 0.5
   const forceExponent = input.bitExponent
 
   return {
     forceExponent,
     potentialExponent: input.bitExponent - 1,
-    isNewtonian: Math.abs(input.bitExponent - 2) <= tolerance,
+    isNewtonian: Math.abs(input.bitExponent - 2) < tolerance,
   }
 }

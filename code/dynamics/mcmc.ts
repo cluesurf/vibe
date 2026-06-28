@@ -7,6 +7,12 @@ import { Poset, makePosetFromFuture } from '@/code/tool/poset'
 import { BitMatrix, makeBitMatrix, getBit } from '@/code/tool/bitset'
 import { Rng } from '@/code/tool/rng'
 import { Action } from '@/code/dynamics/action'
+import {
+  makeState,
+  isRelated,
+  toggleKeepsValid,
+  toggle,
+} from '@/code/dynamics/uniform-sampler'
 
 // How often (in steps) we record the observable into the trace.
 const OBSERVE_EVERY = 1
@@ -72,34 +78,30 @@ export function sampleCausalSets(input: {
 } {
   const n = input.size
 
-  // The current order as a raw (untransitively-closed) relation on the labelling
-  // a < b. We keep the raw relation so a toggle is a single bit flip; the closure
-  // is rebuilt for evaluation and on accept.
-  const relation = makeBitMatrix({ rows: n, cols: n })
+  // The state is a VALID (transitive) poset throughout, held as future/past bitsets.
+  // A move toggles a SINGLE pair and is accepted only if the result is still
+  // transitive (toggleKeepsValid). That proposal is symmetric over valid posets, so
+  // with the weight e^{-beta S} the chain samples the causal-set Gibbs ensemble. The
+  // earlier move (toggle a raw bit then take the transitive closure) changed many
+  // pairs at once, and because closure is many-to-one it sampled a multiplicity-
+  // biased measure rather than the intended one. The single-pair move (the same one
+  // uniform-sampler uses) fixes that.
+  const state = makeState(n, input.start?.future)
 
-  if (input.start) {
-    // Seed the relation from the warm-start order's (already transitive) future.
-    for (let i = 0; i < relation.words.length; i++) {
-      relation.words[i] = input.start.future.words[i] ?? 0
-    }
-  }
-
-  // Build the Poset for the current state from the transitive closure.
-  let poset = makePosetFromFuture({
-    size: n,
-    future: transitiveClosure({ size: n, relation }),
-  })
-
+  let poset = makePosetFromFuture({ size: n, future: state.future })
   let currentAction = input.action.value({ poset })
 
   const traceValues: number[] = []
+  // Discard the first half so the chain has left the start configuration before any
+  // observable is recorded (the earlier sampler recorded from step zero).
+  const burnIn = Math.floor(input.steps / 2)
 
   let observeCounter = 0
   let accepted = 0
   let proposed = 0
 
   for (let step = 0; step < input.steps; step++) {
-    // Propose a move: pick a < b uniformly and toggle the raw relation bit.
+    // Propose a single pair a < b uniformly.
     const a = input.rng.nextInt({ max: n })
 
     let b = input.rng.nextInt({ max: n })
@@ -117,37 +119,40 @@ export function sampleCausalSets(input: {
 
     proposed += 1
 
-    // Toggle the raw bit (in place). A fresh closure derives the consequences.
-    const i = lo * relation.stride + (hi >>> 5)
-    relation.words[i] = (relation.words[i] ?? 0) ^ (1 << (hi & 31))
+    const related = isRelated(state, lo, hi)
 
-    const candidatePoset = makePosetFromFuture({
-      size: n,
-      future: transitiveClosure({ size: n, relation }),
-    })
+    // A move that would break transitivity is an invalid proposal, rejected (the
+    // chain stays where it is), exactly like a Metropolis rejection.
+    if (toggleKeepsValid(state, lo, hi, related)) {
+      toggle(state, lo, hi)
 
-    const candidateAction = input.action.value({
-      poset: candidatePoset,
-    })
+      const candidatePoset = makePosetFromFuture({
+        size: n,
+        future: state.future,
+      })
 
-    const deltaS = candidateAction - currentAction
+      const candidateAction = input.action.value({
+        poset: candidatePoset,
+      })
 
-    // Metropolis acceptance with the Euclidean weight e^{-beta*S}.
-    const accept =
-      deltaS <= 0 || input.rng.next() < Math.exp(-input.beta * deltaS)
+      const deltaS = candidateAction - currentAction
 
-    if (accept) {
-      poset = candidatePoset
-      currentAction = candidateAction
-      accepted += 1
-    } else {
-      // Revert the raw bit toggle.
-      relation.words[i] = (relation.words[i] ?? 0) ^ (1 << (hi & 31))
+      // Metropolis acceptance with the Euclidean weight e^{-beta*S}.
+      if (
+        deltaS <= 0 ||
+        input.rng.next() < Math.exp(-input.beta * deltaS)
+      ) {
+        poset = candidatePoset
+        currentAction = candidateAction
+        accepted += 1
+      } else {
+        toggle(state, lo, hi) // revert
+      }
     }
 
     observeCounter += 1
 
-    if (observeCounter >= OBSERVE_EVERY) {
+    if (step >= burnIn && observeCounter >= OBSERVE_EVERY) {
       observeCounter = 0
       traceValues.push(input.observe({ poset }))
     }

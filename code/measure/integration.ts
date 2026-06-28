@@ -102,19 +102,12 @@ export function algebraicConnectivity(input: {
     return out
   }
 
-  // Find the largest Laplacian eigenvalue (Gershgorin-bounded) by power
-  // iteration, then iterate on (lambdaMax I - L) and deflate the constant vector
-  // (the trivial eigenvector with eigenvalue 0) to surface the Fiedler value.
+  // Surface the Fiedler value by iterating on (lambdaMax I - L) with the constant
+  // (zero) eigenvector deflated out at every step, so the pass converges to the
+  // dominant remaining mode, the smallest NONZERO Laplacian eigenvalue.
   const lambdaMax = 2 * Math.max(1, ...degree)
-  const ones = 1 / Math.sqrt(n)
 
-  let x = new Float64Array(n)
-
-  for (let i = 0; i < n; i++) {
-    // Deterministic non-constant start, orthogonalised against the ones vector.
-    x[i] = i % 2 === 0 ? 1 : -1
-  }
-
+  // Project out the constant mode and normalise.
   const orthogonalize = (v: Float64Array): void => {
     let mean = 0
 
@@ -140,38 +133,69 @@ export function algebraicConnectivity(input: {
     }
   }
 
-  orthogonalize(x)
+  // One power-iteration pass from a given start vector, returning the Rayleigh
+  // estimate of the eigenvalue it converged to.
+  const estimateFromStart = (start: Float64Array): number => {
+    let x = Float64Array.from(start)
+    orthogonalize(x)
 
-  let estimate = 0
+    let estimate = 0
 
-  for (let iteration = 0; iteration < 200; iteration++) {
-    const lx = applyLaplacian(x)
-    // y = (lambdaMax I - L) x, whose dominant eigenvector (after deflating the
-    // constant mode) corresponds to the smallest nonzero Laplacian eigenvalue.
-    const y = new Float64Array(n)
+    for (let iteration = 0; iteration < 200; iteration++) {
+      const lx = applyLaplacian(x)
+      const y = new Float64Array(n)
 
-    for (let i = 0; i < n; i++) {
-      y[i] = lambdaMax * (x[i] ?? 0) - (lx[i] ?? 0)
+      for (let i = 0; i < n; i++) {
+        y[i] = lambdaMax * (x[i] ?? 0) - (lx[i] ?? 0)
+      }
+
+      orthogonalize(y)
+      x = y
+
+      const lxNew = applyLaplacian(x)
+
+      let rayleigh = 0
+
+      for (let i = 0; i < n; i++) {
+        rayleigh += (x[i] ?? 0) * (lxNew[i] ?? 0)
+      }
+
+      estimate = rayleigh
     }
 
-    orthogonalize(y)
-    x = y
-
-    // Rayleigh quotient x^T L x gives the current eigenvalue estimate.
-    const lxNew = applyLaplacian(x)
-
-    let rayleigh = 0
-
-    for (let i = 0; i < n; i++) {
-      rayleigh += (x[i] ?? 0) * (lxNew[i] ?? 0)
-    }
-
-    estimate = rayleigh
+    return estimate
   }
 
-  void ones
+  // A SINGLE deterministic start is fragile: if it happens to be orthogonal to the
+  // Fiedler vector it converges to the wrong, larger eigenvalue. On a path graph,
+  // for instance, the alternating start (1,-1,1,...) is exactly a higher eigenvector
+  // and the pass returned the top eigenvalue instead of the Fiedler value. A start
+  // WITH any Fiedler overlap converges to the true value, and a start without it
+  // converges to something strictly larger, so running several diverse deterministic
+  // starts and taking the smallest nonzero estimate recovers the Fiedler value
+  // robustly while staying fully deterministic (no random seed). The frequency in the
+  // last start is an irrational (the plastic number) to avoid aligning with a mode.
+  const starts: Float64Array[] = [
+    Float64Array.from({ length: n }, (_, i) => (i % 2 === 0 ? 1 : -1)),
+    Float64Array.from({ length: n }, (_, i) => i + 1),
+    Float64Array.from({ length: n }, (_, i) => (i + 1) * (i + 1)),
+    Float64Array.from({ length: n }, (_, i) =>
+      Math.cos(i * 1.3247179572447458),
+    ),
+  ]
 
-  return Math.max(0, estimate)
+  let best = Infinity
+
+  for (const start of starts) {
+    const value = estimateFromStart(start)
+
+    if (value > 1e-9 && value < best) {
+      best = value
+    }
+  }
+
+  // best stays Infinity only for a disconnected region (Fiedler value 0).
+  return best === Infinity ? 0 : Math.max(0, best)
 }
 
 export function integrationCorrelates(input: {
@@ -359,10 +383,17 @@ export function toneIntegration(input: {
   }
 
   // Candidate bipartitions to minimise over (the minimum-information partition). For a small
-  // region we enumerate ALL balanced bipartitions, so the weakest cut is genuinely found (node 0
-  // fixed to side 0 to avoid counting a partition and its complement twice). For a large region we
-  // sample `bipartitions` random balanced cuts.
+  // region we enumerate ALL balanced bipartitions, so the weakest cut is genuinely found. For a
+  // large region we sample `bipartitions` random balanced cuts.
+  //
+  // The complement-dedup (fixing node 0 to side 0) is correct ONLY when n is even: there both a
+  // size-k subset and its complement are size k = n/2, so each unordered cut is generated twice and
+  // we keep one. When n is ODD the side-1 subset has size floor(n/2) and its complement has size
+  // ceil(n/2), so a size-k subset is never the complement of another size-k subset, no cut is
+  // double-counted, and applying the node-0 filter would silently drop half the valid cuts (biasing
+  // the minimised information upward). So only dedup for even n.
   const masks: Uint8Array[] = []
+  const dedupComplement = n % 2 === 0
 
   if (n <= 14) {
     const k = Math.floor(n / 2)
@@ -376,7 +407,7 @@ export function toneIntegration(input: {
           part[i] = 1
         }
 
-        if (part[0] === 0) {
+        if (!dedupComplement || part[0] === 0) {
           masks.push(part)
         }
 
