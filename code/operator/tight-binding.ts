@@ -48,6 +48,58 @@ export function weakBondChainHamiltonian(input: {
   return h
 }
 
+// A 1D open chain partitioned into three regions A | M | B (sizes nA, nM, nB, so n = nA + nM + nB). Within
+// each region the hopping is the uniform -t. The two bonds joining A to M and M to B are scaled by
+// `mediatorWeight`: with mediatorWeight = 1 it is one uniform chain, with mediatorWeight = 0 the mediator is
+// severed and A, M, B are three isolated blocks. A and B never share a direct bond, so any A-to-B correlation
+// must pass through M, the geometric mediator channel. The optional `bypassWeight` adds a direct bond between
+// the far end of A (site 0) and the far end of B (site n-1), a NON-mediated channel used by the control: with
+// it present, severing M no longer disconnects A from B. Returns the matrix, its size, and the three region
+// index lists. This is the substrate for the gravity-induced-entanglement (mediator) witness.
+export function mediatorChainHamiltonian(input: {
+  nA: number
+  nM: number
+  nB: number
+  mediatorWeight: number
+  bypassWeight?: number
+  hopping?: number
+}): {
+  h: DenseMatrix
+  n: number
+  regionA: number[]
+  regionM: number[]
+  regionB: number[]
+} {
+  const { nA, nM, nB, mediatorWeight } = input
+  const t = input.hopping ?? 1
+  const bypassWeight = input.bypassWeight ?? 0
+  const n = nA + nM + nB
+  const h = makeDense({ rows: n, cols: n })
+
+  const bond = (i: number, j: number, weight: number): void => {
+    h.data[i * n + j] = -t * weight
+    h.data[j * n + i] = -t * weight
+  }
+
+  const aMBond = nA - 1 // bond between site nA-1 (A) and nA (M)
+  const mBBond = nA + nM - 1 // bond between site nA+nM-1 (M) and nA+nM (B)
+
+  for (let i = 0; i < n - 1; i++) {
+    const weight = i === aMBond || i === mBBond ? mediatorWeight : 1
+    bond(i, i + 1, weight)
+  }
+
+  if (bypassWeight !== 0) {
+    bond(0, n - 1, bypassWeight)
+  }
+
+  const regionA = Array.from({ length: nA }, (_, i) => i)
+  const regionM = Array.from({ length: nM }, (_, i) => nA + i)
+  const regionB = Array.from({ length: nB }, (_, i) => nA + nM + i)
+
+  return { h, n, regionA, regionM, regionB }
+}
+
 // 1D OPEN chain of `n` sites with hopping `-t` and a STAGGERED mass: on-site potential
 // (-1)^i * mass. Half filling gives a Dirac field whose gap is set by `mass`: a massive field
 // saturates (area law), the massless (mass = 0) field grows as a conformal log.
