@@ -13,6 +13,7 @@
 // experiment, and a second Ctrl+C exits immediately.
 
 import { allExperiments } from '@/test/scaffold/suite'
+import { Verdict } from '@/test/scaffold/verdict'
 import { runConformance } from '@/test/suite/conformance'
 import '@/test/experiment/all'
 
@@ -61,7 +62,7 @@ async function main(): Promise<void> {
 
     const started = Date.now()
 
-    let result
+    let result: Verdict
 
     try {
       result = experiment.run(context)
@@ -131,4 +132,4 @@ async function main(): Promise<void> {
   }
 }
 
-main()
+void main()

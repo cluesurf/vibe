@@ -23,7 +23,6 @@ import { logLogSlope } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const E_PLANCK_GEV = 1.22e19
 // Fermi-LAT, GRB 090510 (Abdo et al. 2009): linear Lorentz violation is excluded below
 // E_QG1 = 7.6 E_Planck, i.e. the linear coefficient xi1 must be smaller than 1/7.6.
 const GRB_LINEAR_EQG_OVER_PLANCK = 7.6

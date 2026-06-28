@@ -470,8 +470,8 @@ export function runConformance(): { passed: number; failed: number } {
 
     let lo = Infinity
 
-    for (let i = 0; i < eig.values.length; i++) {
-      lo = Math.min(lo, eig.values[i] ?? 0)
+    for (const value of eig.values) {
+      lo = Math.min(lo, value ?? 0)
     }
 
     check({
@@ -497,8 +497,8 @@ export function runConformance(): { passed: number; failed: number } {
       const row = ring.neighbors[i] ?? new Uint32Array(0)
       m.data[i * cells + i] = row.length
 
-      for (let k = 0; k < row.length; k++) {
-        m.data[i * cells + (row[k] ?? 0)] = -1
+      for (const col of row) {
+        m.data[i * cells + (col ?? 0)] = -1
       }
     }
 
@@ -506,8 +506,8 @@ export function runConformance(): { passed: number; failed: number } {
 
     let lo = Infinity
 
-    for (let i = 0; i < eig.values.length; i++) {
-      lo = Math.min(lo, eig.values[i] ?? 0)
+    for (const value of eig.values) {
+      lo = Math.min(lo, value ?? 0)
     }
 
     check({
@@ -1639,8 +1639,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // binary per-term deltas are equal (flat); unary per-term deltas strictly increase (grow with the value)
     const binDelta = binCost[9]! - binCost[8]!
     const binFlat =
-      binCost[8]! - binCost[7]! === binDelta &&
-      binCost[5]! - binCost[4]! === binDelta
+      binCost[8]! - (binCost[7]!) === binDelta &&
+      binCost[5]! - (binCost[4]!) === binDelta
 
     const unaGrows =
       unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!
@@ -2028,7 +2028,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       const rca = makeTrackLoop(cyc, N)
       const vis = new Set<number>()
 
-      for (let t = 0; t < cyc.length; t++) {
+      for (const _cell of cyc) {
         rca.step()
         vis.add(rca.headAt())
       }

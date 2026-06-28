@@ -50,8 +50,6 @@ const gravityExp = (
   })
 
 export function cuspConvergence(): void {
-  const H = 0.8 // de Sitter rate per beat (cosmology-and-anisotropy), L ~ e^(H t) -> t = ln(L)/H
-
   let sufficientL = 0
   let prevGe = NaN
 
@@ -86,8 +84,6 @@ export function cuspConvergence(): void {
 
     prevGe = ge
   }
-
-  const tLocal = Math.round((Math.log(sufficientL || 35) / H) * 10) / 10
 }
 
 // A finite cubic cusp chunk reaches continuum-like local physics quickly. The cusp of

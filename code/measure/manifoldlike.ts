@@ -27,8 +27,8 @@ function posetHeight(input: { poset: Poset }): number {
       const row = p.links[x] ?? new Uint32Array(0)
       const baseValue = best[x] ?? 0
 
-      for (let k = 0; k < row.length; k++) {
-        const child = row[k] ?? 0
+      for (const value of row) {
+        const child = value ?? 0
         const candidate = baseValue + 1
 
         if (candidate > (best[child] ?? 0)) {

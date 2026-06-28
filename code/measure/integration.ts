@@ -38,8 +38,8 @@ function candidateRegion(input: {
   const region = new Set<number>([seed])
   const row = input.adjacency[seed] ?? new Uint32Array(0)
 
-  for (let k = 0; k < row.length; k++) {
-    region.add(row[k] ?? 0)
+  for (const value of row) {
+    region.add(value ?? 0)
   }
 
   return region
@@ -69,8 +69,8 @@ export function algebraicConnectivity(input: {
     const row = input.adjacency[node] ?? new Uint32Array(0)
     const local: number[] = []
 
-    for (let k = 0; k < row.length; k++) {
-      const neighbor = row[k] ?? 0
+    for (const value of row) {
+      const neighbor = value ?? 0
       const j = indexOf.get(neighbor)
 
       if (j !== undefined) {
@@ -195,8 +195,8 @@ export function integrationCorrelates(input: {
   for (const node of region) {
     const row = adjacency[node] ?? new Uint32Array(0)
 
-    for (let k = 0; k < row.length; k++) {
-      const neighbor = row[k] ?? 0
+    for (const value of row) {
+      const neighbor = value ?? 0
 
       if (region.has(neighbor)) {
         if (node < neighbor) {

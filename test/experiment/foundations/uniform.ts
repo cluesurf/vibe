@@ -9,7 +9,6 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

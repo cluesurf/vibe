@@ -54,8 +54,9 @@ export function physicsOnRealSpace(): void {
     }
   }
 
-  const cubeDim = spectralDim(cube.neighbors, cc, 3, 12)
-  const cubeGrav = gravityExponent(cube.neighbors, cc)
+  spectralDim(cube.neighbors, cc, 3, 12)
+  gravityExponent(cube.neighbors, cc)
+
   // Space B, a generic aperiodic horosphere slice
   const h = buildHorosphereBand({
     symbol: [3, 4, 3, 4] as never,
@@ -90,10 +91,8 @@ export function physicsOnRealSpace(): void {
   )
 
   const lc0 = mostConnectedNode(lnb)
-  const bandDim = spectralDim(lnb, lc0, 3, 12)
-  const bandGrav = gravityExponent(lnb, lc0)
-  const cuspHolds =
-    Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
+  spectralDim(lnb, lc0, 3, 12)
+  gravityExponent(lnb, lc0)
 }
 
 export default experiment({

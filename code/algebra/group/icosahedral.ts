@@ -92,9 +92,9 @@ export function icosahedralFacePermutationDecomposition(): {
   const group: Matrix3[] = [identity3()]
   const seen = new Set([key3(identity3())])
 
-  for (let i = 0; i < group.length; i++) {
+  for (const element of group) {
     for (const g of generators) {
-      const m = matmul3(g, group[i]!)
+      const m = matmul3(g, element)
       const k = key3(m)
 
       if (!seen.has(k)) {

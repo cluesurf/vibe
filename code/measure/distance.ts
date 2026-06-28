@@ -28,8 +28,8 @@ export function graphDistance(input: {
     for (const node of frontier) {
       const row = adjacency[node] ?? new Uint32Array(0)
 
-      for (let k = 0; k < row.length; k++) {
-        const neighbor = row[k] ?? 0
+      for (const value of row) {
+        const neighbor = value ?? 0
 
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = (distance[node] ?? 0) + 1
@@ -122,8 +122,8 @@ export function longestChain(input: {
 
     const row = p.links[x] ?? new Uint32Array(0)
 
-    for (let k = 0; k < row.length; k++) {
-      const child = row[k] ?? 0
+    for (const value of row) {
+      const child = value ?? 0
 
       if (!inCone(child)) {
         continue

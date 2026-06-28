@@ -41,9 +41,7 @@ export function bfsShells(input: {
     for (const u of frontier) {
       const row = neighbors[u] ?? []
 
-      for (let k = 0; k < row.length; k++) {
-        const v = row[k]!
-
+      for (const v of Array.from(row)) {
         if (depth[v]! < 0) {
           depth[v] = depth[u]! + 1
           next.push(v)
@@ -199,9 +197,7 @@ export function geodesicBall(input: {
     for (const u of frontier) {
       const row = neighbors[u] ?? []
 
-      for (let k = 0; k < row.length; k++) {
-        const v = row[k]!
-
+      for (const v of Array.from(row)) {
         if (!seen[v]) {
           seen[v] = 1
           ball.push(v)

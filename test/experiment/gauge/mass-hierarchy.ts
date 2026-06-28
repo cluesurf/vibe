@@ -74,7 +74,7 @@ function meanInterShellDistance(): number {
   })
 }
 
-export function massHierarchy(input: Record<string, never> = {}): {
+export function massHierarchy(_input: Record<string, never> = {}): {
   spacing: number
   exponentialMasses: number[]
   exponentialSpanDecades: number

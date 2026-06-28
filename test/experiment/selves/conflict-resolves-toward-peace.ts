@@ -29,8 +29,8 @@ function ring(n: number): ReturnType<typeof toCSR> {
 function nonzeroDensity(tone: Int8Array): number {
   let c = 0
 
-  for (let i = 0; i < tone.length; i++) {
-    if (tone[i] !== 0) {
+  for (const value of tone) {
+    if (value !== 0) {
       c++
     }
   }

@@ -86,8 +86,8 @@ function step(
 function plusCount(grid: Int8Array): number {
   let count = 0
 
-  for (let i = 0; i < grid.length; i++) {
-    if (grid[i] === 1) {
+  for (const cell of grid) {
+    if (cell === 1) {
       count++
     }
   }

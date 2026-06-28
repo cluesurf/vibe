@@ -77,19 +77,8 @@ export function rfRelativity(): {
     [0, 0, -1, 0],
   ] // a 3D-like cubic set in 4D
 
-  const cube8: number[][] = []
-
-  for (const a of [1, -1]) {
-    for (const b of [1, -1]) {
-      for (const c of [1, -1]) {
-        cube8.push([a, b, c, 0])
-      }
-    }
-  }
-
   const aniso24 = anisotropy(roots, 7),
-    aniso6 = anisotropy(cubic6, 7),
-    aniso8 = anisotropy(cube8, 7)
+    aniso6 = anisotropy(cubic6, 7)
 
   const isotropyImproves = aniso24 < aniso6 && aniso24 < 0.2
 

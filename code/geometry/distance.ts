@@ -13,8 +13,8 @@
 function squaredNorm(point: number[]): number {
   let sum = 0
 
-  for (let index = 0; index < point.length; index++) {
-    const value = point[index] ?? 0
+  for (const coordinate of point) {
+    const value = coordinate ?? 0
     sum += value * value
   }
 

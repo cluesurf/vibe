@@ -58,7 +58,6 @@ export function gutBreaking(): {
   }
 
   const sixteenSplit = `16 = ${byMinus[0]} (singlet 1) + ${byMinus[2]} (10) + ${byMinus[4]} (5bar)`
-  const hasSinglet = byMinus[0] === 1
 
   return { su5InSo10, smInSu5, sixteenSplit }
 }

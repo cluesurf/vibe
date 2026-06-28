@@ -26,8 +26,8 @@ const beat = (
 const totalQ = (t: Int8Array): number => {
   let s = 0
 
-  for (let i = 0; i < t.length; i++) {
-    s += t[i]!
+  for (const value of t) {
+    s += value
   }
 
   return s

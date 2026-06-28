@@ -67,8 +67,8 @@ export function lorentzIsotropy(input: {
     let nearest = -1
     let nearestDistance = Infinity
 
-    for (let k = 0; k < row.length; k++) {
-      const neighbor = row[k] ?? 0
+    for (const value of row) {
+      const neighbor = value ?? 0
 
       let sumSquares = 0
 

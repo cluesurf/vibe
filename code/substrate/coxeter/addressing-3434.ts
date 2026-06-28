@@ -80,9 +80,7 @@ export function buildAddressing(input: {
 
   const queue = [root]
 
-  for (let h = 0; h < queue.length; h++) {
-    const u = queue[h]!
-
+  for (const u of queue) {
     for (const v of graph.neighbors[u]!) {
       if (dist[v] === -1) {
         dist[v] = dist[u]! + 1
@@ -521,7 +519,6 @@ export function regionTypes(a: Addressing): {
 
   // Perron eigenvalue + vector by power iteration on M^T (column growth)
   let v = new Array<number>(k).fill(1)
-  let lambda = 0
 
   for (let it = 0; it < 2000; it++) {
     const w = new Array<number>(k).fill(0)
@@ -540,14 +537,6 @@ export function regionTypes(a: Addressing): {
 
     for (let j = 0; j < k; j++) {
       w[j]! /= norm
-    }
-
-    lambda = 0
-
-    for (let i = 0; i < k; i++) {
-      for (let j = 0; j < k; j++) {
-        lambda += matrix[i]![j]! * v[i]! * w[i]!
-      }
     }
 
     v = w

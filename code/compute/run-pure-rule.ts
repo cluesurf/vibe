@@ -61,8 +61,8 @@ function cpuBeat(
 const charge = (t: Uint32Array): number => {
   let s = 0
 
-  for (let i = 0; i < t.length; i++) {
-    s += t[i] === 1 ? 1 : t[i] === 2 ? -1 : 0
+  for (const value of t) {
+    s += value === 1 ? 1 : value === 2 ? -1 : 0
   }
 
   return s
@@ -133,7 +133,7 @@ async function run(): Promise<void> {
     counts[color[i]!]++
   }
 
-  const colorOffsets = new Array(C + 1).fill(0)
+  const colorOffsets = new Array<number>(C + 1).fill(0)
 
   for (let c = 0; c < C; c++) {
     colorOffsets[c + 1] = colorOffsets[c]! + counts[c]!

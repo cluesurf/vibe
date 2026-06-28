@@ -153,8 +153,8 @@ function relationCount(state: State): number {
 
   const words = state.future.words
 
-  for (let i = 0; i < words.length; i++) {
-    total += popcount32(words[i] ?? 0)
+  for (const word of words) {
+    total += popcount32(word ?? 0)
   }
 
   return total

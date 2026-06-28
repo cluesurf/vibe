@@ -18,7 +18,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh } from '@/code/tool/mesh'
 import {
   makeWill,
   cloneWill,

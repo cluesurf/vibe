@@ -9,9 +9,7 @@
 // Run: npx tsx code/experiment/p54-large-n-hardening.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import {
-  myrheimMeyerDimension,
   dimensionFromOrderingFraction,
 } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'

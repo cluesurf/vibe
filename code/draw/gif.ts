@@ -6,7 +6,32 @@
 // gifenc only exposes a CommonJS default under ESM, so we destructure from the default import.
 import gifenc from 'gifenc'
 
-const { GIFEncoder, quantize, applyPalette } = gifenc
+// gifenc ships no type declarations, so we describe the small slice of its API we use at this boundary.
+interface GifFrameOptions {
+  palette: number[][]
+  delay: number
+  repeat: number
+  first: boolean
+}
+
+interface GifEncoderInstance {
+  writeFrame: (
+    index: Uint8Array,
+    width: number,
+    height: number,
+    options: GifFrameOptions,
+  ) => void
+  finish: () => void
+  bytesView: () => Uint8Array
+}
+
+interface GifEnc {
+  GIFEncoder: () => GifEncoderInstance
+  quantize: (frame: Uint8Array, maxColors: number) => number[][]
+  applyPalette: (frame: Uint8Array, palette: number[][]) => Uint8Array
+}
+
+const { GIFEncoder, quantize, applyPalette } = gifenc as unknown as GifEnc
 
 // encode RGBA frames (each width*height*4) into an animated, looping GIF. delayMs is the per-frame delay.
 export function encodeGif(input: {

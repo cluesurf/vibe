@@ -163,7 +163,6 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   // does NOT appear on a random expander (no local geometry, a blob is almost all boundary). So memory is
   // STRUCTURE-DEPENDENT, it needs the real {5,3,4} local geometry (P102), which this proxy lacks. The
   // experiment succeeds by showing the generic dynamics scale feasibly and that memory needs real structure.
-  const memoryNeedsRealGeometry = !memoryImproved
   const solved = conserved && arrowCreatesLife && dynamicBalance
 
   return {

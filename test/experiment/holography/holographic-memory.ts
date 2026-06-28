@@ -162,7 +162,7 @@ export function holographicMemory(input?: { n?: number }): {
   const holoDecodeAfter = decode(holo, holoAnchors)
   const blobDecodeAfter = decode(blob, blobAnchors)
   // conservation: the rule conserves; erasure deliberately removed charge, so compare post-erasure totals
-  const conserved = true && qHolo === A && qBlob === A // both encodings started with A units
+  const conserved = qHolo === A && qBlob === A // both encodings started with A units
 
   const holographicWins =
     holoSurvivalInit > 0.6 &&

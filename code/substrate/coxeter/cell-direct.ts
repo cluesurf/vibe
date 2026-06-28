@@ -408,9 +408,9 @@ export function buildHorosphereBand(input: {
   const stab: Mat[] = [identity(dim)]
   const stabSeen = new Set<string>([keyOf(stab[0]!.flat())])
 
-  for (let head = 0; head < stab.length; head++) {
+  for (const stabilizer of stab) {
     for (let i = 0; i < cellMirrors; i++) {
-      const g = matMul(R[i]!, stab[head]!)
+      const g = matMul(R[i]!, stabilizer)
       const k = keyOf(g.flat())
 
       if (!stabSeen.has(k)) {

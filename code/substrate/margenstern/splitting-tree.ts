@@ -84,9 +84,7 @@ export class SplittingTree {
     return this.addresses.length
   }
 
-  get root(): number {
-    return 0
-  }
+  readonly root: number = 0
 
   address(id: number): string {
     return this.addresses[id]!

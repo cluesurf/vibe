@@ -26,8 +26,8 @@ import { verdict } from '@/test/scaffold/verdict'
 const nonzero = (t: Int8Array): number => {
   let s = 0
 
-  for (let i = 0; i < t.length; i++) {
-    if (t[i] !== 0) {
+  for (const value of t) {
+    if (value !== 0) {
       s++
     }
   }

@@ -75,9 +75,7 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
   ].map(r => r.map(x => x / 2))
 
   const F4 = closure([cyc, swap, flip, H])
-  const b4Inv2 = invDim(B4, 2),
-    b4Inv4 = invDim(B4, 4),
-    f4Inv2 = invDim(F4, 2),
+  const b4Inv4 = invDim(B4, 4),
     f4Inv4 = invDim(F4, 4)
 
   return { b4Inv4, f4Inv4 }

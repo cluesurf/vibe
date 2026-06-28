@@ -21,7 +21,6 @@ export function gaugeFromCoinTone(): {
   sixteenSplit: string
 } {
   // D4 from the coin (e1..e4), then add the tone as the 5th axis e5 -> D5
-  const d4 = dRoots(4).map(r => [...r, 0]) // embed D4 in 5D (tone axis = 0)
   const d5 = dRoots(5)
   const extra = d5.filter(r => r[4] !== 0) // the 16 roots that involve the tone axis
   // the extra 16 = (the coin's 8v = +-e_i, i<=4) combined with (the tone = +-e5)
@@ -34,7 +33,7 @@ export function gaugeFromCoinTone(): {
     }),
   )
 
-  const extraIsVxTone = extra.every(r => {
+  const _extraIsVxTone = extra.every(r => {
     const proj = [r[0]!, r[1]!, r[2]!, r[3]!, 0]
 
     return vectors8.some(v => eq(v, proj)) && Math.abs(r[4]!) === 1

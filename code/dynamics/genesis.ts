@@ -16,8 +16,8 @@ import { makeRng } from '@/code/tool/rng'
 export function chargedCount(tone: Int8Array): number {
   let s = 0
 
-  for (let i = 0; i < tone.length; i++) {
-    if (tone[i] !== 0) {
+  for (const t of tone) {
+    if (t !== 0) {
       s++
     }
   }
@@ -166,16 +166,16 @@ export function wakeDrivenSweep(input: {
 export function growthRate(depth: Int32Array): number {
   let maxD = 0
 
-  for (let i = 0; i < depth.length; i++) {
-    if (depth[i]! > maxD) {
-      maxD = depth[i]!
+  for (const d of depth) {
+    if (d > maxD) {
+      maxD = d
     }
   }
 
   let frontier = 0
 
-  for (let i = 0; i < depth.length; i++) {
-    if (depth[i]! === maxD) {
+  for (const d of depth) {
+    if (d === maxD) {
       frontier++
     }
   }
@@ -269,7 +269,7 @@ export function firstDistinction(input: {
       let adjacent = false
 
       for (const [v, w] of edges) {
-        if (tone[v]! * tone[w]! === -1) {
+        if (tone[v]! * (tone[w]!) === -1) {
           adjacent = true
           break
         }
@@ -468,13 +468,10 @@ export function growingMeshGenesis(input: {
   for (let b = 1; b <= maxDepth; b++) {
     step(b, b) // grow to shell b, create only at the moving frontier (shell b meets b-1)
 
-    let born = 0,
-      alive = 0
+    let alive = 0
 
     for (let i = 0; i < n; i++) {
       if (depth[i]! <= b) {
-        born++
-
         if (tone[i] !== 0) {
           alive++
         }

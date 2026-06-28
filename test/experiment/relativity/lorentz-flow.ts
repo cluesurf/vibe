@@ -20,8 +20,6 @@ import { randomWalkEndpoint } from '@/code/dynamics/random-walk'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 export function lorentzFlow(input?: {
   maxCells?: number
   runs?: number

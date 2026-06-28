@@ -28,8 +28,8 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
     const row = g.neighbors[a] ?? new Uint32Array(0)
 
     // neighbors are sorted; a linear scan is fine for small degrees.
-    for (let k = 0; k < row.length; k++) {
-      if ((row[k] ?? -1) === b) {
+    for (const value of row) {
+      if (value === b) {
         return true
       }
     }
@@ -41,18 +41,14 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
   for (let a = 0; a < g.size; a++) {
     const rowA = g.neighbors[a] ?? new Uint32Array(0)
 
-    for (let i = 0; i < rowA.length; i++) {
-      const b = rowA[i] ?? 0
-
+    for (const b of rowA) {
       if (b <= a) {
         continue
       }
 
       const rowB = g.neighbors[b] ?? new Uint32Array(0)
 
-      for (let j = 0; j < rowB.length; j++) {
-        const c = rowB[j] ?? 0
-
+      for (const c of rowB) {
         if (c <= b) {
           continue
         }
@@ -70,16 +66,12 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
     for (let a = 0; a < g.size; a++) {
       const rowA = g.neighbors[a] ?? new Uint32Array(0)
 
-      for (let i = 0; i < rowA.length; i++) {
-        const b = rowA[i] ?? 0
-
+      for (const b of rowA) {
         if (b <= a) {
           continue
         }
 
-        for (let j = 0; j < rowA.length; j++) {
-          const d = rowA[j] ?? 0
-
+        for (const d of rowA) {
           if (d <= a || d === b) {
             continue
           }
@@ -87,9 +79,7 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
           // c must be adjacent to both b and d, and distinct from a.
           const rowB = g.neighbors[b] ?? new Uint32Array(0)
 
-          for (let m = 0; m < rowB.length; m++) {
-            const c = rowB[m] ?? 0
-
+          for (const c of rowB) {
             if (c === a || c === d || c <= a) {
               continue
             }

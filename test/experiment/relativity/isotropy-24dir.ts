@@ -7,10 +7,7 @@
 // 24 directions give emergent rotational symmetry the cubic lacks. Run: npx tsx code/experiment/p233-isotropy-24dir.ts
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import {
-  latticeDispersion,
-  dispersionAxisDiagonalAnisotropy,
-} from '@/code/measure/dispersion'
+import { dispersionAxisDiagonalAnisotropy } from '@/code/measure/dispersion'
 import { directionFourthMoments } from '@/code/measure/isotropy'
 import { coordinateAxes } from '@/code/measure/probe-directions'
 import { experiment } from '@/test/scaffold/suite'
@@ -23,9 +20,6 @@ function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
 
   return kind === 'Z3' ? coordinateAxes(3) : coordinateAxes(4)
 }
-
-const omega2 = (R: number[][], k: number[]): number =>
-  latticeDispersion({ directions: R, wave: k })
 
 // anisotropy: relative difference of omega^2 between an axis direction and a body-diagonal at the same |k|
 function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {

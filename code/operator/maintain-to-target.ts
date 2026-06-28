@@ -43,9 +43,9 @@ export function conservingMaintainToTarget(
       continue
     }
 
-    if (target[i]! === 1) {
+    if ((target[i]!) === 1) {
       needPlus.push(i)
-    } else if (target[i]! === -1) {
+    } else if ((target[i]!) === -1) {
       needMinus.push(i)
     }
   }

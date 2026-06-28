@@ -14,7 +14,6 @@
 
 import {
   classifyGeometry,
-  edgeRegime,
   dihedralAngleDegrees,
 } from '@/code/substrate/coxeter/schlafli'
 import { experiment } from '@/test/scaffold/suite'

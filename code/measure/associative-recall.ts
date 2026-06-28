@@ -106,9 +106,9 @@ export function coverageRadius(input: {
 
   let r = 0
 
-  for (let c = 0; c < depth.length; c++) {
-    if (depth[c]! > r) {
-      r = depth[c]!
+  for (const d of depth) {
+    if (d > r) {
+      r = d
     }
   }
 

@@ -180,8 +180,9 @@ export function selfNesting73(): {
       c = 0
 
     for (let t = 0; t + LAG < series.length; t++) {
-      let A = series[t]!,
-        B = series[t + LAG]!
+      let A = series[t]!
+
+      const B = series[t + LAG]!
 
       if (shuffle) {
         const s = A.slice()

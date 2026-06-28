@@ -46,8 +46,8 @@ export function cellComplexOf(input: {
   for (let a = 0; a < vertexCount; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
 
-    for (let k = 0; k < row.length; k++) {
-      const b = row[k] ?? 0
+    for (const rowValue of row) {
+      const b = rowValue ?? 0
 
       if (a < b) {
         edgeIndex.set(`${a},${b}`, edges.length)
@@ -99,9 +99,7 @@ export function cellComplexOf(input: {
     // c with c > b so each triangle a<b<c is found exactly once.
     const triangles: { a: number; b: number; c: number }[] = []
 
-    for (let e = 0; e < edges.length; e++) {
-      const edge = edges[e]
-
+    for (const edge of edges) {
       if (!edge) {
         continue
       }

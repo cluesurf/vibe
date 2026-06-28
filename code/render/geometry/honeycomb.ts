@@ -165,8 +165,7 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   const cellMat: Mat[] = [identity(dim)]
   const seenCell = new Set<string>([pointKey(c0)])
 
-  for (let head = 0; head < cellMat.length; head++) {
-    const g = cellMat[head]!
+  for (const g of cellMat) {
 
     for (const f of faces) {
       const gp = matMul(g, f)

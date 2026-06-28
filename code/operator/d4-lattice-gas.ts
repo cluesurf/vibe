@@ -24,7 +24,7 @@ export function streamD4(input: {
 }): number[] {
   const { occupancy, neigh } = input
   const N = occupancy.length
-  const out = new Array(N).fill(0)
+  const out = new Array<number>(N).fill(0)
 
   for (let c = 0; c < N; c++) {
     const o = occupancy[c]!
@@ -47,7 +47,7 @@ export function streamD4Inverse(input: {
 }): number[] {
   const { occupancy, neigh, opp } = input
   const N = occupancy.length
-  const out = new Array(N).fill(0)
+  const out = new Array<number>(N).fill(0)
 
   for (let c = 0; c < N; c++) {
     const o = occupancy[c]!
@@ -104,9 +104,7 @@ export function d4Momentum(input: {
   const { occupancy, roots } = input
   const m = [0, 0, 0, 0]
 
-  for (let c = 0; c < occupancy.length; c++) {
-    const o = occupancy[c]!
-
+  for (const o of occupancy) {
     for (let d = 0; d < D4_DIRECTIONS; d++) {
       if ((o >> d) & 1) {
         for (let q = 0; q < 4; q++) {

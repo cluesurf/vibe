@@ -43,8 +43,6 @@ export function horosphereReality(): {
     degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1
   }
 
-  const uniform = Object.keys(degreeHistogram).length <= 2
-
   return { bandCount: B, flatGrowth, degreeHistogram }
 }
 

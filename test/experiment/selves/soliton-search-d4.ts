@@ -103,6 +103,7 @@ export default experiment({
     const collide = makeWill(mesh)
 
     for (let i = 0; i < collide.data.length; i++) {
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- truthy-OR merge: a zero (empty) cell must fall through to b, which `??` would not do
       collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
     }
 

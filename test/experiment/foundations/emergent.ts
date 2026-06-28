@@ -29,8 +29,7 @@ function denseLaplacian(graph: Graph): ReturnType<typeof makeDense> {
     const row = graph.neighbors[i] ?? new Uint32Array(0)
     m.data[i * n + i] = row.length
 
-    for (let k = 0; k < row.length; k++) {
-      const j = row[k] ?? 0
+    for (const j of row) {
       m.data[i * n + j] = -1
     }
   }
@@ -87,8 +86,7 @@ export default experiment({
     let minEig = Infinity
     let maxEig = -Infinity
 
-    for (let i = 0; i < eig.values.length; i++) {
-      const value = eig.values[i] ?? 0
+    for (const value of eig.values) {
       minEig = Math.min(minEig, value)
       maxEig = Math.max(maxEig, value)
     }

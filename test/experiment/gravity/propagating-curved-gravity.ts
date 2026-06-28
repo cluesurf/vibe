@@ -109,12 +109,9 @@ export default experiment({
       let { prev, cur } = seed()
 
       const start0 = prev.slice()
-      const start1 = cur.slice()
       const T = 40
 
       let next = new Uint8Array(n)
-
-      const u: Uint8Array[] = [prev.slice(), cur.slice()]
 
       for (let b = 0; b < T; b++) {
         step(prev, cur, next, coupling)

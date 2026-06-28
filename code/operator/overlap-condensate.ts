@@ -182,8 +182,8 @@ export function chiralCondensateSignal(input: {
 
     const eig = eigHermitian({ matrix: epsilon })
 
-    for (let k = 0; k < eig.values.length; k++) {
-      if (Math.abs(eig.values[k] ?? 0) < tol) {
+    for (const eigenvalue of eig.values) {
+      if (Math.abs(eigenvalue ?? 0) < tol) {
         nearZero += 1
       }
 

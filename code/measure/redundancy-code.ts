@@ -15,7 +15,7 @@ export function corruptConnectedRegion(input: {
   fraction: number
   logical: number
 }): number[] {
-  const boundary = new Array(input.size).fill(input.logical)
+  const boundary = new Array<number>(input.size).fill(input.logical)
   const corrupt = Math.round(input.size * input.fraction)
 
   for (let index = 0; index < corrupt; index++) {

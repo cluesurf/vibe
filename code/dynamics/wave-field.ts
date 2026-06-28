@@ -106,8 +106,8 @@ export function doubleWellAccel(input: {
 export function fieldMaxAbs(u: Int32Array): number {
   let max = 0
 
-  for (let x = 0; x < u.length; x++) {
-    const a = Math.abs(u[x]!)
+  for (const value of u) {
+    const a = Math.abs(value)
 
     if (a > max) {
       max = a

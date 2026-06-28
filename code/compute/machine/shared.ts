@@ -104,7 +104,7 @@ export function makeVibeComputer(input: {
       const ca = makeTrackLoop(cycle, graph.cellCount)
       const seen = new Set<number>()
 
-      for (let t = 0; t < cycle.length; t++) {
+      for (const _entry of cycle) {
         ca.step()
         seen.add(ca.headAt())
       }
@@ -176,9 +176,7 @@ function findCycle(neighbors: number[][]): number[] {
 
   const queue = [0]
 
-  for (let head = 0; head < queue.length; head++) {
-    const u = queue[head]!
-
+  for (const u of queue) {
     for (const v of neighbors[u]!) {
       if (parent[v] === -2) {
         parent[v] = u

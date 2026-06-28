@@ -39,9 +39,9 @@ export function growBranchingOrder(input: {
 
   let acc = 0
 
-  for (let g = 0; g < widths.length; g++) {
+  for (const width of widths) {
     startOf.push(acc)
-    acc += widths[g] ?? 0
+    acc += width ?? 0
   }
 
   const posOf = (g: number, c: number): number =>

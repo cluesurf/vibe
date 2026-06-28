@@ -24,8 +24,8 @@ import { verdict } from '@/test/scaffold/verdict'
 const absCharge = (t: Int8Array): number => {
   let s = 0
 
-  for (let i = 0; i < t.length; i++) {
-    s += Math.abs(t[i]!)
+  for (const value of t) {
+    s += Math.abs(value)
   }
 
   return s

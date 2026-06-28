@@ -97,8 +97,8 @@ export function streamingShellCounts(input: {
     let count = 0
 
     for (const g of frontier) {
-      for (let fi = 0; fi < faces.length; fi++) {
-        const child = matMul(g, faces[fi]!)
+      for (const face of faces) {
+        const child = matMul(g, face)
 
         if (seen.addIfNew(hashKey(positionKey(child)))) {
           count++

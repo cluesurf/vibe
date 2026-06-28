@@ -34,9 +34,6 @@ export function gravityFreeSpace(): {
   const coeffA = Math.round(a * 10000) / 10000,
     fitResidual = Math.sqrt(fit.residual / dG.length)
 
-  const ok =
-    Math.abs(a - 1 / (4 * Math.PI)) < 0.01 && fitResidual < 1e-3
-
   return { coeffA, fitResidual }
 }
 

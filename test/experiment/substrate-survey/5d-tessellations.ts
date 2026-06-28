@@ -66,17 +66,7 @@ function measure(
 
 export function manyTessellations(): void {
   for (const c of CANDIDATES) {
-    const rank = c.sym.length + 1,
-      bulkDim = c.sym.length,
-      physDim = bulkDim - 1
-
-    const crystallographic = c.sym.every(
-      n => n === 3 || n === 4 || n === 6,
-    )
-
-    const has24 = c.sym.join(',').includes('3,4,3')
-    const compact = bulkDim <= 4 // compact regular hyperbolic honeycombs exist only through H^4
-    const m = measure(c.sym, SURVEY_SCALE)
+    measure(c.sym, SURVEY_SCALE)
   }
 }
 
