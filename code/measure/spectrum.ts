@@ -35,11 +35,17 @@ export function zeroModeCensus(
   let minNonzero = Infinity
 
   for (const v of values) {
-    if (v < tolerance) {
+    // A mode is "zero" by its MAGNITUDE: a spectrum can hold negative eigenvalues
+    // (a Dirac/gauge operator is symmetric about zero with +/-E pairs), and a
+    // signed `v < tolerance` test would miscount every negative level as a zero
+    // mode. The docstring promises the smallest nonzero MAGNITUDE, so compare |v|.
+    const magnitude = Math.abs(v)
+
+    if (magnitude < tolerance) {
       zero += 1
     } else {
       nonzero += 1
-      minNonzero = Math.min(minNonzero, v)
+      minNonzero = Math.min(minNonzero, magnitude)
     }
   }
 

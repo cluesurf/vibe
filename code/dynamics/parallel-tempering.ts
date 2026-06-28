@@ -6,19 +6,27 @@
 // and escape basins, giving true equilibrium. See p2-p6-optimal-path.md.
 
 import { Poset, makePosetFromFuture } from '@/code/tool/poset'
-import { BitMatrix, makeBitMatrix } from '@/code/tool/bitset'
 import { Rng } from '@/code/tool/rng'
 import { Action } from '@/code/dynamics/action'
-import { transitiveClosure } from '@/code/dynamics/mcmc'
+import {
+  State,
+  makeState,
+  isRelated,
+  toggleKeepsValid,
+  toggle,
+} from '@/code/dynamics/uniform-sampler'
 
 interface Replica {
-  relation: BitMatrix
+  state: State
   poset: Poset
   action: number
 }
 
-// One local Metropolis move on a replica at its own beta: toggle a raw relation
-// bit, rebuild the closure, and accept by the Euclidean weight.
+// One local Metropolis move on a replica at its own beta. Toggle a SINGLE pair,
+// keep it only if the result is still a transitive poset, and accept by the
+// Euclidean weight. This is the symmetric single-pair move that samples the correct
+// causal-set measure (the earlier raw-bit-then-closure move was multiplicity-biased,
+// see mcmc.ts and uniform-sampler.ts).
 function localMove(input: {
   replica: Replica
   size: number
@@ -42,13 +50,18 @@ function localMove(input: {
     return
   }
 
-  const i = lo * replica.relation.stride + (hi >>> 5)
-  const bit = 1 << (hi & 31)
-  replica.relation.words[i] = (replica.relation.words[i] ?? 0) ^ bit
+  const related = isRelated(replica.state, lo, hi)
+
+  // A move that would break transitivity is rejected (the replica stays).
+  if (!toggleKeepsValid(replica.state, lo, hi, related)) {
+    return
+  }
+
+  toggle(replica.state, lo, hi)
 
   const candidatePoset = makePosetFromFuture({
     size,
-    future: transitiveClosure({ size, relation: replica.relation }),
+    future: replica.state.future,
   })
 
   const candidateAction = action.value({ poset: candidatePoset })
@@ -58,7 +71,7 @@ function localMove(input: {
     replica.poset = candidatePoset
     replica.action = candidateAction
   } else {
-    replica.relation.words[i] = (replica.relation.words[i] ?? 0) ^ bit
+    toggle(replica.state, lo, hi) // revert
   }
 }
 
@@ -80,21 +93,15 @@ export function parallelTempering(input: {
   const replicas: Replica[] = []
 
   for (let r = 0; r < R; r++) {
-    const relation = makeBitMatrix({ rows: n, cols: n })
-
-    if (input.start) {
-      for (let i = 0; i < relation.words.length; i++) {
-        relation.words[i] = input.start.future.words[i] ?? 0
-      }
-    }
+    const state = makeState(n, input.start?.future)
 
     const poset = makePosetFromFuture({
       size: n,
-      future: transitiveClosure({ size: n, relation }),
+      future: state.future,
     })
 
     replicas.push({
-      relation,
+      state,
       poset,
       action: input.action.value({ poset }),
     })

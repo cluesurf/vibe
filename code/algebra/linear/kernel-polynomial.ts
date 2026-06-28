@@ -88,8 +88,9 @@ export function chebyshevMoments(input: {
   return mu
 }
 
-// The largest eigenvalue of H^2 by power iteration, the spectral bound used to
-// scale H into [-1, 1] before the Chebyshev expansion.
+// The largest eigenvalue of H^2 by power iteration, that is |lambda|_max(H)^2. Its
+// square root is the spectral bound that scales H into [-1, 1] before the Chebyshev
+// expansion, so a caller wanting the bound itself must take the sqrt of this value.
 export function spectralBound(input: {
   operator: HermitianOperator
   dim: number

@@ -214,6 +214,10 @@ All docs live in `note/`. The entry points:
   coin, the spectral methods, the causal-set sampler, the unitary
   evolution, the lattice gauge engine, the coarse-graining and selves
   engine, and the associative memory engine).
+- **[The math catalog](note/math.md)** lists every piece of math the
+  library runs: what each module implements, what it depends on, and which
+  experiments use it. The [math audit](note/math-audit.md) records how it
+  was all verified and tested.
 - **[Architecture](note/architecture.md)** is where code and tests live,
   and how to add an experiment.
 - **[Experimental methodology](note/experimental-methodology.md)** is
