@@ -22,6 +22,7 @@ export type Category =
   | 'associative'
   | 'substrate-survey'
   | 'fluids'
+  | 'method'
 
 export type Depth = 'L0' | 'L1' | 'L2' | 'L3'
 
