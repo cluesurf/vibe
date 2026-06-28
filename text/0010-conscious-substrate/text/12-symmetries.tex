@@ -1,0 +1,67 @@
+\section{Symmetries}
+
+A symmetry of a shape is any motion that leaves it looking the same, a rotation or a reflection that lands it back on itself. Every regular figure is the child of a kaleidoscope. Stand a few mirrors at the right angles, place a point between them, and its reflections multiply and settle onto the corners of a polytope or the docks of a honeycomb. The group of all those reflections is a reflection group, and the figure is the orbit of one point under it. This is the Wythoff construction, and it turns every question about shapes into a question about groups.
+
+A reflection group is fixed by the angles between its mirrors, recorded in a Coxeter diagram, a short row of nodes joined by labeled links. From the diagram alone one reads off the group's size and the figure it builds. For our mesh, four groups matter, and they nest one inside the next.
+
+Start with the twenty-four directions themselves. As unit quaternions they already form a group under multiplication, the binary tetrahedral group $2T$, of order twenty-four. Reflect in each of them, and those reflections generate a larger group, the full reflection symmetry of the $D_4$ root system, of order $192$. Now add the one extra symmetry the 24-cell has that no lower figure does, the threefold triality that rotates its three octets into one another. That multiplies the count by six and gives the full symmetry of the dock.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llp{0.46\textwidth}@{}}
+\toprule
+group & order & what it is in the mesh \\
+\midrule
+$2T$ & $24$ & the twenty-four directions, as a group under quaternion multiplication \\
+$W(D_4)$ & $192$ & the reflections in those directions, the root-system symmetry \\
+triality $S_3$ & $6$ & the threefold rotation of the octets $8v, 8s, 8c$, which becomes the three generations \\
+$F_4$ & $1152$ & the full symmetry of the dock, the root symmetry extended by triality \\
+\bottomrule
+\end{tabular}
+\caption{The symmetries of a dock, nested. The arithmetic is exact, $1152 = 192 \times 6$, the root symmetry times triality.}
+\label{tab:symmetries}
+\end{table}
+
+\begin{result}[The dock's symmetry]
+The full symmetry group of the 24-cell is $F_4$, of order $1152 = 192 \times 6$, the symmetries of the $D_4$ roots extended by the threefold triality. Every operation that carries a dock onto itself is one of these, and there are no others.
+\end{result}
+
+The names $D_4$ and $F_4$ carry more than the table has unpacked, and a reader meets them as ciphers, so a word on what they are. Beneath every reflection group sits a sharper object, a \textit{root system}, a symmetric spray of vectors with the property that reflecting the whole spray across the plane perpendicular to any one of them lands it back on itself. Root systems are the skeletons that classify continuous symmetry, the master language behind every gauge force in physics, and they are completely catalogued, four infinite families and five exceptions. The families are the symmetries of the simplex, of the cube, and of even rotations, the $A$, the $B$ and $C$, and the $D$ series. The five exceptions, $G_2$, $F_4$, $E_6$, $E_7$, and $E_8$, fit no family, and they are where the deepest structure in the subject lives.
+
+The dock's twenty-four directions are exactly the root system $D_4$, the rank-four member of the even-rotation series, and $D_4$ alone among all root systems carries \textit{triality}, a threefold symmetry that turns its vector part and its two spinor parts, the $8v$, $8s$, and $8c$, into one another. That is why the dock arrives already wearing the kind of symmetry the forces are made of, and it is where the gauge groups of the later physics come from. Extend the reflections of $D_4$ by that triality and the result is $F_4$, the smallest of the five exceptional groups and the full symmetry of the dock. So $F_4$ is not a label hung on the figure, it is the one group the figure forces, and it is the first rung of the exceptional ladder $D_4 \subset F_4 \subset E_6 \subset E_7 \subset E_8$ that grand unification itself climbs.
+
+Read instead as unit quaternions, the same twenty-four directions close into the binary tetrahedral group $2T$ named above, the smallest of three binary polyhedral groups, $2T$ of order twenty-four, $2O$ of order forty-eight, and $2I$ of order a hundred and twenty. Each is a true two-to-one cover in which a full turn of $2\pi$ comes back as $-1$ rather than as nothing, the spinor in its barest form. This is also where the rival substrate fails in a single line. The dock of $\{5,3,4\}$ has only twelve directions, their symmetry the icosahedral kind built on the golden ratio, lovely but non-crystallographic, and those twelve split as $1 + 3 + 3' + 5$ with no spinor part anywhere in them. A dock whose directions hold no spinor can hold no electron, and that, said in the language of groups, is the whole of the selection.
+
+Quaternions are themselves one rung of a short and famous ladder, and the rung above them is where the generations hide. There are exactly four number systems in which one can add, multiply, and divide without contradiction, the reals, the complexes, the quaternions, and the octonions, of dimensions one, two, four, and eight, and there are no others, a theorem of Hurwitz. The quaternions, dimension four, are what build the dock. The octonions, dimension eight and the last of the four, are stranger, their multiplication no longer even associative, and that very refusal to associate is what the generations turn on. Stack three octonions into a small Hermitian square and the result is the exceptional Jordan algebra $J_3(\mathbb{O})$, twenty-seven dimensional, whose rank is forced to exactly three by the octonions, with a threefold symmetry permuting its three slots. And the group of motions that preserves that algebra is exactly $F_4$, the dock's own group. So the symmetry of the directions and the symmetry of the algebra that carries the three generations are one and the same group, reached from the geometry on one side and from the octonions on the other. It is the convergence the octonion route to the Standard Model, mapped by Furey, Baez, and Dixon, arrives at from the algebra alone.
+
+The recurrence of twenty-four is not a quirk of this one figure either. It is the kissing number in four dimensions, the most spheres that can touch one at once, and it sits in a short family of exceptional counts, six in two dimensions, twelve in three, twenty-four in four, then two hundred and forty in eight, the $E_8$ lattice, and a hundred ninety-six thousand five hundred and sixty in twenty-four, the Leech lattice. The dock is the four-dimensional member of the most exceptional family of numbers in geometry, and its larger relatives, $E_8$, the Leech lattice, and the Monster group built around it, are the canon this construction sits inside and the natural direction to carry it next, alongside the five-dimensional cousin $\{3,4,3,3,4\}$, which keeps the 24-cell's spin and restores the full curvature the committed substrate trades away.
+
+The factor of six that separates the root symmetry from the full symmetry of the dock is triality, and triality is what becomes the three generations of matter. The same number that makes the 24-cell special in geometry makes the electron, the muon, and the tau in physics, sitting already in the order of a finite group.
+
+That the group is finite is the spine of the whole construction. The base has no continuous symmetry anywhere in it. Its symmetries are a finite group of $1152$ exact operations, countable like the tones and the beats. The continuous symmetries of physics, the rotation group, the Lorentz group, the gauge groups, are nowhere in the base. They appear only at scale, as the finite $F_4$ swells toward a continuous group the way a fine enough polygon rounds into a circle. The exactness lives at the bottom. The smoothness is something that happens above.
+
+It helps to name those continuous groups, since they are the alphabet of physics and the substrate must grow each one rather than assume it. Table~\ref{tab:groups} gathers the chief ones with their meaning and where the substrate stands.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lp{0.3\textwidth}p{0.34\textwidth}@{}}
+\toprule
+group & what it governs & where the substrate stands \\
+\midrule
+$\mathrm{U}(1)$ & the phase of a charge, electromagnetism & reached, the conserved tone-charge \\
+$\mathrm{SU}(2)$ & spin and the weak force & reached, the dock's spinors and weak commutators \\
+$\mathrm{SO}(1,3)$ & the boosts and rotations of relativity & emergent, the light cone and isotropy \\
+$\mathrm{SO}(10)$ & grand unification, a generation per spinor & reached, the directions plus the tone \\
+$\mathrm{SU}(3)\times\mathrm{SU}(2)\times\mathrm{U}(1)$ & the full Standard Model & reached, by the breaking of $\mathrm{SO}(10)$ \\
+$F_4$, $\mathrm{SO}(8)$, $D_4$ & the dock's finite symmetry and triality & exact, at the base \\
+$E_6 \subset E_7 \subset E_8$ & the exceptional tower of unification & the thread the dock opens \\
+\bottomrule
+\end{tabular}
+\caption{The groups of physics and where the substrate stands. The base owns only the finite $F_4$ and the exact charge, while every continuous group is emergent or reached by the climb.}
+\label{tab:groups}
+\end{table}
+
+The pattern is consistent. What the base owns outright is the finite symmetry of the dock and the exact conserved charge. Everything continuous, the rotations, the boosts, the gauge groups, it earns at scale, the ones earned cleanly marked reached and the rest left as the targets the program is still climbing toward.
+
+The same reflections that fix the dock also build the whole mesh, and how any two mirrors meet decides what they make. Two crossing mirrors compose to a rotation, and rotations build rosettes, copies wheeling around an axis. Two mirrors that run apart compose to a translation, and translations build straight lines of docks, the spines of long thin tubes. And two mirrors that meet only at infinity compose to a limiting rotation whose swept surface, a horosphere, is intrinsically flat even inside the curved space. Add a twist and a glide builds a staggered strip, a screw a helix, the natural shape of a handed, winding thing. So the substrate has a finite grammar of buildable forms, a wire, a sheet, a spiral, each selected purely by how its mirrors meet, and the flat sheet, the horosphere, is the one that becomes the space we live in.

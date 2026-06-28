@@ -1,0 +1,33 @@
+\section{The Method}
+
+Every claim in this paper is one experiment. It builds the exact substrate, runs the law, measures one thing, and returns a verdict. The whole simulator is open, and every experiment in this paper can be rebuilt, stepped, and rerun from it \cite{pollard2026vibetest}. The substrate is discrete and deterministic, so there are no real numbers and no randomness inside it. Where a trend is wanted, it is found by growing the run rather than by averaging over random draws, and real numbers appear only as measured outputs, never in the base.
+
+Each verdict carries a depth grade. The grade keeps a passing test from being mistaken for a deep one, and it says how much was put in by hand.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}cp{0.66\textwidth}@{}}
+\toprule
+grade & what it establishes \\
+\midrule
+L3 & an emergent and novel result, with a control that could have failed \\
+L2 & a known physical construction reproduced on the substrate \\
+L1 & a known mathematical fact reproduced on the substrate \\
+L0 & circular, the answer was put in by hand, kept only as a consistency check \\
+\bottomrule
+\end{tabular}
+\caption{The depth rubric. Only L3 is both new and guarded.}
+\label{tab:rubric}
+\end{table}
+
+Behind the grade is a single rule. A result counts only when its control could have come out the other way. A finding means something precisely because there was a way for it to fail. One more rule keeps the program from cheating.
+
+\begin{principle}[Report the negative]
+If a phenomenon does not emerge from the eight elements, that is recorded as a negative, never patched by adding a ninth thing.
+\end{principle}
+
+One more constraint governs the whole construction from below.
+
+\begin{principle}[Discrete at the base]
+The foundation is finite. There are no real numbers, no continuum, and no smooth manifolds at the bottom, only integers and trits a machine can hold exactly. Continuous mathematics enters solely as the large-scale limit of the discrete law, with the coarse-graining made explicit, so the smoothness of physics is a thing to be explained rather than assumed.
+\end{principle}
