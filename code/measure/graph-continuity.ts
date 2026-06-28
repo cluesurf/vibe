@@ -37,6 +37,36 @@ export function regionBall(
   return region
 }
 
+// The shell distance of every cell from `center`, by breadth-first search over the adjacency (boundary bonds,
+// marked -1, are skipped). Returns an array `dist` where dist[cell] is the number of hops from center, or -1
+// for any cell unreachable from center. The shells are how the mesh grows outward, so dist is the growth-depth.
+export function cellDistances(
+  adjacency: Adjacency,
+  center: number,
+): number[] {
+  const dist = new Array<number>(adjacency.length).fill(-1)
+  dist[center] = 0
+
+  let frontier = [center]
+
+  while (frontier.length > 0) {
+    const next: number[] = []
+
+    for (const cell of frontier) {
+      for (const neighbour of adjacency[cell]!) {
+        if (neighbour !== -1 && dist[neighbour] === -1) {
+          dist[neighbour] = dist[cell]! + 1
+          next.push(neighbour)
+        }
+      }
+    }
+
+    frontier = next
+  }
+
+  return dist
+}
+
 // Total charge over all direction slots of the cells in `region`.
 export function regionCharge(
   state: State,
