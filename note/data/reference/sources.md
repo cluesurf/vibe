@@ -62,7 +62,7 @@ S. Ryu, T. Takayanagi, "Holographic derivation of entanglement entropy from AdS/
 ## Derived-here sources (computed by this project)
 
 ### vibe
-Derived within vibe theory. The papers: `../../../text/v13/` (especially the appendix "from nothing to the 24-cell"). The computations: the experiment suite `../../../test/experiment/` and the measure library `../../../code/measure/`. Each derived value's `source` cell names the relevant experiment or measure where possible. These results are this package's own, reproducible by running the suite (`pnpm test`).
+Derived within vibe theory. The papers: `../../../text/0014-discrete-universe/` (especially the appendix "from nothing to the 24-cell"). The computations: the experiment suite `../../../test/experiment/` and the measure library `../../../code/measure/`. Each derived value's `source` cell names the relevant experiment or measure where possible. These results are this package's own, reproducible by running the suite (`pnpm test`).
 
 ## Verification status
 
