@@ -267,4 +267,4 @@ async function run(): Promise<void> {
 }
 
 const main = run
-main()
+void main()

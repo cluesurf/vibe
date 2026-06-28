@@ -17,7 +17,6 @@ import { verdict } from '@/test/scaffold/verdict'
 // Physical constants (SI) and the relevant measurements.
 const C = 2.998e8 // speed of light, m/s
 const PLANCK_LENGTH = 1.616e-35 // m
-const PLANCK_ENERGY_GEV = 1.22e19 // GeV
 const AGE_OF_UNIVERSE = 4.35e17 // s (13.8 Gyr)
 const LAMBDA_OBSERVED = 1.1e-52 // observed cosmological constant, m^-2
 

@@ -53,8 +53,6 @@ export function dimensionWindow(input: {
     .filter(d => d.count > 0)
     .map(d => d.dimension)
 
-  const firstEmpty = byDimension.find(d => d.count === 0)
-
   return {
     byDimension,
     compactWindow,

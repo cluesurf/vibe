@@ -8,9 +8,8 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 

@@ -1,5 +1,13 @@
 import LINT from '@cluesurf/wash/lint'
 
+// `test/site/` is a self-contained React Router visualization app with its
+// own package.json, lockfile, and tsconfig, plus a generated `.react-router/`
+// types tree. It has its own toolchain, so the experiment lint should not
+// reach into it. A flat-config entry with only `ignores` is a global ignore.
+LINT.push({
+  ignores: ['test/site/**'],
+})
+
 // Extend the shared wash config with a few readability rules. We push
 // onto `LINT` and export the binding directly (rather than a computed
 // array), so the exported type stays wash's own nameable config type.
@@ -11,6 +19,21 @@ LINT.push({
     // (if / else / for / while), so single-line bodies like
     // `if (x) doThing()` are never allowed without `{ }`.
     curly: ['error', 'all'],
+
+    // Honor the leading-underscore convention for intentionally-unused
+    // bindings: a callback that must keep a fixed positional arity (e.g.
+    // a `(left, center, right)` rule kernel that only reads `center`)
+    // names the unused slots `_left` / `_right`, and a caught error it
+    // does not inspect is `_`. These are deliberate, not dead code.
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
 
     // Prefer the array shorthand everywhere: `T[]` over `Array<T>`
     // and `readonly T[]` over `ReadonlyArray<T>`. Nested types get

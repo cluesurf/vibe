@@ -7,9 +7,8 @@
 // npx tsx code/gpu/render-blur-dial-534.ts, then ffmpeg the frames.
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 

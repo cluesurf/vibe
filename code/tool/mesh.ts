@@ -200,7 +200,7 @@ export function betheMesh(input: {
       const kids = children[cell]!
       const child = kids[direction - 1]
 
-      return child === undefined ? cell : child
+      return child ?? cell
     },
     opposite(direction) {
       return direction === 0 ? 1 : 0

@@ -157,8 +157,8 @@ export function sampleCausalSets(input: {
 
   let sum = 0
 
-  for (let t = 0; t < trace.length; t++) {
-    sum += trace[t] ?? 0
+  for (const value of trace) {
+    sum += value ?? 0
   }
 
   const meanObservable = trace.length > 0 ? sum / trace.length : 0

@@ -8,9 +8,8 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -157,14 +156,14 @@ function run(): void {
   }
 
   const C = maxC + 1
-  const off = new Array(C + 1).fill(0)
+  const off = new Array<number>(C + 1).fill(0)
 
   for (let i = 0; i < E; i++) {
-    off[color[i]! + 1]++
+    off[color[i]! + 1] = off[color[i]! + 1]! + 1
   }
 
   for (let c = 0; c < C; c++) {
-    off[c + 1] += off[c]!
+    off[c + 1] = off[c + 1]! + off[c]!
   }
 
   const edgeV = new Uint32Array(E),
@@ -246,8 +245,8 @@ function run(): void {
     // per-frame normalize so the slow density structure is always visible
     let maxAbs = 1e-6
 
-    for (let j = 0; j < bandCells.length; j++) {
-      const v = Math.abs(q[bandCells[j]!]!)
+    for (const bandCell of bandCells) {
+      const v = Math.abs(q[bandCell]!)
 
       if (v > maxAbs) {
         maxAbs = v

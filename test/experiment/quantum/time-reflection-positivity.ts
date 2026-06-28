@@ -199,9 +199,11 @@ export function reflectionPositivity(input?: { n?: number }): {
   let oddSum = 0
 
   for (let tau = 1; tau <= maxTau; tau++) {
-    tau % 2 === 0
-      ? (evenSum += autocorr[tau]!)
-      : (oddSum += autocorr[tau]!)
+    if (tau % 2 === 0) {
+      evenSum += autocorr[tau]!
+    } else {
+      oddSum += autocorr[tau]!
+    }
   }
 
   const doublerAmplitude = (evenSum - oddSum) / autocorr[0]!

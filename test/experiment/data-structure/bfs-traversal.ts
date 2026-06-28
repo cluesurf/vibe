@@ -20,10 +20,10 @@ export default experiment({
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 4000 })
     const cells = a.dist.length
     const maxDepth = a.dist.reduce((m, d) => Math.max(m, d), 0)
-    const histogram = new Array(maxDepth + 1).fill(0)
+    const histogram = new Array<number>(maxDepth + 1).fill(0)
 
     for (const d of a.dist) {
-      histogram[d] += 1
+      histogram[d] = histogram[d]! + 1
     }
 
     const everyCellVisitedOnce =

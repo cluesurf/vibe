@@ -96,7 +96,7 @@ export function surveyTessellation(input: {
       : 0
 
     return { ok: true, cells: N, degree, growth, betheAlpha, specDim }
-  } catch (e) {
+  } catch (_e) {
     return {
       ok: false,
       cells: 0,

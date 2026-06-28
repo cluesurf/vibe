@@ -257,7 +257,7 @@ export function rootsF4(): number[][] {
 // D4 = the 24-cell coin. So the 24-cell sits at the bottom of the forced exceptional tower E8 > E7 > E6 > D5 > D4.
 export function e8SimpleRoots(): number[][] {
   const axis = (i: number): number[] => {
-    const v = new Array(8).fill(0)
+    const v = new Array<number>(8).fill(0)
     v[i] = 1
 
     return v

@@ -13,10 +13,9 @@ import {
   largestPositiveCluster,
   discreteArrow,
 } from '@/code/model/self-kit'
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 

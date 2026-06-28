@@ -144,8 +144,8 @@ export function quantumField(input?: { n?: number }): {
   const base = vac.slice()
   const pert = vac.slice()
   pert[center] =
-    (pert[center]! + 1) % 2 === 0 ? 1 : pert[center]! === 1 ? -1 : 1 // flip the center
-  pert[center] = base[center]! === 0 ? 1 : 0
+    (pert[center]! + 1) % 2 === 0 ? 1 : (pert[center]!) === 1 ? -1 : 1 // flip the center
+  pert[center] = (base[center]!) === 0 ? 1 : 0
 
   const T = 5
   const rb = makeRng({ seed: 99 })

@@ -64,7 +64,7 @@ export function kahlerDirac(complex: CellComplex): Matrix {
   }
 
   const operator: Matrix = Array.from({ length: total }, () =>
-    new Array(total).fill(0),
+    new Array<number>(total).fill(0),
   )
 
   for (let grade = 0; grade < complex.boundary.length; grade++) {
@@ -96,7 +96,7 @@ export function kahlerDirac(complex: CellComplex): Matrix {
 export function polygonComplex(sides: number): CellComplex {
   // boundary[0]: edges -> vertices (n by n). edge e goes from vertex e to vertex e+1.
   const edgesToVertices: Matrix = Array.from({ length: sides }, () =>
-    new Array(sides).fill(0),
+    new Array<number>(sides).fill(0),
   )
 
   for (let edge = 0; edge < sides; edge++) {

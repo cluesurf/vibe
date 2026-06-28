@@ -264,8 +264,8 @@ export function overlapIndex(input: {
 
   let asymmetry = 0
 
-  for (let i = 0; i < eig.values.length; i++) {
-    const lambda = eig.values[i] ?? 0
+  for (const eigenvalue of eig.values) {
+    const lambda = eigenvalue ?? 0
     asymmetry += lambda > 0 ? 1 : lambda < 0 ? -1 : 0
   }
 

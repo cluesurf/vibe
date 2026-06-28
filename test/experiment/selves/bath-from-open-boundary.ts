@@ -31,8 +31,8 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 function totalCharge(will: Will): number {
   let sum = 0
 
-  for (let i = 0; i < will.data.length; i++) {
-    sum += Math.abs(will.data[i]!)
+  for (const value of will.data) {
+    sum += Math.abs(value)
   }
 
   return sum

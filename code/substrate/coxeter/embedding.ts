@@ -11,7 +11,6 @@ import {
   matrixKey,
 } from '@/code/substrate/coxeter/matrix-group'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import type { DenseMatrix } from '@/code/algebra/linear/dense'
 import { Graph } from '@/code/tool/graph'
 import type { Embedding } from '@/code/tool/embedding'
 
@@ -59,7 +58,7 @@ export function coxeterPoincareGraph(
   const values = Array.from(eig.values) // ascending
   const vectors = eig.vectors // vectors[i*n+j] = component i of eigenvector j
   const sqrtAbs = values.map(v => Math.sqrt(Math.abs(v)))
-  const base = new Array(n).fill(0)
+  const base = new Array<number>(n).fill(0)
   const scale = 1 / Math.sqrt(-values[0]!)
 
   for (let i = 0; i < n; i++) {
@@ -68,7 +67,7 @@ export function coxeterPoincareGraph(
 
   // map a root-basis point to Poincare ball coordinates
   const toPoincare = (p: number[]): number[] => {
-    const z = new Array(n).fill(0)
+    const z = new Array<number>(n).fill(0)
 
     for (let k = 0; k < n; k++) {
       let q = 0
@@ -80,8 +79,8 @@ export function coxeterPoincareGraph(
       z[k] = sqrtAbs[k]! * q
     }
 
-    const time = Math.abs(z[0])
-    const y = new Array(dim).fill(0)
+    const time = Math.abs(z[0]!)
+    const y = new Array<number>(dim).fill(0)
 
     for (let k = 1; k < n; k++) {
       let value = z[k]! / (1 + time)

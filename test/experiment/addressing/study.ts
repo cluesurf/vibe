@@ -12,7 +12,6 @@ import { Substrate, substrateMeanDegree } from '@/code/tool/substrate'
 import { Graph } from '@/code/tool/graph'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import {
   ballGrowth,
   growthIsExponential,

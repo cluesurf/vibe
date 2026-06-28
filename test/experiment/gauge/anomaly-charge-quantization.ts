@@ -32,7 +32,7 @@ function mult(f: Field): number {
 }
 
 export function anomalyChargeQuantization(
-  input: Record<string, never> = {},
+  _input: Record<string, never> = {},
 ): {
   hypercharges: Record<string, number>
   matchesStandardModel: boolean

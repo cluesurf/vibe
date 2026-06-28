@@ -43,14 +43,14 @@ function triangleCount(input: {
   const rowB = input.adjacency[input.b] ?? new Uint32Array(0)
   const setB = new Set<number>()
 
-  for (let k = 0; k < rowB.length; k++) {
-    setB.add(rowB[k] ?? -1)
+  for (const value of rowB) {
+    setB.add(value ?? -1)
   }
 
   let common = 0
 
-  for (let k = 0; k < rowA.length; k++) {
-    const node = rowA[k] ?? -1
+  for (const value of rowA) {
+    const node = value ?? -1
 
     if (node !== input.b && setB.has(node)) {
       common++
@@ -88,8 +88,8 @@ export function meanCurvature(input: { substrate: Substrate }): number {
   for (let a = 0; a < adjacency.length; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
 
-    for (let k = 0; k < row.length; k++) {
-      const b = row[k] ?? 0
+    for (const value of row) {
+      const b = value ?? 0
 
       if (a < b) {
         const degreeA = row.length

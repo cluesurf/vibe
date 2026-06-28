@@ -154,8 +154,7 @@ export class Camera {
       pointKey(toPoincare(matVec(start, this.c0), this.timeAxis)),
     ])
 
-    for (let head = 0; head < window.length; head++) {
-      const g = window[head]!
+    for (const g of window) {
 
       for (const f of this.faces) {
         const gp = matMul(g, f)

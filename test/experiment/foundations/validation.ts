@@ -2,31 +2,11 @@
 // the per-problem experiments. Each prints a PASS or FAIL against a stated
 // prediction. Run: npx tsx code/experiment/validation.ts
 
-import { makeRng, deriveSeed } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { lattice } from '@/code/substrate/lattice'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
 import { makeConfiguration } from '@/code/tone/configuration'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
 import { ruleLocalityRange } from '@/code/measure/locality'
-import { longestChain } from '@/code/measure/distance'
-import { makeGaugeField } from '@/code/tool/gauge-field'
-import { plaquettesOf } from '@/code/dynamics/wilson'
-import { wilsonLoopPhase } from '@/code/measure/wilson-loop'
-import { aharonovBohmPhase } from '@/code/measure/aharonov-bohm'
-import { cellComplexOf, kahlerDirac } from '@/code/operator/dirac'
-import { covariantKahlerDirac } from '@/code/operator/gauge-dirac'
-import {
-  SparseMatrix,
-  sparseMatVec,
-  LinearOperator,
-} from '@/code/algebra/linear/sparse'
-import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
-import {
-  greedyRoutingSuccess,
-  routingWithBacktrack,
-} from '@/code/measure/navigation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

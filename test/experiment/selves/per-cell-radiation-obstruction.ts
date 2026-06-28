@@ -57,8 +57,8 @@ export default experiment({
     const nonzero = (u: Int8Array): number => {
       let c = 0
 
-      for (let x = 0; x < u.length; x++) {
-        if (u[x] !== 0) {
+      for (const value of u) {
+        if (value !== 0) {
           c++
         }
       }

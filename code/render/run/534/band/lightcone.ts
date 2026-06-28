@@ -7,9 +7,8 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -153,14 +152,14 @@ function run(): void {
   }
 
   const Cn = maxC + 1
-  const off = new Array(Cn + 1).fill(0)
+  const off = new Array<number>(Cn + 1).fill(0)
 
   for (let i = 0; i < E; i++) {
-    off[color[i]! + 1]++
+    off[color[i]! + 1] = off[color[i]! + 1]! + 1
   }
 
   for (let c = 0; c < Cn; c++) {
-    off[c + 1] += off[c]!
+    off[c + 1] = off[c + 1]! + off[c]!
   }
 
   const edgeV = new Uint32Array(E),

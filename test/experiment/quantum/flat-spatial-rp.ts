@@ -116,8 +116,6 @@ export function flatSpatialRP(input?: {
     staggeredMinEig: number
   }[] = []
 
-  const tol = 0.02
-
   for (const arrow of arrows) {
     const { c, density } = measure(arrow)
 

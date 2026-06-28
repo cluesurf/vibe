@@ -36,8 +36,8 @@ function dotProduct(a: Float64Array, b: Float64Array): number {
 function subtractMean(x: Float64Array): void {
   let m = 0
 
-  for (let i = 0; i < x.length; i++) {
-    m += x[i] ?? 0
+  for (const value of x) {
+    m += value ?? 0
   }
 
   m /= x.length

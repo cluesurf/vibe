@@ -57,7 +57,6 @@ export function hyperbolicBands(): {
   // PSL(2,7) REAL irrep dimensions seen by the real symmetric adjacency (the two complex 3s merge to a real 6)
   const realIrrepDims = [1, 6, 7, 8]
   const matchesIrreps = realIrrepDims.every(d => degSet.includes(d)) // the irrep dims all appear as bands
-  const accidental = degSet.filter(d => !realIrrepDims.includes(d)) // merges of >1 block at one eigenvalue
 
   return { degeneracies: degSet, matchesIrreps }
 }

@@ -13,14 +13,11 @@
 // Run: npx tsx code/experiment/p44-universality.ts
 
 import {
-  and,
   type Bit,
   bitToNum as toNum,
   fullAdder,
   functionFromTable,
   nand,
-  not,
-  or,
   xor,
 } from '@/code/operator/logic-gate'
 import {

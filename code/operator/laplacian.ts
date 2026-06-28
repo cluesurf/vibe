@@ -25,8 +25,8 @@ export function laplacian(input: {
     const row = adjacency[a] ?? new Uint32Array(0)
     triplets.push({ row: a, col: a, value: row.length })
 
-    for (let k = 0; k < row.length; k++) {
-      const b = row[k] ?? 0
+    for (const rowValue of row) {
+      const b = rowValue ?? 0
       triplets.push({ row: a, col: b, value: -1 })
     }
   }
@@ -58,8 +58,8 @@ function dot(a: Float64Array, b: Float64Array): number {
 function subtractMean(x: Float64Array): void {
   let m = 0
 
-  for (let i = 0; i < x.length; i++) {
-    m += x[i] ?? 0
+  for (const value of x) {
+    m += value ?? 0
   }
 
   m /= x.length

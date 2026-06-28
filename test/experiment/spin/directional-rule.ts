@@ -34,8 +34,6 @@ export function directionalRule(): {
 } {
   const T = 64
   const ballistic = walk(0.0, T, 1, 1)
-  const small = walk(0.05, T, 400, 7)
-  const heavy = walk(0.3, T, 400, 9)
   const diffusive = walk(1.0, T, 400, 11)
 
   // (2) Dirac dispersion cos E = cos(theta) cos(k)
@@ -44,8 +42,7 @@ export function directionalRule(): {
   for (const m of [0.0, 0.2, 0.6]) {
     const E0 = coinedWalkDispersion({ theta: m, k: 0 })
     const k = 0.1,
-      Ek = coinedWalkDispersion({ theta: m, k }),
-      rel = Math.sqrt(m * m + k * k)
+      Ek = coinedWalkDispersion({ theta: m, k })
 
     if (
       Math.abs(E0 - m) > 1e-6 ||

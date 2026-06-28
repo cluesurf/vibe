@@ -45,9 +45,9 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
   const stab: Mat[] = [identity(dim)]
   const stabSeen = new Set<string>([pointKey(stab[0]!.flat())])
 
-  for (let head = 0; head < stab.length; head++) {
+  for (const stabilizer of stab) {
     for (let i = 0; i < cellMirrors; i++) {
-      const g = matMul(reflections[i]!, stab[head]!)
+      const g = matMul(reflections[i]!, stabilizer)
       const k = pointKey(g.flat())
 
       if (!stabSeen.has(k)) {

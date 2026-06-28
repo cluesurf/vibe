@@ -6,7 +6,6 @@
 import { makeRng } from '@/code/tool/rng'
 import { Substrate } from '@/code/tool/substrate'
 import { tilingPQ } from '@/code/substrate/tiling-pq'
-import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import {

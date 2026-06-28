@@ -143,8 +143,8 @@ export function discreteRuleEndToEnd(): {
   const meanAbs = (() => {
     let s2 = 0
 
-    for (let i = 0; i < cg.length; i++) {
-      s2 += Math.abs(cg[i]!)
+    for (const v of cg) {
+      s2 += Math.abs(v)
     }
 
     return s2 / cg.length

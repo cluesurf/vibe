@@ -31,7 +31,6 @@ import {
 // quark masses (MeV, MS-bar near 2 GeV), the down-type set the Cabibbo angle
 const M_DOWN = 4.7
 const M_STRANGE = 95
-const M_BOTTOM = 4180
 
 // the observed mixing-matrix magnitudes
 const OBSERVED_VUS = 0.2245

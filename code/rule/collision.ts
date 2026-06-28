@@ -10,7 +10,9 @@ import { Tone } from '@/code/tone/will'
 export type Collision = (slots: Int8Array, base: number, degree: number) => void
 
 // The pass-through collision: never changes anything. The trivial reversible map.
-export const passThrough: Collision = () => {}
+export const passThrough: Collision = () => {
+  // intentionally does nothing: the trivial reversible map
+}
 
 // The momentum-rotate involution on a degree-4 square mesh (direction order
 // E, W, N, S). A zero-momentum head-on pair on one axis rotates to the other,

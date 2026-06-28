@@ -36,7 +36,7 @@ function measureG(input: {
   scalarLowestSquared: number
   ladderResidual: number
 } {
-  const { levels, fieldStrength, mass } = input
+  const { fieldStrength, mass } = input
   const dirac = eigHermitian({ matrix: diracLandauHamiltonian(input) })
   const diracLevels = distinctLevels(
     Array.from(dirac.values).map(x => x * x),

@@ -89,8 +89,8 @@ export function stampShape(input: {
 export function plusCount(tone: Int8Array): number {
   let n = 0
 
-  for (let i = 0; i < tone.length; i++) {
-    if (tone[i] === 1) {
+  for (const value of tone) {
+    if (value === 1) {
       n++
     }
   }

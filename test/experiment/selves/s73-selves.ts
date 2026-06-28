@@ -23,15 +23,13 @@ export function s73Selves(): {
   const solitonsExist = Math.abs(kinkCharge) >= 1
 
   // also confirm the kink is localized (the gradient energy concentrates), a real soliton not a ramp
-  let gradPeak = 0,
-    gradAt = 0
+  let gradPeak = 0
 
   for (let x = 1; x < L; x++) {
     const d = Math.abs(phi(x) - phi(x - 1))
 
     if (d > gradPeak) {
       gradPeak = d
-      gradAt = x
     }
   }
 

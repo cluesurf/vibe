@@ -18,9 +18,6 @@ import {
   buildAddressing,
   buildConfluenceAutomaton,
   decode,
-  predictAltParents,
-  regionTypes,
-  type Addressing,
 } from '@/code/substrate/coxeter/addressing-3434'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

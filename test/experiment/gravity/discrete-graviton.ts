@@ -90,8 +90,8 @@ export function discreteGraviton(input: { seed: number }): {
   // massless operator gives exactly 0 (it is all derivatives).
   const hConst = makeField(L)
 
-  for (let site = 0; site < hConst.data.length; site++) {
-    hConst.data[site]![1 * D + 1] = 0.7 // a constant h_xx
+  for (const row of hConst.data) {
+    row[1 * D + 1] = 0.7 // a constant h_xx
   }
 
   const massTermResidual = maxAbs(linearizedEinstein(hConst))

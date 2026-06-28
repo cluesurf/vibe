@@ -60,11 +60,6 @@ function measure(sym: number[]): {
 
 export function twodTessellations(): void {
   for (const c of TILINGS) {
-    const crystallographic = c.sym.every(
-      n => n === 3 || n === 4 || n === 6,
-    )
-
-    const compact = 1 / c.sym[0]! + 1 / c.sym[1]! < 0.5 // hyperbolic 2D tilings are compact
     const m = measure(c.sym)
 
     if (!m.ok) {

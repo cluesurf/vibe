@@ -47,8 +47,6 @@ function gravitonModes(): {
   // For k along z, a symmetric 3x3 perturbation h_ij that is transverse (h_iz = 0) and traceless
   // (h_xx + h_yy = 0) has exactly two free components: h_xx = -h_yy (the + mode) and h_xy (the x mode).
   // Count them by constructing the constraint nullspace.
-  const k = [0, 0, 1]
-
   let free = 0
 
   // symmetric 3x3 has 6 comps; transverse removes 3 (h_xz,h_yz,h_zz tied via k), traceless removes 1

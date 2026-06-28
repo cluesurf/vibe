@@ -15,16 +15,6 @@ export function derrickStabilizer(): {
   const E = (l: number, d: number, A: number, B: number): number =>
     A * l ** (d - 2) + B * l ** (d - 4)
 
-  for (const d of [2, 3]) {
-    const exOnly = [0.25, 0.5, 1, 2, 4].map(
-      l => Math.round(E(l, d, 1, 0) * 100) / 100,
-    )
-
-    const exSk = [0.25, 0.5, 1, 2, 4].map(
-      l => Math.round(E(l, d, 1, 1) * 100) / 100,
-    )
-  }
-
   // 3D exchange+Skyrme has an interior minimum (stable); 2D exchange is flat (marginal)
   const vals = [0.25, 0.5, 1, 2, 4].map(l => E(l, 3, 1, 1))
   const minIdx = vals.indexOf(Math.min(...vals))

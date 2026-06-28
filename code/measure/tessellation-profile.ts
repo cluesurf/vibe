@@ -28,7 +28,7 @@ const bfsDepths = (
   adjacency: readonly (readonly number[])[],
   root: number,
 ): number[] => {
-  const depth = new Array(adjacency.length).fill(-1)
+  const depth = new Array<number>(adjacency.length).fill(-1)
   depth[root] = 0
 
   let frontier = [root]

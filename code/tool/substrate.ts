@@ -33,8 +33,8 @@ export function adjacencyOf(input: {
       forEachOut: ({ node, visit }) => {
         const row = s.links[node] ?? new Uint32Array(0)
 
-        for (let k = 0; k < row.length; k++) {
-          visit(row[k] ?? 0)
+        for (const value of row) {
+          visit(value)
         }
       },
     }
@@ -47,8 +47,8 @@ export function adjacencyOf(input: {
     forEachOut: ({ node, visit }) => {
       const row = s.neighbors[node] ?? new Uint32Array(0)
 
-      for (let k = 0; k < row.length; k++) {
-        visit(row[k] ?? 0)
+      for (const value of row) {
+        visit(value)
       }
     },
   }
@@ -66,8 +66,7 @@ export function undirectedAdjacency(input: {
     for (let a = 0; a < s.size; a++) {
       const row = s.links[a] ?? new Uint32Array(0)
 
-      for (let k = 0; k < row.length; k++) {
-        const b = row[k] ?? 0
+      for (const b of row) {
         out[a]?.push(b)
         out[b]?.push(a)
       }
@@ -76,8 +75,7 @@ export function undirectedAdjacency(input: {
     for (let a = 0; a < s.size; a++) {
       const row = s.neighbors[a] ?? new Uint32Array(0)
 
-      for (let k = 0; k < row.length; k++) {
-        const b = row[k] ?? 0
+      for (const b of row) {
         out[a]?.push(b)
 
         if (s.directed) {

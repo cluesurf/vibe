@@ -45,8 +45,8 @@ export function coupledQED(): {
   let R: C[] = new Array(L).fill([0, 0]),
     Lf: C[] = new Array(L).fill([0, 0])
 
-  const theta = new Array(L).fill(0),
-    E = new Array(L).fill(0)
+  const theta: number[] = new Array(L).fill(0),
+    E: number[] = new Array(L).fill(0)
 
   // a charged wavepacket centered, moving right
   const x0 = 30,
@@ -100,7 +100,7 @@ export function coupledQED(): {
       L3: C[] = new Array(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
-      R3[wrap(x + 1)] = cmul(R2[x]!, eUp(theta[x]))
+      R3[wrap(x + 1)] = cmul(R2[x]!, eUp(theta[x]!))
       L3[wrap(x - 1)] = cmul(L2[x]!, eUp(-theta[wrap(x - 1)]!))
     }
 

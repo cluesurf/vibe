@@ -10,7 +10,6 @@ import { makeRng } from '@/code/tool/rng'
 import {
   benincasaDowkerAction,
   smearedBenincasaDowker,
-  dimensionTargetAction,
   Action,
 } from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
