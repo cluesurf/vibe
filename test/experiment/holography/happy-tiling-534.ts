@@ -45,6 +45,7 @@ const contiguousThreshold = (level: number): number =>
 
 export default experiment({
   id: 'holography/happy-tiling-534',
+  code: 'E-HLG-0009',
   title:
     'the HaPPY code tiled on the {5,3,4} bulk, the code distance protecting a bulk self grows as 3^depth',
   category: 'holography',

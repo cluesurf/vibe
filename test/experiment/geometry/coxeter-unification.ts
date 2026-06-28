@@ -70,6 +70,7 @@ export function coxeterUnification(input: { seed: number }): Record<
 
 export default experiment({
   id: 'geometry/coxeter-unification',
+  code: 'E-GMT-0005',
   title: 'one machine yields all the tessellations, all Lorentz-safe',
   category: 'geometry',
   substrates: 'any',

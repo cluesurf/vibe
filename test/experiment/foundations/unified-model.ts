@@ -38,10 +38,7 @@ export function unifiedModel(input?: { n?: number }): {
   const rng = makeRng({ seed: 7 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const q0 = sumQ(tone)
@@ -68,7 +65,7 @@ export function unifiedModel(input?: { n?: number }): {
   for (let i = 0; i < N; i++) {
     dead[i] = (
       rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
-    ) as -1 | 0 | 1
+    )
   }
 
   for (let t = 0; t < 80; t++) {
@@ -106,7 +103,7 @@ export function unifiedModel(input?: { n?: number }): {
 
   const s = tone.slice()
   const s2 = tone.slice()
-  s2[center] = (s2[center]! === 0 ? 1 : 0) as -1 | 0 | 1
+  s2[center] = (s2[center]! === 0 ? 1 : 0)
 
   const ra = makeRng({ seed: 99 })
   const rb = makeRng({ seed: 99 })
@@ -224,6 +221,7 @@ export function unifiedModel(input?: { n?: number }): {
 
 export default experiment({
   id: 'foundations/unified-model',
+  code: 'E-FND-0040',
   title:
     'one mesh and one rule produce all the key phenomena together in one run',
   category: 'foundations',

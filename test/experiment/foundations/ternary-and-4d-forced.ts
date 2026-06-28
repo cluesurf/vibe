@@ -31,6 +31,7 @@ import {
 
 export default experiment({
   id: 'foundations/ternary-and-4d-forced',
+  code: 'E-FND-0038',
   title:
     'the ternary tone (minimal with a vacuum and charge conjugation) and the four dimensions (the unique triality D4) are forced',
   category: 'foundations',

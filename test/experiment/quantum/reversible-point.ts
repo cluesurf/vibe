@@ -31,10 +31,7 @@ function dbViolation(
   const rng = makeRng({ seed: 3 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   for (let t = 0; t < 60; t++) {
@@ -139,6 +136,7 @@ export function reversiblePoint(input?: { n?: number }): {
 
 export default experiment({
   id: 'quantum/reversible-point',
+  code: 'E-QTM-0026',
   title: 'local detailed balance holds at all arrow rates',
   category: 'quantum',
   substrates: ['534'],

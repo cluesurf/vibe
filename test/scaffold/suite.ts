@@ -31,6 +31,10 @@ export interface Context {
 
 export interface Experiment {
   id: string
+  // The stable database code, E-<3-consonant-arena>-<4-digit>, e.g. E-RLT-0007. Optional so older
+  // experiments keep working; the registry (test/registry.csv) maps every code to its file, and the
+  // arena codes are defined in test/codes.csv.
+  code?: string
   title: string
   category: Category
   substrates: string[] | 'any'

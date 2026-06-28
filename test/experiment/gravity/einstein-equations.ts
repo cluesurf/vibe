@@ -93,6 +93,7 @@ export function gravitonSpeed(kMag: number): number {
 
 export default experiment({
   id: 'gravity/einstein-equations',
+  code: 'E-GRV-0011',
   title: 'conservation (transverse G) and a c-speed graviton',
   category: 'gravity',
   substrates: 'any',

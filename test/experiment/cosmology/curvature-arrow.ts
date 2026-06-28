@@ -14,6 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/curvature-arrow',
+  code: 'E-CSM-0008',
   title:
     'only negative curvature sustains the arrow, a spherical orbit closes and dies, a hyperbolic orbit grows and lives',
   category: 'cosmology',

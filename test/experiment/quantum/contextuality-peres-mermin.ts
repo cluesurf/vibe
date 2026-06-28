@@ -13,6 +13,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/contextuality-peres-mermin',
+  code: 'E-QTM-0007',
   title:
     'the Peres-Mermin square reaches quantum value 6 against the noncontextual bound 4 on the cell spin algebra',
   category: 'quantum',

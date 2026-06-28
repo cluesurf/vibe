@@ -69,6 +69,7 @@ function ballSurface(radius: number): number {
 
 export default experiment({
   id: 'gravity/newton-constant-scale',
+  code: 'E-GRV-0028',
   title:
     'Newton G is the single scale, the bounded area-law bit density fixes G in lattice units, the volume law has no definite G',
   category: 'gravity',

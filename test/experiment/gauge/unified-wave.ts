@@ -70,10 +70,7 @@ export function unifiedWave(input?: {
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
-      | -1
-      | 0
-      | 1
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
   }
 
   const q0 = tone.reduce((s, x) => s + x, 0)
@@ -128,11 +125,11 @@ export function unifiedWave(input?: {
   for (let i = 0; i < sN; i++) {
     baseS[i] = (
       rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
-    ) as -1 | 0 | 1
+    )
   }
 
   const pertS = baseS.slice()
-  pertS[center] = (baseS[center]! === 0 ? 1 : 0) as -1 | 0 | 1
+  pertS[center] = (baseS[center]! === 0 ? 1 : 0)
 
   const pos0 = s.position[center]!
   const beatsB = 40
@@ -199,6 +196,7 @@ export function unifiedWave(input?: {
 
 export default experiment({
   id: 'gauge/unified-wave',
+  code: 'E-FRC-0050',
   title:
     'one charge-conserving reversible ballistic isotropic wave rule on the {5,3,4}',
   category: 'gauge',

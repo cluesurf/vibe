@@ -17,6 +17,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/growing-mesh-genesis',
+  code: 'E-CSM-0026',
   title:
     'the full prize, a growing mesh self-creates a living universe with no arrow parameter at all',
   category: 'cosmology',

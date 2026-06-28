@@ -338,6 +338,7 @@ function legCuspLife(): boolean {
 // Each leg reproduces a known universal construction on this substrate, so L2.
 export default experiment({
   id: 'computation/turing-3434',
+  code: 'E-CMP-0011',
   title:
     '{3,4,3,4} is computationally universal via railway structure, ternary NAND and Rule 110, a register machine, and cusp Life',
   category: 'computation',

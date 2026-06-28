@@ -79,6 +79,7 @@ export function formTower(): {
 
 export default experiment({
   id: 'renormalization/form-tower-3434',
+  code: 'E-SCL-0008',
   title:
     'coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the 3D cusp',
   category: 'renormalization',

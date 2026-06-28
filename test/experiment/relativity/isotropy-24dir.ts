@@ -62,6 +62,7 @@ export function isotropy24dir(): {
 
 export default experiment({
   id: 'relativity/isotropy-24dir',
+  code: 'E-RLT-0013',
   title:
     'the 24 D4 directions give a wave dispersion isotropic to order four, the cubic does not',
   category: 'relativity',

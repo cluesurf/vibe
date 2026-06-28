@@ -38,6 +38,7 @@ export function s53333Selves(): {
 
 export default experiment({
   id: 'selves/s53333-selves',
+  code: 'E-SLF-0106',
   title:
     'topological solitons exist on the 4D horosphere but are over-dimensional',
   category: 'selves',

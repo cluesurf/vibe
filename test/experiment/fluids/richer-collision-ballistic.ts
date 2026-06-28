@@ -32,6 +32,7 @@ import {
 
 export default experiment({
   id: 'fluids/richer-collision-ballistic',
+  code: 'E-FLD-0005',
   title:
     'a richer collision damps a shear but BALLISTICALLY (decay time scales as wavelength, not wavelength squared), so it is not a genuine viscosity',
   category: 'fluids',

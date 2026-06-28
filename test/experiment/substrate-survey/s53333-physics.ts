@@ -42,6 +42,7 @@ export function s53333Physics(): {
 
 export default experiment({
   id: 'substrate-survey/s53333-physics',
+  code: 'E-SBT-0023',
   title:
     'the holographic correlator and cosmology port to {5,3,3,3,3}, but physical-space gravity is 4D (1/r^2, over-dimensional)',
   category: 'substrate-survey',

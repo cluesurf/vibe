@@ -169,6 +169,7 @@ export function selfEmergencePerception(): {
 
 export default experiment({
   id: 'selves/self-emergence-perception',
+  code: 'E-SLF-0113',
   title:
     'living balance is structureless churn, no durable selves from tones alone',
   category: 'selves',

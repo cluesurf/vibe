@@ -138,6 +138,7 @@ export function boostInvariance(input?: {
 
 export default experiment({
   id: 'relativity/boost-invariance',
+  code: 'E-RLT-0002',
   title:
     'the massless mode has an exact boost-invariant lightcone with massive modes invariant in the IR window',
   category: 'relativity',

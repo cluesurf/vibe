@@ -56,6 +56,7 @@ function lateAmplitude(input: {
 
 export default experiment({
   id: 'selves/inspiral-capture',
+  code: 'E-SLF-0059',
   title:
     'attraction plus a bath captures (inspiral and settle), removing either one prevents capture',
   category: 'selves',

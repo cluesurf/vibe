@@ -63,6 +63,7 @@ function jarlskog(U: C[][]): number {
 
 export default experiment({
   id: 'gauge/neutrino-oscillation-tm2',
+  code: 'E-FRC-0036',
   title:
     'the A4 -> TM2 prediction gives trimaximal PMNS oscillations: |U_i2|^2 = 1/3, sin^2 theta12 = 0.341, maximal leptonic CP, versus anarchic mixing',
   category: 'gauge',

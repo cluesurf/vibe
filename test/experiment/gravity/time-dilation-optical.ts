@@ -23,6 +23,7 @@ const IMPACT_PARAMETERS = [16, 20, 24, 28]
 
 export default experiment({
   id: 'gravity/time-dilation-optical',
+  code: 'E-GRV-0037',
   title:
     'gravity as time dilation, the clock-rate well bends light (the temporal half), the full metric gives the GR factor-two deflection, no new field',
   category: 'gravity',

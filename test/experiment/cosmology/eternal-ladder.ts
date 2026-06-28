@@ -85,6 +85,7 @@ export function eternalLadder(input: {
 
 export default experiment({
   id: 'cosmology/eternal-ladder',
+  code: 'E-CSM-0017',
   title: 'grows without bound, stays Lorentz-safe, model always runs',
   category: 'cosmology',
   substrates: 'any',

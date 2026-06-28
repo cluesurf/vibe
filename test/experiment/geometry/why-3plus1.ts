@@ -41,6 +41,7 @@ export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
 // L1, the dimension of a known cubic lattice.
 export default experiment({
   id: 'geometry/why-3plus1',
+  code: 'E-GMT-0025',
   title:
     'the {4,3,4} cusp reads spectral dimension ~3, so spacetime is 3 space plus 1 beat',
   category: 'geometry',

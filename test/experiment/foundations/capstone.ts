@@ -36,7 +36,7 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    tone[i] = (input.rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
+    tone[i] = (input.rng.nextInt({ max: 3 }) - 1)
   }
 
   // Fills are tones on the notes, ternary, and SYMMETRIC (a note v-w is one shared
@@ -189,6 +189,7 @@ export function capstone(input: { count: number; seed: number }): {
 
 export default experiment({
   id: 'foundations/capstone',
+  code: 'E-FND-0006',
   title:
     'the committed model runs end-to-end with all structures from one instantiation',
   category: 'foundations',

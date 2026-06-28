@@ -20,6 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/pointer-basis-selection',
+  code: 'E-QTM-0019',
   title:
     'the pointer basis is einselected by the bath coupling, a record forms along the coupling axis but not the orthogonal one',
   category: 'quantum',

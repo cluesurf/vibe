@@ -158,6 +158,7 @@ function lightBending(
 
 export default experiment({
   id: 'gravity/gr-einstein-equations',
+  code: 'E-GRV-0015',
   title:
     'the measured area law forces the Einstein equation as an equation of state, with a measured 1/r limit',
   category: 'gravity',

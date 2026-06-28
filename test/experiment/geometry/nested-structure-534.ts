@@ -76,7 +76,7 @@ export function nestedStructure534(maxCells = 120000): {
     }
   }
 
-  const meanRadius = sumR.map((s, i) => (cntR[i]! ? s / cntR[i]! : 0))
+  const meanRadius = sumR.map((s, i) => (cntR[i]! ? s / cntR[i] : 0))
 
   // boundary accumulation: radius increases monotonically and the deepest clean shell is near 1
   let monotone = true
@@ -111,6 +111,7 @@ export function nestedStructure534(maxCells = 120000): {
 
 export default experiment({
   id: 'geometry/nested-structure-534',
+  code: 'E-GMT-0022',
   title:
     'BFS shells on {5,3,4} grow exponentially with a converging ratio and accumulate toward the boundary',
   category: 'geometry',

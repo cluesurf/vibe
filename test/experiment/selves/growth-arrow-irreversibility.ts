@@ -156,6 +156,7 @@ function occupancyProfile(input: {
 
 export default experiment({
   id: 'selves/growth-arrow-irreversibility',
+  code: 'E-SLF-0054',
   title:
     'a growing open mesh carries an arrow of time (broken echo, steady gradient) that the closed reversible bulk does not',
   category: 'selves',

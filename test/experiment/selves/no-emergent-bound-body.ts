@@ -27,6 +27,7 @@ import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 
 export default experiment({
   id: 'selves/no-emergent-bound-body',
+  code: 'E-SLF-0083',
   title:
     'no emergent bound body: even a vortex disperses, its persistence is only reversible recurrence',
   category: 'selves',

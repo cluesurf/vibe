@@ -79,6 +79,7 @@ export function cosmologyAndAnisotropy(): void {
 
 export default experiment({
   id: 'cosmology/cosmology-and-anisotropy',
+  code: 'E-CSM-0007',
   title:
     'the {3,4,3,4} bulk grows exponentially (de Sitter) and the cusp cubic anisotropy passes Lorentz bounds',
   category: 'cosmology',

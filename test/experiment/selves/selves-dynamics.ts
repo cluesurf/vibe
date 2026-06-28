@@ -198,6 +198,7 @@ export function selvesDynamics(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/selves-dynamics',
+  code: 'E-SLF-0121',
   title:
     'the largest self grows while a hierarchy of patches persists on the exact {5,3,4}',
   category: 'selves',

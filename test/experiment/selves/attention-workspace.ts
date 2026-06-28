@@ -243,24 +243,24 @@ export function attentionWorkspace(input?: {
 
       for (const i of region) {
         if (rng.next() < gain) {
-          tone[i] = sig as -1 | 0 | 1
+          tone[i] = sig
         }
       } // gain = attention
 
       for (const i of noiseTargets) {
-        tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
+        tone[i] = (rng.next() < 0.5 ? 1 : -1)
       } // distractors
 
       fullBeat(tone, eu, ev, moved, rng)
 
       for (const i of region) {
         if (rng.next() < gain) {
-          tone[i] = sig as -1 | 0 | 1
+          tone[i] = sig
         }
       }
 
       for (const i of noiseTargets) {
-        tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
+        tone[i] = (rng.next() < 0.5 ? 1 : -1)
       }
 
       hubS.push(meanOver(tone, hub))
@@ -298,6 +298,7 @@ export function attentionWorkspace(input?: {
 
 export default experiment({
   id: 'selves/attention-workspace',
+  code: 'E-SLF-0006',
   title:
     'the hub-workspace shows bottom-up salience and top-down attentional gain',
   category: 'selves',

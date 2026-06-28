@@ -66,6 +66,7 @@ function patchDrift(cohesionLate: number): {
 
 export default experiment({
   id: 'selves/surrogate-patch-test',
+  code: 'E-SLF-0135',
   title:
     'a patch test detects surrogate drift after a regime change, the stationary self gives no false alarm',
   category: 'selves',

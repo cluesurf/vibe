@@ -17,6 +17,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/bell',
+  code: 'E-QTM-0002',
   title:
     'an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises',
   category: 'quantum',

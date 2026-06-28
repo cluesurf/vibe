@@ -135,6 +135,7 @@ export function reversibleUniversality(): {
 
 export default experiment({
   id: 'computation/reversible-universality',
+  code: 'E-CMP-0007',
   title:
     'COMPARATIVE ({5,3,4}): the reversible rule is universal on the dodecagrid (canonical claim is reversible-universality-3434)',
   category: 'computation',

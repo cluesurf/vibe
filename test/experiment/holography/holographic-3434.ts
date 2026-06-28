@@ -26,6 +26,7 @@ function flatShells(maxShell: number): number[] {
 
 export default experiment({
   id: 'holography/holographic-3434',
+  code: 'E-HLG-0011',
   title:
     'the committed {3,4,3,4} substrate is holographic: the boundary (cusp) dominates the bulk (~94 percent of cells in the outermost shell, the area law), with the holographic scale = the warp factor lambda, versus a flat volume-law control',
   category: 'holography',

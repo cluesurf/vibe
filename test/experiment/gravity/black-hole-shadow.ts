@@ -32,6 +32,7 @@ const RS = 1
 
 export default experiment({
   id: 'gravity/black-hole-shadow',
+  code: 'E-GRV-0004',
   title:
     'the strong-field Schwarzschild geometry, the photon sphere, the divergent lensing, and the black-hole shadow, with the weak-field factor-two recovered',
   category: 'gravity',

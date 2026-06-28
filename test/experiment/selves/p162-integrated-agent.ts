@@ -224,6 +224,7 @@ export function integratedAgent(input?: { L?: number }): {
 
 export default experiment({
   id: 'selves/p162-integrated-agent',
+  code: 'E-SLF-0090',
   title:
     'multi-step lookahead through the forward model solves a detour the reactive agent cannot',
   category: 'selves',

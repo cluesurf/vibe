@@ -113,7 +113,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
     for (let i = 0; i < N; i++) {
       const grad = 0.25 * (1 - distP[i]! / (maxd + 1)) // dilute +1 gas, denser near the pole
-      tone[i] = (rng.next() < grad ? 1 : 0) as 0 | 1
+      tone[i] = (rng.next() < grad ? 1 : 0)
     }
 
     const q0 = tone.reduce((s, x) => s + x, 0)
@@ -249,6 +249,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
 export default experiment({
   id: 'renormalization/rg-step',
+  code: 'E-SCL-0013',
   title:
     'the first inter-layer transform enriches the alphabet and conserves charge',
   category: 'renormalization',

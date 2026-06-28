@@ -12,6 +12,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/backward-to-seed',
+  code: 'E-CSM-0003',
   title:
     'backward evolution reaches a unique single seed chamber in finite steps, the substrate began',
   category: 'cosmology',

@@ -65,6 +65,7 @@ export function measuredDispersion(): {
 
 export default experiment({
   id: 'relativity/measured-dispersion-3434',
+  code: 'E-RLT-0025',
   title:
     'the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode',
   category: 'relativity',

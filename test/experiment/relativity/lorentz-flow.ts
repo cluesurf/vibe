@@ -128,6 +128,7 @@ export function lorentzFlow(input?: {
 
 export default experiment({
   id: 'relativity/lorentz-flow',
+  code: 'E-RLT-0020',
   title:
     'higher-order angular anisotropy washes out under coarse-graining',
   category: 'relativity',

@@ -91,6 +91,7 @@ export function deterministicSubstrate(input: {
 
 export default experiment({
   id: 'relativity/deterministic-substrate',
+  code: 'E-RLT-0006',
   title:
     'a deterministic sunflower substrate is as Lorentz-safe as the random sprinkle',
   category: 'relativity',

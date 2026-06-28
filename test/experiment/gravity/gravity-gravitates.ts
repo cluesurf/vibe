@@ -157,6 +157,7 @@ function reverseAndBound(coupling: number): {
 
 export default experiment({
   id: 'gravity/gravity-gravitates',
+  code: 'E-GRV-0023',
   title:
     'the nonlinear Einstein structure, gravity gravitates (the self-coupling breaks superposition), reversibly and boundedly, the linear field the control',
   category: 'gravity',

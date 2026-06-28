@@ -71,6 +71,7 @@ function areaExponent(mass: number): number {
 
 export default experiment({
   id: 'gravity/area-law-universality',
+  code: 'E-GRV-0003',
   title:
     'the area law is universal across gapped masses and the proxy is a relativistic Dirac field, so it is the knit emergent field, not an arbitrary stand-in',
   category: 'gravity',

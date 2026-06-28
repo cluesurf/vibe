@@ -18,6 +18,7 @@ import { selfContainedShadowD4 } from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/self-contained-shadow-self',
+  code: 'E-SLF-0111',
   title:
     'a self-contained body binds itself by the shadow of its OWN active vacuum on the 24-direction D4 coin',
   category: 'selves',

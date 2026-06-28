@@ -10,6 +10,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/path-structures',
+  code: 'E-DST-0018',
   title:
     'SS10: a list is a cell path and a stack is a radial ray, O(1) per step, depth is the height',
   category: 'data-structure',

@@ -75,6 +75,7 @@ export function computation73(): {
 // the heptagrid, and paper is false.
 export default experiment({
   id: 'computation/computation-73',
+  code: 'E-CMP-0001',
   title:
     'COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})',
   category: 'computation',

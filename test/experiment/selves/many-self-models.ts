@@ -167,13 +167,13 @@ function selfModelAt(
     }
 
     for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      tone[i] = sigs[sectorOf[i]!]!
     }
 
     fullBeat(tone, eu, ev, moved, rng)
 
     for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      tone[i] = sigs[sectorOf[i]!]!
     }
 
     gSeries.push(meanOver(tone, self))
@@ -281,6 +281,7 @@ export function manySelfModels(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/many-self-models',
+  code: 'E-SLF-0071',
   title: 'every self forms its own self-model at its own hub',
   category: 'selves',
   substrates: ['534'],

@@ -68,6 +68,7 @@ export function diracFromDiscrete(): {
 
 export default experiment({
   id: 'relativity/dirac-from-discrete',
+  code: 'E-RLT-0008',
   title:
     'the discrete walk dispersion measured by DFT, massless light cone and massive Dirac',
   category: 'relativity',

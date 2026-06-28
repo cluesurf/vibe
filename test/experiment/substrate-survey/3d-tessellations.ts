@@ -107,6 +107,7 @@ export function threedTessellations(): void {
 
 export default experiment({
   id: 'substrate-survey/3d-tessellations',
+  code: 'E-SBT-0002',
   title:
     'a sweep of 3D hyperbolic honeycombs, compact ones are non-crystallographic, crystallographic ones are paracompact',
   category: 'substrate-survey',

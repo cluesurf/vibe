@@ -85,6 +85,7 @@ export function diracLanczos(): {
 
 export default experiment({
   id: 'spin/dirac-lanczos',
+  code: 'E-SPN-0010',
   title:
     'a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks',
   category: 'spin',

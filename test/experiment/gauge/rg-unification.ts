@@ -63,6 +63,7 @@ export function rgUnification(): { smGap: number; mssmGap: number } {
 
 export default experiment({
   id: 'gauge/rg-unification',
+  code: 'E-FRC-0044',
   title:
     'running the measured couplings up unifies in the MSSM but misses in the bare Standard Model',
   category: 'gauge',

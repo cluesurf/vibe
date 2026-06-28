@@ -17,6 +17,7 @@ import { complex } from '@/code/algebra/linear/complex'
 
 export default experiment({
   id: 'spin/spin-connection-534',
+  code: 'E-SPN-0033',
   title:
     'the {5,3,4} spin connection, the edge-loop holonomy is the spinor double cover (minus one once, plus one twice)',
   category: 'spin',

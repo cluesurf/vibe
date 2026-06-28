@@ -60,6 +60,7 @@ function anomalies(fields: Field[]): Record<string, number> {
 
 export default experiment({
   id: 'gauge/anomaly-cancellation-octonion',
+  code: 'E-FRC-0002',
   title:
     'the octonion construction delivers a COMPLETE anomaly-free generation: all six gauge, gravitational, and Witten anomalies cancel on the derived charges, with no exotic extras',
   category: 'gauge',

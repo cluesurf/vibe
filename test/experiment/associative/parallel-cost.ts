@@ -99,6 +99,7 @@ export function associativeParallelCost(input?: {
 
 export default experiment({
   id: 'associative/parallel-cost',
+  code: 'E-MMR-0011',
   title:
     'on the bulk the associative search cost is constant in size and the communication radius grows logarithmically, versus polynomially on a flat cubic memory',
   category: 'associative',

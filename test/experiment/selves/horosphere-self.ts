@@ -130,7 +130,7 @@ export function horosphereSelf(input?: {
 
   for (let i = 0; i < bigCells; i++) {
     const r = rngB.next()
-    toneB[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0) as -1 | 0 | 1
+    toneB[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0)
   }
 
   const qb0 = totalCharge(toneB)
@@ -172,6 +172,7 @@ export function horosphereSelf(input?: {
 
 export default experiment({
   id: 'selves/horosphere-self',
+  code: 'E-SLF-0056',
   title:
     'selves are compact-possible and far more persistent on the flat horosphere than in the bulk',
   category: 'selves',

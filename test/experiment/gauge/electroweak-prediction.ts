@@ -26,6 +26,7 @@ export function electroweakPrediction(): {
 
 export default experiment({
   id: 'gauge/electroweak-prediction',
+  code: 'E-FRC-0013',
   title:
     'sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges',
   category: 'gauge',

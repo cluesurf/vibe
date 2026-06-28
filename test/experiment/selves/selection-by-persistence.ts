@@ -11,6 +11,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'selves/selection-by-persistence',
+  code: 'E-SLF-0110',
   title:
     'deterministic variation plus persistence-selection adapts a population toward its environment, with no randomness',
   category: 'selves',
@@ -37,6 +38,7 @@ export default experiment({
     const adapts = runs.every(
       r => r.selected.finalFitness > r.selected.initialFitness + 0.25,
     )
+
     const controlFlat = runs.every(
       r => r.control.finalFitness < r.control.initialFitness + 0.1,
     )

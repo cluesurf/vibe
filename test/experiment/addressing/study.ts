@@ -73,6 +73,7 @@ function evaluate(input: {
 
 export default experiment({
   id: 'addressing/study',
+  code: 'E-NVG-0006',
   title:
     'the addressing-versus-Lorentz fork, can one substrate have reach, isotropy, and navigability at once',
   category: 'addressing',

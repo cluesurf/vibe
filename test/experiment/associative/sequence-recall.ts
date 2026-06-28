@@ -117,6 +117,7 @@ export function associativeSequenceRecall(input?: {
 
 export default experiment({
   id: 'associative/sequence-recall',
+  code: 'E-MMR-0014',
   title:
     'episodic and sequence memory as stored temporal chains, replayed in order from the first cue',
   category: 'associative',

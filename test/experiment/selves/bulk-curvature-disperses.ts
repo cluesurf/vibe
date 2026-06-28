@@ -55,6 +55,7 @@ function shellGrowthRatio(input: {
 
 export default experiment({
   id: 'selves/bulk-curvature-disperses',
+  code: 'E-SLF-0014',
   title:
     'bulk curvature disperses, it does not bind: hyperbolic shells grow exponentially, the flat cusp polynomially',
   category: 'selves',

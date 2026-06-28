@@ -17,6 +17,7 @@ import {
 
 export default experiment({
   id: 'spin/projective-spinor-73',
+  code: 'E-SPN-0027',
   title:
     'the {7,3} symmetry PSL(2,7) has a spinor double cover SL(2,7), spin in the projective rep',
   category: 'spin',

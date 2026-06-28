@@ -68,9 +68,10 @@ export function nestedSelves(input: {
   // downward causation: corrupt one member, then one more consensus round, does the group restore it
   const corrupted = subs.map((s, j) =>
     j === 0
-      ? s.map((v, i) => (i % 2 === 0 ? (-v as -1 | 0 | 1) : v))
+      ? s.map((v, i) => (i % 2 === 0 ? (-v) : v))
       : s,
   )
+
   const repaired = consensusStep(corrupted, input.coupling)
   const repairedOverlap = toneOverlap(repaired[0]!, body)
 
@@ -79,6 +80,7 @@ export function nestedSelves(input: {
 
 export default experiment({
   id: 'selves/nested-selves-form-a-higher-self',
+  code: 'E-SLF-0081',
   title:
     'coupled sub-selves bind into one higher self that repairs its own parts, the upward step on the ladder',
   category: 'selves',
@@ -90,6 +92,7 @@ export default experiment({
     const coupled = sizes.map(n =>
       nestedSelves({ n, parts: 5, coupling: 4, rounds: 12 }),
     )
+
     const uncoupled = sizes.map(n =>
       nestedSelves({ n, parts: 5, coupling: 0, rounds: 12 }),
     )
@@ -98,6 +101,7 @@ export default experiment({
     const forms = coupled.every(
       r => r.startResonance < 0.3 && r.formedResonance > 0.9,
     )
+
     // downward causation: the group repairs its corrupted part
     const repairs = coupled.every(r => r.repairedOverlap > 0.9)
     // control: no coupling, no higher self, no repair

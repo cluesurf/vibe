@@ -240,6 +240,7 @@ export function cohesiveMemory(): {
 
 export default experiment({
   id: 'selves/cohesive-memory',
+  code: 'E-SLF-0032',
   title:
     'a cohesive hop roughly doubles imprint memory versus the churning rule',
   category: 'selves',

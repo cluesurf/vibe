@@ -21,6 +21,7 @@ import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/nested-self-tower',
+  code: 'E-SLF-0079',
   title:
     'a self of selves, the structured causal map keeps effective information across TWO recursive coarse-grainings, a random tower loses it',
   category: 'selves',

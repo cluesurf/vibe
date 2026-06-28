@@ -87,6 +87,7 @@ export function everpresent(input: { seed: number }): {
 
 export default experiment({
   id: 'cosmology/everpresent-dynamical',
+  code: 'E-CSM-0018',
   title:
     'genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude',
   category: 'cosmology',

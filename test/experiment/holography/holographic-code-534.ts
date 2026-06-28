@@ -25,6 +25,7 @@ const corruptConnectedRegion = (
 
 export default experiment({
   id: 'holography/holographic-code-534',
+  code: 'E-HLG-0012',
   title:
     'persistence via a holographic code on {5,3,4}, the boundary reconstructs the bulk self after local damage',
   category: 'holography',

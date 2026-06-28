@@ -25,6 +25,7 @@ import {
 
 export default experiment({
   id: 'selves/minimal-attraction-field',
+  code: 'E-SLF-0074',
   title:
     'the attraction needs only a few bounded bits, not arbitrary integers: ternary is too coarse, about four bits repair a self',
   category: 'selves',

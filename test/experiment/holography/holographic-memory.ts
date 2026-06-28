@@ -192,6 +192,7 @@ export function holographicMemory(input?: { n?: number }): {
 
 export default experiment({
   id: 'holography/holographic-memory',
+  code: 'E-HLG-0013',
   title:
     'a spread-encoded bit survives a bounded erasure while a localized blob is destroyed',
   category: 'holography',

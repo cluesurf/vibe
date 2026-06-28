@@ -39,6 +39,7 @@ export function spinorTriality(): {
 
 export default experiment({
   id: 'spin/spinor-triality',
+  code: 'E-SPN-0036',
   title:
     '{5,3,4} carries no spinor while {3,4,3,4} splits 8v + 8s + 8c with triality',
   category: 'spin',

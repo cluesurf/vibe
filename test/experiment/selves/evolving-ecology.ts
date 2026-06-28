@@ -143,6 +143,7 @@ export function evolvingEcology(): {
 
 export default experiment({
   id: 'selves/evolving-ecology',
+  code: 'E-SLF-0047',
   title:
     'a population of planning agents evolves better problem-solving and adapts its foresight',
   category: 'selves',

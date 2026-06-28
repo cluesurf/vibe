@@ -42,6 +42,7 @@ import { travelDistance, maxOccupancy } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/bind-and-move-collision',
+  code: 'E-SLF-0012',
   title:
     'no single-speed local reversible collision both binds and moves: mobility and the binding engine are mutually exclusive',
   category: 'selves',

@@ -35,6 +35,7 @@ import {
 
 export default experiment({
   id: 'spin/nuclear-binding-curve',
+  code: 'E-SPN-0024',
   title:
     'the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control',
   category: 'spin',

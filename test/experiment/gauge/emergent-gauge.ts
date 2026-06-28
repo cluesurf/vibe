@@ -40,7 +40,7 @@ export function emergentGauge(): {
   const t = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+    t[i] = (Math.floor(rnd() * 3) - 1)
   }
 
   // (1) U(1) Gauss law: run one beat tracking per-pair charge flux; verify each cell's d(rho) = net inflow EXACTLY
@@ -71,8 +71,8 @@ export function emergentGauge(): {
       const [na, nb] = perm(t[u]!, t[w]!)
       flux[u]! += na - t[u]!
       flux[w]! += nb - t[w]! // charge change of each from this pair op
-      t[u] = na as -1 | 0 | 1
-      t[w] = nb as -1 | 0 | 1
+      t[u] = na
+      t[w] = nb
       used[u] = 1
       used[w] = 1
       break
@@ -96,7 +96,7 @@ export function emergentGauge(): {
   const A = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    A[i] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
+    A[i] = (rnd() < 0.5 ? 1 : -1)
   } // internal index
 
   const usd = new Uint8Array(N)
@@ -114,8 +114,8 @@ export function emergentGauge(): {
       }
 
       const sum = A[u]! + A[w]!
-      A[u] = (sum >= 0 ? 1 : -1) as -1 | 1
-      A[w] = (sum > 0 ? 1 : -1) as -1 | 1
+      A[u] = (sum >= 0 ? 1 : -1)
+      A[w] = (sum > 0 ? 1 : -1)
       usd[u] = 1
       usd[w] = 1
       break
@@ -132,6 +132,7 @@ export function emergentGauge(): {
 
 export default experiment({
   id: 'gauge/emergent-gauge',
+  code: 'E-FRC-0014',
   title:
     'the bare rule locally conserves charge, a U(1) Gauss law, but not a generic internal current',
   category: 'gauge',

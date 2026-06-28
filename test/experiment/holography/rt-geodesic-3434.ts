@@ -22,6 +22,7 @@ function flatRatio(D: number): number {
 
 export default experiment({
   id: 'holography/rt-geodesic-3434',
+  code: 'E-HLG-0018',
   title:
     'the RT / geodesic-shortcut LOG law on the committed {3,4,3,4}: the bulk radius D ~ log_lambda(cells), so a bulk geodesic between boundary points is ~2 log_lambda of their boundary separation, versus a flat polynomial control',
   category: 'holography',

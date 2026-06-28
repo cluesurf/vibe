@@ -39,6 +39,7 @@ const subtreeParity = (
 
 export default experiment({
   id: 'holography/holography-from-rule',
+  code: 'E-HLG-0014',
   title:
     'the bare reversible rule derives the causal wedge, but the erasure code needs the perfect-tensor constraint',
   category: 'holography',

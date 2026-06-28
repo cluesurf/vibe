@@ -10,6 +10,7 @@ import { cellHash } from '@/code/measure/sketch'
 
 export default experiment({
   id: 'data-structure/inverted-index',
+  code: 'E-DST-0015',
   title:
     'SS13: terms hash to boundary cells, retrieval is output-sensitive, not corpus-sized',
   category: 'data-structure',

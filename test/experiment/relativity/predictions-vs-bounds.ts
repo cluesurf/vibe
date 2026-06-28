@@ -94,6 +94,7 @@ export function predictionsVsBounds(input: { seed: number }): {
 
 export default experiment({
   id: 'relativity/predictions-vs-bounds',
+  code: 'E-RLT-0029',
   title:
     'the model passes the GRB Lorentz bound that excludes a lattice',
   category: 'relativity',

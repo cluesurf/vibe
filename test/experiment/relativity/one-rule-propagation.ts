@@ -102,6 +102,7 @@ export function propagation(input: {
 
 export default experiment({
   id: 'relativity/one-rule-propagation',
+  code: 'E-RLT-0027',
   title: 'the ternary rule carries a causal light-cone at finite speed',
   category: 'relativity',
   substrates: 'any',

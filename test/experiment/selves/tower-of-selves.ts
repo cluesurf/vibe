@@ -141,7 +141,7 @@ export function towerOfSelves(input: { seed: number }): {
   }
 
   for (let v = 0; v < g.size; v++) {
-    tone[v] = toneOfUnit(0, unitAtLevel(v, 0)) as -1 | 0 | 1
+    tone[v] = toneOfUnit(0, unitAtLevel(v, 0))
   }
 
   // Settle so the assignment is a genuine (metastable) self of the rule.
@@ -234,6 +234,7 @@ export function towerOfSelves(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/tower-of-selves',
+  code: 'E-SLF-0142',
   title:
     'clean multi-level hierarchy to one top, rule holds every level',
   category: 'selves',

@@ -39,6 +39,7 @@ const EXPECTED_SHELLS = [1, 24, 456, 8376, 153192]
 
 export default experiment({
   id: 'geometry/bulk-warp-factor',
+  code: 'E-GMT-0003',
   title:
     'the hyperbolic {3,4,3,4} bulk warp factor is lambda about 18.278 (exact shells 1,24,456,8376,153192), algebraic of degree >= 3, the flat lattice (polynomial) the control',
   category: 'geometry',

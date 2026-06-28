@@ -79,6 +79,7 @@ export function gravitonStudy(): {
 
 export default experiment({
   id: 'gravity/graviton',
+  code: 'E-GRV-0018',
   title:
     'two graviton polarizations measured from the derived operator spectrum',
   category: 'gravity',

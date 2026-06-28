@@ -123,6 +123,7 @@ export function associativeGradedRecall(input?: {
 
 export default experiment({
   id: 'associative/graded-recall',
+  code: 'E-MMR-0006',
   title:
     'graceful, graded recall, fidelity degrades smoothly as the cue shrinks',
   category: 'associative',

@@ -23,6 +23,7 @@ const CONTROL_MAX = 4
 
 export default experiment({
   id: 'selves/valence-approach',
+  code: 'E-SLF-0148',
   title:
     'a self drifts toward a +tone region and away from a -tone region, and not without the dynamics',
   category: 'selves',

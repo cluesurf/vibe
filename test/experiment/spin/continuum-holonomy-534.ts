@@ -36,6 +36,7 @@ const matrixEquals = (
 
 export default experiment({
   id: 'spin/continuum-holonomy-534',
+  code: 'E-SPN-0007',
   title:
     'the {5,3,4} curvature-driven spin holonomy, a loop of hyperbolic area 2pi flips spinors not vectors',
   category: 'spin',

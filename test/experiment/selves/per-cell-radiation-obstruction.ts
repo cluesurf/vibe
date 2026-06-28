@@ -36,6 +36,7 @@ import {
 
 export default experiment({
   id: 'selves/per-cell-radiation-obstruction',
+  code: 'E-SLF-0092',
   title:
     'per-cell ternary has no self: a radiating rule shatters the kink, a static rule traps the hit (the corrective self is emergent)',
   category: 'selves',
@@ -91,8 +92,8 @@ export default experiment({
 
     let clean = makeKink()
     let hit = makeKink()
-    hit.curr[center] = ((hit.curr[center]! + 1) % 3) as number
-    hit.curr[center - 1] = ((hit.curr[center - 1]! + 2) % 3) as number
+    hit.curr[center] = ((hit.curr[center]! + 1) % 3)
+    hit.curr[center - 1] = ((hit.curr[center - 1]! + 2) % 3)
 
     let maxSpread = 0
 

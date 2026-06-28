@@ -15,6 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/genesis-basin',
+  code: 'E-CSM-0023',
   title:
     'the initial state is irrelevant, every start converges to the same living balance, the universe is an attractor',
   category: 'cosmology',

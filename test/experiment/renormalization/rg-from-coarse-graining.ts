@@ -38,6 +38,7 @@ export function rgFromCoarseGraining(): {
 
 export default experiment({
   id: 'renormalization/rg-from-coarse-graining',
+  code: 'E-SCL-0012',
   title:
     'the 1D decimation RG shows a coupling flows with a beta function under coarse-graining',
   category: 'renormalization',

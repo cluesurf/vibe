@@ -27,6 +27,7 @@ const NEXT_GENERATION_REACH_YEARS = 1e35 // roughly Hyper-Kamiokande class
 
 export default experiment({
   id: 'gauge/proton-lifetime',
+  code: 'E-FRC-0043',
   title:
     'the proton lifetime is fixed by the GUT scale at about 1e36 years, above the bound and falsifiable',
   category: 'gauge',

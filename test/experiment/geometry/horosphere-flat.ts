@@ -82,6 +82,7 @@ export function horosphereFlat(input?: { maxCells?: number }): {
 
 export default experiment({
   id: 'geometry/horosphere-flat',
+  code: 'E-GMT-0018',
   title:
     'a Busemann level set of {5,3,4} grows polynomially, a flat 2D sheet inside the curved crystal',
   category: 'geometry',

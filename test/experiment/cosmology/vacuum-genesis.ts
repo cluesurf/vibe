@@ -14,6 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/vacuum-genesis',
+  code: 'E-CSM-0042',
   title:
     'the peace vacuum is unstable under the arrow, a living charge-zero universe self-creates from the void',
   category: 'cosmology',

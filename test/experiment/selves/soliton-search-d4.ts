@@ -35,6 +35,7 @@ const movedOff = (start: number[], after: Set<number>): boolean =>
 
 export default experiment({
   id: 'selves/soliton-search-d4',
+  code: 'E-SLF-0128',
   title:
     'free gliders are solitons (persist and move), but head-on collisions disperse rather than bind',
   category: 'selves',

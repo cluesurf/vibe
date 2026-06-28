@@ -102,6 +102,7 @@ export function emergentBoost(): {
 
 export default experiment({
   id: 'relativity/emergent-boost-3434',
+  code: 'E-RLT-0011',
   title:
     'boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet',
   category: 'relativity',

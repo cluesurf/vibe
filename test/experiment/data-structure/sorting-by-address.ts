@@ -24,6 +24,7 @@ const lexCompare = (a: number[], b: number[]): number => {
 
 export default experiment({
   id: 'data-structure/sorting-by-address',
+  code: 'E-DST-0023',
   title:
     'SS7: the canonical address is a total order, sorting is reading cells in address order',
   category: 'data-structure',

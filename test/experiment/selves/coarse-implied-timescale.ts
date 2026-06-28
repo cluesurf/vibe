@@ -63,6 +63,7 @@ function coefficientOfVariation(values: number[]): number {
 
 export default experiment({
   id: 'selves/coarse-implied-timescale',
+  code: 'E-SLF-0026',
   title:
     'the self slow timescale plateaus across lags, the shuffled control has no timescale',
   category: 'selves',

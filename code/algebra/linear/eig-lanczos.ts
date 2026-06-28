@@ -66,7 +66,7 @@ export function lowestEigenvalues(input: {
     v[i] = rand() - 0.5
   }
 
-  let norm = Math.sqrt(dot(v, v))
+  const norm = Math.sqrt(dot(v, v))
 
   for (let i = 0; i < n; i++) {
     v[i] = (v[i] ?? 0) / (norm || 1)

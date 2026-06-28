@@ -48,6 +48,7 @@ const SECTORS: { name: string; masses: [number, number, number] }[] = [
 
 export default experiment({
   id: 'gauge/mass-hierarchy-localization',
+  code: 'E-FRC-0033',
   title:
     'the fermion mass hierarchy scale from the {3,4,3,4} growth rate, inter-generation ratios are powers of lambda about 18.4, the flat lattice (no hierarchy) the control',
   category: 'gauge',

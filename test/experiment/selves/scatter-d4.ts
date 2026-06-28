@@ -38,6 +38,7 @@ const differs = (a: Will, b: Will): boolean =>
 
 export default experiment({
   id: 'selves/scatter-d4',
+  code: 'E-SLF-0109',
   title:
     'a head-on pair is deflected onto a rotated axis by the momentum-conserving collision, not passed through',
   category: 'selves',

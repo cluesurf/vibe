@@ -501,7 +501,7 @@ export function regionTypes(a: Addressing): {
     // only use cells whose children are themselves all typed (complete), so the transition row is exact
     if (
       !a.children[cell]!.every(
-        kid => typeOf[kid] !== undefined && typeOf[kid]! >= 0,
+        kid => typeOf[kid] !== undefined && typeOf[kid] >= 0,
       )
     ) {
       continue

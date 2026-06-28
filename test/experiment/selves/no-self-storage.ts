@@ -80,7 +80,7 @@ function modelFidelity(
   rng: Rng,
 ): number {
   const cl = clusterToK(g, K, rng)
-  const blocks = (cl.reduce((m, c) => Math.max(m, c), 0) as number) + 1
+  const blocks = (cl.reduce((m, c) => Math.max(m, c), 0)) + 1
   const sum = new Float64Array(blocks)
 
   for (let v = 0; v < g.size; v++) {
@@ -188,6 +188,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
 
 export default experiment({
   id: 'selves/no-self-storage',
+  code: 'E-SLF-0085',
   title:
     'lossless self-record needs the whole, lossy regress converges, no infinite mirror',
   category: 'selves',

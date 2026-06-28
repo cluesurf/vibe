@@ -69,6 +69,7 @@ export function hyperbolicBands(): {
 // block-diagonalizes by irrep), so L1.
 export default experiment({
   id: 'geometry/hyperbolic-bands',
+  code: 'E-GMT-0020',
   title:
     'the PSL(2,7) Cayley-graph spectrum decomposes into irrep bands of dimension 1, 6, 7, 8',
   category: 'geometry',

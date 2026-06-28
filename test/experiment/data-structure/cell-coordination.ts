@@ -22,6 +22,7 @@ const EXPECTED: { symbol: number[]; coordination: number }[] = [
 
 export default experiment({
   id: 'data-structure/cell-coordination',
+  code: 'E-DST-0007',
   title:
     'phase 3: the exact B-tree order (cell coordination) of every tessellation, computed from its symbol',
   category: 'data-structure',

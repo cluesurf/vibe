@@ -90,6 +90,7 @@ export function generationFamilySymmetry(): {
 
 export default experiment({
   id: 'spin/generation-family-symmetry-3434',
+  code: 'E-SPN-0015',
   title:
     'the three Jordan slots carry an exact S3 family symmetry but stay degenerate, so three distinct generations is not established',
   category: 'spin',

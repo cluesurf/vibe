@@ -45,6 +45,7 @@ export function vacuumSelection(): {
 
 export default experiment({
   id: 'gauge/vacuum-selection',
+  code: 'E-FRC-0051',
   title:
     'every one of the 16 spinor weights leaves 20 unbroken roots, so any self-condensate breaks so(10) to su(5)',
   category: 'gauge',

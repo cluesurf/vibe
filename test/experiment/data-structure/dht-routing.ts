@@ -23,6 +23,7 @@ const commonPrefixLength = (a: number[], b: number[]): number => {
 
 export default experiment({
   id: 'data-structure/dht-routing',
+  code: 'E-DST-0009',
   title:
     'DS5: DHT key lookup routes up to the common prefix and down in O(log N) hops, O(1) state',
   category: 'data-structure',

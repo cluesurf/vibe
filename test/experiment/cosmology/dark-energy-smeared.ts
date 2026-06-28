@@ -68,6 +68,7 @@ export function darkEnergySmeared4D(input: {
 
 export default experiment({
   id: 'cosmology/dark-energy-smeared',
+  code: 'E-CSM-0010',
   title:
     '4D smeared kernel tames the fluctuation (toward everpresent Lambda)',
   category: 'cosmology',

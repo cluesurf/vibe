@@ -127,6 +127,7 @@ export function coemergenceStructural(): {
 
 export default experiment({
   id: 'gauge/coemergence-structural-3434',
+  code: 'E-FRC-0006',
   title:
     'the rotation subgroup forces the photon 8v and fermion 8s, 8c sectors as invariant subspaces',
   category: 'gauge',

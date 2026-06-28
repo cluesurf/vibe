@@ -36,6 +36,7 @@ export function s73Structure(): {
 
 export default experiment({
   id: 'substrate-survey/s73-structure',
+  code: 'E-SBT-0028',
   title:
     'the 7 directions of {7,3} are non-crystallographic (measured), so no root-system gauge and 1D physical space',
   category: 'substrate-survey',

@@ -15,6 +15,7 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 
 export default experiment({
   id: 'data-structure/greedy-routing',
+  code: 'E-DST-0010',
   title:
     'DS4: greedy routing delivers on the hyperbolic metric and degrades on the Euclidean control',
   category: 'data-structure',

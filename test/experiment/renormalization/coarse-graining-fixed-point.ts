@@ -130,6 +130,7 @@ export function renormalization(input: { seed: number }): {
 
 export default experiment({
   id: 'renormalization/coarse-graining-fixed-point',
+  code: 'E-SCL-0003',
   title:
     'a measured block-spin coupling matches the decimation recursion and flows to the fixed point',
   category: 'renormalization',

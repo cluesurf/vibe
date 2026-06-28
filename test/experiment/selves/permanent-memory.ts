@@ -134,6 +134,7 @@ export function permanentMemory(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/permanent-memory',
+  code: 'E-SLF-0094',
   title:
     'maintained codeword stays at full fidelity where unmaintained erodes, conserving, at a cost',
   category: 'selves',

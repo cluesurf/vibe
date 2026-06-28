@@ -30,6 +30,7 @@ import { octonionFermionGeneration } from '@/code/measure/octonion-fermions'
 
 export default experiment({
   id: 'foundations/fermions-from-octonions',
+  code: 'E-FND-0020',
   title:
     'one generation of fermions (with exact color and charges 0, 1/3, 2/3, 1) from the complexified octonions, the Furey construction',
   category: 'foundations',

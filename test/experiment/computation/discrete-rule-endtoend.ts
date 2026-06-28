@@ -46,10 +46,10 @@ export function discreteRuleEndToEnd(): {
   }
 
   for (let i = 0; i < N; i++) {
-    init.E[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
-    init.W[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
-    init.N[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
-    init.S[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+    init.E[i] = (Math.floor(rnd() * 3) - 1)
+    init.W[i] = (Math.floor(rnd() * 3) - 1)
+    init.N[i] = (Math.floor(rnd() * 3) - 1)
+    init.S[i] = (Math.floor(rnd() * 3) - 1)
   }
 
   const c0 = charge(init),
@@ -165,6 +165,7 @@ export function discreteRuleEndToEnd(): {
 // conservation and reversibility are properties of the rule and hold for any fill.
 export default experiment({
   id: 'computation/discrete-rule-endtoend',
+  code: 'E-CMP-0003',
   title:
     'one discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains smooth',
   category: 'computation',

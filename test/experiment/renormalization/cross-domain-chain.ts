@@ -102,6 +102,7 @@ export function crossDomainChain(): {
 
 export default experiment({
   id: 'renormalization/cross-domain-chain',
+  code: 'E-SCL-0005',
   title:
     'field to particle and particle to composite rungs commute as the kind of variable changes',
   category: 'renormalization',

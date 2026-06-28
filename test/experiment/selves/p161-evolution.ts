@@ -43,7 +43,7 @@ function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
   const child = new Int8Array(parent.length)
 
   for (let i = 0; i < parent.length; i++) {
-    child[i] = (rng.next() < mu ? -parent[i]! : parent[i]!) as -1 | 1
+    child[i] = (rng.next() < mu ? -parent[i]! : parent[i]!)
   }
 
   return child
@@ -184,6 +184,7 @@ export function evolution(input?: {
 
 export default experiment({
   id: 'selves/p161-evolution',
+  code: 'E-SLF-0089',
   title:
     'selection raises fitness, drift does not, and the population re-adapts to a new environment',
   category: 'selves',

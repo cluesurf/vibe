@@ -46,7 +46,10 @@ export function emergentSpaceTest(): {
     margin: 0.8,
   })
 
-  const slice = bandLargestComponentSubgraph({ band: h, halfWidth: 1.0 })
+  const slice = bandLargestComponentSubgraph({
+    band: h,
+    halfWidth: 1.0,
+  })
 
   const lccPercent = slice.largestComponentPercent
   const bandDim =
@@ -66,6 +69,7 @@ export function emergentSpaceTest(): {
   })
 
   let cc = 0
+
   for (let i = 0; i < cube.cellCount; i++) {
     if (cube.coords[i]!.every(x => x === 0)) {
       cc = i
@@ -80,8 +84,20 @@ export function emergentSpaceTest(): {
   ): number =>
     frontCoefficientOfVariation({ neighbors, coords, start, radius })
 
-  const bandCVSmall = cv(slice.neighbors, slice.coords, slice.start, SMALL_RADIUS)
-  const bandCVLarge = cv(slice.neighbors, slice.coords, slice.start, LARGE_RADIUS)
+  const bandCVSmall = cv(
+    slice.neighbors,
+    slice.coords,
+    slice.start,
+    SMALL_RADIUS,
+  )
+
+  const bandCVLarge = cv(
+    slice.neighbors,
+    slice.coords,
+    slice.start,
+    LARGE_RADIUS,
+  )
+
   const cubeCVSmall = cv(cube.neighbors, cube.coords, cc, SMALL_RADIUS)
   const cubeCVLarge = cv(cube.neighbors, cube.coords, cc, LARGE_RADIUS)
 
@@ -99,6 +115,7 @@ export function emergentSpaceTest(): {
 
 export default experiment({
   id: 'geometry/emergent-space-test',
+  code: 'E-GMT-0012',
   title:
     'the {3,4,3,4} flat space self-averages its light cone toward isotropy with scale while the cubic crystal stays anisotropic',
   category: 'geometry',
@@ -115,7 +132,8 @@ export default experiment({
     // (random roughness self-averaging), while the cubic's barely moves (systematic facets)
     const bandFlowsToIsotropy = r.bandReduction > 2
     const cubeAnisotropyPersists = r.cubeReduction < 1.5
-    const emergentIsotropy = bandFlowsToIsotropy && cubeAnisotropyPersists
+    const emergentIsotropy =
+      bandFlowsToIsotropy && cubeAnisotropyPersists
 
     const ok = coherent && emergentIsotropy
 

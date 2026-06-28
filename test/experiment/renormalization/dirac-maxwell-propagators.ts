@@ -82,6 +82,7 @@ function fitMassShell(input: {
 
 export default experiment({
   id: 'renormalization/dirac-maxwell-propagators',
+  code: 'E-SCL-0006',
   title:
     'the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current vertex match QED, broken by an anisotropic rule',
   category: 'renormalization',

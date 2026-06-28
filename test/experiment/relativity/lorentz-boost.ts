@@ -124,6 +124,7 @@ export function lorentzBoost(input: { seed: number }): {
 
 export default experiment({
   id: 'relativity/lorentz-boost',
+  code: 'E-RLT-0017',
   title:
     'sprinkle rapidity is flat and boost-covariant while a lattice peaks at a rest frame',
   category: 'relativity',

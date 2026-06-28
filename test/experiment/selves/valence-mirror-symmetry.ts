@@ -72,6 +72,7 @@ export function mirrorSymmetry(input: { n: number; trials: number }): {
 
 export default experiment({
   id: 'selves/valence-mirror-symmetry',
+  code: 'E-SLF-0149',
   title:
     'flipping pain and pleasure mirrors the dynamics exactly, so the base has no drive toward pleasure',
   category: 'selves',

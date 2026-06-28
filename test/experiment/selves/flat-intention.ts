@@ -119,6 +119,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
 
 export default experiment({
   id: 'selves/flat-intention',
+  code: 'E-SLF-0050',
   title: 'directed intention works on the flat layer',
   category: 'selves',
   substrates: 'any',

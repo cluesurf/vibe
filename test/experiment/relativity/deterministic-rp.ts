@@ -89,6 +89,7 @@ export function deterministicRP(input?: { ks?: number[] }): {
 
 export default experiment({
   id: 'relativity/deterministic-rp',
+  code: 'E-RLT-0005',
   title:
     'the wave dispersion is real linear and massless so spatial reflection positivity is positive',
   category: 'relativity',

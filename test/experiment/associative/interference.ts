@@ -139,6 +139,7 @@ export function associativeInterference(input?: {
 
 export default experiment({
   id: 'associative/interference',
+  code: 'E-MMR-0008',
   title:
     'interference and forgetting as crosstalk, overlapping memories confuse recall while well-separated ones recall cleanly',
   category: 'associative',

@@ -78,6 +78,29 @@ export function regionEntanglementEntropy(input: {
   return s
 }
 
+// The geometric cross-cut connectivity of a free-fermion state: the total correlation strength linking two
+// regions, sum over i in regionA, j in regionB of |C_ij|. This is a transport / connectivity notion (how
+// strongly the two regions are sewn together), distinct from the entanglement entropy of the cut. Van
+// Raamsdonk's picture is that this connectivity rises and falls with the entanglement across the same cut.
+export function crossCutConnectivity(input: {
+  c: Float64Array
+  n: number
+  regionA: readonly number[]
+  regionB: readonly number[]
+}): number {
+  const { c, n, regionA, regionB } = input
+
+  let total = 0
+
+  for (const i of regionA) {
+    for (const j of regionB) {
+      total += Math.abs(c[i * n + j] ?? 0)
+    }
+  }
+
+  return total
+}
+
 // The Page average entanglement entropy (Page 1993) of a subsystem of Hilbert-space dimension m in a
 // random pure state of an m * n bipartite system, S(m, n) = sum_{k=n+1}^{m n} 1/k - (m - 1) / (2 n)
 // for m <= n (symmetric in m and n). For a black hole plus its radiation this rises while the

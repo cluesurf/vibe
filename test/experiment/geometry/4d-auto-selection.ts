@@ -134,6 +134,7 @@ export function fourDAutoSelection(): {
 
 export default experiment({
   id: 'geometry/4d-auto-selection',
+  code: 'E-GMT-0001',
   title:
     '{5,3,4} stays forced in 3D, {3,4,3,4} is the unique ideal cubic-cusp H4 candidate but not forced',
   category: 'geometry',

@@ -13,6 +13,7 @@ import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
 
 export default experiment({
   id: 'gauge/schwinger',
+  code: 'E-FRC-0045',
   title:
     'the Schwinger chiral condensate signal is near zero free and grows with gauge disorder',
   category: 'gauge',

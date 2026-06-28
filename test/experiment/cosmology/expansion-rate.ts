@@ -12,6 +12,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/expansion-rate',
+  code: 'E-CSM-0020',
   title:
     'the per-beat expansion is the growth-ratio invariant of the symbol, fixed and greater than 1, not a free knob',
   category: 'cosmology',

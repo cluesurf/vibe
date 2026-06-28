@@ -1098,7 +1098,7 @@ export function runConformance(): { passed: number; failed: number } {
       if (id !== splitTree.root) {
         const p = margensternParentOf(a)
 
-        if (p === null || margensternChildrenOf(p).indexOf(a) < 0) {
+        if (p === null || !margensternChildrenOf(p).includes(a)) {
           splitParent = false
         }
       }

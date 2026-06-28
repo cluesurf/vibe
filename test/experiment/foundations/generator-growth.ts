@@ -31,6 +31,7 @@ const cosToDeg = (c: number) =>
 // densest growth is forced to the 24-coin.
 export default experiment({
   id: 'foundations/generator-packing-optimum',
+  code: 'E-FND-0022',
   title:
     'the dock is the optimal 4D kissing shell, so densest growth is forced to the 24 directions',
   category: 'foundations',

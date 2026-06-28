@@ -116,7 +116,7 @@ export function shadowPressureD4(input: {
 }): number {
   const { side, beats, bodyLoX, bodyHiX, testX, body } = input
   const mesh = d4Mesh({ side })
-  const roots = rootsD4() as number[][]
+  const roots = rootsD4()
   const cellCount = mesh.cellCount
   const degree = 24
   const xOf = (c: number): number => c % side
@@ -206,7 +206,7 @@ export function selfContainedShadowD4(input: {
 }): number {
   const { side, beats, bodyLoX, bodyHiX, testX, body } = input
   const mesh = d4Mesh({ side })
-  const roots = rootsD4() as number[][]
+  const roots = rootsD4()
   const cellCount = mesh.cellCount
   const degree = 24
   const xOf = (c: number): number => c % side

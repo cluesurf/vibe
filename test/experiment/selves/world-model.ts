@@ -42,6 +42,7 @@ function predictiveInformation(
 
 export default experiment({
   id: 'selves/world-model',
+  code: 'E-SLF-0153',
   title:
     'a self interior carries predictive information about its future environment, the controls do not',
   category: 'selves',

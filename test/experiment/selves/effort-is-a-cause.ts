@@ -85,6 +85,7 @@ export function effortResult(input: { m: number; beats: number }): {
 
 export default experiment({
   id: 'selves/effort-is-a-cause',
+  code: 'E-SLF-0042',
   title:
     'more goal-directed effort gives a better determined outcome and zero effort a worse one, so it does not happen anyway',
   category: 'selves',
@@ -103,7 +104,8 @@ export default experiment({
 
     const last = runs[runs.length - 1]!
     const zero = last.selfByEffort[0]!.finalDistance
-    const most = last.selfByEffort[last.selfByEffort.length - 1]!.finalDistance
+    const most =
+      last.selfByEffort[last.selfByEffort.length - 1]!.finalDistance
 
     return verdict({
       status: ok ? 'pass' : 'fail',

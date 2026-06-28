@@ -53,6 +53,7 @@ export function deSitterExpansion(input: {
 
 export default experiment({
   id: 'cosmology/expansion',
+  code: 'E-CSM-0019',
   title: 'expanding geometry gives an expanding causal order',
   category: 'cosmology',
   substrates: 'any',

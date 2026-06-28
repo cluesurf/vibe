@@ -79,7 +79,7 @@ export function nestedSelves(input: { seed: number }): {
       // flip the first k members (order is arbitrary and fixed, so reproducible)
       for (let i = 0; i < k; i++) {
         const v = mem[i] ?? 0
-        perturbed[v] = -(base[v] ?? 0) as -1 | 0 | 1
+        perturbed[v] = -(base[v] ?? 0)
       }
 
       const settled = settleAsync({
@@ -160,6 +160,7 @@ export function nestedSelves(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/nested-selves',
+  code: 'E-SLF-0080',
   title:
     'small wounds heal, whole-cell flips persist, body stays intact',
   category: 'selves',

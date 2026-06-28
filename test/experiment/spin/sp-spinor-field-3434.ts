@@ -72,6 +72,7 @@ export function spSpinorField(): {
 
 export default experiment({
   id: 'spin/sp-spinor-field-3434',
+  code: 'E-SPN-0030',
   title:
     'a 2-component Dirac walk on {3,4,3,4} streams chirality at the light speed and mixes it under a mass',
   category: 'spin',

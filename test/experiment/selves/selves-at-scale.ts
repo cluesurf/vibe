@@ -184,6 +184,7 @@ export function selvesAtScale(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/selves-at-scale',
+  code: 'E-SLF-0120',
   title:
     'coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy',
   category: 'selves',

@@ -39,6 +39,7 @@ function lambda2(labels: number[], bins: number, lag: number): number {
 
 export default experiment({
   id: 'selves/coarse-size-robustness',
+  code: 'E-SLF-0030',
   title:
     'the self slow-mode survives across lattice sizes, and the shuffled control fails at every size',
   category: 'selves',

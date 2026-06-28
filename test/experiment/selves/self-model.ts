@@ -194,7 +194,7 @@ function run(withDynamics: boolean): {
     }
 
     for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      tone[i] = sigs[sectorOf[i]!]!
     }
 
     if (withDynamics) {
@@ -202,7 +202,7 @@ function run(withDynamics: boolean): {
     }
 
     for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      tone[i] = sigs[sectorOf[i]!]!
     }
 
     gSeries.push(meanOver(tone, self))
@@ -266,6 +266,7 @@ export function selfModel(): {
 
 export default experiment({
   id: 'selves/self-model',
+  code: 'E-SLF-0115',
   title:
     'a localized hub represents the self global state, beating local regions and a shuffle',
   category: 'selves',
