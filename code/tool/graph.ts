@@ -131,8 +131,8 @@ export function toCsr(neighbors: readonly (readonly number[])[]): {
   for (let i = 0; i < n; i++) {
     const row = neighbors[i] ?? []
 
-    for (let k = 0; k < row.length; k++) {
-      adj[p++] = row[k]!
+    for (const value of row) {
+      adj[p++] = value
     }
   }
 
@@ -189,8 +189,7 @@ export function largestComponentNodes(
     const q = [s]
     seen[s] = s
 
-    for (let h = 0; h < q.length; h++) {
-      const u = q[h]!
+    for (const u of q) {
       comp.push(u)
 
       for (const w of neighbors[u]!) {
@@ -528,6 +527,7 @@ export function edgesOf(
       continue
     }
 
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of -- ArrayLike<number> is not iterable, so for-of would be a type error
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
 
@@ -619,9 +619,7 @@ export function edgeList(g: Graph): { a: number; b: number }[] {
   for (let a = 0; a < g.size; a++) {
     const row = g.neighbors[a] ?? new Uint32Array(0)
 
-    for (let k = 0; k < row.length; k++) {
-      const b = row[k] ?? 0
-
+    for (const b of row) {
       if (g.directed || a < b) {
         out.push({ a, b })
       }

@@ -133,8 +133,8 @@ export function boundStateDecayExponent(input: {
         continue
       }
 
-      for (let i = 0; i < row.length; i++) {
-        const nb = row[i]!
+      for (const value of row as readonly number[]) {
+        const nb = value
 
         if (shell[nb] === -1) {
           shell[nb] = shell[cell]! + 1
@@ -165,8 +165,8 @@ export function boundStateDecayExponent(input: {
       const row = neighbors[i]
 
       if (row) {
-        for (let k = 0; k < row.length; k++) {
-          acc += psi[row[k]!]!
+        for (const value of row as readonly number[]) {
+          acc += psi[value]!
         }
       }
 

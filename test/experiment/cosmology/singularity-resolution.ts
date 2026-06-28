@@ -53,18 +53,14 @@ export function minimumInterval(input: {
 
   const lengths: number[] = []
 
-  for (let i = 0; i < pts.length; i++) {
-    const p = pts[i]
-
+  for (const p of pts) {
     if (!p || p.t > 6 || Math.abs(p.x) > 6) {
       continue // keep away from the boundary
     }
 
     let best = Infinity
 
-    for (let j = 0; j < pts.length; j++) {
-      const q = pts[j]
-
+    for (const q of pts) {
       if (!q || q.t <= p.t) {
         continue
       }

@@ -90,9 +90,7 @@ export function lowestEigenvalues(input: {
     }
 
     // full reorthogonalisation against the stored basis (m is small)
-    for (let k = 0; k < basis.length; k++) {
-      const bk = basis[k]
-
+    for (const bk of basis) {
       if (!bk) {
         continue
       }

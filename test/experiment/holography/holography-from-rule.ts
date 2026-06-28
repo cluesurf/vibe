@@ -52,7 +52,7 @@ export default experiment({
     const leafCount = branching ** depth
     // a deterministic bulk logical value and a boundary that carries it by the reversible parity rule
     const logical = 1
-    const leaves = new Array(leafCount).fill(0)
+    const leaves: number[] = new Array<number>(leafCount).fill(0)
     leaves[0] = logical // a deterministic boundary configuration with the right root parity
 
     // (1) DERIVED, the root (bulk) is recoverable from the FULL boundary it causally reaches (the wedge)

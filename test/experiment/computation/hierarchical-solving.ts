@@ -14,7 +14,7 @@ import {
   conservingEdgeSweepHashed,
 } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, type Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -90,7 +90,7 @@ function solveTime(n: number): {
 
   const s = base.slice()
   const s2 = base.slice()
-  s2[source] = (s2[source]! === 0 ? 1 : 0) // the decision at the source
+  s2[source] = ((s2[source]!) === 0 ? 1 : 0) // the decision at the source
 
   const targetRadius = Math.floor(diameter * 0.8)
 

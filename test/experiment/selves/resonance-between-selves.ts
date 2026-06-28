@@ -41,8 +41,6 @@ function coupledResonance(input: {
   poleB: Int8Array
   rounds: number
 }): number {
-  const n = input.poleA.length
-
   let a = Int8Array.from(input.poleA)
   let b = Int8Array.from(input.poleB)
 

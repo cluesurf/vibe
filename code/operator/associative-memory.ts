@@ -235,9 +235,7 @@ export function broadcastWave(input: {
 
   let coverage = 0
 
-  for (let c = 0; c < depth.length; c++) {
-    const d = depth[c]!
-
+  for (const d of depth) {
     if (d > coverage) {
       coverage = d
     }

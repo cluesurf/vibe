@@ -283,8 +283,8 @@ function check(input: {
 }
 
 function allFinite(xs: ArrayLike<number>): boolean {
-  for (let i = 0; i < xs.length; i++) {
-    if (!Number.isFinite(xs[i] ?? NaN)) {
+  for (const x of Array.from(xs)) {
+    if (!Number.isFinite(x ?? NaN)) {
       return false
     }
   }
@@ -562,8 +562,8 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   let lo = Infinity
 
-  for (let i = 0; i < eig.values.length; i++) {
-    lo = Math.min(lo, eig.values[i] ?? 0)
+  for (const value of eig.values) {
+    lo = Math.min(lo, value ?? 0)
   }
 
   check({
@@ -614,8 +614,8 @@ function allFinite(xs: ArrayLike<number>): boolean {
     const row = ring.neighbors[i] ?? new Uint32Array(0)
     m.data[i * cells + i] = row.length
 
-    for (let k = 0; k < row.length; k++) {
-      m.data[i * cells + (row[k] ?? 0)] = -1
+    for (const col of row) {
+      m.data[i * cells + (col ?? 0)] = -1
     }
   }
 
@@ -623,8 +623,8 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   let lo = Infinity
 
-  for (let i = 0; i < eig.values.length; i++) {
-    lo = Math.min(lo, eig.values[i] ?? 0)
+  for (const value of eig.values) {
+    lo = Math.min(lo, value ?? 0)
   }
 
   check({

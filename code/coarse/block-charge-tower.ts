@@ -32,16 +32,16 @@ export function blockChargeTower(input: {
   for (let lv = 0; lv <= maxLevel; lv++) {
     let total = 0
 
-    for (let i = 0; i < level.length; i++) {
-      total += level[i]!
+    for (const value of level) {
+      total += value
     }
 
     const mean = total / level.length
 
     let varSum = 0
 
-    for (let i = 0; i < level.length; i++) {
-      varSum += (level[i]! - mean) ** 2
+    for (const value of level) {
+      varSum += (value - mean) ** 2
     }
 
     const variance = varSum / level.length

@@ -210,7 +210,7 @@ async function run(): Promise<void> {
     `  (1) charge conserved: ${chargeOk} (${s0.charge} -> ${s1.charge})`,
   )
   console.log(
-    `  (2) momentum conserved: ${momOk} ([${s0.mom}] -> [${s1.mom}])`,
+    `  (2) momentum conserved: ${momOk} ([${String(s0.mom)}] -> [${String(s1.mom)}])`,
   )
   // reversibility, the step is (collide then stream); inverse is (un-stream then collide). The combined step
   // here is an involution-collide composed with a shift, so applying the inverse T times recovers the start.

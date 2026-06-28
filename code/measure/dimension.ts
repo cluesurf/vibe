@@ -39,10 +39,6 @@ function lgamma(x: number): number {
   )
 }
 
-function tgamma(x: number): number {
-  return Math.exp(lgamma(x))
-}
-
 // The Myrheim-Meyer relation: expected ordering fraction inside an interval as a
 // function of dimension d. f(d) = (1/2) * gamma(d+1) gamma(d/2) / gamma(3d/2).
 // Check: f(1) = 1 (every pair on a line is causally related) and f(2) = 1/2 (two
@@ -128,8 +124,8 @@ export function ballGrowth(input: {
     for (const node of frontier) {
       const row = adjacency[node] ?? new Uint32Array(0)
 
-      for (let k = 0; k < row.length; k++) {
-        const neighbor = row[k] ?? 0
+      for (const value of row) {
+        const neighbor = value ?? 0
 
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = radius
@@ -173,7 +169,7 @@ export function ballGrowthDimension(input: {
 
     let frontier = [c]
 
-    const counts = new Array(maxRadius + 1).fill(0)
+    const counts: number[] = new Array(maxRadius + 1).fill(0)
     counts[0] = 1
 
     for (let r = 1; r <= maxRadius; r++) {
@@ -188,7 +184,7 @@ export function ballGrowthDimension(input: {
         }
       }
 
-      counts[r] = counts[r - 1] + nextFrontier.length
+      counts[r] = counts[r - 1]! + nextFrontier.length
       frontier = nextFrontier
     }
 
@@ -196,9 +192,9 @@ export function ballGrowthDimension(input: {
     const ys: number[] = []
 
     for (let r = 1; r <= maxRadius; r++) {
-      if (counts[r] > counts[r - 1]) {
+      if (counts[r]! > counts[r - 1]!) {
         xs.push(r)
-        ys.push(counts[r])
+        ys.push(counts[r]!)
       }
     }
 

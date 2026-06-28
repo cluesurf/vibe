@@ -39,18 +39,6 @@ export function closedManifold(): {
 
   cur[0] = 1
 
-  const net = (a: Int8Array): number => {
-    let s = 0
-
-    for (let i = 0; i < N; i++) {
-      s += a[i]!
-    }
-
-    return ((s % 3) + 3) % 3
-  }
-
-  const n0 = net(cur)
-
   for (let t = 0; t < 50; t++) {
     for (let i = 0; i < N; i++) {
       let s = 0

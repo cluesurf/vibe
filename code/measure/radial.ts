@@ -11,7 +11,7 @@ export function graphBusemann(graph: Graph): number[] {
   const e = graph.embedding
 
   if (!e) {
-    return new Array(graph.size).fill(0)
+    return new Array<number>(graph.size).fill(0)
   }
 
   const d = e.dimension
@@ -36,7 +36,7 @@ export function busemannLevels(graph: Graph, bins: number): number[] {
 
   const min = Math.min(...values)
   const max = Math.max(...values)
-  const histogram = new Array(bins).fill(0)
+  const histogram = new Array<number>(bins).fill(0)
 
   for (const v of values) {
     const k = Math.min(
@@ -44,7 +44,7 @@ export function busemannLevels(graph: Graph, bins: number): number[] {
       Math.floor(((v - min) / (max - min + 1e-9)) * bins),
     )
 
-    histogram[k] += 1
+    histogram[k] = histogram[k]! + 1
   }
 
   return histogram

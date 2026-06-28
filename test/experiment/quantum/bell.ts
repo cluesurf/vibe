@@ -8,10 +8,8 @@
 // IS the superdeterministic conspiracy, made measurable.
 // Run: npx tsx code/experiment/p7-bell.ts
 
-import { makeRng } from '@/code/tool/rng'
 import { chsh, Lambda } from '@/code/measure/bell'
 import { runScan, ScanSpec } from '@/test/scaffold/runner'
-import { writeReport } from '@/test/scaffold/report'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

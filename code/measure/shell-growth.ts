@@ -29,9 +29,7 @@ export function shellCountsFromGraph(input: {
         continue
       }
 
-      for (let i = 0; i < row.length; i++) {
-        const nb = row[i]!
-
+      for (const nb of Array.from(row)) {
         if (distance[nb] === -1) {
           distance[nb] = distance[cell]! + 1
           next.push(nb)

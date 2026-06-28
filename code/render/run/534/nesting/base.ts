@@ -14,7 +14,6 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const MAX_CELLS = 200000 // enough for ~6 clean shells
-const SLICE = 0.05 // keep cells with |z| < SLICE, a thin slab through the origin -> a 2D disk view
 const IMG = 1400
 const MARGIN = 0.94
 const DOT_SCALE = 30 // pixels per unit conformal size at the centre

@@ -54,6 +54,7 @@ export function isBalancedTernaryField(
 ): boolean {
   const cap = balancedTernaryCap(digits)
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- ArrayLike<number> is not iterable, so for-of would be a type error
   for (let i = 0; i < values.length; i++) {
     const v = values[i]!
 

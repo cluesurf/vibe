@@ -63,9 +63,7 @@ function anisotropyBound(): { coeff: number; deltaGZK: number } {
   // physical Lorentz-violation, delta = coeff * (E / E_cutoff)^2, with E_cutoff = Planck ~ 1.22e19 GeV
   const Epl = 1.22e19 // GeV
   const at = (E: number): number => coeff * (E / Epl) ** 2
-  const dGeV = at(1),
-    dTeV = at(1e3),
-    dGZK = at(5e10) // GZK ~ 5e10 GeV (5e19 eV)
+  const dGZK = at(5e10) // GZK ~ 5e10 GeV (5e19 eV)
 
   return { coeff, deltaGZK: dGZK }
 }

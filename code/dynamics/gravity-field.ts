@@ -77,7 +77,7 @@ export function relaxPotential(input: {
   const clamp = (v: number): number =>
     v < -cap ? -cap : v > cap ? cap : v
 
-  let phi = warm ? warm : new Int32Array(cellCount)
+  let phi = warm ?? new Int32Array(cellCount)
 
   for (let s = 0; s < sweeps; s++) {
     const next = new Int32Array(cellCount)
@@ -190,7 +190,7 @@ export function vacuumDensity(input: {
   const clamp = (v: number): number =>
     v < -cap ? -cap : v > cap ? cap : v
 
-  let v = warm ? warm : new Int32Array(cellCount)
+  let v = warm ?? new Int32Array(cellCount)
 
   for (let s = 0; s < sweeps; s++) {
     const next = new Int32Array(cellCount)

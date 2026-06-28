@@ -104,8 +104,8 @@ export function countNearZeroEigenvalues(input: {
 
   let count = 0
 
-  for (let i = 0; i < eig.values.length; i++) {
-    if (Math.abs(eig.values[i] ?? 0) < input.tolerance) {
+  for (const value of eig.values) {
+    if (Math.abs(value ?? 0) < input.tolerance) {
       count += 1
     }
   }

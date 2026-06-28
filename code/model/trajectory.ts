@@ -18,8 +18,8 @@ export type Agent = 'self' | 'rock' | 'none'
 function distanceToGoal(env: Int8Array): number {
   let off = 0
 
-  for (let i = 0; i < env.length; i++) {
-    if (env[i] !== 1) {
+  for (const cell of env) {
+    if (cell !== 1) {
       off++
     }
   }

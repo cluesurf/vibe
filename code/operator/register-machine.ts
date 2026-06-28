@@ -38,8 +38,8 @@ export class RegisterMachine {
   charge(): number {
     let s = 0
 
-    for (let i = 0; i < this.tone.length; i++) {
-      s += this.tone[i]!
+    for (const toneValue of this.tone) {
+      s += toneValue
     }
 
     return s

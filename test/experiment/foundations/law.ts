@@ -8,24 +8,15 @@
 // grows means a local rule with a (quasi-)local Hamiltonian.
 // Run: npx tsx code/experiment/p1-law.ts
 
-import { lattice } from '@/code/substrate/lattice'
-import { reversibleEvenOdd } from '@/code/rule/reversible'
-import {
-  makeStateSpace,
-  permutationOfRule,
-} from '@/code/operator/evolution'
 import {
   hamiltonianMatrix,
   pauliLocalityProfile,
 } from '@/code/operator/ca-hamiltonian'
 import {
-  blockCaPermutation,
   cnotGate,
-  toffoliGate,
   commutingBlockHamiltonian,
 } from '@/code/operator/block-ca'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
-import { Alphabet } from '@/code/tone/alphabet'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -70,9 +61,7 @@ export default experiment({
     let blockMinEig = Infinity
     let blockMaxEig = -Infinity
 
-    for (let i = 0; i < eig.values.length; i++) {
-      const value = eig.values[i] ?? 0
-
+    for (const value of eig.values) {
       if (value < blockMinEig) {
         blockMinEig = value
       }

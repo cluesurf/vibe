@@ -247,7 +247,6 @@ export function intentionAtScale(input?: { n?: number }): {
     beat(tone, allWill, 0.45, rng3)
   }
 
-  const dtBefore = meanDT(tone, () => true)
   // perturb: randomly relocate ~40% of the charge to random self cells (a shock to the intention)
   const charges: number[] = []
 

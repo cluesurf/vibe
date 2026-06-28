@@ -120,14 +120,7 @@ function measure(
 
 export function fourdTessellations(): void {
   for (const c of HONEYCOMBS) {
-    const crystallographic = c.sym.every(
-      n => n === 3 || n === 4 || n === 6,
-    )
-
-    const m = measure(c.sym, c.flat ?? false, SURVEY_SCALE)
-    const built = m.ok
-      ? `degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}`
-      : 'does not build (ideal tiles)'
+    measure(c.sym, c.flat ?? false, SURVEY_SCALE)
   }
 }
 

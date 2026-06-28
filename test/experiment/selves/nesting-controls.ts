@@ -167,10 +167,10 @@ function towerOf(step: (t: Int8Array) => void): {
   let pos = 0,
     neg = 0
 
-  for (let i = 0; i < cg.length; i++) {
-    if (cg[i]! > 1) {
+  for (const value of cg) {
+    if (value > 1) {
       pos++
-    } else if (cg[i]! < -1) {
+    } else if (value < -1) {
       neg++
     }
   }

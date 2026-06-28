@@ -56,7 +56,7 @@ function relicAsymmetry(input: {
   return eta
 }
 
-export function baryogenesis(input: { seed: number }): {
+export function baryogenesis(_input: { seed: number }): {
   full: number
   noCP: number
   equilibrium: number

@@ -280,8 +280,8 @@ function gravitonBasisField(
 function gravitonProjectOntoMode(g: TensorField, kz: number): number[] {
   const out: number[] = []
 
-  for (let r = 0; r < GRAVITON_PAIRS.length; r++) {
-    const [a, b] = GRAVITON_PAIRS[r] ?? [0, 0]
+  for (const pair of GRAVITON_PAIRS) {
+    const [a, b] = pair ?? [0, 0]
     const amp = a === b ? 1 : Math.SQRT2 // inner product weight (off-diagonal counted twice)
 
     let num = 0

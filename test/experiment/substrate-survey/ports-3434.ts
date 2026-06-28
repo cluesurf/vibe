@@ -108,8 +108,8 @@ export function ports(): {
 
   let ch = 0
 
-  for (let i = 0; i < t.length; i++) {
-    if (t[i] !== 0) {
+  for (const v of t) {
+    if (v !== 0) {
       ch++
     }
   }
@@ -133,10 +133,10 @@ export function ports(): {
     let p = 0,
       m = 0
 
-    for (let i = 0; i < t2.length; i++) {
-      if (t2[i] === 1) {
+    for (const v of t2) {
+      if (v === 1) {
         p++
-      } else if (t2[i] === -1) {
+      } else if (v === -1) {
         m++
       }
     }

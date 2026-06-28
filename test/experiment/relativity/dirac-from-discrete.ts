@@ -61,8 +61,6 @@ export function diracFromDiscrete(): {
     }
   }
 
-  const E0 = measureE(2, m, T)
-
   return { masslessOk, massiveOk }
 }
 

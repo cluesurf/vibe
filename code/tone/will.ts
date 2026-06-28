@@ -72,8 +72,8 @@ export function charge(will: Will): number {
 
   const data = will.data
 
-  for (let index = 0; index < data.length; index++) {
-    sum += data[index] ?? 0
+  for (const value of data) {
+    sum += value ?? 0
   }
 
   return sum

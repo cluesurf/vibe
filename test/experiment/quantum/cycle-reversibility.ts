@@ -13,8 +13,6 @@ import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 export function cycleReversibility(input?: { n?: number }): {
   n: number
   cycles: number
@@ -210,8 +208,8 @@ export function cycleReversibility(input?: { n?: number }): {
   // noisy terms. estimate the floor from the typical per-edge |flow| (the noise scale of one edge).
   let sumAbsFlow = 0
 
-  for (let k = 0; k < flow.length; k++) {
-    sumAbsFlow += Math.abs(flow[k]!)
+  for (const f of flow) {
+    sumAbsFlow += Math.abs(f)
   }
 
   const meanAbsFlow = sumAbsFlow / flow.length

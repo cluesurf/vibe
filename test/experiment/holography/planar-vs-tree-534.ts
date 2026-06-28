@@ -59,8 +59,8 @@ export default experiment({
     const mesh = buildCoxeterMatrixMesh([7, 3], 1500)
     const planar = mesh.adjacency.map(row => row.filter(n => n >= 0))
     const size = planar.length
-    const depth = new Array(size).fill(-1)
-    const parent = new Array(size).fill(-1)
+    const depth: number[] = new Array<number>(size).fill(-1)
+    const parent: number[] = new Array<number>(size).fill(-1)
     depth[0] = 0
 
     let frontier = [0]
@@ -86,18 +86,18 @@ export default experiment({
 
     for (let v = 0; v < size; v++) {
       if (parent[v] !== -1) {
-        tree[v]!.push(parent[v])
+        tree[v]!.push(parent[v]!)
         tree[parent[v]!]!.push(v)
       }
     }
 
     const boundary = [...Array(size).keys()].filter(
-      c => depth[c]! === maxDepth - 1,
+      c => (depth[c]!) === maxDepth - 1,
     )
 
     // erase every other cell of a mid-depth annulus (a partial cut)
     const cutDepth = Math.floor(maxDepth / 2)
-    const erased = new Array(size).fill(false)
+    const erased: boolean[] = new Array<boolean>(size).fill(false)
 
     let cut = 0
 

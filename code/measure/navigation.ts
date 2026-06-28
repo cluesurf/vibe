@@ -74,8 +74,7 @@ export function greedyRouteHops(input: {
     let best = -1
     let bestDistance = targetDistance({ graph, node: current, target })
 
-    for (let k = 0; k < row.length; k++) {
-      const neighbor = row[k] ?? 0
+    for (const neighbor of row) {
       const distance = targetDistance({ graph, node: neighbor, target })
 
       if (distance < bestDistance) {
@@ -160,8 +159,7 @@ export function greedyRoutingSuccess(input: {
         target,
       })
 
-      for (let k = 0; k < row.length; k++) {
-        const neighbor = row[k] ?? 0
+      for (const neighbor of row) {
         const distance = targetDistance({
           graph,
           node: neighbor,
@@ -261,9 +259,7 @@ export function routingWithBacktrack(input: {
       let best = -1
       let bestDistance = Infinity
 
-      for (let k = 0; k < row.length; k++) {
-        const neighbor = row[k] ?? 0
-
+      for (const neighbor of row) {
         if ((visited[neighbor] ?? 0) === 1) {
           continue
         }
@@ -331,9 +327,7 @@ function bfsHops(input: {
     for (const node of frontier) {
       const row = input.graph.neighbors[node] ?? new Uint32Array(0)
 
-      for (let k = 0; k < row.length; k++) {
-        const neighbor = row[k] ?? 0
-
+      for (const neighbor of row) {
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = (distance[node] ?? 0) + 1
 

@@ -4,10 +4,9 @@
 // motion is clear. A faint wireframe cube gives 3D depth reference. Volume-composited (red -1, blue +1, black
 // 0), no white. Run: pnpm tsx code/gpu/render-cusp-3434-glider.ts   then task/render-video.sh
 
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { PLEASURE, PAIN } from '@/code/draw/color'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 

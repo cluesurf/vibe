@@ -74,9 +74,6 @@ export function emergentBoost(): {
     }
   }
 
-  // verify a concrete case: 0.9 + 0.9 = 0.994... (< c), not 1.8
-  const example = (0.9 + 0.9) / (1 + 0.81)
-
   // (3) HONEST: the lattice dispersion is NOT exactly boost-invariant, it breaks at short wavelength (UV)
   // measure the invariant E^2 - k^2 vs m^2 at small k (IR, should match) and large k (UV, should deviate)
   const m = 0.4

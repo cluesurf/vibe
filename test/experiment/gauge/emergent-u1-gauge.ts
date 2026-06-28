@@ -72,7 +72,7 @@ export function emergentU1Gauge(): {
     Math.abs(wA - Phi) < 1e-9 && Math.abs(wB - Phi) < 1e-9
 
   // a loop NOT enclosing the flux -> 0
-  const wNone = wilsonLoop(g, 2, 6, 2, 6)
+  wilsonLoop(g, 2, 6, 2, 6)
 
   return { wilsonInvariant, aharonovBohm }
 }

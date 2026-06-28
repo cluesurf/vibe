@@ -29,7 +29,6 @@ import {
   type Collision,
 } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
-import { absorbBoundary } from '@/code/dynamics/bath'
 import { travelDistance } from '@/code/check/structure'
 
 export default experiment({

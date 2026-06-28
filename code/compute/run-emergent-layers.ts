@@ -320,15 +320,12 @@ async function run(): Promise<void> {
     }
 
     const ctau = (tau: number): number => {
-      let s = 0,
-        cnt = 0
+      let s = 0
 
       for (let st = 0; st + tau < M; st++) {
         for (let i = 0; i < n; i++) {
           s += ser[st]![i]! * ser[st + tau]![i]!
         }
-
-        cnt++
       }
 
       return s

@@ -11,12 +11,11 @@ import { create, globals } from 'webgpu'
 import { makeRng } from '@/code/tool/rng'
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
-import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { pack, currentOf, signedTone } from '@/code/tone/pack'
 import { toCsr } from '@/code/tool/graph'
 import { extractBand } from '@/code/substrate/horosphere'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -381,4 +380,4 @@ async function run(): Promise<void> {
   )
 }
 
-run()
+void run()

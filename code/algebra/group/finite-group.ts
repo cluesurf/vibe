@@ -28,9 +28,9 @@ export function closure<T>(generators: T[], ops: GroupOps<T>): T[] {
     add(generator)
   }
 
-  for (let index = 0; index < queue.length; index++) {
+  for (const element of queue) {
     for (const generator of generators) {
-      add(ops.multiply(queue[index]!, generator))
+      add(ops.multiply(element, generator))
     }
   }
 

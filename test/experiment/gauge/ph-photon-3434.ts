@@ -98,8 +98,6 @@ export function phPhoton(): {
   // linear at long wavelength: omega(k)/k -> 1 (speed of light c = 1)
   const slope = disp(0.02) / 0.02
   const linearAtLongWave = Math.abs(slope - 1) < 0.01
-  // a massive field for contrast would have omega(0) = m > 0 (a gap)
-  const massiveGap = Math.hypot(0.3, 1e-4) // sqrt(m^2 + k^2), m = 0.3
   // transverse polarizations in 4D = D - 2 = 2 (the photon has 2 physical polarizations, the longitudinal is pure gauge)
   const D = 4,
     transversePolarizations = D - 2 === 2

@@ -49,8 +49,8 @@ export function dynamicDispersion(input?: {
   // over thousands of beats (nearly conserved) and are not measurable here
   const ns = [40, 60, 90, 140, 220, 340]
   const ks = ns.map(n => (2 * Math.PI * n) / L)
-  const cosTab = ks.map(k => new Float64Array(L))
-  const sinTab = ks.map(k => new Float64Array(L))
+  const cosTab = ks.map(() => new Float64Array(L))
+  const sinTab = ks.map(() => new Float64Array(L))
 
   for (let m = 0; m < ks.length; m++) {
     for (let x = 0; x < L; x++) {

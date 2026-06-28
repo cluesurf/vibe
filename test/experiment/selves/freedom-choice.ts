@@ -121,7 +121,6 @@ export function freedomChoice(input: { n: number; seed: number }): {
   irreducible: boolean
 } {
   const n = input.n
-  const rng = makeRng({ seed: input.seed })
   const init = new Int8Array(n) // neutral start, all zero
   const urge = ternaryVector(n, makeRng({ seed: input.seed + 100 }))
 

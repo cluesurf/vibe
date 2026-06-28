@@ -83,14 +83,14 @@ function directionProjection(radial: number[]): {
 }
 
 export function bulkCuspInterface(): void {
-  const a = spinorBranching()
+  spinorBranching()
 
   for (const radial of [
     [1, 1, 1, 1],
     [1, 0, 0, 0],
     [1, 1, 0, 0],
   ]) {
-    const r = directionProjection(radial)
+    directionProjection(radial)
   }
 }
 

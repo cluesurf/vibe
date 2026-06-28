@@ -3,8 +3,8 @@
 
 // True when every entry of the array-like is a finite number.
 export function allFinite(values: ArrayLike<number>): boolean {
-  for (let i = 0; i < values.length; i++) {
-    if (!Number.isFinite(values[i] ?? NaN)) {
+  for (const value of Array.from(values)) {
+    if (!Number.isFinite(value ?? NaN)) {
       return false
     }
   }

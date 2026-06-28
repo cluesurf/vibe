@@ -270,7 +270,6 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     center: Vec
     faces: Mat[]
   } {
-    const neg = (x: number): number => ((-x % p) + p) % p
     // the Cartan matrix, 2 on the diagonal, -2cos(pi/label) on the path off-diagonals
     const cartan: number[][] = Array.from({ length: n }, () =>
       new Array<number>(n).fill(0),
@@ -313,9 +312,9 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     const stab: Mat[] = [identity(n)]
     const stabSeen = new Set<string>([stab[0]!.join(',')])
 
-    for (let head = 0; head < stab.length; head++) {
+    for (const stabilizer of stab) {
       for (let i = 0; i < n - 1; i++) {
-        const g = matMul(reflections[i]!, stab[head]!, n, p)
+        const g = matMul(reflections[i]!, stabilizer, n, p)
         const k = g.join(',')
 
         if (!stabSeen.has(k)) {
