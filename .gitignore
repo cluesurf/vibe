@@ -15,3 +15,4 @@ tmp/
 .react-router/
 test/site/node_modules/
 test/site/build/
+node_modules
