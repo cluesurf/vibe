@@ -58,7 +58,7 @@ export default experiment({
         sFar,
       },
       notes:
-        'L1, an honest negative. The shared-past fraction eta(d) = exp(-d/xi) is an ASSUMED decay model, not measured from a stepped mesh, so the result quantifies a tension rather than deriving it from the base rule. The far-separation point, where the violation decays, is the control against the near point. It uses random sampling over 80000 trials, so each S is a Monte Carlo estimate. The finding is the precise residual difficulty, a natural mesh gives quantum violation only for nearby measurements, not spacelike ones.',
+        'L1, an honest negative. The shared-past fraction eta(d) = exp(-d/xi) is an ASSUMED decay model, not measured from a stepped mesh, so the result quantifies a tension rather than deriving it from the base rule. The far-separation point, where the violation decays, is the control against the near point. It uses random sampling over 80000 trials, so each S is a Monte Carlo estimate. The finding is the precise residual difficulty, a natural mesh gives quantum violation only for nearby measurements, not spacelike ones. Superseded by E-QTM-0029 (quantum/shared-past-curvature), which MEASURES the shared-past fraction directly from the base rule causal cones on the {3,4,3,4} and hyperbolic substrates, deterministically, instead of assuming the exp(-d/xi) decay used here.',
     })
   },
 })

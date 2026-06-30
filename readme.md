@@ -143,10 +143,10 @@ full rubric and the rules the runner enforces (an L3 claim must carry a
 control, for instance) are in
 [`note/experimental-methodology.md`](note/experimental-methodology.md).
 
-As of the latest run the catalog holds **615 experiments across 18
-categories**: 84 at `L3` (emergent and novel), 389 at `L2` (known
+As of the latest run the catalog holds **620 experiments across 18
+categories**: 84 at `L3` (emergent and novel), 394 at `L2` (known
 physics reproduced), 128 at `L1` (known math confirmed), and 14 at `L0`
-(circular), with 412 of them backing a specific claim in the papers. The
+(circular), with 417 of them backing a specific claim in the papers. The
 largest categories are selves, gauge, foundations, cosmology, spin,
 relativity, and gravity.
 
@@ -223,6 +223,13 @@ All docs live in `note/`. The entry points:
 - **[Experimental methodology](note/experimental-methodology.md)** is
   the standard every experiment is held to, the depth rubric, the
   control requirement, determinism, and the honest negatives.
+- **[Open problems](note/problems/)** are the honest negatives written up
+  in full. The hardest is
+  **[spacelike Bell correlations](note/problems/spacelike-bell-correlations.md)**:
+  what Bell's theorem actually proves, why a deterministic theory can still
+  match quantum mechanics (it drops measurement independence, not
+  determinism), the price vibe pays for that, and the measured shared-past
+  collapse that makes it hard.
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
   is how to write an experiment that runs against every regular
   hyperbolic tessellation at once.
