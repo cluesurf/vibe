@@ -9,6 +9,28 @@ import { makeRng, Rng } from '@/code/tool/rng'
 // A hidden ontological value carried by the substrate.
 export type Lambda = number
 
+// The shared-past fraction at which the measurement-dependence bound reaches the
+// Tsirelson value 2 root 2. A superdeterministic model whose settings share less
+// than this fraction of the system's causal past cannot reach the quantum
+// correlation, at or above it can.
+export const TSIRELSON_SHARED_PAST = Math.SQRT2 - 1
+
+// The CHSH value reachable from a measurement-setting correlation of strength eta,
+// the linear measurement-dependence bound. With a fraction eta of runs where the
+// setting is fixed by the shared hidden state (so the wings can be perfectly
+// anti-aligned, the algebraic value 4) and the rest genuinely free (the local
+// bound 2), the reachable value is S = 2 + 2 eta, capped at the algebraic maximum
+// 4. Quantum mechanics sits at eta = root 2 minus 1, where S = 2 root 2, the
+// Tsirelson value. This is exact and deterministic, no sampling, so a MEASURED
+// shared-past fraction maps straight to a CHSH bound with no random draw. It is
+// the eta-to-S map that replaces the Monte Carlo chshShared. The bound itself is
+// standard (the measurement-dependence relation), cited not derived.
+export function chshFromSharedPast(eta: number): number {
+  const clamped = eta < 0 ? 0 : eta > 1 ? 1 : eta
+
+  return Math.min(4, 2 + 2 * clamped)
+}
+
 // Default outcome functions: Malus-law-style deterministic responses around a
 // hidden polarization angle lambda (interpreted as radians). The caller can
 // override these to model a different ontology. These defaults already respect

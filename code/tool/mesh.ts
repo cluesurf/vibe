@@ -49,6 +49,31 @@ export function shellDistances(mesh: Mesh, source: number): Int32Array {
   return distance
 }
 
+// The plain adjacency list of a mesh: for each cell, the distinct neighbour cells
+// reached along its coin, with self-loops (a direction that returns the cell, like
+// a rest slot or a tree leaf's missing child) dropped. The neighbours-native graph
+// measures want this form, and a CoxeterMesh already exposes it, so this gives the
+// flat Mesh builders the same shape.
+export function meshNeighbors(mesh: Mesh): number[][] {
+  const out: number[][] = []
+
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    const row = new Set<number>()
+
+    for (let direction = 0; direction < mesh.degree; direction++) {
+      const neighbour = mesh.neighbour(cell, direction)
+
+      if (neighbour !== cell) {
+        row.add(neighbour)
+      }
+    }
+
+    out.push([...row])
+  }
+
+  return out
+}
+
 // A periodic square lattice in two dimensions, four directions (E, W, N, S). The
 // minimal directional mesh, used to pin the rule against the known 2D result.
 // Direction order: 0 is +x (E), 1 is -x (W), 2 is +y (N), 3 is -y (S).
