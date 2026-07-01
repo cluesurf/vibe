@@ -32,6 +32,10 @@ import {
   connectedToneCorrelation,
   meanCorrelationMagnitude,
 } from '@/code/measure/tone-correlation'
+import {
+  commonAncestorGeneration,
+  reachAtThreshold,
+} from '@/code/measure/cusp-distance'
 import { laplacian, laplacianSpectrum } from '@/code/operator/laplacian'
 import { cellComplexOf, diracSpectrum } from '@/code/operator/dirac'
 import {
@@ -2165,6 +2169,42 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         Math.abs(
           meanCorrelationMagnitude({ correlation, lo: 2, hi: 3 }) - 1,
         ) < 1e-12,
+    })
+  }
+
+  // cusp-distance helpers on a hand-checkable binary tree 0 -> {1,2}, 1 -> {3,4},
+  // 2 -> {5,6}, generations [0,1,1,2,2,2,2].
+  {
+    const neighbors = [[1, 2], [0, 3, 4], [0, 5, 6], [1], [1], [2], [2]]
+    const generation = [0, 1, 1, 2, 2, 2, 2]
+
+    check({
+      name: 'commonAncestorGeneration: siblings meet at their parent',
+      ok:
+        commonAncestorGeneration({ neighbors, generation, a: 3, b: 4 }) === 1,
+    })
+
+    check({
+      name: 'commonAncestorGeneration: cousins meet only at the origin',
+      ok:
+        commonAncestorGeneration({ neighbors, generation, a: 3, b: 5 }) === 0,
+    })
+
+    const reach = reachAtThreshold({
+      samples: [
+        { physical: 2, bulk: 2, eta: 0.8 },
+        { physical: 8, bulk: 4, eta: 0.5 },
+        { physical: 32, bulk: 6, eta: 0.2 },
+      ],
+      threshold: 0.414,
+    })
+
+    check({
+      name: 'reachAtThreshold: physical reach over bulk reach is the amplification',
+      ok:
+        reach.physicalReach === 8 &&
+        reach.bulkReach === 4 &&
+        Math.abs(reach.amplification - 2) < 1e-12,
     })
   }
 
