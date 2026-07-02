@@ -27,18 +27,26 @@ suite('operator/gauge-index: flux quantization', [
       }
     }
   }),
-  check('the gauge Wilson-Dirac operator has the expected dimension 2 L^2', () => {
-    const d = gaugeWilsonDirac({ length: 5, charge: 1 })
-    equal(d.rows, 2 * 25, 'rows')
-    equal(d.cols, 2 * 25, 'cols')
-  }),
+  check(
+    'the gauge Wilson-Dirac operator has the expected dimension 2 L^2',
+    () => {
+      const d = gaugeWilsonDirac({ length: 5, charge: 1 })
+      equal(d.rows, 2 * 25, 'rows')
+      equal(d.cols, 2 * 25, 'cols')
+    },
+  ),
 ])
 
 suite('operator/gauge-index: lattice index theorem', [
   check('the Wilson-Dirac kernel H_W is Hermitian (self-check)', () => {
     for (const charge of [0, 1, -1]) {
       const result = overlapIndex({ length: 5, charge })
-      close(result.hermiticityError, 0, 1e-10, `H_W Hermiticity for Q=${charge}`)
+      close(
+        result.hermiticityError,
+        0,
+        1e-10,
+        `H_W Hermiticity for Q=${charge}`,
+      )
     }
   }),
   check('the overlap index is an integer', () => {
@@ -47,14 +55,35 @@ suite('operator/gauge-index: lattice index theorem', [
       equal(index, Math.round(index), `index integer for Q=${charge}`)
     }
   }),
-  check('the overlap index magnitude equals |Q| (Atiyah-Singer on the lattice)', () => {
-    equal(overlapIndex({ length: 5, charge: 0 }).index, 0, 'Q=0 -> index 0')
-    equal(Math.abs(overlapIndex({ length: 5, charge: 1 }).index), 1, '|index| = 1 for Q=1')
-    equal(Math.abs(overlapIndex({ length: 5, charge: -1 }).index), 1, '|index| = 1 for Q=-1')
-  }),
-  check('the index sign tracks the charge sign (Q=1 and Q=-1 give opposite indices)', () => {
-    const plus = overlapIndex({ length: 5, charge: 1 }).index
-    const minus = overlapIndex({ length: 5, charge: -1 }).index
-    ok(plus === -minus, `index(+1) = ${plus} must be -index(-1) = ${-minus}`)
-  }),
+  check(
+    'the overlap index magnitude equals |Q| (Atiyah-Singer on the lattice)',
+    () => {
+      equal(
+        overlapIndex({ length: 5, charge: 0 }).index,
+        0,
+        'Q=0 -> index 0',
+      )
+      equal(
+        Math.abs(overlapIndex({ length: 5, charge: 1 }).index),
+        1,
+        '|index| = 1 for Q=1',
+      )
+      equal(
+        Math.abs(overlapIndex({ length: 5, charge: -1 }).index),
+        1,
+        '|index| = 1 for Q=-1',
+      )
+    },
+  ),
+  check(
+    'the index sign tracks the charge sign (Q=1 and Q=-1 give opposite indices)',
+    () => {
+      const plus = overlapIndex({ length: 5, charge: 1 }).index
+      const minus = overlapIndex({ length: 5, charge: -1 }).index
+      ok(
+        plus === -minus,
+        `index(+1) = ${plus} must be -index(-1) = ${-minus}`,
+      )
+    },
+  ),
 ])

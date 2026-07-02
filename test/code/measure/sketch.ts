@@ -14,6 +14,7 @@ import {
 suite('measure/sketch: cellHash', [
   check('deterministic and in range', () => {
     equal(cellHash(123, 1000), cellHash(123, 1000))
+
     const h = cellHash(123, 1000)
     ok(h >= 0 && h < 1000)
   }),
@@ -35,15 +36,28 @@ suite('measure/sketch: hashTableProbeStats', [
 ])
 
 suite('measure/sketch: bloomFalsePositiveRate', [
-  check('a 1-slot filter is always a false positive after any insert', () => {
-    equal(
-      bloomFalsePositiveRate({ cells: 1, items: 1, hashes: 1, queries: 5 }),
-      1,
-    )
-  }),
+  check(
+    'a 1-slot filter is always a false positive after any insert',
+    () => {
+      equal(
+        bloomFalsePositiveRate({
+          cells: 1,
+          items: 1,
+          hashes: 1,
+          queries: 5,
+        }),
+        1,
+      )
+    },
+  ),
   check('an empty filter never matches', () => {
     equal(
-      bloomFalsePositiveRate({ cells: 8, items: 0, hashes: 2, queries: 4 }),
+      bloomFalsePositiveRate({
+        cells: 8,
+        items: 0,
+        hashes: 2,
+        queries: 4,
+      }),
       0,
     )
   }),

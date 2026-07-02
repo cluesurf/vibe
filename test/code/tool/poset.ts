@@ -26,6 +26,7 @@ function totalOrder() {
 // Ordered pairs: {(0,1),(0,2),(0,3),(1,3),(2,3)} = 5.
 // Covering relations: 0->1, 0->2, 1->3, 2->3 (0->3 is NOT a cover, reached via 1 or 2).
 const DIAMOND_PAIRS = new Set(['0-1', '0-2', '0-3', '1-3', '2-3'])
+
 function diamond() {
   return makePosetFromRelation({
     size: 4,
@@ -36,6 +37,7 @@ function diamond() {
 suite('tool/poset: total order on four elements', [
   check('precedes matches a < b for all pairs', () => {
     const p = totalOrder()
+
     for (let a = 0; a < 4; a++) {
       for (let b = 0; b < 4; b++) {
         equal(precedes(p, { a, b }), a < b, `precedes(${a},${b})`)
@@ -52,13 +54,16 @@ suite('tool/poset: total order on four elements', [
     exactArray(p.links[2]!, Uint32Array.from([3]), 'links[2]')
     exactArray(p.links[3]!, Uint32Array.from([]), 'links[3]')
   }),
-  check('interval A(0,3) has the two strictly-between elements 1,2', () => {
-    const p = totalOrder()
-    const past = pastMatrix(p)
-    equal(intervalSize(p, { a: 0, b: 3, past }), 2, '|A(0,3)|')
-    // A(0,1) is empty (no element strictly between adjacent chain links)
-    equal(intervalSize(p, { a: 0, b: 1, past }), 0, '|A(0,1)|')
-  }),
+  check(
+    'interval A(0,3) has the two strictly-between elements 1,2',
+    () => {
+      const p = totalOrder()
+      const past = pastMatrix(p)
+      equal(intervalSize(p, { a: 0, b: 3, past }), 2, '|A(0,3)|')
+      // A(0,1) is empty (no element strictly between adjacent chain links)
+      equal(intervalSize(p, { a: 0, b: 1, past }), 0, '|A(0,1)|')
+    },
+  ),
 ])
 
 suite('tool/poset: diamond', [

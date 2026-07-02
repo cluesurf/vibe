@@ -4,16 +4,33 @@
 
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { makeGraph } from '@/code/tool/graph'
-import { makeConfiguration, getTone, setTone } from '@/code/tone/configuration'
+import {
+  makeConfiguration,
+  getTone,
+  setTone,
+} from '@/code/tone/configuration'
 import { makeRng } from '@/code/tool/rng'
 import { rewriteRule } from '@/code/rule/rewrite'
 import { Substrate } from '@/code/tool/substrate'
 
-const graph = makeGraph({ size: 4, directed: false, neighbors: [[1], [0], [3], [2]] })
-const sentinel: Substrate = makeGraph({ size: 1, directed: false, neighbors: [[]] })
+const graph = makeGraph({
+  size: 4,
+  directed: false,
+  neighbors: [[1], [0], [3], [2]],
+})
+
+const sentinel: Substrate = makeGraph({
+  size: 1,
+  directed: false,
+  neighbors: [[]],
+})
 
 function makeConfig() {
-  const c = makeConfiguration({ alphabet: { form: 'ternary' }, size: 4 })
+  const c = makeConfiguration({
+    alphabet: { form: 'ternary' },
+    size: 4,
+  })
+
   setTone(c, { element: 0, value: 1 })
 
   return c
@@ -50,9 +67,21 @@ suite('rule/rewrite: first-match, single rewrite', [
       name: 'test',
       match: () => false,
       apply: () => sentinel,
-    }).step({ substrate: graph, configuration: config, beat: 0, rng: makeRng({ seed: 1 }) })
+    }).step({
+      substrate: graph,
+      configuration: config,
+      beat: 0,
+      rng: makeRng({ seed: 1 }),
+    })
 
-    ok(out.substrate === undefined, 'no substrate returned when nothing matches')
-    equal(getTone(out.configuration, { element: 0 }), 1, 'configuration passes through')
+    ok(
+      out.substrate === undefined,
+      'no substrate returned when nothing matches',
+    )
+    equal(
+      getTone(out.configuration, { element: 0 }),
+      1,
+      'configuration passes through',
+    )
   }),
 ])

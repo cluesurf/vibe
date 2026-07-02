@@ -28,7 +28,12 @@ suite('measure/nuclear-binding: term assembly', [
       (COULOMB * Z * (Z - 1)) / Math.cbrt(A) -
       (ASYMMETRY * (A - 2 * Z) ** 2) / A +
       PAIRING / Math.sqrt(A) // even-even pairing is positive
-    close(nuclearBindingEnergy({ massNumber: A, protonNumber: Z }), expected, 1e-9)
+
+    close(
+      nuclearBindingEnergy({ massNumber: A, protonNumber: Z }),
+      expected,
+      1e-9,
+    )
   }),
   // Odd-odd N-14? Use Z=7, N=7 (A=14): pairing is negative.
   check('an odd-odd nucleus carries negative pairing', () => {
@@ -40,16 +45,26 @@ suite('measure/nuclear-binding: term assembly', [
       (COULOMB * Z * (Z - 1)) / Math.cbrt(A) -
       (ASYMMETRY * (A - 2 * Z) ** 2) / A -
       PAIRING / Math.sqrt(A) // odd-odd pairing is negative
-    close(nuclearBindingEnergy({ massNumber: A, protonNumber: Z }), expected, 1e-9)
+
+    close(
+      nuclearBindingEnergy({ massNumber: A, protonNumber: Z }),
+      expected,
+      1e-9,
+    )
   }),
   // The Coulomb term lowers the binding for Z > 1: B(with) < B(without).
   check('the Coulomb term reduces the binding energy', () => {
-    const withC = nuclearBindingEnergy({ massNumber: 56, protonNumber: 26 })
+    const withC = nuclearBindingEnergy({
+      massNumber: 56,
+      protonNumber: 26,
+    })
+
     const withoutC = nuclearBindingEnergy({
       massNumber: 56,
       protonNumber: 26,
       includeCoulomb: false,
     })
+
     ok(withC < withoutC, `${withC} should be below ${withoutC}`)
     close(withoutC - withC, (COULOMB * 26 * 25) / Math.cbrt(56), 1e-9)
   }),
@@ -67,7 +82,11 @@ suite('measure/nuclear-binding: the iron peak', [
   }),
   // Turning off Coulomb removes the decline: the maximum runs to the heaviest mass scanned.
   check('without Coulomb the peak runs to the heaviest mass', () => {
-    const peak = bindingCurvePeak({ maxMass: 250, includeCoulomb: false })
+    const peak = bindingCurvePeak({
+      maxMass: 250,
+      includeCoulomb: false,
+    })
+
     equal(peak.massNumber, 250)
   }),
 ])

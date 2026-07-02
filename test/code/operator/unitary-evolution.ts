@@ -11,9 +11,11 @@ import { evolveByEigendecomposition } from '@/code/operator/unitary-evolution'
 
 const norm = (re: Float64Array, im: Float64Array): number => {
   let s = 0
+
   for (let i = 0; i < re.length; i++) {
     s += re[i]! * re[i]! + im[i]! * im[i]!
   }
+
   return s
 }
 
@@ -34,7 +36,14 @@ suite('operator/unitary-evolution: identity at t = 0', [
   check('t = 0 returns the input state', () => {
     const re0 = Float64Array.from([0.6, 0.8])
     const im0 = Float64Array.from([0, 0])
-    const { re, im } = evolveByEigendecomposition({ eig: flip, n: 2, re0, im0, t: 0 })
+    const { re, im } = evolveByEigendecomposition({
+      eig: flip,
+      n: 2,
+      re0,
+      im0,
+      t: 0,
+    })
+
     close(re[0]!, 0.6, 1e-12, 're[0] unchanged')
     close(re[1]!, 0.8, 1e-12, 're[1] unchanged')
     close(im[0]!, 0, 1e-12, 'im[0] zero')
@@ -47,7 +56,14 @@ suite('operator/unitary-evolution: diagonal H', [
     const re0 = Float64Array.from([1, 1])
     const im0 = Float64Array.from([0, 0])
     const t = 0.9
-    const { re, im } = evolveByEigendecomposition({ eig: diag, n: 2, re0, im0, t })
+    const { re, im } = evolveByEigendecomposition({
+      eig: diag,
+      n: 2,
+      re0,
+      im0,
+      t,
+    })
+
     close(re[0]!, Math.cos(0.7 * t), 1e-12, 're[0] = cos(l0 t)')
     close(im[0]!, -Math.sin(0.7 * t), 1e-12, 'im[0] = -sin(l0 t)')
     close(re[1]!, Math.cos(-1.3 * t), 1e-12, 're[1] = cos(l1 t)')
@@ -60,7 +76,14 @@ suite('operator/unitary-evolution: off-diagonal H', [
     const re0 = Float64Array.from([1, 0])
     const im0 = Float64Array.from([0, 0])
     const t = 0.5
-    const { re, im } = evolveByEigendecomposition({ eig: flip, n: 2, re0, im0, t })
+    const { re, im } = evolveByEigendecomposition({
+      eig: flip,
+      n: 2,
+      re0,
+      im0,
+      t,
+    })
+
     close(re[0]!, Math.cos(t), 1e-12, 're[0] = cos t')
     close(im[0]!, 0, 1e-12, 'im[0] = 0')
     close(re[1]!, 0, 1e-12, 're[1] = 0')
@@ -73,8 +96,16 @@ suite('operator/unitary-evolution: norm preservation', [
     const re0 = Float64Array.from([0.6, 0.8])
     const im0 = Float64Array.from([0.0, 0.0])
     const n0 = norm(re0, im0)
+
     for (const t of [0.3, 1.1, 2.7, 5.0]) {
-      const { re, im } = evolveByEigendecomposition({ eig: flip, n: 2, re0, im0, t })
+      const { re, im } = evolveByEigendecomposition({
+        eig: flip,
+        n: 2,
+        re0,
+        im0,
+        t,
+      })
+
       close(norm(re, im), n0, 1e-12, `norm preserved at t=${t}`)
     }
   }),

@@ -22,15 +22,36 @@ suite('model/vibe: the committed default', [
 ])
 
 suite('model/vibe: setters compose immutably', [
-  check('a setter changes one field and leaves the original untouched', () => {
-    const base = vibe()
-    const sized = base.size(1500)
-    equal(base.config().size, 1000, 'the original builder is unchanged')
-    equal(sized.config().size, 1500, 'the new builder carries the change')
-    equal(sized.config().mesh, 'hyperbolic', 'other fields are inherited')
-  }),
+  check(
+    'a setter changes one field and leaves the original untouched',
+    () => {
+      const base = vibe()
+      const sized = base.size(1500)
+      equal(
+        base.config().size,
+        1000,
+        'the original builder is unchanged',
+      )
+      equal(
+        sized.config().size,
+        1500,
+        'the new builder carries the change',
+      )
+      equal(
+        sized.config().mesh,
+        'hyperbolic',
+        'other fields are inherited',
+      )
+    },
+  ),
   check('chained setters accumulate', () => {
-    const c = vibe().size(2000).seed(7).mesh('lattice').tone('binary').config()
+    const c = vibe()
+      .size(2000)
+      .seed(7)
+      .mesh('lattice')
+      .tone('binary')
+      .config()
+
     equal(c.size, 2000)
     equal(c.seed, 7)
     equal(c.mesh, 'lattice')
@@ -40,9 +61,18 @@ suite('model/vibe: setters compose immutably', [
     equal(c.growth, 'net-positive')
   }),
   check('each setter targets its own field', () => {
-    equal(vibe().fill('ternary-directed').config().fill, 'ternary-directed')
-    equal(vibe().rule('signed-majority').config().rule, 'signed-majority')
-    equal(vibe().schedule('synchronous').config().schedule, 'synchronous')
+    equal(
+      vibe().fill('ternary-directed').config().fill,
+      'ternary-directed',
+    )
+    equal(
+      vibe().rule('signed-majority').config().rule,
+      'signed-majority',
+    )
+    equal(
+      vibe().schedule('synchronous').config().schedule,
+      'synchronous',
+    )
     equal(vibe().grow('static').config().growth, 'static')
   }),
 ])

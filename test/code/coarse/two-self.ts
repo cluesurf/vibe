@@ -42,15 +42,19 @@ suite('coarse/two-self: stamping and counting', [
 
 suite('coarse/two-self: separation observable', [
   // two trominoes 10 columns apart on the same rows: centroids differ by 10 in x, 0 in y.
-  check('separation is the centroid distance of the two clusters', () => {
-    const L = 24
-    const graph = flatGraph(L)
-    const tone = new Int8Array(L * L)
-    stampShape({ tone, L, offsets: tromino, px: 2, py: 2 })
-    stampShape({ tone, L, offsets: tromino, px: 12, py: 2 })
-    const sep = twoSelfSeparation({ tone, graph, L, minSize: 3 })
-    close(sep, 10, 1e-9, 'two clusters 10 columns apart')
-  }),
+  check(
+    'separation is the centroid distance of the two clusters',
+    () => {
+      const L = 24
+      const graph = flatGraph(L)
+      const tone = new Int8Array(L * L)
+      stampShape({ tone, L, offsets: tromino, px: 2, py: 2 })
+      stampShape({ tone, L, offsets: tromino, px: 12, py: 2 })
+
+      const sep = twoSelfSeparation({ tone, graph, L, minSize: 3 })
+      close(sep, 10, 1e-9, 'two clusters 10 columns apart')
+    },
+  ),
   check('a single cluster reports separation 0', () => {
     const L = 24
     const graph = flatGraph(L)

@@ -21,16 +21,25 @@ suite('coarse/valence-drift: the no-dynamics control', [
         plusSide,
         withDynamics: false,
       })
+
       close(d, 0, 1e-12, 'a still self does not drift')
     }
   }),
-  check('the valence differential is exactly 0 without dynamics', () => {
-    close(
-      valenceDifferential({ L: 30, beats: 10, seed: 1, withDynamics: false }),
-      0,
-      1e-12,
-    )
-  }),
+  check(
+    'the valence differential is exactly 0 without dynamics',
+    () => {
+      close(
+        valenceDifferential({
+          L: 30,
+          beats: 10,
+          seed: 1,
+          withDynamics: false,
+        }),
+        0,
+        1e-12,
+      )
+    },
+  ),
 ])
 
 suite('coarse/valence-drift: reproducibility', [
@@ -42,6 +51,11 @@ suite('coarse/valence-drift: reproducibility', [
       plusSide: 'right' as const,
       withDynamics: true,
     }
-    equal(valenceDrift(opts), valenceDrift(opts), 'same seed, same drift')
+
+    equal(
+      valenceDrift(opts),
+      valenceDrift(opts),
+      'same seed, same drift',
+    )
   }),
 ])

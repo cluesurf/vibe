@@ -31,7 +31,10 @@ function ancestorAt(input: {
     let parent = cell
 
     for (const n of input.neighbors[cell] ?? []) {
-      if ((input.generation[n] ?? Infinity) < (input.generation[cell] ?? 0)) {
+      if (
+        (input.generation[n] ?? Infinity) <
+        (input.generation[cell] ?? 0)
+      ) {
         parent = n
         break
       }
@@ -59,7 +62,10 @@ export function commonAncestorGeneration(input: {
 }): number {
   const parentOf = (cell: number): number => {
     for (const n of input.neighbors[cell] ?? []) {
-      if ((input.generation[n] ?? Infinity) < (input.generation[cell] ?? 0)) {
+      if (
+        (input.generation[n] ?? Infinity) <
+        (input.generation[cell] ?? 0)
+      ) {
         return n
       }
     }
@@ -222,15 +228,22 @@ export function flatLineSamples(input: {
   return samples
 }
 
-// The largest physical and bulk distance at which the shared past still meets a
-// threshold (e.g. the Tsirelson value root 2 minus 1), and the amplification, the
-// physical reach divided by the bulk reach. On a flat substrate the amplification
-// is 1 (physical equals bulk). On a hyperbolic bulk it is large, because the same
-// bulk reach is an exponentially larger physical reach.
+// The farthest sample (largest physical distance) at which the shared past still
+// meets a threshold (e.g. the Tsirelson value root 2 minus 1), reporting that ONE
+// sample's physical and bulk distance together, and the amplification, its physical
+// distance divided by its bulk distance. The two values come from the same sample,
+// taking independent maxima across different samples would let the ratio mix a far
+// physical reach with another sample's larger bulk distance. On a flat substrate
+// the amplification is 1 (physical equals bulk). On a hyperbolic bulk it is large,
+// because the same bulk distance is an exponentially larger physical distance.
 export function reachAtThreshold(input: {
   samples: CuspSample[]
   threshold: number
-}): { physicalReach: number; bulkReach: number; amplification: number } {
+}): {
+  physicalReach: number
+  bulkReach: number
+  amplification: number
+} {
   let physicalReach = 0
   let bulkReach = 0
 
@@ -238,9 +251,6 @@ export function reachAtThreshold(input: {
     if (sample.eta >= input.threshold) {
       if (sample.physical > physicalReach) {
         physicalReach = sample.physical
-      }
-
-      if (sample.bulk > bulkReach) {
         bulkReach = sample.bulk
       }
     }

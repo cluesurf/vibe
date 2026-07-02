@@ -34,15 +34,34 @@ const loop = Uint32Array.from([0, 1, 2, 3])
 suite('measure/aharonov-bohm: phase = charge * Wilson loop phase', [
   check('charge 1 around a 2 pi / 3 loop gives 2 pi / 3', () => {
     // 4 links * 2 pi / 12 = 2 pi / 3.
-    close(aharonovBohmPhase({ field: squareField(1), loop, charge: 1 }), (2 * Math.PI) / 3, 1e-12)
+    close(
+      aharonovBohmPhase({ field: squareField(1), loop, charge: 1 }),
+      (2 * Math.PI) / 3,
+      1e-12,
+    )
   }),
   check('charge 3 scales it to 2 pi', () => {
-    close(aharonovBohmPhase({ field: squareField(1), loop, charge: 3 }), 2 * Math.PI, 1e-12)
+    close(
+      aharonovBohmPhase({ field: squareField(1), loop, charge: 3 }),
+      2 * Math.PI,
+      1e-12,
+    )
   }),
   check('a doubled link integer doubles the loop phase', () => {
-    close(aharonovBohmPhase({ field: squareField(2), loop, charge: 1 }), (4 * Math.PI) / 3, 1e-12)
+    close(
+      aharonovBohmPhase({ field: squareField(2), loop, charge: 1 }),
+      (4 * Math.PI) / 3,
+      1e-12,
+    )
   }),
-  check('a flat field (all links zero) gives zero phase for any charge', () => {
-    close(aharonovBohmPhase({ field: squareField(0), loop, charge: 5 }), 0, 1e-12)
-  }),
+  check(
+    'a flat field (all links zero) gives zero phase for any charge',
+    () => {
+      close(
+        aharonovBohmPhase({ field: squareField(0), loop, charge: 5 }),
+        0,
+        1e-12,
+      )
+    },
+  ),
 ])

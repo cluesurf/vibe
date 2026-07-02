@@ -33,7 +33,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const tone = new Int8Array(L)
 
   for (let i = 0; i < L; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   // balance to a fixed total so coarse charge has a clean reference

@@ -144,7 +144,10 @@ export default experiment({
           region,
         })
 
-        lossyMaxResidual = Math.max(lossyMaxResidual, Math.abs(residual))
+        lossyMaxResidual = Math.max(
+          lossyMaxResidual,
+          Math.abs(residual),
+        )
 
         let erasedInRegion = 0
 

@@ -15,6 +15,7 @@ suite('measure/persistence: lagAutocorrelation', [
       [1, 2, 3],
       [1, 2, 3],
     ]
+
     close(lagAutocorrelation({ series, lag: 1 }), 1, TOL)
   }),
   check('a reversed-pair series autocorrelates at -1', () => {
@@ -22,6 +23,7 @@ suite('measure/persistence: lagAutocorrelation', [
       [1, 2, 3],
       [3, 2, 1],
     ]
+
     close(lagAutocorrelation({ series, lag: 1 }), -1, TOL)
   }),
   check('a lag past the series length yields 0', () => {
@@ -29,6 +31,7 @@ suite('measure/persistence: lagAutocorrelation', [
       [1, 2, 3],
       [3, 2, 1],
     ]
+
     equal(lagAutocorrelation({ series, lag: 5 }), 0)
   }),
 ])

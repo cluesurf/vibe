@@ -165,7 +165,9 @@ export function loglogExponentWindow(input: {
   // defined 0 instead of letting a NaN propagate into a verdict.
   const denominator = m * sxx - sx * sx
 
-  return m > 1 && denominator !== 0 ? (m * sxy - sx * sy) / denominator : 0
+  return m > 1 && denominator !== 0
+    ? (m * sxy - sx * sy) / denominator
+    : 0
 }
 
 // A power-law fit over (x, y) in log-log space: the slope (exponent) plus the largest

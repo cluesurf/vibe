@@ -83,11 +83,8 @@ export function physicsOnRealSpace(): void {
 
   const lcc = largestComponent(bnb)
   const lmap = new Map(lcc.map((v, i) => [v, i]))
-  const lnb: number[][] = lcc.map(
-    v =>
-      bnb[v]!.map(w => lmap.get(w)).filter(
-        x => x !== undefined,
-      ),
+  const lnb: number[][] = lcc.map(v =>
+    bnb[v]!.map(w => lmap.get(w)).filter(x => x !== undefined),
   )
 
   const lc0 = mostConnectedNode(lnb)
@@ -146,11 +143,8 @@ export default experiment({
 
     const lcc = largestComponent(bnb)
     const lmap = new Map(lcc.map((v, i) => [v, i]))
-    const lnb: number[][] = lcc.map(
-      v =>
-        bnb[v]!.map(w => lmap.get(w)).filter(
-          x => x !== undefined,
-        ),
+    const lnb: number[][] = lcc.map(v =>
+      bnb[v]!.map(w => lmap.get(w)).filter(x => x !== undefined),
     )
 
     const bandCenter = mostConnectedNode(lnb)

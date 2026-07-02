@@ -14,19 +14,49 @@ const coulomb = (r: number): number => -1 / r
 const grid = { mass: 1, spacing: 0.1, points: 200 }
 
 suite('operator/radial-schrodinger: hydrogen spectrum', [
-  check('the l=0 ground and first excited states are -1/2 and -1/8', () => {
-    const levels = radialSchrodingerLevels({ l: 0, potential: coulomb, count: 3, ...grid })
-    close(levels[0] ?? NaN, -0.5, 3e-3, 'E_1 (1s)')
-    close(levels[1] ?? NaN, -0.125, 3e-3, 'E_2 (2s)')
-  }),
+  check(
+    'the l=0 ground and first excited states are -1/2 and -1/8',
+    () => {
+      const levels = radialSchrodingerLevels({
+        l: 0,
+        potential: coulomb,
+        count: 3,
+        ...grid,
+      })
+
+      close(levels[0] ?? NaN, -0.5, 3e-3, 'E_1 (1s)')
+      close(levels[1] ?? NaN, -0.125, 3e-3, 'E_2 (2s)')
+    },
+  ),
   check('the l=1 ground state is the n=2 level -1/8', () => {
-    const levels = radialSchrodingerLevels({ l: 1, potential: coulomb, count: 2, ...grid })
+    const levels = radialSchrodingerLevels({
+      l: 1,
+      potential: coulomb,
+      count: 2,
+      ...grid,
+    })
+
     close(levels[0] ?? NaN, -0.125, 3e-3, 'E_2 (2p)')
   }),
-  check('SO(4) accidental degeneracy: the n=2 level matches for l=0 and l=1', () => {
-    const l0 = radialSchrodingerLevels({ l: 0, potential: coulomb, count: 3, ...grid })
-    const l1 = radialSchrodingerLevels({ l: 1, potential: coulomb, count: 2, ...grid })
-    // 2s is the first excited l=0 state, 2p is the l=1 ground state.
-    close((l0[1] ?? NaN) - (l1[0] ?? NaN), 0, 2e-3, 'E(2s) = E(2p)')
-  }),
+  check(
+    'SO(4) accidental degeneracy: the n=2 level matches for l=0 and l=1',
+    () => {
+      const l0 = radialSchrodingerLevels({
+        l: 0,
+        potential: coulomb,
+        count: 3,
+        ...grid,
+      })
+
+      const l1 = radialSchrodingerLevels({
+        l: 1,
+        potential: coulomb,
+        count: 2,
+        ...grid,
+      })
+
+      // 2s is the first excited l=0 state, 2p is the l=1 ground state.
+      close((l0[1] ?? NaN) - (l1[0] ?? NaN), 0, 2e-3, 'E(2s) = E(2p)')
+    },
+  ),
 ])

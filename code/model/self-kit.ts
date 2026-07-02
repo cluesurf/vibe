@@ -543,7 +543,7 @@ export function emergeSelf(
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
-    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0)
+    tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
   for (let t = 0; t < (opts?.beats ?? 70); t++) {

@@ -24,7 +24,7 @@ function combinedUrge(pole: Int8Array, other: Int8Array): Int8Array {
 
   for (let i = 0; i < n; i++) {
     const s = 2 * (pole[i] ?? 0) + (other[i] ?? 0)
-    out[i] = (s > 0 ? 1 : s < 0 ? -1 : 0)
+    out[i] = s > 0 ? 1 : s < 0 ? -1 : 0
   }
 
   return out

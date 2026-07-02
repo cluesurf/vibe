@@ -11,9 +11,11 @@ import { applyExchangeUnitary } from '@/code/operator/exchange-unitary'
 
 const norm = (re: Float64Array, im: Float64Array): number => {
   let s = 0
+
   for (let i = 0; i < 4; i++) {
     s += re[i]! * re[i]! + im[i]! * im[i]!
   }
+
   return s
 }
 
@@ -24,6 +26,7 @@ suite('operator/exchange-unitary: identity and locality', [
     const re0 = re.slice()
     const im0 = im.slice()
     applyExchangeUnitary({ re, im, theta: 0 })
+
     for (let i = 0; i < 4; i++) {
       close(re[i]!, re0[i]!, 1e-12, `re[${i}] unchanged`)
       close(im[i]!, im0[i]!, 1e-12, `im[${i}] unchanged`)
@@ -45,6 +48,7 @@ suite('operator/exchange-unitary: entangling action', [
     const re = Float64Array.from([0, 1, 0, 0])
     const im = Float64Array.from([0, 0, 0, 0])
     applyExchangeUnitary({ re, im, theta: Math.PI / 8 })
+
     const inv = 1 / Math.sqrt(2)
     close(re[1]!, inv, 1e-12, '|01> amplitude cos(pi/4)')
     close(im[1]!, 0, 1e-12, '|01> imag zero')
@@ -68,6 +72,7 @@ suite('operator/exchange-unitary: unitarity', [
     const im0 = im.slice()
     applyExchangeUnitary({ re, im, theta: 0.6 })
     applyExchangeUnitary({ re, im, theta: -0.6 })
+
     for (let i = 0; i < 4; i++) {
       close(re[i]!, re0[i]!, 1e-12, `re[${i}] recovered`)
       close(im[i]!, im0[i]!, 1e-12, `im[${i}] recovered`)

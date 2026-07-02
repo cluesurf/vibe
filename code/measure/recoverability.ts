@@ -63,7 +63,11 @@ function centreChebyshev(cell: number, meshSide: number): number {
 }
 
 // the 4D periodic block id of a cell, blocks of side `blockSide` (must divide meshSide).
-function blockOf(cell: number, meshSide: number, blockSide: number): number {
+function blockOf(
+  cell: number,
+  meshSide: number,
+  blockSide: number,
+): number {
   const [x, y, z, w] = coordsOf(cell, meshSide)
   const nb = meshSide / blockSide
   const bx = Math.floor(x / blockSide)
@@ -84,7 +88,9 @@ export function recoverabilityTrace(input: {
   blockSide: number
   beats: number
 }): RecoverabilityPoint[] {
-  const { will, collision, meshSide, windowRadius, blockSide, beats } = input
+  const { will, collision, meshSide, windowRadius, blockSide, beats } =
+    input
+
   const mesh = will.mesh
   const degree = mesh.degree
   const cellCount = mesh.cellCount

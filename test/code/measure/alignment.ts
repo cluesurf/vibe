@@ -22,7 +22,13 @@ suite('measure/alignment: coherenceOrder', [
   }),
   check('mixed edges average', () => {
     // tone=[1,1,-1], edges (0,1)->+1, (1,2)->-1 -> mean 0.
-    equal(coherenceOrder(Int8Array.from([1, 1, -1]), [[0, 1], [1, 2]]), 0)
+    equal(
+      coherenceOrder(Int8Array.from([1, 1, -1]), [
+        [0, 1],
+        [1, 2],
+      ]),
+      0,
+    )
   }),
   check('no edges gives 0', () => {
     equal(coherenceOrder(Int8Array.from([1, -1]), []), 0)
@@ -33,7 +39,11 @@ suite('measure/alignment: conflict', [
   check('fraction of opposed nonzero edges', () => {
     // tone=[1,-1,1], edges (0,1) opposed, (1,2) opposed, (0,2) agreeing -> 2/3.
     close(
-      conflictFraction(Int8Array.from([1, -1, 1]), [[0, 1], [1, 2], [0, 2]]),
+      conflictFraction(Int8Array.from([1, -1, 1]), [
+        [0, 1],
+        [1, 2],
+        [0, 2],
+      ]),
       2 / 3,
       TOL,
     )
@@ -41,7 +51,10 @@ suite('measure/alignment: conflict', [
   check('pairConflict counts opposed sites', () => {
     // a=[1,1,-1], b=[-1,1,1]: opposed at 0 and 2 -> 2/3.
     close(
-      pairConflict(Int8Array.from([1, 1, -1]), Int8Array.from([-1, 1, 1])),
+      pairConflict(
+        Int8Array.from([1, 1, -1]),
+        Int8Array.from([-1, 1, 1]),
+      ),
       2 / 3,
       TOL,
     )
@@ -62,7 +75,10 @@ suite('measure/alignment: conflict', [
 
 suite('measure/alignment: decisiveness', [
   check('unanimous parts are fully decisive', () => {
-    equal(decisiveness([Int8Array.from([1, 1]), Int8Array.from([1, 1])]), 1)
+    equal(
+      decisiveness([Int8Array.from([1, 1]), Int8Array.from([1, 1])]),
+      1,
+    )
   }),
   check('partly cancelling parts read the mean magnitude', () => {
     // parts [1,1],[1,-1]: site0 sum 2 -> |2|/2=1, site1 sum 0 -> 0; mean 0.5.

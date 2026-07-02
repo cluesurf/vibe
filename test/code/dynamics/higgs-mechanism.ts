@@ -23,14 +23,31 @@ suite('dynamics/higgs-mechanism: vacuum', [
 
 suite('dynamics/higgs-mechanism: masses', [
   check('the Higgs mass squared is 4 mu2 in the broken phase', () => {
-    for (const [mu2, lambda] of [[2, 0.5], [8, 1], [3, 0.25]] as const) {
-      close(higgsBosonMassSquared(mu2, lambda), 4 * mu2, 1e-12, `m_H^2 = 4 mu2 (${mu2})`)
+    for (const [mu2, lambda] of [
+      [2, 0.5],
+      [8, 1],
+      [3, 0.25],
+    ] as const) {
+      close(
+        higgsBosonMassSquared(mu2, lambda),
+        4 * mu2,
+        1e-12,
+        `m_H^2 = 4 mu2 (${mu2})`,
+      )
     }
   }),
-  check('the symmetric phase has zero curvature contribution from v', () => {
-    // mu2 <= 0: v = 0, so m_H^2 = -2 mu2 (>= 0)
-    close(higgsBosonMassSquared(-3, 0.5), 6, 1e-12, 'm_H^2 = -2 mu2 symmetric')
-  }),
+  check(
+    'the symmetric phase has zero curvature contribution from v',
+    () => {
+      // mu2 <= 0: v = 0, so m_H^2 = -2 mu2 (>= 0)
+      close(
+        higgsBosonMassSquared(-3, 0.5),
+        6,
+        1e-12,
+        'm_H^2 = -2 mu2 symmetric',
+      )
+    },
+  ),
   check('the gauge boson mass is g v', () => {
     close(gaugeBosonMass(0.65, 2), 1.3, 1e-12, 'm = g v')
   }),

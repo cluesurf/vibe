@@ -38,7 +38,7 @@ export function unifiedModel(input?: { n?: number }): {
   const rng = makeRng({ seed: 7 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   const q0 = sumQ(tone)
@@ -63,9 +63,7 @@ export function unifiedModel(input?: { n?: number }): {
   const rngD = makeRng({ seed: 7 })
 
   for (let i = 0; i < N; i++) {
-    dead[i] = (
-      rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
-    )
+    dead[i] = rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
   }
 
   for (let t = 0; t < 80; t++) {
@@ -103,7 +101,7 @@ export function unifiedModel(input?: { n?: number }): {
 
   const s = tone.slice()
   const s2 = tone.slice()
-  s2[center] = ((s2[center]!) === 0 ? 1 : 0)
+  s2[center] = (s2[center]!) === 0 ? 1 : 0
 
   const ra = makeRng({ seed: 99 })
   const rb = makeRng({ seed: 99 })

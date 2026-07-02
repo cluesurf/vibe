@@ -32,45 +32,84 @@ suite('measure/born-rule: patchesFromAmplitudes', [
 ])
 
 suite('measure/born-rule: quadratureAdditivityResidual', [
-  check('disjoint counts add, so the quadrature residual is zero (to f64 round-off)', () => {
-    // sqrt(n1+n2)^2 - (n1 + n2) = 0 analytically; only a single sqrt round-trip separates it from 0.
-    close(quadratureAdditivityResidual([1, 2, 3], 100), 0, 1e-9)
-    close(quadratureAdditivityResidual([5, 0.3, 7.1, 2], 50), 0, 1e-9)
-  }),
+  check(
+    'disjoint counts add, so the quadrature residual is zero (to f64 round-off)',
+    () => {
+      // sqrt(n1+n2)^2 - (n1 + n2) = 0 analytically; only a single sqrt round-trip separates it from 0.
+      close(quadratureAdditivityResidual([1, 2, 3], 100), 0, 1e-9)
+      close(quadratureAdditivityResidual([5, 0.3, 7.1, 2], 50), 0, 1e-9)
+    },
+  ),
 ])
 
-suite('measure/born-rule: exponentResidual (the exponent is selected, not assumed)', [
-  check('p = 2 is an exact identity: residual ~ 0', () => {
-    // (a1^2 + a2^2)^1 = a1^2 + a2^2 for every pair, so the worst relative gap is ~ 0.
-    close(exponentResidual({ p: 2, seed: 3 }), 0, 1e-12)
-  }),
-  check('p = 1 is NOT an identity: residual stays well away from zero', () => {
-    // sqrt(a1^2 + a2^2) != a1 + a2 (triangle, strict for positive a), so the gap is sizable.
-    ok(exponentResidual({ p: 1, seed: 3 }) > 0.1, 'p=1 must give a large residual')
-  }),
-  check('p = 3 is NOT an identity either', () => {
-    ok(exponentResidual({ p: 3, seed: 3 }) > 0.05, 'p=3 must give a nonzero residual')
-  }),
-  check('p = 2 residual is far below any neighbouring exponent', () => {
-    const at2 = exponentResidual({ p: 2, seed: 9 })
-    const at1p5 = exponentResidual({ p: 1.5, seed: 9 })
-    const at2p5 = exponentResidual({ p: 2.5, seed: 9 })
-    ok(at2 < at1p5 && at2 < at2p5, 'p=2 is the unique minimiser of the residual')
-  }),
-])
+suite(
+  'measure/born-rule: exponentResidual (the exponent is selected, not assumed)',
+  [
+    check('p = 2 is an exact identity: residual ~ 0', () => {
+      // (a1^2 + a2^2)^1 = a1^2 + a2^2 for every pair, so the worst relative gap is ~ 0.
+      close(exponentResidual({ p: 2, seed: 3 }), 0, 1e-12)
+    }),
+    check(
+      'p = 1 is NOT an identity: residual stays well away from zero',
+      () => {
+        // sqrt(a1^2 + a2^2) != a1 + a2 (triangle, strict for positive a), so the gap is sizable.
+        ok(
+          exponentResidual({ p: 1, seed: 3 }) > 0.1,
+          'p=1 must give a large residual',
+        )
+      },
+    ),
+    check('p = 3 is NOT an identity either', () => {
+      ok(
+        exponentResidual({ p: 3, seed: 3 }) > 0.05,
+        'p=3 must give a nonzero residual',
+      )
+    }),
+    check(
+      'p = 2 residual is far below any neighbouring exponent',
+      () => {
+        const at2 = exponentResidual({ p: 2, seed: 9 })
+        const at1p5 = exponentResidual({ p: 1.5, seed: 9 })
+        const at2p5 = exponentResidual({ p: 2.5, seed: 9 })
+        ok(
+          at2 < at1p5 && at2 < at2p5,
+          'p=2 is the unique minimiser of the residual',
+        )
+      },
+    ),
+  ],
+)
 
-suite('measure/born-rule: fairSampleFrequencies converge to count/total = |c|^2', [
-  check('equal amplitudes give equal frequencies 1/2', () => {
-    // c = [1, 1], scale 100 -> counts [100, 100], so each frequency -> 0.5.
-    const f = fairSampleFrequencies({ amps: [1, 1], scale: 100, draws: 40000, seed: 1 })
-    close(f[0]!, 0.5, 0.02)
-    close(f[1]!, 0.5, 0.02)
-  }),
-  check('amplitudes [1, 2] give frequencies [1/5, 4/5] (= |c|^2 normalised)', () => {
-    // counts [100, 400], total 500 -> [0.2, 0.8].
-    const f = fairSampleFrequencies({ amps: [1, 2], scale: 100, draws: 40000, seed: 7 })
-    close(f[0]!, 0.2, 0.02)
-    close(f[1]!, 0.8, 0.02)
-    close(f[0]! + f[1]!, 1, TIGHT) // probabilities sum to one
-  }),
-])
+suite(
+  'measure/born-rule: fairSampleFrequencies converge to count/total = |c|^2',
+  [
+    check('equal amplitudes give equal frequencies 1/2', () => {
+      // c = [1, 1], scale 100 -> counts [100, 100], so each frequency -> 0.5.
+      const f = fairSampleFrequencies({
+        amps: [1, 1],
+        scale: 100,
+        draws: 40000,
+        seed: 1,
+      })
+
+      close(f[0]!, 0.5, 0.02)
+      close(f[1]!, 0.5, 0.02)
+    }),
+    check(
+      'amplitudes [1, 2] give frequencies [1/5, 4/5] (= |c|^2 normalised)',
+      () => {
+        // counts [100, 400], total 500 -> [0.2, 0.8].
+        const f = fairSampleFrequencies({
+          amps: [1, 2],
+          scale: 100,
+          draws: 40000,
+          seed: 7,
+        })
+
+        close(f[0]!, 0.2, 0.02)
+        close(f[1]!, 0.8, 0.02)
+        close(f[0]! + f[1]!, 1, TIGHT) // probabilities sum to one
+      },
+    ),
+  ],
+)

@@ -694,3 +694,82 @@ export function largestComponent(g: Graph): Graph {
     embedding,
   })
 }
+
+// Multi-source BFS distance over a CSR graph, with an optional blocked set the
+// search may not enter (blocked cells keep the far value). The workhorse for
+// steering fields: the distance-to-goal field of a goal REGION, and the
+// hazard-aware variant where blocked cells are walls the route must go around.
+export function csrMultiSourceDistance(input: {
+  offsets: ArrayLike<number>
+  adj: ArrayLike<number>
+  size: number
+  sources: readonly number[]
+  blocked?: Uint8Array
+  farValue?: number
+}): Int32Array {
+  const { offsets, adj, size, sources, blocked } = input
+  const far = input.farValue ?? 1e9
+  const dist = new Int32Array(size).fill(far)
+  const queue = new Int32Array(size)
+
+  let head = 0
+  let tail = 0
+
+  for (const s of sources) {
+    if (blocked?.[s]) {
+      continue
+    }
+
+    if (dist[s] === far) {
+      dist[s] = 0
+      queue[tail++] = s
+    }
+  }
+
+  while (head < tail) {
+    const v = queue[head++]!
+    const dv = dist[v]!
+
+    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
+      const w = adj[p]!
+
+      if (dist[w] === far && !blocked?.[w]) {
+        dist[w] = dv + 1
+        queue[tail++] = w
+      }
+    }
+  }
+
+  return dist
+}
+
+// Filter a CSR adjacency down to the edges a predicate keeps, returning a new
+// CSR. The clean way to sever part of a mesh (cut a seam, isolate two halves)
+// while keeping every cell in place, so a severed world stays index-compatible
+// with the intact one.
+export function filterCsrEdges(input: {
+  offsets: ArrayLike<number>
+  adj: ArrayLike<number>
+  size: number
+  keep: (from: number, to: number) => boolean
+}): { offsets: Int32Array; adj: Int32Array } {
+  const { offsets, adj, size, keep } = input
+  const outOffsets = new Int32Array(size + 1)
+  const kept: number[] = []
+
+  for (let v = 0; v < size; v++) {
+    outOffsets[v] = kept.length
+
+    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
+      const w = adj[p]!
+
+      if (keep(v, w)) {
+        kept.push(w)
+      }
+    }
+  }
+
+  outOffsets[size] = kept.length
+
+  return { offsets: outOffsets, adj: Int32Array.from(kept) }
+}

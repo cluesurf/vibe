@@ -7,7 +7,10 @@
 //     (cos(k/2) -> 0 at k = pi), the doubly-special signature. Both re-derived by hand.
 
 import { suite, check, close } from '@/test/code/harness'
-import { continuumDispersion, scanDispersionBand } from '@/code/measure/doubly-special'
+import {
+  continuumDispersion,
+  scanDispersionBand,
+} from '@/code/measure/doubly-special'
 
 const TIGHT = 1e-9
 
@@ -19,31 +22,37 @@ suite('measure/doubly-special: continuumDispersion', [
 ])
 
 suite('measure/doubly-special: continuum control (no caps)', [
-  check('massless continuum: maxOmega = kMax, group velocity = 1 throughout', () => {
-    const band = scanDispersionBand({
-      omega: k => continuumDispersion(k, 0),
-      m: 0,
-      samples: 1000,
-      kMax: Math.PI,
-    })
+  check(
+    'massless continuum: maxOmega = kMax, group velocity = 1 throughout',
+    () => {
+      const band = scanDispersionBand({
+        omega: k => continuumDispersion(k, 0),
+        m: 0,
+        samples: 1000,
+        kMax: Math.PI,
+      })
 
-    close(band.maxOmega, Math.PI, TIGHT)
-    close(band.maxGroupVelocity, 1, TIGHT)
-    close(band.groupVelocityAtEdge, 1, TIGHT)
-  }),
+      close(band.maxOmega, Math.PI, TIGHT)
+      close(band.maxGroupVelocity, 1, TIGHT)
+      close(band.groupVelocityAtEdge, 1, TIGHT)
+    },
+  ),
 ])
 
 suite('measure/doubly-special: lattice band signatures', [
-  check('omega = 2 sin(k/2) caps maxOmega at 2 and collapses the edge velocity to ~0', () => {
-    const band = scanDispersionBand({
-      omega: k => 2 * Math.sin(k / 2),
-      m: 0,
-      samples: 2000,
-      kMax: Math.PI,
-    })
+  check(
+    'omega = 2 sin(k/2) caps maxOmega at 2 and collapses the edge velocity to ~0',
+    () => {
+      const band = scanDispersionBand({
+        omega: k => 2 * Math.sin(k / 2),
+        m: 0,
+        samples: 2000,
+        kMax: Math.PI,
+      })
 
-    close(band.maxOmega, 2, 1e-6) // frequency cap at the cell scale
-    close(band.maxGroupVelocity, 1, 1e-3) // speed still capped at c near k = 0
-    close(band.groupVelocityAtEdge, 0, 1e-2) // signal speed collapses at the band edge
-  }),
+      close(band.maxOmega, 2, 1e-6) // frequency cap at the cell scale
+      close(band.maxGroupVelocity, 1, 1e-3) // speed still capped at c near k = 0
+      close(band.groupVelocityAtEdge, 0, 1e-2) // signal speed collapses at the band edge
+    },
+  ),
 ])

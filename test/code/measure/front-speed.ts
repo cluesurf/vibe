@@ -26,47 +26,64 @@ suite('measure/front-speed: rangeAnisotropy', [
     close(out.meanSpeed, 2, TIGHT)
     close(out.anisotropy, 1, TIGHT)
   }),
-  check('fewer than two speeds returns the fallback anisotropy 1', () => {
-    equal(rangeAnisotropy([5]).anisotropy, 1)
-  }),
+  check(
+    'fewer than two speeds returns the fallback anisotropy 1',
+    () => {
+      equal(rangeAnisotropy([5]).anisotropy, 1)
+    },
+  ),
 ])
 
 suite('measure/front-speed: differenceRmsWidthRing', [
-  check('two disagreements at periodic distance 2 give RMS width 2', () => {
-    // L=10, center 0, differ at x=2 (dist 2) and x=8 (dist min(8,2)=2) -> sqrt((4+4)/2)=2.
-    const a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    const b = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0]
-    close(differenceRmsWidthRing({ a, b, length: 10, center: 0 }), 2, TIGHT)
-  }),
+  check(
+    'two disagreements at periodic distance 2 give RMS width 2',
+    () => {
+      // L=10, center 0, differ at x=2 (dist 2) and x=8 (dist min(8,2)=2) -> sqrt((4+4)/2)=2.
+      const a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      const b = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0]
+      close(
+        differenceRmsWidthRing({ a, b, length: 10, center: 0 }),
+        2,
+        TIGHT,
+      )
+    },
+  ),
   check('identical states give width 0', () => {
     const a = [1, 2, 3]
-    close(differenceRmsWidthRing({ a, b: [1, 2, 3], length: 3, center: 0 }), 0, TIGHT)
+    close(
+      differenceRmsWidthRing({ a, b: [1, 2, 3], length: 3, center: 0 }),
+      0,
+      TIGHT,
+    )
   }),
 ])
 
 suite('measure/front-speed: directionalFrontDistances', [
-  check('each activated cell goes to its nearest direction; distance is ln 3', () => {
-    const coords = [
-      [0, 0],
-      [0.5, 0],
-      [0, 0.5],
-    ]
+  check(
+    'each activated cell goes to its nearest direction; distance is ln 3',
+    () => {
+      const coords = [
+        [0, 0],
+        [0.5, 0],
+        [0, 0.5],
+      ]
 
-    const directions = [
-      [1, 0],
-      [0, 1],
-    ]
+      const directions = [
+        [1, 0],
+        [0, 1],
+      ]
 
-    const front = directionalFrontDistances({
-      coords,
-      directions,
-      center: 0,
-      activated: () => true,
-    })
+      const front = directionalFrontDistances({
+        coords,
+        directions,
+        center: 0,
+        activated: () => true,
+      })
 
-    close(front[0]!, LN3, 1e-9) // +x cell
-    close(front[1]!, LN3, 1e-9) // +y cell
-  }),
+      close(front[0]!, LN3, 1e-9) // +x cell
+      close(front[1]!, LN3, 1e-9) // +y cell
+    },
+  ),
   check('an unreached direction keeps front distance 0', () => {
     const coords = [
       [0, 0],

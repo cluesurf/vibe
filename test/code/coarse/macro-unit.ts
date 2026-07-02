@@ -4,7 +4,13 @@
 // labels map every member to its unit id and everything else to -1, and the mean unit size
 // is the arithmetic mean of the sizes. All exact integer / rational facts.
 
-import { suite, check, equal, close, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   extractUnits,
   coarseLabels,
@@ -24,18 +30,22 @@ const linePos = (cell: number): readonly [number, number] => [cell, 0]
 
 suite('coarse/macro-unit: extraction', [
   // All five cells +1: one cluster, size 5, charge 5, centroid x = (0+1+2+3+4)/5 = 2.
-  check('a full +1 chain is one unit with charge = size and mean centroid', () => {
-    const units = extractUnits({
-      tone: Int8Array.from([1, 1, 1, 1, 1]),
-      graph: chain,
-      positions: linePos,
-    })
-    equal(units.length, 1)
-    equal(units[0]!.size, 5)
-    equal(units[0]!.charge, 5)
-    close(units[0]!.cx, 2, 1e-12)
-    close(units[0]!.cy, 0, 1e-12)
-  }),
+  check(
+    'a full +1 chain is one unit with charge = size and mean centroid',
+    () => {
+      const units = extractUnits({
+        tone: Int8Array.from([1, 1, 1, 1, 1]),
+        graph: chain,
+        positions: linePos,
+      })
+
+      equal(units.length, 1)
+      equal(units[0]!.size, 5)
+      equal(units[0]!.charge, 5)
+      close(units[0]!.cx, 2, 1e-12)
+      close(units[0]!.cy, 0, 1e-12)
+    },
+  ),
   // tone [1,1,0,1,1] with minSize 2: two units {0,1} and {3,4}, the 0-cell breaks them.
   check('a gap splits the chain into two units', () => {
     const units = extractUnits({
@@ -44,11 +54,18 @@ suite('coarse/macro-unit: extraction', [
       positions: linePos,
       minSize: 2,
     })
+
     equal(units.length, 2)
     equal(units[0]!.size, 2)
     equal(units[1]!.size, 2)
-    exactArray(units[0]!.members.slice().sort((a, b) => a - b), [0, 1])
-    exactArray(units[1]!.members.slice().sort((a, b) => a - b), [3, 4])
+    exactArray(
+      units[0]!.members.slice().sort((a, b) => a - b),
+      [0, 1],
+    )
+    exactArray(
+      units[1]!.members.slice().sort((a, b) => a - b),
+      [3, 4],
+    )
   }),
   // The default minSize is 3, so two size-2 clusters are dropped entirely.
   check('clusters below minSize are dropped', () => {
@@ -57,6 +74,7 @@ suite('coarse/macro-unit: extraction', [
       graph: chain,
       positions: linePos,
     })
+
     equal(units.length, 0)
   }),
   // Sign selection: a -1 cluster is found only when sign = -1, with negative charge.
@@ -67,6 +85,7 @@ suite('coarse/macro-unit: extraction', [
       positions: linePos,
       sign: -1,
     })
+
     equal(units.length, 1)
     equal(units[0]!.size, 3)
     equal(units[0]!.charge, -3)
@@ -81,14 +100,32 @@ suite('coarse/macro-unit: coarse map and compression', [
       positions: linePos,
       minSize: 2,
     })
+
     const labels = coarseLabels({ units, cellCount: 5 })
     exactArray(labels, [0, 0, -1, 1, 1])
   }),
   check('mean unit size is the arithmetic mean of the sizes', () => {
     const units = [
-      { id: 0, level: 0, members: [], size: 2, charge: 2, cx: 0, cy: 0 },
-      { id: 1, level: 0, members: [], size: 4, charge: 4, cx: 0, cy: 0 },
+      {
+        id: 0,
+        level: 0,
+        members: [],
+        size: 2,
+        charge: 2,
+        cx: 0,
+        cy: 0,
+      },
+      {
+        id: 1,
+        level: 0,
+        members: [],
+        size: 4,
+        charge: 4,
+        cx: 0,
+        cy: 0,
+      },
     ]
+
     close(meanUnitSize(units), 3, 1e-12)
   }),
   check('mean unit size of no units is 0', () => {

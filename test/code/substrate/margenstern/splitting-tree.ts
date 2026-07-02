@@ -25,18 +25,23 @@ suite('substrate/margenstern/splitting-tree: the splitting rule', [
     equal(childrenOf('10').length, 3, 'white child count')
     equal(childrenOf('1001').length, 2, 'black child count')
   }),
-  check('children are the address plus 00/01/(10), preferred son first', () => {
-    const kids = childrenOf('10')
-    equal(kids[0], '1000', 'preferred')
-    equal(kids[0], preferredSon('10'), 'preferred = +00')
-    equal(kids[1], '1001', 'second')
-    equal(kids[2], '1010', 'third (white only)')
-  }),
+  check(
+    'children are the address plus 00/01/(10), preferred son first',
+    () => {
+      const kids = childrenOf('10')
+      equal(kids[0], '1000', 'preferred')
+      equal(kids[0], preferredSon('10'), 'preferred = +00')
+      equal(kids[1], '1001', 'second')
+      equal(kids[2], '1010', 'third (white only)')
+    },
+  ),
   check('no child address contains a forbidden "11"', () => {
     // Walk the sector tree to depth ~7 and verify every produced address is legal.
     let frontier = [SECTOR_ROOT]
+
     for (let level = 0; level < 7; level++) {
       const next: string[] = []
+
       for (const a of frontier) {
         for (const c of childrenOf(a)) {
           notOk(c.includes('11'), `${c} has no 11`)
@@ -44,58 +49,82 @@ suite('substrate/margenstern/splitting-tree: the splitting rule', [
           next.push(c)
         }
       }
+
       frontier = next
     }
   }),
-  check('the parent strips the last two digits and inverts childrenOf', () => {
-    equal(parentOf('1000'), '10', 'strip two')
-    equal(parentOf('10'), null, 'root has no parent')
-    let frontier = [SECTOR_ROOT]
-    for (let level = 0; level < 6; level++) {
-      const next: string[] = []
-      for (const a of frontier) {
-        for (const c of childrenOf(a)) {
-          equal(parentOf(c), a, `parent(${c}) = ${a}`)
-          next.push(c)
+  check(
+    'the parent strips the last two digits and inverts childrenOf',
+    () => {
+      equal(parentOf('1000'), '10', 'strip two')
+      equal(parentOf('10'), null, 'root has no parent')
+
+      let frontier = [SECTOR_ROOT]
+
+      for (let level = 0; level < 6; level++) {
+        const next: string[] = []
+
+        for (const a of frontier) {
+          for (const c of childrenOf(a)) {
+            equal(parentOf(c), a, `parent(${c}) = ${a}`)
+            next.push(c)
+          }
         }
+
+        frontier = next
       }
-      frontier = next
-    }
-  }),
+    },
+  ),
   check('the coordinate is the Zeckendorf value of the address', () => {
-    equal(coordinateOf('10'), fromZeckendorf('10'), 'coordinate = Zeckendorf value')
+    equal(
+      coordinateOf('10'),
+      fromZeckendorf('10'),
+      'coordinate = Zeckendorf value',
+    )
     equal(coordinateOf(SECTOR_ROOT), 2, 'sector root coordinate')
   }),
 ])
 
 suite('substrate/margenstern/splitting-tree: the materialized tree', [
-  check('growth materializes consistent parents and unique addresses', () => {
-    const tree = new SplittingTree()
-    tree.grow(80)
-    ok(tree.size >= 80, 'grew to at least 80 cells')
-    const seen = new Set<string>()
-    for (let id = 0; id < tree.size; id++) {
-      const a = tree.address(id)
-      ok(isZeckendorf(a), `address ${a} legal`)
-      notOk(seen.has(a), `address ${a} unique`)
-      seen.add(a)
-      const p = tree.parent(id)
-      if (p >= 0) {
-        equal(parentOf(a), tree.address(p), `parent address of ${a}`)
+  check(
+    'growth materializes consistent parents and unique addresses',
+    () => {
+      const tree = new SplittingTree()
+      tree.grow(80)
+      ok(tree.size >= 80, 'grew to at least 80 cells')
+
+      const seen = new Set<string>()
+
+      for (let id = 0; id < tree.size; id++) {
+        const a = tree.address(id)
+        ok(isZeckendorf(a), `address ${a} legal`)
+        notOk(seen.has(a), `address ${a} unique`)
+        seen.add(a)
+
+        const p = tree.parent(id)
+
+        if (p >= 0) {
+          equal(parentOf(a), tree.address(p), `parent address of ${a}`)
+        }
       }
-    }
-  }),
+    },
+  ),
   check('every non-root cell is one of its parent children', () => {
     const tree = new SplittingTree()
     tree.grow(60)
+
     for (let id = 1; id < tree.size; id++) {
       const p = tree.parent(id)
-      ok(childrenOf(tree.address(p)).includes(tree.address(id)), `${id} is a child of ${p}`)
+      ok(
+        childrenOf(tree.address(p)).includes(tree.address(id)),
+        `${id} is a child of ${p}`,
+      )
     }
   }),
   check('pathToRoot reaches the root', () => {
     const tree = new SplittingTree()
     tree.grow(40)
+
     for (let id = 0; id < tree.size; id++) {
       const path = tree.pathToRoot(id)
       equal(path[0], id, 'starts at the node')

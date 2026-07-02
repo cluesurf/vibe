@@ -19,14 +19,26 @@ function doubleFactorialOdd(twoN: number): number {
 }
 
 suite('measure/collision-family: linePairingFamily', [
-  check('total pairings = (12-1)!! = 10395 perfect matchings of 12 lines', () => {
-    equal(doubleFactorialOdd(12), 10395) // re-derived constant
-    equal(linePairingFamily().totalPairings, 10395)
-  }),
-  check('symmetric pairings are a nonempty subset of all pairings', () => {
-    const { totalPairings, symmetricPairings } = linePairingFamily()
-    ok(symmetricPairings >= 1, 'at least one B4-invariant pairing exists')
-    ok(symmetricPairings <= totalPairings, 'symmetric count cannot exceed total')
-    ok(Number.isInteger(symmetricPairings))
-  }),
+  check(
+    'total pairings = (12-1)!! = 10395 perfect matchings of 12 lines',
+    () => {
+      equal(doubleFactorialOdd(12), 10395) // re-derived constant
+      equal(linePairingFamily().totalPairings, 10395)
+    },
+  ),
+  check(
+    'symmetric pairings are a nonempty subset of all pairings',
+    () => {
+      const { totalPairings, symmetricPairings } = linePairingFamily()
+      ok(
+        symmetricPairings >= 1,
+        'at least one B4-invariant pairing exists',
+      )
+      ok(
+        symmetricPairings <= totalPairings,
+        'symmetric count cannot exceed total',
+      )
+      ok(Number.isInteger(symmetricPairings))
+    },
+  ),
 ])

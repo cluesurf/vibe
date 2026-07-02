@@ -193,7 +193,8 @@ export default experiment({
       Number.isFinite(flatEta) &&
       curvedEta < flatEta
 
-    const solved = curvedIsExponential && flatIsPolynomial && curvedSharesLess
+    const solved =
+      curvedIsExponential && flatIsPolynomial && curvedSharesLess
 
     return verdict({
       status: solved ? 'pass' : 'fail',

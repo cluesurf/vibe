@@ -2,7 +2,13 @@
 // target fidelity is the signed projection onto a target, and clusterMajority is the per-cluster sign
 // of the tone sum. Each value is hand-tallied.
 
-import { suite, check, equal, close, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   agreementFraction,
   disagreementFraction,
@@ -38,12 +44,18 @@ suite('measure/agreement: targetFidelity', [
     close(targetFidelity(tone, target), -1, TOL)
   }),
   check('a zero target gives 0, not NaN', () => {
-    equal(targetFidelity(Int8Array.from([1, 1]), Int8Array.from([0, 0])), 0)
+    equal(
+      targetFidelity(Int8Array.from([1, 1]), Int8Array.from([0, 0])),
+      0,
+    )
   }),
   check('partial overlap is dot / target-norm', () => {
     // tone=[1,1,0], target=[1,0,1]: dot=1, ||target||^2=2 -> 0.5.
     close(
-      targetFidelity(Int8Array.from([1, 1, 0]), Int8Array.from([1, 0, 1])),
+      targetFidelity(
+        Int8Array.from([1, 1, 0]),
+        Int8Array.from([1, 0, 1]),
+      ),
       0.5,
       TOL,
     )
@@ -59,6 +71,7 @@ suite('measure/agreement: clusterMajority', [
       2,
       Int8Array.from([1, 1, -1]),
     )
+
     exactArray(out, [1, -1])
   }),
   check('a tied cluster reads 0 (rest)', () => {
@@ -67,6 +80,7 @@ suite('measure/agreement: clusterMajority', [
       1,
       Int8Array.from([1, -1]),
     )
+
     exactArray(out, [0])
   }),
 ])

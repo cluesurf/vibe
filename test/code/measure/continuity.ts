@@ -17,39 +17,48 @@ function patternWill() {
   return will
 }
 
-suite('measure/continuity: conserving knit has zero residual at every block scale', [
-  check('blockSide 1 (per-cell) gives absResidual exactly 0', () => {
-    const out = coarseContinuityResidual({
-      will: patternWill(),
-      collision: passThrough,
-      meshSide: 4,
-      blockSide: 1,
-    })
+suite(
+  'measure/continuity: conserving knit has zero residual at every block scale',
+  [
+    check('blockSide 1 (per-cell) gives absResidual exactly 0', () => {
+      const out = coarseContinuityResidual({
+        will: patternWill(),
+        collision: passThrough,
+        meshSide: 4,
+        blockSide: 1,
+      })
 
-    equal(out.absResidual, 0)
-    equal(out.relative, 0)
-  }),
-  check('blockSide 2 gives absResidual exactly 0', () => {
-    const out = coarseContinuityResidual({
-      will: patternWill(),
-      collision: passThrough,
-      meshSide: 4,
-      blockSide: 2,
-    })
+      equal(out.absResidual, 0)
+      equal(out.relative, 0)
+    }),
+    check('blockSide 2 gives absResidual exactly 0', () => {
+      const out = coarseContinuityResidual({
+        will: patternWill(),
+        collision: passThrough,
+        meshSide: 4,
+        blockSide: 2,
+      })
 
-    equal(out.absResidual, 0)
-    equal(out.relative, 0)
-    ok(out.blocks === 16, `4/2 per axis ^4 = 16 blocks, got ${out.blocks}`)
-  }),
-  check('blockSide 4 (whole mesh, one block) gives absResidual exactly 0', () => {
-    const out = coarseContinuityResidual({
-      will: patternWill(),
-      collision: passThrough,
-      meshSide: 4,
-      blockSide: 4,
-    })
+      equal(out.absResidual, 0)
+      equal(out.relative, 0)
+      ok(
+        out.blocks === 16,
+        `4/2 per axis ^4 = 16 blocks, got ${out.blocks}`,
+      )
+    }),
+    check(
+      'blockSide 4 (whole mesh, one block) gives absResidual exactly 0',
+      () => {
+        const out = coarseContinuityResidual({
+          will: patternWill(),
+          collision: passThrough,
+          meshSide: 4,
+          blockSide: 4,
+        })
 
-    equal(out.absResidual, 0)
-    equal(out.blocks, 1)
-  }),
-])
+        equal(out.absResidual, 0)
+        equal(out.blocks, 1)
+      },
+    ),
+  ],
+)

@@ -19,17 +19,59 @@ suite('operator/overlap-su2: signal sanity', [
       configs: 1,
       rng: makeRng({ seed: 11 }),
     })
+
     ok(Number.isFinite(result.nearZeroDensity), 'finite')
-    ok(result.nearZeroDensity >= 0 && result.nearZeroDensity <= 1, 'in [0,1]')
+    ok(
+      result.nearZeroDensity >= 0 && result.nearZeroDensity <= 1,
+      'in [0,1]',
+    )
   }),
-  check('the free field (disorder 0) is deterministic across RNG seeds', () => {
-    const a = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 1, rng: makeRng({ seed: 2 }) })
-    const b = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 1, rng: makeRng({ seed: 555 }) })
-    equal(a.nearZeroDensity, b.nearZeroDensity, 'seed independence at disorder 0')
-  }),
-  check('the free field is deterministic across the number of configs averaged', () => {
-    const one = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 1, rng: makeRng({ seed: 2 }) })
-    const two = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 2, rng: makeRng({ seed: 2 }) })
-    equal(one.nearZeroDensity, two.nearZeroDensity, 'config-count independence at disorder 0')
-  }),
+  check(
+    'the free field (disorder 0) is deterministic across RNG seeds',
+    () => {
+      const a = chiralCondensateSignalSU2({
+        length: 3,
+        disorder: 0,
+        configs: 1,
+        rng: makeRng({ seed: 2 }),
+      })
+
+      const b = chiralCondensateSignalSU2({
+        length: 3,
+        disorder: 0,
+        configs: 1,
+        rng: makeRng({ seed: 555 }),
+      })
+
+      equal(
+        a.nearZeroDensity,
+        b.nearZeroDensity,
+        'seed independence at disorder 0',
+      )
+    },
+  ),
+  check(
+    'the free field is deterministic across the number of configs averaged',
+    () => {
+      const one = chiralCondensateSignalSU2({
+        length: 3,
+        disorder: 0,
+        configs: 1,
+        rng: makeRng({ seed: 2 }),
+      })
+
+      const two = chiralCondensateSignalSU2({
+        length: 3,
+        disorder: 0,
+        configs: 2,
+        rng: makeRng({ seed: 2 }),
+      })
+
+      equal(
+        one.nearZeroDensity,
+        two.nearZeroDensity,
+        'config-count independence at disorder 0',
+      )
+    },
+  ),
 ])

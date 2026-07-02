@@ -11,7 +11,11 @@
 import { suite, check, close } from '@/test/code/harness'
 import { benincasaDowkerDalembertian } from '@/code/operator/benincasa-dowker'
 import { smearedKernel2D } from '@/code/dynamics/action'
-import { makePosetFromRelation, pastMatrix, intervalSize } from '@/code/tool/poset'
+import {
+  makePosetFromRelation,
+  pastMatrix,
+  intervalSize,
+} from '@/code/tool/poset'
 
 // A fixed 2D Minkowski causal set (t, x). Points are time-ordered.
 const points: [number, number][] = [
@@ -42,41 +46,74 @@ const density = 1.3
 const epsilon = 0.25
 
 // Independent re-derivation of the documented formula at a point.
-function expected(phi: (t: number, x: number) => number, index: number): number {
+function expected(
+  phi: (t: number, x: number) => number,
+  index: number,
+): number {
   const tx = coords[index * 2] ?? 0
   const xx = coords[index * 2 + 1] ?? 0
 
   let s = 0
+
   for (let y = 0; y < points.length; y++) {
-    if (y === index) continue
+    if (y === index) {continue}
 
     const dt = tx - (coords[y * 2] ?? 0)
     const dx = xx - (coords[y * 2 + 1] ?? 0)
 
-    if (dt <= 0 || dt * dt - dx * dx < 0) continue
+    if (dt <= 0 || dt * dt - dx * dx < 0) {continue}
 
     const n = intervalSize(poset, { a: y, b: index, past })
-    s += smearedKernel2D({ n, epsilon }) * phi(coords[y * 2] ?? 0, coords[y * 2 + 1] ?? 0)
+    s +=
+      smearedKernel2D({ n, epsilon }) *
+      phi(coords[y * 2] ?? 0, coords[y * 2 + 1] ?? 0)
   }
 
   return 4 * epsilon * density * (-0.5 * phi(tx, xx) + epsilon * s)
 }
 
-const apply = (phi: (t: number, x: number) => number, index: number): number =>
-  benincasaDowkerDalembertian({ phi, coords, poset, past, index, density, epsilon })
+const apply = (
+  phi: (t: number, x: number) => number,
+  index: number,
+): number =>
+  benincasaDowkerDalembertian({
+    phi,
+    coords,
+    poset,
+    past,
+    index,
+    density,
+    epsilon,
+  })
 
 suite('operator/benincasa-dowker: formula assembly', [
-  check('the operator matches its documented formula at every point', () => {
-    const phi = (t: number, x: number): number => 1 + 0.5 * t - 0.3 * x + 0.1 * t * x
-    for (let i = 0; i < points.length; i++) {
-      close(apply(phi, i), expected(phi, i), 1e-12, `B_eps at point ${i}`)
-    }
-  }),
+  check(
+    'the operator matches its documented formula at every point',
+    () => {
+      const phi = (t: number, x: number): number =>
+        1 + 0.5 * t - 0.3 * x + 0.1 * t * x
+
+      for (let i = 0; i < points.length; i++) {
+        close(
+          apply(phi, i),
+          expected(phi, i),
+          1e-12,
+          `B_eps at point ${i}`,
+        )
+      }
+    },
+  ),
   check('a constant test function reduces to the prefactor sum', () => {
     // for phi = 1, B_eps(x) = 4 eps rho ( -1/2 + eps sum_{y prec x} f(n) ).
     const one = (): number => 1
+
     for (let i = 0; i < points.length; i++) {
-      close(apply(one, i), expected(one, i), 1e-12, `constant phi at ${i}`)
+      close(
+        apply(one, i),
+        expected(one, i),
+        1e-12,
+        `constant phi at ${i}`,
+      )
     }
   }),
 ])
@@ -87,9 +124,16 @@ suite('operator/benincasa-dowker: linearity', [
     const v = (t: number, x: number): number => Math.cos(t) + x * x
     const a = 2.5
     const b = -1.7
-    const combo = (t: number, x: number): number => a * u(t, x) + b * v(t, x)
+    const combo = (t: number, x: number): number =>
+      a * u(t, x) + b * v(t, x)
+
     for (let i = 0; i < points.length; i++) {
-      close(apply(combo, i), a * apply(u, i) + b * apply(v, i), 1e-12, `linearity at ${i}`)
+      close(
+        apply(combo, i),
+        a * apply(u, i) + b * apply(v, i),
+        1e-12,
+        `linearity at ${i}`,
+      )
     }
   }),
 ])

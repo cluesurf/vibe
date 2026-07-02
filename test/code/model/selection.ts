@@ -9,7 +9,13 @@ import { evolvePopulation } from '@/code/model/selection'
 
 suite('model/selection: determinism', [
   check('a run is reproducible for fixed parameters', () => {
-    const opts = { n: 40, populationSize: 20, generations: 12, select: true }
+    const opts = {
+      n: 40,
+      populationSize: 20,
+      generations: 12,
+      select: true,
+    }
+
     const a = evolvePopulation(opts)
     const b = evolvePopulation(opts)
     equal(a.initialFitness, b.initialFitness, 'same initial fitness')

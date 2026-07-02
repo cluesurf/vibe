@@ -2,7 +2,14 @@
 // centroid, recentering, overlap, radius of gyration, and the Jaccard distance of id sets. Every
 // value is hand-computed from the small explicit cell sets.
 
-import { suite, check, equal, close, exactArray, ok } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+  ok,
+} from '@/test/code/harness'
 import {
   centroidOfCellSet,
   recenterCellSet,
@@ -46,7 +53,11 @@ suite('measure/point-set: overlap and gyration', [
 suite('measure/point-set: jaccardDistance', [
   check('half-overlapping id sets have distance 1/2', () => {
     // {1,2,3} vs {2,3,4}: intersection 2, union 4 -> 1 - 2/4 = 0.5.
-    close(jaccardDistance(new Set([1, 2, 3]), new Set([2, 3, 4])), 0.5, TOL)
+    close(
+      jaccardDistance(new Set([1, 2, 3]), new Set([2, 3, 4])),
+      0.5,
+      TOL,
+    )
   }),
   check('identical sets have distance 0', () => {
     equal(jaccardDistance(new Set([1, 2]), new Set([1, 2])), 0)

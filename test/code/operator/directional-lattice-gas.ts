@@ -50,9 +50,21 @@ function gasEqual(a: LatticeGasState, b: LatticeGasState): boolean {
 suite('operator/directional-lattice-gas: indexing', [
   check('latticeIndex wraps periodically', () => {
     const L = 4
-    equal(latticeIndex(L, -1, 0), latticeIndex(L, L - 1, 0), 'x = -1 wraps to L-1')
-    equal(latticeIndex(L, 0, -1), latticeIndex(L, 0, L - 1), 'y = -1 wraps to L-1')
-    equal(latticeIndex(L, L, 0), latticeIndex(L, 0, 0), 'x = L wraps to 0')
+    equal(
+      latticeIndex(L, -1, 0),
+      latticeIndex(L, L - 1, 0),
+      'x = -1 wraps to L-1',
+    )
+    equal(
+      latticeIndex(L, 0, -1),
+      latticeIndex(L, 0, L - 1),
+      'y = -1 wraps to L-1',
+    )
+    equal(
+      latticeIndex(L, L, 0),
+      latticeIndex(L, 0, 0),
+      'x = L wraps to 0',
+    )
     equal(latticeIndex(L, 2, 3), 3 * L + 2, 'flat index row-major')
   }),
 ])
@@ -84,18 +96,22 @@ suite('operator/directional-lattice-gas: reversibility', [
     const back = streamInverse(5, stream(5, start))
     ok(gasEqual(back, start), 'streamInverse undoes stream')
   }),
-  check('a full beat run forward then backward recovers the start', () => {
-    const L = 4
-    const start = fillGas(L, 21)
-    // beat = collide then stream
-    const after = cloneLatticeGas(start)
-    collide(after)
-    const streamed = stream(L, after)
-    // inverse = streamInverse then collide
-    const undone = streamInverse(L, streamed)
-    collide(undone)
-    ok(gasEqual(undone, start), 'the beat is exactly reversible')
-  }),
+  check(
+    'a full beat run forward then backward recovers the start',
+    () => {
+      const L = 4
+      const start = fillGas(L, 21)
+      // beat = collide then stream
+      const after = cloneLatticeGas(start)
+      collide(after)
+
+      const streamed = stream(L, after)
+      // inverse = streamInverse then collide
+      const undone = streamInverse(L, streamed)
+      collide(undone)
+      ok(gasEqual(undone, start), 'the beat is exactly reversible')
+    },
+  ),
 ])
 
 suite('operator/directional-lattice-gas: conservation', [
@@ -106,6 +122,7 @@ suite('operator/directional-lattice-gas: conservation', [
     const s = cloneLatticeGas(start)
     collide(s)
     equal(latticeCharge(s), c0, 'charge conserved by collide')
+
     const [px1, py1] = latticeMomentum(s)
     equal(px1, px0, 'x-momentum conserved by collide')
     equal(py1, py0, 'y-momentum conserved by collide')
@@ -117,8 +134,10 @@ suite('operator/directional-lattice-gas: conservation', [
     const [px0, py0] = latticeMomentum(start)
     const after = cloneLatticeGas(start)
     collide(after)
+
     const streamed = stream(L, after)
     equal(latticeCharge(streamed), c0, 'charge conserved by the beat')
+
     const [px1, py1] = latticeMomentum(streamed)
     equal(px1, px0, 'x-momentum conserved by the beat')
     equal(py1, py0, 'y-momentum conserved by the beat')

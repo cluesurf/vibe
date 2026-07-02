@@ -36,9 +36,12 @@ suite('measure/statistics: mean / variance / stddev', [
     equal(mean([2, 4, 4, 4, 5, 5, 7, 9]), 5)
     equal(populationVariance([2, 4, 4, 4, 5, 5, 7, 9]), 4)
   }),
-  check('standard deviation is the sqrt of the population variance', () => {
-    equal(standardDeviation([2, 4, 4, 4, 5, 5, 7, 9]), 2)
-  }),
+  check(
+    'standard deviation is the sqrt of the population variance',
+    () => {
+      equal(standardDeviation([2, 4, 4, 4, 5, 5, 7, 9]), 2)
+    },
+  ),
   check('variance of a constant series is 0', () => {
     equal(populationVariance([7, 7, 7, 7]), 0)
   }),
@@ -84,15 +87,33 @@ suite('measure/statistics: joint counts and mutual information', [
       stateCount: 2,
       lag: 1,
     })
+
     exactArray(c[0]!, [2, 0])
     exactArray(c[1]!, [0, 1])
   }),
   check('mutual information of an independent joint is 0 bits', () => {
-    close(mutualInformationBits([[1, 1], [1, 1]]), 0, TOL)
+    close(
+      mutualInformationBits([
+        [1, 1],
+        [1, 1],
+      ]),
+      0,
+      TOL,
+    )
   }),
   // A perfectly dependent 2x2 (mass on the diagonal) carries exactly 1 bit:
   //   I = 0.5 log2(0.5/0.25) * 2 = 1.
-  check('mutual information of a perfectly correlated 2x2 is 1 bit', () => {
-    close(mutualInformationBits([[1, 0], [0, 1]]), 1, TOL)
-  }),
+  check(
+    'mutual information of a perfectly correlated 2x2 is 1 bit',
+    () => {
+      close(
+        mutualInformationBits([
+          [1, 0],
+          [0, 1],
+        ]),
+        1,
+        TOL,
+      )
+    },
+  ),
 ])

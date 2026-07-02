@@ -47,7 +47,7 @@ export function closedManifold(): {
         s += cur[j]!
       }
 
-      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3)
+      nxt[i] = (((s - prev[i]!) % 3) + 3) % 3
     }
 
     const tmp = prev

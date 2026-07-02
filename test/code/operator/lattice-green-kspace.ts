@@ -31,13 +31,37 @@ suite('operator/lattice-green-kspace: difference identities', [
     close(ab + ba, 0, 1e-13, 'antisymmetry')
   }),
   check('additivity: diff(4,1) = diff(4,2) + diff(2,1)', () => {
-    const total = latticeGreenDifferenceX({ r: 4, r0: 1, gridPoints: M })
-    const part1 = latticeGreenDifferenceX({ r: 4, r0: 2, gridPoints: M })
-    const part2 = latticeGreenDifferenceX({ r: 2, r0: 1, gridPoints: M })
+    const total = latticeGreenDifferenceX({
+      r: 4,
+      r0: 1,
+      gridPoints: M,
+    })
+
+    const part1 = latticeGreenDifferenceX({
+      r: 4,
+      r0: 2,
+      gridPoints: M,
+    })
+
+    const part2 = latticeGreenDifferenceX({
+      r: 2,
+      r0: 1,
+      gridPoints: M,
+    })
+
     close(total, part1 + part2, 1e-12, 'path independence')
   }),
-  check('the potential decays: diff(larger, smaller) is negative', () => {
-    ok(latticeGreenDifferenceX({ r: 2, r0: 1, gridPoints: M }) < 0, 'G(2) < G(1)')
-    ok(latticeGreenDifferenceX({ r: 4, r0: 2, gridPoints: M }) < 0, 'G(4) < G(2)')
-  }),
+  check(
+    'the potential decays: diff(larger, smaller) is negative',
+    () => {
+      ok(
+        latticeGreenDifferenceX({ r: 2, r0: 1, gridPoints: M }) < 0,
+        'G(2) < G(1)',
+      )
+      ok(
+        latticeGreenDifferenceX({ r: 4, r0: 2, gridPoints: M }) < 0,
+        'G(4) < G(2)',
+      )
+    },
+  ),
 ])

@@ -40,17 +40,40 @@ suite('measure/rapidity: relativisticEnergy', [
 
 suite('measure/rapidity: boostEnergyMomentum', [
   check('preserves the invariant omega^2 - k^2', () => {
-    const out = boostEnergyMomentum({ omega: 2, wavenumber: 1, rapidity: 0.6 })
-    close(out.omega * out.omega - out.wavenumber * out.wavenumber, 4 - 1, 1e-10)
+    const out = boostEnergyMomentum({
+      omega: 2,
+      wavenumber: 1,
+      rapidity: 0.6,
+    })
+
+    close(
+      out.omega * out.omega - out.wavenumber * out.wavenumber,
+      4 - 1,
+      1e-10,
+    )
   }),
   check('a lightlike vector stays lightlike under any boost', () => {
-    const out = boostEnergyMomentum({ omega: 1, wavenumber: 1, rapidity: 1.3 })
+    const out = boostEnergyMomentum({
+      omega: 1,
+      wavenumber: 1,
+      rapidity: 1.3,
+    })
+
     close(Math.abs(out.omega), Math.abs(out.wavenumber), 1e-10)
   }),
   check('rapidities add: boost(a) then boost(b) == boost(a+b)', () => {
-    const once = boostEnergyMomentum({ omega: 2, wavenumber: 0.5, rapidity: 0.3 + 0.4 })
+    const once = boostEnergyMomentum({
+      omega: 2,
+      wavenumber: 0.5,
+      rapidity: 0.3 + 0.4,
+    })
+
     const twice = boostEnergyMomentum({
-      ...boostEnergyMomentum({ omega: 2, wavenumber: 0.5, rapidity: 0.3 }),
+      ...boostEnergyMomentum({
+        omega: 2,
+        wavenumber: 0.5,
+        rapidity: 0.3,
+      }),
       rapidity: 0.4,
     })
 
@@ -61,24 +84,44 @@ suite('measure/rapidity: boostEnergyMomentum', [
 
 suite('measure/rapidity: boostCoords', [
   check('preserves the interval t^2 - x^2', () => {
-    const out = boostCoords({ coords: Float64Array.from([2, 1]), rapidity: 0.5 })
+    const out = boostCoords({
+      coords: Float64Array.from([2, 1]),
+      rapidity: 0.5,
+    })
+
     close(out[0]! * out[0]! - out[1]! * out[1]!, 4 - 1, 1e-10)
   }),
 ])
 
 suite('measure/rapidity: linkRapidities', [
-  check('a timelike link of velocity tanh(0.7) has rapidity 0.7', () => {
-    // elem0 at (0,0), elem1 at (1, tanh 0.7): v = tanh 0.7, atanh(v) = 0.7.
-    const coords = Float64Array.from([0, 0, 1, Math.tanh(0.7)])
-    const links = [Uint32Array.from([1]), Uint32Array.from([])]
-    const out = linkRapidities({ coords, links, band: null })
-    equal(out.length, 1)
-    close(out[0]!, 0.7, 1e-10)
-  }),
+  check(
+    'a timelike link of velocity tanh(0.7) has rapidity 0.7',
+    () => {
+      // elem0 at (0,0), elem1 at (1, tanh 0.7): v = tanh 0.7, atanh(v) = 0.7.
+      const coords = Float64Array.from([0, 0, 1, Math.tanh(0.7)])
+      const links = [Uint32Array.from([1]), Uint32Array.from([])]
+      const out = linkRapidities({ coords, links, band: null })
+      equal(out.length, 1)
+      close(out[0]!, 0.7, 1e-10)
+    },
+  ),
   check('a spacelike link (|v| >= 1) is skipped', () => {
     // elem0 -> elem1 timelike (rapidity 0.5), elem0 -> elem2 spacelike (dt 0.5, dx 0.6, v=1.2).
-    const coords = Float64Array.from([0, 0, 1, Math.tanh(0.5), 0.5, 0.6])
-    const links = [Uint32Array.from([1, 2]), Uint32Array.from([]), Uint32Array.from([])]
+    const coords = Float64Array.from([
+      0,
+      0,
+      1,
+      Math.tanh(0.5),
+      0.5,
+      0.6,
+    ])
+
+    const links = [
+      Uint32Array.from([1, 2]),
+      Uint32Array.from([]),
+      Uint32Array.from([]),
+    ]
+
     const out = linkRapidities({ coords, links, band: null })
     equal(out.length, 1)
     close(out[0]!, 0.5, 1e-10)

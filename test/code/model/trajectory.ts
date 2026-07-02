@@ -24,38 +24,65 @@ suite('model/trajectory: deterministic distances', [
       agent: 'none',
       steered: true,
     })
+
     for (const d of r.distanceOverTime) {
       close(d, 1, TOL, 'nothing happens, distance stays maximal')
     }
+
     close(r.finalDistance, 1, TOL)
   }),
   // m=8, one beat, full effort: the self sets all 8 cells to +1, then the decay flips cell 0 back to 0,
   // leaving one off-goal cell -> distance 1/8.
-  check('a full-effort self repair leaves only the decayed cell', () => {
-    const r = runTrajectory({
-      m: 8,
-      beats: 1,
-      effort: 8,
-      agent: 'self',
-      steered: true,
-    })
-    close(r.finalDistance, 1 / 8, TOL)
-  }),
+  check(
+    'a full-effort self repair leaves only the decayed cell',
+    () => {
+      const r = runTrajectory({
+        m: 8,
+        beats: 1,
+        effort: 8,
+        agent: 'self',
+        steered: true,
+      })
+
+      close(r.finalDistance, 1 / 8, TOL)
+    },
+  ),
 ])
 
 suite('model/trajectory: steering impact', [
   // m=8 one beat full effort: steered final 1/8, ablated (no action) final 1, impact = 1 - 1/8 = 7/8.
   check('impact is ablated-minus-steered, exactly', () => {
-    const r = steeringImpact({ m: 8, beats: 1, effort: 8, agent: 'self' })
+    const r = steeringImpact({
+      m: 8,
+      beats: 1,
+      effort: 8,
+      agent: 'self',
+    })
+
     close(r.steeredFinal, 1 / 8, TOL)
     close(r.ablatedFinal, 1, TOL)
     close(r.impact, 7 / 8, TOL)
   }),
   // A goal-directed self makes more counterfactual impact than a goal-agnostic rock of equal effort.
   check('a self steers more than a rock of equal effort', () => {
-    const self = steeringImpact({ m: 64, beats: 30, effort: 16, agent: 'self' })
-    const rock = steeringImpact({ m: 64, beats: 30, effort: 16, agent: 'rock' })
-    ok(self.impact > rock.impact, 'goal-directed agency beats mere activity')
+    const self = steeringImpact({
+      m: 64,
+      beats: 30,
+      effort: 16,
+      agent: 'self',
+    })
+
+    const rock = steeringImpact({
+      m: 64,
+      beats: 30,
+      effort: 16,
+      agent: 'rock',
+    })
+
+    ok(
+      self.impact > rock.impact,
+      'goal-directed agency beats mere activity',
+    )
   }),
 ])
 
@@ -72,20 +99,36 @@ suite('model/trajectory: integration becomes agency', [
       effort: 16,
       targets: [allPlus, Int8Array.from(allPlus)],
     })
+
     const conflicting = multiAgentTrajectory({
       m,
       beats: 30,
       effort: 16,
       targets: [allPlus, allMinus],
     })
+
     ok(
       coherent.finalDistance < conflicting.finalDistance,
       'a unified self steers, a divided one cancels out',
     )
   }),
   check('the trajectory is deterministic', () => {
-    const a = runTrajectory({ m: 16, beats: 10, effort: 4, agent: 'self', steered: true })
-    const b = runTrajectory({ m: 16, beats: 10, effort: 4, agent: 'self', steered: true })
+    const a = runTrajectory({
+      m: 16,
+      beats: 10,
+      effort: 4,
+      agent: 'self',
+      steered: true,
+    })
+
+    const b = runTrajectory({
+      m: 16,
+      beats: 10,
+      effort: 4,
+      agent: 'self',
+      steered: true,
+    })
+
     close(a.finalDistance, b.finalDistance, 0)
   }),
 ])

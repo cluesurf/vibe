@@ -20,6 +20,7 @@ const g = makeGraph({
   directed: false,
   neighbors: [[1], [0, 2], [1, 3], [2]],
 })
+
 // fills aligned with sorted neighbours: node1 neighbours [0,2] -> [+1 (to 0), -1 (to 2)].
 const fills = [
   Int8Array.from([1]), // 0: edge to 1
@@ -27,13 +28,22 @@ const fills = [
   Int8Array.from([-1, 1]), // 2: edge to 1 (-1), edge to 3 (+1)
   Int8Array.from([1]), // 3: edge to 2
 ]
+
 const cl = Int32Array.from([0, 0, 1, 1])
 const eff = effectiveCouplings(g, fills, cl, 2)
 
 suite('operator/macro-rule: effective couplings', [
   check('Jself sums intra-cluster fills (both directions)', () => {
-    equal(eff.Jself[0], 2, 'cluster 0: edge 0-1 counted from both ends = 2')
-    equal(eff.Jself[1], 2, 'cluster 1: edge 2-3 counted from both ends = 2')
+    equal(
+      eff.Jself[0],
+      2,
+      'cluster 0: edge 0-1 counted from both ends = 2',
+    )
+    equal(
+      eff.Jself[1],
+      2,
+      'cluster 1: edge 2-3 counted from both ends = 2',
+    )
   }),
   check('Jcross is the real summed cross-cluster coupling', () => {
     equal(eff.nbr[0]!.length, 1, 'cluster 0 has one cross-neighbour')

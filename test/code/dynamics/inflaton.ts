@@ -22,33 +22,73 @@ suite('dynamics/inflaton: de Sitter fixed point', [
     const V0 = 5
     const potential = (): number => V0
     const potentialSlope = (): number => 0
+
     let phi = 2
     let phidot = 0
+
     const dt = 0.01
     const H0 = inflatonHubble({ phi, phidot, potential })
+
     for (let t = 0; t < 200; t++) {
-      const next = inflatonStep({ phi, phidot, potential, potentialSlope, dt })
+      const next = inflatonStep({
+        phi,
+        phidot,
+        potential,
+        potentialSlope,
+        dt,
+      })
+
       phi = next.phi
       phidot = next.phidot
     }
+
     close(phi, 2, 1e-9, 'field stays put')
     close(phidot, 0, 1e-9, 'velocity stays 0')
-    close(inflatonHubble({ phi, phidot, potential }), H0, 1e-9, 'H stays constant (de Sitter)')
+    close(
+      inflatonHubble({ phi, phidot, potential }),
+      H0,
+      1e-9,
+      'H stays constant (de Sitter)',
+    )
   }),
-  check('a positive slope rolls the field downhill (phidot < 0)', () => {
-    const potential = (phi: number): number => phi * phi
-    const potentialSlope = (phi: number): number => 2 * phi
-    const next = inflatonStep({ phi: 1, phidot: 0, potential, potentialSlope, dt: 0.01 })
-    ok(next.phidot < 0, 'rolls down (phidot negative)')
-  }),
+  check(
+    'a positive slope rolls the field downhill (phidot < 0)',
+    () => {
+      const potential = (phi: number): number => phi * phi
+      const potentialSlope = (phi: number): number => 2 * phi
+      const next = inflatonStep({
+        phi: 1,
+        phidot: 0,
+        potential,
+        potentialSlope,
+        dt: 0.01,
+      })
+
+      ok(next.phidot < 0, 'rolls down (phidot negative)')
+    },
+  ),
 ])
 
 suite('dynamics/inflaton: determinism', [
   check('two identical steps agree', () => {
     const potential = (phi: number): number => phi * phi
     const potentialSlope = (phi: number): number => 2 * phi
-    const a = inflatonStep({ phi: 4, phidot: -0.1, potential, potentialSlope, dt: 0.02 })
-    const b = inflatonStep({ phi: 4, phidot: -0.1, potential, potentialSlope, dt: 0.02 })
+    const a = inflatonStep({
+      phi: 4,
+      phidot: -0.1,
+      potential,
+      potentialSlope,
+      dt: 0.02,
+    })
+
+    const b = inflatonStep({
+      phi: 4,
+      phidot: -0.1,
+      potential,
+      potentialSlope,
+      dt: 0.02,
+    })
+
     equal(a.phi, b.phi, 'phi')
     equal(a.phidot, b.phidot, 'phidot')
   }),

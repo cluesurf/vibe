@@ -20,29 +20,51 @@ suite('dynamics/phase-field: uniform fixed point', [
   check('a uniform field is unchanged by the relaxation', () => {
     const uniform = new Array<number>(20).fill(0.7)
     const next = phaseRelaxStep(uniform, 0.2)
-    for (let i = 0; i < next.length; i++) close(next[i]!, 0.7, 1e-12, `cell ${i}`)
+
+    for (let i = 0; i < next.length; i++)
+      {close(next[i]!, 0.7, 1e-12, `cell ${i}`)}
   }),
 ])
 
 suite('dynamics/phase-field: healing', [
-  check('relaxation drives a perturbed field toward smoothness (structure decays)', () => {
-    let field = windingKinkWithLump({ size: 64, winding: 1, lumpAmplitude: 1.0, lumpWidth: 5 })
-    const s0 = gradientStructure(field)
-    for (let t = 0; t < 200; t++) field = phaseRelaxStep(field, 0.1)
-    ok(gradientStructure(field) < s0, 'gradient structure decreased')
-  }),
+  check(
+    'relaxation drives a perturbed field toward smoothness (structure decays)',
+    () => {
+      let field = windingKinkWithLump({
+        size: 64,
+        winding: 1,
+        lumpAmplitude: 1.0,
+        lumpWidth: 5,
+      })
+
+      const s0 = gradientStructure(field)
+
+      for (let t = 0; t < 200; t++) {field = phaseRelaxStep(field, 0.1)}
+
+      ok(gradientStructure(field) < s0, 'gradient structure decreased')
+    },
+  ),
 ])
 
 suite('dynamics/phase-field: determinism', [
   check('two relaxations agree', () => {
-    const seed = windingKinkWithLump({ size: 32, winding: 1, lumpAmplitude: 0.5 })
+    const seed = windingKinkWithLump({
+      size: 32,
+      winding: 1,
+      lumpAmplitude: 0.5,
+    })
+
     const run = (): number[] => {
       let f = seed.slice()
-      for (let t = 0; t < 50; t++) f = phaseRelaxStep(f, 0.1)
+
+      for (let t = 0; t < 50; t++) {f = phaseRelaxStep(f, 0.1)}
+
       return f
     }
+
     const a = run()
     const b = run()
-    for (let i = 0; i < a.length; i++) equal(a[i]!, b[i]!, `cell ${i}`)
+
+    for (let i = 0; i < a.length; i++) {equal(a[i]!, b[i]!, `cell ${i}`)}
   }),
 ])

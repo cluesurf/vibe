@@ -40,7 +40,12 @@ function reference(input: {
 
 suite('measure/two-point: dirac correlator', [
   check('matches the independent Kallen-Lehmann re-sum', () => {
-    const got = diracEqualTimeCorrelator({ mass: 0.3, maxR: 6, modes: 64 })
+    const got = diracEqualTimeCorrelator({
+      mass: 0.3,
+      maxR: 6,
+      modes: 64,
+    })
+
     const want = reference({ mass: 0.3, maxR: 6, modes: 64 })
 
     for (let r = 0; r < want.length; r++) {
@@ -50,7 +55,12 @@ suite('measure/two-point: dirac correlator', [
   // Every mode contributes a positive weight 1/(2 omega), so C(0) = sum of weights is
   // the largest value and strictly positive (reflection positivity at zero separation).
   check('C(0) is positive and the maximum over r', () => {
-    const c = diracEqualTimeCorrelator({ mass: 0.3, maxR: 8, modes: 64 })
+    const c = diracEqualTimeCorrelator({
+      mass: 0.3,
+      maxR: 8,
+      modes: 64,
+    })
+
     ok(c[0]! > 0, 'C(0) must be positive')
 
     for (let r = 1; r < c.length; r++) {
@@ -62,6 +72,7 @@ suite('measure/two-point: dirac correlator', [
   check('C(0) equals the summed spectral weight', () => {
     const modes = 48
     const mass = 0.5
+
     let weight = 0
 
     for (let n = 1; n < modes; n++) {
@@ -76,8 +87,18 @@ suite('measure/two-point: dirac correlator', [
   // A larger mass shortens the range: C decays faster, so C(4)/C(0) is smaller for the
   // heavier field (a contact correlator) than for the light one (a propagating particle).
   check('larger mass gives a shorter-range correlator', () => {
-    const light = diracEqualTimeCorrelator({ mass: 0.1, maxR: 6, modes: 96 })
-    const heavy = diracEqualTimeCorrelator({ mass: 1.2, maxR: 6, modes: 96 })
+    const light = diracEqualTimeCorrelator({
+      mass: 0.1,
+      maxR: 6,
+      modes: 96,
+    })
+
+    const heavy = diracEqualTimeCorrelator({
+      mass: 1.2,
+      maxR: 6,
+      modes: 96,
+    })
+
     const lightRatio = Math.abs(light[6]! / light[0]!)
     const heavyRatio = Math.abs(heavy[6]! / heavy[0]!)
     ok(

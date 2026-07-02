@@ -598,11 +598,8 @@ export function bandLargestComponentSubgraph(input: {
   )
 
   const lmap = new Map(lcc.map((v, i) => [v, i]))
-  const neighbors: number[][] = lcc.map(
-    v =>
-      bnb[v]!.map(w => lmap.get(w)!).filter(
-        x => x !== undefined,
-      ),
+  const neighbors: number[][] = lcc.map(v =>
+    bnb[v]!.map(w => lmap.get(w)!).filter(x => x !== undefined),
   )
 
   const coords = lcc.map(v => bcoords[v]!)

@@ -84,7 +84,7 @@ export function memoryVsConservation(input?: { n?: number }): {
   const target = new Int8Array(N) // 0 outside the region
 
   for (let i = 0; i < region.length; i++) {
-    target[region[i]!] = (i % 2 === 0 ? 1 : -1)
+    target[region[i]!] = i % 2 === 0 ? 1 : -1
   }
 
   // shuffle within the region to make a real pattern, staying balanced
@@ -119,7 +119,7 @@ export function memoryVsConservation(input?: { n?: number }): {
   // a light active background outside, so the medium churns (conserving)
   for (let i = 0; i < N; i++) {
     if (target[i] === 0 && rng.next() < 0.2) {
-      tone[i] = (rng.next() < 0.5 ? 1 : -1)
+      tone[i] = rng.next() < 0.5 ? 1 : -1
     }
   }
 
@@ -142,7 +142,7 @@ export function memoryVsConservation(input?: { n?: number }): {
 
   for (let i = 0; i < N; i++) {
     if (target[i] === 0 && rng.next() < 0.2) {
-      tone2[i] = (rng.next() < 0.5 ? 1 : -1)
+      tone2[i] = rng.next() < 0.5 ? 1 : -1
     }
   }
 

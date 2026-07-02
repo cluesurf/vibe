@@ -24,7 +24,12 @@ const MINUS_ONE: Quaternion = [-1, 0, 0, 0]
 const normSquared = (q: Quaternion): number =>
   q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]
 
-const negate = (q: Quaternion): Quaternion => [-q[0], -q[1], -q[2], -q[3]]
+const negate = (q: Quaternion): Quaternion => [
+  -q[0],
+  -q[1],
+  -q[2],
+  -q[3],
+]
 
 const equalTuple = (
   actual: Quaternion,
@@ -36,7 +41,8 @@ const equalTuple = (
   }
 }
 
-const key = (q: Quaternion): string => q.map(x => x.toFixed(3)).join(',')
+const key = (q: Quaternion): string =>
+  q.map(x => x.toFixed(3)).join(',')
 
 suite('algebra/binary-tetrahedral: Hamilton relations (tuple form)', [
   check('i^2 = j^2 = k^2 = -1', () => {
@@ -54,10 +60,17 @@ suite('algebra/binary-tetrahedral: Hamilton relations (tuple form)', [
       'ijk',
     )
   }),
-  check('conjugate is the inverse for a unit quaternion: q q* = 1', () => {
-    const q: Quaternion = [0.5, 0.5, 0.5, 0.5]
-    equalTuple(quaternionMultiply(q, quaternionConjugate(q)), ONE, 'q q*')
-  }),
+  check(
+    'conjugate is the inverse for a unit quaternion: q q* = 1',
+    () => {
+      const q: Quaternion = [0.5, 0.5, 0.5, 0.5]
+      equalTuple(
+        quaternionMultiply(q, quaternionConjugate(q)),
+        ONE,
+        'q q*',
+      )
+    },
+  ),
 ])
 
 suite('algebra/binary-tetrahedral: the group 2T', [
@@ -65,6 +78,7 @@ suite('algebra/binary-tetrahedral: the group 2T', [
     const group = binaryTetrahedralGroup()
     equal(group.length, 24, '2T size')
     equal(new Set(group.map(key)).size, 24, '2T distinct')
+
     for (const q of group) {
       ok(Math.abs(normSquared(q) - 1) < 1e-12, '2T element is a unit')
     }
@@ -75,52 +89,74 @@ suite('algebra/binary-tetrahedral: the group 2T', [
       '2T must be a group',
     )
   }),
-  check('a non-group set is correctly rejected by the closure test', () => {
-    // {1, i} is not closed: i*i = -1 is absent. A real negative control on the test.
-    ok(
-      !isClosedUnderMultiplication([ONE, I]),
-      '{1, i} is not closed (i^2 = -1 missing)',
-    )
-  }),
+  check(
+    'a non-group set is correctly rejected by the closure test',
+    () => {
+      // {1, i} is not closed: i*i = -1 is absent. A real negative control on the test.
+      ok(
+        !isClosedUnderMultiplication([ONE, I]),
+        '{1, i} is not closed (i^2 = -1 missing)',
+      )
+    },
+  ),
 ])
 
 suite('algebra/binary-tetrahedral: spin double cover', [
-  check('the quaternion -1 acts as -1 on a spinor (2pi turn flips sign)', () => {
-    const spinor: Quaternion = [0.5, 0.5, 0.5, 0.5]
-    equalTuple(spinorAction(MINUS_ONE, spinor), negate(spinor), '(-1) . spinor')
-  }),
-  check('the quaternion -1 acts as +1 on a vector (2pi turn is trivial)', () => {
-    const vector: Quaternion = [0, 1, 2, 3]
-    ok(
-      quaternionsClose(vectorAction(MINUS_ONE, vector), vector),
-      '(-1) v (-1)^-1 = v',
-    )
-  }),
-  check('q and -q give the same rotation on a vector but opposite on a spinor', () => {
-    const q: Quaternion = [0.5, 0.5, 0.5, 0.5] // a unit quaternion in 2T
-    const vector: Quaternion = [0, 1, -1, 2]
-    const spinor: Quaternion = [1, 0, 0, 0]
-    // vector action: q and -q agree (the double cover collapses on SO(3))
-    ok(
-      quaternionsClose(vectorAction(q, vector), vectorAction(negate(q), vector)),
-      'q and -q rotate a vector identically',
-    )
-    // spinor action: q and -q differ by the sign
-    ok(
-      quaternionsClose(
-        spinorAction(q, spinor),
-        negate(spinorAction(negate(q), spinor)),
-      ),
-      'q and -q rotate a spinor with opposite sign',
-    )
-  }),
-  check('conjugation by a unit quaternion preserves the vector norm', () => {
-    const q: Quaternion = [0.5, 0.5, 0.5, 0.5]
-    const vector: Quaternion = [0, 1, 2, 3]
-    const rotated = vectorAction(q, vector)
-    ok(
-      Math.abs(normSquared(rotated) - normSquared(vector)) < 1e-9,
-      'a rotation preserves length',
-    )
-  }),
+  check(
+    'the quaternion -1 acts as -1 on a spinor (2pi turn flips sign)',
+    () => {
+      const spinor: Quaternion = [0.5, 0.5, 0.5, 0.5]
+      equalTuple(
+        spinorAction(MINUS_ONE, spinor),
+        negate(spinor),
+        '(-1) . spinor',
+      )
+    },
+  ),
+  check(
+    'the quaternion -1 acts as +1 on a vector (2pi turn is trivial)',
+    () => {
+      const vector: Quaternion = [0, 1, 2, 3]
+      ok(
+        quaternionsClose(vectorAction(MINUS_ONE, vector), vector),
+        '(-1) v (-1)^-1 = v',
+      )
+    },
+  ),
+  check(
+    'q and -q give the same rotation on a vector but opposite on a spinor',
+    () => {
+      const q: Quaternion = [0.5, 0.5, 0.5, 0.5] // a unit quaternion in 2T
+      const vector: Quaternion = [0, 1, -1, 2]
+      const spinor: Quaternion = [1, 0, 0, 0]
+      // vector action: q and -q agree (the double cover collapses on SO(3))
+      ok(
+        quaternionsClose(
+          vectorAction(q, vector),
+          vectorAction(negate(q), vector),
+        ),
+        'q and -q rotate a vector identically',
+      )
+      // spinor action: q and -q differ by the sign
+      ok(
+        quaternionsClose(
+          spinorAction(q, spinor),
+          negate(spinorAction(negate(q), spinor)),
+        ),
+        'q and -q rotate a spinor with opposite sign',
+      )
+    },
+  ),
+  check(
+    'conjugation by a unit quaternion preserves the vector norm',
+    () => {
+      const q: Quaternion = [0.5, 0.5, 0.5, 0.5]
+      const vector: Quaternion = [0, 1, 2, 3]
+      const rotated = vectorAction(q, vector)
+      ok(
+        Math.abs(normSquared(rotated) - normSquared(vector)) < 1e-9,
+        'a rotation preserves length',
+      )
+    },
+  ),
 ])

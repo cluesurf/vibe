@@ -21,7 +21,12 @@ const base = {
 suite('dynamics/schwinger-coupled: decoupling and sourcing', [
   check('zero coupling sources exactly zero field energy', () => {
     const out = runCoupledSchwinger({ ...base, coupling: 0 })
-    close(out.fieldEnergy, 0, 1e-9, 'no coupling, no sourced field energy')
+    close(
+      out.fieldEnergy,
+      0,
+      1e-9,
+      'no coupling, no sourced field energy',
+    )
   }),
   check('a nonzero coupling sources field energy', () => {
     const out = runCoupledSchwinger({ ...base, coupling: 0.4 })

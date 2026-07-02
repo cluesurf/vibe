@@ -74,7 +74,7 @@ export function mutatePattern(input: {
 
   for (let i = 0; i < out.length; i++) {
     if (rng.next() < rate) {
-      out[i] = (rng.next() < 0.5 ? -1 : 1)
+      out[i] = rng.next() < 0.5 ? -1 : 1
     }
   }
 

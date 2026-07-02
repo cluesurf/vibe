@@ -27,6 +27,7 @@ suite('coarse/surrogate-tower: lag doubling and cost', [
       cellCount,
       span,
     })
+
     equal(tower.length, 3)
     tower.forEach((level, k) => {
       const expectedLag = 1 * 2 ** k
@@ -48,28 +49,33 @@ suite('coarse/surrogate-tower: lag doubling and cost', [
 ])
 
 suite('coarse/surrogate-tower: fidelity vs the shuffled control', [
-  check('a periodic trajectory is predicted perfectly and beats shuffle', () => {
-    const tower = surrogateTower({
-      labels,
-      bins: 2,
-      baseLag: 1,
-      levels: 3,
-      cellCount: 1000,
-      span: 100,
-    })
-    for (const level of tower) {
-      close(level.accuracy, 1, 1e-12, 'period-2 series is perfectly predictable')
-      ok(
-        level.accuracy >= level.shuffledAccuracy,
-        'the learned surrogate is at least as good as its time-shuffled control',
-      )
-    }
-  }),
+  check(
+    'a periodic trajectory is predicted perfectly and beats shuffle',
+    () => {
+      const tower = surrogateTower({
+        labels,
+        bins: 2,
+        baseLag: 1,
+        levels: 3,
+        cellCount: 1000,
+        span: 100,
+      })
+
+      for (const level of tower) {
+        close(
+          level.accuracy,
+          1,
+          1e-12,
+          'period-2 series is perfectly predictable',
+        )
+        ok(
+          level.accuracy >= level.shuffledAccuracy,
+          'the learned surrogate is at least as good as its time-shuffled control',
+        )
+      }
+    },
+  ),
   check('the single-lag accuracy agrees with the tower', () => {
-    close(
-      towerAccuracyAtLag({ labels, bins: 2, lag: 1 }),
-      1,
-      1e-12,
-    )
+    close(towerAccuracyAtLag({ labels, bins: 2, lag: 1 }), 1, 1e-12)
   }),
 ])

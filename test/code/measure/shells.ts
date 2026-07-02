@@ -3,7 +3,13 @@
 // all size 1; a 6-cycle's shells are 1,2,2,1). Growth-ratio helpers are checked on
 // geometric series with a known ratio.
 
-import { suite, check, equal, close, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   bfsShells,
   branchingRatio,
@@ -21,7 +27,10 @@ function pathNeighbors(n: number): number[][] {
 
 // A cycle of n nodes.
 function cycleNeighbors(n: number): number[][] {
-  return Array.from({ length: n }, (_, i) => [(i - 1 + n) % n, (i + 1) % n])
+  return Array.from({ length: n }, (_, i) => [
+    (i - 1 + n) % n,
+    (i + 1) % n,
+  ])
 }
 
 suite('measure/shells: bfsShells', [
@@ -37,7 +46,12 @@ suite('measure/shells: bfsShells', [
     exactArray(out.shellCounts, [1, 2, 2, 1])
   }),
   check('maxRadius caps the traversal depth', () => {
-    const out = bfsShells({ neighbors: pathNeighbors(10), root: 0, maxRadius: 3 })
+    const out = bfsShells({
+      neighbors: pathNeighbors(10),
+      root: 0,
+      maxRadius: 3,
+    })
+
     exactArray(out.shellCounts, [1, 1, 1, 1])
   }),
 ])
@@ -50,22 +64,49 @@ suite('measure/shells: growth ratios', [
     close(geometricGrowthRatio([5, 5, 5, 5]), 1, 1e-12)
   }),
   check('branchingRatio of a doubling shell series is 2', () => {
-    close(branchingRatio({ shellCounts: [1, 2, 4, 8, 16, 32] }), 2, 1e-12)
+    close(
+      branchingRatio({ shellCounts: [1, 2, 4, 8, 16, 32] }),
+      2,
+      1e-12,
+    )
   }),
-  check('midShellGrowthRatio reads the doubling of the middle shells', () => {
-    close(midShellGrowthRatio({ shellCounts: [1, 1, 1, 2, 4, 8, 16] }), 2, 1e-12)
-  }),
+  check(
+    'midShellGrowthRatio reads the doubling of the middle shells',
+    () => {
+      close(
+        midShellGrowthRatio({ shellCounts: [1, 1, 1, 2, 4, 8, 16] }),
+        2,
+        1e-12,
+      )
+    },
+  ),
 ])
 
 suite('measure/shells: geodesicBall', [
   check('a ball of radius 2 on a path holds 3 nodes', () => {
-    const ball = geodesicBall({ neighbors: pathNeighbors(7), root: 0, radius: 2 })
+    const ball = geodesicBall({
+      neighbors: pathNeighbors(7),
+      root: 0,
+      radius: 2,
+    })
+
     equal(ball.length, 3)
-    exactArray([...ball].sort((a, b) => a - b), [0, 1, 2])
+    exactArray(
+      [...ball].sort((a, b) => a - b),
+      [0, 1, 2],
+    )
   }),
   check('a ball of radius 2 on a 6-cycle holds 5 nodes', () => {
-    const ball = geodesicBall({ neighbors: cycleNeighbors(6), root: 0, radius: 2 })
+    const ball = geodesicBall({
+      neighbors: cycleNeighbors(6),
+      root: 0,
+      radius: 2,
+    })
+
     equal(ball.length, 5)
-    exactArray([...ball].sort((a, b) => a - b), [0, 1, 2, 4, 5])
+    exactArray(
+      [...ball].sort((a, b) => a - b),
+      [0, 1, 2, 4, 5],
+    )
   }),
 ])

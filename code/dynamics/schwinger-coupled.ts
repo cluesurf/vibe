@@ -104,7 +104,9 @@ export function runCoupledSchwinger(
   }
 
   const theta = new Array(sites).fill(0)
-  const electric: number[] = new Array<number>(sites).fill(backgroundField)
+  const electric: number[] = new Array<number>(sites).fill(
+    backgroundField,
+  )
 
   const step = (): void => {
     const current = new Array(sites).fill(0)

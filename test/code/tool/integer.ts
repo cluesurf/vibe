@@ -34,22 +34,28 @@ suite('tool/integer: modulo', [
       equal(modulo(value, modulus), expected, 'hand value')
     }),
   ),
-  check('agrees with the floored-modulo identity over a wide range', () => {
-    for (let modulus = 1; modulus <= 13; modulus++) {
-      for (let value = -50; value <= 50; value++) {
-        equal(
-          modulo(value, modulus),
-          flooredModulo(value, modulus),
-          `modulo(${value}, ${modulus})`,
-        )
+  check(
+    'agrees with the floored-modulo identity over a wide range',
+    () => {
+      for (let modulus = 1; modulus <= 13; modulus++) {
+        for (let value = -50; value <= 50; value++) {
+          equal(
+            modulo(value, modulus),
+            flooredModulo(value, modulus),
+            `modulo(${value}, ${modulus})`,
+          )
+        }
       }
-    }
-  }),
+    },
+  ),
   check('result is always in [0, modulus)', () => {
     for (let modulus = 1; modulus <= 13; modulus++) {
       for (let value = -50; value <= 50; value++) {
         const r = modulo(value, modulus)
-        ok(r >= 0 && r < modulus, `modulo(${value}, ${modulus}) out of range: ${r}`)
+        ok(
+          r >= 0 && r < modulus,
+          `modulo(${value}, ${modulus}) out of range: ${r}`,
+        )
       }
     }
   }),
@@ -57,7 +63,11 @@ suite('tool/integer: modulo', [
     for (let modulus = 1; modulus <= 13; modulus++) {
       for (let value = -50; value <= 50; value++) {
         const r = modulo(value, modulus)
-        equal((value - r) % modulus, 0, `(${value} - ${r}) not divisible by ${modulus}`)
+        equal(
+          (value - r) % modulus,
+          0,
+          `(${value} - ${r}) not divisible by ${modulus}`,
+        )
       }
     }
   }),

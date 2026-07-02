@@ -17,7 +17,10 @@ function pathNeighbors(n: number): number[][] {
 }
 
 function cycleNeighbors(n: number): number[][] {
-  return Array.from({ length: n }, (_, i) => [(i - 1 + n) % n, (i + 1) % n])
+  return Array.from({ length: n }, (_, i) => [
+    (i - 1 + n) % n,
+    (i + 1) % n,
+  ])
 }
 
 suite('measure/associative-recall: coverageRadius', [

@@ -29,38 +29,46 @@ suite('algebra/group/cell-24: the 24-cell vertices', [
     const vertices = cell24Vertices()
     equal(vertices.length, 24, '24 vertices')
     equal(keysOf(vertices).size, 24, 'all distinct')
+
     for (const v of vertices) {
       close(normSquared(v), 1, 1e-12, 'a vertex is a unit quaternion')
     }
   }),
-  check('the 24 vertices are closed under the quaternion product (the group 2T)', () => {
-    const vertices = cell24Vertices()
-    const present = keysOf(vertices)
-    for (const a of vertices) {
-      for (const b of vertices) {
-        ok(
-          present.has(quaternionKey(multiply(a, b))),
-          'the 24-cell vertices form a multiplicative group',
-        )
+  check(
+    'the 24 vertices are closed under the quaternion product (the group 2T)',
+    () => {
+      const vertices = cell24Vertices()
+      const present = keysOf(vertices)
+
+      for (const a of vertices) {
+        for (const b of vertices) {
+          ok(
+            present.has(quaternionKey(multiply(a, b))),
+            'the 24-cell vertices form a multiplicative group',
+          )
+        }
       }
-    }
-  }),
+    },
+  ),
 ])
 
 suite('algebra/group/cell-24: triality (omega cube root of unity)', [
   check('omega is a unit quaternion', () => {
     close(normSquared(omega), 1, 1e-12, '|omega|^2 = 1')
   }),
-  check('omega^3 = 1 but omega != 1 and omega^2 != 1 (primitive cube root)', () => {
-    const omega2 = multiply(omega, omega)
-    const omega3 = multiply(omega2, omega)
-    close(omega3.w, 1, 1e-12, 'omega^3 w')
-    close(omega3.x, 0, 1e-12, 'omega^3 x')
-    close(omega3.y, 0, 1e-12, 'omega^3 y')
-    close(omega3.z, 0, 1e-12, 'omega^3 z')
-    ok(quaternionKey(omega) !== quaternionKey(ONE), 'omega != 1')
-    ok(quaternionKey(omega2) !== quaternionKey(ONE), 'omega^2 != 1')
-  }),
+  check(
+    'omega^3 = 1 but omega != 1 and omega^2 != 1 (primitive cube root)',
+    () => {
+      const omega2 = multiply(omega, omega)
+      const omega3 = multiply(omega2, omega)
+      close(omega3.w, 1, 1e-12, 'omega^3 w')
+      close(omega3.x, 0, 1e-12, 'omega^3 x')
+      close(omega3.y, 0, 1e-12, 'omega^3 y')
+      close(omega3.z, 0, 1e-12, 'omega^3 z')
+      ok(quaternionKey(omega) !== quaternionKey(ONE), 'omega != 1')
+      ok(quaternionKey(omega2) !== quaternionKey(ONE), 'omega^2 != 1')
+    },
+  ),
 ])
 
 suite('algebra/group/cell-24: the three triality cosets', [
@@ -78,30 +86,51 @@ suite('algebra/group/cell-24: the three triality cosets', [
     equal(k2.size, 8, 'class 2 distinct')
 
     // pairwise disjoint
-    ok([...k0].every(k => !k1.has(k)), 'class 0 and 1 disjoint')
-    ok([...k0].every(k => !k2.has(k)), 'class 0 and 2 disjoint')
-    ok([...k1].every(k => !k2.has(k)), 'class 1 and 2 disjoint')
+    ok(
+      [...k0].every(k => !k1.has(k)),
+      'class 0 and 1 disjoint',
+    )
+    ok(
+      [...k0].every(k => !k2.has(k)),
+      'class 0 and 2 disjoint',
+    )
+    ok(
+      [...k1].every(k => !k2.has(k)),
+      'class 1 and 2 disjoint',
+    )
 
     // union is exactly the 24 vertices
     const union = new Set([...k0, ...k1, ...k2])
     equal(union.size, 24, 'the three cosets cover all 24 vertices')
-    const vertices = keysOf(cell24Vertices())
-    ok([...union].every(k => vertices.has(k)), 'union = 24-cell vertices')
-  }),
-  check('left multiplication by omega cycles class 0 -> class 1 -> class 2', () => {
-    const [classVector, classA, classB] = trialityClasses()
-    const omega0 = new Set(classVector.map(q => quaternionKey(multiply(omega, q))))
-    const omega1 = new Set(classA.map(q => quaternionKey(multiply(omega, q))))
 
-    const k1 = keysOf(classA)
-    const k2 = keysOf(classB)
+    const vertices = keysOf(cell24Vertices())
     ok(
-      omega0.size === 8 && [...omega0].every(k => k1.has(k)),
-      'omega . class0 = class1',
-    )
-    ok(
-      omega1.size === 8 && [...omega1].every(k => k2.has(k)),
-      'omega . class1 = class2',
+      [...union].every(k => vertices.has(k)),
+      'union = 24-cell vertices',
     )
   }),
+  check(
+    'left multiplication by omega cycles class 0 -> class 1 -> class 2',
+    () => {
+      const [classVector, classA, classB] = trialityClasses()
+      const omega0 = new Set(
+        classVector.map(q => quaternionKey(multiply(omega, q))),
+      )
+
+      const omega1 = new Set(
+        classA.map(q => quaternionKey(multiply(omega, q))),
+      )
+
+      const k1 = keysOf(classA)
+      const k2 = keysOf(classB)
+      ok(
+        omega0.size === 8 && [...omega0].every(k => k1.has(k)),
+        'omega . class0 = class1',
+      )
+      ok(
+        omega1.size === 8 && [...omega1].every(k => k2.has(k)),
+        'omega . class1 = class2',
+      )
+    },
+  ),
 ])

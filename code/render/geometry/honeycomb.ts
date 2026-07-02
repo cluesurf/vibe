@@ -166,7 +166,6 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   const seenCell = new Set<string>([pointKey(c0)])
 
   for (const g of cellMat) {
-
     for (const f of faces) {
       const gp = matMul(g, f)
       const center = normalizeModelPoint(

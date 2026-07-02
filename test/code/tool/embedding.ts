@@ -24,6 +24,10 @@ suite('tool/embedding: coordOf row-major indexing', [
     equal(coordOf(e, { element: 2, axis: 1 }), 22, 'element 2 space')
   }),
   check('an out-of-range read returns 0', () => {
-    equal(coordOf(e, { element: 5, axis: 0 }), 0, 'past the buffer is 0')
+    equal(
+      coordOf(e, { element: 5, axis: 0 }),
+      0,
+      'past the buffer is 0',
+    )
   }),
 ])

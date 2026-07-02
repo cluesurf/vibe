@@ -13,17 +13,29 @@ import {
 } from '@/code/dynamics/graded-index-ray'
 
 suite('dynamics/graded-index-ray: index field', [
-  check('the analytic gradient matches a central finite difference', () => {
-    const { index, indexGradient } = softenedMassIndexField({ mass: 2, soft: 1 })
-    const h = 1e-5
-    for (const [x, y] of [[3, 2], [-4, 1], [5, -3]] as const) {
-      const [gx, gy] = indexGradient(x, y)
-      const numGx = (index(x + h, y) - index(x - h, y)) / (2 * h)
-      const numGy = (index(x, y + h) - index(x, y - h)) / (2 * h)
-      close(gx, numGx, 1e-4, `dn/dx at (${x},${y})`)
-      close(gy, numGy, 1e-4, `dn/dy at (${x},${y})`)
-    }
-  }),
+  check(
+    'the analytic gradient matches a central finite difference',
+    () => {
+      const { index, indexGradient } = softenedMassIndexField({
+        mass: 2,
+        soft: 1,
+      })
+
+      const h = 1e-5
+
+      for (const [x, y] of [
+        [3, 2],
+        [-4, 1],
+        [5, -3],
+      ] as const) {
+        const [gx, gy] = indexGradient(x, y)
+        const numGx = (index(x + h, y) - index(x - h, y)) / (2 * h)
+        const numGy = (index(x, y + h) - index(x, y - h)) / (2 * h)
+        close(gx, numGx, 1e-4, `dn/dx at (${x},${y})`)
+        close(gy, numGy, 1e-4, `dn/dy at (${x},${y})`)
+      }
+    },
+  ),
 ])
 
 suite('dynamics/graded-index-ray: deflection', [
@@ -31,11 +43,19 @@ suite('dynamics/graded-index-ray: deflection', [
     const field = softenedMassIndexField({ mass: 0 })
     const out = traceGradedIndexRay({ impact: 5, ...field })
     close(out.tangentY, 0, 1e-9, 'tangent stays along +x')
-    close(rayDeflection({ impact: 5, ...field }), 0, 1e-9, 'zero deflection')
+    close(
+      rayDeflection({ impact: 5, ...field }),
+      0,
+      1e-9,
+      'zero deflection',
+    )
   }),
   check('a positive mass bends the ray toward the matter', () => {
     const field = softenedMassIndexField({ mass: 3, soft: 1 })
-    ok(rayDeflection({ impact: 5, ...field }) > 0, 'bends toward the mass')
+    ok(
+      rayDeflection({ impact: 5, ...field }) > 0,
+      'bends toward the mass',
+    )
   }),
   check('the trace is deterministic', () => {
     const field = softenedMassIndexField({ mass: 2 })

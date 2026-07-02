@@ -80,7 +80,7 @@ function modelFidelity(
   rng: Rng,
 ): number {
   const cl = clusterToK(g, K, rng)
-  const blocks = (cl.reduce((m, c) => Math.max(m, c), 0)) + 1
+  const blocks = cl.reduce((m, c) => Math.max(m, c), 0) + 1
   const sum = new Float64Array(blocks)
 
   for (let v = 0; v < g.size; v++) {

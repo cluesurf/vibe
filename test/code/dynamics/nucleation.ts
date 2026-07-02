@@ -6,7 +6,13 @@
 import { suite, check, ok, equal } from '@/test/code/harness'
 import { nucleate } from '@/code/dynamics/nucleation'
 
-const common = { side: 81, neighborRadius: 3, stay: 0.42, grow: 0.55, beats: 60 }
+const common = {
+  side: 81,
+  neighborRadius: 3,
+  stay: 0.42,
+  grow: 0.55,
+  beats: 60,
+}
 
 suite('dynamics/nucleation: critical nucleus', [
   check('a small seed dies out', () => {
@@ -17,15 +23,27 @@ suite('dynamics/nucleation: critical nucleus', [
   check('a large seed survives and spreads', () => {
     const large = nucleate({ ...common, seedRadius: 8 })
     ok(large.survived, 'super-critical seed persists')
-    ok(large.finalFraction > large.initialFraction * 0.5, 'holds most of its mass')
+    ok(
+      large.finalFraction > large.initialFraction * 0.5,
+      'holds most of its mass',
+    )
   }),
-  check('persistence is monotone in seed size (no large dies, no small survives)', () => {
-    const radii = [2, 3, 4, 6, 8, 10]
-    const survived = radii.map(seedRadius => nucleate({ ...common, seedRadius }).survived)
-    for (let i = 1; i < survived.length; i++) {
-      ok(!(survived[i] === false && survived[i - 1] === true), `monotone at radius ${radii[i]}`)
-    }
-  }),
+  check(
+    'persistence is monotone in seed size (no large dies, no small survives)',
+    () => {
+      const radii = [2, 3, 4, 6, 8, 10]
+      const survived = radii.map(
+        seedRadius => nucleate({ ...common, seedRadius }).survived,
+      )
+
+      for (let i = 1; i < survived.length; i++) {
+        ok(
+          !(survived[i] === false && survived[i - 1] === true),
+          `monotone at radius ${radii[i]}`,
+        )
+      }
+    },
+  ),
 ])
 
 suite('dynamics/nucleation: determinism', [

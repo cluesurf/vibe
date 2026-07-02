@@ -26,21 +26,42 @@ suite('tool/gauge-field: edge key and construction', [
   check('edgeKey is the "from,to" pair', () => {
     equal(edgeKey({ from: 2, to: 5 }), '2,5', 'directed key')
   }),
-  check('one stored edge per undirected edge, links start at identity', () => {
-    const field = makeGaugeField({ graph, group: { form: 'u1', q: 4 } })
-    equal(field.edges.length, 3, 'three undirected edges -> three stored edges')
-    equal(field.link.length, 3, 'one link integer per directed edge')
+  check(
+    'one stored edge per undirected edge, links start at identity',
+    () => {
+      const field = makeGaugeField({
+        graph,
+        group: { form: 'u1', q: 4 },
+      })
 
-    for (const k of field.link) {
-      equal(k, 0, 'every link starts at the identity element 0')
-    }
-  }),
+      equal(
+        field.edges.length,
+        3,
+        'three undirected edges -> three stored edges',
+      )
+      equal(field.link.length, 3, 'one link integer per directed edge')
+
+      for (const k of field.link) {
+        equal(k, 0, 'every link starts at the identity element 0')
+      }
+    },
+  ),
   check('the identity field has zero phase on every traversal', () => {
     const field = makeGaugeField({ graph, group: { form: 'u1', q: 4 } })
 
     for (const e of field.edges) {
-      close(linkPhase(field, { from: e.from, to: e.to }), 0, 1e-12, 'forward')
-      close(linkPhase(field, { from: e.to, to: e.from }), 0, 1e-12, 'reverse')
+      close(
+        linkPhase(field, { from: e.from, to: e.to }),
+        0,
+        1e-12,
+        'forward',
+      )
+      close(
+        linkPhase(field, { from: e.to, to: e.from }),
+        0,
+        1e-12,
+        'reverse',
+      )
     }
   }),
 ])
@@ -51,7 +72,10 @@ suite('tool/gauge-field: U(1) link phase', [
     const field = makeGaugeField({ graph, group: { form: 'u1', q } })
     // Pick the stored edge 0 -> its neighbour and set a known group element.
     const e = field.edges[0]!
-    const idx = field.edgeIndex.get(edgeKey({ from: e.from, to: e.to }))!
+    const idx = field.edgeIndex.get(
+      edgeKey({ from: e.from, to: e.to }),
+    )!
+
     field.link[idx] = 2
 
     const expected = (2 * Math.PI * 2) / q
@@ -71,13 +95,31 @@ suite('tool/gauge-field: U(1) link phase', [
   check('an absent edge carries zero phase', () => {
     const field = makeGaugeField({ graph, group: { form: 'u1', q: 4 } })
     // 0 and a nonexistent vertex 99: neither direction is stored.
-    close(linkPhase(field, { from: 0, to: 99 }), 0, 1e-12, 'no such edge')
+    close(
+      linkPhase(field, { from: 0, to: 99 }),
+      0,
+      1e-12,
+      'no such edge',
+    )
   }),
-  check('a non-U(1) group reports zero phase (no clock structure)', () => {
-    const field = makeGaugeField({ graph, group: { form: 'su2', q: 4 } })
-    const e = field.edges[0]!
-    const idx = field.edgeIndex.get(edgeKey({ from: e.from, to: e.to }))!
-    field.link[idx] = 3
-    ok(linkPhase(field, { from: e.from, to: e.to }) === 0, 'su2 has no scalar phase')
-  }),
+  check(
+    'a non-U(1) group reports zero phase (no clock structure)',
+    () => {
+      const field = makeGaugeField({
+        graph,
+        group: { form: 'su2', q: 4 },
+      })
+
+      const e = field.edges[0]!
+      const idx = field.edgeIndex.get(
+        edgeKey({ from: e.from, to: e.to }),
+      )!
+
+      field.link[idx] = 3
+      ok(
+        linkPhase(field, { from: e.from, to: e.to }) === 0,
+        'su2 has no scalar phase',
+      )
+    },
+  ),
 ])

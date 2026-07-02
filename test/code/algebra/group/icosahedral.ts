@@ -35,10 +35,12 @@ suite('algebra/group/icosahedral: A5 and the 12-vertex perm rep', [
       '4': 4,
       '5': 5,
     }
+
     const total = Object.entries(multiplicities).reduce(
       (sum, [name, m]) => sum + dimensions[name]! * m,
       0,
     )
+
     equal(total, 12, 'sum dim*mult = 12 vertices')
   }),
   check('the absence of the 4-rep is reported as no spinor', () => {

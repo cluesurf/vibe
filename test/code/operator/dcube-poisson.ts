@@ -23,6 +23,7 @@ function maxResidual(input: {
     dimension === 3
       ? [side >> 1, side >> 1, side >> 1]
       : [side >> 1, side >> 1]
+
   const centerIdx = idx(center)
 
   let worst = 0
@@ -50,39 +51,69 @@ function maxResidual(input: {
   return worst
 }
 
-suite('operator/dcube-poisson: the solve inverts the lattice Laplacian', [
-  check('2D: stencil applied to the solution returns the point source', () => {
-    const side = 15
-    const r = dCubePoissonGreens({ side, dimension: 2, iterations: 5000, tolerance: 1e-9 })
-    close(
-      maxResidual({ side, dimension: 2, ...r }),
-      0,
-      1e-7,
-      '2D Poisson residual',
-    )
-  }),
-  check('3D: stencil applied to the solution returns the point source', () => {
-    const side = 9
-    const r = dCubePoissonGreens({ side, dimension: 3, iterations: 5000, tolerance: 1e-9 })
-    close(
-      maxResidual({ side, dimension: 3, ...r }),
-      0,
-      1e-7,
-      '3D Poisson residual',
-    )
-  }),
-  check('the potential is positive at the source and decays toward the wall (2D)', () => {
-    const side = 15
-    const { x, idx } = dCubePoissonGreens({ side, dimension: 2, iterations: 5000, tolerance: 1e-9 })
-    const mid = side >> 1
-    const atCenter = x[idx([mid, mid])] ?? 0
-    ok(atCenter > 0, 'center potential positive')
+suite(
+  'operator/dcube-poisson: the solve inverts the lattice Laplacian',
+  [
+    check(
+      '2D: stencil applied to the solution returns the point source',
+      () => {
+        const side = 15
+        const r = dCubePoissonGreens({
+          side,
+          dimension: 2,
+          iterations: 5000,
+          tolerance: 1e-9,
+        })
 
-    // along +x from the centre to the wall, the potential strictly decreases.
-    for (let d = 0; mid + d + 1 < side; d++) {
-      const here = x[idx([mid + d, mid])] ?? 0
-      const next = x[idx([mid + d + 1, mid])] ?? 0
-      ok(here > next - 1e-12, `decay at offset ${d}`)
-    }
-  }),
-])
+        close(
+          maxResidual({ side, dimension: 2, ...r }),
+          0,
+          1e-7,
+          '2D Poisson residual',
+        )
+      },
+    ),
+    check(
+      '3D: stencil applied to the solution returns the point source',
+      () => {
+        const side = 9
+        const r = dCubePoissonGreens({
+          side,
+          dimension: 3,
+          iterations: 5000,
+          tolerance: 1e-9,
+        })
+
+        close(
+          maxResidual({ side, dimension: 3, ...r }),
+          0,
+          1e-7,
+          '3D Poisson residual',
+        )
+      },
+    ),
+    check(
+      'the potential is positive at the source and decays toward the wall (2D)',
+      () => {
+        const side = 15
+        const { x, idx } = dCubePoissonGreens({
+          side,
+          dimension: 2,
+          iterations: 5000,
+          tolerance: 1e-9,
+        })
+
+        const mid = side >> 1
+        const atCenter = x[idx([mid, mid])] ?? 0
+        ok(atCenter > 0, 'center potential positive')
+
+        // along +x from the centre to the wall, the potential strictly decreases.
+        for (let d = 0; mid + d + 1 < side; d++) {
+          const here = x[idx([mid + d, mid])] ?? 0
+          const next = x[idx([mid + d + 1, mid])] ?? 0
+          ok(here > next - 1e-12, `decay at offset ${d}`)
+        }
+      },
+    ),
+  ],
+)

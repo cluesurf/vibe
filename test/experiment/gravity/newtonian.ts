@@ -3,7 +3,8 @@
 // gravity also needs the weak-field potential. The static potential of a source
 // is the Green's function of the emergent Laplacian, L^{-1}. In the continuum that
 // falls as 1/r^(d-2) in d spatial dimensions: linear (confining) in 1D, log in 2D,
-// and 1/r (Newtonian) in 3D. We compute it on the mesh and check it matches.
+// and 1/r (Newtonian) in 3D. We compute it on the mesh and check it matches, and run
+// the 2D lattice as the negative control (the log form must win there, not 1/r).
 // This is one rung. The full Einstein equations and the graviton are the long road
 // (see note/questions/next-version.md P16). Run: npx tsx code/experiment/p16-newtonian.ts
 
@@ -79,16 +80,42 @@ export default experiment({
     const inv = fitForm(three.r, three.phi, r => 1 / r)
     const invSq = fitForm(three.r, three.phi, r => 1 / (r * r))
     const logf = fitForm(three.r, three.phi, r => Math.log(r))
-    const ok = inv.r2 > invSq.r2 && inv.r2 > logf.r2 && inv.r2 > 0.95
+
+    // the negative control: the SAME Green-function solve on a 2D lattice, where the
+    // continuum potential is logarithmic, so the LOG form must win and 1/r must not
+    const two = potentialProfile({
+      lat: cubicLattice(41, 2),
+      side: 41,
+    })
+
+    const inv2d = fitForm(two.r, two.phi, r => 1 / r)
+    const invSq2d = fitForm(two.r, two.phi, r => 1 / (r * r))
+    const log2d = fitForm(two.r, two.phi, r => Math.log(r))
+
+    const threeDNewtonian =
+      inv.r2 > invSq.r2 && inv.r2 > logf.r2 && inv.r2 > 0.95
+
+    const twoDLogWins =
+      log2d.r2 > inv2d.r2 && log2d.r2 > invSq2d.r2 && log2d.r2 > 0.95
+
+    const ok = threeDNewtonian && twoDLogWins
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the static potential on a 3D cubic lattice fits 1/r better than 1/r^2 or log, the Newtonian weak-field limit',
+        'the static potential on a 3D cubic lattice fits 1/r better than 1/r^2 or log, the Newtonian weak-field limit, and on a 2D lattice the same solve is won by the log form instead (the negative control), so the 1/r result is a property of three dimensions, not of the fitting machinery',
       metrics: {
         inverseR2: inv.r2,
         inverseSquareR2: invSq.r2,
         logR2: logf.r2,
+      },
+      control: {
+        // the same Green-function solve and the same three candidate forms on a 2D
+        // lattice: the log form wins and 1/r loses, matching the continuum d = 2
+        // result, so the machinery discriminates dimensions
+        twoDimLogR2: log2d.r2,
+        twoDimInverseR2: inv2d.r2,
+        twoDimInverseSquareR2: invSq2d.r2,
       },
     })
   },

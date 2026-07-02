@@ -30,6 +30,7 @@ const equalQuaternion = (
 ): void => {
   const a = components(actual)
   const e = components(expected)
+
   for (let i = 0; i < 4; i++) {
     equal(a[i]!, e[i]!, `${message} [${i}]`)
   }
@@ -44,6 +45,7 @@ const MINUS_ONE = quaternion(-1, 0, 0, 0)
 // Closure of a finite set under the Hamilton product, tested by rounded key.
 const closedUnderMultiply = (group: Quaternion[]): boolean => {
   const present = new Set(group.map(quaternionKey))
+
   for (const a of group) {
     for (const b of group) {
       if (!present.has(quaternionKey(multiply(a, b)))) {
@@ -121,6 +123,7 @@ suite('algebra/group/quaternion: finite unit groups', [
     const group = quaternionGroup()
     equal(group.length, 8, 'Q8 size')
     equal(distinctCount(group), 8, 'Q8 distinct')
+
     for (const q of group) {
       equal(normSquared(q), 1, 'Q8 element is a unit')
     }
@@ -132,42 +135,68 @@ suite('algebra/group/quaternion: finite unit groups', [
     const group = binaryTetrahedral()
     equal(group.length, 24, '2T size')
     equal(distinctCount(group), 24, '2T distinct')
+
     for (const q of group) {
       // 8 Lipschitz units have |q|^2 = 1; 16 Hurwitz units (+-1/2)^4 also have
       // |q|^2 = 4*(1/4) = 1. All 24 are unit quaternions.
       close(normSquared(q), 1, 1e-12, '2T element is a unit')
     }
   }),
-  check('2T is closed under the Hamilton product (a group of order 24)', () => {
-    ok(closedUnderMultiply(binaryTetrahedral()), '2T must be a group')
-  }),
-  check('2I (binary icosahedral) has 120 distinct units of norm 1', () => {
-    const group = binaryIcosahedral()
-    equal(group.length, 120, '2I size')
-    equal(distinctCount(group), 120, '2I distinct')
-    for (const q of group) {
-      close(normSquared(q), 1, 1e-12, '2I element is a unit')
-    }
-  }),
-  check('2I is closed under the Hamilton product (a group of order 120)', () => {
-    ok(closedUnderMultiply(binaryIcosahedral()), '2I must be a group')
-  }),
+  check(
+    '2T is closed under the Hamilton product (a group of order 24)',
+    () => {
+      ok(closedUnderMultiply(binaryTetrahedral()), '2T must be a group')
+    },
+  ),
+  check(
+    '2I (binary icosahedral) has 120 distinct units of norm 1',
+    () => {
+      const group = binaryIcosahedral()
+      equal(group.length, 120, '2I size')
+      equal(distinctCount(group), 120, '2I distinct')
+
+      for (const q of group) {
+        close(normSquared(q), 1, 1e-12, '2I element is a unit')
+      }
+    },
+  ),
+  check(
+    '2I is closed under the Hamilton product (a group of order 120)',
+    () => {
+      ok(closedUnderMultiply(binaryIcosahedral()), '2I must be a group')
+    },
+  ),
 ])
 
 suite('algebra/group/quaternion: even permutations', [
-  check('there are 12 even permutations of 4 elements (|A4| = 12)', () => {
-    const evens = evenPermutations([0, 1, 2, 3])
-    equal(evens.length, 12, 'count of even permutations of S4')
-  }),
-  check('each is a genuine permutation of {0,1,2,3} and all are distinct', () => {
-    const evens = evenPermutations([0, 1, 2, 3])
-    const keys = new Set<string>()
-    for (const order of evens) {
-      equal(order.length, 4, 'permutation length')
-      equal([...order].sort().join(','), '0,1,2,3', 'is a permutation of 0..3')
-      keys.add(order.join(','))
-    }
-    equal(keys.size, 12, 'all 12 distinct')
-    ok(keys.has('0,1,2,3'), 'the identity (an even permutation) is present')
-  }),
+  check(
+    'there are 12 even permutations of 4 elements (|A4| = 12)',
+    () => {
+      const evens = evenPermutations([0, 1, 2, 3])
+      equal(evens.length, 12, 'count of even permutations of S4')
+    },
+  ),
+  check(
+    'each is a genuine permutation of {0,1,2,3} and all are distinct',
+    () => {
+      const evens = evenPermutations([0, 1, 2, 3])
+      const keys = new Set<string>()
+
+      for (const order of evens) {
+        equal(order.length, 4, 'permutation length')
+        equal(
+          [...order].sort().join(','),
+          '0,1,2,3',
+          'is a permutation of 0..3',
+        )
+        keys.add(order.join(','))
+      }
+
+      equal(keys.size, 12, 'all 12 distinct')
+      ok(
+        keys.has('0,1,2,3'),
+        'the identity (an even permutation) is present',
+      )
+    },
+  ),
 ])

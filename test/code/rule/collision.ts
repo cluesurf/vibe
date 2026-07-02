@@ -21,7 +21,8 @@ import {
 
 type Tone = -1 | 0 | 1
 const TONES: Tone[] = [-1, 0, 1]
-const pairKey = (left: Tone, right: Tone): number => (left + 1) * 3 + (right + 1)
+const pairKey = (left: Tone, right: Tone): number =>
+  (left + 1) * 3 + (right + 1)
 
 // Every nine-state pair table must satisfy two laws, so we check them the same way
 // for each table rather than repeating the loop per table.
@@ -29,6 +30,7 @@ function conserves(table: [Tone, Tone][]): boolean {
   for (const left of TONES) {
     for (const right of TONES) {
       const out = table[pairKey(left, right)]!
+
       if (out[0] + out[1] !== left + right) {
         return false
       }
@@ -40,6 +42,7 @@ function conserves(table: [Tone, Tone][]): boolean {
 
 function isBijection(table: [Tone, Tone][]): boolean {
   const seen = new Set<number>()
+
   for (const left of TONES) {
     for (const right of TONES) {
       const out = table[pairKey(left, right)]!
@@ -59,6 +62,7 @@ function inverts(
     for (const right of TONES) {
       const out = forward[pairKey(left, right)]!
       const back = inverse[pairKey(out[0], out[1])]!
+
       if (back[0] !== left || back[1] !== right) {
         return false
       }
@@ -83,6 +87,7 @@ const tables: { name: string; table: [Tone, Tone][] }[] = [
 // inherit the table laws over a real coin.
 function cellCharge(slots: Int8Array): number {
   let sum = 0
+
   for (const value of slots) {
     sum += value
   }
@@ -103,7 +108,10 @@ function applied(collision: Collision, slots: Int8Array): Int8Array {
 suite('rule/collision: nine-state tables', [
   ...tables.map(({ name, table }) =>
     check(`${name} table conserves the pair charge`, () => {
-      ok(conserves(table), `${name} must conserve left+right on all 9 states`)
+      ok(
+        conserves(table),
+        `${name} must conserve left+right on all 9 states`,
+      )
     }),
   ),
   ...tables.map(({ name, table }) =>
@@ -112,7 +120,10 @@ suite('rule/collision: nine-state tables', [
     }),
   ),
   check('pair table inverse undoes the forward table', () => {
-    ok(inverts(PAIR_FORWARD, PAIR_INVERSE), 'PAIR_INVERSE must invert PAIR_FORWARD')
+    ok(
+      inverts(PAIR_FORWARD, PAIR_INVERSE),
+      'PAIR_INVERSE must invert PAIR_FORWARD',
+    )
   }),
   check('bind-move inverse undoes the forward table', () => {
     ok(
@@ -121,14 +132,20 @@ suite('rule/collision: nine-state tables', [
     )
   }),
   check('leaky-confine is a self-inverse involution', () => {
-    ok(isInvolution(LEAKY_CONFINE), 'leaky-confine must be its own inverse')
-  }),
-  check('pair table is NOT an involution (the create cycle is a 3-cycle)', () => {
     ok(
-      !isInvolution(PAIR_FORWARD),
-      'the create-flip-annihilate cycle makes the pair table order-3, not order-2',
+      isInvolution(LEAKY_CONFINE),
+      'leaky-confine must be its own inverse',
     )
   }),
+  check(
+    'pair table is NOT an involution (the create cycle is a 3-cycle)',
+    () => {
+      ok(
+        !isInvolution(PAIR_FORWARD),
+        'the create-flip-annihilate cycle makes the pair table order-3, not order-2',
+      )
+    },
+  ),
   check('the arrow: peace creates a balanced pair', () => {
     const out = PAIR_FORWARD[pairKey(0, 0)]!
     equal(out[0], 1, 'peace,peace -> +,-  (left)')
@@ -137,16 +154,28 @@ suite('rule/collision: nine-state tables', [
 ])
 
 suite('rule/collision: cell-level wrappers', [
-  check('pairCollision forward then inverse recovers a cell exactly', () => {
-    const start = Int8Array.from([1, -1, 0, 0])
-    const forward = pairCollision({ opposite: squareOpposite, forward: true })
-    const backward = pairCollision({ opposite: squareOpposite, forward: false })
-    const there = applied(forward, start)
-    const back = applied(backward, there)
-    for (let i = 0; i < start.length; i++) {
-      equal(back[i], start[i], `slot ${i} must return to its start`)
-    }
-  }),
+  check(
+    'pairCollision forward then inverse recovers a cell exactly',
+    () => {
+      const start = Int8Array.from([1, -1, 0, 0])
+      const forward = pairCollision({
+        opposite: squareOpposite,
+        forward: true,
+      })
+
+      const backward = pairCollision({
+        opposite: squareOpposite,
+        forward: false,
+      })
+
+      const there = applied(forward, start)
+      const back = applied(backward, there)
+
+      for (let i = 0; i < start.length; i++) {
+        equal(back[i], start[i], `slot ${i} must return to its start`)
+      }
+    },
+  ),
   check('every committed collision conserves the cell charge', () => {
     const states = [
       Int8Array.from([1, -1, 0, 0]),
@@ -154,6 +183,7 @@ suite('rule/collision: cell-level wrappers', [
       Int8Array.from([1, 0, 0, -1]),
       Int8Array.from([-1, -1, 1, 1]),
     ]
+
     const collisions: Collision[] = [
       pairCollision({ opposite: squareOpposite }),
       bindAndMove({ opposite: squareOpposite }),
@@ -161,6 +191,7 @@ suite('rule/collision: cell-level wrappers', [
       headOnRotate({ opposite: squareOpposite }),
       momentumRotate2D,
     ]
+
     for (const collision of collisions) {
       for (const state of states) {
         equal(
@@ -171,17 +202,26 @@ suite('rule/collision: cell-level wrappers', [
       }
     }
   }),
-  check('headOnRotate and leakyConfine are involutions at the cell level', () => {
-    const state = Int8Array.from([1, 1, 0, 0])
-    for (const collision of [
-      headOnRotate({ opposite: squareOpposite }),
-      leakyConfine({ opposite: squareOpposite }),
-      momentumRotate2D,
-    ]) {
-      const twice = applied(collision, applied(collision, state))
-      for (let i = 0; i < state.length; i++) {
-        equal(twice[i], state[i], `applying twice must be the identity at slot ${i}`)
+  check(
+    'headOnRotate and leakyConfine are involutions at the cell level',
+    () => {
+      const state = Int8Array.from([1, 1, 0, 0])
+
+      for (const collision of [
+        headOnRotate({ opposite: squareOpposite }),
+        leakyConfine({ opposite: squareOpposite }),
+        momentumRotate2D,
+      ]) {
+        const twice = applied(collision, applied(collision, state))
+
+        for (let i = 0; i < state.length; i++) {
+          equal(
+            twice[i],
+            state[i],
+            `applying twice must be the identity at slot ${i}`,
+          )
+        }
       }
-    }
-  }),
+    },
+  ),
 ])

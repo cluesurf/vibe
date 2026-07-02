@@ -15,10 +15,14 @@ suite('measure/cusp-dimension: bulk vs cusp growth', [
       maxCells: 4000,
       bandHalfWidth: 0.08,
     })
+
     ok(r.cuspCells > 0, 'a non-empty cusp slice should be extracted')
     ok(Number.isFinite(r.cuspDim), 'cusp dimension should be finite')
     // the bulk's exponential reach: a ball-growth ratio well above 1
-    ok(r.bulkRatio > 1.8, `bulk should grow exponentially, ratio ${r.bulkRatio}`)
+    ok(
+      r.bulkRatio > 1.8,
+      `bulk should grow exponentially, ratio ${r.bulkRatio}`,
+    )
     // the cusp horosphere is a flat slice: its ratio is near 1
     ok(
       r.cuspRatio > 0.6 && r.cuspRatio < 1.5,

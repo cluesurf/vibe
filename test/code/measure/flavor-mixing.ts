@@ -15,7 +15,11 @@ const TOL = 1e-12
 suite('measure/flavor-mixing: Gatto-Sartori-Tonin', [
   // theta = atan(sqrt(r)); a degenerate pair (r=1) gives the maximal angle pi/4.
   check('degenerate masses give the maximal angle pi/4', () => {
-    close(mixingAngleFromMassRatio({ lightMass: 1, heavyMass: 1 }), Math.PI / 4, TOL)
+    close(
+      mixingAngleFromMassRatio({ lightMass: 1, heavyMass: 1 }),
+      Math.PI / 4,
+      TOL,
+    )
   }),
   // |V| = sin(atan(sqrt(r))) = sqrt(r / (1 + r)), an independent closed form.
   check('the mixing element is sqrt(r / (1 + r))', () => {
@@ -27,7 +31,10 @@ suite('measure/flavor-mixing: Gatto-Sartori-Tonin', [
     ]) {
       const r = light! / heavy!
       close(
-        mixingElementFromMassRatio({ lightMass: light!, heavyMass: heavy! }),
+        mixingElementFromMassRatio({
+          lightMass: light!,
+          heavyMass: heavy!,
+        }),
         Math.sqrt(r / (1 + r)),
         TOL,
       )
@@ -35,12 +42,24 @@ suite('measure/flavor-mixing: Gatto-Sartori-Tonin', [
   }),
   // The Cabibbo angle: m_d/m_s ~ 0.05 gives |V_us| ~ 0.22 (the observed quark mixing).
   check('the Cabibbo element is about 0.22 for m_d/m_s ~ 0.05', () => {
-    close(mixingElementFromMassRatio({ lightMass: 0.05, heavyMass: 1 }), 0.218, 0.01)
+    close(
+      mixingElementFromMassRatio({ lightMass: 0.05, heavyMass: 1 }),
+      0.218,
+      0.01,
+    )
   }),
   // A steep hierarchy gives smaller mixing than a mild one.
   check('steeper hierarchy means smaller mixing', () => {
-    const steep = mixingElementFromMassRatio({ lightMass: 0.001, heavyMass: 1 })
-    const mild = mixingElementFromMassRatio({ lightMass: 0.5, heavyMass: 1 })
+    const steep = mixingElementFromMassRatio({
+      lightMass: 0.001,
+      heavyMass: 1,
+    })
+
+    const mild = mixingElementFromMassRatio({
+      lightMass: 0.5,
+      heavyMass: 1,
+    })
+
     ok(steep < mild, `expected ${steep} < ${mild}`)
   }),
 ])

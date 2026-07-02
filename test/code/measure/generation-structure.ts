@@ -15,8 +15,14 @@ suite('measure/generation-structure: J3(O)', [
   // Jordan identity holds at n=3, fails at n=4 (octonions do not associate).
   check('the Jordan identity holds at 3 and fails at 4', () => {
     const s = exceptionalJordanGenerationStructure()
-    ok(s.residualAt3 < 1e-6, `residual at 3 should be ~0, got ${s.residualAt3}`)
-    ok(s.residualAt4 > 1e-3, `residual at 4 should be large, got ${s.residualAt4}`)
+    ok(
+      s.residualAt3 < 1e-6,
+      `residual at 3 should be ~0, got ${s.residualAt3}`,
+    )
+    ok(
+      s.residualAt4 > 1e-3,
+      `residual at 4 should be large, got ${s.residualAt4}`,
+    )
   }),
   // The diagonal frame is a rank-3 orthogonal idempotent frame.
   check('the diagonal Jordan frame is rank 3', () => {
@@ -29,10 +35,13 @@ suite('measure/generation-structure: J3(O)', [
     equal(s.s3AreAutomorphisms, true)
   }),
   // Each octonion piece is 8-dim; a generation is 16 Weyl fermions, so the naive map fails.
-  check('the naive piece = generation identification fails (8 != 16)', () => {
-    const s = exceptionalJordanGenerationStructure()
-    equal(s.pieceDimension, 8)
-    equal(s.generationFermions, 16)
-    equal(s.naiveIdentificationHolds, false)
-  }),
+  check(
+    'the naive piece = generation identification fails (8 != 16)',
+    () => {
+      const s = exceptionalJordanGenerationStructure()
+      equal(s.pieceDimension, 8)
+      equal(s.generationFermions, 16)
+      equal(s.naiveIdentificationHolds, false)
+    },
+  ),
 ])

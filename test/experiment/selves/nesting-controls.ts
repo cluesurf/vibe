@@ -127,7 +127,7 @@ function towerOf(step: (t: Int8Array) => void): {
   const t = new Int8Array(L * L * L)
 
   for (let i = 0; i < L * L * L; i++) {
-    t[i] = (Math.floor(rnd() * 3) - 1)
+    t[i] = Math.floor(rnd() * 3) - 1
   }
 
   for (let f = 0; f < 40; f++) {

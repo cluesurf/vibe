@@ -156,7 +156,8 @@ export default experiment({
 
     // 1. The critical separation is smaller on the curved substrate than on the
     //    flat one: the quantum value is supportable over a shorter range.
-    const curvedCriticalSmaller = curved.dStar < flat.dStar && flat.dStar >= 1
+    const curvedCriticalSmaller =
+      curved.dStar < flat.dStar && flat.dStar >= 1
 
     // 2. The violation is contingent on alignment: aligned settings beat the
     //    classical bound, decorrelated settings sit exactly on it.

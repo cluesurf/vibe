@@ -115,7 +115,8 @@ export default experiment({
       ys: ancestorGen,
     })
 
-    const farthestAncestorGen = ancestorGen[ancestorGen.length - 1] ?? maxGeneration
+    const farthestAncestorGen =
+      ancestorGen[ancestorGen.length - 1] ?? maxGeneration
 
     // 1. The common ancestor recedes toward the origin (strongly decreasing).
     const recedesToOrigin =
@@ -123,7 +124,8 @@ export default experiment({
 
     // 2. At the largest physical distance the only shared past is near the origin
     //    (the common ancestor has receded into the innermost quarter of the bulk).
-    const onlyOriginRemains = farthestAncestorGen <= 0.25 * maxGeneration
+    const onlyOriginRemains =
+      farthestAncestorGen <= 0.25 * maxGeneration
 
     // 3. The origin is universal: every pair shares it at every distance (flat).
     const originUniversal = originShared.every(v => v === 1)

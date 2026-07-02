@@ -17,10 +17,12 @@ suite('substrate/sprinkle-box: count, bounds, order', [
   }),
   check('points lie inside the box and are sorted by time', () => {
     const pts = sprinkleBox({ ...cfg, rng: makeRng({ seed: 1 }) })
+
     for (const p of pts) {
       ok(p.t >= 0 && p.t <= cfg.tMax, 'time in range')
       ok(p.x >= -cfg.xMax && p.x <= cfg.xMax, 'space in range')
     }
+
     for (let i = 1; i < pts.length; i++) {
       ok(pts[i]!.t >= pts[i - 1]!.t, 'sorted by time')
     }
@@ -32,6 +34,7 @@ suite('substrate/sprinkle-box: determinism', [
     const a = sprinkleBox({ ...cfg, rng: makeRng({ seed: 42 }) })
     const b = sprinkleBox({ ...cfg, rng: makeRng({ seed: 42 }) })
     equal(a.length, b.length, 'same count')
+
     for (let i = 0; i < a.length; i++) {
       equal(a[i]!.t, b[i]!.t, `time ${i} identical`)
       equal(a[i]!.x, b[i]!.x, `space ${i} identical`)

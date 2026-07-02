@@ -51,7 +51,10 @@ const HORIZON = 2 * BEATS // two cells share past only within this graph distanc
 // on the right), the model of a correlation set on the initial surface. The local
 // seed fills only a 5x5 central patch, vacuum elsewhere, with a fixed ternary
 // pattern. Neither uses any randomness.
-function seedWill(kind: 'local' | 'global', mesh: ReturnType<typeof squareMesh>): Will {
+function seedWill(
+  kind: 'local' | 'global',
+  mesh: ReturnType<typeof squareMesh>,
+): Will {
   const will = makeWill(mesh)
 
   if (kind === 'global') {
@@ -77,7 +80,8 @@ function seedWill(kind: 'local' | 'global', mesh: ReturnType<typeof squareMesh>)
 
       for (let direction = 0; direction < mesh.degree; direction++) {
         // a fixed ternary value in {-1, 0, 1}, deterministic in position and slot
-        will.data[base + direction] = (((dx + dy + direction) % 3) + 3) % 3 - 1
+        will.data[base + direction] =
+          ((((dx + dy + direction) % 3) + 3) % 3) - 1
       }
     }
   }
@@ -97,8 +101,9 @@ export default experiment({
   run() {
     const mesh = squareMesh({ side: SIDE })
     const neighbors = meshNeighbors(mesh)
-    const opposite = Array.from({ length: mesh.degree }, (_, direction) =>
-      mesh.opposite(direction),
+    const opposite = Array.from(
+      { length: mesh.degree },
+      (_, direction) => mesh.opposite(direction),
     )
 
     const collision = pairCollision({ opposite })
@@ -157,7 +162,8 @@ export default experiment({
     //    it is carried, not created.
     const seedAnchoredSurvives =
       globalFarFinal > 0.05 &&
-      Math.abs(globalFarFinal - globalFarInitial) < 0.2 * globalFarInitial
+      Math.abs(globalFarFinal - globalFarInitial) <
+        0.2 * globalFarInitial
 
     // 3. The contrast: the seed-anchored channel is real and the local rule cannot
     //    fake it. Control that could fail.

@@ -29,6 +29,7 @@ suite('measure/navigation: greedyRouteHops', [
       neighbors: [[1], [0, 2], [1, 3], [2, 4], [3]],
       embedding: lineEmbedding([0, 1, 2, 3, 4]),
     })
+
     equal(greedyRouteHops({ graph, source: 0, target: 4 }), 4)
   }),
   check('source equal to target takes 0 hops', () => {
@@ -38,17 +39,22 @@ suite('measure/navigation: greedyRouteHops', [
       neighbors: [[1], [0, 2], [1, 3], [2, 4], [3]],
       embedding: lineEmbedding([0, 1, 2, 3, 4]),
     })
+
     equal(greedyRouteHops({ graph, source: 2, target: 2 }), 0)
   }),
-  check('greedy stalls (-1) when no neighbor is closer to the target', () => {
-    // node 0 (pos 0) only neighbor is node 1 (pos 5); target node 2 sits at pos 1.
-    // |0-1| = 1 < |5-1| = 4, so the only neighbor is farther: a local minimum.
-    const graph = makeGraph({
-      size: 3,
-      directed: false,
-      neighbors: [[1], [0], []],
-      embedding: lineEmbedding([0, 5, 1]),
-    })
-    equal(greedyRouteHops({ graph, source: 0, target: 2 }), -1)
-  }),
+  check(
+    'greedy stalls (-1) when no neighbor is closer to the target',
+    () => {
+      // node 0 (pos 0) only neighbor is node 1 (pos 5); target node 2 sits at pos 1.
+      // |0-1| = 1 < |5-1| = 4, so the only neighbor is farther: a local minimum.
+      const graph = makeGraph({
+        size: 3,
+        directed: false,
+        neighbors: [[1], [0], []],
+        embedding: lineEmbedding([0, 5, 1]),
+      })
+
+      equal(greedyRouteHops({ graph, source: 0, target: 2 }), -1)
+    },
+  ),
 ])

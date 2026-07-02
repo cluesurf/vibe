@@ -50,7 +50,11 @@ const FINITE_FIGURE: Record<string, string> = {
 suite('substrate/tessellation-catalog: internal consistency', [
   check('buildable is exactly "has an integer Schlafli symbol"', () => {
     for (const t of TESSELLATIONS) {
-      equal(t.buildable, t.schlafli.length > 0, `${t.symbol} buildable flag`)
+      equal(
+        t.buildable,
+        t.schlafli.length > 0,
+        `${t.symbol} buildable flag`,
+      )
     }
   }),
   check('the display symbol reads back the Schlafli integers', () => {
@@ -81,27 +85,40 @@ suite(
     .map(t => ({ t, tail: t.schlafli.slice(1).join(',') }))
     .filter(({ tail }) => tail in FINITE_FIGURE)
     .map(({ t, tail }) =>
-      check(`${t.symbol} vertex figure should be ${FINITE_FIGURE[tail]}`, () => {
-        equal(
-          t.vertexFigure.trim().toLowerCase(),
-          FINITE_FIGURE[tail]!,
-          `${t.symbol} vertex figure (tail {${tail}})`,
-        )
-      }),
+      check(
+        `${t.symbol} vertex figure should be ${FINITE_FIGURE[tail]}`,
+        () => {
+          equal(
+            t.vertexFigure.trim().toLowerCase(),
+            FINITE_FIGURE[tail]!,
+            `${t.symbol} vertex figure (tail {${tail}})`,
+          )
+        },
+      ),
     ),
 )
 
 suite('substrate/tessellation-catalog: the vibe coin degrees', [
-  check('the {5,3,4} cell (dodecahedron) gives a 12-direction coin', () => {
-    const entry = TESSELLATIONS.find(t => t.symbol === '{5,3,4}')!
-    equal(entry.cells, 'dodecahedra', 'cell type')
-    // A dodecahedron has 12 faces, independently the 12 icosahedral coin directions.
-    equal(icosahedronVertexDirections().length, 12, '{5,3,4} coin degree')
-  }),
-  check('the {3,4,3,4} cell (24-cell) gives a 24-direction coin', () => {
-    const entry = TESSELLATIONS.find(t => t.symbol === '{3,4,3,4}')!
-    equal(entry.cells, '24-cells', 'cell type')
-    // A 24-cell has 24 octahedral facets, independently the 24 D4 roots.
-    equal(rootsD4().length, 24, '{3,4,3,4} coin degree')
-  }),
+  check(
+    'the {5,3,4} cell (dodecahedron) gives a 12-direction coin',
+    () => {
+      const entry = TESSELLATIONS.find(t => t.symbol === '{5,3,4}')!
+      equal(entry.cells, 'dodecahedra', 'cell type')
+      // A dodecahedron has 12 faces, independently the 12 icosahedral coin directions.
+      equal(
+        icosahedronVertexDirections().length,
+        12,
+        '{5,3,4} coin degree',
+      )
+    },
+  ),
+  check(
+    'the {3,4,3,4} cell (24-cell) gives a 24-direction coin',
+    () => {
+      const entry = TESSELLATIONS.find(t => t.symbol === '{3,4,3,4}')!
+      equal(entry.cells, '24-cells', 'cell type')
+      // A 24-cell has 24 octahedral facets, independently the 24 D4 roots.
+      equal(rootsD4().length, 24, '{3,4,3,4} coin degree')
+    },
+  ),
 ])

@@ -93,7 +93,9 @@ function blockGateMatrix(input: {
   offset: number
 }): number[][] {
   const n = 1 << input.cells
-  const G = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const G = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
 
   for (let c = 0; c < n; c++) {
     let v = 0
@@ -127,7 +129,10 @@ function termMatrix(G: number[][]): number[][] {
   const half = Math.PI / 2
 
   return Array.from({ length: n }, (_, i) =>
-    Array.from({ length: n }, (_, j) => half * ((i === j ? 1 : 0) - (G[i]![j] ?? 0))),
+    Array.from(
+      { length: n },
+      (_, j) => half * ((i === j ? 1 : 0) - (G[i]![j] ?? 0)),
+    ),
   )
 }
 
@@ -138,49 +143,76 @@ suite('operator/block-ca: gates', [
   }),
   check('toffoliGate is an involution and a bijection on 0..7', () => {
     ok(isInvolution(toffoliGate, 8), 'toffoli is its own inverse')
-    ok(isBijection(toffoliGate, 8), 'toffoli permutes the 8 block values')
+    ok(
+      isBijection(toffoliGate, 8),
+      'toffoli permutes the 8 block values',
+    )
   }),
 ])
 
 suite('operator/block-ca: global permutation', [
-  check('blockCaPermutation is a permutation (reversible) for cnot and toffoli', () => {
-    const configs = [
-      { cells: 4, blockSize: 2, gate: cnotGate },
-      { cells: 6, blockSize: 3, gate: toffoliGate },
-    ]
+  check(
+    'blockCaPermutation is a permutation (reversible) for cnot and toffoli',
+    () => {
+      const configs = [
+        { cells: 4, blockSize: 2, gate: cnotGate },
+        { cells: 6, blockSize: 3, gate: toffoliGate },
+      ]
 
-    for (const config of configs) {
-      // default offsets (fully propagating) and the single disjoint layer.
-      ok(isPermutation(blockCaPermutation(config)), `propagating perm cells=${config.cells}`)
-      ok(
-        isPermutation(blockCaPermutation({ ...config, offsets: 1 })),
-        `disjoint perm cells=${config.cells}`,
-      )
-    }
-  }),
-  check('the disjoint-block layer equals applying the gate to each block independently', () => {
-    const cells = 4
-    const blockSize = 2
-    const got = blockCaPermutation({ cells, blockSize, gate: cnotGate, offsets: 1 })
+      for (const config of configs) {
+        // default offsets (fully propagating) and the single disjoint layer.
+        ok(
+          isPermutation(blockCaPermutation(config)),
+          `propagating perm cells=${config.cells}`,
+        )
+        ok(
+          isPermutation(blockCaPermutation({ ...config, offsets: 1 })),
+          `disjoint perm cells=${config.cells}`,
+        )
+      }
+    },
+  ),
+  check(
+    'the disjoint-block layer equals applying the gate to each block independently',
+    () => {
+      const cells = 4
+      const blockSize = 2
+      const got = blockCaPermutation({
+        cells,
+        blockSize,
+        gate: cnotGate,
+        offsets: 1,
+      })
 
-    for (let s = 0; s < 1 << cells; s++) {
-      equal(
-        got[s] ?? -1,
-        disjointSweep({ state: s, cells, blockSize, gate: cnotGate }),
-        `disjoint sweep on state ${s}`,
-      )
-    }
-  }),
+      for (let s = 0; s < 1 << cells; s++) {
+        equal(
+          got[s] ?? -1,
+          disjointSweep({ state: s, cells, blockSize, gate: cnotGate }),
+          `disjoint sweep on state ${s}`,
+        )
+      }
+    },
+  ),
 ])
 
 suite('operator/block-ca: commuting-block Hamiltonian', [
   check('H is real symmetric (Hermitian)', () => {
-    const h = commutingBlockHamiltonian({ cells: 4, blockSize: 2, gate: cnotGate })
+    const h = commutingBlockHamiltonian({
+      cells: 4,
+      blockSize: 2,
+      gate: cnotGate,
+    })
+
     const n = h.rows
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        close(h.re[i * n + j] ?? 0, h.re[j * n + i] ?? 0, 1e-12, `re sym (${i},${j})`)
+        close(
+          h.re[i * n + j] ?? 0,
+          h.re[j * n + i] ?? 0,
+          1e-12,
+          `re sym (${i},${j})`,
+        )
         equal(h.im[i * n + j] ?? 0, 0, `im must be zero (${i},${j})`)
       }
     }
@@ -189,8 +221,20 @@ suite('operator/block-ca: commuting-block Hamiltonian', [
     const cells = 4
     const blockSize = 2
     // disjoint blocks live at offsets 0 and 2.
-    const G0 = blockGateMatrix({ cells, blockSize, gate: cnotGate, offset: 0 })
-    const G2 = blockGateMatrix({ cells, blockSize, gate: cnotGate, offset: 2 })
+    const G0 = blockGateMatrix({
+      cells,
+      blockSize,
+      gate: cnotGate,
+      offset: 0,
+    })
+
+    const G2 = blockGateMatrix({
+      cells,
+      blockSize,
+      gate: cnotGate,
+      offset: 2,
+    })
+
     const T0 = termMatrix(G0)
     const T2 = termMatrix(G2)
 
@@ -200,12 +244,21 @@ suite('operator/block-ca: commuting-block Hamiltonian', [
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        close(ab[i]![j] ?? 0, ba[i]![j] ?? 0, 1e-12, `[T0,T2] = 0 at (${i},${j})`)
+        close(
+          ab[i]![j] ?? 0,
+          ba[i]![j] ?? 0,
+          1e-12,
+          `[T0,T2] = 0 at (${i},${j})`,
+        )
       }
     }
 
     // T0 + T2 must equal the assembled Hamiltonian.
-    const h = commutingBlockHamiltonian({ cells, blockSize, gate: cnotGate })
+    const h = commutingBlockHamiltonian({
+      cells,
+      blockSize,
+      gate: cnotGate,
+    })
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {

@@ -92,8 +92,8 @@ export default experiment({
 
     let clean = makeKink()
     let hit = makeKink()
-    hit.curr[center] = ((hit.curr[center]! + 1) % 3)
-    hit.curr[center - 1] = ((hit.curr[center - 1]! + 2) % 3)
+    hit.curr[center] = (hit.curr[center]! + 1) % 3
+    hit.curr[center - 1] = (hit.curr[center - 1]! + 2) % 3
 
     let maxSpread = 0
 

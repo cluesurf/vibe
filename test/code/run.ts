@@ -13,6 +13,7 @@ import '@/test/code/all'
 function main(): void {
   let passed = 0
   let failed = 0
+
   const failures: string[] = []
 
   const suites = allSuites()
@@ -24,7 +25,9 @@ function main(): void {
         passed += 1
       } catch (error) {
         failed += 1
-        failures.push(`  FAIL  ${s.name} :: ${c.name}\n        ${(error as Error).message}`)
+        failures.push(
+          `  FAIL  ${s.name} :: ${c.name}\n        ${(error as Error).message}`,
+        )
       }
     }
   }
@@ -33,7 +36,9 @@ function main(): void {
     console.log(failures.join('\n'))
   }
 
-  console.log(`\nmath conformance: ${passed} pass, ${failed} fail across ${suites.length} suites`)
+  console.log(
+    `\nmath conformance: ${passed} pass, ${failed} fail across ${suites.length} suites`,
+  )
 
   if (failed > 0) {
     process.exit(1)

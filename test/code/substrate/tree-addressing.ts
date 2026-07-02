@@ -22,10 +22,12 @@ suite('substrate/tree-addressing: the spanning tree', [
     const g = modularGraph(60)
     const tree = buildAddressedTree(g)
     const seen = new Set<string>()
+
     for (let v = 0; v < g.size; v++) {
       if (tree.depth[v] === -1) {
         continue
       }
+
       const key = tree.address[v]!.join(',')
       notOk(seen.has(key), `address of ${v} is unique`)
       seen.add(key)
@@ -34,11 +36,17 @@ suite('substrate/tree-addressing: the spanning tree', [
   check('a child sits one level below its parent', () => {
     const g = modularGraph(60)
     const tree = buildAddressedTree(g)
+
     for (let v = 0; v < g.size; v++) {
       if (tree.depth[v] === -1 || v === tree.root) {
         continue
       }
-      equal(tree.depth[v], tree.depth[tree.parent[v]!]! + 1, `parent depth of ${v}`)
+
+      equal(
+        tree.depth[v],
+        tree.depth[tree.parent[v]!]! + 1,
+        `parent depth of ${v}`,
+      )
     }
   }),
 ])
@@ -48,18 +56,28 @@ suite('substrate/tree-addressing: routing by address', [
     const g = modularGraph(60)
     const tree = buildAddressedTree(g)
     const sets = g.neighbors.map(row => new Set(row))
+
     // pick the deepest reachable node as the target.
     let target = tree.root
+
     for (let v = 0; v < g.size; v++) {
-      if (tree.depth[v] !== -1 && tree.depth[v]! > tree.depth[target]!) {
+      if (
+        tree.depth[v] !== -1 &&
+        tree.depth[v]! > tree.depth[target]!
+      ) {
         target = v
       }
     }
+
     const route = routeByAddress(tree, tree.root, target)
     equal(route[0], tree.root, 'starts at the root')
     equal(route[route.length - 1], target, 'ends at the target')
+
     for (let i = 0; i + 1 < route.length; i++) {
-      ok(sets[route[i]!]!.has(route[i + 1]!), `step ${route[i]}->${route[i + 1]} is a graph edge`)
+      ok(
+        sets[route[i]!]!.has(route[i + 1]!),
+        `step ${route[i]}->${route[i + 1]} is a graph edge`,
+      )
     }
   }),
 ])

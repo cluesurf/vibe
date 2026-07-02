@@ -26,6 +26,7 @@ export function coordinateAxes(dimension: number): number[][] {
 // plastic number, and so on.)
 function generalisedGoldenRatio(dimension: number): number {
   const power = 1 / (dimension + 1)
+
   let phi = 2
 
   // 64 iterations is far past convergence to double precision for any small
@@ -56,6 +57,7 @@ export function probeDirections(input: {
   const phi = generalisedGoldenRatio(dimension)
 
   const alpha = new Array<number>(dimension)
+
   for (let axis = 0; axis < dimension; axis++) {
     alpha[axis] = Math.pow(phi, -(axis + 1))
   }

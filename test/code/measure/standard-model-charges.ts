@@ -29,10 +29,12 @@ suite('measure/standard-model-charges', [
       (s, f) => s + f.mult * f.t3 * f.t3,
       0,
     )
+
     const sumQsq = STANDARD_MODEL_GENERATION.reduce(
       (s, f) => s + f.mult * f.q * f.q,
       0,
     )
+
     close(sumT3sq, 2, TOL)
     close(sumQsq, 16 / 3, TOL)
   }),

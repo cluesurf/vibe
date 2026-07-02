@@ -18,6 +18,7 @@ suite('measure/shadow-gravity: Fibonacci directions', [
   check('the directions are unit vectors', () => {
     const dirs = fibonacciSphereDirections(500)
     equal(dirs.length, 500)
+
     for (const d of dirs) {
       close(Math.hypot(d[0]!, d[1]!, d[2]!), 1, 1e-9)
     }
@@ -26,13 +27,18 @@ suite('measure/shadow-gravity: Fibonacci directions', [
   check('the centroid is near the origin', () => {
     const dirs = fibonacciSphereDirections(20000)
     const sum = [0, 0, 0]
+
     for (const d of dirs) {
       sum[0]! += d[0]!
       sum[1]! += d[1]!
       sum[2]! += d[2]!
     }
+
     const mean = sum.map(s => s / dirs.length)
-    ok(Math.hypot(mean[0]!, mean[1]!, mean[2]!) < 0.01, `centroid ${mean}`)
+    ok(
+      Math.hypot(mean[0]!, mean[1]!, mean[2]!) < 0.01,
+      `centroid ${String(mean)}`,
+    )
   }),
 ])
 
@@ -41,8 +47,14 @@ suite('measure/shadow-gravity: isotropic (1/r^2) shadow', [
   check('the fraction matches the solid-angle cap', () => {
     const dirs = fibonacciSphereDirections(200000)
     const a = 1
+
     for (const r of [6, 10]) {
-      const f = isotropicShadowFraction({ directions: dirs, bodyDistance: r, bodyRadius: a })
+      const f = isotropicShadowFraction({
+        directions: dirs,
+        bodyDistance: r,
+        bodyRadius: a,
+      })
+
       const expected = (1 - Math.sqrt(1 - (a / r) ** 2)) / 2
       close(f, expected, expected * 0.1)
     }
@@ -52,8 +64,13 @@ suite('measure/shadow-gravity: isotropic (1/r^2) shadow', [
     const dirs = fibonacciSphereDirections(200000)
     const rs = [5, 7, 10, 14, 20]
     const fs = rs.map(r =>
-      isotropicShadowFraction({ directions: dirs, bodyDistance: r, bodyRadius: 1 }),
+      isotropicShadowFraction({
+        directions: dirs,
+        bodyDistance: r,
+        bodyRadius: 1,
+      }),
     )
+
     close(distanceExponent(rs, fs), -2, 0.2)
   }),
 ])
@@ -61,7 +78,12 @@ suite('measure/shadow-gravity: isotropic (1/r^2) shadow', [
 suite('measure/shadow-gravity: directional (columnar) shadow', [
   // A parallel beam: the body blocks its own cross section, fraction = a^2 / beam^2.
   check('the directional fraction is the area ratio a^2/beam^2', () => {
-    const f = directionalShadowFraction({ bodyRadius: 1, beamRadius: 4, steps: 600 })
+    const f = directionalShadowFraction({
+      bodyRadius: 1,
+      beamRadius: 4,
+      steps: 600,
+    })
+
     close(f, 1 / 16, 1e-3)
   }),
 ])

@@ -21,20 +21,41 @@ const hopping2: LinearOperator = {
 }
 
 suite('measure/localization: zero Hamiltonian traps the excitation', [
-  check('return probability stays 1, time average 1, norm exactly conserved', () => {
-    const out = returnProbability({ operator: zeroOperator(3), source: 0, steps: 200, dt: 0.05 })
-    close(out.timeAverage, 1, 1e-12)
-    equal(out.normDrift, 0)
-  }),
+  check(
+    'return probability stays 1, time average 1, norm exactly conserved',
+    () => {
+      const out = returnProbability({
+        operator: zeroOperator(3),
+        source: 0,
+        steps: 200,
+        dt: 0.05,
+      })
+
+      close(out.timeAverage, 1, 1e-12)
+      equal(out.normDrift, 0)
+    },
+  ),
 ])
 
 suite('measure/localization: two-site hopping is exactly cos^2(t)', [
   check('the long-time return probability averages to 1/2', () => {
-    const out = returnProbability({ operator: hopping2, source: 0, steps: 8000, dt: 0.01 })
+    const out = returnProbability({
+      operator: hopping2,
+      source: 0,
+      steps: 8000,
+      dt: 0.01,
+    })
+
     close(out.timeAverage, 0.5, 0.02)
   }),
   check('the leapfrog conserves the norm (drift ~ 0)', () => {
-    const out = returnProbability({ operator: hopping2, source: 0, steps: 8000, dt: 0.01 })
+    const out = returnProbability({
+      operator: hopping2,
+      source: 0,
+      steps: 8000,
+      dt: 0.01,
+    })
+
     close(out.normDrift, 0, 1e-3)
   }),
 ])

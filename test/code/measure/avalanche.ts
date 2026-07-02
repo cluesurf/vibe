@@ -13,8 +13,12 @@ import {
 
 // A deterministic RNG that always returns 0 (so the perturbed cell is index 0 every trial).
 const makeZeroRng = (_seed: number) => ({ next: () => 0 })
+
 // Identity dynamics: leave the state untouched.
-const identityRelax = (_state: Int8Array, _rng: { next: () => number }) => {}
+const identityRelax = (
+  _state: Int8Array,
+  _rng: { next: () => number },
+): void => undefined
 
 suite('measure/avalanche: toneDensity', [
   check('nonzero fraction of a buffer', () => {
@@ -24,19 +28,23 @@ suite('measure/avalanche: toneDensity', [
 ])
 
 suite('measure/avalanche: avalancheSizes (identity dynamics)', [
-  check('a single seeded flip with no dynamics gives sizes of exactly 1', () => {
-    const sizes = avalancheSizes({
-      base: new Int8Array(4),
-      steps: 5,
-      trials: 3,
-      perturbSeed: 0,
-      streamSeed: 0,
-      makeRng: makeZeroRng,
-      relax: identityRelax,
-      mode: 'final',
-    })
-    exactArray(sizes, [1, 1, 1])
-  }),
+  check(
+    'a single seeded flip with no dynamics gives sizes of exactly 1',
+    () => {
+      const sizes = avalancheSizes({
+        base: new Int8Array(4),
+        steps: 5,
+        trials: 3,
+        perturbSeed: 0,
+        streamSeed: 0,
+        makeRng: makeZeroRng,
+        relax: identityRelax,
+        mode: 'final',
+      })
+
+      exactArray(sizes, [1, 1, 1])
+    },
+  ),
   check('peak mode also reports the unspread damage of 1', () => {
     const sizes = avalancheSizes({
       base: new Int8Array(4),
@@ -48,6 +56,7 @@ suite('measure/avalanche: avalancheSizes (identity dynamics)', [
       relax: identityRelax,
       mode: 'peak',
     })
+
     exactArray(sizes, [1, 1])
   }),
 ])
@@ -66,6 +75,7 @@ suite('measure/avalanche: settledAvalancheSizes', [
       relax: identityRelax,
       mode: 'final',
     })
+
     equal(out.background, 0)
     exactArray(out.sizes, [1, 1])
   }),

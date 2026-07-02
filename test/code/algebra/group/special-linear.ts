@@ -29,6 +29,7 @@ suite('algebra/group/special-linear: SL(2,p) order and determinants', [
     for (const p of [2, 3, 5, 7]) {
       equal(specialLinear(p).length, orderSL(p), `|SL(2,${p})|`)
     }
+
     // the named orders
     equal(orderSL(2), 6, '|SL(2,2)| = 6')
     equal(orderSL(3), 24, '|SL(2,3)| = 24')
@@ -45,29 +46,42 @@ suite('algebra/group/special-linear: SL(2,p) order and determinants', [
   check('all listed matrices are distinct', () => {
     for (const p of [2, 3, 5, 7]) {
       const group = specialLinear(p)
-      equal(new Set(group.map(key)).size, group.length, `distinct mod ${p}`)
+      equal(
+        new Set(group.map(key)).size,
+        group.length,
+        `distinct mod ${p}`,
+      )
     }
   }),
 ])
 
 suite('algebra/group/special-linear: group axioms', [
-  check('identity acts as the identity; the group is closed (p = 3)', () => {
-    const p = 3
-    const group = specialLinear(p)
-    const present = new Set(group.map(key))
-    const id = identityModP()
-    equal(detModP(id, p), 1, 'identity has det 1')
-    for (const m of group) {
-      ok(equalsModP(multiplyModP(id, m, p), m), 'I m = m')
-      ok(equalsModP(multiplyModP(m, id, p), m), 'm I = m')
-      for (const n of group) {
-        ok(present.has(key(multiplyModP(m, n, p))), 'closed under product')
+  check(
+    'identity acts as the identity; the group is closed (p = 3)',
+    () => {
+      const p = 3
+      const group = specialLinear(p)
+      const present = new Set(group.map(key))
+      const id = identityModP()
+      equal(detModP(id, p), 1, 'identity has det 1')
+
+      for (const m of group) {
+        ok(equalsModP(multiplyModP(id, m, p), m), 'I m = m')
+        ok(equalsModP(multiplyModP(m, id, p), m), 'm I = m')
+
+        for (const n of group) {
+          ok(
+            present.has(key(multiplyModP(m, n, p))),
+            'closed under product',
+          )
+        }
       }
-    }
-  }),
+    },
+  ),
   check('multiplication is associative (sample, p = 5)', () => {
     const p = 5
     const g = specialLinear(p)
+
     for (let i = 0; i < g.length; i += 7) {
       const a = g[i]!
       const b = g[(i * 3 + 1) % g.length]!
@@ -87,22 +101,32 @@ suite('algebra/group/special-linear: centre and PSL(2,p)', [
   check('centre is {I, -I} for odd p, {I} for p = 2', () => {
     // |Z(SL(2,p))| = gcd(2, p-1): 1 for p=2, else 2.
     equal(centre(2).length, 1, '|Z(SL(2,2))| = 1')
+
     for (const p of [3, 5, 7]) {
       equal(centre(p).length, 2, `|Z(SL(2,${p}))| = 2`)
     }
   }),
-  check('-I has det 1, lies in the centre, and differs from I for odd p', () => {
-    for (const p of [3, 5, 7]) {
-      const minus = minusIdentityModP(p)
-      equal(detModP(minus, p), 1, '-I has det 1 (= (p-1)^2 = 1 mod p)')
-      const centreKeys = new Set(centre(p).map(key))
-      ok(centreKeys.has(key(minus)), '-I is central')
-      ok(!equalsModP(minus, identityModP()), '-I != I for odd p')
-    }
-  }),
+  check(
+    '-I has det 1, lies in the centre, and differs from I for odd p',
+    () => {
+      for (const p of [3, 5, 7]) {
+        const minus = minusIdentityModP(p)
+        equal(
+          detModP(minus, p),
+          1,
+          '-I has det 1 (= (p-1)^2 = 1 mod p)',
+        )
+
+        const centreKeys = new Set(centre(p).map(key))
+        ok(centreKeys.has(key(minus)), '-I is central')
+        ok(!equalsModP(minus, identityModP()), '-I != I for odd p')
+      }
+    },
+  ),
   check('|PSL(2,p)| = |SL|/|Z|: 168, 60, 12 for p = 7, 5, 3', () => {
     const psl = (p: number): number =>
       specialLinear(p).length / centre(p).length
+
     equal(psl(7), 168, '|PSL(2,7)| = 168 (Klein quartic / (2,3,7))')
     equal(psl(5), 60, '|PSL(2,5)| = 60 = A5')
     equal(psl(3), 12, '|PSL(2,3)| = 12 = A4')

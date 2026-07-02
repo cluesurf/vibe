@@ -16,20 +16,29 @@ import { complex } from '@/code/algebra/linear/complex'
 
 const STEPS = 12
 
-suite('algebra/group/disclination: the director loop advances by 2 pi w', [
-  check('the loop has `steps` angles starting at 0', () => {
-    const angles = directorLoop({ winding: 1, steps: STEPS })
-    equal(angles.length, STEPS, 'one angle per site')
-    close(angles[0]!, 0, 1e-12, 'starts at 0')
-  }),
-  check('the per-step advance is 2 pi w / steps', () => {
-    const w = 3
-    const angles = directorLoop({ winding: w, steps: STEPS })
-    for (let k = 0; k < STEPS; k++) {
-      close(angles[k]!, (2 * Math.PI * w * k) / STEPS, 1e-12, 'advance k')
-    }
-  }),
-])
+suite(
+  'algebra/group/disclination: the director loop advances by 2 pi w',
+  [
+    check('the loop has `steps` angles starting at 0', () => {
+      const angles = directorLoop({ winding: 1, steps: STEPS })
+      equal(angles.length, STEPS, 'one angle per site')
+      close(angles[0]!, 0, 1e-12, 'starts at 0')
+    }),
+    check('the per-step advance is 2 pi w / steps', () => {
+      const w = 3
+      const angles = directorLoop({ winding: w, steps: STEPS })
+
+      for (let k = 0; k < STEPS; k++) {
+        close(
+          angles[k]!,
+          (2 * Math.PI * w * k) / STEPS,
+          1e-12,
+          'advance k',
+        )
+      }
+    }),
+  ],
+)
 
 suite('algebra/group/disclination: spinor holonomy = (-1)^w', [
   check('odd winding gives the -I holonomy', () => {
@@ -46,25 +55,32 @@ suite('algebra/group/disclination: spinor holonomy = (-1)^w', [
   }),
 ])
 
-suite('algebra/group/disclination: both representations of the holonomy', [
-  check('w=1: spinor flips (-1), vector returns to itself', () => {
-    const h = disclinationHolonomy({ winding: 1, steps: STEPS })
-    equal(h.spinorIsMinusOne, true, 'spinor = -1')
-    equal(h.spinorIsPlusOne, false, 'spinor != +1')
-    equal(h.vectorReturnsToSelf, true, 'vector invisible to the defect')
-  }),
-  check('w=2: spinor +1, vector returns', () => {
-    const h = disclinationHolonomy({ winding: 2, steps: STEPS })
-    equal(h.spinorIsPlusOne, true, 'spinor = +1')
-    equal(h.spinorIsMinusOne, false, 'spinor != -1')
-    equal(h.vectorReturnsToSelf, true, 'vector returns')
-  }),
-  check('w=0: trivial defect, spinor +1', () => {
-    const h = disclinationHolonomy({ winding: 0, steps: STEPS })
-    equal(h.spinorIsPlusOne, true, 'spinor = +1')
-    equal(h.vectorReturnsToSelf, true, 'vector returns')
-  }),
-])
+suite(
+  'algebra/group/disclination: both representations of the holonomy',
+  [
+    check('w=1: spinor flips (-1), vector returns to itself', () => {
+      const h = disclinationHolonomy({ winding: 1, steps: STEPS })
+      equal(h.spinorIsMinusOne, true, 'spinor = -1')
+      equal(h.spinorIsPlusOne, false, 'spinor != +1')
+      equal(
+        h.vectorReturnsToSelf,
+        true,
+        'vector invisible to the defect',
+      )
+    }),
+    check('w=2: spinor +1, vector returns', () => {
+      const h = disclinationHolonomy({ winding: 2, steps: STEPS })
+      equal(h.spinorIsPlusOne, true, 'spinor = +1')
+      equal(h.spinorIsMinusOne, false, 'spinor != -1')
+      equal(h.vectorReturnsToSelf, true, 'vector returns')
+    }),
+    check('w=0: trivial defect, spinor +1', () => {
+      const h = disclinationHolonomy({ winding: 0, steps: STEPS })
+      equal(h.spinorIsPlusOne, true, 'spinor = +1')
+      equal(h.vectorReturnsToSelf, true, 'vector returns')
+    }),
+  ],
+)
 
 suite('algebra/group/disclination: collective-mode overlap is (-1)^w', [
   check('odd winding gives overlap -1 for every mode', () => {

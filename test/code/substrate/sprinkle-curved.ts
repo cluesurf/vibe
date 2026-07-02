@@ -12,31 +12,58 @@ import { ManifoldSpec } from '@/code/tool/embedding'
 const manifold: ManifoldSpec = { form: 'minkowski', dimension: 2 }
 
 suite('substrate/sprinkle-curved: the causal order', [
-  check('the flat light-cone relation is a strict partial order', () => {
-    const p = sprinkleCurved({ manifold, count: 50, rng: makeRng({ seed: 4 }) })
-    for (let i = 0; i < p.size; i++) {
-      notOk(precedes(p, { a: i, b: i }), `no self-relation (${i})`)
-    }
-    for (let a = 0; a < p.size; a++) {
-      for (let b = 0; b < p.size; b++) {
-        if (precedes(p, { a, b })) {
-          notOk(precedes(p, { a: b, b: a }), `${a}<${b} forbids reverse`)
-          for (let c = 0; c < p.size; c++) {
-            if (precedes(p, { a: b, b: c })) {
-              ok(precedes(p, { a, b: c }), `${a}<${b}<${c} implies ${a}<${c}`)
+  check(
+    'the flat light-cone relation is a strict partial order',
+    () => {
+      const p = sprinkleCurved({
+        manifold,
+        count: 50,
+        rng: makeRng({ seed: 4 }),
+      })
+
+      for (let i = 0; i < p.size; i++) {
+        notOk(precedes(p, { a: i, b: i }), `no self-relation (${i})`)
+      }
+
+      for (let a = 0; a < p.size; a++) {
+        for (let b = 0; b < p.size; b++) {
+          if (precedes(p, { a, b })) {
+            notOk(
+              precedes(p, { a: b, b: a }),
+              `${a}<${b} forbids reverse`,
+            )
+
+            for (let c = 0; c < p.size; c++) {
+              if (precedes(p, { a: b, b: c })) {
+                ok(
+                  precedes(p, { a, b: c }),
+                  `${a}<${b}<${c} implies ${a}<${c}`,
+                )
+              }
             }
           }
         }
       }
-    }
-  }),
+    },
+  ),
 ])
 
 suite('substrate/sprinkle-curved: determinism', [
   check('the same seed reproduces the same order', () => {
-    const a = sprinkleCurved({ manifold, count: 40, rng: makeRng({ seed: 13 }) })
-    const b = sprinkleCurved({ manifold, count: 40, rng: makeRng({ seed: 13 }) })
+    const a = sprinkleCurved({
+      manifold,
+      count: 40,
+      rng: makeRng({ seed: 13 }),
+    })
+
+    const b = sprinkleCurved({
+      manifold,
+      count: 40,
+      rng: makeRng({ seed: 13 }),
+    })
+
     equal(a.size, b.size, 'same element count')
+
     for (let i = 0; i < a.size; i++) {
       for (let j = 0; j < a.size; j++) {
         equal(

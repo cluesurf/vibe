@@ -4,7 +4,13 @@
 // is uninformative; the region partition splits a cluster into interior/shell/exterior by adjacency;
 // and BFS distances grow by one per hop. All re-derived by hand.
 
-import { suite, check, equal, close, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   correlation,
   blanketScreening,
@@ -43,6 +49,7 @@ suite('coarse/self-criteria: blanket screening', [
       shell: [1, 2, 3, 4],
       exterior: [1, 2, 3, 4],
     })
+
     close(r.raw, 1, TOL)
     close(r.reduction, 1, TOL)
   }),
@@ -54,6 +61,7 @@ suite('coarse/self-criteria: blanket screening', [
       shell: [7, 7, 7, 7],
       exterior: [1, 2, 3, 4],
     })
+
     close(r.raw, 1, TOL)
     close(r.screened, 1, TOL)
     close(r.reduction, 0, TOL)
@@ -63,8 +71,15 @@ suite('coarse/self-criteria: blanket screening', [
 suite('coarse/self-criteria: region partition and distances', [
   // The whole chain: every neighbor of every cell is in the set, so all interior, no shell/exterior.
   check('a full cluster is all interior', () => {
-    const p = regionPartition({ cluster: [0, 1, 2, 3, 4], graph: chain })
-    exactArray(p.interior.slice().sort((a, b) => a - b), [0, 1, 2, 3, 4])
+    const p = regionPartition({
+      cluster: [0, 1, 2, 3, 4],
+      graph: chain,
+    })
+
+    exactArray(
+      p.interior.slice().sort((a, b) => a - b),
+      [0, 1, 2, 3, 4],
+    )
     equal(p.shell.length, 0)
     equal(p.exterior.length, 0)
   }),
@@ -73,8 +88,14 @@ suite('coarse/self-criteria: region partition and distances', [
   check('a sub-chain splits into interior, shell, exterior', () => {
     const p = regionPartition({ cluster: [1, 2, 3], graph: chain })
     exactArray(p.interior, [2])
-    exactArray(p.shell.slice().sort((a, b) => a - b), [1, 3])
-    exactArray(p.exterior.slice().sort((a, b) => a - b), [0, 4])
+    exactArray(
+      p.shell.slice().sort((a, b) => a - b),
+      [1, 3],
+    )
+    exactArray(
+      p.exterior.slice().sort((a, b) => a - b),
+      [0, 4],
+    )
   }),
   check('BFS distances grow by one per hop', () => {
     const d = distancesFrom({ graph: chain, source: 0 })

@@ -7,13 +7,16 @@ import { Will } from '@/code/tone/will'
 import { enstrophy } from '@/code/measure/enstrophy'
 
 const willOf = (data: number[]): Will =>
-  ({ mesh: {} as Will['mesh'], data: Int8Array.from(data) }) as Will
+  ({ mesh: {} as Will['mesh'], data: Int8Array.from(data) })
 
 suite('measure/enstrophy: enstrophy', [
-  check('sum of squares equals the nonzero count for ternary tone', () => {
-    // [1,0,-1,1,0]: squares 1+0+1+1+0 = 3, the count of nonzero slots.
-    equal(enstrophy(willOf([1, 0, -1, 1, 0])), 3)
-  }),
+  check(
+    'sum of squares equals the nonzero count for ternary tone',
+    () => {
+      // [1,0,-1,1,0]: squares 1+0+1+1+0 = 3, the count of nonzero slots.
+      equal(enstrophy(willOf([1, 0, -1, 1, 0])), 3)
+    },
+  ),
   check('an all-zero (vacuum) field has enstrophy 0', () => {
     equal(enstrophy(willOf([0, 0, 0, 0])), 0)
   }),

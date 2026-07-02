@@ -17,7 +17,11 @@ suite('measure/histogram: histogramFlatness', [
     )
   }),
   check('all samples in one bin gives flatness 0', () => {
-    close(histogramFlatness({ samples: [0, 0, 0], range: 1, bins: 4 }), 0, TOL)
+    close(
+      histogramFlatness({ samples: [0, 0, 0], range: 1, bins: 4 }),
+      0,
+      TOL,
+    )
   }),
   check('an empty sample set returns 0', () => {
     equal(histogramFlatness({ samples: [], range: 1, bins: 4 }), 0)

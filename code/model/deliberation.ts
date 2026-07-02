@@ -25,7 +25,7 @@ export function ternaryVector(n: number, rng: Rng): Int8Array {
   const v = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    v[i] = (rng.nextInt({ max: 3 }) - 1)
+    v[i] = rng.nextInt({ max: 3 }) - 1
   }
 
   return v
@@ -171,9 +171,7 @@ export function oneStepGuess(urge: Int8Array): Int8Array {
   const out = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    out[i] = (
-      (urge[i] ?? 0) > 0 ? 1 : (urge[i] ?? 0) < 0 ? -1 : 0
-    )
+    out[i] = (urge[i] ?? 0) > 0 ? 1 : (urge[i] ?? 0) < 0 ? -1 : 0
   }
 
   return out
@@ -216,7 +214,7 @@ export function blockCoarse(
       sum += state[i] ?? 0
     }
 
-    out[b] = (sum > 0 ? 1 : sum < 0 ? -1 : 0)
+    out[b] = sum > 0 ? 1 : sum < 0 ? -1 : 0
   }
 
   return out
@@ -252,7 +250,7 @@ export function aggregateUrge(parts: Int8Array[]): Int8Array {
       s += p[i] ?? 0
     }
 
-    out[i] = (s > 0 ? 1 : s < 0 ? -1 : 0)
+    out[i] = s > 0 ? 1 : s < 0 ? -1 : 0
   }
 
   return out
@@ -292,7 +290,7 @@ export function consensusStep(
 
     for (let i = 0; i < s.length; i++) {
       const h = coupling * (aggregate[i] ?? 0) + (s[i] ?? 0)
-      out[i] = (h > 0 ? 1 : h < 0 ? -1 : 0)
+      out[i] = h > 0 ? 1 : h < 0 ? -1 : 0
     }
 
     return out

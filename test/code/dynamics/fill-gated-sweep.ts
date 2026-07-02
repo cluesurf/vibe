@@ -8,12 +8,16 @@ import { makeRng } from '@/code/tool/rng'
 
 const N = 36
 const edges = (n: number): [number, number][] =>
-  Array.from({ length: n }, (_, i) => [i, (i + 1) % n] as [number, number])
+  Array.from(
+    { length: n },
+    (_, i) => [i, (i + 1) % n] as [number, number],
+  )
 
 const makeTone = (n: number): Int8Array =>
   Int8Array.from({ length: n }, (_, i) => ((i * 5 + 1) % 3) - 1)
 
-const charge = (t: Int8Array): number => t.reduce((s: number, v) => s + v, 0)
+const charge = (t: Int8Array): number =>
+  t.reduce((s: number, v) => s + v, 0)
 
 // alternating fills covering all three gate kinds
 const makeFill = (n: number): Int8Array =>
@@ -26,6 +30,7 @@ suite('dynamics/fill-gated-sweep: charge conservation', [
     const e = edges(N)
     const q0 = charge(tone)
     const rng = makeRng({ seed: 1 })
+
     for (let b = 0; b < 50; b++) {
       fillGatedSweep({ tone, edges: e, fill, rng })
       equal(charge(tone), q0, `charge at beat ${b}`)
@@ -35,7 +40,12 @@ suite('dynamics/fill-gated-sweep: charge conservation', [
     const tone = makeTone(N)
     const before = tone.slice()
     const fill = new Int8Array(N) // all zero = insulating
-    fillGatedSweep({ tone, edges: edges(N), fill, rng: makeRng({ seed: 2 }) })
+    fillGatedSweep({
+      tone,
+      edges: edges(N),
+      fill,
+      rng: makeRng({ seed: 2 }),
+    })
     exactArray(tone, before, 'insulating edges do nothing')
   }),
 ])
@@ -47,9 +57,13 @@ suite('dynamics/fill-gated-sweep: determinism', [
       const fill = makeFill(N)
       const e = edges(N)
       const rng = makeRng({ seed: 7 })
-      for (let b = 0; b < 20; b++) fillGatedSweep({ tone, edges: e, fill, rng })
+
+      for (let b = 0; b < 20; b++)
+        {fillGatedSweep({ tone, edges: e, fill, rng })}
+
       return tone
     }
+
     exactArray(run(), run(), 'deterministic')
   }),
 ])

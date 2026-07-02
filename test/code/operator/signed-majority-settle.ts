@@ -15,52 +15,84 @@ import { makeRng } from '@/code/tool/rng'
 const ring = makeGraph({
   size: 6,
   directed: false,
-  neighbors: Array.from({ length: 6 }, (_, i) => [(i + 5) % 6, (i + 1) % 6]),
+  neighbors: Array.from({ length: 6 }, (_, i) => [
+    (i + 5) % 6,
+    (i + 1) % 6,
+  ]),
 })
-const ferroFills = Array.from({ length: 6 }, () => Int8Array.from([1, 1]))
+
+const ferroFills = Array.from({ length: 6 }, () =>
+  Int8Array.from([1, 1]),
+)
+
 const allPlus = Int8Array.from({ length: 6 }, () => 1)
 
 suite('operator/signed-majority-settle: fixed point', [
-  check('an all-aligned ferromagnet is left unchanged with zero final flip', () => {
-    const { state, finalFlip } = settleAsync({
-      graph: ring,
-      fills: ferroFills,
-      init: allPlus,
-      sweeps: 5,
-      rng: makeRng({ seed: 1 }),
-    })
-    equal(finalFlip, 0, 'no cell flips in the final sweep')
-    ok(
-      state.every(v => v === 1),
-      'the fixed point is preserved exactly',
-    )
-  }),
+  check(
+    'an all-aligned ferromagnet is left unchanged with zero final flip',
+    () => {
+      const { state, finalFlip } = settleAsync({
+        graph: ring,
+        fills: ferroFills,
+        init: allPlus,
+        sweeps: 5,
+        rng: makeRng({ seed: 1 }),
+      })
+
+      equal(finalFlip, 0, 'no cell flips in the final sweep')
+      ok(
+        state.every(v => v === 1),
+        'the fixed point is preserved exactly',
+      )
+    },
+  ),
 ])
 
 suite('operator/signed-majority-settle: determinism', [
   check('is deterministic in its rng seed', () => {
     const init = Int8Array.from([1, -1, 1, -1, 0, 1])
-    const a = settleAsync({ graph: ring, fills: ferroFills, init, sweeps: 30, rng: makeRng({ seed: 7 }) })
-    const b = settleAsync({ graph: ring, fills: ferroFills, init, sweeps: 30, rng: makeRng({ seed: 7 }) })
+    const a = settleAsync({
+      graph: ring,
+      fills: ferroFills,
+      init,
+      sweeps: 30,
+      rng: makeRng({ seed: 7 }),
+    })
+
+    const b = settleAsync({
+      graph: ring,
+      fills: ferroFills,
+      init,
+      sweeps: 30,
+      rng: makeRng({ seed: 7 }),
+    })
+
     equal(a.finalFlip, b.finalFlip, 'same seed -> same final flip')
-    ok(a.state.every((v, i) => v === b.state[i]), 'same seed -> same final state')
+    ok(
+      a.state.every((v, i) => v === b.state[i]),
+      'same seed -> same final state',
+    )
   }),
 ])
 
 suite('operator/signed-majority-settle: convergence', [
-  check('a single defect on a ferromagnet heals to the all-aligned state', () => {
-    const init = Int8Array.from([1, 1, -1, 1, 1, 1])
-    const { state, finalFlip } = settleAsync({
-      graph: ring,
-      fills: ferroFills,
-      init,
-      sweeps: 50,
-      rng: makeRng({ seed: 3 }),
-    })
-    ok(
-      state.every(v => v === 1),
-      'the defect is repaired back to all +1',
-    )
-    equal(finalFlip, 0, 'a fixed point is reached')
-  }),
+  check(
+    'a single defect on a ferromagnet heals to the all-aligned state',
+    () => {
+      const init = Int8Array.from([1, 1, -1, 1, 1, 1])
+      const { state, finalFlip } = settleAsync({
+        graph: ring,
+        fills: ferroFills,
+        init,
+        sweeps: 50,
+        rng: makeRng({ seed: 3 }),
+      })
+
+      ok(
+        state.every(v => v === 1),
+        'the defect is repaired back to all +1',
+      )
+      equal(finalFlip, 0, 'a fixed point is reached')
+    },
+  ),
 ])

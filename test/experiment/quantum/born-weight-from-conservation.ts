@@ -1,40 +1,29 @@
-// Frontier 1, the last piece: the Born WEIGHTS derived from the model's own conservation, not from a
-// functional equation (E-QTM-0005) or the envariance symmetry argument (E-QTM-0012). Together with
-// E-QTM-0045 (the single definite outcome as a nucleated self) and E-QTM-0041 (the emergent i), this
-// closes the measurement story of the emergent quantum layer on the model.
-//
-// The question the Born rule answers: given an amplitude, why is the outcome PROBABILITY the square
+// The Born-weight FORM checked against the model walk's conservation, stated honestly. The
+// question the Born rule answers: given an amplitude, why is the outcome PROBABILITY the square
 // |psi|^2 and not, say, the amplitude itself or its magnitude? Any consistent probability must be a
-// CONSERVED, ADDITIVE quantity, so the total probability stays one as the state evolves. So the Born
-// weight is whichever additive functional of the amplitude the dynamics conserves.
+// CONSERVED, ADDITIVE quantity, so the total probability stays one as the state evolves.
 //
-// The amplitude here is the two-real-component emergent-i object of E-QTM-0041 (a forward slot and a
-// backward slot mixed by a real rotation coin, with no complex numbers in the base). Running that
-// walk and tracking three candidate additive measures:
-//   - the INTENSITY sum of a^2 + b^2, which is |psi|^2, the Born measure,
+// What this experiment actually shows, and what it assumes. The coin of the E-QTM-0041 walk was
+// CHOSEN to be an orthogonal rotation, and an orthogonal map conserves the L2 norm BY CONSTRUCTION,
+// that is known unitarity mathematics, not a discovery. So the content here is a consistency
+// check, not a uniqueness proof: among the tested candidate measures,
+//   - the INTENSITY sum of a^2 + b^2, which is |psi|^2, the quadratic Born measure,
 //   - the L1 norm, sum of sqrt(a^2 + b^2),
 //   - the signed sum of a + b,
-// only the intensity is conserved. It holds to machine precision (drift about 1e-15) while the L1
-// norm drifts by a factor of about ten and the signed sum by order one. So the emergent-i walk has a
-// UNIQUE conserved additive measure, the intensity |psi|^2, and it is therefore the only candidate
-// for a conserved outcome probability. The Born weight is |psi|^2, forced by the walk conservation.
+// only the quadratic one is conserved under the rotation coin. It holds to machine precision
+// (drift about 1e-15) while the L1 norm drifts by a factor of about ten and the signed sum by
+// order one. A wrong-coin control (a non-orthogonal coin) breaks even the intensity conservation,
+// which makes the assumption visible: the conservation comes from the orthogonality that was put
+// in, and given it, the quadratic measure is the conserved one among the candidates tested.
 //
-// This is the model's own route to the Born rule: the quadratic form is not put in, it is the
-// conserved quantity of the two-component walk whose two slots are the emergent i. A linear measure
-// cannot be the probability because the dynamics does not conserve it. So frontier 1's Born-weight
-// piece is closed from the rule, complementing the functional-equation route (E-QTM-0005) and the
-// envariance route (E-QTM-0012) with a direct conservation derivation.
+// So this complements the functional-equation route (E-QTM-0005) and the envariance route
+// (E-QTM-0012) with a conservation CONSISTENCY check on the walk: if the outcome probability must
+// be a conserved additive measure, then among quadratic, L1, and signed candidates the walk singles
+// out the quadratic. It does not prove no other conserved additive measure exists, and it does not
+// derive the orthogonality of the coin, which is the inserted ingredient.
 //
-// HONEST scope: this derives the FORM of the Born weight (why |psi|^2, the unique conserved additive
-// measure) on the two-component walk. It is the model's version of the standard argument that
-// probability conservation plus unitarity forces the L2 norm. It does not re-derive the specific
-// numerical outcome of a particular experiment, which is the value of |psi|^2 for that state, an
-// input. So the RULE is derived, the state is still specified per setup, as in ordinary quantum
-// mechanics.
-//
-// Grade L2: the Born weight shown to be the unique conserved additive measure of the emergent-i walk
-// (the intensity |psi|^2), with the L1 norm and the signed sum (which both drift) as the controls
-// that the quadratic form is special, not that any measure is conserved.
+// Grade L1: known unitarity mathematics (orthogonal maps conserve L2) verified on the walk, with
+// the non-quadratic candidates and the non-orthogonal coin as controls that the check can fail.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -43,17 +32,23 @@ const SITES = 600
 const STEPS = 180
 const THETA = Math.PI / 4 // the real rotation coin
 
-// the E-QTM-0041 real two-component walk, tracking three candidate additive measures each step
-function measureDrifts(): { intensity: number; l1: number; signed: number } {
+// the E-QTM-0041 two-component walk with coin entries (c, s), tracking three candidate
+// additive measures each step. The committed coin is the orthogonal rotation
+// (cos theta, sin theta), the control coin is deliberately non-orthogonal.
+function measureDrifts(
+  c: number,
+  s: number,
+): {
+  intensity: number
+  l1: number
+  signed: number
+} {
   let forward = new Float64Array(SITES)
   let backward = new Float64Array(SITES)
 
   const start = SITES >> 1
   forward[start] = 1 / Math.SQRT2
   backward[start] = 1 / Math.SQRT2
-
-  const c = Math.cos(THETA)
-  const s = Math.sin(THETA)
 
   const intensity: number[] = []
   const l1: number[] = []
@@ -90,11 +85,11 @@ function measureDrifts(): { intensity: number; l1: number; signed: number } {
       const rotatedBackward = -s * a + c * b
 
       if (x + 1 < SITES) {
-        nextForward[x + 1] += rotatedForward
+        nextForward[x + 1]! += rotatedForward
       }
 
       if (x - 1 >= 0) {
-        nextBackward[x - 1] += rotatedBackward
+        nextBackward[x - 1]! += rotatedBackward
       }
     }
 
@@ -117,13 +112,17 @@ export default experiment({
   id: 'quantum/born-weight-from-conservation',
   code: 'E-QTM-0046',
   title:
-    'the Born weight |psi|^2 is the unique conserved additive measure of the emergent-i two-component walk: the intensity a^2+b^2 is conserved to machine precision while the L1 norm and the signed sum drift, so probability conservation forces the outcome measure to be |psi|^2, deriving the Born weights from the walk conservation rather than a functional equation, closing the last piece of frontier 1',
+    'given the orthogonal rotation coin (an inserted ingredient that conserves the L2 norm by construction), the quadratic intensity a^2+b^2 is the only conserved measure among the tested candidates (quadratic, L1, signed) on the emergent-i walk, a conservation consistency check on the Born-weight form, with a non-orthogonal coin control that breaks the conservation',
   category: 'quantum',
   substrates: 'any',
-  depth: 'L2',
+  depth: 'L1',
   paper: true,
   run() {
-    const drifts = measureDrifts()
+    const drifts = measureDrifts(Math.cos(THETA), Math.sin(THETA))
+
+    // the wrong-coin control: a deliberately NON-orthogonal coin (0.8, 0.4), which
+    // does not preserve the L2 norm, so even the intensity should drift
+    const wrongCoin = measureDrifts(0.8, 0.4)
 
     // 1. the intensity |psi|^2 is conserved (drift near machine precision).
     const intensityConserved = drifts.intensity < 1e-9
@@ -134,27 +133,41 @@ export default experiment({
     // 3. the signed sum is NOT conserved either.
     const signedNotConserved = drifts.signed > 0.1
 
+    // 4. the non-orthogonal coin breaks even the intensity conservation, so the
+    //    conservation is the coin orthogonality showing itself, and the check can fail.
+    const wrongCoinBreaks = wrongCoin.intensity > 0.1
+
     const solved =
-      intensityConserved && l1NotConserved && signedNotConserved
+      intensityConserved &&
+      l1NotConserved &&
+      signedNotConserved &&
+      wrongCoinBreaks
 
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'on the emergent-i two-component walk (E-QTM-0041), the intensity a^2+b^2 which is |psi|^2 is conserved to machine precision while the L1 norm sqrt(a^2+b^2) and the signed sum a+b drift by order one or more, so the walk has a unique conserved additive measure, the intensity, and since any consistent outcome probability must be a conserved additive quantity the Born weight is forced to be |psi|^2, which derives the Born-rule quadratic form from the walk conservation on the model rather than from a functional equation (E-QTM-0005) or the envariance symmetry (E-QTM-0012), with the drifting L1 and signed measures as the controls that the quadratic form is special, closing the Born-weight piece of frontier 1',
+        'on the emergent-i two-component walk (E-QTM-0041) with the orthogonal rotation coin, the intensity a^2+b^2 which is |psi|^2 is conserved to machine precision while the L1 norm sqrt(a^2+b^2) and the signed sum a+b drift by order one or more, and a non-orthogonal control coin breaks even the intensity conservation, so among the tested candidate measures only the quadratic is conserved under the rotation coin, which is the known consequence of orthogonal maps conserving the L2 norm (the coin orthogonality is the inserted ingredient), a conservation consistency check that the Born-weight form |psi|^2 is the conserved additive candidate on the walk, not a uniqueness proof',
       metrics: {
         intensityDrift: Number(drifts.intensity.toExponential(2)),
         l1NormDrift: Number(drifts.l1.toExponential(2)),
         signedSumDrift: Number(drifts.signed.toExponential(2)),
+        wrongCoinIntensityDrift: Number(
+          wrongCoin.intensity.toExponential(2),
+        ),
       },
       control: {
         // the L1 norm and the signed sum both drift substantially, so it is specifically the
-        // quadratic intensity that the walk conserves, not any additive measure. If they were all
-        // conserved, the Born quadratic would not be singled out.
+        // quadratic intensity that the orthogonal coin conserves, not any additive measure. And
+        // the non-orthogonal coin breaks the intensity conservation itself, so the conservation
+        // is the chosen orthogonality, made visible rather than hidden.
         l1NormDrift: Number(drifts.l1.toExponential(2)),
         signedSumDrift: Number(drifts.signed.toExponential(2)),
+        wrongCoinIntensityDrift: Number(
+          wrongCoin.intensity.toExponential(2),
+        ),
       },
       notes:
-        'L2. The emergent-i walk conserves the intensity a^2+b^2 (drift about 1e-15) but not the L1 norm (drift about 9) or the signed sum (drift about 2). So |psi|^2 is the unique conserved additive measure, and probability conservation forces the Born weight to be |psi|^2, derived from the walk on the model. This complements the functional-equation route (E-QTM-0005) and the envariance route (E-QTM-0012) with a direct conservation derivation, and together with E-QTM-0045 (the single definite outcome as a nucleated self) and E-QTM-0041 (the emergent i) it closes the measurement story of frontier 1 on the model. Honest scope: this derives the FORM of the weight (why |psi|^2), the model version of the probability-conservation-plus-unitarity argument; the value of |psi|^2 for a given state is still the per-setup input, as in ordinary quantum mechanics.',
+        'L1. The coin was CHOSEN orthogonal, and orthogonal maps conserve the L2 norm by construction, so the intensity conservation is known unitarity mathematics, not a substrate discovery. What is shown: among the tested candidate measures (quadratic, L1, signed) only the quadratic is conserved under the rotation coin (drift about 1e-15 against about 9 and about 2), and the non-orthogonal control coin (0.8, 0.4) breaks even the intensity conservation (drift order one), so the check can fail and the inserted orthogonality is visible. This is a conservation CONSISTENCY check on the Born-weight form, complementing the functional-equation route (E-QTM-0005) and the envariance route (E-QTM-0012), not a uniqueness proof: no claim is made that the quadratic is the only conserved additive measure in general, only that it is the conserved one among these candidates. The value of |psi|^2 for a given state remains the per-setup input, as in ordinary quantum mechanics.',
     })
   },
 })

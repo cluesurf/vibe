@@ -4,7 +4,10 @@
 // values are the Aharonov-Bohm winding (2 pi about an enclosed point, scaled by 1/n), derived here.
 
 import { suite, check, close } from '@/test/code/harness'
-import { squareLoop, zNVortexHolonomy } from '@/code/measure/anyon-braiding'
+import {
+  squareLoop,
+  zNVortexHolonomy,
+} from '@/code/measure/anyon-braiding'
 
 const TIGHT = 1e-9
 
@@ -13,22 +16,49 @@ const loop = squareLoop({ radius: 2, cx: 0, cy: 0 })
 
 suite('measure/anyon-braiding: enclosing holonomy is 2 pi / n', [
   check('Z_3 fractional anyon: enclosed flux gives 2 pi / 3', () => {
-    const h = zNVortexHolonomy({ states: 3, loop, fluxX: 0.5, fluxY: 0.5 })
+    const h = zNVortexHolonomy({
+      states: 3,
+      loop,
+      fluxX: 0.5,
+      fluxY: 0.5,
+    })
+
     close(h, (2 * Math.PI) / 3, TIGHT)
   }),
   check('Z_2 fermion: enclosed flux gives pi', () => {
-    const h = zNVortexHolonomy({ states: 2, loop, fluxX: 0.5, fluxY: 0.5 })
+    const h = zNVortexHolonomy({
+      states: 2,
+      loop,
+      fluxX: 0.5,
+      fluxY: 0.5,
+    })
+
     close(Math.abs(h), Math.PI, TIGHT)
   }),
   check('Z_4 anyon: enclosed flux gives pi / 2', () => {
-    const h = zNVortexHolonomy({ states: 4, loop, fluxX: 0.5, fluxY: 0.5 })
+    const h = zNVortexHolonomy({
+      states: 4,
+      loop,
+      fluxX: 0.5,
+      fluxY: 0.5,
+    })
+
     close(h, Math.PI / 2, TIGHT)
   }),
 ])
 
-suite('measure/anyon-braiding: the phase is topological (zero when not enclosed)', [
-  check('a flux far outside the loop gives zero holonomy', () => {
-    const h = zNVortexHolonomy({ states: 3, loop, fluxX: 50.5, fluxY: 50.5 })
-    close(h, 0, TIGHT)
-  }),
-])
+suite(
+  'measure/anyon-braiding: the phase is topological (zero when not enclosed)',
+  [
+    check('a flux far outside the loop gives zero holonomy', () => {
+      const h = zNVortexHolonomy({
+        states: 3,
+        loop,
+        fluxX: 50.5,
+        fluxY: 50.5,
+      })
+
+      close(h, 0, TIGHT)
+    }),
+  ],
+)

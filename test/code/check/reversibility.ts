@@ -17,12 +17,19 @@ import {
   pairCollision,
 } from '@/code/rule/collision'
 import { squareMesh, Mesh } from '@/code/tool/mesh'
-import { Will, makeWill, fillWillPattern, charge } from '@/code/tone/will'
+import {
+  Will,
+  makeWill,
+  fillWillPattern,
+  charge,
+} from '@/code/tone/will'
 
 const square = squareMesh({ side: 4 })
 
 function oppositeOf(mesh: Mesh): number[] {
-  return Array.from({ length: mesh.degree }, (_unused, d) => mesh.opposite(d))
+  return Array.from({ length: mesh.degree }, (_unused, d) =>
+    mesh.opposite(d),
+  )
 }
 
 function patternWill(mesh: Mesh): Will {
@@ -47,14 +54,32 @@ suite('check/reversibility: round-trip Hamming distance', [
       headOnRotate({ opposite }),
       leakyConfine({ opposite }),
     ]) {
-      const { roundtripHamming } = roundtrip({ will: patternWill(square), collision, beats: 5 })
-      equal(roundtripHamming, 0, 'an involution must recover the start exactly')
+      const { roundtripHamming } = roundtrip({
+        will: patternWill(square),
+        collision,
+        beats: 5,
+      })
+
+      equal(
+        roundtripHamming,
+        0,
+        'an involution must recover the start exactly',
+      )
     }
   }),
   check('Hamming is > 0 for a lossy (erasing) collision', () => {
     const will = patternWill(square)
-    ok(charge(will) !== 0, 'the test will must carry information to lose')
-    const { roundtripHamming } = roundtrip({ will, collision: erase, beats: 2 })
+    ok(
+      charge(will) !== 0,
+      'the test will must carry information to lose',
+    )
+
+    const { roundtripHamming } = roundtrip({
+      will,
+      collision: erase,
+      beats: 2,
+    })
+
     ok(roundtripHamming > 0, 'erasing slots must lose information')
   }),
 ])
@@ -67,16 +92,28 @@ suite('check/reversibility: the inverseCollision parameter', [
       beats: 5,
       inverseCollision: pairCollision({ opposite, forward: false }),
     })
-    equal(roundtripHamming, 0, 'the paired inverse recovers the start exactly')
+
+    equal(
+      roundtripHamming,
+      0,
+      'the paired inverse recovers the start exactly',
+    )
   }),
-  check('pair table + FORWARD as its own inverse gives Hamming > 0', () => {
-    // Default inverseCollision = the forward collide, which is WRONG for a
-    // non-involution, so the round-trip applies the order-3 map twice and diverges.
-    const { roundtripHamming } = roundtrip({
-      will: patternWill(square),
-      collision: pairCollision({ opposite, forward: true }),
-      beats: 1,
-    })
-    ok(roundtripHamming > 0, 'using the forward table to invert itself must NOT recover')
-  }),
+  check(
+    'pair table + FORWARD as its own inverse gives Hamming > 0',
+    () => {
+      // Default inverseCollision = the forward collide, which is WRONG for a
+      // non-involution, so the round-trip applies the order-3 map twice and diverges.
+      const { roundtripHamming } = roundtrip({
+        will: patternWill(square),
+        collision: pairCollision({ opposite, forward: true }),
+        beats: 1,
+      })
+
+      ok(
+        roundtripHamming > 0,
+        'using the forward table to invert itself must NOT recover',
+      )
+    },
+  ),
 ])

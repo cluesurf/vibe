@@ -1656,8 +1656,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // binary per-term deltas are equal (flat); unary per-term deltas strictly increase (grow with the value)
     const binDelta = binCost[9]! - binCost[8]!
     const binFlat =
-      binCost[8]! - (binCost[7]!) === binDelta &&
-      binCost[5]! - (binCost[4]!) === binDelta
+      (binCost[8]! - binCost[7]!) === binDelta &&
+      (binCost[5]! - binCost[4]!) === binDelta
 
     const unaGrows =
       unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!
@@ -2100,7 +2100,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     check({
       name: 'bulkSharedPast is zero beyond twice the cone depth',
-      ok: disjoint.shared === 0 && disjoint.eta === 0 && !disjoint.sharesPast,
+      ok:
+        disjoint.shared === 0 &&
+        disjoint.eta === 0 &&
+        !disjoint.sharesPast,
       detail: `shared ${disjoint.shared}`,
     })
 
@@ -2123,8 +2126,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       ok:
         chshFromSharedPast(0) === 2 &&
         chshFromSharedPast(1) === 4 &&
-        Math.abs(chshFromSharedPast(TSIRELSON_SHARED_PAST) - 2 * Math.SQRT2) <
-          1e-12,
+        Math.abs(
+          chshFromSharedPast(TSIRELSON_SHARED_PAST) - 2 * Math.SQRT2,
+        ) < 1e-12,
     })
   }
 
@@ -2181,13 +2185,23 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     check({
       name: 'commonAncestorGeneration: siblings meet at their parent',
       ok:
-        commonAncestorGeneration({ neighbors, generation, a: 3, b: 4 }) === 1,
+        commonAncestorGeneration({
+          neighbors,
+          generation,
+          a: 3,
+          b: 4,
+        }) === 1,
     })
 
     check({
       name: 'commonAncestorGeneration: cousins meet only at the origin',
       ok:
-        commonAncestorGeneration({ neighbors, generation, a: 3, b: 5 }) === 0,
+        commonAncestorGeneration({
+          neighbors,
+          generation,
+          a: 3,
+          b: 5,
+        }) === 0,
     })
 
     const reach = reachAtThreshold({

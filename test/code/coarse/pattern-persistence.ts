@@ -20,6 +20,7 @@ suite('coarse/pattern-persistence: active maintenance', [
       arrow: 0.2,
       maintainEvery: 1,
     })
+
     equal(t, beats, 'maintenance every beat survives the full run')
   }),
 ])

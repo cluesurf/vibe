@@ -4,7 +4,13 @@
 // equivalent forms of the radiated power, and the Peters inspiral chirp slope -3/8 are all
 // re-derived independently and checked.
 
-import { suite, check, equal, close, ok, allFinite } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  close,
+  ok,
+  allFinite,
+} from '@/test/code/harness'
 import {
   keplerFrequency,
   chirpMass,
@@ -23,7 +29,11 @@ suite('measure/gravitational-wave: Kepler and chirp mass', [
   }),
   // Equal masses m: M_c = (m^2)^(3/5) / (2m)^(1/5) = m * 2^(-1/5).
   check('equal-mass chirp mass is m / 2^(1/5)', () => {
-    close(chirpMass({ mass1: 10, mass2: 10 }), 10 * Math.pow(2, -1 / 5), TOL)
+    close(
+      chirpMass({ mass1: 10, mass2: 10 }),
+      10 * Math.pow(2, -1 / 5),
+      TOL,
+    )
   }),
   // Symmetric in its two arguments.
   check('chirp mass is symmetric in the two masses', () => {
@@ -50,6 +60,7 @@ suite('measure/gravitational-wave: quadrupole strain', [
       samples: 24,
       samplesPerOrbit: 12,
     })
+
     const mu = (m1 * m2) / (m1 + m2)
     const omega = keplerFrequency({ totalMass: m1 + m2, separation: a })
     const amp = (4 * mu * omega ** 2 * a ** 2) / r
@@ -58,19 +69,23 @@ suite('measure/gravitational-wave: quadrupole strain', [
     close(s.hcross[0]!, 0, TOL)
   }),
   // h ~ cos(2 phi): the GW repeats every HALF orbit, i.e. every 6 of 12 samples per orbit.
-  check('the strain doubles the orbital frequency (period = 6 samples)', () => {
-    const s = binaryQuadrupoleStrain({
-      mass1: 1,
-      mass2: 2,
-      separation: 8,
-      distance: 50,
-      samples: 25,
-      samplesPerOrbit: 12,
-    })
-    close(s.hplus[0]!, s.hplus[6]!, 1e-9)
-    close(s.hplus[6]!, s.hplus[12]!, 1e-9)
-    close(s.hcross[0]!, s.hcross[6]!, 1e-9)
-  }),
+  check(
+    'the strain doubles the orbital frequency (period = 6 samples)',
+    () => {
+      const s = binaryQuadrupoleStrain({
+        mass1: 1,
+        mass2: 2,
+        separation: 8,
+        distance: 50,
+        samples: 25,
+        samplesPerOrbit: 12,
+      })
+
+      close(s.hplus[0]!, s.hplus[6]!, 1e-9)
+      close(s.hplus[6]!, s.hplus[12]!, 1e-9)
+      close(s.hcross[0]!, s.hcross[6]!, 1e-9)
+    },
+  ),
 ])
 
 suite('measure/gravitational-wave: radiated power', [
@@ -79,8 +94,14 @@ suite('measure/gravitational-wave: radiated power', [
     const m1 = 1
     const m2 = 2
     const a = 5
-    const P = quadrupoleRadiatedPower({ mass1: m1, mass2: m2, separation: a })
+    const P = quadrupoleRadiatedPower({
+      mass1: m1,
+      mass2: m2,
+      separation: a,
+    })
+
     close(P, ((32 / 5) * (m1 ** 2 * m2 ** 2 * (m1 + m2))) / a ** 5, TOL)
+
     const mu = (m1 * m2) / (m1 + m2)
     const omega = keplerFrequency({ totalMass: m1 + m2, separation: a })
     close(P, (32 / 5) * mu ** 2 * a ** 4 * omega ** 6, TOL)
@@ -103,31 +124,40 @@ suite('measure/gravitational-wave: Peters inspiral', [
       floor: 1.5,
       step: 1e-3,
     })
+
     allFinite(track.gwFrequencies)
+
     const K = (64 / 5) * m1 * m2 * (m1 + m2)
     const tc = a0 ** 4 / (4 * K)
     // fit over the late half of the track, where the near-coalescence power law is clean
     const n = track.times.length
     ok(n > 50, `track too short: ${n}`)
+
     const lo = Math.floor(n / 2)
     const xs: number[] = []
     const ys: number[] = []
+
     for (let i = lo; i < n - 1; i++) {
       const gap = tc - track.times[i]!
+
       if (gap > 0 && track.gwFrequencies[i]! > 0) {
         xs.push(Math.log(gap))
         ys.push(Math.log(track.gwFrequencies[i]!))
       }
     }
+
     const m = xs.length
     const mx = xs.reduce((s, v) => s + v, 0) / m
     const my = ys.reduce((s, v) => s + v, 0) / m
+
     let cov = 0
     let varx = 0
+
     for (let i = 0; i < m; i++) {
       cov += (xs[i]! - mx) * (ys[i]! - my)
       varx += (xs[i]! - mx) ** 2
     }
+
     const slope = cov / varx
     close(slope, -3 / 8, 0.01)
   }),
