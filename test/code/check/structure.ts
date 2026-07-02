@@ -19,7 +19,12 @@ const mesh = squareMesh({ side: SIDE })
 // cell index = y * side + x. Direction order: 0 +x, 1 -x, 2 +y, 3 -y.
 
 // Place a tone in one (cell, direction) slot.
-function place(will: Will, cell: number, direction: number, tone: number): void {
+function place(
+  will: Will,
+  cell: number,
+  direction: number,
+  tone: number,
+): void {
   will.data[cell * mesh.degree + direction] = tone
 }
 
@@ -56,35 +61,60 @@ suite('check/structure: occupancy and components', [
 ])
 
 suite('check/structure: travel distance', [
-  check('travelDistance is the farthest charged cell from the start', () => {
-    const will = makeWill(mesh)
-    place(will, 0, 0, 1) // cell 0, distance 0 from start 0
-    place(will, 1, 0, 1) // cell 1, distance 1
-    equal(travelDistance({ will, start: 0 }), 1, 'reaches one hop out')
-  }),
+  check(
+    'travelDistance is the farthest charged cell from the start',
+    () => {
+      const will = makeWill(mesh)
+      place(will, 0, 0, 1) // cell 0, distance 0 from start 0
+      place(will, 1, 0, 1) // cell 1, distance 1
+      equal(
+        travelDistance({ will, start: 0 }),
+        1,
+        'reaches one hop out',
+      )
+    },
+  ),
 ])
 
 suite('check/structure: momentum is the tone-weighted root sum', [
   check('a single +1 along +x has momentum (1,0,0,0)', () => {
     const will = makeWill(mesh)
     place(will, 0, 0, 1)
-    equal(JSON.stringify(momentum(will, squareRoots)), JSON.stringify([1, 0, 0, 0]))
+    equal(
+      JSON.stringify(momentum(will, squareRoots)),
+      JSON.stringify([1, 0, 0, 0]),
+    )
   }),
   check('+x and +y tones add their roots: (1,1,0,0)', () => {
     const will = makeWill(mesh)
     place(will, 0, 0, 1)
     place(will, 0, 2, 1)
-    equal(JSON.stringify(momentum(will, squareRoots)), JSON.stringify([1, 1, 0, 0]))
+    equal(
+      JSON.stringify(momentum(will, squareRoots)),
+      JSON.stringify([1, 1, 0, 0]),
+    )
   }),
-  check('a -1 tone along +x reverses the contribution: (-1,0,0,0)', () => {
-    const will = makeWill(mesh)
-    place(will, 3, 0, -1)
-    equal(JSON.stringify(momentum(will, squareRoots)), JSON.stringify([-1, 0, 0, 0]))
-  }),
-  check('opposite directions with equal tone cancel to zero momentum', () => {
-    const will = makeWill(mesh)
-    place(will, 0, 0, 1) // +x
-    place(will, 0, 1, 1) // -x
-    equal(JSON.stringify(momentum(will, squareRoots)), JSON.stringify([0, 0, 0, 0]))
-  }),
+  check(
+    'a -1 tone along +x reverses the contribution: (-1,0,0,0)',
+    () => {
+      const will = makeWill(mesh)
+      place(will, 3, 0, -1)
+      equal(
+        JSON.stringify(momentum(will, squareRoots)),
+        JSON.stringify([-1, 0, 0, 0]),
+      )
+    },
+  ),
+  check(
+    'opposite directions with equal tone cancel to zero momentum',
+    () => {
+      const will = makeWill(mesh)
+      place(will, 0, 0, 1) // +x
+      place(will, 0, 1, 1) // -x
+      equal(
+        JSON.stringify(momentum(will, squareRoots)),
+        JSON.stringify([0, 0, 0, 0]),
+      )
+    },
+  ),
 ])

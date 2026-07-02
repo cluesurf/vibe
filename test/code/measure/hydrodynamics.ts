@@ -28,10 +28,12 @@ suite('measure/hydrodynamics: cellMomentum', [
       [0, 1],
       [0, -1],
     ]
+
     const will = {
       mesh: { degree: 4, cellCount: 1 } as unknown as Mesh,
       data: Int8Array.from([1, 0, 0, 1]),
     } as Will
+
     // x-momentum: (+1)*(+1) + ... = 1. y-momentum: (+1 in -y slot)*(-1) = -1.
     equal(cellMomentum(will, 0, directions, 0), 1)
     equal(cellMomentum(will, 0, directions, 1), -1)

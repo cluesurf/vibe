@@ -17,18 +17,32 @@ const TOL = 1e-12
 
 suite('measure/atomic-energy: two-electron energy', [
   // Z=2, zeta=2: 4 - 8 + 1.25 = -2.75.
-  check('the perturbative (zeta = Z) energy for helium is -2.75', () => {
-    close(twoElectronEnergy({ nuclearCharge: 2, trialCharge: 2 }), -2.75, TOL)
-    close(heliumPerturbativeEnergy(2), -2.75, TOL)
-  }),
+  check(
+    'the perturbative (zeta = Z) energy for helium is -2.75',
+    () => {
+      close(
+        twoElectronEnergy({ nuclearCharge: 2, trialCharge: 2 }),
+        -2.75,
+        TOL,
+      )
+      close(heliumPerturbativeEnergy(2), -2.75, TOL)
+    },
+  ),
   // No repulsion: 4 - 8 = -4 (the control, far too deep).
-  check('dropping the repulsion gives -4 (the no-repulsion control)', () => {
-    close(
-      twoElectronEnergy({ nuclearCharge: 2, trialCharge: 2, withRepulsion: false }),
-      -4,
-      TOL,
-    )
-  }),
+  check(
+    'dropping the repulsion gives -4 (the no-repulsion control)',
+    () => {
+      close(
+        twoElectronEnergy({
+          nuclearCharge: 2,
+          trialCharge: 2,
+          withRepulsion: false,
+        }),
+        -4,
+        TOL,
+      )
+    },
+  ),
 ])
 
 suite('measure/atomic-energy: variational minimum', [
@@ -43,12 +57,15 @@ suite('measure/atomic-energy: variational minimum', [
     }
   }),
   // The variational bound is deeper than perturbation but above the repulsion-free -Z^2.
-  check('variational sits below perturbative and above the no-repulsion control', () => {
-    const v = heliumVariationalEnergy(2)
-    const p = heliumPerturbativeEnergy(2)
-    ok(v < p, `variational ${v} should be below perturbative ${p}`)
-    ok(v > -4, `variational ${v} should be above the no-repulsion -4`)
-  }),
+  check(
+    'variational sits below perturbative and above the no-repulsion control',
+    () => {
+      const v = heliumVariationalEnergy(2)
+      const p = heliumPerturbativeEnergy(2)
+      ok(v < p, `variational ${v} should be below perturbative ${p}`)
+      ok(v > -4, `variational ${v} should be above the no-repulsion -4`)
+    },
+  ),
 ])
 
 suite('measure/atomic-energy: unit conversion', [

@@ -15,6 +15,7 @@ suite('measure/newton-falloff: 3D box recession', [
       minRadius: 2,
       maxRadius: 5,
     })
+
     ok(
       r.slopesBySize.every(s => Number.isFinite(s.slope)),
       'every per-size slope must be finite',
@@ -22,20 +23,24 @@ suite('measure/newton-falloff: 3D box recession', [
     close(r.extrapolatedExponent, -1, 0.2)
   }),
   // Each finite box steepens the falloff below -1; the extrapolation is less steep than any one box.
-  check('the extrapolation is less steep than the largest single box', () => {
-    const r = newtonFalloffExponent({
-      dimension: 3,
-      sizes: [15, 19, 23, 27],
-      minRadius: 2,
-      maxRadius: 5,
-    })
-    ok(
-      r.largestBoxExponent < -1 + 1e-9,
-      `single box should read below -1, got ${r.largestBoxExponent}`,
-    )
-    ok(
-      r.extrapolatedExponent > r.largestBoxExponent,
-      `extrapolation ${r.extrapolatedExponent} should exceed the largest box ${r.largestBoxExponent}`,
-    )
-  }),
+  check(
+    'the extrapolation is less steep than the largest single box',
+    () => {
+      const r = newtonFalloffExponent({
+        dimension: 3,
+        sizes: [15, 19, 23, 27],
+        minRadius: 2,
+        maxRadius: 5,
+      })
+
+      ok(
+        r.largestBoxExponent < -1 + 1e-9,
+        `single box should read below -1, got ${r.largestBoxExponent}`,
+      )
+      ok(
+        r.extrapolatedExponent > r.largestBoxExponent,
+        `extrapolation ${r.extrapolatedExponent} should exceed the largest box ${r.largestBoxExponent}`,
+      )
+    },
+  ),
 ])

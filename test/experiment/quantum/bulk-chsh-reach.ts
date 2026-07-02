@@ -14,15 +14,21 @@
 // physical distance far beyond its bulk reach.
 //
 // The measurable is the amplification: the physical reach of the quantum value
-// divided by its bulk reach. On the flat substrate the amplification is 1 (physical
-// equals bulk). On the hyperbolic bulk it is large, and it grows with the threshold
-// distance, because physical distance is exponential in bulk distance. This is the
-// superdeterministic Bell violation recreated at a large physical separation,
-// through a strictly local, no-signaling bulk (the connection is a common ancestor
-// in the shared past, not a sideways influence).
+// divided by its bulk reach, both taken from the same farthest eligible sample. On
+// the flat substrate the amplification is 1 (physical equals bulk). On the
+// hyperbolic bulk it is large, because physical distance is exponential in bulk
+// distance. Honesty about the two metrics: physical distance is DEFINED as the
+// leaf-index gap along the boundary ordering and bulk distance as the graph
+// distance through the tree, so the exponential amplification is a property of the
+// tree geometry, definitional once those two metrics are chosen, not an independent
+// dynamical discovery. This is the superdeterministic Bell violation recreated at a
+// large physical separation, through a strictly local, no-signaling bulk (the
+// connection is a common ancestor in the shared past, not a sideways influence).
 //
-// Grade L2: the shared past is measured exactly on the substrate, mapped through the
-// cited measurement-dependence bound, with the flat substrate as the control.
+// Grade L1: the shared past is measured exactly on the substrate and mapped through
+// the cited measurement-dependence budget (the same eta-to-S bound E-QTM-0042
+// uses), with the flat substrate as the control, but the amplification itself
+// follows from the definitions of the two distances on a tree.
 
 import {
   bulkTreeSamples,
@@ -43,10 +49,15 @@ export default experiment({
     'through the bulk shortcut the quantum value (Tsirelson, the 85 percent win) is reachable out to an exponentially larger physical distance than on the flat substrate, the Bell violation recreated at a large physical separation with no action at a distance',
   category: 'quantum',
   substrates: 'any',
-  depth: 'L2',
+  depth: 'L1',
   paper: true,
   run() {
-    const bulk = bulkTreeSamples({ coordination: 2, depth: 15, coneDepth: 4 })
+    const bulk = bulkTreeSamples({
+      coordination: 2,
+      depth: 15,
+      coneDepth: 4,
+    })
+
     const flat = flatLineSamples({ side: 81, coneDepth: 4 })
 
     if (bulk.length < 5 || flat.length < 5) {
@@ -86,7 +97,8 @@ export default experiment({
     const bulkReachesFurther =
       bulkReach.physicalReach > 3 * flatReach.physicalReach
 
-    const solved = bulkAmplifies && flatNoAmplification && bulkReachesFurther
+    const solved =
+      bulkAmplifies && flatNoAmplification && bulkReachesFurther
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -110,7 +122,7 @@ export default experiment({
         flatAmplification: flatReach.amplification,
       },
       notes:
-        'L2. eta is the exact cone-overlap shared past from the substrate; the map eta -> S is the cited measurement-dependence bound (Tsirelson at eta = root 2 - 1). The amplification (physical reach over bulk reach) is the holographic shortcut applied to the Bell reach. No signal crosses space: the correlation is carried by a common ancestor in the shared bulk past, so no-signaling holds by construction. The remaining gap to perfect distance-independence is in E-QTM-0036 (the expanding-bulk seed channel). Deterministic, exact.',
+        'L1. eta is the exact cone-overlap shared past from the substrate. The map eta -> S is the same measurement-dependence BUDGET bound E-QTM-0042 uses (S = 2 + 2 eta, an upper bound on what a shared-past fraction can support, Tsirelson at eta = root 2 - 1), cited not derived. Honesty about the two metrics: physical distance is defined as the leaf-index gap along the boundary ordering while bulk distance is the graph distance through the tree, so the exponential amplification (physical reach over bulk reach, both from the same farthest eligible sample) is a property of the tree geometry, definitional once those two metrics are chosen, which is why this grades L1. No signal crosses space: the correlation is carried by a common ancestor in the shared bulk past, so no-signaling holds by construction. The remaining gap to perfect distance-independence is in E-QTM-0036 (the expanding-bulk seed channel). Deterministic, exact.',
     })
   },
 })

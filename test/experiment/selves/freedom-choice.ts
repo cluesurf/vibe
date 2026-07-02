@@ -26,7 +26,7 @@ function ternaryVector(n: number, rng: Rng): Int8Array {
   const v = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    v[i] = (rng.nextInt({ max: 3 }) - 1)
+    v[i] = rng.nextInt({ max: 3 }) - 1
   }
 
   return v

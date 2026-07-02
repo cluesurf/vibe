@@ -3,7 +3,13 @@
 // symbol the BFS closes, and the cell count equals the group order, which we re-derive: |I2(m)| = 2m,
 // |A3| = 24. The adjacency of a closed group is complete (no -1). Floating but exact-in-principle.
 
-import { suite, check, equal, ok, closeArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  ok,
+  closeArray,
+} from '@/test/code/harness'
 import {
   reflections,
   multiply,
@@ -21,32 +27,46 @@ suite('substrate/coxeter/matrix-group: generators are involutions', [
     for (const symbol of [[3], [4], [3, 3], [5, 3]]) {
       const gens = reflections(symbol)
       const n = symbol.length + 1
-      equal(gens.length, n, `${symbol}: one reflection per mirror`)
+      equal(gens.length, n, `${String(symbol)}: one reflection per mirror`)
+
       for (const r of gens) {
-        closeArray(flat(multiply(r, r)), flat(identity(n)), 1e-9, `R^2 = I for {${symbol}}`)
+        closeArray(
+          flat(multiply(r, r)),
+          flat(identity(n)),
+          1e-9,
+          `R^2 = I for {${String(symbol)}}`,
+        )
       }
     }
   }),
 ])
 
-suite('substrate/coxeter/matrix-group: finite cell counts are group orders', [
-  check('dihedral and A3 meshes close at the group order', () => {
-    for (const [symbol, order] of [
-      [[3], 6],
-      [[4], 8],
-      [[5], 10],
-      [[3, 3], 24],
-    ] as const) {
-      const { shells, adjacency } = buildCoxeterMatrixMesh([...symbol], 2000)
-      const total = shells.reduce((a, b) => a + b, 0)
-      equal(total, order, `|{${symbol}}| = ${order}`)
-      equal(shells[0], 1, 'identity at shell 0')
-      // a closed finite group has every generator-neighbour inside the mesh.
-      for (const row of adjacency) {
-        for (const j of row) {
-          ok(j >= 0, 'no neighbour falls outside a closed mesh')
+suite(
+  'substrate/coxeter/matrix-group: finite cell counts are group orders',
+  [
+    check('dihedral and A3 meshes close at the group order', () => {
+      for (const [symbol, order] of [
+        [[3], 6],
+        [[4], 8],
+        [[5], 10],
+        [[3, 3], 24],
+      ] as const) {
+        const { shells, adjacency } = buildCoxeterMatrixMesh(
+          [...symbol],
+          2000,
+        )
+
+        const total = shells.reduce((a, b) => a + b, 0)
+        equal(total, order, `|{${String(symbol)}}| = ${order}`)
+        equal(shells[0], 1, 'identity at shell 0')
+
+        // a closed finite group has every generator-neighbour inside the mesh.
+        for (const row of adjacency) {
+          for (const j of row) {
+            ok(j >= 0, 'no neighbour falls outside a closed mesh')
+          }
         }
       }
-    }
-  }),
-])
+    }),
+  ],
+)

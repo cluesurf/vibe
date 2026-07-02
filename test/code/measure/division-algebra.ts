@@ -3,7 +3,13 @@
 // exactly through the octonions (level 3) and FAILS at the sedenions (level 4), zero divisors appear
 // only at level 4, and the imaginary-unit triples split 7 associative (Fano lines) + 28 non-associative.
 
-import { suite, check, equal, close, ok, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   cayleyConjugate,
   cayleyMultiply,
@@ -36,6 +42,7 @@ suite('measure/division-algebra: Cayley-Dickson product', [
     const x = [2, -1, 3, 1]
     const p = cayleyMultiply(x, cayleyConjugate(x))
     close(p[0]!, normSquared(x), 1e-12)
+
     for (let i = 1; i < 4; i++) {
       close(p[i]!, 0, 1e-12)
     }

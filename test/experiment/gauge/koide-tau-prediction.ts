@@ -10,7 +10,7 @@
 // Solve Q = (m_e + m_mu + m_tau) / (sqrt m_e + sqrt m_mu + sqrt m_tau)^2 = 2/3 for m_tau. With
 // x = sqrt(m_tau), A = m_e + m_mu, B = sqrt m_e + sqrt m_mu, this is a quadratic
 //   x^2 - 4 B x + (3A - 2 B^2) = 0,   x = 2B + sqrt(6 B^2 - 3 A)  (the heavy root),
-// giving m_tau = x^2. The prediction is 1776.97 MeV; the measured value is 1776.86 MeV, a
+// giving m_tau = x^2. The prediction is 1776.97 MeV. The measured value is 1776.86 MeV, a
 // relative deviation of about 6e-5. This is the historical Koide prediction (1982), made
 // before the tau mass was precisely measured, and it has held as the measurement sharpened.
 //
@@ -40,7 +40,10 @@ const M_MU = 105.6583755
 const M_TAU_MEASURED = 1776.86
 
 // predict the heaviest mass from the two lighter ones using Q = 2/3
-function predictHeaviest(m1: number, m2: number): { heavy: number; light: number } {
+function predictHeaviest(
+  m1: number,
+  m2: number,
+): { heavy: number; light: number } {
   const a = m1 + m2
   const b = Math.sqrt(m1) + Math.sqrt(m2)
   const disc = 6 * b * b - 3 * a
@@ -60,21 +63,22 @@ export default experiment({
   depth: 'L1',
   paper: true,
   run() {
-    const { heavy: mTauPredicted, light: mTauLight } = predictHeaviest(M_E, M_MU)
+    const { heavy: mTauPredicted, light: mTauLight } = predictHeaviest(
+      M_E,
+      M_MU,
+    )
 
     const relDeviation =
       Math.abs(mTauPredicted - M_TAU_MEASURED) / M_TAU_MEASURED
 
-    // 1. the predicted tau mass matches the measured value to about one part in ten thousand.
+    // 1. the predicted tau mass matches the MEASURED value to about one part in ten
+    //    thousand. This comparison to the measurement is the real test.
     const predictionSharp = relDeviation < 1e-3
 
-    // 2. the prediction is a genuine number (not a fit): it uses only m_e, m_mu and Q = 2/3.
-    const predictedValueRight = Math.abs(mTauPredicted - 1776.97) < 0.5
-
-    // 3. control: the light root is unphysical (a few MeV), so the heavy root is the tau.
+    // 2. control: the light root is unphysical (a few MeV), so the heavy root is the tau.
     const lightRootUnphysical = mTauLight < 10
 
-    const solved = predictionSharp && predictedValueRight && lightRootUnphysical
+    const solved = predictionSharp && lightRootUnphysical
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -87,7 +91,7 @@ export default experiment({
         lightRootMeV: Number(mTauLight.toFixed(3)),
       },
       control: {
-        // the quadratic has two roots; the light one (a few MeV) is unphysical, so the heavy
+        // the quadratic has two roots. The light one (a few MeV) is unphysical, so the heavy
         // root is unambiguously the tau. The prediction is not tuned: only m_e, m_mu and the
         // value 2/3 enter, and 2/3 is fixed by the geometry (E-FRC-0062), not fitted here.
         lightRootMeV: Number(mTauLight.toFixed(3)),

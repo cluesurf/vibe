@@ -38,15 +38,18 @@ suite('measure/self-occlusion: exact geometric fractions', [
 ])
 
 suite('measure/self-occlusion: directionalFacingFraction', [
-  check('the centrally symmetric 24-cell faces exactly 1/2 under any view', () => {
-    const r = directionalFacingFraction([1, 0, 0, 0])
-    // D4 roots are the 24 vectors +-e_a+-e_b; under view e_0: 6 have +e_0 (visible),
-    // 6 have -e_0 (occluded), 12 are perpendicular (rim). (6 + 12/2)/24 = 1/2.
-    equal(r.visible, 6)
-    equal(r.occluded, 6)
-    equal(r.rim, 12)
-    equal(r.visible + r.occluded + r.rim, 24)
-    ok(r.centrallySymmetric)
-    close(r.fraction, 0.5, TOL)
-  }),
+  check(
+    'the centrally symmetric 24-cell faces exactly 1/2 under any view',
+    () => {
+      const r = directionalFacingFraction([1, 0, 0, 0])
+      // D4 roots are the 24 vectors +-e_a+-e_b; under view e_0: 6 have +e_0 (visible),
+      // 6 have -e_0 (occluded), 12 are perpendicular (rim). (6 + 12/2)/24 = 1/2.
+      equal(r.visible, 6)
+      equal(r.occluded, 6)
+      equal(r.rim, 12)
+      equal(r.visible + r.occluded + r.rim, 24)
+      ok(r.centrallySymmetric)
+      close(r.fraction, 0.5, TOL)
+    },
+  ),
 ])

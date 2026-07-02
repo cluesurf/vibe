@@ -16,7 +16,11 @@ import {
 const triangle = makeGraph({
   size: 3,
   directed: false,
-  neighbors: [[1, 2], [0, 2], [0, 1]],
+  neighbors: [
+    [1, 2],
+    [0, 2],
+    [0, 1],
+  ],
 })
 
 // A star: one centre (degree 4) and four leaves (degree 1), no triangles.
@@ -38,9 +42,12 @@ suite('measure/curvature: Forman-Ricci', [
   check('a star spoke has curvature -1', () => {
     equal(formanRicci({ substrate: star, a: 0, b: 1 }), -1)
   }),
-  check('the mean curvature of a star is -1 (tree-like, negative)', () => {
-    equal(meanCurvature({ substrate: star }), -1)
-  }),
+  check(
+    'the mean curvature of a star is -1 (tree-like, negative)',
+    () => {
+      equal(meanCurvature({ substrate: star }), -1)
+    },
+  ),
 ])
 
 suite('measure/curvature: shell-growth sign', [
@@ -50,6 +57,7 @@ suite('measure/curvature: shell-growth sign', [
     const out = shellGrowthCurvature({
       shellCounts: [1, 4, 8, 12, 16, 20, 24],
     })
+
     equal(out.sign, 'flat')
   }),
   // Exponential shells (ratio ~2) stay above the negative threshold: hyperbolic.
@@ -57,6 +65,7 @@ suite('measure/curvature: shell-growth sign', [
     const out = shellGrowthCurvature({
       shellCounts: [1, 3, 6, 12, 24, 48, 96],
     })
+
     equal(out.sign, 'negative')
   }),
   // Shells that grow then shrink (a sphere) have an interior ratio below 1: positive.
@@ -64,6 +73,7 @@ suite('measure/curvature: shell-growth sign', [
     const out = shellGrowthCurvature({
       shellCounts: [1, 4, 8, 10, 8, 4, 1],
     })
+
     equal(out.sign, 'positive')
   }),
 ])

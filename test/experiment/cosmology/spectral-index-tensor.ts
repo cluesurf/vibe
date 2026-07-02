@@ -59,7 +59,9 @@ function observablesAtPivot(input: {
 
   for (let step = 0; step < 800000; step++) {
     const hubble = inflatonHubble({ phi, phidot, potential })
-    const epsilon = 0.5 * (slope(phi) / Math.max(1e-30, potential(phi))) ** 2
+    const epsilon =
+      0.5 * (slope(phi) / Math.max(1e-30, potential(phi))) ** 2
+
     trajectory.push({ phi: Math.abs(phi), lnA })
 
     if (!ended && epsilon >= 1) {
@@ -67,7 +69,14 @@ function observablesAtPivot(input: {
       endLnA = lnA
     }
 
-    const next = inflatonStep({ phi, phidot, potential, potentialSlope: slope, dt })
+    const next = inflatonStep({
+      phi,
+      phidot,
+      potential,
+      potentialSlope: slope,
+      dt,
+    })
+
     phi = next.phi
     phidot = next.phidot
     lnA += hubble * dt
@@ -129,7 +138,8 @@ export default experiment({
     // 4. inflation actually ran (enough e-folds for the pivot to exist).
     const inflated = mid.totalEfolds > 60
 
-    const solved = nsBracketsObserved && nsMatches && rInTension && inflated
+    const solved =
+      nsBracketsObserved && nsMatches && rInTension && inflated
 
     return verdict({
       status: solved ? 'pass' : 'fail',

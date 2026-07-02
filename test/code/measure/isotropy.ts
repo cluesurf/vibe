@@ -66,33 +66,44 @@ suite('measure/isotropy: order-4 moments', [
   }),
   // An evenly sampled circle is isotropic to order 4: by discrete orthogonality (N > 4)
   // sum cos^4 = 3N/8 and sum cos^2 sin^2 = N/8, so diag = 3 mixed exactly.
-  check('an 8-fold circle satisfies diag = 3 mixed (anisotropy 0)', () => {
-    const dirs = Array.from({ length: 8 }, (_, k) => {
-      const t = (2 * Math.PI * k) / 8
-      return [Math.cos(t), Math.sin(t)]
-    })
-    const m = directionFourthMoments(dirs)
-    close(m.diagonal, 3, TOL)
-    close(m.mixed, 1, TOL)
-    close(m.anisotropy, 0, TOL)
-  }),
+  check(
+    'an 8-fold circle satisfies diag = 3 mixed (anisotropy 0)',
+    () => {
+      const dirs = Array.from({ length: 8 }, (_, k) => {
+        const t = (2 * Math.PI * k) / 8
+
+        return [Math.cos(t), Math.sin(t)]
+      })
+
+      const m = directionFourthMoments(dirs)
+      close(m.diagonal, 3, TOL)
+      close(m.mixed, 1, TOL)
+      close(m.anisotropy, 0, TOL)
+    },
+  ),
 ])
 
 suite('measure/isotropy: harmonic and lattice anisotropy', [
   // A flat profile has no angular harmonic: every Fourier component sums to 0 over the
   // full period, so the worst-harmonic magnitude is 0.
   check('a flat angular profile has zero harmonic anisotropy', () => {
-    close(harmonicAnisotropy({ profile: new Array(12).fill(5) }), 0, TOL)
+    close(
+      harmonicAnisotropy({ profile: new Array(12).fill(5) }),
+      0,
+      TOL,
+    )
   }),
   // A square lattice: each point's nearest neighbour lies along an axis, angle a multiple
   // of pi/2, so cos(4 ang) = 1 for all and the 4-fold magnitude is exactly 1.
   check('a square lattice shows a 4-fold link harmonic of 1', () => {
     const points: { x: number; y: number }[] = []
+
     for (let x = 0; x < 5; x++) {
       for (let y = 0; y < 5; y++) {
         points.push({ x, y })
       }
     }
+
     close(nearestLinkHarmonicAnisotropy({ points }), 1, TOL)
   }),
 ])
@@ -110,14 +121,17 @@ suite('measure/isotropy: diffusion tensor', [
       [0, 0, 1],
       [0, 0, -1],
     ]
+
     const neighbors = [[1, 2, 3, 4, 5, 6], [], [], [], [], [], []]
     const result = diffusionTensorAnisotropy({
       coords,
       neighbors,
       cells: [0],
     })
+
     close(result.anisotropy, 0, TOL)
     equal(result.count, 6)
+
     for (const e of result.eigenvalues) {
       close(e, 1 / 3, 1e-6)
     }
@@ -130,12 +144,14 @@ suite('measure/isotropy: diffusion tensor', [
       [1, 0, 0],
       [-1, 0, 0],
     ]
+
     const neighbors = [[1, 2], [], []]
     const result = diffusionTensorAnisotropy({
       coords,
       neighbors,
       cells: [0],
     })
+
     close(result.anisotropy, 3, 1e-6)
   }),
 ])

@@ -10,17 +10,27 @@ import {
 } from '@/code/measure/superfluid'
 
 suite('measure/superfluid: landauCriticalVelocity', [
-  check('a linear dispersion omega = 2k gives critical velocity 2', () => {
-    close(landauCriticalVelocity({ dispersion: k => 2 * k }), 2, 1e-12)
-  }),
-  check('a quadratic dispersion omega = k^2 gives v_c at the smallest k', () => {
-    // min of (k^2)/k = k is at the first sample k = kMax/steps = pi/2000.
-    close(
-      landauCriticalVelocity({ dispersion: k => k * k }),
-      Math.PI / 2000,
-      1e-9,
-    )
-  }),
+  check(
+    'a linear dispersion omega = 2k gives critical velocity 2',
+    () => {
+      close(
+        landauCriticalVelocity({ dispersion: k => 2 * k }),
+        2,
+        1e-12,
+      )
+    },
+  ),
+  check(
+    'a quadratic dispersion omega = k^2 gives v_c at the smallest k',
+    () => {
+      // min of (k^2)/k = k is at the first sample k = kMax/steps = pi/2000.
+      close(
+        landauCriticalVelocity({ dispersion: k => k * k }),
+        Math.PI / 2000,
+        1e-9,
+      )
+    },
+  ),
 ])
 
 suite('measure/superfluid: vortexCirculation', [

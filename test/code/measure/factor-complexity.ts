@@ -3,7 +3,14 @@
 // from textbook facts: a periodic word has bounded complexity, a Sturmian (Fibonacci) word has the
 // exact complexity p(n) = n + 1.
 
-import { suite, check, equal, exactArray, ok, notOk } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  exactArray,
+  ok,
+  notOk,
+} from '@/test/code/harness'
 import {
   factorComplexity,
   factorComplexityProfile,
@@ -35,18 +42,22 @@ function fibonacciWord(iterations: number): number[] {
 }
 
 suite('measure/factor-complexity: factorComplexity', [
-  check('a period-2 word [0,1,0,1,0,1] has p(n)=2 for n>=1 (bounded)', () => {
-    const w = [0, 1, 0, 1, 0, 1]
-    equal(factorComplexity(w, 1), 2)
-    equal(factorComplexity(w, 2), 2)
-    equal(factorComplexity(w, 3), 2)
-  }),
+  check(
+    'a period-2 word [0,1,0,1,0,1] has p(n)=2 for n>=1 (bounded)',
+    () => {
+      const w = [0, 1, 0, 1, 0, 1]
+      equal(factorComplexity(w, 1), 2)
+      equal(factorComplexity(w, 2), 2)
+      equal(factorComplexity(w, 3), 2)
+    },
+  ),
   check('a constant word has exactly one factor of each length', () => {
     equal(factorComplexity([5, 5, 5, 5], 1), 1)
     equal(factorComplexity([5, 5, 5, 5], 2), 1)
   }),
   check('the Fibonacci (Sturmian) word has p(n) = n + 1', () => {
     const w = fibonacciWord(12) // length F_14 = 377, ample for n up to ~8
+
     for (let n = 1; n <= 8; n++) {
       equal(factorComplexity(w, n), n + 1, `p(${n})`)
     }
@@ -59,7 +70,10 @@ suite('measure/factor-complexity: factorComplexity', [
 
 suite('measure/factor-complexity: profile and complexity line', [
   check('the profile lists p(1..maxN)', () => {
-    exactArray(factorComplexityProfile(fibonacciWord(12), 5), [2, 3, 4, 5, 6])
+    exactArray(
+      factorComplexityProfile(fibonacciWord(12), 5),
+      [2, 3, 4, 5, 6],
+    )
   }),
   check('aboveComplexityLine is p(n) > n', () => {
     // period-2 word: p(1)=2>1 true, but p(2)=2 not > 2 false.

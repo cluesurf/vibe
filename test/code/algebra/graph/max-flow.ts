@@ -4,7 +4,10 @@
 // max-flow min-cut theorem (max flow = min cut) is checked directly.
 
 import { suite, check, equal } from '@/test/code/harness'
-import { FlowNetwork, undirectedMinCut } from '@/code/algebra/graph/max-flow'
+import {
+  FlowNetwork,
+  undirectedMinCut,
+} from '@/code/algebra/graph/max-flow'
 
 suite('algebra/graph/max-flow: directed max flow', [
   check('the classic CLRS network has max flow 23', () => {
@@ -50,33 +53,32 @@ suite('algebra/graph/max-flow: undirected min cut (RT surface)', [
       [0, 3], // 2
       [1, 2], // 3
     ]
+
     equal(
       undirectedMinCut({ adjacency, sources: [0], sinks: [3] }),
       2,
       '4-cycle min cut = 2',
     )
   }),
-  check('K4 has min cut 3 between two vertices (degree of the source)', () => {
-    const adjacency = [
-      [1, 2, 3],
-      [0, 2, 3],
-      [0, 1, 3],
-      [0, 1, 2],
-    ]
-    equal(
-      undirectedMinCut({ adjacency, sources: [0], sinks: [1] }),
-      3,
-      'K4 min cut = 3',
-    )
-  }),
+  check(
+    'K4 has min cut 3 between two vertices (degree of the source)',
+    () => {
+      const adjacency = [
+        [1, 2, 3],
+        [0, 2, 3],
+        [0, 1, 3],
+        [0, 1, 2],
+      ]
+
+      equal(
+        undirectedMinCut({ adjacency, sources: [0], sinks: [1] }),
+        3,
+        'K4 min cut = 3',
+      )
+    },
+  ),
   check('a path graph has min cut 1 (cut any single edge)', () => {
-    const adjacency = [
-      [1],
-      [0, 2],
-      [1, 3],
-      [2, 4],
-      [3],
-    ]
+    const adjacency = [[1], [0, 2], [1, 3], [2, 4], [3]]
     equal(
       undirectedMinCut({ adjacency, sources: [0], sinks: [4] }),
       1,
@@ -94,8 +96,13 @@ suite('algebra/graph/max-flow: undirected min cut (RT surface)', [
       [1, 3, 5], // 4
       [2, 4], // 5
     ]
+
     equal(
-      undirectedMinCut({ adjacency, sources: [0, 1, 2], sinks: [3, 4, 5] }),
+      undirectedMinCut({
+        adjacency,
+        sources: [0, 1, 2],
+        sinks: [3, 4, 5],
+      }),
       3,
       'three rungs separate the two rows',
     )

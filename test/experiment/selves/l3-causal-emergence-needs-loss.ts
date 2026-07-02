@@ -62,7 +62,7 @@ export default experiment({
     let will: Will = makeWill(mesh)
 
     for (let i = 0; i < will.data.length; i++) {
-      will.data[i] = (((i * 7 + (i % 5) + 1) % 3) - 1)
+      will.data[i] = ((i * 7 + (i % 5) + 1) % 3) - 1
     }
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat

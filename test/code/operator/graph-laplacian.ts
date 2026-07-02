@@ -7,7 +7,14 @@
 //   - The Green's function solves L phi = delta_center - 1/n exactly, and the potential is
 //     largest at the source and decays with graph distance.
 
-import { suite, check, equal, ok, close, closeArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  ok,
+  close,
+  closeArray,
+} from '@/test/code/harness'
 import {
   graphLaplacian,
   solveGraphPoisson,
@@ -75,54 +82,84 @@ suite('operator/graph-laplacian: L = D - A structure', [
       }
     }
   }),
-  check('L * 1 = 0 exactly: the constant vector is the zero mode', () => {
-    for (const g of [cycle4, path5]) {
-      const ones = new Float64Array(g.length).fill(1)
-      const product = apply(g, ones)
+  check(
+    'L * 1 = 0 exactly: the constant vector is the zero mode',
+    () => {
+      for (const g of [cycle4, path5]) {
+        const ones = new Float64Array(g.length).fill(1)
+        const product = apply(g, ones)
 
-      for (let i = 0; i < g.length; i++) {
-        equal(product[i] ?? NaN, 0, `(L 1)[${i}]`)
+        for (let i = 0; i < g.length; i++) {
+          equal(product[i] ?? NaN, 0, `(L 1)[${i}]`)
+        }
       }
-    }
-  }),
+    },
+  ),
 ])
 
 suite('operator/graph-laplacian: Poisson solve', [
-  check('L phi = b for the deflated CG solution on a zero-mean b (cycle)', () => {
-    const b = new Float64Array([1, -1, 1, -1])
-    const phi = solveGraphPoisson({ neighbors: cycle4, b })
-    closeArray(apply(cycle4, phi), b, 1e-9, 'cycle4 L phi vs b')
-  }),
-  check('L phi = b for the deflated CG solution on a zero-mean b (path)', () => {
-    const b = new Float64Array([2, -1, 0, -1, 0])
-    const phi = solveGraphPoisson({ neighbors: path5, b })
-    closeArray(apply(path5, phi), b, 1e-9, 'path5 L phi vs b')
-  }),
-  check('the returned potential is zero-mean (the deflation gauge)', () => {
-    const b = new Float64Array([2, -1, 0, -1, 0])
-    const phi = solveGraphPoisson({ neighbors: path5, b })
+  check(
+    'L phi = b for the deflated CG solution on a zero-mean b (cycle)',
+    () => {
+      const b = new Float64Array([1, -1, 1, -1])
+      const phi = solveGraphPoisson({ neighbors: cycle4, b })
+      closeArray(apply(cycle4, phi), b, 1e-9, 'cycle4 L phi vs b')
+    },
+  ),
+  check(
+    'L phi = b for the deflated CG solution on a zero-mean b (path)',
+    () => {
+      const b = new Float64Array([2, -1, 0, -1, 0])
+      const phi = solveGraphPoisson({ neighbors: path5, b })
+      closeArray(apply(path5, phi), b, 1e-9, 'path5 L phi vs b')
+    },
+  ),
+  check(
+    'the returned potential is zero-mean (the deflation gauge)',
+    () => {
+      const b = new Float64Array([2, -1, 0, -1, 0])
+      const phi = solveGraphPoisson({ neighbors: path5, b })
 
-    let mean = 0
-    for (const v of phi) mean += v
-    close(mean / phi.length, 0, 1e-12, 'phi mean')
-  }),
+      let mean = 0
+
+      for (const v of phi) {mean += v}
+
+      close(mean / phi.length, 0, 1e-12, 'phi mean')
+    },
+  ),
 ])
 
 suite('operator/graph-laplacian: Greens function', [
   check('L phi = delta_center - 1/n exactly (cycle)', () => {
     const center = 0
     const n = cycle4.length
-    const phi = graphLaplacianGreensFunction({ neighbors: cycle4, center })
-    const b = Float64Array.from({ length: n }, (_, i) =>
-      (i === center ? 1 : 0) - 1 / n,
+    const phi = graphLaplacianGreensFunction({
+      neighbors: cycle4,
+      center,
+    })
+
+    const b = Float64Array.from(
+      { length: n },
+      (_, i) => (i === center ? 1 : 0) - 1 / n,
     )
+
     closeArray(apply(cycle4, phi), b, 1e-9, 'L greens vs delta-1/n')
   }),
-  check('the potential peaks at the source and decays with distance (path)', () => {
-    const phi = graphLaplacianGreensFunction({ neighbors: path5, center: 0 })
-    // index 0 source, distance increases monotonically to index 4.
-    for (let i = 0; i + 1 < path5.length; i++) {
-      ok((phi[i] ?? 0) > (phi[i + 1] ?? 0), `phi[${i}] > phi[${i + 1}]`)
-    }
-  }),
+  check(
+    'the potential peaks at the source and decays with distance (path)',
+    () => {
+      const phi = graphLaplacianGreensFunction({
+        neighbors: path5,
+        center: 0,
+      })
+
+      // index 0 source, distance increases monotonically to index 4.
+      for (let i = 0; i + 1 < path5.length; i++) {
+        ok(
+          (phi[i] ?? 0) > (phi[i + 1] ?? 0),
+          `phi[${i}] > phi[${i + 1}]`,
+        )
+      }
+    },
+  ),
 ])

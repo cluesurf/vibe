@@ -76,7 +76,7 @@ export function absoluteLimits(input?: { n?: number }): {
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   const q0 = totalQ(tone)
@@ -127,12 +127,12 @@ export function absoluteLimits(input?: { n?: number }): {
   const base = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    base[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   const s = base.slice()
   const s2 = base.slice()
-  s2[center] = (s2[center] === 0 ? 1 : 0)
+  s2[center] = s2[center] === 0 ? 1 : 0
 
   const ra = makeRng({ seed: 31 })
   const rb = makeRng({ seed: 31 })

@@ -25,33 +25,44 @@ function diagApply(input: ComplexVector, output: ComplexVector): void {
 
 suite('algebra/linear/eig-lanczos-complex: diagonal Hermitian', [
   check('largestEigenvalueOfSquare(H) = max lambda^2 = 16', () => {
+    const rng7 = makeRng({ seed: 7 })
     const lambda = largestEigenvalueOfSquare({
       apply: diagApply,
       dimension: DIAG.length,
-      rand: makeRng({ seed: 7 }).next,
+      rand: (): number => rng7.next(),
     })
+
     close(lambda, 16, 1e-6, 'max(lambda^2)')
   }),
   check('lowestAbsoluteEigenvalues gives {1,2,3,4} ascending', () => {
+    const rng11 = makeRng({ seed: 11 })
     const vals = lowestAbsoluteEigenvalues({
       apply: diagApply,
       dimension: DIAG.length,
       fold: 17, // just above max(lambda^2) = 16
       steps: DIAG.length,
       count: DIAG.length,
-      rand: makeRng({ seed: 11 }).next,
+      rand: (): number => rng11.next(),
     })
-    closeArray(vals, [1, 2, 3, 4], 1e-6, '|lambda| nearest zero, ascending')
+
+    closeArray(
+      vals,
+      [1, 2, 3, 4],
+      1e-6,
+      '|lambda| nearest zero, ascending',
+    )
   }),
   check('the two smallest |lambda| are {1, 2}', () => {
+    const rng3 = makeRng({ seed: 3 })
     const vals = lowestAbsoluteEigenvalues({
       apply: diagApply,
       dimension: DIAG.length,
       fold: 17,
       steps: DIAG.length,
       count: 2,
-      rand: makeRng({ seed: 3 }).next,
+      rand: (): number => rng3.next(),
     })
+
     closeArray(vals, [1, 2], 1e-6, 'two nearest zero')
   }),
 ])

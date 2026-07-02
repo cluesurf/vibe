@@ -23,23 +23,27 @@ suite('measure/profile: profileGradient', [
 ])
 
 suite('measure/profile: radialFieldProfile', [
-  check('shell averages by integer radius (1D, dropping the center)', () => {
-    // side 4, center c0=2, coord(i)=[i]; values 10..50 at i=0..4.
-    // radii: i0->2, i1->1, i2->0, i3->1, i4->2. Keep [1,2]: r1 avg(20,40)=30, r2 avg(10,50)=30.
-    const out = radialFieldProfile({
-      values: [10, 20, 30, 40, 50],
-      coord: i => [i],
-      side: 4,
-      dimension: 1,
-      minRadius: 1,
-      maxRadius: 2,
-    })
-    equal(out.length, 2)
-    equal(out[0]!.r, 1)
-    close(out[0]!.g, 30, TOL)
-    equal(out[1]!.r, 2)
-    close(out[1]!.g, 30, TOL)
-  }),
+  check(
+    'shell averages by integer radius (1D, dropping the center)',
+    () => {
+      // side 4, center c0=2, coord(i)=[i]; values 10..50 at i=0..4.
+      // radii: i0->2, i1->1, i2->0, i3->1, i4->2. Keep [1,2]: r1 avg(20,40)=30, r2 avg(10,50)=30.
+      const out = radialFieldProfile({
+        values: [10, 20, 30, 40, 50],
+        coord: i => [i],
+        side: 4,
+        dimension: 1,
+        minRadius: 1,
+        maxRadius: 2,
+      })
+
+      equal(out.length, 2)
+      equal(out[0]!.r, 1)
+      close(out[0]!.g, 30, TOL)
+      equal(out[1]!.r, 2)
+      close(out[1]!.g, 30, TOL)
+    },
+  ),
 ])
 
 suite('measure/profile: weightedGridRadiusOfGyration', [

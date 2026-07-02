@@ -4,7 +4,13 @@
 // the two mean-degree helpers average out-degree and undirected degree respectively. We build small substrates
 // by hand and read every count back.
 
-import { suite, check, equal, exactArray, ok } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  exactArray,
+  ok,
+} from '@/test/code/harness'
 import { Graph, makeGraph } from '@/code/tool/graph'
 import { Poset } from '@/code/tool/poset'
 import {
@@ -34,24 +40,38 @@ const directed: Graph = makeGraph({
 const poset: Poset = {
   form: 'poset',
   size: 3,
-  links: [Uint32Array.from([1, 2]), Uint32Array.from([2]), Uint32Array.from([])],
+  links: [
+    Uint32Array.from([1, 2]),
+    Uint32Array.from([2]),
+    Uint32Array.from([]),
+  ],
 } as unknown as Poset
 
 function collectOut(s: Graph | Poset, node: number): number[] {
   const out: number[] = []
-  adjacencyOf({ substrate: s }).forEachOut({ node, visit: to => out.push(to) })
+  adjacencyOf({ substrate: s }).forEachOut({
+    node,
+    visit: to => out.push(to),
+  })
 
   return out.sort((a, b) => a - b)
 }
 
 suite('tool/substrate: out-adjacency view', [
-  check('graph out-degree and out-neighbours match the neighbour lists', () => {
-    const view = adjacencyOf({ substrate: path })
-    equal(view.size, 4, 'size')
-    equal(view.outDegree({ node: 1 }), 2, 'degree of an interior node')
-    equal(view.outDegree({ node: 0 }), 1, 'degree of an endpoint')
-    exactArray(collectOut(path, 1), [0, 2], 'neighbours of node 1')
-  }),
+  check(
+    'graph out-degree and out-neighbours match the neighbour lists',
+    () => {
+      const view = adjacencyOf({ substrate: path })
+      equal(view.size, 4, 'size')
+      equal(
+        view.outDegree({ node: 1 }),
+        2,
+        'degree of an interior node',
+      )
+      equal(view.outDegree({ node: 0 }), 1, 'degree of an endpoint')
+      exactArray(collectOut(path, 1), [0, 2], 'neighbours of node 1')
+    },
+  ),
   check('directed graph counts only outgoing arcs', () => {
     const view = adjacencyOf({ substrate: directed })
     equal(view.outDegree({ node: 0 }), 1, '0 -> 1 is one out-arc')
@@ -66,11 +86,14 @@ suite('tool/substrate: out-adjacency view', [
 ])
 
 suite('tool/substrate: undirected adjacency', [
-  check('an undirected graph keeps its symmetric lists (deduped, sorted)', () => {
-    const adj = undirectedAdjacency({ substrate: path })
-    exactArray(adj[1]!, [0, 2], 'node 1')
-    exactArray(adj[3]!, [2], 'endpoint')
-  }),
+  check(
+    'an undirected graph keeps its symmetric lists (deduped, sorted)',
+    () => {
+      const adj = undirectedAdjacency({ substrate: path })
+      exactArray(adj[1]!, [0, 2], 'node 1')
+      exactArray(adj[3]!, [2], 'endpoint')
+    },
+  ),
   check('a directed graph gets symmetrised', () => {
     const adj = undirectedAdjacency({ substrate: directed })
     exactArray(adj[0]!, [1], '0 keeps its arc')
@@ -87,9 +110,17 @@ suite('tool/substrate: undirected adjacency', [
 suite('tool/substrate: mean degree', [
   check('mean out-degree is total out-degree over size', () => {
     // path out-degrees 1+2+2+1 = 6 over 4 nodes.
-    equal(substrateMeanDegree({ substrate: path }), 6 / 4, 'path mean out-degree')
+    equal(
+      substrateMeanDegree({ substrate: path }),
+      6 / 4,
+      'path mean out-degree',
+    )
     // directed out-degrees 1+0 = 1 over 2 nodes.
-    equal(substrateMeanDegree({ substrate: directed }), 0.5, 'directed mean out-degree')
+    equal(
+      substrateMeanDegree({ substrate: directed }),
+      0.5,
+      'directed mean out-degree',
+    )
   }),
   check('undirected mean degree uses the symmetrised lists', () => {
     // directed symmetrised: degrees 1 and 1 -> mean 1, distinct from the out mean of 0.5.
@@ -104,6 +135,10 @@ suite('tool/substrate: mean degree', [
       'symmetrising changes the directed mean degree',
     )
     // poset symmetrised degrees: 2 + 2 + 2 = 6 over 3 -> 2.
-    equal(substrateUndirectedMeanDegree({ substrate: poset }), 2, 'poset undirected mean')
+    equal(
+      substrateUndirectedMeanDegree({ substrate: poset }),
+      2,
+      'poset undirected mean',
+    )
   }),
 ])

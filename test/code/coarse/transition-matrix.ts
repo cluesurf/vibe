@@ -3,7 +3,13 @@
 // reversibilized spectrum, spectral gap, and implied timescale are each checked against a
 // hand-computed reference, exact where the arithmetic is exact and tight otherwise.
 
-import { suite, check, equal, close, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   quantileLabels,
   countMatrix,
@@ -25,15 +31,24 @@ suite('coarse/transition-matrix: counts and normalization', [
       stateCount: 2,
       lag: 1,
     })
+
     exactArray(c[0]!, [0, 2])
     exactArray(c[1]!, [2, 0])
   }),
   // Each populated row normalizes to 1; an empty row maps to itself (a self-loop).
   check('row-stochastic rows sum to 1, empty rows self-loop', () => {
-    const p = rowStochastic([[1, 3], [0, 0]])
+    const p = rowStochastic([
+      [1, 3],
+      [0, 0],
+    ])
+
     close(p[0]![0]!, 0.25, TOL)
     close(p[0]![1]!, 0.75, TOL)
-    close(p[0]!.reduce((a, b) => a + b, 0), 1, TOL)
+    close(
+      p[0]!.reduce((a, b) => a + b, 0),
+      1,
+      TOL,
+    )
     exactArray(p[1]!, [0, 1])
   }),
 ])
@@ -41,30 +56,53 @@ suite('coarse/transition-matrix: counts and normalization', [
 suite('coarse/transition-matrix: detailed balance', [
   // Symmetric counts: zero asymmetry, so violation = 0.
   check('symmetric counts have zero detailed-balance violation', () => {
-    const r = detailedBalanceViolation({ counts: [0, 5, 5, 0], states: 2 })
+    const r = detailedBalanceViolation({
+      counts: [0, 5, 5, 0],
+      states: 2,
+    })
+
     close(r.violation, 0, TOL)
   }),
   // f=8, r=2: asymmetry 6 over total 10, violation 0.6.
   check('an asymmetric drive has violation |f-r|/(f+r) = 0.6', () => {
-    const r = detailedBalanceViolation({ counts: [0, 8, 2, 0], states: 2 })
+    const r = detailedBalanceViolation({
+      counts: [0, 8, 2, 0],
+      states: 2,
+    })
+
     close(r.violation, 0.6, TOL)
   }),
 ])
 
 suite('coarse/transition-matrix: spectra', [
   // A diagonal matrix's eigenvalues are its diagonal, sorted descending.
-  check('symmetric eigenvalues of a diagonal matrix are the diagonal', () => {
-    const e = symmetricEigenvalues([[2, 0], [0, 3]])
-    closeSorted(e, [3, 2])
-  }),
+  check(
+    'symmetric eigenvalues of a diagonal matrix are the diagonal',
+    () => {
+      const e = symmetricEigenvalues([
+        [2, 0],
+        [0, 3],
+      ])
+
+      closeSorted(e, [3, 2])
+    },
+  ),
   // [[0,1],[1,0]] has eigenvalues +1, -1.
   check('symmetric eigenvalues of the swap matrix are +1,-1', () => {
-    const e = symmetricEigenvalues([[0, 1], [1, 0]])
+    const e = symmetricEigenvalues([
+      [0, 1],
+      [1, 0],
+    ])
+
     closeSorted(e, [1, -1])
   }),
   // The reversibilized transition matrix of a connected chain has top eigenvalue 1.
   check('the transition spectrum has a stationary eigenvalue 1', () => {
-    const e = transitionEigenvalues([[0, 3], [3, 0]])
+    const e = transitionEigenvalues([
+      [0, 3],
+      [3, 0],
+    ])
+
     close(e[0]!, 1, TOL)
     close(e[1]!, -1, TOL)
   }),
@@ -81,7 +119,11 @@ suite('coarse/transition-matrix: gap and timescale', [
   }),
   // t = -tau / ln(lambda). With lambda = e^-2 and tau = 4, t = -4 / -2 = 2.
   check('implied timescale is -tau/ln(lambda)', () => {
-    close(impliedTimescale({ eigenvalue: Math.exp(-2), lag: 4 }), 2, TOL)
+    close(
+      impliedTimescale({ eigenvalue: Math.exp(-2), lag: 4 }),
+      2,
+      TOL,
+    )
   }),
   check('a lambda >= 1 has an infinite timescale, <= 0 is zero', () => {
     equal(impliedTimescale({ eigenvalue: 1, lag: 3 }), Infinity)
@@ -104,6 +146,7 @@ suite('coarse/transition-matrix: quantile bins', [
 // descending list with a tight tolerance.
 function closeSorted(actual: number[], expected: number[]): void {
   equal(actual.length, expected.length, 'eigenvalue count')
+
   for (let i = 0; i < expected.length; i++) {
     close(actual[i]!, expected[i]!, TOL, `eigenvalue ${i}`)
   }

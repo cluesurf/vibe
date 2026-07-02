@@ -59,7 +59,12 @@ export default experiment({
 
     // REAL: the conserving knit. Continuity residual must be exactly zero at every block scale.
     const real = blockSides.map(blockSide =>
-      coarseContinuityResidual({ will: start, collision, meshSide, blockSide }),
+      coarseContinuityResidual({
+        will: start,
+        collision,
+        meshSide,
+        blockSide,
+      }),
     )
 
     const realExactAllScales = real.every(r => r.absResidual === 0)

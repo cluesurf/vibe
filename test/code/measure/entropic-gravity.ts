@@ -44,7 +44,8 @@ suite('measure/entropic-gravity: Verlinde law', [
     equal(verlindeForceLaw({ bitExponent: 2.4 }).isNewtonian, true)
     // A stricter band rejects it (0.4 is not < 0.3).
     equal(
-      verlindeForceLaw({ bitExponent: 2.4, tolerance: 0.3 }).isNewtonian,
+      verlindeForceLaw({ bitExponent: 2.4, tolerance: 0.3 })
+        .isNewtonian,
       false,
     )
   }),
@@ -71,7 +72,10 @@ suite('measure/entropic-gravity: ball volume', [
     equal(ballRegion({ side: 3, radius: 0 }).length, 1)
   }),
   // Radius 1 on side 3 encloses the centre plus its 6 face neighbours (dx^2+dy^2+dz^2<=1).
-  check('radius 1 ball holds the centre and its 6 face neighbours', () => {
-    equal(ballRegion({ side: 3, radius: 1 }).length, 7)
-  }),
+  check(
+    'radius 1 ball holds the centre and its 6 face neighbours',
+    () => {
+      equal(ballRegion({ side: 3, radius: 1 }).length, 7)
+    },
+  ),
 ])

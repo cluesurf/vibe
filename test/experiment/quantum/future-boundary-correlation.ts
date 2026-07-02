@@ -116,8 +116,12 @@ export default experiment({
           }
 
           records.push({
-            a: distances.map(d => tone(cellAt(centre - Math.ceil(d / 2), centre), mid)),
-            b: distances.map(d => tone(cellAt(centre + Math.floor(d / 2), centre), mid)),
+            a: distances.map(d =>
+              tone(cellAt(centre - Math.ceil(d / 2), centre), mid),
+            ),
+            b: distances.map(d =>
+              tone(cellAt(centre + Math.floor(d / 2), centre), mid),
+            ),
             apexValue: tone(apex, future),
             controlValue: tone(control, future),
           })
@@ -137,11 +141,27 @@ export default experiment({
       const meanB = mean(b)
       const meanF = mean(f)
       const ab = mean(records.map(r => (r.a[i] ?? 0) * (r.b[i] ?? 0)))
-      const abf = mean(records.map((r, j) => (r.a[i] ?? 0) * (r.b[i] ?? 0) * (f[j] ?? 0)))
-      const bf = mean(records.map((r, j) => (r.b[i] ?? 0) * (f[j] ?? 0)))
-      const af = mean(records.map((r, j) => (r.a[i] ?? 0) * (f[j] ?? 0)))
+      const abf = mean(
+        records.map(
+          (r, j) => (r.a[i] ?? 0) * (r.b[i] ?? 0) * (f[j] ?? 0),
+        ),
+      )
 
-      return abf - meanA * bf - meanB * af - meanF * ab + 2 * meanA * meanB * meanF
+      const bf = mean(
+        records.map((r, j) => (r.b[i] ?? 0) * (f[j] ?? 0)),
+      )
+
+      const af = mean(
+        records.map((r, j) => (r.a[i] ?? 0) * (f[j] ?? 0)),
+      )
+
+      return (
+        abf -
+        meanA * bf -
+        meanB * af -
+        meanF * ab +
+        2 * meanA * meanB * meanF
+      )
     }
 
     const apexValues = records.map(r => r.apexValue)
@@ -151,8 +171,14 @@ export default experiment({
     let controlMax = 0
 
     for (let i = 0; i < distances.length; i++) {
-      apexMax = Math.max(apexMax, Math.abs(connectedTriple(i, apexValues)))
-      controlMax = Math.max(controlMax, Math.abs(connectedTriple(i, controlValues)))
+      apexMax = Math.max(
+        apexMax,
+        Math.abs(connectedTriple(i, apexValues)),
+      )
+      controlMax = Math.max(
+        controlMax,
+        Math.abs(connectedTriple(i, controlValues)),
+      )
     }
 
     // 1. The future apex (in the common future of A and B) creates a connected

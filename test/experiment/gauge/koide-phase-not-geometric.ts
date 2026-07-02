@@ -77,7 +77,10 @@ export default experiment({
     let closestPiDiff = Infinity
 
     for (let n = 2; n <= 40; n++) {
-      closestPiDiff = Math.min(closestPiDiff, Math.abs(Math.PI / n - delta))
+      closestPiDiff = Math.min(
+        closestPiDiff,
+        Math.abs(Math.PI / n - delta),
+      )
     }
 
     // the rational 2/9
@@ -100,7 +103,10 @@ export default experiment({
     const amplitudeIsGeometric = amplitudeDiff < 1e-4
 
     const solved =
-      matchesRational && noRootAngle && noPiFraction && amplitudeIsGeometric
+      matchesRational &&
+      noRootAngle &&
+      noPiFraction &&
+      amplitudeIsGeometric
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -110,7 +116,9 @@ export default experiment({
         delta: Number(delta.toFixed(6)),
         rational2Over9: Number((2 / 9).toFixed(6)),
         rationalDiff: Number(rationalDiff.toExponential(2)),
-        closestRootAngleDiff: Number(closestRootAngleDiff.toExponential(2)),
+        closestRootAngleDiff: Number(
+          closestRootAngleDiff.toExponential(2),
+        ),
         closestPiFractionDiff: Number(closestPiDiff.toExponential(2)),
         amplitudeDiffFromSqrt2: Number(amplitudeDiff.toExponential(2)),
       },
@@ -122,7 +130,7 @@ export default experiment({
         closestPiFractionDiff: Number(closestPiDiff.toExponential(2)),
       },
       notes:
-        'L1, an honest negative. The Koide phase delta = 2/9 (to 7e-6) matches no natural root angle (closest off by 0.3 rad) or simple pi-fraction (closest pi/14 off by 2e-3, a thousand times the precision), so it is an empirical rational input setting the individual lepton masses, the analogue of the fine-structure-constant negative (E-FRC-0019) and the free-coupling-scale negative (E-FRC-0009). The control is the amplitude b/a, which DOES match the geometric sqrt(2) (F4 short/long ratio) to 1e-5, so the split is clean: the Koide RELATION (amplitude, Q=2/3) is geometric, the SPECTRUM (phase, individual masses) is free. This closes the phase-2/9 sub-question of the campaign honestly and bounds exactly what the geometry derives in the lepton sector.',
+        'L1, an honest negative. The Koide phase delta = 2/9 (to 7e-6) matches no natural root angle (closest off by 0.3 rad) or simple pi-fraction (closest pi/14 off by 2e-3, a thousand times the precision), so it is an empirical rational input setting the individual lepton masses, the analogue of the fine-structure-constant negative (E-FRC-0019) and the free-coupling-scale negative (E-FRC-0009). That the phase sits at the rational 2/9 is a known observation (Koide, Brannen), restated here, not first noticed by this work. The control is the amplitude b/a, which DOES match the geometric sqrt(2) (F4 short/long ratio) to 1e-5, so the split is clean: the Koide RELATION (amplitude, Q=2/3) is geometric, the SPECTRUM (phase, individual masses) is free. This closes the phase-2/9 sub-question of the campaign honestly and bounds exactly what the geometry derives in the lepton sector.',
     })
   },
 })

@@ -23,7 +23,10 @@
 // inheriting it, with a flat control. The geometry is cited, the new content is the
 // shared-past power law in physical distance.
 
-import { bulkTreeSamples, flatLineSamples } from '@/code/measure/cusp-distance'
+import {
+  bulkTreeSamples,
+  flatLineSamples,
+} from '@/code/measure/cusp-distance'
 import { linearFit } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -38,7 +41,12 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const bulk = bulkTreeSamples({ coordination: 2, depth: 15, coneDepth: 4 })
+    const bulk = bulkTreeSamples({
+      coordination: 2,
+      depth: 15,
+      coneDepth: 4,
+    })
+
     const flat = flatLineSamples({ side: 81, coneDepth: 4 })
 
     if (bulk.length < 5 || flat.length < 5) {

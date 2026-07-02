@@ -5,21 +5,37 @@
 // multiplicities 1,3,3,1 (singlet, triplet, anti-triplet, singlet), and the number
 // operator's trace is 0*1+1*3+2*3+3*1 = 12. The electric charges are k/3.
 
-import { suite, check, equal, close, ok, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  ok,
+  exactArray,
+} from '@/test/code/harness'
 import { octonionFermionGeneration } from '@/code/measure/octonion-fermions'
 
 const generation = octonionFermionGeneration()
 
 suite('measure/octonion-fermions: one generation', [
-  check('the seven left-multiplications form the Clifford algebra Cl(0,7)', () => {
-    ok(generation.leftMultsAreClifford, 'L^2 = -I and the L anticommute')
-  }),
-  check('the three ladder operators obey the canonical anticommutators', () => {
-    ok(
-      generation.ladderRelationsHold,
-      '{a_i, a_j^dagger} = delta_ij and {a_i, a_j} = 0',
-    )
-  }),
+  check(
+    'the seven left-multiplications form the Clifford algebra Cl(0,7)',
+    () => {
+      ok(
+        generation.leftMultsAreClifford,
+        'L^2 = -I and the L anticommute',
+      )
+    },
+  ),
+  check(
+    'the three ladder operators obey the canonical anticommutators',
+    () => {
+      ok(
+        generation.ladderRelationsHold,
+        '{a_i, a_j^dagger} = delta_ij and {a_i, a_j} = 0',
+      )
+    },
+  ),
   check('the occupation spectrum is exactly {0,1,2,3}', () => {
     ok(generation.spectrumQuantized, 'N(N-1)(N-2)(N-3) = 0')
   }),

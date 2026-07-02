@@ -17,7 +17,7 @@ export function solveGoalDirected(input: {
   const s = new Int8Array(K)
 
   for (let i = 0; i < K; i++) {
-    s[i] = (rng.next() < 0.5 ? 1 : 0)
+    s[i] = rng.next() < 0.5 ? 1 : 0
   }
 
   let steps = 0
@@ -56,7 +56,7 @@ export function solveUndirected(input: {
   const s = new Int8Array(K)
 
   for (let i = 0; i < K; i++) {
-    s[i] = (rng.next() < 0.5 ? 1 : 0)
+    s[i] = rng.next() < 0.5 ? 1 : 0
   }
 
   let gap = 0
@@ -69,7 +69,7 @@ export function solveUndirected(input: {
 
   for (let steps = 1; steps <= budget; steps++) {
     const i = Math.floor(rng.next() * K)
-    const v = (rng.next() < 0.5 ? 1 : 0)
+    const v = rng.next() < 0.5 ? 1 : 0
 
     if (s[i] !== v) {
       if (s[i] === target[i]) {

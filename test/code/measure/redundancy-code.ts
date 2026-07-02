@@ -25,25 +25,48 @@ suite('measure/redundancy-code: recoverByMajority', [
 ])
 
 suite('measure/redundancy-code: corruptConnectedRegion threshold', [
-  check('30% erasure of a 10-site code keeps the logical bit recoverable', () => {
-    const boundary = corruptConnectedRegion({ size: 10, fraction: 0.3, logical: 1 })
-    // 3 sites flipped to 0, 7 remain 1 -> majority recovers 1.
-    equal(boundary.filter(b => b === 1).length, 7)
-    equal(recoverByMajority(boundary), 1)
-  }),
+  check(
+    '30% erasure of a 10-site code keeps the logical bit recoverable',
+    () => {
+      const boundary = corruptConnectedRegion({
+        size: 10,
+        fraction: 0.3,
+        logical: 1,
+      })
+
+      // 3 sites flipped to 0, 7 remain 1 -> majority recovers 1.
+      equal(boundary.filter(b => b === 1).length, 7)
+      equal(recoverByMajority(boundary), 1)
+    },
+  ),
   check('60% erasure crosses the distance and loses the bit', () => {
-    const boundary = corruptConnectedRegion({ size: 10, fraction: 0.6, logical: 1 })
+    const boundary = corruptConnectedRegion({
+      size: 10,
+      fraction: 0.6,
+      logical: 1,
+    })
+
     // 6 flipped to 0, only 4 remain 1 -> majority recovers 0.
     equal(boundary.filter(b => b === 1).length, 4)
     equal(recoverByMajority(boundary), 0)
   }),
   check('exactly half erased is still recovered (tie -> 1)', () => {
-    const boundary = corruptConnectedRegion({ size: 8, fraction: 0.5, logical: 1 })
+    const boundary = corruptConnectedRegion({
+      size: 8,
+      fraction: 0.5,
+      logical: 1,
+    })
+
     equal(boundary.filter(b => b === 1).length, 4)
     equal(recoverByMajority(boundary), 1)
   }),
   check('a logical 0 is symmetric: light corruption keeps it 0', () => {
-    const boundary = corruptConnectedRegion({ size: 10, fraction: 0.3, logical: 0 })
+    const boundary = corruptConnectedRegion({
+      size: 10,
+      fraction: 0.3,
+      logical: 0,
+    })
+
     equal(boundary.filter(b => b === 1).length, 3)
     equal(recoverByMajority(boundary), 0)
   }),

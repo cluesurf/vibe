@@ -11,7 +11,11 @@ import { collide, stream } from '@/code/rule/lattice-gas'
 
 // The 4D periodic block index of a cell on a d4Mesh of side `meshSide`, partitioned into blocks of side
 // `blockSide` (blockSide must divide meshSide). Cells are indexed x + side*y + side^2*z + side^3*w.
-function blockOf(cell: number, meshSide: number, blockSide: number): number {
+function blockOf(
+  cell: number,
+  meshSide: number,
+  blockSide: number,
+): number {
   const area = meshSide * meshSide
   const volume = area * meshSide
   const x = cell % meshSide
@@ -28,7 +32,11 @@ function blockOf(cell: number, meshSide: number, blockSide: number): number {
 }
 
 // The total net charge in each cell (the sum of its directional tones).
-function cellCharge(data: Int8Array, cell: number, degree: number): number {
+function cellCharge(
+  data: Int8Array,
+  cell: number,
+  degree: number,
+): number {
   let s = 0
 
   const base = cell * degree
@@ -87,7 +95,8 @@ export function coarseContinuityResidual(input: {
 
   for (let cell = 0; cell < cellCount; cell++) {
     const b = blockId[cell]!
-    dQ[b] = dQ[b]! + (cellCharge(after.data, cell, degree) - before[cell]!)
+    dQ[b] =
+      dQ[b]! + (cellCharge(after.data, cell, degree) - before[cell]!)
   }
 
   // net charge flux out of each block: a collided tone in slot (cell, d) streams to neighbour(cell, d). If that

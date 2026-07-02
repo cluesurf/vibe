@@ -51,7 +51,10 @@ export default experiment({
     const mesh = squareMesh({ side: SIDE })
     meshNeighbors(mesh)
 
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
+
     const collision = pairCollision({ opposite })
     const centre = SIDE >> 1
     const cellAt = (x: number, y: number): number =>
@@ -63,7 +66,12 @@ export default experiment({
       return value > 0 ? 1 : value < 0 ? -1 : 0
     }
 
-    const regionCharge = (state: Will, cx: number, cy: number, side: number): number => {
+    const regionCharge = (
+      state: Will,
+      cx: number,
+      cy: number,
+      side: number,
+    ): number => {
       const half = (side - 1) / 2
 
       let charge = 0
@@ -96,7 +104,8 @@ export default experiment({
               const base = cell * mesh.degree
 
               for (let k = 0; k < mesh.degree; k++) {
-                will.data[base + k] = ((((xx + yy + k + phase) % 3) + 3) % 3) - 1
+                will.data[base + k] =
+                  ((((xx + yy + k + phase) % 3) + 3) % 3) - 1
               }
             }
           }
@@ -118,12 +127,21 @@ export default experiment({
 
           for (const side of REGION_SIDES) {
             near.set(side, regionCharge(future, centre, centre, side))
-            far.set(side, regionCharge(future, centre + 22, centre + 22, side))
+            far.set(
+              side,
+              regionCharge(future, centre + 22, centre + 22, side),
+            )
           }
 
           records.push({
-            a: sign(cellAt(centre - Math.ceil(SEPARATION / 2), centre), mid),
-            b: sign(cellAt(centre + Math.floor(SEPARATION / 2), centre), mid),
+            a: sign(
+              cellAt(centre - Math.ceil(SEPARATION / 2), centre),
+              mid,
+            ),
+            b: sign(
+              cellAt(centre + Math.floor(SEPARATION / 2), centre),
+              mid,
+            ),
             near,
             far,
           })
@@ -131,7 +149,8 @@ export default experiment({
       }
     }
 
-    const mean = (xs: number[]): number => xs.reduce((s, x) => s + x, 0) / xs.length
+    const mean = (xs: number[]): number =>
+      xs.reduce((s, x) => s + x, 0) / xs.length
 
     const connectedTriple = (q: number[]): number => {
       const a = records.map(r => r.a)
@@ -144,12 +163,25 @@ export default experiment({
       const bq = mean(records.map((r, j) => r.b * (q[j] ?? 0)))
       const aq = mean(records.map((r, j) => r.a * (q[j] ?? 0)))
 
-      return abq - meanA * bq - meanB * aq - meanQ * ab + 2 * meanA * meanB * meanQ
+      return (
+        abq -
+        meanA * bq -
+        meanB * aq -
+        meanQ * ab +
+        2 * meanA * meanB * meanQ
+      )
     }
 
-    const singleConnected = Math.abs(connectedTriple(records.map(r => r.near.get(1) ?? 0)))
+    const singleConnected = Math.abs(
+      connectedTriple(records.map(r => r.near.get(1) ?? 0)),
+    )
+
     const largestConnected = Math.abs(
-      connectedTriple(records.map(r => r.near.get(REGION_SIDES[REGION_SIDES.length - 1]!) ?? 0)),
+      connectedTriple(
+        records.map(
+          r => r.near.get(REGION_SIDES[REGION_SIDES.length - 1]!) ?? 0,
+        ),
+      ),
     )
 
     let disconnectedMax = 0
@@ -157,7 +189,9 @@ export default experiment({
     for (const side of REGION_SIDES) {
       disconnectedMax = Math.max(
         disconnectedMax,
-        Math.abs(connectedTriple(records.map(r => r.far.get(side) ?? 0))),
+        Math.abs(
+          connectedTriple(records.map(r => r.far.get(side) ?? 0)),
+        ),
       )
     }
 
@@ -170,7 +204,8 @@ export default experiment({
     // 3. Enlarging the connected region does NOT strengthen it, it washes out.
     const doesNotStrengthen = largestConnected < 0.5 * singleConnected
 
-    const solved = causalEffectPresent && disconnectedIsZero && doesNotStrengthen
+    const solved =
+      causalEffectPresent && disconnectedIsZero && doesNotStrengthen
 
     return verdict({
       status: solved ? 'pass' : 'fail',

@@ -4,7 +4,14 @@
 // each imaginary unit squares to -1, distinct imaginary units anticommute, the
 // algebra is alternative (but NOT associative), and the norm is multiplicative.
 
-import { suite, check, equal, ok, notOk, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  ok,
+  notOk,
+  exactArray,
+} from '@/test/code/harness'
 import {
   Octonion,
   OCTONION_DIM,
@@ -38,34 +45,46 @@ suite('algebra/octonion: imaginary units', [
   }),
   check('e0 is the multiplicative identity', () => {
     const x: Octonion = [1, 2, 3, 4, 5, 6, 7, 8]
-    ok(octonionEquals(octonionMultiply(octonionOne(), x), x), 'e0 x = x')
-    ok(octonionEquals(octonionMultiply(x, octonionOne()), x), 'x e0 = x')
+    ok(
+      octonionEquals(octonionMultiply(octonionOne(), x), x),
+      'e0 x = x',
+    )
+    ok(
+      octonionEquals(octonionMultiply(x, octonionOne()), x),
+      'x e0 = x',
+    )
   }),
-  check('distinct imaginary units anticommute: e_i e_j = -(e_j e_i)', () => {
-    for (let i = 1; i < 8; i++) {
-      for (let j = i + 1; j < 8; j++) {
-        ok(
-          octonionEquals(
-            octonionMultiply(unit(i), unit(j)),
-            negate(octonionMultiply(unit(j), unit(i))),
-          ),
-          `e${i} e${j} = -(e${j} e${i})`,
-        )
+  check(
+    'distinct imaginary units anticommute: e_i e_j = -(e_j e_i)',
+    () => {
+      for (let i = 1; i < 8; i++) {
+        for (let j = i + 1; j < 8; j++) {
+          ok(
+            octonionEquals(
+              octonionMultiply(unit(i), unit(j)),
+              negate(octonionMultiply(unit(j), unit(i))),
+            ),
+            `e${i} e${j} = -(e${j} e${i})`,
+          )
+        }
       }
-    }
-  }),
-  check('the product of two distinct imaginary units is a unit imaginary octonion', () => {
-    for (let i = 1; i < 8; i++) {
-      for (let j = i + 1; j < 8; j++) {
-        const product = octonionMultiply(unit(i), unit(j))
-        ok(
-          Math.abs(octonionNormSquared(product) - 1) < 1e-12,
-          `|e${i} e${j}| = 1`,
-        )
-        equal(product[0]!, 0, 'product has no real part')
+    },
+  ),
+  check(
+    'the product of two distinct imaginary units is a unit imaginary octonion',
+    () => {
+      for (let i = 1; i < 8; i++) {
+        for (let j = i + 1; j < 8; j++) {
+          const product = octonionMultiply(unit(i), unit(j))
+          ok(
+            Math.abs(octonionNormSquared(product) - 1) < 1e-12,
+            `|e${i} e${j}| = 1`,
+          )
+          equal(product[0]!, 0, 'product has no real part')
+        }
       }
-    }
-  }),
+    },
+  ),
 ])
 
 suite('algebra/octonion: alternative but not associative', [
@@ -83,20 +102,51 @@ suite('algebra/octonion: alternative but not associative', [
   }),
   check('NON-associative: (e1 e2) e4 != e1 (e2 e4)', () => {
     // {1, 2, 4} is not a Fano line, so the associator must be nonzero.
-    const left = octonionMultiply(octonionMultiply(unit(1), unit(2)), unit(4))
-    const right = octonionMultiply(unit(1), octonionMultiply(unit(2), unit(4)))
-    notOk(octonionEquals(left, right), '(e1 e2) e4 differs from e1 (e2 e4)')
+    const left = octonionMultiply(
+      octonionMultiply(unit(1), unit(2)),
+      unit(4),
+    )
+
+    const right = octonionMultiply(
+      unit(1),
+      octonionMultiply(unit(2), unit(4)),
+    )
+
+    notOk(
+      octonionEquals(left, right),
+      '(e1 e2) e4 differs from e1 (e2 e4)',
+    )
     // For three orthogonal imaginary units off a common line the two associations
     // are exact negatives: (xy)z = -x(yz).
-    ok(octonionEquals(left, negate(right)), '(e1 e2) e4 = -(e1 (e2 e4))')
-    ok(Math.abs(octonionNormSquared(left) - 1) < 1e-12, 'each side is a unit')
+    ok(
+      octonionEquals(left, negate(right)),
+      '(e1 e2) e4 = -(e1 (e2 e4))',
+    )
+    ok(
+      Math.abs(octonionNormSquared(left) - 1) < 1e-12,
+      'each side is a unit',
+    )
   }),
-  check('associativity DOES hold on a common Fano line (e1 e2) e3 = e1 (e2 e3)', () => {
-    // {1, 2, 3} is a quaternionic Fano line, so this triple associates.
-    const left = octonionMultiply(octonionMultiply(unit(1), unit(2)), unit(3))
-    const right = octonionMultiply(unit(1), octonionMultiply(unit(2), unit(3)))
-    ok(octonionEquals(left, right), 'a quaternionic triple associates')
-  }),
+  check(
+    'associativity DOES hold on a common Fano line (e1 e2) e3 = e1 (e2 e3)',
+    () => {
+      // {1, 2, 3} is a quaternionic Fano line, so this triple associates.
+      const left = octonionMultiply(
+        octonionMultiply(unit(1), unit(2)),
+        unit(3),
+      )
+
+      const right = octonionMultiply(
+        unit(1),
+        octonionMultiply(unit(2), unit(3)),
+      )
+
+      ok(
+        octonionEquals(left, right),
+        'a quaternionic triple associates',
+      )
+    },
+  ),
 ])
 
 suite('algebra/octonion: norm, conjugate, division algebra', [
@@ -107,7 +157,10 @@ suite('algebra/octonion: norm, conjugate, division algebra', [
     ok(octonionEquals(product, expected), 'x x* = |x|^2 e0')
     // and the reverse order agrees
     ok(
-      octonionEquals(octonionMultiply(octonionConjugate(x), x), expected),
+      octonionEquals(
+        octonionMultiply(octonionConjugate(x), x),
+        expected,
+      ),
       'x* x = |x|^2 e0',
     )
   }),
@@ -122,6 +175,7 @@ suite('algebra/octonion: norm, conjugate, division algebra', [
         [1, 2, 0, 1, 1, 0, 1, 1],
       ],
     ]
+
     for (const [x, y] of pairs) {
       equal(
         octonionNormSquared(octonionMultiply(x, y)),

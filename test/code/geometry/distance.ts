@@ -21,7 +21,12 @@ const distanceFromOrigin = (r: number): number => 2 * Math.atanh(r)
 
 suite('geometry/distance: the metric axioms', [
   check('d(0, 0) = 0 exactly (acosh 1)', () => {
-    close(poincareDistance([0, 0, 0], [0, 0, 0]), 0, 1e-12, 'centre to centre')
+    close(
+      poincareDistance([0, 0, 0], [0, 0, 0]),
+      0,
+      1e-12,
+      'centre to centre',
+    )
   }),
   check('d(u, v) = d(v, u): the distance is symmetric', () => {
     const u = [0.1, 0.2]
@@ -69,38 +74,48 @@ suite('geometry/distance: the known-value identity', [
       'indexed vs point',
     )
   }),
-  check('the polar form equals the Poincare form for the same pair', () => {
-    // Native polar radius rho maps to Poincare radius tanh(rho/2). Place two points at
-    // equal radius and angular separation theta and confirm cosh d agrees both ways.
-    const rho = 1.0
-    const theta = 0.7
-    const pr = Math.tanh(rho / 2)
-    const p = [pr, 0]
-    const q = [pr * Math.cos(theta), pr * Math.sin(theta)]
-    const polar = polarCoshFromParts(
-      Math.cosh(rho),
-      Math.sinh(rho),
-      Math.cosh(rho),
-      Math.sinh(rho),
-      theta,
-    )
-    close(polar, poincareCosh(p, q), TOL, 'polar vs poincare cosh')
-  }),
+  check(
+    'the polar form equals the Poincare form for the same pair',
+    () => {
+      // Native polar radius rho maps to Poincare radius tanh(rho/2). Place two points at
+      // equal radius and angular separation theta and confirm cosh d agrees both ways.
+      const rho = 1.0
+      const theta = 0.7
+      const pr = Math.tanh(rho / 2)
+      const p = [pr, 0]
+      const q = [pr * Math.cos(theta), pr * Math.sin(theta)]
+      const polar = polarCoshFromParts(
+        Math.cosh(rho),
+        Math.sinh(rho),
+        Math.cosh(rho),
+        Math.sinh(rho),
+        theta,
+      )
+
+      close(polar, poincareCosh(p, q), TOL, 'polar vs poincare cosh')
+    },
+  ),
 ])
 
 suite('geometry/distance: negative curvature', [
-  check('distance to the boundary grows super-linearly in Euclidean radius', () => {
-    // Doubling the Euclidean radius more than doubles the hyperbolic distance: the disk
-    // edge is infinitely far, the signature of negative curvature.
-    const near = poincareDistance([0, 0], [0.45, 0])
-    const far = poincareDistance([0, 0], [0.9, 0])
-    ok(far > 2 * near, `${far} should exceed twice ${near}`)
-  }),
+  check(
+    'distance to the boundary grows super-linearly in Euclidean radius',
+    () => {
+      // Doubling the Euclidean radius more than doubles the hyperbolic distance: the disk
+      // edge is infinitely far, the signature of negative curvature.
+      const near = poincareDistance([0, 0], [0.45, 0])
+      const far = poincareDistance([0, 0], [0.9, 0])
+      ok(far > 2 * near, `${far} should exceed twice ${near}`)
+    },
+  ),
   check('the same Euclidean step costs more near the boundary', () => {
     // The metric blows up toward the boundary, so an identical coordinate displacement is
     // a longer hyperbolic distance when anchored near the rim than at the centre.
     const centre = poincareDistance([0, 0], [0, 0.05])
     const edge = poincareDistance([0.8, 0], [0.8, 0.05])
-    ok(edge > centre, `${edge} (near rim) should exceed ${centre} (centre)`)
+    ok(
+      edge > centre,
+      `${edge} (near rim) should exceed ${centre} (centre)`,
+    )
   }),
 ])

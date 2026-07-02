@@ -72,7 +72,10 @@ function countZeroModes(complexInput: { substrate: Graph }): number {
     substrate: complexInput.substrate,
     maxGrade: 2,
   })
-  const eig = eigSymmetric({ matrix: toDense(kahlerDirac({ complex })) })
+
+  const eig = eigSymmetric({
+    matrix: toDense(kahlerDirac({ complex })),
+  })
 
   let zeroModes = 0
 
@@ -86,12 +89,15 @@ function countZeroModes(complexInput: { substrate: Graph }): number {
 }
 
 suite('operator/dirac: cell complex and boundary', [
-  check('K4 has the expected cell counts (4 vertices, 6 edges, 4 triangles)', () => {
-    const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
-    equal(complex.cellCount[0] ?? -1, 4, 'vertices')
-    equal(complex.cellCount[1] ?? -1, 6, 'edges')
-    equal(complex.cellCount[2] ?? -1, 4, 'triangles')
-  }),
+  check(
+    'K4 has the expected cell counts (4 vertices, 6 edges, 4 triangles)',
+    () => {
+      const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
+      equal(complex.cellCount[0] ?? -1, 4, 'vertices')
+      equal(complex.cellCount[1] ?? -1, 6, 'edges')
+      equal(complex.cellCount[2] ?? -1, 4, 'triangles')
+    },
+  ),
   check('boundary of boundary is zero: B1 . B2 = 0 (K4)', () => {
     const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
     const product = matrixProduct(
@@ -135,27 +141,36 @@ suite('operator/dirac: Kahler-Dirac operator', [
       }
     }
   }),
-  check('the spectrum is symmetric about 0 (D anticommutes with grade parity)', () => {
-    const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
-    const eig = eigSymmetric({ matrix: toDense(kahlerDirac({ complex })) })
-    const n = eig.values.length
+  check(
+    'the spectrum is symmetric about 0 (D anticommutes with grade parity)',
+    () => {
+      const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
+      const eig = eigSymmetric({
+        matrix: toDense(kahlerDirac({ complex })),
+      })
 
-    for (let i = 0; i < n; i++) {
-      close(
-        (eig.values[i] ?? 0) + (eig.values[n - 1 - i] ?? 0),
-        0,
-        1e-9,
-        `eigenvalue ${i} and its mirror must sum to 0`,
+      const n = eig.values.length
+
+      for (let i = 0; i < n; i++) {
+        close(
+          (eig.values[i] ?? 0) + (eig.values[n - 1 - i] ?? 0),
+          0,
+          1e-9,
+          `eigenvalue ${i} and its mirror must sum to 0`,
+        )
+      }
+    },
+  ),
+  check(
+    'dim ker D = total Betti number: 2 for K4 (a triangulated S^2)',
+    () => {
+      equal(
+        countZeroModes({ substrate: k4 }),
+        2,
+        'K4 2-skeleton (S^2) has b0 + b1 + b2 = 1 + 0 + 1 = 2',
       )
-    }
-  }),
-  check('dim ker D = total Betti number: 2 for K4 (a triangulated S^2)', () => {
-    equal(
-      countZeroModes({ substrate: k4 }),
-      2,
-      'K4 2-skeleton (S^2) has b0 + b1 + b2 = 1 + 0 + 1 = 2',
-    )
-  }),
+    },
+  ),
   check('dim ker D = total Betti number: 1 for K3 (a disk)', () => {
     equal(
       countZeroModes({ substrate: k3 }),

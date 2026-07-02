@@ -64,7 +64,7 @@ export function dynamicDispersion(input?: {
   const rng = makeRng({ seed: 19 })
 
   for (let i = 0; i < L; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   for (let t = 0; t < 400; t++) {

@@ -57,9 +57,15 @@ function fail(message: string): never {
 
 // Exact equality for numbers, strings, booleans. Use for anything the methodology
 // says is exact: counts, integer arithmetic, a reversible round-trip, a sign.
-export function equal<T>(actual: T, expected: T, message?: string): void {
+export function equal<T>(
+  actual: T,
+  expected: T,
+  message?: string,
+): void {
   if (actual !== expected) {
-    fail(`${message ?? 'equal'}: expected ${String(expected)}, got ${String(actual)}`)
+    fail(
+      `${message ?? 'equal'}: expected ${String(expected)}, got ${String(actual)}`,
+    )
   }
 }
 
@@ -100,7 +106,11 @@ export function exactArray(
   expected: ArrayLike<number>,
   message?: string,
 ): void {
-  equal(actual.length, expected.length, `${message ?? 'exactArray'} length`)
+  equal(
+    actual.length,
+    expected.length,
+    `${message ?? 'exactArray'} length`,
+  )
 
   for (let i = 0; i < actual.length; i++) {
     if (actual[i] !== expected[i]) {
@@ -118,7 +128,11 @@ export function closeArray(
   tolerance: number,
   message?: string,
 ): void {
-  equal(actual.length, expected.length, `${message ?? 'closeArray'} length`)
+  equal(
+    actual.length,
+    expected.length,
+    `${message ?? 'closeArray'} length`,
+  )
 
   for (let i = 0; i < actual.length; i++) {
     close(
@@ -131,10 +145,15 @@ export function closeArray(
 }
 
 // Every entry is a finite number (no NaN, no Infinity).
-export function allFinite(values: ArrayLike<number>, message?: string): void {
+export function allFinite(
+  values: ArrayLike<number>,
+  message?: string,
+): void {
   for (let i = 0; i < values.length; i++) {
     if (!Number.isFinite(values[i] ?? NaN)) {
-      fail(`${message ?? 'allFinite'}: non-finite at ${i} (${values[i]})`)
+      fail(
+        `${message ?? 'allFinite'}: non-finite at ${i} (${values[i]})`,
+      )
     }
   }
 }

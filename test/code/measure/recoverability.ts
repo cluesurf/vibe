@@ -18,35 +18,49 @@ function patternWill() {
 }
 
 suite('measure/recoverability: reversible knit conserves rGlobal = 1', [
-  check('rGlobal stays exactly 1 at every beat under the conserving rule', () => {
-    const trace = recoverabilityTrace({
-      will: patternWill(),
-      collision: passThrough,
-      meshSide: 4,
-      windowRadius: 1,
-      blockSide: 2,
-      beats: 3,
-    })
+  check(
+    'rGlobal stays exactly 1 at every beat under the conserving rule',
+    () => {
+      const trace = recoverabilityTrace({
+        will: patternWill(),
+        collision: passThrough,
+        meshSide: 4,
+        windowRadius: 1,
+        blockSide: 2,
+        beats: 3,
+      })
 
-    for (const point of trace) {
-      close(point.rGlobal, 1, 1e-9)
-    }
-  }),
-  check('window and coarse observers recover a sub-part: 0 <= rWindow, rCoarse <= rGlobal', () => {
-    const trace = recoverabilityTrace({
-      will: patternWill(),
-      collision: passThrough,
-      meshSide: 4,
-      windowRadius: 1,
-      blockSide: 2,
-      beats: 3,
-    })
+      for (const point of trace) {
+        close(point.rGlobal, 1, 1e-9)
+      }
+    },
+  ),
+  check(
+    'window and coarse observers recover a sub-part: 0 <= rWindow, rCoarse <= rGlobal',
+    () => {
+      const trace = recoverabilityTrace({
+        will: patternWill(),
+        collision: passThrough,
+        meshSide: 4,
+        windowRadius: 1,
+        blockSide: 2,
+        beats: 3,
+      })
 
-    for (const point of trace) {
-      ok(point.rWindow >= -1e-12 && point.rWindow <= point.rGlobal + 1e-9, 'rWindow in [0, rGlobal]')
-      ok(point.rCoarse >= -1e-12 && point.rCoarse <= point.rGlobal + 1e-9, 'rCoarse in [0, rGlobal]')
-    }
-  }),
+      for (const point of trace) {
+        ok(
+          point.rWindow >= -1e-12 &&
+            point.rWindow <= point.rGlobal + 1e-9,
+          'rWindow in [0, rGlobal]',
+        )
+        ok(
+          point.rCoarse >= -1e-12 &&
+            point.rCoarse <= point.rGlobal + 1e-9,
+          'rCoarse in [0, rGlobal]',
+        )
+      }
+    },
+  ),
   check('the trace has one point per beat (0..beats inclusive)', () => {
     const trace = recoverabilityTrace({
       will: patternWill(),

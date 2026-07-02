@@ -10,14 +10,26 @@ import { replicate } from '@/code/dynamics/replication'
 const template = Int8Array.from([1, -1, 1, 1, -1, 1, -1, 1])
 
 suite('dynamics/replication: faithful inheritance', [
-  check('population doubles each generation and stays bit-identical', () => {
-    for (const g of [1, 3, 5]) {
-      const out = replicate({ template, generations: g, faithful: true })
-      equal(out.copies, 2 ** g, `2^${g} copies`)
-      equal(out.meanIdentity, 1, 'every copy is identical to the template')
-      ok(out.allIdentical, 'allIdentical flag set')
-    }
-  }),
+  check(
+    'population doubles each generation and stays bit-identical',
+    () => {
+      for (const g of [1, 3, 5]) {
+        const out = replicate({
+          template,
+          generations: g,
+          faithful: true,
+        })
+
+        equal(out.copies, 2 ** g, `2^${g} copies`)
+        equal(
+          out.meanIdentity,
+          1,
+          'every copy is identical to the template',
+        )
+        ok(out.allIdentical, 'allIdentical flag set')
+      }
+    },
+  ),
 ])
 
 suite('dynamics/replication: lossy constructor', [

@@ -30,7 +30,12 @@
 // curvature control and a known CHSH bound. It supersedes the L1 assumed-decay
 // E-QTM-0010. It does not derive the single outcome, which stays open.
 
-import { d4Mesh, squareMesh, betheMesh, meshNeighbors } from '@/code/tool/mesh'
+import {
+  d4Mesh,
+  squareMesh,
+  betheMesh,
+  meshNeighbors,
+} from '@/code/tool/mesh'
 import { neighborDistances } from '@/code/tool/graph'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import {
@@ -262,7 +267,8 @@ export default experiment({
     // anchor-sensitive, an honest knife-edge that must not gate the result.
 
     // 1. At a matched degree the curved bulk collapses far below the flat lattice.
-    const matchedDegreeCollapse = betheFar.etaBulk < 0.3 * squareFar.etaBulk
+    const matchedDegreeCollapse =
+      betheFar.etaBulk < 0.3 * squareFar.etaBulk
 
     // 2. The curved CHSH reaches the classical bound where the flat one has not.
     const curvedReachesClassical = betheFar.s <= 2.08

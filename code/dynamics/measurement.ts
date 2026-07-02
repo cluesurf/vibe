@@ -173,6 +173,7 @@ export function settlingTime(
 export function signedSlabPointer(will: Will, axis = 0): number {
   const occ = slabOccupancy(will, axis)
   const side = occ.length
+
   let lo = 0
   let hi = 0
 
@@ -192,7 +193,10 @@ export function signedSlabPointer(will: Will, axis = 0): number {
 // Hold every slab in `frontiers` (x-coordinates) at peace, the open drains the fine
 // phase disperses into. Generalises bornAtPeace to several drains, so a symmetric
 // two-drain detector (both ends open) can be built.
-export function drainSlabs(will: Will, frontiers: readonly number[]): void {
+export function drainSlabs(
+  will: Will,
+  frontiers: readonly number[],
+): void {
   const mesh = will.mesh
   const side = sideOf(mesh)
   const degree = mesh.degree

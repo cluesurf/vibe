@@ -11,14 +11,17 @@ import { margolusStep } from '@/code/operator/margolus-billiard'
 import { makeRng } from '@/code/tool/rng'
 
 const at = (length: number, x: number, y: number): number =>
-  (((y % length) + length) % length) * length + (((x % length) + length) % length)
+  (((y % length) + length) % length) * length +
+  (((x % length) + length) % length)
 
 function fillBits(length: number, seed: number): Uint8Array {
   const g = new Uint8Array(length * length)
   const rng = makeRng({ seed })
+
   for (let i = 0; i < g.length; i++) {
     g[i] = rng.next() < 0.5 ? 1 : 0
   }
+
   return g
 }
 
@@ -34,21 +37,27 @@ suite('operator/margolus-billiard: reversibility', [
       const g = start.slice()
       margolusStep(4, g, parity)
       margolusStep(4, g, parity)
-      ok(bitsEqual(g, start), `parity ${parity} applied twice is the identity`)
+      ok(
+        bitsEqual(g, start),
+        `parity ${parity} applied twice is the identity`,
+      )
     }
   }),
-  check('a full beat run forward then backward recovers the field', () => {
-    const L = 6
-    const start = fillBits(L, 7)
-    const g = start.slice()
-    // beat: parity 0 then parity 1
-    margolusStep(L, g, 0)
-    margolusStep(L, g, 1)
-    // inverse: parity 1 then parity 0 (each step is its own inverse)
-    margolusStep(L, g, 1)
-    margolusStep(L, g, 0)
-    ok(bitsEqual(g, start), 'the beat is exactly reversible')
-  }),
+  check(
+    'a full beat run forward then backward recovers the field',
+    () => {
+      const L = 6
+      const start = fillBits(L, 7)
+      const g = start.slice()
+      // beat: parity 0 then parity 1
+      margolusStep(L, g, 0)
+      margolusStep(L, g, 1)
+      // inverse: parity 1 then parity 0 (each step is its own inverse)
+      margolusStep(L, g, 1)
+      margolusStep(L, g, 0)
+      ok(bitsEqual(g, start), 'the beat is exactly reversible')
+    },
+  ),
 ])
 
 suite('operator/margolus-billiard: conservation and collisions', [
@@ -57,7 +66,11 @@ suite('operator/margolus-billiard: conservation and collisions', [
       const start = fillBits(4, 55 + parity)
       const g = start.slice()
       margolusStep(4, g, parity)
-      equal(count(g), count(start), `count conserved under parity ${parity}`)
+      equal(
+        count(g),
+        count(start),
+        `count conserved under parity ${parity}`,
+      )
     }
   }),
   check('a diagonal two-particle block is fixed', () => {
@@ -65,17 +78,25 @@ suite('operator/margolus-billiard: conservation and collisions', [
     const g = new Uint8Array(L * L)
     g[at(L, 0, 0)] = 1
     g[at(L, 1, 1)] = 1
+
     const start = g.slice()
     margolusStep(L, g, 0)
     ok(bitsEqual(g, start), 'a diagonal pair (a wall) does not move')
   }),
-  check('a lone ball rotates to the opposite corner of its block', () => {
-    const L = 4
-    const g = new Uint8Array(L * L)
-    g[at(L, 0, 0)] = 1
-    margolusStep(L, g, 0)
-    equal(g[at(L, 0, 0)], 0, 'the original corner is now empty')
-    equal(g[at(L, 1, 1)], 1, 'the ball is at the opposite corner (180 rotation)')
-    equal(count(g), 1, 'still one ball')
-  }),
+  check(
+    'a lone ball rotates to the opposite corner of its block',
+    () => {
+      const L = 4
+      const g = new Uint8Array(L * L)
+      g[at(L, 0, 0)] = 1
+      margolusStep(L, g, 0)
+      equal(g[at(L, 0, 0)], 0, 'the original corner is now empty')
+      equal(
+        g[at(L, 1, 1)],
+        1,
+        'the ball is at the opposite corner (180 rotation)',
+      )
+      equal(count(g), 1, 'still one ball')
+    },
+  ),
 ])

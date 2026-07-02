@@ -265,11 +265,11 @@ export function gravityTest(input?: {
 
     // matter, balanced charges so the lumps are neutral mass (not driven by net charge)
     for (const i of lumpA) {
-      tone[i] = (rng.next() < 0.5 ? 1 : -1)
+      tone[i] = rng.next() < 0.5 ? 1 : -1
     }
 
     for (const i of lumpB) {
-      tone[i] = (rng.next() < 0.5 ? 1 : -1)
+      tone[i] = rng.next() < 0.5 ? 1 : -1
     }
 
     const moved = new Uint8Array(n)

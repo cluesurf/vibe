@@ -4,15 +4,24 @@
 // K(theta) = 2 cos(theta) - cos(2 theta) peaks (d/dtheta = 0 -> cos theta = 1/2).
 
 import { suite, check, close, equal } from '@/test/code/harness'
-import { temporalCorrelator, leggettGarg } from '@/code/measure/leggett-garg'
+import {
+  temporalCorrelator,
+  leggettGarg,
+} from '@/code/measure/leggett-garg'
 
 const TIGHT = 1e-12
 
 suite('measure/leggett-garg: temporalCorrelator equals cos(theta)', [
   check('C(0) = 1', () => close(temporalCorrelator(0), 1, TIGHT)),
-  check('C(pi/3) = cos(pi/3) = 1/2', () => close(temporalCorrelator(Math.PI / 3), 0.5, TIGHT)),
-  check('C(pi/2) = cos(pi/2) = 0', () => close(temporalCorrelator(Math.PI / 2), 0, TIGHT)),
-  check('C(pi) = -1', () => close(temporalCorrelator(Math.PI), -1, TIGHT)),
+  check('C(pi/3) = cos(pi/3) = 1/2', () =>
+    close(temporalCorrelator(Math.PI / 3), 0.5, TIGHT),
+  ),
+  check('C(pi/2) = cos(pi/2) = 0', () =>
+    close(temporalCorrelator(Math.PI / 2), 0, TIGHT),
+  ),
+  check('C(pi) = -1', () =>
+    close(temporalCorrelator(Math.PI), -1, TIGHT),
+  ),
   check('matches cos(theta) at a scattering of angles', () => {
     for (const theta of [0.3, 0.9, 1.7, 2.4, 3.0]) {
       close(temporalCorrelator(theta), Math.cos(theta), TIGHT)

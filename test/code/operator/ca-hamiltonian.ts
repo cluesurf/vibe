@@ -8,7 +8,7 @@
 //   - Parseval for the Pauli expansion: the total interaction weight equals
 //     ||H||_F^2 / n - |c_I|^2, and the range fractions sum to 1.
 
-import { suite, check, equal, ok, close } from '@/test/code/harness'
+import { suite, check, ok, close } from '@/test/code/harness'
 import {
   hamiltonianMatrix,
   pauliLocalityProfile,
@@ -35,8 +35,18 @@ suite('operator/ca-hamiltonian: Hermiticity', [
 
       for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
-          close(h.re[i * n + j] ?? 0, h.re[j * n + i] ?? 0, 1e-12, `re sym (${i},${j})`)
-          close(h.im[i * n + j] ?? 0, -(h.im[j * n + i] ?? 0), 1e-12, `im anti (${i},${j})`)
+          close(
+            h.re[i * n + j] ?? 0,
+            h.re[j * n + i] ?? 0,
+            1e-12,
+            `re sym (${i},${j})`,
+          )
+          close(
+            h.im[i * n + j] ?? 0,
+            -(h.im[j * n + i] ?? 0),
+            1e-12,
+            `im anti (${i},${j})`,
+          )
         }
       }
     }),
@@ -54,15 +64,18 @@ suite('operator/ca-hamiltonian: exact small cases', [
       close(h.im[k] ?? 0, 0, 1e-12, `im[${k}]`)
     }
   }),
-  check('an odd cycle has a zero diagonal (wrapped phases sum to zero)', () => {
-    const h = hamiltonianMatrix({ perm: perm([1, 2, 0]) })
-    const n = h.rows
+  check(
+    'an odd cycle has a zero diagonal (wrapped phases sum to zero)',
+    () => {
+      const h = hamiltonianMatrix({ perm: perm([1, 2, 0]) })
+      const n = h.rows
 
-    for (let s = 0; s < n; s++) {
-      close(h.re[s * n + s] ?? 0, 0, 1e-12, `diagonal ${s}`)
-      close(h.im[s * n + s] ?? 0, 0, 1e-12, `diagonal im ${s}`)
-    }
-  }),
+      for (let s = 0; s < n; s++) {
+        close(h.re[s * n + s] ?? 0, 0, 1e-12, `diagonal ${s}`)
+        close(h.im[s * n + s] ?? 0, 0, 1e-12, `diagonal im ${s}`)
+      }
+    },
+  ),
   check('a fixed point gives a zero row and column', () => {
     // perm [0,2,1]: 0 is fixed, 1<->2 swap.
     const h = hamiltonianMatrix({ perm: perm([0, 2, 1]) })
@@ -99,25 +112,35 @@ function trace(h: ComplexMatrix): number {
 }
 
 suite('operator/ca-hamiltonian: Pauli locality profile', [
-  check('Parseval: total weight = ||H||_F^2 / n - c_I^2, and fractions sum to 1', () => {
-    const h = hamiltonianMatrix({ perm: perm([1, 2, 3, 0]) }) // 4-cycle, n=4, cells=2
-    const n = h.rows
-    const profile = pauliLocalityProfile({ matrix: h, cells: 2 })
+  check(
+    'Parseval: total weight = ||H||_F^2 / n - c_I^2, and fractions sum to 1',
+    () => {
+      const h = hamiltonianMatrix({ perm: perm([1, 2, 3, 0]) }) // 4-cycle, n=4, cells=2
+      const n = h.rows
+      const profile = pauliLocalityProfile({ matrix: h, cells: 2 })
 
-    const cIdentity = trace(h) / n
-    const expectedTotal = frobeniusSquared(h) / n - cIdentity * cIdentity
-    close(profile.totalWeight, expectedTotal, 1e-9, 'Parseval total weight')
+      const cIdentity = trace(h) / n
+      const expectedTotal =
+        frobeniusSquared(h) / n - cIdentity * cIdentity
 
-    let fractionSum = 0
+      close(
+        profile.totalWeight,
+        expectedTotal,
+        1e-9,
+        'Parseval total weight',
+      )
 
-    for (let r = 1; r <= 2; r++) {
-      fractionSum += profile.weightByRange[r] ?? 0
-    }
+      let fractionSum = 0
 
-    close(fractionSum, 1, 1e-12, 'range fractions sum to 1')
-    ok(
-      profile.localityLength >= 1 && profile.localityLength <= 2,
-      `locality length ${profile.localityLength} must lie in [1, 2]`,
-    )
-  }),
+      for (let r = 1; r <= 2; r++) {
+        fractionSum += profile.weightByRange[r] ?? 0
+      }
+
+      close(fractionSum, 1, 1e-12, 'range fractions sum to 1')
+      ok(
+        profile.localityLength >= 1 && profile.localityLength <= 2,
+        `locality length ${profile.localityLength} must lie in [1, 2]`,
+      )
+    },
+  ),
 ])

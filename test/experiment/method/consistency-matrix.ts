@@ -71,7 +71,10 @@ function oppositeOf(mesh: Mesh): number[] {
 }
 
 // ARENA 1: charge is conserved exactly under one beat.
-function conservationResidual(mesh: Mesh, collision: Collision): number {
+function conservationResidual(
+  mesh: Mesh,
+  collision: Collision,
+): number {
   const w = makeWill(mesh)
   fillWillPattern(w)
 
@@ -82,7 +85,10 @@ function conservationResidual(mesh: Mesh, collision: Collision): number {
 }
 
 // ARENA 2: one beat run backward exactly recovers the start (the rule is a reversible involution).
-function reversibilityMismatch(mesh: Mesh, collision: Collision): number {
+function reversibilityMismatch(
+  mesh: Mesh,
+  collision: Collision,
+): number {
   const w = makeWill(mesh)
   fillWillPattern(w)
 
@@ -147,19 +153,23 @@ export default experiment({
     // COLUMN 1, the committed assignment: {3,4,3,4} d4 frame, the conserving reversible knit.
     const vibe = {
       conservation:
-        conservationResidual(d4, knitD4) <= conservationThreshold ? 1 : 0,
+        conservationResidual(d4, knitD4) <= conservationThreshold
+          ? 1
+          : 0,
       reversibility:
         reversibilityMismatch(d4, knitD4) <= reversibilityThreshold
           ? 1
           : 0,
       isotropy: frameAnisotropy(d4Roots()) <= isotropyThreshold ? 1 : 0,
-      continuity: continuityResidual(knitD4) <= continuityThreshold ? 1 : 0,
+      continuity:
+        continuityResidual(knitD4) <= continuityThreshold ? 1 : 0,
     }
 
     // COLUMN 2, the lossy-rule perturbation: same d4 frame, the erasing rule. Breaks the conservation cluster.
     const lossy = {
       conservation:
-        conservationResidual(d4, erasingCollision) <= conservationThreshold
+        conservationResidual(d4, erasingCollision) <=
+        conservationThreshold
           ? 1
           : 0,
       reversibility:
@@ -169,7 +179,9 @@ export default experiment({
           : 0,
       isotropy: frameAnisotropy(d4Roots()) <= isotropyThreshold ? 1 : 0,
       continuity:
-        continuityResidual(erasingCollision) <= continuityThreshold ? 1 : 0,
+        continuityResidual(erasingCollision) <= continuityThreshold
+          ? 1
+          : 0,
     }
 
     // COLUMN 3, the wrong-frame perturbation: cubic 6-frame, the same conserving reversible knit. Breaks the
@@ -180,15 +192,20 @@ export default experiment({
           ? 1
           : 0,
       reversibility:
-        reversibilityMismatch(cubic, knitCubic) <= reversibilityThreshold
+        reversibilityMismatch(cubic, knitCubic) <=
+        reversibilityThreshold
           ? 1
           : 0,
-      isotropy: frameAnisotropy(cubicRoots()) <= isotropyThreshold ? 1 : 0,
+      isotropy:
+        frameAnisotropy(cubicRoots()) <= isotropyThreshold ? 1 : 0,
       continuity: 0, // the 4D continuity arena does not apply to a 3D frame
     }
 
     const passCount = (col: typeof vibe): number =>
-      col.conservation + col.reversibility + col.isotropy + col.continuity
+      col.conservation +
+      col.reversibility +
+      col.isotropy +
+      col.continuity
 
     const vibeAllPass = passCount(vibe) === 4
     const lossyBreaks = passCount(lossy) < 4
@@ -199,7 +216,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'one committed substrate assignment ({3,4,3,4} frame plus the conserving reversible knit) closes all four arenas of the consistency matrix at once (conservation, reversibility, isotropy, continuity), while changing one shared lever breaks a whole cluster: the lossy-rule perturbation fails conservation, reversibility, and continuity together, and the wrong-frame perturbation fails isotropy and the 4D continuity closure together, so no off-assignment closes the matrix and the substrate is rigid in Herbert\'s single-lever sense',
+        "one committed substrate assignment ({3,4,3,4} frame plus the conserving reversible knit) closes all four arenas of the consistency matrix at once (conservation, reversibility, isotropy, continuity), while changing one shared lever breaks a whole cluster: the lossy-rule perturbation fails conservation, reversibility, and continuity together, and the wrong-frame perturbation fails isotropy and the 4D continuity closure together, so no off-assignment closes the matrix and the substrate is rigid in Herbert's single-lever sense",
       metrics: {
         arenas: 4,
         vibeConservation: vibe.conservation,
@@ -219,7 +236,7 @@ export default experiment({
         cubicFrameAnisotropy: frameAnisotropy(cubicRoots()),
       },
       notes:
-        'L2, the explicit consistency matrix, the methodological climax of the Chronoflux bridge. Four arenas, three assignments, thresholds fixed before running. The committed assignment passes all four. The lossy-rule column changes only the rule and breaks the conservation cluster (conservation, reversibility, continuity). The wrong-frame column changes only the frame and breaks the isotropy cluster (the D4 24-cell zeroes the fourth-moment anisotropy that the cubic 6-frame leaves at 2, and the 4D continuity closure is undefined on a 3D frame). No single lever closes the matrix on its own, the rigidity Herbert\'s single-lever test demands. Fully deterministic, size varied not seeds.',
+        "L2, the explicit consistency matrix, the methodological climax of the Chronoflux bridge. Four arenas, three assignments, thresholds fixed before running. The committed assignment passes all four. The lossy-rule column changes only the rule and breaks the conservation cluster (conservation, reversibility, continuity). The wrong-frame column changes only the frame and breaks the isotropy cluster (the D4 24-cell zeroes the fourth-moment anisotropy that the cubic 6-frame leaves at 2, and the 4D continuity closure is undefined on a 3D frame). No single lever closes the matrix on its own, the rigidity Herbert's single-lever test demands. Fully deterministic, size varied not seeds.",
     })
   },
 })

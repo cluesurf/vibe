@@ -33,7 +33,11 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Potential = (phi: number) => { V: number; Vp: number; Vpp: number }
 
-const quadratic: Potential = phi => ({ V: 0.5 * phi * phi, Vp: phi, Vpp: 1 })
+const quadratic: Potential = phi => ({
+  V: 0.5 * phi * phi,
+  Vp: phi,
+  Vpp: 1,
+})
 
 const plateau: Potential = phi => {
   const b = Math.sqrt(2 / 3)

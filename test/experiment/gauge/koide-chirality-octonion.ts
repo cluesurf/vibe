@@ -10,7 +10,9 @@
 //
 // A real symmetric circulant, the general form of a symmetric overlap on three Z3-related
 // slots, is [[a, c, c], [c, a, c], [c, c, a]], with eigenvalues
-//   a + 2c,   a - c,   a - c.
+//   a + 2c,   a - c,   a - c,
+// computed here by numerical diagonalization of the matrix (cyclic Jacobi), not by typing in
+// the formula, so the degeneracy is a measured output.
 // That is a democratic value plus a DEGENERATE DOUBLET, only TWO distinct masses. But the
 // charged leptons are THREE distinct masses, and the Koide phase delta = 2/9 radian is
 // neither 0 nor pi. So a real symmetric overlap is provably insufficient: it can never
@@ -48,17 +50,36 @@ import {
   octonionConjugate,
   octonionRealPart,
 } from '@/code/algebra/octonion'
+import { jacobiEigenvalues3 } from '@/code/algebra/linear/eig-jacobi'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// eigenvalues of a real symmetric circulant [[a,c,c],[c,a,c],[c,c,a]]
+// eigenvalues of a real symmetric circulant [[a,c,c],[c,a,c],[c,c,a]], computed by numerical
+// diagonalization of the matrix entries (cyclic Jacobi), not by typing in the known formula,
+// so the doublet degeneracy is a measured output that could have come out wrong
 function symmetricCirculantEigs(a: number, c: number): number[] {
-  return [a + 2 * c, a - c, a - c]
+  const matrix = [
+    [a, c, c],
+    [c, a, c],
+    [c, c, a],
+  ]
+
+  return jacobiEigenvalues3(matrix).sort((x, y) => x - y)
 }
 
-// count distinct values to a tolerance
+// count distinct values to a 1e-9 tolerance
 function distinctCount(values: number[]): number {
-  return new Set(values.map(v => v.toFixed(6))).size
+  const sorted = [...values].sort((x, y) => x - y)
+
+  let count = 1
+
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i]! - sorted[i - 1]! > 1e-9) {
+      count += 1
+    }
+  }
+
+  return count
 }
 
 export default experiment({
@@ -90,16 +111,25 @@ export default experiment({
       ...dev.map(d => Math.acos(Math.max(-1, Math.min(1, d / b)))),
     )
 
-    const chiralRequired = delta > 1e-3 && Math.abs(delta - Math.PI) > 1e-3
+    const chiralRequired =
+      delta > 1e-3 && Math.abs(delta - Math.PI) > 1e-3
 
     // 3. the octonion oriented Fano-line triple is anti-symmetric (chiral).
-    const e = (i: number): ReturnType<typeof octonionUnit> => octonionUnit(i)
+    const e = (i: number): ReturnType<typeof octonionUnit> =>
+      octonionUnit(i)
+
     const forward = octonionRealPart(
-      octonionMultiply(octonionMultiply(e(1), e(2)), octonionConjugate(e(3))),
+      octonionMultiply(
+        octonionMultiply(e(1), e(2)),
+        octonionConjugate(e(3)),
+      ),
     )
 
     const backward = octonionRealPart(
-      octonionMultiply(octonionMultiply(e(2), e(1)), octonionConjugate(e(3))),
+      octonionMultiply(
+        octonionMultiply(e(2), e(1)),
+        octonionConjugate(e(3)),
+      ),
     )
 
     const octonionChiral = Math.abs(forward - backward) > 1e-9
@@ -115,7 +145,9 @@ export default experiment({
       octonionChiral && Math.abs(forward + backward) < 1e-9
 
     const solved =
-      symmetricIsDoublet && leptonsNeedChiral && octonionSuppliesChirality
+      symmetricIsDoublet &&
+      leptonsNeedChiral &&
+      octonionSuppliesChirality
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -133,10 +165,12 @@ export default experiment({
         // symmetric geometric overlap is provably insufficient for the 3-way Koide split.
         // If it had given 3, symmetric constructions would still be in play.
         symmetricCirculantDistinctMasses: symmetricDistinct,
-        octonionForwardPlusBackward: Number((forward + backward).toFixed(6)),
+        octonionForwardPlusBackward: Number(
+          (forward + backward).toFixed(6),
+        ),
       },
       notes:
-        'L1. Tier A: a symmetric circulant gives eigenvalues a+2c, a-c, a-c (a doublet, 2 distinct), and three distinct masses with a phase in (0, pi) need a chiral complex coupling. Tier A: the octonion oriented triple is anti-symmetric (forward +1, backward -1). Tier B: identifying the octonion orientation as the SOURCE of the Koide phase. Open: whether the orientation FIXES delta = 2/9 and |c|/a = 1/sqrt(2) jointly (phase three). This rules out symmetric-overlap mechanisms and shows the required chirality is present in the substrate from the same non-associativity that forces three generations (E-SPN-0016), a coherence between the generation count and the generation mass-splitting.',
+        'L1. Tier A: a symmetric circulant gives eigenvalues a+2c, a-c, a-c (a doublet, 2 distinct, computed by numerical Jacobi diagonalization of the matrix entries, not by a typed-in formula), and three distinct masses with a phase in (0, pi) need a chiral complex coupling. Tier A: the octonion oriented triple is anti-symmetric (forward +1, backward -1). Tier B: identifying the octonion orientation as the SOURCE of the Koide phase. Open: whether the orientation FIXES delta = 2/9 and |c|/a = 1/sqrt(2) jointly (phase three). This rules out symmetric-overlap mechanisms and shows the required chirality is present in the substrate from the same non-associativity that forces three generations (E-SPN-0016), a coherence between the generation count and the generation mass-splitting.',
     })
   },
 })

@@ -40,9 +40,7 @@ export async function createVibeRenderer(input: {
   }
 
   const device = await adapter.requestDevice()
-  const context = input.canvas.getContext(
-    'webgpu',
-  )
+  const context = input.canvas.getContext('webgpu')
 
   if (!context) {
     throw new Error('could not get a webgpu canvas context')

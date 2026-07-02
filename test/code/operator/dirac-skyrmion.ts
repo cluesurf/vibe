@@ -22,7 +22,12 @@ interface Dense {
 }
 
 // Materialize H as a dense complex matrix: column j is H applied to basis vector j.
-function buildH(L: number, M: number, R: number, mode: 'bag' | 'uniformz'): Dense {
+function buildH(
+  L: number,
+  M: number,
+  R: number,
+  mode: 'bag' | 'uniformz',
+): Dense {
   const { dim, applyH } = makeDirac(L, M, R, mode)
   const re = new Float64Array(dim * dim)
   const im = new Float64Array(dim * dim)
@@ -81,80 +86,109 @@ suite('operator/dirac-skyrmion: Hermiticity', [
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        close(h.re[i * n + j] ?? 0, h.re[j * n + i] ?? 0, 1e-12, `re Hermitian (${i},${j})`)
-        close(h.im[i * n + j] ?? 0, -(h.im[j * n + i] ?? 0), 1e-12, `im anti (${i},${j})`)
+        close(
+          h.re[i * n + j] ?? 0,
+          h.re[j * n + i] ?? 0,
+          1e-12,
+          `re Hermitian (${i},${j})`,
+        )
+        close(
+          h.im[i * n + j] ?? 0,
+          -(h.im[j * n + i] ?? 0),
+          1e-12,
+          `im anti (${i},${j})`,
+        )
       }
     }
   }),
 ])
 
 suite('operator/dirac-skyrmion: Clifford algebra via H^2', [
-  check('free H^2 is internal-diagonal: {alpha_i, alpha_j} = 0 for i != j', () => {
-    // M = 0 -> phi = 0 -> pure kinetic operator.
-    const h2 = square(buildH(L, 0, 0, 'bag'))
-    const n = h2.dim
+  check(
+    'free H^2 is internal-diagonal: {alpha_i, alpha_j} = 0 for i != j',
+    () => {
+      // M = 0 -> phi = 0 -> pure kinetic operator.
+      const h2 = square(buildH(L, 0, 0, 'bag'))
+      const n = h2.dim
 
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        // internal index = position mod 8; different internal indices must not mix.
-        if (i % 8 !== j % 8) {
-          close(h2.re[i * n + j] ?? 0, 0, 1e-12, `H^2 internal off-diagonal re (${i},${j})`)
-          close(h2.im[i * n + j] ?? 0, 0, 1e-12, `H^2 internal off-diagonal im (${i},${j})`)
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          // internal index = position mod 8; different internal indices must not mix.
+          if (i % 8 !== j % 8) {
+            close(
+              h2.re[i * n + j] ?? 0,
+              0,
+              1e-12,
+              `H^2 internal off-diagonal re (${i},${j})`,
+            )
+            close(
+              h2.im[i * n + j] ?? 0,
+              0,
+              1e-12,
+              `H^2 internal off-diagonal im (${i},${j})`,
+            )
+          }
         }
       }
-    }
-  }),
-  check('free H^2 acts identically on each of the 8 internal components: alpha_i^2 = I', () => {
-    const h2 = square(buildH(L, 0, 0, 'bag'))
-    const n = h2.dim
-    const sites = n / 8
+    },
+  ),
+  check(
+    'free H^2 acts identically on each of the 8 internal components: alpha_i^2 = I',
+    () => {
+      const h2 = square(buildH(L, 0, 0, 'bag'))
+      const n = h2.dim
+      const sites = n / 8
 
-    // For each pair of sites, the diagonal-in-internal entry must be the same for
-    // every internal index a in 0..7 (the kinetic scalar is internal-independent).
-    for (let sa = 0; sa < sites; sa++) {
-      for (let sb = 0; sb < sites; sb++) {
-        const ref = h2.re[(sa * 8 + 0) * n + (sb * 8 + 0)] ?? 0
-        const refIm = h2.im[(sa * 8 + 0) * n + (sb * 8 + 0)] ?? 0
+      // For each pair of sites, the diagonal-in-internal entry must be the same for
+      // every internal index a in 0..7 (the kinetic scalar is internal-independent).
+      for (let sa = 0; sa < sites; sa++) {
+        for (let sb = 0; sb < sites; sb++) {
+          const ref = h2.re[(sa * 8 + 0) * n + (sb * 8 + 0)] ?? 0
+          const refIm = h2.im[(sa * 8 + 0) * n + (sb * 8 + 0)] ?? 0
 
-        for (let a = 1; a < 8; a++) {
+          for (let a = 1; a < 8; a++) {
+            close(
+              h2.re[(sa * 8 + a) * n + (sb * 8 + a)] ?? 0,
+              ref,
+              1e-12,
+              `internal-independent re sites (${sa},${sb}) comp ${a}`,
+            )
+            close(
+              h2.im[(sa * 8 + a) * n + (sb * 8 + a)] ?? 0,
+              refIm,
+              1e-12,
+              `internal-independent im sites (${sa},${sb}) comp ${a}`,
+            )
+          }
+        }
+      }
+    },
+  ),
+  check(
+    'uniform-mass H^2 = free H^2 + M^2 I: beta^2 = I and {alpha_i, beta} = 0',
+    () => {
+      const M = 0.5
+      const free = square(buildH(L, 0, 0, 'bag'))
+      const massive = square(buildH(L, M, 1, 'uniformz'))
+      const n = free.dim
+
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          const add = i === j ? M * M : 0
           close(
-            h2.re[(sa * 8 + a) * n + (sb * 8 + a)] ?? 0,
-            ref,
+            massive.re[i * n + j] ?? 0,
+            (free.re[i * n + j] ?? 0) + add,
             1e-12,
-            `internal-independent re sites (${sa},${sb}) comp ${a}`,
+            `H^2(uniform) - H^2(free) re (${i},${j})`,
           )
           close(
-            h2.im[(sa * 8 + a) * n + (sb * 8 + a)] ?? 0,
-            refIm,
+            massive.im[i * n + j] ?? 0,
+            free.im[i * n + j] ?? 0,
             1e-12,
-            `internal-independent im sites (${sa},${sb}) comp ${a}`,
+            `H^2(uniform) - H^2(free) im (${i},${j})`,
           )
         }
       }
-    }
-  }),
-  check('uniform-mass H^2 = free H^2 + M^2 I: beta^2 = I and {alpha_i, beta} = 0', () => {
-    const M = 0.5
-    const free = square(buildH(L, 0, 0, 'bag'))
-    const massive = square(buildH(L, M, 1, 'uniformz'))
-    const n = free.dim
-
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        const add = i === j ? M * M : 0
-        close(
-          massive.re[i * n + j] ?? 0,
-          (free.re[i * n + j] ?? 0) + add,
-          1e-12,
-          `H^2(uniform) - H^2(free) re (${i},${j})`,
-        )
-        close(
-          massive.im[i * n + j] ?? 0,
-          free.im[i * n + j] ?? 0,
-          1e-12,
-          `H^2(uniform) - H^2(free) im (${i},${j})`,
-        )
-      }
-    }
-  }),
+    },
+  ),
 ])

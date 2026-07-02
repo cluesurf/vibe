@@ -22,6 +22,7 @@ suite('algebra/group/so8-triality: the three 8-dim reps', [
     const v = vectorRep8()
     equal(v.length, 8, '8 vectors')
     equal(vectorSetKey(v).size, 8, 'distinct')
+
     for (const x of v) {
       equal(normSquared(x), 1, '8v vector is a signed unit axis')
     }
@@ -29,25 +30,45 @@ suite('algebra/group/so8-triality: the three 8-dim reps', [
   check('8s: 8 even-parity half-integer vectors of norm^2 = 1', () => {
     const s = spinorRepEven8()
     equal(s.length, 8, '8 even-parity weights')
+
     for (const x of s) {
       ok(Math.abs(normSquared(x) - 1) < 1e-12, '8s vector norm^2 = 1')
-      equal(x.filter(c => c < 0).length % 2, 0, 'even number of minus signs')
+      equal(
+        x.filter(c => c < 0).length % 2,
+        0,
+        'even number of minus signs',
+      )
     }
   }),
   check('8c: 8 odd-parity half-integer vectors of norm^2 = 1', () => {
     const c = spinorRepOdd8()
     equal(c.length, 8, '8 odd-parity weights')
+
     for (const x of c) {
       ok(Math.abs(normSquared(x) - 1) < 1e-12, '8c vector norm^2 = 1')
-      equal(x.filter(coord => coord < 0).length % 2, 1, 'odd number of minus signs')
+      equal(
+        x.filter(coord => coord < 0).length % 2,
+        1,
+        'odd number of minus signs',
+      )
     }
   }),
-  check('8s and 8c are disjoint and together are the 16 half-integer vectors', () => {
-    const sKeys = vectorSetKey(spinorRepEven8())
-    const cKeys = vectorSetKey(spinorRepOdd8())
-    ok([...sKeys].every(k => !cKeys.has(k)), '8s and 8c disjoint')
-    equal(new Set([...sKeys, ...cKeys]).size, 16, '8s + 8c = 16 (+-1/2)^4 vectors')
-  }),
+  check(
+    '8s and 8c are disjoint and together are the 16 half-integer vectors',
+    () => {
+      const sKeys = vectorSetKey(spinorRepEven8())
+      const cKeys = vectorSetKey(spinorRepOdd8())
+      ok(
+        [...sKeys].every(k => !cKeys.has(k)),
+        '8s and 8c disjoint',
+      )
+      equal(
+        new Set([...sKeys, ...cKeys]).size,
+        16,
+        '8s + 8c = 16 (+-1/2)^4 vectors',
+      )
+    },
+  ),
 ])
 
 suite('algebra/group/so8-triality: the Hadamard/2 triality step', [
@@ -57,15 +78,21 @@ suite('algebra/group/so8-triality: the Hadamard/2 triality step', [
       'H/2 . 8v = 8s',
     )
   }),
-  check('triality is an involution here (H^2 = 4I), so 8s maps back to 8v', () => {
-    ok(
-      vectorSetsEqual(applyTriality(spinorRepEven8()), vectorRep8()),
-      'H/2 . 8s = 8v',
-    )
-  }),
+  check(
+    'triality is an involution here (H^2 = 4I), so 8s maps back to 8v',
+    () => {
+      ok(
+        vectorSetsEqual(applyTriality(spinorRepEven8()), vectorRep8()),
+        'H/2 . 8s = 8v',
+      )
+    },
+  ),
   check('applying the step twice is the identity on 8v', () => {
     ok(
-      vectorSetsEqual(applyTriality(applyTriality(vectorRep8())), vectorRep8()),
+      vectorSetsEqual(
+        applyTriality(applyTriality(vectorRep8())),
+        vectorRep8(),
+      ),
       '(H/2)^2 = identity on the set',
     )
   }),

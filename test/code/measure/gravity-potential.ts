@@ -30,21 +30,39 @@ suite('measure/gravity-potential: brane potential', [
     const L = 2
     const expected =
       1 / (4 * Math.PI * L * r * (1 - Math.exp((-2 * Math.PI * r) / L)))
-    close(branePotential({ radius: r, extraDimension: L }), expected, TOL)
+
+    close(
+      branePotential({ radius: r, extraDimension: L }),
+      expected,
+      TOL,
+    )
   }),
   // Long range r >> L: the exponential vanishes, brane -> 1/(4 pi L r), so brane * (4 pi L r) -> 1.
   check('long range recovers the 3D 1/(4 pi L r) law', () => {
     const L = 1
     const r = 1000
-    close(branePotential({ radius: r, extraDimension: L }) * (4 * Math.PI * L * r), 1, 1e-6)
+    close(
+      branePotential({ radius: r, extraDimension: L }) *
+        (4 * Math.PI * L * r),
+      1,
+      1e-6,
+    )
   }),
   // Short range r << L: 1 - exp(-2 pi r/L) ~ 2 pi r/L, so brane -> 1/(8 pi^2 r^2), a 4D 1/r^2
   // potential. Then r^2 * brane -> 1/(8 pi^2), the same constant at two small radii.
   check('short range is 4D (r^2 * brane -> 1/(8 pi^2))', () => {
     const L = 100
     const c = 1 / (8 * Math.PI ** 2)
-    close(branePotential({ radius: 0.1, extraDimension: L }) * 0.1 ** 2, c, 2e-4)
-    close(branePotential({ radius: 0.2, extraDimension: L }) * 0.2 ** 2, c, 2e-4)
+    close(
+      branePotential({ radius: 0.1, extraDimension: L }) * 0.1 ** 2,
+      c,
+      2e-4,
+    )
+    close(
+      branePotential({ radius: 0.2, extraDimension: L }) * 0.2 ** 2,
+      c,
+      2e-4,
+    )
   }),
 ])
 
@@ -63,8 +81,20 @@ suite('measure/gravity-potential: light deflection', [
   }),
   // Scaling: doubling M doubles the angle, doubling b halves it (angle ~ M/b).
   check('the angle scales as M/b', () => {
-    const base = weakFieldLightDeflection({ mass: 1, impact: 1 }).newtonAngle
-    close(weakFieldLightDeflection({ mass: 2, impact: 1 }).newtonAngle, 2 * base, 1e-2)
-    close(weakFieldLightDeflection({ mass: 1, impact: 2 }).newtonAngle, base / 2, 1e-2)
+    const base = weakFieldLightDeflection({
+      mass: 1,
+      impact: 1,
+    }).newtonAngle
+
+    close(
+      weakFieldLightDeflection({ mass: 2, impact: 1 }).newtonAngle,
+      2 * base,
+      1e-2,
+    )
+    close(
+      weakFieldLightDeflection({ mass: 1, impact: 2 }).newtonAngle,
+      base / 2,
+      1e-2,
+    )
   }),
 ])

@@ -18,7 +18,8 @@ const relationAction: Action = {
   value: ({ poset }) => relationCount(poset),
 }
 
-const countObserver = ({ poset }: { poset: Poset }): number => relationCount(poset)
+const countObserver = ({ poset }: { poset: Poset }): number =>
+  relationCount(poset)
 
 suite('dynamics/exact-enumeration: transitive-relation counts', [
   check('N=2 has 2 transitive relations', () => {
@@ -28,6 +29,7 @@ suite('dynamics/exact-enumeration: transitive-relation counts', [
       action: relationAction,
       observers: [countObserver],
     })
+
     equal(count, 2, 'empty and 0<1')
   }),
   check('N=3 has 7 transitive relations', () => {
@@ -37,29 +39,34 @@ suite('dynamics/exact-enumeration: transitive-relation counts', [
       action: relationAction,
       observers: [countObserver],
     })
+
     equal(count, 7, 'all 8 subsets except the intransitive {0<1,1<2}')
   }),
 ])
 
 suite('dynamics/exact-enumeration: Boltzmann averages', [
-  check('N=2, betas [0,1]: partition function and mean relation count', () => {
-    const { z, means } = exactCausalSetAverages({
-      size: 2,
-      betas: [0, 1],
-      action: relationAction,
-      observers: [countObserver],
-    })
-    // relations over the two states: 0 and 1. weight = exp(-beta * relations).
-    close(z[0]!, 2, 1e-12, 'Z(0) = 1 + 1 = 2')
-    close(z[1]!, 1 + Math.exp(-1), 1e-12, 'Z(1) = 1 + e^-1')
-    close(means[0]![0]!, 1 / 2, 1e-12, 'uniform mean = (0+1)/2')
-    close(
-      means[1]![0]!,
-      Math.exp(-1) / (1 + Math.exp(-1)),
-      1e-12,
-      'mean = e^-1 / (1 + e^-1)',
-    )
-  }),
+  check(
+    'N=2, betas [0,1]: partition function and mean relation count',
+    () => {
+      const { z, means } = exactCausalSetAverages({
+        size: 2,
+        betas: [0, 1],
+        action: relationAction,
+        observers: [countObserver],
+      })
+
+      // relations over the two states: 0 and 1. weight = exp(-beta * relations).
+      close(z[0]!, 2, 1e-12, 'Z(0) = 1 + 1 = 2')
+      close(z[1]!, 1 + Math.exp(-1), 1e-12, 'Z(1) = 1 + e^-1')
+      close(means[0]![0]!, 1 / 2, 1e-12, 'uniform mean = (0+1)/2')
+      close(
+        means[1]![0]!,
+        Math.exp(-1) / (1 + Math.exp(-1)),
+        1e-12,
+        'mean = e^-1 / (1 + e^-1)',
+      )
+    },
+  ),
   check('N=3 uniform (beta=0) mean relation count is 10/7', () => {
     const { z, means } = exactCausalSetAverages({
       size: 3,
@@ -67,6 +74,7 @@ suite('dynamics/exact-enumeration: Boltzmann averages', [
       action: relationAction,
       observers: [countObserver],
     })
+
     // relation counts of the 7 transitive orders: 0,1,1,1,2,2,3 -> sum 10.
     close(z[0]!, 7, 1e-12, 'Z(0) = 7')
     close(means[0]![0]!, 10 / 7, 1e-12, 'uniform mean relation count')

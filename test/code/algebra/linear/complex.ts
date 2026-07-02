@@ -23,12 +23,19 @@ suite('algebra/linear/complex: field arithmetic', [
     equal(z.re, 4, 're')
     equal(z.im, 6, 'im')
   }),
-  check('multiplication matches the hand expansion (1+2i)(3+4i) = -5+10i', () => {
-    // 3 + 4i + 6i + 8i^2 = 3 + 10i - 8 = -5 + 10i
-    const z = cMul(complex({ re: 1, im: 2 }), complex({ re: 3, im: 4 }))
-    equal(z.re, -5, 're')
-    equal(z.im, 10, 'im')
-  }),
+  check(
+    'multiplication matches the hand expansion (1+2i)(3+4i) = -5+10i',
+    () => {
+      // 3 + 4i + 6i + 8i^2 = 3 + 10i - 8 = -5 + 10i
+      const z = cMul(
+        complex({ re: 1, im: 2 }),
+        complex({ re: 3, im: 4 }),
+      )
+
+      equal(z.re, -5, 're')
+      equal(z.im, 10, 'im')
+    },
+  ),
   check('i * i = -1', () => {
     const z = cMul(i, i)
     equal(z.re, -1, 're = -1')
@@ -43,12 +50,15 @@ suite('algebra/linear/complex: field arithmetic', [
     close(cAbs(complex({ re: 3, im: 4 })), 5, 1e-12, '|3+4i| = 5')
     equal(cAbs2(complex({ re: 3, im: 4 })), 25, '|3+4i|^2 = 25')
   }),
-  check('|z|^2 = Re(z * conj(z)) and the product is purely real', () => {
-    const z = complex({ re: 3, im: 4 })
-    const p = cMul(z, cConj(z))
-    equal(p.re, cAbs2(z), 'Re(z conj z) = |z|^2')
-    equal(p.im, 0, 'z conj z is real')
-  }),
+  check(
+    '|z|^2 = Re(z * conj(z)) and the product is purely real',
+    () => {
+      const z = complex({ re: 3, im: 4 })
+      const p = cMul(z, cConj(z))
+      equal(p.re, cAbs2(z), 'Re(z conj z) = |z|^2')
+      equal(p.im, 0, 'z conj z is real')
+    },
+  ),
   check('scale multiplies both parts', () => {
     const z = cScale(complex({ re: 1, im: 2 }), 3)
     equal(z.re, 3, 're')
@@ -58,13 +68,21 @@ suite('algebra/linear/complex: field arithmetic', [
 
 suite('algebra/linear/complex: phase and argument', [
   check('arg of 1+i is pi/4, of i is pi/2', () => {
-    close(cArg(complex({ re: 1, im: 1 })), Math.PI / 4, 1e-12, 'arg(1+i)')
+    close(
+      cArg(complex({ re: 1, im: 1 })),
+      Math.PI / 4,
+      1e-12,
+      'arg(1+i)',
+    )
     close(cArg(i), Math.PI / 2, 1e-12, 'arg(i)')
   }),
-  check('cFromPhase lands on the unit circle at the right angle', () => {
-    const z = cFromPhase({ phase: Math.PI / 3 })
-    close(z.re, Math.cos(Math.PI / 3), 1e-12, 're = cos')
-    close(z.im, Math.sin(Math.PI / 3), 1e-12, 'im = sin')
-    close(cAbs(z), 1, 1e-12, 'on the unit circle')
-  }),
+  check(
+    'cFromPhase lands on the unit circle at the right angle',
+    () => {
+      const z = cFromPhase({ phase: Math.PI / 3 })
+      close(z.re, Math.cos(Math.PI / 3), 1e-12, 're = cos')
+      close(z.im, Math.sin(Math.PI / 3), 1e-12, 'im = sin')
+      close(cAbs(z), 1, 1e-12, 'on the unit circle')
+    },
+  ),
 ])

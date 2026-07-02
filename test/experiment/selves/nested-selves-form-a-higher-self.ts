@@ -67,9 +67,7 @@ export function nestedSelves(input: {
 
   // downward causation: corrupt one member, then one more consensus round, does the group restore it
   const corrupted = subs.map((s, j) =>
-    j === 0
-      ? s.map((v, i) => (i % 2 === 0 ? (-v) : v))
-      : s,
+    j === 0 ? s.map((v, i) => (i % 2 === 0 ? -v : v)) : s,
   )
 
   const repaired = consensusStep(corrupted, input.coupling)

@@ -70,7 +70,7 @@ export function unifiedWave(input?: {
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   const q0 = tone.reduce((s, x) => s + x, 0)
@@ -123,13 +123,11 @@ export function unifiedWave(input?: {
   const baseS = new Int8Array(sN)
 
   for (let i = 0; i < sN; i++) {
-    baseS[i] = (
-      rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
-    )
+    baseS[i] = rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
   }
 
   const pertS = baseS.slice()
-  pertS[center] = ((baseS[center]!) === 0 ? 1 : 0)
+  pertS[center] = (baseS[center]!) === 0 ? 1 : 0
 
   const pos0 = s.position[center]!
   const beatsB = 40

@@ -17,9 +17,12 @@ suite('coarse/self-trajectory: the LCG', [
   // the documented recurrence rather than the implementation.
   check('makeRng matches the reference LCG recurrence', () => {
     const rng = makeRng(12345)
+
     let s = 12345 >>> 0
+
     for (let i = 0; i < 20; i++) {
       s = (Math.imul(s, 1664525) + 1013904223) >>> 0
+
       const expected = s / 4294967296
       close(rng.next(), expected, 0, `draw ${i}`)
     }
@@ -27,6 +30,7 @@ suite('coarse/self-trajectory: the LCG', [
   check('draws lie in [0,1) and the seed is reproducible', () => {
     const a = makeRng(7)
     const b = makeRng(7)
+
     for (let i = 0; i < 50; i++) {
       const x = a.next()
       ok(x >= 0 && x < 1, 'draw in [0,1)')
@@ -50,25 +54,41 @@ suite('coarse/self-trajectory: position bin', [
 ])
 
 suite('coarse/self-trajectory: trajectory reproducibility', [
-  check('selfTrajectory is reproducible and labels are in range', () => {
-    const make = (): ReturnType<typeof selfTrajectory> =>
-      selfTrajectory({ L: 20, beats: 10, bins: 5, seed: 3 })
-    const a = make()
-    const b = make()
-    equal(a.labels.length, 10)
-    equal(a.centroids.length, 10)
-    for (let i = 0; i < a.labels.length; i++) {
-      equal(a.labels[i]!, b.labels[i]!, 'same seed gives the same labels')
-      ok(a.labels[i]! >= 0 && a.labels[i]! < 5, 'label in [0,bins)')
-    }
-    ok(a.meanSelfSize >= 0, 'mean self size is non-negative')
-  }),
+  check(
+    'selfTrajectory is reproducible and labels are in range',
+    () => {
+      const make = (): ReturnType<typeof selfTrajectory> =>
+        selfTrajectory({ L: 20, beats: 10, bins: 5, seed: 3 })
+
+      const a = make()
+      const b = make()
+      equal(a.labels.length, 10)
+      equal(a.centroids.length, 10)
+
+      for (let i = 0; i < a.labels.length; i++) {
+        equal(
+          a.labels[i]!,
+          b.labels[i]!,
+          'same seed gives the same labels',
+        )
+        ok(a.labels[i]! >= 0 && a.labels[i]! < 5, 'label in [0,bins)')
+      }
+
+      ok(a.meanSelfSize >= 0, 'mean self size is non-negative')
+    },
+  ),
   check('selfUnitTrajectory is reproducible', () => {
     const a = selfUnitTrajectory({ L: 20, beats: 8, seed: 11 })
     const b = selfUnitTrajectory({ L: 20, beats: 8, seed: 11 })
     equal(a.centroids.length, 8)
+
     for (let i = 0; i < a.centroids.length; i++) {
-      close(a.centroids[i]!, b.centroids[i]!, 0, 'reproducible centroid')
+      close(
+        a.centroids[i]!,
+        b.centroids[i]!,
+        0,
+        'reproducible centroid',
+      )
     }
   }),
 ])

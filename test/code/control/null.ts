@@ -28,7 +28,11 @@ function structuredWill() {
 suite('control/null: randomNull is a charge-preserving permutation', [
   check('the total charge is preserved exactly', () => {
     const will = structuredWill()
-    equal(charge(randomNull(will, 123)), charge(will), 'shuffle conserves charge')
+    equal(
+      charge(randomNull(will, 123)),
+      charge(will),
+      'shuffle conserves charge',
+    )
     ok(preservesCharge(will, 123), 'preservesCharge agrees')
   }),
   check('the tone multiset is preserved exactly', () => {
@@ -44,34 +48,46 @@ suite('control/null: randomNull is a charge-preserving permutation', [
     const will = structuredWill()
     const a = randomNull(will, 7)
     const b = randomNull(will, 7)
-    equal(JSON.stringify(Array.from(a.data)), JSON.stringify(Array.from(b.data)))
+    equal(
+      JSON.stringify(Array.from(a.data)),
+      JSON.stringify(Array.from(b.data)),
+    )
   }),
   check('the null genuinely destroys structure', () => {
     const will = structuredWill()
     const shuffled = randomNull(will, 31)
+
     let differs = false
+
     for (let i = 0; i < will.data.length; i++) {
       if (will.data[i] !== shuffled.data[i]) {
         differs = true
         break
       }
     }
+
     ok(differs, 'a structured input is actually rearranged')
   }),
 ])
 
 suite('control/null: shuffledToneField', [
-  check('the shuffled field preserves the multiset and total charge', () => {
-    const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
-    const out = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
-    equal(
-      JSON.stringify(multiset(out)),
-      JSON.stringify(multiset(tone)),
-      'multiset preserved',
-    )
-    const sum = (a: Int8Array): number => Array.from(a).reduce((x, y) => x + y, 0)
-    equal(sum(out), sum(tone), 'total charge preserved')
-  }),
+  check(
+    'the shuffled field preserves the multiset and total charge',
+    () => {
+      const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
+      const out = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
+      equal(
+        JSON.stringify(multiset(out)),
+        JSON.stringify(multiset(tone)),
+        'multiset preserved',
+      )
+
+      const sum = (a: Int8Array): number =>
+        Array.from(a).reduce((x, y) => x + y, 0)
+
+      equal(sum(out), sum(tone), 'total charge preserved')
+    },
+  ),
   check('shuffledToneField is deterministic in its rng', () => {
     const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
     const a = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })

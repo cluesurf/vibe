@@ -46,10 +46,10 @@ export function discreteRuleEndToEnd(): {
   }
 
   for (let i = 0; i < N; i++) {
-    init.E[i] = (Math.floor(rnd() * 3) - 1)
-    init.W[i] = (Math.floor(rnd() * 3) - 1)
-    init.N[i] = (Math.floor(rnd() * 3) - 1)
-    init.S[i] = (Math.floor(rnd() * 3) - 1)
+    init.E[i] = Math.floor(rnd() * 3) - 1
+    init.W[i] = Math.floor(rnd() * 3) - 1
+    init.N[i] = Math.floor(rnd() * 3) - 1
+    init.S[i] = Math.floor(rnd() * 3) - 1
   }
 
   const c0 = charge(init),

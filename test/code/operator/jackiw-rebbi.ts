@@ -29,41 +29,70 @@ function build(sites: number, mass: number, width: number) {
 suite('operator/jackiw-rebbi: structure', [
   check('the Hamiltonian is real symmetric', () => {
     const { H, n } = build(20, 1, 4)
+
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         close(H[i]![j] ?? 0, H[j]![i] ?? 0, 0, `symmetry [${i}][${j}]`)
       }
     }
   }),
-  check('the trace is exactly zero (the +/- m diagonal cancels)', () => {
-    const { H, n } = build(20, 1, 4)
-    let trace = 0
-    for (let i = 0; i < n; i++) trace += H[i]![i] ?? 0
-    close(trace, 0, 0, 'trace')
-  }),
+  check(
+    'the trace is exactly zero (the +/- m diagonal cancels)',
+    () => {
+      const { H, n } = build(20, 1, 4)
+
+      let trace = 0
+
+      for (let i = 0; i < n; i++) {trace += H[i]![i] ?? 0}
+
+      close(trace, 0, 0, 'trace')
+    },
+  ),
 ])
 
 suite('operator/jackiw-rebbi: spectrum', [
-  check('the spectrum is symmetric about zero (chiral symmetry)', () => {
-    const { n, dense } = build(24, 1, 4)
-    const values = Array.from(eigSymmetric({ matrix: dense }).values).sort((a, b) => a - b)
-    for (let i = 0; i < n; i++) {
-      close((values[i] ?? 0) + (values[n - 1 - i] ?? 0), 0, 1e-9, `chiral pair ${i}`)
-    }
-  }),
+  check(
+    'the spectrum is symmetric about zero (chiral symmetry)',
+    () => {
+      const { n, dense } = build(24, 1, 4)
+      const values = Array.from(
+        eigSymmetric({ matrix: dense }).values,
+      ).sort((a, b) => a - b)
+
+      for (let i = 0; i < n; i++) {
+        close(
+          (values[i] ?? 0) + (values[n - 1 - i] ?? 0),
+          0,
+          1e-9,
+          `chiral pair ${i}`,
+        )
+      }
+    },
+  ),
   check('the kink binds a zero-energy midgap mode', () => {
     const { dense } = build(24, 1, 4)
     const values = Array.from(eigSymmetric({ matrix: dense }).values)
     const minAbs = Math.min(...values.map(v => Math.abs(v)))
     close(minAbs, 0, 1e-6, 'Jackiw-Rebbi zero mode')
   }),
-  check('the zero mode is topologically robust to the kink width', () => {
-    // the midgap state is protected by the change of mass sign across the kink, so it persists
-    // for both a broad and a sharp kink (only the localisation length changes).
-    for (const width of [2, 6]) {
-      const { dense } = build(24, 1, width)
-      const values = Array.from(eigSymmetric({ matrix: dense }).values)
-      close(Math.min(...values.map(v => Math.abs(v))), 0, 1e-5, `zero mode at width ${width}`)
-    }
-  }),
+  check(
+    'the zero mode is topologically robust to the kink width',
+    () => {
+      // the midgap state is protected by the change of mass sign across the kink, so it persists
+      // for both a broad and a sharp kink (only the localisation length changes).
+      for (const width of [2, 6]) {
+        const { dense } = build(24, 1, width)
+        const values = Array.from(
+          eigSymmetric({ matrix: dense }).values,
+        )
+
+        close(
+          Math.min(...values.map(v => Math.abs(v))),
+          0,
+          1e-5,
+          `zero mode at width ${width}`,
+        )
+      }
+    },
+  ),
 ])

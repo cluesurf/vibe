@@ -10,8 +10,10 @@
 //   - The Newtonian limit: the static equation is ASSUMED to reduce to the Poisson
 //     equation with the standard 1/r point-source solution (the assumed Green's
 //     function, see P16). This is asserted, not derived here.
-//   - The graviton dispersion: the eigenvalue of the assumed operator gives omega = |k|
-//     by construction, so the wave speed comes out at 1.
+//   - The graviton dispersion: the operator's spectrum is MEASURED (diagonalized) and
+//     checked to contain the graviton eigenvalue (1/2)|k|^2 exactly twice, and the wave
+//     speed omega/|k| = sqrt(2 lambda)/|k| is computed from the measured eigenvalue of
+//     the degenerate propagating pair, coming out at 1.
 // GIVEN the assumed operator, all of these follow as algebra. They are properties of the
 // plugged-in operator, not evidence that the substrate generates general relativity.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p32-einstein-equations.ts
@@ -81,14 +83,30 @@ export function bianchiResidual(input: {
   return worst
 }
 
-// Graviton wave speed omega/|k| from the vacuum equation. The graviton eigenvalue of
-// G is (1/2)|k|^2, so the wave dispersion is omega = sqrt(2 * eigenvalue) = |k|, hence
-// speed omega/|k| = 1 (the speed of light), independent of frequency (massless).
-export function gravitonSpeed(kMag: number): number {
+// Graviton content of the MEASURED spectrum. gravitonFromAction diagonalizes the
+// operator's momentum-space matrix: gravitonModes counts the measured eigenvalues that
+// equal (1/2)|k|^2 (should be exactly 2, the two polarizations), and the speed is
+// computed from the MEASURED eigenvalue of the degenerate propagating pair (the two
+// largest eigenvalues), omega/|k| = sqrt(2 lambda)/|k| = 1 for a massless graviton.
+export function gravitonSpectrum(kMag: number): {
+  modes: number
+  speed: number
+  pairSplit: number
+} {
   const r = gravitonFromAction({ k: [kMag, 0, 0] })
-  const omega = Math.sqrt(2 * r.gravitonEigenvalue)
+  const eig = r.eigenvalues.slice().sort((a, b) => b - a)
+  const lambda = eig[0]!
 
-  return omega / kMag
+  return {
+    modes: r.gravitonModes,
+    speed: Math.sqrt(2 * lambda) / kMag,
+    pairSplit: Math.abs(lambda - eig[1]!),
+  }
+}
+
+// the graviton wave speed from the measured spectrum (kept for external callers)
+export function gravitonSpeed(kMag: number): number {
+  return gravitonSpectrum(kMag).speed
 }
 
 export default experiment({
@@ -101,16 +119,25 @@ export default experiment({
   paper: false,
   run() {
     const res = bianchiResidual({ k: [2, 1, 3], samples: 30, seed: 1 })
-    const speed = gravitonSpeed(0.5)
-    const ok = res < 1e-10 && Math.abs(speed - 1) < 1e-6
+    const spec = gravitonSpectrum(0.5)
+    const ok =
+      res < 1e-10 &&
+      spec.modes === 2 &&
+      spec.pairSplit < 1e-10 &&
+      Math.abs(spec.speed - 1) < 1e-6
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the assumed linearized Einstein tensor is transverse and its graviton propagates at the speed of light',
-      metrics: { bianchiResidual: res, gravitonSpeed: speed },
+        'the assumed linearized Einstein tensor is transverse, its measured spectrum contains the graviton eigenvalue (1/2)|k|^2 exactly twice (a degenerate propagating pair), and the speed computed from that measured eigenvalue is 1',
+      metrics: {
+        bianchiResidual: res,
+        gravitonModes: spec.modes,
+        gravitonPairSplit: spec.pairSplit,
+        gravitonSpeed: spec.speed,
+      },
       notes:
-        'analytic consistency check of the plugged-in Einstein operator, not a derivation of general relativity from the substrate',
+        'analytic consistency check of the plugged-in Einstein operator, not a derivation of general relativity from the substrate. The graviton check is on the MEASURED spectrum: the operator matrix is diagonalized, exactly two eigenvalues equal (1/2)|k|^2, and the speed sqrt(2 lambda)/|k| uses the measured eigenvalue of that degenerate pair, not a returned target',
     })
   },
 })

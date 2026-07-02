@@ -14,18 +14,24 @@ import {
   outerAutomorphismOrder,
   diagramAutomorphismOrder,
 } from '@/code/algebra/group/automorphism'
-import { rootsD4, rootsB4, rootsAn } from '@/code/algebra/group/root-system'
+import {
+  rootsD4,
+  rootsB4,
+  rootsAn,
+} from '@/code/algebra/group/root-system'
 
 // Hand-built Cartan matrices, independent of the root-system module.
 const CARTAN_A2 = [
   [2, -1],
   [-1, 2],
 ]
+
 const CARTAN_A3 = [
   [2, -1, 0],
   [-1, 2, -1],
   [0, -1, 2],
 ]
+
 // D4: a central node joined to three outer nodes (the triality fork).
 const CARTAN_D4 = [
   [2, -1, -1, -1],
@@ -51,18 +57,40 @@ suite('algebra/group/automorphism: D4 triality', [
     equal(automorphismGroupOrder(rootsD4()), 1152, '|Aut(D4)| = 1152')
   }),
   check('Out(D4) = |Aut|/|W| = 1152/192 = 6 (S3 triality)', () => {
-    equal(outerAutomorphismOrder(rootsD4()), 6, 'outer order 6 = triality')
+    equal(
+      outerAutomorphismOrder(rootsD4()),
+      6,
+      'outer order 6 = triality',
+    )
   }),
 ])
 
-suite('algebra/group/automorphism: diagram automorphisms from Cartan matrices', [
-  check('A2 diagram has a Z/2 symmetry (order 2)', () => {
-    equal(diagramAutomorphismOrder(CARTAN_A2), 2, 'A2 diagram aut = 2')
-  }),
-  check('A3 (a path) has a Z/2 reversal symmetry (order 2)', () => {
-    equal(diagramAutomorphismOrder(CARTAN_A3), 2, 'A3 diagram aut = 2')
-  }),
-  check('D4 diagram has the full S3 symmetry (order 6) = triality', () => {
-    equal(diagramAutomorphismOrder(CARTAN_D4), 6, 'D4 diagram aut = 6')
-  }),
-])
+suite(
+  'algebra/group/automorphism: diagram automorphisms from Cartan matrices',
+  [
+    check('A2 diagram has a Z/2 symmetry (order 2)', () => {
+      equal(
+        diagramAutomorphismOrder(CARTAN_A2),
+        2,
+        'A2 diagram aut = 2',
+      )
+    }),
+    check('A3 (a path) has a Z/2 reversal symmetry (order 2)', () => {
+      equal(
+        diagramAutomorphismOrder(CARTAN_A3),
+        2,
+        'A3 diagram aut = 2',
+      )
+    }),
+    check(
+      'D4 diagram has the full S3 symmetry (order 6) = triality',
+      () => {
+        equal(
+          diagramAutomorphismOrder(CARTAN_D4),
+          6,
+          'D4 diagram aut = 6',
+        )
+      },
+    ),
+  ],
+)

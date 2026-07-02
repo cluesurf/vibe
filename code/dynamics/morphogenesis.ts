@@ -10,7 +10,7 @@ function seedPattern(n: number): Int8Array {
   const a = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    a[i] = ((i * 73 + 17) % 31 < 16 ? 1 : -1)
+    a[i] = (i * 73 + 17) % 31 < 16 ? 1 : -1
   }
 
   return a
@@ -44,7 +44,7 @@ function step(
       windowMean(a, i, activateRadius) -
       inhibition * windowMean(a, i, inhibitRadius)
 
-    next[i] = (field > 0 ? 1 : field < 0 ? -1 : a[i]!)
+    next[i] = field > 0 ? 1 : field < 0 ? -1 : a[i]!
   }
 
   return next

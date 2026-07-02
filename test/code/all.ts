@@ -1,7 +1,6 @@
 // The barrel for the code/ math-conformance tree. Side-effect imports every suite
 // file so its suite(...) calls register. Generated from the test/code/ tree.
 
-
 import '@/test/code/algebra/binary-tetrahedral'
 import '@/test/code/algebra/graph/max-flow'
 import '@/test/code/algebra/group/automorphism'

@@ -19,7 +19,11 @@ suite('measure/electroweak: custodial rho', [
   }),
   // A T=3/2, T_3=3/2 representation: (3.75 - 2.25) / (2 * 2.25) = 1.5/4.5 = 1/3.
   check('the T=3/2 representation gives rho = 1/3', () => {
-    close(custodialRho({ isospin: 1.5, isospinComponent: 1.5 }), 1 / 3, TOL)
+    close(
+      custodialRho({ isospin: 1.5, isospinComponent: 1.5 }),
+      1 / 3,
+      TOL,
+    )
   }),
 ])
 

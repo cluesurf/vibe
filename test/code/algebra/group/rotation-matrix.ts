@@ -3,7 +3,12 @@
 // of a rotation matrix (orthogonal, det 1, trace = 1 + 2 cos t, R(a)R(b) = R(a+b)
 // about a common axis), re-derived independently, never read from the implementation.
 
-import { suite, check, equal, close, closeArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  close,
+  closeArray,
+} from '@/test/code/harness'
 import {
   IDENTITY3,
   multiply3,
@@ -35,14 +40,18 @@ const AXES = [
   [1, 1, 1],
   [2, -1, 3],
 ]
+
 const ANGLES = [0.3, 1.0, Math.PI / 2, 2.4, Math.PI]
 
 suite('algebra/group/rotation-matrix: 3x3 operations', [
-  check('multiply by identity returns the matrix; identity is the unit', () => {
-    const R = rotationMatrix3([1, 2, -1], 0.7)
-    closeMatrix(multiply3(R, IDENTITY3), R, 'R I = R')
-    closeMatrix(multiply3(IDENTITY3, R), R, 'I R = R')
-  }),
+  check(
+    'multiply by identity returns the matrix; identity is the unit',
+    () => {
+      const R = rotationMatrix3([1, 2, -1], 0.7)
+      closeMatrix(multiply3(R, IDENTITY3), R, 'R I = R')
+      closeMatrix(multiply3(IDENTITY3, R), R, 'I R = R')
+    },
+  ),
   check('transpose is an involution', () => {
     const R = rotationMatrix3([0, 1, 2], 1.3)
     closeMatrix(transpose3(transpose3(R)), R, 'R^TT = R')
@@ -102,12 +111,26 @@ suite('algebra/group/rotation-matrix: the rotation homomorphism', [
     }
   }),
   check('a full turn (2 pi) is the identity', () => {
-    closeMatrix(rotationMatrix3([1, -2, 3], 2 * Math.PI), IDENTITY3, 'R(2pi) = I')
+    closeMatrix(
+      rotationMatrix3([1, -2, 3], 2 * Math.PI),
+      IDENTITY3,
+      'R(2pi) = I',
+    )
   }),
   check('90 deg about z sends e_x -> e_y, e_y -> -e_x', () => {
     const R = rotationMatrix3(Z, Math.PI / 2)
     // column j of R is the image of basis vector e_j
-    closeArray([R[0]![0]!, R[1]![0]!, R[2]![0]!], [0, 1, 0], TOL, 'e_x -> e_y')
-    closeArray([R[0]![1]!, R[1]![1]!, R[2]![1]!], [-1, 0, 0], TOL, 'e_y -> -e_x')
+    closeArray(
+      [R[0]![0]!, R[1]![0]!, R[2]![0]!],
+      [0, 1, 0],
+      TOL,
+      'e_x -> e_y',
+    )
+    closeArray(
+      [R[0]![1]!, R[1]![1]!, R[2]![1]!],
+      [-1, 0, 0],
+      TOL,
+      'e_y -> -e_x',
+    )
   }),
 ])

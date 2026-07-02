@@ -82,7 +82,7 @@ export function selfNesting73(): {
 
   for (let i = 0; i < N; i++) {
     if (dist[i]! < 4) {
-      cur[i] = (Math.floor(rnd() * 3) - 1)
+      cur[i] = Math.floor(rnd() * 3) - 1
     }
   }
 
@@ -96,7 +96,7 @@ export function selfNesting73(): {
         s += cur[adj[q]!]!
       }
 
-      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3)
+      nxt[i] = (((s - prev[i]!) % 3) + 3) % 3
     }
 
     const t = prev

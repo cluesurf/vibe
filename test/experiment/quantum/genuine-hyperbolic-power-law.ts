@@ -91,23 +91,56 @@ export default experiment({
       allowed[cell] = 1
     }
 
-    const anchors = [...band].filter((_, i) => i % 40 === 0).slice(0, 12)
-    const samples: { withinCusp: number; throughBulk: number; eta: number }[] = []
+    const anchors = [...band]
+      .filter((_, i) => i % 40 === 0)
+      .slice(0, 12)
+
+    const samples: {
+      withinCusp: number
+      throughBulk: number
+      eta: number
+    }[] = []
 
     for (const anchor of anchors) {
-      const within = csrDistances({ offsets, adj, size, source: anchor, allowed })
-      const through = neighborDistances({ neighbors, size, source: anchor })
-      const coneA = backwardCone({ neighbors, size, cell: anchor, depth: CONE_DEPTH })
+      const within = csrDistances({
+        offsets,
+        adj,
+        size,
+        source: anchor,
+        allowed,
+      })
+
+      const through = neighborDistances({
+        neighbors,
+        size,
+        source: anchor,
+      })
+
+      const coneA = backwardCone({
+        neighbors,
+        size,
+        cell: anchor,
+        depth: CONE_DEPTH,
+      })
 
       for (const other of band) {
         const withinCusp = within[other] ?? -1
         const throughBulk = through[other] ?? -1
 
-        if (withinCusp < 1 || throughBulk < 1 || throughBulk > 2 * CONE_DEPTH) {
+        if (
+          withinCusp < 1 ||
+          throughBulk < 1 ||
+          throughBulk > 2 * CONE_DEPTH
+        ) {
           continue
         }
 
-        const coneB = backwardCone({ neighbors, size, cell: other, depth: CONE_DEPTH })
+        const coneB = backwardCone({
+          neighbors,
+          size,
+          cell: other,
+          depth: CONE_DEPTH,
+        })
 
         let shared = 0
 
@@ -136,9 +169,20 @@ export default experiment({
       byBulk.get(s.throughBulk)!.push(s.eta)
     }
 
-    const bulkKeys = [...byBulk.keys()].sort((a, b) => a - b).filter(k => byBulk.get(k)!.length >= 3)
-    const bulkEta = bulkKeys.map(k => byBulk.get(k)!.reduce((a, b) => a + b, 0) / byBulk.get(k)!.length)
-    const etaVsBulk = linearFit({ xs: bulkKeys, ys: bulkEta.map(Math.log) })
+    const bulkKeys = [...byBulk.keys()]
+      .sort((a, b) => a - b)
+      .filter(k => byBulk.get(k)!.length >= 3)
+
+    const bulkEta = bulkKeys.map(
+      k =>
+        byBulk.get(k)!.reduce((a, b) => a + b, 0) /
+        byBulk.get(k)!.length,
+    )
+
+    const etaVsBulk = linearFit({
+      xs: bulkKeys,
+      ys: bulkEta.map(Math.log),
+    })
 
     // through-bulk versus within-cusp: the log shortcut
     const byCusp = new Map<number, number[]>()
@@ -151,17 +195,33 @@ export default experiment({
       byCusp.get(s.withinCusp)!.push(s.throughBulk)
     }
 
-    const cuspKeys = [...byCusp.keys()].sort((a, b) => a - b).filter(k => byCusp.get(k)!.length >= 3)
-    const cuspBulk = cuspKeys.map(k => byCusp.get(k)!.reduce((a, b) => a + b, 0) / byCusp.get(k)!.length)
-    const bulkVsCusp = linearFit({ xs: cuspKeys.map(Math.log), ys: cuspBulk })
+    const cuspKeys = [...byCusp.keys()]
+      .sort((a, b) => a - b)
+      .filter(k => byCusp.get(k)!.length >= 3)
+
+    const cuspBulk = cuspKeys.map(
+      k =>
+        byCusp.get(k)!.reduce((a, b) => a + b, 0) /
+        byCusp.get(k)!.length,
+    )
+
+    const bulkVsCusp = linearFit({
+      xs: cuspKeys.map(Math.log),
+      ys: cuspBulk,
+    })
 
     const composedExponent = -etaVsBulk.slope * bulkVsCusp.slope
 
     if (bulkKeys.length < 3 || cuspKeys.length < 3) {
       return verdict({
         status: 'fail',
-        claim: 'not enough distinct distances on the genuine tessellation',
-        metrics: { pairs: samples.length, bulkKeys: bulkKeys.length, cuspKeys: cuspKeys.length },
+        claim:
+          'not enough distinct distances on the genuine tessellation',
+        metrics: {
+          pairs: samples.length,
+          bulkKeys: bulkKeys.length,
+          cuspKeys: cuspKeys.length,
+        },
       })
     }
 
@@ -169,13 +229,15 @@ export default experiment({
     const collapseInBulk = etaVsBulk.r2 > 0.85
 
     // 2. the bulk distance is logarithmic in physical distance (the shortcut).
-    const shortcutInPhysical = bulkVsCusp.r2 > 0.9 && bulkVsCusp.slope > 0.5
+    const shortcutInPhysical =
+      bulkVsCusp.r2 > 0.9 && bulkVsCusp.slope > 0.5
 
     // 3. composed, the shared past is a power law in physical distance, order one.
     const powerLawInPhysical =
       composedExponent > 0.4 && composedExponent < 3
 
-    const solved = collapseInBulk && shortcutInPhysical && powerLawInPhysical
+    const solved =
+      collapseInBulk && shortcutInPhysical && powerLawInPhysical
 
     return verdict({
       status: solved ? 'pass' : 'fail',

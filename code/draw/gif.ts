@@ -31,7 +31,8 @@ interface GifEnc {
   applyPalette: (frame: Uint8Array, palette: number[][]) => Uint8Array
 }
 
-const { GIFEncoder, quantize, applyPalette } = gifenc as unknown as GifEnc
+const { GIFEncoder, quantize, applyPalette } =
+  gifenc as unknown as GifEnc
 
 // encode RGBA frames (each width*height*4) into an animated, looping GIF. delayMs is the per-frame delay.
 export function encodeGif(input: {

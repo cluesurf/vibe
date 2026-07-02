@@ -64,7 +64,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
-    tone[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0)
+    tone[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
   for (let t = 0; t < 70; t++) {

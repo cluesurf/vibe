@@ -34,21 +34,24 @@ suite('tool/graph-store: graph round-trip', [
     exactArray(back.offsets, graph.offsets, 'offsets')
     exactArray(back.adj, graph.adj, 'adj')
   }),
-  check('an empty-adjacency graph round-trips (no off-by-one on adjLen 0)', () => {
-    const empty: StoredGraph = {
-      cellCount: 2,
-      offsets: Int32Array.from([0, 0, 0]),
-      adj: Int32Array.from([]),
-    }
+  check(
+    'an empty-adjacency graph round-trips (no off-by-one on adjLen 0)',
+    () => {
+      const empty: StoredGraph = {
+        cellCount: 2,
+        offsets: Int32Array.from([0, 0, 0]),
+        adj: Int32Array.from([]),
+      }
 
-    const path = join(dir, 'empty.bin')
-    saveGraph(path, empty)
+      const path = join(dir, 'empty.bin')
+      saveGraph(path, empty)
 
-    const back = loadGraph(path)
-    equal(back.cellCount, 2, 'cellCount')
-    exactArray(back.offsets, empty.offsets, 'offsets')
-    equal(back.adj.length, 0, 'no adjacency')
-  }),
+      const back = loadGraph(path)
+      equal(back.cellCount, 2, 'cellCount')
+      exactArray(back.offsets, empty.offsets, 'offsets')
+      equal(back.adj.length, 0, 'no adjacency')
+    },
+  ),
 ])
 
 suite('tool/graph-store: state round-trip', [

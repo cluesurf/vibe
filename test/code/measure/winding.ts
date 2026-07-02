@@ -8,7 +8,10 @@ import { phaseWinding, directorWinding } from '@/code/measure/winding'
 
 // A phase ramp that winds `turns` times around a ring of `n` samples.
 function ramp(n: number, turns: number): number[] {
-  return Array.from({ length: n }, (_, i) => (2 * Math.PI * turns * i) / n)
+  return Array.from(
+    { length: n },
+    (_, i) => (2 * Math.PI * turns * i) / n,
+  )
 }
 
 suite('measure/winding: phaseWinding', [

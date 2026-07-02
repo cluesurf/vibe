@@ -26,29 +26,39 @@ suite('control/lossy-collision: the erase destroys one slot', [
 suite('control/lossy-collision: it is a genuine negative', [
   // A structured will carries information; erasing slot 0 each beat loses it, so the round-trip cannot
   // recover the start.
-  check('the erasing collision fails the round-trip (Hamming > 0)', () => {
-    const square = squareMesh({ side: 4 })
-    const will = makeWill(square)
-    fillWillPattern(will)
-    ok(charge(will) !== 0, 'the will must carry information to lose')
-    const { roundtripHamming } = roundtrip({
-      will,
-      collision: erasingCollision,
-      beats: 2,
-    })
-    ok(roundtripHamming > 0, 'an erasing collision cannot be inverted')
-  }),
+  check(
+    'the erasing collision fails the round-trip (Hamming > 0)',
+    () => {
+      const square = squareMesh({ side: 4 })
+      const will = makeWill(square)
+      fillWillPattern(will)
+      ok(charge(will) !== 0, 'the will must carry information to lose')
+
+      const { roundtripHamming } = roundtrip({
+        will,
+        collision: erasingCollision,
+        beats: 2,
+      })
+
+      ok(
+        roundtripHamming > 0,
+        'an erasing collision cannot be inverted',
+      )
+    },
+  ),
   // The contrast: a real involution recovers the start exactly, proving the failure above is the
   // erasing, not the harness.
   check('a real involution recovers exactly (Hamming 0)', () => {
     const square = squareMesh({ side: 4 })
     const will = makeWill(square)
     fillWillPattern(will)
+
     const { roundtripHamming } = roundtrip({
       will,
       collision: momentumRotate2D,
       beats: 5,
     })
+
     equal(roundtripHamming, 0, 'an involution is reversible')
   }),
 ])

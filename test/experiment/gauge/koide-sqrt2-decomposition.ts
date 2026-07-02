@@ -67,8 +67,11 @@ function decompose(masses: number[]): {
   // Σ (b cos)^2 over three equally spaced phases = 1.5 b^2 = tracelessNorm2
   const b = Math.sqrt(tracelessNorm2 / 1.5)
 
-  // the branch angles arccos(dev_k / b); delta is the smallest (the heavy generation)
-  const angles = dev.map(d => Math.acos(Math.max(-1, Math.min(1, d / b))))
+  // the branch angles arccos(dev_k / b), delta is the smallest (the heavy generation)
+  const angles = dev.map(d =>
+    Math.acos(Math.max(-1, Math.min(1, d / b))),
+  )
+
   const delta = Math.min(...angles)
 
   return { a, b, delta, democraticNorm2, tracelessNorm2 }
@@ -101,19 +104,23 @@ export default experiment({
     const controlAmplitude = control.b / control.a
 
     // 1. the exact decomposition: traceless norm equals democratic norm (this IS 45 deg).
-    const equalNorm = Math.abs(normRatio - 1) < 1e-3
+    //    The 1e-4 gate is tight enough that a wrong tau of 1780 MeV (miss about 5e-4) fails.
+    const equalNorm = Math.abs(normRatio - 1) < 1e-4
 
-    // 2. the amplitude ratio is the D4 sqrt(2) to high precision.
-    const amplitudeIsD4 = Math.abs(amplitudeRatio - d4Ratio) < 1e-3
+    // 2. the amplitude ratio is the D4 sqrt(2) to high precision (PDG miss about 1.3e-5,
+    //    a wrong tau of 1780 MeV misses by about 3.6e-4 and fails the 1e-4 gate).
+    const amplitudeIsD4 = Math.abs(amplitudeRatio - d4Ratio) < 1e-4
 
     // 3. the phase is 2/9 radian to high precision (the sharp rational the amplitude
-    //    does not fix).
-    const phaseIsTwoNinths = Math.abs(delta - 2 / 9) < 1e-3
+    //    does not fix). PDG miss about 7e-6, a wrong tau of 1780 MeV misses by about
+    //    2e-4 and fails the 2e-5 gate.
+    const phaseIsTwoNinths = Math.abs(delta - 2 / 9) < 2e-5
 
     // 4. the control (generic triple) misses the sqrt(2), so the lepton value is special.
     const controlMisses = Math.abs(controlAmplitude - d4Ratio) > 0.1
 
-    const solved = equalNorm && amplitudeIsD4 && phaseIsTwoNinths && controlMisses
+    const solved =
+      equalNorm && amplitudeIsD4 && phaseIsTwoNinths && controlMisses
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -137,7 +144,7 @@ export default experiment({
         sqrt2: Number(d4Ratio.toFixed(6)),
       },
       notes:
-        'L1, Tier A for the algebra (Q = 1/3 + b^2/(6 a^2), so Q=2/3 <=> b/a=sqrt(2) <=> equal traceless and democratic norms, exact), Tier B for the two geometric observations (that b/a equals the D4 sqrt(2) vertex ratio, and that delta = 2/9 radian). Neither residual is yet DERIVED from the three-slot generation structure, and forcing b/a = sqrt(2) from the dynamics is the open step this isolates. The masses are PDG input. This sharpens E-FRC-0057 (which confirmed 45 degrees) by decomposing it into a sqrt(2) amplitude with a natural home in the 24-cell and a free 2/9 phase, rather than adding a new claim of derivation.',
+        'L1, Tier A for the algebra (Q = 1/3 + b^2/(6 a^2), so Q=2/3 <=> b/a=sqrt(2) <=> equal traceless and democratic norms, exact), Tier B for the two geometric observations (that b/a equals the D4 sqrt(2) vertex ratio, and that delta = 2/9 radian). The sqrt(m_k) = a + b cos(delta + 2 pi k/3) parametrization is due to Brannen. The pass gates are 1e-4 on the amplitude and norm booleans and 2e-5 on the phase boolean, tight enough that a wrong tau of 1780 MeV fails all three (misses of about 3.6e-4, 5.1e-4, and 2.1e-4), while the PDG values pass with room (misses of about 1.3e-5, 1.8e-5, and 7e-6). Neither residual is yet DERIVED from the three-slot generation structure, and forcing b/a = sqrt(2) from the dynamics is the open step this isolates. The masses are PDG input. This sharpens E-FRC-0057 (which confirmed 45 degrees) by decomposing it into a sqrt(2) amplitude with a natural home in the 24-cell and a free 2/9 phase, rather than adding a new claim of derivation.',
     })
   },
 })

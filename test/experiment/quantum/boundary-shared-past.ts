@@ -117,8 +117,19 @@ export default experiment({
     }
 
     const eta = (a: number, b: number): number => {
-      const coneA = backwardCone({ neighbors, size, cell: a, depth: CONE_DEPTH })
-      const coneB = backwardCone({ neighbors, size, cell: b, depth: CONE_DEPTH })
+      const coneA = backwardCone({
+        neighbors,
+        size,
+        cell: a,
+        depth: CONE_DEPTH,
+      })
+
+      const coneB = backwardCone({
+        neighbors,
+        size,
+        cell: b,
+        depth: CONE_DEPTH,
+      })
 
       let shared = 0
 

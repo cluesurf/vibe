@@ -37,7 +37,11 @@ suite('algebra/linear/dense: get/set and matvec', [
     denseSet(m, { row: 1, col: 0, value: 3 })
     denseSet(m, { row: 1, col: 1, value: 4 })
     // [[1,2],[3,4]] (5,6) = (1*5+2*6, 3*5+4*6) = (17, 39)
-    exactArray(denseMatVec(m, { x: Float64Array.from([5, 6]) }), [17, 39], 'A x')
+    exactArray(
+      denseMatVec(m, { x: Float64Array.from([5, 6]) }),
+      [17, 39],
+      'A x',
+    )
   }),
 ])
 
@@ -47,10 +51,12 @@ suite('algebra/linear/dense: number[][] product', [
       [1, 2],
       [3, 4],
     ]
+
     const b = [
       [5, 6],
       [7, 8],
     ]
+
     // [[19,22],[43,50]]
     const p = matrixProduct(a, b)
     exactArray(p[0]!, [19, 22], 'row 0')
@@ -61,17 +67,21 @@ suite('algebra/linear/dense: number[][] product', [
       [2, -1, 0],
       [3, 5, 7],
     ]
+
     const id3 = [
       [1, 0, 0],
       [0, 1, 0],
       [0, 0, 1],
     ]
+
     const id2 = [
       [1, 0],
       [0, 1],
     ]
+
     const right = matrixProduct(a, id3)
     const left = matrixProduct(id2, a)
+
     for (let r = 0; r < 2; r++) {
       exactArray(right[r]!, a[r]!, 'A I = A')
       exactArray(left[r]!, a[r]!, 'I A = A')
@@ -82,11 +92,13 @@ suite('algebra/linear/dense: number[][] product', [
       [1, 0, 2],
       [0, 3, 0],
     ]
+
     const b = [
       [1, 1],
       [0, 1],
       [4, 0],
     ]
+
     // row0: (1*1+0*0+2*4, 1*1+0*1+2*0) = (9, 1)
     // row1: (0+0+0, 0+3+0) = (0, 3)
     const p = matrixProduct(a, b)
@@ -133,10 +145,12 @@ suite('algebra/linear/dense: determinant', [
       [1, 2],
       [3, 4],
     ]
+
     const b = [
       [2, 0],
       [1, 2],
     ]
+
     const detA = determinant(a)
     const detB = determinant(b)
     const detAB = determinant(matrixProduct(a, b))
@@ -145,32 +159,42 @@ suite('algebra/linear/dense: determinant', [
 ])
 
 suite('algebra/linear/dense: linear solve', [
-  check('solveLinearSystem solves a 2x2 and the residual is zero', () => {
-    const matrix = [
-      [2, 1],
-      [1, 3],
-    ]
-    const rightHandSide = [3, 5]
-    // 2x + y = 3, x + 3y = 5  ->  x = 0.8, y = 1.4
-    const x = solveLinearSystem({ matrix, rightHandSide })
-    closeArray(x, [0.8, 1.4], 1e-9, 'solution')
-    // substitute back: A x must equal b
-    for (let r = 0; r < 2; r++) {
-      const lhs = matrix[r]![0]! * x[0]! + matrix[r]![1]! * x[1]!
-      close(lhs, rightHandSide[r]!, 1e-9, `row ${r} residual`)
-    }
-  }),
+  check(
+    'solveLinearSystem solves a 2x2 and the residual is zero',
+    () => {
+      const matrix = [
+        [2, 1],
+        [1, 3],
+      ]
+
+      const rightHandSide = [3, 5]
+      // 2x + y = 3, x + 3y = 5  ->  x = 0.8, y = 1.4
+      const x = solveLinearSystem({ matrix, rightHandSide })
+      closeArray(x, [0.8, 1.4], 1e-9, 'solution')
+
+      // substitute back: A x must equal b
+      for (let r = 0; r < 2; r++) {
+        const lhs = matrix[r]![0]! * x[0]! + matrix[r]![1]! * x[1]!
+        close(lhs, rightHandSide[r]!, 1e-9, `row ${r} residual`)
+      }
+    },
+  ),
   check('a 3x3 solve substitutes back exactly', () => {
     const matrix = [
       [2, 1, 1],
       [1, 3, 2],
       [1, 0, 0],
     ]
+
     const rightHandSide = [5, 10, 1]
     const x = solveLinearSystem({ matrix, rightHandSide })
+
     for (let r = 0; r < 3; r++) {
       const lhs =
-        matrix[r]![0]! * x[0]! + matrix[r]![1]! * x[1]! + matrix[r]![2]! * x[2]!
+        matrix[r]![0]! * x[0]! +
+        matrix[r]![1]! * x[1]! +
+        matrix[r]![2]! * x[2]!
+
       close(lhs, rightHandSide[r]!, 1e-9, `row ${r} residual`)
     }
   }),

@@ -24,11 +24,19 @@ import {
   headOnRotate,
 } from '@/code/rule/collision'
 import { squareMesh, cubicMesh, Mesh } from '@/code/tool/mesh'
-import { Will, makeWill, cloneWill, fillWillPattern, charge } from '@/code/tone/will'
+import {
+  Will,
+  makeWill,
+  cloneWill,
+  fillWillPattern,
+  charge,
+} from '@/code/tone/will'
 
 // The opposite-direction index array of a mesh, the shape the pair tables consume.
 function oppositeOf(mesh: Mesh): number[] {
-  return Array.from({ length: mesh.degree }, (_unused, d) => mesh.opposite(d))
+  return Array.from({ length: mesh.degree }, (_unused, d) =>
+    mesh.opposite(d),
+  )
 }
 
 // A deterministic structured will on a mesh (never random, per methodology).
@@ -85,12 +93,19 @@ suite('rule/lattice-gas: stream is a permutation of slots', [
       const start = patternWill(mesh)
       const there = stream(start)
       const back = streamInverse(there)
-      ok(sameData(back, start), `${mesh.id}: un-stream must invert stream exactly`)
+      ok(
+        sameData(back, start),
+        `${mesh.id}: un-stream must invert stream exactly`,
+      )
     }
   }),
   check('stream conserves charge (it only moves slots)', () => {
     const start = patternWill(square)
-    equal(charge(stream(start)), charge(start), 'stream must not change the charge')
+    equal(
+      charge(stream(start)),
+      charge(start),
+      'stream must not change the charge',
+    )
   }),
 ])
 
@@ -99,28 +114,46 @@ suite('rule/lattice-gas: beat = collide then stream', [
     const collision = pairCollision({ opposite: oppositeOf(square) })
     const manual = patternWill(square)
     collide(manual, collision)
+
     const streamed = stream(manual)
     const viaBeat = beat(patternWill(square), collision)
-    ok(sameData(viaBeat, streamed), 'beat must be exactly collide then stream')
+    ok(
+      sameData(viaBeat, streamed),
+      'beat must be exactly collide then stream',
+    )
   }),
   check('run(n) equals chaining beat() n times', () => {
     const collision = pairCollision({ opposite: oppositeOf(square) })
+
     let chained = patternWill(square)
+
     for (let b = 0; b < 5; b++) {
       chained = beat(chained, collision)
     }
+
     const buffered = run(patternWill(square), collision, 5)
-    ok(sameData(buffered, chained), 'the buffered run must match chained beats')
+    ok(
+      sameData(buffered, chained),
+      'the buffered run must match chained beats',
+    )
   }),
 ])
 
 suite('rule/lattice-gas: reversibility (involution collisions)', [
-  check('momentumRotate2D round-trips exactly over several beats (square)', () => {
-    ok(
-      roundTrips(patternWill(square), momentumRotate2D, momentumRotate2D, 6),
-      'an involution must recover the start bit-for-bit',
-    )
-  }),
+  check(
+    'momentumRotate2D round-trips exactly over several beats (square)',
+    () => {
+      ok(
+        roundTrips(
+          patternWill(square),
+          momentumRotate2D,
+          momentumRotate2D,
+          6,
+        ),
+        'an involution must recover the start bit-for-bit',
+      )
+    },
+  ),
   check('headOnRotate round-trips exactly (square and cubic)', () => {
     for (const mesh of [square, cubic]) {
       const collision = headOnRotate({ opposite: oppositeOf(mesh) })
@@ -140,51 +173,80 @@ suite('rule/lattice-gas: reversibility (involution collisions)', [
 ])
 
 suite('rule/lattice-gas: reversibility (non-involution pair table)', [
-  check('pair table round-trips with its PAIRED INVERSE (square)', () => {
-    const opposite = oppositeOf(square)
-    const forward = pairCollision({ opposite, forward: true })
-    const inverse = pairCollision({ opposite, forward: false })
-    ok(
-      roundTrips(patternWill(square), forward, inverse, 5),
-      'the paired inverse must undo the forward pair table exactly',
-    )
-  }),
-  check('pair table round-trips with its PAIRED INVERSE (cubic)', () => {
-    const opposite = oppositeOf(cubic)
-    const forward = pairCollision({ opposite, forward: true })
-    const inverse = pairCollision({ opposite, forward: false })
-    ok(
-      roundTrips(patternWill(cubic), forward, inverse, 4),
-      'the paired inverse must undo the forward pair table on the cubic coin',
-    )
-  }),
-  check('using the FORWARD table as its own inverse FAILS (it is order-3)', () => {
-    const opposite = oppositeOf(square)
-    const forward = pairCollision({ opposite, forward: true })
-    ok(
-      !roundTrips(patternWill(square), forward, forward, 1),
-      'a non-involution must NOT round-trip through itself',
-    )
-  }),
+  check(
+    'pair table round-trips with its PAIRED INVERSE (square)',
+    () => {
+      const opposite = oppositeOf(square)
+      const forward = pairCollision({ opposite, forward: true })
+      const inverse = pairCollision({ opposite, forward: false })
+      ok(
+        roundTrips(patternWill(square), forward, inverse, 5),
+        'the paired inverse must undo the forward pair table exactly',
+      )
+    },
+  ),
+  check(
+    'pair table round-trips with its PAIRED INVERSE (cubic)',
+    () => {
+      const opposite = oppositeOf(cubic)
+      const forward = pairCollision({ opposite, forward: true })
+      const inverse = pairCollision({ opposite, forward: false })
+      ok(
+        roundTrips(patternWill(cubic), forward, inverse, 4),
+        'the paired inverse must undo the forward pair table on the cubic coin',
+      )
+    },
+  ),
+  check(
+    'using the FORWARD table as its own inverse FAILS (it is order-3)',
+    () => {
+      const opposite = oppositeOf(square)
+      const forward = pairCollision({ opposite, forward: true })
+      ok(
+        !roundTrips(patternWill(square), forward, forward, 1),
+        'a non-involution must NOT round-trip through itself',
+      )
+    },
+  ),
 ])
 
 suite('rule/lattice-gas: charge conservation every beat', [
-  check('charge is unchanged after every beat (pair table, square)', () => {
-    const collision = pairCollision({ opposite: oppositeOf(square) })
-    let w = patternWill(square)
-    const start = charge(w)
-    for (let b = 0; b < 8; b++) {
-      w = beat(w, collision)
-      equal(charge(w), start, `charge must be conserved at beat ${b + 1}`)
-    }
-  }),
-  check('charge is unchanged after every beat (leaky-confine, cubic)', () => {
-    const collision = leakyConfine({ opposite: oppositeOf(cubic) })
-    let w = patternWill(cubic)
-    const start = charge(w)
-    for (let b = 0; b < 6; b++) {
-      w = beat(w, collision)
-      equal(charge(w), start, `charge must be conserved at beat ${b + 1}`)
-    }
-  }),
+  check(
+    'charge is unchanged after every beat (pair table, square)',
+    () => {
+      const collision = pairCollision({ opposite: oppositeOf(square) })
+
+      let w = patternWill(square)
+
+      const start = charge(w)
+
+      for (let b = 0; b < 8; b++) {
+        w = beat(w, collision)
+        equal(
+          charge(w),
+          start,
+          `charge must be conserved at beat ${b + 1}`,
+        )
+      }
+    },
+  ),
+  check(
+    'charge is unchanged after every beat (leaky-confine, cubic)',
+    () => {
+      const collision = leakyConfine({ opposite: oppositeOf(cubic) })
+
+      let w = patternWill(cubic)
+
+      const start = charge(w)
+
+      for (let b = 0; b < 6; b++) {
+        w = beat(w, collision)
+        equal(
+          charge(w),
+          start,
+          `charge must be conserved at beat ${b + 1}`,
+        )
+      }
+    },
+  ),
 ])

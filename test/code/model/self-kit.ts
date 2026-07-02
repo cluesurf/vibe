@@ -40,6 +40,7 @@ suite('model/self-kit: graph construction', [
   check('the square graph has degree 2 at every corner', () => {
     const g = squareGraph(2)
     equal(g.cellCount, 4)
+
     for (let c = 0; c < 4; c++) {
       equal(degreeOf(g, c), 2)
     }
@@ -57,17 +58,37 @@ suite('model/self-kit: graph construction', [
 ])
 
 suite('model/self-kit: ball and boundary', [
-  check('a radius-0 ball is the centre and a large ball is everything', () => {
-    const g = flatGraph(4)
-    equal(ball(g, 5, 0).length, 1)
-    equal(ball(g, 5, 20).length, 16, 'a large ball covers the connected graph')
-  }),
-  check('boundary fraction is 0 for the whole graph and 1 for a lone cell', () => {
-    const g = flatGraph(4)
-    const all = Array.from({ length: 16 }, (_, i) => i)
-    close(boundaryFraction(all, g), 0, 1e-12, 'no cell of the full set touches outside')
-    close(boundaryFraction([5], g), 1, 1e-12, 'a lone cell is all boundary')
-  }),
+  check(
+    'a radius-0 ball is the centre and a large ball is everything',
+    () => {
+      const g = flatGraph(4)
+      equal(ball(g, 5, 0).length, 1)
+      equal(
+        ball(g, 5, 20).length,
+        16,
+        'a large ball covers the connected graph',
+      )
+    },
+  ),
+  check(
+    'boundary fraction is 0 for the whole graph and 1 for a lone cell',
+    () => {
+      const g = flatGraph(4)
+      const all = Array.from({ length: 16 }, (_, i) => i)
+      close(
+        boundaryFraction(all, g),
+        0,
+        1e-12,
+        'no cell of the full set touches outside',
+      )
+      close(
+        boundaryFraction([5], g),
+        1,
+        1e-12,
+        'a lone cell is all boundary',
+      )
+    },
+  ),
 ])
 
 suite('model/self-kit: charge conservation', [
@@ -77,15 +98,23 @@ suite('model/self-kit: charge conservation', [
     const g = flatGraph(12)
     const tone = new Int8Array(g.cellCount)
     const rng = makeRng({ seed: 1 })
+
     for (let i = 0; i < tone.length; i++) {
-      tone[i] = (i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0)
+      tone[i] = i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0
     }
+
     const before = totalCharge(tone)
     const moved = new Uint8Array(g.cellCount)
+
     for (let t = 0; t < 25; t++) {
       beat(tone, g, moved, rng, 0, 0.22)
     }
-    equal(totalCharge(tone), before, 'arrow-off dynamics conserve charge')
+
+    equal(
+      totalCharge(tone),
+      before,
+      'arrow-off dynamics conserve charge',
+    )
   }),
 ])
 
@@ -98,8 +127,10 @@ suite('model/self-kit: the discrete arrow', [
     const created = discreteArrow(tone, g, 0, 4)
     ok(created > 0, 'some pairs were created')
     equal(totalCharge(tone), 0, 'balanced pairs add no net charge')
+
     let plus = 0
     let minus = 0
+
     for (const v of tone) {
       if (v === 1) {
         plus++
@@ -107,6 +138,7 @@ suite('model/self-kit: the discrete arrow', [
         minus++
       }
     }
+
     equal(plus, created, 'one + per pair')
     equal(minus, created, 'one - per pair')
   }),
@@ -123,27 +155,45 @@ suite('model/self-kit: the discrete arrow', [
 
 suite('model/self-kit: cluster detection', [
   // cells 0 and 1 are adjacent (+1), cell 24 is an isolated +1. The largest positive cluster is {0,1}.
-  check('largest cluster and component count read a hand-built tone', () => {
-    const g = flatGraph(5)
-    const tone = new Int8Array(g.cellCount)
-    tone[0] = 1
-    tone[1] = 1
-    tone[24] = 1
-    const largest = largestPositiveCluster(tone, g)
-    equal(largest.length, 2, 'the two-cell cluster is largest')
-    equal(positiveClusters(tone, g).length, 2, 'two positive components total')
-    equal(countPlus(tone, [0, 1, 24]), 3)
-    equal(
-      countLargeSameSignComponents({ tone, g, minSize: 2, sign: 'positive' }),
-      1,
-      'one component of size >= 2',
-    )
-    equal(
-      countLargeSameSignComponents({ tone, g, minSize: 3, sign: 'positive' }),
-      0,
-      'no component of size >= 3',
-    )
-  }),
+  check(
+    'largest cluster and component count read a hand-built tone',
+    () => {
+      const g = flatGraph(5)
+      const tone = new Int8Array(g.cellCount)
+      tone[0] = 1
+      tone[1] = 1
+      tone[24] = 1
+
+      const largest = largestPositiveCluster(tone, g)
+      equal(largest.length, 2, 'the two-cell cluster is largest')
+      equal(
+        positiveClusters(tone, g).length,
+        2,
+        'two positive components total',
+      )
+      equal(countPlus(tone, [0, 1, 24]), 3)
+      equal(
+        countLargeSameSignComponents({
+          tone,
+          g,
+          minSize: 2,
+          sign: 'positive',
+        }),
+        1,
+        'one component of size >= 2',
+      )
+      equal(
+        countLargeSameSignComponents({
+          tone,
+          g,
+          minSize: 3,
+          sign: 'positive',
+        }),
+        0,
+        'no component of size >= 3',
+      )
+    },
+  ),
   // cluster {0,1} on flatGraph(5): cell 0 has degree 2, cell 1 degree 4, 6 directed edges, 2 internal
   // (0->1 and 1->0), so integration = 2/6 = 1/3.
   check('cluster integration is the internal-edge fraction', () => {
@@ -157,11 +207,15 @@ suite('model/self-kit: emergence reproducibility', [
     const run = (): Int8Array => {
       const g = flatGraph(24)
       const moved = new Uint8Array(g.cellCount)
-      return emergeSelf(g, makeRng({ seed: 9 }), moved, { beats: 20 }).tone
+
+      return emergeSelf(g, makeRng({ seed: 9 }), moved, { beats: 20 })
+        .tone
     }
+
     const a = run()
     const b = run()
     equal(a.length, b.length)
+
     for (let i = 0; i < a.length; i++) {
       equal(a[i]!, b[i]!, 'same seed, same emerged field')
     }

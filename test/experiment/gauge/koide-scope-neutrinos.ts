@@ -92,7 +92,8 @@ export default experiment({
     //    difference, not an impossibility of the Koide form.
     const chargedLeptonsReach = Math.abs(qChargedLeptons - 2 / 3) < 1e-4
 
-    const solved = normalExcluded && invertedExcluded && chargedLeptonsReach
+    const solved =
+      normalExcluded && invertedExcluded && chargedLeptonsReach
 
     return verdict({
       status: solved ? 'pass' : 'fail',

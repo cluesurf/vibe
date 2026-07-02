@@ -145,7 +145,7 @@ export function recursion(input?: { n?: number }): {
       // model1's current representation of the world
       const m1 = meanOver(tone, hub1cells)
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
-      const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0)
+      const s2in = m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0
 
       for (const i of boundary2) {
         tone[i] = s2in

@@ -30,20 +30,29 @@ const line: number[][] = Array.from({ length: 8 }, (_, i) =>
 
 function freshMemory(): ReturnType<typeof makeAssociativeMemory> {
   const mem = makeAssociativeMemory({ neighbors: line, wordBits })
+
   for (let c = 0; c < mem.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c * 7 + 1, wordBits))
   }
+
   return mem
 }
 
 suite('operator/associative-memory: words', [
   check('ternaryWord has slots in {0,1,2} and distinct words', () => {
-    const words = Array.from({ length: 20 }, (_, i) => ternaryWord(i, wordBits))
+    const words = Array.from({ length: 20 }, (_, i) =>
+      ternaryWord(i, wordBits),
+    )
+
     for (const w of words) {
       for (const slot of w) {
-        ok(slot === 0 || slot === 1 || slot === 2, 'slot is a base-3 digit')
+        ok(
+          slot === 0 || slot === 1 || slot === 2,
+          'slot is a base-3 digit',
+        )
       }
     }
+
     const keys = new Set(words.map(w => w.join('')))
     equal(keys.size, words.length, 'all words distinct')
   }),
@@ -51,17 +60,26 @@ suite('operator/associative-memory: words', [
     const mem = makeAssociativeMemory({ neighbors: line, wordBits })
     const w = ternaryWord(42, wordBits)
     storeWord(mem, 3, w)
+
     const back = readWord(mem, 3)
-    ok(back.every((v, k) => v === w[k]), 'read recovers the stored word')
+    ok(
+      back.every((v, k) => v === w[k]),
+      'read recovers the stored word',
+    )
     equal(mem.occupied[3], 1, 'cell marked occupied')
   }),
   check('comparedSlots counts the unmasked slots', () => {
     equal(comparedSlots(wordBits), wordBits, 'all slots without a mask')
+
     const mask = new Int8Array(wordBits)
     mask[0] = 1
     mask[5] = 1
     mask[20] = 1
-    equal(comparedSlots(wordBits, mask), 3, 'mask restricts to three slots')
+    equal(
+      comparedSlots(wordBits, mask),
+      3,
+      'mask restricts to three slots',
+    )
   }),
 ])
 
@@ -69,23 +87,39 @@ suite('operator/associative-memory: search', [
   check('matchScore is wordBits for an exact match', () => {
     const mem = freshMemory()
     const w = readWord(mem, 4)
-    equal(matchScore(mem, 4, w), wordBits, 'a cell matches its own word fully')
-    ok(matchScore(mem, 4, ternaryWord(999999, wordBits)) < wordBits, 'a foreign word scores lower')
+    equal(
+      matchScore(mem, 4, w),
+      wordBits,
+      'a cell matches its own word fully',
+    )
+    ok(
+      matchScore(mem, 4, ternaryWord(999999, wordBits)) < wordBits,
+      'a foreign word scores lower',
+    )
   }),
-  check('searchExact returns exactly the cells matching the comparand', () => {
-    const mem = freshMemory()
-    const target = readWord(mem, 5)
-    const responders = searchExact({ mem, comparand: target })
-    // brute-force reference: cells whose stored word equals target.
-    const reference: number[] = []
-    for (let c = 0; c < mem.cellCount; c++) {
-      if (readWord(mem, c).every((v, k) => v === target[k])) {
-        reference.push(c)
+  check(
+    'searchExact returns exactly the cells matching the comparand',
+    () => {
+      const mem = freshMemory()
+      const target = readWord(mem, 5)
+      const responders = searchExact({ mem, comparand: target })
+      // brute-force reference: cells whose stored word equals target.
+      const reference: number[] = []
+
+      for (let c = 0; c < mem.cellCount; c++) {
+        if (readWord(mem, c).every((v, k) => v === target[k])) {
+          reference.push(c)
+        }
       }
-    }
-    equal(responders.join(','), reference.join(','), 'responder set matches brute force')
-    ok(responders.includes(5), 'cell 5 is a responder')
-  }),
+
+      equal(
+        responders.join(','),
+        reference.join(','),
+        'responder set matches brute force',
+      )
+      ok(responders.includes(5), 'cell 5 is a responder')
+    },
+  ),
   check('searchBest returns the highest-scoring occupied cell', () => {
     const mem = freshMemory()
     const target = readWord(mem, 6)
@@ -97,14 +131,26 @@ suite('operator/associative-memory: search', [
     const mem = freshMemory()
     const comparand = ternaryWord(123, wordBits)
     const minScore = 10
-    const responders = search({ mem, comparand, mask: undefined, minScore })
+    const responders = search({
+      mem,
+      comparand,
+      mask: undefined,
+      minScore,
+    })
+
     const reference: number[] = []
+
     for (let c = 0; c < mem.cellCount; c++) {
       if (matchScore(mem, c, comparand) >= minScore) {
         reference.push(c)
       }
     }
-    equal(responders.join(','), reference.join(','), 'threshold search matches brute force')
+
+    equal(
+      responders.join(','),
+      reference.join(','),
+      'threshold search matches brute force',
+    )
   }),
 ])
 
@@ -112,14 +158,29 @@ suite('operator/associative-memory: broadcast', [
   check('arrival beats equal graph distance from the seed', () => {
     const responders = [2, 6]
     const wave = broadcastWave({ neighbors: line, seed: 0, responders })
+
     for (let c = 0; c < line.length; c++) {
-      equal(wave.arrivalBeat[c], c, `cell ${c} reached at distance ${c} on a line from end`)
+      equal(
+        wave.arrivalBeat[c],
+        c,
+        `cell ${c} reached at distance ${c} on a line from end`,
+      )
     }
-    equal(wave.firstResponderBeat, 2, 'nearest responder (cell 2) reached at beat 2')
+
+    equal(
+      wave.firstResponderBeat,
+      2,
+      'nearest responder (cell 2) reached at beat 2',
+    )
     equal(wave.coverageBeat, 7, 'farthest cell reached at beat 7')
   }),
   check('pickNearest selects the responder nearest the seed', () => {
-    const nearest = pickNearest({ responders: [5, 2, 7], seed: 0, neighbors: line })
+    const nearest = pickNearest({
+      responders: [5, 2, 7],
+      seed: 0,
+      neighbors: line,
+    })
+
     equal(nearest, 2, 'cell 2 is the graph-nearest responder')
   }),
 ])

@@ -52,7 +52,7 @@ export default experiment({
       },
       control: { sinSquaredAlteredContent: sinSquaredAltered },
       notes:
-        'L1 known GUT relation reproduced from the discrete content. 3/8 is the unification-scale value, the low-energy 0.231 follows by RG running which is not done here',
+        'L1 known GUT relation reproduced from the discrete content. 3/8 is the unification-scale value, the low-energy 0.231 follows by RG running which is not done here. Scope note: 3/8 requires only the 15 fermions of SU(5), since the right-handed neutrino contributes nothing to either trace (zero electric charge and zero weak isospin, verified by the audit), so the 16-spinor framing is decorative for this computation.',
     })
   },
 })

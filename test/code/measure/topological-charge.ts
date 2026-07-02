@@ -30,20 +30,19 @@ suite('measure/topological-charge: spherical triangle', [
   // 4pi that divides the swept area into the integer skyrmion winding number.
   check('the eight octants tile to 4pi (winding normalization)', () => {
     const signs = [-1, 1]
+
     let total = 0
+
     for (const sx of signs) {
       for (const sy of signs) {
         for (const sz of signs) {
           total += Math.abs(
-            sphericalTriangleArea(
-              [sx, 0, 0],
-              [0, sy, 0],
-              [0, 0, sz],
-            ),
+            sphericalTriangleArea([sx, 0, 0], [0, sy, 0], [0, 0, sz]),
           )
         }
       }
     }
+
     close(total, 4 * Math.PI, TOL)
   }),
 ])

@@ -18,6 +18,7 @@ suite('dynamics/central-force-orbit: acceleration closed form', [
     const [ax, ay] = centralForceAcceleration(1, 0, 3)
     close(ax, -1, 1e-12, 'ax')
     close(ay, 0, 1e-12, 'ay')
+
     // at (3, 4) (r = 5), d = 3: f = -1/125, accel = (-3/125, -4/125)
     const [bx, by] = centralForceAcceleration(3, 4, 3)
     close(bx, -3 / 125, 1e-12, 'bx')
@@ -26,12 +27,15 @@ suite('dynamics/central-force-orbit: acceleration closed form', [
 ])
 
 suite('dynamics/central-force-orbit: Bertrand / Ehrenfest', [
-  check('inverse-square (d=3) is bound and closed (no precession)', () => {
-    const r = integrateCentralForceOrbit({ dimension: 3 })
-    ok(r.stable, 'd=3 stays bound')
-    ok(r.closed, 'd=3 closes')
-    close(r.precessionPerOrbit, 0, 0.15, 'd=3 precession ~ 0')
-  }),
+  check(
+    'inverse-square (d=3) is bound and closed (no precession)',
+    () => {
+      const r = integrateCentralForceOrbit({ dimension: 3 })
+      ok(r.stable, 'd=3 stays bound')
+      ok(r.closed, 'd=3 closes')
+      close(r.precessionPerOrbit, 0, 0.15, 'd=3 precession ~ 0')
+    },
+  ),
   check('the 2D law (d=2) is bound but precesses (not closed)', () => {
     const r = integrateCentralForceOrbit({ dimension: 2 })
     ok(r.stable, 'd=2 stays bound')
@@ -50,6 +54,11 @@ suite('dynamics/central-force-orbit: determinism', [
     const b = integrateCentralForceOrbit(opts)
     equal(a.stable, b.stable, 'stable')
     equal(a.orbits, b.orbits, 'orbit count')
-    close(a.precessionPerOrbit, b.precessionPerOrbit, 0, 'precession identical')
+    close(
+      a.precessionPerOrbit,
+      b.precessionPerOrbit,
+      0,
+      'precession identical',
+    )
   }),
 ])

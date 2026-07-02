@@ -7,7 +7,13 @@
 //   - crossingBeta solves manifoldFractionAt = 1/2, returning null when it is never reached.
 // And the WL walk is deterministic under a fixed seed.
 
-import { suite, check, equal, close, exactArray } from '@/test/code/harness'
+import {
+  suite,
+  check,
+  equal,
+  close,
+  exactArray,
+} from '@/test/code/harness'
 import {
   wangLandauHeight,
   manifoldFractionAt,
@@ -34,23 +40,45 @@ suite('dynamics/wang-landau: free-energy post-processing', [
   check('manifold fraction at beta=0 is 1/3', () => {
     // manifold log-weight = log g(3) = 0; layered = logsumexp(0,0) = log 2.
     // fraction = 1 / (1 + exp(log2 - 0)) = 1/3.
-    close(manifoldFractionAt(wl, 0), 1 / 3, 1e-12, 'beta=0 manifold fraction')
+    close(
+      manifoldFractionAt(wl, 0),
+      1 / 3,
+      1e-12,
+      'beta=0 manifold fraction',
+    )
   }),
   check('entropy gap at beta=0 is log 2', () => {
-    close(entropyGap(wl), log2, 1e-12, 'layered minus manifold log-weight')
+    close(
+      entropyGap(wl),
+      log2,
+      1e-12,
+      'layered minus manifold log-weight',
+    )
   }),
   check('manifold fraction at beta = log 2 is 1/2', () => {
     // manifold log-weight = beta; equals layered log2 when beta = log2.
-    close(manifoldFractionAt(wl, log2), 1 / 2, 1e-12, 'crossing point fraction')
+    close(
+      manifoldFractionAt(wl, log2),
+      1 / 2,
+      1e-12,
+      'crossing point fraction',
+    )
   }),
   check('crossing beta is log 2', () => {
     const star = crossingBeta(wl, 5)
     close(star ?? NaN, log2, 1e-6, 'bisection finds beta* = log 2')
   }),
-  check('crossing beta is null when the manifold never reaches half weight', () => {
-    const disfavored: WangLandauResult = { ...wl, meanAction: [0, 0, 5] }
-    equal(crossingBeta(disfavored, 5), null, 'no crossing -> null')
-  }),
+  check(
+    'crossing beta is null when the manifold never reaches half weight',
+    () => {
+      const disfavored: WangLandauResult = {
+        ...wl,
+        meanAction: [0, 0, 5],
+      }
+
+      equal(crossingBeta(disfavored, 5), null, 'no crossing -> null')
+    },
+  ),
 ])
 
 suite('dynamics/wang-landau: determinism', [
@@ -64,6 +92,7 @@ suite('dynamics/wang-landau: determinism', [
         rng: makeRng({ seed: 31 }),
         maxSteps: 1500,
       })
+
     const a = run()
     const b = run()
     exactArray(a.heights, b.heights, 'height bins')
@@ -79,6 +108,11 @@ suite('dynamics/wang-landau: determinism', [
       rng: makeRng({ seed: 31 }),
       maxSteps: 500,
     })
-    exactArray(result.heights, [2, 3], 'heights = [minHeight..maxHeight]')
+
+    exactArray(
+      result.heights,
+      [2, 3],
+      'heights = [minHeight..maxHeight]',
+    )
   }),
 ])

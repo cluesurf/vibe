@@ -32,32 +32,71 @@ suite('measure/skyrme-energy: topological charge', [
   // fixed orientation convention shared by every plaquette), so the magnitude is the robust check.
   check('a charge-1 skyrmion has |topological charge| 1', () => {
     const f = blankDirectionField2d(48)
-    placeSkyrmion2d({ field: f, centerX: 24, centerY: 24, radius: 9, charge: 1 })
+    placeSkyrmion2d({
+      field: f,
+      centerX: 24,
+      centerY: 24,
+      radius: 9,
+      charge: 1,
+    })
     equal(Math.abs(skyrmionCharge2d(f)), 1)
   }),
   // A charge-2 texture winds twice, with the same sign convention as charge 1.
-  check('a charge-2 skyrmion has |topological charge| 2, same sign as charge 1', () => {
-    const f1 = blankDirectionField2d(48)
-    placeSkyrmion2d({ field: f1, centerX: 24, centerY: 24, radius: 9, charge: 1 })
-    const f2 = blankDirectionField2d(48)
-    placeSkyrmion2d({ field: f2, centerX: 24, centerY: 24, radius: 9, charge: 2 })
-    equal(Math.abs(skyrmionCharge2d(f2)), 2)
-    equal(Math.sign(skyrmionCharge2d(f2)), Math.sign(skyrmionCharge2d(f1)))
-  }),
+  check(
+    'a charge-2 skyrmion has |topological charge| 2, same sign as charge 1',
+    () => {
+      const f1 = blankDirectionField2d(48)
+      placeSkyrmion2d({
+        field: f1,
+        centerX: 24,
+        centerY: 24,
+        radius: 9,
+        charge: 1,
+      })
+
+      const f2 = blankDirectionField2d(48)
+      placeSkyrmion2d({
+        field: f2,
+        centerX: 24,
+        centerY: 24,
+        radius: 9,
+        charge: 2,
+      })
+      equal(Math.abs(skyrmionCharge2d(f2)), 2)
+      equal(
+        Math.sign(skyrmionCharge2d(f2)),
+        Math.sign(skyrmionCharge2d(f1)),
+      )
+    },
+  ),
   // A charge-1 texture carries positive exchange and Skyrme energy, and Derrick = exchange + kappa Skyrme.
-  check('a skyrmion has positive energy; Derrick is exchange + kappa Skyrme', () => {
-    const f = blankDirectionField2d(48)
-    placeSkyrmion2d({ field: f, centerX: 24, centerY: 24, radius: 9, charge: 1 })
-    const e = directionFieldEnergy2d(f)
-    ok(e.exchange > 0, `exchange should be positive, got ${e.exchange}`)
-    ok(e.skyrme > 0, `skyrme should be positive, got ${e.skyrme}`)
-    const kappa = 0.5
-    close(
-      directionFieldDerrickEnergy2d(f, kappa),
-      e.exchange + kappa * e.skyrme,
-      1e-9,
-    )
-  }),
+  check(
+    'a skyrmion has positive energy; Derrick is exchange + kappa Skyrme',
+    () => {
+      const f = blankDirectionField2d(48)
+      placeSkyrmion2d({
+        field: f,
+        centerX: 24,
+        centerY: 24,
+        radius: 9,
+        charge: 1,
+      })
+
+      const e = directionFieldEnergy2d(f)
+      ok(
+        e.exchange > 0,
+        `exchange should be positive, got ${e.exchange}`,
+      )
+      ok(e.skyrme > 0, `skyrme should be positive, got ${e.skyrme}`)
+
+      const kappa = 0.5
+      close(
+        directionFieldDerrickEnergy2d(f, kappa),
+        e.exchange + kappa * e.skyrme,
+        1e-9,
+      )
+    },
+  ),
 ])
 
 suite('measure/skyrme-energy: 3D field', [

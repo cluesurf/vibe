@@ -3,12 +3,13 @@
 // delta = 0 at any occupancy; all points in a single cell gives delta = sqrt(C - 1) where C is the
 // number of cells, independent of the point count (derived by hand below).
 
-import { suite, check, equal, close } from '@/test/code/harness'
+import { suite, check, close } from '@/test/code/harness'
 import { densityContrast } from '@/code/measure/density-contrast'
 
 // the 3D cell centers of a binsPerAxis^3 grid in the unit cube, one point per cell
 function cellCenters(binsPerAxis: number): number[][] {
   const points: number[][] = []
+
   for (let i = 0; i < binsPerAxis; i++) {
     for (let j = 0; j < binsPerAxis; j++) {
       for (let k = 0; k < binsPerAxis; k++) {
@@ -20,20 +21,29 @@ function cellCenters(binsPerAxis: number): number[][] {
       }
     }
   }
+
   return points
 }
 
 suite('measure/density-contrast: uniform occupancy', [
   // One point per cell: every count is 1, so mean = 1 and the contrast is 0.
   check('one point per cell gives mean 1 and zero contrast', () => {
-    const r = densityContrast({ points: cellCenters(4), binsPerAxis: 4 })
+    const r = densityContrast({
+      points: cellCenters(4),
+      binsPerAxis: 4,
+    })
+
     close(r.meanCount, 1, 1e-12)
     close(r.delta, 0, 1e-12)
   }),
   // Two points per cell: mean = 2, contrast still 0.
   check('two points per cell gives mean 2 and zero contrast', () => {
     const centers = cellCenters(4)
-    const r = densityContrast({ points: [...centers, ...centers], binsPerAxis: 4 })
+    const r = densityContrast({
+      points: [...centers, ...centers],
+      binsPerAxis: 4,
+    })
+
     close(r.meanCount, 2, 1e-12)
     close(r.delta, 0, 1e-12)
   }),
@@ -58,10 +68,12 @@ suite('measure/density-contrast: maximal clumping', [
       points: Array.from({ length: 30 }, () => [0.01, 0.01, 0.01]),
       binsPerAxis: bins,
     })
+
     const b = densityContrast({
       points: Array.from({ length: 300 }, () => [0.01, 0.01, 0.01]),
       binsPerAxis: bins,
     })
+
     close(a.delta, b.delta, 1e-9)
   }),
 ])

@@ -10,7 +10,12 @@ suite('measure/numerology-density: hit counting', [
   // With only the constant free (k=0) and target 0, the single hit is d=0.
   check('only d=0 hits target 0 when no pi terms are allowed', () => {
     equal(
-      closedFormHitCount({ target: 0, epsilon: 0.5, maxCoefficient: 0, maxConstant: 2 }),
+      closedFormHitCount({
+        target: 0,
+        epsilon: 0.5,
+        maxCoefficient: 0,
+        maxConstant: 2,
+      }),
       1,
     )
   }),
@@ -27,17 +32,20 @@ suite('measure/numerology-density: hit counting', [
     )
   }),
   // 2 pi needs a coefficient of 2 on pi, unreachable with maxCoefficient 1 and no constant.
-  check('2 pi has no hit in the {-1,0,1} family without a constant', () => {
-    equal(
-      closedFormHitCount({
-        target: 2 * Math.PI,
-        epsilon: 0.01,
-        maxCoefficient: 1,
-        maxConstant: 0,
-      }),
-      0,
-    )
-  }),
+  check(
+    '2 pi has no hit in the {-1,0,1} family without a constant',
+    () => {
+      equal(
+        closedFormHitCount({
+          target: 2 * Math.PI,
+          epsilon: 0.01,
+          maxCoefficient: 1,
+          maxConstant: 0,
+        }),
+        0,
+      )
+    },
+  ),
   // The famous coincidence 4 pi^3 + pi^2 + pi = 137.036 is inside the family.
   check('the 137.036 family contains the famous formula', () => {
     ok(
@@ -58,12 +66,17 @@ suite('measure/numerology-density: hit counting', [
       maxCoefficient: 3,
       maxConstant: 3,
     })
+
     const narrow = closedFormHitCount({
       target: 137.036,
       epsilon: 0.1,
       maxCoefficient: 3,
       maxConstant: 3,
     })
-    ok(wide >= narrow, `wider epsilon should not reduce hits: ${wide} >= ${narrow}`)
+
+    ok(
+      wide >= narrow,
+      `wider epsilon should not reduce hits: ${wide} >= ${narrow}`,
+    )
   }),
 ])

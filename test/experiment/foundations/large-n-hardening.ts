@@ -9,9 +9,7 @@
 // Run: npx tsx code/experiment/p54-large-n-hardening.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
-import {
-  dimensionFromOrderingFraction,
-} from '@/code/measure/dimension'
+import { dimensionFromOrderingFraction } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

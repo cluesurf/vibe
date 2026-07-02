@@ -5,7 +5,11 @@
 
 import { suite, check, equal } from '@/test/code/harness'
 import { makeGraph } from '@/code/tool/graph'
-import { makeConfiguration, getTone, setTone } from '@/code/tone/configuration'
+import {
+  makeConfiguration,
+  getTone,
+  setTone,
+} from '@/code/tone/configuration'
 import { makeRng } from '@/code/tool/rng'
 import { synchronousRule } from '@/code/rule/synchronous'
 import { LocalMap } from '@/code/rule/rule'
@@ -18,14 +22,20 @@ const graph = makeGraph({
 })
 
 function configFrom(values: number[]) {
-  const c = makeConfiguration({ alphabet: { form: 'ternary' }, size: values.length })
+  const c = makeConfiguration({
+    alphabet: { form: 'ternary' },
+    size: values.length,
+  })
+
   values.forEach((v, element) => setTone(c, { element, value: v }))
 
   return c
 }
 
 function readAll(c: ReturnType<typeof configFrom>): number[] {
-  return Array.from({ length: c.size }, (_v, element) => getTone(c, { element }))
+  return Array.from({ length: c.size }, (_v, element) =>
+    getTone(c, { element }),
+  )
 }
 
 // Sum of the neighbourhood tones.
@@ -47,13 +57,22 @@ function stepOnce(local: LocalMap, values: number[]): number[] {
 }
 
 suite('rule/synchronous: simultaneous update from the input state', [
-  check('neighbour-sum map matches the hand result from input values', () => {
-    // input [1,0,0,1]; each output reads ONLY the input:
-    //   0 <- {v1=0}=0;  1 <- {v0=1,v2=0}=1;  2 <- {v1=0,v3=1}=1;  3 <- {v2=0}=0
-    equal(JSON.stringify(stepOnce(sumLocal, [1, 0, 0, 1])), JSON.stringify([0, 1, 1, 0]))
-  }),
+  check(
+    'neighbour-sum map matches the hand result from input values',
+    () => {
+      // input [1,0,0,1]; each output reads ONLY the input:
+      //   0 <- {v1=0}=0;  1 <- {v0=1,v2=0}=1;  2 <- {v1=0,v3=1}=1;  3 <- {v2=0}=0
+      equal(
+        JSON.stringify(stepOnce(sumLocal, [1, 0, 0, 1])),
+        JSON.stringify([0, 1, 1, 0]),
+      )
+    },
+  ),
   check('the identity local map is a no-op', () => {
-    equal(JSON.stringify(stepOnce(identityLocal, [1, -1, 0, 1])), JSON.stringify([1, -1, 0, 1]))
+    equal(
+      JSON.stringify(stepOnce(identityLocal, [1, -1, 0, 1])),
+      JSON.stringify([1, -1, 0, 1]),
+    )
   }),
   check('the step does not mutate the input configuration', () => {
     const input = configFrom([1, 0, 0, 1])
@@ -63,6 +82,10 @@ suite('rule/synchronous: simultaneous update from the input state', [
       beat: 0,
       rng: makeRng({ seed: 1 }),
     })
-    equal(JSON.stringify(readAll(input)), JSON.stringify([1, 0, 0, 1]), 'input untouched')
+    equal(
+      JSON.stringify(readAll(input)),
+      JSON.stringify([1, 0, 0, 1]),
+      'input untouched',
+    )
   }),
 ])

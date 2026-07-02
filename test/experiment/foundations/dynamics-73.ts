@@ -86,7 +86,7 @@ export function dynamics73(): {
         s += cur[adj[q]!]!
       }
 
-      nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3)
+      nxt[i] = (((s - prev[i]!) % 3) + 3) % 3
     }
 
     const t = prev
@@ -113,7 +113,7 @@ export function dynamics73(): {
   const t = new Int8Array(N)
 
   for (let k = 0; k < 100; k++) {
-    t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1)
+    t[Math.floor(rnd() * N)] = rnd() < 0.5 ? 1 : -1
   }
 
   const sumBefore = sumOf(t)

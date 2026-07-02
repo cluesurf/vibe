@@ -18,31 +18,49 @@ suite('operator/graviton: spectrum from the derived operator', [
     ]) {
       const result = gravitonFromAction({ k })
       const k2 = (k[0] ?? 0) ** 2 + (k[1] ?? 0) ** 2 + (k[2] ?? 0) ** 2
-      equal(result.gravitonModes, 2, `graviton modes for k=${k}`)
-      close(result.gravitonEigenvalue, 0.5 * k2, 1e-12, `graviton eigenvalue for k=${k}`)
+      equal(result.gravitonModes, 2, `graviton modes for k=${String(k)}`)
+      close(
+        result.gravitonEigenvalue,
+        0.5 * k2,
+        1e-12,
+        `graviton eigenvalue for k=${String(k)}`,
+      )
       // the reported eigenvalue must actually appear in the spectrum.
       ok(
-        result.eigenvalues.some(v => Math.abs(v - 0.5 * k2) < 1e-6 * (1 + k2)),
-        `eigenvalue present for k=${k}`,
+        result.eigenvalues.some(
+          v => Math.abs(v - 0.5 * k2) < 1e-6 * (1 + k2),
+        ),
+        `eigenvalue present for k=${String(k)}`,
       )
     }
   }),
-  check('pure-gauge perturbations are annihilated (diffeo residual ~ 0)', () => {
-    const result = gravitonFromAction({ k: [0.3, -0.5, 0.7] })
-    close(result.diffeoResidual, 0, 1e-9, 'diffeo residual')
-  }),
-  check('all eigenvalues are finite (the Einstein operator is indefinite: the conformal mode is negative)', () => {
-    const result = gravitonFromAction({ k: [0.3, -0.5, 0.7] })
-    for (const v of result.eigenvalues) {
-      ok(Number.isFinite(v), 'finite eigenvalue')
-    }
-    // the trace (conformal) sector carries a negative eigenvalue -1/2|k|^2, so the operator is
-    // NOT positive semidefinite; the two physical graviton modes are the positive +1/2|k|^2 pair.
-    const k2 = 0.3 ** 2 + 0.5 ** 2 + 0.7 ** 2
-    ok(
-      result.eigenvalues.some(v => v < -1e-9),
-      'the conformal mode gives a negative eigenvalue',
-    )
-    ok(Math.min(...result.eigenvalues) > -0.5 * k2 - 1e-6, 'bounded below by -1/2|k|^2')
-  }),
+  check(
+    'pure-gauge perturbations are annihilated (diffeo residual ~ 0)',
+    () => {
+      const result = gravitonFromAction({ k: [0.3, -0.5, 0.7] })
+      close(result.diffeoResidual, 0, 1e-9, 'diffeo residual')
+    },
+  ),
+  check(
+    'all eigenvalues are finite (the Einstein operator is indefinite: the conformal mode is negative)',
+    () => {
+      const result = gravitonFromAction({ k: [0.3, -0.5, 0.7] })
+
+      for (const v of result.eigenvalues) {
+        ok(Number.isFinite(v), 'finite eigenvalue')
+      }
+
+      // the trace (conformal) sector carries a negative eigenvalue -1/2|k|^2, so the operator is
+      // NOT positive semidefinite; the two physical graviton modes are the positive +1/2|k|^2 pair.
+      const k2 = 0.3 ** 2 + 0.5 ** 2 + 0.7 ** 2
+      ok(
+        result.eigenvalues.some(v => v < -1e-9),
+        'the conformal mode gives a negative eigenvalue',
+      )
+      ok(
+        Math.min(...result.eigenvalues) > -0.5 * k2 - 1e-6,
+        'bounded below by -1/2|k|^2',
+      )
+    },
+  ),
 ])

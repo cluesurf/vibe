@@ -93,7 +93,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   const rng = makeRng({ seed: 3 })
 
   for (let i = 0; i < hg.length; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   for (let t = 0; t < 60; t++) {

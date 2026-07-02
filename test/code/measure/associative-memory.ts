@@ -8,12 +8,15 @@ import { suite, check, equal, ok } from '@/test/code/harness'
 import { vsaRecallAccuracy } from '@/code/measure/associative-memory'
 
 suite('measure/associative-memory: vsaRecallAccuracy', [
-  check('a single binding is recalled perfectly at any dimension', () => {
-    // memory = sign(key*value) = key*value (single term); unbind: memory*key = value exactly.
-    equal(vsaRecallAccuracy({ dim: 4, items: 1 }), 1)
-    equal(vsaRecallAccuracy({ dim: 16, items: 1 }), 1)
-    equal(vsaRecallAccuracy({ dim: 64, items: 1 }), 1)
-  }),
+  check(
+    'a single binding is recalled perfectly at any dimension',
+    () => {
+      // memory = sign(key*value) = key*value (single term); unbind: memory*key = value exactly.
+      equal(vsaRecallAccuracy({ dim: 4, items: 1 }), 1)
+      equal(vsaRecallAccuracy({ dim: 16, items: 1 }), 1)
+      equal(vsaRecallAccuracy({ dim: 64, items: 1 }), 1)
+    },
+  ),
   check('accuracy is a fraction in [0,1]', () => {
     const a = vsaRecallAccuracy({ dim: 128, items: 5 })
     ok(a >= 0 && a <= 1)

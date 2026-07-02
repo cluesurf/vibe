@@ -27,7 +27,11 @@ suite('measure/black-hole-thermodynamics: Schwarzschild', [
   // A = 4 pi r_s^2 = 16 pi M^2.
   check('area is 16 pi M^2', () => {
     close(schwarzschildArea(2), 16 * Math.PI * 4, TOL)
-    close(schwarzschildArea(2), 4 * Math.PI * schwarzschildRadius(2) ** 2, TOL)
+    close(
+      schwarzschildArea(2),
+      4 * Math.PI * schwarzschildRadius(2) ** 2,
+      TOL,
+    )
   }),
   // S = A / 4 = 4 pi M^2.
   check('entropy is the area over four', () => {
@@ -38,7 +42,11 @@ suite('measure/black-hole-thermodynamics: Schwarzschild', [
   check('surface gravity and Hawking temperature', () => {
     close(schwarzschildSurfaceGravity(2), 1 / 8, TOL)
     close(hawkingTemperature(2), 1 / (16 * Math.PI), TOL)
-    close(hawkingTemperature(2), schwarzschildSurfaceGravity(2) / (2 * Math.PI), TOL)
+    close(
+      hawkingTemperature(2),
+      schwarzschildSurfaceGravity(2) / (2 * Math.PI),
+      TOL,
+    )
   }),
   // First law dM = T dS: S = 4 pi M^2 so dS/dM = 8 pi M, and T (dS/dM) = 1.
   check('the first law T dS = dM holds (T * 8 pi M = 1)', () => {
@@ -58,11 +66,14 @@ suite('measure/black-hole-thermodynamics: Schwarzschild', [
     close(horizonLuminosity(1) / horizonLuminosity(2), 4, TOL)
   }),
   // Integrating dM/dt = -L ~ -M^-2 gives lifetime ~ M^3, so doubling M octuples the lifetime.
-  check('evaporation lifetime scales as M^3 (doubling M gives ~8x)', () => {
-    const t1 = schwarzschildEvaporationLifetime({ mass: 1 })
-    const t2 = schwarzschildEvaporationLifetime({ mass: 2 })
-    close(t2 / t1, 8, 0.2)
-  }),
+  check(
+    'evaporation lifetime scales as M^3 (doubling M gives ~8x)',
+    () => {
+      const t1 = schwarzschildEvaporationLifetime({ mass: 1 })
+      const t2 = schwarzschildEvaporationLifetime({ mass: 2 })
+      close(t2 / t1, 8, 0.2)
+    },
+  ),
 ])
 
 suite('measure/black-hole-thermodynamics: de Sitter', [

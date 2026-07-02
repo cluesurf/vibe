@@ -6,20 +6,24 @@
 // hand? This separates the question into two parts and answers the sharp one.
 //
 // The MAXIMUM strength a quantum correlation can reach, the Tsirelson bound 2 root
-// 2, is forced by the anticommutation of the committed coin's own algebra. The 24
+// 2, follows from ANTICOMMUTATION, in any qubit theory (Tsirelson 1980, Landau
+// 1987): observables that anticommute reach the CHSH value 2 root 2, the quantum
+// maximum, and observables that COMMUTE reach only the classical bound 2. The 24
 // directions of {3,4,3,4} are the binary tetrahedral group 2T, the unit Hurwitz
-// quaternions, the spinor coin. Its units anticommute: i times j is k, j times i is
-// minus k. Observables that inherit that anticommutation reach the CHSH value 2 root
-// 2, the quantum maximum. Observables that COMMUTE reach only the classical bound 2.
-// So the quantum value is a property of the coin geometry, not a tuned input.
+// quaternions, and its units anticommute (i times j is k, j times i is minus k), so
+// the committed coin PROVIDES an anticommuting pair. The coin is not load-bearing
+// for the bound itself, any structure with an anticommuting pair would do. What is
+// shown is that the coin has the required pair, so the quantum maximum is available
+// to it without tuning.
 //
 // What is NOT forced, and is reported honestly: WHICH correlation the origin imprints
 // is free, because the reversible rule preserves any imprinted pattern (E-QTM-0030).
 // So the fine-tuning, if there is any, lives in the choice of the origin pattern, not
-// in the maximum strength. The strength is geometric.
+// in the maximum strength.
 //
-// Grade L2: it reproduces the Tsirelson bound from the committed coin's quaternion
-// anticommutation, with a commuting control that gives the classical bound. Exact.
+// Grade L1: it verifies the known anticommutation-to-Tsirelson relation (standard
+// quantum mathematics) and checks the committed coin contains an anticommuting
+// pair, with a commuting control that gives the classical bound. Exact.
 
 import {
   quaternion,
@@ -46,7 +50,8 @@ function kron(a: Matrix, b: Matrix): Matrix {
     for (let q = 0; q < n; q++) {
       for (let r = 0; r < m; r++) {
         for (let s = 0; s < m; s++) {
-          out[p * m + r]![q * m + s] = (a[p]?.[q] ?? 0) * (b[r]?.[s] ?? 0)
+          out[p * m + r]![q * m + s] =
+            (a[p]?.[q] ?? 0) * (b[r]?.[s] ?? 0)
         }
       }
     }
@@ -64,7 +69,7 @@ function combine(parts: { matrix: Matrix; weight: number }[]): Matrix {
   for (const part of parts) {
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
-        out[i]![j] += part.weight * (part.matrix[i]?.[j] ?? 0)
+        out[i]![j]! += part.weight * (part.matrix[i]?.[j] ?? 0)
       }
     }
   }
@@ -113,10 +118,10 @@ export default experiment({
   id: 'quantum/tsirelson-forced-by-coin',
   code: 'E-QTM-0038',
   title:
-    'the Tsirelson bound 2 root 2 is forced by the anticommutation of the {3,4,3,4} coin quaternion units, while commuting structure gives only the classical bound 2, so the quantum maximum is geometric not fine-tuned',
+    'the Tsirelson bound 2 root 2 follows from anticommutation in any qubit theory (Tsirelson 1980, Landau 1987), commuting structure gives only the classical bound 2, and the {3,4,3,4} coin quaternion units provide an anticommuting pair, so the quantum maximum is available to the coin without tuning',
   category: 'quantum',
   substrates: ['3434'],
-  depth: 'L2',
+  depth: 'L1',
   paper: true,
   run() {
     // The committed coin is the 24 binary-tetrahedral quaternion units. Confirm two
@@ -125,11 +130,19 @@ export default experiment({
     const i = quaternion(0, 1, 0, 0)
     const j = quaternion(0, 0, 1, 0)
     const haveI = units.some(
-      u => Math.abs(u.x - 1) < 1e-9 && Math.abs(u.w) < 1e-9 && Math.abs(u.y) < 1e-9 && Math.abs(u.z) < 1e-9,
+      u =>
+        Math.abs(u.x - 1) < 1e-9 &&
+        Math.abs(u.w) < 1e-9 &&
+        Math.abs(u.y) < 1e-9 &&
+        Math.abs(u.z) < 1e-9,
     )
 
     const haveJ = units.some(
-      u => Math.abs(u.y - 1) < 1e-9 && Math.abs(u.w) < 1e-9 && Math.abs(u.x) < 1e-9 && Math.abs(u.z) < 1e-9,
+      u =>
+        Math.abs(u.y - 1) < 1e-9 &&
+        Math.abs(u.w) < 1e-9 &&
+        Math.abs(u.x) < 1e-9 &&
+        Math.abs(u.z) < 1e-9,
     )
 
     const coinUnitsAnticommute = haveI && haveJ && anticommute(i, j)
@@ -162,7 +175,7 @@ export default experiment({
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'the maximal quantum correlation, the Tsirelson bound 2 root 2, is forced by the anticommutation of the committed coin quaternion units (24-cell, binary tetrahedral): anticommuting observables reach 2 root 2 while commuting observables reach only the classical bound 2, so the quantum maximum is a property of the coin geometry, not a fine-tuned input',
+        'the maximal quantum correlation, the Tsirelson bound 2 root 2, follows from anticommutation in any qubit theory: anticommuting observables reach 2 root 2 while commuting observables reach only the classical bound 2, and the committed coin quaternion units (24-cell, binary tetrahedral) contain an anticommuting pair, so the quantum maximum is available to the coin without a fine-tuned input',
       metrics: {
         anticommutingChsh,
         commutingChsh,
@@ -178,7 +191,7 @@ export default experiment({
         commutingChsh,
       },
       notes:
-        'L2, exact. The 24 directions of {3,4,3,4} are the binary tetrahedral quaternion units, whose anticommutation (i j = k, j i = minus k) is the geometric fact. The CHSH operator norm is computed by Jacobi eigenvalues. This forces the maximal STRENGTH (2 root 2). It does NOT force WHICH correlation the origin imprints, which is free because the reversible rule preserves any imprinted pattern (E-QTM-0030). So the fine-tuning, if any, lives in the origin pattern choice, not in the maximum strength.',
+        'L1, exact. The bound is standard quantum mathematics: Tsirelson (Lett. Math. Phys. 4, 93 (1980)) proved 2 root 2 is the quantum CHSH maximum, and Landau (Phys. Lett. A 120, 54 (1987)) showed it follows from the anticommutation structure of the observables in any qubit theory, so anticommuting observables reach it and commuting ones stay at the classical 2. The substrate content here is only that the 24 directions of {3,4,3,4}, the binary tetrahedral quaternion units, CONTAIN an anticommuting pair (i j = k, j i = minus k), so the coin provides the required structure rather than forcing the bound, any anticommuting pair would give the same value. The CHSH operator norm is computed by Jacobi eigenvalues. This concerns the maximal STRENGTH (2 root 2). It does NOT force WHICH correlation the origin imprints, which is free because the reversible rule preserves any imprinted pattern (E-QTM-0030). So the fine-tuning, if any, lives in the origin pattern choice, not in the maximum strength.',
     })
   },
 })

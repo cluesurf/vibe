@@ -15,9 +15,14 @@ suite('coarse/active-persistence: structure and reproducibility', [
       seed: 2,
       refuge: 'right' as const,
     }
+
     const a = activePersistence(opts)
     const b = activePersistence(opts)
-    equal(a.survivingSize, b.survivingSize, 'same seed, same surviving size')
+    equal(
+      a.survivingSize,
+      b.survivingSize,
+      'same seed, same surviving size',
+    )
     equal(a.finalX, b.finalX, 'same seed, same final centroid')
   }),
   check('outputs are structurally valid for every refuge mode', () => {
