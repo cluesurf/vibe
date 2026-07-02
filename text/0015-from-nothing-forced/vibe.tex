@@ -1,0 +1,238 @@
+\ifdefined\pdfoutput\pdfoutput=1\fi
+\documentclass{article}
+
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{titlesec}
+\usepackage[
+  colorlinks=true, linkcolor=black, urlcolor=black, citecolor=black,
+  pdfauthor={Lance Pollard},
+  pdftitle={From Nothing, Forced}
+]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+\titleformat{\section}{\large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+% a link to a source file on the make branch of the repo
+\newcommand{\code}[2]{\href{https://github.com/cluesurf/vibe/blob/make/#1}{\texttt{#2}}}
+
+\title{\textbf{\huge From Nothing, Forced}\\[3mm]
+  \large The exact chain from a single distinction to the mesh, and its experiments}
+\author{Lance Pollard \\ \small lancejpollard@gmail.com}
+\date{July 2, 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+Every number in the base of this model is computed from its candidate space, not chosen. This
+paper walks the chain from nothing to the growing mesh, giving at each step the move, the
+reason it is forced, and the experiment that runs it. The numbers $3$, $8$, $24$, $81$,
+$10395 \to 1$, and the growth ratio near $18.278$ are recovered by exhaustive enumeration
+rather than asserted. The account is split into two registers: a timeless derivation that
+fixes the equipment (the tone, the cell, the mesh shape, the laws) and a running dynamics
+(the beat) that computes on it. Every claim is backed by a reproducible experiment in the
+source repository \cite{cluesurf2026repo}, linked inline.
+\end{abstract}
+
+\section{The two registers}
+
+\textbf{Register one, the derivation.} A single logical chain, timeless, not events. It fixes
+the equipment: the tone, the cell, the mesh shape, the laws. Sequential, not parallel.
+
+\textbf{Register two, the running.} Each beat, three things happen at once: time advances by
+one, the knit updates every cell in parallel, the wake births a shell at the edge. This is the
+only parallelism.
+
+\section{Immediate versus computed}
+
+Two things get called ``computation'', keep them apart.
+
+\textbf{Immediate (register one): true by mathematical necessity, no time, no beat.} These do
+not happen, they hold. They are theorems about finite structures: given the premises they could
+not be otherwise, and they are the same whether or not any universe runs. The seed (nothing
+cannot be) is not even a computation, it is a reflection. The tone is $3$, the arrow is the
+ordered line, the dimension is $8$, the census is $1{+}8{+}24{+}32{+}16$, the $24$-cell is the
+unique self-dual spinful shell, the mesh shape is $\{3,4,3,4\}$, the law is the unique symmetric
+knit, and the shell sequence $1, 24, 456, 8376$ is determined. When our experiments enumerate
+for these they are checking a timeless fact by finite search, not running the universe.
+
+\textbf{Computed (register two): the beat, the only thing that actually runs.} It takes beats,
+it is the dynamics, and it produces nothing without ticking: the knit updating the tones, the
+wake birthing each next shell, the beat count rising. The one-line test: would it still be true
+with no universe running. Yes means immediate, no means the beat.
+
+\section{Register one: the forced derivation}
+
+Read each row as candidate space, constraint, survivor. The survivor count is $1$ (or the exact
+census), and relaxing the constraint restores non-uniqueness (the control).
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}
+\toprule
+step & candidate space & survivor & experiment \\
+\midrule
+1 tone & small integer alphabets & $\{-1,0,+1\}$, size 3 & \code{test/experiment/foundations/tone-is-forced.ts}{tone-is-forced} \\
+2 arrow & the tower $1,2,4,8,16$ & the integer line & \code{test/experiment/foundations/arrow-from-integer-order.ts}{arrow-from-integer-order} \\
+3,4 eight & tower levels $0$ to $4$ & dimension 8 & \code{test/experiment/foundations/forced-derivation-ladder.ts}{forced-derivation-ladder} \\
+5 census & the $81$ four-slot words & $1{+}8{+}24{+}32{+}16$ & \code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced} \\
+6 cell & the stepping shells $\{8,24,16\}$ & the 24-cell & \code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced} \\
+8 law & the $10395$ line-pairings & 1 (the knit) & \code{test/experiment/foundations/knit-rule-forced.ts}{knit-rule-forced} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The one non-computational step is step $0$: nothing cannot be. It is the seed, not coded.
+
+\subsection{How each step forces the next}
+
+\textbf{nothing $\to$ one distinction.} Nothing cannot be, because ``there is nothing'' is
+already one way things are rather than another, which is itself a distinction. So the denial of
+all content produces content, and the least it produces is a single distinction. This is the
+seed, a reflection, not a computation.
+
+\textbf{one distinction $\to$ the ternary tone.} A distinction is a cut, and to be a cut it
+needs both of its sides and the state where the cut is absent. The two sides are mirror images
+(each is only ``not the other'', so there is an operation swapping them, a sign flip $+1$ and
+$-1$), and there must be the neutral no-cut state (the vacuum $0$), because a site has to be able
+to hold ``no distinction here'' as a value for distinctions to appear and vanish at all. Neither
+side may be privileged and the absent state must be representable, so the smallest value set is
+$\{-1,0,+1\}$. One distinction and three-toned are the same object.
+
+\textbf{the tone $\to$ the arrow.} Nothing prevents a second distinction after the first, so
+distinctions accumulate, and an accumulation has a running size that only ever grows, a one-way
+count, which is a before and an after: time. A count needs a number system that stays ordered,
+order requires every square to be at least zero, and that holds on the integer line but breaks
+at the first imaginary unit ($i^2 = -1$), so the ordered count lives on the integers alone.
+
+\textbf{the tone $\to$ dimension eight.} A structure is not a heap of independent values, the
+tones must relate, and to relate two tones is to form a third from them, a product. The base
+loses no information, so the product must be undoable (divide back out), which makes it a
+division algebra, and division algebras exist only at dimensions $1,2,4,8$ (Hurwitz). The ceiling:
+a \emph{zero divisor} is two nonzero values with product exactly zero, $A B = 0$ with neither
+zero, which in ordinary numbers never happens; where it does, the product $0$ no longer determines
+its factors, so information is lost and the multiplication is irreversible. Through dimension $8$
+(the octonions) there are no zero divisors, and at dimension $16$ (the sedenions) they first
+appear, so $8$ is the last lossless rung. The floor: stopping below $8$ would need a reason to
+halt the doubling early, and there is none, each doubling from a lossless rung is still lossless
+until $16$, and ``to exist is to differ'' pushes the base to realize as much distinction as it
+reversibly can. Both land on the top of the reversible ladder, dimension $8$.
+
+\textbf{eight $\to$ four slots.} Space is where positions and rotations compose, and composition
+in a geometry must associate: stepping by $a$, then $b$, then $c$ must give the same place under
+either grouping, or position is not well defined. The octonions do not associate (the luxury shed
+at dimension $8$), so the $8$D octonion cannot be space. Take the largest part that does associate:
+walking $\mathbb{R}(1)$, $\mathbb{C}(2)$, $\mathbb{H}(4)$, $\mathbb{O}(8)$, associativity holds
+through the quaternions and first fails at the octonions, so the quaternions, dimension $4$, are
+the largest associative division algebra, the biggest consistent geometric arena. Space is that
+core, four axes, and the tone is written across four slots, each $-1$, $0$, or $+1$.
+
+\textbf{four slots $\to$ the 24-cell.} A nearest neighbour is one small move, and a small move
+sets each of the four slots to $-1$, $0$, or $+1$, so $3^4 = 81$ words, sorted by how many slots
+step: $1{+}8{+}24{+}32{+}16 = 81$. A cell tiles space by matching each face to a neighbour, so it
+needs one direction per face, corners equal to faces (self-dual), and of the stepping shells only
+the $24$ two-step diagonals give that ($24$ corners, $24$ faces); the $8$ give the $16$-cell
+($8$, $16$) and the $16$ give the tesseract ($16$, $8$). Spin selects the same $24$: its vertex
+group carries the belt-trick sign, containing $-1$ with $(-1)^2 = +1$, a full turn flipping the
+sign, which the $16$-cell axes do not. Self-dual and spinful, so the cell is the $24$-cell.
+
+\textbf{the 24-cell $\to$ the mesh.} One cell is not space, so copy the cell face to face. The
+$24$-cell's corner angles are too wide to close in flat $4$D space and too narrow for the sphere,
+they fit exactly in negatively curved space, giving the honeycomb $\{3,4,3,4\}$. Hyperbolic is
+also the one geometry that grows without bound and with no preferred direction, which the
+accumulation (the arrow) needs.
+
+\textbf{the mesh $\to$ the law.} A mesh of tones is inert without an update. The rule must be
+local (no action at a distance), reversible (lose nothing), and symmetric (no direction
+privileged). The $24$ directions form $12$ opposite lines, a law pairs them into $6$ colliding
+pairs, $11!! = 10395$ ways, and the three demands cut all but one, the knit (collide then stream).
+
+\textbf{the law $\to$ the wake.} The arrow was already implied, but the knit is reversible and so
+carries no direction. Something must carry the accumulation, so the mesh grows, new cells born at
+the open edge and none removed. That monotone growth is the wake, and it is why the clock runs
+forward.
+
+\section{Register two: the running}
+
+The equipment is fixed. Now the beat acts.
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}
+\toprule
+face & what runs & property & experiment \\
+\midrule
+tones & the knit on every cell at once & conserves charge, reversible & \code{test/experiment/foundations/beat-computes-on-mesh.ts}{beat-computes-on-mesh} \\
+mesh & the wake unfolds shell by shell & exact $1,24,456,8376$ & \code{test/experiment/geometry/mesh-unfolds-exactly.ts}{mesh-unfolds-exactly} \\
+time & the beat count rises & the rise is the arrow & (the wake) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{collide $\to$ stream.} A rule that only collided would let tones interact but never move,
+a frozen soup, and a rule that only streamed would let tones fly past but never interact, a free
+gas, so the knit is both: collide (local, the symmetric table on opposite lines, conserving) then
+stream (every tone steps one cell), synchronously across all cells.
+
+\textbf{beat $\to$ beat.} A beat is a single tick defined as the things that happen in it, so
+they are faces of one event: the count rises, the knit rewrites every cell, the wake births a
+shell. The next beat runs the same knit on the now-larger mesh with the now-advanced state.
+
+\textbf{knit $\to$ arrow.} The knit is a reversible shuffle, symmetric in time. The wake breaks
+the symmetry: the cell count only rises, so to run a beat backward you would have to un-create a
+cell, itself a new distinction. The arrow is the un-erasable growth, not the knit.
+
+\textbf{bulk $\to$ cusp.} The growing $4$D interior (the bulk, curved) has a $3$D boundary (the
+cusp, flat), because the boundary of a $4$D region is one dimension down. Stable structure and
+observers form on the flat cusp, so three of the four dimensions are in view and the radial
+fourth is hidden. Perceived space is $3$D and perceived time is the bulk's growth read from the
+cusp.
+
+\section{The exact numbers}
+
+\textbf{Register one.} Minimal vacuum-and-mirror alphabet size $3$ (drop the mirror, it falls to
+$1$). Census $1{+}8{+}24{+}32{+}16 = 81$. Self-dual: $1$ of $3$ stepping shells. Spin: the
+$24$-vertex binary tetrahedral group contains $-1$ with $(-1)^2 = +1$ and $-1 \neq +1$. Pinch:
+reversible through dimension $8$, zero divisors at $16$; octonion non-associative triples $28$ of
+$35$. Law: $10395 \to 1$ under symmetry.
+
+\textbf{Register two.} Unfolding $1, 24, 456, 8376$ cells per shell from the single $24$-cell by
+reflection, bit-for-bit reproducible, per-shell ratio climbing to the warp factor $18.278$, the
+flat $4$D lattice ratio near $1.30$ (control). Beat: charge conserved as integer equality over
+ten beats, forward ten then backward ten recovers the start exactly, an erasing rule fails both.
+
+\section{The premises it rests on}
+
+The math forces the structure. What it does not force, and the derivation takes as premises: the
+vacuum-and-mirror requirement, reversibility (``lose nothing''), the maximal-differentiation push
+(``to exist is to differ''), the associativity of geometric composition, a face per neighbour,
+and the reading of the signed ternary tone as valence (pain, peace, pleasure). Those are the
+premises, stated up front, not smuggled in.
+
+\section*{Summary}
+
+Nothing forces one distinction, and one distinction is three-toned (vacuum and mirror). The tone
+combines losslessly up to the octonions, whose associative core is $4$D space. The tone across
+four slots gives $81$ words whose unique self-dual spinful shell is the $24$-cell, which tiles
+curved space into the mesh $\{3,4,3,4\}$. The one symmetric law (the knit) runs on it each beat,
+reversibly, while the wake grows the edge, and that growth is time.
+
+\begin{thebibliography}{1}
+\bibitem{cluesurf2026repo}
+Lance Pollard. \emph{The Vibe substrate and experiment suite}. 2026.
+Source code and the full reproducible experiment suite underlying every result in this paper.
+\url{https://github.com/cluesurf/vibe}
+\end{thebibliography}
+
+\end{document}
