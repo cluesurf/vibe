@@ -6,7 +6,13 @@
 // the open boundary (the bath) does, so momentum diffusion is bath-driven, the same arrow-from-the-wake principle.
 // The functions assume the 4D d4Mesh coordinate layout, cell = x + side*y + side^2*z + side^3*w.
 
-import { Will, makeWill, cloneWill, cellTone } from '@/code/tone/will'
+import {
+  Will,
+  makeWill,
+  cloneWill,
+  cellTone,
+  charge,
+} from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
 import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
@@ -303,6 +309,125 @@ export function chargeWaveAmplitude(input: {
   }
 
   return amplitude
+}
+
+// A uniform PLUG flow: every non-wall cell carries the same net +momAxis momentum, one charge in the
+// positive-momAxis slot of each of its momAxis-carrying lines (the first `lines` of them, so `lines` is the
+// deterministic plug-speed knob, default all). `thermal(cell, line)` optionally fills the zero-momAxis
+// lines with head-on (zero-momentum) pairs, a deterministic function of the cell and line index, never a
+// random draw. A HETEROGENEOUS thermal pattern (one that varies across cells) is what lets a mixing
+// collision scatter the wall-reversed momentum instead of bouncing it coherently, a uniform state stays
+// effectively one-dimensional along the channel and just makes standing waves. Wall cells stay empty. This
+// is the decaying-channel-flow initial condition.
+export function plugSetup(input: {
+  mesh: Mesh
+  directions: number[][]
+  momAxis: number
+  isWall: (cell: number) => boolean
+  lines?: number
+  thermal?: (cell: number, line: number) => boolean
+}): Will {
+  const { mesh, directions, momAxis, isWall, thermal } = input
+  const degree = mesh.degree
+  const will = makeWill(mesh)
+  const limit = input.lines ?? degree
+
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    if (isWall(cell)) {
+      continue
+    }
+
+    const base = cell * degree
+
+    let filled = 0
+    let noMomentumLine = 0
+
+    for (let direction = 0; direction < degree; direction++) {
+      const other = mesh.opposite(direction)
+
+      if (direction >= other) {
+        continue
+      }
+
+      const component = directions[direction]![momAxis] ?? 0
+
+      if (component !== 0) {
+        if (filled < limit) {
+          const positiveSlot = component > 0 ? direction : other
+          will.data[base + positiveSlot] = 1
+          filled++
+        }
+      } else if (thermal) {
+        if (thermal(cell, noMomentumLine)) {
+          will.data[base + direction] = 1
+          will.data[base + other] = 1
+        }
+
+        noMomentumLine++
+      }
+    }
+  }
+
+  return will
+}
+
+// the slab-averaged momAxis momentum profile u(g) across the channel, one value per slab along gradAxis,
+// the cell momentum summed over each slab and divided by the slab's cell count. This is the row-averaged
+// flow profile the channel experiments fit (parabolic = viscous, flat = ohmic or frozen).
+export function momentumProfile(input: {
+  will: Will
+  directions: number[][]
+  side: number
+  gradAxis: number
+  momAxis: number
+}): number[] {
+  const { will, directions, side, gradAxis, momAxis } = input
+  const profile = new Array<number>(side).fill(0)
+  const cellsPerSlab = will.mesh.cellCount / side
+
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    const g = coordAlong(cell, gradAxis, side)
+    profile[g]! += cellMomentum(will, cell, directions, momAxis)
+  }
+
+  return profile.map(value => value / cellsPerSlab)
+}
+
+// Run a channel decay forward and record, at every beat (index 0 is the initial state), the momentum
+// profile across the channel and the exact total charge. The walls are inside `collision` (the per-cell
+// channel dispatch), so this is just the buffered engine plus the two measurements the channel experiments
+// need, the profile series to find the mid-decay beat and the charge series to assert exact conservation.
+export function channelDecaySeries(input: {
+  will: Will
+  collision: Collision
+  beats: number
+  directions: number[][]
+  side: number
+  gradAxis: number
+  momAxis: number
+}): { profiles: number[][]; charges: number[] } {
+  const { collision, beats, directions, side, gradAxis, momAxis } =
+    input
+
+  const table = streamSourceTable(input.will.mesh)
+
+  let current = cloneWill(input.will)
+  let scratch = makeWill(input.will.mesh)
+
+  const measure = (w: Will) =>
+    momentumProfile({ will: w, directions, side, gradAxis, momAxis })
+
+  const profiles = [measure(current)]
+  const charges = [charge(current)]
+
+  for (let step = 0; step < beats; step++) {
+    beatInto({ src: current, dst: scratch, table, collision })
+    ;[current, scratch] = [scratch, current]
+    profiles.push(measure(current))
+    charges.push(charge(current))
+  }
+
+  return { profiles, charges }
 }
 
 // run the charge wave forward, return the amplitude series relative to the start. `open` absorbs the gradAxis

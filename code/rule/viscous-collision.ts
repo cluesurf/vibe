@@ -138,6 +138,104 @@ export function controlledViscousRotate(input: {
   }
 }
 
+// The SATURATED momentum-mixing collision: every momentum-matched slot-disjoint pair-of-pairs is a swap
+// channel, and all channels are applied in one fixed deterministic sequence per cell. viscousRotate's greedy
+// quads use each slot once, which PARTITIONS the coin into disjoint 4-slot sectors that never talk, so that
+// gas is a stack of decoupled wave systems (integrable, coherent). Here the channels SHARE slots (slot
+// (1,1,0,0) sits in an x-momentum channel, a y-momentum channel, and mixed-momentum channels), so the
+// sectors couple and the local configuration decides which swaps fire, the collision-saturation lesson of
+// the FHP gas (enough interacting collision channels make the fluid). Each channel is an involution of the
+// cell state (fire only when one pair is fully occupied and the other empty, a symmetric condition), so the
+// fixed composition is a per-cell BIJECTION (its inverse is the channel sequence reversed, so it is
+// reversible but NOT self-inverse), and every swap moves occupancy between direction-pairs with the same
+// total momentum, so charge (count) and the full momentum vector are conserved exactly. Zero-momentum pairs
+// are excluded (head-on rotations are headOnRotate's job and would double-count lines). Single-species
+// (tone occupancy 1 versus 0), tones of -1 are left untouched.
+export function saturatedViscousRotate(input: {
+  directions: number[][]
+}): Collision {
+  const { directions } = input
+  const count = directions.length
+  const dimension = directions[0]?.length ?? 0
+
+  const momentumKey = (a: number, b: number): string => {
+    const sum: number[] = []
+
+    for (let axis = 0; axis < dimension; axis++) {
+      sum.push(
+        (directions[a]![axis] ?? 0) + (directions[b]![axis] ?? 0),
+      )
+    }
+
+    return sum.join(',')
+  }
+
+  const groups = new Map<string, [number, number][]>()
+
+  for (let a = 0; a < count; a++) {
+    for (let b = a + 1; b < count; b++) {
+      const key = momentumKey(a, b)
+
+      if (!groups.has(key)) {
+        groups.set(key, [])
+      }
+
+      groups.get(key)!.push([a, b])
+    }
+  }
+
+  const zeroKey = new Array<number>(dimension).fill(0).join(',')
+  const channels: number[][] = []
+
+  // a fixed deterministic channel order (sorted momentum keys, then pair enumeration order)
+  for (const key of [...groups.keys()].sort()) {
+    if (key === zeroKey) {
+      continue
+    }
+
+    const pairs = groups.get(key)!
+
+    for (let i = 0; i < pairs.length; i++) {
+      for (let j = i + 1; j < pairs.length; j++) {
+        const [a, b] = pairs[i]!
+        const [c, d] = pairs[j]!
+
+        if (a === c || a === d || b === c || b === d) {
+          continue
+        }
+
+        channels.push([a, b, c, d])
+      }
+    }
+  }
+
+  return (slots, base) => {
+    for (const channel of channels) {
+      const a = base + channel[0]!
+      const b = base + channel[1]!
+      const c = base + channel[2]!
+      const d = base + channel[3]!
+
+      const pairOccupied = slots[a] === 1 && slots[b] === 1
+      const pairEmpty = slots[a] === 0 && slots[b] === 0
+      const partnerOccupied = slots[c] === 1 && slots[d] === 1
+      const partnerEmpty = slots[c] === 0 && slots[d] === 0
+
+      if (pairOccupied && partnerEmpty) {
+        slots[a] = 0
+        slots[b] = 0
+        slots[c] = 1
+        slots[d] = 1
+      } else if (partnerOccupied && pairEmpty) {
+        slots[c] = 0
+        slots[d] = 0
+        slots[a] = 1
+        slots[b] = 1
+      }
+    }
+  }
+}
+
 // The viscous collision, a self-inverse involution that swaps occupancy between momentum-matched disjoint pairs.
 // Single-species (tone occupancy 1 versus 0), the form used by the shear gas. Conserves count and total momentum.
 export function viscousRotate(input: {

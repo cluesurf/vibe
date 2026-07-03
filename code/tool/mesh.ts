@@ -49,6 +49,19 @@ export function shellDistances(mesh: Mesh, source: number): Int32Array {
   return distance
 }
 
+// The opposite-direction table of a mesh as a plain array, opposite[direction] is the
+// reverse slot. The collisions and line pairings all key off this array, so building it
+// once here keeps every consumer identical.
+export function meshOpposites(mesh: Mesh): number[] {
+  const opposite: number[] = []
+
+  for (let direction = 0; direction < mesh.degree; direction++) {
+    opposite.push(mesh.opposite(direction))
+  }
+
+  return opposite
+}
+
 // The plain adjacency list of a mesh: for each cell, the distinct neighbour cells
 // reached along its coin, with self-loops (a direction that returns the cell, like
 // a rest slot or a tree leaf's missing child) dropped. The neighbours-native graph
