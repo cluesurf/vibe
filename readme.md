@@ -86,6 +86,112 @@ one rule, and to be clear at every step about what is solid, what is
 free, and what is still open. The companion papers are snapshots of that
 work.
 
+## What is a vibe, and what is falsifiable
+
+The one primitive is the **vibe**, a unit of experience. It carries a
+ternary **tone** (its felt charge: pain, peace, pleasure) and it notes
+(experiences) its neighbors. Everything else is arrangements of vibes and
+one rule for how their tones update. That the base genuinely **is**
+experience, that the tone is felt and not merely a label on a number, is
+the model's one **axiom**. Like every axiom, it is unfalsifiable. No lab
+reading distinguishes a universe whose base is felt from an identical
+universe whose base is only structure. We hold it as a **frame**, not a
+result. The experiments here never confirm it. They confirm structure.
+
+Under that frame sits a concrete discrete dynamical system, and it is
+highly falsifiable: a fixed geometry (the `{3,4,3,4}` honeycomb, a
+24-direction coin), a ternary state, and one reversible charge-conserving
+local rule. The physics is derived from that fixed base as measured
+consequences, and the whole method is built to try to make them come out
+wrong. Every deep claim carries a **control**, a case where the answer
+should be no, and a test that cannot fail is graded `L0` and counts for
+nothing. Honest negatives are kept, not hidden. The spinor that appears
+on the `{3,4,3,4}` coin and provably fails to appear on the `{5,3,4}`
+control, the area-law exponent that had to land near 2 and not near 3,
+the Lorentz isotropy that could have stayed anisotropic: each could have
+killed its claim and did not.
+
+So "vibe theory is unfalsifiable" is half right and half wrong, and the
+two halves must be kept apart. The axiom "experience is the base" is
+unfalsifiable, which is what an axiom is. The physics built under it is
+falsifiable, is being falsification-tested with controls and published
+failures, and is the opposite of a theory that fits anything. The honest
+reading is that the experiments do not prove the base is felt. They show
+that a single discrete rule, framed as felt, recovers a large amount of
+physics as results that could have come out otherwise.
+
+### Predictions that could kill it
+
+The strongest test of a theory is not what it recovers but what it
+forbids. These are the sharpest kill-conditions the model currently
+stakes out, grouped by how soon an experiment can reach them. Each is a
+specific observation that, if made, ends the claim. The experiment code
+is in parentheses, runnable and controlled.
+
+**Near-term, a running or next-generation experiment decides it this
+decade.**
+
+- **The tensor-to-scalar ratio r about 0.004, with the spectral index
+  n_s about 0.964** (`cosmology/starobinsky-from-r-squared`). The
+  inflaton is fixed to the R-squared (Starobinsky) point, so r = 12 / N^2
+  lands near 0.004, inside the CMB-S4 and LiteBIRD detectable window
+  0.001 to 0.06, and n_s matches the Planck central 0.965. If CMB-S4
+  measures an r and n_s inconsistent with that point, the derived
+  inflaton is wrong.
+- **Dark energy present at high redshift**
+  (`cosmology/everpresent-coincidence-prediction`). The everpresent
+  mechanism keeps the dark-energy fraction of order one at every epoch,
+  while LambdaCDM has it fall to about 0.03 at redshift 3. The DESI
+  equation-of-state surveys probe exactly this regime. If dark energy is
+  measured negligible at high redshift, LambdaCDM-like, the mechanism is
+  wrong.
+- **The proton lifetime near 1e36 years** (`gauge/proton-lifetime`),
+  within reach of Hyper-Kamiokande. A decay seen far faster, or the
+  predicted channel excluded, kills it.
+
+**Cosmic-scale or Planck-suppressed, real and forbidden but beyond
+present reach.**
+
+- **The Bell violation declines as a power law in physical distance**,
+  measured exponent about 1.06 (`quantum/bell-deviation-prediction`),
+  where standard quantum mechanics predicts the Tsirelson value flat at
+  every separation. Near distance the model sits exactly at Tsirelson
+  (2.828), agreeing with every laboratory Bell test, and only a
+  gigaparsec-baseline test would see the decline. An undiminished
+  Tsirelson value at cosmological separation kills it.
+- **No first-order Lorentz violation, a specific second-order
+  dispersion** (`relativity/doubly-special-dispersion`,
+  `relativity/lorentz-violation-scale`). The discreteness is Lorentz-safe
+  at first order (measured anisotropy about 1e-6 at low wavenumber) with
+  a Planck-suppressed second-order signature. A first-order Lorentz
+  violation, which the gamma-ray-burst bounds already constrain, kills
+  it.
+
+**Already consistent, a forbidden observation that has not been seen.**
+
+- **Exactly three generations, no fourth** (`spin/generations-f4-jordan`),
+  forced by the octonion Jordan structure, which holds at rank three and
+  fails at four. The Standard Model allows a fourth generation, this
+  model forbids it, and the LHC has found none. A confirmed fourth
+  generation kills it.
+- **The tau mass to one part in ten thousand** (`gauge/koide-tau-prediction`).
+  The geometric Koide relation fixes the tau at 1776.97 MeV against the
+  measured 1776.86, a number the Standard Model leaves free. Koide
+  predicted the tau this way in 1982, before the precise measurement.
+- **The weak mixing angle sin^2 theta_W = 3/8 at unification**
+  (`gauge/weinberg-angle-geometric`), pinned by the discrete charge
+  content, with an altered charge as the control that breaks it.
+
+The honest scope, in the model's own spirit. These are the frontier, not
+the settled base. Several rest on a Tier-B geometric input rather than a
+fully forced derivation (the inflaton shape and the everpresent scaling
+especially), and the absolute masses and couplings are free, so the
+confirmed items are relations and mixing angles, not the whole spectrum.
+The genuinely new-versus-standard cases, the high-redshift dark energy
+against LambdaCDM, the Bell decline against quantum mechanics, and the
+forbidden fourth generation, are where a single measurement could most
+decisively break the theory, and those are the tests worth watching.
+
 ## Keys
 
 The base model of reality is settled here pretty much, next is to
