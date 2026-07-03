@@ -66,12 +66,14 @@ Each subfolder is one concern. The taxonomy:
 | `operator/`       | matrices built on a substrate                     | `laplacian`, `dirac`, `lattice-fermion`, `block` (the shared 2x2 assembler), `dirac-skyrmion` |
 | `measure/`        | read a number off a state                         | `dimension`, `distance`, `lorentz`, `light-cone`, `bell`, `integration`                       |
 | `dynamics/`       | search and sampling over states                   | `mcmc`, `action`, `parallel-tempering`, `su2-lattice`                                         |
+| `coarse/`         | coarse-graining and the emergent-self layer       | `macro-unit`, `causal-emergence`, `self-trajectory`, `individuality`, `level-stack`           |
 | `control/`        | the null and comparison generators                | `null` (a random baseline)                                                                    |
 | `check/`          | the base invariants as predicates                 | `invariant` (conservesCharge, isReversible), `verify-*` scripts                               |
 | `model/`          | the committed model as a fluent DSL               | `vibe`                                                                                        |
 | `compute/`        | the GPU compute runners and shaders               | `run-*`, `wave.wgsl`                                                                          |
 | `draw/`           | 2D drawing primitives                             | `color` (the tone palette), `vector`, `raster` (canvas, disk), `animation` (frames)           |
 | `render/`         | the executable render scripts                     | `run/<substrate>/<theme>/*`                                                                   |
+| `viz/`            | visualization data exports (numbers a figure consumes) | `clock-24`, `curvature`, `horosphere-export`, `gravity-test`                             |
 
 ### The decision guide, where does X go
 
@@ -103,7 +105,7 @@ compose it:
 - **`Collision`** (`rule/collision`): a local in-place map on one cell's
   slots, charge-conserving and reversible. `pairCollision` runs the
   9-state pair table on opposite pairs (the 24-slot D4 collide).
-  Involutions are their own inverse; the pair table is a bijection, so
+  Involutions are their own inverse, the pair table is a bijection, so
   it has a paired inverse.
 - **`lattice-gas`** (`rule/lattice-gas`): `beat` = collide then stream.
   `inverseBeat` un-streams then collides with the inverse. Generic over
@@ -143,6 +145,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/light-cone',      // '<category>/<slug>', unique
+  code: 'E-RLT-0007',               // stable E-<arena>-<number>, arenas in test/codes.csv
   title: 'one sentence, the headline',
   category: 'relativity',           // from the Category union in suite.ts
   substrates: ['3434'],             // or 'any'
@@ -198,8 +201,10 @@ Rules that the runner enforces:
   slug. The `paper` flag and `title` carry the meaning.
 
 After adding a file, also add its side-effect import to
-`test/experiment/all.ts` (the barrel). Files that are helpers, not
-tests, simply do not call `experiment`; they are inert in the registry.
+`test/experiment/all.ts` (the barrel), add its row to
+`test/registry.csv` (the code to file map), and regenerate the catalog
+with `npx tsx test/catalog.ts`. Files that are helpers, not tests, simply
+do not call `experiment`, they are inert in the registry.
 
 To write an experiment that runs against ALL the regular hyperbolic
 tessellations (not one pinned substrate), see
