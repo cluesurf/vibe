@@ -149,7 +149,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
-    tone[i] = (r < SEED_DENSITY ? 1 : r < 2 * SEED_DENSITY ? -1 : 0) // BALANCED, net charge 0
+    tone[i] = r < SEED_DENSITY ? 1 : r < 2 * SEED_DENSITY ? -1 : 0 // BALANCED, net charge 0
   }
 
   const q0 = (() => {

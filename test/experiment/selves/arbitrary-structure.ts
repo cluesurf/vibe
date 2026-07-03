@@ -3,7 +3,7 @@
 // INVALID / CIRCULAR (audit June 2026): maintain() literally COPIES the target into the state every beat, so
 // fidelity 1.0 is GUARANTEED BY CONSTRUCTION, and the builder overwrites wrong cells to the target. This does
 // NOT show the substrate emergently constructs or maintains structures, the result is hand-fed. Kept for the
-// record, NOT evidence.
+// record, NOT evidence, and it returns status OPEN so it does not count green.
 //
 // The constructive form of "any positive thing is realizable". Given universality (P141) and the
 // goal-directed search (P147), the substrate can CONSTRUCT and MAINTAIN any specified high-level target
@@ -53,7 +53,7 @@ function construct(target: Int8Array, rng: Rng): number {
   const s = new Int8Array(M)
 
   for (let i = 0; i < M; i++) {
-    s[i] = (rng.next() < 0.5 ? 1 : -1)
+    s[i] = rng.next() < 0.5 ? 1 : -1
   }
 
   let gap = 0
@@ -154,21 +154,22 @@ export default experiment({
   paper: false,
   run() {
     const r = arbitraryStructure({ M: 60 })
-    const ok = r.solved && r.allBuilt && r.allMaintained
 
     return verdict({
-      status: ok ? 'pass' : 'fail',
+      status: 'open',
       claim:
-        'a goal-directed builder reaches several different arbitrary balanced targets and active maintenance holds each at full fidelity',
+        'a goal-directed builder reaches several different arbitrary balanced targets and active maintenance holds each at full fidelity, but both are guaranteed by construction, so this shows nothing about emergent construction and the realization question stays open',
       metrics: {
         caseCount: r.cases.length,
         totalBuildSteps: r.cases.reduce(
           (sum, c) => sum + c.buildSteps,
           0,
         ),
+        allBuilt: r.allBuilt ? 1 : 0,
+        allMaintained: r.allMaintained ? 1 : 0,
       },
       notes:
-        'maintain copies the target into the state every beat so fidelity is guaranteed by construction, this is hand-fed and not evidence of emergent construction',
+        'a self-declared circular record, retired from the green count (June 2026 audit). maintain copies the target into the state every beat so fidelity 1.0 is guaranteed by construction, and construct overwrites wrong cells directly toward the target, this is hand-fed and not evidence of emergent construction. The computation is kept for the record with status open',
     })
   },
 })

@@ -102,9 +102,8 @@ function perturbationRadius(input: {
 
   let clean: Will = { mesh, data: base.data.slice() }
   let dirty: Will = { mesh, data: base.data.slice() }
-  dirty.data[site * mesh.degree] = (
+  dirty.data[site * mesh.degree] =
     dirty.data[site * mesh.degree] === 1 ? -1 : 1
-  )
 
   const opposite = Array.from({ length: mesh.degree }, (_, d) =>
     mesh.opposite(d),

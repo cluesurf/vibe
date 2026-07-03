@@ -44,6 +44,7 @@ const sameData = (a: Int8Array, b: Int8Array): boolean => {
 
 export default experiment({
   id: 'computation/sparse-attention-update',
+  code: 'E-CMP-0014',
   title:
     'the reversible rule is a sparse one-hot local-attention update, with exact activity pruning on vacuum-fixed rules (speedup vanishes on a dense state, and the creating rule has a live vacuum)',
   category: 'computation',

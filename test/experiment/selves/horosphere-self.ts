@@ -130,7 +130,7 @@ export function horosphereSelf(input?: {
 
   for (let i = 0; i < bigCells; i++) {
     const r = rngB.next()
-    toneB[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0)
+    toneB[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
   const qb0 = totalCharge(toneB)

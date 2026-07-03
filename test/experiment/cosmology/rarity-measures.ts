@@ -39,7 +39,7 @@ function evolve(
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
-    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0)
+    tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
   const moved = new Uint8Array(N)

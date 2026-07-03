@@ -155,7 +155,6 @@ export class Camera {
     ])
 
     for (const g of window) {
-
       for (const f of this.faces) {
         const gp = matMul(g, f)
         const center = toPoincare(matVec(gp, this.c0), this.timeAxis)

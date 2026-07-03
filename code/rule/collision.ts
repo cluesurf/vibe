@@ -7,7 +7,11 @@ import { Tone } from '@/code/tone/will'
 // a bijection that is not an involution (the 9-state pair table below) runs
 // backward through its paired inverse, which the engine applies in inverseBeat.
 
-export type Collision = (slots: Int8Array, base: number, degree: number) => void
+export type Collision = (
+  slots: Int8Array,
+  base: number,
+  degree: number,
+) => void
 
 // The pass-through collision: never changes anything. The trivial reversible map.
 export const passThrough: Collision = () => {

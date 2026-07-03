@@ -13,11 +13,10 @@ import { writeFileSync } from 'node:fs'
 import { allExperiments } from '@/test/scaffold/suite'
 import '@/test/experiment/all'
 
-const header = 'id,category,depth,paper,substrates,title'
+const header = 'code,id,category,depth,paper,substrates,title'
 
-// Sort the most important results first: by depth (L3 the emergent-and-novel results first, down to
-// L0 circular last), then by id, then by substrates.
-const depthRank: Record<string, number> = { L3: 0, L2: 1, L1: 2, L0: 3 }
+// Sort by the experiment code in the first column (E-<arena>-<number>), so the catalog groups by arena
+// then by number. Codeless experiments sort last, falling back to id for a stable order.
 const substratesOf = (experiment: {
   substrates: 'any' | string[]
 }): string =>
@@ -25,29 +24,36 @@ const substratesOf = (experiment: {
     ? 'any'
     : experiment.substrates.join('|')
 
+const codeOf = (experiment: { code?: string }): string =>
+  experiment.code ?? ''
+
 const rows = allExperiments()
   .slice()
   .sort((left, right) => {
-    const byDepth =
-      (depthRank[left.depth] ?? 9) - (depthRank[right.depth] ?? 9)
+    const leftCode = codeOf(left)
+    const rightCode = codeOf(right)
 
-    if (byDepth !== 0) {
-      return byDepth
+    // Codeless experiments sort after coded ones.
+    if (leftCode === '' || rightCode === '') {
+      if (leftCode !== rightCode) {
+        return leftCode === '' ? 1 : -1
+      }
+    } else {
+      const byCode = leftCode.localeCompare(rightCode)
+
+      if (byCode !== 0) {
+        return byCode
+      }
     }
 
-    const byId = left.id.localeCompare(right.id)
-
-    if (byId !== 0) {
-      return byId
-    }
-
-    return substratesOf(left).localeCompare(substratesOf(right))
+    return left.id.localeCompare(right.id)
   })
   .map(experiment => {
     const substrates = substratesOf(experiment)
     const title = experiment.title.replace(/"/g, '""')
+    const code = experiment.code ?? ''
 
-    return `${experiment.id},${experiment.category},${experiment.depth},${experiment.paper},${substrates},"${title}"`
+    return `${code},${experiment.id},${experiment.category},${experiment.depth},${experiment.paper},${substrates},"${title}"`
   })
 
 const csv = [header, ...rows].join('\n') + '\n'

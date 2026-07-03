@@ -40,7 +40,7 @@ export function emergentGauge(): {
   const t = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    t[i] = (Math.floor(rnd() * 3) - 1)
+    t[i] = Math.floor(rnd() * 3) - 1
   }
 
   // (1) U(1) Gauss law: run one beat tracking per-pair charge flux; verify each cell's d(rho) = net inflow EXACTLY
@@ -96,7 +96,7 @@ export function emergentGauge(): {
   const A = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    A[i] = (rnd() < 0.5 ? 1 : -1)
+    A[i] = rnd() < 0.5 ? 1 : -1
   } // internal index
 
   const usd = new Uint8Array(N)
@@ -114,8 +114,8 @@ export function emergentGauge(): {
       }
 
       const sum = A[u]! + A[w]!
-      A[u] = (sum >= 0 ? 1 : -1)
-      A[w] = (sum > 0 ? 1 : -1)
+      A[u] = sum >= 0 ? 1 : -1
+      A[w] = sum > 0 ? 1 : -1
       usd[u] = 1
       usd[w] = 1
       break

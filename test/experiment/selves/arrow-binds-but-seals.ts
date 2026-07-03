@@ -298,7 +298,7 @@ export default experiment({
         momentumOpenFinal: momentum.openFinal,
       },
       notes:
-        'the capstone of the arrow-binding exploration. The arrow DOES bind a free body (a real positive, beyond the rigid-wall Casimir result), but its binding is pinning, which seals radiation. The momentum rule radiates but cannot bind. A density-gated hybrid (pin dense, stream sparse) does not rescue it, the core erodes once its density drops. So the bound body is emergent, not a base rule, consistent with the-self-in-layers and the pure-base-no-selves finding',
+        'the capstone of the arrow-binding exploration. The arrow DOES bind a free body (a real positive, beyond the rigid-wall Casimir result), but its binding is pinning, which seals radiation. The momentum rule radiates but cannot bind. A density-gated hybrid (pin dense, stream sparse) does not rescue it, the core erodes once its density drops. So the bound body is emergent, not a base rule, consistent with the-self-in-layers and the pure-base-no-selves finding. Prior art for the rotate-rule behavior: HPP (Hardy, de Pazzis, Pomeau 1973) and FHP (Frisch, Hasslacher, Pomeau 1986) lattice gases, whose momentum-conserving head-on collision rules likewise transport disturbances ballistically and support sound-like modes but bind nothing, headOnRotate is this lattice-gas collision family on the 24-direction {3,4,3,4} mesh',
     })
   },
 })

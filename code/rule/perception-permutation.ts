@@ -2,8 +2,10 @@
 // (values in -1, 0, +1). The reversible, charge-permuting local rule used by the
 // {3,4,3,4} / {4,3,4} experiments (the cusp and bulk towers). Each of the nine
 // ordered input pairs maps to a unique output pair, so the rule is a bijection on
-// pairs (information-preserving). It conserves net charge except where a 0/0 mints
-// a +1/-1 (the arrow) and a +1/-1 annihilates to 0/0.
+// pairs (information-preserving). It conserves the net charge (the signed pair sum)
+// on EVERY transition, including the arrow: a 0/0 minting a +1/-1 and a +1/-1
+// annihilating to 0/0 both have signed sum zero. What changes at the arrow is the
+// particle COUNT, not the charge.
 export function perceptionPermutation(
   a: number,
   b: number,
@@ -187,8 +189,8 @@ export function perceptionEdgeColoringSweep(input: {
       const u = eu[e]!
       const v = ev[e]!
       const ni = table[3 * (tone[u]! + 1) + (tone[v]! + 1)]!
-      tone[u] = (Math.floor(ni / 3) - 1)
-      tone[v] = ((ni % 3) - 1)
+      tone[u] = Math.floor(ni / 3) - 1
+      tone[v] = (ni % 3) - 1
     }
   }
 }
@@ -211,7 +213,7 @@ export function perceptionBlockBeat(input: {
     const w = (i + 1) % length
     const idx = (tone[v]! + 1) * 3 + (tone[w]! + 1)
     const ni = table[idx]!
-    tone[v] = (Math.floor(ni / 3) - 1)
-    tone[w] = ((ni % 3) - 1)
+    tone[v] = Math.floor(ni / 3) - 1
+    tone[w] = (ni % 3) - 1
   }
 }

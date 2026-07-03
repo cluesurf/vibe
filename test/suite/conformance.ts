@@ -18,7 +18,24 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { lattice } from '@/code/substrate/lattice'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { chsh } from '@/code/measure/bell'
+import {
+  chsh,
+  chshFromSharedPast,
+  TSIRELSON_SHARED_PAST,
+} from '@/code/measure/bell'
+import {
+  backwardCone,
+  bulkSharedPast,
+  seedSharedPast,
+} from '@/code/measure/shared-past'
+import {
+  connectedToneCorrelation,
+  meanCorrelationMagnitude,
+} from '@/code/measure/tone-correlation'
+import {
+  commonAncestorGeneration,
+  reachAtThreshold,
+} from '@/code/measure/cusp-distance'
 import { laplacian, laplacianSpectrum } from '@/code/operator/laplacian'
 import { cellComplexOf, diracSpectrum } from '@/code/operator/dirac'
 import {
@@ -1639,8 +1656,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // binary per-term deltas are equal (flat); unary per-term deltas strictly increase (grow with the value)
     const binDelta = binCost[9]! - binCost[8]!
     const binFlat =
-      binCost[8]! - (binCost[7]!) === binDelta &&
-      binCost[5]! - (binCost[4]!) === binDelta
+      (binCost[8]! - binCost[7]!) === binDelta &&
+      (binCost[5]! - binCost[4]!) === binDelta
 
     const unaGrows =
       unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!
@@ -2042,6 +2059,167 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         detail: `cycle ${cyc.length}`,
       })
     }
+  }
+
+  // shared-past on a hand-checkable path graph 0-1-2-3-4-5-6, seed at 0.
+  {
+    const neighbors = [[1], [0, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5]]
+    const size = 7
+    const generation = [0, 1, 2, 3, 4, 5, 6]
+
+    const cone1 = backwardCone({ neighbors, size, cell: 3, depth: 1 })
+    const cone2 = backwardCone({ neighbors, size, cell: 3, depth: 2 })
+
+    check({
+      name: 'backwardCone radius grows by graph distance',
+      ok: cone1.size === 3 && cone2.size === 5,
+      detail: `${cone1.size} then ${cone2.size}`,
+    })
+
+    const overlap = bulkSharedPast({
+      neighbors,
+      size,
+      cellA: 2,
+      cellB: 4,
+      depth: 1,
+    })
+
+    check({
+      name: 'bulkSharedPast overlap is exact (one shared cell, eta 1/3)',
+      ok: overlap.shared === 1 && Math.abs(overlap.eta - 1 / 3) < 1e-12,
+      detail: `shared ${overlap.shared} eta ${overlap.eta}`,
+    })
+
+    const disjoint = bulkSharedPast({
+      neighbors,
+      size,
+      cellA: 1,
+      cellB: 5,
+      depth: 1,
+    })
+
+    check({
+      name: 'bulkSharedPast is zero beyond twice the cone depth',
+      ok:
+        disjoint.shared === 0 &&
+        disjoint.eta === 0 &&
+        !disjoint.sharesPast,
+      detail: `shared ${disjoint.shared}`,
+    })
+
+    const seed = seedSharedPast({
+      neighbors,
+      size,
+      generation,
+      cellA: 3,
+      cellB: 5,
+    })
+
+    check({
+      name: 'seedSharedPast: full cones share the seed at every separation',
+      ok: seed.sharesPast && seed.shared > 0,
+      detail: `shared ${seed.shared}`,
+    })
+
+    check({
+      name: 'chshFromSharedPast: classical at 0, Tsirelson at root2-1, algebraic at 1',
+      ok:
+        chshFromSharedPast(0) === 2 &&
+        chshFromSharedPast(1) === 4 &&
+        Math.abs(
+          chshFromSharedPast(TSIRELSON_SHARED_PAST) - 2 * Math.SQRT2,
+        ) < 1e-12,
+    })
+  }
+
+  // tone-correlation on a hand-checkable path 0-1-2-3 with readout [1,1,-1,-1].
+  {
+    const neighbors = [[1], [0, 2], [1, 3], [2]]
+    const size = 4
+    const readout = [1, 1, -1, -1]
+    const correlation = connectedToneCorrelation({
+      neighbors,
+      size,
+      readout,
+      maxRadius: 3,
+    })
+
+    // mean readout is 0, so C(r) = mean product. distance 1 pairs: 1,-1,1 -> 1/3.
+    // distance 2 pairs: -1,-1 -> -1. distance 3 pair: -1 -> -1.
+    check({
+      name: 'connectedToneCorrelation matches the hand computation',
+      ok:
+        Math.abs((correlation[1] ?? 0) - 1 / 3) < 1e-12 &&
+        Math.abs((correlation[2] ?? 0) + 1) < 1e-12 &&
+        Math.abs((correlation[3] ?? 0) + 1) < 1e-12,
+      detail: `${correlation.map(c => c.toFixed(3)).join(',')}`,
+    })
+
+    const constant = connectedToneCorrelation({
+      neighbors,
+      size,
+      readout: [1, 1, 1, 1],
+      maxRadius: 3,
+    })
+
+    check({
+      name: 'connectedToneCorrelation: a constant readout has zero connected correlation',
+      ok: constant.slice(1).every(c => Math.abs(c) < 1e-12),
+    })
+
+    check({
+      name: 'meanCorrelationMagnitude averages the absolute correlation in a window',
+      ok:
+        Math.abs(
+          meanCorrelationMagnitude({ correlation, lo: 2, hi: 3 }) - 1,
+        ) < 1e-12,
+    })
+  }
+
+  // cusp-distance helpers on a hand-checkable binary tree 0 -> {1,2}, 1 -> {3,4},
+  // 2 -> {5,6}, generations [0,1,1,2,2,2,2].
+  {
+    const neighbors = [[1, 2], [0, 3, 4], [0, 5, 6], [1], [1], [2], [2]]
+    const generation = [0, 1, 1, 2, 2, 2, 2]
+
+    check({
+      name: 'commonAncestorGeneration: siblings meet at their parent',
+      ok:
+        commonAncestorGeneration({
+          neighbors,
+          generation,
+          a: 3,
+          b: 4,
+        }) === 1,
+    })
+
+    check({
+      name: 'commonAncestorGeneration: cousins meet only at the origin',
+      ok:
+        commonAncestorGeneration({
+          neighbors,
+          generation,
+          a: 3,
+          b: 5,
+        }) === 0,
+    })
+
+    const reach = reachAtThreshold({
+      samples: [
+        { physical: 2, bulk: 2, eta: 0.8 },
+        { physical: 8, bulk: 4, eta: 0.5 },
+        { physical: 32, bulk: 6, eta: 0.2 },
+      ],
+      threshold: 0.414,
+    })
+
+    check({
+      name: 'reachAtThreshold: physical reach over bulk reach is the amplification',
+      ok:
+        reach.physicalReach === 8 &&
+        reach.bulkReach === 4 &&
+        Math.abs(reach.amplification - 2) < 1e-12,
+    })
   }
 
   return { passed, failed }

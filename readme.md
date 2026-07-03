@@ -86,6 +86,40 @@ one rule, and to be clear at every step about what is solid, what is
 free, and what is still open. The companion papers are snapshots of that
 work.
 
+## What is a vibe, and what is falsifiable
+
+The one primitive is the **vibe**, a unit of experience. It carries a
+ternary **tone** (its felt charge: pain, peace, pleasure) and it notes
+(experiences) its neighbors. Everything else is arrangements of vibes and
+one rule for how their tones update. That the base genuinely **is**
+experience, that the tone is felt and not merely a label on a number, is
+the model's one **axiom**. Like every axiom, it is unfalsifiable. No lab
+reading distinguishes a universe whose base is felt from an identical
+universe whose base is only structure. We hold it as a **frame**, not a
+result. The experiments here never confirm it. They confirm structure.
+
+Under that frame sits a concrete discrete dynamical system, and it is
+highly falsifiable: a fixed geometry (the `{3,4,3,4}` honeycomb, a
+24-direction coin), a ternary state, and one reversible charge-conserving
+local rule. The physics is derived from that fixed base as measured
+consequences, and the whole method is built to try to make them come out
+wrong. Every deep claim carries a **control**, a case where the answer
+should be no, and a test that cannot fail is graded `L0` and counts for
+nothing. Honest negatives are kept, not hidden. The spinor that appears
+on the `{3,4,3,4}` coin and provably fails to appear on the `{5,3,4}`
+control, the area-law exponent that had to land near 2 and not near 3,
+the Lorentz isotropy that could have stayed anisotropic: each could have
+killed its claim and did not.
+
+So "vibe theory is unfalsifiable" is half right and half wrong, and the
+two halves must be kept apart. The axiom "experience is the base" is
+unfalsifiable, which is what an axiom is. The physics built under it is
+falsifiable, is being falsification-tested with controls and published
+failures, and is the opposite of a theory that fits anything. The honest
+reading is that the experiments do not prove the base is felt. They show
+that a single discrete rule, framed as felt, recovers a large amount of
+physics as results that could have come out otherwise.
+
 ## Keys
 
 The base model of reality is settled here pretty much, next is to
@@ -143,12 +177,14 @@ full rubric and the rules the runner enforces (an L3 claim must carry a
 control, for instance) are in
 [`note/experimental-methodology.md`](note/experimental-methodology.md).
 
-As of the latest run the catalog holds **611 experiments across 18
-categories**: 85 at `L3` (emergent and novel), 383 at `L2` (known
-physics reproduced), 129 at `L1` (known math confirmed), and 14 at `L0`
-(circular), with 406 of them backing a specific claim in the papers. The
-largest categories are selves, gauge, foundations, cosmology, spin,
-relativity, and gravity.
+As of the latest run the catalog holds **671 experiments across 18
+categories**: 80 at `L3` (emergent and novel), 418 at `L2` (known
+physics reproduced), 159 at `L1` (known math confirmed), and 14 at `L0`
+(circular), with 464 of them backing a specific claim in the papers. The
+largest categories are selves, gauge, foundations, cosmology, quantum,
+and gravity. The L3 count fell and the L1 count rose in the standing
+honesty audit that regraded overclaimed depths, which is the direction
+honest regrading moves.
 
 ## Quick start
 
@@ -214,11 +250,21 @@ All docs live in `note/`. The entry points:
   coin, the spectral methods, the causal-set sampler, the unitary
   evolution, the lattice gauge engine, the coarse-graining and selves
   engine, and the associative memory engine).
+- **[The math catalog](note/math.md)** lists every piece of math the
+  library runs: what each module implements, what it depends on, and which
+  experiments use it.
 - **[Architecture](note/architecture.md)** is where code and tests live,
   and how to add an experiment.
 - **[Experimental methodology](note/experimental-methodology.md)** is
   the standard every experiment is held to, the depth rubric, the
   control requirement, determinism, and the honest negatives.
+- **[Open problems](note/open/)** are the honest negatives written up
+  in full. The hardest is
+  **[spacelike Bell correlations](note/open/spacelike-bell-correlations.md)**:
+  what Bell's theorem actually proves, why a deterministic theory can still
+  match quantum mechanics (it drops measurement independence, not
+  determinism), the price vibe pays for that, and the measured shared-past
+  collapse that makes it hard.
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
   is how to write an experiment that runs against every regular
   hyperbolic tessellation at once.

@@ -75,7 +75,7 @@ export function resolveTowardPeace(input: { n: number }): {
   const opposed = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    opposed[i] = (i % 2 === 0 ? 1 : -1)
+    opposed[i] = i % 2 === 0 ? 1 : -1
   }
 
   // agreeing: all pleasure, no conflict (the control)

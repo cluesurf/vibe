@@ -8,7 +8,9 @@
 // aggregate urge). The aligned self has low conflict and high decisiveness, the fragmented self the reverse.
 // The fragmented self is the control: the case where conflict is high and the urge is torn.
 //
-// L3 with a control, a model of alignment as a property of a self's parts, not a base-emergence claim.
+// L1, a measure consistency check. No dynamics is run, the aligned/fragmented contrast is definitional
+// (near-copies versus opposed camps are constructed, then the measures read that construction back out), so
+// this verifies the conflict/decisiveness measures behave as intended, not a base-emergence claim.
 // Run via the suite: npx tsx test/run.ts
 
 import { ternaryVector } from '@/code/model/deliberation'
@@ -91,7 +93,7 @@ export default experiment({
     'an aligned self has low internal conflict and a decisive urge, a fragmented self is in conflict and torn',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const sizes = [80, 120, 160]
@@ -124,7 +126,7 @@ export default experiment({
         fragmentedDecisive: last.fragmentedDecisive,
       },
       notes:
-        'L3 model. internal conflict is opposed-tone density, decisiveness is aggregate-urge strength. not a base-emergence claim',
+        'L1, a measure consistency check on the conflict/decisiveness measures. No dynamics is run, the aligned/fragmented contrast is definitional (near-copies versus opposed camps are constructed and read back out), and the measured numbers match the analytic expectation, for flip fraction f=0.03 the aligned conflict is about 2f(1-f)=0.058 and the fragmented conflict about (9(1-2f(1-f))+6*2f(1-f))/15=0.588 for 6 parts in two camps. Internal conflict is opposed-tone density, decisiveness is aggregate-urge strength. Not a base-emergence claim',
     })
   },
 })

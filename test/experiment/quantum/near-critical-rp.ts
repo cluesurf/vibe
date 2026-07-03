@@ -81,7 +81,7 @@ export function nearCriticalRP(input?: {
     const rng = makeRng({ seed: 11 })
 
     for (let i = 0; i < N; i++) {
-      tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+      tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
     }
 
     for (let t = 0; t < 120; t++) {

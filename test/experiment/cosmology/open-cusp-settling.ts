@@ -73,7 +73,7 @@ export default experiment({
           s += cur[adj[p]!]!
         }
 
-        next[i] = ((s + 27 - prev[i]!) % 3)
+        next[i] = (s + 27 - prev[i]!) % 3
       }
 
       prev.set(cur)

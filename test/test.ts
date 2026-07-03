@@ -2637,16 +2637,17 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// P119: attention and a global workspace. The hub is the workspace where boundary sectors converge, and
-// it shows both bottom-up SALIENCE (a well-coupled input is always represented) and top-down GAIN
-// (attending a competing input boosts its representation). Physical broadcast to the far periphery is
-// range-limited, so the workspace is the hub itself.
+// P119: attention and a global workspace. The hub is the workspace where boundary sectors converge.
+// Determinized (June 2026 audit): under the fully deterministic drive the attention differential is
+// consistently positive (raising the gain always raises the hub correlation) but the strong salience and
+// gain bars do not hold across every schedule, so the strong workspace claim is open (E-SLF-0006).
 {
   const r = attentionWorkspace({ n: 60000 })
+  const first = r.cases[0]!
   check({
-    name: 'P119 attention and global workspace: the hub-workspace shows bottom-up salience and top-down attentional gain, from the base',
-    ok: r.solved && r.attentionSelects && r.steerable,
-    detail: `salient A ${r.attendedCorr[0]!.toFixed(2)}/${r.unattendedCorr[0]!.toFixed(2)}, gain B ${r.unattendedCorr[1]!.toFixed(2)}->${r.attendedCorr[1]!.toFixed(2)}`,
+    name: 'P119 attention and workspace differential: raising the drive gain on a region raises its hub correlation in every deterministic schedule (the strong salience/gain bars stay open, E-SLF-0006)',
+    ok: r.allPositiveDifferential,
+    detail: `A ${first.unattendedCorrA.toFixed(2)}->${first.attendedCorrA.toFixed(2)}, B ${first.unattendedCorrB.toFixed(2)}->${first.attendedCorrB.toFixed(2)}, robust bars topDown=${r.allTopDownGain} salience=${r.allBottomUpSalience}`,
   })
 }
 
@@ -3475,19 +3476,18 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// P179: autonomous (autopoietic) self-maintenance, the last external hand removed. The repair is a purely
-// LOCAL rule (each cell reads only its own neighborhood, never a global target list), so the self maintains
-// itself because of what it locally IS. Conserving, holds fidelity vs decay.
+// P179: autonomous (autopoietic) self-maintenance. The repair is a purely LOCAL rule (each cell reads only
+// its own neighborhood, never a global target list). June 2026 audit: the maintenance gain is real (the
+// repair always raises fidelity over the unmaintained control, charge exactly conserved) but knife-edge in
+// magnitude, the fidelity does not robustly clear the old 0.6 bar under seed/size perturbation (E-SLF-0007
+// is partial), so this checks the gain and conservation only.
 {
   const r = autonomousSelf({ n: 20000 })
+  const gap = r.maintainedFidelity - r.unmaintainedFidelity
   check({
-    name: 'P179 autonomous self: the self maintains ITSELF by a purely local rule (no global target list, no outside knower), holding fidelity vs decay, charge exactly conserved, closing the last external-hand gap from P178',
-    ok:
-      r.solved &&
-      r.maintenanceHoldsSelf &&
-      r.usesOnlyLocalInfo &&
-      r.conserved,
-    detail: `local ${r.usesOnlyLocalInfo}, fidelity ${(r.maintainedFidelity * 100).toFixed(0)}% vs ${(r.unmaintainedFidelity * 100).toFixed(0)}%, conserved ${r.conserved}, cost ${r.workPerBeat.toFixed(0)}/beat`,
+    name: 'P179 autonomous self: a purely local repair rule (no global target list, no outside knower) raises fidelity over the unmaintained control with charge exactly conserved (knife-edge magnitude, E-SLF-0007 partial)',
+    ok: gap > 0.1 && r.conserved,
+    detail: `fidelity ${(r.maintainedFidelity * 100).toFixed(0)}% vs ${(r.unmaintainedFidelity * 100).toFixed(0)}%, conserved ${r.conserved}, cost ${r.workPerBeat.toFixed(0)}/beat`,
   })
 }
 

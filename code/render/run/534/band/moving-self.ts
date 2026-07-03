@@ -154,9 +154,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
-    tone[i] = (
-      r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
-    )
+    tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
   const moved = new Uint8Array(n)

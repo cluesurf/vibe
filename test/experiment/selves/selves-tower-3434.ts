@@ -183,7 +183,7 @@ function cuspTower(): {
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    tone[i] = (rng.nextInt({ max: 3 }) - 1)
+    tone[i] = rng.nextInt({ max: 3 }) - 1
   }
 
   for (let f = 0; f < 40; f++) {
@@ -279,7 +279,7 @@ function bulkTower(): {
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
-    tone[i] = (rng.nextInt({ max: 3 }) - 1)
+    tone[i] = rng.nextInt({ max: 3 }) - 1
   }
 
   for (let f = 0; f < 40; f++) {

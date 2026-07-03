@@ -31,6 +31,7 @@ const WARP_HIGH = 19
 
 export default experiment({
   id: 'geometry/warp-factor-needs-geometry',
+  code: 'E-GMT-0028',
   title:
     'the {3,4,3,4} warp factor (shell ratio about 18.37) is a geometric consequence, it vanishes on a degree-preserving scramble and on the flat lattice (the L2-to-L3 control)',
   category: 'geometry',

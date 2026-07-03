@@ -1,13 +1,22 @@
-// SM6 / C2, THE WEAK MIXING ANGLE as a genuine prediction (the crown jewel, the one clean falsifiable number). The
-// bare value sin^2(theta_W) = 3/8 at unification is pure group theory from the so(10) 16-spinor charges
-// (gauge/electroweak-prediction, L1). This experiment elevates it to a PREDICTION of the LOW-energy value at M_Z.
-// Demanding that the three couplings meet at one scale (the 3/8 unification condition) and taking only the two
-// measured couplings alpha_em and alpha_s as input, sin^2(theta_W) at M_Z is an OUTPUT, not an input (the
-// Georgi-Quinn-Weinberg prediction). With the substrate's MSSM-like content it comes out near the measured 0.231,
-// with the bare Standard Model content near 0.207 (the known small miss). The discriminating control, a wrong
-// hypercharge normalization (a hand-altered charge assignment) predicts a clearly wrong angle, so the 3/8 structure
-// is doing the work. This is C2 of the discovery bets realized, a dimensionless real-world number that could have
-// come out wrong, derived not fitted.
+// SM6 / C2, THE WEAK MIXING ANGLE at M_Z from the 3/8 unification condition. The bare value
+// sin^2(theta_W) = 3/8 at unification is pure group theory from the so(10) 16-spinor charges
+// (gauge/electroweak-prediction, L1). This experiment runs it down to M_Z with the known
+// Georgi-Quinn-Weinberg one-loop machinery: demanding that the three couplings meet at one scale
+// and taking the two measured couplings alpha_em and alpha_s as input, sin^2(theta_W) at M_Z is
+// the output of the running.
+//
+// HONEST accounting of the inputs: the one-loop beta coefficients are typed in as a discrete
+// content CHOICE. With the MSSM-like coefficients (33/5, 1, -3) the output is near the measured
+// 0.231, with the bare Standard Model coefficients (41/10, -19/6, -7) it is near 0.207 (the known
+// miss). The choice between the two content sets is what selects 0.231 over 0.207, a one-bit fit.
+// This is the classic result that MSSM content unifies where SM content does not
+// (Amaldi, de Boer, Furstenau 1991), reproduced here, not a new derivation. The discriminating
+// control, a wrong hypercharge normalization (a hand-altered charge assignment), predicts a
+// clearly wrong angle, so the 3/8 structure is doing real work in the computation.
+//
+// Grade L2: correct known physics (Georgi-Quinn-Weinberg running from the group-theoretic 3/8)
+// with a one-bit content choice as input, matching the measured angle, with a discriminating
+// control on the hypercharge normalization.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -24,16 +33,16 @@ export default experiment({
   id: 'gauge/weak-angle-prediction',
   code: 'E-FRC-0054',
   title:
-    'the weak mixing angle is predicted (not fitted) from 3/8 unification, running to near 0.231 at the Z scale',
+    'the weak mixing angle at M_Z from 3/8 unification via the known Georgi-Quinn-Weinberg one-loop running, near 0.231 with MSSM-like beta coefficients typed in as a discrete content choice (the choice is what selects 0.231 over the SM 0.207, a one-bit fit)',
   category: 'gauge',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const bare = weinbergAngleAtUnification() // 3/8 from the so(10) charges
     const bareIsThreeEighths = Math.abs(bare - 3 / 8) < 1e-9
 
-    // the prediction, sin^2(theta_W) at M_Z as an output of the two measured couplings + the unification structure
+    // the output, sin^2(theta_W) at M_Z from the two measured couplings + the unification structure
     const predictedMSSM = predictWeinbergAngle({
       alphaEmInverse: ALPHA_EM_INVERSE,
       alphaStrongInverse: ALPHA_STRONG_INVERSE,
@@ -64,7 +73,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the weak mixing angle is a genuine prediction, the bare value is exactly 3/8 at unification from the so(10) 16-spinor charges, and taking only the measured alpha_em and alpha_s as input and demanding the three couplings unify, the predicted low-energy sin^2(theta_W) at M_Z is about 0.231 with the substrate MSSM-like content (about 0.207 with the bare Standard Model, the known small miss), matching the measured 0.2312, while a hand-altered hypercharge normalization predicts a clearly wrong angle, so the value is forced by the 3/8 structure and could have come out wrong',
+        'the bare value is exactly 3/8 at unification from the so(10) 16-spinor charges, and the known Georgi-Quinn-Weinberg one-loop running (taking the measured alpha_em and alpha_s as input and demanding the three couplings unify) gives sin^2(theta_W) at M_Z of about 0.231 with MSSM-like beta coefficients and about 0.207 with bare Standard Model coefficients, where the beta coefficients are typed in as a discrete content choice, the one-bit fit that selects 0.231 over 0.207 (the Amaldi-de Boer-Furstenau 1991 MSSM unification result reproduced), while a hand-altered hypercharge normalization predicts a clearly wrong angle, so the 3/8 structure does real work in the computation',
       metrics: {
         bareTimes1000: Math.round(bare * 1000),
         predictedMSSMTimes10000: Math.round(predictedMSSM * 10000),
@@ -76,7 +85,7 @@ export default experiment({
         wrongChargeTimes10000: Math.round(predictedWrongCharge * 10000),
       },
       notes:
-        'C2 realized, the one clean falsifiable number. sin^2 is an OUTPUT, not an input (only alpha_em and alpha_s are inputs), so it could have been wrong. The MSSM-content prediction matches 0.231, the bare-SM content gives 0.207 (the known miss, consistent with gauge/rg-unification). The bare 3/8 is from gauge/electroweak-prediction. The wrong-hypercharge prediction is the discriminating control.',
+        'L2. This is the known Georgi-Quinn-Weinberg one-loop running from the group-theoretic 3/8, with the beta coefficients typed in as a discrete content choice: MSSM-like content (33/5, 1, -3) gives 0.231, bare SM content (41/10, -19/6, -7) gives 0.207 (the known miss, consistent with gauge/rg-unification). The content choice is what selects 0.231 over 0.207, a one-bit fit, the classic Amaldi-de Boer-Furstenau 1991 MSSM unification result, reproduced here rather than newly derived. Only alpha_em and alpha_s are continuous inputs. The bare 3/8 is from gauge/electroweak-prediction. The wrong-hypercharge prediction is the discriminating control.',
     })
   },
 })

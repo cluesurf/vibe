@@ -166,6 +166,114 @@ export function settlingTime(
   return trajectory.length
 }
 
+// The SIGNED coarse pointer, mean occupancy in the low-x half minus the high-x half,
+// normalised to [-1, 1]. Positive means mass piled toward low x, negative toward high
+// x. Unlike profileGradient (a magnitude) this DISTINGUISHES the two macroscopic
+// outcomes of a two-sided measurement, so it can see a branch selection or its absence.
+export function signedSlabPointer(will: Will, axis = 0): number {
+  const occ = slabOccupancy(will, axis)
+  const side = occ.length
+
+  let lo = 0
+  let hi = 0
+
+  for (let x = 0; x < side; x++) {
+    if (x < side / 2) {
+      lo += occ[x]!
+    } else {
+      hi += occ[x]!
+    }
+  }
+
+  const total = lo + hi
+
+  return total > 0 ? (lo - hi) / total : 0
+}
+
+// Hold every slab in `frontiers` (x-coordinates) at peace, the open drains the fine
+// phase disperses into. Generalises bornAtPeace to several drains, so a symmetric
+// two-drain detector (both ends open) can be built.
+export function drainSlabs(
+  will: Will,
+  frontiers: readonly number[],
+): void {
+  const mesh = will.mesh
+  const side = sideOf(mesh)
+  const degree = mesh.degree
+  const drain = new Set(frontiers)
+
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    if (drain.has(cell % side)) {
+      const base = cell * degree
+
+      for (let d = 0; d < degree; d++) {
+        will.data[base + d] = 0
+      }
+    }
+  }
+}
+
+// Run the committed reversible rule for `beats`, holding the given `drains` slabs at
+// peace each beat, and return the final SIGNED pointer. This is the settled outcome of
+// a measurement with the chosen drain geometry (one-sided or symmetric two-sided).
+export function settledSignedPointer(input: {
+  init: Will
+  forward: Collision
+  table: Int32Array
+  beats: number
+  drains: readonly number[]
+  axis?: number
+}): number {
+  const axis = input.axis ?? 0
+
+  let current = cloneWill(input.init)
+  let scratch: Will = {
+    mesh: current.mesh,
+    data: new Int8Array(current.data.length),
+  }
+
+  for (let t = 0; t < input.beats; t++) {
+    beatInto({
+      src: current,
+      dst: scratch,
+      table: input.table,
+      collision: input.forward,
+    })
+
+    const swap = current
+    current = scratch
+    scratch = swap
+
+    drainSlabs(current, input.drains)
+  }
+
+  return signedSlabPointer(current, axis)
+}
+
+// Mirror the high-x half of a will onto the low-x half so the coarse occupancy is
+// exactly left-right symmetric, occ(x) = occ(side-1-x). The symmetric ready-state a
+// two-sided detector starts from.
+export function symmetriseLeftRight(will: Will): void {
+  const mesh = will.mesh
+  const side = sideOf(mesh)
+  const degree = mesh.degree
+
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    const x = cell % side
+
+    if (x >= side / 2) {
+      const mirrorX = side - 1 - x
+      const mirrorCell = cell - x + mirrorX
+      const base = cell * degree
+      const mirrorBase = mirrorCell * degree
+
+      for (let d = 0; d < degree; d++) {
+        will.data[base + d] = will.data[mirrorBase + d]!
+      }
+    }
+  }
+}
+
 // The mean of the last `fraction` of a trajectory, the settled value.
 export function tailMean(
   trajectory: number[],

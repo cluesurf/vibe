@@ -100,7 +100,7 @@ export function eternalBootstrap(): {
         s += fc[j]!
       }
 
-      nx[i] = ((((s - fp[i]!) % 3) + 3) % 3)
+      nx[i] = (((s - fp[i]!) % 3) + 3) % 3
     }
 
     fp = fc
@@ -121,7 +121,7 @@ export function eternalBootstrap(): {
         s += bp[j]!
       }
 
-      pr[i] = ((((s - bc[i]!) % 3) + 3) % 3)
+      pr[i] = (((s - bc[i]!) % 3) + 3) % 3
     }
 
     bc = bp

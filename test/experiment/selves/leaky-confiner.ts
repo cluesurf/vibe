@@ -114,9 +114,8 @@ export default experiment({
     const cone = (rule: Collision): number => {
       let plain = packet()
       let pert = cloneWill(packet())
-      pert.data[center * degree + 0] = (
+      pert.data[center * degree + 0] =
         pert.data[center * degree + 0] === 1 ? -1 : 1
-      )
 
       let plainScratch: Will = {
         mesh,

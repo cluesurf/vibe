@@ -1,0 +1,77 @@
+\section{The Experiments}
+
+Every result in this paper is checked by a reproducible computation on the substrate, never a measurement against nature.
+The full suite is a finite, deterministic, runnable battery \cite{cluesurf2026repo}. This appendix explains the code
+scheme, the depth grades, the counts, and indexes the key experiments cited in the paper.
+
+\subsection*{The code scheme}
+
+Each experiment carries a stable code, registered once in the catalog, of the form E-XXX-NNNN. The XXX is a three-letter
+arena that groups by topic, GRV for gravity, RLT for relativity, SPN for spin, FLD for fluid, CSM for cosmology, MTH for
+method, FND for foundations, and so on. The NNNN is a four-digit number, unique within the arena. The four anchors of this
+paper are \texttt{E-GRV-0039}, \texttt{E-GRV-0040}, \texttt{E-GRV-0041}, and \texttt{E-MTH-0001}. Open frontiers are tracked by a separate E-DEC planning
+label, which marks an arena's decisive test rather than a catalog entry.
+
+\subsection*{The depth grades}
+
+Each experiment is graded by what it actually establishes, from L0 to L3.
+
+\begin{table}[ht]
+\centering
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X@{}}
+\toprule
+grade & what it establishes \\
+\midrule
+\textbf{L3} & an emergent, novel result from the base rule, with a control where the answer should come out no \\
+\textbf{L2} & known physics reproduced on the substrate \\
+\textbf{L1} & known math confirmed \\
+\textbf{L0} & a circular consistency note, kept and labeled as such \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{The counts}
+
+The evidence base is 615 experiments across 18 categories. 84 sit at L3, 389 at L2, 128 at L1, and 14 at L0. Of these, 412
+back a specific claim in the papers. A result counts only as the gap between the run and its control. Pass conditions are
+fixed before running. Where possible they are exact integer or ratio equalities with no tolerance, so a result is an
+identity rather than a fit. A run is bit-identical on two machines.
+
+\subsection*{The key experiments}
+
+The experiments cited in this paper, by code, with depth grade and verdict.
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}p{0.40\textwidth}>{\raggedright\arraybackslash}p{0.08\textwidth}>{\raggedright\arraybackslash}p{0.28\textwidth}@{}}
+\toprule
+code & title & depth & verdict \\
+\midrule
+\endfirsthead
+\toprule
+code & title & depth & verdict \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{E-FND-0030} & conservative reversible logic & L2 & charge conserved exactly, lossy control fails \\
+\texttt{E-GMT-0026} & the 24-cell coin & L2 & order-1152 $F_4$ isotropy, cubic coins at 384 and 48 fail \\
+\texttt{E-RLT-0010} & doubly-special dispersion & L2 & dispersion bends with a second invariant, recovers Einstein at low energy \\
+\texttt{E-RLT-0039} & momentum current and cone & L2 & momentum current conserved exactly, sharp speed one, lossy loses it \\
+\texttt{E-HLG-0021} & entanglement-geometry co-variation & L2 & connectivity tracks entanglement across a throat \\
+\texttt{E-QTM-0020} & purification & L2 & every emergent mixed state is the marginal of a pure reversible whole \\
+\texttt{E-CMP-0013} & walk complexity & L2 & the complexity signature of the quantum walk on the substrate \\
+\texttt{E-GRV-0039} & coarse continuity closure & L2 & $\nabla\!\cdot J = 0$ exact at every block scale, lossy nonzero \\
+\texttt{E-GRV-0042} & curved-mesh continuity & L2 & $\nabla\!\cdot J = 0$ exact at every region on the curved mesh, lossy breaks it by the destroyed charge \\
+\texttt{E-GRV-0040} & the recoverability functional & L2 & one $R$ carries horizons, decoherence, and conservation, lossy global $R$ falls below 1 \\
+\texttt{E-GRV-0041} & gravity-induced entanglement & L2 & two regions entangle only through the mediator, severed kills it, bypass retains \\
+\texttt{E-SPN-0042} & spinor double cover & L2 & the 24 directions act as the binary tetrahedral double cover, a $2\pi$ turn negates a spinor \\
+\texttt{E-FLD-0009} & enstrophy bound & L2 & an enstrophy-like quadratic conserved exactly, lossy collapses it \\
+\texttt{E-FLD-0010} & coarse runaway & L2 & coarse gradient energy rises transiently while the fine bound is exact, no blow-up \\
+\texttt{E-CSM-0043} & wake as expansion scalar & L2 & the current divergence equals the count of newly born edge cells, zero in the bulk, dead under the static control \\
+\texttt{E-MTH-0001} & the consistency matrix & L2 & one assignment passes 4 of 4 arenas, the lossy rule 1 of 4, the cubic frame 2 of 4 \\
+\end{longtable}
+
+A handful of established results are reproduced across several experiments and cited without a single code: the area law, the
+$1/r$ potential, the Born rule, CHSH and the Tsirelson bound, the contextuality values, and fermion universality. Two
+attempts in this round did not build cleanly and are reported as such. A metric from the bare tone correlations failed
+because the tone field is short-range. A clean geometry-dependent settling time failed because the observable is too noisy.
+A negative result is itself a finding.

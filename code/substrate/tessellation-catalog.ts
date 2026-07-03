@@ -202,7 +202,7 @@ export const TESSELLATIONS: Tessellation[] = [
     name: 'Icosahedral (ikhon)',
     dimension: 3,
     cells: 'icosahedra',
-    vertexFigure: 'icosahedron',
+    vertexFigure: 'dodecahedron',
     note: 'self-dual, non-crystallographic',
   }),
   compact({
@@ -248,7 +248,7 @@ export const TESSELLATIONS: Tessellation[] = [
     name: 'Square tiling honeycomb',
     dimension: 3,
     cells: 'square tilings',
-    vertexFigure: 'octahedron',
+    vertexFigure: 'cube',
     note: 'crystallographic, dual of {3,4,4}',
   }),
   para({
@@ -377,7 +377,7 @@ export const TESSELLATIONS: Tessellation[] = [
     name: 'Order-4 hecatonicosachoric (shitte)',
     dimension: 4,
     cells: '120-cells',
-    vertexFigure: 'tesseract',
+    vertexFigure: '16-cell',
     note: 'richest 4D compact, dual of pitest',
   }),
   compact({
@@ -386,7 +386,7 @@ export const TESSELLATIONS: Tessellation[] = [
     name: 'Order-5 hecatonicosachoric (phitte)',
     dimension: 4,
     cells: '120-cells',
-    vertexFigure: '120-cell',
+    vertexFigure: '600-cell',
     note: 'self-dual, the richest 4D compact regular',
   }),
   compact({
@@ -424,7 +424,7 @@ export const TESSELLATIONS: Tessellation[] = [
     name: 'Square tiling honeycomb tetracomb',
     dimension: 4,
     cells: 'square tilings {4,4}',
-    vertexFigure: '5-cell',
+    vertexFigure: 'tesseract',
     note: 'noncompact, infinite square-tiling tiles',
   }),
   noncompact({

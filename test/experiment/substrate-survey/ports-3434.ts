@@ -66,8 +66,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
             s += cur[at(x + d[0]!, y + d[1]!, z + d[2]!)]!
           }
 
-          nxt[at(x, y, z)] = ((((s - prev[at(x, y, z)]!) % 3) + 3) %
-            3)
+          nxt[at(x, y, z)] = (((s - prev[at(x, y, z)]!) % 3) + 3) % 3
         }
       }
     }
@@ -99,7 +98,7 @@ export function ports(): {
   const t = new Int8Array(L * L * L)
 
   for (let k = 0; k < 200; k++) {
-    t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1)
+    t[Math.floor(rnd() * L * L * L)] = rnd() < 0.5 ? 1 : -1
   }
 
   for (let b = 0; b < 40; b++) {

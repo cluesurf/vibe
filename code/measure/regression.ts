@@ -130,6 +130,135 @@ export function linearFit(input: {
   return { slope, intercept, residual, r2 }
 }
 
+// Least-squares fit y = slope * x THROUGH THE ORIGIN, no intercept. Returns the slope and the
+// coefficient of determination r2 (residuals against the constrained line, total variance about the
+// mean). The fit for a strictly linear dispersion E = v q out of a band-touching point, where an
+// intercept would hide a gap.
+export function proportionalFit(input: {
+  xs: readonly number[]
+  ys: readonly number[]
+}): { slope: number; r2: number } {
+  const { xs, ys } = input
+
+  let sxy = 0
+  let sxx = 0
+
+  for (let i = 0; i < xs.length; i++) {
+    sxy += (xs[i] ?? 0) * (ys[i] ?? 0)
+    sxx += (xs[i] ?? 0) * (xs[i] ?? 0)
+  }
+
+  const slope = sxx === 0 ? 0 : sxy / sxx
+  const my = ys.reduce((a, b) => a + b, 0) / ys.length
+
+  let ssRes = 0
+  let ssTot = 0
+
+  for (let i = 0; i < xs.length; i++) {
+    ssRes += ((ys[i] ?? 0) - slope * (xs[i] ?? 0)) ** 2
+    ssTot += ((ys[i] ?? 0) - my) ** 2
+  }
+
+  return { slope, r2: ssTot > 0 ? 1 - ssRes / ssTot : 0 }
+}
+
+// Ordinary least-squares parabola fit y = a x^2 + b x + c, by the 3x3 normal equations with partial
+// pivoting. Returns the coefficients, the sum of squared residuals, and r2. The channel-flow (Poiseuille)
+// profile fit: a viscous flow profile across a channel is quadratic in the cross-channel coordinate with
+// NEGATIVE curvature a (a centerline maximum), so the sign of `a` and the residual against a flat fit are
+// the discriminating numbers.
+export function quadraticFit(input: {
+  xs: readonly number[]
+  ys: readonly number[]
+}): { a: number; b: number; c: number; residual: number; r2: number } {
+  const { xs, ys } = input
+  const n = xs.length
+
+  let s1 = 0
+  let s2 = 0
+  let s3 = 0
+  let s4 = 0
+  let t0 = 0
+  let t1 = 0
+  let t2 = 0
+
+  for (let i = 0; i < n; i++) {
+    const x = xs[i] ?? 0
+    const y = ys[i] ?? 0
+    const xx = x * x
+    s1 += x
+    s2 += xx
+    s3 += xx * x
+    s4 += xx * xx
+    t0 += y
+    t1 += x * y
+    t2 += xx * y
+  }
+
+  // solve [[s4,s3,s2],[s3,s2,s1],[s2,s1,n]] (a,b,c) = (t2,t1,t0) by Gauss-Jordan with partial pivoting
+  const m = [
+    [s4, s3, s2, t2],
+    [s3, s2, s1, t1],
+    [s2, s1, n, t0],
+  ]
+
+  for (let col = 0; col < 3; col++) {
+    let pivot = col
+
+    for (let row = col + 1; row < 3; row++) {
+      if (Math.abs(m[row]![col]!) > Math.abs(m[pivot]![col]!)) {
+        pivot = row
+      }
+    }
+
+    const hold = m[col]!
+    m[col] = m[pivot]!
+    m[pivot] = hold
+
+    const head = m[col]![col]!
+
+    if (head === 0) {
+      return { a: 0, b: 0, c: 0, residual: 0, r2: 0 }
+    }
+
+    for (let row = 0; row < 3; row++) {
+      if (row === col) {
+        continue
+      }
+
+      const factor = m[row]![col]! / head
+
+      for (let k = col; k < 4; k++) {
+        m[row]![k]! -= factor * m[col]![k]!
+      }
+    }
+  }
+
+  const a = m[0]![3]! / m[0]![0]!
+  const b = m[1]![3]! / m[1]![1]!
+  const c = m[2]![3]! / m[2]![2]!
+  const mean = t0 / n
+
+  let residual = 0
+  let ssTot = 0
+
+  for (let i = 0; i < n; i++) {
+    const x = xs[i] ?? 0
+    const y = ys[i] ?? 0
+    const predicted = a * x * x + b * x + c
+    residual += (y - predicted) ** 2
+    ssTot += (y - mean) ** 2
+  }
+
+  return {
+    a,
+    b,
+    c,
+    residual,
+    r2: ssTot > 0 ? 1 - residual / ssTot : 0,
+  }
+}
+
 // The log-log exponent of a series indexed by step, fit over an inclusive index window [lo, hi]. Fits
 // log(t) versus log(values[t]) and returns the slope, dropping non-positive samples (no log). The
 // mean-square-displacement exponent z (ballistic ~ 2, diffusive ~ 1) is read off this way.
@@ -160,7 +289,14 @@ export function loglogExponentWindow(input: {
     m++
   }
 
-  return (m * sxy - sx * sy) / (m * sxx - sx * sx)
+  // Guard the degenerate fit (fewer than two usable points, or a zero-variance x
+  // window) the same way powerLawExponent does, so a flat or empty window returns a
+  // defined 0 instead of letting a NaN propagate into a verdict.
+  const denominator = m * sxx - sx * sx
+
+  return m > 1 && denominator !== 0
+    ? (m * sxy - sx * sy) / denominator
+    : 0
 }
 
 // A power-law fit over (x, y) in log-log space: the slope (exponent) plus the largest
@@ -186,7 +322,9 @@ export function powerLawFit(input: {
     varx += (logX[i]! - meanX) * (logX[i]! - meanX)
   }
 
-  const exponent = cov / varx
+  // varx is 0 only when every x is identical (a single distinct radius), where no
+  // exponent is defined; return 0 rather than a NaN, matching the other fits.
+  const exponent = varx === 0 ? 0 : cov / varx
 
   let maxDeviation = 0
 

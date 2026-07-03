@@ -119,7 +119,7 @@ export function cycleReversibility(input?: { n?: number }): {
   const rng = makeRng({ seed: 3 })
 
   for (let i = 0; i < N; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   const arrow = 0.1

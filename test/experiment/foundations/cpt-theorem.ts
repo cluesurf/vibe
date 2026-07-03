@@ -62,11 +62,8 @@ export default experiment({
 
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       for (let d = 0; d < mesh.degree; d++) {
-        start.data[cell * mesh.degree + d] = (((coordinate(cell, 0) +
-          coordinate(cell, 1) +
-          d) %
-          3) -
-          1)
+        start.data[cell * mesh.degree + d] =
+          ((coordinate(cell, 0) + coordinate(cell, 1) + d) % 3) - 1
       }
     }
 

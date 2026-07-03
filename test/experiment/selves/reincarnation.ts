@@ -62,7 +62,7 @@ export function reincarnation(input: { seed: number }): {
   while (seen.size < size && rounds < 1000) {
     for (let k = 0; k < Math.round(0.2 * size); k++) {
       const v = tr.nextInt({ max: size })
-      state[v] = (tr.nextInt({ max: 3 }) - 1) // fresh material
+      state[v] = tr.nextInt({ max: 3 }) - 1 // fresh material
       seen.add(v)
     }
 

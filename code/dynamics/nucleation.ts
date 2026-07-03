@@ -76,7 +76,7 @@ function step(
       const f = plusFraction(grid, side, x, y, radius)
       const isPlus = grid[y * side + x] === 1
       const becomes = isPlus ? f >= stay : f >= grow
-      next[y * side + x] = (becomes ? 1 : -1)
+      next[y * side + x] = becomes ? 1 : -1
     }
   }
 
@@ -128,8 +128,11 @@ export function nucleate(input: {
   return {
     initialFraction,
     finalFraction,
-    // survived: the self-maintaining region held at least most of its seed mass rather than dying out
+    // survived: the region held at least half of its seed mass, a RELATIVE criterion. An absolute floor
+    // (finalFraction above some fixed value) would misclassify a small perfectly persisting droplet as dead,
+    // and at these parameters the surviving droplets are frozen fixed points with final exactly equal to
+    // initial, so the relative criterion is the honest one.
     survived:
-      finalFraction > 0.5 * initialFraction && finalFraction > 0.005,
+      finalFraction >= 0.5 * initialFraction && finalFraction > 0,
   }
 }

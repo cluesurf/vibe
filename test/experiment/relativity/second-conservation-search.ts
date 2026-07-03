@@ -57,7 +57,7 @@ export function secondConservationSearch(input?: { L?: number }): {
   const rng = makeRng({ seed: 5 })
 
   for (let i = 0; i < L; i++) {
-    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0)
+    tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
   }
 
   for (let t = 0; t < 60; t++) {
@@ -126,7 +126,7 @@ export function secondConservationSearch(input?: { L?: number }): {
     const r2 = makeRng({ seed: 9 })
 
     for (let i = 0; i < L; i++) {
-      tn[i] = (r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0)
+      tn[i] = r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0
     }
 
     for (let t = 0; t < 300; t++) {
