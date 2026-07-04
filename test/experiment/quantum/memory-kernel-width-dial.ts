@@ -42,7 +42,9 @@ export default experiment({
     const ballisticEnd = ballisticAlpha > 0.85
     const diffusiveEnd = widestAlpha < 0.6
     const monotone =
-      ballisticAlpha > midAlpha && midAlpha >= wideAlpha && wideAlpha >= widestAlpha
+      ballisticAlpha > midAlpha &&
+      midAlpha >= wideAlpha &&
+      wideAlpha >= widestAlpha
 
     const ok = ballisticEnd && diffusiveEnd && monotone
 

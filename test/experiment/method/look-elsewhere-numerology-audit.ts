@@ -16,13 +16,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { menuCoverage, numerologyMenu } from '@/code/measure/look-elsewhere'
+import {
+  menuCoverage,
+  numerologyMenu,
+} from '@/code/measure/look-elsewhere'
 
 // the forced structural values: real regular-polytope and Coxeter/finite-group orders
 // that vibe actually uses (the 24-cell coin degree, the D4 root count 24, the F4 Weyl
 // order 1152, the binary tetrahedral order 24, the 600-cell, the icosahedral orders).
 // These are the only "numbers vibe may read off geometry", and they are sparse.
-const STRUCTURAL_MENU = [6, 8, 12, 24, 48, 120, 240, 576, 600, 1152, 14400]
+const STRUCTURAL_MENU = [
+  6, 8, 12, 24, 48, 120, 240, 576, 600, 1152, 14400,
+]
 
 export default experiment({
   id: 'method/look-elsewhere-numerology-audit',
@@ -71,7 +76,10 @@ export default experiment({
       metrics: {
         numerologyCoverage,
         structuralCoverage,
-        informationGap: structuralCoverage === 0 ? numerologyCoverage / (1 / points) : numerologyCoverage / structuralCoverage,
+        informationGap:
+          structuralCoverage === 0
+            ? numerologyCoverage / (1 / points)
+            : numerologyCoverage / structuralCoverage,
         menuSize: numerologyMenu({ maxInteger: 30 }).length,
         structuralSize: STRUCTURAL_MENU.length,
       },

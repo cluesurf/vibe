@@ -16,7 +16,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { hasZeroDivisor, hasNormComposition } from '@/code/measure/division-algebra'
+import {
+  hasZeroDivisor,
+  hasNormComposition,
+} from '@/code/measure/division-algebra'
 
 const OCTONION_LEVEL = 3 // Cayley-Dickson level 3, dimension 8, the division octonions
 const SEDENION_LEVEL = 4 // level 4, dimension 16, the first level with zero divisors
@@ -40,7 +43,9 @@ export default experiment({
     const sedenionComposes = hasNormComposition(SEDENION_LEVEL)
 
     const divisionIsClean = !divisionHasZeroDivisor && divisionComposes
-    const controlDiscriminates = sedenionHasZeroDivisor && !sedenionComposes
+    const controlDiscriminates =
+      sedenionHasZeroDivisor && !sedenionComposes
+
     const ok = divisionIsClean && controlDiscriminates
 
     return verdict({

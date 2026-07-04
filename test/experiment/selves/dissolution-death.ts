@@ -13,7 +13,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshNeighbors } from '@/code/tool/mesh'
-import { ballAtRadius, bindingMargin } from '@/code/coarse/binding-margin'
+import {
+  ballAtRadius,
+  bindingMargin,
+} from '@/code/coarse/binding-margin'
 
 export default experiment({
   id: 'selves/dissolution-death',
@@ -38,7 +41,11 @@ export default experiment({
     const step = Math.max(1, Math.floor(mesh.cellCount / cellCount))
     const scatterPool: number[] = []
 
-    for (let i = 0; i < mesh.cellCount && scatterPool.length < cellCount; i += step) {
+    for (
+      let i = 0;
+      i < mesh.cellCount && scatterPool.length < cellCount;
+      i += step
+    ) {
       scatterPool.push(i)
     }
 
@@ -60,14 +67,17 @@ export default experiment({
         region.add(cell)
       }
 
-      margins.push(bindingMargin({ neighbors, region: [...region] }).margin)
+      margins.push(
+        bindingMargin({ neighbors, region: [...region] }).margin,
+      )
     }
 
     const aliveMargin = margins[0]!
     const deadMargin = margins[margins.length - 1]!
     // the death threshold: the first fraction where the margin crosses below zero.
     const deathIndex = margins.findIndex(m => m < 0)
-    const deathFraction = deathIndex === -1 ? -1 : fractions[deathIndex]!
+    const deathFraction =
+      deathIndex === -1 ? -1 : fractions[deathIndex]!
 
     const startsAlive = aliveMargin > 0
     const endsDead = deadMargin < 0

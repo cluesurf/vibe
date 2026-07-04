@@ -116,7 +116,11 @@ export function ringdownPersistence(input: {
   let sum = 0
   let count = 0
 
-  for (let beat = startBeat; beat <= endBeat && beat < trace.length; beat++) {
+  for (
+    let beat = startBeat;
+    beat <= endBeat && beat < trace.length;
+    beat++
+  ) {
     sum += trace[beat]!
     count++
   }
@@ -141,11 +145,17 @@ export function detectEcho(trace: readonly number[]): {
   // find the first trough (local minimum) after the pulse leaves.
   let trough = 1
 
-  while (trough < trace.length - 1 && trace[trough]! > trace[trough - 1]!) {
+  while (
+    trough < trace.length - 1 &&
+    trace[trough]! > trace[trough - 1]!
+  ) {
     trough++
   }
 
-  while (trough < trace.length - 1 && trace[trough + 1]! <= trace[trough]!) {
+  while (
+    trough < trace.length - 1 &&
+    trace[trough + 1]! <= trace[trough]!
+  ) {
     trough++
   }
 

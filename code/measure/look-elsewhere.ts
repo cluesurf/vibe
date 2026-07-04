@@ -31,7 +31,11 @@ export function lookElsewhereCount(input: {
     }
   }
 
-  return { hits, total: candidates.length, fraction: candidates.length === 0 ? 0 : hits / candidates.length }
+  return {
+    hits,
+    total: candidates.length,
+    fraction: candidates.length === 0 ? 0 : hits / candidates.length,
+  }
 }
 
 // The coverage of a menu: over a deterministic grid of targets in a range, the fraction
@@ -55,7 +59,9 @@ export function menuCoverage(input: {
   for (let i = 0; i < points; i++) {
     const target = low + ((high - low) * i) / (points - 1)
     const scale = Math.abs(target) < 1e-12 ? 1 : Math.abs(target)
-    const hit = sorted.some(value => Math.abs(value - target) / scale <= tolerance)
+    const hit = sorted.some(
+      value => Math.abs(value - target) / scale <= tolerance,
+    )
 
     if (hit) {
       covered++
@@ -69,7 +75,9 @@ export function menuCoverage(input: {
 // admitting it: integers, simple ratios, and small powers of the usual constants
 // (golden ratio, pi, e, sqrt 2). Deterministic and finite, so an audit is reproducible.
 // This is the null ensemble a fitted constant is drawn from.
-export function numerologyMenu(input: { maxInteger?: number }): number[] {
+export function numerologyMenu(input: {
+  maxInteger?: number
+}): number[] {
   const maxInteger = input.maxInteger ?? 30
   const bases = [
     (1 + Math.sqrt(5)) / 2, // golden ratio

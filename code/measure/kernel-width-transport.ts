@@ -23,7 +23,11 @@ function ringRmsRadius(field: Float64Array, center: number): number {
 
   for (let x = 0; x < length; x++) {
     const magnitude = Math.abs(field[x]!)
-    const d = Math.min(Math.abs(x - center), length - Math.abs(x - center))
+    const d = Math.min(
+      Math.abs(x - center),
+      length - Math.abs(x - center),
+    )
+
     weight += magnitude
     sumSquared += magnitude * d * d
   }

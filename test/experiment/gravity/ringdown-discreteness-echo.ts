@@ -19,7 +19,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshNeighbors } from '@/code/tool/mesh'
 import { scrambleNeighbors } from '@/code/control/scramble'
-import { sourceEnergyTrace, ringdownPersistence } from '@/code/measure/ringdown-echo'
+import {
+  sourceEnergyTrace,
+  ringdownPersistence,
+} from '@/code/measure/ringdown-echo'
 
 export default experiment({
   id: 'gravity/ringdown-discreteness-echo',
@@ -37,7 +40,13 @@ export default experiment({
     const startBeat = 10
     const endBeat = 25
 
-    const meshTrace = sourceEnergyTrace({ mesh, neighbors, source: 0, beats })
+    const meshTrace = sourceEnergyTrace({
+      mesh,
+      neighbors,
+      source: 0,
+      beats,
+    })
+
     const meshPersistence = ringdownPersistence({
       trace: meshTrace,
       startBeat,
@@ -46,7 +55,12 @@ export default experiment({
 
     // control: same degree, geometry gone. The random graph dephases the pulse, so the late
     // source energy decays to near zero.
-    const scrambled = scrambleNeighbors({ neighbors, seed: 1, passes: 8 })
+    const scrambled = scrambleNeighbors({
+      neighbors,
+      seed: 1,
+      passes: 8,
+    })
+
     const scrambleTrace = sourceEnergyTrace({
       mesh,
       neighbors: scrambled,
@@ -72,7 +86,9 @@ export default experiment({
         meshPersistence,
         scramblePersistence,
         persistenceRatio:
-          scramblePersistence === 0 ? 0 : meshPersistence / scramblePersistence,
+          scramblePersistence === 0
+            ? 0
+            : meshPersistence / scramblePersistence,
         meshInitial: meshTrace[0]!,
       },
       control: {

@@ -32,7 +32,11 @@ function robustnessOf(input: {
   blocks: number
 }): number {
   const { neighbors, blocks } = input
-  const seeds = evenlySpacedSeeds({ cellCount: neighbors.length, blocks })
+  const seeds = evenlySpacedSeeds({
+    cellCount: neighbors.length,
+    blocks,
+  })
+
   const labels = nearestSeedLabels({ neighbors, seeds })
 
   return edgeRobustness({ neighbors, labels }).fraction
@@ -57,8 +61,17 @@ export default experiment({
 
     // control one, SCRAMBLE: same degree sequence, locality destroyed. The same block
     // labels now cut through edges everywhere, so the internal fraction collapses.
-    const scrambled = scrambleNeighbors({ neighbors, seed: 1, passes: 8 })
-    const seeds = evenlySpacedSeeds({ cellCount: neighbors.length, blocks })
+    const scrambled = scrambleNeighbors({
+      neighbors,
+      seed: 1,
+      passes: 8,
+    })
+
+    const seeds = evenlySpacedSeeds({
+      cellCount: neighbors.length,
+      blocks,
+    })
+
     const scrambledSameLabels = edgeRobustness({
       neighbors: scrambled,
       labels: nearestSeedLabels({ neighbors, seeds }),
@@ -66,12 +79,18 @@ export default experiment({
 
     // even re-growing the blocks on the scramble cannot recover locality (an expander
     // has no compact partition), so its best-effort fraction is still low.
-    const scrambledBestEffort = robustnessOf({ neighbors: scrambled, blocks })
+    const scrambledBestEffort = robustnessOf({
+      neighbors: scrambled,
+      blocks,
+    })
 
     // control two, FLAT: a Euclidean lattice gives a compact partition too, but at its
     // own (lower-degree) geometry, a different fingerprint from the hyperbolic mesh.
     const flat = cubicMesh({ side: 6 })
-    const flatFraction = robustnessOf({ neighbors: meshNeighbors(flat), blocks })
+    const flatFraction = robustnessOf({
+      neighbors: meshNeighbors(flat),
+      blocks,
+    })
 
     // the discriminating claim is the control ratio: the mesh integration-to-coupling
     // beats the degree-matched scramble by a clear factor. The absolute fraction is set

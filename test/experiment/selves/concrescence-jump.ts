@@ -15,8 +15,14 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshNeighbors } from '@/code/tool/mesh'
 import { scrambleNeighbors } from '@/code/control/scramble'
-import { ballAtRadius, bindingMargin } from '@/code/coarse/binding-margin'
-import { nearestSeedLabels, evenlySpacedSeeds } from '@/code/measure/factorization'
+import {
+  ballAtRadius,
+  bindingMargin,
+} from '@/code/coarse/binding-margin'
+import {
+  nearestSeedLabels,
+  evenlySpacedSeeds,
+} from '@/code/measure/factorization'
 
 function concrescenceJump(input: {
   neighbors: number[][]
@@ -27,7 +33,11 @@ function concrescenceJump(input: {
 
   // split the whole into `parts` compact sub-regions, grown from evenly spaced seeds
   // among the whole's own cells, so the parts partition the whole with no randomness.
-  const seedIndices = evenlySpacedSeeds({ cellCount: whole.length, blocks: parts })
+  const seedIndices = evenlySpacedSeeds({
+    cellCount: whole.length,
+    blocks: parts,
+  })
+
   const seeds = seedIndices.map(i => whole[i]!)
   // restrict the label growth to the whole by giving nearestSeedLabels the full graph
   // but reading labels only for the whole's cells.
@@ -47,7 +57,11 @@ function concrescenceJump(input: {
 
   const meanPartMargin = sum / parts
 
-  return { wholeMargin, meanPartMargin, jump: wholeMargin - meanPartMargin }
+  return {
+    wholeMargin,
+    meanPartMargin,
+    jump: wholeMargin - meanPartMargin,
+  }
 }
 
 export default experiment({
@@ -62,7 +76,11 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: 6 })
     const neighbors = meshNeighbors(mesh)
-    const scrambled = scrambleNeighbors({ neighbors, seed: 1, passes: 8 })
+    const scrambled = scrambleNeighbors({
+      neighbors,
+      seed: 1,
+      passes: 8,
+    })
 
     const whole = ballAtRadius({ mesh, center: 0, radius: 3 })
     const parts = 6
@@ -70,7 +88,11 @@ export default experiment({
     const meshResult = concrescenceJump({ neighbors, whole, parts })
     // control: the SAME whole and parts, but on the scramble the boundary-between-parts
     // edges are not concentrated, so merging does not lift the margin.
-    const scrambleResult = concrescenceJump({ neighbors: scrambled, whole, parts })
+    const scrambleResult = concrescenceJump({
+      neighbors: scrambled,
+      whole,
+      parts,
+    })
 
     const meshConcresces = meshResult.jump > 0
     const scrambleFlat = scrambleResult.jump < 0.5 * meshResult.jump

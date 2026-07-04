@@ -16,7 +16,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshNeighbors } from '@/code/tool/mesh'
 import { scrambleNeighbors } from '@/code/control/scramble'
-import { ballAtRadius, bindingMargin } from '@/code/coarse/binding-margin'
+import {
+  ballAtRadius,
+  bindingMargin,
+} from '@/code/coarse/binding-margin'
 
 export default experiment({
   id: 'selves/individuation-margin',
@@ -30,7 +33,11 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: 6 })
     const neighbors = meshNeighbors(mesh)
-    const scrambled = scrambleNeighbors({ neighbors, seed: 1, passes: 8 })
+    const scrambled = scrambleNeighbors({
+      neighbors,
+      seed: 1,
+      passes: 8,
+    })
 
     // grow a compact ball from a fixed centre and read the binding margin at each radius,
     // on the real mesh and on the scramble (the SAME regions, so only the geometry
@@ -42,7 +49,9 @@ export default experiment({
     for (const radius of radii) {
       const region = ballAtRadius({ mesh, center: 0, radius })
       meshMargins.push(bindingMargin({ neighbors, region }).margin)
-      scrambleMargins.push(bindingMargin({ neighbors: scrambled, region }).margin)
+      scrambleMargins.push(
+        bindingMargin({ neighbors: scrambled, region }).margin,
+      )
     }
 
     const bestMeshMargin = Math.max(...meshMargins)
@@ -65,7 +74,8 @@ export default experiment({
         bestScrambleMargin,
         individuationRadius,
         meshMarginAtMaxRadius: meshMargins[meshMargins.length - 1]!,
-        scrambleMarginAtMaxRadius: scrambleMargins[scrambleMargins.length - 1]!,
+        scrambleMarginAtMaxRadius:
+          scrambleMargins[scrambleMargins.length - 1]!,
       },
       control: {
         bestScrambleMargin,
