@@ -96,6 +96,34 @@ export function sourceEnergyTrace(input: {
   return trace
 }
 
+// The ringdown persistence: the mean late-window energy at the source, normalized by the
+// initial pulse. A structured lattice sustains a coherent post-pulse oscillation (the ring
+// keeps energy returning to the source), so this stays substantial. A random graph dephases
+// and disperses the pulse, so it decays to near zero. The ratio of the two is the geometry
+// signal, the discrete analogue of a sustained ringdown.
+export function ringdownPersistence(input: {
+  trace: readonly number[]
+  startBeat: number
+  endBeat: number
+}): number {
+  const { trace, startBeat, endBeat } = input
+  const initial = trace[0] ?? 0
+
+  if (initial <= 0) {
+    return 0
+  }
+
+  let sum = 0
+  let count = 0
+
+  for (let beat = startBeat; beat <= endBeat && beat < trace.length; beat++) {
+    sum += trace[beat]!
+    count++
+  }
+
+  return count === 0 ? 0 : sum / count / initial
+}
+
 // From a source-energy trace, find the initial departure (the first trough after beat 0)
 // and then the strongest secondary peak (the echo). Returns the echo beat and its strength
 // relative to the initial energy. A clean recurrence gives a distinct late peak, a
