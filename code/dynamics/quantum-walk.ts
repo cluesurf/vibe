@@ -765,3 +765,129 @@ export function diracTwoModeSurvival(input: {
     energyB: eb.energy,
   }
 }
+
+// The overlap between two states evolved by the emergent Dirac walk, the observable that
+// witnesses unitarity and so the no-cloning theorem. Each state is a superposition of
+// positive-energy momentum eigenstates (given as {index, weightReal, weightImag}). Both are
+// evolved by the same real position-space rule (shift then mass coin). The magnitude of the
+// inner product <psi1(t)|psi2(t)> is returned per beat. A unitary rule preserves it exactly, so
+// two non-orthogonal states keep their overlap and cannot both be cloned (cloning would force
+// the overlap to equal its own square). A `leak` (amplitude damped at the boundary each beat)
+// makes the rule non-unitary and the overlap is no longer preserved.
+export function diracOverlapEvolution(input: {
+  statesA: { index: number; weightReal: number; weightImag: number }[]
+  statesB: { index: number; weightReal: number; weightImag: number }[]
+  size: number
+  mass: number
+  beats: number
+  leak?: number
+}): number[] {
+  const { statesA, statesB, size, mass, beats } = input
+  const leak = input.leak ?? 0
+  type Complex = readonly [number, number]
+  const add = (u: Complex, v: Complex): Complex => [u[0] + v[0], u[1] + v[1]]
+  const mul = (u: Complex, v: Complex): Complex => [
+    u[0] * v[0] - u[1] * v[1],
+    u[0] * v[1] + u[1] * v[0],
+  ]
+
+  const conj = (u: Complex): Complex => [u[0], -u[1]]
+  const expo = (t: number): Complex => [Math.cos(t), Math.sin(t)]
+  const cm = Math.cos(mass)
+  const sm = Math.sin(mass)
+
+  const eigen = (k: number): { right: Complex; left: Complex } => {
+    const energy = Math.acos(cm * Math.cos(k))
+    const lambda = expo(-energy)
+    const eik = expo(k)
+    const right: Complex = [lambda[0] - cm * eik[0], lambda[1] - cm * eik[1]]
+    const left: Complex = mul([sm, 0], expo(-k))
+    const norm = Math.hypot(right[0], right[1], left[0], left[1]) || 1
+
+    return {
+      right: [right[0] / norm, right[1] / norm],
+      left: [left[0] / norm, left[1] / norm],
+    }
+  }
+
+  const build = (
+    modes: { index: number; weightReal: number; weightImag: number }[],
+  ): { right: Complex[]; left: Complex[] } => {
+    const right: Complex[] = new Array(size).fill([0, 0])
+    const left: Complex[] = new Array(size).fill([0, 0])
+
+    for (const mode of modes) {
+      const k = (2 * Math.PI * mode.index) / size
+      const e = eigen(k)
+      const weight: Complex = [mode.weightReal, mode.weightImag]
+
+      for (let x = 0; x < size; x++) {
+        const phase = expo(k * x)
+        right[x] = add(right[x]!, mul(mul(e.right, phase), weight))
+        left[x] = add(left[x]!, mul(mul(e.left, phase), weight))
+      }
+    }
+
+    let normSquared = 0
+
+    for (let x = 0; x < size; x++) {
+      normSquared +=
+        right[x]![0] ** 2 + right[x]![1] ** 2 + left[x]![0] ** 2 + left[x]![1] ** 2
+    }
+
+    const scale = Math.sqrt(normSquared) || 1
+
+    for (let x = 0; x < size; x++) {
+      right[x] = [right[x]![0] / scale, right[x]![1] / scale]
+      left[x] = [left[x]![0] / scale, left[x]![1] / scale]
+    }
+
+    return { right, left }
+  }
+
+  const a = build(statesA)
+  const b = build(statesB)
+
+  const step = (state: { right: Complex[]; left: Complex[] }): void => {
+    const rightNext: Complex[] = new Array(size).fill([0, 0])
+    const leftNext: Complex[] = new Array(size).fill([0, 0])
+
+    for (let x = 0; x < size; x++) {
+      rightNext[x] = state.right[(x - 1 + size) % size]!
+      leftNext[x] = state.left[(x + 1) % size]!
+    }
+
+    for (let x = 0; x < size; x++) {
+      const r = rightNext[x]!
+      const l = leftNext[x]!
+      state.right[x] = [cm * r[0] - sm * l[0], cm * r[1] - sm * l[1]]
+      state.left[x] = [sm * r[0] + cm * l[0], sm * r[1] + cm * l[1]]
+    }
+
+    if (leak > 0) {
+      // damp the boundary cell, a non-unitary loss
+      state.right[0] = [state.right[0]![0] * (1 - leak), state.right[0]![1] * (1 - leak)]
+      state.left[0] = [state.left[0]![0] * (1 - leak), state.left[0]![1] * (1 - leak)]
+    }
+  }
+
+  const overlaps: number[] = []
+
+  for (let t = 0; t < beats; t++) {
+    let re = 0
+    let im = 0
+
+    for (let x = 0; x < size; x++) {
+      const p = mul(conj(a.right[x]!), b.right[x]!)
+      const q = mul(conj(a.left[x]!), b.left[x]!)
+      re += p[0] + q[0]
+      im += p[1] + q[1]
+    }
+
+    overlaps.push(Math.hypot(re, im))
+    step(a)
+    step(b)
+  }
+
+  return overlaps
+}
