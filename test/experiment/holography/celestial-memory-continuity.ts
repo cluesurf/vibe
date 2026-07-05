@@ -30,14 +30,21 @@ const RIGHT_CUT = 7
 // stream every charge one cell to the right on the periodic chain
 function streamRight(charges: number[]): number[] {
   const n = charges.length
+
   return charges.map((_, i) => charges[(i - 1 + n) % n]!)
 }
 
-function regionCharge(charges: number[], from: number, to: number): number {
+function regionCharge(
+  charges: number[],
+  from: number,
+  to: number,
+): number {
   let sum = 0
+
   for (let i = from; i <= to; i++) {
     sum += charges[i]!
   }
+
   return sum
 }
 

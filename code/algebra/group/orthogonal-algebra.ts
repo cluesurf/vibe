@@ -23,9 +23,11 @@ export function matrixMultiply(a: Matrix, b: Matrix): Matrix {
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
       const aik = a[i]![k]!
+
       if (aik === 0) {
         continue
       }
+
       for (let j = 0; j < n; j++) {
         out[i]![j]! += aik * b[k]![j]!
       }
@@ -47,6 +49,7 @@ export function commutator(a: Matrix, b: Matrix): Matrix {
 // the algebra.
 export function algebraViolation(m: Matrix, metric: number[]): number {
   const n = metric.length
+
   let worst = 0
 
   for (let i = 0; i < n; i++) {
@@ -71,6 +74,7 @@ export function orthogonalGenerators(metric: number[]): Matrix[] {
       const m: Matrix = Array.from({ length: n }, () =>
         Array.from({ length: n }, () => 0),
       )
+
       m[i]![j] = metric[j]!
       m[j]![i] = -metric[i]!
       generators.push(m)

@@ -27,7 +27,10 @@ export function crossRatio(points: Vec[]): number {
 // The largest fractional change in any pairwise chordal distance between two
 // point sets, a witness that a map genuinely deforms distances (so a preserved
 // cross-ratio is not merely a rigid rotation that changed nothing).
-export function maxChordDistortion(before: Vec[], after: Vec[]): number {
+export function maxChordDistortion(
+  before: Vec[],
+  after: Vec[],
+): number {
   let worst = 0
 
   for (let i = 0; i < before.length; i++) {

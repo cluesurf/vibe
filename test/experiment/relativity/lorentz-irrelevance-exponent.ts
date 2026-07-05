@@ -21,7 +21,10 @@
 // statement, with a control, of why and how fast Lorentz restores on {3,4,3,4}.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { coordinateAxes, probeDirections } from '@/code/measure/probe-directions'
+import {
+  coordinateAxes,
+  probeDirections,
+} from '@/code/measure/probe-directions'
 import { dispersionAnisotropyAtScale } from '@/code/measure/dispersion'
 import { linearFit } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
@@ -46,6 +49,7 @@ function irrelevanceExponent(directions: number[][]): {
   const anisotropy = MAGNITUDES.map(scale =>
     dispersionAnisotropyAtScale({ directions, probes: PROBES, scale }),
   )
+
   const fit = linearFit({
     xs: MAGNITUDES.map(q => Math.log(q)),
     ys: anisotropy.map(a => Math.log(a)),
@@ -77,6 +81,7 @@ export default experiment({
       xs: MAGNITUDES.map(q => Math.log(q)),
       ys: MAGNITUDES.map(() => Math.log(0.1)),
     })
+
     const marginalExponent = marginalFit.slope
 
     const exponentGap = d4.exponent - cubic.exponent

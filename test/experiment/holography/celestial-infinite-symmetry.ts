@@ -29,11 +29,15 @@ const FOUR_DIRECTIONS: Vec[] = [
   [0, 1, 0, 1],
   [1, 0, 0, -1],
 ]
+
 // a deterministic grid of boost radii, no random anywhere. Ten radii over the
 // twenty-four root axes give 240 distinct conformal samples, past the finite
 // point-symmetry orbit, so the conformal family provably exceeds it and, since
 // every sample is distinct, does not close.
-const BOOST_RADII = [0.15, 0.25, 0.35, 0.45, 0.55, 0.6, 0.65, 0.75, 0.85, 0.9]
+const BOOST_RADII = [
+  0.15, 0.25, 0.35, 0.45, 0.55, 0.6, 0.65, 0.75, 0.85, 0.9,
+]
+
 const ORBIT_CAP = 20000
 
 // a configuration is the ordered tuple of its four boundary points
@@ -57,15 +61,18 @@ export default experiment({
     const start: Config = FOUR_DIRECTIONS.map(normalize)
 
     // the exact point symmetry: close the configuration under all D4 reflections
-    const reflectionMaps = roots.map(a => (config: Config) =>
-      config.map(p => normalize(reflectRoot(p, a))),
+    const reflectionMaps = roots.map(
+      a => (config: Config) =>
+        config.map(p => normalize(reflectRoot(p, a))),
     )
+
     const orbit = orbitClosure({
       seed: start,
       maps: reflectionMaps,
       hash: hashConfig,
       cap: ORBIT_CAP,
     })
+
     const pointSymmetryOrbit = orbit.length
     const pointSymmetryFinite = pointSymmetryOrbit < ORBIT_CAP
 
@@ -73,11 +80,14 @@ export default experiment({
     // every grid radius, each checked to preserve the conformal cross-ratio
     const crStart = crossRatio(start)
     const boostConfigs = new Set<string>()
+
     let worstConformalError = 0
     let sampleCount = 0
+
     for (const axis of roots) {
       for (const radius of BOOST_RADII) {
         sampleCount++
+
         const boost = ballIsometry(scale(normalize(axis), radius))
         const moved = start.map(boost)
         worstConformalError = Math.max(
@@ -87,14 +97,17 @@ export default experiment({
         boostConfigs.add(hashConfig(moved))
       }
     }
+
     const conformalFamily = boostConfigs.size
     const allConformal = worstConformalError < 1e-9
 
     // the family is strictly, unboundedly larger than the finite exact symmetry
     const familyExceedsPointSymmetry =
-      conformalFamily === sampleCount && conformalFamily > pointSymmetryOrbit
+      conformalFamily === sampleCount &&
+      conformalFamily > pointSymmetryOrbit
 
-    const ok = pointSymmetryFinite && allConformal && familyExceedsPointSymmetry
+    const ok =
+      pointSymmetryFinite && allConformal && familyExceedsPointSymmetry
 
     return verdict({
       status: ok ? 'pass' : 'fail',

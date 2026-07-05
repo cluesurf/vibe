@@ -49,6 +49,7 @@ export default experiment({
     const dimension = generators.length
 
     let maxGeneratorViolation = 0
+
     for (const g of generators) {
       maxGeneratorViolation = Math.max(
         maxGeneratorViolation,
@@ -57,6 +58,7 @@ export default experiment({
     }
 
     let maxCommutatorViolation = 0
+
     for (let i = 0; i < generators.length; i++) {
       for (let j = i + 1; j < generators.length; j++) {
         const c = commutator(generators[i]!, generators[j]!)
@@ -91,7 +93,10 @@ export default experiment({
         maxGeneratorViolation,
         maxCommutatorViolation,
       },
-      control: { symmetricSelf: controlSelf, symmetricCommutator: controlCommutator },
+      control: {
+        symmetricSelf: controlSelf,
+        symmetricCommutator: controlCommutator,
+      },
     })
   },
 })

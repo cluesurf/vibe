@@ -18,7 +18,10 @@
 
 import { normalize, type Vec } from '@/code/algebra/vector'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { horoFrame, horocyclicProject } from '@/code/substrate/horosphere'
+import {
+  horoFrame,
+  horocyclicProject,
+} from '@/code/substrate/horosphere'
 import { crossRatio } from '@/code/measure/cross-ratio'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -29,6 +32,7 @@ const FOUR_DIRECTIONS: Vec[] = [
   [0, 1, 0, 1],
   [1, 0, 0, -1],
 ]
+
 // the ideal point the horosphere sits at, another D4 direction
 const IDEAL: Vec = [0, 0, 1, 1]
 
@@ -58,12 +62,14 @@ export default experiment({
 
     const crBoundary = crossRatio(points)
     const crFlat = crossRatio(flat)
-    const residual = Math.abs(crBoundary - crFlat) / Math.abs(crBoundary)
+    const residual =
+      Math.abs(crBoundary - crFlat) / Math.abs(crBoundary)
 
     // control: a non-conformal linear coordinate drop does not preserve it
     const dropped = points.map(p => [p[0]!, p[1]!, p[2]!])
     const crDropped = crossRatio(dropped)
-    const controlResidual = Math.abs(crBoundary - crDropped) / Math.abs(crBoundary)
+    const controlResidual =
+      Math.abs(crBoundary - crDropped) / Math.abs(crBoundary)
 
     const ok = grounded && residual < 1e-6 && controlResidual > 1e-2
 
@@ -71,7 +77,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the horocyclic projection of the boundary directions to the flat horosphere chart preserves their conformal cross-ratio, so a hyperbolic slice read out to the flat boundary keeps the conformal structure, while a linear coordinate drop does not',
-      metrics: { crossRatioResidual: residual, crossRatioBoundary: crBoundary },
+      metrics: {
+        crossRatioResidual: residual,
+        crossRatioBoundary: crBoundary,
+      },
       control: { coordinateDropResidual: controlResidual },
     })
   },

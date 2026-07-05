@@ -23,9 +23,17 @@
 // celestial correlator, not a celestial amplitude, which would presuppose
 // emergent Lorentzian spacetime and a scattering matrix.
 
-import { normalize, norm, scale, sub, type Vec } from '@/code/algebra/vector'
-import { rootsD4 } from '@/code/algebra/group/root-system'
-import { ballIsometry, ballBoundaryConformalFactor } from '@/code/geometry/mobius'
+import {
+  normalize,
+  norm,
+  scale,
+  sub,
+  type Vec,
+} from '@/code/algebra/vector'
+import {
+  ballIsometry,
+  ballBoundaryConformalFactor,
+} from '@/code/geometry/mobius'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -35,6 +43,7 @@ const FOUR_DIRECTIONS: Vec[] = [
   [0, 1, 0, 1],
   [1, 0, 0, -1],
 ]
+
 const BOOST_AXIS: Vec = [1, 0, -1, 0]
 const BOOST_RADIUS = 0.6
 const WEIGHT = 1
@@ -67,7 +76,8 @@ export default experiment({
     const points = FOUR_DIRECTIONS.map(normalize)
     const axis = scale(normalize(BOOST_AXIS), BOOST_RADIUS)
     const boost = ballIsometry(axis)
-    const shear = (p: Vec): Vec => normalize([1.7 * p[0]!, p[1]!, p[2]!, p[3]!])
+    const shear = (p: Vec): Vec =>
+      normalize([1.7 * p[0]!, p[1]!, p[2]!, p[3]!])
 
     // 1. the factorization condition, one for a conformal map
     const boostDcr = distortionCrossRatio(boost, points)
@@ -76,6 +86,7 @@ export default experiment({
     // 2. the independently computed conformal factor reproduces the distortion
     let factorResidual = 0
     let twoPointResidual = 0
+
     for (let i = 0; i < points.length; i++) {
       for (let j = i + 1; j < points.length; j++) {
         const x = points[i]!
@@ -92,6 +103,7 @@ export default experiment({
         const g = (a: Vec, b: Vec) => norm(sub(a, b)) ** (-2 * WEIGHT)
         const transformed =
           g(boost(x), boost(y)) * omegaX ** WEIGHT * omegaY ** WEIGHT
+
         twoPointResidual = Math.max(
           twoPointResidual,
           Math.abs(transformed - g(x, y)) / g(x, y),

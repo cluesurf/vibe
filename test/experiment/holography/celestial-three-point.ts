@@ -13,9 +13,17 @@
 // substrate boundary, the seed of a celestial three-point, not a scattering
 // amplitude, which would presuppose emergent Lorentzian spacetime.
 
-import { normalize, norm, scale, sub, type Vec } from '@/code/algebra/vector'
-import { rootsD4 } from '@/code/algebra/group/root-system'
-import { ballIsometry, ballBoundaryConformalFactor } from '@/code/geometry/mobius'
+import {
+  normalize,
+  norm,
+  scale,
+  sub,
+  type Vec,
+} from '@/code/algebra/vector'
+import {
+  ballIsometry,
+  ballBoundaryConformalFactor,
+} from '@/code/geometry/mobius'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -24,6 +32,7 @@ const THREE_DIRECTIONS: Vec[] = [
   [1, 0, 1, 0],
   [0, 1, 0, 1],
 ]
+
 const WEIGHTS = [0.5, 1, 1.5]
 const BOOST_AXIS: Vec = [1, 0, 0, -1]
 const BOOST_RADIUS = 0.55
@@ -69,6 +78,7 @@ export default experiment({
     const gMoved = threePoint(moved, gamma)
     const covariant =
       gMoved * omega[0]! ** d1 * omega[1]! ** d2 * omega[2]! ** d3
+
     const residual = Math.abs(covariant - g) / Math.abs(g)
 
     // control: a non-conformal three-point form (equal exponents) does not
@@ -78,7 +88,9 @@ export default experiment({
     const gFlatMoved = threePoint(moved, flat)
     const covariantFlat =
       gFlatMoved * omega[0]! ** d1 * omega[1]! ** d2 * omega[2]! ** d3
-    const controlResidual = Math.abs(covariantFlat - gFlat) / Math.abs(gFlat)
+
+    const controlResidual =
+      Math.abs(covariantFlat - gFlat) / Math.abs(gFlat)
 
     const ok = residual < 1e-9 && controlResidual > 1e-2
 

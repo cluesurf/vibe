@@ -18,7 +18,10 @@
 import { normalize, scale, type Vec } from '@/code/algebra/vector'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { ballIsometry } from '@/code/geometry/mobius'
-import { crossRatio, maxChordDistortion } from '@/code/measure/cross-ratio'
+import {
+  crossRatio,
+  maxChordDistortion,
+} from '@/code/measure/cross-ratio'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -37,7 +40,9 @@ const BOOST_RADIUS = 0.6
 // a D4 root is one of the 24 vectors with two nonzero entries of magnitude one
 function isD4Root(v: Vec, roots: Vec[]): boolean {
   return roots.some(
-    r => r.length === v.length && r.every((c, i) => Math.abs(c - v[i]!) < 1e-9),
+    r =>
+      r.length === v.length &&
+      r.every((c, i) => Math.abs(c - v[i]!) < 1e-9),
   )
 }
 
@@ -59,7 +64,10 @@ export default experiment({
       isD4Root(BOOST_AXIS, roots)
 
     const points = FOUR_DIRECTIONS.map(normalize)
-    const boost = ballIsometry(scale(normalize(BOOST_AXIS), BOOST_RADIUS))
+    const boost = ballIsometry(
+      scale(normalize(BOOST_AXIS), BOOST_RADIUS),
+    )
+
     const boosted = points.map(boost)
 
     const crBefore = crossRatio(points)
@@ -68,7 +76,10 @@ export default experiment({
     const distortion = maxChordDistortion(points, boosted)
 
     // control: a non-conformal shear (stretch one axis, reproject to the sphere)
-    const sheared = points.map(p => normalize([1.7 * p[0]!, p[1]!, p[2]!, p[3]!]))
+    const sheared = points.map(p =>
+      normalize([1.7 * p[0]!, p[1]!, p[2]!, p[3]!]),
+    )
+
     const crSheared = crossRatio(sheared)
     const controlDelta = Math.abs(crSheared - crBefore)
 

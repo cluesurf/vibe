@@ -28,6 +28,7 @@ import { streamSourceTable } from '@/code/rule/lattice-gas'
 export function cellToken(will: Will, cell: number): number {
   const degree = will.mesh.degree
   const base = cell * degree
+
   let key = 0
 
   for (let direction = 0; direction < degree; direction++) {
