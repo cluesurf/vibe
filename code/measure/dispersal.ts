@@ -74,3 +74,26 @@ export function diffuseParticipation(input: {
     participation: sumSquares === 0 ? 0 : 1 / sumSquares,
   }
 }
+
+// the return-probability decay rate (the spectral radius) over a window, rho = (p(to)/p(from)) ^
+// (1/(to-from)). This is a SIZE-INDEPENDENT bulk spectral property: on a non-amenable (hyperbolic)
+// graph rho is bounded below one (a spectral gap, exponential screening), and on an amenable (flat)
+// graph rho tends to one (no gap). The screening mass is -ln(rho). Unlike a finite-graph Green's
+// function, rho does not depend on the graph size (before the walk reaches the boundary).
+export function returnProbabilityDecayRate(input: {
+  neighbors: readonly (readonly number[])[]
+  from: number
+  to: number
+}): number {
+  const { neighbors, from, to } = input
+  const pFrom = diffuseParticipation({ neighbors, center: 0, steps: from })
+    .returnProbability
+  const pTo = diffuseParticipation({ neighbors, center: 0, steps: to })
+    .returnProbability
+
+  if (pFrom <= 0 || pTo <= 0) {
+    return 1
+  }
+
+  return Math.pow(pTo / pFrom, 1 / (to - from))
+}
