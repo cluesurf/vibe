@@ -106,7 +106,11 @@ export function cumulativeArcLength(
   const arc: number[] = [0]
 
   for (let t = 1; t < distributions.length; t++) {
-    const step = fisherRaoDistance(distributions[t - 1]!, distributions[t]!)
+    const step = fisherRaoDistance(
+      distributions[t - 1]!,
+      distributions[t]!,
+    )
+
     arc.push(arc[t - 1]! + step)
   }
 
@@ -146,5 +150,7 @@ export function windowSlope(input: {
 
   const denominator = count * sumXX - sumX * sumX
 
-  return denominator === 0 ? 0 : (count * sumXY - sumX * sumY) / denominator
+  return denominator === 0
+    ? 0
+    : (count * sumXY - sumX * sumY) / denominator
 }

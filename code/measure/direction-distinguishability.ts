@@ -1,12 +1,15 @@
 // The canonical, Chentsov-forced distinguishability on the 24 directions. The 24 directions of
 // the coin carry the 24-cell symmetry, so a state's per-direction occupancy is a distribution on
-// the 24-direction simplex, and Chentsov's theorem says the Fisher-Rao metric is the UNIQUE metric
-// on a probability simplex invariant under the symmetry (the relabelings the group performs). So
-// the distinguishability measure is not an ad-hoc per-cell scalar to be chosen, it is FORCED to be
-// Fisher-Rao, the same theorem that makes TD's primitive non-arbitrary. This module builds the
-// direction distribution, the 24-cell symmetry as permutations of the directions, and lets an
-// experiment check that Fisher-Rao is invariant under the symmetry while an ad-hoc weighted
-// measure is not.
+// the 24-direction simplex. Two facts pin the measure, and they are kept apart honestly. The
+// NECESSARY condition, measured here: a legitimate distinguishability must be invariant under the
+// 24-cell symmetry (the group's relabelings of the directions), which Fisher-Rao satisfies exactly
+// and which any direction-weighted ad-hoc measure fails. The UNIQUENESS, cited not re-proven:
+// invariance under relabelings alone does not single out Fisher-Rao (the unweighted L1 is also
+// relabeling-invariant), Chentsov's theorem does, under its full hypothesis of invariance under
+// every sufficiency-preserving Markov embedding between simplexes. So the measured part kills the
+// ad-hoc weighted readouts, and Chentsov's theorem, the same one that makes TD's primitive
+// non-arbitrary, supplies the uniqueness on top. This module builds the direction distribution,
+// the 24-cell symmetry as permutations of the directions, and the two deviation measures.
 
 import { fisherRaoDistance } from '@/code/measure/fisher-rao'
 
@@ -58,11 +61,26 @@ function directionPermutation(input: {
 // coordinate transpositions, a sign flip, and the central inversion (the opposite map).
 export function d4SymmetryPermutations(): number[][] {
   return [
-    directionPermutation({ permutation: [1, 0, 2, 3], sign: [1, 1, 1, 1] }),
-    directionPermutation({ permutation: [0, 2, 1, 3], sign: [1, 1, 1, 1] }),
-    directionPermutation({ permutation: [0, 1, 3, 2], sign: [1, 1, 1, 1] }),
-    directionPermutation({ permutation: [0, 1, 2, 3], sign: [-1, 1, 1, 1] }),
-    directionPermutation({ permutation: [0, 1, 2, 3], sign: [-1, -1, -1, -1] }),
+    directionPermutation({
+      permutation: [1, 0, 2, 3],
+      sign: [1, 1, 1, 1],
+    }),
+    directionPermutation({
+      permutation: [0, 2, 1, 3],
+      sign: [1, 1, 1, 1],
+    }),
+    directionPermutation({
+      permutation: [0, 1, 3, 2],
+      sign: [1, 1, 1, 1],
+    }),
+    directionPermutation({
+      permutation: [0, 1, 2, 3],
+      sign: [-1, 1, 1, 1],
+    }),
+    directionPermutation({
+      permutation: [0, 1, 2, 3],
+      sign: [-1, -1, -1, -1],
+    }),
   ]
 }
 
@@ -96,6 +114,7 @@ export function fisherRaoSymmetryDeviation(input: {
 }): number {
   const { p, q } = input
   const base = fisherRaoDistance(p, q)
+
   let maxDeviation = 0
 
   for (const symmetry of d4SymmetryPermutations()) {
@@ -103,6 +122,7 @@ export function fisherRaoSymmetryDeviation(input: {
       permuteDistribution(p, symmetry),
       permuteDistribution(q, symmetry),
     )
+
     maxDeviation = Math.max(maxDeviation, Math.abs(distance - base))
   }
 
@@ -130,6 +150,7 @@ export function adHocSymmetryDeviation(input: {
   }
 
   const base = weightedL1(p, q)
+
   let maxDeviation = 0
 
   for (const symmetry of d4SymmetryPermutations()) {
@@ -137,6 +158,7 @@ export function adHocSymmetryDeviation(input: {
       permuteDistribution(p, symmetry),
       permuteDistribution(q, symmetry),
     )
+
     maxDeviation = Math.max(maxDeviation, Math.abs(distance - base))
   }
 

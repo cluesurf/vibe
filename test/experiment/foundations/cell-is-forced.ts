@@ -41,7 +41,10 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // the known face vectors of the three regular 4-polytopes, the oracle the derived facet
 // counts are checked against (16-cell 8/16, 24-cell 24/24, tesseract 16/8)
-const KNOWN_FACE_VECTOR: Record<number, { corners: number; faces: number }> = {
+const KNOWN_FACE_VECTOR: Record<
+  number,
+  { corners: number; faces: number }
+> = {
   1: { corners: 8, faces: 16 },
   2: { corners: 24, faces: 24 },
   4: { corners: 16, faces: 8 },
@@ -76,11 +79,13 @@ export default experiment({
     const selfDual = shells.filter(s => s.selfDual)
     const selfDualUnique =
       selfDual.length === 1 && selfDual[0]!.corners === 24
+
     const facetsMatchOracle = shells.every(
       s =>
         s.corners === KNOWN_FACE_VECTOR[s.steps]!.corners &&
         s.faces === KNOWN_FACE_VECTOR[s.steps]!.faces,
     )
+
     const selfDualControlRejects =
       shells.filter(s => !s.selfDual).length === 2
 
@@ -129,7 +134,9 @@ export default experiment({
         // and the spinless tesseract, so both filters genuinely reject
         failingSelfDualShells: shells.filter(s => !s.selfDual).length,
         tesseractIsGroup: spin.tesseract.isGroup ? 1 : 0,
-        tesseractContainsMinusOne: spin.tesseract.containsMinusOne ? 1 : 0,
+        tesseractContainsMinusOne: spin.tesseract.containsMinusOne
+          ? 1
+          : 0,
       },
       notes:
         'L1, exhaustive 4-polytope and quaternion-group mathematics assembled into the forced chain (census to self-dual to spin), reusing code/algebra/group/cell-forcing and code/tool/polytope. The corner and face counts are now DERIVED from each shell vertex set by convex-hull facet enumeration and cross-checked against the known face vectors, not read from a table. Self-duality is the isolating filter (only the two-step 24-cell has corners equal faces); spin is a confirming property (the 16-cell also carries the quaternion minus one, but fails self-duality, and the tesseract fails both), so the honest logical structure is self-duality isolates, spin confirms, tesseract controls. The residual premises are the three requirements (a direction per face, a tiling cell, the spinor).',

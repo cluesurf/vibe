@@ -18,7 +18,11 @@ suite('operator/graviton: spectrum from the derived operator', [
     ]) {
       const result = gravitonFromAction({ k })
       const k2 = (k[0] ?? 0) ** 2 + (k[1] ?? 0) ** 2 + (k[2] ?? 0) ** 2
-      equal(result.gravitonModes, 2, `graviton modes for k=${String(k)}`)
+      equal(
+        result.gravitonModes,
+        2,
+        `graviton modes for k=${String(k)}`,
+      )
       close(
         result.gravitonEigenvalue,
         0.5 * k2,

@@ -38,9 +38,13 @@ import { euclideanL1ShellRatio } from '@/code/measure/shell-growth'
 const MAX_CELLS = 170000
 
 // breadth-first distances from a root on a neighbor list
-function bfsDistances(neighbors: readonly (readonly number[])[], root: number): number[] {
+function bfsDistances(
+  neighbors: readonly (readonly number[])[],
+  root: number,
+): number[] {
   const distance = new Array<number>(neighbors.length).fill(-1)
   distance[root] = 0
+
   let frontier = [root]
 
   while (frontier.length > 0) {
@@ -62,10 +66,14 @@ function bfsDistances(neighbors: readonly (readonly number[])[], root: number): 
 }
 
 // least-squares slope and R^2 of y against x
-function linearFit(xs: number[], ys: number[]): { slope: number; r2: number } {
+function linearFit(
+  xs: number[],
+  ys: number[],
+): { slope: number; r2: number } {
   const n = xs.length
   const mx = xs.reduce((a, b) => a + b, 0) / n
   const my = ys.reduce((a, b) => a + b, 0) / n
+
   let sxy = 0
   let sxx = 0
   let syy = 0
@@ -86,13 +94,17 @@ export default experiment({
   id: 'gravity/td-log-density-gravity-screened',
   code: 'E-GRV-0049',
   title:
-    'TD Poisson gravity is exponentially screened in the vibe hyperbolic bulk: the graph Laplacian Green\'s function (a point mass Newtonian potential) decays like a Yukawa potential, not the power-law 1/r of flat space, so Newtonian gravity cannot live in the curved bulk and must live on the flat cusp, with the polynomial flat 4D lattice the control',
+    "TD Poisson gravity is exponentially screened in the vibe hyperbolic bulk: the graph Laplacian Green's function (a point mass Newtonian potential) decays like a Yukawa potential, not the power-law 1/r of flat space, so Newtonian gravity cannot live in the curved bulk and must live on the flat cusp, with the polynomial flat 4D lattice the control",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: true,
   run() {
-    const graph = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: MAX_CELLS })
+    const graph = buildCellGraph({
+      symbol: [3, 4, 3, 4],
+      maxCells: MAX_CELLS,
+    })
+
     const neighbors = graph.neighbors
 
     // the Newtonian-limit potential of a point mass at the center, the graph Laplacian Green's
@@ -102,6 +114,7 @@ export default experiment({
       center: 0,
       maxIterationFactor: 2,
     })
+
     const distance = bfsDistances(neighbors, 0)
 
     // the mean potential at each fully-resolved near shell (0, 1, 2); the outer shells flatten
@@ -131,8 +144,10 @@ export default experiment({
     // would fall only about (3/1)^2 = 9, gently. A drop far above that is the screening.
     const nearFieldDropFactor =
       potential2 !== 0 ? Math.abs(potential0 / potential2) : 0
+
     const flatFourDExpectedDrop = 9 // (r=3 / r=1)^2 for a 1/r^2 flat-space potential
-    const stronglyScreened = nearFieldDropFactor > 5 * flatFourDExpectedDrop
+    const stronglyScreened =
+      nearFieldDropFactor > 5 * flatFourDExpectedDrop
 
     // the decay is monotone in the near field (a genuine falloff, not noise)
     const monotoneNearField =
@@ -140,7 +155,8 @@ export default experiment({
       Math.abs(potential1) > Math.abs(potential2)
 
     // the mass sources an attractive potential (the center is a sharp extreme)
-    const massSourcesPotential = Math.abs(potential0) > 10 * Math.abs(potential2)
+    const massSourcesPotential =
+      Math.abs(potential0) > 10 * Math.abs(potential2)
 
     // control: the flat 4D lattice grows polynomially, so its Green's function is a gentle power
     // law, not screened. The flat shell ratio near one is the polynomial signature.
@@ -167,7 +183,7 @@ export default experiment({
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'TD Poisson gravity, the graph Laplacian sourcing a potential from a mass, is exponentially screened in vibe hyperbolic bulk. The Newtonian-limit potential of a point mass (the graph Laplacian Green\'s function) has a logarithm that is linear in graph distance with a negative slope, a Yukawa decay, not the power-law 1/r of flat space, because the {3,4,3,4} shells grow exponentially and dilute the flux geometrically. So a mass does source an attractive potential (TD mechanism works) but its range is short: Newtonian long-range 1/r gravity cannot live in the curved bulk, it must live on the flat cusp, which is exactly where vibe puts observers. The flat 4D lattice, growing polynomially, has a power-law Green\'s function, the control that the screening is a curvature effect. This is an honest probe of TD gravity on the substrate: the mechanism is supported, the bulk range is the constraint.',
+        "TD Poisson gravity, the graph Laplacian sourcing a potential from a mass, is exponentially screened in vibe hyperbolic bulk. The Newtonian-limit potential of a point mass (the graph Laplacian Green's function) has a logarithm that is linear in graph distance with a negative slope, a Yukawa decay, not the power-law 1/r of flat space, because the {3,4,3,4} shells grow exponentially and dilute the flux geometrically. So a mass does source an attractive potential (TD mechanism works) but its range is short: Newtonian long-range 1/r gravity cannot live in the curved bulk, it must live on the flat cusp, which is exactly where vibe puts observers. The flat 4D lattice, growing polynomially, has a power-law Green's function, the control that the screening is a curvature effect. This is an honest probe of TD gravity on the substrate: the mechanism is supported, the bulk range is the constraint.",
       metrics: {
         cellCount: graph.cellCount,
         centerPotential: Number(potential0.toExponential(3)),
@@ -186,7 +202,7 @@ export default experiment({
         bulkNearFieldDrop: Number(nearFieldDropFactor.toFixed(1)),
       },
       notes:
-        'L2, the graph Laplacian Green\'s function (code/operator/graph-laplacian) on the actual {3,4,3,4} bulk graph, read through TD gravity claim. An honest probe: TD says gravity is the Hessian of Phi = -ln R with a Poisson Newtonian limit, and on vibe substrate that Newtonian potential is exponentially screened in the hyperbolic bulk (a Yukawa decay, log-potential linear in distance), so the mechanism is supported but Newtonian long-range gravity is a flat-cusp phenomenon, not a bulk one. This matches vibe own bulk-versus-cusp split (observers on the flat cusp). The flat 4D lattice (polynomial growth) is the control that the screening is curvature, not counting. Vibe still does not DERIVE gravity from its base, this only tests TD external mechanism on the substrate.',
+        "L2, the graph Laplacian Green's function (code/operator/graph-laplacian) on the actual {3,4,3,4} bulk graph, read through TD gravity claim. An honest probe: TD says gravity is the Hessian of Phi = -ln R with a Poisson Newtonian limit, and on vibe substrate that Newtonian potential is exponentially screened in the hyperbolic bulk (a Yukawa decay, log-potential linear in distance), so the mechanism is supported but Newtonian long-range gravity is a flat-cusp phenomenon, not a bulk one. This matches vibe own bulk-versus-cusp split (observers on the flat cusp). The flat 4D lattice (polynomial growth) is the control that the screening is curvature, not counting. Vibe still does not DERIVE gravity from its base, this only tests TD external mechanism on the substrate.",
     })
   },
 })

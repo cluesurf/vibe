@@ -13,7 +13,9 @@ const matches = (a: Int8Array, b: Int8Array): number => {
   let m = 0
 
   for (let i = 0; i < a.length; i++) {
-    if (a[i] === b[i]) {m++}
+    if (a[i] === b[i]) {
+      m++
+    }
   }
 
   return m

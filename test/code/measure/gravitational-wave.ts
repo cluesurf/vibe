@@ -4,13 +4,7 @@
 // equivalent forms of the radiated power, and the Peters inspiral chirp slope -3/8 are all
 // re-derived independently and checked.
 
-import {
-  suite,
-  check,
-  close,
-  ok,
-  allFinite,
-} from '@/test/code/harness'
+import { suite, check, close, ok, allFinite } from '@/test/code/harness'
 import {
   keplerFrequency,
   chirpMass,

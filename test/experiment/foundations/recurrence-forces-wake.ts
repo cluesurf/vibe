@@ -31,7 +31,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
-import { recurrencePeriod, asymmetricFill } from '@/code/measure/recurrence'
+import {
+  recurrencePeriod,
+  asymmetricFill,
+} from '@/code/measure/recurrence'
 import { unfoldMeshShells } from '@/code/substrate/mesh-unfolding'
 import { wakeRecordCounts } from '@/code/measure/wake-time'
 
@@ -55,12 +58,17 @@ export default experiment({
         opposite: meshOpposites(mesh),
         forward: true,
       })
+
       const will = makeWill(mesh)
       will.data.set(asymmetricFill(mesh))
 
       return {
         side,
-        period: recurrencePeriod({ will, collision, maxBeats: MAX_BEATS }),
+        period: recurrencePeriod({
+          will,
+          collision,
+          maxBeats: MAX_BEATS,
+        }),
       }
     })
 
@@ -68,20 +76,27 @@ export default experiment({
     // (not all the same), so the recurrence is genuine Poincare recurrence, not a trivial fixed cycle
     const allRecur = periods.every(p => p.period > 0)
     const periodValues = periods.map(p => p.period)
-    const periodsAreStateDependent =
-      new Set(periodValues).size > 1
+    const periodsAreStateDependent = new Set(periodValues).size > 1
 
     // the wake escape: the record count grows without bound, so the growing mesh never recurs
-    const shellCounts = unfoldMeshShells({ throughShell: 3, maxCells: 12000 })
+    const shellCounts = unfoldMeshShells({
+      throughShell: 3,
+      maxCells: 12000,
+    })
+
     const recordCounts = wakeRecordCounts(shellCounts)
     const wakeGrows = recordCounts.every(
       (n, i) => i === 0 || n > recordCounts[i - 1]!,
     )
+
     const wakeGrowthFactor =
       recordCounts[recordCounts.length - 1]! / recordCounts[0]!
 
     // the contrast: fixed mesh recurs (bounded distinct states = the period), growing mesh does not
-    const largestFixedPeriod = Math.max(...periodValues.filter(p => p > 0))
+    const largestFixedPeriod = Math.max(
+      ...periodValues.filter(p => p > 0),
+    )
+
     const wakeExceedsRecurrenceBound =
       wakeGrowthFactor > largestFixedPeriod
 

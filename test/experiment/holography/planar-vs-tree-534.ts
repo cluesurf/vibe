@@ -92,7 +92,7 @@ export default experiment({
     }
 
     const boundary = [...Array(size).keys()].filter(
-      c => (depth[c]!) === maxDepth - 1,
+      c => depth[c]! === maxDepth - 1,
     )
 
     // erase every other cell of a mid-depth annulus (a partial cut)

@@ -120,7 +120,10 @@ export function quaternionSpin(quaternions: Quaternion[]): {
   // neither, so it is not a group and carries no spinor
   const isGroup =
     containsIdentity && isClosedUnderMultiplication(quaternions)
-  const fullTurnFlipsSign = quaternionKey(minusOne) !== quaternionKey(one)
+
+  const fullTurnFlipsSign =
+    quaternionKey(minusOne) !== quaternionKey(one)
+
   const twoTurnsReturn =
     quaternionKey(quaternionMultiply(minusOne, minusOne)) ===
     quaternionKey(one)
@@ -132,7 +135,10 @@ export function quaternionSpin(quaternions: Quaternion[]): {
     fullTurnFlipsSign,
     twoTurnsReturn,
     carriesSpin:
-      isGroup && containsMinusOne && fullTurnFlipsSign && twoTurnsReturn,
+      isGroup &&
+      containsMinusOne &&
+      fullTurnFlipsSign &&
+      twoTurnsReturn,
   }
 }
 
@@ -195,12 +201,18 @@ export function steppingShellSpin(): {
       quaternionKey,
     ),
   )
+
   const twentyFourKeys = new Set(twentyFour.map(quaternionKey))
   const twentyFourCellIsUnion =
     unionKeys.size === twentyFourKeys.size &&
     [...twentyFourKeys].every(k => unionKeys.has(k))
 
-  return { sixteenCell, tesseract, twentyFourCell, twentyFourCellIsUnion }
+  return {
+    sixteenCell,
+    tesseract,
+    twentyFourCell,
+    twentyFourCellIsUnion,
+  }
 }
 
 // the whole forcing in one call: the census total, the isolated two-step shell, the

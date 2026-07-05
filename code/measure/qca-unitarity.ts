@@ -27,10 +27,12 @@ export function stateOrbit(input: {
 }): { states: string[]; period: number } {
   const startKey = stateKey(input.will)
   const states: string[] = [startKey]
+
   let current = cloneWill(input.will)
 
   for (let t = 1; t <= input.maxBeats; t++) {
     current = beat(current, input.collision)
+
     const key = stateKey(current)
 
     if (key === startKey) {

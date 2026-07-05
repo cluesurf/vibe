@@ -33,13 +33,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { linePairingForcingCurve } from '@/code/measure/collision-family'
+import {
+  linePairingForcingCurve,
+  maxMatchingStabilizer,
+} from '@/code/measure/collision-family'
 
 export default experiment({
   id: 'foundations/b4-maximal-collision-symmetry',
   code: 'E-FND-0059',
   title:
-    'B4 is the maximal symmetry admitting a unique collision law, not a compromise: the surviving laws fall 10395 to (75, 3) to exactly 1 at full B4 to ZERO at F4, so B4 is the last symmetry with any law and the first with a unique one, the forced sweet spot, and the triality it cannot reach is exactly the F4/B4 = 3 generations one level above the dynamics',
+    'B4 is the maximal symmetry of ANY collision law, proven by exhaustive stabilizer scan: over all 10395 laws the maximum stabilizer in F4 is exactly the B4 image (order 192), attained by exactly THREE laws, the knit and its two triality images, one per generation frame, while the forcing window falls 10395 to (75, 3) to 1 at B4 to ZERO at F4, so B4 is the forced sweet spot and choosing the knit is choosing a generation frame',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -56,25 +59,42 @@ export default experiment({
 
     // B4 is the LAST symmetry with a surviving law and the FIRST with a unique one
     const b4IsUnique = atB4 === 1
-    const belowB4NotForced = conservationOnly > 1 && partialOne > 1 && partialTwo > 1
+    const belowB4NotForced =
+      conservationOnly > 1 && partialOne > 1 && partialTwo > 1
+
     const aboveB4OverConstrains = atF4 === 0
     const b4IsTheSweetSpot =
       b4IsUnique && belowB4NotForced && aboveB4OverConstrains
+
+    // the exhaustive maximality scan: over ALL 10395 laws, the maximum stabilizer inside the
+    // F4 image is exactly the B4 image order 192, so no law anywhere is more symmetric than
+    // the knit, not even under some other subgroup that does not contain B4. Exactly three
+    // laws attain the maximum, the knit and its two triality images (orbit-stabilizer,
+    // 576 / 192 = 3), one per conjugate B4, one per generation frame.
+    const scan = maxMatchingStabilizer()
+    const noLawMoreSymmetric = scan.maxStabilizerOrder === 192
+    const maxAttainedByTrialityOrbit = scan.lawsAttainingMax === 3
+    const knitAttainsTheMax = scan.maxIsTheKnit
 
     // the triality B4 cannot reach is exactly the three generations: [F4:B4] = order 3
     const generationIndex =
       result.b4LineGroupOrder > 0
         ? result.f4LineGroupOrder / result.b4LineGroupOrder
         : 0
+
     const trialityIsThreeGenerations = generationIndex === 3
 
     const solved =
-      b4IsTheSweetSpot && trialityIsThreeGenerations
+      b4IsTheSweetSpot &&
+      trialityIsThreeGenerations &&
+      noLawMoreSymmetric &&
+      maxAttainedByTrialityOrbit &&
+      knitAttainsTheMax
 
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'the knit is forced by B4 because B4 is the maximal symmetry a collision law can have, not a compromise, and triality lives one level above the dynamics. Counting the surviving collision laws as demanded symmetry grows gives a window: 10395 by conservation alone, still many under partial symmetry (75, then 3), exactly one at full B4 (the knit), and zero at the full F4 that adds triality. So B4 is the last symmetry level with any surviving law and the first with a unique one, the forced sweet spot: below it the law is not unique, above it no law survives. Any dynamics on the coin must respect a line-pairing, and B4 is the largest subgroup of F4 preserving one, so B4 is the ceiling for a collision law, forced. The triality B4 cannot reach is exactly the three generations, since the quotient F4/B4 has order three, so triality is a symmetry of the generation structure one level above the collision dynamics, which is why no law is triality-invariant and the breaking is three generations, not a defect.',
+        'B4 is the maximal symmetry of ANY collision law, proven exhaustively, and triality lives one level above the dynamics. The forcing window: 10395 laws by conservation alone, still many under partial symmetry (75, then 3), exactly one at full B4 (the knit), and zero at the full F4 that adds triality. And the stabilizer scan over ALL 10395 laws shows the maximum stabilizer inside the F4 image is exactly the B4 image, order 192, so no law anywhere is more symmetric, not even under a subgroup that does not contain B4. Exactly three laws attain that maximum, the knit and its two triality images, one per conjugate B4, one per generation frame (orbit-stabilizer, 576 over 192 is 3, the same 3 as the coset index), so choosing the knit is choosing a generation frame, and the triality the law cannot keep is exactly the three generations. For subgroups containing B4 the scan is not even needed, the index 3 is prime, so nothing sits properly between B4 and F4.',
       metrics: {
         conservationOnlyLaws: conservationOnly,
         partialSymmetryLawsOne: partialOne,
@@ -82,18 +102,22 @@ export default experiment({
         fullB4Laws: atB4,
         fullF4Laws: atF4,
         generationIndex,
+        maxStabilizerOrder: scan.maxStabilizerOrder,
+        lawsAttainingMax: scan.lawsAttainingMax,
+        knitAttainsTheMax: knitAttainsTheMax ? 1 : 0,
         b4LineGroupOrder: result.b4LineGroupOrder,
         f4LineGroupOrder: result.f4LineGroupOrder,
       },
       control: {
-        // only B4 gives a surviving AND unique law: less symmetry gives many, more gives none, so
-        // B4 is the singled-out sweet spot
+        // less symmetry gives many laws, more gives none, and the exhaustive scan caps every law
+        // at stabilizer 192, so B4 is the singled-out ceiling, not a choice
         belowB4Laws: partialTwo,
         atB4Laws: atB4,
         aboveB4Laws: atF4,
+        maxStabilizerOverAllLaws: scan.maxStabilizerOrder,
       },
       notes:
-        'L2, the forcing window of collision laws versus demanded symmetry, reusing code/measure/collision-family. B4 is located as the maximal symmetry admitting a unique law (below it many survive, above it none), so the knit B4-symmetry is forced and maximal, not a compromise. The triality it necessarily breaks is exactly the F4/B4 = 3 generations (three-generations-cosets, E-FND-0054), a symmetry of the generation structure one level above the collision dynamics. This deepens the earlier honest note that the knit respects B4 not F4: the distinction is not a defect but the statement that dynamics symmetry (B4) and generation symmetry (triality) live at different levels. Deterministic, no random.',
+        'L2, the forcing window plus the exhaustive stabilizer scan, reusing code/measure/collision-family. The scan closes the gap the endpoints left open: it was conceivable some other law had a large stabilizer under a subgroup not containing B4 (an order-288 subgroup, say), and the scan rules it out, the maximum over all 10395 laws is 192, attained by exactly the three laws of the knit triality orbit. That the count of maximal laws (3) equals the coset index [F4:B4] (3, three-generations-cosets E-FND-0054) is orbit-stabilizer, and it makes the generation story concrete: the three maximally-symmetric laws are the three generation frames, triality permutes them, and a universe running one knit has spontaneously picked one frame. Dynamics symmetry (B4) and generation symmetry (triality) live at different levels, which is why no law is triality-invariant and the breaking is three generations, not a defect. Deterministic, no random.',
     })
   },
 })

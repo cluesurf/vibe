@@ -68,7 +68,9 @@ suite('measure/distance: longestChain', [
       const pairs: [number, number][] = []
 
       for (let a = 0; a < 5; a++) {
-        for (let b = a + 1; b < 5; b++) {pairs.push([a, b])}
+        for (let b = a + 1; b < 5; b++) {
+          pairs.push([a, b])
+        }
       }
 
       equal(

@@ -76,6 +76,7 @@ export default experiment({
       const opposite = Array.from({ length: mesh.degree }, (_, d) =>
         mesh.opposite(d),
       )
+
       const knit = pairCollision({ opposite })
       const knitInverse = pairCollision({ opposite, forward: false })
 
@@ -86,6 +87,7 @@ export default experiment({
         allConserve = allConserve && conservesCharge(will, knit, BEATS)
         allReverse =
           allReverse && isReversible(will, knit, BEATS, knitInverse)
+
         const q = charge(will)
         smallestCharge = Math.min(smallestCharge, q)
         largestCharge = Math.max(largestCharge, q)
@@ -101,8 +103,18 @@ export default experiment({
     const lossyWill = makeWill(controlMesh)
     fillTexture(lossyWill, 7)
 
-    const lossyConserves = conservesCharge(lossyWill, erasingCollision, BEATS)
-    const lossyReversible = isReversible(lossyWill, erasingCollision, BEATS)
+    const lossyConserves = conservesCharge(
+      lossyWill,
+      erasingCollision,
+      BEATS,
+    )
+
+    const lossyReversible = isReversible(
+      lossyWill,
+      erasingCollision,
+      BEATS,
+    )
+
     const controlFails = !lossyConserves && !lossyReversible
 
     const solved = chargeConserved && reversible && controlFails

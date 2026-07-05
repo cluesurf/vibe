@@ -66,20 +66,31 @@ export default experiment({
     const trialityIsUnique = trialityRanks.length === 1
     const trialityAtFour =
       trialityIsUnique && trialityRanks[0]!.rank === 4
+
     const trialityDimensionIsEight =
       trialityAtFour && trialityRanks[0]!.vectorDimension === 8
 
     // 2. rigorous cross-check by the root-system outer automorphism (|Aut| / |Weyl|), a second
-    // independent method: D4 gives six (the S3 triality), D5 gives two
+    // independent method: D4 gives six (the S3 triality), D5 gives two. And the low degenerate
+    // ranks, which the diagram sweep cannot reach (the D2 and D3 diagrams are A1 x A1 and A3),
+    // are COMPUTED here too, closing the gap: both give order two, no order-three element, so
+    // the smaller lossless dimensions four and six carry no triality either.
+    const d2OuterOrder = outerAutomorphismOrder(rootsDn(2))
+    const d3OuterOrder = outerAutomorphismOrder(rootsDn(3))
     const d4OuterOrder = outerAutomorphismOrder(rootsDn(4))
     const d5OuterOrder = outerAutomorphismOrder(rootsDn(5))
-    const rigorousAgrees = d4OuterOrder === 6 && d5OuterOrder === 2
+    const rigorousAgrees =
+      d2OuterOrder === 2 &&
+      d3OuterOrder === 2 &&
+      d4OuterOrder === 6 &&
+      d5OuterOrder === 2
 
     // 3. controls: every other D_n has order two (no triality), and the A-series (the 5-cell's
     // A4) likewise has order two, so triality is unique to D4, the eight is not free
     const otherDnAllTwo = sweep
       .filter(s => s.rank !== 4)
       .every(s => s.diagramOrder === 2 && !s.triality)
+
     const aSeriesNoTriality = outerAutomorphismOrder(rootsAn(5)) === 2
 
     // 4. the pinch: the ceiling (reversibility caps at eight, established in the ladder) and
@@ -104,6 +115,8 @@ export default experiment({
         trialityRank: trialityRanks[0]?.rank ?? 0,
         trialityVectorDimension: trialityRanks[0]?.vectorDimension ?? 0,
         d4DiagramOrder: dynkinAutomorphismOrder(4),
+        d2OuterOrder,
+        d3OuterOrder,
         d4OuterOrder,
         d5OuterOrder,
         aSeriesOuterOrder: outerAutomorphismOrder(rootsAn(5)),

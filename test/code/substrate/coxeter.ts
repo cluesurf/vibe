@@ -102,7 +102,11 @@ suite('substrate/coxeter: reflections and the -cos(pi/m) entry', [
     ]
 
     for (const a of roots) {
-      exactArray(reflectRoot(reflectRoot(v, a), a), v, `R_${String(a)}^2`)
+      exactArray(
+        reflectRoot(reflectRoot(v, a), a),
+        v,
+        `R_${String(a)}^2`,
+      )
     }
   }),
   check('the normalized Gram entry equals -cos(pi/m)', () => {

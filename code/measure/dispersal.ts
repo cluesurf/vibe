@@ -38,6 +38,7 @@ export function diffuseParticipation(input: {
 }): { returnProbability: number; participation: number } {
   const { neighbors, center, steps } = input
   const n = neighbors.length
+
   let probability = new Float64Array(n)
   probability[center] = 1
 
@@ -52,6 +53,7 @@ export function diffuseParticipation(input: {
       }
 
       next[i]! += 0.5 * mass
+
       const row = neighbors[i]!
       const share = (0.5 * mass) / row.length
 
@@ -86,10 +88,17 @@ export function returnProbabilityDecayRate(input: {
   to: number
 }): number {
   const { neighbors, from, to } = input
-  const pFrom = diffuseParticipation({ neighbors, center: 0, steps: from })
-    .returnProbability
-  const pTo = diffuseParticipation({ neighbors, center: 0, steps: to })
-    .returnProbability
+  const pFrom = diffuseParticipation({
+    neighbors,
+    center: 0,
+    steps: from,
+  }).returnProbability
+
+  const pTo = diffuseParticipation({
+    neighbors,
+    center: 0,
+    steps: to,
+  }).returnProbability
 
   if (pFrom <= 0 || pTo <= 0) {
     return 1

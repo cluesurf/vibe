@@ -47,8 +47,8 @@ const BEATS = 20
 function supportSize(distribution: Float64Array): number {
   let count = 0
 
-  for (let i = 0; i < distribution.length; i++) {
-    if (distribution[i]! > 0) {
+  for (const value of distribution) {
+    if (value > 0) {
       count++
     }
   }
@@ -68,7 +68,11 @@ export default experiment({
   run() {
     // the wake: unfold the actual honeycomb, take the cumulative record counts and the arc
     // length over the growing extents
-    const shellCounts = unfoldMeshShells({ throughShell: 3, maxCells: 12000 })
+    const shellCounts = unfoldMeshShells({
+      throughShell: 3,
+      maxCells: 12000,
+    })
+
     const recordCounts = wakeRecordCounts(shellCounts)
     const arc = wakeArcLength(recordCounts)
     const steps = wakeStepDistances(recordCounts)
@@ -77,6 +81,7 @@ export default experiment({
     const recordStrictlyRises = recordCounts.every(
       (n, i) => i === 0 || n > recordCounts[i - 1]!,
     )
+
     const increments = shellCounts.slice(1)
     const incrementsGrow = increments.every(
       (c, i) => i === 0 || c > increments[i - 1]!,
@@ -112,8 +117,12 @@ export default experiment({
 
     // the arrow: the wake record count grows without bound (its last is many times its first),
     // while the fixed-mesh support only fluctuates within a bounded band
-    const wakeGrowthFactor = recordCounts[recordCounts.length - 1]! / recordCounts[0]!
-    const fixedGrowthFactor = fixedRecordCap / Math.max(1, fixedRecordFloor)
+    const wakeGrowthFactor =
+      recordCounts[recordCounts.length - 1]! / recordCounts[0]!
+
+    const fixedGrowthFactor =
+      fixedRecordCap / Math.max(1, fixedRecordFloor)
+
     const wakeAccumulatesFixedDoesNot =
       wakeGrowthFactor > 100 && fixedGrowthFactor < 2
 

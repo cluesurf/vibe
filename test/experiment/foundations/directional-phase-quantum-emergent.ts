@@ -33,7 +33,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
-import { makeWill, fillWillPattern, charge, type Will } from '@/code/tone/will'
+import {
+  makeWill,
+  fillWillPattern,
+  charge,
+  type Will,
+} from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
 import { pairCollision } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
@@ -95,6 +100,7 @@ export default experiment({
     // conservative oscillation, so the substrate is conservative but not amplitude-unitary
     let lossyWill = makeWill(mesh)
     fillWillPattern(lossyWill)
+
     const lossyStartNorm = occupationNorm(lossyWill)
 
     for (let t = 0; t < BEATS; t++) {

@@ -74,8 +74,10 @@ export function fourPolytopeFacets(vertices: number[][]): number[][] {
           }
 
           const offset = dot(normal, vertices[i]!)
+
           let anyAbove = false
           let anyBelow = false
+
           const onPlane: number[] = []
 
           for (let m = 0; m < count; m++) {

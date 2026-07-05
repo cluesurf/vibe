@@ -1656,8 +1656,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // binary per-term deltas are equal (flat); unary per-term deltas strictly increase (grow with the value)
     const binDelta = binCost[9]! - binCost[8]!
     const binFlat =
-      (binCost[8]! - binCost[7]!) === binDelta &&
-      (binCost[5]! - binCost[4]!) === binDelta
+      binCost[8]! - binCost[7]! === binDelta &&
+      binCost[5]! - binCost[4]! === binDelta
 
     const unaGrows =
       unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!

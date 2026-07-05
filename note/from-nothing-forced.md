@@ -93,8 +93,10 @@ The equipment is fixed. Now the beat acts.
 ### The exact numbers
 
 - unfolding: **1, 24, 456, 8376** cells per shell, from the single 24-cell by reflection,
-  bit-for-bit reproducible. Per-shell ratio climbs to the warp factor **18.278**
-  (exponential); the flat 4D lattice ratio is **~1.30** (polynomial, the control).
+  bit-for-bit reproducible. Per-shell ratio climbs to the warp factor, whose EXACT value is
+  the largest root of **x^3 - 21x^2 + 51x - 23 = 0**, about **18.2787** (the cone-type
+  transfer matrix, E-GMT-0031); the flat 4D lattice ratio is **~1.30** (polynomial, the
+  control).
 - beat: charge conserved as integer equality over 10 beats; forward 10 then backward 10
   recovers the start bit for bit. An erasing rule fails both (the control).
 
@@ -154,15 +156,14 @@ to a nonzero result, so every product is undoable. At dimension 16 (the sedenion
 divisors first appear, you can write down two nonzero sedenions whose product is 0. So
 dimension 8 is the last dimension where "lose nothing" holds.
 
-The floor (why 8 and not a smaller reversible rung, without looking ahead). The ceiling
-allows 1, 2, 4, or 8, all lossless. Stopping below 8 would need a reason to halt the doubling
-early, and there is none: each doubling from a lossless rung is itself still lossless until
-16, so nothing blocks the combination from filling out to the last reversible rung. And the
-seed pushes the same way: to exist is to differ, so the base realizes as much distinction as
-it reversibly can, the maximal lossless algebra. No-reason-to-stop and most-differentiation
-both land on the top of the reversible ladder, dimension 8. (Dimension 8 is also where the
-direction count and the two-valued rotation count coincide, but that is a consequence noticed
-after, not the reason used here.)
+The floor (why 8 and not a smaller reversible rung), and it is a theorem too. The ceiling
+allows 1, 2, 4, or 8, all lossless. The order-three TRIALITY that ties three generations
+together (the S3 symmetry of the D4 diagram permuting 8v, 8s, 8c) exists at exactly one rank
+of the D family, D4, whose vector dimension is 8, and nowhere below, computed two independent
+ways in triality-forces-eight (E-FND-0050). So no smaller lossless rung can carry three
+generations, and the floor no longer rests on the maximal-differentiation premise. What
+remains a premise is only the wish itself, that the base carry three generations. (Nothing
+blocks the doubling from reaching 8 either, each rung below is still lossless.)
 
 *So far, from nothing: the ternary tone, whose count is time, and whose tones must combine
 (relate) without loss, a division algebra, which fills the doubling ladder up to its
@@ -197,22 +198,28 @@ actually step (the integer length): 1 + 8 + 24 + 32 + 16 = 81. Why the 24: a cel
 by matching each face to a neighbour, so it needs exactly one direction per face, corners
 equal to faces (self-dual). Of the stepping shells only the 24 two-step diagonals give that
 (24 corners, 24 faces), the 8 give the 16-cell (8 corners, 16 faces) and the 16 give the
-tesseract (16 corners, 8 faces), both lopsided. Why spin also selects the 24: among the
-self-dual shells the 24 is the one whose vertex group carries the belt-trick sign (it
-contains -1 with -1 squared = +1, a full turn flips the sign), the structure a rotation
-needs, which the 16-cell axes do not carry. Self-dual and spinful, so the cell is the
-24-cell.
+tesseract (16 corners, 8 faces), both lopsided. Spin then CONFIRMS the winner rather than
+selecting it: the 24 vertices as unit quaternions are the binary tetrahedral group (it
+contains -1 with -1 squared = +1, a full turn flips the sign), and in the same frame the
+tesseract's 16 half-integer units are not a group at all and carry no such element (the
+spinless control), while the 16-cell's own 8 units DO carry the sign, so spin alone would not
+have isolated the 24. Self-duality selects, spin confirms, so the cell is the 24-cell.
 
 *So far, from nothing: the ternary tone (its count is time), lossless combining reaches the
 octonions at 8, the associative core is 4D space, the tone across four slots gives 81 nearest
 directions, and their one self-dual spin-carrying shell is the 24-cell.*
 
 **the 24-cell -> the mesh.** Why a tiling: one cell is not space, space is many cells sharing
-faces, so copy the cell face to face. Why hyperbolic: the 24-cell's corner angles are too
-wide to close up in flat 4D space (flat copies would overlap) and too narrow for the sphere,
-they fit exactly in negatively curved space. That tiling is the honeycomb {3,4,3,4}.
-Hyperbolic is also the one geometry that grows without bound and with no preferred direction,
-which is what the accumulation (the arrow) needs.
+faces, so copy the cell face to face. The honest fork: the 24-cell tiles in exactly two
+regular ways, set by how many cells meet around a face. Its dihedral angle is 120 degrees, so
+THREE around a face closes FLAT, the Euclidean honeycomb {3,4,3,3} (the Voronoi tiling of the
+D4 lattice, which is exactly the flat d4Mesh control used across the suite), and FOUR around
+a face overfills flat space and opens into negative curvature, the hyperbolic {3,4,3,4}. The
+base takes the hyperbolic one, and that is a PREMISE with a reason, not a theorem: hyperbolic
+is the arena with exponential room and a boundary (the cusp), which the accumulation needs,
+and the measured differentiators are the holographic bound (E-HLG-0032), the cusp stability
+(E-FND-0058), and the spectral gap (E-GRV-0050). The older claim that the 24-cell does not
+fit flat space was wrong and is retired.
 
 *So far, from nothing: the ternary tone (its count is time), lossless combining to the
 octonions at 8, the associative core is 4D space, four ternary slots give 81 directions whose
@@ -297,13 +304,12 @@ be able to say "no cut here", giving 0. A mirror needs at least the pair, a vacu
 zero, and nothing smaller has both, so the minimum is {-1, 0, +1}, three. Larger symmetric
 sets like {-2, -1, 0, 1, 2} also have both, but "least content" takes the smallest.
 
-**The pinch to eight has two bounds, and only one is a theorem.** The ceiling (dimension at
-most 8) is a theorem: past 8 zero divisors appear and lose-nothing fails. The floor (8 rather
-than 1, 2, or 4) is not a theorem, it is a premise with a reason: nothing forces the doubling
-to stop early (each rung up to 8 is still lossless), and the seed pushes to maximize
-distinction, so the base sits at the top of what reversibility allows. Read the ceiling as
-forced and the floor as the maximal-differentiation premise, so the second is not mistaken for
-a proof.
+**The pinch to eight has two bounds, and both are theorems now.** The ceiling (dimension at
+most 8) holds because past 8 zero divisors appear and lose-nothing fails. The floor (8 rather
+than 1, 2, or 4) holds because triality, the order-three diagram symmetry the three
+generations need, exists at exactly one rank, D4, vector dimension 8, and nowhere below
+(triality-forces-eight, E-FND-0050). The maximal-differentiation reading is no longer
+load-bearing. The residual premise is only that the base carry three generations at all.
 
 **Eight splits into four-plus-four, and only the four that associates is space.** The octonion
 is literally two quaternions, an 8 = 4 + 4 split. Geometry needs associativity (positions must
@@ -329,8 +335,11 @@ linear directions have no such -1, so no spin.
 in 12 opposite pairs, the lines. A collision law decides which line meets which head-on, so it
 matches the 12 lines into 6 pairs, and the number of ways to match 12 things into pairs is
 11 x 9 x 7 x 5 x 3 x 1 = 10395. Almost all of these matchings break the cell's symmetry (they
-treat some directions specially). Requiring the law to respect the full symmetry leaves
-exactly one matching standing, the knit.
+treat some directions specially). Requiring the crystallographic B4 symmetry leaves exactly
+one matching standing, the knit, while the full F4 (which adds triality) leaves NONE, and an
+exhaustive stabilizer scan shows no matching anywhere is more symmetric than the knit
+(E-FND-0059). The three maximally symmetric matchings across the three frames are one
+triality orbit, one per generation, the coset index [F4:B4] = 3 (E-FND-0054).
 
 ## The one-line summary
 
@@ -342,6 +351,9 @@ each beat, reversibly, while the wake grows the edge, and that growth is time.
 ## The premises it rests on
 
 The math forces the structure. What it does not force, and the derivation takes as
-premises: the vacuum-and-mirror requirement, reversibility ("lose nothing"), one substance
-(monism), a face per neighbour, and the reading of the signed ternary tone as valence
-(pain, peace, pleasure). Those are the premises, stated up front, not smuggled in.
+premises: the vacuum-and-mirror requirement, reversibility ("lose nothing", now recognized
+as the seed itself read as a condition on change, E-FND-0060), that the base carries three
+generations (what makes the triality floor at eight bite), a face per neighbour, the
+hyperbolic choice among the two regular 24-cell honeycombs (flat {3,4,3,3} versus
+hyperbolic {3,4,3,4}), and the reading of the signed ternary tone as valence (pain, peace,
+pleasure). Those are the premises, stated up front, not smuggled in.

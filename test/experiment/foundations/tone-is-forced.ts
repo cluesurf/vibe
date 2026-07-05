@@ -68,7 +68,8 @@ export default experiment({
     const mirrorNoVacuum = !toneAlphabetQualifies([-1, 1]) // has mirror, no 0
     const nearMissesFail = vacuumNoMirror && mirrorNoVacuum
 
-    const solved = ternaryIsMinimal && bothRaiseTheFloor && nearMissesFail
+    const solved =
+      ternaryIsMinimal && bothRaiseTheFloor && nearMissesFail
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -79,7 +80,9 @@ export default experiment({
         qualifyingCount: qualifying.length,
         minimalQualifyingSize: minimalSize,
         minimalContentSize: minimalContent.length,
-        minimalContentMaxMagnitude: Math.max(...minimalContent.map(Math.abs)),
+        minimalContentMaxMagnitude: Math.max(
+          ...minimalContent.map(Math.abs),
+        ),
         vacuumOnlyFloor: vacuumOnly,
         mirrorOnlyFloor: mirrorOnly,
       },

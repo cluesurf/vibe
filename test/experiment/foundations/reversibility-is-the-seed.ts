@@ -59,24 +59,29 @@ export default experiment({
     // states could have merged (a difference cannot vanish)
     const will = makeWill(mesh)
     will.data.set(asymmetricFill(mesh))
+
     const trip = roundtrip({
       will,
       collision: knit,
       beats: BEATS,
       inverseCollision: knitInverse,
     })
+
     const knitPreservesEveryDifference = trip.roundtripHamming === 0
 
     // a lossy rule ERASES a difference: two states differing only in the erased slot map to the same
     // successor, so the difference between them vanishes, exactly what the seed forbids
     const stateA = makeWill(mesh)
     stateA.data.set(asymmetricFill(mesh))
+
     const stateB = cloneWill(stateA)
     stateB.data[0] = stateA.data[0] === 0 ? 1 : 0
+
     const distinctBefore = stateA.data[0] !== stateB.data[0]
 
     const imageA = beat(cloneWill(stateA), erasingCollision)
     const imageB = beat(cloneWill(stateB), erasingCollision)
+
     let imagesEqual = true
 
     for (let i = 0; i < imageA.data.length; i++) {
@@ -101,7 +106,9 @@ export default experiment({
         'reversibility is not a separate premise, it is the seed applied to the dynamics. The seed is that a difference once made cannot vanish, and a rule makes a difference vanish exactly when it maps two distinct states to the same successor, so a rule that never does is injective, which on a finite state set is reversible. Measured: the knit is a bijection, forward then inverse recovers the start bit for bit, so no two distinct states merged and no difference vanished, which is what the seed demands. A lossy erasing rule maps two states differing only in the erased slot to the same successor, destroying the difference between them, which is exactly the vanishing the seed forbids. So the seed keeps the reversible rule and excludes the lossy one, and reversibility is derived from the seed, not assumed, so the pinch to dimension eight no longer rests on a separate reversibility premise.',
       metrics: {
         knitRoundtripHamming: trip.roundtripHamming,
-        knitPreservesEveryDifference: knitPreservesEveryDifference ? 1 : 0,
+        knitPreservesEveryDifference: knitPreservesEveryDifference
+          ? 1
+          : 0,
         lossyTwoDistinctOneSuccessor: lossyErasesADifference ? 1 : 0,
         beats: BEATS,
       },

@@ -50,8 +50,10 @@ export default experiment({
     const cosetsEqualSized =
       coset.cosetSizes.length === 3 &&
       coset.cosetSizes.every(s => s === coset.cosetSizes[0])
+
     const lineImageIndex =
       coset.b4Order > 0 ? coset.f4Order / coset.b4Order : 0
+
     const lineIndexIsThree = lineImageIndex === 3
 
     // 2. triality (an order-three element of F4 not in B4) cyclically permutes the three cosets
@@ -62,7 +64,8 @@ export default experiment({
     const f4Weyl = weylGroupOrder(rootsF4())
     const b4Weyl = weylGroupOrder(rootsB4())
     const weylIndex = b4Weyl > 0 ? f4Weyl / b4Weyl : 0
-    const weylIndexIsThree = f4Weyl === 1152 && b4Weyl === 384 && weylIndex === 3
+    const weylIndexIsThree =
+      f4Weyl === 1152 && b4Weyl === 384 && weylIndex === 3
 
     const solved =
       indexIsThree &&

@@ -26,10 +26,15 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { d4FlatNeighbors, diffuseParticipation } from '@/code/measure/dispersal'
+import {
+  d4FlatNeighbors,
+  diffuseParticipation,
+} from '@/code/measure/dispersal'
 
-const MAX_CELLS = 12000
-const FLAT_SIDE = 10
+// the bulk graph is built through shell four so the seven-step walk stays in the interior, and
+// the flat torus side is twelve so the walk cannot wrap around and overlap itself
+const MAX_CELLS = 170000
+const FLAT_SIDE = 12
 
 export default experiment({
   id: 'foundations/cusp-observer-stability',
@@ -41,7 +46,11 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const bulk = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: MAX_CELLS })
+    const bulk = buildCellGraph({
+      symbol: [3, 4, 3, 4],
+      maxCells: MAX_CELLS,
+    })
+
     const flat = d4FlatNeighbors(FLAT_SIDE)
 
     const degreeMatched =
@@ -49,10 +58,29 @@ export default experiment({
       flat[0]!.length === 24
 
     // measure the spread (participation) at an early and a later time, before finite-size saturation
-    const earlyBulk = diffuseParticipation({ neighbors: bulk.neighbors, center: 0, steps: 5 })
-    const lateBulk = diffuseParticipation({ neighbors: bulk.neighbors, center: 0, steps: 7 })
-    const earlyFlat = diffuseParticipation({ neighbors: flat, center: 0, steps: 5 })
-    const lateFlat = diffuseParticipation({ neighbors: flat, center: 0, steps: 7 })
+    const earlyBulk = diffuseParticipation({
+      neighbors: bulk.neighbors,
+      center: 0,
+      steps: 5,
+    })
+
+    const lateBulk = diffuseParticipation({
+      neighbors: bulk.neighbors,
+      center: 0,
+      steps: 7,
+    })
+
+    const earlyFlat = diffuseParticipation({
+      neighbors: flat,
+      center: 0,
+      steps: 5,
+    })
+
+    const lateFlat = diffuseParticipation({
+      neighbors: flat,
+      center: 0,
+      steps: 7,
+    })
 
     const earlyRatio = earlyBulk.participation / earlyFlat.participation
     const lateRatio = lateBulk.participation / lateFlat.participation
@@ -83,10 +111,18 @@ export default experiment({
         flatDegree: flat[0]!.length,
         earlyDispersalRatio: Number(earlyRatio.toFixed(3)),
         lateDispersalRatio: Number(lateRatio.toFixed(3)),
-        bulkLateParticipation: Number(lateBulk.participation.toFixed(1)),
-        flatLateParticipation: Number(lateFlat.participation.toFixed(1)),
-        bulkReturnProbability: Number(lateBulk.returnProbability.toExponential(3)),
-        flatReturnProbability: Number(lateFlat.returnProbability.toExponential(3)),
+        bulkLateParticipation: Number(
+          lateBulk.participation.toFixed(1),
+        ),
+        flatLateParticipation: Number(
+          lateFlat.participation.toFixed(1),
+        ),
+        bulkReturnProbability: Number(
+          lateBulk.returnProbability.toExponential(3),
+        ),
+        flatReturnProbability: Number(
+          lateFlat.returnProbability.toExponential(3),
+        ),
       },
       control: {
         // the degree is matched (24 both), so the faster bulk dispersal is curvature, not

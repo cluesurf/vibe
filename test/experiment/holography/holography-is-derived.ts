@@ -50,16 +50,22 @@ export default experiment({
   paper: true,
   run() {
     // the bulk boundary-dominance: the shell as a fraction of the ball, converging to (lambda-1)/lambda
-    const counts = unfoldMeshShells({ throughShell: 4, maxCells: 170000 })
+    const counts = unfoldMeshShells({
+      throughShell: 4,
+      maxCells: 170000,
+    })
+
     const exactCounts =
-      counts.length >= 5 && CANONICAL_SHELLS.every((c, i) => counts[i] === c)
+      counts.length >= 5 &&
+      CANONICAL_SHELLS.every((c, i) => counts[i] === c)
 
     const fractions: number[] = []
+
     let ball = 0
 
-    for (let r = 0; r < counts.length; r++) {
-      ball += counts[r]!
-      fractions.push(counts[r]! / ball)
+    for (const count of counts) {
+      ball += count
+      fractions.push(count / ball)
     }
 
     // the deep-shell fraction is near (lambda-1)/lambda, the boundary holds almost all the volume
@@ -68,11 +74,15 @@ export default experiment({
     const boundaryDominates = deepFraction > 0.9
     const matchesWarpFactor =
       Math.abs(deepFraction - predictedFraction) < 0.005
+
     // the fraction is CONSTANT across scale (non-amenable, a genuine holographic bound, not a
     // transient), so the last few fractions agree closely
     const fractionIsConstant =
-      Math.abs(fractions[fractions.length - 1]! - fractions[fractions.length - 2]!) <
-      0.002
+      Math.abs(
+        fractions[fractions.length - 1]! -
+          fractions[fractions.length - 2]!,
+      ) < 0.002
+
     // the boundary fraction encodes the warp factor: lambda = 1 / (1 - fraction)
     const recoveredWarp = 1 / (1 - deepFraction)
     const warpRecovered = Math.abs(recoveredWarp - WARP_FACTOR) < 0.5
@@ -85,7 +95,10 @@ export default experiment({
         flatBall += euclideanL1ShellCount({ dimension: 4, shell: k })
       }
 
-      return euclideanL1ShellCount({ dimension: 4, shell: radius }) / flatBall
+      return (
+        euclideanL1ShellCount({ dimension: 4, shell: radius }) /
+        flatBall
+      )
     }
 
     const flatNear = flatFraction(4)

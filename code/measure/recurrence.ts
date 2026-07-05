@@ -20,6 +20,7 @@ export function recurrencePeriod(input: {
 }): number {
   const { collision, maxBeats } = input
   const start = cloneWill(input.will)
+
   let current = input.will
 
   for (let t = 1; t <= maxBeats; t++) {

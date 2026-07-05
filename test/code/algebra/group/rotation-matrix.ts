@@ -3,12 +3,7 @@
 // of a rotation matrix (orthogonal, det 1, trace = 1 + 2 cos t, R(a)R(b) = R(a+b)
 // about a common axis), re-derived independently, never read from the implementation.
 
-import {
-  suite,
-  check,
-  close,
-  closeArray,
-} from '@/test/code/harness'
+import { suite, check, close, closeArray } from '@/test/code/harness'
 import {
   IDENTITY3,
   multiply3,

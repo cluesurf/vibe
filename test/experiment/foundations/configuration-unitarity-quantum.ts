@@ -56,31 +56,49 @@ export default experiment({
   paper: true,
   run() {
     const mesh = d4Mesh({ side: SIDE })
-    const knit = pairCollision({ opposite: meshOpposites(mesh), forward: true })
+    const knit = pairCollision({
+      opposite: meshOpposites(mesh),
+      forward: true,
+    })
 
     const start = makeWill(mesh)
     start.data.set(asymmetricFill(mesh))
 
     // the finite orbit: the distinct configurations the knit cycles through
-    const orbit = stateOrbit({ will: start, collision: knit, maxBeats: MAX_BEATS })
+    const orbit = stateOrbit({
+      will: start,
+      collision: knit,
+      maxBeats: MAX_BEATS,
+    })
+
     const period = orbit.period
     const orbitIsFinite = period > 0
-    const orbitIsDistinct = new Set(orbit.states).size === orbit.states.length
+    const orbitIsDistinct =
+      new Set(orbit.states).size === orbit.states.length
 
     // a complex superposition over the orbit keeps its L2 norm exactly after a beat (unitary). The
     // amplitudes are a fixed deterministic pattern, not random.
     const real = Array.from({ length: Math.max(1, period) }, (_, i) =>
       Math.cos(i * 0.7),
     )
-    const imaginary = Array.from({ length: Math.max(1, period) }, (_, i) =>
-      Math.sin(i * 1.3),
+
+    const imaginary = Array.from(
+      { length: Math.max(1, period) },
+      (_, i) => Math.sin(i * 1.3),
     )
-    const superposition = superpositionNormAfterBeat({ period, real, imaginary })
+
+    const superposition = superpositionNormAfterBeat({
+      period,
+      real,
+      imaginary,
+    })
+
     const normPreserved =
       Math.abs(superposition.startNorm - superposition.endNorm) < 1e-12
 
     // reconstruct the orbit as wills, to test injectivity of the knit versus the lossy rule
     const orbitWills: Will[] = []
+
     let walker = cloneWill(start)
     orbitWills.push(cloneWill(walker))
 
@@ -94,6 +112,7 @@ export default experiment({
       stateWills: orbitWills,
       collision: knit,
     })
+
     const knitIsPermutation = knitInjectivity.injective
 
     // the control: the lossy rule is NOT injective, shown by an explicit collision. Two states
@@ -104,9 +123,11 @@ export default experiment({
     const stateB = cloneWill(start)
     // slot index 0 is cell 0's first slot, exactly the slot erasingCollision zeroes per cell
     stateB.data[0] = stateA.data[0] === 0 ? 1 : 0
+
     const distinctBeforeLossy = stateA.data[0] !== stateB.data[0]
     const imageA = beat(cloneWill(stateA), erasingCollision)
     const imageB = beat(cloneWill(stateB), erasingCollision)
+
     let imagesEqual = true
 
     for (let i = 0; i < imageA.data.length; i++) {
@@ -133,7 +154,9 @@ export default experiment({
       metrics: {
         orbitPeriod: period,
         orbitDistinctStates: new Set(orbit.states).size,
-        superpositionStartNorm: Number(superposition.startNorm.toFixed(6)),
+        superpositionStartNorm: Number(
+          superposition.startNorm.toFixed(6),
+        ),
         superpositionEndNorm: Number(superposition.endNorm.toFixed(6)),
         knitInputStates: knitInjectivity.inputCount,
         knitDistinctImages: knitInjectivity.distinctImages,
@@ -147,7 +170,7 @@ export default experiment({
         lossyMergesDistinctStates: lossyNotInjective ? 1 : 0,
       },
       notes:
-        'L2, the configuration-space unitarity of the reversible knit, reusing code/measure/qca-unitarity and the asymmetric fill from code/measure/recurrence. The knit is a bijection on configurations (measured injective on the orbit), so its Hilbert-space operator is a permutation matrix, unitary, and a complex superposition over the orbit keeps its norm exactly. The lossy rule merges states (not injective), the non-unitary control. This resolves the deterministic-CA-versus-quantum tension via the Bisio-D\'Ariano QCA framework: the quantum unitarity is at the configuration level, not the raw occupation (which oscillates, E-FND-0053), and superposition is the coarse-grained amplitude over configurations. Deterministic amplitudes and fill, no random.',
+        "L2, the configuration-space unitarity of the reversible knit, reusing code/measure/qca-unitarity and the asymmetric fill from code/measure/recurrence. The knit is a bijection on configurations (measured injective on the orbit), so its Hilbert-space operator is a permutation matrix, unitary, and a complex superposition over the orbit keeps its norm exactly. The lossy rule merges states (not injective), the non-unitary control. This resolves the deterministic-CA-versus-quantum tension via the Bisio-D'Ariano QCA framework: the quantum unitarity is at the configuration level, not the raw occupation (which oscillates, E-FND-0053), and superposition is the coarse-grained amplitude over configurations. Deterministic amplitudes and fill, no random.",
     })
   },
 })

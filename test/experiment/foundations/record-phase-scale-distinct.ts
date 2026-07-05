@@ -45,7 +45,10 @@ const SIDE = 8
 const BEATS = 6
 
 // the number of differing slots between two states, the Hamming distance
-function hamming(a: ReturnType<typeof makeWill>, b: ReturnType<typeof makeWill>): number {
+function hamming(
+  a: ReturnType<typeof makeWill>,
+  b: ReturnType<typeof makeWill>,
+): number {
   let count = 0
 
   for (let i = 0; i < a.data.length; i++) {
@@ -68,11 +71,16 @@ export default experiment({
   paper: true,
   run() {
     // SCALE (v): the static connectivity by radius, the ball sizes, a function of r alone
-    const shellCounts = unfoldMeshShells({ throughShell: 3, maxCells: 12000 })
+    const shellCounts = unfoldMeshShells({
+      throughShell: 3,
+      maxCells: 12000,
+    })
+
     const ballSizes = wakeRecordCounts(shellCounts)
     const connectivityGrowsWithScale = ballSizes.every(
       (n, i) => i === 0 || n > ballSizes[i - 1]!,
     )
+
     const scalesCoexist = shellCounts.length > 1 // many scales present at one time
 
     // TIME (u): on a FIXED mesh (fixed scale) the knit changes the state every beat, so time
@@ -93,8 +101,12 @@ export default experiment({
       perBeatChange.push(hamming(before, will))
     }
 
-    const timeAdvancesAtFixedScale = perBeatChange.every(change => change > 0)
-    const scaleFixedWhileTimeAdvances = mesh.cellCount === cellCountStart
+    const timeAdvancesAtFixedScale = perBeatChange.every(
+      change => change > 0,
+    )
+
+    const scaleFixedWhileTimeAdvances =
+      mesh.cellCount === cellCountStart
 
     // INDEPENDENCE: scale is geometry (the ball size has no beat argument), time is dynamics
     // (the state changes with no change of scale). The wake frontier is the only coupling: the
@@ -122,7 +134,8 @@ export default experiment({
         largestBall: ballSizes[ballSizes.length - 1]!,
         interiorCells,
         meanPerBeatChange:
-          perBeatChange.reduce((s, c) => s + c, 0) / perBeatChange.length,
+          perBeatChange.reduce((s, c) => s + c, 0) /
+          perBeatChange.length,
         minPerBeatChange: Math.min(...perBeatChange),
         fixedScaleCellCount: mesh.cellCount,
         frontierScaleEqualsBeat,

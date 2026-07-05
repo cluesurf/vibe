@@ -23,8 +23,11 @@ import {
 
 // the cumulative record counts along the wake: the number of cells in existence after each
 // shell is unfolded, the running total of the per-shell counts. Strictly increasing, the arrow.
-export function wakeRecordCounts(shellCounts: readonly number[]): number[] {
+export function wakeRecordCounts(
+  shellCounts: readonly number[],
+): number[] {
   const cumulative: number[] = []
+
   let total = 0
 
   for (const count of shellCounts) {
@@ -54,7 +57,9 @@ export function wakeDistribution(input: {
 // the cumulative Fisher-Rao arc length along the wake, over the sequence of growing uniform
 // record distributions. This is TD emergent time accumulated along the record-accumulating
 // path, computed with the same Fisher-Rao distance the knit bridge uses.
-export function wakeArcLength(recordCounts: readonly number[]): number[] {
+export function wakeArcLength(
+  recordCounts: readonly number[],
+): number[] {
   const total = recordCounts[recordCounts.length - 1] ?? 0
   const distributions = recordCounts.map(recordCount =>
     wakeDistribution({ recordCount, total }),
@@ -66,13 +71,23 @@ export function wakeArcLength(recordCounts: readonly number[]): number[] {
 // the per-step Fisher-Rao distance between consecutive wake extents, the amount of new
 // distinguishability each unfolded shell adds. Every step is strictly positive because each new
 // shell adds support absent before, so the arc length cannot stall while the wake grows.
-export function wakeStepDistances(recordCounts: readonly number[]): number[] {
+export function wakeStepDistances(
+  recordCounts: readonly number[],
+): number[] {
   const total = recordCounts[recordCounts.length - 1] ?? 0
   const steps: number[] = []
 
   for (let k = 1; k < recordCounts.length; k++) {
-    const before = wakeDistribution({ recordCount: recordCounts[k - 1]!, total })
-    const after = wakeDistribution({ recordCount: recordCounts[k]!, total })
+    const before = wakeDistribution({
+      recordCount: recordCounts[k - 1]!,
+      total,
+    })
+
+    const after = wakeDistribution({
+      recordCount: recordCounts[k]!,
+      total,
+    })
+
     steps.push(fisherRaoDistance(before, after))
   }
 

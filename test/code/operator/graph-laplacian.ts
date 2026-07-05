@@ -122,7 +122,9 @@ suite('operator/graph-laplacian: Poisson solve', [
 
       let mean = 0
 
-      for (const v of phi) {mean += v}
+      for (const v of phi) {
+        mean += v
+      }
 
       close(mean / phi.length, 0, 1e-12, 'phi mean')
     },

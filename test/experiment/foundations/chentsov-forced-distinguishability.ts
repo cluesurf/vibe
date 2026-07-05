@@ -7,22 +7,23 @@
 // choice, and a bridge number that depends on a hand-picked readout is not a property of the
 // physics.
 //
-// The resolution. Use the geometry that is already there. The 24 directions of the coin carry the
-// 24-cell symmetry, so a state's per-direction occupancy is a distribution on the 24-direction
-// simplex, and Chentsov's theorem says the Fisher-Rao metric is the UNIQUE metric on a probability
-// simplex invariant under the symmetry (the relabelings the group performs). So the distinguishability
-// measure is not a free choice, it is forced to be Fisher-Rao, the same theorem that makes TD's
-// primitive non-arbitrary. Measured here: the Fisher-Rao distance between two direction distributions
-// is invariant under the 24-cell symmetry (its value does not change when the group relabels the
-// directions), while an ad-hoc weighted measure is NOT invariant (it changes under the same
-// relabeling), so the ad-hoc measure is not canonical and Fisher-Rao is.
+// The resolution, in two honestly separated parts. The MEASURED part, the necessary condition: a
+// legitimate distinguishability must be invariant under the 24-cell symmetry (the group's
+// relabelings of the 24 directions), and Fisher-Rao satisfies this exactly (deviation at machine
+// precision) while a direction-weighted ad-hoc measure fails it (a definite nonzero deviation).
+// This alone kills the fragile hand-weighted readouts. The CITED part, the uniqueness: relabeling
+// invariance alone does not single out Fisher-Rao (the unweighted L1 is also relabeling-invariant),
+// Chentsov's theorem does, under its full hypothesis, invariance under every sufficiency-preserving
+// Markov embedding between simplexes, of which the relabelings measured here are the special case
+// living on one simplex. So the measure is forced by necessity (measured) plus Chentsov (cited),
+// the same theorem that makes TD's primitive non-arbitrary.
 //
 // CONTROL: the ad-hoc weighted measure. It privileges particular directions, so a 24-cell symmetry
-// changes its value (a nonzero deviation), the discriminator that invariance is special to Fisher-
-// Rao. Chentsov's theorem then says Fisher-Rao is the unique invariant, so the measure is forced.
+// changes its value (a nonzero deviation), the discriminator that the necessary condition has
+// teeth. The uniqueness on top is Chentsov's theorem, cited, not re-proven here.
 //
-// Depth L2, the group-invariance of Fisher-Rao measured against an ad-hoc measure on the 24-direction
-// simplex, invoking Chentsov's uniqueness to force the choice.
+// Depth L2, the group-invariance necessary condition measured against an ad-hoc measure on the
+// 24-direction simplex, with Chentsov's uniqueness cited for the rest.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -36,7 +37,7 @@ export default experiment({
   id: 'foundations/chentsov-forced-distinguishability',
   code: 'E-FND-0057',
   title:
-    'the distinguishability measure is forced by Chentsov: the Fisher-Rao distance between two direction distributions is invariant under the 24-cell symmetry (deviation zero) while an ad-hoc weighted measure is not (a nonzero deviation), so by Chentsov uniqueness the measure is forced to be Fisher-Rao, the same theorem that makes TD primitive non-arbitrary, removing the readout fragility',
+    'the distinguishability readout is pinned in two honest parts: the measured necessary condition (24-cell relabeling invariance, which Fisher-Rao passes at machine precision and any direction-weighted ad-hoc measure fails) plus Chentsov uniqueness under the full Markov-embedding class (cited, not re-proven), so the fragile hand-weighted readouts are killed by measurement and Fisher-Rao is singled out by the theorem',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -46,6 +47,7 @@ export default experiment({
     const p = normalizeDistribution(
       Array.from({ length: 24 }, (_, i) => (i % 3) + 1),
     )
+
     const q = normalizeDistribution(
       Array.from({ length: 24 }, (_, i) => ((i * 2) % 5) + 1),
     )
@@ -64,21 +66,23 @@ export default experiment({
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'the distinguishability measure is forced to be Fisher-Rao by Chentsov theorem, not hand-chosen. The 24 directions carry the 24-cell symmetry, so a state per-direction occupancy is a distribution on the 24-direction simplex, and the Fisher-Rao distance between two such distributions is invariant under the 24-cell symmetry (its value does not change when the group relabels the directions, deviation essentially zero to machine precision). An ad-hoc weighted measure, which privileges particular directions, is NOT invariant (its value changes under the same relabeling, a definite nonzero deviation). By Chentsov uniqueness the Fisher-Rao metric is the ONLY metric on a probability simplex invariant under the group relabelings, so the measure is forced, removing the fragility that a hand-picked readout caused, and it is the same theorem that makes TD distinguishability primitive non-arbitrary.',
+        'the distinguishability readout is pinned in two honestly separated parts. Measured, the necessary condition: any legitimate readout must be invariant under the 24-cell symmetry relabeling of the directions, and the Fisher-Rao distance passes at machine precision while a direction-weighted ad-hoc measure fails with a definite nonzero deviation, which alone kills the fragile hand-weighted readouts. Cited, the uniqueness: relabeling invariance does not by itself single out Fisher-Rao (the unweighted L1 also passes it), Chentsov theorem does, under its full hypothesis of invariance under every sufficiency-preserving Markov embedding between simplexes, of which the relabelings measured here are the one-simplex special case. So the measure is forced by the measured necessity plus the cited theorem, the same theorem that makes TD distinguishability primitive non-arbitrary, and the fragility a hand-picked readout caused is removed.',
       metrics: {
-        fisherRaoSymmetryDeviation: Number(fisherRaoDeviation.toExponential(3)),
+        fisherRaoSymmetryDeviation: Number(
+          fisherRaoDeviation.toExponential(3),
+        ),
         adHocSymmetryDeviation: Number(adHocDeviation.toFixed(6)),
         directionCount: 24,
         symmetriesTested: 5,
       },
       control: {
-        // the ad-hoc measure changes under the symmetry (not invariant), while Fisher-Rao does not,
-        // so invariance is special to Fisher-Rao and Chentsov forces the choice
+        // the ad-hoc measure changes under the symmetry (not invariant) while Fisher-Rao does not,
+        // so the necessary condition has teeth; the uniqueness on top is Chentsov, cited
         fisherRaoDeviation: Number(fisherRaoDeviation.toExponential(3)),
         adHocDeviation: Number(adHocDeviation.toFixed(6)),
       },
       notes:
-        'L2, the group-invariance of Fisher-Rao on the 24-direction simplex, reusing code/measure/direction-distinguishability (built on code/measure/fisher-rao). Fisher-Rao is invariant under the 24-cell symmetry (deviation to machine precision), an ad-hoc weighted measure is not, and Chentsov theorem says Fisher-Rao is the unique invariant metric, so the distinguishability readout is forced, not chosen. This resolves the fragility exposed when the net-charge readout gave a spurious result, and it is the same uniqueness (Chentsov) that vibe and TD both lean on for the primitive. Deterministic distributions, no random.',
+        'L2, the relabeling-invariance necessary condition measured on the 24-direction simplex, reusing code/measure/direction-distinguishability (built on code/measure/fisher-rao). The honest split, after the audit: what is MEASURED is that Fisher-Rao is invariant under the 24-cell relabelings (deviation at machine precision) and a direction-weighted ad-hoc measure is not, which is a necessary-condition test that kills hand-weighted readouts. What is CITED is Chentsov uniqueness, whose hypothesis is the larger class of sufficiency-preserving Markov embeddings, since relabeling invariance alone is also satisfied by the unweighted L1 and so cannot force Fisher-Rao by itself. This resolves the fragility exposed when the net-charge readout gave a spurious result, with the claim now stated at exactly the strength the measurement supports. Deterministic distributions, no random.',
     })
   },
 })

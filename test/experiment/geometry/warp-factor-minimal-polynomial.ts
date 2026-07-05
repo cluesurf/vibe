@@ -53,11 +53,16 @@ export default experiment({
   paper: true,
   run() {
     // one small build, then pure arithmetic
-    const graph = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: MAX_CELLS })
+    const graph = buildCellGraph({
+      symbol: [3, 4, 3, 4],
+      maxCells: MAX_CELLS,
+    })
+
     const vectors = shellTypeVectors({
       neighbors: graph.neighbors,
       throughShell: 4,
     })
+
     const matrix = coneTypeTransferMatrix(vectors)
 
     // the matrix is the expected integer transfer matrix
@@ -66,9 +71,11 @@ export default experiment({
       [4, 4, 3],
       [0, 1, 2],
     ]
+
     const matrixIsInteger = matrix.every(row =>
       row.every(x => Math.abs(x - Math.round(x)) < 1e-9),
     )
+
     const matrixMatches = matrix.every((row, i) =>
       row.every((x, j) => Math.round(x) === expectedMatrix[i]![j]),
     )
@@ -88,29 +95,35 @@ export default experiment({
       c: poly.determinant,
       seed: 18.3,
     })
+
     const warpNearKnown = Math.abs(warpFactor - 18.2787) < 0.001
 
     // irreducible: the cubic has no rational root (candidates divide 23: 1 and 23)
     const cubic = (x: number): number =>
       x ** 3 - traceRounded * x * x + minorRounded * x - detRounded
+
     const noRationalRoot = cubic(1) !== 0 && cubic(23) !== 0
 
     // the recurrence reproduces the measured shell counts (the control), including shell five
     const recurrence = (a: number, b: number, c: number): number =>
       traceRounded * a - minorRounded * b + detRounded * c
+
     const reproducedFour = recurrence(
       MEASURED_SHELLS[3]!,
       MEASURED_SHELLS[2]!,
       MEASURED_SHELLS[1]!,
     )
+
     const reproducedFive = recurrence(
       MEASURED_SHELLS[4]!,
       MEASURED_SHELLS[3]!,
       MEASURED_SHELLS[2]!,
     )
+
     const reproducesShells =
       reproducedFour === MEASURED_SHELLS[4]! &&
       reproducedFive === MEASURED_SHELLS[5]!
+
     const predictedShellSix = recurrence(
       MEASURED_SHELLS[5]!,
       MEASURED_SHELLS[4]!,

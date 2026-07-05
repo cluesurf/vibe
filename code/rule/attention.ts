@@ -62,7 +62,10 @@ export function isOneHotRouting(mesh: Mesh): boolean {
 // then is activity pruning exact, because skipping the collide on a vacuum cell
 // leaves it identical to having collided it. The committed creating rule fails this
 // (peace creates a pair), which is reported honestly, not hidden.
-export function vacuumIsFixed(collision: Collision, degree: number): boolean {
+export function vacuumIsFixed(
+  collision: Collision,
+  degree: number,
+): boolean {
   const slots = new Int8Array(degree)
   collision(slots, 0, degree)
 

@@ -62,8 +62,13 @@ export function minimalQualifyingAlphabetSize(): number {
 // the qualifying alphabet of LEAST CONTENT over [-range, range]: minimal size first, then
 // minimal largest magnitude, so among the size-three qualifiers ({-1,0,1}, {-2,0,2}, ...) the
 // smallest-magnitude one is chosen. Returns {-1, 0, +1}.
-export function minimalContentQualifyingAlphabet(range: number): number[] {
-  const qualifying = integerAlphabets(range).filter(toneAlphabetQualifies)
+export function minimalContentQualifyingAlphabet(
+  range: number,
+): number[] {
+  const qualifying = integerAlphabets(range).filter(
+    toneAlphabetQualifies,
+  )
+
   const maxAbs = (a: number[]): number => Math.max(...a.map(Math.abs))
 
   return qualifying.reduce((best, a) => {
@@ -94,6 +99,7 @@ export function minimalVacuumOnlySize(range: number): number {
 export function minimalMirrorOnlySize(range: number): number {
   const mirror = (a: number[]): boolean =>
     a.every(x => a.includes(-x)) && a.some(x => x !== -x)
+
   const sizes = integerAlphabets(range)
     .filter(mirror)
     .map(a => a.length)

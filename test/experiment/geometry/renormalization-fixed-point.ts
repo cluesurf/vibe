@@ -65,7 +65,11 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const counts = unfoldMeshShells({ throughShell: 4, maxCells: 170000 })
+    const counts = unfoldMeshShells({
+      throughShell: 4,
+      maxCells: 170000,
+    })
+
     const ratios = shellRatios(counts) // [24, 19, 18.368, 18.289]
 
     // the RG flow contracts: the successive changes in the ratio shrink geometrically
@@ -78,11 +82,13 @@ export default experiment({
     const flowContracts = changes.every(
       (c, i) => i === 0 || c < changes[i - 1]!,
     )
+
     // the contraction rate (change ratio) is well below one (a genuine fixed-point attractor)
     const contractionRate =
       changes.length >= 2
         ? changes[changes.length - 1]! / changes[changes.length - 2]!
         : 1
+
     const stronglyContracting = contractionRate < 0.5
 
     // the fixed point: the scale-invariant growth rate the flow converges to

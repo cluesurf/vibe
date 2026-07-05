@@ -58,8 +58,9 @@ suite('dynamics/fill-gated-sweep: determinism', [
       const e = edges(N)
       const rng = makeRng({ seed: 7 })
 
-      for (let b = 0; b < 20; b++)
-        {fillGatedSweep({ tone, edges: e, fill, rng })}
+      for (let b = 0; b < 20; b++) {
+        fillGatedSweep({ tone, edges: e, fill, rng })
+      }
 
       return tone
     }

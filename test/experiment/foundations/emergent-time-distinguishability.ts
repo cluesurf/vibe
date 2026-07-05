@@ -55,7 +55,9 @@ function pathGeometry(input: {
   const { mesh, collision } = input
 
   let will = loneParticle(mesh, 0, 0, 1)
+
   const start = spatialActivityDistribution(will)
+
   let previous = start
 
   const stepDistances: number[] = []
@@ -63,6 +65,7 @@ function pathGeometry(input: {
 
   for (let t = 0; t < BEATS; t++) {
     will = beat(will, collision)
+
     const current = spatialActivityDistribution(will)
     stepDistances.push(fisherRaoDistance(previous, current))
     fromStart.push(fisherRaoDistance(start, current))
@@ -93,7 +96,9 @@ export default experiment({
     // near-maximal steps: the average of the non-trivial steps is close to the simplex diameter
     const movingSteps = reversible.stepDistances.filter(d => d > 0.1)
     const meanMovingStep =
-      movingSteps.reduce((s, d) => s + d, 0) / Math.max(1, movingSteps.length)
+      movingSteps.reduce((s, d) => s + d, 0) /
+      Math.max(1, movingSteps.length)
+
     const stepsAreNearMaximal = meanMovingStep > 3.0 // pi is about 3.1416
 
     // recurrent closed loop: the distribution returns to its start (reversible), so the minimum
@@ -102,7 +107,11 @@ export default experiment({
     const pathRecurs = returnDistance < 1e-6
 
     // far from geodesic: the path length hugely exceeds the direct distance to the farthest state
-    const pathLength = reversible.stepDistances.reduce((s, d) => s + d, 0)
+    const pathLength = reversible.stepDistances.reduce(
+      (s, d) => s + d,
+      0,
+    )
+
     const maxGeodesic = Math.max(...reversible.fromStart)
     const pathToGeodesicRatio = pathLength / Math.max(1e-9, maxGeodesic)
     const notGeodesic = pathToGeodesicRatio > 3

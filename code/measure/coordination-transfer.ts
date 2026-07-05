@@ -14,9 +14,13 @@
 // suffices to read off the three type vectors and solve the 3x3 matrix.
 
 // breadth-first distances from a root on a neighbour list
-function bfsDistances(neighbors: readonly (readonly number[])[], root: number): number[] {
+function bfsDistances(
+  neighbors: readonly (readonly number[])[],
+  root: number,
+): number[] {
   const distance = new Array<number>(neighbors.length).fill(-1)
   distance[root] = 0
+
   let frontier = [root]
 
   while (frontier.length > 0) {
@@ -48,6 +52,7 @@ export function shellTypeVectors(input: {
 
   const backDegree = (cell: number): number => {
     const d = distance[cell]!
+
     let back = 0
 
     for (const nb of neighbors[cell] ?? []) {
@@ -83,8 +88,15 @@ export function shellTypeVectors(input: {
 // solve the 3x3 cone-type transfer matrix M from four consecutive type vectors, v(n+1) = M v(n).
 // The first shell is a single type, so its column is read directly; the next two columns are read
 // from the residuals of the following transitions.
-export function coneTypeTransferMatrix(vectors: number[][]): number[][] {
-  const [s1, s2, s3, s4] = vectors as [number[], number[], number[], number[]]
+export function coneTypeTransferMatrix(
+  vectors: number[][],
+): number[][] {
+  const [s1, s2, s3, s4] = vectors as [
+    number[],
+    number[],
+    number[],
+    number[],
+  ]
 
   const column1 = s2.map(x => x / s1[0]!)
   const residual2 = s3.map((x, i) => x - s2[0]! * column1[i]!)
@@ -92,6 +104,7 @@ export function coneTypeTransferMatrix(vectors: number[][]): number[][] {
   const residual3 = s4.map(
     (x, i) => x - s3[0]! * column1[i]! - s3[1]! * column2[i]!,
   )
+
   const column3 = residual3.map(x => x / s3[2]!)
 
   return [
@@ -110,9 +123,11 @@ export function characteristicPolynomialCubic(m: number[][]): {
 } {
   const trace = m[0]![0]! + m[1]![1]! + m[2]![2]!
   const minorSum =
-    m[0]![0]! * m[1]![1]! - m[0]![1]! * m[1]![0]! +
+    m[0]![0]! * m[1]![1]! -
+    m[0]![1]! * m[1]![0]! +
     (m[0]![0]! * m[2]![2]! - m[0]![2]! * m[2]![0]!) +
     (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!)
+
   const determinant =
     m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
     m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +

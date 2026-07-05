@@ -50,11 +50,14 @@ export default experiment({
     // the forcing curve descends to exactly one at full B4, and is above one before then
     const curveEndsAtOne =
       result.curve[result.curve.length - 1]!.survivors === 1
+
     const curveStartsVast = result.curve[0]!.survivors === 10395
     const curveNeedsFullB4 = result.curve
       .slice(0, result.curve.length - 1)
       .every(point => point.survivors > 1)
-    const curveDescends = curveEndsAtOne && curveStartsVast && curveNeedsFullB4
+
+    const curveDescends =
+      curveEndsAtOne && curveStartsVast && curveNeedsFullB4
 
     // the group is verified: the four generators close to order 192 on the lines (the image of
     // the order-384 B4), and F4 to 576 (the image of the order-1152 F4)

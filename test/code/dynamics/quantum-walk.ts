@@ -138,7 +138,9 @@ suite('dynamics/quantum-walk: ballistic spreading', [
         m = 0
 
       for (let t = 10; t <= 50; t++) {
-        if (msd[t]! <= 0) {continue}
+        if (msd[t]! <= 0) {
+          continue
+        }
 
         const x = Math.log(t)
         const y = Math.log(msd[t]!)

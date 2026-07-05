@@ -50,6 +50,7 @@ export default experiment({
       throughShell: THROUGH_SHELL,
       maxCells: MAX_CELLS,
     })
+
     const ratios = shellRatios(counts)
 
     // 1. the shell counts are the exact canonical integers 1, 24, 456, 8376, 153192
