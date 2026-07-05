@@ -3,12 +3,7 @@
 // inner product carries the signature; reflecting a point across a normal twice returns it. The cleanest
 // checks are floating but exact in principle, so tolerances are tiny.
 
-import {
-  suite,
-  check,
-  close,
-  closeArray,
-} from '@/test/code/harness'
+import { suite, check, close, closeArray } from '@/test/code/harness'
 import {
   identity,
   matMul,

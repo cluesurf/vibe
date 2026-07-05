@@ -6,8 +6,10 @@ import { suite, check, equal } from '@/test/code/harness'
 import { Will } from '@/code/tone/will'
 import { enstrophy } from '@/code/measure/enstrophy'
 
-const willOf = (data: number[]): Will =>
-  ({ mesh: {} as Will['mesh'], data: Int8Array.from(data) })
+const willOf = (data: number[]): Will => ({
+  mesh: {} as Will['mesh'],
+  data: Int8Array.from(data),
+})
 
 suite('measure/enstrophy: enstrophy', [
   check(

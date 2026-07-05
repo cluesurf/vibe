@@ -17,16 +17,19 @@
 
 import {
   toneAlphabetQualifies,
+  integerAlphabets,
   minimalQualifyingAlphabetSize,
   hasTriality,
 } from '@/code/measure/base-forcing'
 import {
+  cayleyMultiply,
   hasNormComposition,
   hasZeroDivisor,
   nonAssociativeTripleCount,
 } from '@/code/measure/division-algebra'
+import { steppingShellPolytopes } from '@/code/algebra/group/cell-forcing'
 import { linePairingFamily } from '@/code/measure/collision-family'
-import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
+import { shellRatios } from '@/code/substrate/mesh-unfolding'
 
 export interface Rung {
   step: number
@@ -41,16 +44,8 @@ export interface Rung {
 // (a 0) and a mirror (negation closure, nontrivially) qualify, and the smallest is
 // size three, the ternary tone. Candidate space, the alphabets up to {-2..2}.
 export function rungTone(): Rung {
-  const candidates: number[][] = [
-    [0],
-    [1],
-    [0, 1],
-    [-1, 1],
-    [-1, 0, 1],
-    [-2, 0, 2],
-    [-2, -1, 0, 1, 2],
-  ]
-
+  // the exhaustive candidate space: every non-empty subset of {-2..2}
+  const candidates = integerAlphabets(2)
   const survivors = candidates.filter(toneAlphabetQualifies)
   const minimal = minimalQualifyingAlphabetSize()
 
@@ -67,15 +62,33 @@ export function rungTone(): Rung {
 // Rung 2, the arrow. Over the Cayley-Dickson tower, an order compatible with
 // arithmetic needs every square nonnegative, which fails as soon as an imaginary unit
 // appears (i squared is minus one). Only the reals and the integer line stay ordered,
-// so the arrow is the one-way order of that line. We test the property that breaks it:
-// the level-1 algebra (the complexes) already contains a unit whose square is minus
-// one, so no ordered structure survives past the line. Candidate rungs, the four
-// division levels 0 to 3, survivor, the ordered one (level 0).
+// so the arrow is the one-way order of that line. The squares are COMPUTED: at every
+// level the square of each imaginary basis unit is read from the actual Cayley-Dickson
+// product, and a level is orderable exactly when no unit squares negative. Candidate
+// rungs, the tower levels 0 to 4; the survivor is level 0, the line.
 export function rungArrow(): Rung {
-  const levels = [0, 1, 2, 3]
-  // an ordered algebra needs no unit with a negative square. e1 squared = -1 at every
-  // level >= 1, so only level 0 (the one-dimensional line) can be ordered.
-  const orderable = levels.filter(level => level === 0)
+  const levels = [0, 1, 2, 3, 4]
+
+  // a level is orderable when no basis unit has a negative square, computed from the
+  // real Cayley-Dickson multiplication (not asserted)
+  const levelIsOrderable = (level: number): boolean => {
+    const dimension = 2 ** level
+
+    for (let axis = 1; axis < dimension; axis++) {
+      const unit = new Array<number>(dimension).fill(0)
+      unit[axis] = 1
+
+      const square = cayleyMultiply(unit, unit)
+
+      if (square[0]! < 0) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  const orderable = levels.filter(levelIsOrderable)
 
   return {
     step: 2,
@@ -87,13 +100,15 @@ export function rungArrow(): Rung {
   }
 }
 
-// Rung 3 and 4, the pinch to eight. Over the Cayley-Dickson tower, reversibility means
-// no zero divisors (norm composition holds), which is true through level 3 (the
-// octonions, dimension 8) and fails at level 4 (the sedenions, dimension 16): the
-// ceiling. And one substance, vector equal to spinor, needs the vector dimension n to
-// equal the Weyl spinor dimension 2^(n/2 - 1), which happens at exactly n = 8: the
-// floor. Ceiling and floor pinch the dimension to eight. Candidate space, the tower
-// levels 0 to 4; the produced number is the dimension, 8.
+// Rung 3 and 4, the pinch to eight, both bounds now theorems. The CEILING: reversibility
+// means no zero divisors (norm composition holds), true through level 3 (the octonions,
+// dimension 8) and failing at level 4 (the sedenions, dimension 16), computed from the
+// actual Cayley-Dickson products. The FLOOR: TRIALITY, the order-three Dynkin symmetry
+// the three generations need, exists at exactly one rank, D4, whose vector dimension is
+// eight, and at no other D_n, computed from the diagram automorphisms (E-FND-0050). So
+// the floor no longer rests on the maximal-differentiation premise. The old
+// vector-equals-spinor coincidence (n = 2^(n/2-1) only at n = 8) is kept as a noted
+// echo, not the forcing. Candidate space, the tower levels 0 to 4; produces 8.
 export function rungEight(): Rung {
   const levels = [0, 1, 2, 3, 4]
   // the ceiling: reversible (norm-composing, zero-divisor-free) levels
@@ -103,15 +118,13 @@ export function rungEight(): Rung {
 
   const topReversibleDimension = 2 ** Math.max(...reversible)
 
-  // the floor: even vector dimensions where n = 2^(n/2 - 1) (vector equals Weyl spinor)
-  const vectorEqualsSpinor = [2, 4, 6, 8, 10, 12].filter(
-    n => n === 2 ** (n / 2 - 1),
-  )
+  // the floor: triality exists at exactly one rank in the D-series, D4 (vector
+  // dimension 8), computed from the Dynkin diagram automorphism order
+  const trialityRanks = [2, 3, 4, 5, 6, 7, 8].filter(hasTriality)
+  const floorDimension =
+    trialityRanks.length === 1 ? 2 * trialityRanks[0]! : 0
 
-  const floorDimension = vectorEqualsSpinor[0] ?? 0
-
-  const pinched =
-    topReversibleDimension === 8 && floorDimension === 8
+  const pinched = topReversibleDimension === 8 && floorDimension === 8
 
   return {
     step: 4,
@@ -170,20 +183,15 @@ export function rungCensus(): Rung {
 // order-six Dynkin symmetry, the spinors), which the reused hasTriality confirms.
 // Candidate space, the three stepping shells {8, 24, 16}; the survivor is the 24.
 export function rungCell(): Rung {
-  // corners and faces of the polytope each shell spans (self-dual iff equal)
-  const shellPolytope = [
-    { corners: 8, faces: 16 }, // 16-cell (axis steps)
-    { corners: 24, faces: 24 }, // 24-cell (two-step diagonals)
-    { corners: 16, faces: 8 }, // tesseract (four-step diagonals)
-  ]
-
-  const selfDual = shellPolytope.filter(p => p.corners === p.faces)
+  // corners and faces DERIVED from each shell's vertex set by facet enumeration (no table)
+  const shells = steppingShellPolytopes()
+  const selfDual = shells.filter(s => s.selfDual)
   const cellCarriesTriality = hasTriality(4)
 
   return {
     step: 6,
     name: 'cell',
-    candidates: shellPolytope.length,
+    candidates: shells.length,
     survivors: selfDual.length,
     produces: selfDual[0]?.corners ?? 0,
     forced:
@@ -199,20 +207,22 @@ export function rungCell(): Rung {
 // 18.25 (exponential, hyperbolic), the signature that the mesh is negatively curved.
 // This rung is a measured coefficient rather than a survivor count, so its forcing is
 // the exponential-growth property (ratio well above one and near the warp factor).
-export function rungMesh(input: { shellCounts: readonly number[] }): Rung {
-  const ratio = shellGrowthRatio({
-    shellCounts: input.shellCounts,
-    from: 1,
-    to: input.shellCounts.length,
-  })
+export function rungMesh(input: {
+  shellCounts: readonly number[]
+}): Rung {
+  // the OUTER ratio, the deepest consecutive-shell ratio, which sits near the warp factor
+  // 18.278 (the raw ratios descend 24, 19, 18.37, 18.29 toward it from above)
+  const ratios = shellRatios(input.shellCounts)
+  const outerRatio = ratios[ratios.length - 1] ?? 0
 
   return {
     step: 7,
     name: 'mesh',
     candidates: input.shellCounts.length,
     survivors: 1,
-    produces: ratio,
-    forced: ratio > 10,
+    produces: outerRatio,
+    // the {3,4,3,4} warp factor is near 18.278, so a tight band around it, not a loose >10
+    forced: outerRatio > 15 && outerRatio < 20,
   }
 }
 
@@ -232,7 +242,10 @@ export function rungLaw(): Rung {
     candidates: totalPairings,
     survivors: symmetricPairings,
     produces: symmetricPairings,
-    forced: totalPairings === 10395 && symmetricPairings < totalPairings,
+    // the tight gate: exactly ONE law survives the crystallographic B4 symmetry (the
+    // full F4 admits none at all, and B4 is the maximal symmetry any law can have,
+    // measured in E-FND-0059)
+    forced: totalPairings === 10395 && symmetricPairings === 1,
   }
 }
 

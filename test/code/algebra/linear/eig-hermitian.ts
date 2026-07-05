@@ -6,12 +6,7 @@
 // folds in both eigenvalue and eigenvector correctness), and the matrix sign of a
 // matrix whose eigenvalues are already +/-1 must equal the matrix itself.
 
-import {
-  suite,
-  check,
-  equal,
-  closeArray,
-} from '@/test/code/harness'
+import { suite, check, equal, closeArray } from '@/test/code/harness'
 import {
   eigHermitian,
   hermitianMatrixSign,

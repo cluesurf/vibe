@@ -4,16 +4,20 @@
 //      how many slots step into 1 + 8 + 24 + 32 + 16, and the 24 two-step diagonals are
 //      one clean shell,
 //   2. self-duality, a cell tiles space through its faces, so it needs one direction per
-//      face (corners equal faces); among the stepping shells only the 24 spans a
-//      self-dual polytope (the 8 span the 16-cell with 8 corners and 16 faces, the 16
-//      span the tesseract with 16 corners and 8 faces, the 24 span the 24-cell with 24
-//      of each),
-//   3. spin, the 24 vertices form the binary tetrahedral group, which contains minus one
+//      face (corners equal faces). The corner and face counts are DERIVED from each shell's
+//      vertex set by convex-hull facet enumeration (code/tool/polytope), not asserted. Among
+//      the stepping shells only the 24 spans a self-dual polytope (the 8 span the 16-cell,
+//      8 corners and 16 faces, the 16 span the tesseract, 16 corners and 8 faces, the 24
+//      span the 24-cell, 24 of each),
+//   3. spin, exhibited in the unit-quaternion frame where the 24-cell is the binary
+//      tetrahedral group 2T. 2T is exactly the 16-cell's eight integer units (the group Q8)
+//      together with the tesseract's sixteen half-integer units, and it contains minus one
 //      (a full turn) with minus one squared equal to plus one and minus one not equal to
-//      plus one, the belt-trick spinor: one turn flips the sign, two turns return. The
-//      five-fold cell {5,3,4} has no such element in its linear face-direction rep, the
-//      control.
-// Every number here is computed from the enumeration, none is asserted.
+//      plus one, the belt-trick spinor. The tesseract's sixteen half-integer units are NOT
+//      a group (no identity, not closed), so they carry no such element, the spinless
+//      control. The 16-cell (Q8) does carry minus one, so it is SELF-DUALITY that isolates
+//      the 24 among the shells and spin that confirms the isolated cell can host matter.
+// Every number here is computed from the enumeration or the vertex geometry, none is asserted.
 
 import {
   binaryTetrahedralGroup,
@@ -21,6 +25,7 @@ import {
   quaternionMultiply,
   type Quaternion,
 } from '@/code/algebra/binary-tetrahedral'
+import { fourPolytopeFacetCount } from '@/code/tool/polytope'
 
 // the census of the 81 four-slot tone words, bucketed by how many slots step
 export function toneWordCensus(): Map<number, number> {
@@ -40,9 +45,32 @@ export function toneWordCensus(): Map<number, number> {
   return census
 }
 
-// the polytope each stepping shell spans, as corners and faces; self-dual iff equal.
-// The 8 one-step words are the 16-cell axes, the 24 two-step the 24-cell, the 16
-// four-step the tesseract.
+// the actual vertices of a stepping shell: the four-slot tone words with exactly `steps`
+// nonzero slots. steps 1 is the 16-cell axes, steps 2 the 24-cell diagonals, steps 4 the
+// tesseract corners.
+export function steppingShellVertices(steps: number): number[][] {
+  const vertices: number[][] = []
+
+  for (let a = -1; a <= 1; a++) {
+    for (let b = -1; b <= 1; b++) {
+      for (let c = -1; c <= 1; c++) {
+        for (let d = -1; d <= 1; d++) {
+          const word = [a, b, c, d]
+
+          if (word.filter(v => v !== 0).length === steps) {
+            vertices.push(word)
+          }
+        }
+      }
+    }
+  }
+
+  return vertices
+}
+
+// the polytope each stepping shell spans, as corners and faces, both DERIVED. Corners is the
+// vertex count, faces is the facet count of the convex hull of those vertices (computed by
+// exact integer facet enumeration). Self-dual iff the two are equal.
 export interface ShellPolytope {
   steps: number
   corners: number
@@ -51,13 +79,13 @@ export interface ShellPolytope {
 }
 
 export function steppingShellPolytopes(): ShellPolytope[] {
-  const shells: { steps: number; corners: number; faces: number }[] = [
-    { steps: 1, corners: 8, faces: 16 },
-    { steps: 2, corners: 24, faces: 24 },
-    { steps: 4, corners: 16, faces: 8 },
-  ]
+  return [1, 2, 4].map(steps => {
+    const vertices = steppingShellVertices(steps)
+    const corners = vertices.length
+    const faces = fourPolytopeFacetCount(vertices)
 
-  return shells.map(s => ({ ...s, selfDual: s.corners === s.faces }))
+    return { steps, corners, faces, selfDual: corners === faces }
+  })
 }
 
 // the unique self-dual stepping shell, the corner count of the cell (24)
@@ -67,34 +95,123 @@ export function selfDualShellSize(): number {
   return selfDual.length === 1 ? selfDual[0]!.corners : 0
 }
 
-// the belt-trick spin fact, computed in the 24-cell vertex group. Returns whether the
-// group is closed (a group), whether it contains minus one (a full turn), and whether
-// minus one squares to plus one while differing from it (the spinor sign flip).
-export function cellSpin(): {
+const quaternionKey = (q: Quaternion): string =>
+  q.map(x => x.toFixed(3)).join(',')
+
+// the belt-trick spin facts of a set of unit quaternions: whether it is a group (closed under
+// multiplication with an identity), whether it contains minus one (a full turn), and whether
+// minus one squares to plus one while differing from it (the spinor sign flip). A spinful cell
+// is a group carrying minus one; a set without an identity is not a group and carries no spin.
+export function quaternionSpin(quaternions: Quaternion[]): {
   isGroup: boolean
+  containsIdentity: boolean
   containsMinusOne: boolean
   fullTurnFlipsSign: boolean
   twoTurnsReturn: boolean
+  carriesSpin: boolean
 } {
-  const group = binaryTetrahedralGroup()
-  const key = (q: Quaternion): string => q.map(x => x.toFixed(3)).join(',')
-
   const one: Quaternion = [1, 0, 0, 0]
   const minusOne: Quaternion = [-1, 0, 0, 0]
-  const present = new Set(group.map(key))
+  const present = new Set(quaternions.map(quaternionKey))
 
-  const containsMinusOne = present.has(key(minusOne))
-  // one full turn is minus one, so it is not the identity (sign flip), and squaring it
-  // (two full turns) is plus one (return)
-  const fullTurnFlipsSign = key(minusOne) !== key(one)
+  const containsIdentity = present.has(quaternionKey(one))
+  const containsMinusOne = present.has(quaternionKey(minusOne))
+  // a group needs the identity and closure; a bare coset (like the 16 half-integer units) has
+  // neither, so it is not a group and carries no spinor
+  const isGroup =
+    containsIdentity && isClosedUnderMultiplication(quaternions)
+
+  const fullTurnFlipsSign =
+    quaternionKey(minusOne) !== quaternionKey(one)
+
   const twoTurnsReturn =
-    key(quaternionMultiply(minusOne, minusOne)) === key(one)
+    quaternionKey(quaternionMultiply(minusOne, minusOne)) ===
+    quaternionKey(one)
 
   return {
-    isGroup: isClosedUnderMultiplication(group),
+    isGroup,
+    containsIdentity,
     containsMinusOne,
     fullTurnFlipsSign,
     twoTurnsReturn,
+    carriesSpin:
+      isGroup &&
+      containsMinusOne &&
+      fullTurnFlipsSign &&
+      twoTurnsReturn,
+  }
+}
+
+// the 16-cell in the unit-quaternion frame: the 8 integer units, which are the group Q8.
+export function integerUnitQuaternions(): Quaternion[] {
+  const units: Quaternion[] = []
+
+  for (const sign of [1, -1]) {
+    units.push([sign, 0, 0, 0])
+    units.push([0, sign, 0, 0])
+    units.push([0, 0, sign, 0])
+    units.push([0, 0, 0, sign])
+  }
+
+  return units
+}
+
+// the tesseract in the unit-quaternion frame: the 16 half-integer units, a coset of Q8 in 2T,
+// which is NOT a group (no identity, not closed) and so carries no spinor.
+export function halfIntegerUnitQuaternions(): Quaternion[] {
+  const units: Quaternion[] = []
+
+  for (const a of [-0.5, 0.5]) {
+    for (const b of [-0.5, 0.5]) {
+      for (const c of [-0.5, 0.5]) {
+        for (const d of [-0.5, 0.5]) {
+          units.push([a, b, c, d])
+        }
+      }
+    }
+  }
+
+  return units
+}
+
+// the belt-trick spin fact, computed in the 24-cell vertex group 2T. Kept for callers that
+// want just the cell's own spin.
+export function cellSpin(): ReturnType<typeof quaternionSpin> {
+  return quaternionSpin(binaryTetrahedralGroup())
+}
+
+// spin across the three shells in the one consistent quaternion frame: the 16-cell (Q8), the
+// tesseract (the 16 half-integer units), and the 24-cell (2T = the two together). The 16-cell
+// and 24-cell carry spin, the tesseract does not, which is the standing spinless control and
+// the demonstration that self-duality, not spin, isolates the 24.
+export function steppingShellSpin(): {
+  sixteenCell: ReturnType<typeof quaternionSpin>
+  tesseract: ReturnType<typeof quaternionSpin>
+  twentyFourCell: ReturnType<typeof quaternionSpin>
+  twentyFourCellIsUnion: boolean
+} {
+  const sixteenCell = quaternionSpin(integerUnitQuaternions())
+  const tesseract = quaternionSpin(halfIntegerUnitQuaternions())
+  const twentyFour = binaryTetrahedralGroup()
+  const twentyFourCell = quaternionSpin(twentyFour)
+
+  // 2T is exactly the 8 integer units plus the 16 half-integer units, verified as a set
+  const unionKeys = new Set(
+    [...integerUnitQuaternions(), ...halfIntegerUnitQuaternions()].map(
+      quaternionKey,
+    ),
+  )
+
+  const twentyFourKeys = new Set(twentyFour.map(quaternionKey))
+  const twentyFourCellIsUnion =
+    unionKeys.size === twentyFourKeys.size &&
+    [...twentyFourKeys].every(k => unionKeys.has(k))
+
+  return {
+    sixteenCell,
+    tesseract,
+    twentyFourCell,
+    twentyFourCellIsUnion,
   }
 }
 

@@ -21,26 +21,90 @@ export function toneAlphabetQualifies(alphabet: number[]): boolean {
   return hasVacuum && negationClosed && nontrivial
 }
 
-// the minimal size of a qualifying tone alphabet (a vacuum plus charge conjugation), which is three (ternary)
-export function minimalQualifyingAlphabetSize(): number {
-  // search by size, the symmetric alphabets {-k..k} and the asymmetric small ones
-  const candidates: number[][] = [
-    [0],
-    [0, 1],
-    [-1, 1],
-    [-1, 0, 1],
-    [-2, -1, 0, 1, 2],
-  ]
+// every non-empty subset of the integer range [-range, range], the exhaustive candidate space
+// of small integer alphabets. For range 3 this is all 127 subsets of {-3..3}, so "smallest
+// qualifying alphabet" is a real exhaustive search, not a curated shortlist.
+export function integerAlphabets(range: number): number[][] {
+  const universe: number[] = []
 
-  let best = Infinity
-
-  for (const a of candidates) {
-    if (toneAlphabetQualifies(a)) {
-      best = Math.min(best, a.length)
-    }
+  for (let x = -range; x <= range; x++) {
+    universe.push(x)
   }
 
-  return best
+  const subsets: number[][] = []
+  const total = 1 << universe.length
+
+  for (let mask = 1; mask < total; mask++) {
+    const subset: number[] = []
+
+    for (let i = 0; i < universe.length; i++) {
+      if (mask & (1 << i)) {
+        subset.push(universe[i]!)
+      }
+    }
+
+    subsets.push(subset)
+  }
+
+  return subsets
+}
+
+// the minimal size of a qualifying tone alphabet (a vacuum plus charge conjugation), computed
+// exhaustively over [-3, 3], which is three (ternary)
+export function minimalQualifyingAlphabetSize(): number {
+  const sizes = integerAlphabets(3)
+    .filter(toneAlphabetQualifies)
+    .map(a => a.length)
+
+  return Math.min(...sizes)
+}
+
+// the qualifying alphabet of LEAST CONTENT over [-range, range]: minimal size first, then
+// minimal largest magnitude, so among the size-three qualifiers ({-1,0,1}, {-2,0,2}, ...) the
+// smallest-magnitude one is chosen. Returns {-1, 0, +1}.
+export function minimalContentQualifyingAlphabet(
+  range: number,
+): number[] {
+  const qualifying = integerAlphabets(range).filter(
+    toneAlphabetQualifies,
+  )
+
+  const maxAbs = (a: number[]): number => Math.max(...a.map(Math.abs))
+
+  return qualifying.reduce((best, a) => {
+    if (a.length < best.length) {
+      return a
+    }
+
+    if (a.length === best.length && maxAbs(a) < maxAbs(best)) {
+      return a
+    }
+
+    return best
+  }, qualifying[0]!)
+}
+
+// the minimal alphabet size when only a VACUUM is required (the mirror dropped), over
+// [-range, range]: one, the trivial {0}. The control that the mirror is load-bearing.
+export function minimalVacuumOnlySize(range: number): number {
+  const sizes = integerAlphabets(range)
+    .filter(a => a.includes(0))
+    .map(a => a.length)
+
+  return Math.min(...sizes)
+}
+
+// the minimal alphabet size when only a MIRROR is required (the vacuum dropped), over
+// [-range, range]: two, the pair {-1, 1}. The control that the vacuum is load-bearing.
+export function minimalMirrorOnlySize(range: number): number {
+  const mirror = (a: number[]): boolean =>
+    a.every(x => a.includes(-x)) && a.some(x => x !== -x)
+
+  const sizes = integerAlphabets(range)
+    .filter(mirror)
+    .map(a => a.length)
+
+  return Math.min(...sizes)
 }
 
 // the D_n Dynkin diagram as an adjacency list, a chain of n-2 nodes forking into two

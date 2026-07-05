@@ -25,7 +25,10 @@ suite('substrate/coxeter/coxeter-growth: finite Poincare polynomials', [
     ] as const) {
       const seq = expandSeries(coxeterGrowthSeries([...symbol]), 40)
       equal(seq[0], 1n, `[${String(symbol)}] identity coefficient`)
-      ok(sum(seq) === order, `[${String(symbol)}] W(1) = |W| = ${order}`)
+      ok(
+        sum(seq) === order,
+        `[${String(symbol)}] W(1) = |W| = ${order}`,
+      )
     }
   }),
   check(

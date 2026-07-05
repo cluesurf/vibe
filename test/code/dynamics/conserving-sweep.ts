@@ -54,7 +54,9 @@ const edgeList = (n: number): [number, number][] =>
 function makeTone(n: number): Int8Array {
   const t = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {t[i] = ((i * 7 + 2) % 3) - 1} // values in {-1, 0, 1}
+  for (let i = 0; i < n; i++) {
+    t[i] = ((i * 7 + 2) % 3) - 1
+  } // values in {-1, 0, 1}
 
   return t
 }
@@ -287,8 +289,9 @@ suite('dynamics/conserving-sweep: determinism and equivalences', [
       const moved = new Uint8Array(N)
       const rng = makeRng({ seed: 99 })
 
-      for (let b = 0; b < 20; b++)
-        {conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0.3 })}
+      for (let b = 0; b < 20; b++) {
+        conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0.3 })
+      }
 
       return tone
     }

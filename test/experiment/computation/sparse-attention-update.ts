@@ -19,7 +19,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
-import { cloneWill, makeWill, fillWillPattern, gliderLine } from '@/code/tone/will'
+import {
+  cloneWill,
+  makeWill,
+  fillWillPattern,
+  gliderLine,
+} from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
 import {

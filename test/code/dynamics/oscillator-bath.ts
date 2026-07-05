@@ -61,6 +61,8 @@ suite('dynamics/oscillator-bath: determinism', [
     const b = oscillatorBathTrajectory({ ...common, absorbing: true })
     equal(a.length, b.length, 'same length')
 
-    for (let i = 0; i < a.length; i++) {equal(a[i]!, b[i]!, `step ${i}`)}
+    for (let i = 0; i < a.length; i++) {
+      equal(a[i]!, b[i]!, `step ${i}`)
+    }
   }),
 ])

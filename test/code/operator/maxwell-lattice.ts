@@ -23,7 +23,9 @@ suite('operator/maxwell-lattice: gauge zero modes', [
         'degrees of freedom = 3 L^3',
       )
 
-      for (const v of spectrum) {ok(v > -1e-8, `eigenvalue ${v} >= 0`)}
+      for (const v of spectrum) {
+        ok(v > -1e-8, `eigenvalue ${v} >= 0`)
+      }
     },
   ),
   check(

@@ -3,117 +3,99 @@
 //   - a vacuum. The set must contain 0, so a site can be empty (no distinction).
 //   - a mirror. The set must be closed under negation and act nontrivially, so every
 //     charge has an opposite (charge conjugation, the plus and minus mirror).
-// Enumerate every small integer alphabet up through {-2..2} and test both properties.
-// The single smallest set that passes is {-1, 0, +1}, size three, the ternary tone. So
-// three is not chosen, it is the least integer alphabet with a vacuum and a mirror.
+// Enumerate EVERY non-empty subset of {-3..3} (all 127 of them, exhaustive, not a curated
+// shortlist) and test both properties. The smallest set that passes has size three, and the
+// one of least content is {-1, 0, +1}, the ternary tone. So three is not chosen, it is the
+// least integer alphabet with a vacuum and a mirror.
 //
-// The arrow rides along. A tone alphabet sits inside a normed ring, and an ORDER on that
-// ring (a before and an after, the arrow of counting) needs every square to be at least
-// zero. The integers are ordered and every step up the Cayley-Dickson tower breaks it
-// (the first imaginary unit has square minus one, below zero), so the tone lives on the
-// one ordered line, and a line has a direction: time. We test the order-breaking square
-// directly.
+// The arrow is a separate step and lives in its own experiment (arrow-from-integer-order,
+// E-FND-0002), which computes the square of each imaginary unit up the Cayley-Dickson tower
+// and shows only the ordered integer line survives. It is not restated here, so this
+// experiment makes exactly one claim, about the tone.
 //
-// CONTROL: each requirement must be able to reject. We show the two failing near-misses
-// in the same enumeration: {0, 1} has a vacuum but no mirror (the negation of 1 is
-// absent), and {-1, 1} has a mirror but no vacuum. Both are size two and both fail, so
-// three is forced by needing BOTH, not by size alone. And relaxing to vacuum-only lets
-// the trivial {0} qualify at size one, the load-bearing check that the mirror is what
-// forces the three.
+// CONTROLS, both run. Each requirement must be able to reject, shown as a size floor over the
+// same exhaustive enumeration: requiring a vacuum only, the minimal alphabet is size one
+// ({0}); requiring a mirror only, size two ({-1, 1}); requiring both, size three. So each
+// requirement raises the floor, and neither alone forces three. The near-misses {0, 1} (no
+// mirror) and {-1, 1} (no vacuum) are the size-two failures of the full test.
 //
-// Grade L1: elementary integer-arithmetic facts (smallest vacuum-and-mirror alphabet,
-// ordered ring squares) confirmed by exhaustive enumeration. The residual premises are
-// the vacuum and the mirror, the honest physical requirements the primer names.
+// Grade L1: elementary integer-arithmetic facts confirmed by exhaustive enumeration. The
+// residual premises are the vacuum and the mirror, the honest physical requirements.
 
 import {
   toneAlphabetQualifies,
+  integerAlphabets,
   minimalQualifyingAlphabetSize,
+  minimalContentQualifyingAlphabet,
+  minimalVacuumOnlySize,
+  minimalMirrorOnlySize,
 } from '@/code/measure/base-forcing'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// every small integer alphabet up through {-2..2}, the candidate space
-const ALPHABETS: number[][] = [
-  [0],
-  [1],
-  [-1],
-  [0, 1],
-  [-1, 1],
-  [-1, 0],
-  [-1, 0, 1],
-  [-2, 0, 2],
-  [-2, -1, 0, 1, 2],
-  [-2, -1, 0, 1],
-]
+const RANGE = 3
 
 export default experiment({
   id: 'foundations/tone-is-forced',
   code: 'E-FND-0045',
   title:
-    'the ternary tone emerges from integer arithmetic: over every small integer alphabet the unique smallest set with a vacuum (a 0) and a mirror (negation closure) is {-1,0,+1}, size three, with {0,1} (no mirror) and {-1,1} (no vacuum) the failing near-misses, and the arrow follows because only the ordered line has every square nonnegative while the first imaginary unit squares to minus one',
+    'the ternary tone emerges from integer arithmetic: over EVERY subset of {-3..3} the unique smallest set with a vacuum (a 0) and a mirror (nontrivial negation closure) is {-1,0,+1}, size three, where a vacuum alone forces only size one and a mirror alone only size two, so both requirements together force the three',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L1',
   paper: true,
   run() {
-    // 1. exactly the vacuum-and-mirror alphabets qualify, and the smallest is size three
-    const qualifying = ALPHABETS.filter(toneAlphabetQualifies)
+    const candidates = integerAlphabets(RANGE)
+    const qualifying = candidates.filter(toneAlphabetQualifies)
     const minimalSize = minimalQualifyingAlphabetSize()
-    const smallestQualifier = qualifying.reduce(
-      (best, a) => (a.length < best.length ? a : best),
-      qualifying[0]!,
-    )
+    const minimalContent = minimalContentQualifyingAlphabet(RANGE)
 
+    // 1. the exhaustive smallest qualifier is the ternary tone
     const ternaryIsMinimal =
       minimalSize === 3 &&
-      smallestQualifier.length === 3 &&
-      [-1, 0, 1].every(v => smallestQualifier.includes(v))
+      minimalContent.length === 3 &&
+      [-1, 0, 1].every(v => minimalContent.includes(v))
 
-    // 2. the near-miss controls fail for the right reason
+    // 2. the size floors: vacuum-only 1, mirror-only 2, both 3. Each requirement raises the
+    // floor, so neither alone forces three.
+    const vacuumOnly = minimalVacuumOnlySize(RANGE)
+    const mirrorOnly = minimalMirrorOnlySize(RANGE)
+    const bothRaiseTheFloor =
+      vacuumOnly === 1 && mirrorOnly === 2 && minimalSize === 3
+
+    // 3. the two named near-misses fail for the right reason (in the full enumeration)
     const vacuumNoMirror = !toneAlphabetQualifies([0, 1]) // has 0, no mirror
     const mirrorNoVacuum = !toneAlphabetQualifies([-1, 1]) // has mirror, no 0
-    const bothNeeded = vacuumNoMirror && mirrorNoVacuum
-
-    // 3. relaxing to vacuum-only lets {0} qualify at size one (the mirror is decisive)
-    const relaxedMinimal = ALPHABETS.filter(a => a.includes(0)).reduce(
-      (m, a) => Math.min(m, a.length),
-      Infinity,
-    )
-
-    const mirrorIsLoadBearing = relaxedMinimal === 1 && minimalSize === 3
-
-    // 4. the arrow: an ordered ring has every square at least zero, and the first
-    // imaginary unit squares to minus one, so only the ordered integer line survives.
-    // e1 squared = -1 (below zero) breaks the order at the very first tower step.
-    const imaginaryUnitSquare = -1
-    const orderBreaksPastTheLine = imaginaryUnitSquare < 0
-    const integerSquaresNonnegative = [-2, -1, 0, 1, 2].every(x => x * x >= 0)
-    const arrowIsTheLine = orderBreaksPastTheLine && integerSquaresNonnegative
+    const nearMissesFail = vacuumNoMirror && mirrorNoVacuum
 
     const solved =
-      ternaryIsMinimal && bothNeeded && mirrorIsLoadBearing && arrowIsTheLine
+      ternaryIsMinimal && bothRaiseTheFloor && nearMissesFail
 
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'over every small integer alphabet the sets with both a vacuum (a 0) and a mirror (negation closure acting nontrivially) are exactly the symmetric ones, and the smallest is {-1, 0, +1} of size three, the ternary tone, while {0, 1} fails for lack of a mirror and {-1, 1} for lack of a vacuum, so three is forced by needing both, and dropping the mirror lets the trivial {0} qualify at size one, and separately every integer square is at least zero while the first imaginary unit squares to minus one, so the tone lives on the one ordered line whose direction is the arrow',
+        'over every non-empty subset of the integers {-3..3}, the sets with both a vacuum (a 0) and a mirror (nontrivial negation closure) all have size at least three, and the one of least content is {-1, 0, +1}, the ternary tone. A vacuum alone is satisfied at size one (the trivial {0}) and a mirror alone at size two (the pair {-1, 1}), so each requirement raises the floor and only the two together force the three. This is exhaustive over the 127 subsets, not a curated list.',
       metrics: {
-        candidateCount: ALPHABETS.length,
+        candidateCount: candidates.length,
         qualifyingCount: qualifying.length,
         minimalQualifyingSize: minimalSize,
-        smallestQualifierSize: smallestQualifier.length,
-        relaxedVacuumOnlyMinimal: relaxedMinimal,
-        imaginaryUnitSquare,
+        minimalContentSize: minimalContent.length,
+        minimalContentMaxMagnitude: Math.max(
+          ...minimalContent.map(Math.abs),
+        ),
+        vacuumOnlyFloor: vacuumOnly,
+        mirrorOnlyFloor: mirrorOnly,
       },
       control: {
-        // the two failing near-misses (size two each) and the relaxed minimal, so both
-        // requirements genuinely reject and the mirror is what forces the three
+        // the two size floors that show neither requirement alone forces three, and the two
+        // named near-misses that must fail the full test
+        vacuumOnlyFloor: vacuumOnly,
+        mirrorOnlyFloor: mirrorOnly,
         vacuumNoMirrorQualifies: toneAlphabetQualifies([0, 1]) ? 1 : 0,
         mirrorNoVacuumQualifies: toneAlphabetQualifies([-1, 1]) ? 1 : 0,
-        relaxedVacuumOnlyMinimal: relaxedMinimal,
       },
       notes:
-        'L1, elementary integer arithmetic confirmed by exhaustive enumeration over the small alphabets, reusing code/measure/base-forcing. The tone is the least integer set with a vacuum and a mirror, and the arrow is the one-way order of the integer line (an ordered ring has nonnegative squares, and the imaginary unit squares to minus one, breaking the order past the line). The residual premises are the vacuum and the mirror, the honest physical requirements, the same the primer and ternary-and-4d-forced name.',
+        'L1, elementary integer arithmetic confirmed by EXHAUSTIVE enumeration over all 127 subsets of {-3..3}, reusing code/measure/base-forcing. The tone is the least-content integer set with a vacuum and a mirror. The arrow (that only the ordered integer line survives up the division tower) is a separate claim proven in arrow-from-integer-order (E-FND-0002) by real Cayley-Dickson squares, so it is not restated here and this experiment makes one claim only. The residual premises are the vacuum and the mirror.',
     })
   },
 })
