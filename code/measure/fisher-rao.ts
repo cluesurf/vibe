@@ -12,11 +12,14 @@
 // distributions is the geodesic distance on the probability simplex, 2 arccos of the
 // Bhattacharyya overlap, which is exact and standard information geometry.
 
-import { Will, cellTone } from '@/code/tone/will'
+import { Will, cellActivity } from '@/code/tone/will'
 
-// The spatial activity distribution of a state, p(cell) proportional to the absolute scalar
-// tone of the cell, normalized to sum to one. This is the distribution whose motion under the
-// rule TD would call the record. A dead or uniform state has a flat or zero distribution.
+// The spatial activity distribution of a state, p(cell) proportional to the tone MAGNITUDE of
+// the cell (the sum of the absolute directional slots, cellActivity), normalized to sum to one.
+// This is the distribution whose motion under the rule TD would call the record. Using the tone
+// magnitude, not the net charge, is essential: a charge-balanced cell has zero net charge but is
+// full of distinction, so a net-charge distribution would read a live state as empty. A dead
+// state (no tone anywhere) has a zero distribution.
 export function spatialActivityDistribution(will: Will): Float64Array {
   const cellCount = will.mesh.cellCount
   const distribution = new Float64Array(cellCount)
@@ -24,7 +27,7 @@ export function spatialActivityDistribution(will: Will): Float64Array {
   let total = 0
 
   for (let cell = 0; cell < cellCount; cell++) {
-    const activity = Math.abs(cellTone(will, cell))
+    const activity = cellActivity(will, cell)
     distribution[cell] = activity
     total += activity
   }
@@ -57,7 +60,7 @@ export function blockActivityDistribution(input: {
   let total = 0
 
   for (let cell = 0; cell < cellCount; cell++) {
-    const activity = Math.abs(cellTone(will, cell))
+    const activity = cellActivity(will, cell)
     const block = Math.min(blocks - 1, Math.floor(cell / blockSize))
     distribution[block] = distribution[block]! + activity
     total += activity

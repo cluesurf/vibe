@@ -29,16 +29,20 @@ import { conservesCharge, isReversible } from '@/code/check/invariant'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const SIDE = 6
+const SIDES = [4, 6, 8]
 const BEATS = 10
 
-// a deterministic heterogeneous fill (period 7, coprime to the side, so cells differ)
-function fillTexture(will: Will): void {
+// a family of deterministic heterogeneous fills, each a different coprime period so the state
+// varies across the sweep without any randomness (robustness comes from varying size and fill,
+// never from seeds)
+const FILL_PERIODS = [7, 11, 13]
+
+function fillTexture(will: Will, period: number): void {
   const { mesh, data } = will
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     for (let d = 0; d < mesh.degree; d++) {
-      data[cell * mesh.degree + d] = (((cell * 5 + d) % 7) % 3) - 1
+      data[cell * mesh.degree + d] = (((cell * 5 + d) % period) % 3) - 1
     }
   }
 }
@@ -59,26 +63,43 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const mesh = d4Mesh({ side: SIDE })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    // sweep every lattice size and every deterministic fill: the knit must conserve charge and
+    // reverse exactly on ALL of them, so the result is not a one-size, one-fill coincidence
+    let allConserve = true
+    let allReverse = true
+    let cases = 0
+    let smallestCharge = Infinity
+    let largestCharge = -Infinity
 
-    const knit = pairCollision({ opposite })
-    const knitInverse = pairCollision({ opposite, forward: false })
+    for (const side of SIDES) {
+      const mesh = d4Mesh({ side })
+      const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+        mesh.opposite(d),
+      )
+      const knit = pairCollision({ opposite })
+      const knitInverse = pairCollision({ opposite, forward: false })
 
-    const will = makeWill(mesh)
-    fillTexture(will)
+      for (const period of FILL_PERIODS) {
+        const will = makeWill(mesh)
+        fillTexture(will, period)
 
-    // 1. the knit conserves charge exactly over the run
-    const chargeConserved = conservesCharge(will, knit, BEATS)
+        allConserve = allConserve && conservesCharge(will, knit, BEATS)
+        allReverse =
+          allReverse && isReversible(will, knit, BEATS, knitInverse)
+        const q = charge(will)
+        smallestCharge = Math.min(smallestCharge, q)
+        largestCharge = Math.max(largestCharge, q)
+        cases++
+      }
+    }
 
-    // 2. the knit is reversible: forward then backward recovers the start exactly
-    const reversible = isReversible(will, knit, BEATS, knitInverse)
+    const chargeConserved = allConserve
+    const reversible = allReverse
 
-    // 3. the control: the erasing rule conserves neither charge nor reversibility
-    const lossyWill = makeWill(mesh)
-    fillTexture(lossyWill)
+    // the control: the erasing rule conserves neither charge nor reversibility (on the mid size)
+    const controlMesh = d4Mesh({ side: 6 })
+    const lossyWill = makeWill(controlMesh)
+    fillTexture(lossyWill, 7)
 
     const lossyConserves = conservesCharge(lossyWill, erasingCollision, BEATS)
     const lossyReversible = isReversible(lossyWill, erasingCollision, BEATS)
@@ -89,10 +110,12 @@ export default experiment({
     return verdict({
       status: solved ? 'pass' : 'fail',
       claim:
-        'on the {3,4,3,4} d4 mesh from a deterministic fill, the knit (collide then stream, synchronous over every cell) conserves the total charge as exact integer equality across every beat and is reversible (running forward ten beats then backward ten beats recovers the start state bit for bit), so the beat is a lawful reversible charge-conserving computation, while an erasing rule that zeroes a slot conserves neither, the control, and the forward arrow therefore lives in the wake (the growth), not in the reversible knit',
+        'across a sweep of lattice sizes (4, 6, 8) and deterministic fills (periods 7, 11, 13), the knit (collide then stream, synchronous over every cell) conserves the total charge as exact integer equality across every beat and is reversible (running forward ten beats then backward ten beats recovers the start state bit for bit) on ALL of them, so the beat is a lawful reversible charge-conserving computation and not a one-size coincidence, while an erasing rule that zeroes a slot conserves neither, the control, and the forward arrow therefore lives in the wake (the growth), not in the reversible knit',
       metrics: {
         beats: BEATS,
-        startCharge: charge(will),
+        casesSwept: cases,
+        smallestFillCharge: smallestCharge,
+        largestFillCharge: largestCharge,
         chargeConserved: chargeConserved ? 1 : 0,
         reversible: reversible ? 1 : 0,
         lossyConserves: lossyConserves ? 1 : 0,

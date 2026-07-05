@@ -17,6 +17,7 @@
 
 import {
   toneAlphabetQualifies,
+  integerAlphabets,
   minimalQualifyingAlphabetSize,
   hasTriality,
 } from '@/code/measure/base-forcing'
@@ -25,8 +26,9 @@ import {
   hasZeroDivisor,
   nonAssociativeTripleCount,
 } from '@/code/measure/division-algebra'
+import { steppingShellPolytopes } from '@/code/algebra/group/cell-forcing'
 import { linePairingFamily } from '@/code/measure/collision-family'
-import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
+import { shellRatios } from '@/code/substrate/mesh-unfolding'
 
 export interface Rung {
   step: number
@@ -41,16 +43,8 @@ export interface Rung {
 // (a 0) and a mirror (negation closure, nontrivially) qualify, and the smallest is
 // size three, the ternary tone. Candidate space, the alphabets up to {-2..2}.
 export function rungTone(): Rung {
-  const candidates: number[][] = [
-    [0],
-    [1],
-    [0, 1],
-    [-1, 1],
-    [-1, 0, 1],
-    [-2, 0, 2],
-    [-2, -1, 0, 1, 2],
-  ]
-
+  // the exhaustive candidate space: every non-empty subset of {-2..2}
+  const candidates = integerAlphabets(2)
   const survivors = candidates.filter(toneAlphabetQualifies)
   const minimal = minimalQualifyingAlphabetSize()
 
@@ -170,20 +164,15 @@ export function rungCensus(): Rung {
 // order-six Dynkin symmetry, the spinors), which the reused hasTriality confirms.
 // Candidate space, the three stepping shells {8, 24, 16}; the survivor is the 24.
 export function rungCell(): Rung {
-  // corners and faces of the polytope each shell spans (self-dual iff equal)
-  const shellPolytope = [
-    { corners: 8, faces: 16 }, // 16-cell (axis steps)
-    { corners: 24, faces: 24 }, // 24-cell (two-step diagonals)
-    { corners: 16, faces: 8 }, // tesseract (four-step diagonals)
-  ]
-
-  const selfDual = shellPolytope.filter(p => p.corners === p.faces)
+  // corners and faces DERIVED from each shell's vertex set by facet enumeration (no table)
+  const shells = steppingShellPolytopes()
+  const selfDual = shells.filter(s => s.selfDual)
   const cellCarriesTriality = hasTriality(4)
 
   return {
     step: 6,
     name: 'cell',
-    candidates: shellPolytope.length,
+    candidates: shells.length,
     survivors: selfDual.length,
     produces: selfDual[0]?.corners ?? 0,
     forced:
@@ -200,19 +189,19 @@ export function rungCell(): Rung {
 // This rung is a measured coefficient rather than a survivor count, so its forcing is
 // the exponential-growth property (ratio well above one and near the warp factor).
 export function rungMesh(input: { shellCounts: readonly number[] }): Rung {
-  const ratio = shellGrowthRatio({
-    shellCounts: input.shellCounts,
-    from: 1,
-    to: input.shellCounts.length,
-  })
+  // the OUTER ratio, the deepest consecutive-shell ratio, which sits near the warp factor
+  // 18.278 (the raw ratios descend 24, 19, 18.37, 18.29 toward it from above)
+  const ratios = shellRatios(input.shellCounts)
+  const outerRatio = ratios[ratios.length - 1] ?? 0
 
   return {
     step: 7,
     name: 'mesh',
     candidates: input.shellCounts.length,
     survivors: 1,
-    produces: ratio,
-    forced: ratio > 10,
+    produces: outerRatio,
+    // the {3,4,3,4} warp factor is near 18.278, so a tight band around it, not a loose >10
+    forced: outerRatio > 15 && outerRatio < 20,
   }
 }
 

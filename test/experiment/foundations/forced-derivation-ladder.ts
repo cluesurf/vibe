@@ -39,36 +39,16 @@ import {
   forcedLadder,
   octonionNonassociativeTriples,
 } from '@/code/measure/forced-ladder'
-import { toneAlphabetQualifies } from '@/code/measure/base-forcing'
+import {
+  minimalQualifyingAlphabetSize,
+  minimalVacuumOnlySize,
+} from '@/code/measure/base-forcing'
+import {
+  unfoldMeshShells,
+  CANONICAL_SHELLS,
+} from '@/code/substrate/mesh-unfolding'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// the exact {3,4,3,4} bulk shell counts, measured from the actual honeycomb graph in
-// E-GMT-0003 (geometry/bulk-warp-factor); the ladder recomputes the growth ratio from
-// them so rung seven reads a real number off the substrate, not a hardcoded ratio
-const BULK_SHELL_COUNTS = [1, 24, 456, 8376, 153192] as const
-
-// the minimal qualifying alphabet size when a requirement is dropped, for the control
-function minimalAlphabetSize(qualifies: (a: number[]) => boolean): number {
-  const candidates: number[][] = [
-    [0],
-    [1],
-    [0, 1],
-    [-1, 1],
-    [-1, 0, 1],
-    [-2, -1, 0, 1, 2],
-  ]
-
-  let best = Infinity
-
-  for (const a of candidates) {
-    if (qualifies(a)) {
-      best = Math.min(best, a.length)
-    }
-  }
-
-  return best
-}
 
 export default experiment({
   id: 'foundations/forced-derivation-ladder',
@@ -80,7 +60,18 @@ export default experiment({
   depth: 'L1',
   paper: true,
   run() {
-    const rungs = forcedLadder({ shellCounts: BULK_SHELL_COUNTS })
+    // rung seven reads the {3,4,3,4} shell counts off the ACTUAL honeycomb graph, unfolded
+    // here by reflective addressing, not from a hardcoded literal. Through shell three gives
+    // 1, 24, 456, 8376, and it is cross-checked against the canonical sequence (the oracle).
+    const bulkShellCounts = unfoldMeshShells({
+      throughShell: 3,
+      maxCells: 12000,
+    })
+    const shellCountsMatchCanonical =
+      bulkShellCounts.length === 4 &&
+      bulkShellCounts.every((v, i) => v === CANONICAL_SHELLS[i])
+
+    const rungs = forcedLadder({ shellCounts: bulkShellCounts })
 
     // 1. every rung is forced (unique survivor, or exact census, or exponential growth)
     const allForced = rungs.every(r => r.forced)
@@ -94,7 +85,10 @@ export default experiment({
     const censusIsTwentyFour = by('census').produces === 24
     const cellIsTwentyFour = by('cell').produces === 24
     const lawCandidatesAre10395 = by('law').candidates === 10395
-    const meshGrowsExponentially = by('mesh').produces > 10
+    // the outer shell ratio sits in a tight band around the 18.278 warp factor, not a loose
+    // greater-than-ten, and it is measured from the unfolded graph
+    const meshRatio = by('mesh').produces
+    const meshGrowsExponentially = meshRatio > 15 && meshRatio < 20
 
     const numbersEmerge =
       toneIsThree &&
@@ -110,10 +104,10 @@ export default experiment({
     const nonassociativityExact = nonassociativeTriples === 28
 
     // 4. the control: relaxing rung one (vacuum only, no mirror) collapses the minimal
-    // alphabet to size one, so the mirror requirement is what forces the three
-    const vacuumOnly = (a: number[]): boolean => a.includes(0)
-    const relaxedMinimal = minimalAlphabetSize(vacuumOnly)
-    const strictMinimal = minimalAlphabetSize(toneAlphabetQualifies)
+    // alphabet to size one, so the mirror requirement is what forces the three. Both sizes
+    // come from the exhaustive enumeration over {-3..3}.
+    const relaxedMinimal = minimalVacuumOnlySize(3)
+    const strictMinimal = minimalQualifyingAlphabetSize()
     const mirrorIsLoadBearing =
       strictMinimal === 3 && relaxedMinimal === 1
 
@@ -121,7 +115,8 @@ export default experiment({
       allForced &&
       numbersEmerge &&
       nonassociativityExact &&
-      mirrorIsLoadBearing
+      mirrorIsLoadBearing &&
+      shellCountsMatchCanonical
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -139,6 +134,7 @@ export default experiment({
         meshGrowthRatio: by('mesh').produces,
         octonionNonassociativeTriples: nonassociativeTriples,
         strictMinimalAlphabet: strictMinimal,
+        shellCountsMatchCanonical: shellCountsMatchCanonical ? 1 : 0,
       },
       control: {
         // relaxing rung one (vacuum only, no mirror) drops the minimal alphabet to 1,
@@ -148,7 +144,7 @@ export default experiment({
         strictMinimalAlphabet: strictMinimal,
       },
       notes:
-        'L1, the executable assembly of the from-nothing derivation (primer/02), every rung recomputed from its candidate space by the reused library (base-forcing tone test, division-algebra Cayley-Dickson tower, collision-family line-pairing, shell-growth ratio). The rung-seven shell counts are the exact values measured from the actual {3,4,3,4} graph in E-GMT-0003, so the growth ratio is read off the substrate, not hardcoded. The forcing of each rung rests on its stated physical requirement (a vacuum and a mirror, reversibility, one substance, self-duality, full symmetry), which is the honest residual input, the same residual the primer names. Rung zero (nothing cannot be) is the one non-computational step, the seed, and is not coded. This is the timeless spec, register one, distinct from foundations/capstone which runs the dynamics.',
+        'L1, the executable assembly of the from-nothing derivation (primer/02), every rung recomputed from its candidate space by the reused library (base-forcing tone test, division-algebra Cayley-Dickson tower, collision-family line-pairing, shell-growth ratio). The rung-seven shell counts are UNFOLDED in-experiment from the actual {3,4,3,4} reflective-addressing graph (through shell three, 1, 24, 456, 8376) and cross-checked against the canonical sequence, so the growth ratio is read off the substrate, not hardcoded, and rung six now derives corners and faces by facet enumeration rather than a table. The forcing of each rung rests on its stated physical requirement (a vacuum and a mirror, reversibility, one substance, self-duality, full symmetry), which is the honest residual input, the same residual the primer names. Rung zero (nothing cannot be) is the one non-computational step, the seed, and is not coded. This is the timeless spec, register one, distinct from foundations/capstone which runs the dynamics.',
     })
   },
 })

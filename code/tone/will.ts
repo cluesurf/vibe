@@ -79,7 +79,8 @@ export function charge(will: Will): number {
   return sum
 }
 
-// the scalar tone of one cell, the sum of its directional slots.
+// the scalar tone of one cell, the sum of its directional slots (the NET charge, which can be
+// zero even when the cell is full of tone, because opposite slots cancel).
 export function cellTone(will: Will, cell: number): number {
   const degree = will.mesh.degree
   const base = cell * degree
@@ -88,6 +89,23 @@ export function cellTone(will: Will, cell: number): number {
 
   for (let direction = 0; direction < degree; direction++) {
     sum += will.data[base + direction] ?? 0
+  }
+
+  return sum
+}
+
+// the activity of one cell, the total tone MAGNITUDE summed over its directional slots. Unlike
+// the net charge (cellTone), this is the amount of distinction present at the cell, and it is
+// nonzero whenever any slot is occupied, even for a charge-balanced cell. This is the right
+// distinguishable content for a Fisher-Rao distribution.
+export function cellActivity(will: Will, cell: number): number {
+  const degree = will.mesh.degree
+  const base = cell * degree
+
+  let sum = 0
+
+  for (let direction = 0; direction < degree; direction++) {
+    sum += Math.abs(will.data[base + direction] ?? 0)
   }
 
   return sum

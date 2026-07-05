@@ -89,8 +89,9 @@ export default experiment({
     const controlIsolatesSpinor =
       fiveCellSelfDualCrystallographic && fiveCellNoTriality
 
-    // the 24-cell directional set carries the spinors (the D4 spinor weights exist)
-    const dockCarriesSpinor = spinorWeightsDn(4).length > 0
+    // the 24-cell directional set carries the spinors: D4 has exactly 2^(4-1) = 8 positive-
+    // chirality spinor weights (the 8s), the exact count, not merely a nonzero one
+    const dockCarriesSpinor = spinorWeightsDn(4).length === 8
     const dockTrialityOrder = outerAutomorphismOrder(rootsD4())
 
     const ok =

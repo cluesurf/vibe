@@ -32,38 +32,45 @@ import { euclideanL1ShellRatio } from '@/code/measure/shell-growth'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+const THROUGH_SHELL = 4
+const MAX_CELLS = 170000
+
 export default experiment({
   id: 'geometry/mesh-unfolds-exactly',
   code: 'E-GMT-0027',
   title:
-    'the {3,4,3,4} mesh unfolds exactly and deterministically from the single 24-cell by reflection: the shell counts are the integer-exact 1, 24, 456, 8376, the per-shell ratio climbs toward the warp factor 18.278 (exponential), two runs agree bit for bit, and the flat 4D lattice growing polynomially is the control',
+    'the {3,4,3,4} mesh unfolds exactly and deterministically from the single 24-cell by reflection: the shell counts are the integer-exact 1, 24, 456, 8376, 153192, the per-shell ratio descends monotonically (24, 19, 18.37, 18.29) into a tight band around the warp factor 18.278 (exponential), two runs agree bit for bit, and the flat 4D lattice growing polynomially is the control',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L2',
   paper: true,
   run() {
-    // unfold to shell 3 (needs about 9000 cells to close shell 3 exactly)
-    const counts = unfoldMeshShells({ throughShell: 3, maxCells: 12000 })
+    // unfold to shell 4 (needs about 162000 cells to close shell 4 exactly, about half a second)
+    const counts = unfoldMeshShells({
+      throughShell: THROUGH_SHELL,
+      maxCells: MAX_CELLS,
+    })
     const ratios = shellRatios(counts)
 
-    // 1. the shell counts are the exact canonical integers 1, 24, 456, 8376
+    // 1. the shell counts are the exact canonical integers 1, 24, 456, 8376, 153192
     const exact =
-      counts.length >= 4 &&
-      counts[0] === 1 &&
-      counts[1] === 24 &&
-      counts[2] === 456 &&
-      counts[3] === 8376 &&
-      CANONICAL_SHELLS.slice(0, 4).every((c, i) => counts[i] === c)
+      counts.length >= 5 &&
+      CANONICAL_SHELLS.every((c, i) => counts[i] === c)
 
-    // 2. the growth is exponential: the per-shell ratio climbs toward the warp factor,
-    // well above any polynomial (the outer ratios sit near 18)
+    // 2. the growth is exponential and the outer ratio sits in a TIGHT band around the warp
+    // factor 18.278 (the raw ratios descend 24, 19, 18.37, 18.29 toward it), not a loose >15.
+    // The full Aitken extrapolation to 18.278 and the algebraic-degree bound live in E-GMT-0003.
     const outerRatio = ratios[ratios.length - 1] ?? 0
-    const exponential = outerRatio > 15 && outerRatio < 20
+    const exponential = outerRatio > 18.0 && outerRatio < 18.6
+    // the ratios descend monotonically toward the limit from above, the convergence signature
+    const ratiosDescendTowardLimit = ratios
+      .slice(1)
+      .every((r, i) => r < ratios[i]!)
 
     // 3. the unfolding is deterministic: two runs agree bit for bit
     const deterministic = unfoldingIsDeterministic({
-      throughShell: 3,
-      maxCells: 12000,
+      throughShell: THROUGH_SHELL,
+      maxCells: MAX_CELLS,
     })
 
     // 4. the control: the flat 4D lattice grows polynomially, ratio near a small
@@ -71,7 +78,12 @@ export default experiment({
     const flatRatio = euclideanL1ShellRatio({ dimension: 4, shell: 12 })
     const flatIsPolynomial = flatRatio < 2
 
-    const solved = exact && exponential && deterministic && flatIsPolynomial
+    const solved =
+      exact &&
+      exponential &&
+      ratiosDescendTowardLimit &&
+      deterministic &&
+      flatIsPolynomial
 
     return verdict({
       status: solved ? 'pass' : 'fail',
@@ -82,7 +94,9 @@ export default experiment({
         shell1: counts[1] ?? 0,
         shell2: counts[2] ?? 0,
         shell3: counts[3] ?? 0,
-        outerShellRatio: Number(outerRatio.toFixed(3)),
+        shell4: counts[4] ?? 0,
+        outerShellRatio: Number(outerRatio.toFixed(4)),
+        ratioDescends: ratiosDescendTowardLimit ? 1 : 0,
         flatLatticeRatio: Number(flatRatio.toFixed(3)),
         deterministic: deterministic ? 1 : 0,
       },
