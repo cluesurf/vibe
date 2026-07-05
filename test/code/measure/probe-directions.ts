@@ -58,7 +58,9 @@ suite('measure/probe-directions: non-degeneracy (plastic-number fix)', [
 
         for (const d of dirs) {
           // The fixed bug forced d[2] === -d[1] on EVERY sample. Count any that still do.
-          if ((d[1]! + d[2]!) === 0) {degenerate++}
+          if (d[1]! + d[2]! === 0) {
+            degenerate++
+          }
         }
 
         equal(degenerate, 0)
@@ -90,7 +92,9 @@ suite('measure/probe-directions: non-degeneracy (plastic-number fix)', [
     const mean = [0, 0, 0]
 
     for (const d of dirs) {
-      for (let i = 0; i < 3; i++) {mean[i]! += d[i]! / dirs.length}
+      for (let i = 0; i < 3; i++) {
+        mean[i]! += d[i]! / dirs.length
+      }
     }
 
     ok(

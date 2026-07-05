@@ -43,7 +43,9 @@ suite('operator/jackiw-rebbi: structure', [
 
       let trace = 0
 
-      for (let i = 0; i < n; i++) {trace += H[i]![i] ?? 0}
+      for (let i = 0; i < n; i++) {
+        trace += H[i]![i] ?? 0
+      }
 
       close(trace, 0, 0, 'trace')
     },

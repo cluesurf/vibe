@@ -111,10 +111,10 @@ step & candidate space & constraint & survivor & experiment \\
 \midrule
 1 tone & small integer alphabets & a vacuum ($0$) and a mirror & $\{-1,0,+1\}$, size 3 & \code{test/experiment/foundations/tone-is-forced.ts}{tone-is-forced} \\
 2 arrow & the tower $1,2,4,8,16$ & every square $\ge 0$ & the integer line & \code{test/experiment/foundations/arrow-from-integer-order.ts}{arrow-from-integer-order} \\
-3,4 eight & tower levels $0$ to $4$ & reversible, filled to the top & dimension 8 & \code{test/experiment/foundations/forced-derivation-ladder.ts}{forced-derivation-ladder} \\
+3,4 eight & tower levels $0$ to $4$ & reversible below, triality above & dimension 8 & \code{test/experiment/foundations/triality-forces-eight.ts}{triality-forces-eight} \\
 5 census & the $81$ four-slot words & sort by step length & $1{+}8{+}24{+}32{+}16$ & \code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced} \\
-6 cell & the shells $\{8,24,16\}$ & self-dual and spin & the 24-cell & \code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced} \\
-8 law & the $10395$ line-pairings & full $24$-cell symmetry & 1 (the knit) & \code{test/experiment/foundations/knit-rule-forced.ts}{knit-rule-forced} \\
+6 cell & the shells $\{8,24,16\}$ & self-dual (spin confirms) & the 24-cell & \code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced} \\
+8 law & the $10395$ line-pairings & crystallographic $B_4$ symmetry & 1 (the knit) & \code{test/experiment/foundations/knit-rule-forced.ts}{knit-rule-forced} \\
 \bottomrule
 \end{tabularx}
 \par}
@@ -193,12 +193,15 @@ and at dimension sixteen, the sedenions, zero divisors first appear, two nonzero
 product is zero can be written down. So dimension eight is the last dimension where losing nothing
 holds.
 
-The second pressure is the floor. Stopping below eight would need a reason to halt the
-doubling early, and there is none, each doubling from a lossless rung is itself still lossless
-until sixteen, so nothing blocks the combination from filling out to the last reversible rung, and
-the seed pushes the same way, since to exist is to differ, the base realizes as much distinction
-as it reversibly can. No reason to stop and most differentiation both land on the top of the
-reversible ladder. Ceiling and floor meet at exactly eight. The pinch is exercised in
+The second pressure is the floor, and it is a theorem too. Matter comes in three generations,
+which needs an order-three symmetry tying three equal pieces together, the triality that permutes
+the three eight-dimensional representations. Sweeping the whole $D$ family, that order-three
+symmetry exists at exactly one rank, $D_4$, whose vector dimension is eight, and at no other, so
+no smaller lossless rung, one, two, or four, can carry the three generations. The floor is
+computed in \code{test/experiment/foundations/triality-forces-eight.ts}{triality-forces-eight},
+two independent ways. Nothing blocks the doubling from reaching eight either, each rung below is
+still lossless, so ceiling and floor meet at exactly eight, both by theorem. The pinch is
+exercised in
 \code{test/experiment/foundations/forced-derivation-ladder.ts}{forced-derivation-ladder}, which
 finds the algebra reversible through dimension eight and broken at sixteen, and reports the
 octonion non-associativity as twenty-eight of thirty-five triples.
@@ -242,14 +245,18 @@ twenty-four two-step diagonals give that, twenty-four corners and twenty-four fa
 eight one-step words make the sixteen-cell with eight corners and sixteen faces, and the sixteen
 four-step words make the tesseract with sixteen corners and eight faces, both lopsided.
 
-Spin selects the same twenty-four. Its vertices, as unit quaternions, form the binary tetrahedral
-group, which contains $-1$, one full turn, with $(-1)^2 = +1$ and $-1 \neq +1$, so one turn flips
-the sign and two turns return, the belt-trick spinor, present before any matter is placed, and
-the sixteen-cell axes carry no such element. Self-dual so it tiles, and spinful so it can host
-matter, the cell is the twenty-four-cell. The chain census to self-dual to spin is computed in
-\code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced}, with the sixteen-cell,
-tesseract, and the spinless five-fold cell as the controls, and the geometric uniqueness over all
-six regular four-polytopes in
+Spin then confirms the winner. The twenty-four vertices, as unit quaternions, form the binary
+tetrahedral group, which contains $-1$, one full turn, with $(-1)^2 = +1$ and $-1 \neq +1$, so one
+turn flips the sign and two turns return, the belt-trick spinor, present before any matter is
+placed. In that same quaternion frame the group is exactly the sixteen-cell's eight integer units
+together with the tesseract's sixteen half-integer units, and the half-integer sixteen are not a
+group at all, no identity and no $-1$, the spinless control. The sixteen-cell's own eight units do
+carry the sign, so spin alone would not have isolated the twenty-four: self-duality is the filter
+that selects, and spin is the property the selected cell then carries, which is what lets it host
+matter. The chain census to self-dual to spin is computed in
+\code{test/experiment/foundations/cell-is-forced.ts}{cell-is-forced}, with the derived face counts
+and the tesseract as the spinless control, and the geometric uniqueness over all six regular
+four-polytopes in
 \code{test/experiment/foundations/base-uniqueness-theorem.ts}{base-uniqueness-theorem}.
 
 \emph{So far, from nothing: the ternary tone whose count is time, lossless combining to the
@@ -259,16 +266,19 @@ nearest directions, and their one self-dual spin-carrying shell is the twenty-fo
 \section{The mesh}
 
 One cell is not space, space is many cells sharing faces, so copy the cell face to face. The
-twenty-four-cell's corner angles are too wide to close up in flat four-dimensional space, where
-copies would overlap, and too narrow for the sphere, and they fit exactly in negatively curved,
-hyperbolic space. That tiling is the honeycomb $\{3,4,3,4\}$, four-dimensional and hyperbolic.
-Hyperbolic is also the one geometry that grows without bound and with no preferred direction,
-which is exactly what the accumulation, the arrow, needs, room to grow forever while respecting
-relativity.
+twenty-four-cell tiles in exactly two regular ways, set by how many cells meet around each face.
+Three around a face closes flat, the Euclidean honeycomb $\{3,4,3,3\}$, since the cell's dihedral
+angle is $120$ degrees and three fit exactly. Four around a face overfills flat space and opens
+into negative curvature, the hyperbolic honeycomb $\{3,4,3,4\}$. The base takes the hyperbolic
+one, and this is a premise with a reason rather than a theorem: hyperbolic space is the one arena
+with exponential room, an ever-larger edge for the accumulation to grow into and a boundary for
+structure to live on, and the flat $\{3,4,3,3\}$ is kept as the standing control the experiments
+measure against.
 
 Counting cells by distance from a start, the shells run one, twenty-four, four hundred
 fifty-six, eight thousand three hundred seventy-six, and the counts keep multiplying by a fixed
-ratio near eighteen and a quarter, so a few layers out the count passes a billion. The
+ratio whose exact value is the largest root of $x^3 - 21x^2 + 51x - 23$, about $18.279$, so a few
+layers out the count passes a billion. The
 exponential room is what later makes the boundary act like a screen.
 
 \emph{So far, from nothing: the ternary tone whose count is time, the octonions at eight, the
@@ -281,14 +291,20 @@ the mesh $\{3,4,3,4\}$.}
 A mesh of tones just sitting there is inert, and carrying the tone forward in time needs an update
 rule. Three demands fix it. It must be local, acting within a cell, since the base has no action
 at a distance. It must be reversible, losing nothing, again. And it must be symmetric, privileging
-no direction, so it respects the cell's full symmetry.
+no direction, so it respects the cell's crystallographic symmetry.
 
 Now count the candidates. The twenty-four
 directions form twelve opposite lines, and a law matches the twelve lines into six colliding
 pairs, deciding which line meets which head on. The number of matchings is eleven times nine times
-seven times five times three times one, the double factorial $11!! = 10395$. Demanding the full
-twenty-four-cell symmetry cuts all but one, the knit, which collides then streams, conserves a
-charge, and is a reversible involution. So the mesh forces a unique law, and
+seven times five times three times one, the double factorial $11!! = 10395$. Demanding the cell's
+crystallographic symmetry, the signed coordinate permutations $B_4$, cuts all but one, the knit,
+which collides then streams, conserves a charge, and is a reversible involution. The full symmetry
+$F_4$, which adds the triality that cycles the three eight-dimensional pieces, admits no law at
+all, and an exhaustive scan shows no law anywhere is more symmetric than the knit, so $B_4$ is the
+most symmetry a law can carry. The triality the law cannot keep is not lost, it reappears as the
+three generations, since the index of $B_4$ in $F_4$ is exactly three and the three maximally
+symmetric laws are one triality orbit, one per generation frame. So the mesh forces a unique law
+per frame, and
 \code{test/experiment/foundations/knit-rule-forced.ts}{knit-rule-forced} counts the family and its
 collapse under symmetry.
 
@@ -300,11 +316,13 @@ knit.}
 \section{The wake}
 
 The arrow was already implied when distinctions began to accumulate, but the knit cannot carry it,
-because a reversible rule runs equally well backward and so has no built-in direction. Something
-must carry the accumulation, so the mesh grows, new cells born at the open edge and none ever
-removed. That monotone growth is the wake. To run a beat backward you would have to un-create a
-cell, which is itself a new distinction, so the growth is un-erasable, and the wake is why the
-clock runs forward. With the wake the equipment is complete.
+because a reversible rule runs equally well backward and so has no built-in direction. Worse, a
+reversible rule on any fixed finite mesh must eventually revisit a past state, so on a mesh that
+never grew, the distinct states would be capped and distinction could not keep accumulating.
+Something must carry the accumulation, so the mesh grows, new cells born at the open edge and none
+ever removed, the one escape from that recurrence. That monotone growth is the wake. To run a beat
+backward you would have to un-create a cell, which is itself a new distinction, so the growth is
+un-erasable, and the wake is why the clock runs forward. With the wake the equipment is complete.
 
 \emph{So far, from nothing: the ternary tone whose count is time, the octonions at eight, the
 associative core is four-dimensional space, the twenty-four-cell, the mesh $\{3,4,3,4\}$, the knit
@@ -356,9 +374,13 @@ reproducible bit for bit, with the flat lattice as the polynomial control, is ch
 
 The growing four-dimensional interior is the bulk, curved, and its boundary is three-dimensional
 and flat, the cusp, because the boundary of a four-dimensional region is one dimension down. Stable
-structure and observers form on the flat cusp rather than in the curved bulk, so of the four bulk
-dimensions three are in view and the radial fourth, depth into the bulk, is hidden. Perceived
-space is three-dimensional and perceived time is the bulk's growth read from the cusp.
+structure and observers form on the flat cusp rather than in the curved bulk, and this is a
+measured stability result rather than an assumption: with the connectivity held equal, a localized
+packet disperses over several times more cells in the exponentially branching bulk than on the
+flat cusp, so bound states persist only where the geometry is flat, and observers form where
+structure is stable. Of the four bulk dimensions three are in view and the radial fourth, depth
+into the bulk, is hidden. Perceived space is three-dimensional and perceived time is the bulk's
+growth read from the cusp.
 
 \part{Results and Premises}
 
@@ -405,13 +427,12 @@ at least the pair and a vacuum needs the zero, and nothing smaller has both, so 
 $\{-1, 0, +1\}$. Larger symmetric sets such as $\{-2,-1,0,1,2\}$ have both as well, but least
 content takes the smallest.
 
-Third, that the pinch to eight has two bounds and only one is a theorem. The ceiling, dimension
-at most eight, is a theorem, since past eight zero divisors appear and losing nothing fails. The
-floor, eight rather than one, two, or four, is not a theorem but a premise with a reason,
-because nothing forces the doubling to stop early, each rung up to eight being still lossless,
-and the seed pushes to maximize distinction, so the base sits at the top of what reversibility
-allows. The ceiling is forced and the floor is the maximal-differentiation premise, and the
-second should not be mistaken for a proof.
+Third, that the pinch to eight has two bounds and both are theorems. The ceiling, dimension at
+most eight, holds because past eight zero divisors appear and losing nothing fails. The floor,
+eight rather than one, two, or four, holds because the order-three triality that ties the three
+generations together exists at exactly one rank of the $D$ family, $D_4$, whose vector dimension
+is eight, and nowhere below. What remains a reading rather than a proof is only the wish itself,
+that the base carry three generations, which is what makes the triality floor bite.
 
 Fourth, that eight splits into four plus four, and only the four that associates is space. The
 octonion is literally two quaternions, an eight that is four and four. Geometry needs
@@ -434,35 +455,39 @@ squaring it, a seven-hundred-twenty-degree turn, gives $+1$. So one turn changes
 sign and two turns restore it, which is what carrying spin means, and it holds before any matter
 is placed, while the five-fold cell's linear directions have no such $-1$ and so no spin.
 
-Seventh, that the law count is a matching and symmetry leaves exactly one match. The
-twenty-four directions come in twelve opposite pairs, the lines, and a collision law decides
-which line meets which head on, matching the twelve lines into six pairs, and the number of ways
-to match twelve things into pairs is $11 \times 9 \times 7 \times 5 \times 3 \times 1 = 10395$.
-Almost all of these matchings break the cell's symmetry by treating some directions specially,
-and requiring the law to respect the full symmetry leaves exactly one matching standing, the
-knit.
+Seventh, that the law count is a matching and the crystallographic symmetry leaves exactly one
+match. The twenty-four directions come in twelve opposite pairs, the lines, and a collision law
+decides which line meets which head on, matching the twelve lines into six pairs, and the number
+of ways to match twelve things into pairs is $11 \times 9 \times 7 \times 5 \times 3 \times 1 =
+10395$. Almost all of these matchings break the cell's symmetry by treating some directions
+specially. Requiring the signed coordinate symmetry $B_4$ leaves exactly one standing, the knit,
+while the full $F_4$ leaves none, and no matching anywhere carries more symmetry than the knit
+does, so $B_4$ is the most a law can have. The three maximally symmetric matchings across the
+three frames are one triality orbit, which is where the three generations live.
 
 \section{Premises}
 
 The mathematics forces the structure, and it is worth naming in full what it does not force, since
-these and only these are where a reader must grant something. There are eight. One, that anything
+these and only these are where a reader must grant something. There are seven. One, that anything
 exists at all, the single fact left outside the system, since no account answers its own existence
 without regress. Two, that a tone needs a vacuum and a mirror, so a site can be empty and every
-charge has an opposite. Three, that the base loses nothing, so combination is reversible, which is
-what makes it a division algebra.
+charge has an opposite. Three, that the base loses nothing, which is the seed itself read as a
+condition on change, since a rule that merged two distinct states would erase the difference
+between them, and it is what makes combination a division algebra.
 
-Four, that the base realizes as much distinction as it reversibly can, the maximal-differentiation
-reading of ``to exist is to differ'', which fixes the dimension at the top of the ladder, eight,
-rather than a smaller lossless rung. Five, that geometric composition must associate, which selects
-the four-dimensional associative core as space. Six, that the update law is local, with no action
-at a distance, and respects the cell's full symmetry, which cuts the ten thousand three hundred and
-ninety-five pairings to one. Seven, that stable structure and observers form on the flat cusp
-rather than in the curved bulk, which is why perceived space is three-dimensional.
+Four, that geometric composition must associate, which selects the four-dimensional associative
+core as space. Five, that of the two regular twenty-four-cell honeycombs, the flat $\{3,4,3,3\}$
+with three cells around each face and the hyperbolic $\{3,4,3,4\}$ with four, the base takes the
+hyperbolic one, for the exponential room and the boundary it gives the growth, with the flat one
+kept as the control. Six, that the update law is local, with no action at a distance, and respects
+the cell's crystallographic symmetry, which cuts the ten thousand three hundred and ninety-five
+pairings to one, and that the base carries three generations, which is what makes the triality
+floor at dimension eight bite.
 
-Eight, that the signed ternary tone is read as valence, pain, peace, and pleasure, an interpretive
+Seven, that the signed ternary tone is read as valence, pain, peace, and pleasure, an interpretive
 commitment rather than a theorem, motivated by taking the base to be experience itself and by
 valence being the natural quality of a signed scalar. Everything else in the paper is a consequence
-of these eight, and given them the tone, the cell, the mesh, the law, and the arrow fall out the
+of these seven, and given them the tone, the cell, the mesh, the law, and the arrow fall out the
 same way every time, which is the whole point: hand someone the seed and the rule ``lose nothing''
 and the rest is a derivation they can re-run.
 

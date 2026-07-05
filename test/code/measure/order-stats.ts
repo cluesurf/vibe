@@ -35,7 +35,9 @@ function chain(n: number): Poset {
   const pairs: [number, number][] = []
 
   for (let a = 0; a < n; a++) {
-    for (let b = a + 1; b < n; b++) {pairs.push([a, b])}
+    for (let b = a + 1; b < n; b++) {
+      pairs.push([a, b])
+    }
   }
 
   return posetFromPairs(n, pairs)
@@ -45,7 +47,9 @@ function chain(n: number): Poset {
 function star(n: number): Poset {
   const pairs: [number, number][] = []
 
-  for (let b = 1; b < n; b++) {pairs.push([0, b])}
+  for (let b = 1; b < n; b++) {
+    pairs.push([0, b])
+  }
 
   return posetFromPairs(n, pairs)
 }

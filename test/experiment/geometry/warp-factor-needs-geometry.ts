@@ -55,20 +55,28 @@ export default experiment({
     const realInBand = realRatio > WARP_LOW && realRatio < WARP_HIGH
 
     // the control, the same graph scrambled (degree preserved, geometry destroyed)
-    const scrambled = scrambleNeighbors({ neighbors, seed: 1, passes: 4 })
+    const scrambled = scrambleNeighbors({
+      neighbors,
+      seed: 1,
+      passes: 4,
+    })
+
     const scrambleCounts = shellCountsFromGraph({
       neighbors: scrambled,
       cellCount,
     })
 
     const scrambleShell2 = scrambleCounts[2] ?? 0
-    const scrambleRatio = (scrambleCounts[3] ?? 0) / (scrambleCounts[2] ?? 1)
+    const scrambleRatio =
+      (scrambleCounts[3] ?? 0) / (scrambleCounts[2] ?? 1)
+
     const scrambleInBand =
       scrambleRatio > WARP_LOW && scrambleRatio < WARP_HIGH
 
     // the degree is preserved, so shell 1 is still about 24, but shell 2 is not 456
     const scrambleShell1 = scrambleCounts[1] ?? 0
-    const scrambleKeptDegree = scrambleShell1 >= 20 && scrambleShell1 <= 24
+    const scrambleKeptDegree =
+      scrambleShell1 >= 20 && scrambleShell1 <= 24
 
     // the second control, the flat D4 lattice grows polynomially (no warp)
     const flatRatio = euclideanL1ShellRatio({ dimension: 4, shell: 12 })

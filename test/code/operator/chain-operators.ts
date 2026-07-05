@@ -6,12 +6,7 @@
 //   - Open-chain adjacency spectrum is 2 cos(pi k / (n+1)), k = 1..n.
 //   - Open-chain (path) Laplacian spectrum is 2 - 2 cos(pi k / n), k = 0..n-1.
 
-import {
-  suite,
-  check,
-  equal,
-  closeArray,
-} from '@/test/code/harness'
+import { suite, check, equal, closeArray } from '@/test/code/harness'
 import { chainOperators } from '@/code/operator/chain-operators'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { DenseMatrix } from '@/code/algebra/linear/dense'
@@ -49,7 +44,9 @@ suite('operator/chain-operators: A and L = D - A structure', [
     for (let i = 0; i < n; i++) {
       let degree = 0
 
-      for (let j = 0; j < n; j++) {degree += A.data[i * n + j] ?? 0}
+      for (let j = 0; j < n; j++) {
+        degree += A.data[i * n + j] ?? 0
+      }
 
       let rowSum = 0
 

@@ -7,12 +7,7 @@
 //   - blockAverage is the exact arithmetic mean over consecutive blocks.
 //   - DETERMINISM of evolveLeapfrogWave.
 
-import {
-  suite,
-  check,
-  closeArray,
-  equal,
-} from '@/test/code/harness'
+import { suite, check, closeArray, equal } from '@/test/code/harness'
 import {
   leapfrogWaveStep,
   blockAverage,

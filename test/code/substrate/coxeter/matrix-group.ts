@@ -27,7 +27,11 @@ suite('substrate/coxeter/matrix-group: generators are involutions', [
     for (const symbol of [[3], [4], [3, 3], [5, 3]]) {
       const gens = reflections(symbol)
       const n = symbol.length + 1
-      equal(gens.length, n, `${String(symbol)}: one reflection per mirror`)
+      equal(
+        gens.length,
+        n,
+        `${String(symbol)}: one reflection per mirror`,
+      )
 
       for (const r of gens) {
         closeArray(

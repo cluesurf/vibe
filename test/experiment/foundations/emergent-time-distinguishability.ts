@@ -1,112 +1,151 @@
-// Emergent time as accumulated distinguishability, the bridge to Timeless Dynamics
-// (timeless-dynamics in the related-theories census, and the Fisher-informational-time
-// literature it reconstructs). TD makes time emergent: it is the accumulated Fisher-Rao arc
-// length along RECORD-PRESERVING paths. Vibe makes time emergent too, as the beat, and its
-// paths are record-preserving by construction because the knit is reversible and erases
-// nothing. This experiment asks whether the two emergent clocks are the same one.
+// The geometry of the fixed-mesh knit path in distinguishability space, and why it is NOT the
+// arrow. This corrects the earlier version of this experiment, which read a cell's content as
+// its NET CHARGE (the signed sum of its slots). The net charge cancels: a charge-balanced cell
+// full of tone reads as empty, so the old distribution was all zeros and the Fisher-Rao
+// distance between two empty distributions is the constant arccos(0) doubled, a spurious flat
+// "pi per beat clock". That number measured nothing. The content is now read as OCCUPANCY (the
+// count of occupied directional slots, cellActivity), which never sums the signed tones (the
+// knit still only merges and streams them), so a live state reads as live.
 //
-// A localized-then-filled state is evolved by the reversible knit. At each beat the state
-// gives a spatial activity distribution, and the Fisher-Rao arc length accumulates the
-// distinguishability between consecutive beats. If the beat is a distinguishability clock the
-// arc length grows LINEARLY in the beat count, a uniform tick. The control is a lossy,
-// record-destroying rule: with the record erased, the state settles and the arc length
-// SATURATES, the clock stops. So the reversible arc length is TD emergent time, and the lossy
-// control shows the record-preservation is what keeps the clock running.
+// With the honest measure, a localized packet (a single tone streaming ballistically) shows the
+// real geometry, and it is the opposite of a smooth TD geodesic:
+//   - NEAR-MAXIMAL STEPS. Each beat the packet fully relocates, so consecutive occupancy
+//     distributions are nearly disjoint and the per-step Fisher-Rao distance is near pi, the
+//     simplex diameter. This is the discreteness signature: on the raw discrete substrate
+//     distinguishability jumps maximally per beat, it does not flow smoothly.
+//   - A RECURRENT CLOSED LOOP. The knit is reversible on a finite mesh, so the packet returns to
+//     its start, the distribution comes back to where it began. The path is a closed loop, not a
+//     one-way advance, so it carries no arrow.
+//   - FAR FROM GEODESIC. The accumulated path length is many times the direct Fisher-Rao
+//     distance between the start and the farthest state, so the path wanders and returns rather
+//     than moving along a shortest curve. It is not a TD geodesic.
+// So TD's smooth geodesic flow is a CONTINUUM idealization, not a property of the raw discrete
+// knit, and the monotone one-way TD time is the WAKE (record-accumulating-wake, E-FND-0051),
+// not this reversible loop.
 //
-// Depth L2, a known information-geometry quantity (the Fisher-Rao arc length) read on the
-// substrate through TD, with the lossy path the control that could have failed.
+// CONTROL: a lossy erasing rule destroys the packet, so the loop never closes (the distribution
+// never returns to its start), which is the record-destruction that breaks both the recurrence
+// and the reversibility.
+//
+// Depth L2, the Fisher-Rao path geometry of the knit read honestly on the substrate through TD,
+// with the lossy rule the control and the wake the monotone counterpart.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
-import { makeWill, fillWillPattern } from '@/code/tone/will'
+import { loneParticle } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
-import { pairCollision, Collision } from '@/code/rule/collision'
+import { pairCollision } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import {
-  blockActivityDistribution,
-  cumulativeArcLength,
-  windowSlope,
+  spatialActivityDistribution,
+  fisherRaoDistance,
 } from '@/code/measure/fisher-rao'
 
-const SIDE = 8
-const BEATS = 60
-const BLOCKS = 64
+const SIDE = 16
+const BEATS = 40
 
-function arcLength(input: {
+function pathGeometry(input: {
   mesh: ReturnType<typeof d4Mesh>
-  collision: Collision
-}): number[] {
+  collision: ReturnType<typeof pairCollision>
+}): {
+  stepDistances: number[]
+  fromStart: number[]
+} {
   const { mesh, collision } = input
 
-  let will = makeWill(mesh)
-  fillWillPattern(will)
+  let will = loneParticle(mesh, 0, 0, 1)
 
-  const distributions = [blockActivityDistribution({ will, blocks: BLOCKS })]
+  const start = spatialActivityDistribution(will)
+
+  let previous = start
+
+  const stepDistances: number[] = []
+  const fromStart: number[] = []
 
   for (let t = 0; t < BEATS; t++) {
     will = beat(will, collision)
-    distributions.push(blockActivityDistribution({ will, blocks: BLOCKS }))
+
+    const current = spatialActivityDistribution(will)
+    stepDistances.push(fisherRaoDistance(previous, current))
+    fromStart.push(fisherRaoDistance(start, current))
+    previous = current
   }
 
-  return cumulativeArcLength(distributions)
+  return { stepDistances, fromStart }
 }
 
 export default experiment({
   id: 'foundations/emergent-time-distinguishability',
   code: 'E-FND-0048',
   title:
-    'the emergent beat is a distinguishability clock: the Fisher-Rao arc length grows linearly under the reversible record-preserving knit and saturates under a lossy one, the bridge to Timeless Dynamics emergent time',
+    'the fixed-mesh reversible knit is NOT TD emergent time: read honestly (occupancy, not the cancelling net charge) a localized packet traces a recurrent closed loop in distinguishability space with near-maximal discrete steps and a path length far exceeding the direct distance, so it is not a geodesic and carries no arrow, and the monotone TD time is the wake, not the knit',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
-  paper: false,
+  paper: true,
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite = meshOpposites(mesh)
 
-    const reversibleArc = arcLength({
+    const reversible = pathGeometry({
       mesh,
       collision: pairCollision({ opposite, forward: true }),
     })
 
-    const lossyArc = arcLength({ mesh, collision: erasingCollision })
+    // near-maximal steps: the average of the non-trivial steps is close to the simplex diameter
+    const movingSteps = reversible.stepDistances.filter(d => d > 0.1)
+    const meanMovingStep =
+      movingSteps.reduce((s, d) => s + d, 0) /
+      Math.max(1, movingSteps.length)
 
-    // the reversible clock keeps ticking at a constant rate (a live, linear emergent time)
-    const reversibleEarlySlope = windowSlope({ series: reversibleArc, from: 5, to: 25 })
-    const reversibleLateSlope = windowSlope({ series: reversibleArc, from: 40, to: 60 })
-    // the lossy clock stops once the record is gone
-    const lossyLateSlope = windowSlope({ series: lossyArc, from: 40, to: 60 })
+    const stepsAreNearMaximal = meanMovingStep > 3.0 // pi is about 3.1416
 
-    const clockRuns = reversibleLateSlope > 1
-    const clockIsUniform =
-      Math.abs(reversibleEarlySlope - reversibleLateSlope) <
-      0.1 * reversibleLateSlope
+    // recurrent closed loop: the distribution returns to its start (reversible), so the minimum
+    // distance-from-start after the first beat is essentially zero
+    const returnDistance = Math.min(...reversible.fromStart)
+    const pathRecurs = returnDistance < 1e-6
 
-    const lossyStops = lossyLateSlope < 0.3 * reversibleLateSlope
-    const ok = clockRuns && clockIsUniform && lossyStops
+    // far from geodesic: the path length hugely exceeds the direct distance to the farthest state
+    const pathLength = reversible.stepDistances.reduce(
+      (s, d) => s + d,
+      0,
+    )
 
-    const reversibleArcEnd = reversibleArc[BEATS] ?? 0
-    const lossyArcEnd = lossyArc[BEATS] ?? 0
+    const maxGeodesic = Math.max(...reversible.fromStart)
+    const pathToGeodesicRatio = pathLength / Math.max(1e-9, maxGeodesic)
+    const notGeodesic = pathToGeodesicRatio > 3
+
+    // control: a lossy erasing rule destroys the packet, so the loop never closes
+    const lossy = pathGeometry({ mesh, collision: erasingCollision })
+    const lossyReturnDistance = Math.min(...lossy.fromStart.slice(1))
+    const lossyNeverRecurs = lossyReturnDistance > 1e-6
+
+    const solved =
+      stepsAreNearMaximal &&
+      pathRecurs &&
+      notGeodesic &&
+      lossyNeverRecurs
 
     return verdict({
-      status: ok ? 'pass' : 'fail',
+      status: solved ? 'pass' : 'fail',
       claim:
-        'the emergent beat is a distinguishability clock, which is Timeless Dynamics emergent time on this substrate. Under the reversible record-preserving knit the Fisher-Rao arc length, the accumulated distinguishability between consecutive states, grows linearly in the beat count, a uniform tick, so counting beats and counting distinguishability are the same clock. Under a lossy record-destroying rule the state settles and the arc length saturates, the clock stops, so it is the record-preservation, built into the reversible knit, that keeps time running. This is a measured version of TD claim that time is accumulated Fisher-Rao arc length along record-preserving paths, and vibe reversibility is that record-preservation. Depth L2, a known information-geometry quantity read on the substrate through TD, the lossy path the control.',
+        'the fixed-mesh reversible knit is not TD emergent time and not a geodesic. Read honestly, as occupancy (the count of occupied slots, which never sums the signed tones the way the cancelling net charge did), a single ballistic tone traces a recurrent closed loop in Fisher-Rao distinguishability space: the per-step distance is near-maximal (close to the simplex diameter pi, the discreteness signature that on the raw substrate distinguishability jumps maximally per beat), the distribution returns exactly to its start (the reversible loop, so no arrow), and the accumulated path length is many times the direct distance to the farthest state (so the path wanders and returns, not a shortest curve, not a geodesic). A lossy erasing rule destroys the packet so the loop never closes. This corrects the earlier version, which read the net charge, compared all-zero distributions, and reported a spurious flat pi-per-beat clock. So TD smooth geodesic flow is a continuum idealization, not a property of the raw discrete knit, and the monotone one-way TD time is the wake (E-FND-0051), not this reversible loop.',
       metrics: {
-        reversibleEarlySlope,
-        reversibleLateSlope,
-        lossyLateSlope,
-        reversibleArcEnd,
-        lossyArcEnd,
-        lossyToReversibleArcRatio:
-          reversibleArcEnd === 0 ? 0 : lossyArcEnd / reversibleArcEnd,
+        meanMovingStepDistance: meanMovingStep,
+        returnDistance,
+        pathLength,
+        maxGeodesicDistance: maxGeodesic,
+        pathToGeodesicRatio,
+        lossyReturnDistance,
       },
       control: {
-        lossyLateSlope,
+        // the lossy rule destroys the packet, so the distribution never returns to its start
+        lossyReturnDistance,
+        lossyNeverRecurs: lossyNeverRecurs ? 1 : 0,
       },
       notes:
-        'the arc length under the reversible knit is linear (the early and late slopes match), so the emergent time is uniform, not just monotonic. The per-beat tick here is maximal (the ternary parity flips the activity support each beat), so the clock ticks the simplex diameter per beat, but the load-bearing claims are the LINEARITY (a uniform clock) and the lossy SATURATION (the clock stops when records die), both of which hold. Deterministic fill, no random.',
+        'L2, the honest Fisher-Rao path geometry of the fixed-mesh knit, reusing code/measure/fisher-rao (now reading cellActivity, the occupancy count, not the cancelling net charge cellTone). The finding corrects and replaces the earlier claim: the knit path is a recurrent closed loop (reversible, returns to start, no arrow), takes near-maximal discrete steps (the discreteness signature), and is far from geodesic (path length many times the direct distance), so it is not the smooth TD geodesic and not a monotone clock. The monotone arrow and TD emergent time are the WAKE, measured in record-accumulating-wake (E-FND-0051), which this experiment now points to as its counterpart. The lossy rule is the control that breaks the recurrence. Deterministic initial condition (a single tone), no random.',
     })
   },
 })

@@ -12,8 +12,9 @@ const L = 8
 function makeTone(): Int8Array {
   const t = new Int8Array(L * L)
 
-  for (let i = 0; i < L * L; i++)
-    {t[i] = i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0}
+  for (let i = 0; i < L * L; i++) {
+    t[i] = i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0
+  }
 
   return t
 }
@@ -63,8 +64,9 @@ suite('dynamics/flat-willed-drift-sweep: determinism', [
       const moved = new Uint8Array(L * L)
       const rng = makeRng({ seed: 7 })
 
-      for (let b = 0; b < 15; b++)
-        {flatWilledDriftSweep({ tone, length: L, moved, rng, bias: 1 })}
+      for (let b = 0; b < 15; b++) {
+        flatWilledDriftSweep({ tone, length: L, moved, rng, bias: 1 })
+      }
 
       return tone
     }
@@ -72,6 +74,8 @@ suite('dynamics/flat-willed-drift-sweep: determinism', [
     const a = run()
     const b = run()
 
-    for (let i = 0; i < L * L; i++) {equal(a[i]!, b[i]!, `cell ${i}`)}
+    for (let i = 0; i < L * L; i++) {
+      equal(a[i]!, b[i]!, `cell ${i}`)
+    }
   }),
 ])

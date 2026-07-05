@@ -74,8 +74,9 @@ suite('dynamics/shell-model: dynamics', [
 
       let diff = 0
 
-      for (let i = 0; i < cascade.length; i++)
-        {diff += Math.abs(cascade[i]! - control[i]!)}
+      for (let i = 0; i < cascade.length; i++) {
+        diff += Math.abs(cascade[i]! - control[i]!)
+      }
 
       ok(diff > 0, 'cascade changes the spectrum')
     },
