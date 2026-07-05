@@ -56,6 +56,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule = headOnRotate({ opposite })
     const beats = 5
 
@@ -106,6 +107,7 @@ export default experiment({
 
     for (let step = 0; step < beats; step++) {
       denseFull = beat(denseFull, rule)
+
       const result = attentionBeat({ will: denseAttn, collision: rule })
       denseAttn = result.will
       denseOps += result.collideOps

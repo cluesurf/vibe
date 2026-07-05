@@ -50,6 +50,7 @@ export default experiment({
       realCounts[1] === 24 &&
       realCounts[2] === 456 &&
       realCounts[3] === 8376
+
     const realRatio = (realCounts[3] ?? 0) / (realCounts[2] ?? 1)
     const realInBand = realRatio > WARP_LOW && realRatio < WARP_HIGH
 
@@ -59,10 +60,12 @@ export default experiment({
       neighbors: scrambled,
       cellCount,
     })
+
     const scrambleShell2 = scrambleCounts[2] ?? 0
     const scrambleRatio = (scrambleCounts[3] ?? 0) / (scrambleCounts[2] ?? 1)
     const scrambleInBand =
       scrambleRatio > WARP_LOW && scrambleRatio < WARP_HIGH
+
     // the degree is preserved, so shell 1 is still about 24, but shell 2 is not 456
     const scrambleShell1 = scrambleCounts[1] ?? 0
     const scrambleKeptDegree = scrambleShell1 >= 20 && scrambleShell1 <= 24
