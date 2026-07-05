@@ -20,7 +20,7 @@ export function roundtrip(input: {
   collision: Collision
   beats: number
   inverseCollision?: Collision
-}): { evolved: Int8Array; roundtripHamming: number } {
+}): { evolved: Int8Array; recovered: Will; roundtripHamming: number } {
   const { will, collision, beats } = input
   const inverseCollision = input.inverseCollision ?? collision
   const start = Int8Array.from(will.data)
@@ -45,5 +45,5 @@ export function roundtrip(input: {
     }
   }
 
-  return { evolved, roundtripHamming }
+  return { evolved, recovered: w, roundtripHamming }
 }
