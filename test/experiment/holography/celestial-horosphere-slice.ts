@@ -38,7 +38,7 @@ const IDEAL: Vec = [0, 0, 1, 1]
 
 export default experiment({
   id: 'holography/celestial-horosphere-slice',
-  code: 'E-HLG-0168',
+  code: 'E-HLG-0029',
   title:
     'the horocyclic projection to the flat boundary chart preserves the conformal cross-ratio, the seed of the hyperbolic slicing',
   category: 'holography',

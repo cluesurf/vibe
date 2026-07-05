@@ -48,7 +48,7 @@ function isD4Root(v: Vec, roots: Vec[]): boolean {
 
 export default experiment({
   id: 'holography/celestial-conformal-boundary',
-  code: 'E-HLG-0161',
+  code: 'E-HLG-0022',
   title:
     'the substrate isometries act conformally on the ideal boundary, the discrete seed of the celestial sphere',
   category: 'holography',

@@ -56,7 +56,7 @@ function maxPointGap(
 
 export default experiment({
   id: 'holography/celestial-boost-group',
-  code: 'E-HLG-0164',
+  code: 'E-HLG-0025',
   title:
     'same-axis boundary boosts compose by adding rapidity, the dilation group the Mellin boost-weight basis diagonalizes',
   category: 'holography',

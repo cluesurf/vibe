@@ -50,7 +50,7 @@ function regionCharge(
 
 export default experiment({
   id: 'holography/celestial-memory-continuity',
-  code: 'E-HLG-0167',
+  code: 'E-HLG-0028',
   title:
     'the memory corner is held open, the boundary shift equals the integrated flux by continuity, which is not yet an emergent memory',
   category: 'holography',

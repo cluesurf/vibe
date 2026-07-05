@@ -52,7 +52,7 @@ function threePoint(p: Vec[], gamma: [number, number, number]): number {
 
 export default experiment({
   id: 'holography/celestial-three-point',
-  code: 'E-HLG-0165',
+  code: 'E-HLG-0026',
   title:
     'a boundary three-point of primaries transforms as a celestial three-point under a substrate boost',
   category: 'holography',

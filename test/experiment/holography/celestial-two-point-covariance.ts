@@ -65,7 +65,7 @@ function distortionCrossRatio(map: (v: Vec) => Vec, p: Vec[]): number {
 
 export default experiment({
   id: 'holography/celestial-two-point-covariance',
-  code: 'E-HLG-0162',
+  code: 'E-HLG-0023',
   title:
     'a boundary two-point function transforms as a celestial correlator under a substrate boost, the seed of celestial amplitudes',
   category: 'holography',

@@ -36,7 +36,7 @@ const CONTROL: Matrix = [
 
 export default experiment({
   id: 'holography/celestial-symmetry-algebra',
-  code: 'E-HLG-0166',
+  code: 'E-HLG-0027',
   title:
     'the boundary conformal symmetry closes into so(4,1), the algebraic seed of the celestial symmetry algebra',
   category: 'holography',

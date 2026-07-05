@@ -64,7 +64,7 @@ function irrelevanceExponent(directions: number[][]): {
 
 export default experiment({
   id: 'relativity/lorentz-irrelevance-exponent',
-  code: 'E-RLT-0169',
+  code: 'E-RLT-0041',
   title:
     'the lattice Lorentz violation is irrelevant with a measured exponent near four on the coin, so exact Lorentz is the infrared fixed point',
   category: 'relativity',

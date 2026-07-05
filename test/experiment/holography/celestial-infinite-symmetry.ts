@@ -49,7 +49,7 @@ function hashConfig(config: Config): string {
 
 export default experiment({
   id: 'holography/celestial-infinite-symmetry',
-  code: 'E-HLG-0163',
+  code: 'E-HLG-0024',
   title:
     'the boundary conformal family is unbounded while the substrate point symmetry is finite, the seed of infinite-dimensional celestial symmetry',
   category: 'holography',
