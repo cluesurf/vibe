@@ -639,3 +639,129 @@ export function twoParticleQuantumWalk(input: {
 
   return { comSpeed: Math.abs(fit.slope), comR2: fit.r2, relGrowth }
 }
+
+// The survival probability of a two-mode superposition on the emergent Dirac quantum
+// walk, the observable that reads its dephasing (objective-collapse) time. Two
+// positive-energy momentum eigenstates (at wavenumber indices a and b) are superposed
+// with equal weight and evolved by the real position-space rule (shift then mass coin,
+// the same rule measuredCoinedWalkFrequency uses). The survival probability
+// P(t) = |<psi(0)|psi(t)>|^2 = (1 + cos(dE t)) / 2, where dE = |omega(a) - omega(b)| is the
+// emergent dispersion energy gap, so P first reaches zero (the state becomes orthogonal
+// to its start) at t = pi / dE. This is the energy-time uncertainty relation, of which
+// Penrose's gravitational objective-reduction time t = h-bar / E_G is a specific instance:
+// the dephasing time is set by the energy gap, deterministically, with no stochastic rate.
+// Returns the survival series and the dispersion gap so a measured gap (from the series)
+// can be checked against the dispersion one.
+export function diracTwoModeSurvival(input: {
+  indexA: number
+  indexB: number
+  size: number
+  mass: number
+  beats: number
+}): { survival: number[]; dispersionGap: number; energyA: number; energyB: number } {
+  const { indexA, indexB, size, mass, beats } = input
+  type Complex = readonly [number, number]
+  const add = (u: Complex, v: Complex): Complex => [u[0] + v[0], u[1] + v[1]]
+  const mul = (u: Complex, v: Complex): Complex => [
+    u[0] * v[0] - u[1] * v[1],
+    u[0] * v[1] + u[1] * v[0],
+  ]
+
+  const conj = (u: Complex): Complex => [u[0], -u[1]]
+  const expo = (t: number): Complex => [Math.cos(t), Math.sin(t)]
+
+  const cm = Math.cos(mass)
+  const sm = Math.sin(mass)
+
+  // the positive-energy eigenvector of U(k) = coin * shift(k), normalized
+  const eigen = (
+    k: number,
+  ): { right: Complex; left: Complex; energy: number } => {
+    const energy = Math.acos(cm * Math.cos(k))
+    const lambda = expo(-energy)
+    const eik = expo(k)
+    const right: Complex = [lambda[0] - cm * eik[0], lambda[1] - cm * eik[1]]
+    const left: Complex = mul([sm, 0], expo(-k))
+    const norm =
+      Math.hypot(right[0], right[1], left[0], left[1]) || 1
+
+    return {
+      right: [right[0] / norm, right[1] / norm],
+      left: [left[0] / norm, left[1] / norm],
+      energy,
+    }
+  }
+
+  const ka = (2 * Math.PI * indexA) / size
+  const kb = (2 * Math.PI * indexB) / size
+  const ea = eigen(ka)
+  const eb = eigen(kb)
+
+  const right: Complex[] = new Array(size).fill([0, 0])
+  const left: Complex[] = new Array(size).fill([0, 0])
+
+  for (let x = 0; x < size; x++) {
+    const pa = expo(ka * x)
+    const pb = expo(kb * x)
+    right[x] = add(mul(ea.right, pa), mul(eb.right, pb))
+    left[x] = add(mul(ea.left, pa), mul(eb.left, pb))
+  }
+
+  let normSquared = 0
+
+  for (let x = 0; x < size; x++) {
+    normSquared +=
+      right[x]![0] ** 2 +
+      right[x]![1] ** 2 +
+      left[x]![0] ** 2 +
+      left[x]![1] ** 2
+  }
+
+  const scale = Math.sqrt(normSquared) || 1
+
+  for (let x = 0; x < size; x++) {
+    right[x] = [right[x]![0] / scale, right[x]![1] / scale]
+    left[x] = [left[x]![0] / scale, left[x]![1] / scale]
+  }
+
+  const right0 = right.map(c => [...c] as Complex)
+  const left0 = left.map(c => [...c] as Complex)
+  const rightNext: Complex[] = new Array(size).fill([0, 0])
+  const leftNext: Complex[] = new Array(size).fill([0, 0])
+  const survival: number[] = []
+
+  for (let t = 0; t < beats; t++) {
+    let overlapRe = 0
+    let overlapIm = 0
+
+    for (let x = 0; x < size; x++) {
+      const a = mul(conj(right0[x]!), right[x]!)
+      const b = mul(conj(left0[x]!), left[x]!)
+      overlapRe += a[0] + b[0]
+      overlapIm += a[1] + b[1]
+    }
+
+    survival.push(overlapRe * overlapRe + overlapIm * overlapIm)
+
+    // shift: right moves +1, left moves -1
+    for (let x = 0; x < size; x++) {
+      rightNext[x] = right[(x - 1 + size) % size]!
+      leftNext[x] = left[(x + 1) % size]!
+    }
+
+    // mass coin
+    for (let x = 0; x < size; x++) {
+      const r = rightNext[x]!
+      const l = leftNext[x]!
+      right[x] = [cm * r[0] - sm * l[0], cm * r[1] - sm * l[1]]
+      left[x] = [sm * r[0] + cm * l[0], sm * r[1] + cm * l[1]]
+    }
+  }
+
+  return {
+    survival,
+    dispersionGap: Math.abs(ea.energy - eb.energy),
+    energyA: ea.energy,
+    energyB: eb.energy,
+  }
+}

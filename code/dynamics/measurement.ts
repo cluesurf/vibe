@@ -98,6 +98,53 @@ export function pointerTrajectory(input: {
   return trajectory
 }
 
+// The per-beat coarse SLAB-OCCUPANCY field (not just its scalar gradient), the spatial
+// field a persistence measure reads. Same dynamics as pointerTrajectory (run the rule
+// `beats` beats, optionally holding the frontier slab at peace so the fine phase leaks to
+// the open edge), but it returns the whole occupancy profile each beat so its spatial
+// pattern can be autocorrelated over time. A settled classical record holds its profile
+// (high lag autocorrelation), a coherent closed system does not.
+export function slabOccupancySeries(input: {
+  init: Will
+  forward: Collision
+  table: Int32Array
+  beats: number
+  open: boolean
+  frontierX: number
+  axis?: number
+}): number[][] {
+  const axis = input.axis ?? 0
+
+  let current = cloneWill(input.init)
+  let scratch: Will = {
+    mesh: current.mesh,
+    data: new Int8Array(current.data.length),
+  }
+
+  const series: number[][] = []
+
+  for (let t = 0; t < input.beats; t++) {
+    beatInto({
+      src: current,
+      dst: scratch,
+      table: input.table,
+      collision: input.forward,
+    })
+
+    const swap = current
+    current = scratch
+    scratch = swap
+
+    if (input.open) {
+      bornAtPeace(current, input.frontierX)
+    }
+
+    series.push(slabOccupancy(current, axis))
+  }
+
+  return series
+}
+
 // The Loschmidt echo, forward `beats` then the exact inverse bulk backward `beats`, the recovery error. Zero for
 // the closed reversible bulk (the coherence is intact, no record), nonzero for the open one (the fine phase has
 // leaked to the bath, an irreversible record).
