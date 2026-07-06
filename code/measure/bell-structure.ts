@@ -178,6 +178,54 @@ export function reducedCorrelation(input: {
   }
 }
 
+// The expectation of a three-fold Pauli product on a real three-qubit state. Each sigma-y
+// contributes a factor i, so for a real state the value is nonzero only when the sigma-y count is
+// even, with sign i to that count (plus for zero or four, minus for two).
+export function pauliExpectation3(input: {
+  state: ThreeQubit
+  paulis: readonly ('x' | 'y' | 'z')[]
+}): number {
+  const { state, paulis } = input
+  const yCount = paulis.filter(pauli => pauli === 'y').length
+
+  if (yCount % 2 !== 0) {
+    return 0
+  }
+
+  let total = 0
+
+  for (let label = 0; label < 8; label++) {
+    const amplitude = state[label]!
+
+    if (amplitude === 0) {
+      continue
+    }
+
+    let target = label
+    let factor = 1
+
+    for (let q = 0; q < 3; q++) {
+      const bit = (target >> (2 - q)) & 1
+      const pauli = paulis[q]!
+
+      if (pauli === 'x') {
+        target ^= 1 << (2 - q)
+      } else if (pauli === 'z') {
+        factor *= bit === 0 ? 1 : -1
+      } else {
+        factor *= bit === 0 ? 1 : -1
+        target ^= 1 << (2 - q)
+      }
+    }
+
+    total += factor * amplitude * state[target]!
+  }
+
+  const phase = yCount % 4 === 0 ? 1 : -1
+
+  return phase * total
+}
+
 // The Horodecki optimal CHSH value of a two-qubit state from its correlation matrix: two times
 // the square root of the sum of the two largest squared singular values. For a real state the
 // singular values are those of the 2x2 xz block plus |T_yy|.
