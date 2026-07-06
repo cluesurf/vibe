@@ -56,6 +56,7 @@ export default experiment({
       adjacency: cored,
       sizes: SIZES,
     })
+
     const coredComplex = maximalComplex(coredProfile)
 
     // the ring control has the same node count and the same nested-region sweep
@@ -64,6 +65,7 @@ export default experiment({
       adjacency: ring,
       sizes: SIZES,
     })
+
     const ringComplex = maximalComplex(ringProfile)
 
     // the complex sits at the full core, a definite interior maximum

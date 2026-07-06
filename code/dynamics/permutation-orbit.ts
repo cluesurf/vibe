@@ -19,8 +19,8 @@ const FNV_PRIME = 16777619
 function hashWill(will: Will): number {
   let hash = FNV_OFFSET >>> 0
 
-  for (let i = 0; i < will.data.length; i++) {
-    hash ^= will.data[i]! + 1
+  for (const slot of will.data) {
+    hash ^= slot + 1
     hash = Math.imul(hash, FNV_PRIME) >>> 0
   }
 
@@ -102,9 +102,10 @@ export function ruleInjective(input: { side: number; sink: boolean }): boolean {
 
   const a = makeWill(mesh)
   fillWillPattern(a)
+
   const b = cloneWill(a)
   // flip the slot the sink would clamp, so the two states differ only where the sink erases
-  b.data[0] = (a.data[0] === 1 ? -1 : 1) as Int8Array[number]
+  b.data[0] = a.data[0] === 1 ? -1 : 1
 
   const nextA: Will = { mesh: a.mesh, data: new Int8Array(a.data.length) }
   const nextB: Will = { mesh: b.mesh, data: new Int8Array(b.data.length) }
