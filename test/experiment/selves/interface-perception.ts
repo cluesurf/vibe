@@ -45,7 +45,9 @@ function monotonicFitness(state: number): number {
 }
 
 // discretize a fitness function into CATEGORIES levels
-function fitnessLevel(fitness: (state: number) => number): (state: number) => number {
+function fitnessLevel(
+  fitness: (state: number) => number,
+): (state: number) => number {
   let maximum = 0
 
   for (let s = 0; s < WORLD_STATES; s++) {
@@ -71,8 +73,14 @@ function mutualInformation(
   for (let s = 0; s < WORLD_STATES; s++) {
     const c = category(s)
     const f = level(s)
-    joint.set(`${c},${f}`, (joint.get(`${c},${f}`) ?? 0) + 1 / WORLD_STATES)
-    marginalCategory.set(c, (marginalCategory.get(c) ?? 0) + 1 / WORLD_STATES)
+    joint.set(
+      `${c},${f}`,
+      (joint.get(`${c},${f}`) ?? 0) + 1 / WORLD_STATES,
+    )
+    marginalCategory.set(
+      c,
+      (marginalCategory.get(c) ?? 0) + 1 / WORLD_STATES,
+    )
     marginalLevel.set(f, (marginalLevel.get(f) ?? 0) + 1 / WORLD_STATES)
   }
 
@@ -83,7 +91,8 @@ function mutualInformation(
     information +=
       probability *
       Math.log2(
-        probability / (marginalCategory.get(c)! * marginalLevel.get(f)!),
+        probability /
+          (marginalCategory.get(c)! * marginalLevel.get(f)!),
       )
   }
 
@@ -129,13 +138,21 @@ export default experiment({
       claim:
         'on a non-monotonic fitness landscape a fitness-tuned perception carries about one and a half more bits about fitness than a truth-tuned perception of the same bandwidth (about two bits versus under half a bit), so the fitness interface beats the veridical one, while on a monotonic landscape (truth aligned with fitness) the two carry the same information and there is no advantage, exactly Hoffman interface theory',
       metrics: {
-        nonMonotonicTruthInfo: Number(nonMonotonic.truthInfo.toFixed(3)),
-        nonMonotonicFitnessInfo: Number(nonMonotonic.fitnessInfo.toFixed(3)),
-        nonMonotonicAdvantage: Number(nonMonotonic.advantage.toFixed(3)),
+        nonMonotonicTruthInfo: Number(
+          nonMonotonic.truthInfo.toFixed(3),
+        ),
+        nonMonotonicFitnessInfo: Number(
+          nonMonotonic.fitnessInfo.toFixed(3),
+        ),
+        nonMonotonicAdvantage: Number(
+          nonMonotonic.advantage.toFixed(3),
+        ),
         monotonicAdvantage: Number(monotonic.advantage.toFixed(3)),
       },
       // CONTROL: monotonic fitness (truth equals fitness) gives no interface advantage.
-      control: { monotonicAdvantage: Number(monotonic.advantage.toFixed(3)) },
+      control: {
+        monotonicAdvantage: Number(monotonic.advantage.toFixed(3)),
+      },
       notes:
         'Hoffman interface theory of perception, a model-level result. A vibe self perceives to persist, so its perception tracks fitness, not the true substrate state. The advantage is specifically the payoff of non-monotonic fitness. Grounds Hoffman fitness-beats-truth on the persist-not-report self.',
     })

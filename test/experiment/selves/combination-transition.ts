@@ -23,7 +23,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshNeighbors, shellDistances } from '@/code/tool/mesh'
-import { ballAtRadius, bindingMargin } from '@/code/coarse/binding-margin'
+import {
+  ballAtRadius,
+  bindingMargin,
+} from '@/code/coarse/binding-margin'
 
 const SIDE = 10
 const RADIUS = 2
@@ -63,7 +66,11 @@ export default experiment({
       })
 
       const union = [...new Set([...ballA, ...ballB])]
-      const unionMargin = bindingMargin({ neighbors, region: union }).margin
+      const unionMargin = bindingMargin({
+        neighbors,
+        region: union,
+      }).margin
+
       const separateMean =
         (bindingMargin({ neighbors, region: ballA }).margin +
           bindingMargin({ neighbors, region: ballB }).margin) /
@@ -91,9 +98,14 @@ export default experiment({
     const separateWhenFar = Math.abs(farGain) < 1e-9
     const integratedWhenClose = closeGain > 0.02
     const sharpJump = maxJump > 0.03
-    const hasThreshold = criticalSeparation > 3 && criticalSeparation < 9
+    const hasThreshold =
+      criticalSeparation > 3 && criticalSeparation < 9
+
     const ok =
-      separateWhenFar && integratedWhenClose && sharpJump && hasThreshold
+      separateWhenFar &&
+      integratedWhenClose &&
+      sharpJump &&
+      hasThreshold
 
     return verdict({
       status: ok ? 'pass' : 'fail',

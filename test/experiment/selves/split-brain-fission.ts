@@ -84,7 +84,7 @@ export default experiment({
     const callosumAdjacency = neighbors.map((row, cell) =>
       row.filter(next => {
         const crosses =
-          (cell % SIDE < SIDE / 2) !== (next % SIDE < SIDE / 2)
+          cell % SIDE < SIDE / 2 !== next % SIDE < SIDE / 2
 
         return !crosses
       }),
@@ -93,7 +93,8 @@ export default experiment({
     let cutEdges = 0
 
     for (let cell = 0; cell < neighbors.length; cell++) {
-      cutEdges += neighbors[cell]!.length - callosumAdjacency[cell]!.length
+      cutEdges +=
+        neighbors[cell]!.length - callosumAdjacency[cell]!.length
     }
 
     cutEdges /= 2
@@ -105,15 +106,23 @@ export default experiment({
 
     let removed = 0
 
-    for (let cell = 0; cell < neighbors.length && removed < cutEdges; cell++) {
+    for (
+      let cell = 0;
+      cell < neighbors.length && removed < cutEdges;
+      cell++
+    ) {
       for (const next of neighbors[cell]!) {
         if (
           cell < next &&
           ((cell * 2654435761) % 100) / 100 < 0.5 &&
           removed < cutEdges
         ) {
-          randomAdjacency[cell] = randomAdjacency[cell]!.filter(x => x !== next)
-          randomAdjacency[next] = randomAdjacency[next]!.filter(x => x !== cell)
+          randomAdjacency[cell] = randomAdjacency[cell]!.filter(
+            x => x !== next,
+          )
+          randomAdjacency[next] = randomAdjacency[next]!.filter(
+            x => x !== cell,
+          )
           removed++
         }
       }

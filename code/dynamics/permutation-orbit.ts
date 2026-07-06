@@ -56,8 +56,15 @@ export function recurrencePeriod(input: {
 
   const mesh = d4Mesh({ side })
   const degree = mesh.degree
-  const opposite = Array.from({ length: degree }, (unused, d) => mesh.opposite(d))
-  const collision: Collision = pairCollision({ opposite, forward: true })
+  const opposite = Array.from({ length: degree }, (unused, d) =>
+    mesh.opposite(d),
+  )
+
+  const collision: Collision = pairCollision({
+    opposite,
+    forward: true,
+  })
+
   const table = streamSourceTable(mesh)
 
   const init = makeWill(mesh)
@@ -70,10 +77,19 @@ export function recurrencePeriod(input: {
   const start = hashWill(init)
 
   let current = cloneWill(init)
-  let scratch: Will = { mesh: current.mesh, data: new Int8Array(current.data.length) }
+  let scratch: Will = {
+    mesh: current.mesh,
+    data: new Int8Array(current.data.length),
+  }
 
   for (let t = 1; t <= limit; t++) {
-    stepInto({ source: current, target: scratch, table, collision, sink })
+    stepInto({
+      source: current,
+      target: scratch,
+      table,
+      collision,
+      sink,
+    })
 
     const swap = current
     current = scratch
@@ -91,13 +107,23 @@ export function recurrencePeriod(input: {
 // property). Two states differing in a single slot are stepped once; injective means they stay
 // distinct. Under the sink the distinction in the clamped slot is erased, so states differing only
 // there merge (not injective).
-export function ruleInjective(input: { side: number; sink: boolean }): boolean {
+export function ruleInjective(input: {
+  side: number
+  sink: boolean
+}): boolean {
   const { side, sink } = input
 
   const mesh = d4Mesh({ side })
   const degree = mesh.degree
-  const opposite = Array.from({ length: degree }, (unused, d) => mesh.opposite(d))
-  const collision: Collision = pairCollision({ opposite, forward: true })
+  const opposite = Array.from({ length: degree }, (unused, d) =>
+    mesh.opposite(d),
+  )
+
+  const collision: Collision = pairCollision({
+    opposite,
+    forward: true,
+  })
+
   const table = streamSourceTable(mesh)
 
   const a = makeWill(mesh)
@@ -107,8 +133,15 @@ export function ruleInjective(input: { side: number; sink: boolean }): boolean {
   // flip the slot the sink would clamp, so the two states differ only where the sink erases
   b.data[0] = a.data[0] === 1 ? -1 : 1
 
-  const nextA: Will = { mesh: a.mesh, data: new Int8Array(a.data.length) }
-  const nextB: Will = { mesh: b.mesh, data: new Int8Array(b.data.length) }
+  const nextA: Will = {
+    mesh: a.mesh,
+    data: new Int8Array(a.data.length),
+  }
+
+  const nextB: Will = {
+    mesh: b.mesh,
+    data: new Int8Array(b.data.length),
+  }
 
   stepInto({ source: a, target: nextA, table, collision, sink })
   stepInto({ source: b, target: nextB, table, collision, sink })

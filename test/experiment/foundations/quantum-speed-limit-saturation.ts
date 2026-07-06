@@ -48,7 +48,9 @@ function firstMinimumTime(series: number[]): number {
 
       return (
         t +
-        (Math.abs(denominator) < 1e-12 ? 0 : (0.5 * (a - c)) / denominator)
+        (Math.abs(denominator) < 1e-12
+          ? 0
+          : (0.5 * (a - c)) / denominator)
       )
     }
   }
@@ -92,7 +94,9 @@ export default experiment({
         maxSaturationDeviation,
         Math.abs(saturation - 1),
       )
-      perPair[`saturation_${indexA}_${indexB}`] = Number(saturation.toFixed(4))
+      perPair[`saturation_${indexA}_${indexB}`] = Number(
+        saturation.toFixed(4),
+      )
     }
 
     // control: a single eigenmode has no energy spread, an infinite bound, and never orthogonalizes

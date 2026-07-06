@@ -76,9 +76,7 @@ export default experiment({
       }
     }
 
-    const octonionRow = LADDER.map(b =>
-      magicSquareDim(LADDER[3]!, b),
-    )
+    const octonionRow = LADDER.map(b => magicSquareDim(LADDER[3]!, b))
 
     const e8Corner = magicSquareDim(LADDER[3]!, LADDER[3]!)
 
@@ -100,7 +98,10 @@ export default experiment({
 
     const e8Correct = e8Corner === 248
     const ok =
-      squareMatches && octonionRowCorrect && e8Correct && ladderStopsAtOctonions
+      squareMatches &&
+      octonionRowCorrect &&
+      e8Correct &&
+      ladderStopsAtOctonions
 
     return verdict({
       status: ok ? 'pass' : 'fail',

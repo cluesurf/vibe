@@ -77,7 +77,9 @@ export default experiment({
     const familyCount = families.length
 
     // each family closes into a faithful copy of the quaternions H
-    const allQuaternion = families.every(line => closesAsQuaternion(line))
+    const allQuaternion = families.every(line =>
+      closesAsQuaternion(line),
+    )
 
     // the family symmetry: an octonion automorphism of order three cycling the three
     const family = familyPermutation(PREFERRED_UNIT)

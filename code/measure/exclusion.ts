@@ -16,7 +16,10 @@ export function coreWithHalo(input: {
 }): Uint32Array[] {
   const { coreSize, haloSize } = input
   const total = coreSize + haloSize
-  const sets: Set<number>[] = Array.from({ length: total }, () => new Set<number>())
+  const sets: Set<number>[] = Array.from(
+    { length: total },
+    () => new Set<number>(),
+  )
 
   for (let i = 0; i < coreSize; i++) {
     for (let j = 0; j < coreSize; j++) {
@@ -39,7 +42,10 @@ export function coreWithHalo(input: {
 // A homogeneous ring: every element links to its two neighbors, no dense core. The control graph
 // with no definite complex.
 export function ringGraph(size: number): Uint32Array[] {
-  const sets: Set<number>[] = Array.from({ length: size }, () => new Set<number>())
+  const sets: Set<number>[] = Array.from(
+    { length: size },
+    () => new Set<number>(),
+  )
 
   for (let i = 0; i < size; i++) {
     sets[i]!.add((i + 1) % size)

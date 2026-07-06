@@ -63,7 +63,7 @@ export default experiment({
 
     // a selected variant: the replicated structure with a few defects (still high copy number)
     const selected = replicated.slice()
-    const defectRng = makeRng(7)
+    const defectRng = makeRng({ seed: 7 })
 
     for (let d = 0; d < DEFECTS; d++) {
       selected[Math.floor(defectRng.next() * LENGTH)] = 0
@@ -72,7 +72,7 @@ export default experiment({
     const selectedAssembly = distinctMotifs(selected)
 
     // a random structure: high assembly, not built
-    const randomRng = makeRng(42)
+    const randomRng = makeRng({ seed: 42 })
     const random = Array.from({ length: LENGTH }, () => {
       const draw = randomRng.next()
 

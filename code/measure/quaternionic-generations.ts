@@ -129,7 +129,10 @@ export function isSignedOctonionAutomorphism(
       )
 
       const targetPlus = octonionUnit(perm[product.index]!)
-      const targetMinus = octonionScale(octonionUnit(perm[product.index]!), -1)
+      const targetMinus = octonionScale(
+        octonionUnit(perm[product.index]!),
+        -1,
+      )
 
       if (
         !octonionEquals(mapped, targetPlus) &&
@@ -184,4 +187,38 @@ export function familyPermutation(
   }
 
   return null
+}
+
+// The principal angles (in degrees) between two quaternionic subalgebras, each spanned by the real
+// line and its Fano-line imaginary units. The basis vectors are orthonormal coordinate axes, so the
+// overlap is exact: shared axes give an angle of zero and every non-shared pair is orthogonal (an
+// angle of ninety). Returns the sorted list of the four principal angles. Two generation subalgebras
+// (which share the real line and the preferred unit) return [0, 0, 90, 90], so there is no
+// intermediate mixing angle in the geometry.
+export function subalgebraPrincipalAngles(
+  lineA: readonly number[],
+  lineB: readonly number[],
+): number[] {
+  const axesA = new Set<number>([0, ...lineA])
+  const axesB = new Set<number>([0, ...lineB])
+
+  let shared = 0
+
+  for (const axis of axesA) {
+    if (axesB.has(axis)) {
+      shared++
+    }
+  }
+
+  const angles: number[] = []
+
+  for (let i = 0; i < shared; i++) {
+    angles.push(0)
+  }
+
+  for (let i = 0; i < axesA.size - shared; i++) {
+    angles.push(90)
+  }
+
+  return angles.sort((a, b) => a - b)
 }

@@ -52,7 +52,7 @@ function survivalUnderLeak(leak: number): number {
   }
 
   const moved = new Uint8Array(RING_LENGTH)
-  const rng = makeRng(SEED)
+  const rng = makeRng({ seed: SEED })
   const initial = totalCharge(tone)
 
   for (let t = 0; t < BEATS; t++) {
@@ -107,7 +107,10 @@ export default experiment({
     const collapsesAtHigh = survivalAtHighLeak < 0.05
     const degradesImmediately = survivals[1]! < 0.9 // even the smallest leak hurts
     const ok =
-      perfectAtZero && monotone && collapsesAtHigh && degradesImmediately
+      perfectAtZero &&
+      monotone &&
+      collapsesAtHigh &&
+      degradesImmediately
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -121,7 +124,9 @@ export default experiment({
         monotone: monotone ? 1 : 0,
       },
       // CONTROL: exact conservation (zero leak) perfectly preserves the self, deterministically.
-      control: { survivalAtZeroLeak: Number(survivalAtZeroLeak.toFixed(4)) },
+      control: {
+        survivalAtZeroLeak: Number(survivalAtZeroLeak.toFixed(4)),
+      },
       notes:
         'Conservation-exactness sweep (Borgers, Herbert, Maes). Deterministic throughout (seeded, leak swept not seed), so the self persists with no noise, rebutting the randomness-necessary claim: the conserved quantity carries the self, not fluctuation.',
     })

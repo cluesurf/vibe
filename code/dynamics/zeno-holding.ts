@@ -80,7 +80,8 @@ export function zenoHoldSpread(input: {
   rate: number
   seed: number
 }): number {
-  const { length, regionStart, regionEnd, center, beats, rate, seed } = input
+  const { length, regionStart, regionEnd, center, beats, rate, seed } =
+    input
 
   const tone = new Int8Array(length)
 
