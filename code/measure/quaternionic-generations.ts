@@ -222,3 +222,67 @@ export function subalgebraPrincipalAngles(
 
   return angles.sort((a, b) => a - b)
 }
+
+function* allPermutations(
+  items: readonly number[],
+): Generator<number[]> {
+  if (items.length <= 1) {
+    yield [...items]
+
+    return
+  }
+
+  for (let i = 0; i < items.length; i++) {
+    const rest = [...items.slice(0, i), ...items.slice(i + 1)]
+
+    for (const tail of allPermutations(rest)) {
+      yield [items[i]!, ...tail]
+    }
+  }
+}
+
+// Every unit permutation (of the seven imaginary units) that is a signed octonion automorphism.
+// This is the discrete symmetry group of the Fano multiplication, PSL(2,7) of order 168.
+export function allUnitAutomorphisms(): Record<number, number>[] {
+  const out: Record<number, number>[] = []
+
+  for (const image of allPermutations([1, 2, 3, 4, 5, 6, 7])) {
+    const perm: Record<number, number> = {}
+
+    for (let i = 1; i <= 7; i++) {
+      perm[i] = image[i - 1]!
+    }
+
+    if (isSignedOctonionAutomorphism(perm)) {
+      out.push(perm)
+    }
+  }
+
+  return out
+}
+
+// The automorphisms that fix the preferred unit, the stabilizer subgroup (order 24, the
+// point stabilizer of PSL(2,7), isomorphic to S4). Each one permutes the three quaternionic
+// subalgebras through the unit, the three families.
+export function automorphismsFixingUnit(
+  unit: number,
+): Record<number, number>[] {
+  return allUnitAutomorphisms().filter(perm => perm[unit] === unit)
+}
+
+// The permutation a fixed-unit automorphism induces on the three families (the subalgebras
+// through the unit), as a string like '120' (family 0 to 1, 1 to 2, 2 to 0).
+export function inducedFamilyPermutation(input: {
+  perm: Record<number, number>
+  unit: number
+}): string {
+  const { perm, unit } = input
+  const families = subalgebrasThroughUnit(unit).map(line =>
+    line.filter(u => u !== unit),
+  )
+
+  const familyOf = (u: number): number =>
+    families.findIndex(family => family.includes(u))
+
+  return families.map(family => familyOf(perm[family[0]!]!)).join('')
+}
