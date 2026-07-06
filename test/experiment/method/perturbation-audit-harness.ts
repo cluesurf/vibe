@@ -75,7 +75,11 @@ export default experiment({
   run() {
     // DURABLE claim: e^2 = -I from the signed alternation
     const signed = iterant(1, -1)
-    const durableNominal = equals(multiply(signed, signed), NEGATIVE_IDENTITY)
+    const durableNominal = equals(
+      multiply(signed, signed),
+      NEGATIVE_IDENTITY,
+    )
+
     const conjugated = conjugate(signed)
     const durableUnderIrrelevant = equals(
       multiply(conjugated, conjugated),

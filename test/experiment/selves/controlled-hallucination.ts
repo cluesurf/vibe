@@ -88,7 +88,9 @@ export default experiment({
     const hallucinatesWhenAblated = Math.abs(ablatedPercept) > 20
     const controlFallsSilent = Math.abs(memorylessAblatedPercept) < 1
     const ok =
-      tracksWhilePresent && hallucinatesWhenAblated && controlFallsSilent
+      tracksWhilePresent &&
+      hallucinatesWhenAblated &&
+      controlFallsSilent
 
     return verdict({
       status: ok ? 'pass' : 'fail',

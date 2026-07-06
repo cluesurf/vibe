@@ -28,7 +28,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { recurrencePeriod, ruleInjective } from '@/code/dynamics/permutation-orbit'
+import {
+  recurrencePeriod,
+  ruleInjective,
+} from '@/code/dynamics/permutation-orbit'
 
 const SIDE = 3
 const LIMIT = 200000
@@ -43,11 +46,23 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const reversiblePeriod = recurrencePeriod({ side: SIDE, limit: LIMIT, sink: false })
-    const reversibleInjective = ruleInjective({ side: SIDE, sink: false })
+    const reversiblePeriod = recurrencePeriod({
+      side: SIDE,
+      limit: LIMIT,
+      sink: false,
+    })
+
+    const reversibleInjective = ruleInjective({
+      side: SIDE,
+      sink: false,
+    })
 
     // control: the same rule with an information sink destroys the beable cycle
-    const lossyPeriod = recurrencePeriod({ side: SIDE, limit: LIMIT, sink: true })
+    const lossyPeriod = recurrencePeriod({
+      side: SIDE,
+      limit: LIMIT,
+      sink: true,
+    })
 
     const permutes = reversiblePeriod > 0 && reversibleInjective
     const lossyNeverRecurs = lossyPeriod === -1

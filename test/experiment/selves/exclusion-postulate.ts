@@ -72,12 +72,16 @@ export default experiment({
     const complexAtCore = SIZES[coredComplex.argmax] === CORE
     const coredHasBorder = coredComplex.interior
     // and it is decisive: adding the halo drops integration by a large factor
-    const dropFactor = coredComplex.max / Math.max(1e-9, coredProfile[coredComplex.argmax + 1]!)
+    const dropFactor =
+      coredComplex.max /
+      Math.max(1e-9, coredProfile[coredComplex.argmax + 1]!)
+
     const sharpBorder = dropFactor > 5
     // the homogeneous control has NO interior complex (its max is at an endpoint)
     const ringHasNoBorder = !ringComplex.interior
 
-    const ok = complexAtCore && coredHasBorder && sharpBorder && ringHasNoBorder
+    const ok =
+      complexAtCore && coredHasBorder && sharpBorder && ringHasNoBorder
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -54,11 +54,17 @@ export default experiment({
       mesh.opposite(d),
     )
 
-    const forward: Collision = pairCollision({ opposite, forward: true })
+    const forward: Collision = pairCollision({
+      opposite,
+      forward: true,
+    })
+
     const table = streamSourceTable(mesh)
 
     // the coarse (per-slab occupancy) trajectory, the self's own macroscopic self-view
-    function coarseTrajectory(init: ReturnType<typeof makeWill>): number[][] {
+    function coarseTrajectory(
+      init: ReturnType<typeof makeWill>,
+    ): number[][] {
       let current = cloneWill(init)
       let scratch = {
         mesh: current.mesh,
@@ -68,7 +74,12 @@ export default experiment({
       const out: number[][] = []
 
       for (let t = 0; t < BEATS; t++) {
-        beatInto({ src: current, dst: scratch, table, collision: forward })
+        beatInto({
+          src: current,
+          dst: scratch,
+          table,
+          collision: forward,
+        })
 
         const swap = current
         current = scratch
@@ -137,7 +148,9 @@ export default experiment({
     const determinedFromOutside = replayDivergence === 0
     const unpredictableFromWithin = withinViewDivergence > 0.05
     const ok =
-      sameInitialCoarse && determinedFromOutside && unpredictableFromWithin
+      sameInitialCoarse &&
+      determinedFromOutside &&
+      unpredictableFromWithin
 
     return verdict({
       status: ok ? 'pass' : 'fail',

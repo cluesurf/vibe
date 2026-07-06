@@ -106,8 +106,11 @@ export default experiment({
     }
 
     // sub-threshold (just below the jump) and supra-threshold (just above)
-    const subThreshold = broadcasts[SEED_RADII.indexOf(criticalRadius) - 1] ?? 1
-    const supraThreshold = broadcasts[SEED_RADII.indexOf(criticalRadius)] ?? 0
+    const subThreshold =
+      broadcasts[SEED_RADII.indexOf(criticalRadius) - 1] ?? 1
+
+    const supraThreshold =
+      broadcasts[SEED_RADII.indexOf(criticalRadius)] ?? 0
 
     const staysLocalBelow = subThreshold < 0.05
     const broadcastsAbove = supraThreshold > 0.4
@@ -127,7 +130,9 @@ export default experiment({
         criticalSeedRadius: criticalRadius,
       },
       // CONTROL: the sub-threshold seed stays local, so ignition needs crossing the threshold.
-      control: { subThresholdBroadcast: Number(subThreshold.toFixed(4)) },
+      control: {
+        subThresholdBroadcast: Number(subThreshold.toFixed(4)),
+      },
       notes:
         'Global-workspace ignition (Dehaene-Changeux, Baars). The all-or-none broadcast the graded attention-workspace result lacked. Distinct from the persistence threshold (abiogenesis): this is about global availability, not survival.',
     })

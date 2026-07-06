@@ -40,7 +40,9 @@ function multiply(a: Matrix, b: Matrix): Matrix {
 }
 
 function distance(a: Matrix, b: Matrix): number {
-  return Math.max(...a.map((value, index) => Math.abs(value - b[index]!)))
+  return Math.max(
+    ...a.map((value, index) => Math.abs(value - b[index]!)),
+  )
 }
 
 const IDENTITY: Matrix = [1, 0, 0, 1]
@@ -119,7 +121,7 @@ export default experiment({
         constantSquaredIsIdentity,
       },
       notes:
-        'Where i comes from (Kauffman iterants, Ord, the D\'Ariano spin route). A from-below account of the emergent complex structure, complementary to the two-component walk derivation (E-QTM-0046). The quaternionic and spinor extension follows by tensoring two anticommuting iterants, noted as the next step.',
+        "Where i comes from (Kauffman iterants, Ord, the D'Ariano spin route). A from-below account of the emergent complex structure, complementary to the two-component walk derivation (E-QTM-0046). The quaternionic and spinor extension follows by tensoring two anticommuting iterants, noted as the next step.",
     })
   },
 })

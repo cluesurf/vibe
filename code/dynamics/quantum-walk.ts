@@ -658,10 +658,19 @@ export function diracTwoModeSurvival(input: {
   size: number
   mass: number
   beats: number
-}): { survival: number[]; dispersionGap: number; energyA: number; energyB: number } {
+}): {
+  survival: number[]
+  dispersionGap: number
+  energyA: number
+  energyB: number
+} {
   const { indexA, indexB, size, mass, beats } = input
   type Complex = readonly [number, number]
-  const add = (u: Complex, v: Complex): Complex => [u[0] + v[0], u[1] + v[1]]
+  const add = (u: Complex, v: Complex): Complex => [
+    u[0] + v[0],
+    u[1] + v[1],
+  ]
+
   const mul = (u: Complex, v: Complex): Complex => [
     u[0] * v[0] - u[1] * v[1],
     u[0] * v[1] + u[1] * v[0],
@@ -680,10 +689,13 @@ export function diracTwoModeSurvival(input: {
     const energy = Math.acos(cm * Math.cos(k))
     const lambda = expo(-energy)
     const eik = expo(k)
-    const right: Complex = [lambda[0] - cm * eik[0], lambda[1] - cm * eik[1]]
+    const right: Complex = [
+      lambda[0] - cm * eik[0],
+      lambda[1] - cm * eik[1],
+    ]
+
     const left: Complex = mul([sm, 0], expo(-k))
-    const norm =
-      Math.hypot(right[0], right[1], left[0], left[1]) || 1
+    const norm = Math.hypot(right[0], right[1], left[0], left[1]) || 1
 
     return {
       right: [right[0] / norm, right[1] / norm],
@@ -785,7 +797,11 @@ export function diracOverlapEvolution(input: {
   const { statesA, statesB, size, mass, beats } = input
   const leak = input.leak ?? 0
   type Complex = readonly [number, number]
-  const add = (u: Complex, v: Complex): Complex => [u[0] + v[0], u[1] + v[1]]
+  const add = (u: Complex, v: Complex): Complex => [
+    u[0] + v[0],
+    u[1] + v[1],
+  ]
+
   const mul = (u: Complex, v: Complex): Complex => [
     u[0] * v[0] - u[1] * v[1],
     u[0] * v[1] + u[1] * v[0],
@@ -800,7 +816,11 @@ export function diracOverlapEvolution(input: {
     const energy = Math.acos(cm * Math.cos(k))
     const lambda = expo(-energy)
     const eik = expo(k)
-    const right: Complex = [lambda[0] - cm * eik[0], lambda[1] - cm * eik[1]]
+    const right: Complex = [
+      lambda[0] - cm * eik[0],
+      lambda[1] - cm * eik[1],
+    ]
+
     const left: Complex = mul([sm, 0], expo(-k))
     const norm = Math.hypot(right[0], right[1], left[0], left[1]) || 1
 
@@ -832,7 +852,10 @@ export function diracOverlapEvolution(input: {
 
     for (let x = 0; x < size; x++) {
       normSquared +=
-        right[x]![0] ** 2 + right[x]![1] ** 2 + left[x]![0] ** 2 + left[x]![1] ** 2
+        right[x]![0] ** 2 +
+        right[x]![1] ** 2 +
+        left[x]![0] ** 2 +
+        left[x]![1] ** 2
     }
 
     const scale = Math.sqrt(normSquared) || 1
@@ -866,8 +889,14 @@ export function diracOverlapEvolution(input: {
 
     if (leak > 0) {
       // damp the boundary cell, a non-unitary loss
-      state.right[0] = [state.right[0]![0] * (1 - leak), state.right[0]![1] * (1 - leak)]
-      state.left[0] = [state.left[0]![0] * (1 - leak), state.left[0]![1] * (1 - leak)]
+      state.right[0] = [
+        state.right[0]![0] * (1 - leak),
+        state.right[0]![1] * (1 - leak),
+      ]
+      state.left[0] = [
+        state.left[0]![0] * (1 - leak),
+        state.left[0]![1] * (1 - leak),
+      ]
     }
   }
 

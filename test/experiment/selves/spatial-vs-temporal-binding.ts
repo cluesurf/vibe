@@ -42,27 +42,38 @@ export default experiment({
   paper: false,
   run() {
     const mesh = d4Mesh({ side: SIDE })
-    const adjacency = meshNeighbors(mesh).map(row => Uint32Array.from(row))
+    const adjacency = meshNeighbors(mesh).map(row =>
+      Uint32Array.from(row),
+    )
 
     // the spatial self: a compact, densely cross-linked ball
-    const ball = new Set(ballAtRadius({ mesh, center: 0, radius: RADIUS }))
-    const spatialPhi = algebraicConnectivity({ adjacency, region: ball })
+    const ball = new Set(
+      ballAtRadius({ mesh, center: 0, radius: RADIUS }),
+    )
+
+    const spatialPhi = algebraicConnectivity({
+      adjacency,
+      region: ball,
+    })
 
     // the temporal chain: the same number of cells, linked only in sequence (feed-forward)
     const size = ball.size
-    const chainAdjacency = Array.from({ length: size }, (unused, index) => {
-      const links: number[] = []
+    const chainAdjacency = Array.from(
+      { length: size },
+      (unused, index) => {
+        const links: number[] = []
 
-      if (index > 0) {
-        links.push(index - 1)
-      }
+        if (index > 0) {
+          links.push(index - 1)
+        }
 
-      if (index < size - 1) {
-        links.push(index + 1)
-      }
+        if (index < size - 1) {
+          links.push(index + 1)
+        }
 
-      return Uint32Array.from(links)
-    })
+        return Uint32Array.from(links)
+      },
+    )
 
     const chainRegion = new Set(
       Array.from({ length: size }, (unused, index) => index),

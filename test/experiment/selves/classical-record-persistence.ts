@@ -76,6 +76,7 @@ export default experiment({
       opposite,
       forward: true,
     })
+
     const table = streamSourceTable(mesh)
 
     const recordSeries = slabOccupancySeries({
@@ -106,10 +107,12 @@ export default experiment({
         series: recordSeries,
         lag,
       })
+
       const closedAutocorr = lagAutocorrelation({
         series: closedSeries,
         lag,
       })
+
       minRecordAutocorr = Math.min(minRecordAutocorr, recordAutocorr)
       maxClosedAutocorr = Math.max(maxClosedAutocorr, closedAutocorr)
       perLag[`record_lag${lag}`] = Number(recordAutocorr.toFixed(4))

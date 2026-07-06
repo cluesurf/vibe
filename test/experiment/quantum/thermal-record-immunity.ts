@@ -43,7 +43,7 @@ const FRONTIER_X = 0
 // heat a body by flipping a `temperature` fraction of its tones, deterministically
 function heat(base: ReturnType<typeof makeWill>, temperature: number) {
   const hot = cloneWill(base)
-  const rng = makeRng(SEED)
+  const rng = makeRng({ seed: SEED })
 
   for (let i = 0; i < hot.data.length; i++) {
     if (rng.next() < temperature) {
