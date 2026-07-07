@@ -160,7 +160,7 @@ What it handles,
   clean bulk and localized under an Aubry-Andre potential (the
   propagation test).
 
-The honest caveats,
+The caveats,
 
 - The Kahler-Dirac operator on a single complex is a MULTIPLET, not one
   Dirac field. In the continuum it carries `2^(n/2)` copies, one per

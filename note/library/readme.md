@@ -30,6 +30,37 @@ Build a mesh, optionally put a tone state on it, either run the local rule or bu
 | [api/computing-and-data-structures](api/computing-and-data-structures.md) | content-addressable associative memory and classic data structures realized on the hyperbolic bulk | you want to compute, search, or store on the mesh |
 | [api/draw-and-render](api/draw-and-render.md) | the 2D drawing primitives, the render scripts, the WebGPU compute runners | you want a figure or a GPU run |
 
+## The module reference (`code/`)
+
+The `api/` guides above are task-oriented (WHICH function for WHICH job). For the
+exact, exhaustive per-directory reference, every module with its key exports and
+entry-point signatures, see the `code/` docs, one per source directory, grouped
+by role in the pipeline.
+
+The engine (`substrate -> tone -> rule -> dynamics -> coarse -> model`):
+
+- [code/substrate](code/substrate.md) build the mesh (Coxeter honeycombs, the D4 coin, flat lattices, sprinklings)
+- [code/tone](code/tone.md) the cell state (`Will`, `makeWill`, `fillWillPattern`, `charge`, `cellTone`)
+- [code/rule](code/rule.md) the reversible local rule (`pairCollision`, `beat`, `inverseBeat`, `run`, `stream`)
+- [code/dynamics](code/dynamics.md) sampling, MCMC, wave and walk evolution, lattice gauge
+- [code/coarse](code/coarse.md) coarse-graining and selves (`extractUnits`, `countMatrix`, `spectralGap`, `emergenceGain`)
+- [code/model](code/model.md) the `vibe()` fluent DSL and the committed model
+- [code/geometry](code/geometry.md) geometric helpers on the mesh
+- [code/algebra](code/algebra.md) the symmetry and linear algebra (D4, F4, Clifford, octonions, eigensolvers)
+
+The analysis and controls:
+
+- [code/measure](code/measure.md) observables and metrics (`fisherRaoDistance`, dimension, curvature, entanglement, `chsh`, RT scaling)
+- [code/check](code/check.md) invariants and verification (`conservesCharge`, `isReversible`, `roundtrip`)
+- [code/control](code/control.md) the null controls every L3 experiment beats (`scrambleNeighbors`, flat, `erasingCollision`)
+- [code/operator](code/operator.md) matrices on the substrate (Laplacian, Kahler-Dirac, gauge)
+- [code/compute](code/compute.md) the vibe computer and the compile backends
+- [code/tool](code/tool.md) substrate-agnostic primitives (rng, graph, poset, bitset, mesh)
+
+The rendering:
+
+- [code/render](code/render.md), [code/draw](code/draw.md), [code/viz](code/viz.md) scenes, 2D drawing, and figures
+
 ## Deep dives (how the engines work inside)
 
 The `api/` guides say WHICH function to call. These deep dives explain HOW each engine works, the algorithm and the idea, the layer under the API.
@@ -44,7 +75,7 @@ The `api/` guides say WHICH function to call. These deep dives explain HOW each 
 | [causal-set-sampler](causal-set-sampler.md) | the discrete path integral over causal orders, the Benincasa-Dowker action and the uniform-measure MCMC |
 | [evolution-and-propagation](evolution-and-propagation.md) | the leapfrog unitary evolution and the return-probability test for extended versus localized |
 | [lattice-gauge-engine](lattice-gauge-engine.md) | gauge fields on links, the Wilson plaquette action, Metropolis sweeps, the coupled Schwinger evolution |
-| [coarse-graining-and-selves](coarse-graining-and-selves.md) | coarse-graining the micro rule into macro levels, causal emergence, Markov blankets, the level tower, the honest null result |
+| [coarse-graining-and-selves](coarse-graining-and-selves.md) | coarse-graining the micro rule into macro levels, causal emergence, Markov blankets, the level tower, the null result |
 | [associative-memory-engine](associative-memory-engine.md) | content-addressable memory on the mesh, Potter's parallel SITDAC search, the O(log N) broadcast, exponential capacity per radius |
 
 ## Start here
@@ -65,6 +96,23 @@ For custom work, the path is **substrate** then **tone-and-rule** (or **operator
 - **Deterministic.** The library never uses `Math.random`. Use the seeded `makeRng` (see [api/tool](api/tool.md)) or `fillWillPattern`. Vary the lattice SIZE, not seeds.
 - **The `@/` alias.** Every import is absolute through `@/`, which points at the package root. No relative imports across folders, no `.js` extensions, no `/index`.
 - **Finite and exact.** Everything is finite. The base rule is integer arithmetic, so equalities are exact, not tolerant.
+
+## Doc freshness
+
+The `code/` module reference and the deep-dive engine docs were verified against
+the current source in this pass. A few of the older `api/` using-guides have
+known drift to fix:
+
+- `api/draw-and-render.md` references the GPU runner as `code/gpu/...`, but the
+  directory is `code/compute/`, and its render script names (`render-wave.ts`
+  and friends) do not match the actual `code/compute/run-*.ts` files.
+- `api/draw-and-render.md` lists the render validation folders as `533`, `73`,
+  `534`, but the real `code/render/run/` subfolders are `3434`, `534`, `73`
+  (there is no `533`, and `3434` is missing from the doc).
+- `api/measure.md` says "70 files", but `code/measure/` now holds about 155.
+
+When touching those areas, prefer the `code/<dir>.md` reference, which is
+current.
 
 ## See also
 

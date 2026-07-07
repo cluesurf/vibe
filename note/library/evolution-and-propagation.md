@@ -33,7 +33,7 @@ a vector), the engine,
 - reads a clean `|psi|^2` by SYNCHRONIZING the staggered imaginary part
   back to integer time,
 - reports the RETURN PROBABILITY `P(t) = |psi_source(t)|^2`, its
-  time-average, and the norm drift (the honesty check that the evolution
+  time-average, and the norm drift (the check that the evolution
   stayed unitary),
 - adds a deterministic quasiperiodic potential as the LOCALIZATION
   CONTROL, no randomness anywhere.
@@ -143,7 +143,7 @@ imaginary parts of the state.
    propagation claim would be empty. The clean-low, localized-high split
    is what makes the result real.
 
-The norm drift is the built-in honesty check. If the leapfrog were
+The norm drift is the built-in check. If the leapfrog were
 unstable (dt too large), `normDrift` would blow up and the run is
 invalid.
 

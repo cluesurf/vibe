@@ -186,8 +186,8 @@ This rule is the law the whole model runs on. The flat layer, the
 fields, gravity, and the selves are all patterns that this one rule
 produces from a fill of ternary tones. Making it reversible and
 charge-conserving by construction (not by tuning) is what lets the
-project claim emergent physics honestly. If a phenomenon does not fall
-out of these five base pieces, the honest answer is the negative, not a
+project claim emergent physics. If a phenomenon does not fall
+out of these five base pieces, the answer is the negative, not a
 new term added to the rule. Making it generic in the mesh degree is what
 lets the same dynamics run on the {3,4,3,4} substrate the frontier
 agenda needs, through the identical code that runs the 2D reference toy.
