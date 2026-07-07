@@ -69,8 +69,8 @@ export default experiment({
     const amplitudeHalves = halvingRatio > 1.8 && halvingRatio < 2.3
 
     // CONTROL: zero field flies straight (ballistic), span grows with time and dwarfs any orbit
-    const ballisticShort = span(0, STEPS_SHORT >> 1) // 100 steps: not yet wrapped
-    const ballisticShorter = span(0, STEPS_SHORT >> 2) // 50 steps
+    const ballisticShort = span(0, 150) // 150 steps: escaped far, still not wrapped (L/2 = 120)
+    const ballisticShorter = span(0, 75) // 75 steps
     const ballisticGrows = ballisticShort > 1.6 * ballisticShorter
     const largestOrbit = Math.max(...amplitudes)
     const dwarfsOrbit = ballisticShort > 4 * largestOrbit
@@ -94,8 +94,8 @@ export default experiment({
       },
       // CONTROL: with no field the walk flies straight (ballistic, span grows and dwarfs the orbit).
       control: {
-        ballisticSpan100: Number(ballisticShort.toFixed(2)),
-        ballisticSpan50: Number(ballisticShorter.toFixed(2)),
+        ballisticSpan150: Number(ballisticShort.toFixed(2)),
+        ballisticSpan75: Number(ballisticShorter.toFixed(2)),
         spanOverLargestOrbit: Number((ballisticShort / largestOrbit).toFixed(2)),
       },
       notes:
