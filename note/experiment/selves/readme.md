@@ -6,7 +6,7 @@
 
 Vibe theory says a **self** is not fundamental. A self is an **emergent, bound, self-maintaining pattern** in the discrete substrate, a Markov-blanket-like agent that arises when the reversible base rule is **coarse-grained with loss**. The cells turn over, the field stays, the gathering holds itself together for a while. This arena asks whether such an agent actually forms from the five base things, and what follows once it does: **binding** (what makes a pattern hold), **agency** (goal-directed action and will), **integration** (a whole more than its parts), **identity** (persistence through total turnover), **death** (the gathering loosening), **nesting** (selves of selves), a **self-model** (a part that mirrors the whole), and **self-localization** (where on the geometry a self can live).
 
-The methodology is strict. Every claim carries a **control that could have failed**: a degree-preserving **SCRAMBLE**, a time-**shuffle**, a **FLAT diffusion** baseline, a no-dynamics run, or a lossless-versus-**lossy** comparison. Depth follows the rubric. **L1** confirms known mathematics or composes a measured factor. **L2** reproduces a construction on the substrate with a control. **L3** is a measured, controlled, novel consequence of the base rule. The arena is candid about scope: many results explicitly mark an **added ingredient** (an imposed maintenance rule, a hand-coded planner, a scalar willpower budget) as **not base-emergent**, and several are flat negatives reported as findings.
+The methodology is strict. Every claim carries a **control that could have failed**: a degree-preserving **SCRAMBLE**, a time-**shuffle**, a **FLAT diffusion** baseline, a no-dynamics run, or a lossless-versus-**lossy** comparison. Depth follows the rubric. **L1** confirms known mathematics or composes a measured factor. **L2** reproduces a construction on the substrate with a control. **L3** is a measured, controlled, novel consequence of the base rule. The arena is explicit about scope: many results explicitly mark an **added ingredient** (an imposed maintenance rule, a hand-coded planner, a scalar willpower budget) as **not base-emergent**, and several are flat negatives reported as findings.
 
 ## Sub-themes
 
@@ -255,11 +255,11 @@ Named research programs reproduced on the substrate as controlled measurements: 
 - **E-SLF-0169** - a predictive perceiver tracks input then runs on its prior when input is ablated (a controlled hallucination) while a memoryless perceiver falls silent, Seth predictive processing.
 - **E-SLF-0172** - integration peaks at a definite interior maximum at the core boundary (a bordered complex) while a homogeneous graph has none, the IIT exclusion postulate.
 
-### 15. Controls and candid negatives
+### 15. Controls and negatives
 
 Results whose whole point is a **control that could have failed** or a plain negative, reported as findings. These pin what the base does **not** do.
 
-- **E-SLF-0002** - the apparent refuge relocation is a refuge halo, the self dies where it is and none of its charge reaches the refuge, a candid negative.
+- **E-SLF-0002** - the apparent refuge relocation is a refuge halo, the self dies where it is and none of its charge reaches the refuge, a negative.
 - **E-SLF-0024** - mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode.
 - **E-SLF-0052** - positive control, a rest slot plus an explicit (cheat) attraction give a full self with identity, self-repair, and radiation.
 - **E-SLF-0113** - living balance is structureless churn, no durable selves from tones alone.
@@ -273,7 +273,7 @@ Results whose whole point is a **control that could have failed** or a plain neg
 - **A self is a gathering, not its cells.** It keeps identity through total turnover (**E-SLF-0057**, **E-SLF-0099**) and dies when the gathering loosens below the binding margin (**E-SLF-0160**). Life is repair outrunning decay at a work cost (**E-SLF-0070**, **E-SLF-0094**).
 - **Integration, agency, and a self-model follow once binding holds.** A self screens interior from exterior (**E-SLF-0029**), is a local maximum of integration (**E-SLF-0061**), forms a hub that mirrors and predicts the whole (**E-SLF-0115**, **E-SLF-0073**), and steers a determined life to a different end (**E-SLF-0129**). Selves nest into higher selves (**E-SLF-0078**, **E-SLF-0081**).
 - **Free will is determinism without predetermination.** A choice replays exactly yet is irreducible and self-authored, and an uncaused spark only erodes authorship (**E-SLF-0020**, **E-SLF-0170**, **E-SLF-0145**).
-- **The methodology is candid.** Controls that could have failed are everywhere (SCRAMBLE, shuffle, FLAT diffusion, no-dynamics), added ingredients are flagged as **not base-emergent** (**E-SLF-0038**, **E-SLF-0150**, **E-SLF-0154**), and plain negatives are reported as results (**E-SLF-0002**, **E-SLF-0021**, **E-SLF-0113**, **E-SLF-0123**).
+- **Controls, flags, and reported negatives.** Controls that could have failed are everywhere (SCRAMBLE, shuffle, FLAT diffusion, no-dynamics), added ingredients are flagged as **not base-emergent** (**E-SLF-0038**, **E-SLF-0150**, **E-SLF-0154**), and plain negatives are reported as results (**E-SLF-0002**, **E-SLF-0021**, **E-SLF-0113**, **E-SLF-0123**).
 
 ## License
 

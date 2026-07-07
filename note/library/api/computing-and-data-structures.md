@@ -80,7 +80,7 @@ Each is a classic structure realized on the hyperbolic mesh, showing it inherits
 | BFS traversal | the BFS frontier IS the growth shell, traversal is free | `data-structure/bfs-traversal` |
 | cusp array | a dense array belongs on the flat horosphere, not the bulk interior | `data-structure/cusp-array` |
 
-### Candid limits
+### Limits
 
 | structure | what it shows | experiment |
 | --------- | ------------- | ---------- |

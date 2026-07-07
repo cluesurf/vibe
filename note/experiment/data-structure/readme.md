@@ -6,13 +6,13 @@ The through-line is one geometric fact. The bulk grows **exponentially** with ra
 
 ## Exponential capacity and its price
 
-The base resource. Negative curvature packs exponentially many cells into each radial shell, which is what makes addresses short. The same growth also creates the interior sparsity and the range-scan cost, the two candid caveats.
+The base resource. Negative curvature packs exponentially many cells into each radial shell, which is what makes addresses short. The same growth also creates the interior sparsity and the range-scan cost, the two caveats.
 
 - **E-DST-0006** - the 4D bulk holds exponentially more cells per radius than the flat 24-cell honeycomb, the exponential-capacity signature.
 - **E-DST-0001** - cells carry unique addresses of logarithmic length, far shorter than the flat honeycomb needs.
 - **E-DST-0014** - the bulk is boundary-dominated, almost every cell sits in the outermost shell, so the interior is nearly empty.
 - **E-DST-0008** - a dense array belongs on the flat horosphere slice, the sparse bulk interior would waste an array.
-- **E-DST-0021** - a contiguous range scan visits exponentially many cells, the structure the bulk is worst at (the candid negative).
+- **E-DST-0021** - a contiguous range scan visits exponentially many cells, the structure the bulk is worst at (the negative).
 
 ## Structure without storage
 

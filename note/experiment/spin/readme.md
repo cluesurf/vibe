@@ -63,7 +63,7 @@ A second route to fermions: differential forms on the cell complex. The Kahler-D
 
 ## Triality and the generations problem
 
-The novel bet. SO(8) triality cycles the three 8-dim reps, and F4 forces a rank-three exceptional Jordan structure. The arena tests whether this gives three fermion generations and reports the candid gap: the structure is real, the identification with three generations stays open.
+The novel bet. SO(8) triality cycles the three 8-dim reps, and F4 forces a rank-three exceptional Jordan structure. The arena tests whether this gives three fermion generations and reports the gap: the structure is real, the identification with three generations stays open.
 
 - **E-SPN-0036** - `{5,3,4}` carries no spinor while `{3,4,3,4}` splits 8v + 8s + 8c with triality, the spinors fermions.
 - **E-SPN-0041** - SO(8) triality is a real order-3 symmetry, but the naive reading gives vector plus two chiralities, not three generations.

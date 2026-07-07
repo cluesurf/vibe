@@ -97,7 +97,7 @@ to strengthen (see "where to extend").
 
 ## The depth tiers
 
-Every experiment declares a `depth`. The tiers are a plain honesty scale, not a
+Every experiment declares a `depth`. The tiers are a plain grading scale, not a
 quality ranking.
 
 - **L0** illustrative. A picture or a sanity check, no load-bearing claim.
@@ -145,7 +145,7 @@ Four curated walks for diving in cold.
   [associative](associative/readme.md).
 - **The skeptic.** [method](method/readme.md) (the anti-fooling gates) then
   [substrate-survey](substrate-survey/readme.md) (rival lattices) then scan any
-  arena's "controls and candid negatives" section.
+  arena's "controls and negatives" section.
 
 ## Coverage gaps and where to extend
 

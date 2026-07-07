@@ -234,7 +234,7 @@ The structural facts,
 
 ## Why it matters
 
-This is the gauge half of the physics program, realized honestly. The
+This is the gauge half of the physics program, realized. The
 model's relational tones on the edges ARE the connection, the plaquette
 IS the field strength, and the standard lattice machinery (Wilson
 action, Metropolis sampling, confinement by the area law, the

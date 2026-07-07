@@ -2,7 +2,7 @@
 
 The **general** arena holds the single catch-all experiment that does not sit inside a named physics arena. It pins one mechanism end to end, the renormalization flow read as an exact, solvable calculation, as a bridge toward the open problem of deriving **absolute Standard Model numbers**.
 
-The larger claim the program makes is that radial coarse-graining IS the renormalization group and that this generates the running of couplings. That claim needs a concrete, checkable anchor. This experiment supplies it on the cleanest solvable case, the 1D Ising chain, verifying the decimation by direct block-spin summation rather than asserting the closed form, then iterating the flow to its fixed point and computing the beta function. It fixes the **method** completely. It does not yet run the actual 4D collision through the same blocking to read off the Standard Model beta coefficients, the candid remaining step.
+The larger claim the program makes is that radial coarse-graining IS the renormalization group and that this generates the running of couplings. That claim needs a concrete, checkable anchor. This experiment supplies it on the cleanest solvable case, the 1D Ising chain, verifying the decimation by direct block-spin summation rather than asserting the closed form, then iterating the flow to its fixed point and computing the beta function. It fixes the **method** completely. It does not yet run the actual 4D collision through the same blocking to read off the Standard Model beta coefficients, the remaining step.
 
 1 experiment. Every code appears once.
 

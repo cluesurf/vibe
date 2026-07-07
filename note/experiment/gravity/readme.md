@@ -8,7 +8,7 @@ In ordinary physics gravity is either a fundamental force or a fundamental geome
 
 So this arena asks whether gravity can **emerge** from the coarse-grained substrate instead. The thesis is entropic and thermodynamic. Curvature is not fundamental, it is the shape a conserved current is forced into to stay continuous under stress. The gravitational potential is not a new field, it is the thermodynamic reading of the entanglement **area law** of the emergent matter field. Space geometry, Newton's inverse square, the Einstein equations, the graviton, gravitational waves, horizons, black-hole thermodynamics, the dark sector, and the link to holography are all treated as things that must be **measured out of the dynamics**, with a control that could have failed, not asserted.
 
-Each experiment carries a depth tier. **L0** is circular (the answer put in by hand). **L1** confirms known math on the substrate. **L2** reproduces a known physics construction. **L3** is the genuine target: a base rule producing the result as a measured consequence. Negatives are reported as results. Several titles below name their own candid limit, and a few label themselves openly as consistency checks or open frontiers rather than emergence.
+Each experiment carries a depth tier. **L0** is circular (the answer put in by hand). **L1** confirms known math on the substrate. **L2** reproduces a known physics construction. **L3** is the genuine target: a base rule producing the result as a measured consequence. Negatives are reported as results. Several titles below name their own limit, and a few label themselves openly as consistency checks or open frontiers rather than emergence.
 
 ## Sub-themes
 
@@ -90,7 +90,7 @@ Long-range Newtonian gravity cannot live in the curved hyperbolic bulk, it is ex
 
 ### 8. Candidate mechanisms and the dark sector
 
-Two alternative static-force mechanisms tested honestly, and the dark-matter rotation curve treated as a consistency check that flags its own assumption.
+Two alternative static-force mechanisms tested, and the dark-matter rotation curve treated as a consistency check that flags its own assumption.
 
 - **E-GRV-0034** - the bare shadow pressure is a distance-independent ballistic deficit, not a 1/r Newtonian tail, a measured negative.
 - **E-GRV-0027** - Le Sage shadow gravity: an isotropic flux gives the inverse-square force, but the measured first-order drag rules it out as fundamental.
@@ -114,7 +114,7 @@ The bridge from the reversible conserving substrate to smooth conserved geometry
 - **Horizons and black-hole thermodynamics fall out.** Effective horizons radiate at T = kappa/2pi with a derived thermal spectrum, and the first law, Smarr, Bekenstein, and M-cubed evaporation follow from the measured area-law entropy.
 - **Geometry sets where gravity can live.** Long-range gravity is exponentially screened in the hyperbolic bulk by a size-independent spectral gap, so Newtonian gravity is a flat-cusp phenomenon, which is exactly where the theory puts observers.
 - **Conservation is the bridge to curvature.** The exactly conserved reversible tone is a divergence-free current at every coarse scale on the real curved mesh, the discrete-to-continuum half of the Chronoflux link, with lossy controls that break it.
-- **The candid gaps are marked.** The exact bulk gravity propagator is open, the dark-sector rotation curve is a flagged consistency check, Le Sage is ruled out by drag, and several relations are labelled internal consistency rather than emergence.
+- **The gaps are marked.** The exact bulk gravity propagator is open, the dark-sector rotation curve is a flagged consistency check, Le Sage is ruled out by drag, and several relations are labelled internal consistency rather than emergence.
 
 ## License
 

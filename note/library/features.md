@@ -9,7 +9,7 @@ established. Each row points to where to look.
 Status key for the physics rows: **solid** is verified with a control
 that could fail, **partial** is a real structure established with the
 final step open, **open** is a genuine frontier (open in physics, not
-just here), **candid negative** is a result correctly reporting a no.
+just here), **negative** is a result correctly reporting a no.
 
 ## Physics it solves for
 
@@ -63,7 +63,7 @@ just here), **candid negative** is a result correctly reporting a no.
 | non-abelian gauge                      | the SU(2) algebra closes with self-interaction           | solid, `gauge/non-abelian-3434`                                 |
 | the chiral condensate                  | dynamical mass from a gauge interaction                  | solid, `operator/overlap-condensate`, `gauge/su2-condensate`    |
 | the lattice index theorem              | the overlap index equals the gauge topology              | solid, `operator/gauge-index`                                   |
-| the coupling value (the 1/137 problem) | the bare rule fixes the form, not the value              | candid negative, `gauge/coupling-not-fixed-3434`                |
+| the coupling value (the 1/137 problem) | the bare rule fixes the form, not the value              | negative, `gauge/coupling-not-fixed-3434`                |
 
 ### Mass and generations
 
@@ -83,7 +83,7 @@ just here), **candid negative** is a result correctly reporting a no.
 | a graviton mode                             | a spin-2 mode from the action                                 | `gravity/graviton-from-action`, `operator/graviton`                 |
 | gravitational waves                         | linearized propagation                                        | `gravity/gr-gravitational-waves`                                    |
 | analog Hawking and Unruh                    | horizon thermodynamics                                        | `gravity/analog-hawking`, `measure/unruh`                           |
-| curved-bulk Newton screening                | clean 3D Newton is the flat cusp, the hyperbolic bulk screens | candid negative, `measure/gravity-potential`                        |
+| curved-bulk Newton screening                | clean 3D Newton is the flat cusp, the hyperbolic bulk screens | negative, `measure/gravity-potential`                        |
 
 ### Holography
 
@@ -131,7 +131,7 @@ just here), **candid negative** is a result correctly reporting a no.
 | --------------------------------- | --------------------------------------------------- | ------------------------------------------------------------ |
 | causal emergence                  | a macro level with more causal power than the micro | `coarse/causal-emergence`, `selves/causal-emergence`         |
 | persistent localized structure    | solitons, defects, topological protection           | `selves/topological-persistence-3434`, `measure/persistence` |
-| the churn baseline                | the candid no-persistence null result               | `selves/bare-rule-persistence-3434`                          |
+| the churn baseline                | the no-persistence null result               | `selves/bare-rule-persistence-3434`                          |
 | Markov blankets and individuality | the boundary of a self                              | `coarse/individuality`, `coarse/macro-unit`                  |
 | integrated information and memory | self measures                                       | `measure/integration`, `selves/permanent-memory`             |
 

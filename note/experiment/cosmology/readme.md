@@ -4,7 +4,7 @@ Fifty experiments on the universe at the largest scale.
 
 Vibe theory has a **growing substrate**, the wake. The universe is a growing `{3,4,3,4}` honeycomb that starts from a single seed chamber and reflects outward forever. This arena tests what that growth implies. Did the substrate begin, or is it eternal. How does the mesh expand, and at what rate. Can a living universe self-create from the peace void with no arrow parameter put in. Why is space three-dimensional and flat. What is the arrow of time at cosmic scale. Where do inflation, the microwave background, dark energy, and structure come from.
 
-The through-line is **derive, do not impose**. The five base things are the growing crystal, the ternary tone, the reversible conserving rule, reflection and growth, and the arrow. Every cosmological feature must emerge from those, with a control that gives the opposite answer when the mechanism is removed. Some results here are the program's deepest wins. Some are candid negatives. Some import known causal-set physics and are labeled as such.
+The through-line is **derive, do not impose**. The five base things are the growing crystal, the ternary tone, the reversible conserving rule, reflection and growth, and the arrow. Every cosmological feature must emerge from those, with a control that gives the opposite answer when the mechanism is removed. Some results here are the program's deepest wins. Some are negatives. Some import known causal-set physics and are labeled as such.
 
 ## Sub-themes
 
@@ -97,11 +97,11 @@ Does a causal-set action make smooth manifold-like order dominate the sum over h
 
 ### Structure formation, rarity, and matter asymmetry
 
-The rest. Why matter beats antimatter, how rare life is in the cosmic budget, and an candid negative on whether matter settles onto the flat slice.
+The rest. Why matter beats antimatter, how rare life is in the cosmic budget, and a negative on whether matter settles onto the flat slice.
 
 - **E-CSM-0004** - baryon asymmetry emerges from out-of-equilibrium Boltzmann dynamics, all three Sakharov conditions necessary, with the freeze-out efficiency peaking at intermediate washout.
 - **E-CSM-0036** - three independent measures confirm life is a rare, thin, threshold-gated tail of matter.
-- **E-CSM-0032** - matter does not dynamically settle onto the flat cusp under the pure reversible rule, an candid negative reported either way.
+- **E-CSM-0032** - matter does not dynamically settle onto the flat cusp under the pure reversible rule, a negative reported either way.
 
 ## What this arena establishes
 
@@ -110,4 +110,4 @@ The rest. Why matter beats antimatter, how rare life is in the cosmic budget, an
 - **Expansion is forced geometry**, not a tuned rate. The hyperbolic bulk grows exponentially, the per-beat rate is a fixed invariant of the Schlafli symbol, and the wake divergence exactly counts newborn cells.
 - **Three flat dimensions** are selected by stable closed orbits, and physical space is a flat horosphere of the curved bulk, with objects as cones into it.
 - **Inflation, the CMB tilt, and dark energy** connect to the mesh. The hyperbolic geometry motivates a plateau inflaton that matches the Planck spectral index and stays inside the tensor bound, and the everpresent-Lambda mechanism reaches the observed dark-energy magnitude with a falsifiable high-redshift prediction.
-- The **candid negatives are kept**. Matter does not settle onto the cusp under the pure rule, the sharp causal-set action fails manifold dominance, and the quadratic inflaton is in tension on the tensor ratio, each reported plainly.
+- The **negatives are kept**. Matter does not settle onto the cusp under the pure rule, the sharp causal-set action fails manifold dominance, and the quadratic inflaton is in tension on the tensor ratio, each reported plainly.

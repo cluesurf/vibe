@@ -10,7 +10,7 @@ Vibe theory tries to grow it instead. The whole model is five base things: a dis
 
 The tests cover the emergence of electromagnetism from local charge conservation, non-abelian gauge fields and confinement, the algebra path from the coin to the **so(10)** grand-unified group, anomaly cancellation and charge quantization, the coupling constants and the weak mixing angle, the fermion mass hierarchy, the Koide lepton-mass relation, the three-generation and flavor structure, and topological solitons as matter.
 
-Each experiment carries a depth tier. **L1** confirms known math on the substrate. **L2** reproduces a known physics construction. **L3** is the genuine target: a base rule producing the result with a control that could have failed. Negatives are reported as results, not hidden. Many titles below name their own candid limit or open gate.
+Each experiment carries a depth tier. **L1** confirms known math on the substrate. **L2** reproduces a known physics construction. **L3** is the genuine target: a base rule producing the result with a control that could have failed. Negatives are reported as results, not hidden. Many titles below name their own limit or open gate.
 
 ## Sub-themes
 
@@ -103,14 +103,14 @@ A sharp charged-lepton coincidence: the square-root-mass vector sits at exactly 
 - **E-FRC-0060** - a symmetric overlap gives only a degenerate doublet, so Koide forces a chiral Z3 coupling, and octonion multiplication is the natural source of that chirality.
 - **E-FRC-0061** - a chiral octonion Z3 mass operator at the F4 short/long ratio gives Q = 2/3 phase-independently, realizing the relation while the individual masses stay free.
 - **E-FRC-0062** - the assignment is grounded in the triality-sector geometry (nearest-neighbour long root, between-sector short root), the alternative pairings giving wrong Q.
-- **E-FRC-0063** - the mechanism is lepton-specific, up quarks give 0.85 and down quarks 0.73, the candid scope limit.
+- **E-FRC-0063** - the mechanism is lepton-specific, up quarks give 0.85 and down quarks 0.73, the scope limit.
 - **E-FRC-0064** - Q = 2/3 predicts the tau mass 1776.97 MeV from the electron and muon alone, matching to one part in ten thousand.
 - **E-FRC-0065** - the relation does not extend to the neutrinos, Q maxes below 2/3, so the mechanism is charged-lepton specific.
 - **E-FRC-0066** - the Koide phase 2/9, which sets the individual masses, is not geometric, an empirical input while the amplitude sqrt(2) is geometric.
 
 ### 8. Three generations and flavor
 
-Why three families, and the structure of their mixing. A preferred octonion direction forces exactly three quaternionic subalgebras, and their symmetry is the full **S3**. Flavor mixing and the neutrino sector are then mapped, with several candid negatives on what the geometry does and does not fix.
+Why three families, and the structure of their mixing. A preferred octonion direction forces exactly three quaternionic subalgebras, and their symmetry is the full **S3**. Flavor mixing and the neutrino sector are then mapped, with several negatives on what the geometry does and does not fix.
 
 - **E-FRC-0069** - a preferred octonion direction forces exactly three quaternionic subalgebras (three families) with an order-three symmetry.
 - **E-FRC-0071** - the family symmetry is the full S3, all six permutations from the order-24 stabilizer inside the order-168 automorphism group, refining the order-three result.

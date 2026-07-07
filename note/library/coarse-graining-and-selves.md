@@ -4,13 +4,13 @@ The engine that climbs from the micro rule to emergent macro LEVELS, and
 detects persistent observers (selves) on the way up. It coarse-grains
 the dynamics, builds the transition matrix, measures causal emergence,
 finds Markov blankets, and stacks the level tower. This is the layer
-that asks, honestly, whether anything self-like falls out.
+that asks whether anything self-like falls out.
 
 > This is the measurement layer over the base rule, delivered as
 > reusable algorithms, not a story. It MEASURES, it does not impose. A
 > level counts as real only if it shows a spectral gap, a coarse map
 > with small commuting-square error, and a causal-emergence or blanket
-> signal. Where the dynamics shows none of that, the candid negative is
+> signal. Where the dynamics shows none of that, the negative is
 > reported. The pure reversible rule gives churn with no persistent
 > selves, so the self experiments add a cohesion bias, which is NOT one
 > of the base five. That caveat is made explicit below.
@@ -205,7 +205,7 @@ that validates each level.
    relaxing mode, and the gap ratio. `impliedTimescale` turns lambda2
    into a timescale in beats. A clean emergent level shows ONE slow
    process and a fast rest, a gap in the implied timescales. No gap
-   means no clean level there, an candid negative.
+   means no clean level there, a negative.
 
 3. **Causal emergence** (`effectiveInformation`, `coarseGrainTpm`,
    `emergenceGain`). This is the heart. Effective information (Hoel) is
@@ -221,7 +221,7 @@ that validates each level.
    transitions. This is why causal emergence cannot live at the exactly
    reversible base. A reversible rule loses nothing, so it has no slack
    to convert into macro causal power. Emergence lives at a coarse grain
-   where information IS lost. `emergenceGain` makes the test candid with
+   where information IS lost. `emergenceGain` makes the test strict with
    a control, it measures EI three ways, the micro matrix, a STRUCTURED
    coarse-graining that merges adjacent bins (respecting the dynamics),
    and a RANDOM coarse-graining of the same coarseness (the null). A
@@ -275,18 +275,18 @@ What it handles,
 - ANY grouping, same-sign clusters, geometric BFS blocks, quantile bins,
   cubic blocks, with one transition-matrix and causal-emergence pipeline
   behind all of them.
-- An candid control everywhere, the random coarse-graining for causal
+- A control everywhere, the random coarse-graining for causal
   emergence, the shuffled null for persistence, the commuting square for
   the effective rule.
 - The full self battery, blanket, individuality, integration,
   persistence, and the individuality transition, each a separate measure
   that must agree.
 
-The candid position, stated plainly,
+The position, stated plainly,
 
 - THE NULL RESULT. The pure base rule (reversible, charge-conserving,
   the five base pieces) gives CHURN, no persistent selves. That is the
-  candid negative, reported, not papered over. Selves do not fall out of
+  negative, reported, not papered over. Selves do not fall out of
   the bare reversible dynamics.
 - CAUSAL EMERGENCE NEEDS INFORMATION LOSS. EI can only exceed the micro
   EI when the coarse-graining is many-to-one or noisy, which destroys
@@ -300,7 +300,7 @@ The candid position, stated plainly,
   prefers to hop toward like company (`pHop = 0.1 + cohesion * like`).
   That is an ADDED ingredient. It is not one of the base five (mesh,
   ternary tone, conserving rule, reflection-and-growth, arrow). The
-  selves the self-kit produces are candid as a study of self-criteria
+  selves the self-kit produces are a study of self-criteria
   measurement, but they do not yet demonstrate selves from the pure base
   rule. The cohesion knob is the thing being held responsible.
 - THE GRADES. The spectral gap, the commuting square, and the
@@ -321,9 +321,9 @@ battery is the precise version of what a self IS, a boundary that
 screens, an inside more coupled than the outside, a structure that
 survives. Keeping the controls (random coarse-graining, shuffled null,
 commuting square) is what lets the project report the null result
-honestly, the bare reversible rule churns, causal emergence needs
+the bare reversible rule churns, causal emergence needs
 information loss, and the self-kit cohesion is an added ingredient. The
-candid negatives are as much the output as the positives.
+negatives are as much the output as the positives.
 
 ## See also
 

@@ -4,7 +4,7 @@ The **renormalization** arena asks the central bridge question. The base is a di
 
 The claim is a tower. Run the rule, block the state, read the effective parameters, block again. If the effective theory is the **same** at every rung, then "test a small slice, trust the whole universe" is earned. If a coupling **flows** under blocking toward a **fixed point**, the substrate has a genuine renormalization group with a beta function. If the flow lands on a **critical point** where the correlation length diverges, coarse-graining reaches a scale-invariant continuum. At the bottom of the tower the effective theory is read off and matched to known physics.
 
-Most experiments carry a control, a shuffle null or a broken rule where the tower should collapse, so a positive result cannot be an artifact of averaging. Several are candid negatives, no scale-free point where the theory needs one.
+Most experiments carry a control, a shuffle null or a broken rule where the tower should collapse, so a positive result cannot be an artifact of averaging. Several are negatives, no scale-free point where the theory needs one.
 
 15 experiments, grouped below into four sub-themes. Every code appears once.
 
@@ -45,4 +45,4 @@ What the effective theory actually is at the bottom of the tower.
 
 ## What it establishes
 
-The substrate coarse-grains **faithfully**. A conserved charge, a wave, and even a change of variable kind all commute up the tower, so a slice measurement scales. A coupling **runs** with a real beta function to a fixed point, and the radial direction of the bulk IS that flow, so running constants are geometric rather than imported. The one place the substrate lands on a critical point gives a clean mean-field exponent, and the deliberate searches for gapless or scale-free points return **candid negatives** where the field is massive. At the bottom, the effective theory is **Dirac plus Maxwell**, matched pole for pole against QED.
+The substrate coarse-grains **faithfully**. A conserved charge, a wave, and even a change of variable kind all commute up the tower, so a slice measurement scales. A coupling **runs** with a real beta function to a fixed point, and the radial direction of the bulk IS that flow, so running constants are geometric rather than imported. The one place the substrate lands on a critical point gives a clean mean-field exponent, and the deliberate searches for gapless or scale-free points return **negatives** where the field is massive. At the bottom, the effective theory is **Dirac plus Maxwell**, matched pole for pole against QED.

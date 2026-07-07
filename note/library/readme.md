@@ -75,7 +75,7 @@ The `api/` guides say WHICH function to call. These deep dives explain HOW each 
 | [causal-set-sampler](causal-set-sampler.md) | the discrete path integral over causal orders, the Benincasa-Dowker action and the uniform-measure MCMC |
 | [evolution-and-propagation](evolution-and-propagation.md) | the leapfrog unitary evolution and the return-probability test for extended versus localized |
 | [lattice-gauge-engine](lattice-gauge-engine.md) | gauge fields on links, the Wilson plaquette action, Metropolis sweeps, the coupled Schwinger evolution |
-| [coarse-graining-and-selves](coarse-graining-and-selves.md) | coarse-graining the micro rule into macro levels, causal emergence, Markov blankets, the level tower, the candid null result |
+| [coarse-graining-and-selves](coarse-graining-and-selves.md) | coarse-graining the micro rule into macro levels, causal emergence, Markov blankets, the level tower, the null result |
 | [associative-memory-engine](associative-memory-engine.md) | content-addressable memory on the mesh, Potter's parallel SITDAC search, the O(log N) broadcast, exponential capacity per radius |
 
 ## Start here

@@ -65,7 +65,7 @@ Physical space is a horosphere slice of the 4D bulk. These pin down how flat it 
 - **E-GMT-0013** - an exact {4,4} square horosphere of {4,4,3} validates the flat-self idealization.
 - **E-GMT-0018** - a Busemann level set of {5,3,4} grows polynomially, a flat 2D sheet inside the curved crystal.
 - **E-GMT-0019** - the {3,4,3,4} horosphere band is intrinsically flat at finite distance, with a spread of cell degrees.
-- **E-GMT-0017** - the generic {3,4,3,4} horosphere band is a thin slab (about 2.5D), not clean flat 3D (the candid negative on the naive band).
+- **E-GMT-0017** - the generic {3,4,3,4} horosphere band is a thin slab (about 2.5D), not clean flat 3D (the negative on the naive band).
 - **E-GMT-0015** - the {3,4,3,4} D4 lattice is flat: polynomial r^4 growth, linear metric, near-zero curvature.
 
 ### 6. The warp factor and the renormalization fixed point

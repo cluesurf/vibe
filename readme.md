@@ -105,7 +105,7 @@ local rule. The physics is derived from that fixed base as measured
 consequences, and the whole method is built to try to make them come out
 wrong. Every deep claim carries a **control**, a case where the answer
 should be no, and a test that cannot fail is graded `L0` and counts for
-nothing. Honest negatives are kept, not hidden. The spinor that appears
+nothing. Negatives are kept, not hidden. The spinor that appears
 on the `{3,4,3,4}` coin and provably fails to appear on the `{5,3,4}`
 control, the area-law exponent that had to land near 2 and not near 3,
 the Lorentz isotropy that could have stayed anisotropic: each could have
@@ -115,8 +115,7 @@ So "vibe theory is unfalsifiable" is half right and half wrong, and the
 two halves must be kept apart. The axiom "experience is the base" is
 unfalsifiable, which is what an axiom is. The physics built under it is
 falsifiable, is being falsification-tested with controls and published
-failures, and is the opposite of a theory that fits anything. The honest
-reading is that the experiments do not prove the base is felt. They show
+failures, and is the opposite of a theory that fits anything. The reading is that the experiments do not prove the base is felt. They show
 that a single discrete rule, framed as felt, recovers a large amount of
 physics as results that could have come out otherwise.
 
@@ -141,8 +140,7 @@ code was written with AI assistance, which changes nothing about
 trusting it. It is deterministic and reproducible, so you can run it and
 verify every result yourself. Each question is one experiment in
 `test/experiment/<category>/`, a single `experiment` that returns a
-structured verdict (status, metrics, control, claim) graded by an honest
-depth level, from `L0` circular through `L1` known math and `L2` known
+structured verdict (status, metrics, control, claim) graded by a plain depth level, from `L0` circular through `L1` known math and `L2` known
 physics to `L3` emergent and novel. The standard the experiments are
 held to is in
 [`note/experimental-methodology.md`](note/experimental-methodology.md),
@@ -186,6 +184,22 @@ and gravity. The L3 count fell and the L1 count rose in the standing
 depth audit that regraded overclaimed depths, which is the direction
 careful regrading moves.
 
+## The experiment map
+
+`test/catalog.csv` is the flat, machine-generated index, one sorted row per
+experiment. For a human-navigable walk through the whole suite, read the
+**[experiment map](note/experiment/readme.md)**. There are hundreds of
+experiments and no one is going to read them all, so the map is the way in.
+
+It groups every experiment into its arena (selves, gauge, foundations, quantum,
+gravity, and the rest), and each arena doc distills every experiment by
+sub-theme in one line. The top of the map carries the full **coverage matrix**
+(which arenas are deep, which are thin, where there is no control-gated result
+yet), a **[concepts cross-index](note/experiment/concepts.md)** for finding an
+idea across arenas, curated **reading paths** for diving in cold, and a guide
+for adding your own experiment. Start there to see the full scope and reach any
+single result without piecing it together from the files.
+
 ## Quick start
 
 ```
@@ -197,8 +211,7 @@ Every experiment lives in `test/experiment/<category>/<name>.ts` as one
 `experiment`, and the suite runner (`test/run.ts`) imports them all and
 runs the registry. The shared library they import is in `code/`, and the
 named batteries (conformance, paper) are in `test/suite/`. The build
-fails only on a code crash or a conformance failure, never on an honest
-scientific negative.
+fails only on a code crash or a conformance failure, never on a scientific negative.
 
 ## What is inside
 
@@ -257,8 +270,8 @@ All docs live in `note/`. The entry points:
   and how to add an experiment.
 - **[Experimental methodology](note/experimental-methodology.md)** is
   the standard every experiment is held to, the depth rubric, the
-  control requirement, determinism, and the honest negatives.
-- **[Open problems](note/open/)** are the honest negatives written up
+  control requirement, determinism, and the negatives.
+- **[Open problems](note/open/)** are the negatives written up
   in full. The hardest is
   **[spacelike Bell correlations](note/open/spacelike-bell-correlations.md)**:
   what Bell's theorem actually proves, why a deterministic theory can still

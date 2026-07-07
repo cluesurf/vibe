@@ -24,7 +24,7 @@ Pattern completion under damage. Recall stays intact from a corrupted or shrunke
 
 The energy-based layer. Attractor clean-up needs dissipation, so it lives on an emergent Hopfield layer and not the bare rule. A sharper higher-order energy stores far more patterns.
 
-- **E-MMR-0007** - attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the candid negative.
+- **E-MMR-0007** - attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the negative.
 - **E-MMR-0004** - a dense higher-order energy stores more patterns than the classical Hopfield at matched recall.
 
 ## Capacity and latency from curvature

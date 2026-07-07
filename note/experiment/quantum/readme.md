@@ -6,7 +6,7 @@
 
 Vibe theory treats the quantum as **emergent, not fundamental**. The base is a discrete, deterministic, reversible rule on a hyperbolic mesh. Quantum behavior is what that substrate looks like after **lossy coarse-graining**. Apparent randomness is lost fine detail. Interference is the sum over an amplitude that the lattice already carries. Measurement is deterministic **settling** plus loss of the fine phase to an open edge. Entanglement is a correlation fixed in a **shared past**, not a signal sent now. Born-rule weights are the conserved norm concentrating on the typical branch.
 
-This arena asks whether those emergent quantum features actually fall out of the five base things, where they only reproduce known quantum math, and where the story is still open. Grades follow the depth rubric. **L1** confirms known mathematics. **L2** reproduces a known physics construction on this substrate. **L3** is a measured, controlled, novel consequence of the base rule. Many results here are candid L1 and L2, labeled as such.
+This arena asks whether those emergent quantum features actually fall out of the five base things, where they only reproduce known quantum math, and where the story is still open. Grades follow the depth rubric. **L1** confirms known mathematics. **L2** reproduces a known physics construction on this substrate. **L3** is a measured, controlled, novel consequence of the base rule. Many results here are L1 and L2, labeled as such.
 
 ## Sub-themes
 
@@ -58,7 +58,7 @@ The arena's largest cluster. It asks how a spacelike Bell correlation can be rea
 - **E-QTM-0010** - in a natural mesh the CHSH violation decays with separation, unlike flat quantum mechanics.
 - **E-QTM-0029** - measured: curvature collapses the local shared past with separation, so a spacelike Bell correlation needs a seed-anchored common cause.
 - **E-QTM-0030** - run from a seed, the rule preserves a seed-anchored spacelike correlation but manufactures none from a local seed.
-- **E-QTM-0031** - the bulk shared past is bulk-mediated not boundary-mediated, an candid negative for the spatial-holographic escape, leaving the past-boundary seed.
+- **E-QTM-0031** - the bulk shared past is bulk-mediated not boundary-mediated, a negative for the spatial-holographic escape, leaving the past-boundary seed.
 - **E-QTM-0032** - on a genuine 20k-cell hyperbolic tessellation shell growth is exponential and the local shared past collapses, confirming the curvature mechanism on the committed substrate.
 - **E-QTM-0033** - the measured shared past sets a critical separation for the quantum value, smaller on the curved substrate, the violation contingent on settings aligned with the shared past.
 - **E-QTM-0034** - the shared past is exponential in bulk distance but only power-law in physical cusp distance, inheriting the holographic shortcut, no shortcut in the flat control.
@@ -97,14 +97,14 @@ The base rule is an exact reversible permutation. That underwrites purification,
 
 ### 7. Reflection positivity, the quantum field, and the vacuum
 
-The field-theoretic side: whether the substrate is reflection-positive (a genuine quantum field), its vacuum structure, and the path integral. Several results are candid negatives locating RP at the emergent flat layer, not the raw scaffold.
+The field-theoretic side: whether the substrate is reflection-positive (a genuine quantum field), its vacuum structure, and the path integral. Several results are negatives locating RP at the emergent flat layer, not the raw scaffold.
 
 - **E-QTM-0009** - the deterministic field is long-range and reflection-positive.
 - **E-QTM-0013** - the field is generically massive on flat too, the rule not the geometry causes it.
 - **E-QTM-0014** - the field is massive on the emergent flat layer too (horosphere dynamics).
 - **E-QTM-0017** - spatial reflection positivity belongs to the emergent flat layer, not the scaffold.
 - **E-QTM-0021** - the vacuum is field-like with virtual pairs and a causal cone.
-- **E-QTM-0025** - in the massive regime spatial reflection positivity is undecided (an candid open).
+- **E-QTM-0025** - in the massive regime spatial reflection positivity is undecided (an open question).
 - **E-QTM-0028** - the beat-autocorrelation Hankel is positive semidefinite within noise (time reflection positivity).
 - **E-QTM-0018** - a 2D Lorentzian causal-set path integral recovers a mean dimension near two.
 - **E-QTM-0048** - one memory-kernel width carries a packet from ballistic (the quantum end) to diffusive (the gravity end), Leizerman's one-dial QM-to-gravity map.

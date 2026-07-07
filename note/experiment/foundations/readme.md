@@ -74,7 +74,7 @@ The 24-cell dock and its {3,4,3,4} mesh are forced from the tone by several inde
 - **E-FND-0007** - the 24 coin directions are the D4 roots, equal to the binary tetrahedral group, splitting into three triality classes of eight (a vector and two spinors), the spin algebra.
 - **E-FND-0023** - the 24 Hurwitz quaternions are the group 2T with a genuine spinor (a nonsplit double cover), the algebraic generator route.
 - **E-FND-0024** - the 24-cell dock is the norm-2 shell of {-1,0,+1}^4, the geometry read straight off the tone (information route).
-- **E-FND-0022** - the dock is the optimal 4D kissing shell, so greedy densest growth is forced to the 24 directions (growth route), with the candid open tail that a generic energy minimization does not self-assemble it.
+- **E-FND-0022** - the dock is the optimal 4D kissing shell, so greedy densest growth is forced to the 24 directions (growth route), with the open tail that a generic energy minimization does not self-assemble it.
 - **E-FND-0025** - D4 is the unique simple root system with triality (Dynkin symmetry S3), so crystallographic plus triality plus self-dual plus rank-4 forces the {3,4,3,4} dock (selection route).
 - **E-FND-0004** - ternary vertices (q=3) plus minimal eternal closure force {5,3,4}, the dodecahedron reaching a compact hyperbolic honeycomb at the tightest r=4, so the golden 5 emerges rather than being assumed.
 - **E-FND-0067** - the committed D4 (24 directions) and E8 are Construction A lifts of the parity code [4,3,2] and the Hamming code [8,4,4], root counts 24 and 240 by enumeration, so the geometric ladder is a code ladder.
@@ -93,7 +93,7 @@ Matter, force, the Higgs, and the generation count all descend from the same oct
 
 The whole chain run as one program, and the committed model run end to end so the pieces are one system, not a pile of one-offs.
 
-- **E-FND-0043** - the from-nothing derivation as one chain, seven rungs (tone, arrow, eight, census, cell, mesh, law) each recomputing its canonical number by exhaustive enumeration, with the candid residual leap map stated rather than glossed.
+- **E-FND-0043** - the from-nothing derivation as one chain, seven rungs (tone, arrow, eight, census, cell, mesh, law) each recomputing its canonical number by exhaustive enumeration, with the residual leap map stated rather than glossed.
 - **E-FND-0006** - the capstone, the committed model runs end to end with every emergent structure read off the same mesh and the same dynamics.
 - **E-FND-0040** - one mesh and one rule produce conservation, life, a finite lightcone, reversibility, memory, and spatial coherence together in one run.
 - **E-FND-0036** - matter, static force, and radiation are three faces of one operator (the graph Laplacian) on one mesh grown by one rule.

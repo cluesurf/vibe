@@ -12,7 +12,7 @@ histories lands on a smooth-looking geometry.
 > its interval counts. The sampler walks the space of orders with the
 > CORRECT uniform measure, warm-started from a random sprinkling, and
 > reads the recovered dimension off the stable phase. An exact small-N
-> enumeration validates the sampler. Be candid up front, this RELIES ON
+> enumeration validates the sampler. Note up front, this RELIES ON
 > a random sprinkling, so every result here is a statistical claim about
 > an ensemble, not a property of the deterministic base rule.
 
@@ -191,7 +191,7 @@ What it handles,
 - Exact validation at small N (the enumeration is `2^(N(N-1)/2)` masks,
   so practical to N around 7 or 8).
 
-The candid caveats,
+The caveats,
 
 - **It relies on a random sprinkling.** The seed comes from a Poisson
   process. Every claim here is a STATISTICAL claim about an ensemble of

@@ -115,8 +115,7 @@ is tested. Use it when you know the idea but not the arena. The master map is
 
 - **Controls and anti-fooling.** The L3 gate: every strong claim beats a
   scramble, a flat lattice, or a lossy rule. See [method](method/readme.md) (the
-  rigidity test and the anti-fooling gates), and the "controls and candid
-  negatives" section in each arena.
+  rigidity test and the anti-fooling gates), and the "controls and negatives" section in each arena.
 - **Bridges to other theories.** Where the suite connects to the physics and
   consciousness census. See [selves](selves/readme.md) (bridges to consciousness
   and mind theories) and the census in `note/research/vibe/`.
