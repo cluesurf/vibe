@@ -183,6 +183,66 @@ export function fragmentRecordDistance(input: {
   })
 }
 
+// The quantum relative entropy S(rho || sigma) = Tr[rho log2 rho] - Tr[rho log2 sigma] in bits,
+// between two density matrices of the same size. By Klein's inequality it is >= 0, and 0 exactly
+// when rho = sigma, which is why (in the gravity-from-entropy reading) the emergent cosmological
+// constant it plays the role of is forced non-negative. Uses the eigenbasis of sigma for the second
+// trace, so it is exact for non-commuting rho and sigma.
+export function relativeEntropyBits(input: {
+  rho: ComplexMatrix
+  sigma: ComplexMatrix
+}): number {
+  const { rho, sigma } = input
+  const n = rho.rows
+
+  const eigenRho = eigHermitian({ matrix: rho })
+  let trRhoLogRho = 0
+
+  for (let i = 0; i < n; i++) {
+    const p = eigenRho.values[i]!
+    if (p > 1e-12) {
+      trRhoLogRho += p * Math.log2(p)
+    }
+  }
+
+  const eigenSigma = eigHermitian({ matrix: sigma })
+  let trRhoLogSigma = 0
+
+  for (let j = 0; j < n; j++) {
+    const s = eigenSigma.values[j]!
+    if (s <= 1e-12) {
+      continue
+    }
+
+    // <v_j| rho |v_j> = sum_ab conj(v_j[a]) rho[a][b] v_j[b], real by Hermiticity
+    let expectation = 0
+
+    for (let a = 0; a < n; a++) {
+      const vaRe = eigenSigma.vectorsRe[a * n + j]!
+      const vaIm = eigenSigma.vectorsIm[a * n + j]!
+
+      for (let b = 0; b < n; b++) {
+        const vbRe = eigenSigma.vectorsRe[b * n + j]!
+        const vbIm = eigenSigma.vectorsIm[b * n + j]!
+        const rRe = rho.re[a * n + b]!
+        const rIm = rho.im[a * n + b]!
+        // conj(v_a) * rho_ab * v_b, real part accumulated (imaginary cancels over the sum)
+        const cvRe = vaRe // conj: (vaRe - i vaIm)
+        const cvIm = -vaIm
+        // (cvRe + i cvIm)(rRe + i rIm) = t
+        const tRe = cvRe * rRe - cvIm * rIm
+        const tIm = cvRe * rIm + cvIm * rRe
+        // t * (vbRe + i vbIm), real part
+        expectation += tRe * vbRe - tIm * vbIm
+      }
+    }
+
+    trRhoLogSigma += Math.log2(s) * expectation
+  }
+
+  return trRhoLogRho - trRhoLogSigma
+}
+
 // The magnitude of the system's off-diagonal coherence: for a single qubit (qubit 0) reduced
 // state, |rho_01|. Zero means fully decohered in that basis, one half means maximally coherent.
 export function systemCoherence(input: {

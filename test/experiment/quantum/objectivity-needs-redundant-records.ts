@@ -177,7 +177,7 @@ export default experiment({
         globalWorstCoherence: Number(worstGlobalCoherence.toExponential(2)),
       },
       notes:
-        'Quantum Darwinism (Zurek): objectivity is the redundancy of the record. The cat-state control is what makes the claim falsifiable, and answers the retracted consciousness-field paper (AIP Adv. 15, 115319): a definite shared fact needs redundant local records, not an observer field. L2 known physics, measured from real partial traces. Complements the analytic measurement-chain (E-QTM-0066), which has no such control.',
+        'Quantum Darwinism (Zurek): objectivity is the redundancy of the record. The cat-state control is what makes the claim falsifiable, and answers the retracted consciousness-field paper (AIP Adv. 15, 115319): a definite shared fact needs redundant local records, not an observer field. L2 known physics, measured from real partial traces. L3 AUDIT: this uses a hand-built copy coupling; the plain coined walk gives MONOGAMOUS, distance-decaying entanglement (no redundant broadcast), so Darwinism does NOT emerge from the bare rule and the copy coupling is an extra ingredient, keeping this L2. The vibe-native objectivity on the real reversible rule is Herbert recoverability (E-GRV-0040).',
     })
   },
 })

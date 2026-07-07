@@ -1,134 +1,126 @@
-// The Page curve: unitary evaporation returns information. If a black hole and its radiation are one
-// pure state, the entanglement entropy of the radiation must RISE while the hole is large and then
-// FALL back to zero as the hole disappears, a tent peaking at the Page time (half the qubits emitted).
-// A falling second half is the signature that information comes back out, so the total stays pure and
-// nothing is lost. A record that only rises would mean information is destroyed.
+// The Page curve from the substrate's OWN coined Dirac walk. Unitary evaporation must return
+// information: if a system and its radiation are one pure state, the entanglement entropy of a region
+// rises while the region is small and FALLS back as the region approaches the whole, a tent peaking at
+// half, symmetric because the global state is pure (S of a region equals S of its complement). A tent
+// that turns over is the signature that information comes back out and nothing is lost.
 //
-// Measured here from real partial traces on a deterministic scrambled state. Pairing qubit i with
-// qubit N-1-i (cross-cut) is the maximally scrambled arrangement: every Bell pair straddles the
-// center, so the entropy of the first k qubits (the radiation emitted so far) is exactly min(k, N-k),
-// the Page tent, peaking at N/2 and returning to zero at k = N.
+// Measured here NOT on a hand-built state but on the {3,4,3,4} coin's own single-particle sector: the
+// coined Dirac walk (the D4-coin two-component walk, code/measure/walk-entanglement), whose filled
+// lower Floquet band is an exact pure many-body state. The interval entanglement entropy is read off
+// the walk's real evolution operator, so the curve is a consequence of the substrate dynamics, not an
+// assumed pairing.
 //
-// The control is a LOCAL pairing (neighbor qubits 2i, 2i+1): entanglement stays local, the radiation
-// entropy never climbs past one bit and never forms the tent, so information is not scrambled out and
-// there is no Page turnover. So the turnover is a property of scrambled (unitary, information-
-// preserving) evaporation, not of counting qubits.
+// - GAPLESS (near-massless) walk: the interval entropy forms the Calabrese-Cardy tent, rising to a
+//   peak at half the ring and falling symmetrically back, S(interval) = S(complement). Information
+//   returns; the total stays pure. This is the entanglement Page curve emergent from the walk.
+// - GAPPED (massive) walk, the CONTROL: the entropy SATURATES (the area law), staying flat across the
+//   interior with no tent, because a gapped state has short-range entanglement. So the turnover is a
+//   property of the gapless (critical) walk, not of counting sites.
 //
-// On the vibe substrate this is the reversible-rule story made quantitative: the global evolution is
-// unitary, so the radiation entropy is forced to turn over and the information is preserved, the
-// resolution of the black-hole information paradox that needs no remnant by itself (the remnant, from
-// discreteness, is E-GRV-0051; here the information is shown to come back out).
+// This is the reversible-substrate resolution of the information paradox made quantitative on the
+// substrate's own dynamics: the walk is unitary, so its entanglement is forced to turn over and the
+// information is preserved. Pairs with the discreteness remnant (E-GRV-0051).
 //
-// Depth L2. The Page curve reproduced on a built pure state, measured from real partial traces, with
-// a local-pairing control. A known-physics bridge, honestly labeled.
+// Depth L3. The Page curve is a MEASURED consequence of the substrate's coined Dirac walk (not a built
+// state), with a gapped-walk control that gives the area law instead, and the symmetric tent is a
+// quantitative shape that could have come out flat. Emergent on the committed substrate's own sector.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import {
-  buildBellNetwork,
-  crossCutPairs,
-  localPairs,
-} from '@/code/dynamics/bell-network'
-import { subsystemEntropyBits } from '@/code/tool/density-matrix'
+import { coinedWalkIntervalEntropy } from '@/code/measure/walk-entanglement'
 
-const QUBITS = 8
+const RING = 24
+const GAPLESS_MASS = 0.05 // near-critical walk (small emergent mass)
+const GAPPED_MASS = 0.8 // massive walk, the area-law control
 
-// entropy of the first k qubits (the radiation emitted so far)
-function radiationEntropy(input: {
-  state: ReturnType<typeof buildBellNetwork>
-  emitted: number
-}): number {
-  const keep: number[] = []
+// interval entropy across the whole ring, from the coined Dirac walk of the given mass
+function entropyCurve(mass: number): number[] {
+  const curve: number[] = []
 
-  for (let q = 0; q < input.emitted; q++) {
-    keep.push(q)
+  for (let length = 1; length < RING; length++) {
+    curve.push(
+      coinedWalkIntervalEntropy({
+        theta: mass,
+        momentumCount: RING,
+        intervalLength: length,
+      }),
+    )
   }
 
-  if (keep.length === 0 || keep.length === input.state.qubitCount) {
-    return 0
-  }
-
-  return subsystemEntropyBits({
-    real: input.state.real,
-    imag: input.state.imag,
-    qubitCount: input.state.qubitCount,
-    keep,
-  })
+  return curve
 }
 
 export default experiment({
   id: 'holography/page-curve-from-scrambling',
   code: 'E-HLG-0036',
   title:
-    'the Page curve from unitary scrambling: the radiation entropy of a cross-cut Bell state rises to N/2 at the Page time and falls back to zero (information returns, total stays pure), exactly min(k, N-k), while a local-pairing control never forms the tent',
+    'the Page curve from the coin\'s own Dirac walk: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent',
   category: 'holography',
   substrates: ['3434'],
-  depth: 'L2',
+  depth: 'L3',
   paper: true,
   run() {
-    const scrambled = buildBellNetwork({
-      qubitCount: QUBITS,
-      pairs: crossCutPairs(QUBITS),
-    })
-    const local = buildBellNetwork({
-      qubitCount: QUBITS,
-      pairs: localPairs(QUBITS),
-    })
+    const gapless = entropyCurve(GAPLESS_MASS)
+    const gapped = entropyCurve(GAPPED_MASS)
+    const half = RING / 2 - 1 // index of the interval length RING/2
 
-    // the Page tent: S(first k) = min(k, N-k), exactly
-    let worstTentError = 0
-    let peak = 0
+    // the gapless curve peaks at half the ring
+    const peak = Math.max(...gapless)
+    const peakAtHalf = Math.abs(gapless[half]! - peak) < 1e-9
 
-    for (let emitted = 0; emitted <= QUBITS; emitted++) {
-      const measured = radiationEntropy({ state: scrambled, emitted })
-      const expected = Math.min(emitted, QUBITS - emitted)
-      worstTentError = Math.max(worstTentError, Math.abs(measured - expected))
-      peak = Math.max(peak, measured)
-    }
-
-    // it must RISE then FALL: entropy at the end returns to (near) zero
-    const entropyAtPageTime = radiationEntropy({
-      state: scrambled,
-      emitted: QUBITS / 2,
-    })
-    const entropyNearEnd = radiationEntropy({
-      state: scrambled,
-      emitted: QUBITS - 1,
-    })
-    const turnsOver = entropyNearEnd < entropyAtPageTime - 1
-
-    // CONTROL: local pairing never builds the tent
-    let localPeak = 0
-
-    for (let emitted = 0; emitted <= QUBITS; emitted++) {
-      localPeak = Math.max(
-        localPeak,
-        radiationEntropy({ state: local, emitted }),
+    // it is symmetric: S(interval) = S(complement), so S(l) = S(RING - l)
+    let worstAsymmetry = 0
+    for (let l = 1; l < RING; l++) {
+      worstAsymmetry = Math.max(
+        worstAsymmetry,
+        Math.abs(gapless[l - 1]! - gapless[RING - l - 1]!),
       )
     }
 
-    const tentExact = worstTentError < 1e-9
-    const peaksAtHalf = Math.abs(peak - QUBITS / 2) < 1e-9
-    const controlHasNoTent = localPeak < QUBITS / 2 - 1
+    // it turns over: the entropy near the whole ring falls well below the peak, back toward the start
+    const turnsOver =
+      gapless[RING - 2]! < peak - 0.5 &&
+      Math.abs(gapless[RING - 2]! - gapless[0]!) < 0.1
 
-    const ok = tentExact && peaksAtHalf && turnsOver && controlHasNoTent
+    // rises then falls (monotone up to half, monotone down after)
+    let risesThenFalls = true
+    for (let i = 1; i <= half; i++) {
+      if (gapless[i]! < gapless[i - 1]! - 1e-9) risesThenFalls = false
+    }
+    for (let i = half + 1; i < gapless.length; i++) {
+      if (gapless[i]! > gapless[i - 1]! + 1e-9) risesThenFalls = false
+    }
+
+    // CONTROL: the gapped walk saturates (area law), the interior is nearly flat, no tent
+    const interiorGapped = gapped.slice(2, RING - 3)
+    const gappedSpread =
+      Math.max(...interiorGapped) - Math.min(...interiorGapped)
+    const gappedSaturates = gappedSpread < 0.05
+
+    const ok =
+      peakAtHalf &&
+      worstAsymmetry < 1e-6 &&
+      turnsOver &&
+      risesThenFalls &&
+      gappedSaturates
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the radiation entropy of the scrambled cross-cut state is exactly min(k, N-k) at every emission step k, rising to N/2 = 4 bits at the Page time and falling back to zero, so information returns and the total stays pure, while the local-pairing control never exceeds one bit and forms no tent',
+        'the interval entanglement entropy of the near-massless coined Dirac walk on a ring of 24 rises to a peak at interval length 12 and falls back symmetrically to its starting value (a Page tent, S of a region equal to S of its complement, so information returns and the state stays pure), while the massive walk saturates to a flat area-law value with interior spread below 0.05, so the turnover is a measured consequence of the gapless walk dynamics',
       metrics: {
-        worstTentError: Number(worstTentError.toExponential(2)),
-        peakEntropy: Number(peak.toFixed(4)),
-        entropyAtPageTime: Number(entropyAtPageTime.toFixed(4)),
-        entropyNearEnd: Number(entropyNearEnd.toFixed(4)),
+        gaplessPeak: Number(peak.toFixed(4)),
+        gaplessStart: Number(gapless[0]!.toFixed(4)),
+        gaplessNearEnd: Number(gapless[RING - 2]!.toFixed(4)),
+        worstAsymmetry: Number(worstAsymmetry.toExponential(2)),
       },
-      // CONTROL: local pairing keeps entanglement local, no Page tent.
+      // CONTROL: the gapped (massive) walk saturates to the area law, no Page tent.
       control: {
-        localPeakEntropy: Number(localPeak.toFixed(4)),
+        gappedInteriorSpread: Number(gappedSpread.toExponential(2)),
+        gappedPlateau: Number(gapped[half]!.toFixed(4)),
       },
       notes:
-        'Page curve (unitary evaporation returns information): the radiation entropy turns over, resolving the information paradox with no information loss on the reversible substrate. Pairs with the discreteness remnant (E-GRV-0051). L2, measured from real partial traces, local-pairing control. Reuses code/tool/density-matrix and code/dynamics/bell-network.',
+        'Page curve measured on the {3,4,3,4} coin\'s own coined Dirac walk (walk-entanglement), not a hand-built state: the gapless walk gives the symmetric Calabrese-Cardy tent (information returns), the gapped walk the area law (control). L3, emergent on the committed substrate sector. Pairs with the discreteness remnant (E-GRV-0051).',
     })
   },
 })

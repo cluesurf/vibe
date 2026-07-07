@@ -152,7 +152,7 @@ export default experiment({
         perfectRecordRecord: Number(perfectRecord.record.toFixed(4)),
       },
       notes:
-        'Einselection as complementarity (Zurek), the quantum side of Tegmark "consciousness as a state of matter": a state is classical exactly when its pointer has been copied out, and the copying destroys the coherence one-for-one (exact identity at one copy), faster with a bath. L2, measured from real partial traces. Reuses code/tool/density-matrix and code/dynamics/record-chain; complements the objectivity experiment (E-QTM-0070).',
+        'Einselection as complementarity (Zurek), the quantum side of Tegmark "consciousness as a state of matter": a state is classical exactly when its pointer has been copied out, and the copying destroys the coherence one-for-one (exact identity at one copy), faster with a bath. L2, measured from real partial traces. Reuses code/tool/density-matrix and code/dynamics/record-chain; L3 AUDIT: built copy-chain states, not the bare rule; the plain coined walk has monogamous entanglement, so this trade-off needs the copy coupling as an extra ingredient, keeping it L2. Vibe-native objectivity is Herbert recoverability (E-GRV-0040).',
     })
   },
 })
