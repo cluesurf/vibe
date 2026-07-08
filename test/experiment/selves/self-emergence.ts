@@ -19,7 +19,7 @@
 // suffice. Charge Q is conserved throughout (fills never touch tones). Run: npx tsx code/experiment/p97-self-emergence.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import {
@@ -27,7 +27,7 @@ import {
   fillCoherence as coherence,
   largestSharingPatch as largestPatch,
 } from '@/code/measure/fill-coherence'
-import { fillGatedSweep } from '@/code/dynamics/fill-gated-sweep'
+import { fillGatedSweepHashed } from '@/code/dynamics/fill-gated-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -58,17 +58,16 @@ export function selfEmergence(): {
   const edges = edgesOf(neighbors)
 
   // identical random start for both regimes
-  const rng0 = makeRng({ seed: 4 })
   const tone0 = new Int8Array(n)
   const fill0 = new Int8Array(edges.length)
 
   for (let i = 0; i < n; i++) {
-    const r = rng0.next()
+    const r = hashRand(i, 0, 1)
     tone0[i] = r < 0.4 ? 1 : r < 0.7 ? -1 : 0 // a net-positive charge so domains can persist
   }
 
   for (let i = 0; i < edges.length; i++) {
-    const r = rng0.next()
+    const r = hashRand(i, 0, 2)
     fill0[i] = r < 0.34 ? 1 : r < 0.67 ? -1 : 0
   }
 
@@ -80,10 +79,9 @@ export function selfEmergence(): {
   const qF0 = sumTone(tF)
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
-  const rngF = makeRng({ seed: 21 })
 
   for (let b = 0; b < BEATS; b++) {
-    fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
+    fillGatedSweepHashed({ tone: tF, edges, fill: fF, beat: b })
   }
 
   const coherenceFiveEnd = coherence(tF, edges, fF)
@@ -96,10 +94,9 @@ export function selfEmergence(): {
   const qS0 = sumTone(tS)
   const coherenceSixStart = coherence(tS, edges, fS)
   const patchSixStart = largestPatch(tS, edges, fS, n)
-  const rngS = makeRng({ seed: 21 })
 
   for (let b = 0; b < BEATS; b++) {
-    fillGatedSweep({ tone: tS, edges, fill: fS, rng: rngS })
+    fillGatedSweepHashed({ tone: tS, edges, fill: fS, beat: b })
     adaptFills(tS, edges, fS)
   }
 

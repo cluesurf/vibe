@@ -13,12 +13,12 @@
 // throughout (the maintenance is conserving). Run: npx tsx code/experiment/p107-permanent-memory.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { targetFidelity } from '@/code/measure/agreement'
 import { conservingMaintainToTarget } from '@/code/operator/maintain-to-target'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -29,16 +29,16 @@ const beat = (
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beatIndex: number,
 ): void =>
-  cohesiveEdgeSweep({
+  cohesiveEdgeSweepHashed({
     tone,
     eu,
     ev,
     offsets,
     adj,
     moved,
-    rng,
+    beat: beatIndex,
     annihilate: true,
     arrow: 0,
   })
@@ -62,10 +62,9 @@ export function permanentMemory(input?: { n?: number }): {
   // a spatial codeword that genuinely erodes: a balanced random +/- pattern (Q = 0), full of opposite
   // adjacencies that the share move annihilates, so without maintenance it collapses toward peace
   const target = new Int8Array(N)
-  const rngT = makeRng({ seed: 2 })
 
   for (let i = 0; i < N; i++) {
-    target[i] = rngT.next() < 0.5 ? 1 : -1
+    target[i] = hashRand(i, 0, 5) < 0.5 ? 1 : -1
   }
 
   // balance to Q = 0
@@ -87,10 +86,9 @@ export function permanentMemory(input?: { n?: number }): {
   // UNMAINTAINED
   const a = target.slice()
   const qa = sumTone(a)
-  const rngA = makeRng({ seed: 4 })
 
   for (let b = 0; b < beats; b++) {
-    beat(a, eu, ev, g.offsets, g.adj, moved, rngA)
+    beat(a, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const unmaintainedFidelity = targetFidelity(a, target)
@@ -99,12 +97,11 @@ export function permanentMemory(input?: { n?: number }): {
   // MAINTAINED: re-stamp every 10 beats
   const bm = target.slice()
   const qb = sumTone(bm)
-  const rngB = makeRng({ seed: 4 })
 
   let maintenanceSwaps = 0
 
   for (let b = 0; b < beats; b++) {
-    beat(bm, eu, ev, g.offsets, g.adj, moved, rngB)
+    beat(bm, eu, ev, g.offsets, g.adj, moved, b)
 
     if ((b + 1) % 10 === 0) {
       maintenanceSwaps += conservingMaintainToTarget(bm, target, N)

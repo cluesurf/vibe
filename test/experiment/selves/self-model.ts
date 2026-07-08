@@ -15,6 +15,7 @@
 import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -55,7 +56,7 @@ function fullBeat(
       // deterministic tie-break: a golden/silver-ratio (Weyl-equidistributed) criterion on the edge
       // index k AND the beat, so it hops on half the ties and VARIES beat to beat like the original,
       // with no randomness
-      if ((((k + 1) * GOLDEN + beat * SILVER) % 1 + 1) % 1 < 0.5) {
+      if (hashRand(k, beat, 1) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
@@ -188,17 +189,17 @@ function run(withDynamics: boolean): {
   // period with a distinct phase (no randomness), matching the slow ~17-beat timescale of the original
   // drive, so the sectors carry independent signals and only an integrator that pools them all can
   // represent the global average
-  const sectorPeriod = [17, 19, 23, 29]
-  const sectorPhase = [0, 5, 11, 3]
-  const driveSig = (s: number, t: number): number =>
-    Math.floor((t + sectorPhase[s]!) / sectorPeriod[s]!) % 2 === 0 ? 1 : -1
+
   const gSeries: number[] = [] // the global state = mean over the whole self
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
 
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
-      sigs[s] = driveSig(s, t)
+      // deterministic well-mixed telegraph (hashRand flips ~6% per beat like the original), no seed
+      if (hashRand(s, t, 5) < 0.06) {
+        sigs[s] = -sigs[s]!
+      }
     }
 
     for (const i of inputAll) {

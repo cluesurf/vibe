@@ -17,7 +17,8 @@ import {
   effectiveInformation,
   coarseGrainTpm,
 } from '@/code/coarse/causal-emergence'
-import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
+import { selfTrajectory } from '@/code/coarse/self-trajectory'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 
 export default experiment({
   id: 'selves/nested-self-tower',
@@ -62,13 +63,12 @@ export default experiment({
     const eiMacro = effectiveInformation(macro)
 
     // RANDOM tower of the same sizes, the control (a loose aggregate, no respect for the dynamics)
-    const rng = makeRng(7777)
 
     const shuffle = (n: number, m: number): number[] => {
       const g = Array.from({ length: n }, (_, i) => i % m)
 
       for (let i = n - 1; i > 0; i--) {
-        const j = Math.floor(rng.next() * (i + 1))
+        const j = Math.floor(hashRand(i, 0, 3) * (i + 1))
         const t = g[i]!
         g[i] = g[j]!
         g[j] = t

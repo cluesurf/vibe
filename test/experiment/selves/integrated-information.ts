@@ -12,7 +12,8 @@
 // therefore the old structural measure) completely unchanged.
 // Run: npx tsx code/experiment/p63-integrated-information.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { Rng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { undirectedAdjacency } from '@/code/tool/substrate'
 import {
   toneIntegration,
@@ -21,6 +22,16 @@ import {
 import { modularMesh } from '@/code/substrate/modular-mesh'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+
+// a DETERMINISTIC counter-indexed hash stream (no seed, no randomness); the salt distinguishes
+// independent streams (same salt = same sequence, preserving the "same seed" relationships)
+function detStream(salt: number): Rng {
+  let c = 0
+  return {
+    next: () => hashRand(c++, 0, salt),
+    nextInt: ({ max }: { max: number }) => Math.floor(hashRand(c++, 0, salt) * max),
+  } as Rng
+}
 
 function tonePhi(
   adjacency: readonly Uint32Array[],
@@ -61,7 +72,7 @@ export function integratedInformation(input: { seed: number }): {
 } {
   const numCells = 12
   const cellSize = 20
-  const rng = makeRng({ seed: input.seed })
+  const rng = detStream(0)
   const { g, cellOf } = modularMesh({
     numCells,
     cellSize,
@@ -79,10 +90,10 @@ export function integratedInformation(input: { seed: number }): {
   }
 
   // (1) tone-integration of genuine selves (cells) versus random same-size bags.
-  const pr = makeRng({ seed: input.seed + 3 })
+  const pr = detStream(3)
   const cellPhis = members.map(m => tonePhi(adjacency, m, pr))
   const phiCell = cellPhis.reduce((a, b) => a + b, 0) / cellPhis.length
-  const rr = makeRng({ seed: input.seed + 5 })
+  const rr = detStream(5)
   const randomPhis = Array.from({ length: numCells }, () =>
     tonePhi(adjacency, randomSubset(g.size, cellSize, rr), pr),
   )
@@ -94,8 +105,8 @@ export function integratedInformation(input: { seed: number }): {
   let higher = 0
   let trials = 0
 
-  const sr = makeRng({ seed: input.seed + 9 })
-  const pm = makeRng({ seed: input.seed + 11 })
+  const sr = detStream(9)
+  const pm = detStream(11)
 
   for (let c = 0; c < numCells; c++) {
     const mem = members[c] ?? []
@@ -138,9 +149,9 @@ export function integratedInformation(input: { seed: number }): {
   const sameHalf = (a: number, b: number): boolean =>
     half.has(a) === half.has(b)
 
-  const dr = makeRng({ seed: input.seed + 21 })
+  const dr = detStream(21)
   const tonePhiFull = tonePhi(adjacency, cell, dr)
-  const dr2 = makeRng({ seed: input.seed + 21 }) // same seed: only the fills differ
+  const dr2 = detStream(21) // same seed: only the fills differ
   const tonePhiFillsCut = tonePhi(adjacency, cell, dr2, (a, b) =>
     sameHalf(a, b) ? 1 : 0,
   )

@@ -12,10 +12,10 @@
 // No patch is ever drawn by hand. Charge Q is conserved by the dynamics. Run: npx tsx code/experiment/p106-selves-at-scale.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -27,17 +27,17 @@ const beat = (
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beatIndex: number,
   arrowProb: number,
 ): void =>
-  cohesiveEdgeSweep({
+  cohesiveEdgeSweepHashed({
     tone,
     eu,
     ev,
     offsets,
     adj,
     moved,
-    rng,
+    beat: beatIndex,
     annihilate: true,
     arrow: arrowProb,
   })
@@ -121,10 +121,9 @@ export function selvesAtScale(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const q0 = sumTone(tone)
   const moved = new Uint8Array(N)
-  const rng = makeRng({ seed: 9 })
 
   for (let b = 0; b < 100; b++) {
-    beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.06)
+    beat(tone, eu, ev, g.offsets, g.adj, moved, b, 0.06)
   }
 
   const conserved = sumTone(tone) === q0
@@ -144,10 +143,9 @@ export function selvesAtScale(input?: { n?: number }): {
 
   // random null: same tones, shuffled positions, then find domains
   const shuffled = tone.slice()
-  const rng2 = makeRng({ seed: 17 })
 
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(rng2.next() * (i + 1))
+    const j = Math.floor(hashRand(i, 0, 2) * (i + 1))
     const t = shuffled[i]!
     shuffled[i] = shuffled[j]!
     shuffled[j] = t

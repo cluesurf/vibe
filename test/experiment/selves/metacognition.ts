@@ -12,7 +12,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -23,7 +23,7 @@ function fullBeat(
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beat: number,
 ): void {
   moved.fill(0)
 
@@ -47,7 +47,7 @@ function fullBeat(
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
 
-      if (rng.next() < 0.5) {
+      if (hashRand(k, beat, 1) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
@@ -212,7 +212,6 @@ export function metacognition(input?: { n?: number }): {
   }
 
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed: 9 })
   const T = 300
   const sigs = new Array<number>(K).fill(1)
   const gSeries: number[] = []
@@ -221,16 +220,15 @@ export function metacognition(input?: { n?: number }): {
 
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
-      if (rng.next() < 0.06) {
-        sigs[s] = -sigs[s]!
-      }
+      // deterministic square wave per sector at a distinct incommensurate period/phase (no randomness)
+      sigs[s] = Math.floor((t + s * 7 + 3) / (17 + s * 4)) % 2 === 0 ? 1 : -1
     }
 
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]!
     }
 
-    fullBeat(tone, eu, ev, moved, rng)
+    fullBeat(tone, eu, ev, moved, t)
 
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]!

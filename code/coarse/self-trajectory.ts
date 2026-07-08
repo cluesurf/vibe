@@ -10,7 +10,9 @@
 import {
   flatGraph,
   emergeSelf,
+  emergeSelfHashed,
   beat,
+  beatHashed,
   type Graph,
   type Rng,
 } from '@/code/model/self-kit'
@@ -68,9 +70,8 @@ export function selfTrajectory(input: {
   const { L, beats, bins, seed } = input
   const snapshotEvery = input.snapshotEvery ?? 8
   const graph = flatGraph(L)
-  const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
-  const { tone } = emergeSelf(graph, rng, moved, {
+  const { tone } = emergeSelfHashed(graph, moved, {
     beats: 60,
     density: 0.1,
   })
@@ -82,7 +83,7 @@ export function selfTrajectory(input: {
     Math.min(bins - 1, Math.max(0, Math.floor((x / L) * bins)))
 
   for (let t = 0; t < beats; t++) {
-    beat(tone, graph, moved, rng, 0.01, 0.22)
+    beatHashed(tone, graph, moved, t, 0.01, 0.22)
 
     const cx = positiveCentroidX(tone, L)
     centroids.push(cx)
@@ -156,9 +157,8 @@ function runUnitTrajectory(input: {
 }): UnitTrajectory {
   const { L, beats, seed, minSize, cohesionAt } = input
   const graph = flatGraph(L)
-  const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
-  const { tone } = emergeSelf(graph, rng, moved, {
+  const { tone } = emergeSelfHashed(graph, moved, {
     beats: 60,
     density: 0.1,
   })
