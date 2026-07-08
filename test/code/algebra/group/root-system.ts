@@ -271,7 +271,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
         for (let j = 0; j < 8; j++) {
           if (i !== j) {
             ok(
-              cartan[i]![j]! === 0 || cartan[i]![j]! === -1,
+              cartan[i]![j] === 0 || cartan[i]![j] === -1,
               'off-diag in {0,-1}',
             )
             equal(
@@ -280,7 +280,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
               'Cartan symmetric (simply laced)',
             )
 
-            if (i < j && cartan[i]![j]! === -1) {
+            if (i < j && cartan[i]![j] === -1) {
               edges++
             }
           }

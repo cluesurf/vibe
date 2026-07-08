@@ -22,7 +22,10 @@ const L = 64
 
 // the top-to-base speedup must reach at least this fraction of the ideal geometric factor 2^(levels-1), the
 // fidelity at the top must stay this far above chance, and the over-compressed control must fall this close to
-// chance. The measured speedup ratio is near 31 against an ideal 32.
+// chance. The measured speedup ratio is near 31 against an ideal 32. On the deterministic trajectory the top
+// level sits at lag 64, so its Markov fit needs enough coarse samples: at 8000 beats (below) the top-level
+// fidelity holds near 0.11 above chance and the over-compression floor stays below it, both robust as the
+// trajectory lengthens.
 const GEOMETRIC_FRACTION = 0.75
 const ABOVE_CHANCE_MIN = 0.03
 
@@ -37,7 +40,7 @@ export default experiment({
   paper: false,
   run() {
     const chance = 1 / bins
-    const traj = selfUnitTrajectory({ L, beats: 4000, seed: 56789 })
+    const traj = selfUnitTrajectory({ L, beats: 8000, seed: 56789 })
     const labels = quantileLabels({ series: traj.centroids, bins })
     const tower = surrogateTower({
       labels,

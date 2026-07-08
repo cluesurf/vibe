@@ -11,6 +11,7 @@
 // which the five supply. Run: npx tsx code/experiment/p171-persistent-self.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+
 const GOLDEN = (1 + Math.sqrt(5)) / 2
 const SILVER = 1 + Math.sqrt(2)
 import { edgesFromCsr } from '@/code/tool/graph'
@@ -25,7 +26,8 @@ const beat = (
   moved: Uint8Array,
   beat: number,
   arrow: number,
-): void => conservingEdgeSweepHashed({ tone, eu, ev, moved, beat, arrow })
+): void =>
+  conservingEdgeSweepHashed({ tone, eu, ev, moved, beat, arrow })
 
 export function persistentSelf(input?: { n?: number }): {
   n: number
@@ -161,7 +163,6 @@ export function persistentSelf(input?: { n?: number }): {
   }
 
   seedMedium(un)
-
 
   for (let t = 0; t < T; t++) {
     beat(un, eu, ev, moved, t, arrow)

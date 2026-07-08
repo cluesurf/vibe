@@ -41,6 +41,7 @@ export function sparkErodes(input: { n: number }): {
   const self = makeSelfPattern({ n, patterns: 2 }).map(p =>
     p.map(v => (v === 0 ? 1 : v)),
   )
+
   const urge = ternaryPattern(n, 100)
   const exogenous = ternaryPattern(n, 1000).map(v => (v === 0 ? 1 : v))
 

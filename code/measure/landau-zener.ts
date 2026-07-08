@@ -15,16 +15,24 @@
 type Complex = readonly [number, number]
 type Spinor = readonly [Complex, Complex]
 
-const cadd = (a: Complex, b: Complex): Complex => [a[0] + b[0], a[1] + b[1]]
+const cadd = (a: Complex, b: Complex): Complex => [
+  a[0] + b[0],
+  a[1] + b[1],
+]
+
 const cmul = (a: Complex, b: Complex): Complex => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
 ]
+
 const cconj = (a: Complex): Complex => [a[0], -a[1]]
 
 // U(k) = shift(k) coin(mass); coin(m) = [[cos m, -i sin m],[-i sin m, cos m]], shift(k) = diag(e^{ik}, e^{-ik}).
 // returns the quasienergy E and the Bloch axis n so that H(k) = E n.sigma.
-function bandData(k: number, mass: number): {
+function bandData(
+  k: number,
+  mass: number,
+): {
   energy: number
   nx: number
   ny: number
@@ -46,27 +54,51 @@ function bandData(k: number, mass: number): {
   const az = (u00[1] - u11[1]) / 2
   const energy = Math.acos(Math.max(-1, Math.min(1, a0)))
   const sinE = Math.sin(energy) || 1e-12
-  return { energy, nx: -ax / sinE, ny: -ay / sinE, nz: -az / sinE, u00, u01, u10, u11 }
+
+  return {
+    energy,
+    nx: -ax / sinE,
+    ny: -ay / sinE,
+    nz: -az / sinE,
+    u00,
+    u01,
+    u10,
+    u11,
+  }
 }
 
 // eigenvector of the lower (upper) band at momentum k
 function bandVector(k: number, mass: number, upper: boolean): Spinor {
   const b = bandData(k, mass)
   const sign = upper ? 1 : -1
-  const lambda: Complex = [Math.cos(sign * b.energy), Math.sin(sign * b.energy)]
+  const lambda: Complex = [
+    Math.cos(sign * b.energy),
+    Math.sin(sign * b.energy),
+  ]
+
   let v0: Complex = b.u01
   let v1: Complex = [lambda[0] - b.u00[0], lambda[1] - b.u00[1]]
   let n = Math.hypot(v0[0], v0[1], v1[0], v1[1])
+
   if (n < 1e-9) {
     v0 = [lambda[0] - b.u11[0], lambda[1] - b.u11[1]]
     v1 = b.u10
     n = Math.hypot(v0[0], v0[1], v1[0], v1[1])
   }
-  return [[v0[0] / n, v0[1] / n], [v1[0] / n, v1[1] / n]]
+
+  return [
+    [v0[0] / n, v0[1] / n],
+    [v1[0] / n, v1[1] / n],
+  ]
 }
 
 // one continuous evolution step: propagator exp(-i H(k) dt) = cos(E dt) I - i sin(E dt) n.sigma
-function evolve(psi: Spinor, k: number, mass: number, dt: number): Spinor {
+function evolve(
+  psi: Spinor,
+  k: number,
+  mass: number,
+  dt: number,
+): Spinor {
   const b = bandData(k, mass)
   const ca = Math.cos(b.energy * dt)
   const sa = Math.sin(b.energy * dt)
@@ -74,6 +106,7 @@ function evolve(psi: Spinor, k: number, mass: number, dt: number): Spinor {
   const A01: Complex = [-sa * b.ny, -sa * b.nx]
   const A10: Complex = [sa * b.ny, -sa * b.nx]
   const A11: Complex = [ca, sa * b.nz]
+
   return [
     cadd(cmul(A00, psi[0]), cmul(A01, psi[1])),
     cadd(cmul(A10, psi[0]), cmul(A11, psi[1])),
@@ -92,19 +125,23 @@ export function landauZenerDiabaticProbability(input: {
   const { mass, force } = input
   const kSpan = input.kSpan ?? 1.4
   const dt = input.timeStep ?? 0.01
+
   let psi = bandVector(-kSpan, mass, false)
   let t = 0
   let k = -kSpan
+
   while (k < kSpan) {
     psi = evolve(psi, k, mass, dt)
     t += dt
     k = -kSpan + force * t
   }
+
   const upper = bandVector(k, mass, true)
   const overlap = cadd(
     cmul(cconj(upper[0]), psi[0]),
     cmul(cconj(upper[1]), psi[1]),
   )
+
   return overlap[0] * overlap[0] + overlap[1] * overlap[1]
 }
 
@@ -114,22 +151,36 @@ export function landauZenerSlope(input: {
   mass: number
   forces: number[]
 }): number {
-  const points: Array<[number, number]> = []
+  const points: [number, number][] = []
+
   for (const force of input.forces) {
-    const p = landauZenerDiabaticProbability({ mass: input.mass, force })
-    if (p > 1e-6 && p < 0.2) points.push([1 / force, Math.log(p)])
+    const p = landauZenerDiabaticProbability({
+      mass: input.mass,
+      force,
+    })
+
+    if (p > 1e-6 && p < 0.2) {
+      points.push([1 / force, Math.log(p)])
+    }
   }
+
   const n = points.length
-  if (n < 2) return NaN
+
+  if (n < 2) {
+    return NaN
+  }
+
   let sx = 0
   let sy = 0
   let sxx = 0
   let sxy = 0
+
   for (const [x, y] of points) {
     sx += x
     sy += y
     sxx += x * x
     sxy += x * y
   }
+
   return (n * sxy - sx * sy) / (n * sxx - sx * sx)
 }

@@ -38,7 +38,7 @@ export default experiment({
   id: 'quantum/bulk-boundary-correspondence',
   code: 'E-QTM-0079',
   title:
-    'the bulk-boundary correspondence from the walk operator\'s own spectrum: an interface between two gapped bulk phases of different winding (W=+2 next to W=-2) binds a nonzero, quantized, size-independent set of in-gap edge modes localized at the interface (8 modes, 4 at quasienergy 0 and 4 at pi, identical at sizes 32, 48, 64), while a uniform gapped phase with no interface binds exactly zero',
+    "the bulk-boundary correspondence from the walk operator's own spectrum: an interface between two gapped bulk phases of different winding (W=+2 next to W=-2) binds a nonzero, quantized, size-independent set of in-gap edge modes localized at the interface (8 modes, 4 at quasienergy 0 and 4 at pi, identical at sizes 32, 48, 64), while a uniform gapped phase with no interface binds exactly zero",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -53,10 +53,15 @@ export default experiment({
         theta2: THETA2,
       }),
     )
+
     const topoTotals = topoCounts.map(c => c.zero + c.pi)
     const sizeIndependent =
       topoTotals.every(t => t === topoTotals[0]) && topoTotals[0]! > 0
-    const modesAtBothGaps = topoCounts.every(c => c.zero > 0 && c.pi > 0)
+
+    const modesAtBothGaps = topoCounts.every(
+      c => c.zero > 0 && c.pi > 0,
+    )
+
     const evenlyQuantized = topoCounts.every(c => c.zero === c.pi) // particle-hole symmetric
 
     // CONTROL: uniform gapped phase (no interface, same winding both sides) binds exactly zero
@@ -68,11 +73,15 @@ export default experiment({
         theta2: THETA2,
       }),
     )
+
     const controlTotals = controlCounts.map(c => c.zero + c.pi)
     const controlIsZero = controlTotals.every(t => t === 0)
 
     const ok =
-      sizeIndependent && modesAtBothGaps && evenlyQuantized && controlIsZero
+      sizeIndependent &&
+      modesAtBothGaps &&
+      evenlyQuantized &&
+      controlIsZero
 
     return verdict({
       status: ok ? 'pass' : 'fail',

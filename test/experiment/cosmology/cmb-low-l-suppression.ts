@@ -50,7 +50,7 @@ function flatTorus(side: number): Graph {
   return makeGraph({
     size: adjacency.length,
     directed: false,
-    neighbors: adjacency.map((row) => Array.from(row)),
+    neighbors: adjacency.map(row => Array.from(row)),
   })
 }
 
@@ -65,10 +65,13 @@ export default experiment({
   paper: true,
   run() {
     // measure the gap of the real hyperbolic tiling at increasing size
-    const hyperbolicGaps = HYPERBOLIC_GENERATIONS.map((generations) =>
+    const hyperbolicGaps = HYPERBOLIC_GENERATIONS.map(generations =>
       spectralGap(tilingPQ({ p: 7, q: 3, generations })),
     )
-    const flatGaps = FLAT_SIDES.map((side) => spectralGap(flatTorus(side)))
+
+    const flatGaps = FLAT_SIDES.map(side =>
+      spectralGap(flatTorus(side)),
+    )
 
     // (a) every finite substrate has a strictly positive gap (suppression present)
     const allPositive =
@@ -76,12 +79,15 @@ export default experiment({
 
     // (b) the gap recedes as the substrate grows, on BOTH geometries
     let hyperbolicRecedes = true
+
     for (let i = 1; i < hyperbolicGaps.length; i++) {
       if (hyperbolicGaps[i]! > hyperbolicGaps[i - 1]! - 1e-9) {
         hyperbolicRecedes = false
       }
     }
+
     let flatRecedes = true
+
     for (let i = 1; i < flatGaps.length; i++) {
       if (flatGaps[i]! > flatGaps[i - 1]! - 1e-9) {
         flatRecedes = false
@@ -91,10 +97,14 @@ export default experiment({
     // the honest negative: the hyperbolic gap does NOT persist (largest-size gap well below the
     // smallest), so no distinctive hyperbolic persistence
     const hyperbolicPersistenceFalsified =
-      hyperbolicGaps[hyperbolicGaps.length - 1]! < hyperbolicGaps[0]! * 0.5
+      hyperbolicGaps[hyperbolicGaps.length - 1]! <
+      hyperbolicGaps[0]! * 0.5
 
     // CONTROL: a much larger substrate approaches the continuum, gap toward zero (no cap)
-    const largeHyperbolic = spectralGap(tilingPQ({ p: 7, q: 3, generations: 7 }))
+    const largeHyperbolic = spectralGap(
+      tilingPQ({ p: 7, q: 3, generations: 7 }),
+    )
+
     const continuumApproached =
       largeHyperbolic < hyperbolicGaps[hyperbolicGaps.length - 1]!
 
@@ -115,7 +125,9 @@ export default experiment({
           hyperbolicGaps[hyperbolicGaps.length - 1]!.toExponential(3),
         ),
         flatGapSmall: Number(flatGaps[0]!.toExponential(3)),
-        flatGapLarge: Number(flatGaps[flatGaps.length - 1]!.toExponential(3)),
+        flatGapLarge: Number(
+          flatGaps[flatGaps.length - 1]!.toExponential(3),
+        ),
       },
       // CONTROL: a larger substrate (generation 7) has an even smaller gap, approaching the continuum
       // where the cap and the suppression disappear.

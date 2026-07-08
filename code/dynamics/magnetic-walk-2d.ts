@@ -12,9 +12,14 @@
 
 type Complex = [number, number]
 
-function coinRotate(up: Complex, down: Complex, theta: number): [Complex, Complex] {
+function coinRotate(
+  up: Complex,
+  down: Complex,
+  theta: number,
+): [Complex, Complex] {
   const c = Math.cos(theta / 2)
   const s = Math.sin(theta / 2)
+
   return [
     [c * up[0] - s * down[0], c * up[1] - s * down[1]],
     [s * up[0] + c * down[0], s * up[1] + c * down[1]],
@@ -24,6 +29,7 @@ function coinRotate(up: Complex, down: Complex, theta: number): [Complex, Comple
 function applyPhase(z: Complex, angle: number): Complex {
   const c = Math.cos(angle)
   const s = Math.sin(angle)
+
   return [z[0] * c - z[1] * s, z[0] * s + z[1] * c]
 }
 
@@ -37,7 +43,14 @@ export function cyclotronCentroidTrace(input: {
   coinAngle: number
   momentum: number
 }): number[] {
-  const { size: L, steps, field: B, coinAngle: theta, momentum: kx } = input
+  const {
+    size: L,
+    steps,
+    field: B,
+    coinAngle: theta,
+    momentum: kx,
+  } = input
+
   const wrap = (n: number): number => ((n % L) + L) % L
   const x0 = L >> 1
   const y0 = L >> 1
@@ -46,18 +59,29 @@ export function cyclotronCentroidTrace(input: {
 
   // Gaussian packet with x-momentum, seeded in the up-mover (a definite launch velocity)
   let up: Complex[] = Array.from({ length: N }, () => [0, 0] as Complex)
-  let down: Complex[] = Array.from({ length: N }, () => [0, 0] as Complex)
+  let down: Complex[] = Array.from(
+    { length: N },
+    () => [0, 0] as Complex,
+  )
+
   const w = 6
+
   let norm = 0
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
-      const g = Math.exp(-(((x - x0) ** 2 + (y - y0) ** 2) / (2 * w * w)))
+      const g = Math.exp(
+        -(((x - x0) ** 2 + (y - y0) ** 2) / (2 * w * w)),
+      )
+
       const phase = kx * x
       up[idx(x, y)] = [g * Math.cos(phase), g * Math.sin(phase)]
       norm += g * g
     }
   }
+
   const s = 1 / Math.sqrt(norm)
+
   for (let i = 0; i < N; i++) {
     up[i] = [up[i]![0] * s, up[i]![1] * s]
   }
@@ -68,51 +92,80 @@ export function cyclotronCentroidTrace(input: {
     // coin
     const u1: Complex[] = new Array(N)
     const d1: Complex[] = new Array(N)
+
     for (let i = 0; i < N; i++) {
       const [nu, nd] = coinRotate(up[i]!, down[i]!, theta)
       u1[i] = nu
       d1[i] = nd
     }
+
     // x-shift: up -> x+1, down -> x-1
-    const u2: Complex[] = Array.from({ length: N }, () => [0, 0] as Complex)
-    const d2: Complex[] = Array.from({ length: N }, () => [0, 0] as Complex)
+    const u2: Complex[] = Array.from(
+      { length: N },
+      () => [0, 0] as Complex,
+    )
+
+    const d2: Complex[] = Array.from(
+      { length: N },
+      () => [0, 0] as Complex,
+    )
+
     for (let x = 0; x < L; x++) {
       for (let y = 0; y < L; y++) {
         u2[idx(wrap(x + 1), y)] = u1[idx(x, y)]!
         d2[idx(wrap(x - 1), y)] = d1[idx(x, y)]!
       }
     }
+
     // coin
     const u3: Complex[] = new Array(N)
     const d3: Complex[] = new Array(N)
+
     for (let i = 0; i < N; i++) {
       const [nu, nd] = coinRotate(u2[i]!, d2[i]!, theta)
       u3[i] = nu
       d3[i] = nd
     }
+
     // y-shift with Peierls phase e^{+/- i B x} (Landau gauge): up -> y+1, down -> y-1
-    const u4: Complex[] = Array.from({ length: N }, () => [0, 0] as Complex)
-    const d4: Complex[] = Array.from({ length: N }, () => [0, 0] as Complex)
+    const u4: Complex[] = Array.from(
+      { length: N },
+      () => [0, 0] as Complex,
+    )
+
+    const d4: Complex[] = Array.from(
+      { length: N },
+      () => [0, 0] as Complex,
+    )
+
     for (let x = 0; x < L; x++) {
       const dx = x - x0
+
       for (let y = 0; y < L; y++) {
         u4[idx(x, wrap(y + 1))] = applyPhase(u3[idx(x, y)]!, B * dx)
         d4[idx(x, wrap(y - 1))] = applyPhase(d3[idx(x, y)]!, -B * dx)
       }
     }
+
     up = u4
     down = d4
 
     // transverse (y) centroid
     let cy = 0
     let ww = 0
+
     for (let i = 0; i < N; i++) {
       const p =
-        up[i]![0] ** 2 + up[i]![1] ** 2 + down[i]![0] ** 2 + down[i]![1] ** 2
+        up[i]![0] ** 2 +
+        up[i]![1] ** 2 +
+        down[i]![0] ** 2 +
+        down[i]![1] ** 2
+
       const y = i % L
       cy += (y - y0) * p
       ww += p
     }
+
     trace.push(cy / (ww || 1))
   }
 
@@ -136,18 +189,22 @@ export function cyclotronFrequency(input: {
   const power = (f: number): number => {
     let re = 0
     let im = 0
+
     for (let t = 0; t < n; t++) {
       const a = (2 * Math.PI * f * t) / n
       re += (trace[t]! - mean) * Math.cos(a)
       im += (trace[t]! - mean) * Math.sin(a)
     }
+
     return re * re + im * im
   }
 
   let peak = 1
   let peakPower = 0
+
   for (let f = 1; f < n / 2; f++) {
     const p = power(f)
+
     if (p > peakPower) {
       peakPower = p
       peak = f
@@ -173,5 +230,6 @@ export function transverseSpan(input: {
   momentum: number
 }): number {
   const trace = cyclotronCentroidTrace(input)
+
   return Math.max(...trace) - Math.min(...trace)
 }

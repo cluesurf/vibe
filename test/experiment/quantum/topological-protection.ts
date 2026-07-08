@@ -37,16 +37,22 @@ const ripple = (x: number, amp: number): number =>
   amp * Math.sin((2 * Math.PI * x) / 7)
 
 // signed distance to the interface at x = IFACE (on the periodic ring)
-const dist = (x: number): number => ((x - IFACE + SIZE / 2 + SIZE) % SIZE) - SIZE / 2
+const dist = (x: number): number =>
+  ((x - IFACE + SIZE / 2 + SIZE) % SIZE) - SIZE / 2
 
 // smooth tanh interface from W_LEFT to W_RIGHT of a given width
 const smooth = (x: number, width: number): number =>
-  (W_LEFT + W_RIGHT) / 2 + ((W_RIGHT - W_LEFT) / 2) * Math.tanh(dist(x) / width)
+  (W_LEFT + W_RIGHT) / 2 +
+  ((W_RIGHT - W_LEFT) / 2) * Math.tanh(dist(x) / width)
 
 const sharpStep = (x: number): number => (x < IFACE ? W_LEFT : W_RIGHT)
 
-function count(theta1: (x: number) => number, theta2: (x: number) => number): number {
+function count(
+  theta1: (x: number) => number,
+  theta2: (x: number) => number,
+): number {
   const c = edgeModeCountFromProfile({ size: SIZE, theta1, theta2 })
+
   return c.zero + c.pi
 }
 
@@ -63,23 +69,49 @@ export default experiment({
     // PREDICTION: the edge count is invariant across every gap-preserving deformation of the interface
     const topoCounts: number[] = [
       count(sharpStep, () => 0), // sharp
-      count(x => smooth(x, 2), () => 0), // smooth width 2
-      count(x => smooth(x, 3), () => 0), // smooth width 3
-      count(x => smooth(x, 4), () => 0), // smooth width 4
-      count(x => sharpStep(x) + ripple(x, 0.3), () => 0), // coin (theta1) ripple
+      count(
+        x => smooth(x, 2),
+        () => 0,
+      ), // smooth width 2
+      count(
+        x => smooth(x, 3),
+        () => 0,
+      ), // smooth width 3
+      count(
+        x => smooth(x, 4),
+        () => 0,
+      ), // smooth width 4
+      count(
+        x => sharpStep(x) + ripple(x, 0.3),
+        () => 0,
+      ), // coin (theta1) ripple
       count(sharpStep, x => ripple(x, 0.3)), // theta2 ripple
     ]
+
     const protectedCount = topoCounts[0]!
     const invariant =
       protectedCount > 0 && topoCounts.every(c => c === protectedCount)
 
     // CONTROL: the trivial (uniform) gapped phase with the SAME ripples binds nothing
     const controlCounts: number[] = [
-      count(() => W_LEFT, () => 0), // uniform, no interface
-      count(x => W_LEFT + ripple(x, 0.3), () => 0), // uniform + coin ripple
-      count(() => W_LEFT, x => ripple(x, 0.3)), // uniform + theta2 ripple
-      count(x => W_LEFT + ripple(x, 0.2), x => ripple(x, 0.2)), // uniform + both
+      count(
+        () => W_LEFT,
+        () => 0,
+      ), // uniform, no interface
+      count(
+        x => W_LEFT + ripple(x, 0.3),
+        () => 0,
+      ), // uniform + coin ripple
+      count(
+        () => W_LEFT,
+        x => ripple(x, 0.3),
+      ), // uniform + theta2 ripple
+      count(
+        x => W_LEFT + ripple(x, 0.2),
+        x => ripple(x, 0.2),
+      ), // uniform + both
     ]
+
     const controlIsZero = controlCounts.every(c => c === 0)
 
     const ok = invariant && controlIsZero

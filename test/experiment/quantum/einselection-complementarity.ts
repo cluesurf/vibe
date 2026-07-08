@@ -45,12 +45,14 @@ function coherenceAndRecord(input: {
     weight1: 0.5,
     form: 'copy',
   })
+
   const coherence = systemCoherence({
     real: chain.joint.real,
     imag: chain.joint.imag,
     qubitCount: chain.joint.qubitCount,
     systemQubit: chain.systemQubit,
   })
+
   const record = fragmentRecordDistance({
     stateA: chain.environmentGivenPointer0,
     stateB: chain.environmentGivenPointer1,
@@ -78,8 +80,12 @@ export default experiment({
         environmentCount: 1,
         overlap,
       })
+
       const identity = (2 * coherence) ** 2 + record ** 2
-      worstIdentityError = Math.max(worstIdentityError, Math.abs(identity - 1))
+      worstIdentityError = Math.max(
+        worstIdentityError,
+        Math.abs(identity - 1),
+      )
     }
 
     // AMPLIFICATION: at each interior overlap the bath (N=6) leaves less coherence than one copy
@@ -97,6 +103,7 @@ export default experiment({
       if (bath.coherence > one.coherence + 1e-12) {
         amplificationHolds = false
       }
+
       if (Math.abs(overlap - 0.5) < 1e-9) {
         worstBathCoherenceAtHalf = bath.coherence
       }
@@ -117,8 +124,15 @@ export default experiment({
     }
 
     // CONTROLS: the two endpoints
-    const noRecord = coherenceAndRecord({ environmentCount: 6, overlap: 1 })
-    const perfectRecord = coherenceAndRecord({ environmentCount: 6, overlap: 0 })
+    const noRecord = coherenceAndRecord({
+      environmentCount: 6,
+      overlap: 1,
+    })
+
+    const perfectRecord = coherenceAndRecord({
+      environmentCount: 6,
+      overlap: 0,
+    })
 
     const identityExact = worstIdentityError < 1e-9
     const complementarity = !bothHigh
@@ -129,7 +143,10 @@ export default experiment({
       Math.abs(perfectRecord.record - 1) < 1e-9
 
     const ok =
-      identityExact && amplificationHolds && complementarity && controlsCorrect
+      identityExact &&
+      amplificationHolds &&
+      complementarity &&
+      controlsCorrect
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -148,7 +165,9 @@ export default experiment({
       control: {
         noRecordCoherence: Number(noRecord.coherence.toFixed(4)),
         noRecordRecord: Number(noRecord.record.toExponential(2)),
-        perfectRecordCoherence: Number(perfectRecord.coherence.toExponential(2)),
+        perfectRecordCoherence: Number(
+          perfectRecord.coherence.toExponential(2),
+        ),
         perfectRecordRecord: Number(perfectRecord.record.toFixed(4)),
       },
       notes:

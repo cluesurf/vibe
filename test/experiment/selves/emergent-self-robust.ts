@@ -27,17 +27,14 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import {
-  beat,
   countPlus,
   largestPositiveCluster,
   totalCharge,
-  beatHashed
+  beatHashed,
 } from '@/code/model/self-kit'
 import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const GOLDEN = (1 + Math.sqrt(5)) / 2
 
 export function emergentSelfRobust(input?: { n?: number }): {
   n: number

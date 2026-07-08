@@ -15,11 +15,16 @@
 
 type Complex = readonly [number, number]
 
-const cadd = (a: Complex, b: Complex): Complex => [a[0] + b[0], a[1] + b[1]]
+const cadd = (a: Complex, b: Complex): Complex => [
+  a[0] + b[0],
+  a[1] + b[1],
+]
+
 const cmul = (a: Complex, b: Complex): Complex => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
 ]
+
 const cabs2 = (a: Complex): number => a[0] * a[0] + a[1] * a[1]
 const IMAG: Complex = [0, 1]
 
@@ -60,17 +65,21 @@ export function diracBarrierProbability(input: {
 
   // right-moving Gaussian packet, centred a bit left of the barrier, in the R (right-mover) chirality
   const x0 = Math.floor(barrierStart - 4 * sigma)
+
   let R: Complex[] = new Array(L).fill([0, 0])
   let Lf: Complex[] = new Array(L).fill([0, 0])
 
   let normSeed = 0
+
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) * (x - x0)) / (2 * sigma * sigma))
     const phase = k0 * x
     R[x] = [g * Math.cos(phase), g * Math.sin(phase)]
     normSeed += cabs2(R[x]!)
   }
+
   const inv = 1 / Math.sqrt(normSeed)
+
   for (let x = 0; x < L; x++) {
     R[x] = [R[x]![0] * inv, R[x]![1] * inv]
   }
@@ -78,9 +87,12 @@ export function diracBarrierProbability(input: {
   // precompute the local coin (cos m, sin m) per site: a mass barrier raises the local mass
   const cosM = new Float64Array(L)
   const sinM = new Float64Array(L)
+
   for (let x = 0; x < L; x++) {
     const inBarrier = x >= barrierStart && x < barrierEnd
-    const localMass = kind === 'mass' && inBarrier ? mass + height : mass
+    const localMass =
+      kind === 'mass' && inBarrier ? mass + height : mass
+
     cosM[x] = Math.cos(localMass)
     sinM[x] = Math.sin(localMass)
   }
@@ -88,6 +100,7 @@ export function diracBarrierProbability(input: {
   // precompute the scalar-potential phase per site (electrostatic step: e^{-i height} in the region)
   const potRe = new Float64Array(L)
   const potIm = new Float64Array(L)
+
   for (let x = 0; x < L; x++) {
     const inBarrier = x >= barrierStart && x < barrierEnd
     const v = kind === 'potential' && inBarrier ? height : 0
@@ -99,6 +112,7 @@ export function diracBarrierProbability(input: {
     // coin: local mass mixes the two chiralities
     const R2: Complex[] = new Array(L)
     const L2: Complex[] = new Array(L)
+
     for (let x = 0; x < L; x++) {
       const c = cosM[x]!
       const s = sinM[x]!
@@ -116,6 +130,7 @@ export function diracBarrierProbability(input: {
     for (let x = 0; x < L; x++) {
       const pr = potRe[x]!
       const pi = potIm[x]!
+
       if (pr !== 1 || pi !== 0) {
         R2[x] = cmul([pr, pi], R2[x]!)
         L2[x] = cmul([pr, pi], L2[x]!)
@@ -125,10 +140,12 @@ export function diracBarrierProbability(input: {
     // shift: R moves +1, L moves -1
     const R3: Complex[] = new Array(L).fill([0, 0])
     const L3: Complex[] = new Array(L).fill([0, 0])
+
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!
       L3[wrap(x - 1)] = L2[x]!
     }
+
     R = R3
     Lf = L3
   }
@@ -138,9 +155,11 @@ export function diracBarrierProbability(input: {
   let inside = 0
   let transmitted = 0
   let total = 0
+
   for (let x = 0; x < L; x++) {
     const p = cabs2(R[x]!) + cabs2(Lf[x]!)
     total += p
+
     if (x < barrierStart) {
       reflected += p
     } else if (x < barrierEnd) {
@@ -151,6 +170,7 @@ export function diracBarrierProbability(input: {
   }
 
   const norm = total || 1
+
   return {
     reflected: reflected / norm,
     inside: inside / norm,

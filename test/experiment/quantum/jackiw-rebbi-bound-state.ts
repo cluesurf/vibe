@@ -35,7 +35,10 @@ const WINDOW = 15
 const STEPS_SHORT = 150
 const STEPS_LONG = 500
 
-function retained(profile: 'flip' | 'samesign' | 'uniform', steps: number): number {
+function retained(
+  profile: 'flip' | 'samesign' | 'uniform',
+  steps: number,
+): number {
   return massWallRetainedWeight({
     size: SIZE,
     steps,
@@ -51,7 +54,7 @@ export default experiment({
   id: 'quantum/jackiw-rebbi-bound-state',
   code: 'E-QTM-0076',
   title:
-    'Jackiw-Rebbi bound state from the coin\'s own Dirac walk: a mass wall that changes SIGN binds a state at the wall (retained weight above 0.9 and constant in time), while a same-sign wall with the identical gradient binds nothing (below 0.1) and a uniform mass disperses, so the binding is the topological sign change',
+    "Jackiw-Rebbi bound state from the coin's own Dirac walk: a mass wall that changes SIGN binds a state at the wall (retained weight above 0.9 and constant in time), while a same-sign wall with the identical gradient binds nothing (below 0.1) and a uniform mass disperses, so the binding is the topological sign change",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -99,7 +102,7 @@ export default experiment({
         uniformRetainedLong: Number(uniformLong.toFixed(4)),
       },
       notes:
-        'Jackiw-Rebbi bound state measured on the {3,4,3,4} coin\'s own Dirac walk (code/dynamics/mass-domain-wall): a sign-flipping mass wall binds a time-independent state (retained ~0.96), a same-sign wall of identical gradient binds nothing (~0.03), a uniform mass disperses. The binding is the topological sign change. L3, emergent on the committed substrate sector.',
+        "Jackiw-Rebbi bound state measured on the {3,4,3,4} coin's own Dirac walk (code/dynamics/mass-domain-wall): a sign-flipping mass wall binds a time-independent state (retained ~0.96), a same-sign wall of identical gradient binds nothing (~0.03), a uniform mass disperses. The binding is the topological sign change. L3, emergent on the committed substrate sector.",
     })
   },
 })

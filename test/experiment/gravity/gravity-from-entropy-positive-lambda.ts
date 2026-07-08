@@ -21,7 +21,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  makeComplexMatrix,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { relativeEntropyBits } from '@/code/tool/density-matrix'
 
 // the geometry reference state, a fixed non-maximally-mixed vacuum tone
@@ -75,24 +78,30 @@ export default experiment({
       const lambda = relativeEntropyBits({ rho, sigma })
 
       worstNegative = Math.min(worstNegative, lambda)
+
       if (theta === 0) {
         entropyAtMatch = lambda
       }
+
       if (Math.abs(theta - 0.1) < 1e-9) {
         entropyAtSmallMismatch = lambda
       }
+
       if (lambda < previous - 1e-12) {
         monotone = false
       }
+
       previous = lambda
     }
 
     // the smallest Lambda at any nonzero mismatch is strictly positive
     let smallestPositiveMismatch = Infinity
+
     for (const theta of THETAS) {
       if (theta <= 0) {
         continue
       }
+
       smallestPositiveMismatch = Math.min(
         smallestPositiveMismatch,
         relativeEntropyBits({ rho: matterState(theta), sigma }),
@@ -119,7 +128,9 @@ export default experiment({
       metrics: {
         worstNegativeLambda: Number(worstNegative.toExponential(2)),
         lambdaAtMatch: Number(entropyAtMatch.toExponential(2)),
-        lambdaAtSmallMismatch: Number(entropyAtSmallMismatch.toFixed(5)),
+        lambdaAtSmallMismatch: Number(
+          entropyAtSmallMismatch.toFixed(5),
+        ),
         smallestPositiveMismatchLambda: Number(
           smallestPositiveMismatch.toExponential(2),
         ),

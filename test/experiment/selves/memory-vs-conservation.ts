@@ -23,7 +23,8 @@ const beat = (
   moved: Uint8Array,
   beat: number,
   arrow: number,
-): void => conservingEdgeSweepHashed({ tone, eu, ev, moved, beat, arrow })
+): void =>
+  conservingEdgeSweepHashed({ tone, eu, ev, moved, beat, arrow })
 
 const totalQ = (t: Int8Array): number => {
   let s = 0

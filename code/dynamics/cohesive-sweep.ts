@@ -116,7 +116,8 @@ export function cohesiveEdgeSweepHashed(input: {
   arrow: number
   escapeProbability?: number
 }): void {
-  const { tone, eu, ev, offsets, adj, moved, beat, annihilate, arrow } = input
+  const { tone, eu, ev, offsets, adj, moved, beat, annihilate, arrow } =
+    input
 
   const escapeProbability = input.escapeProbability ?? 0.02
   moved.fill(0)
@@ -132,7 +133,10 @@ export function cohesiveEdgeSweepHashed(input: {
     const a = tone[v]!
     const b = tone[w]!
 
-    if (annihilate && ((a === 1 && b === -1) || (a === -1 && b === 1))) {
+    if (
+      annihilate &&
+      ((a === 1 && b === -1) || (a === -1 && b === 1))
+    ) {
       tone[v] = 0
       tone[w] = 0
       moved[v] = 1

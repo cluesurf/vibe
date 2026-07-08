@@ -54,7 +54,7 @@ export default experiment({
   id: 'holography/page-curve-from-scrambling',
   code: 'E-HLG-0036',
   title:
-    'the Page curve from the coin\'s own Dirac walk: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent',
+    "the Page curve from the coin's own Dirac walk: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent",
   category: 'holography',
   substrates: ['3434'],
   depth: 'L3',
@@ -70,6 +70,7 @@ export default experiment({
 
     // it is symmetric: S(interval) = S(complement), so S(l) = S(RING - l)
     let worstAsymmetry = 0
+
     for (let l = 1; l < RING; l++) {
       worstAsymmetry = Math.max(
         worstAsymmetry,
@@ -84,17 +85,24 @@ export default experiment({
 
     // rises then falls (monotone up to half, monotone down after)
     let risesThenFalls = true
+
     for (let i = 1; i <= half; i++) {
-      if (gapless[i]! < gapless[i - 1]! - 1e-9) risesThenFalls = false
+      if (gapless[i]! < gapless[i - 1]! - 1e-9) {
+        risesThenFalls = false
+      }
     }
+
     for (let i = half + 1; i < gapless.length; i++) {
-      if (gapless[i]! > gapless[i - 1]! + 1e-9) risesThenFalls = false
+      if (gapless[i]! > gapless[i - 1]! + 1e-9) {
+        risesThenFalls = false
+      }
     }
 
     // CONTROL: the gapped walk saturates (area law), the interior is nearly flat, no tent
     const interiorGapped = gapped.slice(2, RING - 3)
     const gappedSpread =
       Math.max(...interiorGapped) - Math.min(...interiorGapped)
+
     const gappedSaturates = gappedSpread < 0.05
 
     const ok =
@@ -120,7 +128,7 @@ export default experiment({
         gappedPlateau: Number(gapped[half]!.toFixed(4)),
       },
       notes:
-        'Page curve measured on the {3,4,3,4} coin\'s own coined Dirac walk (walk-entanglement), not a hand-built state: the gapless walk gives the symmetric Calabrese-Cardy tent (information returns), the gapped walk the area law (control). L3, emergent on the committed substrate sector. Pairs with the discreteness remnant (E-GRV-0051).',
+        "Page curve measured on the {3,4,3,4} coin's own coined Dirac walk (walk-entanglement), not a hand-built state: the gapless walk gives the symmetric Calabrese-Cardy tent (information returns), the gapped walk the area law (control). L3, emergent on the committed substrate sector. Pairs with the discreteness remnant (E-GRV-0051).",
     })
   },
 })

@@ -33,10 +33,9 @@ export function scrambleNeighbors(input: {
   const edges: [number, number][] = []
 
   for (let a = 0; a < n; a++) {
-    const row = neighbors[a]!
+    const row = Array.from(neighbors[a]!)
 
-    for (let k = 0; k < row.length; k++) {
-      const b = row[k]!
+    for (const b of row) {
       const lo = a < b ? a : b
       const hi = a < b ? b : a
 

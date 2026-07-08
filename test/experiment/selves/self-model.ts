@@ -19,9 +19,6 @@ import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const GOLDEN = (1 + Math.sqrt(5)) / 2
-const SILVER = 1 + Math.sqrt(2)
-
 // full perception beat (share annihilates opposite, hop transports into empty). Charge flows freely,
 // including out of the clamped input cells, which are re-clamped to the signal after each beat (a source).
 function fullBeat(
@@ -66,12 +63,15 @@ function fullBeat(
   }
 }
 
-function run(withDynamics: boolean): {
+function run(
+  withDynamics: boolean,
+  opts?: { maxCells?: number; beats?: number },
+): {
   selfModelCorr: number
   randomCorr: number
   shuffledCorr: number
 } {
-  const g = buildDodecagrid({ maxCells: 60000 })
+  const g = buildDodecagrid({ maxCells: opts?.maxCells ?? 60000 })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
@@ -183,7 +183,7 @@ function run(withDynamics: boolean): {
   }
 
   const tone = new Int8Array(N)
-  const T = 400
+  const T = opts?.beats ?? 400
   const sigs = new Array<number>(K).fill(1)
   // each sector is driven by its OWN DETERMINISTIC square wave at a distinct, mutually incommensurate
   // period with a distinct phase (no randomness), matching the slow ~17-beat timescale of the original

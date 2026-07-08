@@ -100,7 +100,6 @@ export function selfMaintenance(input?: { n?: number }): {
     base[i] = 1
   }
 
-
   for (let b = 0; b < beats; b++) {
     beat(base, eu, ev, g.offsets, g.adj, moved, b)
   }
@@ -117,7 +116,6 @@ export function selfMaintenance(input?: { n?: number }): {
   for (const i of chunkSet) {
     dmg[i] = 0
   }
-
 
   for (let b = 0; b < beats; b++) {
     beat(dmg, eu, ev, g.offsets, g.adj, moved, b)
@@ -137,7 +135,6 @@ export function selfMaintenance(input?: { n?: number }): {
   for (const i of chunkSet) {
     ctrl[i] = 0
   } // erase the whole self
-
 
   for (let b = 0; b < beats; b++) {
     beat(ctrl, eu, ev, g.offsets, g.adj, moved, b)

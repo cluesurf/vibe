@@ -32,7 +32,6 @@ function evolve(
   L: number,
   density: number,
   beats: number,
-  seed: number,
 ): Int8Array {
   const N = g.cellCount
   const tone = new Int8Array(N)
@@ -70,7 +69,7 @@ export function rarityMeasures(input?: { L?: number }): {
   const phiAlive = 0.55 // a cluster counts as integrated/alive above this internal connectivity
 
   // --- (2) integration spectrum + tail, and (5) thin-film dimension, on one evolved state ---
-  const tone = evolve(g, L, 0.12, 70, 1)
+  const tone = evolve(g, L, 0.12, 70)
   const clusters = positiveClusters(tone, g)
 
   let totalCharge = 0
@@ -126,7 +125,7 @@ export function rarityMeasures(input?: { L?: number }): {
   const condensedByDensity: number[] = []
 
   for (const d of densities) {
-    const t = evolve(g, L, d, 60, 7)
+    const t = evolve(g, L, d, 60)
     const cs = positiveClusters(t, g)
 
     let charge = 0

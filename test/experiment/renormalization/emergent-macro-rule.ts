@@ -36,9 +36,11 @@ import { verdict } from '@/test/scaffold/verdict'
 // a DETERMINISTIC counter-indexed hash stream (no seed, no randomness); salt distinguishes streams
 function detStream(salt: number): Rng {
   let c = 0
+
   return {
     next: () => hashRand(c++, 0, salt),
-    nextInt: ({ max }: { max: number }) => Math.floor(hashRand(c++, 0, salt) * max),
+    nextInt: ({ max }: { max: number }) =>
+      Math.floor(hashRand(c++, 0, salt) * max),
   } as Rng
 }
 
@@ -65,20 +67,12 @@ export function emergentMacroRule(input: {
   // The CRITICAL fix: coarse-grain along GEOMETRIC blocks (BFS balls from random seeds), defined
   // WITHOUT looking at the tones, so the mean-field closure is not exact by construction. Then test
   // whether the renormalized macro-rule holds the coarse-grained fixed point.
-  const { cl, K } = geometricBlocks(
-    g,
-    14,
-    detStream(2),
-  )
+  const { cl, K } = geometricBlocks(g, 14, detStream(2))
 
   const measure = (p: number): { renorm: number; naive: number } => {
     // Coherence-tunable fills: +1 with probability p, else -1. p = 0.5 is frustrated (spin-glass, no
     // coherent domains), p -> 1 is ordered (ferromagnetic). Emergence of a coarse rule requires order.
-    const fills = coherentFills(
-      g,
-      p,
-      detStream(10),
-    )
+    const fills = coherentFills(g, p, detStream(10))
 
     let base = new Int8Array(g.size)
 

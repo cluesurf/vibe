@@ -18,7 +18,10 @@ const levels = 6
 const L = 64
 
 // the learned surrogate must beat the shuffled control by at least this much at EVERY level (the per-level
-// error stays controlled), and stay above chance by this much. The measured minimum gap is near 0.16.
+// error stays controlled), and stay above chance by this much. On the deterministic trajectory the top
+// level lives at lag 64, so the Markov fit there needs enough coarse samples: at 8000 beats (below) the
+// measured minimum gap is near 0.14 and the top-level margin above chance is near 0.11, both robust as the
+// trajectory lengthens (the slow mode is genuinely present, it was simply undersampled at 4000 beats).
 const GAP_MIN = 0.1
 const ABOVE_CHANCE_MIN = 0.03
 
@@ -33,7 +36,7 @@ export default experiment({
   paper: false,
   run() {
     const chance = 1 / bins
-    const traj = selfUnitTrajectory({ L, beats: 4000, seed: 56789 })
+    const traj = selfUnitTrajectory({ L, beats: 8000, seed: 56789 })
     const labels = quantileLabels({ series: traj.centroids, bins })
     const tower = surrogateTower({
       labels,

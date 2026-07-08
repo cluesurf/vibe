@@ -3,15 +3,13 @@
 // trajectory of the self's position bin (for the Markov-state model) and periodic tone snapshots (for the
 // commuting-square test).
 //
-// On determinism, the self-kit beat carries a stochastic hop, so this is a single realization of an ensemble
-// and the claims that use it are statistical, labeled L2. Robustness comes from varying the lattice size L,
-// not from averaging seeds. The seed only fixes one reproducible realization.
+// On determinism, the self-kit hashed beat carries a stateless well-mixed hop, so this is a single fully
+// determined realization, not one draw from a random ensemble. Robustness comes from varying the lattice
+// size L. The seed argument is retained for the callers' interface but no longer feeds any randomness.
 
 import {
   flatGraph,
-  emergeSelf,
   emergeSelfHashed,
-  beat,
   beatHashed,
   type Graph,
   type Rng,
@@ -67,7 +65,7 @@ export function selfTrajectory(input: {
   seed: number
   snapshotEvery?: number
 }): Trajectory {
-  const { L, beats, bins, seed } = input
+  const { L, beats, bins } = input
   const snapshotEvery = input.snapshotEvery ?? 8
   const graph = flatGraph(L)
   const moved = new Uint8Array(graph.cellCount)
@@ -155,7 +153,7 @@ function runUnitTrajectory(input: {
   minSize: number
   cohesionAt: (beat: number) => number
 }): UnitTrajectory {
-  const { L, beats, seed, minSize, cohesionAt } = input
+  const { L, beats, minSize, cohesionAt } = input
   const graph = flatGraph(L)
   const moved = new Uint8Array(graph.cellCount)
   const { tone } = emergeSelfHashed(graph, moved, {
@@ -175,7 +173,7 @@ function runUnitTrajectory(input: {
   let lastCx = L / 2
 
   for (let t = 0; t < beats; t++) {
-    beat(tone, graph, moved, rng, 0.01, cohesionAt(t))
+    beatHashed(tone, graph, moved, t, 0.01, cohesionAt(t))
 
     const units = extractUnits({
       tone,

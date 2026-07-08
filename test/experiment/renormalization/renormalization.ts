@@ -26,15 +26,23 @@ type FieldParams = {
   coneSpeed: number
 }
 
-function measureField(n: number, seed: number): FieldParams {
+function measureField(n: number): FieldParams {
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   const ARROW = 0.1
   const tone = new Int8Array(N)
+
   for (let b = 0; b < 80; b++) {
-    conservingEdgeSweepHashed({ tone, eu, ev, moved, beat: b, arrow: ARROW })
+    conservingEdgeSweepHashed({
+      tone,
+      eu,
+      ev,
+      moved,
+      beat: b,
+      arrow: ARROW,
+    })
   }
 
   let nz = 0
@@ -82,15 +90,30 @@ function measureField(n: number, seed: number): FieldParams {
 
   const base = tone.slice()
   const pert = tone.slice()
-  pert[center] = base[center]! === 0 ? 1 : 0
+  pert[center] = base[center] === 0 ? 1 : 0
 
   const T = 5
+
   for (let b = 0; b < T; b++) {
-    conservingEdgeSweepHashed({ tone: base, eu, ev, moved, beat: b, arrow: ARROW })
+    conservingEdgeSweepHashed({
+      tone: base,
+      eu,
+      ev,
+      moved,
+      beat: b,
+      arrow: ARROW,
+    })
   }
 
   for (let b = 0; b < T; b++) {
-    conservingEdgeSweepHashed({ tone: pert, eu, ev, moved, beat: b, arrow: ARROW })
+    conservingEdgeSweepHashed({
+      tone: pert,
+      eu,
+      ev,
+      moved,
+      beat: b,
+      arrow: ARROW,
+    })
   }
 
   let front = 0
@@ -123,8 +146,8 @@ export function renormalization(input?: {
   sliceInvariant: boolean
   solved: boolean
 } {
-  const small = measureField(input?.small ?? 30000, 7)
-  const large = measureField(input?.large ?? 150000, 13)
+  const small = measureField(input?.small ?? 30000)
+  const large = measureField(input?.large ?? 150000)
 
   const rel = (a: number, b: number): number =>
     Math.abs(a - b) / (Math.abs(a) + Math.abs(b) + 1e-9)

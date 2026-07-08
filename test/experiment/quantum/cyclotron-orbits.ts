@@ -34,7 +34,13 @@ const STEPS_SHORT = 200
 const STEPS_LONG = 600
 
 function span(field: number, steps: number): number {
-  return transverseSpan({ size: SIZE, steps, field, coinAngle: COIN, momentum: MOMENTUM })
+  return transverseSpan({
+    size: SIZE,
+    steps,
+    field,
+    coinAngle: COIN,
+    momentum: MOMENTUM,
+  })
 }
 
 export default experiment({
@@ -49,13 +55,19 @@ export default experiment({
   run() {
     // PREDICTION 1: the orbit is bounded (span time-independent) for every field
     const amplitudes: number[] = []
+
     let worstBoundError = 0
+
     for (const field of FIELDS) {
       const short = span(field, STEPS_SHORT)
       const long = span(field, STEPS_LONG)
       amplitudes.push(long)
-      worstBoundError = Math.max(worstBoundError, Math.abs(long / short - 1))
+      worstBoundError = Math.max(
+        worstBoundError,
+        Math.abs(long / short - 1),
+      )
     }
+
     const orbitBounded = worstBoundError < 0.05
 
     // PREDICTION 2: radius ~ 1 / B (amplitude * field constant, amplitude halves as field doubles)
@@ -64,8 +76,11 @@ export default experiment({
     const worstRadiusError = Math.max(
       ...radii.map(r => Math.abs(r / meanRadius - 1)),
     )
+
     const radiusInverseField = worstRadiusError < 0.12
-    const halvingRatio = amplitudes[0]! / amplitudes[amplitudes.length - 1]! // amp(0.1)/amp(0.2)
+    const halvingRatio =
+      amplitudes[0]! / amplitudes[amplitudes.length - 1]! // amp(0.1)/amp(0.2)
+
     const amplitudeHalves = halvingRatio > 1.8 && halvingRatio < 2.3
 
     // CONTROL: zero field flies straight (ballistic), span grows with time and dwarfs any orbit
@@ -96,7 +111,9 @@ export default experiment({
       control: {
         ballisticSpan150: Number(ballisticShort.toFixed(2)),
         ballisticSpan75: Number(ballisticShorter.toFixed(2)),
-        spanOverLargestOrbit: Number((ballisticShort / largestOrbit).toFixed(2)),
+        spanOverLargestOrbit: Number(
+          (ballisticShort / largestOrbit).toFixed(2),
+        ),
       },
       notes:
         'Cyclotron confinement measured on a 2D coined walk in a synthetic magnetic field (code/dynamics/magnetic-walk-2d): with a field the transverse span is time-independent (bounded orbit) and the radius scales as 1 / B (amplitude halves as the field doubles), the zero-field control flies straight. The frequency is not claimed (harmonic/band-curvature contaminated). A 2D walk, closer to the real substrate. L3, a quantitative could-be-wrong law with a control that shows the confinement vanish.',

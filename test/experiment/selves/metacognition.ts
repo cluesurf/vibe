@@ -16,8 +16,6 @@ import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 function fullBeat(
   tone: Int8Array,
   eu: Int32Array,
@@ -221,7 +219,8 @@ export function metacognition(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
       // deterministic square wave per sector at a distinct incommensurate period/phase (no randomness)
-      sigs[s] = Math.floor((t + s * 7 + 3) / (17 + s * 4)) % 2 === 0 ? 1 : -1
+      sigs[s] =
+        Math.floor((t + s * 7 + 3) / (17 + s * 4)) % 2 === 0 ? 1 : -1
     }
 
     for (const i of inputAll) {

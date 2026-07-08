@@ -41,10 +41,12 @@ const SILVER = 1 + Math.sqrt(2)
 // is checked by varying the SIZE n, never by averaging over a random seed.
 export function ternaryPattern(n: number, index: number): Int8Array {
   const v = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
-    const frac = (((i + 1) * GOLDEN + index * SILVER) % 1 + 1) % 1
+    const frac = ((((i + 1) * GOLDEN + index * SILVER) % 1) + 1) % 1
     v[i] = Math.floor(3 * frac) - 1
   }
+
   return v
 }
 
@@ -56,6 +58,7 @@ export function makeSelfPattern(input: {
   offset?: number
 }): Int8Array[] {
   const offset = input.offset ?? 0
+
   return Array.from({ length: input.patterns }, (_unused, k) =>
     ternaryPattern(input.n, offset + k),
   )

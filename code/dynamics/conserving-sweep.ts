@@ -606,9 +606,14 @@ export function conservingEdgeSweepSteeredHashed(input: {
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
-    if (moved[v] || moved[w]) continue
+
+    if (moved[v] || moved[w]) {
+      continue
+    }
+
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -618,12 +623,16 @@ export function conservingEdgeSweepSteeredHashed(input: {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
       const q = tone[c]!
+
       let doHop: boolean
+
       if (distGoal && q > 0) {
-        doHop = towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
+        doHop =
+          towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
       } else {
         doHop = hashRand(k, beat, 1) < 0.5
       }
+
       if (doHop) {
         tone[e] = q
         tone[c] = 0

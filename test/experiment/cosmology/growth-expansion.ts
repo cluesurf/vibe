@@ -16,9 +16,7 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function branchingExpansion(input: {
-  spawnFraction: number
-}): {
+export function branchingExpansion(input: { spawnFraction: number }): {
   widthPerGen: number[]
   rate: number
   expands: boolean

@@ -45,10 +45,10 @@ function ballScaling(
 }
 
 // the emergent self's leak per beat and its passive (unmaintained) fidelity
-function selfDynamics(
-  g: Graph,
-  seed: number,
-): { leakPerBeat: number; passiveFidelity: number } {
+function selfDynamics(g: Graph): {
+  leakPerBeat: number
+  passiveFidelity: number
+} {
   const moved = new Uint8Array(g.cellCount)
   const { tone, cluster } = emergeSelfHashed(g, moved)
   const tl = tone.slice()
@@ -114,8 +114,8 @@ export function horosphereSelf(input?: {
     flatBallBV[last]! < bulkBallBV[last]! * 0.6
 
   // (2) dynamics, leak and passive fidelity (a smaller, affordable bulk for the dynamics)
-  const bd = selfDynamics(bulkGraph(bulkCells), 11)
-  const fd = selfDynamics(gf, 11)
+  const bd = selfDynamics(bulkGraph(bulkCells))
+  const fd = selfDynamics(gf)
   const flatLowerLeak = fd.leakPerBeat < bd.leakPerBeat * 0.85
   const flatMorePassive = fd.passiveFidelity > bd.passiveFidelity + 0.1
 

@@ -13,7 +13,10 @@
 // L3 with a control, a model of higher-self emergence by binding, not a base-emergence claim.
 // Run via the suite: npx tsx test/run.ts
 
-import { ternaryPattern, consensusStep } from '@/code/model/deliberation'
+import {
+  ternaryPattern,
+  consensusStep,
+} from '@/code/model/deliberation'
 import { toneOverlap } from '@/code/operator/hopfield'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

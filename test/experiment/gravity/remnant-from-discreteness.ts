@@ -29,7 +29,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { remnantMass, evaporateWithCutoff } from '@/code/measure/remnant'
+import {
+  remnantMass,
+  evaporateWithCutoff,
+} from '@/code/measure/remnant'
 import { measuredCoinedWalkFrequency } from '@/code/dynamics/quantum-walk'
 
 const INITIAL_MASSES = [1, 8, 64, 512]
@@ -51,6 +54,7 @@ function measuredBandEdge(): number {
         beats: WALK_BEATS,
       }),
     )
+
     maxFrequency = Math.max(maxFrequency, frequency)
   }
 
@@ -61,7 +65,7 @@ export default experiment({
   id: 'gravity/remnant-from-discreteness',
   code: 'E-GRV-0051',
   title:
-    'a black hole on a discrete substrate leaves a universal remnant: the cutoff frequency measured from the coined Dirac walk\'s own dispersion caps the Hawking temperature, so evaporation halts at mass 1/(4 omega_max) regardless of starting mass, and the remnant vanishes in the continuum control, no extra dimensions or torsion needed',
+    "a black hole on a discrete substrate leaves a universal remnant: the cutoff frequency measured from the coined Dirac walk's own dispersion caps the Hawking temperature, so evaporation halts at mass 1/(4 omega_max) regardless of starting mass, and the remnant vanishes in the continuum control, no extra dimensions or torsion needed",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -74,7 +78,11 @@ export default experiment({
     let worstUniversalityDeviation = 0
 
     for (const initialMass of INITIAL_MASSES) {
-      const result = evaporateWithCutoff({ initialMass, maxFrequency: bandEdge })
+      const result = evaporateWithCutoff({
+        initialMass,
+        maxFrequency: bandEdge,
+      })
+
       worstUniversalityDeviation = Math.max(
         worstUniversalityDeviation,
         Math.abs(result.finalMass - remnant) / remnant,
@@ -121,11 +129,13 @@ export default experiment({
       },
       // CONTROL: the continuum limit leaves no remnant (full evaporation).
       control: {
-        continuumFinalMass: Number(continuum.finalMass.toExponential(2)),
+        continuumFinalMass: Number(
+          continuum.finalMass.toExponential(2),
+        ),
         continuumHalted: continuum.halted ? 1 : 0,
       },
       notes:
-        'Remnant from discreteness, with the cutoff MEASURED from the coined Dirac walk\'s own dispersion (not asserted). The vibe alternative to the Pincak 7D G2-torsion remnant: only reversibility (info preserved) and measured discreteness (a floor). L2 (Hawking law still analytic). Reuses code/measure/remnant, code/dynamics/quantum-walk.',
+        "Remnant from discreteness, with the cutoff MEASURED from the coined Dirac walk's own dispersion (not asserted). The vibe alternative to the Pincak 7D G2-torsion remnant: only reversibility (info preserved) and measured discreteness (a floor). L2 (Hawking law still analytic). Reuses code/measure/remnant, code/dynamics/quantum-walk.",
     })
   },
 })

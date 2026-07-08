@@ -19,9 +19,9 @@ type Rng = { next: () => number }
 // a DETERMINISTIC counter-indexed hash stream (no seed, no randomness): a drop-in for the RNG stream
 function detStream(): Rng {
   let c = 0
+
   return {
     next: () => hashRand(c++, 0, 0),
-    nextInt: ({ max }: { max: number }) => Math.floor(hashRand(c++, 0, 0) * max),
   }
 }
 
@@ -144,15 +144,7 @@ export function evolution(input?: { M?: number }): {
   const rng = detStream()
   const target = randomBalanced(M, rng)
   const sel = evolve(true, M, P, G, mu, target, detStream())
-  const drift = evolve(
-    false,
-    M,
-    P,
-    G,
-    mu,
-    target,
-    detStream(),
-  )
+  const drift = evolve(false, M, P, G, mu, target, detStream())
 
   const startMean = sel.meanByGen[0]!
   const selectedFinal = sel.meanByGen[sel.meanByGen.length - 1]!

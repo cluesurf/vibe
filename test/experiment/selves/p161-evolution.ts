@@ -32,9 +32,9 @@ function fitness(code: Int8Array, target: Int8Array): number {
 // each draw is hashRand(counter, 0, 0), a well-mixed deterministic sequence
 function detStream(): Rng {
   let c = 0
+
   return {
     next: () => hashRand(c++, 0, 0),
-    nextInt: ({ max }: { max: number }) => Math.floor(hashRand(c++, 0, 0) * max),
   }
 }
 

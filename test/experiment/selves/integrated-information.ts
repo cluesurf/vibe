@@ -27,9 +27,11 @@ import { verdict } from '@/test/scaffold/verdict'
 // independent streams (same salt = same sequence, preserving the "same seed" relationships)
 function detStream(salt: number): Rng {
   let c = 0
+
   return {
     next: () => hashRand(c++, 0, salt),
-    nextInt: ({ max }: { max: number }) => Math.floor(hashRand(c++, 0, salt) * max),
+    nextInt: ({ max }: { max: number }) =>
+      Math.floor(hashRand(c++, 0, salt) * max),
   } as Rng
 }
 
@@ -59,7 +61,7 @@ function randomSubset(n: number, size: number, rng: Rng): number[] {
   return [...s]
 }
 
-export function integratedInformation(input: { seed: number }): {
+export function integratedInformation(_input: { seed: number }): {
   phiCell: number
   phiRandom: number
   separation: number

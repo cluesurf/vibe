@@ -155,8 +155,13 @@ export default experiment({
     const runs = sizes.map(n => lossyModelFeedsBack({ n, blocks: 6 }))
 
     const coarseTrulyBlind = runs.every(r => r.allCoarseEqual)
-    const feedsBackWithSelf = runs.every(r => r.divergenceWithSelf === 1)
-    const noFeedbackInControl = runs.every(r => r.divergenceNoSelf === 0)
+    const feedsBackWithSelf = runs.every(
+      r => r.divergenceWithSelf === 1,
+    )
+
+    const noFeedbackInControl = runs.every(
+      r => r.divergenceNoSelf === 0,
+    )
 
     const ok =
       coarseTrulyBlind && feedsBackWithSelf && noFeedbackInControl

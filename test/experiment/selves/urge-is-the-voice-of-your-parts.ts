@@ -14,7 +14,6 @@
 // Run via the suite: npx tsx test/run.ts
 
 import {
-  makeSelf,
   settle,
   aggregateUrge,
   hammingFraction,
@@ -24,10 +23,7 @@ import {
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function voiceOfParts(input: {
-  n: number
-  parts: number
-}): {
+export function voiceOfParts(input: { n: number; parts: number }): {
   partsCausal: number
   mutedNoEffect: number
   selfAuthors: number

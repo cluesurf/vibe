@@ -106,7 +106,10 @@ export function fillGatedSweepHashed(input: {
         tone[w] = 0
         moved[v] = 1
         moved[w] = 1
-      } else if ((tv === 0) !== (tw === 0) && hashRand(i, beat, 2) < 0.5) {
+      } else if (
+        (tv === 0) !== (tw === 0) &&
+        hashRand(i, beat, 2) < 0.5
+      ) {
         const tmp = tone[v]!
         tone[v] = tone[w]!
         tone[w] = tmp

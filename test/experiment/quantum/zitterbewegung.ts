@@ -36,7 +36,7 @@ export default experiment({
   id: 'quantum/zitterbewegung',
   code: 'E-QTM-0072',
   title:
-    'zitterbewegung from the coin\'s own Dirac walk: a massive walk\'s chirality trembles at exactly twice the mass (the frequency measured off the walk is within three percent of 2 mass at every mass and doubles when the mass doubles), while a massless walk does not tremble at all',
+    "zitterbewegung from the coin's own Dirac walk: a massive walk's chirality trembles at exactly twice the mass (the frequency measured off the walk is within three percent of 2 mass at every mass and doubles when the mass doubles), while a massless walk does not tremble at all",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -44,10 +44,16 @@ export default experiment({
   run() {
     // the trembling frequency is 2 * mass across the masses
     let worstRatioError = 0
+
     const frequencies: number[] = []
 
     for (const mass of MASSES) {
-      const frequency = tremblingFrequency({ mass, size: SIZE, steps: STEPS })
+      const frequency = tremblingFrequency({
+        mass,
+        size: SIZE,
+        steps: STEPS,
+      })
+
       frequencies.push(frequency)
       worstRatioError = Math.max(
         worstRatioError,
@@ -59,16 +65,37 @@ export default experiment({
     const doublingOne = frequencies[1]! / frequencies[0]!
     const doublingTwo = frequencies[2]! / frequencies[1]!
     const doublingHolds =
-      Math.abs(doublingOne - 2) < 0.06 && Math.abs(doublingTwo - 2) < 0.06
+      Math.abs(doublingOne - 2) < 0.06 &&
+      Math.abs(doublingTwo - 2) < 0.06
 
     // trembling amplitude grows with the mass gap
-    const ampSmall = tremblingAmplitude({ mass: MASSES[0]!, size: SIZE, steps: STEPS })
-    const ampLarge = tremblingAmplitude({ mass: MASSES[2]!, size: SIZE, steps: STEPS })
+    const ampSmall = tremblingAmplitude({
+      mass: MASSES[0]!,
+      size: SIZE,
+      steps: STEPS,
+    })
+
+    const ampLarge = tremblingAmplitude({
+      mass: MASSES[2]!,
+      size: SIZE,
+      steps: STEPS,
+    })
+
     const amplitudeGrows = ampLarge > ampSmall
 
     // CONTROL: the massless walk does not tremble
-    const masslessAmplitude = tremblingAmplitude({ mass: 0, size: SIZE, steps: STEPS })
-    const masslessFrequency = tremblingFrequency({ mass: 0, size: SIZE, steps: STEPS })
+    const masslessAmplitude = tremblingAmplitude({
+      mass: 0,
+      size: SIZE,
+      steps: STEPS,
+    })
+
+    const masslessFrequency = tremblingFrequency({
+      mass: 0,
+      size: SIZE,
+      steps: STEPS,
+    })
+
     const masslessDoesNotTremble =
       masslessAmplitude < 1e-6 && masslessFrequency === 0
 
@@ -96,7 +123,7 @@ export default experiment({
         masslessFrequency: Number(masslessFrequency.toFixed(4)),
       },
       notes:
-        'Zitterbewegung measured on the {3,4,3,4} coin\'s own Dirac walk (code/measure/zitterbewegung -> diracQuantumWalk): trembling frequency = 2 * mass to ~1 percent, massless control shows none. L3, emergent on the committed substrate sector, a quantitative could-be-wrong prediction.',
+        "Zitterbewegung measured on the {3,4,3,4} coin's own Dirac walk (code/measure/zitterbewegung -> diracQuantumWalk): trembling frequency = 2 * mass to ~1 percent, massless control shows none. L3, emergent on the committed substrate sector, a quantitative could-be-wrong prediction.",
     })
   },
 })

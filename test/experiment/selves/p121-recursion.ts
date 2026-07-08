@@ -18,7 +18,10 @@ import {
   csrFarthestNode,
   edgesFromCsr,
 } from '@/code/tool/graph'
-import { conservingEdgeSweepSteeredHashed, hashRand } from '@/code/dynamics/conserving-sweep'
+import {
+  conservingEdgeSweepSteeredHashed,
+  hashRand,
+} from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

@@ -50,11 +50,16 @@ function pointerDistance(input: {
 }
 
 // count disjoint single cells that each record the pointer above the threshold
-function redundantCells(chain: ReturnType<typeof buildRecordChain>): number {
+function redundantCells(
+  chain: ReturnType<typeof buildRecordChain>,
+): number {
   let count = 0
 
   for (let cell = 0; cell < chain.environmentQubits.length; cell++) {
-    if (pointerDistance({ chain, fragment: [cell] }) >= REDUNDANCY_THRESHOLD) {
+    if (
+      pointerDistance({ chain, fragment: [cell] }) >=
+      REDUNDANCY_THRESHOLD
+    ) {
       count++
     }
   }
@@ -62,7 +67,9 @@ function redundantCells(chain: ReturnType<typeof buildRecordChain>): number {
   return count
 }
 
-function coherenceOf(chain: ReturnType<typeof buildRecordChain>): number {
+function coherenceOf(
+  chain: ReturnType<typeof buildRecordChain>,
+): number {
   return systemCoherence({
     real: chain.joint.real,
     imag: chain.joint.imag,
@@ -98,6 +105,7 @@ export default experiment({
         weight1: 0.5,
         form: 'copy',
       })
+
       const global = buildRecordChain({
         environmentCount: n,
         overlap: OVERLAP,
@@ -111,12 +119,22 @@ export default experiment({
         worstCopySingleCell,
         pointerDistance({ chain: copy, fragment: [0] }),
       )
-      worstCopyRedundancy = Math.min(worstCopyRedundancy, redundantCells(copy))
-      worstCopyCoherence = Math.max(worstCopyCoherence, coherenceOf(copy))
+      worstCopyRedundancy = Math.min(
+        worstCopyRedundancy,
+        redundantCells(copy),
+      )
+      worstCopyCoherence = Math.max(
+        worstCopyCoherence,
+        coherenceOf(copy),
+      )
 
       // GLOBAL control: no fragment short of the whole records the pointer
       const allButOne: number[] = []
-      for (let cell = 0; cell < n - 1; cell++) allButOne.push(cell)
+
+      for (let cell = 0; cell < n - 1; cell++) {
+        allButOne.push(cell)
+      }
+
       worstGlobalSingleCell = Math.max(
         worstGlobalSingleCell,
         pointerDistance({ chain: global, fragment: [0] }),
@@ -129,10 +147,18 @@ export default experiment({
         worstGlobalRedundancy,
         redundantCells(global),
       )
-      worstGlobalCoherence = Math.max(worstGlobalCoherence, coherenceOf(global))
+      worstGlobalCoherence = Math.max(
+        worstGlobalCoherence,
+        coherenceOf(global),
+      )
+
       // the whole bath DOES record it (a global measurement recovers the pointer)
       const whole: number[] = []
-      for (let cell = 0; cell < n; cell++) whole.push(cell)
+
+      for (let cell = 0; cell < n; cell++) {
+        whole.push(cell)
+      }
+
       worstGlobalFullBath = Math.min(
         worstGlobalFullBath,
         pointerDistance({ chain: global, fragment: whole }),
@@ -142,11 +168,13 @@ export default experiment({
     const copyIsRedundant =
       worstCopySingleCell >= REDUNDANCY_THRESHOLD &&
       worstCopyRedundancy >= Math.min(...SIZES)
+
     const copyDecoheres = worstCopyCoherence < 1e-2
     const globalHasNoRedundancy =
       worstGlobalSingleCell < 1e-6 &&
       largestFragmentGlobal < 1e-6 &&
       worstGlobalRedundancy === 0
+
     const globalDecoheres = worstGlobalCoherence < 1e-6
     const globalRecordExistsGlobally = worstGlobalFullBath > 0.99
 
@@ -162,7 +190,9 @@ export default experiment({
       claim:
         'a copied pointer is recorded redundantly, every single environment cell distinguishing pointer 0 from pointer 1 with trace distance above 0.9 so all N cells carry the record, while a cat-state record decoheres the system just as strongly yet leaves zero pointer information in every fragment short of the whole bath, so objectivity comes from redundant local records and not from decoherence alone, holding across bath sizes',
       metrics: {
-        copyWorstSingleCellDistance: Number(worstCopySingleCell.toFixed(4)),
+        copyWorstSingleCellDistance: Number(
+          worstCopySingleCell.toFixed(4),
+        ),
         copyWorstRedundantCells: worstCopyRedundancy,
         copyWorstCoherence: Number(worstCopyCoherence.toExponential(2)),
         globalFullBathDistance: Number(worstGlobalFullBath.toFixed(4)),
@@ -174,7 +204,9 @@ export default experiment({
           worstGlobalSingleCell.toExponential(2),
         ),
         globalWorstRedundantCells: worstGlobalRedundancy,
-        globalWorstCoherence: Number(worstGlobalCoherence.toExponential(2)),
+        globalWorstCoherence: Number(
+          worstGlobalCoherence.toExponential(2),
+        ),
       },
       notes:
         'Quantum Darwinism (Zurek): objectivity is the redundancy of the record. The cat-state control is what makes the claim falsifiable, and answers the retracted consciousness-field paper (AIP Adv. 15, 115319): a definite shared fact needs redundant local records, not an observer field. L2 known physics, measured from real partial traces. L3 AUDIT: this uses a hand-built copy coupling; the plain coined walk gives MONOGAMOUS, distance-decaying entanglement (no redundant broadcast), so Darwinism does NOT emerge from the bare rule and the copy coupling is an extra ingredient, keeping this L2. The vibe-native objectivity on the real reversible rule is Herbert recoverability (E-GRV-0040).',

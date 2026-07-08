@@ -31,6 +31,7 @@ const BASE = { size: 600, steps: 400, mass: 0.6, width: 12 }
 
 function amplitude(force: number): number {
   const trace = blochCentroidTrace({ ...BASE, force })
+
   return Math.max(...trace) - Math.min(...trace)
 }
 
@@ -38,7 +39,7 @@ export default experiment({
   id: 'quantum/bloch-oscillations',
   code: 'E-QTM-0074',
   title:
-    'Bloch oscillations from the coin\'s own Dirac walk: a constant force makes the centroid oscillate at the Bloch frequency omega_B = F (measured ratio within six percent of one across forces 0.05 to 0.3) with amplitude times force a constant band width, while a zero force shows no oscillation',
+    "Bloch oscillations from the coin's own Dirac walk: a constant force makes the centroid oscillate at the Bloch frequency omega_B = F (measured ratio within six percent of one across forces 0.05 to 0.3) with amplitude times force a constant band width, while a zero force shows no oscillation",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -46,6 +47,7 @@ export default experiment({
   run() {
     // PREDICTION 1: oscillation frequency = the force (Bloch frequency)
     let worstFreqRatioError = 0
+
     // PREDICTION 2: amplitude * force = constant (the band width)
     const bandWidths: number[] = []
 
@@ -60,6 +62,7 @@ export default experiment({
 
     const meanBandWidth =
       bandWidths.reduce((a, b) => a + b, 0) / bandWidths.length
+
     const worstBandWidthError = Math.max(
       ...bandWidths.map(w => Math.abs(w / meanBandWidth - 1)),
     )
@@ -72,23 +75,29 @@ export default experiment({
     const noForceNoOscillation = controlAmplitude < 1e-6
 
     const ok =
-      frequencyMatchesForce && amplitudeInverseForce && noForceNoOscillation
+      frequencyMatchesForce &&
+      amplitudeInverseForce &&
+      noForceNoOscillation
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'a localized packet on the coined Dirac walk under a constant force F oscillates: the centroid frequency equals F to within six percent across forces 0.05 to 0.3, the amplitude times force is a constant (the walk band width) to within eight percent, and a zero force produces no oscillation, so Bloch oscillations are an emergent consequence of the discrete periodic band',
       metrics: {
-        worstFreqRatioError: Number(worstFreqRatioError.toExponential(2)),
+        worstFreqRatioError: Number(
+          worstFreqRatioError.toExponential(2),
+        ),
         bandWidth: Number(meanBandWidth.toFixed(4)),
-        worstBandWidthError: Number(worstBandWidthError.toExponential(2)),
+        worstBandWidthError: Number(
+          worstBandWidthError.toExponential(2),
+        ),
       },
       // CONTROL: with no force the centroid does not oscillate.
       control: {
         controlAmplitude: Number(controlAmplitude.toExponential(2)),
       },
       notes:
-        'Bloch oscillations measured on the {3,4,3,4} coin\'s own Dirac walk (code/dynamics/bloch-oscillation): centroid frequency = F to ~1 percent, amplitude * force = a constant band width, zero-force control shows none. L3, emergent on the committed substrate sector, quantitative could-be-wrong predictions with a control that shows the effect vanish.',
+        "Bloch oscillations measured on the {3,4,3,4} coin's own Dirac walk (code/dynamics/bloch-oscillation): centroid frequency = F to ~1 percent, amplitude * force = a constant band width, zero-force control shows none. L3, emergent on the committed substrate sector, quantitative could-be-wrong predictions with a control that shows the effect vanish.",
     })
   },
 })
