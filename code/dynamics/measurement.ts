@@ -331,3 +331,70 @@ export function tailMean(
 
   return tail.reduce((a, b) => a + b, 0) / Math.max(1, tail.length)
 }
+
+// The growth of a single-slot perturbation under the reversible rule (no drains): flip one
+// slot in `init`, evolve the base and the flipped copy for `beats` beats under the same rule,
+// and return the PEAK fraction of slots that differ over the run. This is the scrambling /
+// sensitive-dependence diagnostic. A deterministically CHAOTIC rule drives this toward about
+// 0.5 (two microstates decorrelate, a macroscopic difference); a near-integrable rule keeps it
+// MICROSCOPIC (order 1 / total-slots), so a microscopic seed never becomes a macroscopic branch.
+// Deterministic and exact (integer slot counts, no tolerance, no randomness).
+export function perturbationGrowth(input: {
+  init: Will
+  forward: Collision
+  table: Int32Array
+  beats: number
+  slot: number
+}): { peakFraction: number; finalFraction: number } {
+  const flipped = cloneWill(input.init)
+  const value = flipped.data[input.slot] ?? 0
+  flipped.data[input.slot] = (((value + 2) % 3) - 1)
+
+  let base = cloneWill(input.init)
+  let baseScratch: Will = {
+    mesh: base.mesh,
+    data: new Int8Array(base.data.length),
+  }
+
+  let perturbed = flipped
+  let perturbedScratch: Will = {
+    mesh: perturbed.mesh,
+    data: new Int8Array(perturbed.data.length),
+  }
+
+  let peak = disagreementFraction(base.data, perturbed.data)
+
+  for (let t = 0; t < input.beats; t++) {
+    beatInto({
+      src: base,
+      dst: baseScratch,
+      table: input.table,
+      collision: input.forward,
+    })
+    beatInto({
+      src: perturbed,
+      dst: perturbedScratch,
+      table: input.table,
+      collision: input.forward,
+    })
+
+    const baseSwap = base
+    base = baseScratch
+    baseScratch = baseSwap
+
+    const perturbedSwap = perturbed
+    perturbed = perturbedScratch
+    perturbedScratch = perturbedSwap
+
+    const fraction = disagreementFraction(base.data, perturbed.data)
+
+    if (fraction > peak) {
+      peak = fraction
+    }
+  }
+
+  return {
+    peakFraction: peak,
+    finalFraction: disagreementFraction(base.data, perturbed.data),
+  }
+}
