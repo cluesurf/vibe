@@ -229,9 +229,20 @@ function run(withDynamics: boolean): {
 
   randomCorr /= peripherals.length
 
-  const shuffledCorr = Math.abs(
-    pearson({ a: coreSeries, b: gSeries.slice().reverse() }),
-  )
+  // a PROPER null: a deterministic random permutation of the global series (hashRand-driven Fisher-Yates),
+  // which destroys the temporal ordering so any real tracking collapses. Time-REVERSAL (the old null) is a
+  // poor control here: reversing an autocorrelated slow signal leaves spurious correlation, so it was
+  // unstable (0.28 at short T). A permutation is the standard temporal null and sits near zero.
+  const perm = gSeries.slice()
+
+  for (let i = perm.length - 1; i > 0; i--) {
+    const j = Math.floor(hashRand(i, 0, 9) * (i + 1))
+    const tmp = perm[i]!
+    perm[i] = perm[j]!
+    perm[j] = tmp
+  }
+
+  const shuffledCorr = Math.abs(pearson({ a: coreSeries, b: perm }))
 
   return { selfModelCorr, randomCorr, shuffledCorr }
 }
