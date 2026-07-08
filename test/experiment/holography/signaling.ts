@@ -9,8 +9,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, Rng } from '@/code/tool/rng'
-import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
+import { conservingHopSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,9 +19,9 @@ function hopBeat(
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beat: number,
 ): void {
-  conservingHopSweep({ tone, eu, ev, moved, rng })
+  conservingHopSweepHashed({ tone, eu, ev, moved, beat })
 }
 
 export function signaling(input?: { n?: number }): {
@@ -74,20 +73,17 @@ export function signaling(input?: { n?: number }): {
     }
   }
 
-  const rng = makeRng({ seed: 3 })
-
   for (let b = 0; b < 4 * ecc; b++) {
-    hopBeat(sig, eu, ev, moved, rng)
+    hopBeat(sig, eu, ev, moved, b)
   }
 
   const signalAtFar = farBall.filter(i => sig[i] === 1).length
 
   // CONTROL: no signal injected
   const ctrl = new Int8Array(N)
-  const rng2 = makeRng({ seed: 3 })
 
   for (let b = 0; b < 4 * ecc; b++) {
-    hopBeat(ctrl, eu, ev, moved, rng2)
+    hopBeat(ctrl, eu, ev, moved, b)
   }
 
   const controlAtFar = farBall.filter(i => ctrl[i] === 1).length

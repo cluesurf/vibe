@@ -31,10 +31,13 @@ import {
   countPlus,
   largestPositiveCluster,
   totalCharge,
+  beatHashed
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+
+const GOLDEN = (1 + Math.sqrt(5)) / 2
 
 export function emergentSelfRobust(input?: { n?: number }): {
   n: number
@@ -56,19 +59,18 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const moved = new Uint8Array(N)
-  const rng = makeRng({ seed: 11 })
 
   // (1) STRUCTURE EMERGES. Net-positive, low density start, the -1 annihilate the matching +1, the surviving
   // +1 (about 7 percent, below percolation) is concentrated by cohesion into a self. Arrow kept low.
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    const r = rng.next()
+    const r = hashRand(i, 0, 1)
     tone[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
   for (let t = 0; t < 70; t++) {
-    beat(tone, g, moved, rng, 0.01, 0.22)
+    beatHashed(tone, g, moved, t, 0.01, 0.22)
   }
 
   const cluster = largestPositiveCluster(tone, g)
@@ -76,7 +78,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const shuf = tone.slice()
 
   for (let i = N - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
+    const j = Math.floor(hashRand(i, 0, 2) * (i + 1))
     const tmp = shuf[i]!
     shuf[i] = shuf[j]!
     shuf[j] = tmp
@@ -142,7 +144,6 @@ export function emergentSelfRobust(input?: { n?: number }): {
   ): { fidelity: number; work: number; q: number } => {
     const t2 = tone.slice()
     const q0 = totalCharge(t2)
-    const rng2 = makeRng({ seed: 41 })
 
     let workTotal = 0
 
@@ -153,7 +154,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
         workTotal += maintain(t2)
       }
 
-      beat(t2, g, moved, rng2, 0, 0.22)
+      beatHashed(t2, g, moved, t, 0, 0.22)
     }
 
     return {
@@ -181,10 +182,9 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const localize = (cohesion: number): number => {
     const t3 = tone.slice()
     const start = countPlus(t3, cluster)
-    const rng3 = makeRng({ seed: 31 })
 
     for (let t = 0; t < 60; t++) {
-      beat(t3, g, moved, rng3, 0, cohesion)
+      beatHashed(t3, g, moved, t, 0, cohesion)
     }
 
     return start > 0 ? countPlus(t3, cluster) / start : 0

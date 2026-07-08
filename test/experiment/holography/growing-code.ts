@@ -10,20 +10,22 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, Rng } from '@/code/tool/rng'
-import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
+import { conservingHopSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is inert)
+const GOLDEN = (1 + Math.sqrt(5)) / 2
+
+// hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is
+// inert). DETERMINISTIC: the ambiguous-hop tie-break is the stateless hash of (edge, beat), no RNG.
 function hopBeat(
   tone: Int8Array,
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beat: number,
 ): void {
-  conservingHopSweep({ tone, eu, ev, moved, rng })
+  conservingHopSweepHashed({ tone, eu, ev, moved, beat })
 }
 
 export function growingCode(input?: { n?: number; beats?: number }): {
@@ -82,14 +84,13 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   // run the encoder for both logical values, clamping the core as a persistent source
   const encode = (bit: 1 | -1): Int8Array => {
     const tone = new Int8Array(N)
-    const rng = makeRng({ seed: 5 })
 
     for (let t = 0; t < beats; t++) {
       for (const i of core) {
         tone[i] = bit
       }
 
-      hopBeat(tone, eu, ev, moved, rng)
+      hopBeat(tone, eu, ev, moved, t)
 
       for (const i of core) {
         tone[i] = bit
@@ -103,9 +104,10 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   const toneNeg = encode(-1)
 
   // recover the bit from a shell after erasing a fraction f (sign of the surviving cells), success over
-  // many random erasures and BOTH bits. f*(r) = the largest f with success rate >= 0.85.
-  const rngE = makeRng({ seed: 21 })
-
+  // many DETERMINISTIC erasure patterns and BOTH bits. Each trial keeps cell i when the stateless
+  // golden-ratio value frac((i + t*137) * phi) >= f, which erases exactly a fraction f (Weyl-
+  // equidistributed) with no randomness, varying the pattern per trial. f*(r) = the largest f with
+  // success rate >= 0.85.
   const recoverRate = (
     cells: number[],
     tone: Int8Array,
@@ -119,9 +121,9 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     for (let t = 0; t < trials; t++) {
       let sum = 0
 
-      for (const c of cells) {
-        if (rngE.next() >= f) {
-          sum += tone[c]!
+      for (let i = 0; i < cells.length; i++) {
+        if (((i + t * 137) * GOLDEN) % 1 >= f) {
+          sum += tone[cells[i]!]!
         }
       }
 

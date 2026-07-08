@@ -23,15 +23,15 @@
 import {
   bulkGraph,
   flatGraph,
-  beat,
-  emergeSelf,
+  beatHashed,
+  emergeSelfHashed,
   countPlus,
   totalCharge,
   boundaryFraction,
   ball,
   type Graph,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -50,20 +50,18 @@ function selfDynamics(
   seed: number,
 ): { leakPerBeat: number; passiveFidelity: number } {
   const moved = new Uint8Array(g.cellCount)
-  const rng = makeRng({ seed })
-  const { tone, cluster } = emergeSelf(g, rng, moved)
+  const { tone, cluster } = emergeSelfHashed(g, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
-  beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, 0.22)
+  beatHashed(tl, g, moved, 0, 0, 0.22)
 
   const leakPerBeat =
     before > 0 ? 1 - countPlus(tl, cluster) / before : 1
 
   const t2 = tone.slice()
-  const rng2 = makeRng({ seed: seed + 2 })
 
   for (let b = 0; b < 50; b++) {
-    beat(t2, g, moved, rng2, 0, 0.22)
+    beatHashed(t2, g, moved, b, 0, 0.22)
   }
 
   const passiveFidelity =
@@ -125,18 +123,17 @@ export function horosphereSelf(input?: {
   const big = flatGraph(bigL)
   const bigCells = big.cellCount
   const movedB = new Uint8Array(bigCells)
-  const rngB = makeRng({ seed: 5 })
   const toneB = new Int8Array(bigCells)
 
   for (let i = 0; i < bigCells; i++) {
-    const r = rngB.next()
+    const r = hashRand(i, 0, 7)
     toneB[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
   const qb0 = totalCharge(toneB)
 
   for (let t = 0; t < 3; t++) {
-    beat(toneB, big, movedB, rngB, 0.01, 0.22)
+    beatHashed(toneB, big, movedB, t, 0.01, 0.22)
   }
 
   const bigBuilt = bigCells > 10_000_000

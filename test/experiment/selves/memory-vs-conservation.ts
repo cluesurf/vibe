@@ -8,9 +8,11 @@
 // correlation high at a measurable WORK cost. Run: npx tsx code/experiment/p159-memory-vs-conservation.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
+
+const GOLDEN = (1 + Math.sqrt(5)) / 2
+const SILVER = 1 + Math.sqrt(2)
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -19,9 +21,9 @@ const beat = (
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beat: number,
   arrow: number,
-): void => conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+): void => conservingEdgeSweepHashed({ tone, eu, ev, moved, beat, arrow })
 
 const totalQ = (t: Int8Array): number => {
   let s = 0
@@ -80,16 +82,16 @@ export function memoryVsConservation(input?: { n?: number }): {
     }
   }
 
-  const rng = makeRng({ seed: 4 })
   const target = new Int8Array(N) // 0 outside the region
 
   for (let i = 0; i < region.length; i++) {
     target[region[i]!] = i % 2 === 0 ? 1 : -1
   }
 
-  // shuffle within the region to make a real pattern, staying balanced
+  // DETERMINISTIC scramble within the region to make a real pattern, staying balanced (golden-ratio
+  // Fisher-Yates, no randomness)
   for (let i = region.length - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
+    const j = Math.floor((((i + 1) * GOLDEN) % 1) * (i + 1))
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
@@ -118,8 +120,8 @@ export function memoryVsConservation(input?: { n?: number }): {
 
   // a light active background outside, so the medium churns (conserving)
   for (let i = 0; i < N; i++) {
-    if (target[i] === 0 && rng.next() < 0.2) {
-      tone[i] = rng.next() < 0.5 ? 1 : -1
+    if (target[i] === 0 && ((i + 1) * GOLDEN) % 1 < 0.2) {
+      tone[i] = ((i + 1) * SILVER) % 1 < 0.5 ? 1 : -1
     }
   }
 
@@ -127,7 +129,7 @@ export function memoryVsConservation(input?: { n?: number }): {
   const corrStart = corr(tone)
 
   for (let t = 0; t < 80; t++) {
-    beat(tone, eu, ev, moved, rng, arrow)
+    beat(tone, eu, ev, moved, t, arrow)
   }
 
   const qEndUnmaintained = totalQ(tone)
@@ -141,17 +143,15 @@ export function memoryVsConservation(input?: { n?: number }): {
   }
 
   for (let i = 0; i < N; i++) {
-    if (target[i] === 0 && rng.next() < 0.2) {
-      tone2[i] = rng.next() < 0.5 ? 1 : -1
+    if (target[i] === 0 && ((i + 1) * GOLDEN) % 1 < 0.2) {
+      tone2[i] = ((i + 1) * SILVER) % 1 < 0.5 ? 1 : -1
     }
   }
 
   let rewrites = 0
 
-  const rng2 = makeRng({ seed: 9 })
-
   for (let t = 0; t < 80; t++) {
-    beat(tone2, eu, ev, moved, rng2, arrow)
+    beat(tone2, eu, ev, moved, t, arrow)
 
     for (const i of region) {
       if (tone2[i] !== target[i]) {

@@ -31,6 +31,36 @@ export function ternaryVector(n: number, rng: Rng): Int8Array {
   return v
 }
 
+const GOLDEN = (1 + Math.sqrt(5)) / 2
+const SILVER = 1 + Math.sqrt(2)
+
+// The deterministic replacement for ternaryVector: a fixed ternary pattern of length n with NO
+// randomness, built from two low-discrepancy (golden and silver ratio) irrational rotations. Site i of
+// pattern `index` is floor(3 * frac((i + 1) * GOLDEN + index * SILVER)) - 1, which is equidistributed
+// over {-1, 0, +1} by Weyl's theorem and gives a distinct, reproducible pattern per index. Robustness
+// is checked by varying the SIZE n, never by averaging over a random seed.
+export function ternaryPattern(n: number, index: number): Int8Array {
+  const v = new Int8Array(n)
+  for (let i = 0; i < n; i++) {
+    const frac = (((i + 1) * GOLDEN + index * SILVER) % 1 + 1) % 1
+    v[i] = Math.floor(3 * frac) - 1
+  }
+  return v
+}
+
+// A self built from deterministic patterns (the golden-ratio construction), the drop-in deterministic
+// replacement for makeSelf: `patterns` distinct ternary attractors, indices 0..patterns-1, no seed.
+export function makeSelfPattern(input: {
+  n: number
+  patterns: number
+  offset?: number
+}): Int8Array[] {
+  const offset = input.offset ?? 0
+  return Array.from({ length: input.patterns }, (_unused, k) =>
+    ternaryPattern(input.n, offset + k),
+  )
+}
+
 // a self: `patterns` stored ternary patterns, the options it can settle into (its attractors)
 export function makeSelf(input: {
   n: number

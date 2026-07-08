@@ -967,8 +967,8 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // it grows on its own at rate about 1 + q, with a manifold-like dimension and no
 // imposed metric.
 {
-  const stat = branchingExpansion({ spawnProb: 0, seed: 1 })
-  const grow = branchingExpansion({ spawnProb: 0.3, seed: 1 })
+  const stat = branchingExpansion({ spawnFraction: 0 })
+  const grow = branchingExpansion({ spawnFraction: 0.3 })
   check({
     name: 'P13 growth rule: net-positive birth gives emergent expansion (static control at q=0)',
     ok:

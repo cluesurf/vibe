@@ -16,16 +16,15 @@
 // L3 with a control, a model, not a base-emergence claim. Run via the suite: npx tsx test/run.ts
 
 import {
-  makeSelf,
+  makeSelfPattern,
   settleWithInjection,
   selfCoherence,
-  ternaryVector,
+  ternaryPattern,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function sparkErodes(input: { n: number; trials: number }): {
+export function sparkErodes(input: { n: number }): {
   coherenceByFraction: { fraction: number; coherence: number }[]
   monotoneDown: boolean
   deterministicHighest: boolean
@@ -35,37 +34,28 @@ export function sparkErodes(input: { n: number; trials: number }): {
   const init = new Int8Array(n)
   const fractions = [0, 0.15, 0.35, 0.6]
 
+  // fully DETERMINISTIC construction (golden-ratio patterns at distinct offsets, uncorrelated, no seed):
+  // dense plus-or-minus-one attractors (no rest sites) so the self settles cleanly into one of its own
+  // options; a deterministic urge; and an exogenous dense pattern at a far offset, uncorrelated with the
+  // self, standing in for the uncaused not-by-you input. Robustness comes from varying the SIZE n.
+  const self = makeSelfPattern({ n, patterns: 2 }).map(p =>
+    p.map(v => (v === 0 ? 1 : v)),
+  )
+  const urge = ternaryPattern(n, 100)
+  const exogenous = ternaryPattern(n, 1000).map(v => (v === 0 ? 1 : v))
+
   const coherenceByFraction = fractions.map(fraction => {
-    let sum = 0
+    const r = settleWithInjection({
+      patterns: self,
+      coupling: 4,
+      urge,
+      urgeWeight: 1,
+      init,
+      inject: exogenous,
+      injectSites: Math.round(fraction * n),
+    })
 
-    for (let k = 0; k < input.trials; k++) {
-      // dense plus-or-minus-one attractors (no rest sites), so the self settles cleanly into one of its own
-      // options and self-coherence near one means the act is fully its own
-      const self = makeSelf({ n, patterns: 2, seed: 2000 + k }).map(p =>
-        p.map(v => (v === 0 ? 1 : v)),
-      )
-
-      const urge = ternaryVector(n, makeRng({ seed: 6000 + k }))
-      // an exogenous dense pattern, uncorrelated with the self: the uncaused, not-by-you input
-      const exogenous = ternaryVector(
-        n,
-        makeRng({ seed: 90000 + k }),
-      ).map(v => (v === 0 ? 1 : v))
-
-      const r = settleWithInjection({
-        patterns: self,
-        coupling: 4,
-        urge,
-        urgeWeight: 1,
-        init,
-        inject: exogenous,
-        injectSites: Math.round(fraction * n),
-      })
-
-      sum += selfCoherence(r.state, self)
-    }
-
-    return { fraction, coherence: sum / input.trials }
+    return { fraction, coherence: selfCoherence(r.state, self) }
   })
 
   let monotoneDown = true
@@ -109,8 +99,9 @@ export default experiment({
   depth: 'L3',
   paper: true,
   run() {
-    const sizes = [80, 120]
-    const runs = sizes.map(n => sparkErodes({ n, trials: 24 }))
+    // robustness by varying the SIZE (never by averaging over a seed), per the deterministic model
+    const sizes = [80, 120, 160]
+    const runs = sizes.map(n => sparkErodes({ n }))
 
     const monotone = runs.every(r => r.monotoneDown)
     const determinismWins = runs.every(r => r.deterministicHighest)

@@ -4,6 +4,9 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
+
+const GOLDEN_SK = (1 + Math.sqrt(5)) / 2
 
 export type Graph = {
   cellCount: number
@@ -294,6 +297,87 @@ export function beat(
   }
 }
 
+// The DETERMINISTIC version of beat: the sweep start rotates by the golden ratio each beat, and every
+// probabilistic decision (the cohesion hop, the arrow pair creation, the pair sign) is decided by the
+// stateless hash hashRand(edge pointer, beat, salt) instead of an RNG. A fixed rule, no seed, no hidden
+// state, varying per edge and per beat exactly as the random version did. Callers pass the beat index.
+export function beatHashed(
+  tone: Int8Array,
+  g: Graph,
+  moved: Uint8Array,
+  beat: number,
+  arrow: number,
+  cohesion: number,
+): void {
+  const { offsets, adj } = g
+  const N = tone.length
+  moved.fill(0)
+
+  const start = Math.floor((((beat + 1) * GOLDEN_SK) % 1) * N)
+
+  for (let s = 0; s < N; s++) {
+    const v = (start + s) % N
+
+    if (moved[v]) {
+      continue
+    }
+
+    const a = tone[v]!
+
+    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
+      const w = adj[p]!
+
+      if (moved[w]) {
+        continue
+      }
+
+      const b = tone[w]!
+
+      if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
+        tone[v] = 0
+        tone[w] = 0
+        moved[v] = 1
+        moved[w] = 1
+        break
+      } else if (a !== 0 && b === 0) {
+        let like = 0
+
+        for (let q = offsets[w]!; q < offsets[w + 1]!; q++) {
+          const u = adj[q]!
+
+          if (u !== v && tone[u] === a) {
+            like++
+          }
+        }
+
+        const pHop = 0.1 + cohesion * Math.min(like, 4)
+
+        if (hashRand(p, beat, 1) < pHop) {
+          tone[w] = a
+          tone[v] = 0
+          moved[v] = 1
+          moved[w] = 1
+          break
+        }
+      } else if (a === 0 && b === 0) {
+        if (arrow > 0 && hashRand(p, beat, 2) < arrow) {
+          if (hashRand(p, beat, 3) < 0.5) {
+            tone[v] = 1
+            tone[w] = -1
+          } else {
+            tone[v] = -1
+            tone[w] = 1
+          }
+
+          moved[v] = 1
+          moved[w] = 1
+          break
+        }
+      }
+    }
+  }
+}
+
 export const totalCharge = (t: Int8Array): number => {
   let s = 0
 
@@ -548,6 +632,30 @@ export function emergeSelf(
 
   for (let t = 0; t < (opts?.beats ?? 70); t++) {
     beat(tone, g, moved, rng, 0.01, 0.22)
+  }
+
+  return { tone, cluster: largestPositiveCluster(tone, g) }
+}
+
+// The DETERMINISTIC version of emergeSelf: the initial low-density tone is drawn from the stateless
+// well-mixed hash hashRand(cell, 0, salt) (spatially decorrelated, like the random start but no seed),
+// and the dynamics use beatHashed. No randomness, no hidden state.
+export function emergeSelfHashed(
+  g: Graph,
+  moved: Uint8Array,
+  opts?: { beats?: number; density?: number },
+): { tone: Int8Array; cluster: number[] } {
+  const N = g.cellCount
+  const density = opts?.density ?? 0.1
+  const tone = new Int8Array(N)
+
+  for (let i = 0; i < N; i++) {
+    const r = hashRand(i, 0, 7)
+    tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
+  }
+
+  for (let t = 0; t < (opts?.beats ?? 70); t++) {
+    beatHashed(tone, g, moved, t, 0.01, 0.22)
   }
 
   return { tone, cluster: largestPositiveCluster(tone, g) }

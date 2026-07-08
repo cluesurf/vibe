@@ -16,15 +16,16 @@
 
 import {
   flatGraph,
-  beat,
+  beatHashed,
   positiveClusters,
   clusterIntegration,
   type Graph,
 } from '@/code/model/self-kit'
 import { boxCountingDimension } from '@/code/measure/dimension'
-import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+
+const GOLDEN = (1 + Math.sqrt(5)) / 2
 
 function evolve(
   g: Graph,
@@ -34,18 +35,17 @@ function evolve(
   seed: number,
 ): Int8Array {
   const N = g.cellCount
-  const rng = makeRng({ seed })
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    const r = rng.next()
+    const r = ((i + 1) * GOLDEN) % 1
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
   const moved = new Uint8Array(N)
 
   for (let t = 0; t < beats; t++) {
-    beat(tone, g, moved, rng, 0.01, 0.22)
+    beatHashed(tone, g, moved, t, 0.01, 0.22)
   }
 
   return tone
