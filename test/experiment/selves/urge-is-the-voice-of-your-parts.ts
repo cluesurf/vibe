@@ -14,21 +14,16 @@
 // Run via the suite: npx tsx test/run.ts
 
 import {
-  makeSelf,
   settle,
   aggregateUrge,
   hammingFraction,
-  ternaryVector,
+  ternaryPattern,
+  makeSelfPattern,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function voiceOfParts(input: {
-  n: number
-  parts: number
-  trials: number
-}): {
+export function voiceOfParts(input: { n: number; parts: number }): {
   partsCausal: number
   mutedNoEffect: number
   selfAuthors: number
@@ -40,12 +35,14 @@ export function voiceOfParts(input: {
   let mutedDiffered = 0
   let selfAuthored = 0
 
-  for (let k = 0; k < input.trials; k++) {
-    const parts = Array.from({ length: input.parts }, (_, j) =>
-      ternaryVector(n, makeRng({ seed: 1000 + k * 17 + j })),
+  // fully DETERMINISTIC construction (golden-ratio patterns at distinct, decorrelated offsets, no seed);
+  // robustness comes from varying the SIZE n, never from averaging over a random ensemble.
+  {
+    const parts = Array.from({ length: input.parts }, (_unused, j) =>
+      ternaryPattern(n, 2000 + j * 137),
     )
 
-    const self = makeSelf({ n, patterns: 2, seed: 4000 + k })
+    const self = makeSelfPattern({ n, patterns: 2, offset: 4000 })
 
     const urge = aggregateUrge(parts)
     const base = settle({
@@ -87,7 +84,7 @@ export function voiceOfParts(input: {
     }
 
     // 3. same urge, a different upper self, does the choice differ (the self resolves, not the urge)
-    const otherSelf = makeSelf({ n, patterns: 2, seed: 7000 + k })
+    const otherSelf = makeSelfPattern({ n, patterns: 2, offset: 7000 })
     const otherChoice = settle({
       patterns: otherSelf,
       coupling: 2,
@@ -102,9 +99,9 @@ export function voiceOfParts(input: {
   }
 
   return {
-    partsCausal: partsCausal / input.trials,
-    mutedNoEffect: 1 - mutedDiffered / input.trials,
-    selfAuthors: selfAuthored / input.trials,
+    partsCausal,
+    mutedNoEffect: 1 - mutedDiffered,
+    selfAuthors: selfAuthored,
   }
 }
 
@@ -118,14 +115,13 @@ export default experiment({
   depth: 'L3',
   paper: true,
   run() {
+    // robustness by varying the SIZE (never averaging over a seed): the conditions must hold at each n
     const sizes = [60, 90, 120]
-    const runs = sizes.map(n =>
-      voiceOfParts({ n, parts: 5, trials: 30 }),
-    )
+    const runs = sizes.map(n => voiceOfParts({ n, parts: 5 }))
 
-    const partsAreCausal = runs.every(r => r.partsCausal > 0.6)
-    const mutedSilent = runs.every(r => r.mutedNoEffect > 0.98)
-    const selfResolves = runs.every(r => r.selfAuthors > 0.6)
+    const partsAreCausal = runs.every(r => r.partsCausal === 1)
+    const mutedSilent = runs.every(r => r.mutedNoEffect === 1)
+    const selfResolves = runs.every(r => r.selfAuthors === 1)
 
     const ok = partsAreCausal && mutedSilent && selfResolves
 

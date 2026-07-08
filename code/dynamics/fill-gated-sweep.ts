@@ -1,4 +1,5 @@
 import { Rng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 
 // One beat of the conserved exchange on a ternary tone field with per-EDGE fills (the
 // perception substrate where the note carries a fill state). Each edge i carries a
@@ -52,6 +53,63 @@ export function fillGatedSweep(input: {
         moved[w] = 1
       } else if ((tv === 0) !== (tw === 0) && rng.next() < 0.5) {
         // hop: swap the charged with the neutral
+        const tmp = tone[v]!
+        tone[v] = tone[w]!
+        tone[w] = tmp
+        moved[v] = 1
+        moved[w] = 1
+      }
+    }
+  }
+}
+
+// The DETERMINISTIC version of fillGatedSweep: the two tie-breaks (the polarize sign, the hop) are
+// decided by the stateless hash hashRand(edge index, beat, salt) instead of an RNG. A fixed rule, no
+// seed, no hidden state, varying per edge and per beat.
+export function fillGatedSweepHashed(input: {
+  tone: Int8Array
+  edges: readonly (readonly [number, number])[]
+  fill: Int8Array
+  beat: number
+}): void {
+  const { tone, edges, fill, beat } = input
+  const moved = new Uint8Array(tone.length)
+
+  for (let i = 0; i < edges.length; i++) {
+    const v = edges[i]![0]
+    const w = edges[i]![1]
+
+    if (moved[v] || moved[w]) {
+      continue
+    }
+
+    const f = fill[i]!
+    const tv = tone[v]!
+    const tw = tone[w]!
+
+    if (f === -1) {
+      if (tv === 0 && tw === 0) {
+        if (hashRand(i, beat, 1) < 0.5) {
+          tone[v] = 1
+          tone[w] = -1
+        } else {
+          tone[v] = -1
+          tone[w] = 1
+        }
+
+        moved[v] = 1
+        moved[w] = 1
+      }
+    } else if (f === 1) {
+      if ((tv === 1 && tw === -1) || (tv === -1 && tw === 1)) {
+        tone[v] = 0
+        tone[w] = 0
+        moved[v] = 1
+        moved[w] = 1
+      } else if (
+        (tv === 0) !== (tw === 0) &&
+        hashRand(i, beat, 2) < 0.5
+      ) {
         const tmp = tone[v]!
         tone[v] = tone[w]!
         tone[w] = tmp

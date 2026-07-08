@@ -39,8 +39,12 @@ const BASE = {
 }
 
 // penetration past the step face = probability that ended inside the step or beyond it
-function penetration(kind: 'potential' | 'mass', momentum: number): number {
+function penetration(
+  kind: 'potential' | 'mass',
+  momentum: number,
+): number {
   const r = diracBarrierProbability({ ...BASE, momentum, kind })
+
   return r.inside + r.transmitted
 }
 
@@ -48,7 +52,7 @@ export default experiment({
   id: 'quantum/klein-tunneling',
   code: 'E-QTM-0073',
   title:
-    'Klein tunneling from the coin\'s own Dirac walk: a scalar step in the Klein window transmits the relativistic walk across a range of incident momenta (penetration above 0.80 at every momentum, nearly energy-independent), while a mass step of the same height reflects it (penetration below 0.10)',
+    "Klein tunneling from the coin's own Dirac walk: a scalar step in the Klein window transmits the relativistic walk across a range of incident momenta (penetration above 0.80 at every momentum, nearly energy-independent), while a mass step of the same height reflects it (penetration below 0.10)",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -95,7 +99,7 @@ export default experiment({
         worstMassPenetration: Number(worstMass.toFixed(4)),
       },
       notes:
-        'Klein tunneling measured on the {3,4,3,4} coin\'s own Dirac walk (code/dynamics/klein-barrier): a scalar step in the Klein window transmits across momenta 0.5..1.1 nearly energy-independently, a mass step of the same height reflects. L3, emergent on the committed substrate sector, a could-be-wrong prediction with a control that genuinely fails.',
+        "Klein tunneling measured on the {3,4,3,4} coin's own Dirac walk (code/dynamics/klein-barrier): a scalar step in the Klein window transmits across momenta 0.5..1.1 nearly energy-independently, a mass step of the same height reflects. L3, emergent on the committed substrate sector, a could-be-wrong prediction with a control that genuinely fails.",
     })
   },
 })

@@ -31,7 +31,7 @@ const SIZE = 1200
 const STEPS = 150
 
 // (theta1, theta2, expected winding, label), one point solidly inside each of five sectors
-const POINTS: Array<[number, number, number]> = [
+const POINTS: [number, number, number][] = [
   [0, PI / 4, 0],
   [PI / 2, -PI / 2, 1],
   [PI / 2, 0, 2],
@@ -40,14 +40,19 @@ const POINTS: Array<[number, number, number]> = [
 ]
 
 function winding(theta1: number, theta2: number): number {
-  return meanChiralDisplacement({ size: SIZE, steps: STEPS, theta1, theta2 })
+  return meanChiralDisplacement({
+    size: SIZE,
+    steps: STEPS,
+    theta1,
+    theta2,
+  })
 }
 
 export default experiment({
   id: 'quantum/topological-winding',
   code: 'E-QTM-0077',
   title:
-    'the topological winding number measured from a chiral walk\'s own dynamics: the mean chiral displacement of a two-beat coined walk converges to five distinct integers (-2, -1, 0, +1, +2) across five sectors of coin space, each within 0.02 of an integer despite ballistic spreading, while a trivial coin gives exactly zero',
+    "the topological winding number measured from a chiral walk's own dynamics: the mean chiral displacement of a two-beat coined walk converges to five distinct integers (-2, -1, 0, +1, +2) across five sectors of coin space, each within 0.02 of an integer despite ballistic spreading, while a trivial coin gives exactly zero",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -58,12 +63,14 @@ export default experiment({
 
     // each measured value is within 0.02 of its (distinct) integer winding number
     let worstIntegerError = 0
+
     for (let i = 0; i < measured.length; i++) {
       worstIntegerError = Math.max(
         worstIntegerError,
         Math.abs(measured[i]! - expected[i]!),
       )
     }
+
     const quantizedToIntegers = worstIntegerError < 0.02
 
     // the five sectors give five DISTINCT integers (a real phase diagram, not one value everywhere)
@@ -74,7 +81,8 @@ export default experiment({
     const trivialWinding = winding(0, PI / 4)
     const trivialIsZero = Math.abs(trivialWinding) < 0.02
 
-    const ok = quantizedToIntegers && fiveDistinctSectors && trivialIsZero
+    const ok =
+      quantizedToIntegers && fiveDistinctSectors && trivialIsZero
 
     return verdict({
       status: ok ? 'pass' : 'fail',

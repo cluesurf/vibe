@@ -71,7 +71,7 @@ export function bulkNonlocality(input?: { n?: number }): {
     }
 
     for (const w of nbr(v)) {
-      if (w > v && radial[w]! === rv) {
+      if (w > v && radial[w] === rv) {
         internalEdges[rv]!++
       }
     }
@@ -89,7 +89,7 @@ export function bulkNonlocality(input?: { n?: number }): {
   const shellCells: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (radial[i]! === shellRadius) {
+    if (radial[i] === shellRadius) {
       onShell[i] = 1
       shellCells.push(i)
     }
@@ -134,7 +134,7 @@ export function bulkNonlocality(input?: { n?: number }): {
     // its within-surface distance (or unreachable)
     unreachableTotal++
 
-    if (dSurf[far]! === -1) {
+    if (dSurf[far] === -1) {
       unreachable++
     } else {
       surfSum += dSurf[far]!

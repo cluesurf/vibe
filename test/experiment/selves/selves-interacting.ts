@@ -14,9 +14,8 @@
 // a peace buffer (mutual retreat). Charge conserved by the rule. Run: npx tsx code/experiment/p110-selves-interacting.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
 import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { countLargeSameSignComponents } from '@/code/model/self-kit'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -38,16 +37,16 @@ const beat = (
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beatIndex: number,
 ): void =>
-  cohesiveEdgeSweep({
+  cohesiveEdgeSweepHashed({
     tone,
     eu,
     ev,
     offsets,
     adj,
     moved,
-    rng,
+    beat: beatIndex,
     annihilate: true,
     arrow: 0,
   })
@@ -93,10 +92,9 @@ export function selvesInteracting(input?: {
   }
 
   const oppStart = absCharge(opp)
-  const rngO = makeRng({ seed: 5 })
 
   for (let b = 0; b < beats; b++) {
-    beat(opp, eu, ev, g.offsets, g.adj, moved, rngO)
+    beat(opp, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const oppositeLoss = (oppStart - absCharge(opp)) / oppStart
@@ -115,10 +113,9 @@ export function selvesInteracting(input?: {
   }
 
   const sameStart = absCharge(same)
-  const rngS = makeRng({ seed: 5 })
 
   for (let b = 0; b < beats; b++) {
-    beat(same, eu, ev, g.offsets, g.adj, moved, rngS)
+    beat(same, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const sameLoss = (sameStart - absCharge(same)) / sameStart

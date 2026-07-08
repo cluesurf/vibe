@@ -1,7 +1,8 @@
 // Conformance for code/substrate/branching-order: a 1+1 causal set grown by a local branching rule. The
-// growth is a pure function of the supplied Rng, so the same seed yields the same widths and the same order
-// (determinism is required of the testbed). The resulting order is a genuine strict partial order
-// (irreflexive, antisymmetric, transitive, because the past is inherited transitively). Widths stay >= 1.
+// growth is a pure DETERMINISTIC function (a cell spawns a second child on the golden-ratio criterion, no
+// randomness), so it yields the same widths and the same order on every run (determinism is required of the
+// testbed). The resulting order is a genuine strict partial order (irreflexive, antisymmetric, transitive,
+// because the past is inherited transitively). Widths stay >= 1.
 
 import {
   suite,
@@ -13,26 +14,18 @@ import {
 } from '@/test/code/harness'
 import { growBranchingOrder } from '@/code/substrate/branching-order'
 import { precedes } from '@/code/tool/poset'
-import { makeRng } from '@/code/tool/rng'
 
 const params = {
   generations: 6,
   initialWidth: 2,
-  spawnProb: 0.5,
+  spawnFraction: 0.5,
   horizon: 0.4,
 }
 
 suite('substrate/branching-order: determinism', [
-  check('the same seed yields the same widths and order', () => {
-    const a = growBranchingOrder({
-      ...params,
-      rng: makeRng({ seed: 5 }),
-    })
-
-    const b = growBranchingOrder({
-      ...params,
-      rng: makeRng({ seed: 5 }),
-    })
+  check('repeated runs yield the same widths and order', () => {
+    const a = growBranchingOrder(params)
+    const b = growBranchingOrder(params)
 
     exactArray(a.widthPerGen, b.widthPerGen, 'widths identical')
     equal(a.poset.size, b.poset.size, 'same element count')
@@ -50,10 +43,7 @@ suite('substrate/branching-order: determinism', [
   check(
     'the width vector has one entry per generation and stays positive',
     () => {
-      const r = growBranchingOrder({
-        ...params,
-        rng: makeRng({ seed: 9 }),
-      })
+      const r = growBranchingOrder(params)
 
       equal(
         r.widthPerGen.length,
@@ -71,10 +61,7 @@ suite('substrate/branching-order: determinism', [
 
 suite('substrate/branching-order: it is a partial order', [
   check('irreflexive, antisymmetric, transitive', () => {
-    const { poset } = growBranchingOrder({
-      ...params,
-      rng: makeRng({ seed: 2 }),
-    })
+    const { poset } = growBranchingOrder(params)
 
     for (let i = 0; i < poset.size; i++) {
       notOk(precedes(poset, { a: i, b: i }), `no self-relation (${i})`)

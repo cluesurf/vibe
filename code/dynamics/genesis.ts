@@ -269,7 +269,10 @@ export function firstDistinction(input: {
       let adjacent = false
 
       for (const [v, w] of edges) {
-        if (tone[v]! * tone[w]! === -1) {
+        const tv = tone[v]!
+        const tw = tone[w]!
+
+        if (tv * tw === -1) {
           adjacent = true
           break
         }

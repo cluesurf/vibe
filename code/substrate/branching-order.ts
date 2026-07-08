@@ -1,24 +1,30 @@
 // A 1+1 causal set grown by a pure local branching rule, with no metric imposed. Each cell of the
-// current spatial front spawns one child, plus a second child with probability spawnProb, so a net
-// birth above one makes the front expand on its own (cosmological expansion from a local birth rule).
-// Each child is born to the future of the previous front's cells within a fixed comoving horizon (the
-// discrete light cone) and inherits their past, so the order is manifold-like (dimension near 2). The
-// caller supplies the Rng so the growth stays deterministic. Returns the order and the front width per
-// generation.
+// current spatial front spawns one child, plus a second child on a DETERMINISTIC quasiperiodic
+// criterion, so a net birth above one makes the front expand on its own (cosmological expansion from a
+// local birth rule). The extra births are placed by the golden-ratio (Weyl-equidistributed) sequence:
+// cell k spawns a second child when frac(k * phi) < spawnFraction, which selects exactly a fraction
+// spawnFraction of cells with NO randomness, giving a net birth rate 1 + spawnFraction. Each child is
+// born to the future of the previous front's cells within a fixed comoving horizon (the discrete light
+// cone) and inherits their past, so the order is manifold-like (dimension near 2). Fully deterministic
+// (a fixed rule, never a seed). Returns the order and the front width per generation.
 
-import { Rng } from '@/code/tool/rng'
 import { makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
 import { makePosetFromFuture, Poset } from '@/code/tool/poset'
+
+const GOLDEN = (1 + Math.sqrt(5)) / 2
 
 export function growBranchingOrder(input: {
   generations: number
   initialWidth: number
-  spawnProb: number
+  spawnFraction: number
   horizon: number
-  rng: Rng
 }): { poset: Poset; widthPerGen: number[] } {
-  // First pass: decide how many cells each generation has, from the local spawn rule.
+  // First pass: decide how many cells each generation has, from the local spawn rule. The extra child
+  // is spawned on the deterministic golden-ratio criterion, which selects a fraction spawnFraction of
+  // cells with no randomness (Weyl equidistribution of frac(k * phi)).
   const widths: number[] = [input.initialWidth]
+
+  let cellIndex = 0
 
   for (let g = 0; g < input.generations; g++) {
     let next = 0
@@ -26,7 +32,9 @@ export function growBranchingOrder(input: {
     const w = widths[g] ?? 0
 
     for (let c = 0; c < w; c++) {
-      next += 1 + (input.rng.next() < input.spawnProb ? 1 : 0)
+      const frac = (cellIndex * GOLDEN) % 1
+      next += 1 + (frac < input.spawnFraction ? 1 : 0)
+      cellIndex++
     }
 
     widths.push(Math.max(1, next))

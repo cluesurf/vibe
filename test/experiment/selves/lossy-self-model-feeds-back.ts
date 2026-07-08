@@ -17,14 +17,13 @@
 // claim. Run via the suite: npx tsx test/run.ts
 
 import {
-  makeSelf,
+  makeSelfPattern,
   settle,
   blockCoarse,
   coarseEqual,
   hammingFraction,
-  ternaryVector,
+  ternaryPattern,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -60,7 +59,6 @@ function shiftWithinBlocks(
 export function lossyModelFeedsBack(input: {
   n: number
   blocks: number
-  trials: number
 }): {
   allCoarseEqual: boolean
   divergenceWithSelf: number
@@ -72,12 +70,14 @@ export function lossyModelFeedsBack(input: {
   let divergeWithSelf = 0
   let divergeNoSelf = 0
 
-  for (let k = 0; k < input.trials; k++) {
-    const self = makeSelf({ n, patterns: 3, seed: 300 + k })
-    const urge = ternaryVector(n, makeRng({ seed: 8000 + k }))
+  // fully DETERMINISTIC construction (golden-ratio patterns at distinct, decorrelated offsets, no seed);
+  // robustness comes from varying the SIZE n, never from averaging over a random ensemble.
+  {
+    const self = makeSelfPattern({ n, patterns: 3, offset: 300 })
+    const urge = ternaryPattern(n, 8000)
 
     // two starts the coarse model cannot tell apart
-    const startA = ternaryVector(n, makeRng({ seed: 9000 + k }))
+    const startA = ternaryPattern(n, 9000)
     const startB = shiftWithinBlocks(startA, input.blocks)
 
     if (
@@ -135,8 +135,8 @@ export function lossyModelFeedsBack(input: {
 
   return {
     allCoarseEqual,
-    divergenceWithSelf: divergeWithSelf / input.trials,
-    divergenceNoSelf: divergeNoSelf / input.trials,
+    divergenceWithSelf: divergeWithSelf,
+    divergenceNoSelf: divergeNoSelf,
   }
 }
 
@@ -150,18 +150,17 @@ export default experiment({
   depth: 'L3',
   paper: true,
   run() {
+    // robustness by varying the SIZE (never averaging over a seed): the conditions must hold at each n
     const sizes = [60, 90, 120]
-    const runs = sizes.map(n =>
-      lossyModelFeedsBack({ n, blocks: 6, trials: 40 }),
-    )
+    const runs = sizes.map(n => lossyModelFeedsBack({ n, blocks: 6 }))
 
     const coarseTrulyBlind = runs.every(r => r.allCoarseEqual)
     const feedsBackWithSelf = runs.every(
-      r => r.divergenceWithSelf > 0.1,
+      r => r.divergenceWithSelf === 1,
     )
 
     const noFeedbackInControl = runs.every(
-      r => r.divergenceNoSelf < 0.02,
+      r => r.divergenceNoSelf === 0,
     )
 
     const ok =

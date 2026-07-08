@@ -13,9 +13,11 @@
 // L3 with a control, a model of higher-self emergence by binding, not a base-emergence claim.
 // Run via the suite: npx tsx test/run.ts
 
-import { ternaryVector, consensusStep } from '@/code/model/deliberation'
+import {
+  ternaryPattern,
+  consensusStep,
+} from '@/code/model/deliberation'
 import { toneOverlap } from '@/code/operator/hopfield'
-import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -46,11 +48,10 @@ export function nestedSelves(input: {
 } {
   const n = input.n
 
-  // independent sub-selves: dense, mutually unrelated patterns
-  let subs = Array.from({ length: input.parts }, (_, j) =>
-    ternaryVector(n, makeRng({ seed: 51000 + j * 31 + n })).map(v =>
-      v === 0 ? 1 : v,
-    ),
+  // independent sub-selves: dense, mutually unrelated DETERMINISTIC patterns (golden-ratio at distinct,
+  // decorrelated offsets, no seed); robustness comes from varying the SIZE n
+  let subs = Array.from({ length: input.parts }, (_unused, j) =>
+    ternaryPattern(n, 51000 + j * 131).map(v => (v === 0 ? 1 : v)),
   )
 
   const startResonance = groupResonance(subs)

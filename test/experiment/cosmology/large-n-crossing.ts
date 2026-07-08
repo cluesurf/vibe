@@ -10,7 +10,8 @@
 // cluster move sweeps the whole range, which is exactly what is needed to cross the entropy barrier
 // at large N. Run: npx tsx code/experiment/p74-large-n-crossing.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+const GOLDEN = (1 + Math.sqrt(5)) / 2
+const SILVER = 1 + Math.sqrt(2)
 import {
   makeBitMatrix,
   getBit,
@@ -32,7 +33,6 @@ function heightReach(input: {
   seed: number
 }): { distinct: number; rangeCovered: number } {
   const { n, maxHeight, steps, cluster } = input
-  const rng: Rng = makeRng({ seed: input.seed })
   const minHeight = 2
   const asserted = makeBitMatrix({ rows: n, cols: n })
   setBit(asserted, { row: 0, col: 1 }) // a tiny seed chain
@@ -46,9 +46,9 @@ function heightReach(input: {
   let closureState = cluster ? f : closure(asserted, n)
 
   for (let s = 0; s < steps; s++) {
-    const i = rng.nextInt({ max: n })
+    const i = Math.floor((((s + 1 + input.seed) * GOLDEN) % 1) * n)
 
-    let j = rng.nextInt({ max: n })
+    let j = Math.floor((((s + 1 + input.seed) * SILVER) % 1) * n)
 
     if (i === j) {
       j = (j + 1) % n

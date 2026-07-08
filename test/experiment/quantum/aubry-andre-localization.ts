@@ -35,14 +35,20 @@ const STEPS_SHORT = 100
 const STEPS_LONG = 500
 
 function spread(lambda: number, steps: number): number {
-  return quasiperiodicWalkSpread({ size: SIZE, steps, mass: MASS, lambda, width: WIDTH })
+  return quasiperiodicWalkSpread({
+    size: SIZE,
+    steps,
+    mass: MASS,
+    lambda,
+    width: WIDTH,
+  })
 }
 
 export default experiment({
   id: 'quantum/aubry-andre-localization',
   code: 'E-QTM-0075',
   title:
-    'Aubry-Andre localization from the coin\'s own Dirac walk: a deterministic quasiperiodic (golden-ratio) mass modulation traps the walk so its spread saturates with time (spread at 500 steps within about 1.8 times the spread at 100 steps and tens of times smaller than the delocalized case), while a zero modulation spreads ballistically (spread grows about five-fold, linearly in time)',
+    "Aubry-Andre localization from the coin's own Dirac walk: a deterministic quasiperiodic (golden-ratio) mass modulation traps the walk so its spread saturates with time (spread at 500 steps within about 1.8 times the spread at 100 steps and tens of times smaller than the delocalized case), while a zero modulation spreads ballistically (spread grows about five-fold, linearly in time)",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L3',
@@ -65,7 +71,8 @@ export default experiment({
     const suppression = ballisticLong / localizedLong
     const stronglySuppressed = suppression > 10
 
-    const ok = localizedSaturates && ballisticGrows && stronglySuppressed
+    const ok =
+      localizedSaturates && ballisticGrows && stronglySuppressed
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -82,7 +89,7 @@ export default experiment({
         ballisticFinalSpread: Number(ballisticLong.toFixed(3)),
       },
       notes:
-        'Aubry-Andre localization measured on the {3,4,3,4} coin\'s own Dirac walk (code/dynamics/quasiperiodic-walk): a deterministic golden-ratio quasiperiodic mass modulation traps the walk (spread saturates, >10x suppression vs ballistic), the unmodulated control spreads linearly. Deterministic (quasiperiodic, never random). L3, emergent on the committed substrate sector.',
+        "Aubry-Andre localization measured on the {3,4,3,4} coin's own Dirac walk (code/dynamics/quasiperiodic-walk): a deterministic golden-ratio quasiperiodic mass modulation traps the walk (spread saturates, >10x suppression vs ballistic), the unmodulated control spreads linearly. Deterministic (quasiperiodic, never random). L3, emergent on the committed substrate sector.",
     })
   },
 })

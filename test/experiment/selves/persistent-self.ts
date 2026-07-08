@@ -11,9 +11,11 @@
 // which the five supply. Run: npx tsx code/experiment/p171-persistent-self.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
+
+const GOLDEN = (1 + Math.sqrt(5)) / 2
+const SILVER = 1 + Math.sqrt(2)
 import { edgesFromCsr } from '@/code/tool/graph'
-import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -22,9 +24,10 @@ const beat = (
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beat: number,
   arrow: number,
-): void => conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+): void =>
+  conservingEdgeSweepHashed({ tone, eu, ev, moved, beat, arrow })
 
 export function persistentSelf(input?: { n?: number }): {
   n: number
@@ -46,7 +49,6 @@ export function persistentSelf(input?: { n?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   const arrow = 0.1
-  const rng = makeRng({ seed: 4 })
 
   // the self's region, a ball of cells, and an internal STRUCTURED balanced pattern (its identity)
   const region: number[] = []
@@ -102,7 +104,7 @@ export function persistentSelf(input?: { n?: number }): {
   }
 
   for (let i = region.length - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
+    const j = Math.floor((((i + 1) * GOLDEN) % 1) * (i + 1))
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
@@ -122,10 +124,11 @@ export function persistentSelf(input?: { n?: number }): {
     return norm > 0 ? dot / norm : 0
   }
 
-  const seedMedium = (tone: Int8Array, r: Rng): void => {
+  // DETERMINISTIC medium: golden-ratio selection + silver-ratio sign on the cell index, no randomness
+  const seedMedium = (tone: Int8Array): void => {
     for (let i = 0; i < N; i++) {
-      if (!inRegion[i] && r.next() < 0.25) {
-        tone[i] = r.next() < 0.5 ? 1 : -1
+      if (!inRegion[i] && ((i + 1) * GOLDEN) % 1 < 0.25) {
+        tone[i] = ((i + 1) * SILVER) % 1 < 0.5 ? 1 : -1
       }
     }
   }
@@ -138,13 +141,12 @@ export function persistentSelf(input?: { n?: number }): {
     self[i] = target[i]!
   }
 
-  seedMedium(self, makeRng({ seed: 5 }))
+  seedMedium(self)
 
-  const rngA = makeRng({ seed: 11 })
   const T = 80
 
   for (let t = 0; t < T; t++) {
-    beat(self, eu, ev, moved, rngA, arrow)
+    beat(self, eu, ev, moved, t, arrow)
 
     for (const i of region) {
       self[i] = target[i]!
@@ -160,12 +162,10 @@ export function persistentSelf(input?: { n?: number }): {
     un[i] = target[i]!
   }
 
-  seedMedium(un, makeRng({ seed: 5 }))
-
-  const rngB = makeRng({ seed: 11 })
+  seedMedium(un)
 
   for (let t = 0; t < T; t++) {
-    beat(un, eu, ev, moved, rngB, arrow)
+    beat(un, eu, ev, moved, t, arrow)
   }
 
   const unmaintainedIdentityEnd = identity(un)

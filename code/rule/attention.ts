@@ -45,9 +45,7 @@ export function isOneHotRouting(mesh: Mesh): boolean {
   const table = streamSourceTable(mesh)
   const seen = new Uint8Array(table.length)
 
-  for (let i = 0; i < table.length; i++) {
-    const source = table[i]!
-
+  for (const source of table) {
     if (source < 0 || source >= table.length || seen[source]) {
       return false
     }

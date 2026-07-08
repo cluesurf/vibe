@@ -18,8 +18,10 @@ import {
   csrFarthestNode,
   edgesFromCsr,
 } from '@/code/tool/graph'
-import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import {
+  conservingEdgeSweepSteeredHashed,
+  hashRand,
+} from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -123,7 +125,6 @@ export function recursion(input?: { n?: number }): {
     world: number[]
   } {
     const tone = new Int8Array(N)
-    const rng = makeRng({ seed: 9 })
     const T = 600
     const sigs = new Array<number>(K).fill(1)
     const h1: number[] = []
@@ -132,7 +133,8 @@ export function recursion(input?: { n?: number }): {
 
     for (let t = 0; t < T; t++) {
       for (let s = 0; s < K; s++) {
-        if (rng.next() < 0.06) {
+        // deterministic well-mixed telegraph (hashRand flips ~6% per beat like the original, no seed)
+        if (hashRand(s, t, 5) < 0.06) {
           sigs[s] = -sigs[s]!
         }
       }
@@ -152,12 +154,12 @@ export function recursion(input?: { n?: number }): {
       }
 
       if (withDynamics) {
-        conservingEdgeSweepSteered({
+        conservingEdgeSweepSteeredHashed({
           tone,
           eu,
           ev,
           moved,
-          rng,
+          beat: t,
           distGoal: null,
           towardSign: 0,
         })

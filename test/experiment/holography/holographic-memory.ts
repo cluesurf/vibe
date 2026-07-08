@@ -17,9 +17,8 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { totalCharge as sumTone } from '@/code/measure/tone-census'
-import { makeRng, Rng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -47,16 +46,16 @@ function beat(
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beatIndex: number,
 ): void {
-  cohesiveEdgeSweep({
+  cohesiveEdgeSweepHashed({
     tone,
     eu,
     ev,
     offsets,
     adj,
     moved,
-    rng,
+    beat: beatIndex,
     annihilate: true,
     arrow: 0,
     escapeProbability: 0.02,
@@ -146,15 +145,13 @@ export function holographicMemory(input?: { n?: number }): {
 
   // run the conserving dynamics and re-measure
   const moved = new Uint8Array(N)
-  const rngH = makeRng({ seed: 7 })
-  const rngB = makeRng({ seed: 7 })
 
   for (let b = 0; b < 20; b++) {
-    beat(holo, eu, ev, g.offsets, g.adj, moved, rngH)
+    beat(holo, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   for (let b = 0; b < 20; b++) {
-    beat(blob, eu, ev, g.offsets, g.adj, moved, rngB)
+    beat(blob, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const holoSurvivalAfter = survival(holo, holoAnchors)

@@ -102,7 +102,7 @@ export function avalancheSizes<
     const s2 = base.slice()
     const pr = makeRng(perturbSeed + tr)
     const cell = Math.floor(pr.next() * N)
-    s2[cell] = s2[cell]! === 0 ? 1 : 0
+    s2[cell] = s2[cell] === 0 ? 1 : 0
 
     const ra = makeRng(streamSeed + tr)
     const rb = makeRng(streamSeed + tr)

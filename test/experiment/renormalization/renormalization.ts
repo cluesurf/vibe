@@ -14,9 +14,8 @@
 // Run: npx tsx code/experiment/p115-renormalization.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
-import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -27,17 +26,23 @@ type FieldParams = {
   coneSpeed: number
 }
 
-function measureField(n: number, seed: number): FieldParams {
+function measureField(n: number): FieldParams {
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   const ARROW = 0.1
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed })
 
   for (let b = 0; b < 80; b++) {
-    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: ARROW })
+    conservingEdgeSweepHashed({
+      tone,
+      eu,
+      ev,
+      moved,
+      beat: b,
+      arrow: ARROW,
+    })
   }
 
   let nz = 0
@@ -85,30 +90,28 @@ function measureField(n: number, seed: number): FieldParams {
 
   const base = tone.slice()
   const pert = tone.slice()
-  pert[center] = base[center]! === 0 ? 1 : 0
+  pert[center] = base[center] === 0 ? 1 : 0
 
   const T = 5
-  const rb = makeRng({ seed: seed + 1 })
-  const rp = makeRng({ seed: seed + 1 })
 
   for (let b = 0; b < T; b++) {
-    conservingEdgeSweep({
+    conservingEdgeSweepHashed({
       tone: base,
       eu,
       ev,
       moved,
-      rng: rb,
+      beat: b,
       arrow: ARROW,
     })
   }
 
   for (let b = 0; b < T; b++) {
-    conservingEdgeSweep({
+    conservingEdgeSweepHashed({
       tone: pert,
       eu,
       ev,
       moved,
-      rng: rp,
+      beat: b,
       arrow: ARROW,
     })
   }
@@ -143,8 +146,8 @@ export function renormalization(input?: {
   sliceInvariant: boolean
   solved: boolean
 } {
-  const small = measureField(input?.small ?? 30000, 7)
-  const large = measureField(input?.large ?? 150000, 13)
+  const small = measureField(input?.small ?? 30000)
+  const large = measureField(input?.large ?? 150000)
 
   const rel = (a: number, b: number): number =>
     Math.abs(a - b) / (Math.abs(a) + Math.abs(b) + 1e-9)

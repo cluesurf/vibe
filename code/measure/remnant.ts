@@ -43,7 +43,11 @@ export function evaporateWithCutoff(input: {
   let steps = 0
 
   // stop once the temperature has reached the ceiling (mass has dropped to the remnant)
-  while (hawkingTemperature(mass) < ceiling && mass > floor && steps < 1_000_000) {
+  while (
+    hawkingTemperature(mass) < ceiling &&
+    mass > floor &&
+    steps < 1_000_000
+  ) {
     const power = horizonLuminosity(mass)
     const dt = (fraction * mass) / power
     mass -= power * dt

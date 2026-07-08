@@ -58,7 +58,10 @@ suite('measure/probe-directions: non-degeneracy (plastic-number fix)', [
 
         for (const d of dirs) {
           // The fixed bug forced d[2] === -d[1] on EVERY sample. Count any that still do.
-          if (d[1]! + d[2]! === 0) {
+          const d1 = d[1]!
+          const d2 = d[2]!
+
+          if (d1 + d2 === 0) {
             degenerate++
           }
         }

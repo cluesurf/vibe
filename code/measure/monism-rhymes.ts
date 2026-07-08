@@ -35,8 +35,8 @@ export function chargeSpread(tone: Int8Array): number {
 export function totalCharge(tone: Int8Array): number {
   let sum = 0
 
-  for (let i = 0; i < tone.length; i++) {
-    sum += Math.abs(tone[i]!)
+  for (const t of tone) {
+    sum += Math.abs(t)
   }
 
   return sum

@@ -367,6 +367,45 @@ export function conservingHopSweep(input: {
   }
 }
 
+// The DETERMINISTIC version of conservingHopSweep: the tie-break at an ambiguous hop is decided by the
+// stateless hash hashRand(edge index, beat, salt) instead of an RNG, so the sweep is a fixed rule with
+// no hidden state and no seed, varying per edge and per beat exactly as the random version did but fully
+// reproducible. Callers pass the beat index instead of an Rng.
+export function conservingHopSweepHashed(input: {
+  tone: Int8Array
+  eu: Int32Array
+  ev: Int32Array
+  moved: Uint8Array
+  beat: number
+}): void {
+  const { tone, eu, ev, moved, beat } = input
+  moved.fill(0)
+
+  for (let k = 0; k < eu.length; k++) {
+    const v = eu[k]!
+    const w = ev[k]!
+
+    if (moved[v] || moved[w]) {
+      continue
+    }
+
+    const a = tone[v]!
+    const b = tone[w]!
+
+    if ((a === 0) !== (b === 0)) {
+      const c = a === 0 ? w : v
+      const e = a === 0 ? v : w
+
+      if (hashRand(k, beat, 1) < 0.5) {
+        tone[e] = tone[c]!
+        tone[c] = 0
+        moved[v] = 1
+        moved[w] = 1
+      }
+    }
+  }
+}
+
 // One beat of the conserving rule taking the edges as an array of [v, w] pairs rather than two
 // parallel Int32Arrays. Identical local update to conservingEdgeSweep; the convenience shape for
 // callers that already hold a general-graph edge list.
@@ -535,6 +574,63 @@ export function conservingEdgeSweepSteered(input: {
           towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
       } else {
         doHop = rng.next() < 0.5
+      }
+
+      if (doHop) {
+        tone[e] = q
+        tone[c] = 0
+        moved[v] = 1
+        moved[w] = 1
+      }
+    }
+  }
+}
+
+// The DETERMINISTIC version of conservingEdgeSweepSteered: the unbiased fallback tie-break uses the
+// stateless hash hashRand(edge index, beat, salt) instead of an RNG. No seed, no hidden state.
+export function conservingEdgeSweepSteeredHashed(input: {
+  tone: Int8Array
+  eu: Int32Array
+  ev: Int32Array
+  moved: Uint8Array
+  beat: number
+  distGoal: Int32Array | null
+  towardSign: number
+  farValue?: number
+}): void {
+  const { tone, eu, ev, moved, beat, distGoal, towardSign } = input
+  const far = input.farValue ?? 1e9
+  const field = (i: number): number => distGoal?.[i] ?? far
+  moved.fill(0)
+
+  for (let k = 0; k < eu.length; k++) {
+    const v = eu[k]!
+    const w = ev[k]!
+
+    if (moved[v] || moved[w]) {
+      continue
+    }
+
+    const a = tone[v]!
+    const b = tone[w]!
+
+    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
+      tone[v] = 0
+      tone[w] = 0
+      moved[v] = 1
+      moved[w] = 1
+    } else if ((a === 0) !== (b === 0)) {
+      const c = a === 0 ? w : v
+      const e = a === 0 ? v : w
+      const q = tone[c]!
+
+      let doHop: boolean
+
+      if (distGoal && q > 0) {
+        doHop =
+          towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
+      } else {
+        doHop = hashRand(k, beat, 1) < 0.5
       }
 
       if (doHop) {

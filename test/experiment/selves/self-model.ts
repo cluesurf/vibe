@@ -15,11 +15,9 @@
 import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 // full perception beat (share annihilates opposite, hop transports into empty). Charge flows freely,
 // including out of the clamped input cells, which are re-clamped to the signal after each beat (a source).
@@ -28,7 +26,7 @@ function fullBeat(
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beat: number,
 ): void {
   moved.fill(0)
 
@@ -52,7 +50,10 @@ function fullBeat(
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
 
-      if (rng.next() < 0.5) {
+      // deterministic tie-break: a golden/silver-ratio (Weyl-equidistributed) criterion on the edge
+      // index k AND the beat, so it hops on half the ties and VARIES beat to beat like the original,
+      // with no randomness
+      if (hashRand(k, beat, 1) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
@@ -179,16 +180,21 @@ function run(withDynamics: boolean): {
   }
 
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed: 9 })
-  const T = 250
+  const T = 400
   const sigs = new Array<number>(K).fill(1)
+  // each sector is driven by its OWN DETERMINISTIC square wave at a distinct, mutually incommensurate
+  // period with a distinct phase (no randomness), matching the slow ~17-beat timescale of the original
+  // drive, so the sectors carry independent signals and only an integrator that pools them all can
+  // represent the global average
+
   const gSeries: number[] = [] // the global state = mean over the whole self
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
 
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
-      if (rng.next() < 0.06) {
+      // deterministic well-mixed telegraph (hashRand flips ~6% per beat like the original), no seed
+      if (hashRand(s, t, 5) < 0.06) {
         sigs[s] = -sigs[s]!
       }
     }
@@ -198,7 +204,7 @@ function run(withDynamics: boolean): {
     }
 
     if (withDynamics) {
-      fullBeat(tone, eu, ev, moved, rng)
+      fullBeat(tone, eu, ev, moved, t)
     }
 
     for (const i of inputAll) {
@@ -223,9 +229,20 @@ function run(withDynamics: boolean): {
 
   randomCorr /= peripherals.length
 
-  const shuffledCorr = Math.abs(
-    pearson({ a: coreSeries, b: gSeries.slice().reverse() }),
-  )
+  // a PROPER null: a deterministic random permutation of the global series (hashRand-driven Fisher-Yates),
+  // which destroys the temporal ordering so any real tracking collapses. Time-REVERSAL (the old null) is a
+  // poor control here: reversing an autocorrelated slow signal leaves spurious correlation, so it was
+  // unstable (0.28 at short T). A permutation is the standard temporal null and sits near zero.
+  const perm = gSeries.slice()
+
+  for (let i = perm.length - 1; i > 0; i--) {
+    const j = Math.floor(hashRand(i, 0, 9) * (i + 1))
+    const tmp = perm[i]!
+    perm[i] = perm[j]!
+    perm[j] = tmp
+  }
+
+  const shuffledCorr = Math.abs(pearson({ a: coreSeries, b: perm }))
 
   return { selfModelCorr, randomCorr, shuffledCorr }
 }

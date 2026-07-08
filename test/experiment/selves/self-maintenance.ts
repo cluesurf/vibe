@@ -20,9 +20,8 @@
 // is conserved by the rule. Run: npx tsx code/experiment/p109-self-maintenance.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
 import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -34,16 +33,16 @@ const beat = (
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  beatIndex: number,
 ): void =>
-  cohesiveEdgeSweep({
+  cohesiveEdgeSweepHashed({
     tone,
     eu,
     ev,
     offsets,
     adj,
     moved,
-    rng,
+    beat: beatIndex,
     annihilate: true,
     arrow: 0,
   })
@@ -101,10 +100,8 @@ export function selfMaintenance(input?: { n?: number }): {
     base[i] = 1
   }
 
-  const r1 = makeRng({ seed: 5 })
-
   for (let b = 0; b < beats; b++) {
-    beat(base, eu, ev, g.offsets, g.adj, moved, r1)
+    beat(base, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const baselineFrac = plusInChunk(base)
@@ -120,10 +117,8 @@ export function selfMaintenance(input?: { n?: number }): {
     dmg[i] = 0
   }
 
-  const r2 = makeRng({ seed: 5 })
-
   for (let b = 0; b < beats; b++) {
-    beat(dmg, eu, ev, g.offsets, g.adj, moved, r2)
+    beat(dmg, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const withSurroundFrac = plusInChunk(dmg)
@@ -141,10 +136,8 @@ export function selfMaintenance(input?: { n?: number }): {
     ctrl[i] = 0
   } // erase the whole self
 
-  const r3 = makeRng({ seed: 5 })
-
   for (let b = 0; b < beats; b++) {
-    beat(ctrl, eu, ev, g.offsets, g.adj, moved, r3)
+    beat(ctrl, eu, ev, g.offsets, g.adj, moved, b)
   }
 
   const withoutSurroundRecovery =

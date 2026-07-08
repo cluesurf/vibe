@@ -21,6 +21,7 @@ function scatterBits(input: {
   positions: number[]
 }): number {
   const { value, positions } = input
+
   let index = 0
 
   for (let j = 0; j < positions.length; j++) {
@@ -59,12 +60,16 @@ export function reducedDensityMatrix(input: {
     const envIndex = scatterBits({ value: e, positions: traced })
 
     for (let a = 0; a < keptDim; a++) {
-      const indexA = envIndex | scatterBits({ value: a, positions: keep })
+      const indexA =
+        envIndex | scatterBits({ value: a, positions: keep })
+
       const reA = real[indexA]!
       const imA = imag[indexA]!
 
       for (let b = 0; b < keptDim; b++) {
-        const indexB = envIndex | scatterBits({ value: b, positions: keep })
+        const indexB =
+          envIndex | scatterBits({ value: b, positions: keep })
+
         const reB = real[indexB]!
         const imB = imag[indexB]!
         // rho_ab += psi_a conj(psi_b)
@@ -83,11 +88,10 @@ export function vonNeumannEntropyBits(input: {
   matrix: ComplexMatrix
 }): number {
   const eigen = eigHermitian({ matrix: input.matrix })
+
   let entropy = 0
 
-  for (let i = 0; i < eigen.values.length; i++) {
-    const lambda = eigen.values[i]!
-
+  for (const lambda of eigen.values) {
     if (lambda > 1e-12) {
       entropy -= lambda * Math.log2(lambda)
     }
@@ -118,8 +122,20 @@ export function mutualInformationBits(input: {
   groupB: number[]
 }): number {
   const { real, imag, qubitCount, groupA, groupB } = input
-  const entropyA = subsystemEntropyBits({ real, imag, qubitCount, keep: groupA })
-  const entropyB = subsystemEntropyBits({ real, imag, qubitCount, keep: groupB })
+  const entropyA = subsystemEntropyBits({
+    real,
+    imag,
+    qubitCount,
+    keep: groupA,
+  })
+
+  const entropyB = subsystemEntropyBits({
+    real,
+    imag,
+    qubitCount,
+    keep: groupB,
+  })
+
   const entropyJoint = subsystemEntropyBits({
     real,
     imag,
@@ -147,10 +163,11 @@ export function traceDistance(input: {
   }
 
   const eigen = eigHermitian({ matrix: difference })
+
   let sum = 0
 
-  for (let i = 0; i < eigen.values.length; i++) {
-    sum += Math.abs(eigen.values[i]!)
+  for (const v of eigen.values) {
+    sum += Math.abs(v)
   }
 
   return sum / 2
@@ -196,20 +213,24 @@ export function relativeEntropyBits(input: {
   const n = rho.rows
 
   const eigenRho = eigHermitian({ matrix: rho })
+
   let trRhoLogRho = 0
 
   for (let i = 0; i < n; i++) {
     const p = eigenRho.values[i]!
+
     if (p > 1e-12) {
       trRhoLogRho += p * Math.log2(p)
     }
   }
 
   const eigenSigma = eigHermitian({ matrix: sigma })
+
   let trRhoLogSigma = 0
 
   for (let j = 0; j < n; j++) {
     const s = eigenSigma.values[j]!
+
     if (s <= 1e-12) {
       continue
     }

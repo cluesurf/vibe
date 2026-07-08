@@ -26,12 +26,14 @@ function applyStep(
 ): [Float64Array, Float64Array] {
   const idx = (x: number, s: number): number => 2 * x + s
   const wrap = (x: number): number => ((x % L) + L) % L
+
   let re = reIn.slice()
   let im = imIn.slice()
 
   const coin = (th: (x: number) => number): void => {
     const r2 = new Float64Array(2 * L)
     const i2 = new Float64Array(2 * L)
+
     for (let x = 0; x < L; x++) {
       const c = Math.cos(th(x) / 2)
       const s = Math.sin(th(x) / 2)
@@ -44,6 +46,7 @@ function applyStep(
       r2[idx(x, 1)] = s * ur + c * dr
       i2[idx(x, 1)] = s * ui + c * di
     }
+
     re = r2
     im = i2
   }
@@ -51,12 +54,14 @@ function applyStep(
   const shift = (): void => {
     const r2 = new Float64Array(2 * L)
     const i2 = new Float64Array(2 * L)
+
     for (let x = 0; x < L; x++) {
       r2[idx(wrap(x + 1), 0)] = re[idx(x, 0)]! // up-mover shifts +1
       i2[idx(wrap(x + 1), 0)] = im[idx(x, 0)]!
       r2[idx(wrap(x - 1), 1)] = re[idx(x, 1)]! // down-mover shifts -1
       i2[idx(wrap(x - 1), 1)] = im[idx(x, 1)]!
     }
+
     re = r2
     im = i2
   }
@@ -66,6 +71,7 @@ function applyStep(
   coin(th2)
   shift()
   coin(x => th1(x) / 2)
+
   return [re, im]
 }
 
@@ -89,10 +95,12 @@ export function edgeModeCountFromProfile(input: {
   // build U column by column (column j = U applied to basis vector e_j)
   const columnRe: Float64Array[] = []
   const columnIm: Float64Array[] = []
+
   for (let j = 0; j < N; j++) {
     const re = new Float64Array(N)
     const im = new Float64Array(N)
     re[j] = 1
+
     const [r, i] = applyStep(re, im, L, th1, th2Fn)
     columnRe.push(r)
     columnIm.push(i)
@@ -100,6 +108,7 @@ export function edgeModeCountFromProfile(input: {
 
   // A = (U + U^dagger)/2 (Hermitian). U[a][b] = columnRe[b][a] + i columnIm[b][a].
   const mat = makeComplexMatrix({ rows: N, cols: N })
+
   for (let a = 0; a < N; a++) {
     for (let b = 0; b < N; b++) {
       const uab_r = columnRe[b]![a]!
@@ -116,29 +125,48 @@ export function edgeModeCountFromProfile(input: {
 
   let zero = 0
   let pi = 0
+
   for (let k = 0; k < N; k++) {
     const ev = eig.values[k]!
     const nearZero = ev > gapTol
     const nearPi = ev < -gapTol
-    if (!nearZero && !nearPi) continue
+
+    if (!nearZero && !nearPi) {
+      continue
+    }
 
     // localization: fraction of weight within locRadius of either interface (x = ifaceA or x = 0)
     let wIface = 0
     let wTotal = 0
+
     for (let x = 0; x < L; x++) {
       for (let s = 0; s < 2; s++) {
         const a = 2 * x + s
         const p =
-          eig.vectorsRe[a * N + k]! ** 2 + eig.vectorsIm[a * N + k]! ** 2
+          eig.vectorsRe[a * N + k]! ** 2 +
+          eig.vectorsIm[a * N + k]! ** 2
+
         wTotal += p
-        const dA = Math.min(Math.abs(x - ifaceA), L - Math.abs(x - ifaceA))
+
+        const dA = Math.min(
+          Math.abs(x - ifaceA),
+          L - Math.abs(x - ifaceA),
+        )
+
         const dB = Math.min(x, L - x)
-        if (dA <= locRadius || dB <= locRadius) wIface += p
+
+        if (dA <= locRadius || dB <= locRadius) {
+          wIface += p
+        }
       }
     }
+
     if (wIface / (wTotal || 1) > 0.5) {
-      if (nearZero) zero++
-      else pi++
+      if (nearZero) {
+        zero++
+      } else {
+        pi++
+      }
     }
   }
 
@@ -156,6 +184,7 @@ export function interfaceEdgeModeCount(input: {
   localizationRadius?: number
 }): { zero: number; pi: number } {
   const { size: L, theta1Left, theta1Right, theta2 } = input
+
   return edgeModeCountFromProfile({
     size: L,
     theta1: (x: number) => (x < L / 2 ? theta1Left : theta1Right),

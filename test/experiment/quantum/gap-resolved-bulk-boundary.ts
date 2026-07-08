@@ -28,7 +28,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { edgeModeCountFromProfile } from '@/code/measure/topological-edge-modes'
-import { gapResolvedWinding, quasienergyGaps } from '@/code/measure/walk-winding'
+import {
+  gapResolvedWinding,
+  quasienergyGaps,
+} from '@/code/measure/walk-winding'
 
 const PI = Math.PI
 const SIZE = 48
@@ -41,7 +44,10 @@ const PHASES: Record<string, [number, number]> = {
   c: [-PI / 2, (2 * PI) / 3], // (-1, 1)
 }
 
-function edges(pL: [number, number], pR: [number, number]): { zero: number; pi: number } {
+function edges(
+  pL: [number, number],
+  pR: [number, number],
+): { zero: number; pi: number } {
   return edgeModeCountFromProfile({
     size: SIZE,
     theta1: x => (x < IFACE ? pL[0] : pR[0]),
@@ -63,29 +69,50 @@ export default experiment({
 
     // confirm all three phases are genuinely gapped at both gaps (else the winding is undefined)
     const allGapped = names.every(n => {
-      const g = quasienergyGaps({ theta1: PHASES[n]![0], theta2: PHASES[n]![1] })
+      const g = quasienergyGaps({
+        theta1: PHASES[n]![0],
+        theta2: PHASES[n]![1],
+      })
+
       return g.gapZero > 0.15 && g.gapPi > 0.15
     })
 
     // bulk invariants (nu0, nuPi) from the Bloch Hamiltonian
     const invariants = Object.fromEntries(
-      names.map(n => [n, gapResolvedWinding({ theta1: PHASES[n]![0], theta2: PHASES[n]![1] })]),
+      names.map(n => [
+        n,
+        gapResolvedWinding({
+          theta1: PHASES[n]![0],
+          theta2: PHASES[n]![1],
+        }),
+      ]),
     )
+
     const expectedInvariants =
-      invariants.a!.nu0 === 1 && invariants.a!.nuPi === 1 &&
-      invariants.b!.nu0 === 1 && invariants.b!.nuPi === -1 &&
-      invariants.c!.nu0 === -1 && invariants.c!.nuPi === 1
+      invariants.a!.nu0 === 1 &&
+      invariants.a!.nuPi === 1 &&
+      invariants.b!.nu0 === 1 &&
+      invariants.b!.nuPi === -1 &&
+      invariants.c!.nu0 === -1 &&
+      invariants.c!.nuPi === 1
 
     // every interface: measured (zero, pi) must equal (2|delta nu0|, 2|delta nuPi|)
     let allMatch = true
+
     for (let i = 0; i < names.length; i++) {
       for (let j = i; j < names.length; j++) {
         const ni = names[i]!
         const nj = names[j]!
         const e = edges(PHASES[ni]!, PHASES[nj]!)
-        const predZero = 2 * Math.abs(invariants[ni]!.nu0 - invariants[nj]!.nu0)
-        const predPi = 2 * Math.abs(invariants[ni]!.nuPi - invariants[nj]!.nuPi)
-        if (e.zero !== predZero || e.pi !== predPi) allMatch = false
+        const predZero =
+          2 * Math.abs(invariants[ni]!.nu0 - invariants[nj]!.nu0)
+
+        const predPi =
+          2 * Math.abs(invariants[ni]!.nuPi - invariants[nj]!.nuPi)
+
+        if (e.zero !== predZero || e.pi !== predPi) {
+          allMatch = false
+        }
       }
     }
 
@@ -93,15 +120,21 @@ export default experiment({
     const zeroGapOnly = edges(PHASES.a!, PHASES.c!) // (4, 0)
     const piGapOnly = edges(PHASES.a!, PHASES.b!) // (0, 4)
     const gapsIndependent =
-      zeroGapOnly.zero > 0 && zeroGapOnly.pi === 0 &&
-      piGapOnly.pi > 0 && piGapOnly.zero === 0
+      zeroGapOnly.zero > 0 &&
+      zeroGapOnly.pi === 0 &&
+      piGapOnly.pi > 0 &&
+      piGapOnly.zero === 0
 
     // CONTROL: a phase against itself binds nothing at either gap
     const self = edges(PHASES.a!, PHASES.a!)
     const controlZero = self.zero === 0 && self.pi === 0
 
     const ok =
-      allGapped && expectedInvariants && allMatch && gapsIndependent && controlZero
+      allGapped &&
+      expectedInvariants &&
+      allMatch &&
+      gapsIndependent &&
+      controlZero
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -110,7 +143,11 @@ export default experiment({
       metrics: {
         zeroGapOnly: `${zeroGapOnly.zero},${zeroGapOnly.pi}`,
         piGapOnly: `${piGapOnly.zero},${piGapOnly.pi}`,
-        bothGaps: (() => { const e = edges(PHASES.b!, PHASES.c!); return `${e.zero},${e.pi}` })(),
+        bothGaps: (() => {
+          const e = edges(PHASES.b!, PHASES.c!)
+
+          return `${e.zero},${e.pi}`
+        })(),
       },
       // CONTROL: a phase interfaced with itself (no winding jump) binds nothing.
       control: {
