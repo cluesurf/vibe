@@ -30,10 +30,7 @@
 
 import { squareMesh, betheMesh, meshNeighbors } from '@/code/tool/mesh'
 import { neighborDistances } from '@/code/tool/graph'
-import {
-  bulkSharedPast,
-  interiorCellsByDistance,
-} from '@/code/measure/shared-past'
+import { criticalSeparation } from '@/code/measure/shared-past'
 import {
   chshFromSharedPast,
   TSIRELSON_SHARED_PAST,
@@ -43,64 +40,6 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const CONE_DEPTH = 4
 const TSIRELSON = 2 * Math.SQRT2
-
-// The largest separation at which the aligned CHSH can still reach the Tsirelson
-// value, i.e. the largest d with eta(d) >= root 2 - 1. Measured from the substrate.
-function criticalSeparation(input: {
-  neighbors: readonly (readonly number[] | Uint32Array)[]
-  size: number
-  generation: readonly number[]
-  distances: number[]
-}): { dStar: number; etaByDistance: Map<number, number> } {
-  const { neighbors, size, generation, distances } = input
-  const maxGeneration = generation.reduce((m, g) => Math.max(m, g), 0)
-
-  let anchor = 0
-
-  for (let cell = 0; cell < size; cell++) {
-    if (generation[cell] === CONE_DEPTH) {
-      anchor = cell
-      break
-    }
-  }
-
-  const picks = interiorCellsByDistance({
-    neighbors,
-    size,
-    generation,
-    anchor,
-    distances,
-    maxGeneration: maxGeneration - CONE_DEPTH,
-  })
-
-  const etaByDistance = new Map<number, number>()
-
-  let dStar = 0
-
-  for (const d of distances) {
-    const partner = picks.get(d)
-
-    if (partner === undefined) {
-      continue
-    }
-
-    const eta = bulkSharedPast({
-      neighbors,
-      size,
-      cellA: anchor,
-      cellB: partner,
-      depth: CONE_DEPTH,
-    }).eta
-
-    etaByDistance.set(d, eta)
-
-    if (eta >= TSIRELSON_SHARED_PAST) {
-      dStar = Math.max(dStar, d)
-    }
-  }
-
-  return { dStar, etaByDistance }
-}
 
 function flatGeneration(neighbors: number[][], size: number): number[] {
   return Array.from(
@@ -128,6 +67,8 @@ export default experiment({
       size: square.cellCount,
       generation: flatGeneration(squareNeighbors, square.cellCount),
       distances,
+      coneDepth: CONE_DEPTH,
+      etaThreshold: TSIRELSON_SHARED_PAST,
     })
 
     // Negatively curved substrate (degree 4 Bethe bulk): eta collapses, d* is small.
@@ -146,6 +87,8 @@ export default experiment({
       size: bethe.cellCount,
       generation: betheGeneration,
       distances,
+      coneDepth: CONE_DEPTH,
+      etaThreshold: TSIRELSON_SHARED_PAST,
     })
 
     // The aligned vs decorrelated CHSH at the smallest separation (d = 1), where the

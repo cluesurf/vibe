@@ -194,3 +194,75 @@ export function interiorCellsByDistance(input: {
 
   return best
 }
+
+// The largest separation d at which the aligned measurement-dependence CHSH can still
+// reach a target shared-past fraction. For each requested distance it picks an interior
+// cell that far from an anchor sitting at cone depth `coneDepth`, measures the exact
+// cone-overlap fraction eta(d) off the mesh, and returns eta by distance plus the
+// largest d with eta(d) >= etaThreshold. Pass TSIRELSON_SHARED_PAST as the threshold to
+// get the critical separation for the quantum (Tsirelson) value. Deterministic, exact.
+export function criticalSeparation(input: {
+  neighbors: Adjacency
+  size: number
+  generation: readonly number[]
+  distances: readonly number[]
+  coneDepth: number
+  etaThreshold: number
+}): { dStar: number; etaByDistance: Map<number, number> } {
+  const {
+    neighbors,
+    size,
+    generation,
+    distances,
+    coneDepth,
+    etaThreshold,
+  } = input
+
+  const maxGeneration = generation.reduce((m, g) => Math.max(m, g), 0)
+
+  let anchor = 0
+
+  for (let cell = 0; cell < size; cell++) {
+    if (generation[cell] === coneDepth) {
+      anchor = cell
+      break
+    }
+  }
+
+  const picks = interiorCellsByDistance({
+    neighbors,
+    size,
+    generation,
+    anchor,
+    distances,
+    maxGeneration: maxGeneration - coneDepth,
+  })
+
+  const etaByDistance = new Map<number, number>()
+
+  let dStar = 0
+
+  for (const d of distances) {
+    const partner = picks.get(d)
+
+    if (partner === undefined) {
+      continue
+    }
+
+    const eta = bulkSharedPast({
+      neighbors,
+      size,
+      cellA: anchor,
+      cellB: partner,
+      depth: coneDepth,
+    }).eta
+
+    etaByDistance.set(d, eta)
+
+    if (eta >= etaThreshold) {
+      dStar = Math.max(dStar, d)
+    }
+  }
+
+  return { dStar, etaByDistance }
+}

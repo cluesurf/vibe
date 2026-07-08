@@ -61,6 +61,7 @@ The arena's largest cluster. It asks how a spacelike Bell correlation can be rea
 - **E-QTM-0031** - the bulk shared past is bulk-mediated not boundary-mediated, a negative for the spatial-holographic escape, leaving the past-boundary seed.
 - **E-QTM-0032** - on a genuine 20k-cell hyperbolic tessellation shell growth is exponential and the local shared past collapses, confirming the curvature mechanism on the committed substrate.
 - **E-QTM-0033** - the measured shared past sets a critical separation for the quantum value, smaller on the curved substrate, the violation contingent on settings aligned with the shared past.
+- **E-QTM-0083** - the critical-separation signature on the GENUINE {3,4,3,4} substrate (no Bethe-tree stand-in): the shared past never reaches the Tsirelson threshold at any resolvable separation (critical separation zero), so the quantum value is not locally reachable on the real curved substrate, while the flat {3,4,3,4} reaches it at short range, a sharper negative than the tree gave.
 - **E-QTM-0034** - the shared past is exponential in bulk distance but only power-law in physical cusp distance, inheriting the holographic shortcut, no shortcut in the flat control.
 - **E-QTM-0035** - through the bulk shortcut the Tsirelson violation is reachable out to an exponentially larger physical distance than on the flat substrate, with no action at a distance.
 - **E-QTM-0036** - on the expanding bulk the common ancestor recedes to the origin as distance grows, so the only distance-independent shared past is the shared origin.
