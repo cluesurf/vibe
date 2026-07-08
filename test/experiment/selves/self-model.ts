@@ -63,15 +63,12 @@ function fullBeat(
   }
 }
 
-function run(
-  withDynamics: boolean,
-  opts?: { maxCells?: number; beats?: number },
-): {
+function run(withDynamics: boolean): {
   selfModelCorr: number
   randomCorr: number
   shuffledCorr: number
 } {
-  const g = buildDodecagrid({ maxCells: opts?.maxCells ?? 60000 })
+  const g = buildDodecagrid({ maxCells: 60000 })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
@@ -183,7 +180,7 @@ function run(
   }
 
   const tone = new Int8Array(N)
-  const T = opts?.beats ?? 400
+  const T = 400
   const sigs = new Array<number>(K).fill(1)
   // each sector is driven by its OWN DETERMINISTIC square wave at a distinct, mutually incommensurate
   // period with a distinct phase (no randomness), matching the slow ~17-beat timescale of the original
