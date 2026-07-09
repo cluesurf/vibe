@@ -27,9 +27,10 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { d4Mesh, meshCsr } from '@/code/tool/mesh'
-import { edgesFromCsr, neighborDistances } from '@/code/tool/graph'
+import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { largestPositiveCluster } from '@/code/model/self-kit'
+import { seedCompactBlob } from '@/code/measure/record-persistence'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -37,44 +38,6 @@ interface Graph {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array
-}
-
-function neighborsOf(g: Graph): number[][] {
-  const out: number[][] = []
-
-  for (let i = 0; i < g.cellCount; i++) {
-    const list: number[] = []
-
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
-      list.push(g.adj[p]!)
-    }
-
-    out.push(list)
-  }
-
-  return out
-}
-
-function compactBlob(
-  g: Graph,
-  seed: number,
-  radius: number,
-): Int8Array {
-  const distance = neighborDistances({
-    neighbors: neighborsOf(g),
-    size: g.cellCount,
-    source: seed,
-  })
-
-  const tone = new Int8Array(g.cellCount)
-
-  for (let i = 0; i < g.cellCount; i++) {
-    if (distance[i]! >= 0 && distance[i]! <= radius) {
-      tone[i] = 1
-    }
-  }
-
-  return tone
 }
 
 function maxDegreeNode(g: Graph): number {
@@ -102,7 +65,7 @@ function clusterTrace(
   mid: number,
   late: number,
 ): { midFraction: number; lateFraction: number } {
-  const tone = compactBlob(g, seed, radius)
+  const tone = seedCompactBlob({ csr: g, center: seed, radius })
   const initial = Math.max(1, largestPositiveCluster(tone, g).length)
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, g.cellCount)
   const moved = new Uint8Array(g.cellCount)
