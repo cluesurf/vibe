@@ -27,9 +27,10 @@
 // applying the exponential-volume mechanism of E-QTM-0032 to the measurement holder.
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { d4Mesh, meshNeighbors } from '@/code/tool/mesh'
+import { d4Mesh, meshCsr } from '@/code/tool/mesh'
 import { edgesFromCsr, neighborDistances } from '@/code/tool/graph'
 import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
+import { largestPositiveCluster } from '@/code/model/self-kit'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -37,29 +38,6 @@ interface Csr {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array
-}
-
-function d4Csr(side: number): Csr {
-  const mesh = d4Mesh({ side })
-  const cellCount = mesh.cellCount
-  const neighbors = meshNeighbors(mesh)
-  const offsets = new Int32Array(cellCount + 1)
-
-  for (let i = 0; i < cellCount; i++) {
-    offsets[i + 1] = offsets[i]! + neighbors[i]!.length
-  }
-
-  const adj = new Int32Array(offsets[cellCount]!)
-
-  let p = 0
-
-  for (let i = 0; i < cellCount; i++) {
-    for (const w of neighbors[i]!) {
-      adj[p++] = w
-    }
-  }
-
-  return { cellCount, offsets, adj }
 }
 
 function maxDegreeNode(csr: Csr): number {
@@ -72,45 +50,6 @@ function maxDegreeNode(csr: Csr): number {
     if (degree > bestDegree) {
       bestDegree = degree
       best = i
-    }
-  }
-
-  return best
-}
-
-// the size of the largest connected component of +1 cells (an exact flood fill).
-function largestPlusCluster(tone: Int8Array, csr: Csr): number {
-  const { cellCount, offsets, adj } = csr
-  const seen = new Uint8Array(cellCount)
-
-  let best = 0
-
-  for (let start = 0; start < cellCount; start++) {
-    if (tone[start] !== 1 || seen[start]) {
-      continue
-    }
-
-    let size = 0
-
-    const stack = [start]
-    seen[start] = 1
-
-    while (stack.length > 0) {
-      const cell = stack.pop()!
-      size++
-
-      for (let p = offsets[cell]!; p < offsets[cell + 1]!; p++) {
-        const w = adj[p]!
-
-        if (tone[w] === 1 && !seen[w]) {
-          seen[w] = 1
-          stack.push(w)
-        }
-      }
-    }
-
-    if (size > best) {
-      best = size
     }
   }
 
@@ -150,7 +89,7 @@ function survivingFraction(
     }
   }
 
-  const initial = largestPlusCluster(tone, csr)
+  const initial = largestPositiveCluster(tone, csr).length
   const { eu, ev } = edgesFromCsr(csr.offsets, csr.adj, csr.cellCount)
   const moved = new Uint8Array(csr.cellCount)
 
@@ -165,7 +104,7 @@ function survivingFraction(
     })
   }
 
-  return largestPlusCluster(tone, csr) / Math.max(1, initial)
+  return largestPositiveCluster(tone, csr).length / Math.max(1, initial)
 }
 
 export default experiment({
@@ -199,7 +138,7 @@ export default experiment({
         Math.round(Math.pow(curved.cellCount, 0.25)),
       )
 
-      const flatCsr = d4Csr(side)
+      const flatCsr = meshCsr(d4Mesh({ side }))
       const flatSeed = flatCsr.cellCount >> 1
 
       for (const radius of radii) {

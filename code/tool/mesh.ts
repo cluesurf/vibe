@@ -87,6 +87,35 @@ export function meshNeighbors(mesh: Mesh): number[][] {
   return out
 }
 
+// A mesh as a CSR adjacency graph (cellCount, offsets, adj), the compact form the edge-sweep and the
+// cluster/cone measures consume, built from the mesh's own neighbour relation. Deduplicates the
+// neighbour set per cell (a mesh direction can fold back to the same cell).
+export function meshCsr(mesh: Mesh): {
+  cellCount: number
+  offsets: Int32Array
+  adj: Int32Array
+} {
+  const neighbors = meshNeighbors(mesh)
+  const cellCount = mesh.cellCount
+  const offsets = new Int32Array(cellCount + 1)
+
+  for (let i = 0; i < cellCount; i++) {
+    offsets[i + 1] = offsets[i]! + neighbors[i]!.length
+  }
+
+  const adj = new Int32Array(offsets[cellCount]!)
+
+  let p = 0
+
+  for (let i = 0; i < cellCount; i++) {
+    for (const w of neighbors[i]!) {
+      adj[p++] = w
+    }
+  }
+
+  return { cellCount, offsets, adj }
+}
+
 // A periodic square lattice in two dimensions, four directions (E, W, N, S). The
 // minimal directional mesh, used to pin the rule against the known 2D result.
 // Direction order: 0 is +x (E), 1 is -x (W), 2 is +y (N), 3 is -y (S).

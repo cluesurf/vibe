@@ -1,6 +1,6 @@
 # Quantum arena
 
-**67 experiments.** Codes `E-QTM-0001` through `E-QTM-0067`. Files in `test/experiment/quantum/`.
+**91 experiments.** Codes `E-QTM-0001` through `E-QTM-0091`. Files in `test/experiment/quantum/`.
 
 ## What this arena tests
 

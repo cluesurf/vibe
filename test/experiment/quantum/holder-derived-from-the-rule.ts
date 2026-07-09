@@ -26,7 +26,7 @@
 // region intact, stated plainly, which is why it is the base rule, not an added binding, that holds it.
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { d4Mesh, meshNeighbors } from '@/code/tool/mesh'
+import { d4Mesh, meshCsr } from '@/code/tool/mesh'
 import { edgesFromCsr, neighborDistances } from '@/code/tool/graph'
 import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { largestPositiveCluster } from '@/code/model/self-kit'
@@ -37,29 +37,6 @@ interface Graph {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array
-}
-
-function d4Graph(side: number): Graph {
-  const mesh = d4Mesh({ side })
-  const cellCount = mesh.cellCount
-  const neighbors = meshNeighbors(mesh)
-  const offsets = new Int32Array(cellCount + 1)
-
-  for (let i = 0; i < cellCount; i++) {
-    offsets[i + 1] = offsets[i]! + neighbors[i]!.length
-  }
-
-  const adj = new Int32Array(offsets[cellCount]!)
-
-  let p = 0
-
-  for (let i = 0; i < cellCount; i++) {
-    for (const w of neighbors[i]!) {
-      adj[p++] = w
-    }
-  }
-
-  return { cellCount, offsets, adj }
 }
 
 function neighborsOf(g: Graph): number[][] {
@@ -173,7 +150,7 @@ export default experiment({
     let worstCurvedLate = 0
 
     for (const side of sides) {
-      const flat = d4Graph(side)
+      const flat = meshCsr(d4Mesh({ side }))
       const flatTrace = clusterTrace(
         flat,
         flat.cellCount >> 1,
