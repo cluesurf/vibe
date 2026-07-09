@@ -1,8 +1,7 @@
 # Links: Vibe to other theories
 
 One file per theory, each a cheatsheet of how Vibe maps onto that theory, mapping by
-mapping, with the experiment behind each and a grade. The direction is always
-**Vibe to them**. We do not adopt their framework, we ask what part of it Vibe derives.
+mapping, with the experiment behind each and a grade. The direction is always **Vibe to the other author's theory**. We do not adopt their framework, we ask what part of it Vibe derives.
 
 These are the curated, experiment-backed correspondences. The broader by-author research
 notes live elsewhere in the monorepo. This folder holds only the theories Vibe has

@@ -219,28 +219,6 @@ Those six-and-one are the recurring invariants. Each one is derived, not
 assumed, in more than one framework, each framework starts somewhere
 different, and each derivation carries a control that could have failed.
 
-## A draft reply
-
-> Triangulation is exactly how I have been reading it, and I can tell
-> you what survives from the discrete side. The one that stands out is
-> time. Nobody in the set assumes it. You derive it as accumulated
-> Fisher-Rao arc length, Barbour reads it off time capsules, Chronoflux
-> gets it as the positive divergence of a conserved current, and I get
-> it as the monotone growth of the mesh, the running total of
-> distinction that cannot be undone. Four or five different primitives,
-> one account of time. Right behind it are records as the arrow, the
-> Born rule out of a conserved norm rather than a postulate, Lorentz
-> emerging from a discrete substrate, and gravity coming out entropic.
-> And a fresh one just showed up between your work and mine: a chaos
-> threshold on how long a coherent record can hold. You derive it from
-> the Hyperion geometry, I measure it on the lattice as a Lyapunov
-> ceiling, and the shapes agree. That last one is where I would push
-> next, because it is new and it already triangulates. My rule for
-> counting a survivor is strict: it has to be derived and not assumed in
-> each theory, the primitives have to be genuinely different, and each
-> derivation needs a control that could have come out the boring way and
-> did not.
-
 ## See also
 
 The per-theory correspondence cheatsheets are in

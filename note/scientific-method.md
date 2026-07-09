@@ -19,8 +19,6 @@ passes a gate on charm.
 The stages below run in order. Each one is a gate. A result that skips a gate is a
 work in progress, and we say so.
 
----
-
 ## Stage 0. Fix the ontology
 
 Say what exists before anything runs. No metaphor, no "obviously".
@@ -43,8 +41,6 @@ report the failure, we do not add a knob.
 Everything after Stage 0 must be built out of these pieces. If a new object appears
 later, it either reduces to these or it is a mistake.
 
----
-
 ## Stage 1. State the axioms
 
 Write down the assumptions alone. The consequences come later.
@@ -62,8 +58,6 @@ Everything Vibe treats as forced (the reversible conserving rule, the ternary
 alphabet, dimension eight, the 24-cell) is a claimed consequence of these two, not a
 third and fourth axiom. Where a step still rests on a premise rather than a theorem,
 that premise is named as a premise in the same breath as the result.
-
----
 
 ## Stage 2. Derive everything, in order
 
@@ -84,8 +78,6 @@ If a quantity you need shows up only at the simulation stage and was never deriv
 it belongs back in the axioms or it is unearned. The place to catch this is here,
 before any code.
 
----
-
 ## Stage 3. Write the specification
 
 Before a simulator, write the interface. Every function **pure, deterministic,
@@ -104,8 +96,6 @@ Vibe's specification is the substrate engine:
 The specification is the contract. The simulator is one implementation of it. A
 second implementation of the same specification is the cross-check at Stage 6.
 
----
-
 ## Stage 4. Write the mathematical model
 
 Only now, and still no code. Everything symbolic.
@@ -119,8 +109,6 @@ Only now, and still no code. Everything symbolic.
 
 The model is what the prediction is stated in. If a claim cannot be written in these
 symbols, it is not yet a claim.
-
----
 
 ## Stage 5. Predict before you code
 
@@ -138,8 +126,6 @@ If you code first and read the number off afterwards, you will fit the code to w
 you hoped for without noticing. The prediction written first is the guard against
 that. It is Stage 16 in miniature, applied to every single experiment.
 
----
-
 ## Stage 6. Independent implementations
 
 One implementation can hide a bug that agrees with itself. Two implementations
@@ -153,8 +139,6 @@ floating-point excuse, so the check is exact.
 
 Until a result has a second implementation it is single-source, and single-source is
 a caveat we record.
-
----
 
 ## Stage 7. Turn every law into a test
 
@@ -171,8 +155,6 @@ assertion the mathematics has to pass.
 These run as exact integer equalities rather than loose tolerances. A loose epsilon where the
 quantity should be exact is a method failure. This is how the mathematics becomes
 executable.
-
----
 
 ## Stage 8. Property testing, the deterministic way
 
@@ -192,8 +174,6 @@ comes from **varying size and structure, never from averaging over seeds**. A re
 that only holds on average over random draws is a statement about an ensemble, and we
 label it that way.
 
----
-
 ## Stage 9. Parameter sweeps
 
 Never inspect one interesting example. Run the grid.
@@ -202,8 +182,6 @@ Vibe's axes are the arrow strength, the process rates in the tunable rule, the
 lattice size, and the tessellation. Sweep the full product rather than a single point.
 The single striking picture is the thing that fools you. The grid is the thing that
 tells you where the picture sits and how wide the region around it is.
-
----
 
 ## Stage 10. Draw the phase diagram
 
@@ -214,8 +192,6 @@ dead behaviour. The goal is to find **regions and boundaries** rather than anecd
 result that lives on a knife edge between two regions is fragile, and the phase
 diagram is what exposes the knife edge.
 
----
-
 ## Stage 11. Hunt for invariants
 
 What never changes is often worth more than what does.
@@ -224,8 +200,6 @@ Vibe's invariants include the conserved charge, parity, the Euler characteristic
 patch, the shell growth ratio near 18.278, the F4 automorphism order 1152, and the
 topology of the coin. An invariant that survives every sweep is a spine. When an
 invariant breaks under a change you thought was harmless, that break is a finding.
-
----
 
 ## Stage 12. Scale it
 
@@ -237,8 +211,6 @@ Vibe's rule is to vary the size and watch the measured number. If it settles to 
 limit, the effect is real. If it drifts to zero, the effect was the smallness of the
 box. This is the same discipline as Stage 8, pointed at scale.
 
----
-
 ## Stage 13. Measure emergence, never eyeball it
 
 A picture that looks alive is not a result. A number is.
@@ -248,8 +220,6 @@ length, spectral gap, spectral and box dimension, Fisher information, the Lyapun
 exponent, integrated information, persistent homology, compression ratio. Every
 emergence claim attaches to one of these with a value and a tolerance. If a claim has
 no number, it is a description, and a description is not evidence.
-
----
 
 ## Stage 14. Compare against the standard models
 
@@ -262,8 +232,6 @@ that Vibe **reproduces, subsumes, or beats** one of them on a stated measure. A 
 that reproduces a known construction is graded as a reproduction and cited to its
 source. Reproducing known work is worth doing. Dressing it as new is not.
 
----
-
 ## Stage 15. Try to break it
 
 The most important stage. Every month, ask the one question:
@@ -275,8 +243,6 @@ zero. The substrate where the effect should not appear. The {5,3,4} cell that ca
 no spinor is the model here. It is what makes the {3,4,3,4} spinor result mean
 something, because it is the case that could have said yes and said no. A claim with
 no case that could break it is not a claim, it is a hope.
-
----
 
 ## Stage 16. Lock the blind prediction
 
@@ -292,8 +258,6 @@ the failure that would change my mind
 Then run. This kills hindsight. Once you have seen the number it is easy to tell
 yourself you expected it. The frozen note is the receipt that says whether you did.
 
----
-
 ## Stage 17. Report the spread over one run
 
 Never rest a claim on one run.
@@ -304,8 +268,6 @@ size of the effect. A number that clears its bar by a hair across the family is 
 knife edge. A number that clears it by a wide margin everywhere is a result. Say which
 one you have.
 
----
-
 ## Stage 18. Make it reproducible from one command
 
 Someone else should reproduce every figure from the paper, the code, the version, and
@@ -315,8 +277,6 @@ Vibe has the pieces for this by construction. The rule is deterministic and seed
 so there is no hidden state to leak. Every experiment is registered with its code, its
 parameters, and its file. One command runs the suite and every number comes back the
 same. If a result needs a manual tweak to reproduce, it is not yet a result.
-
----
 
 ## Stage 19. Publish the whole thing, failures included
 
@@ -329,8 +289,6 @@ outcome, recorded next to the successes, never hidden from the tally. A framewor
 only ever publishes its wins is advertising. A framework that publishes where it fails
 is telling you where to trust it.
 
----
-
 ## Stage 20. Close the loop
 
 The pipeline is a circle:
@@ -341,8 +299,6 @@ axioms -> derive -> predict -> simulate -> measure -> compare -> falsify -> refi
 
 Each turn tightens the theory or kills a piece of it. The loop does not end. A theory
 that has stopped looping has stopped being tested.
-
----
 
 ## The immutable experiment record
 
