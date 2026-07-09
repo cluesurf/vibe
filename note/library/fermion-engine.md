@@ -42,7 +42,7 @@ cannot.
 ## The components
 
 | file                     | role                                                                                                                                           |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `exterior-derivative.ts` | the dense reference: boundary maps, `transpose`, `multiply`, `exteriorDerivative`, `kahlerDirac`, `polygonComplex`, `boundaryOfBoundaryIsZero` |
 | `dirac.ts`               | the sparse production engine: `CellComplex`, `cellComplexOf`, `kahlerDirac`, `diracSpectrum`, `kahlerDiracZeroModes`                           |
 

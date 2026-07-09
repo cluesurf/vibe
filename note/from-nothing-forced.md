@@ -56,11 +56,11 @@ Read each row as "candidate space, constraint, survivor". The survivor count is 
 exact census). Relaxing the constraint restores non-uniqueness (the control).
 
 | step | candidate space | constraint | survivor | experiment |
-| --- | --- | --- | --- | --- |
-| 1 tone | small integer alphabets | a vacuum (0) and a mirror (negation) | {-1, 0, +1}, size 3 | [tone-is-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/tone-is-forced.ts) (E-FND-0045) |
+|:--- |:--- |:--- |:--- |:--- |
+| 1 tone | small integer alphabets | a vacuum (0) and a mirror (negation) | {-1, 0, +1}, size 3 | [tone-is-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/tone-is-forced.ts) ([`E-FND-0045`](../test/experiment/foundations/tone-is-forced.ts)) |
 | 2 arrow | the division tower 1, 2, 4, 8, 16 | order (every square at least 0) | the integer line (i squared is -1 breaks it) | [tone-is-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/tone-is-forced.ts), [arrow-from-integer-order](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/arrow-from-integer-order.ts) |
-| 3, 4 eight | the tower levels 0 to 4 | reversible (no zero divisors), filled to the top of the ladder | dimension 8 (last lossless rung) | [forced-derivation-ladder](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/forced-derivation-ladder.ts) (E-FND-0043), [monism-forces-eight](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/monism-forces-eight.ts) |
-| 5 census | the 3^4 = 81 four-slot words | sort by step length | 1 + 8 + 24 + 32 + 16, isolating the 24 | [cell-is-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/cell-is-forced.ts) (E-FND-0044) |
+| 3, 4 eight | the tower levels 0 to 4 | reversible (no zero divisors), filled to the top of the ladder | dimension 8 (last lossless rung) | [forced-derivation-ladder](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/forced-derivation-ladder.ts) ([`E-FND-0043`](../test/experiment/foundations/forced-derivation-ladder.ts)), [monism-forces-eight](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/monism-forces-eight.ts) |
+| 5 census | the 3^4 = 81 four-slot words | sort by step length | 1 + 8 + 24 + 32 + 16, isolating the 24 | [cell-is-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/cell-is-forced.ts) ([`E-FND-0044`](../test/experiment/foundations/cell-is-forced.ts)) |
 | 6 cell | the stepping shells {8, 24, 16} | self-dual (corners = faces) and spin | the 24 (24-cell, binary tetrahedral group, minus one squared is one) | [cell-is-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/cell-is-forced.ts), [base-uniqueness-theorem](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/base-uniqueness-theorem.ts) |
 | 8 law | the 11!! = 10395 line-pairings | full 24-cell (B4) symmetry | 1 (the knit) | [forced-derivation-ladder](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/forced-derivation-ladder.ts), [knit-rule-forced](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/knit-rule-forced.ts) |
 
@@ -85,9 +85,9 @@ is the seed, not coded.
 The equipment is fixed. Now the beat acts.
 
 | face | what runs | property | experiment |
-| --- | --- | --- | --- |
-| tones | the knit (collide then stream) on every cell at once | conserves charge exactly, reversible | [beat-computes-on-mesh](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/beat-computes-on-mesh.ts) (E-FND-0046) |
-| mesh | the wake unfolds the honeycomb shell by shell | exact integers 1, 24, 456, 8376, deterministic | [mesh-unfolds-exactly](https://github.com/cluesurf/vibe/blob/make/test/experiment/geometry/mesh-unfolds-exactly.ts) (E-GMT-0027) |
+|:--- |:--- |:--- |:--- |
+| tones | the knit (collide then stream) on every cell at once | conserves charge exactly, reversible | [beat-computes-on-mesh](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/beat-computes-on-mesh.ts) ([`E-FND-0046`](../test/experiment/foundations/beat-computes-on-mesh.ts)) |
+| mesh | the wake unfolds the honeycomb shell by shell | exact integers 1, 24, 456, 8376, deterministic | [mesh-unfolds-exactly](https://github.com/cluesurf/vibe/blob/make/test/experiment/geometry/mesh-unfolds-exactly.ts) ([`E-GMT-0027`](../test/experiment/geometry/mesh-unfolds-exactly.ts)) |
 | time | the beat count rises | the rise is the arrow | (the wake, above) |
 
 ### The exact numbers
@@ -95,7 +95,7 @@ The equipment is fixed. Now the beat acts.
 - unfolding: **1, 24, 456, 8376** cells per shell, from the single 24-cell by reflection,
   bit-for-bit reproducible. Per-shell ratio climbs to the warp factor, whose EXACT value is
   the largest root of **x^3 - 21x^2 + 51x - 23 = 0**, about **18.2787** (the cone-type
-  transfer matrix, E-GMT-0031); the flat 4D lattice ratio is **~1.30** (polynomial, the
+  transfer matrix, [`E-GMT-0031`](../test/experiment/geometry/warp-factor-minimal-polynomial.ts)); the flat 4D lattice ratio is **~1.30** (polynomial, the
   control).
 - beat: charge conserved as integer equality over 10 beats; forward 10 then backward 10
   recovers the start bit for bit. An erasing rule fails both (the control).
@@ -160,7 +160,7 @@ The floor (why 8 and not a smaller reversible rung), and it is a theorem too. Th
 allows 1, 2, 4, or 8, all lossless. The order-three TRIALITY that ties three generations
 together (the S3 symmetry of the D4 diagram permuting 8v, 8s, 8c) exists at exactly one rank
 of the D family, D4, whose vector dimension is 8, and nowhere below, computed two independent
-ways in triality-forces-eight (E-FND-0050). So no smaller lossless rung can carry three
+ways in triality-forces-eight ([`E-FND-0050`](../test/experiment/foundations/triality-forces-eight.ts)). So no smaller lossless rung can carry three
 generations, and the floor no longer rests on the maximal-differentiation premise. What
 remains a premise is only the wish itself, that the base carry three generations. (Nothing
 blocks the doubling from reaching 8 either, each rung below is still lossless.)
@@ -217,8 +217,8 @@ D4 lattice, which is exactly the flat d4Mesh control used across the suite), and
 a face overfills flat space and opens into negative curvature, the hyperbolic {3,4,3,4}. The
 base takes the hyperbolic one, and that is a PREMISE with a reason, not a theorem: hyperbolic
 is the arena with exponential room and a boundary (the cusp), which the accumulation needs,
-and the measured differentiators are the holographic bound (E-HLG-0032), the cusp stability
-(E-FND-0058), and the spectral gap (E-GRV-0050). The older claim that the 24-cell does not
+and the measured differentiators are the holographic bound ([`E-HLG-0032`](../test/experiment/holography/holography-is-derived.ts)), the cusp stability
+([`E-FND-0058`](../test/experiment/foundations/cusp-observer-stability.ts)), and the spectral gap ([`E-GRV-0050`](../test/experiment/gravity/gravity-screening-size-independent.ts)). The older claim that the 24-cell does not
 fit flat space was wrong and is retired.
 
 *So far, from nothing: the ternary tone (its count is time), lossless combining to the
@@ -308,7 +308,7 @@ sets like {-2, -1, 0, 1, 2} also have both, but "least content" takes the smalle
 most 8) holds because past 8 zero divisors appear and lose-nothing fails. The floor (8 rather
 than 1, 2, or 4) holds because triality, the order-three diagram symmetry the three
 generations need, exists at exactly one rank, D4, vector dimension 8, and nowhere below
-(triality-forces-eight, E-FND-0050). The maximal-differentiation reading is no longer
+(triality-forces-eight, [`E-FND-0050`](../test/experiment/foundations/triality-forces-eight.ts)). The maximal-differentiation reading is no longer
 load-bearing. The residual premise is only that the base carry three generations at all.
 
 **Eight splits into four-plus-four, and only the four that associates is space.** The octonion
@@ -338,8 +338,8 @@ matches the 12 lines into 6 pairs, and the number of ways to match 12 things int
 treat some directions specially). Requiring the crystallographic B4 symmetry leaves exactly
 one matching standing, the knit, while the full F4 (which adds triality) leaves NONE, and an
 exhaustive stabilizer scan shows no matching anywhere is more symmetric than the knit
-(E-FND-0059). The three maximally symmetric matchings across the three frames are one
-triality orbit, one per generation, the coset index [F4:B4] = 3 (E-FND-0054).
+([`E-FND-0059`](../test/experiment/foundations/b4-maximal-collision-symmetry.ts)). The three maximally symmetric matchings across the three frames are one
+triality orbit, one per generation, the coset index [F4:B4] = 3 ([`E-FND-0054`](../test/experiment/foundations/three-generations-cosets.ts)).
 
 ## The one-line summary
 
@@ -352,7 +352,7 @@ each beat, reversibly, while the wake grows the edge, and that growth is time.
 
 The math forces the structure. What it does not force, and the derivation takes as
 premises: the vacuum-and-mirror requirement, reversibility ("lose nothing", now recognized
-as the seed itself read as a condition on change, E-FND-0060), that the base carries three
+as the seed itself read as a condition on change, [`E-FND-0060`](../test/experiment/foundations/reversibility-is-the-seed.ts)), that the base carries three
 generations (what makes the triality floor at eight bite), a face per neighbour, the
 hyperbolic choice among the two regular 24-cell honeycombs (flat {3,4,3,3} versus
 hyperbolic {3,4,3,4}), and the reading of the signed ternary tone as valence (pain, peace,

@@ -187,15 +187,15 @@ edge, so two such balls, once separated, overlap in an ever-tinier fraction.
 
 The experiments in this repo measure exactly this:
 
-- `quantum/dynamics` (E-QTM-0010) first flagged the tension, but it ASSUMED the
+- `quantum/dynamics` ([`E-QTM-0010`](../../test/experiment/quantum/dynamics.ts)) first flagged the tension, but it ASSUMED the
   shared fraction decays as exp(-distance / scale) and sampled it randomly.
-- `quantum/shared-past-curvature` (E-QTM-0029) MEASURES the shared fraction directly
+- `quantum/shared-past-curvature` ([`E-QTM-0029`](../../test/experiment/quantum/shared-past-curvature.ts)) MEASURES the shared fraction directly
   from the rule's causal cones, deterministically, with exact integer counts. It
   finds the local shared past collapsing toward zero with separation on the curved
   mesh, while a flat control holds it far longer. Mapped through the
   measurement-dependence bound, the reachable S falls back to the classical value 2
   as the measurements separate. The prior tension, now a measured fact.
-- `quantum/large-hyperbolic-decay` (E-QTM-0032) confirms it on a genuine 20,000-cell
+- `quantum/large-hyperbolic-decay` ([`E-QTM-0032`](../../test/experiment/quantum/large-hyperbolic-decay.ts)) confirms it on a genuine 20,000-cell
   {3,4,3,4} hyperbolic tessellation (real cycles, not a tree stand-in): shell growth
   is exponential there and polynomial on the flat lattice, which is the geometric
   cause of the collapse.
@@ -207,19 +207,19 @@ distance. That is the open negative, stated honestly.
 
 Four experiments chase the open question, and they sharpen it into measured facts.
 
-- `quantum/seed-correlation-dynamics` (E-QTM-0030) runs the ACTUAL rule from a seed.
+- `quantum/seed-correlation-dynamics` ([`E-QTM-0030`](../../test/experiment/quantum/seed-correlation-dynamics.ts)) runs the ACTUAL rule from a seed.
   A localized seed manufactures **zero** correlation beyond the causal horizon (the
   local rule cannot create spacelike correlation), while a correlation imprinted on
   the initial surface is **preserved exactly** by the reversible rule at every
   distance. So the dynamics confirms it: a distance-independent spacelike correlation
   has to be seed-anchored, not locally made.
-- `quantum/boundary-shared-past` (E-QTM-0031) tests the holographic escape. On a
+- `quantum/boundary-shared-past` ([`E-QTM-0031`](../../test/experiment/quantum/boundary-shared-past.ts)) tests the holographic escape. On a
   genuine hyperbolic tessellation the shared past tracks the **bulk** distance, and
   with bulk distance held fixed it does **not** track the **spatial** boundary angle.
   So the simple "the correlation rides on the boundary at infinity" shortcut does not
   operate. An honest negative. The surviving distance-independent channel is the
   **past** boundary, the shared seed, not the spatial boundary.
-- `quantum/measurement-independence-signature` (E-QTM-0033) turns the measured shared
+- `quantum/measurement-independence-signature` ([`E-QTM-0033`](../../test/experiment/quantum/measurement-independence-signature.ts)) turns the measured shared
   fraction into the falsifiable prediction: a finite **critical separation** beyond
   which even aligned superdeterministic settings cannot reach the quantum value,
   smaller on the curved substrate than the flat one, and a violation that **vanishes**
@@ -248,14 +248,14 @@ initial conditions.
 What the model still owes is therefore sharp and testable, not vague:
 
 1. Show, by running the actual rule from a seed, that a seed-anchored correlation
-   survives at spacelike separation. **Done in part** by E-QTM-0030: the rule
+   survives at spacelike separation. **Done in part** by [`E-QTM-0030`](../../test/experiment/quantum/seed-correlation-dynamics.ts): the rule
    preserves a seed-imprinted correlation exactly and manufactures none locally. What
    remains is to make the surviving correlation reach the full quantum strength, not
    just the classical value the bare rule gives.
 2. Show it can do so **without fine-tuning** the seed. This is the deep one, still
    open, and it may be a genuine limit rather than an unfinished sum.
 3. Test whether the surviving correlation rides on the **boundary**. **Done in part**
-   by E-QTM-0031: the SPATIAL boundary at infinity is ruled out (the shared past is
+   by [`E-QTM-0031`](../../test/experiment/quantum/boundary-shared-past.ts): the SPATIAL boundary at infinity is ruled out (the shared past is
    bulk-mediated), so the only boundary that carries it is the PAST boundary, the
    seed. The holographic route, if there is one, is past-directed.
 4. Separately, derive the **single definite outcome** of a measurement from the rule,
@@ -280,17 +280,17 @@ chase it are listed above.
 
 ## See also
 
-- `test/experiment/quantum/shared-past-curvature.ts` (E-QTM-0029), the measured
+- `test/experiment/quantum/shared-past-curvature.ts` ([`E-QTM-0029`](../../test/experiment/quantum/shared-past-curvature.ts)), the measured
   shared-past collapse and the seed channel.
-- `test/experiment/quantum/seed-correlation-dynamics.ts` (E-QTM-0030), the rule run
+- `test/experiment/quantum/seed-correlation-dynamics.ts` ([`E-QTM-0030`](../../test/experiment/quantum/seed-correlation-dynamics.ts)), the rule run
   from a seed: it preserves a seed-anchored correlation and manufactures none locally.
-- `test/experiment/quantum/boundary-shared-past.ts` (E-QTM-0031), the honest negative
+- `test/experiment/quantum/boundary-shared-past.ts` ([`E-QTM-0031`](../../test/experiment/quantum/boundary-shared-past.ts)), the honest negative
   for the spatial-boundary holographic route.
-- `test/experiment/quantum/large-hyperbolic-decay.ts` (E-QTM-0032), the collapse
+- `test/experiment/quantum/large-hyperbolic-decay.ts` ([`E-QTM-0032`](../../test/experiment/quantum/large-hyperbolic-decay.ts)), the collapse
   confirmed on a genuine 20k-cell {3,4,3,4} hyperbolic tessellation.
-- `test/experiment/quantum/measurement-independence-signature.ts` (E-QTM-0033), the
+- `test/experiment/quantum/measurement-independence-signature.ts` ([`E-QTM-0033`](../../test/experiment/quantum/measurement-independence-signature.ts)), the
   critical separation and the falsifiable alignment-contingency signature.
-- `test/experiment/quantum/dynamics.ts` (E-QTM-0010), the original assumed-decay
+- `test/experiment/quantum/dynamics.ts` ([`E-QTM-0010`](../../test/experiment/quantum/dynamics.ts)), the original assumed-decay
   tension this supersedes.
 - `note/experimental-methodology.md`, the standard these experiments are held to,
   including why an honest negative is a result, not a failure.

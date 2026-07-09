@@ -34,7 +34,7 @@ Source, `code/operator/associative-memory.ts` and
 ## The components
 
 | file                                                     | role                                                                                                                                                                    |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `code/operator/associative-memory.ts`                    | the SITDAC engine, `makeAssociativeMemory`, `ternaryWord`, `storeWord`, `readWord`, `matchScore`, `search`, `searchExact`, `searchBest`, `pickNearest`, `broadcastWave` |
 | `code/measure/associative-recall.ts`                     | the measures, `exactRecallRate`, `nearestRecallRate`, `falsePositiveRate`, `coverageRadius`, `radiusCapacity`                                                           |
 | `code/measure/associative-memory.ts`                     | the vector-symbolic (hyperdimensional) variant, `vsaRecallAccuracy`, bind and bundle and unbind and clean up                                                            |

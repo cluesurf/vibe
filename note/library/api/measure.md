@@ -7,7 +7,7 @@ A measure takes a substrate or a state and returns a number. Use them to read ge
 ### Geometry
 
 | measure (`@/code/measure/<file>`) | what it returns |
-| --- | --- |
+|:--- |:--- |
 | `bfsShells` (`shells`) | shell counts and depths from a root, breadth-first |
 | `geodesicBall` (`shells`) | the list of cells within a given radius of a root |
 | `shellGrowthRatio` (`shell-growth-ratio`) | how fast shells grow per step (1 is flat, higher is hyperbolic) |
@@ -22,7 +22,7 @@ A measure takes a substrate or a state and returns a number. Use them to read ge
 ### Relativity and dynamics
 
 | measure (`@/code/measure/<file>`) | what it returns |
-| --- | --- |
+|:--- |:--- |
 | `lightConeRadii` (`light-cone`) | the front radius per beat (the discrete light cone) |
 | `lorentzIsotropy` (`lorentz`) | how close front speed is to direction-independent |
 | `directionalFrontDistances` (`front-speed`) | how far a front reaches in each direction |
@@ -35,7 +35,7 @@ A measure takes a substrate or a state and returns a number. Use them to read ge
 ### Quantum and information
 
 | measure (`@/code/measure/<file>`) | what it returns |
-| --- | --- |
+|:--- |:--- |
 | `chsh` (`bell`) | the CHSH Bell value S (above 2 breaks local realism) |
 | `regionEntanglementEntropy` (`entanglement`) | entanglement entropy of a region of a free-fermion state |
 | `algebraicConnectivity` (`integration`) | how integrated (hard to cut) the graph is |
@@ -44,7 +44,7 @@ A measure takes a substrate or a state and returns a number. Use them to read ge
 ### Fields and gravity
 
 | measure (`@/code/measure/<file>`) | what it returns |
-| --- | --- |
+|:--- |:--- |
 | `wilsonLoopValue` / `wilsonLoopPhase` (`wilson-loop`) | gauge holonomy around a loop |
 | `creutzRatioFromLoops` (`wilson-loop`) | confinement signal from loop areas |
 | `aharonovBohmPhase` (`aharonov-bohm`) | phase picked up around enclosed flux |
@@ -54,7 +54,7 @@ A measure takes a substrate or a state and returns a number. Use them to read ge
 ### Statistics and fits
 
 | measure (`@/code/measure/<file>`) | what it returns |
-| --- | --- |
+|:--- |:--- |
 | `powerLawFit` (`regression`) | best-fit exponent and max deviation in log-log |
 | `logLogSlope` / `linearFit` (`regression`) | slope of a log-log or linear fit |
 | `localForceLawExponent` (`regression`) | local exponent of a force law at a radius |
@@ -65,7 +65,7 @@ A measure takes a substrate or a state and returns a number. Use them to read ge
 ### Cross-tessellation battery
 
 | measure (`@/code/measure/<file>`) | what it returns |
-| --- | --- |
+|:--- |:--- |
 | `measureTessellation` (`tessellation-battery`) | one Schlafli symbol in, full report out (cells, growth, hyperbolic, crystallographic, spinor) |
 
 ## Use it

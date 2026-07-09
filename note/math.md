@@ -24,7 +24,7 @@ The substrate primitives. The mesh and the tone are the two objects everything e
 
 ### tool: substrate, arithmetic, containers, randomness
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `tool/balanced-ternary` | Balanced ternary, base three with digits {-1, 0, +1}, which is exactly the tone alphabet | `balancedTernaryCap`, `toBalancedTernary`, `fromBalancedTernary`, `isBalancedTernaryField` | - | gravity |
 | `tool/bitset` | Bit-packed relation matrix | `BitMatrix`, `makeBitMatrix`, `setBit`, `getBit`, ... | - | cosmology |
 | `tool/embedding` | Optional provenance for a substrate that came from sprinkling a manifold | `ElementId`, `WaveProfile`, `ManifoldSpec`, `Embedding`, ... | - | - |
@@ -40,7 +40,7 @@ The substrate primitives. The mesh and the tone are the two objects everything e
 
 ### tone: the ternary alphabet and configuration
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `tone/alphabet` | Finite tone alphabets | `Alphabet`, `slotsPerElement`, `valueCount`, `randomValue` | - | foundations |
 | `tone/configuration` | A configuration assigns a tone value to every element (or every component of every element, for the spinor alphabet) | `Configuration`, `makeConfiguration`, `getTone`, `setTone`, ... | `tone/alphabet`, `tool/rng` | foundations, selves |
 | `tone/pack` | The tone bit-pack, the second-order memory of a cell carried in one integer | `pack`, `currentOf`, `previousOf`, `signedTone`, ... | - | cosmology |
@@ -51,7 +51,7 @@ The substrate primitives. The mesh and the tone are the two objects everything e
 The one committed law and its audits. `rule/collision` is the local in-place map on a cell's direction slots. `rule/lattice-gas` streams then collides over any mesh. `check/*` turns the rule's claims (charge conservation, momentum conservation, reversibility) into predicates that are verified rather than trusted.
 
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `check/invariant` | Checkable conservation predicates of the rule: total charge, total momentum, reversibility | `totalMomentum`, `conservesMomentum`, `conservesCharge`, `isReversible` | `rule/collision`, `rule/lattice-gas`, `tone/will` | fluids, foundations, relativity, selves |
 | `check/lattice-gas-laws` | The conservative-logic laws of the directional lattice gas, as reusable checks | `streamIsPermutation`, `toneCensus`, `censusEqual` | `rule/lattice-gas`, `tool/mesh` | foundations |
 | `check/reversibility` | Reversibility round-trip check for the directional lattice gas: run the knit forward a number of beats then backward the same number, and measure t... | `roundtrip` | `rule/collision`, `rule/lattice-gas`, `tone/will` | foundations, quantum |
@@ -71,7 +71,7 @@ The one committed law and its audits. `rule/collision` is the local in-place map
 ## 3. Geometry (`code/geometry`)
 
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `geometry/distance` | The one hyperbolic distance, in its two equivalent forms | `poincareCoshFromParts`, `poincareCosh`, `poincareDistance`, `poincareDistanceIndexed`, ... | - | gauge |
 | `geometry/packing` | Sphere-packing and kissing-configuration helpers | `unit`, `maxPairwiseCosine`, `isKissingConfiguration`, `canExtendKissing`, ... | - | foundations |
 | `geometry/tree-embedding` | Sarkar embedding of a tree into the Poincare disk, and the same recursive placement in the Euclidean plane, for the tree-embedding-distortion data-... | `hyperbolicDistance`, `completeTree`, `treeDistance`, `embedTree`, ... | - | data-structure |
@@ -82,7 +82,7 @@ Exact group theory and linear algebra. The group layer carries the discrete symm
 
 ### algebra: top level
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `algebra/binary-tetrahedral` | The binary tetrahedral group 2T, the 24 unit Hurwitz quaternions, which are the 24 directions of the cell seen as the double cover of the rotation... | `Quaternion`, `quaternionMultiply`, `quaternionConjugate`, `binaryTetrahedralGroup`, ... | - | spin |
 | `algebra/helicity` | Helicity of a polarization, the spin of a wave read off how its polarization rotates | `Matrix3`, `rotationZ`, `conjugateTensor`, `tensorInner`, ... | - | gravity |
 | `algebra/jordan` | The Hermitian octonionic matrices and their Jordan product | `OctonionMatrix`, `hermitianOctonionDimension`, `octonionMatrixZero`, `octonionMatrixIdentity`, ... | `algebra/octonion` | spin |
@@ -92,7 +92,7 @@ Exact group theory and linear algebra. The group layer carries the discrete symm
 
 ### algebra/group: discrete symmetry
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `algebra/group/automorphism` | Symmetry counts for a root system: the Weyl (reflection) group order, the full automorphism group order, the outer automorphism order (their ratio)... | `weylGroupOrder`, `automorphismGroupOrder`, `outerAutomorphismOrder`, `diagramAutomorphismOrder` | `algebra/group/root-system` | foundations, geometry, gravity |
 | `algebra/group/cell-24` | The 24-cell as the 24 unit Hurwitz quaternions (binary tetrahedral 2T), with triality cosets | `cell24Vertices`, `omega`, `trialityClasses` | `algebra/group/quaternion` | foundations, substrate-survey |
 | `algebra/group/clifford` | Clifford algebra: the Pauli matrices, the 3+1D Dirac gamma matrices, and the spin generators | `ComplexMatrix`, `cmZero`, `cmIdentity`, `cmMultiply`, ... | `algebra/linear/complex` | gauge, relativity, spin |
@@ -110,7 +110,7 @@ Exact group theory and linear algebra. The group layer carries the discrete symm
 
 ### algebra/linear: numerical linear algebra
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `algebra/linear/bethe-resolvent` | The Bethe lattice (infinite regular tree) resolvent by the cavity recursion | `betheCavityDecay`, `betheBoundaryExponent`, `finiteTreeResolventRatio` | - | gravity, holography |
 | `algebra/linear/complex` | Complex scalars for operator APIs | `Complex`, `complex`, `cAdd`, `cMul`, ... | - | gauge, relativity, spin |
 | `algebra/linear/complex-vector` | A dense complex vector stored as split real and imaginary Float64Arrays, the layout the iterative spectral methods want (Lanczos, the kernel polyno... | `Cx`, `newCx`, `dotR` | - | gauge |
@@ -130,7 +130,7 @@ The space builders. These turn the symmetry of the algebra layer into concrete c
 
 ### substrate: top level
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `substrate/bethe-tree` | A Bethe lattice: a regular tree of coordination number q, grown outward from a root to the given depth | `betheTree` | - | geometry |
 | `substrate/branching-order` | A 1+1 causal set grown by a pure local branching rule, with no metric imposed | `growBranchingOrder` | `tool/bitset`, `tool/poset`, `tool/rng` | cosmology |
 | `substrate/causal-lattice` | A 1+1 causal lattice: integer points in a Minkowski diamond, with the causal order dt > 0 and dt >= \|dx\| | `causalLattice` | `tool/embedding`, `tool/poset` | relativity |
@@ -169,7 +169,7 @@ The space builders. These turn the symmetry of the algebra layer into concrete c
 
 ### substrate/coxeter: Coxeter groups and tessellations
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `substrate/coxeter/addressing-3434` | Self-describing O(log n) addressing for the {3,4,3,4} 4D hyperbolic honeycomb (Margenstern's splitting / Fibonacci-addressing program, extended fro... | `Addressing`, `buildAddressing`, `ConfluenceAutomaton`, `buildConfluenceAutomaton`, ... | `substrate/coxeter/cell-direct` | addressing, computation, data-structure, gauge, geometry, gravity, +1 |
 | `substrate/coxeter/cell-direct` | Cell-direct Coxeter engine | `CellGraph`, `buildCellGraph`, `buildEuclideanLattice`, `HorospherePatch`, ... | `substrate/coxeter/frame`, `substrate/coxeter/minkowski`, `substrate/coxeter/schlafli`, `tool/graph` | associative, computation, cosmology, foundations, gauge, geometry, +8 |
 | `substrate/coxeter/cell-scale` | Scalable EXACT cell engine for the dodecagrid {5,3,4}, via modular fingerprints (the binary-encoding path) | `ScaleGraph`, `buildDodecagrid`, `buildDodecagridFast`, `buildSliver`, ... | `tool/graph`, `tool/integer` | addressing, computation, foundations, gauge, holography, quantum, +4 |
@@ -190,7 +190,7 @@ The space builders. These turn the symmetry of the algebra layer into concrete c
 
 ### substrate/margenstern: tiling addresses
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `substrate/margenstern/fibonacci-tree` | The standard Fibonacci tree of the pentagrid/heptagrid, navigated by PURE ADDRESS ARITHMETIC, no geometry | `father`, `continuator`, `nodeType`, `sons`, ... | `substrate/margenstern/zeckendorf` | - |
 | `substrate/margenstern/grid` | A complete Margenstern-addressed, walkable hyperbolic grid for ANY regular tessellation, the pentagrid {5,4} and heptagrid {7,3} in 2D, the dodecag... | `TileColor`, `MargensternGrid`, `buildMargensternGrid` | `substrate/coxeter/cell-direct`, `substrate/margenstern/zeckendorf`, `substrate/tile-source` | - |
 | `substrate/margenstern/numeration` | A general positional NUMERATION in a grid's own growth basis, Margenstern's "language of the splitting" (Vol I, Ch 3.3.3) generalized past the pent... | `Numeration`, `makeNumeration`, `recurrenceBasis`, `growthBasis` | - | - |
@@ -203,7 +203,7 @@ The space builders. These turn the symmetry of the algebra layer into concrete c
 Linear and nonlinear operators that act on a substrate or a field: Laplacians, the Kahler-Dirac and gauge-Dirac operators, lattice fermions, Maxwell and Einstein operators, cellular-automaton Hamiltonians, register and logic machines built from the rule itself.
 
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `operator/associative-memory` | A content-addressable associative memory on any cell graph, Potter's SITDAC model realized on a tessellation | `AssociativeMemory`, `makeAssociativeMemory`, `ternaryWord`, `storeWord`, ... | `measure/shells` | associative |
 | `operator/benincasa-dowker` | The smeared Benincasa-Dowker d'Alembertian acting on a scalar test function, built only from the causal order of a 2D Minkowski sprinkling | `benincasaDowkerDalembertian` | `dynamics/action`, `tool/poset` | gravity |
 | `operator/block` | 2x2 complex Wilson-Dirac blocks and the shared sub-block assembler | `Block`, `addComplexBlock` | `algebra/linear/dense` | - |
@@ -260,7 +260,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Geometry, dimension, shells
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/dimension` | Dimension estimators | `dimensionFromOrderingFraction`, `myrheimMeyerDimension`, `ballGrowth`, `ballGrowthDimension`, ... | `measure/regression`, `tool/poset`, `tool/substrate` | addressing, cosmology, foundations, geometry, quantum, relativity, +2 |
 | `measure/boundary-dimension` | The intrinsic dimension of a cell graph's outer boundary shell, the dimension the holographic dual would live in (an S^2 screen reads ~2, an S^3 sc... | `boundaryDimension` | `algebra/vector`, `measure/dimension`, `substrate/coxeter/cell-direct`, `tool/graph` | holography |
 | `measure/cusp-dimension` | The dimension of a regular hyperbolic honeycomb, read the curvature-AWARE way | `CuspDimension`, `cuspDimension` | `measure/dimension`, `measure/shells`, `substrate/coxeter/cell-direct`, `substrate/proximity-graph` | geometry |
@@ -278,7 +278,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Relativity and Lorentz
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/lorentz` | Lorentz isotropy: the decisive P3 test | `lorentzIsotropy`, `latticeAnisotropy`, `lorentzSafety` | `measure/dispersion`, `measure/group-speed`, `measure/isotropy`, `tool/embedding` +2 more | addressing, cosmology, foundations, geometry, relativity, selves, +1 |
 | `measure/rapidity` | Rapidity of timelike causal links in a 1+1 causal set, and the Lorentz boost of the coordinates | `linkRapidities`, `boostEnergyMomentum`, `addVelocities`, `relativisticEnergy`, ... | - | relativity |
 | `measure/swerve-diffusion` | The swerve diffusion: the slope of rapidity variance versus proper time (the diffusion constant: variance = 2 k tau) | `swerveDiffusion` | `dynamics/swerve-walk`, `measure/regression`, `substrate/sprinkle-box`, `tool/rng` | relativity |
@@ -296,7 +296,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Gravity
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/entropic-gravity` | Entropic gravity, the Verlinde route | `ballRegion`, `screenBitSeries`, `logLogExponent`, `verlindeForceLaw` | `measure/entanglement` | gravity |
 | `measure/gravity-exponent` | The gravity falloff exponent alpha in phi ~ r^(-alpha), measured from the screened graph-Laplacian Green's function | `gravityExponent` | `measure/regression`, `measure/shells`, `operator/screened-greens-function` | relativity |
 | `measure/gravity-potential` | Closed-form static gravitational potentials, the weak-field falloff laws used to compare substrate dimensionality | `newtonianPotential3D`, `branePotential`, `weakFieldLightDeflection` | - | gravity |
@@ -309,7 +309,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Quantum and information
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/bell` | CHSH: the Bell hinge (P7) | `Lambda`, `chsh`, `chshShared` | `tool/rng` | foundations, quantum |
 | `measure/born-rule` | The Born-rule self-consistency measures | `patchesFromAmplitudes`, `quadratureAdditivityResidual`, `exponentResidual`, `fairSampleFrequencies` | `tool/rng` | quantum |
 | `measure/contextuality` | The Peres-Mermin magic square: state-independent quantum contextuality, computed on the two-qubit Pauli algebra (which is the {3,4,3,4} cell's own... | `peresMerminSquare` | `algebra/group/clifford`, `algebra/linear/complex` | quantum |
@@ -330,7 +330,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Gauge and topology
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/wilson-loop` | Wilson loops: gauge-invariant observables on a gauge field | `wilsonLoopPhase`, `wilsonLoopValue`, `creutzRatioFromLoops`, `staticPotentialProxy` | `tool/gauge-field` | gauge |
 | `measure/aharonov-bohm` | Aharonov-Bohm phase: the phase a charged particle accumulates around a loop, even where the local field strength is zero | `aharonovBohmPhase` | `measure/wilson-loop`, `tool/gauge-field` | - |
 | `measure/anyon-braiding` | Anyon braiding, the mutual statistics of a Z_n gauge theory | `squareLoop`, `zNVortexHolonomy` | - | spin |
@@ -341,7 +341,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Standard Model and matter
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/division-algebra` | The Cayley-Dickson tower of normed algebras, R, C, H, O, S (the reals, complexes, quaternions, octonions, sedenions), and where it stops being a di... | `cayleyConjugate`, `cayleyMultiply`, `normSquared`, `hasZeroDivisor`, ... | - | foundations |
 | `measure/octonion-fermions` | One generation of Standard-Model fermions from the complexified octonions (the Furey / Dixon / Gunaydin-Gursey construction) | `octonionFermionGeneration` | `measure/division-algebra` | foundations, gauge |
 | `measure/standard-model-charges` | The Standard Model fermion charges of one generation, the 16 of so(10) (15 SM Weyl fermions plus one right-handed neutrino), and the group-theory n... | `GenerationFermion`, `STANDARD_MODEL_GENERATION`, `generationFermionCount`, `weinbergAngleAtUnification`, ... | - | gauge |
@@ -356,7 +356,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Tone fields and fluid measures
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/agreement` | Agreement measures between two ternary tone vectors, plus coarse-graining a tone field to cluster majorities | `agreementFraction`, `disagreementFraction`, `targetFidelity`, `clusterMajority` | - | renormalization, selves |
 | `measure/alignment` | Alignment measures: coherence, conflict, resonance, and decisiveness, read off tone patterns | `coherenceOrder`, `conflictFraction`, `pairConflict`, `meanPairwiseConflict`, ... | - | selves |
 | `measure/tone-census` | Scalar summaries of a ternary tone buffer (values in -1, 0, +1) | `totalCharge`, `liveCount` | - | foundations, holography, quantum, relativity, substrate-survey |
@@ -382,7 +382,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 
 ### Self, memory, data structure, holography
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `measure/associative-memory` | Deterministic vector-symbolic (hyperdimensional) associative memory, for the capacity data-structure experiment | `vsaRecallAccuracy` | - | data-structure |
 | `measure/associative-recall` | Measures for a content-addressable associative memory, recall accuracy, capacity versus radius, and search latency | `exactRecallRate`, `nearestRecallRate`, `falsePositiveRate`, `coverageRadius`, ... | `measure/shells`, `operator/associative-memory`, `tool/rng` | associative |
 | `measure/navigation` | Navigation without addressing: can a vibe route a message using only its neighbors and embedding coordinates, with no global table and no Fibonacci... | `greedyRouteHops`, `greedyRoutingSuccess`, `routingWithBacktrack` | `geometry/distance`, `tool/graph`, `tool/rng` | addressing, data-structure, relativity, substrate-survey |
@@ -403,7 +403,7 @@ The biggest layer. A measure reads a number off a state, a substrate, an operato
 Time evolution. Monte Carlo over causal sets (MCMC, parallel tempering, Wang-Landau, uniform sampling, exact enumeration), lattice gauge dynamics (Wilson, SU(2), Schwinger), RK4 integrators (Friedmann, inflaton, orbits, free fall), reduced field models (Ginzburg-Landau, shell-model turbulence, morphogenesis), and the perception sweeps that run the rule on edge lists.
 
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `dynamics/action` | A causal-set action: a real-valued functional of the order, the weight exponent in the sum over histories | `Action`, `benincasaDowkerAction`, `smearedKernel2D`, `smearedBenincasaDowker`, ... | `measure/dimension`, `tool/bitset`, `tool/poset` | cosmology, foundations, gravity, quantum, substrate-survey |
 | `dynamics/bath` | Boundary operations modelling the open or growing substrate on a finite lattice | `isBoundaryCell`, `absorbBoundary`, `frontierToPeace` | `tone/will` | selves |
 | `dynamics/central-force-orbit` | Planar orbits under a central gravitational force in d spatial dimensions, integrated with RK4 | `centralForceAcceleration`, `integrateCentralForceOrbit` | - | cosmology |
@@ -464,7 +464,7 @@ Time evolution. Monte Carlo over causal sets (MCMC, parallel tempering, Wang-Lan
 Renormalization and emergence: blocking a graph, decimating a field, fitting effective rules, extracting the macroscopic law from the microscopic one.
 
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `coarse/active-persistence` | Active persistence, a self acting to survive (the observer chunk, the act-to-persist frontier of E1) | `PersistenceResult`, `activePersistence` | `model/self-kit`, `tool/rng` | selves |
 | `coarse/block-charge-tower` | Real-space block-charge renormalization tower on a 1D field | `BlockChargeLevel`, `blockChargeTower` | - | renormalization |
 | `coarse/causal-emergence` | The causal-emergence layer (Hoel effective information) of the coarse-graining engine | `effectiveInformation`, `coarseGrainTpm`, `emergenceGain` | - | selves |
@@ -489,13 +489,13 @@ Controls are the null baselines a real result must beat. Model holds shared mode
 
 ### control: null baselines
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `control/lossy-collision` | A lossy, non-invertible collision, the negative control for reversibility and purification experiments | `erasingCollision` | `rule/collision` | fluids, foundations, gravity, method, quantum, relativity |
 | `control/null` | Null controls (shuffled / charge-preserving baselines) a real result must beat | `randomNull`, `preservesCharge`, `shuffledToneField` | `tone/will`, `tool/rng` | renormalization |
 
 ### model: shared constructions
 | Module | Math it implements | Key exports | Prerequisites | Used by (experiments) |
-|---|---|---|---|---|
+|:--- |:--- |:--- |:--- |:--- |
 | `model/deliberation` | Deliberation: a phenomenological model of how a DETERMINISTIC self makes a choice | `Tone`, `ternaryVector`, `makeSelf`, `settle`, ... | `operator/hopfield`, `tool/rng` | computation, selves |
 | `model/selection` | Deterministic evolution: variation plus persistence-selection, with no randomness | `evolvePopulation` | `model/deliberation`, `operator/hopfield`, `tool/rng` | selves |
 | `model/self-kit` | Shared dynamics for the self experiments (P178 to P184) | `Graph`, `Rng`, `toCSR`, `bulkGraph`, ... | `substrate/coxeter/cell-direct`, `substrate/coxeter/cell-scale`, `tool/rng` | cosmology, geometry, selves, substrate-survey |

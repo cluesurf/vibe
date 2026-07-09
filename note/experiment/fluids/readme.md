@@ -12,39 +12,39 @@ The suite then finds where genuine hydrodynamics does emerge (the momentum-conse
 
 No dissipation without a bath. The conserved modes recur rather than decay, so viscosity comes from the boundary.
 
-- **E-FLD-0006** - a shear recurs on the reversible closed bulk but dissipates on the open mesh, so viscous momentum diffusion is bath-driven, not a bulk property.
-- **E-FLD-0004** - the committed collision has no finite bulk shear viscosity, the shear envelope oscillates without decay (an inviscid, near-conserved sound mode), and the open mesh sets all the dissipation.
-- **E-FLD-0002** - the conserved charge wave also recurs in the reversible bulk rather than diffusing, so both currents, charge and momentum, are non-dissipative in the bulk and real charge diffusion needs the bath.
+- **[`E-FLD-0006`](../../../test/experiment/fluids/shear-dissipation-bath.ts)** - a shear recurs on the reversible closed bulk but dissipates on the open mesh, so viscous momentum diffusion is bath-driven, not a bulk property.
+- **[`E-FLD-0004`](../../../test/experiment/fluids/no-bulk-viscosity.ts)** - the committed collision has no finite bulk shear viscosity, the shear envelope oscillates without decay (an inviscid, near-conserved sound mode), and the open mesh sets all the dissipation.
+- **[`E-FLD-0002`](../../../test/experiment/fluids/charge-diffusion-bath.ts)** - the conserved charge wave also recurs in the reversible bulk rather than diffusing, so both currents, charge and momentum, are non-dissipative in the bulk and real charge diffusion needs the bath.
 
 ## When a collision fakes viscosity
 
 A richer collision can damp a shear, but the scaling exposes it as ballistic, not diffusive. Geometry (coin richness) is what decides whether a working fluid appears.
 
-- **E-FLD-0005** - a richer momentum-mixing collision damps a shear but ballistically, the decay time scales as wavelength not wavelength squared and the apparent nu grows with scale, so it is not a genuine viscosity.
-- **E-FLD-0001** - a configuration-controlled (chaotic, Fredkin-gated) reversible collision is still ballistic with a decay exponent near one, so deterministic chaos does not give viscosity.
-- **E-FLD-0003** - a shear dissipates substantially on the rich 24-direction D4 coin but barely on the impoverished 6-direction cubic coin, the four-dimensional FHP-not-HPP lesson, coin richness makes the fluid.
+- **[`E-FLD-0005`](../../../test/experiment/fluids/richer-collision-ballistic.ts)** - a richer momentum-mixing collision damps a shear but ballistically, the decay time scales as wavelength not wavelength squared and the apparent nu grows with scale, so it is not a genuine viscosity.
+- **[`E-FLD-0001`](../../../test/experiment/fluids/chaotic-collision-ballistic.ts)** - a configuration-controlled (chaotic, Fredkin-gated) reversible collision is still ballistic with a decay exponent near one, so deterministic chaos does not give viscosity.
+- **[`E-FLD-0003`](../../../test/experiment/fluids/coin-richness-shear.ts)** - a shear dissipates substantially on the rich 24-direction D4 coin but barely on the impoverished 6-direction cubic coin, the four-dimensional FHP-not-HPP lesson, coin richness makes the fluid.
 
 ## Genuine emergent hydrodynamics
 
 Where real fluid transport does appear, the momentum-conserving gas, with a true k squared viscosity, a sound speed, and a channel profile.
 
-- **E-FLD-0011** - the momentum-conserving gas has a finite shear viscosity, the shear-mode decay rate scales as k squared with one nu across wavenumbers and sizes, while the pinning pair table has no shear mode at all.
-- **E-FLD-0013** - a density bump radiates a ballistic pulse with one well-defined sound speed near 1/sqrt(2), while the pinning pair table leaves the bump frozen.
-- **E-FLD-0012** - a decaying plug in a bounce-back channel develops a parabola-like Poiseuille profile under the momentum-conserving bulk, and stays flat (ohmic) under the momentum-losing pair table.
+- **[`E-FLD-0011`](../../../test/experiment/fluids/emergent-shear-viscosity.ts)** - the momentum-conserving gas has a finite shear viscosity, the shear-mode decay rate scales as k squared with one nu across wavenumbers and sizes, while the pinning pair table has no shear mode at all.
+- **[`E-FLD-0013`](../../../test/experiment/fluids/emergent-sound-speed.ts)** - a density bump radiates a ballistic pulse with one well-defined sound speed near 1/sqrt(2), while the pinning pair table leaves the bump frozen.
+- **[`E-FLD-0012`](../../../test/experiment/fluids/poiseuille-channel-profile.ts)** - a decaying plug in a bounce-back channel develops a parabola-like Poiseuille profile under the momentum-conserving bulk, and stays flat (ohmic) under the momentum-losing pair table.
 
 ## Conservation laws and the Navier-Stokes bound
 
 Exact quadratic invariants the reversible rule keeps, and the truncation that makes a coarse field appear to run away.
 
-- **E-FLD-0009** - an enstrophy-like quadratic (the count of nonzero sites) is conserved exactly by the reversible knit because the rule only permutes the tone multiset, the lattice bound Navier-Stokes forgets, while a lossy rule lets it collapse (the control).
-- **E-FLD-0010** - the coarse velocity-gradient energy rises above its start (a transient apparent steepening, recurrent not divergent) while the fine enstrophy quadratic stays integer-exact, the truncation half of the Navier-Stokes blow-up story.
+- **[`E-FLD-0009`](../../../test/experiment/fluids/enstrophy-bound.ts)** - an enstrophy-like quadratic (the count of nonzero sites) is conserved exactly by the reversible knit because the rule only permutes the tone multiset, the lattice bound Navier-Stokes forgets, while a lossy rule lets it collapse (the control).
+- **[`E-FLD-0010`](../../../test/experiment/fluids/coarse-runaway.ts)** - the coarse velocity-gradient energy rises above its start (a transient apparent steepening, recurrent not divergent) while the fine enstrophy quadratic stays integer-exact, the truncation half of the Navier-Stokes blow-up story.
 
 ## The exotic fluid phases
 
 The hardest fluid limits, superfluidity and the turbulent cascade.
 
-- **E-FLD-0007** - the substrate is a superfluid, a finite Landau critical velocity (the sound speed) and quantized circulation, against the zero-critical-velocity normal fluid as the control.
-- **E-FLD-0008** - the Kolmogorov turbulent cascade, the energy spectrum E(k) proportional to k to the minus five-thirds in the GOY shell model, with the linear no-cascade model as the control.
+- **[`E-FLD-0007`](../../../test/experiment/fluids/superfluid-signatures.ts)** - the substrate is a superfluid, a finite Landau critical velocity (the sound speed) and quantized circulation, against the zero-critical-velocity normal fluid as the control.
+- **[`E-FLD-0008`](../../../test/experiment/fluids/turbulence-cascade.ts)** - the Kolmogorov turbulent cascade, the energy spectrum E(k) proportional to k to the minus five-thirds in the GOY shell model, with the linear no-cascade model as the control.
 
 ## What it establishes
 

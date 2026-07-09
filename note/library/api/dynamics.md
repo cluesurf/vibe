@@ -9,7 +9,7 @@ All inputs are single objects. RNG-driven functions take an `rng` you pass in, s
 ### Sampling and Monte Carlo
 
 | module (`@/code/dynamics/<file>`) | what it does |
-| --- | --- |
+|:--- |:--- |
 | `uniform-sampler` | `sampleUniform` runs Metropolis over causal sets at a given `beta`. Returns manifold fraction, mean action, acceptance. |
 | `mcmc` | `sampleCausalSets` walks the causal-set space and averages one observer. `transitiveClosure` rebuilds the order. |
 | `parallel-tempering` | `parallelTempering` runs many `betas` at once with replica swaps. Beats getting stuck in one phase. |
@@ -20,7 +20,7 @@ All inputs are single objects. RNG-driven functions take an `rng` you pass in, s
 ### Lattice gauge
 
 | module (`@/code/dynamics/<file>`) | what it does |
-| --- | --- |
+|:--- |:--- |
 | `su2-lattice` | `makeSu2Lattice` builds a hot or cold lattice. `metropolisSweep` updates it. `averagePlaquette`, `wilsonLoop`, `creutzRatio` read confinement order parameters. |
 | `wilson` | `plaquettesOf`, `wilsonAction`, `heatBathSweep` for a U(1) gauge field on any graph. |
 | `wilson-grid` | `gridPlaquettes`, `gridWilsonAction`, `gridMaxwellAction` on a clean square grid. |
@@ -29,7 +29,7 @@ All inputs are single objects. RNG-driven functions take an `rng` you pass in, s
 ### Wave and walk evolution
 
 | module (`@/code/dynamics/<file>`) | what it does |
-| --- | --- |
+|:--- |:--- |
 | `leapfrog-wave` | `evolveLeapfrogWave` time-steps a wave equation. `leapfrogWaveLevelSpeed` checks the signal speed. |
 | `reversible-wave` | `reversibleWaveStep` is one exactly time-reversible wave beat. |
 | `quantum-walk` | `coinedWalkMSD` and `diracQuantumWalk` for ballistic quantum spreading. `singleParticleQuantumWalk`, `twoParticleQuantumWalk` for particle walks. |
@@ -39,7 +39,7 @@ All inputs are single objects. RNG-driven functions take an `rng` you pass in, s
 ### Renormalization and cosmology
 
 | module (`@/code/dynamics/<file>`) | what it does |
-| --- | --- |
+|:--- |:--- |
 | `coarsegrain` | `decimate` blocks a graph down one level. |
 | `renormalization-blocks` | `geometricBlocks`, `domainBlocks`, `csrVoronoiBlocks` define the blocks to coarse-grain over. |
 | `renormalization-group` | `oneLoopInverseCoupling`, `couplingMeetingTime`, `qcdRunningMassFactor`. Coupling flow with scale. |

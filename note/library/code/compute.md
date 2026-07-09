@@ -7,7 +7,7 @@ Import from `@/code/compute/<file>`.
 ## The computer (compile and run)
 
 | module | key exports | what it does |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `machine/shared` | `makeVibeComputer`, `VibeComputer`, `VibeComputerReport` | the dimension-general hyperbolic computer, assembles substrate, compute, and memory on a tiling patch |
 | `machine/2d`, `machine/3d`, `machine/4d` | `make2DMachine`, `make3DMachine`, `make4DMachine` | the per-dimension configs (pick the tiling, `{7,3}`, `{5,3,4}`, `{3,4,3,4}`) |
 | `compile` | `compileMachine`, `runMachine`, `Backend`, `CompiledMachine` | the one entry point, compile TypeScript and choose the register representation |
@@ -22,7 +22,7 @@ Import from `@/code/compute/<file>`.
 ## The hyperbolic cellular automata (Margenstern)
 
 | module | key exports | what it does |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `margenstern-ca` | `compileMargensternCa`, `cyclicRotations`, `doubleRingRotations` | the shared Margenstern hyperbolic-CA compiler |
 | `margenstern-pentagrid` | `stepPentagridCA`, `buildPentagridRuleTable`, `pentagridNext` | the pentagrid `{5,4}` automaton |
 | `margenstern-pentagrid-2state`, `margenstern-pentagrid-3state` | `pentagrid2State`, `pentagrid3State` | the 2-state and 3-state pentagrid rules |
@@ -33,7 +33,7 @@ Import from `@/code/compute/<file>`.
 ## The GPU compute (WGSL and runners)
 
 | module | key exports | what it does |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `wave.wgsl` | `WAVE_STEP_WGSL`, `BULK_STEP_WGSL`, `WAVE_RENDER_WGSL` | the shared WGSL for the wave and bulk step, used by runners and the browser viz |
 | `associative.wgsl`, `associative-wave.wgsl`, `hopfield.wgsl` | `ASSOCIATIVE_MATCH_WGSL`, `ASSOCIATIVE_WAVE_WGSL`, `HOPFIELD_OVERLAP_WGSL`, `HOPFIELD_UPDATE_WGSL` | the memory and Hopfield WGSL |
 | `run-model` | `runModel` | exports `runModel(graph, seed)`, returns `{ deterministic, evolves, nonzeroFraction }` |

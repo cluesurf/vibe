@@ -5,7 +5,7 @@ The state layer. A **tone** is one ternary value per direction per cell, and thi
 ## Modules
 
 | file | key exports | what it is |
-| ---- | ----------- | ---------- |
+|:--- |:--- |:--- |
 | `will.ts` | `Will`, `Tone`, `makeWill`, `fillWillPattern`, `charge`, `cellTone` | the committed state, one ternary tone per cell per direction in a flat `Int8Array` |
 | `alphabet.ts` | `Alphabet`, `slotsPerElement`, `valueCount`, `randomValue` | the generic finite tone alphabet (boolean, ternary, clock, spinor) |
 | `configuration.ts` | `Configuration`, `makeConfiguration`, `getTone`, `setTone`, `cloneConfiguration` | a dense value-per-element store over any alphabet |

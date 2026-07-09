@@ -7,7 +7,7 @@ A substrate is the discrete space your vibes live on. It is a graph of cells, ea
 ### Regular hyperbolic tessellations
 
 | builder | what it gives you |
-| ------- | ----------------- |
+|:--- |:--- |
 | `buildCoxeterMatrixMesh(schlafli, maxCells)` (`@/code/substrate/coxeter/matrix-group`) | The uniform reflection-group mesh for ANY regular tessellation. Returns `{ shells, adjacency }`. The fast, exact path. Pass a Schlafli array like `[5,3,4]` or `[3,4,3,4]`. |
 | `buildCellGraph({ symbol, maxCells })` (`@/code/substrate/coxeter/cell-direct`) | A `CellGraph` with `neighbors`, `coords` (Poincare ball), `generation` shells, and `faceNeighbor` (per-direction neighbour, for addressing automata). Use when you need geometry or directional faces. |
 | `buildCoxeterMesh({ symbol, depth, maxChambers })` (`@/code/substrate/coxeter/engine`) | The full `CoxeterMesh`: facet-adjacency plus Poincare coordinates and generation distances. The general engine when you want everything. |
@@ -15,7 +15,7 @@ A substrate is the discrete space your vibes live on. It is a graph of cells, ea
 ### The {3,4,3,4} coin mesh (the home substrate)
 
 | builder | what it gives you |
-| ------- | ----------------- |
+|:--- |:--- |
 | `d4Mesh({ side })` (`@/code/tool/mesh`) | The flat 24-direction D4 coin, the canonical free-spin substrate. Returns a `Mesh` (uniform `neighbour` / `opposite`). The toy you stream on by default. |
 | `b4Mesh({ side })` (`@/code/tool/mesh`) | The B4 root-lattice variant of the coin. |
 | `buildDodecagrid({ maxCells })` (`@/code/substrate/coxeter/cell-scale`) | The {3,4,3,4} honeycomb as a `ScaleGraph`. `buildDodecagridFast` and `buildDodecagridLazy` are the scaling variants for big patches. |
@@ -23,7 +23,7 @@ A substrate is the discrete space your vibes live on. It is a graph of cells, ea
 ### Flat and lattice
 
 | builder | what it gives you |
-| ------- | ----------------- |
+|:--- |:--- |
 | `cubicMesh({ side })` (`@/code/tool/mesh`) | The 6-direction cubic lattice `Mesh`. The Euclidean control. |
 | `squareMesh({ side })` (`@/code/tool/mesh`) | The 4-direction square lattice `Mesh`. The 2D toy. |
 | `buildEuclideanLattice({ symbol, maxCells })` (`@/code/substrate/coxeter/cell-direct`) | A flat-tessellation `CellGraph` (e.g. `[4,3,4]`), same shape as `buildCellGraph`. The flat baseline for comparisons. |
@@ -32,7 +32,7 @@ A substrate is the discrete space your vibes live on. It is a graph of cells, ea
 ### Horospheres and sprinklings
 
 | builder | what it gives you |
-| ------- | ----------------- |
+|:--- |:--- |
 | `buildHorosphere({ symbol, maxCells, level })` (`@/code/substrate/coxeter/cell-direct`) | A `HorospherePatch`, the flat horosphere slice through a hyperbolic honeycomb. |
 | `buildHorosphereBand({ symbol, maxBand, half })` (`@/code/substrate/coxeter/cell-direct`) | A thickened horosphere band, for layer and renormalization studies. |
 | `sprinkleMinkowski({ dimension, count, rng })` (`@/code/substrate/sprinkle-minkowski`) | A causal-set `Poset` from a Poisson sprinkle in a Minkowski diamond. The Lorentz-invariant continuum control. |
@@ -40,7 +40,7 @@ A substrate is the discrete space your vibes live on. It is a graph of cells, ea
 ### The catalog
 
 | builder | what it gives you |
-| ------- | ----------------- |
+|:--- |:--- |
 | `TESSELLATIONS` (`@/code/substrate/tessellation-catalog`) | The full list of named regular tessellations with their Schlafli symbols, dimension, class, and a `buildable` flag. Look up a symbol here before you build it. |
 
 ## Use it

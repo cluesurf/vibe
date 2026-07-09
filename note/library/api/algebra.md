@@ -6,7 +6,7 @@ It gives you spinors, root systems, octonions, the exceptional Jordan algebra, a
 ## Group and spinor algebra
 
 | module | what it gives you |
-| --- | --- |
+|:--- |:--- |
 | `@/code/algebra/group/quaternion` | `quaternion`, `multiply`, `conjugate`. `binaryTetrahedral()` (24 cells) and `binaryIcosahedral()` (120 cells) return the finite spin groups as quaternion lists. |
 | `@/code/algebra/group/rotation` | `rotateVector(g, v)` and `rotateSpinor(g, psi)`. A spinor picks up a sign under a full turn, a vector does not. `rotationMatrixAxisAngle` for 3x3 rotations. |
 | `@/code/algebra/group/clifford` | `pauli()`, `diracGamma()`, `diracGamma5()`, `diracHamiltonian({ px, py, pz, mass })`. Complex-matrix helpers `cmMultiply`, `cmCommutator`, `cmAntiCommutator`. |
@@ -24,7 +24,7 @@ It gives you spinors, root systems, octonions, the exceptional Jordan algebra, a
 ## Linear algebra (matrices, eigensolvers, spectral methods)
 
 | module | what it gives you |
-| --- | --- |
+|:--- |:--- |
 | `@/code/algebra/linear/complex` | `complex({ re, im })`, `cAdd`, `cMul`, `cConj`, `cAbs`, `cFromPhase`. |
 | `@/code/algebra/linear/dense` | `makeDense`, `denseMatVec`, `matrixProduct`, `determinant`, `solveLinearSystem`. |
 | `@/code/algebra/linear/sparse` | `sparseFromTriplets({ rows, cols, triplets })`, `sparseMatVec`, `operatorFromSparse`. CSR matrices and the `LinearOperator` interface the eigensolvers consume. |

@@ -51,7 +51,7 @@ Evolve the state and measure what stays exactly constant. Because the
 rule is integer and reversible, the check is an exact equality, not a
 tolerance. The total charge is conserved to the integer: a run that
 creates 1112 plus-minus pairs annihilates all 1112 back, net zero
-(E-FND-0008). Parity and the conserved norm are found the same way. A
+([`E-FND-0008`](../test/experiment/foundations/conserved-dynamics.ts)). Parity and the conserved norm are found the same way. A
 conserved quantity is the cleanest kind of invariant, because there is
 nothing to argue about.
 
@@ -76,7 +76,7 @@ scramble control is exactly the case that could give the boring answer.
 Vibe's distinguishability readout is forced this way: relabel the 24
 directions by a coin symmetry and the Fisher-Rao readout does not move
 (deviation 6.7e-16, machine zero), while an ad-hoc weighted readout
-swings by 0.99 and fails (E-FND-0057). So Fisher-Rao is singled out by
+swings by 0.99 and fails ([`E-FND-0057`](../test/experiment/foundations/chentsov-forced-distinguishability.ts)). So Fisher-Rao is singled out by
 the measurement, not chosen.
 
 ### 4. A cross-theory recurrence (the triangulation itself)
@@ -101,7 +101,7 @@ one derives it**.
 - **Vibe.** Time is the wake, the monotone growth of the mesh. The
   record count rises without bound (1 to 8857 over the run) and the
   Fisher-Rao arc length accumulates monotonically, while a fixed mesh
-  caps at a bounded record set and has no arrow (E-FND-0051). Primitive:
+  caps at a bounded record set and has no arrow ([`E-FND-0051`](../test/experiment/foundations/record-accumulating-wake.ts)). Primitive:
   a discrete ternary distinction.
 - **Timeless Dynamics.** Time is accumulated Fisher-Rao arc length along
   record-preserving paths. Primitive: continuous distinguishability.
@@ -109,7 +109,7 @@ one derives it**.
   divergence of a conserved current, the current thinning out as it
   spreads. Vibe measures the same thing: the wake registers as a
   strictly positive edge divergence that equals the count of newly born
-  cells exactly and is zero in the settled bulk (E-CSM-0043). Primitive:
+  cells exactly and is zero in the settled bulk ([`E-CSM-0043`](../test/experiment/cosmology/wake-expansion-scalar.ts)). Primitive:
   a continuum temporal current.
 - **Barbour.** Time capsules, configurations that look like they hold a
   past. Primitive: relational configurations.
@@ -123,7 +123,7 @@ running total of distinction that cannot be undone**. Nobody put it in.
 
 - **Vibe.** The reversible rule erases nothing (forward then inverse
   recovers the start bit for bit, Hamming distance 0, while a lossy rule
-  loses 4.2 percent for good, E-FND-0049), and the wake makes records
+  loses 4.2 percent for good, [`E-FND-0049`](../test/experiment/foundations/record-preserving-paths.ts)), and the wake makes records
   un-erasable because a shell cannot be un-born.
 - **Timeless Dynamics.** The recordability condition selects paths that
   lay down and keep records.
@@ -138,7 +138,7 @@ accumulation**, not an external law.
 
 - **Vibe.** The ternary tone is the minimal distinction, and the
   Fisher-Rao readout is singled out by 24-cell relabeling invariance
-  while ad-hoc measures fail (E-FND-0057).
+  while ad-hoc measures fail ([`E-FND-0057`](../test/experiment/foundations/chentsov-forced-distinguishability.ts)).
 - **Timeless Dynamics.** Distinguishability measured by Fisher-Rao,
   forced by Chentsov's theorem.
 - **Wheeler.** It from bit.
@@ -181,7 +181,7 @@ symmetry.
 
 - **Vibe.** Area-law gravity, with Newtonian gravity screened to a
   Yukawa form in the curved bulk (a size-independent spectral gap) so it
-  must live on the flat cusp (E-GRV-0049 and E-GRV-0050).
+  must live on the flat cusp ([`E-GRV-0049`](../test/experiment/gravity/td-log-density-gravity-screened.ts) and [`E-GRV-0050`](../test/experiment/gravity/gravity-screening-size-independent.ts)).
 - **Timeless Dynamics.** The Einstein tensor from the Hessian of the
   information potential.
 - **Chronoflux.** Curvature forced to match the current's stress.
@@ -195,7 +195,7 @@ response**, not a base force.
 
 - **Vibe.** A coherent record's contrast survives only below a Lyapunov
   exponent, high chaos scrambles it away, measured as 0.041 above the
-  threshold and 0.241 below, a clean separation (E-QTM-0092).
+  threshold and 0.241 below, a clean separation ([`E-QTM-0092`](../test/experiment/quantum/lyapunov-recordability-ceiling.ts)).
 - **Timeless Dynamics.** The Hyperion derivation: coherent records
   persist only while the chaos rate stays below a threshold, derived
   from the geometry before the run.

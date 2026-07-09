@@ -7,7 +7,7 @@ Import from `@/code/tool/<file>`.
 ## Modules
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `rng` | `makeRng`, `deriveSeed`, `poissonSample`, `sampleEmpiricalFrequencies`, `Rng` | the seeded PRNG (`next`, `nextInt`, `nextGaussian`), child seeds for scans, sampling helpers |
 | `graph` | `makeGraph`, `Graph`, `degree`, `meanDegree`, `toCsr`, `edgesFromCsr`, `csrDistances`, `csrBallNodes`, `largestComponent`, `greedyEdgeColoring`, `withScrambledEmbedding` | graphs, the compact CSR sparse form, BFS and distance helpers, edge colouring |
 | `poset` | `makePosetFromRelation`, `makePosetFromFuture`, `Poset`, `precedes`, `relationCount`, `intervalSize`, `pastMatrix`, `subPoset` | causal sets, built from a precedence test |

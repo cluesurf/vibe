@@ -7,7 +7,7 @@ Import from `@/code/operator/<file>`.
 ## Laplacian and diffusion
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `laplacian` | `laplacian`, `laplacianSpectrum`, `laplacianGreensFunction` | the graph Laplacian `L = D - A`, its low spectrum, its Green's function |
 | `graph-laplacian` | `graphLaplacian`, `solveGraphPoisson`, `graphLaplacianGreensFunction` | the same family on an explicit adjacency graph (the gravity tests) |
 | `lattice-poisson-jacobi` | `latticePoissonJacobi` | Jacobi-iterated Poisson solve on a lattice |
@@ -20,7 +20,7 @@ Import from `@/code/operator/<file>`.
 ## Dirac and fermions
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `dirac` | `cellComplexOf`, `kahlerDirac`, `diracSpectrum`, `kahlerDiracZeroModes` | the Kahler-Dirac operator `D = d + delta` as a sparse matrix, plus its zero modes (the Betti sum) |
 | `exterior-derivative` | `polygonComplex`, `exteriorDerivative`, `kahlerDirac`, `boundaryOfBoundaryIsZero` | the dense-matrix path, good for small hand-checkable cases |
 | `lattice-fermion` | `naiveDirac2D`, `wilsonDirac2D`, `overlapDirac2D`, `scanBrillouin`, `ginspargWilsonResidual` | the 2x2 momentum-space lattice fermions and the doubler scan |
@@ -32,7 +32,7 @@ Import from `@/code/operator/<file>`.
 ## Gauge and magnetic fields
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `gauge-dirac` | `covariantKahlerDirac` | the Kahler-Dirac operator with link phases (a gauge field on the edges) |
 | `gauge-index` | `overlapIndex`, `gaugeWilsonDirac`, `totalFlux` | the overlap index (spectral asymmetry) and total flux, the lattice index theorem |
 | `overlap-condensate` | `chiralCondensateSignal` | the near-zero eigenvalue density (U(1) chiral condensate) |
@@ -44,7 +44,7 @@ Import from `@/code/operator/<file>`.
 ## Gravity operators
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `graviton` | `einsteinOp`, `gravitonFromAction` | the graviton (spin-2) operator |
 | `linearized-curvature` | `linearizedChristoffel`, `linearizedRicci`, `linearizedEinsteinTensor` | linearized curvature tensors |
 | `linearized-einstein` | `linearizedEinstein`, `makeTensorField`, `gravitonPolarizationsFromSpectrum` | the linearized Einstein operator and its polarizations |
@@ -52,7 +52,7 @@ Import from `@/code/operator/<file>`.
 ## Evolution, tight-binding, and blocks
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `unitary-evolution` | `evolveByEigendecomposition` | exact unitary time evolution `e^{-iHt}` from an eigendecomposition |
 | `evolution` | `makeStateSpace`, `permutationOfRule`, `hamiltonianFromPermutation` | the state space and the Hamiltonian of a reversible rule |
 | `ca-hamiltonian` | `hamiltonianMatrix`, `pauliLocalityProfile` | the permutation Hamiltonian of a reversible CA |
@@ -66,7 +66,7 @@ Import from `@/code/operator/<file>`.
 ## Lattice gas and directional charge
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `directional-lattice-gas` | `makeLatticeGas`, `collide`, `stream`, `streamInverse`, `latticeCharge`, `latticeMomentum` | the reversible directional lattice gas, collide-then-stream and its inverse |
 | `d4-lattice-gas` | `streamD4`, `streamD4Inverse`, `d4CollisionInvolution`, `d4Count`, `d4Momentum`, `D4_DIRECTIONS` | the 24-direction D4 lattice gas |
 | `coxeter-mesh-gas` | `streamCoxeterMeshGas`, `collideCoxeterMeshGas`, `eraseCoxeterMeshGas`, `countCoxeterMeshGas` | the lattice gas on any Coxeter mesh |
@@ -75,7 +75,7 @@ Import from `@/code/operator/<file>`.
 ## Cellular automata, logic, and machines
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `conway-life` | `lifeStep`, `mooreOffsets`, `cellSetCentroid` | Conway's Life, the classical-CA baseline |
 | `logic-gate` | `nand`, `toffoli`, `fullAdder`, `ruleGate`, `functionFromTable` | logic gates from the rule |
 | `substrate-gate` | `makeCircuit`, `addCell`, `nandBus`, `settle`, `isFixedPoint` | a settling logic circuit on a substrate |
@@ -89,7 +89,7 @@ Import from `@/code/operator/<file>`.
 ## Memory and renormalization
 
 | module | key exports | what it builds |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `associative-memory` | `makeAssociativeMemory`, `ternaryWord`, `storeWord`, `search`, `searchExact`, `searchBest`, `broadcastWave` | content-addressable memory on a cell graph (the flagship, deep dive `../associative-memory-engine.md`) |
 | `hopfield` | `hebbianFills`, `hopfieldStep`, `nearestPattern`, `runHopfieldPair`, `bankOverlap` | a Hopfield network on the tones |
 | `ising-rg` | `isingDecimationBySummation`, `isingBetaFunction`, `sampleIsingChain`, `measuredBlockSpinCoupling` | Ising renormalization by decimation |

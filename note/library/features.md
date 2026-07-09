@@ -16,7 +16,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Geometry and space
 
 | capability                                | what it does                                                               | where                                              |
-| ----------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------- |
+|:--- |:--- |:--- |
 | build any regular hyperbolic tessellation | 2D tilings through 5D pentacombs, the full enumerated catalog              | `api/substrate`, `tessellation-engine.md`          |
 | measure dimension                         | spectral, ball-growth, box-counting, Myrheim-Meyer                         | `measure/dimension`, `geometry/dimension`          |
 | measure curvature                         | Forman-Ricci, mean curvature, Gromov hyperbolicity, the shell growth ratio | `measure/curvature`, `measure/shell-growth-ratio`  |
@@ -28,7 +28,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Relativity
 
 | capability                             | what it does                                            | status / where                                        |
-| -------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------- |
+|:--- |:--- |:--- |
 | a finite isotropic light cone          | a ballistic causal cone with an emergent speed c        | solid, `relativity/light-cone-3434`                   |
 | emergent Lorentz isotropy              | the cone is direction-independent, 24 directions beat 6 | solid, `measure/lorentz`, `relativity/isotropy-24dir` |
 | relativistic dispersion                | E squared equals p squared plus m squared, measured     | solid, `relativity/measured-dispersion-3434`          |
@@ -39,7 +39,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Spin and fermions
 
 | capability                                       | what it does                                              | status / where                                                            |
-| ------------------------------------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | spin-half, the 2pi double-cover sign             | a spinor flips at 2pi, returns at 4pi                     | solid, `spin/rotation-2pi`, `algebra/group/rotation`                      |
 | the D4 spinor coin (8v + 8s + 8c)                | the 24-cell directions carry two spinor sectors           | solid, `spin/spinor-triality`, `algebra/group/cell-24`                    |
 | a fermion propagates on any hyperbolic substrate | the Kahler-Dirac fermion is in the extended phase         | solid, `measure/fermion-propagation`, `spin/kahler-dirac-propagation-534` |
@@ -54,7 +54,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Gauge fields and forces
 
 | capability                             | what it does                                             | status / where                                                  |
-| -------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | an emergent photon                     | a massless transverse spin-1 mode                        | solid, `gauge/ph-photon-3434`                                   |
 | local U(1) gauge invariance            | the global charge promotes to a local symmetry           | solid, `gauge/ph-photon-3434`                                   |
 | the lattice Lorentz force              | a charged wavepacket deflects in a B-field               | solid, `gauge/ph-magnetism-3434`, `dynamics/peierls-wavepacket` |
@@ -68,7 +68,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Mass and generations
 
 | capability                 | what it does                                               | status / where                                          |
-| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+|:--- |:--- |:--- |
 | the mass mechanism         | the 8s-8c chirality coupling, measured two agreeing ways   | solid, `relativity/measured-emergent-mass-3434`         |
 | the F4 to J3(O) chain      | the 24 directions force a rank-three exceptional structure | partial, `spin/generations-f4-jordan`, `algebra/jordan` |
 | the family symmetry        | an exact S3 permutes the three Jordan slots                | partial, `spin/generation-family-symmetry-3434`         |
@@ -77,7 +77,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Gravity
 
 | capability                                  | what it does                                                  | status / where                                                      |
-| ------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | an effective metric that responds to matter | a discrete Einstein-like equation                             | `gravity/gr-einstein-equations`, `operator/linearized-einstein`     |
 | black-hole thermodynamics                   | the first law, Smarr, the M-cubed evaporation                 | `gravity/gr-black-hole-thermo`, `measure/black-hole-thermodynamics` |
 | a graviton mode                             | a spin-2 mode from the action                                 | `gravity/graviton-from-action`, `operator/graviton`                 |
@@ -88,7 +88,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Holography
 
 | capability                         | what it does                                           | status / where                                                      |
-| ---------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | the 1/r boundary propagator        | the holographic boundary two-point function            | solid, `algebra/linear/bethe-resolvent`, `holography/bethe-gravity` |
 | the Ryu-Takayanagi area law        | boundary entanglement equals the minimal bulk geodesic | solid, `measure/holography`, `holography/ryu-takayanagi-73`         |
 | holographic error-correcting codes | the HaPPY code and perfect tensors on the bulk         | `holography/happy-code-534`, `holography/holographic-code-534`      |
@@ -97,7 +97,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Quantum and information
 
 | capability             | what it does                                   | where                                         |
-| ---------------------- | ---------------------------------------------- | --------------------------------------------- |
+|:--- |:--- |:--- |
 | Bell and CHSH          | the classical bound and its emergent violation | `measure/bell`, `quantum/bell`                |
 | the Born rule          | probabilities from amplitudes                  | `quantum/born-rule`, `measure/born-rule`      |
 | reflection positivity  | a consistent quantum theory from the rule      | `quantum/reflection-positivity`               |
@@ -108,7 +108,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Cosmology
 
 | capability                                | what it does                         | where                                                         |
-| ----------------------------------------- | ------------------------------------ | ------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | exponential expansion                     | de Sitter growth and the Hubble rate | `cosmology/expansion`, `dynamics/friedmann`                   |
 | inflation                                 | an inflaton-like early phase         | `cosmology/inflation`, `dynamics/inflaton`                    |
 | the cosmological constant and dark energy | the vacuum energy and its scale      | `cosmology/cosmological-constant`, `cosmology/dark-energy-4d` |
@@ -119,7 +119,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Renormalization and layers
 
 | capability                 | what it does                                     | where                                                           |
-| -------------------------- | ------------------------------------------------ | --------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | coarse-graining            | block the rule and read the effective one        | `dynamics/coarsegrain`, `renormalization/coarse-graining-chain` |
 | renormalization-group flow | flow to a fixed point                            | `dynamics/renormalization-group`, `renormalization/rg-step`     |
 | the layer tower            | persistence by scale, the emergent middle layers | `coarse/level-stack`, `renormalization/form-tower-3434`         |
@@ -128,7 +128,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Selves and observers
 
 | capability                        | what it does                                        | where                                                        |
-| --------------------------------- | --------------------------------------------------- | ------------------------------------------------------------ |
+|:--- |:--- |:--- |
 | causal emergence                  | a macro level with more causal power than the micro | `coarse/causal-emergence`, `selves/causal-emergence`         |
 | persistent localized structure    | solitons, defects, topological protection           | `selves/topological-persistence-3434`, `measure/persistence` |
 | the churn baseline                | the no-persistence null result               | `selves/bare-rule-persistence-3434`                          |
@@ -138,7 +138,7 @@ just here), **negative** is a result correctly reporting a no.
 ### Computation
 
 | capability                        | what it does                          | where                                                            |
-| --------------------------------- | ------------------------------------- | ---------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | universality                      | the rule computes anything            | `computation/reversible-universality`, `computation/turing-3434` |
 | logic gates and register machines | a substrate computer                  | `operator/logic-gate`, `operator/register-machine`               |
 | greedy geometric routing          | addressing and navigation on the mesh | `addressing/`, `measure/navigation`                              |
@@ -150,7 +150,7 @@ so it is a natural substrate for log-depth structures and content
 search. Full catalog in `api/computing-and-data-structures.md`.
 
 | capability                                     | what it does                                                           | where                                                              |
-| ---------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
+|:--- |:--- |:--- |
 | content-addressable memory                     | ask by content, every cell matches in parallel, the O(log N) broadcast | `operator/associative-memory`, `associative-memory-engine.md`      |
 | recall, capacity, latency                      | exact and noisy recall, capacity per radius, search latency            | `measure/associative-recall`                                       |
 | vector-symbolic memory                         | bind, bundle, unbind, capacity scales with dimension                   | `measure/associative-memory`                                       |
@@ -163,7 +163,7 @@ search. Full catalog in `api/computing-and-data-structures.md`.
 ## Substrates you can build
 
 | substrate                                | symbol or builder                                  | where                                                      |
-| ---------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------- |
+|:--- |:--- |:--- |
 | any regular hyperbolic tessellation      | a Schläfli symbol, the Coxeter engine              | `substrate/coxeter/matrix-group`, `tessellation-engine.md` |
 | the {3,4,3,4} D4 spinor coin             | `d4Mesh`, the 24-direction mesh                    | `tool/mesh`                                                |
 | the {5,3,4} dodecagrid                   | `buildCellGraph`, `buildDodecagrid`                | `substrate/coxeter/cell-direct`, `cell-scale`              |
@@ -177,7 +177,7 @@ search. Full catalog in `api/computing-and-data-structures.md`.
 ## Operators you can build
 
 | operator                           | what it builds                                | where                                                  |
-| ---------------------------------- | --------------------------------------------- | ------------------------------------------------------ |
+|:--- |:--- |:--- |
 | the graph Laplacian                | diffusion, the spectrum, the Green's function | `operator/laplacian`                                   |
 | the Kahler-Dirac operator          | a fermion on the form complex (d + delta)     | `operator/dirac`, `exterior-derivative`                |
 | the gauge-covariant Dirac          | minimal coupling                              | `operator/gauge-dirac`                                 |
@@ -190,7 +190,7 @@ search. Full catalog in `api/computing-and-data-structures.md`.
 ## Measures you can take
 
 | theme                          | what you can read                                                | where                                                       |
-| ------------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------------- |
+|:--- |:--- |:--- |
 | geometry                       | dimension, curvature, shells, distance, crystallographic         | `measure/dimension`, `curvature`, `shells`                  |
 | relativity                     | the light cone, isotropy, dispersion, front speed                | `measure/light-cone`, `lorentz`, `dispersion`               |
 | quantum                        | CHSH, entanglement, the Born rule, integration                   | `measure/bell`, `entanglement`                              |
@@ -203,7 +203,7 @@ search. Full catalog in `api/computing-and-data-structures.md`.
 ## Dynamics you can run
 
 | capability                         | what it does                                    | where                                                          |
-| ---------------------------------- | ----------------------------------------------- | -------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | the reversible conserving rule     | the base lattice gas                            | `rule/lattice-gas`, `rule/collision`                           |
 | MCMC and uniform sampling          | the path integral, the causal-set measure       | `dynamics/mcmc`, `uniform-sampler`                             |
 | parallel tempering and Wang-Landau | replica sampling, the density of states         | `dynamics/parallel-tempering`, `wang-landau`                   |
@@ -215,7 +215,7 @@ search. Full catalog in `api/computing-and-data-structures.md`.
 ## Algebra you can use
 
 | capability                       | what it gives you                                                        | where                                                       |
-| -------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------- |
+|:--- |:--- |:--- |
 | the symmetry groups              | D4 and F4 roots, the binary tetrahedral and icosahedral groups, triality | `algebra/group/root-system`, `quaternion`, `cell-24`        |
 | spinor and Clifford algebra      | the Pauli and gamma matrices, gamma5, rotations                          | `algebra/group/clifford`, `rotation`                        |
 | octonions and the Jordan algebra | J3(O), the exceptional rank-three structure                              | `algebra/octonion`, `jordan`                                |
@@ -230,7 +230,7 @@ The proven, controlled results, distilled. The full scoreboard is in
 `note/research/vibe/notes/theory-v0.7.0/paper/recent-results.md`.
 
 | result                                                             | status                              |
-| ------------------------------------------------------------------ | ----------------------------------- |
+|:--- |:--- |
 | matter propagates on EVERY regular hyperbolic substrate            | solid (universal)                   |
 | the spinor coin is exactly the seven 24-cell-faceted tessellations | solid (rare, dimension-gated)       |
 | spin-half emerges (the 2pi sign), the D4 coin carries it           | solid                               |

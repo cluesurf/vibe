@@ -41,7 +41,7 @@ is stored anywhere else. There is no hidden state.
 ## The components
 
 | file                       | role                                                                                                                             |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --- | -------------------------------------------------------- |
+|:--- |:--- |:--- |:--- |
 | `code/tone/will.ts`        | the `Will` state, `Tone` (`-1                                                                                                    | 0   | 1`), `makeWill`, `fillWillPattern`, `charge`, `cellTone` |
 | `code/rule/lattice-gas.ts` | the engine, `stream`, `streamInverse`, `collide`, `beat`, `inverseBeat`, `run`                                                   |
 | `code/rule/collision.ts`   | the collisions, `pairCollision`, the 9-state `PAIR_FORWARD` / `PAIR_INVERSE` table, `pairKey`, `passThrough`, `momentumRotate2D` |

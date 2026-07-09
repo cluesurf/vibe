@@ -7,7 +7,7 @@ Import from `@/code/check/<file>`.
 ## Modules
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `invariant` | `totalMomentum`, `conservesMomentum`, `conservesCharge`, `isReversible` | the base conserved currents and the reversibility predicate of the committed rule |
 | `reversibility` | `roundtrip` | the forward-then-backward Hamming-distance roundtrip on the directional lattice gas |
 | `lattice-gas-laws` | `streamIsPermutation`, `toneCensus`, `censusEqual` | the Toffoli/Fredkin conservative-logic laws (no fan-out, conserved multiset) |

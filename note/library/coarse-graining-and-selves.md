@@ -48,7 +48,7 @@ micro it claims to summarize.
 ## The components
 
 | file                                      | role                                                                                                                                                             |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `code/coarse/macro-unit.ts`               | `MacroUnit` (one self, members plus observables), `extractUnits`, the `coarseLabels` map, `meanUnitSize` (the per-level compression C)                           |
 | `code/coarse/transition-matrix.ts`        | the Markov-state model, `quantileLabels`, `countMatrix`, `rowStochastic`, `transitionEigenvalues`, `spectralGap`, `impliedTimescale`, `detailedBalanceViolation` |
 | `code/coarse/causal-emergence.ts`         | Hoel `effectiveInformation`, `coarseGrainTpm`, and `emergenceGain` (structured versus random EI)                                                                 |

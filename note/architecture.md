@@ -55,7 +55,7 @@ suffix. A file ends at the directory: `from '@/code/draw/color'`, never
 Each subfolder is one concern. The taxonomy:
 
 | folder            | what lives here                                   | examples                                                                                      |
-| ----------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+|:--- |:--- |:--- |
 | `tool/`           | substrate-agnostic primitives                     | `mesh`, `integer` (modulo), `rng`, `bitset`, `graph`, `poset`                                 |
 | `geometry/`       | hyperbolic and Minkowski geometry                 | `distance` (the one hyperbolic distance)                                                      |
 | `algebra/linear/` | dense and sparse linear algebra, spectral methods | `complex`, `complex-vector`, `dense`, `eig-*`, `kernel-polynomial` (KPM), `bethe-resolvent`   |
@@ -171,7 +171,7 @@ prints PASSED. This is the authoritative rubric from
 `experimental-methodology.md`. Read it.
 
 | depth | what it establishes                                                                                                                                                                  |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|:--- |:--- |
 | `L0`  | **circular**, the answer was put in by hand. Proves nothing. Relabel or delete.                                                                                                      |
 | `L1`  | **known math**, correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                                   |
 | `L2`  | **known physics**, reproduces a known construction on this substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                           |

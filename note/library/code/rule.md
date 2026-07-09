@@ -5,7 +5,7 @@ The base-dynamics layer, the law the whole model obeys. It sits between the tone
 ## Modules
 
 | file | key exports | what it is |
-| ---- | ----------- | ---------- |
+|:--- |:--- |:--- |
 | `lattice-gas.ts` | `stream`, `streamInverse`, `collide`, `beat`, `inverseBeat`, `run`, `beatInto`, `streamSourceTable` | the reversible collide-then-stream engine, generic in mesh degree |
 | `collision.ts` | `Collision`, `pairCollision`, `PAIR_FORWARD`, `PAIR_INVERSE`, `passThrough`, `momentumRotate2D`, `bindAndMove`, `leakyConfine`, `headOnRotate`, `stickyReflect` | the shipped local in-place collisions, the committed 9-state pair table plus variants |
 | `rule.ts` | `Rule`, `RuleStepInput`, `RuleStepOutput`, `LocalMap`, `runRule` | the generic rule interface over a `Substrate` and `Configuration` |

@@ -7,7 +7,7 @@ The coarse-graining and selves layer. It sits above the dynamics in the pipeline
 ### Coarse-graining operators and the level tower
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `macro-unit.ts` | `MacroUnit`, `extractUnits`, `coarseLabels`, `meanUnitSize` | connected same-sign clusters as macro-units, plus the compression factor C |
 | `transition-matrix.ts` | `countMatrix`, `rowStochastic`, `transitionEigenvalues`, `spectralGap`, `impliedTimescale`, `quantileLabels`, `symmetricEigenvalues`, `detailedBalanceViolation` | the lag-tau Markov model of a coarse observable and its spectral gap |
 | `level-stack.ts` | `Level`, `effectiveVibeCount`, `isCleanLevel` | stack clean levels and account the scale, N_top times the product of the compressions |
@@ -17,7 +17,7 @@ The coarse-graining and selves layer. It sits above the dynamics in the pipeline
 ### Causal emergence and validation
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `causal-emergence.ts` | `effectiveInformation`, `coarseGrainTpm`, `emergenceGain` | Hoel effective information, micro versus structured versus random coarse-graining |
 | `validator.ts` | `commutingSquareError`, `mostProbableNext` | coarse-then-evolve versus evolve-then-coarse, and the deterministic effective rule |
 | `surrogate.ts` | `fitMarkovSurrogate`, `predictiveLogLikelihood`, `forwardAccuracy`, `marginalDistribution`, `timeShuffle` | fit a Markov surrogate and validate it against a memoryless and a time-shuffled control |
@@ -26,7 +26,7 @@ The coarse-graining and selves layer. It sits above the dynamics in the pipeline
 ### Self detection
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `self-criteria.ts` | `regionPartition`, `blanketScreening`, `partialCorrelation`, `correlation`, `distancesFrom` | the Markov-blanket and light-cone primitives, interior/shell/exterior screening |
 | `binding-margin.ts` | `bindingMargin`, `ballAtRadius` | the Hearst individuation margin, internal versus boundary coupling |
 | `individuality.ts` | `fitnessVariancePartition` | the Price-equation between-group versus within-group variance test |
@@ -35,7 +35,7 @@ The coarse-graining and selves layer. It sits above the dynamics in the pipeline
 ### Persistence and interaction
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `active-persistence.ts` | `activePersistence`, `PersistenceResult` | provenance-tracking audit of self survival under decay and refuge |
 | `pattern-persistence.ts` | `patternSurvivalTime` | first beat a majority-vote pattern drops below half under churn |
 | `driven-self.ts` | `drivenSelf`, `DrivenSelfSeries` | a self as a model builder in a slowly-flipping sectored environment |

@@ -7,7 +7,7 @@ The geometry layer, the base of the pipeline (`substrate -> tone -> rule -> dyna
 ### Regular tessellations (the Coxeter engine)
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `coxeter.ts` | `coxeterMeshGraph`, `coxeterTessellation` | the unified reflection-group engine, facet-adjacency for any Schlafli symbol |
 | `tessellation-catalog.ts` | `TESSELLATIONS`, `Tessellation`, `TessellationClass` | the enumerated ground-truth catalog of regular hyperbolic tessellations up to 5D |
 | `hyperbolic-honeycomb.ts` | `hyperbolicDodecagrid` | the {5,3,4} dodecahedral honeycomb by face-plane reflection |
@@ -19,7 +19,7 @@ The geometry layer, the base of the pipeline (`substrate -> tone -> rule -> dyna
 ### Flat lattices and grids
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `cubic-lattice.ts` | `cubicLattice`, `cubicBoxRows`, `cubicLatticeCenter`, `cubicLatticeDistance` | the d-dimensional cubic lattice, row-major, with neighbours and coordinates |
 | `lattice.ts` | `lattice` | a regular integer lattice with Lorentzian (causal) or Riemannian signature |
 | `lattice-ball.ts` | `latticeBall`, `latticeWordDistance` | a BFS ball of integer points reachable from generator vectors |
@@ -30,7 +30,7 @@ The geometry layer, the base of the pipeline (`substrate -> tone -> rule -> dyna
 ### Trees and addressing
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `bethe-tree.ts` | `betheTree` | a regular q-ary tree, the cleanest negatively-curved discrete space |
 | `radial-tree.ts` | `radialBfsTree`, `boundaryByRadius`, `surfaceDistances`, `innermostCell` | a BFS radial tree rooted at the innermost cell, with a boundary and LCA |
 | `tree-addressing.ts` | `buildAddressedTree`, `routeByAddress`, `AddressedTree` | a spanning tree where a node's address routes messages by arithmetic |
@@ -39,7 +39,7 @@ The geometry layer, the base of the pipeline (`substrate -> tone -> rule -> dyna
 ### Causal sets and sprinklings
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `sprinkle-minkowski.ts` | `sprinkleMinkowski` | a uniform-by-volume Poisson sprinkle of a flat causal diamond |
 | `sprinkle-curved.ts` | `sprinkleCurved` | sprinkle into curved spacetimes (wave-burst, de Sitter, hyperbolic) |
 | `sprinkle-desitter.ts` | `sprinkleDeSitter` | a 2D de Sitter proper-volume sprinkle with exponential expansion |
@@ -50,7 +50,7 @@ The geometry layer, the base of the pipeline (`substrate -> tone -> rule -> dyna
 ### Graphs, navigation, and helpers
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `geometric-mesh.ts` | `randomGeometricMesh`, `squareLatticeMesh`, `centerNode`, `Mesh` | 2D random-geometric and square-lattice meshes in the unit square |
 | `proximity-graph.ts` | `proximityGraph`, `centerNearestOrigin` | connect a point cloud by nearest-neighbour proximity |
 | `regular-graph.ts` | `buildRegularGraph` | a degree-regular graph by the configuration model |

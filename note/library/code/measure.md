@@ -7,7 +7,7 @@ Import from `@/code/measure/<file>`.
 ## Geometry and dimension
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `shells` | `bfsShells`, `geodesicBall`, `branchingRatio`, `geometricGrowthRatio` | breadth-first shell counts and the ball within a radius |
 | `shell-growth` | `shellCountsFromGraph`, `growthRatioFromShellCounts`, `shellSeparationExponent` | shell census and growth from a graph |
 | `shell-growth-ratio` | `shellGrowthRatio` | growth per step (1 flat, above 1 hyperbolic) |
@@ -30,7 +30,7 @@ Import from `@/code/measure/<file>`.
 ## Relativity and dynamics
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `light-cone` | `lightConeRadii`, `streamingConeRadii`, `perturbationConeRadii` | the front radius per beat (the discrete light cone) |
 | `lorentz` | `lorentzIsotropy`, `latticeAnisotropy`, `lorentzSafety` | how direction-independent the front speed is |
 | `front-speed` | `directionalFrontDistances`, `rangeAnisotropy` | reach and spread per direction |
@@ -57,7 +57,7 @@ Import from `@/code/measure/<file>`.
 ## Quantum and information
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `bell` | `chsh`, `chshFromSharedPast`, `chshShared`, `TSIRELSON_SHARED_PAST` | the CHSH Bell value (above 2 breaks local realism) |
 | `bell-structure` | `singletChsh`, `ghzState`, `wClassState`, `horodeckiChsh` | Bell structure of singlet, GHZ, W states |
 | `two-qubit` | `twoQubitCorrelationMatrix`, `horodeckiMaxChsh`, `twoQubitConcurrence` | two-qubit correlations, max CHSH, concurrence |
@@ -83,7 +83,7 @@ Import from `@/code/measure/<file>`.
 ## Fields, gravity, and matter
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `wilson-loop` | `wilsonLoopValue`, `wilsonLoopPhase`, `creutzRatioFromLoops` | gauge holonomy and the confinement signal |
 | `aharonov-bohm` | `aharonovBohmPhase` | phase around enclosed flux |
 | `greens-function` | `dirichletGreensFunction`, `greensFunctionExponent`, `greensDecayClass` | lattice Green's function on a region |
@@ -109,7 +109,7 @@ Import from `@/code/measure/<file>`.
 ## Standard model and algebra structure
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `standard-model-charges` | `STANDARD_MODEL_GENERATION`, `weinbergAngleAtUnification`, `hyperchargeTrace` | one generation's charge assignment |
 | `electroweak` | `custodialRho`, `wToZMassRatio` | electroweak mass ratios |
 | `flavor-mixing` | `mixingAngleFromMassRatio`, `wolfensteinHierarchy` | CKM-style mixing from mass ratios |
@@ -136,7 +136,7 @@ Import from `@/code/measure/<file>`.
 ## Holography, memory, and routing
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `holography` | `ryuTakayanagiScaling`, `bulkShortcutScaling` | whether boundary entropy tracks the bulk geodesic |
 | `associative-recall` | `exactRecallRate`, `nearestRecallRate`, `coverageRadius`, `radiusCapacity` | content-memory recall accuracy and capacity |
 | `associative-memory` | `vsaRecallAccuracy` | vector-symbolic bind/bundle/unbind recall |
@@ -154,7 +154,7 @@ Import from `@/code/measure/<file>`.
 ## Statistics, fits, and time series
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `regression` | `powerLawFit`, `logLogSlope`, `linearFit`, `localForceLawExponent` | power-law, log-log, and linear fits |
 | `histogram` | `histogramFlatness` | how uniform a distribution is |
 | `spectrum` | `distinctLevels`, `zeroModeCensus` | distinct spectral levels, zero-mode count |
@@ -172,7 +172,7 @@ Import from `@/code/measure/<file>`.
 ## Fisher-Rao, coarse-graining, and coherence
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `fisher-rao` | `fisherRaoDistance`, `spatialActivityDistribution`, `cumulativeArcLength`, `windowSlope` | the information-geometry distance between activity distributions |
 | `alignment` | `coherenceOrder`, `conflictFraction`, `meanPairwiseConflict`, `decisiveness` | alignment and conflict of a field |
 | `agreement` | `agreementFraction`, `targetFidelity`, `clusterMajority` | agreement with a target pattern |
@@ -184,7 +184,7 @@ Import from `@/code/measure/<file>`.
 ## Cross-tessellation battery and substrate probes
 
 | module | key exports | what it returns |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `tessellation-battery` | `measureTessellation`, `TessellationMeasurement` | one Schlafli symbol in, a full report out |
 | `tessellation-profile` | `tessellationDataProfile`, `cellCoordination` | the data-structure profile (diameter, growth, addressing, capacity) |
 | `tessellation-survey` | `surveyTessellation` | a survey pass over a tessellation |

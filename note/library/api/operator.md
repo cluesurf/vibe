@@ -7,7 +7,7 @@ An operator turns a substrate (or a cell complex built from one) into a matrix y
 ### Laplacian and diffusion
 
 | operator (`@/code/operator/<file>`) | what it builds |
-| ------- | -------------- |
+|:--- |:--- |
 | `laplacian({ substrate })` (`laplacian`) | The graph Laplacian `L = D - A` as a `SparseMatrix`. The base of diffusion and the static-force sector. |
 | `laplacianSpectrum({ substrate, count })` (`laplacian`) | The lowest `count` eigenvalues of `L`, ascending, via Lanczos. Gives effective dimension and the heat-kernel return. |
 | `laplacianGreensFunction({ substrate, center })` (`laplacian`) | The static potential `phi` solving `L phi = delta`, neutralized. A potential that decays with graph distance. |
@@ -16,7 +16,7 @@ An operator turns a substrate (or a cell complex built from one) into a matrix y
 ### Dirac and fermions
 
 | operator (`@/code/operator/<file>`) | what it builds |
-| ------- | -------------- |
+|:--- |:--- |
 | `cellComplexOf({ substrate, maxGrade })` (`dirac`) | The cell complex (vertices, edges, faces) over a substrate. The input every Dirac operator wants. |
 | `kahlerDirac({ complex })` (`dirac`) | The Kahler-Dirac operator `D = d + delta` as a `SparseMatrix`. Fermions as differential forms. |
 | `diracSpectrum({ complex, count })` (`dirac`) | The lowest `count` eigenvalues of `D`, ascending. |
@@ -27,7 +27,7 @@ An operator turns a substrate (or a cell complex built from one) into a matrix y
 ### Gauge fields
 
 | operator (`@/code/operator/<file>`) | what it builds |
-| ------- | -------------- |
+|:--- |:--- |
 | `covariantKahlerDirac({ complex, field, charge })` (`gauge-dirac`) | The Kahler-Dirac operator with a gauge field threaded through the edges (link phases). |
 | `overlapIndex({ length, charge })` (`gauge-index`) | The overlap-fermion index (spectral asymmetry) plus the total flux. The lattice index theorem. |
 | `gaugeWilsonDirac({ length, charge })` (`gauge-index`) | The Wilson-Dirac matrix in a fixed U(1) flux background, the input to the overlap. |
@@ -38,7 +38,7 @@ An operator turns a substrate (or a cell complex built from one) into a matrix y
 ### Evolution and tight-binding
 
 | operator (`@/code/operator/<file>`) | what it builds |
-| ------- | -------------- |
+|:--- |:--- |
 | `evolveByEigendecomposition({ eig, n, re0, im0, t })` (`unitary-evolution`) | Exact unitary time evolution `e^{-iHt}` once you have the eigendecomposition. |
 | `ringHoppingHamiltonian`, `staggeredMassChainHamiltonian`, `torusHoppingHamiltonian`, `openChainPotentialApply` (`tight-binding`) | Tight-binding hoppers on a ring, a staggered-mass chain, a torus, or an open well. The free-particle baselines. |
 | `hamiltonianMatrix({ perm })` (`ca-hamiltonian`) | The permutation Hamiltonian of a reversible cellular automaton, ready to diagonalize. |

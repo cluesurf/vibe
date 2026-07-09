@@ -9,7 +9,7 @@ Import from `@/code/model/vibe`.
 Every setter returns a new builder, so calls chain. No string is ever evaluated. Options are named and dispatched.
 
 | Method | What it does |
-| --- | --- |
+|:--- |:--- |
 | `.size(n)` | Number of cells in the mesh. Defaults to 1000. |
 | `.seed(s)` | Deterministic seed. Same seed gives the same run. Defaults to 1. |
 | `.describe()` | Returns a readable spec block (a string) of the whole model at a glance. Good for printing. |

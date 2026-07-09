@@ -10,14 +10,14 @@ Each rule elsewhere in the suite rests on "only five base things, nothing tuned 
 
 One parameter assignment must fit every arena at once, with thresholds fixed in advance, so a single disagreement falsifies the whole.
 
-- **E-MTH-0001** - the substrate closes Herbert's consistency matrix, one committed {3,4,3,4} assignment passes conservation, reversibility, isotropy, and continuity at once, while perturbing either shared lever (a lossy rule, a wrong frame) breaks exactly the cluster that lever governs, so the arenas cannot be tuned independently.
+- **[`E-MTH-0001`](../../../test/experiment/method/consistency-matrix.ts)** - the substrate closes Herbert's consistency matrix, one committed {3,4,3,4} assignment passes conservation, reversibility, isotropy, and continuity at once, while perturbing either shared lever (a lossy rule, a wrong frame) breaks exactly the cluster that lever governs, so the arenas cannot be tuned independently.
 
 ## The anti-fooling gates
 
 Quantitative guards against calling a coincidence a derivation or a tautology a result.
 
-- **E-MTH-0002** - the look-elsewhere numerology audit, an arbitrary-formula menu covers most of the number line at one percent tolerance while the forced structural menu (polytope and Coxeter-group orders) covers almost none, so a fitted constant match carries no information and a geometric one does.
-- **E-MTH-0003** - the perturbation-audit harness, self-validated, the gate grants an audited pass to a durable result (the emergent complex unit i, which survives an irrelevant basis change and dies under the relevant unsigned control) and fails a circular one (a claim true for every iterant), so it is a real gate, not a rubber stamp.
+- **[`E-MTH-0002`](../../../test/experiment/method/look-elsewhere-numerology-audit.ts)** - the look-elsewhere numerology audit, an arbitrary-formula menu covers most of the number line at one percent tolerance while the forced structural menu (polytope and Coxeter-group orders) covers almost none, so a fitted constant match carries no information and a geometric one does.
+- **[`E-MTH-0003`](../../../test/experiment/method/perturbation-audit-harness.ts)** - the perturbation-audit harness, self-validated, the gate grants an audited pass to a durable result (the emergent complex unit i, which survives an irrelevant basis change and dies under the relevant unsigned control) and fails a circular one (a claim true for every iterant), so it is a real gate, not a rubber stamp.
 
 ## What it establishes
 

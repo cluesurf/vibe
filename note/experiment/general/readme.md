@@ -8,7 +8,7 @@ The larger claim the program makes is that radial coarse-graining IS the renorma
 
 ## The renormalization mechanism, made exact
 
-- **E-MSC-0001** - block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point, the closed form K' = (1/2) ln cosh 2K verified against direct summation, the flow iterated to the fixed point, and the beta function computed, pinning the RG method end to end while leaving the 4D Standard Model coefficients as the open step.
+- **[`E-MSC-0001`](../../../test/experiment/general/open-rg-flow.ts)** - block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point, the closed form K' = (1/2) ln cosh 2K verified against direct summation, the flow iterated to the fixed point, and the beta function computed, pinning the RG method end to end while leaving the 4D Standard Model coefficients as the open step.
 
 ## What it establishes
 
