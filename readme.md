@@ -90,8 +90,8 @@ work.
 
 The one primitive is the **vibe**, a unit of experience. It carries a
 ternary **tone** (its felt charge: pain, peace, pleasure) and it notes
-(experiences) its neighbors. Everything else is arrangements of vibes and
-one rule for how their tones update. That the base genuinely **is**
+(experiences) its neighbors. Everything else is arrangements of vibes
+and one rule for how their tones update. That the base genuinely **is**
 experience, that the tone is felt and not merely a label on a number, is
 the model's one **axiom**. Like every axiom, it is unfalsifiable. No lab
 reading distinguishes a universe whose base is felt from an identical
@@ -100,50 +100,52 @@ result. The experiments here never confirm it. They confirm structure.
 
 Under that frame sits a concrete discrete dynamical system, and it is
 highly falsifiable: a fixed geometry (the `{3,4,3,4}` honeycomb, a
-24-direction coin), a ternary state, and one reversible charge-conserving
-local rule. The physics is derived from that fixed base as measured
-consequences, and the whole method is built to try to make them come out
-wrong. Every deep claim carries a **control**, a case where the answer
-should be no, and a test that cannot fail is graded `L0` and counts for
-nothing. Negatives are kept, not hidden. The spinor that appears
-on the `{3,4,3,4}` coin and provably fails to appear on the `{5,3,4}`
-control, the area-law exponent that had to land near 2 and not near 3,
-the Lorentz isotropy that could have stayed anisotropic: each could have
-killed its claim and did not.
+24-direction coin), a ternary state, and one reversible
+charge-conserving local rule. The physics is derived from that fixed
+base as measured consequences, and the whole method is built to try to
+make them come out wrong. Every deep claim carries a **control**, a case
+where the answer should be no, and a test that cannot fail is graded
+`L0` and counts for nothing. Negatives are kept, not hidden. The spinor
+that appears on the `{3,4,3,4}` coin and provably fails to appear on the
+`{5,3,4}` control, the area-law exponent that had to land near 2 and not
+near 3, the Lorentz isotropy that could have stayed anisotropic: each
+could have killed its claim and did not.
 
 So "vibe theory is unfalsifiable" is half right and half wrong, and the
 two halves must be kept apart. The axiom "experience is the base" is
 unfalsifiable, which is what an axiom is. The physics built under it is
 falsifiable, is being falsification-tested with controls and published
-failures, and is the opposite of a theory that fits anything. The reading is that the experiments do not prove the base is felt. They show
+failures, and is the opposite of a theory that fits anything. The
+reading is that the experiments do not prove the base is felt. They show
 that a single discrete rule, framed as felt, recovers a large amount of
 physics as results that could have come out otherwise.
 
 ## The invariants
 
-The structures the one base rule holds fixed, each measured with a control
-that could have failed. An invariant is anything that stays put: a conserved
-quantity, a structure the rule is forced to keep, or a number that survives
-when the substrate is varied. These are also the structures that keep
-recurring across other physics theories built from different starting points,
-worked out in [note/triangulating-invariants.md](note/triangulating-invariants.md)
-with the per-theory maps in [note/links/](note/links/).
+The structures the one base rule holds fixed, each measured with a
+control that could have failed. An invariant is anything that stays put:
+a conserved quantity, a structure the rule is forced to keep, or a
+number that survives when the substrate is varied. These are also the
+structures that keep recurring across other physics theories built from
+different starting points, worked out in
+[note/triangulating-invariants.md](note/triangulating-invariants.md)
+with the per-theory maps in [note/link/](note/link/).
 
-| invariant | what stays fixed | experiment |
-| --- | --- | --- |
-| charge conservation | the total charge is exactly constant, an integer the rule never changes | E-FND-0008 |
-| reversibility | run the rule forward then backward, the start returns bit for bit | E-FND-0049 |
-| the arrow of time | the wake (the growing edge) keeps adding records and never erases one | E-FND-0051 |
-| the distinguishability metric | Fisher-Rao is the one distance measure no relabeling of the 24 directions can change | E-FND-0057 |
-| the Born rule | the `\|amplitude\|^2` probability falls out of the conserved total, not from a postulate | E-QTM-0067 |
-| the light cone | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz) | E-RLT-0014 |
-| gravity | entropy scales with a region's boundary area, not its volume (the area law) | E-GRV-0002 |
-| spacetime dimension | the boundary reads a spatial dimension near 3, so space is 3D plus time | E-GMT-0025 |
-| the growth ratio | each new shell is larger than the last by a fixed factor near 18.28 | E-GMT-0028 |
-| a chaos ceiling on records | a coherent record holds only while the chaos rate stays below a threshold | E-QTM-0092 |
+| invariant                     | what stays fixed                                                                         | experiment |
+| ----------------------------- | ---------------------------------------------------------------------------------------- | ---------- |
+| charge conservation           | the total charge is exactly constant, an integer the rule never changes                  | E-FND-0008 |
+| reversibility                 | run the rule forward then backward, the start returns bit for bit                        | E-FND-0049 |
+| the arrow of time             | the wake (the growing edge) keeps adding records and never erases one                    | E-FND-0051 |
+| the distinguishability metric | Fisher-Rao is the one distance measure no relabeling of the 24 directions can change     | E-FND-0057 |
+| the Born rule                 | the `\|amplitude\|^2` probability falls out of the conserved total, not from a postulate | E-QTM-0067 |
+| the light cone                | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz) | E-RLT-0014 |
+| gravity                       | entropy scales with a region's boundary area, not its volume (the area law)              | E-GRV-0002 |
+| spacetime dimension           | the boundary reads a spatial dimension near 3, so space is 3D plus time                  | E-GMT-0025 |
+| the growth ratio              | each new shell is larger than the last by a fixed factor near 18.28                      | E-GMT-0028 |
+| a chaos ceiling on records    | a coherent record holds only while the chaos rate stays below a threshold                | E-QTM-0092 |
 
-Each is a measured consequence of the base rule, not an input. The first four
-are the invariants the rest are built on.
+Each is a measured consequence of the base rule, not an input. The first
+four are the invariants the rest are built on.
 
 ## Keys
 
@@ -166,7 +168,8 @@ code was written with AI assistance, which changes nothing about
 trusting it. It is deterministic and reproducible, so you can run it and
 verify every result yourself. Each question is one experiment in
 `test/experiment/<category>/`, a single `experiment` that returns a
-structured verdict (status, metrics, control, claim) graded by a plain depth level, from `L0` circular through `L1` known math and `L2` known
+structured verdict (status, metrics, control, claim) graded by a plain
+depth level, from `L0` circular through `L1` known math and `L2` known
 physics to `L3` emergent and novel. The standard the experiments are
 held to is in
 [`note/experimental-methodology.md`](note/experimental-methodology.md),
@@ -217,19 +220,21 @@ invariants) raised the honest L3 count.
 
 ## The experiment map
 
-`test/catalog.csv` is the flat, machine-generated index, one sorted row per
-experiment. For a human-navigable walk through the whole suite, read the
-**[experiment map](note/experiment/readme.md)**. There are hundreds of
-experiments and no one is going to read them all, so the map is the way in.
+`test/catalog.csv` is the flat, machine-generated index, one sorted row
+per experiment. For a human-navigable walk through the whole suite, read
+the **[experiment map](note/experiment/readme.md)**. There are hundreds
+of experiments and no one is going to read them all, so the map is the
+way in.
 
-It groups every experiment into its arena (selves, gauge, foundations, quantum,
-gravity, and the rest), and each arena doc distills every experiment by
-sub-theme in one line. The top of the map carries the full **coverage matrix**
-(which arenas are deep, which are thin, where there is no control-gated result
-yet), a **[concepts cross-index](note/experiment/concepts.md)** for finding an
-idea across arenas, curated **reading paths** for diving in cold, and a guide
-for adding your own experiment. Start there to see the full scope and reach any
-single result without piecing it together from the files.
+It groups every experiment into its arena (selves, gauge, foundations,
+quantum, gravity, and the rest), and each arena doc distills every
+experiment by sub-theme in one line. The top of the map carries the full
+**coverage matrix** (which arenas are deep, which are thin, where there
+is no control-gated result yet), a
+**[concepts cross-index](note/experiment/concepts.md)** for finding an
+idea across arenas, curated **reading paths** for diving in cold, and a
+guide for adding your own experiment. Start there to see the full scope
+and reach any single result without piecing it together from the files.
 
 ## Quick start
 
@@ -242,7 +247,8 @@ Every experiment lives in `test/experiment/<category>/<name>.ts` as one
 `experiment`, and the suite runner (`test/run.ts`) imports them all and
 runs the registry. The shared library they import is in `code/`, and the
 named batteries (conformance, paper) are in `test/suite/`. The build
-fails only on a code crash or a conformance failure, never on a scientific negative.
+fails only on a code crash or a conformance failure, never on a
+scientific negative.
 
 ## What is inside
 
@@ -295,25 +301,25 @@ All docs live in `note/`. The entry points:
   evolution, the lattice gauge engine, the coarse-graining and selves
   engine, and the associative memory engine).
 - **[The math catalog](note/math.md)** lists every piece of math the
-  library runs: what each module implements, what it depends on, and which
-  experiments use it.
+  library runs: what each module implements, what it depends on, and
+  which experiments use it.
 - **[Architecture](note/architecture.md)** is where code and tests live,
   and how to add an experiment.
 - **[Experimental methodology](note/experimental-methodology.md)** is
   the standard every experiment is held to, the depth rubric, the
   control requirement, determinism, and the negatives.
-- **[Open problems](note/open/)** are the negatives written up
-  in full. The hardest is
+- **[Open problems](note/open/)** are the negatives written up in full.
+  The hardest is
   **[spacelike Bell correlations](note/open/spacelike-bell-correlations.md)**:
-  what Bell's theorem actually proves, why a deterministic theory can still
-  match quantum mechanics (it drops measurement independence, not
-  determinism), the price vibe pays for that, and the measured shared-past
-  collapse that makes it hard.
+  what Bell's theorem actually proves, why a deterministic theory can
+  still match quantum mechanics (it drops measurement independence, not
+  determinism), the price vibe pays for that, and the measured
+  shared-past collapse that makes it hard.
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
   is how to write an experiment that runs against every regular
   hyperbolic tessellation at once.
-- **[Reference data and verification](note/data/reference/readme.md)** is
-  the measuring stick: the real physics numbers the experiments are
+- **[Reference data and verification](note/data/reference/readme.md)**
+  is the measuring stick: the real physics numbers the experiments are
   checked against, and the live cross-check of each.
 
 ## Reference data and verification
@@ -323,9 +329,9 @@ those numbers live in one cited place:
 [`note/data/reference/`](note/data/reference/readme.md).
 
 - **What we gathered.** Every external value an experiment must match or
-  use as a comparison: the fundamental constants, the full Standard Model
-  particle table, the roughly 26 free Standard Model parameters, the CKM
-  and PMNS mixing matrices, the cosmological parameters, and the
+  use as a comparison: the fundamental constants, the full Standard
+  Model particle table, the roughly 26 free Standard Model parameters,
+  the CKM and PMNS mixing matrices, the cosmological parameters, and the
   geometric and group-theory targets the model derives (the ternary 3,
   the 24 of the cell, the octonion ceiling 8, F4 order 1152,
   sin^2(theta_W) = 3/8, the Tsirelson bound, the Born exponent, and so
@@ -333,9 +339,9 @@ those numbers live in one cited place:
 - **What it contains.** Structured CSV plus a machine-readable
   `reference.json`, with a prose [readme](note/data/reference/readme.md)
   and a [bibliography](note/data/reference/sources.md). Every single row
-  carries a `source` tag and a `verified` date. The empirical values were
-  fetched from and reconciled against their primary sources on 2026-06-24
-  (CODATA 2022, PDG 2024, NuFIT 6.0, Planck 2018).
+  carries a `source` tag and a `verified` date. The empirical values
+  were fetched from and reconciled against their primary sources on
+  2026-06-24 (CODATA 2022, PDG 2024, NuFIT 6.0, Planck 2018).
 - **How we used it.** The
   [verification](note/data/reference/verification/readme.md) folder runs
   the comparison-bearing experiments live and diffs each measured number
