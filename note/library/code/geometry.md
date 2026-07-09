@@ -5,7 +5,7 @@ The hyperbolic-geometry helper layer. These are the small, pure math primitives 
 ## Modules
 
 | file | key exports | what it is |
-| ---- | ----------- | ---------- |
+|:--- |:--- |:--- |
 | `distance.ts` | `poincareDistance`, `poincareCosh`, `poincareDistanceIndexed`, `polarCoshFromParts`, `poincareCoshFromParts` | hyperbolic distance in the Poincare ball |
 | `mobius.ts` | `ballIsometry`, `ballBoundaryConformalFactor` | Mobius ball isometries (hyperbolic translations) and the boundary conformal factor |
 | `packing.ts` | `deterministicSpiral`, `relaxRiesz`, `isKissingConfiguration`, `maxPairwiseCosine`, `coordinationAtMinAngle`, `canExtendKissing`, `unit` | sphere point sets, kissing-number checks, deterministic Riesz relaxation |

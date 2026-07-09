@@ -7,7 +7,7 @@ Import from `@/code/draw/<file>`.
 ## Modules
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `color` | `PEACE`, `PLEASURE`, `PAIN`, `TONE_COLORS` | the one tone palette, each an `[r,g,b]`, indexed by packed tone (0 peace, 1 pleasure/blue, 2 pain/red) |
 | `raster` | `makeCanvas`, `setPixel`, `drawDisk`, `Color` | RGBA canvas drawing, background fill and a clipped sub-pixel filled disk |
 | `png` | `encodePng` | encode an RGBA buffer to a PNG `Buffer`, no dependency |

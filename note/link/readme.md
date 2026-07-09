@@ -1,15 +1,14 @@
 # Links: Vibe to other theories
 
 One file per theory, each a cheatsheet of how Vibe maps onto that theory, mapping by
-mapping, with the experiment behind each and a grade. The direction is always
-**Vibe to them**. We do not adopt their framework, we ask what part of it Vibe derives.
+mapping, with the experiment behind each and a grade. The direction is always **Vibe to the other author's theory**. We do not adopt their framework, we ask what part of it Vibe derives.
 
 These are the curated, experiment-backed correspondences. The broader by-author research
 notes live elsewhere in the monorepo. This folder holds only the theories Vibe has
 actually run experiments against, starting with the most complete.
 
 For the cross-theory picture, the structures that recur across several of these theories
-at once, see `../triangulating-invariants.md`.
+at once, see [../triangulating-invariants.md](../triangulating-invariants.md).
 
 ## The theories
 
@@ -17,7 +16,7 @@ Sorted by how many recurring invariants they share with vibe. The shared invaria
 the point, the structures each theory derives that vibe also derives.
 
 | theory | thinker | their primitive | exp | shared invariants |
-| --- | --- | --- | ---: | --- |
+|:--- |:--- |:--- | ---: |:--- |
 | [Timeless Dynamics](timeless-dynamics.md) | James Lombardo | continuous distinguishability | 10 | time-as-distinction, records-as-arrow, Fisher-Rao forced, Born-from-norm, Lyapunov ceiling |
 | [Chronoflux](chronoflux.md) | Roy Herbert | a conserved temporal current | 5 | one conserved quantity, time-as-divergence, recoverability, entropic gravity |
 | [Orch-OR](orch-or.md) | Hameroff and Penrose | gravitational state collapse | 6 | records persist under noise (divergent on the mechanism) |
@@ -39,5 +38,5 @@ Each mapping in a cheatsheet carries one:
 2. Write `<theory-name>.md`, preferring the theory name over the author name.
 3. Open with the theory in one paragraph, then the correspondence table (vibe structure,
    their structure, the experiment code, the grade), then the divergences, then the tie
-   to the recurring invariants in `../triangulating-invariants.md`.
+   to the recurring invariants in [../triangulating-invariants.md](../triangulating-invariants.md).
 4. Add a row to the table above.

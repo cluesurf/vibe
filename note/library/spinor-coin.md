@@ -43,7 +43,7 @@ group the way 24 do, so that coin carries integer spin only.
 ## The components
 
 | file             | role                                                                                                                                                      |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `quaternion.ts`  | unit quaternions, `multiply`, `negate`, `binaryTetrahedral` (2T, the 24 directions), `binaryIcosahedral` (2I), `quaternionKey`                            |
 | `root-system.ts` | `rootsD4` (the 24 directions as roots), `rootsF4`, `rootsDn`, `rootsAn`, `icosahedronVertexDirections` (the 12 of {5,3,4}), `reflectRoot`, `isRootSystem` |
 | `cell-24.ts`     | `trialityClasses` (the 8v/8s/8c split), `omega` (the cube root of unity that cycles them), `cell24Vertices`                                               |

@@ -48,7 +48,7 @@ not earned.
 Every test is graded by what it actually establishes, not by whether it prints PASSED. Four levels.
 
 | level | what it establishes | example |
-| ----- | ------------------- | ------- |
+|:--- |:--- |:--- |
 | L0 circular | the answer is put in by hand, proves nothing | integrating dS/dt = g S x B then reporting g, hardcoding a formula then verifying it |
 | L1 known math | correctly confirms an established mathematical fact | the 24-cell is the binary tetrahedral group, D4 is a flat 4D lattice |
 | L2 known physics | reproduces a known construction on this substrate | the Dirac quantum walk, lattice gauge theory, ballistic transport |

@@ -12,36 +12,36 @@ Most experiments carry a control, a shuffle null or a broken rule where the towe
 
 The effective theory is the same up a whole chain of scales, so a slice measurement is a universe measurement. The commuting square must hold for the conserved charge, for the dynamics, and even across a change in the kind of variable.
 
-- **E-SCL-0011** - the renormalization keystone, three intensive vacuum parameters (density, connected correlation, lightcone speed) measured on a small slice match those of a much larger one, so the slice's effective theory is the universe's.
-- **E-SCL-0002** - the full chain, charge is exactly preserved at every block level (1, 2, 4, ... 32) and the dimensionless effective parameter converges to a fixed point across the tower.
-- **E-SCL-0015** - the dynamical chain, the wave equation commutes up the tower (evolve-then-coarsen equals coarsen-then-evolve) with the errors shrinking and the wave speed invariant.
-- **E-SCL-0005** - the cross-domain chain, field to particle to composite rungs each commute as the effective variable changes from a function to a point to a body with center-of-mass motion.
-- **E-SCL-0010** - the negative, coarse-graining up the {5,3,4} reflection tree does NOT build a persistence tower the fine scale lacks, measured against a random-group null.
+- **[`E-SCL-0011`](../../../test/experiment/renormalization/renormalization.ts)** - the renormalization keystone, three intensive vacuum parameters (density, connected correlation, lightcone speed) measured on a small slice match those of a much larger one, so the slice's effective theory is the universe's.
+- **[`E-SCL-0002`](../../../test/experiment/renormalization/coarse-graining-chain.ts)** - the full chain, charge is exactly preserved at every block level (1, 2, 4, ... 32) and the dimensionless effective parameter converges to a fixed point across the tower.
+- **[`E-SCL-0015`](../../../test/experiment/renormalization/wave-chain.ts)** - the dynamical chain, the wave equation commutes up the tower (evolve-then-coarsen equals coarsen-then-evolve) with the errors shrinking and the wave speed invariant.
+- **[`E-SCL-0005`](../../../test/experiment/renormalization/cross-domain-chain.ts)** - the cross-domain chain, field to particle to composite rungs each commute as the effective variable changes from a function to a point to a body with center-of-mass motion.
+- **[`E-SCL-0010`](../../../test/experiment/renormalization/radial-coherence.ts)** - the negative, coarse-graining up the {5,3,4} reflection tree does NOT build a persistence tower the fine scale lacks, measured against a random-group null.
 
 ## The renormalization-group flow
 
 A coupling that runs under coarse-graining, with a measured beta function that drives it to a fixed point. This is the mechanism behind the running of constants, made geometric.
 
-- **E-SCL-0003** - a measured block-spin coupling matches the exact decimation recursion tanh K' = tanh squared K and iterating drives K to the disordered fixed point, a genuine flow, measured not asserted.
-- **E-SCL-0012** - the 1D decimation RG shows a coupling flows with a beta function under coarse-graining, and the bulk's radial direction is that coarse-graining, so the running is geometric.
-- **E-SCL-0013** - the first inter-layer transform, blocking the charge enriches the alphabet from ternary to many integers and conserves charge, and the discovered coarse rule is diffusion.
-- **E-SCL-0007** - a renormalized macro-rule (signed-majority with restored self and cross couplings) emerges on tone-independent blocks in the ordered regime and fails when frustrated, a fixed point up to coupling renormalization.
-- **E-SCL-0014** - Wang-Landau measures the entropy gap directly at large N and finds a roughly N-independent crossing beta-star in the causal-set action.
+- **[`E-SCL-0003`](../../../test/experiment/renormalization/coarse-graining-fixed-point.ts)** - a measured block-spin coupling matches the exact decimation recursion tanh K' = tanh squared K and iterating drives K to the disordered fixed point, a genuine flow, measured not asserted.
+- **[`E-SCL-0012`](../../../test/experiment/renormalization/rg-from-coarse-graining.ts)** - the 1D decimation RG shows a coupling flows with a beta function under coarse-graining, and the bulk's radial direction is that coarse-graining, so the running is geometric.
+- **[`E-SCL-0013`](../../../test/experiment/renormalization/rg-step.ts)** - the first inter-layer transform, blocking the charge enriches the alphabet from ternary to many integers and conserves charge, and the discovered coarse rule is diffusion.
+- **[`E-SCL-0007`](../../../test/experiment/renormalization/emergent-macro-rule.ts)** - a renormalized macro-rule (signed-majority with restored self and cross couplings) emerges on tone-independent blocks in the ordered regime and fails when frustrated, a fixed point up to coupling renormalization.
+- **[`E-SCL-0014`](../../../test/experiment/renormalization/wang-landau.ts)** - Wang-Landau measures the entropy gap directly at large N and finds a roughly N-independent crossing beta-star in the causal-set action.
 
 ## The critical point
 
 Where the correlation length diverges and coarse-graining reaches a continuum. The suite scans for such points and reports the negatives plainly.
 
-- **E-SCL-0004** - an absorbing critical point at arrow zero with a mean-field order-parameter exponent beta near one half, found in the susceptibility peak.
-- **E-SCL-0009** - the negative, no static gapless critical point over the arrow-share plane, the conserved-exchange field is robustly massive with these knobs.
-- **E-SCL-0001** - the negative, no scale-free avalanches at any background level, a seeded perturbation spreads ballistically to a fixed size rather than a power-law cascade.
+- **[`E-SCL-0004`](../../../test/experiment/renormalization/criticality-scan.ts)** - an absorbing critical point at arrow zero with a mean-field order-parameter exponent beta near one half, found in the susceptibility peak.
+- **[`E-SCL-0009`](../../../test/experiment/renormalization/gapless-search.ts)** - the negative, no static gapless critical point over the arrow-share plane, the conserved-exchange field is robustly massive with these knobs.
+- **[`E-SCL-0001`](../../../test/experiment/renormalization/avalanche-criticality.ts)** - the negative, no scale-free avalanches at any background level, a seeded perturbation spreads ballistically to a fixed size rather than a power-law cascade.
 
 ## The continuum limit
 
 What the effective theory actually is at the bottom of the tower.
 
-- **E-SCL-0006** - the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current (Ward) vertex match QED, broken by an anisotropic rule or a Proca photon.
-- **E-SCL-0008** - coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the flat 3D {4,3,4} cusp, a coherence tower in three dimensions.
+- **[`E-SCL-0006`](../../../test/experiment/renormalization/dirac-maxwell-propagators.ts)** - the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current (Ward) vertex match QED, broken by an anisotropic rule or a Proca photon.
+- **[`E-SCL-0008`](../../../test/experiment/renormalization/form-tower-3434.ts)** - coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the flat 3D {4,3,4} cusp, a coherence tower in three dimensions.
 
 ## What it establishes
 

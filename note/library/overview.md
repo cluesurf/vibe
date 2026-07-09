@@ -22,7 +22,7 @@ The model DSL (`vibe()`) wraps the committed version of this whole chain in one 
 ## What it contains (the layers)
 
 | layer | folder | what it provides |
-| ----- | ------ | ---------------- |
+|:--- |:--- |:--- |
 | substrates | `code/substrate`, `code/tool/mesh` | the discrete geometries, every regular hyperbolic tessellation, the D4 coin, flat lattices, sprinklings, the catalog |
 | state and rule | `code/tone`, `code/rule` | the tone (one ternary value per direction per cell) and the reversible conserving local rule |
 | operators | `code/operator` | matrices built on a substrate, the Laplacian, the Kahler-Dirac and overlap fermions, the gauge Dirac, the Landau levels |

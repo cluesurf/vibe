@@ -39,7 +39,7 @@ Every experiment lives in exactly one arena (its `test/experiment/<arena>/`
 folder). Counts are file counts.
 
 | arena | n | what it tests |
-| --- | ---: | --- |
+|:--- | ---: |:--- |
 | [selves](selves/readme.md) | 176 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
 | [gauge](gauge/readme.md) | 71 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate |
 | [foundations](foundations/readme.md) | 69 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed |
@@ -68,7 +68,7 @@ view: where the suite is deep, where it is thin, and where it has no
 control-gated result yet.
 
 | arena | L0 | L1 | L2 | L3 | paper |
-| --- | ---: | ---: | ---: | ---: | ---: |
+|:--- | ---: | ---: | ---: | ---: | ---: |
 | selves | 3 | 10 | 135 | 28 | 109 |
 | gauge | 3 | 29 | 32 | 7 | 42 |
 | foundations | 0 | 24 | 45 | **0** | 37 |
@@ -155,7 +155,7 @@ The suite catches its own holes. The clearest ones:
   addressing. Each has substantive L2 work but no control-gated result. Adding
   a scramble or flat-lattice control to a key L2 experiment there is the highest
   value extension.
-- **A registry gap:** `renormalization-tower.ts` declares `E-SLF-0100` inside
+- **A registry gap:** `renormalization-tower.ts` declares [`E-SLF-0100`](../../test/experiment/selves/renormalization-tower.ts) inside
   the file, but `registry.csv` skips 0100 (175 selves rows for 176 files). The
   registry needs that row added and the catalog regenerated.
 - **Thin arenas by count:** method (3) and general (1) are meta and could hold

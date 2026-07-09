@@ -7,7 +7,7 @@ Run with `npx tsx code/viz/<file>.ts`. Output goes to `make/` (gitignored).
 ## Modules
 
 | module | key exports | what it does |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `clock-24` | (script) | the 24-clock, two concentric rings of 12 radial tick-bars with 12 spokes, minimal SVG to `make/24-clock.svg` |
 | `curvature` | (script) | the three curvatures (spherical, Euclidean, hyperbolic) as geodesic-triangle SVGs to `make/curvature-*.svg` |
 | `gravity-test` | `gravityTest`, `main` | the gravity hole-finder, does the bare `{5,3,4}` rule pull two matter lumps together (an adversarial no-gravity test) |

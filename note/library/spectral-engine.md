@@ -40,7 +40,7 @@ goes to Lanczos or KPM. The tree case is closed-form, no matrix at all.
 ## The components
 
 | file                   | role                                                                                           |
-| ---------------------- | ---------------------------------------------------------------------------------------------- | --- | ------------------------------ |
+|:--- |:--- |:--- |:--- |
 | `eig-jacobi.ts`        | the real symmetric solver, cyclic Jacobi rotations (`eigSymmetric`, `jacobiEigenvalues`)       |
 | `eig-lanczos.ts`       | lowest-k eigenvalues of a large sparse operator via a Krylov tridiagonal (`lowestEigenvalues`) |
 | `eig-hermitian.ts`     | complex Hermitian via the 2n real embedding, plus matrix sign and zero-mode count              |

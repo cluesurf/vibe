@@ -40,7 +40,7 @@ entry, the VERTEX FIGURE is the symbol minus its first entry.
 ## The components
 
 | file                 | role                                                                                        |
-| -------------------- | ------------------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `schlafli.ts`        | the exact Coxeter math, Gram matrix, geometry classification, the mirror frame              |
 | `cell-direct.ts`     | the reflection-orbit engine, builds the cell graph for any rank, plus horosphere extraction |
 | `tessellation.ts`    | the generic FRONT-END, classify, route, build, inspect, never degenerates                   |
@@ -195,7 +195,7 @@ What is not yet built (the next pieces),
 ## Worked examples (verified, `substrate-survey/generic-tessellation-engine`)
 
 | symbol    | geometry   | dimension         | cell               | facet degree       | compactness              |
-| --------- | ---------- | ----------------- | ------------------ | ------------------ | ------------------------ |
+|:--- |:--- |:--- |:--- |:--- |:--- |
 | {7,3}     | hyperbolic | 2D                | heptagon           | 7                  | compact                  |
 | {5,3,4}   | hyperbolic | 3D                | dodecahedron       | 12                 | compact                  |
 | {3,5,3}   | hyperbolic | 3D                | icosahedron        | 20                 | compact                  |

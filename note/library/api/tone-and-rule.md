@@ -5,7 +5,7 @@ The state is a ternary tone per direction per cell. The rule is a directional la
 ## The key pieces
 
 | module | what it gives you |
-| ------ | ----------------- |
+|:--- |:--- |
 | `@/code/tone/will` | `makeWill`, `fillWillPattern`, `charge`, `cellTone`, the `Will` state (one ternary `Tone` per direction per cell) and the `Tone` type (`-1 \| 0 \| 1`) |
 | `@/code/rule/lattice-gas` | `beat` (collide then stream), `run`, `inverseBeat`, `stream`, the engine |
 | `@/code/rule/collision` | `pairCollision`, the 9-state pair table run on every opposite line. Also `momentumRotate2D`, `passThrough`, `headOnRotate`, `stickyReflect`, `bindAndMove`, `PAIR_FORWARD` |

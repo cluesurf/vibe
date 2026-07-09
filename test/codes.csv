@@ -1,22 +1,22 @@
 code,name,description
-FND,foundations,The base rule and its forced structure. Determinism, locality, causal order, confluence, the conserving reversible knit, why {3,4,3,4} and ternary tone are forced.
-RLT,relativity,Lorentz invariance and its deformation. Boosts, isotropy, dispersion relations, light cones, doubly-special second invariant, Lorentz-violation bounds.
-GMT,geometry,Emergent space and its shape. Tessellation, Coxeter structure, spectral and box dimension, curvature, the cusp horosphere, emergent-space tests.
-GRV,gravity,Emergent attraction and curvature dynamics. The 1/r law, entropic gravity, area law, Einstein equations from thermodynamics, gravitational waves.
-CSM,cosmology,The growing wake and time. Genesis, eternal expansion, the arrow, density growth, the cosmic web.
-DRK,dark,The dark sector as wake and substrate. Dark energy, dark-matter-free rotation, the cosmological constant, radial-acceleration relation.
-MTR,matter,Stable matter and its algebra. Three generations from triality, octonion and Jordan structure, E8 and magic-square climbs, particles as defects.
-FRC,force,Gauge fields and their groups. Emergent U(1) and nonabelian gauge, the Standard Model group, confinement, anomaly cancellation, charge quantization.
-SPN,spin,Spin and complex amplitudes. Spinors on the 24-cell, the discrete Dirac equation, Clifford and iterant structure, chirality without doubling.
-QTM,quantum,The emergent quantum layer. Born rule, Bell and Tsirelson bounds, contextuality, measurement as settling, purification, the path integral.
-HLG,holography,Bulk from boundary. HaPPY error-correcting codes, the area law, bulk-boundary maps, holographic memory and recoverability.
-FLD,fluid,Hydrodynamics from the rule. The continuity equation, viscosity, shear, turbulence, the lattice-gas flow limit.
-SLF,self,Emergent selves and agency. Markov-blanket boundaries, free-energy descent, integrated information, persistence, nested and collective selves.
-SCL,scale,The renormalization tower. Coarse-graining fixed points, self-similarity, the commuting square, effective information per layer, scaling ratios.
-CMP,computation,Computational power of the substrate. Universality, Turing and register machines, reversible computation, walk and rule complexity.
-NVG,navigation,Addressing and routing in hyperbolic space. Cell addressing, Fibonacci and Coxeter navigation, lazy neighbour generation.
-MMR,memory,Associative storage and recall. Hopfield-style recall, capacity versus curvature, priming, interference, spreading activation.
-DST,data,The substrate read as a data structure. Trees, codes, packings, and the structures the mesh natively supports.
-SBT,substrate,Cross-tessellation survey. Comparing {3,4,3,4} against {5,3,4}, {7,3}, Euclidean and other substrates as honest controls.
-MTH,method,Discipline and honesty. Controls and null scrambles, admissibility gates, the consistency matrix, no silent caps, complexity-line checks.
-MSC,miscellany,General experiments that do not yet belong to a single arena.
+FND,foundations,"The base rule and its forced structure. Determinism, locality, causal order, confluence, the conserving reversible knit, why {3,4,3,4} and ternary tone are forced."
+RLT,relativity,"Lorentz invariance and its deformation. Boosts, isotropy, dispersion relations, light cones, doubly-special second invariant, Lorentz-violation bounds."
+GMT,geometry,"Emergent space and its shape. Tessellation, Coxeter structure, spectral and box dimension, curvature, the cusp horosphere, emergent-space tests."
+GRV,gravity,"Emergent attraction and curvature dynamics. The 1/r law, entropic gravity, area law, Einstein equations from thermodynamics, gravitational waves."
+CSM,cosmology,"The growing wake and time. Genesis, eternal expansion, the arrow, density growth, the cosmic web."
+DRK,dark,"The dark sector as wake and substrate. Dark energy, dark-matter-free rotation, the cosmological constant, radial-acceleration relation."
+MTR,matter,"Stable matter and its algebra. Three generations from triality, octonion and Jordan structure, E8 and magic-square climbs, particles as defects."
+FRC,force,"Gauge fields and their groups. Emergent U(1) and nonabelian gauge, the Standard Model group, confinement, anomaly cancellation, charge quantization."
+SPN,spin,"Spin and complex amplitudes. Spinors on the 24-cell, the discrete Dirac equation, Clifford and iterant structure, chirality without doubling."
+QTM,quantum,"The emergent quantum layer. Born rule, Bell and Tsirelson bounds, contextuality, measurement as settling, purification, the path integral."
+HLG,holography,"Bulk from boundary. HaPPY error-correcting codes, the area law, bulk-boundary maps, holographic memory and recoverability."
+FLD,fluid,"Hydrodynamics from the rule. The continuity equation, viscosity, shear, turbulence, the lattice-gas flow limit."
+SLF,self,"Emergent selves and agency. Markov-blanket boundaries, free-energy descent, integrated information, persistence, nested and collective selves."
+SCL,scale,"The renormalization tower. Coarse-graining fixed points, self-similarity, the commuting square, effective information per layer, scaling ratios."
+CMP,computation,"Computational power of the substrate. Universality, Turing and register machines, reversible computation, walk and rule complexity."
+NVG,navigation,"Addressing and routing in hyperbolic space. Cell addressing, Fibonacci and Coxeter navigation, lazy neighbour generation."
+MMR,memory,"Associative storage and recall. Hopfield-style recall, capacity versus curvature, priming, interference, spreading activation."
+DST,data,"The substrate read as a data structure. Trees, codes, packings, and the structures the mesh natively supports."
+SBT,substrate,"Cross-tessellation survey. Comparing {3,4,3,4} against {5,3,4}, {7,3}, Euclidean and other substrates as honest controls."
+MTH,method,"Discipline and honesty. Controls and null scrambles, admissibility gates, the consistency matrix, no silent caps, complexity-line checks."
+MSC,miscellany,"General experiments that do not yet belong to a single arena."

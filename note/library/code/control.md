@@ -7,7 +7,7 @@ Import from `@/code/control/<file>`.
 ## Modules
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `null` | `randomNull`, `preservesCharge`, `shuffledToneField` | the reshuffle nulls that keep the tone histogram and total charge but destroy spatial pattern |
 | `scramble` | `scrambleNeighbors` | a degree-preserving graph rewiring that keeps every node's degree but destroys the hyperbolic geometry |
 | `lossy-collision` | `erasingCollision` | a non-invertible collision that erases information, the case a reversibility test MUST fail |

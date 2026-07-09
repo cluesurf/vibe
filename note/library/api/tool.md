@@ -5,7 +5,7 @@ The substrate-agnostic building blocks every experiment is made of. The seeded r
 ## The key primitives
 
 | module (`@/code/tool/<file>`) | what it gives you |
-| --- | --- |
+|:--- |:--- |
 | `@/code/tool/rng` | `makeRng({ seed })` the seeded PRNG (`next`, `nextInt`, `nextGaussian`). Plus `deriveSeed` (child seeds for scans), `poissonSample`, `sampleEmpiricalFrequencies`. |
 | `@/code/tool/graph` | `makeGraph` and the `Graph` type. `degree`, `meanDegree`, `mostConnectedNode`. `toCsr` / `edgesFromCsr` for the compact sparse form. BFS / distance helpers (`csrDistances`, `csrBallNodes`, `largestComponent`). |
 | `@/code/tool/poset` | `makePosetFromRelation` (build a causal set from a precedence test) and the `Poset` type. `precedes`, `relationCount`, `intervalSize`, `pastMatrix`, `subPoset`. |

@@ -18,7 +18,7 @@ Build a mesh, optionally put a tone state on it, either run the local rule or bu
 ## The map
 
 | guide | what it covers | reach for it when |
-| ----- | -------------- | ----------------- |
+|:--- |:--- |:--- |
 | [api/model](api/model.md) | the `vibe()` fluent DSL, the committed {3,4,3,4} model in a few lines | you want the easy entry point |
 | [api/substrate](api/substrate.md) | build a mesh, any hyperbolic honeycomb, the D4 coin, flat lattices, sprinklings, the tessellation catalog | you need a geometry to run on |
 | [api/tone-and-rule](api/tone-and-rule.md) | the cell state (the tone) and the reversible conserving local rule (the lattice gas) | you want to run the base dynamics |
@@ -66,7 +66,7 @@ The rendering:
 The `api/` guides say WHICH function to call. These deep dives explain HOW each engine works, the algorithm and the idea, the layer under the API.
 
 | deep dive | the engine it explains |
-| --------- | ---------------------- |
+|:--- |:--- |
 | [tessellation-engine](tessellation-engine.md) | the exact Coxeter reflection engine, classifies and builds any tessellation from its Schläfli symbol |
 | [rule-engine](rule-engine.md) | the reversible charge-conserving directional lattice gas, collide-then-stream, why it is exactly reversible |
 | [fermion-engine](fermion-engine.md) | the Kahler-Dirac operator, a fermion as forms on a cell complex, D = d + delta squaring to the Laplacian |

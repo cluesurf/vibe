@@ -7,7 +7,7 @@ Import from `@/code/render/<file>`.
 ## The core (scene and geometry)
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `scene` | `Scene`, `SceneEdge`, `SceneFace`, `ballNorm`, `Vec` | the renderer-agnostic intermediate representation (dimension, symbol, edges in the Poincare ball) |
 | `geometry/honeycomb` | `buildHoneycombScene`, `buildSphericalScene`, `buildEuclideanScene`, `buildTilingScene`, `hasFiniteCell` | the unified generator, builds a tiling or honeycomb by the Coxeter reflection method |
 | `geometry/isometry` | `mobiusAdd`, `gyroScale`, `geodesicPoints`, `glide`, `rotateAboutOrigin`, `transformScene` | hyperbolic isometries on Poincare-ball points and whole scenes |
@@ -23,14 +23,14 @@ Import from `@/code/render/<file>`.
 ## The adapters
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `adapter/raster` | `renderSceneToPng`, `renderSceneToRgba`, `RasterOptions`, `Rgb` | the node CPU renderer, projects and draws a Scene to a PNG or RGBA buffer |
 | `react/vibe-view` | `VibeView`, `VibeViewProps` | the react component that mounts the GPU renderer |
 
 ## The GPU fold engine
 
 | module | key exports | what it gives you |
-| --- | --- | --- |
+|:--- |:--- |:--- |
 | `gpu/engine` | `VibeRenderer` | the WebGPU renderer object (the live fold-fractal engine) |
 | `gpu/fold-scene` | `createFoldScene`, `FoldScene`, `FoldMode` | the fold-fractal scene (2D and 3D kaleidoscopic folding) |
 | `gpu/headless` | `createHeadlessFoldScene` | the headless (no-canvas) fold scene for node |

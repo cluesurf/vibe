@@ -14,15 +14,15 @@ correspondence that holds across both theories.)
 
 - **Time = accumulated irreversible distinction.** Vibe: the wake (vibe's growing edge,
   the new cells added each step) piles up records, count 1 to 8857, and its arc length
-  only ever rises (E-FND-0051). TD: accumulated Fisher-Rao arc length. Neither assumes
+  only ever rises ([`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts)). TD: accumulated Fisher-Rao arc length. Neither assumes
   time, both build it.
 - **Records are the arrow.** Vibe: the knit (vibe's one reversible update rule) run
-  forward then backward recovers the start exactly, zero cells differ (E-FND-0049). TD:
+  forward then backward recovers the start exactly, zero cells differ ([`E-FND-0049`](../../test/experiment/foundations/record-preserving-paths.ts)). TD:
   the recordability condition (a real path must keep its records). Kept records are what
   give time a direction.
 - **Fisher-Rao is forced.** Vibe: relabeling the 24 directions by a symmetry leaves the
   Fisher-Rao readout unchanged (deviation 6.7e-16) while a hand-weighted measure swings
-  (0.99), so the geometry picks Fisher-Rao (E-FND-0057). TD: Chentsov's theorem (the one
+  (0.99), so the geometry picks Fisher-Rao ([`E-FND-0057`](../../test/experiment/foundations/chentsov-forced-distinguishability.ts)). TD: Chentsov's theorem (the one
   that makes Fisher-Rao the unique metric no relabeling can change). The same metric,
   reached from a discrete tone on one side and continuous distributions on the other.
 - **Born rule from a conserved norm.** Vibe: the |amplitude|^2 rule falls out of a
@@ -30,7 +30,7 @@ correspondence that holds across both theories.)
   postulate. TD: Gleason's theorem (the Born rule from the state geometry).
 - **A Lyapunov ceiling on record persistence.** Vibe: a coherent record survives only
   below a Lyapunov exponent (the rate at which nearby states pull apart, the chaos rate),
-  contrast 0.041 above it and 0.241 below (E-QTM-0092). TD: the Hyperion chaos threshold
+  contrast 0.041 above it and 0.241 below ([`E-QTM-0092`](../../test/experiment/quantum/lyapunov-recordability-ceiling.ts)). TD: the Hyperion chaos threshold
   (Saturn's moon Hyperion tumbles chaotically above a derived rate). This is the newest of
   the matches, and the best one to pursue next.
 
@@ -38,18 +38,18 @@ Five shared survivors, more than any other theory.
 
 ## Correspondence
 
-| vibe | Timeless Dynamics | exp | grade |
-| --- | --- | --- | --- |
-| the wake (growing edge) | time as Fisher-Rao arc length | E-FND-0051 | firm |
-| the knit erases nothing (exact reverse) | the recordability condition | E-FND-0049 | firm |
-| fixed-mesh knit is a closed loop, no arrow | so time is the wake, not the knit | E-FND-0048 | firm |
-| Fisher-Rao forced by relabeling | Fisher-Rao forced by Chentsov | E-FND-0057 | firm |
-| record axis and radial-scale axis kept distinct | the five-coordinate argument | E-FND-0052 | firm |
-| growth forced by recurrence (a finite reversible system must repeat) | records must accumulate for time | E-FND-0055 | firm |
-| Lyapunov ceiling on record contrast | the Hyperion chaos threshold | E-QTM-0092 | firm |
-| a coarse block window records at most ln(B) bits, the excess spills out | recordability capacity, records at most the local channel limit | E-FND-0072 | structural |
-| the gravity potential is short-ranged in the curved interior | TD Poisson gravity from the information potential | E-GRV-0049 | structural |
-| that short range is size-independent | the same gravity, its limited reach | E-GRV-0050 | structural |
+| vibe | Timeless Dynamics | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
+|:--- |:--- |:--- |:--- |
+| the wake (growing edge) | time as Fisher-Rao arc length | [`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts) | firm |
+| the knit erases nothing (exact reverse) | the recordability condition | [`E-FND-0049`](../../test/experiment/foundations/record-preserving-paths.ts) | firm |
+| fixed-mesh knit is a closed loop, no arrow | so time is the wake, not the knit | [`E-FND-0048`](../../test/experiment/foundations/emergent-time-distinguishability.ts) | firm |
+| Fisher-Rao forced by relabeling | Fisher-Rao forced by Chentsov | [`E-FND-0057`](../../test/experiment/foundations/chentsov-forced-distinguishability.ts) | firm |
+| record axis and radial-scale axis kept distinct | the five-coordinate argument | [`E-FND-0052`](../../test/experiment/foundations/record-phase-scale-distinct.ts) | firm |
+| growth forced by recurrence (a finite reversible system must repeat) | records must accumulate for time | [`E-FND-0055`](../../test/experiment/foundations/recurrence-forces-wake.ts) | firm |
+| Lyapunov ceiling on record contrast | the Hyperion chaos threshold | [`E-QTM-0092`](../../test/experiment/quantum/lyapunov-recordability-ceiling.ts) | firm |
+| a coarse block window records at most ln(B) bits, the excess spills out | recordability capacity, records at most the local channel limit | [`E-FND-0072`](../../test/experiment/foundations/recordability-capacity-ceiling.ts) | structural |
+| the gravity potential is short-ranged in the curved interior | TD Poisson gravity from the information potential | [`E-GRV-0049`](../../test/experiment/gravity/td-log-density-gravity-screened.ts) | structural |
+| that short range is size-independent | the same gravity, its limited reach | [`E-GRV-0050`](../../test/experiment/gravity/gravity-screening-size-independent.ts) | structural |
 
 ## Divergences
 
@@ -67,3 +67,8 @@ Five shared survivors, more than any other theory.
   same potential short-ranged in the curved interior, meaning it dies off quickly with
   distance there, so in vibe gravity can only act along the flat boundary, not through the
   interior.
+
+## See also
+
+- [../triangulating-invariants.md](../triangulating-invariants.md), the method and the full list of recurring invariants across theories.
+- [readme.md](readme.md), the index of every theory map.

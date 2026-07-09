@@ -47,7 +47,7 @@ the one the propagation experiments use at scale.
 ## The components
 
 | file                                  | role                                                                            |
-| ------------------------------------- | ------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `code/measure/localization.ts`        | `returnProbability`, the leapfrog evolution and the synchronized norm           |
 | `code/measure/fermion-propagation.ts` | `kahlerDiracReturn`, the clean-vs-disorder return test on a cell graph          |
 | `code/algebra/linear/sparse.ts`       | `sparseMatVec`, `LinearOperator`, `sparseWithAubryAndrePotential` (the control) |

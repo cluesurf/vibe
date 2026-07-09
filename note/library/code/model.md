@@ -5,7 +5,7 @@ The committed model, the top of the pipeline (`substrate -> tone -> rule -> dyna
 ## Modules
 
 | file | key exports | what it is |
-| ---- | ----------- | ---------- |
+|:--- |:--- |:--- |
 | `vibe.ts` | `vibe`, `VibeBuilder`, `VibeWorld`, `VibeConfig` | the fluent DSL for the committed model, the easiest entry point |
 | `self-kit.ts` | `emergeSelf`, `beat`, `flatGraph`, `bulkGraph`, `clusterIntegration`, `largestPositiveCluster` | the selves experiments' shared graph, dynamics, and measures |
 | `deliberation.ts` | `makeSelf`, `settle`, `settleWithInjection`, `selfCoherence`, `consensusStep` | deterministic choice as Hopfield settling under an urge bias |

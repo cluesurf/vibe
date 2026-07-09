@@ -14,7 +14,7 @@ The point: one place where the real numbers live, so any experiment claim ("we p
 ## The files
 
 | file | what it holds |
-| --- | --- |
+|:--- |:--- |
 | [constants.csv](constants.csv) | fundamental constants (c, h-bar, G, the fine-structure constant, the Fermi constant, the Higgs vev, Planck units, cosmology). |
 | [particles.csv](particles.csv) | every Standard Model particle: mass, electric charge, spin, color, weak isospin. |
 | [sm-parameters.csv](sm-parameters.csv) | the roughly 26 free parameters of the Standard Model, each tagged with its vibe origin status. |

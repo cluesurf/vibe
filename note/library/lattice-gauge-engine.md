@@ -45,7 +45,7 @@ sites, only on the edges between them.
 ## The components
 
 | file                                  | role                                                                                                   |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+|:--- |:--- |
 | `code/dynamics/su2-lattice.ts`        | the SU(2) engine, `makeSu2Lattice`, `metropolisSweep`, `averagePlaquette`, `wilsonLoop`, `creutzRatio` |
 | `code/dynamics/wilson.ts`             | the graph U(1) engine, `plaquettesOf`, `wilsonAction`, `heatBathSweep`                                 |
 | `code/dynamics/wilson-grid.ts`        | the cubic-grid U(1) action, `gridPlaquettes`, `gridWilsonAction`, `gridMaxwellAction`                  |

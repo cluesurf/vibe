@@ -5,7 +5,7 @@ The visual half of `@cluesurf/vibe`. Small 2D drawing primitives and the tone pa
 ## Drawing primitives (`@/code/draw/`)
 
 | module | what it gives you |
-|---|---|
+|:--- |:--- |
 | `@/code/draw/color` | the one tone palette. `PEACE` `PLEASURE` `PAIN` (each an `[r,g,b]`) and `TONE_COLORS`, indexed by packed tone (0 peace, 1 pleasure/blue, 2 pain/red). |
 | `@/code/draw/raster` | RGBA canvas drawing. `makeCanvas` (background-filled buffer), `setPixel`, `drawDisk` (filled, clipped, sub-pixel). `Color` type. |
 | `@/code/draw/png` | `encodePng(rgba, width, height)` returns a PNG `Buffer`. No dependency. |

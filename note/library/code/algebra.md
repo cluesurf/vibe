@@ -5,7 +5,7 @@ The symmetry-and-linear-algebra layer. It is not a stage the state flows through
 ## Symmetry algebra (top level)
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `octonion.ts` | `Octonion`, `octonionMultiply`, `octonionConjugate`, `octonionNormSquared` | the 8-dimensional non-associative division algebra, Fano-plane product |
 | `jordan.ts` | `jordanProduct`, `diagonalJordanFrame`, `isJordanIdempotent`, `maxJordanIdentityResidual`, `isJordanAutomorphism` | the Hermitian octonionic Jordan algebra H_n(O), the rank-3 structure |
 | `binary-tetrahedral.ts` | `binaryTetrahedralGroup`, `quaternionMultiply`, `spinorAction`, `vectorAction`, `isClosedUnderMultiplication` | the 24 unit Hurwitz quaternions (2T), the double cover of the 24-cell rotations |
@@ -30,7 +30,7 @@ The discrete groups and root systems.
 The numerical engine.
 
 | file | key exports | one-line |
-| ---- | ----------- | -------- |
+|:--- |:--- |:--- |
 | `complex.ts` | `Complex`, `cAdd`, `cMul`, `cConj`, `cAbs`, `cFromPhase` | complex-number arithmetic |
 | `complex-vector.ts` | `Cx`, `newCx`, `dotR` | complex vectors as split real and imaginary `Float64Array` halves |
 | `dense.ts` | `makeDense`, `denseMatVec`, `matrixProduct`, `determinant`, `solveLinearSystem` | dense matrices and Gaussian elimination |

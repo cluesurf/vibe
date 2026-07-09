@@ -46,7 +46,7 @@ counts are the raw material of the action.
 ## The components
 
 | file                              | role                                                                                                 |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------- |
+|:--- |:--- |
 | `tool/poset.ts`                   | the causal-set type, `makePosetFromRelation`, `relationCount`, `intervalSize`, `pastMatrix`          |
 | `substrate/sprinkle-minkowski.ts` | `sprinkleMinkowski`, the seeded Poisson sprinkling of a causal diamond                               |
 | `dynamics/action.ts`              | `benincasaDowkerAction`, `smearedBenincasaDowker`, the smeared kernels, the dimension-target control |
