@@ -6,7 +6,7 @@ The claim is a chain. Start from the seed, that anything exists and a difference
 
 Each experiment enumerates a finite candidate space in full and counts the survivors, so the canonical numbers (3, 8, 24, 81, 10395, 1152) come out of the computation rather than being asserted. Most carry a negative control, a deliberately broken rule where the property should fail, confirming the test can say NO.
 
-68 experiments, grouped below into nine sub-themes. Every code appears once.
+69 experiments, grouped below into nine sub-themes. Every code appears once.
 
 ## The ternary tone
 
@@ -41,6 +41,7 @@ Reversibility preserves records but carries no arrow. The arrow is the wake, the
 - **E-FND-0055** - the wake is forced as the escape from Poincare recurrence. A reversible rule is a bijection on a finite mesh, so every state recurs (measured periods 12, 132, 60), which bounds accumulated distinction, so unbounded accumulation needs growth, which is the wake.
 - **E-FND-0052** - vibe keeps record-phase (time) and scale-flow (connectivity) distinct. Scale is static geometry (ball size from radius), time is dynamics (the knit and the growing wake), two structures, so emergent time is not circular.
 - **E-FND-0057** - the distinguishability readout is pinned in two parts. The measured necessary condition (24-cell relabeling invariance, which Fisher-Rao passes and ad-hoc weighted measures fail) plus Chentsov uniqueness (cited), so the fragile hand-weighted readouts are killed.
+- **E-FND-0072** - a recording window records at most its Shannon capacity ln(B). As the input fine complexity rises the coarse-window recorded distinguishability saturates at ln(B) while the input keeps climbing (the TD cool-star spectral plateau), the ceiling scales as ln(B) with window size, and injected excess spills out conserved under the committed rule while a lossy rule loses it, instantiating TD recordability capacity c(q) >= phi(q) + nu on the substrate.
 - **E-FND-0002** - the arrow is the order of the INTEGERS, the unique ordered discrete normed ring. The discrete Cayley-Dickson rings all carry an i with i squared negative and cannot be ordered, so the one integer axis is time and the imaginary axes are not.
 - **E-FND-0003** - the continuum sibling, the arrow is the order of the reals (the unique ordered division algebra), time is the one real axis (ordered), space the seven imaginary axes (unordered).
 

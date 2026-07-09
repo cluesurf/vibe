@@ -26,112 +26,11 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import {
-  conservingEdgeSweepHashed,
-  hashRand,
-} from '@/code/dynamics/conserving-sweep'
+import { perturbationLyapunovExponent } from '@/code/measure/lyapunov'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const ARROW_SWEEP = [0.03, 0.05, 0.1, 0.15, 0.2, 0.3]
-
-function genericTone(size: number, salt: number): Int8Array {
-  const tone = new Int8Array(size)
-
-  for (let i = 0; i < size; i++) {
-    const r = hashRand(i, 0, salt)
-    tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
-  }
-
-  return tone
-}
-
-function hammingCells(a: Int8Array, b: Int8Array): number {
-  let d = 0
-
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      d++
-    }
-  }
-
-  return d
-}
-
-// the fitted exponential growth rate of a single-cell perturbation: the least-squares slope of
-// ln(differing-cell count) versus beat, over the window where the count is between 2 and 15 percent
-// of the mesh (the clean exponential-growth phase, before saturation).
-function lyapunovExponent(input: {
-  size: number
-  eu: Int32Array
-  ev: Int32Array
-  salt: number
-  arrow: number
-}): number {
-  const { size, eu, ev, salt, arrow } = input
-  const base = genericTone(size, salt)
-  const perturbed = Int8Array.from(base)
-  perturbed[0] = perturbed[0] === 1 ? -1 : 1
-
-  const a = Int8Array.from(base)
-  const b = perturbed
-  const movedA = new Uint8Array(size)
-  const movedB = new Uint8Array(size)
-  const cap = 0.15 * size
-
-  const xs: number[] = []
-  const ys: number[] = []
-
-  for (let t = 1; t <= 200; t++) {
-    conservingEdgeSweepHashed({
-      tone: a,
-      eu,
-      ev,
-      moved: movedA,
-      beat: t,
-      arrow,
-    })
-    conservingEdgeSweepHashed({
-      tone: b,
-      eu,
-      ev,
-      moved: movedB,
-      beat: t,
-      arrow,
-    })
-
-    const h = hammingCells(a, b)
-
-    if (h >= 2 && h < cap) {
-      xs.push(t)
-      ys.push(Math.log(h))
-    }
-
-    if (h >= cap) {
-      break
-    }
-  }
-
-  const n = xs.length
-
-  if (n < 5) {
-    return 0
-  }
-
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-
-  for (let i = 0; i < n; i++) {
-    sx += xs[i]!
-    sy += ys[i]!
-    sxx += xs[i]! * xs[i]!
-    sxy += xs[i]! * ys[i]!
-  }
-
-  return (n * sxy - sx * sy) / (n * sxx - sx * sx)
-}
 
 export default experiment({
   id: 'quantum/amplifier-lyapunov-exponent',
@@ -158,7 +57,7 @@ export default experiment({
 
       for (const salt of microstates) {
         // the reversible (arrow off) control: a null exponent
-        const reversible = lyapunovExponent({
+        const reversible = perturbationLyapunovExponent({
           size,
           eu,
           ev,
@@ -173,7 +72,7 @@ export default experiment({
 
         // the arrow sweep: every arrow gives a positive exponent, and we track the peak
         for (const arrow of ARROW_SWEEP) {
-          const exponent = lyapunovExponent({
+          const exponent = perturbationLyapunovExponent({
             size,
             eu,
             ev,
