@@ -119,6 +119,32 @@ failures, and is the opposite of a theory that fits anything. The reading is tha
 that a single discrete rule, framed as felt, recovers a large amount of
 physics as results that could have come out otherwise.
 
+## The invariants
+
+The structures the one base rule holds fixed, each measured with a control
+that could have failed. An invariant is anything that stays put: a conserved
+quantity, a structure the rule is forced to keep, or a number that survives
+when the substrate is varied. These are also the structures that keep
+recurring across other physics theories built from different starting points,
+worked out in [note/triangulating-invariants.md](note/triangulating-invariants.md)
+with the per-theory maps in [note/links/](note/links/).
+
+| invariant | what stays fixed | experiment |
+| --- | --- | --- |
+| charge conservation | the total charge is exactly constant, an integer the rule never changes | E-FND-0008 |
+| reversibility | run the rule forward then backward, the start returns bit for bit | E-FND-0049 |
+| the arrow of time | the wake (the growing edge) keeps adding records and never erases one | E-FND-0051 |
+| the distinguishability metric | Fisher-Rao is the one distance measure no relabeling of the 24 directions can change | E-FND-0057 |
+| the Born rule | the `\|amplitude\|^2` probability falls out of the conserved total, not from a postulate | E-QTM-0067 |
+| the light cone | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz) | E-RLT-0014 |
+| gravity | entropy scales with a region's boundary area, not its volume (the area law) | E-GRV-0002 |
+| spacetime dimension | the boundary reads a spatial dimension near 3, so space is 3D plus time | E-GMT-0025 |
+| the growth ratio | each new shell is larger than the last by a fixed factor near 18.28 | E-GMT-0028 |
+| a chaos ceiling on records | a coherent record holds only while the chaos rate stays below a threshold | E-QTM-0092 |
+
+Each is a measured consequence of the base rule, not an input. The first four
+are the invariants the rest are built on.
+
 ## Keys
 
 The base model of reality is settled here pretty much, next is to
