@@ -43,7 +43,7 @@ folder). Counts are file counts.
 | [selves](selves/readme.md) | 176 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
 | [gauge](gauge/readme.md) | 71 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate |
 | [foundations](foundations/readme.md) | 68 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed |
-| [quantum](quantum/readme.md) | 68 | the quantum as emergent from a deterministic reversible base: Born rule, entanglement, the shared-past mechanism, measurement as settling |
+| [quantum](quantum/readme.md) | 91 | the quantum as emergent from a deterministic reversible base: Born rule, entanglement, the shared-past mechanism, measurement as settling |
 | [gravity](gravity/readme.md) | 50 | gravity as emergent and entropic: curvature from the area law, Einstein as an equation of state, the dark sector, horizons |
 | [cosmology](cosmology/readme.md) | 50 | the growing wake: self-creation from the void, expansion, dimension selection, inflation, the CMB, dark energy |
 | [spin](spin/readme.md) | 43 | spinors and fermions from the 24-cell and D4 coin: the double cover, Dirac, triality, anyons, emergent matter |
@@ -72,7 +72,7 @@ control-gated result yet.
 | selves | 3 | 10 | 135 | 28 | 109 |
 | gauge | 3 | 29 | 32 | 7 | 42 |
 | foundations | 0 | 24 | 44 | **0** | 36 |
-| quantum | 1 | 17 | 46 | 3 | 44 |
+| quantum | 1 | 17 | 60 | 13 | 64 |
 | gravity | 4 | 10 | 35 | 1 | 21 |
 | cosmology | 1 | 8 | 31 | 10 | 36 |
 | spin | 1 | 11 | 24 | 7 | 30 |
