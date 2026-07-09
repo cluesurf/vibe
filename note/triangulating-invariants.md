@@ -92,7 +92,7 @@ The strongest one, because **no theory in the set assumes it and every one deriv
 - **Timeless Dynamics.** Time is accumulated Fisher-Rao arc length along
   record-preserving paths. Primitive: continuous distinguishability.
 - **Chronoflux.** Time's passage and cosmic expansion are one positive divergence of a
-  conserved current, the global thinning of the river. Vibe measures the same thing: the
+  conserved current, the current thinning out as it spreads. Vibe measures the same thing: the
   wake registers as a strictly positive edge divergence that equals the count of newly
   born cells exactly and is zero in the settled bulk (E-CSM-0043). Primitive: a
   continuum temporal current.
@@ -162,7 +162,7 @@ coarse limit. Four discrete primitives, one emergent symmetry.
   (E-GRV-0049 and E-GRV-0050).
 - **Timeless Dynamics.** The Einstein tensor from the Hessian of the information
   potential.
-- **Chronoflux.** Curvature forced to match the river's stress.
+- **Chronoflux.** Curvature forced to match the current's stress.
 - **Verlinde, Jacobson, Padmanabhan.** Entropic force, equation of state, thermodynamic
   gravity.
 

@@ -28,7 +28,7 @@ fixed: a definite outcome that holds, a pattern that persists.)
 
 | vibe | Orch-OR | exp | grade |
 | --- | --- | --- | --- |
-| a definite record survives lost coherence | collapse to one definite outcome | E-QTM-0049 | firm on the destination |
+| a definite record survives lost coherence | collapse to one definite outcome | E-QTM-0049 | firm on the result |
 | the record survives thermal noise | collapse in a warm brain | E-QTM-0050 | firm (answers the objection that a warm brain decoheres too fast) |
 | the classical record holds its pattern | the stable collapsed trace | E-SLF-0162 | firm |
 | binding falls when a region is drained | anesthetic ends the binding | E-SLF-0161 | firm |
@@ -40,7 +40,7 @@ fixed: a definite outcome that holds, a pattern that persists.)
 - **The mechanism, the big one.** Orch-OR needs a fragile quantum superposition held alive
   and then collapsed by gravity. Vibe needs none: its record is classical and survives
   decoherence and heat by never depending on a superposition in the first place. Same
-  destination, opposite bet on how you reach it.
+  result, opposite account of how you get there.
 - **Gravity-driven collapse.** Vibe has no gravity term forcing the collapse. Its
   definiteness comes from vibe's arrow (its value-and-time direction) amplifying a tiny
   difference, and a self (a stable self-maintaining pattern) holding the result, not from

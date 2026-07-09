@@ -14,12 +14,13 @@ quantity or structure that stays fixed: conserved, forced, or matching across bo
 - **One conserved local quantity is the whole ontology** (the single fundamental thing,
   everything else a face of it). Vibe: charge conserved to the integer, 1112 pairs made
   and 1112 annihilated, net zero (E-FND-0008). Chronoflux: div J = 0, the continuity law,
-  nothing created or destroyed. Same status, two grains. The anchor.
+  nothing created or destroyed. The same role in each theory, one discrete and one
+  continuous. This is the match the rest builds on.
 - **Time = a positive divergence of the conserved flow.** Vibe: the wake (the growing
   edge) shows up as a strictly positive outflow that equals the count of newly born cells
   exactly, and is zero in the settled interior (E-CSM-0043). Chronoflux: the expansion
-  scalar (the rate space expands) is the global thinning of the current. The cleanest
-  one-to-one in the set.
+  scalar (the rate space expands) is the global thinning of the current. The clearest
+  direct match in the set.
 - **Records as recoverability.** Vibe: the reversible rule keeps records (E-FND-0049).
   Chronoflux: the recoverability functional (how much of the past a region can still
   recover, accessible over total), which ties entropy, decoherence, and horizons together.
