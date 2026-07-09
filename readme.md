@@ -172,9 +172,9 @@ structured verdict (status, metrics, control, claim) graded by a plain
 depth level, from `L0` circular through `L1` known math and `L2` known
 physics to `L3` emergent and novel. The standard the experiments are
 held to is in
-[`note/experimental-methodology.md`](note/experimental-methodology.md),
-and the code and test layout is in
-[`note/architecture.md`](note/architecture.md).
+[`note/experimental-methodology`](note/experimental-methodology.md), and
+the code and test layout is in
+[`note/architecture`](note/architecture.md).
 
 ## The Experiment Catalog
 
@@ -202,7 +202,7 @@ what is assumed rather than derived. Most results in a young program are
 L1 and L2, and that is fine as long as they are labeled as such. The
 full rubric and the rules the runner enforces (an L3 claim must carry a
 control, for instance) are in
-[`note/experimental-methodology.md`](note/experimental-methodology.md).
+[`note/experimental-methodology`](note/experimental-methodology.md).
 
 As of the latest run the catalog holds **810 experiments across 18
 categories**, graded by the depth rubric:
