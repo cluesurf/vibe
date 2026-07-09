@@ -12,7 +12,7 @@ converge on one instruction:
 > **Build the smallest model that can make a precise prediction. Attack it until
 > it breaks. Keep only what survives.**
 
-Vibe is ambitious, so treat it as an **engineering discipline**, not as a piece of
+Vibe is ambitious, so treat it as an **engineering discipline** rather than a piece of
 writing. A theory is prose. A discipline is a pipeline with gates, and nothing
 passes a gate on charm.
 
@@ -47,7 +47,7 @@ later, it either reduces to these or it is a mistake.
 
 ## Stage 1. State the axioms
 
-Write only the assumptions. Not the consequences.
+Write down the assumptions alone. The consequences come later.
 
 Vibe has two:
 
@@ -127,7 +127,7 @@ symbols, it is not yet a claim.
 Write the prediction first. Then write the code. In that order, every time.
 
 Because the base is deterministic, a Vibe prediction is a **number with a tolerance**,
-or a sign, or a scaling exponent. Not a mood. Examples of the shape:
+or a sign, or a scaling exponent. It is never a mood. Examples of the shape:
 
 - a dispersion slope equal to a stated value,
 - a growth ratio that converges to a stated constant,
@@ -148,7 +148,7 @@ written apart do not share the bug.
 Vibe runs in TypeScript today. The path to a second is the multi-backend compiler,
 which emits the same rule in another language from one source. The cross-check is
 **bit-identical state**. Run the same rule on the same start in two backends and
-assert equality slot for slot, not similarity. A reversible integer rule has no
+assert equality slot for slot rather than similarity. A reversible integer rule has no
 floating-point excuse, so the check is exact.
 
 Until a result has a second implementation it is single-source, and single-source is
@@ -168,7 +168,7 @@ assertion the mathematics has to pass.
   not move.
 - **Translation and reflection.** Shift or mirror the state and the invariants hold.
 
-These run as exact integer equalities, not as tolerances. A loose epsilon where the
+These run as exact integer equalities rather than loose tolerances. A loose epsilon where the
 quantity should be exact is a method failure. This is how the mathematics becomes
 executable.
 
@@ -187,7 +187,7 @@ everywhere: the rule stays reversible, the charge stays conserved, the graph sta
 connected. The family is large and it is reproducible, because it is generated, not
 drawn.
 
-This is the one stage where the generic recipe must be rewritten for Vibe. Robustness
+This is the one stage where the generic recipe must be rewritten for Vibe. Stability
 comes from **varying size and structure, never from averaging over seeds**. A result
 that only holds on average over random draws is a statement about an ensemble, and we
 label it that way.
@@ -199,7 +199,7 @@ label it that way.
 Never inspect one interesting example. Run the grid.
 
 Vibe's axes are the arrow strength, the process rates in the tunable rule, the
-lattice size, and the tessellation. Sweep the full product, not a single point.
+lattice size, and the tessellation. Sweep the full product rather than a single point.
 The single striking picture is the thing that fools you. The grid is the thing that
 tells you where the picture sits and how wide the region around it is.
 
@@ -210,7 +210,7 @@ tells you where the picture sits and how wide the region around it is.
 A sweep is a table. A phase diagram is the map that turns the table into regions.
 
 For the tunable rule the plane of arrow against share separates ordered, chaotic, and
-dead behaviour. The goal is to find **regions and boundaries**, not anecdotes. A
+dead behaviour. The goal is to find **regions and boundaries** rather than anecdotes. A
 result that lives on a knife edge between two regions is fragile, and the phase
 diagram is what exposes the knife edge.
 
@@ -294,7 +294,7 @@ yourself you expected it. The frozen note is the receipt that says whether you d
 
 ---
 
-## Stage 17. Report the spread, not the anecdote
+## Stage 17. Report the spread over one run
 
 Never rest a claim on one run.
 
