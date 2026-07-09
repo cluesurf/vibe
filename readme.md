@@ -28,6 +28,17 @@ the discrete substrate (the mesh), runs the one local rule over it in
 discrete beats, and measures what emerges, so each question becomes a
 concrete experiment that either works or does not.
 
+## Keys
+
+The base model of reality is settled here pretty much, next is to
+explore the elaborations/implications.
+
+Here are the key notes:
+
+- [Short high-level audio overview of things](https://www.youtube.com/watch?v=9ftVzOO9Y2I)
+- [A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh](https://doi.org/10.5281/zenodo.20768426)
+- [Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe](https://doi.org/10.5281/zenodo.20694262)
+
 ## Introduction
 
 The Standard Model of physics falls out of a single hyperbolic
@@ -131,32 +142,21 @@ different starting points, worked out in
 [note/triangulating-invariants.md](note/triangulating-invariants.md)
 with the per-theory maps in [note/link/](note/link/).
 
-| invariant                     | what stays fixed                                                                         | experiment&nbsp;&nbsp;&nbsp;&nbsp; |
-|:--- |:--- |:--- |
-| charge conservation           | the total charge is exactly constant, an integer the rule never changes                  | [`E-FND-0008`](test/experiment/foundations/conserved-dynamics.ts) |
-| reversibility                 | run the rule forward then backward, the start returns bit for bit                        | [`E-FND-0049`](test/experiment/foundations/record-preserving-paths.ts) |
-| the arrow of time             | the wake (the growing edge) keeps adding records and never erases one                    | [`E-FND-0051`](test/experiment/foundations/record-accumulating-wake.ts) |
+| invariant                     | what stays fixed                                                                         | experiment&nbsp;&nbsp;&nbsp;&nbsp;                                                |
+| :---------------------------- | :--------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| charge conservation           | the total charge is exactly constant, an integer the rule never changes                  | [`E-FND-0008`](test/experiment/foundations/conserved-dynamics.ts)                 |
+| reversibility                 | run the rule forward then backward, the start returns bit for bit                        | [`E-FND-0049`](test/experiment/foundations/record-preserving-paths.ts)            |
+| the arrow of time             | the wake (the growing edge) keeps adding records and never erases one                    | [`E-FND-0051`](test/experiment/foundations/record-accumulating-wake.ts)           |
 | the distinguishability metric | Fisher-Rao is the one distance measure no relabeling of the 24 directions can change     | [`E-FND-0057`](test/experiment/foundations/chentsov-forced-distinguishability.ts) |
-| the Born rule                 | the `\|amplitude\|^2` probability falls out of the conserved total, not from a postulate | [`E-QTM-0067`](test/experiment/quantum/born-norm-concentration.ts) |
-| the light cone                | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz) | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts) |
-| gravity                       | entropy scales with a region's boundary area, not its volume (the area law)              | [`E-GRV-0002`](test/experiment/gravity/area-law-from-knit-walk.ts) |
-| spacetime dimension           | the boundary reads a spatial dimension near 3, so space is 3D plus time                  | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts) |
-| the growth ratio              | each new shell is larger than the last by a fixed factor near 18.28                      | [`E-GMT-0028`](test/experiment/geometry/warp-factor-needs-geometry.ts) |
-| a chaos ceiling on records    | a coherent record holds only while the chaos rate stays below a threshold                | [`E-QTM-0092`](test/experiment/quantum/lyapunov-recordability-ceiling.ts) |
+| the Born rule                 | the `\|amplitude\|^2` probability falls out of the conserved total, not from a postulate | [`E-QTM-0067`](test/experiment/quantum/born-norm-concentration.ts)                |
+| the light cone                | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz) | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts)                          |
+| gravity                       | entropy scales with a region's boundary area, not its volume (the area law)              | [`E-GRV-0002`](test/experiment/gravity/area-law-from-knit-walk.ts)                |
+| spacetime dimension           | the boundary reads a spatial dimension near 3, so space is 3D plus time                  | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts)                            |
+| the growth ratio              | each new shell is larger than the last by a fixed factor near 18.28                      | [`E-GMT-0028`](test/experiment/geometry/warp-factor-needs-geometry.ts)            |
+| a chaos ceiling on records    | a coherent record holds only while the chaos rate stays below a threshold                | [`E-QTM-0092`](test/experiment/quantum/lyapunov-recordability-ceiling.ts)         |
 
 Each is a measured consequence of the base rule, not an input. The first
 four are the invariants the rest are built on.
-
-## Keys
-
-The base model of reality is settled here pretty much, next is to
-explore the elaborations/implications.
-
-Here are the key notes:
-
-- [Short audio overview of things](https://www.youtube.com/watch?v=9ftVzOO9Y2I)
-- [A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh](https://doi.org/10.5281/zenodo.20768426)
-- [Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe](https://doi.org/10.5281/zenodo.20694262)
 
 ## Details
 
@@ -172,9 +172,9 @@ structured verdict (status, metrics, control, claim) graded by a plain
 depth level, from `L0` circular through `L1` known math and `L2` known
 physics to `L3` emergent and novel. The standard the experiments are
 held to is in
-[`note/experimental-methodology.md`](note/experimental-methodology.md),
-and the code and test layout is in
-[`note/architecture.md`](note/architecture.md).
+[`note/experimental-methodology`](note/experimental-methodology.md), and
+the code and test layout is in
+[`note/architecture`](note/architecture.md).
 
 ## The Experiment Catalog
 
@@ -191,7 +191,7 @@ Every experiment self-grades by what it actually establishes, not by
 whether it prints PASSED.
 
 | level  | meaning                                                                                                                                                                     |
-|:--- |:--- |
+| :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
 | **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                       |
 | **L1** | known math. Correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                              |
@@ -202,21 +202,21 @@ what is assumed rather than derived. Most results in a young program are
 L1 and L2, and that is fine as long as they are labeled as such. The
 full rubric and the rules the runner enforces (an L3 claim must carry a
 control, for instance) are in
-[`note/experimental-methodology.md`](note/experimental-methodology.md).
+[`note/experimental-methodology`](note/experimental-methodology.md).
 
 As of the latest run the catalog holds **810 experiments across 18
 categories**, graded by the depth rubric:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
-| ---: | ---: | ---: | ---: | ---: | ---: |
-| 810 | 92 | 519 | 185 | 14 | 510 |
+| ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
+|   810 |                 92 |              519 |           185 |          14 |                   510 |
 
 The largest categories are selves, quantum, foundations, gauge, gravity,
-and cosmology. The standing depth audit regrades overclaimed depths down,
-and new derivations measured straight off the substrate's own dynamics
-and walk-operator spectrum (zitterbewegung, Klein tunneling, Bloch
-oscillations, Aubry-Andre localization, the Jackiw-Rebbi bound state, the
-topological winding number, 2D cyclotron confinement, and the
+and cosmology. The standing depth audit regrades overclaimed depths
+down, and new derivations measured straight off the substrate's own
+dynamics and walk-operator spectrum (zitterbewegung, Klein tunneling,
+Bloch oscillations, Aubry-Andre localization, the Jackiw-Rebbi bound
+state, the topological winding number, 2D cyclotron confinement, and the
 bulk-boundary correspondence) raise the L3 count.
 
 ## The experiment map
