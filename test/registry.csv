@@ -1,4 +1,4 @@
-code_id,code,number,test_id,category,title,file
+code,arena,number,test,category,title,file
 E-CMP-0001,CMP,0001,computation/computation-73,computation,"COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})",test/experiment/computation/computation-73.ts
 E-CMP-0002,CMP,0002,computation/direction-intention,computation,"a goal-directed search solves in K steps while an un-goaled one fails",test/experiment/computation/direction-intention.ts
 E-CMP-0003,CMP,0003,computation/discrete-rule-endtoend,computation,"one discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains smooth",test/experiment/computation/discrete-rule-endtoend.ts

@@ -31,7 +31,7 @@ quantity or structure that stays fixed: conserved, forced, or matching across bo
 
 ## Correspondence
 
-| vibe | Chronoflux | exp | grade |
+| vibe | Chronoflux | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
 |:--- |:--- |:--- |:--- |
 | conserved tone, integer-exact | the conserved current div J = 0 | [`E-FND-0008`](../../test/experiment/foundations/conserved-dynamics.ts) | firm |
 | the coarse (block-averaged) tone-current is conserved | zero-divergence continuity | [`E-GRV-0039`](../../test/experiment/gravity/coarse-continuity-closure.ts) | firm |

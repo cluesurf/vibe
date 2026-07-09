@@ -131,7 +131,7 @@ different starting points, worked out in
 [note/triangulating-invariants.md](note/triangulating-invariants.md)
 with the per-theory maps in [note/link/](note/link/).
 
-| invariant                     | what stays fixed                                                                         | experiment |
+| invariant                     | what stays fixed                                                                         | experiment&nbsp;&nbsp;&nbsp;&nbsp; |
 |:--- |:--- |:--- |
 | charge conservation           | the total charge is exactly constant, an integer the rule never changes                  | [`E-FND-0008`](test/experiment/foundations/conserved-dynamics.ts) |
 | reversibility                 | run the rule forward then backward, the start returns bit for bit                        | [`E-FND-0049`](test/experiment/foundations/record-preserving-paths.ts) |

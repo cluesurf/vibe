@@ -26,7 +26,7 @@ fixed: a definite outcome that holds, a pattern that persists.)
 
 ## Correspondence
 
-| vibe | Orch-OR | exp | grade |
+| vibe | Orch-OR | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
 |:--- |:--- |:--- |:--- |
 | a definite record survives lost coherence | collapse to one definite outcome | [`E-QTM-0049`](../../test/experiment/quantum/decoherence-immunity.ts) | firm on the result |
 | the record survives thermal noise | collapse in a warm brain | [`E-QTM-0050`](../../test/experiment/quantum/thermal-record-immunity.ts) | firm (answers the objection that a warm brain decoheres too fast) |

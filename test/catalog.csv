@@ -1,4 +1,4 @@
-code,id,category,depth,paper,substrates,title
+code,test,category,depth,paper,substrates,title
 E-CMP-0002,computation/direction-intention,computation,L2,false,any,"a goal-directed search solves in K steps while an un-goaled one fails"
 E-CMP-0003,computation/discrete-rule-endtoend,computation,L2,true,any,"one discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains smooth"
 E-CMP-0004,computation/hierarchical-solving,computation,L2,true,534,"the global coordination distance is O(log N) and tiny"

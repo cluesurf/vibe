@@ -25,7 +25,7 @@ is a structure that stays fixed: conserved, forced, or matching across both.)
 
 ## Correspondence
 
-| vibe | CRFT | exp | grade |
+| vibe | CRFT | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
 |:--- |:--- |:--- |:--- |
 | the boundary holds the information | high-D to low-D projection | [`E-HLG-0001`](../../test/experiment/holography/area-law.ts) | firm as geometry |
 | the area law holds on every buildable lattice | the projection is lawful | [`E-GRV-0003`](../../test/experiment/gravity/area-law-universality.ts) | firm |

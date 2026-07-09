@@ -38,7 +38,7 @@ Five shared survivors, more than any other theory.
 
 ## Correspondence
 
-| vibe | Timeless Dynamics | exp | grade |
+| vibe | Timeless Dynamics | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
 |:--- |:--- |:--- |:--- |
 | the wake (growing edge) | time as Fisher-Rao arc length | [`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts) | firm |
 | the knit erases nothing (exact reverse) | the recordability condition | [`E-FND-0049`](../../test/experiment/foundations/record-preserving-paths.ts) | firm |

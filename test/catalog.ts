@@ -13,7 +13,7 @@ import { writeFileSync } from 'node:fs'
 import { allExperiments } from '@/test/scaffold/suite'
 import '@/test/experiment/all'
 
-const header = 'code,id,category,depth,paper,substrates,title'
+const header = 'code,test,category,depth,paper,substrates,title'
 
 // Sort by the experiment code in the first column (E-<arena>-<number>), so the catalog groups by arena
 // then by number. Codeless experiments sort last, falling back to id for a stable order.
