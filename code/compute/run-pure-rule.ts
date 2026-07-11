@@ -132,7 +132,7 @@ async function run(): Promise<void> {
   const counts = new Array<number>(C).fill(0)
 
   for (let i = 0; i < E; i++) {
-    counts[color[i]!]++
+    counts[color[i]!] = counts[color[i]!]! + 1
   }
 
   const colorOffsets = new Array<number>(C + 1).fill(0)

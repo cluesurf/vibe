@@ -89,11 +89,11 @@ async function run(): Promise<void> {
   const colorOffsets = new Array<number>(C + 1).fill(0)
 
   for (let i = 0; i < E; i++) {
-    colorOffsets[color[i]! + 1]++
+    colorOffsets[color[i]! + 1] = colorOffsets[color[i]! + 1]! + 1
   }
 
   for (let c = 0; c < C; c++) {
-    colorOffsets[c + 1] += colorOffsets[c]!
+    colorOffsets[c + 1] = colorOffsets[c + 1]! + colorOffsets[c]!
   }
 
   const edgeV = new Uint32Array(E),
