@@ -21,7 +21,7 @@ import {
   type CellGraph,
 } from '@/code/substrate/coxeter/cell-direct'
 
-export interface Addressing {
+export type Addressing = {
   readonly graph: CellGraph
   readonly root: number
   readonly dist: number[] // BFS shell (cell-graph distance from root) per cell
@@ -267,7 +267,7 @@ export function buildAddressing(input: {
 // is 100% deterministic over all confluence edges (208 states); K=1 is only 75.5% (the LCA-depth-3
 // confluences need 2 faces of context). This is the 4D analog of Margenstern's cousin automaton, made
 // simpler here because there are no same-shell cousins.
-export interface ConfluenceAutomaton {
+export type ConfluenceAutomaton = {
   readonly window: number
   readonly states: number
   readonly deterministic: boolean // no key maps to two different partners

@@ -20,7 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 const reachExponential = (g: Graph): boolean =>
   reachIsExponential({ substrate: g, maxRadius: 16 })
 
-interface TilingSpec {
+type TilingSpec = {
   name: string
   p: number
   q: number

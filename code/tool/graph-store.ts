@@ -6,7 +6,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs'
 
-export interface StoredGraph {
+export type StoredGraph = {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array

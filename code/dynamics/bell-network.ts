@@ -5,7 +5,7 @@
 // curve experiment: pairing qubit i with qubit N-1-i (cross-cut) gives the tent-shaped Page curve
 // S(first k) = min(k, N-k); pairing neighbors (local) does not.
 
-export interface PureState {
+export type PureState = {
   real: Float64Array
   imag: Float64Array
   qubitCount: number

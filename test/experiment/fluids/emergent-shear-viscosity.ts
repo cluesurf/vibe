@@ -43,7 +43,7 @@ const PAIR_FILL = 0.35
 const BIAS_MAX = 0.4
 const BEATS = 80
 
-interface ShearCase {
+type ShearCase = {
   gamma: number
   r2: number
   points: number

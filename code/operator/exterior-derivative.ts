@@ -9,7 +9,7 @@ export type Matrix = number[][]
 
 // A graded chain complex: boundary[k] maps k+1 chains to k chains (so boundary[0] is
 // edges to vertices, boundary[1] is faces to edges, and so on).
-export interface CellComplex {
+export type CellComplex = {
   dimensions: number[] // the count of cells in each grade, [vertices, edges, faces, ...]
   boundary: Matrix[] // boundary[k] has shape dimensions[k] by dimensions[k+1]
 }

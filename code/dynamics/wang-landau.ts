@@ -42,7 +42,7 @@ function chainFuture(
   return future
 }
 
-export interface WangLandauResult {
+export type WangLandauResult = {
   size: number
   heights: number[] // the height value of each bin (bin b is height b + minHeight)
   logG: number[] // log density of states per height, normalised so the max is 0

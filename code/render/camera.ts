@@ -28,7 +28,7 @@ import {
 } from '@/code/render/geometry/isometry'
 import type { Scene, SceneEdge, Vec } from '@/code/render/scene'
 
-export interface CameraOptions {
+export type CameraOptions = {
   // the Schlafli symbol, e.g. [7,3] or [5,3,4]
   symbol: number[]
   // the window radius as a Poincare-ball norm cutoff (cells whose center is beyond this are not held), the

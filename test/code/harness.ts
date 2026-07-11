@@ -16,12 +16,12 @@
 // A check fails by throwing. The runner (test/code/run.ts) catches the throw, records
 // the failure, and keeps going, so one broken check never hides the rest.
 
-export interface Check {
+export type Check = {
   name: string
   run: () => void
 }
 
-export interface Suite {
+export type Suite = {
   name: string
   checks: Check[]
 }

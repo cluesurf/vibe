@@ -1,6 +1,6 @@
 // Compressed-sparse-row matrix for large operators (Laplacian, Dirac).
 
-export interface SparseMatrix {
+export type SparseMatrix = {
   readonly form: 'sparse'
   readonly rows: number
   readonly cols: number
@@ -9,7 +9,7 @@ export interface SparseMatrix {
   readonly value: Float64Array // length nnz
 }
 
-export interface Triplet {
+export type Triplet = {
   readonly row: number
   readonly col: number
   readonly value: number
@@ -78,7 +78,7 @@ export function sparseMatVec(
 }
 
 // A symmetric linear operator presented to the Lanczos solver.
-export interface LinearOperator {
+export type LinearOperator = {
   readonly size: number
   apply(input: { x: Float64Array }): Float64Array
 }

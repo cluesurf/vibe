@@ -12,7 +12,7 @@ import {
 } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
-export interface HermitianEigen {
+export type HermitianEigen = {
   readonly values: Float64Array // n, ascending
   readonly vectorsRe: Float64Array // n*n, [a*n + i] = Re component a of eigvec i
   readonly vectorsIm: Float64Array

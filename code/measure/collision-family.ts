@@ -62,7 +62,7 @@ function matchingKey(m: number[][]): string {
 // indices, the map from a direction to its line, and the symmetry actions on the 12 lines
 // (both the B4 signed-permutation generators and the full F4 reflections). Built once, used by
 // every counting function below.
-interface LineStructure {
+type LineStructure = {
   dirs: number[][]
   lines: number[]
   lineOfDir: (i: number) => number

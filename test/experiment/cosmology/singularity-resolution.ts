@@ -14,7 +14,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Point {
+type Point = {
   t: number
   x: number
 }

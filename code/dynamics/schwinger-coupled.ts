@@ -19,7 +19,7 @@ import {
 const ZERO: Complex = complex({ re: 0, im: 0 })
 const IMAGINARY: Complex = complex({ re: 0, im: 1 })
 
-export interface CoupledSchwingerInput {
+export type CoupledSchwingerInput = {
   sites: number
   coupling: number // the gauge coupling e, the free constant whose value the bare rule does not fix
   mass: number
@@ -30,7 +30,7 @@ export interface CoupledSchwingerInput {
   dt: number
 }
 
-export interface CoupledSchwingerResult {
+export type CoupledSchwingerResult = {
   fieldEnergy: number // the field energy sourced above the constant background
   momentumDrift: number // the change in the fermion mean momentum over the run
 }

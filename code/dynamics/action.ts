@@ -13,7 +13,7 @@ import {
 import { forEachSetBit } from '@/code/tool/bitset'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 
-export interface Action {
+export type Action = {
   readonly form: 'action'
   readonly name: string
   readonly epsilon: number

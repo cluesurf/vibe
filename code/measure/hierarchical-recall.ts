@@ -10,7 +10,7 @@ import { makeRng } from '@/code/tool/rng'
 // coarse patterns so they no longer predict their subtrees (a bulk with no meaningful hierarchy)
 // destroys the descent.
 
-export interface RecallModel {
+export type RecallModel = {
   depth: number
   blockSize: number
   feature: number[][][] // feature[level][bit] = block of +-1 values

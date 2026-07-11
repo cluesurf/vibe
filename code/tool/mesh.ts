@@ -7,7 +7,7 @@
 import { modulo } from '@/code/tool/integer'
 import { rootsD4, rootsB4 } from '@/code/algebra/group/root-system'
 
-export interface Mesh {
+export type Mesh = {
   readonly id: string
   readonly degree: number // directions per cell, the coin size
   readonly cellCount: number

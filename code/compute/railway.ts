@@ -18,7 +18,7 @@ export type SwitchKind = 'fix' | 'flip-flop' | 'memory' | 'crossing'
 //   fix       the active branch never changes (a plain fork that always sends the train one way)
 //   flip-flop the active branch flips after the train passes trunk -> branch (the active passage); one-way
 //   memory    the active branch is set to whichever branch the train last entered FROM (it remembers)
-export interface RailSwitch {
+export type RailSwitch = {
   kind: SwitchKind
   active: 1 | 2 // the currently active branch (for fix/flip-flop/memory)
 }
@@ -53,7 +53,7 @@ export function routeSwitch(sw: RailSwitch, entryPort: number): number {
 // The locomotive increments by setting the next free cell, decrements by clearing the last set cell, and the
 // "already zero" case is detected when there is no set cell to clear (Margenstern's J-track return). This is
 // the railway counter of 4.2.2, simulated cell by cell (the train physically walks the chain).
-export interface RailRegister {
+export type RailRegister = {
   cells: Uint8Array // 1 = set, 0 = free; the value is the count of leading 1s
 }
 
@@ -109,7 +109,7 @@ export type RailInstruction =
   | { op: 'dec'; reg: number; next: number; zero: number }
   | { op: 'halt' }
 
-export interface RailProgram {
+export type RailProgram = {
   registers: number // how many registers
   capacity: number // per-register cell capacity
   code: RailInstruction[]

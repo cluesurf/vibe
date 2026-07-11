@@ -36,7 +36,7 @@ import {
 } from '@/code/algebra/group/root-system'
 import { outerAutomorphismOrder } from '@/code/algebra/group/automorphism'
 
-interface Polytope {
+type Polytope = {
   name: string
   symbol: number[]
   directional: number[][] | null

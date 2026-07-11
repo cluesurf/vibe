@@ -18,7 +18,7 @@ import {
 
 const MAX_VERTICES_PER_CELL = 500
 
-export interface CellShape {
+export type CellShape = {
   readonly frame: CoxeterCellFrame
   // the cell's vertices in the Lorentzian frame (place with toPoincare(g * vertex))
   readonly vertices: Vec[]

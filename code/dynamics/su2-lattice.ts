@@ -71,7 +71,7 @@ function randomSu2(input: { rng: Rng }): Quat {
   ])
 }
 
-export interface Su2Lattice {
+export type Su2Lattice = {
   readonly form: 'su2-lattice'
   readonly dim: number
   readonly length: number // sites per axis

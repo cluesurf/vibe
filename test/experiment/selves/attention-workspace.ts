@@ -69,7 +69,7 @@ function fullBeat(
 const mixBit = (i: number, t: number): number =>
   ((Math.imul(i + 1, 2654435761) ^ Math.imul(t + 1, 40503)) >>> 0) & 1
 
-export interface AttentionCase {
+export type AttentionCase = {
   halfPeriod: number
   T: number
   attendedCorrA: number

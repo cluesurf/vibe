@@ -12,7 +12,7 @@ import {
 } from '@/code/tool/bitset'
 import { Embedding } from '@/code/tool/embedding'
 
-export interface Poset {
+export type Poset = {
   readonly form: 'poset'
   readonly size: number
   // covering relations (links): links[a] is the sorted list of b with a immediately precedes b

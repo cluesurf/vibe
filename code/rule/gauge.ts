@@ -10,7 +10,7 @@ import { GaugeField, linkPhase } from '@/code/tool/gauge-field'
 // A triangle plaquette through an edge (a -> b): a third vertex c adjacent to
 // both endpoints. The loop is a -> b -> c -> a. Its Wilson action term is
 // (1 - cos(loop phase)), where the loop phase sums the three link phases.
-interface Triangle {
+type Triangle = {
   readonly a: number
   readonly b: number
   readonly c: number

@@ -5,7 +5,7 @@
 
 import { Rng } from '@/code/tool/rng'
 
-export interface Mesh {
+export type Mesh = {
   size: number
   coords: Float64Array // size * 2, (x, y) per node
   neighbors: number[][]

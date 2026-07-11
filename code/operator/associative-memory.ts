@@ -8,7 +8,7 @@ import { bfsShells } from '@/code/measure/shells'
 
 type Neighbors = readonly (readonly number[])[]
 
-export interface AssociativeMemory {
+export type AssociativeMemory = {
   cellCount: number
   wordBits: number
   // flat cellCount * wordBits ternary words, slot k of cell c at words[c * wordBits + k]

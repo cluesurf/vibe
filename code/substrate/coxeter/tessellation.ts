@@ -30,7 +30,7 @@ export type Compactness =
   | 'unknown'
 export type Builder = 'orbit' | 'euclidean-lattice' | 'none'
 
-export interface TessellationDescriptor {
+export type TessellationDescriptor = {
   symbol: number[]
   spaceDimension: number // the dimension of the tiled space (= symbol.length for a honeycomb)
   geometry: Geometry // of the honeycomb as a whole
@@ -149,7 +149,7 @@ export function describeTessellation(
   }
 }
 
-export interface BuiltTessellation {
+export type BuiltTessellation = {
   descriptor: TessellationDescriptor
   graph: CellGraph | null // null when not buildable
 }

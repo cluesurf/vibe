@@ -74,7 +74,7 @@ export function coinedWalkMSD(input: {
   return { msd }
 }
 
-interface SpectralOperator {
+type SpectralOperator = {
   values: number[] | Float64Array
   vectors: Float64Array // columns: vectors[i * n + k] is component i of eigenvector k
 }

@@ -26,7 +26,7 @@ function normalize(a: Float64Array): void {
   }
 }
 
-export interface Eigenpair {
+export type Eigenpair = {
   energy: number
   state: Float64Array
 }

@@ -7,7 +7,7 @@
 import { flatGraph, beat } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 
-export interface DrivenSelfSeries {
+export type DrivenSelfSeries = {
   // mean interior tone each beat (the self's inner state).
   interior: number[]
   // mean environment signal each beat (the structured external drive).

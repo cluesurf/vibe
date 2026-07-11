@@ -10,7 +10,7 @@ import { betheMesh, squareMesh, meshNeighbors } from '@/code/tool/mesh'
 import { neighborDistances } from '@/code/tool/graph'
 import { bulkSharedPast } from '@/code/measure/shared-past'
 
-export interface CuspSample {
+export type CuspSample = {
   readonly physical: number // distance within the cusp (the boundary)
   readonly bulk: number // distance through the bulk
   readonly eta: number // the shared-past fraction (the Bell-relevant cone overlap)

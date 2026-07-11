@@ -4,7 +4,7 @@
 // central minus-one lies in the commutator subgroup, the cover is NONSPLIT and the projective
 // spinor is real, it cannot be relabeled away as a linear representation.
 
-export interface GroupOps<T> {
+export type GroupOps<T> = {
   multiply(left: T, right: T): T
   inverse(value: T): T
   key(value: T): string

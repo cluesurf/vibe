@@ -5,7 +5,7 @@
 
 import { Rng, makeRng, deriveSeed } from '@/code/tool/rng'
 
-export interface ScanSpec<P> {
+export type ScanSpec<P> = {
   readonly form: 'scan'
   readonly name: string
   readonly parameters: readonly P[]
@@ -13,13 +13,13 @@ export interface ScanSpec<P> {
   run(input: { parameter: P; rng: Rng }): Record<string, number>
 }
 
-export interface ScanPoint {
+export type ScanPoint = {
   readonly parameterIndex: number
   readonly mean: Record<string, number>
   readonly std: Record<string, number>
 }
 
-export interface ScanResult {
+export type ScanResult = {
   readonly form: 'scan-result'
   readonly name: string
   readonly points: readonly ScanPoint[]

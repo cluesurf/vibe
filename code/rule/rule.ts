@@ -5,19 +5,19 @@ import { Substrate } from '@/code/tool/substrate'
 import { Configuration } from '@/code/tone/configuration'
 import { Rng } from '@/code/tool/rng'
 
-export interface RuleStepInput {
+export type RuleStepInput = {
   substrate: Substrate
   configuration: Configuration
   beat: number
   rng: Rng
 }
 
-export interface RuleStepOutput {
+export type RuleStepOutput = {
   configuration: Configuration
   substrate?: Substrate
 }
 
-export interface Rule {
+export type Rule = {
   readonly form: 'rule'
   readonly name: string
   readonly scheme:

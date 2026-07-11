@@ -37,7 +37,7 @@ export function latticeDiracEnergy1d(input: {
 }
 
 // A 2x2 complex matrix in row-major fields.
-export interface Mat2 {
+export type Mat2 = {
   readonly m00: Complex
   readonly m01: Complex
   readonly m10: Complex

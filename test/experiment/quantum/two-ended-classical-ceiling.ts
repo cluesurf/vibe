@@ -85,7 +85,7 @@ export default experiment({
       return charge > 0 ? 1 : charge < 0 ? -1 : 0
     }
 
-    interface Record {
+    type Record = {
       a: number
       b: number
       near: Map<number, number> // connected future region charge sign, by side

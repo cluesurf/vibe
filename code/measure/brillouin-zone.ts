@@ -6,7 +6,7 @@
 
 import { proportionalFit } from '@/code/measure/regression'
 
-export interface TorusZeroScan {
+export type TorusZeroScan = {
   // the number of connected near-zero clusters on the grid
   clusterCount: number
   // the pixel count of each cluster, descending

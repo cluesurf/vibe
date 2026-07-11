@@ -31,7 +31,7 @@ import { steppingShellPolytopes } from '@/code/algebra/group/cell-forcing'
 import { linePairingFamily } from '@/code/measure/collision-family'
 import { shellRatios } from '@/code/substrate/mesh-unfolding'
 
-export interface Rung {
+export type Rung = {
   step: number
   name: string
   candidates: number

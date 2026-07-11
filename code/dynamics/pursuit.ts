@@ -8,7 +8,7 @@
 // one cell every driftPeriod beats (driftPeriod 0 means a static peak). Everything is
 // integer and deterministic, no randomness anywhere.
 
-export interface PursuitResult {
+export type PursuitResult = {
   // mean ring distance from the agent to the true peak over the last half of the run
   meanLateDistance: number
   // ring distance at the final beat

@@ -13,7 +13,7 @@ import {
 } from '@/code/substrate/coxeter/minkowski'
 import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
 
-export interface TilingFaces {
+export type TilingFaces = {
   // the cell adjacency graph (cell i's neighbors), what the automaton runs on
   readonly neighbors: number[][]
   // the face polygon (cyclic ball vertices) of each cell, aligned with the neighbor indices

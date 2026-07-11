@@ -4,7 +4,7 @@
 // (the holonomy / Aharonov-Bohm phase around a rectangle). A gauge transformation A -> A + d(lambda)
 // shifts every link by the lambda difference across it and leaves all fluxes and loops unchanged.
 
-export interface GridGauge {
+export type GridGauge = {
   Ax: number[][]
   Ay: number[][]
 }

@@ -71,7 +71,7 @@ export function steppingShellVertices(steps: number): number[][] {
 // the polytope each stepping shell spans, as corners and faces, both DERIVED. Corners is the
 // vertex count, faces is the facet count of the convex hull of those vertices (computed by
 // exact integer facet enumeration). Self-dual iff the two are equal.
-export interface ShellPolytope {
+export type ShellPolytope = {
   steps: number
   corners: number
   faces: number

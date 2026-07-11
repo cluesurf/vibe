@@ -195,7 +195,7 @@ export function normalForm(word: Word, M: number[][]): Word {
   return best
 }
 
-export interface WordMesh {
+export type WordMesh = {
   readonly form: 'coxeter-word-mesh'
   readonly symbol: number[]
   readonly finite: boolean // enumeration closed (a finite, spherical group)

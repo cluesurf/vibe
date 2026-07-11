@@ -21,7 +21,7 @@ import { greedyRoutingSuccess } from '@/code/measure/navigation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Row {
+type Row = {
   name: string
   size: number
   meanDegree: number

@@ -1,7 +1,7 @@
 // Small dense matrices on typed arrays, row-major. For state-space operators in
 // P1 and as a target for sparse-to-dense conversion in the eigensolvers.
 
-export interface DenseMatrix {
+export type DenseMatrix = {
   readonly form: 'dense'
   readonly rows: number
   readonly cols: number
@@ -178,7 +178,7 @@ export function solveLinearSystem(input: {
   return m.map(row => row[n]!)
 }
 
-export interface ComplexMatrix {
+export type ComplexMatrix = {
   readonly form: 'complex-matrix'
   readonly rows: number
   readonly cols: number

@@ -3,7 +3,7 @@ import { ComplexMatrix } from '@/code/algebra/linear/dense'
 // A 2x2 complex block in row-major order [00, 01, 10, 11], split into real and
 // imaginary parts. The building block of the lattice Wilson-Dirac operators (the
 // Wilson projectors r I -/+ gamma_mu are 2x2 blocks).
-export interface Block {
+export type Block = {
   re: [number, number, number, number]
   im: [number, number, number, number]
 }

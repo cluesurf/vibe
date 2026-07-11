@@ -15,7 +15,7 @@ import { suite, check, close } from '@/test/code/harness'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
 import { newCx } from '@/code/algebra/linear/complex-vector'
 
-interface Dense {
+type Dense = {
   dim: number
   re: Float64Array
   im: Float64Array

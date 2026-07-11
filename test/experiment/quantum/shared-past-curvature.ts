@@ -47,7 +47,7 @@ import { chshFromSharedPast } from '@/code/measure/bell'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Point {
+type Point = {
   readonly d: number
   readonly etaBulk: number
   readonly s: number

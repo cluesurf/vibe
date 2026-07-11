@@ -31,7 +31,7 @@ import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Coarse {
+type Coarse = {
   superG: Graph
   superTone: Int8Array // a DERIVED VIEW (cluster majority), never stored or evolved on its own
   superFills: Int8Array[]

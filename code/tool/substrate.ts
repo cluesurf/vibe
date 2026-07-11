@@ -7,7 +7,7 @@ import { Embedding } from '@/code/tool/embedding'
 
 export type Substrate = Poset | Graph
 
-export interface AdjacencyView {
+export type AdjacencyView = {
   readonly size: number
   outDegree(input: { node: number }): number
   forEachOut(input: { node: number; visit: (to: number) => void }): void

@@ -21,7 +21,7 @@ import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Epoch {
+type Epoch = {
   cells: number
   anisotropy: number
   lorentzSafe: boolean

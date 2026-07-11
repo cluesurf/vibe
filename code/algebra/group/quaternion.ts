@@ -3,7 +3,7 @@
 // the vertices of the 24-cell and form the binary tetrahedral group 2T, which is
 // why the cell's coin carries spin and the three generations.
 
-export interface Quaternion {
+export type Quaternion = {
   w: number
   x: number
   y: number

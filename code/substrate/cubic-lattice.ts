@@ -3,7 +3,7 @@
 // integer units, adjacency is nearest-neighbor (each interior site has 2d
 // neighbors). Sites are indexed row-major: index = sum_a c_a * side^a.
 
-export interface CubicLattice {
+export type CubicLattice = {
   size: number
   coords: Float64Array // size * dim
   dim: number

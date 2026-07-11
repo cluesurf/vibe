@@ -8,7 +8,7 @@
 // HyperRogue cellwalker convention. Each step is self-reciprocal, stepping across a face and then back across
 // the reciprocal face returns to the start. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
-export interface FaceStep {
+export type FaceStep = {
   // the neighbor cell reached across this face
   readonly cell: number
   // the spin at the neighbor that points back across the same face, so wstep can re-seat
@@ -18,7 +18,7 @@ export interface FaceStep {
   readonly mirror: boolean
 }
 
-export interface TileSource {
+export type TileSource = {
   // the Schlafli symbol this tiling realizes, e.g. [7,3]
   readonly symbol: number[]
   // the starting cell, handle 0

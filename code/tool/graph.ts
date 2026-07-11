@@ -4,7 +4,7 @@
 
 import { Embedding } from '@/code/tool/embedding'
 
-export interface Graph {
+export type Graph = {
   readonly form: 'graph'
   readonly size: number
   readonly directed: boolean

@@ -24,7 +24,7 @@
 
 import { Graph, makeGraph } from '@/code/tool/graph'
 
-interface TilingNode {
+type TilingNode = {
   readonly id: number
   readonly parent: number | null
   readonly white: boolean // pentagrid node type: white = 3 children, black = 2

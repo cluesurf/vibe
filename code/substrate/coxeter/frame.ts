@@ -16,7 +16,7 @@ import {
   pointKey,
 } from '@/code/substrate/coxeter/minkowski'
 
-export interface CoxeterCellFrame {
+export type CoxeterCellFrame = {
   readonly symbol: number[]
   readonly dim: number
   readonly normals: Vec[]

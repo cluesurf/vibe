@@ -25,7 +25,7 @@ const LADDER = ['{5,3,4}', '{5,3,5}', '{5,3,3,4}', '{5,3,3,5}']
 const LADDER_MAX_CELLS = 1200
 const CUBIC_SIDE = 13
 
-interface Rung {
+type Rung = {
   symbol: string
   catalogGrowthRatio: number
   associativeGrowthRatio: number

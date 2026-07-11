@@ -76,7 +76,7 @@ export default experiment({
 
     // The deterministic ensemble: a 3x3 ternary seed swept over a grid of positions
     // and three phases.
-    interface Record {
+    type Record = {
       a: number[]
       b: number[]
       apexValue: number

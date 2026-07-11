@@ -1,7 +1,7 @@
 // Seeded deterministic PRNG. Reproducibility is a hard requirement of the
 // testbed: the whole system is a pure function of (seed, parameters).
 
-export interface Rng {
+export type Rng = {
   // float in [0, 1)
   next(): number
   // integer in [0, max)

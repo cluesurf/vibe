@@ -32,7 +32,7 @@ function growthRatio(input: {
   return geometricUnsaturatedGrowthRatio(input)
 }
 
-interface Row {
+type Row = {
   size: number
   radius: number
   meanDegree: number

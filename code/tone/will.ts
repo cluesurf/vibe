@@ -5,7 +5,7 @@ export type Tone = -1 | 0 | 1
 // The will of the mesh: one ternary tone per cell per direction, the full
 // directional fill. The data is laid out as data[cell * degree + direction].
 // This is the entire state of the world, with nothing stored anywhere else.
-export interface Will {
+export type Will = {
   readonly mesh: Mesh
   readonly data: Int8Array
 }
