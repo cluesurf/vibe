@@ -74,12 +74,14 @@ export default experiment({
     for (const sector of SECTORS) {
       const ratioLow = sector.masses[1] / sector.masses[0]
       const ratioHigh = sector.masses[2] / sector.masses[1]
+
       exponents.push(
         shellSeparationExponent({
           ratio: ratioLow,
           growthRate: lambda,
         }),
       )
+
       exponents.push(
         shellSeparationExponent({
           ratio: ratioHigh,

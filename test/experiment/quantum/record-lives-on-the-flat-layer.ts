@@ -122,6 +122,7 @@ export default experiment({
           worstCurvedSurvival,
           survivingFraction(curvedCsr, curvedSeed, radius),
         )
+
         worstFlatSurvival = Math.min(
           worstFlatSurvival,
           survivingFraction(flatCsr, flatSeed, radius),

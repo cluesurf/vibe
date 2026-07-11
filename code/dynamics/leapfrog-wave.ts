@@ -20,6 +20,7 @@ export function leapfrogWaveStep(
   for (let i = 0; i < L; i++) {
     const left = u[(i - 1 + L) % L]!
     const right = u[(i + 1) % L]!
+
     next[i] = 2 * u[i]! - uPrev[i]! + r2 * (left + right - 2 * u[i]!)
   }
 
@@ -59,6 +60,7 @@ export function evolveLeapfrogWave(input: {
 
   for (let t = 0; t < steps; t++) {
     const next = leapfrogWaveStep(u, uPrev, r2)
+
     uPrev = u
     u = next
   }

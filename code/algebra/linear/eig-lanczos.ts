@@ -36,6 +36,7 @@ function deterministicRand(): () => number {
     a = (a + 0x6d2b79f5) >>> 0
 
     let t = a
+
     t = Math.imul(t ^ (t >>> 15), t | 1)
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
 
@@ -82,6 +83,7 @@ export function lowestEigenvalues(input: {
 
     const w = input.operator.apply({ x: v })
     const a = dot(w, v)
+
     alpha[j] = a
     axpy(w, { alpha: -a, x: v })
 
@@ -96,6 +98,7 @@ export function lowestEigenvalues(input: {
       }
 
       const proj = dot(w, bk)
+
       axpy(w, { alpha: -proj, x: bk })
     }
 
@@ -124,6 +127,7 @@ export function lowestEigenvalues(input: {
 
     if (j + 1 < basis.length) {
       const b = beta[j + 1] ?? 0
+
       denseSet(t, { row: j, col: j + 1, value: b })
       denseSet(t, { row: j + 1, col: j, value: b })
     }

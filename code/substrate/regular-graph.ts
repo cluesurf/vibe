@@ -28,6 +28,7 @@ export function buildRegularGraph(input: {
   for (let i = stubs.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = stubs[i]!
+
     stubs[i] = stubs[j]!
     stubs[j] = t
   }
@@ -69,6 +70,7 @@ export function buildRegularGraph(input: {
   for (let k = 0; k < e; k++) {
     const a = euT[k]!
     const b = evT[k]!
+
     adj[cur[a]!++] = b
     adj[cur[b]!++] = a
   }

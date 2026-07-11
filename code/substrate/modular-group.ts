@@ -123,6 +123,7 @@ export function modularGraph(maxNodes: number): Graph {
     const wdenRe = zre
     const wdenIm = zim + 1
     const wden2 = wdenRe * wdenRe + wdenIm * wdenIm
+
     coords[i * 2] = (wnumRe * wdenRe + wnumIm * wdenIm) / wden2
     coords[i * 2 + 1] = (wnumIm * wdenRe - wnumRe * wdenIm) / wden2
   }

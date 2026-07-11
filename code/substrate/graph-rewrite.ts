@@ -53,6 +53,7 @@ export function degreeHistogram(
 
   for (const list of graph.neighbors) {
     const degree = list.length
+
     histogram[degree] = (histogram[degree] ?? 0) + 1
   }
 

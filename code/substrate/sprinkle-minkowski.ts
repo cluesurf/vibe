@@ -41,6 +41,7 @@ export function sprinkleMinkowski(input: {
 
     for (let axis = 0; axis < spaceDim; axis++) {
       const x = input.rng.next() - 0.5
+
       candidate[axis] = x
       radius2 += x * x
     }

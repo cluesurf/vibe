@@ -71,8 +71,8 @@ function localMove(input: {
     replica.poset = candidatePoset
     replica.action = candidateAction
   } else {
-    toggle(replica.state, lo, hi) // revert
-  }
+    toggle(replica.state, lo, hi)
+  } // revert
 }
 
 // Run parallel tempering. Returns, per beta slot, the samples of an observable

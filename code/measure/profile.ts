@@ -88,6 +88,7 @@ export function radialFieldProfile(input: {
     }
 
     const bin = bins.get(r) ?? { sum: 0, count: 0 }
+
     bin.sum += values[i]!
     bin.count++
     bins.set(r, bin)
@@ -114,6 +115,7 @@ export function weightedGridRadiusOfGyration(input: {
 
   for (let i = 0; i < cellCount; i++) {
     const w = weightOf(i)
+
     total += w
     cx += w * (i % side)
     cy += w * Math.floor(i / side)
@@ -132,6 +134,7 @@ export function weightedGridRadiusOfGyration(input: {
     const w = weightOf(i)
     const dx = (i % side) - cx
     const dy = Math.floor(i / side) - cy
+
     m2 += w * (dx * dx + dy * dy)
   }
 

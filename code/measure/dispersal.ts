@@ -40,6 +40,7 @@ export function diffuseParticipation(input: {
   const n = neighbors.length
 
   let probability = new Float64Array(n)
+
   probability[center] = 1
 
   for (let t = 0; t < steps; t++) {

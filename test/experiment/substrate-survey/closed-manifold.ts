@@ -51,6 +51,7 @@ export function closedManifold(): {
     }
 
     const tmp = prev
+
     prev = cur
     cur = nxt
     nxt = tmp

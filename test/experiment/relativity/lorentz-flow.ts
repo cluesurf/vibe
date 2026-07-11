@@ -60,6 +60,7 @@ export function lorentzFlow(input?: {
     let z = axRng.next() * 2 - 1
 
     const len = Math.hypot(x, y, z) || 1
+
     x /= len
     y /= len
     z /= len

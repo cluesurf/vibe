@@ -51,6 +51,7 @@ export function surfaceDistances(input: {
 }): Int32Array {
   const { offsets, adjacency, isBoundary, source, nodeCount } = input
   const dist = new Int32Array(nodeCount).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -94,6 +95,7 @@ export function radialBfsTree(input: {
   const root = innermostCell(radii)
   const depth = new Int32Array(n).fill(-1)
   const parent = new Int32Array(n).fill(-1)
+
   depth[root] = 0
 
   let frontier = [root]

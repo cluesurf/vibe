@@ -52,6 +52,7 @@ function cpuBeat(
         w = edgeW[e]!
 
       const out = PERM[tone[v]! * 3 + tone[w]!]!
+
       tone[v] = Math.floor(out / 3)
       tone[w] = out % 3
     }
@@ -97,6 +98,7 @@ async function run(): Promise<void> {
   }
 
   const E = eu.length
+
   console.log(
     `built {5,3,4}, ${N.toLocaleString()} cells, ${E.toLocaleString()} edges`,
   )
@@ -127,10 +129,10 @@ async function run(): Promise<void> {
 
   const C = maxColor + 1
   // sort edges by colour, build offsets
-  const counts = new Array(C).fill(0)
+  const counts = new Array<number>(C).fill(0)
 
   for (let i = 0; i < E; i++) {
-    counts[color[i]!]++
+    counts[color[i]!] = counts[color[i]!]! + 1
   }
 
   const colorOffsets = new Array<number>(C + 1).fill(0)
@@ -147,6 +149,7 @@ async function run(): Promise<void> {
   for (let i = 0; i < E; i++) {
     const c = color[i]!
     const at = cursor[c]!++
+
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
@@ -162,6 +165,7 @@ async function run(): Promise<void> {
 
   for (let i = 0; i < N; i++) {
     const x = nextR()
+
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
 
@@ -231,6 +235,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
+
       pass.setPipeline(pipeline)
       pass.setBindGroup(0, bind)
       pass.dispatchWorkgroups(Math.ceil(count / WORKGROUP))
@@ -251,6 +256,7 @@ async function run(): Promise<void> {
 
   {
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
     device.queue.submit([enc.finish()])
   }
@@ -258,6 +264,7 @@ async function run(): Promise<void> {
   await staging.mapAsync(GPUMapMode.READ)
 
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
+
   staging.unmap()
 
   const cpu = seed.slice()
@@ -277,6 +284,7 @@ async function run(): Promise<void> {
   console.log(
     `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mism} -> ${mism === 0 ? 'IDENTICAL' : 'FAIL'}`,
   )
+
   console.log(
     `charge conservation: start ${startCharge} -> after ${charge(gpuOut)} -> ${startCharge === charge(gpuOut) ? 'CONSERVED' : 'BROKEN'}`,
   )
@@ -295,9 +303,11 @@ async function run(): Promise<void> {
   await device.queue.onSubmittedWorkDone()
 
   const secs = (performance.now() - t0) / 1000
+
   console.log(
     `benchmark: ${N.toLocaleString()} cells, ${BENCH_BEATS} beats in ${secs.toFixed(2)}s, ${(BENCH_BEATS / secs).toFixed(0)} beats/sec, ${((BENCH_BEATS * E) / secs / 1e9).toFixed(2)} billion edge-updates/sec`,
   )
+
   console.log(
     mism === 0
       ? 'OK, the pure five-thing rule runs faithfully on the GPU at scale'
@@ -316,6 +326,7 @@ async function run(): Promise<void> {
 
   {
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
     device.queue.submit([enc.finish()])
   }
@@ -323,6 +334,7 @@ async function run(): Promise<void> {
   await staging.mapAsync(GPUMapMode.READ)
 
   const fin = new Uint32Array(staging.getMappedRange().slice(0))
+
   staging.unmap()
 
   const sign = new Int8Array(N)
@@ -375,6 +387,7 @@ async function run(): Promise<void> {
       charged++
 
       const r = find(i)
+
       sz.set(r, (sz.get(r) ?? 0) + 1)
     }
 
@@ -388,6 +401,7 @@ async function run(): Promise<void> {
   }
 
   const l0 = largestSameSign(sign)
+
   console.log(
     `L0 structure (descriptive): ${l0.charged.toLocaleString()} charged cells (${((100 * l0.charged) / N).toFixed(0)}%), largest same-sign blob ${l0.largest} cells (small = churn, no persistent selves, as P101)`,
   )

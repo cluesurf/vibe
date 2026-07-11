@@ -112,6 +112,7 @@ suite('coarse/transition-matrix: gap and timescale', [
   // gap = (lambda2 - lambda3) / (1 - lambda2) = (0.8 - 0.2)/(1 - 0.8) = 3.
   check('the spectral gap is (l2-l3)/(1-l2)', () => {
     const g = spectralGap([1, 0.8, 0.2, 0.1])
+
     close(g.lambda1, 1, TOL)
     close(g.lambda2, 0.8, TOL)
     close(g.lambda3, 0.2, TOL)

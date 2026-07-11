@@ -24,6 +24,7 @@ export function ternaryToneEntropyBits(
   for (const c of count) {
     if (c > 0) {
       const p = c / total
+
       bits -= p * Math.log2(p)
     }
   }

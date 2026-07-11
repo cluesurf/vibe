@@ -55,6 +55,7 @@ export function formTower(): {
     step()
 
     const sh = shuffledToneField({ tone, rng })
+
     blocks.forEach((_, bi) => {
       realS[bi]!.push(coarse(tone, bi))
       nulS[bi]!.push(coarse(sh, bi))

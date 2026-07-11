@@ -55,8 +55,8 @@ function run(willpower: number, fieldStrength: number): number {
     if (w >= COST_PER_STEP) {
       w -= COST_PER_STEP
     } else {
-      return SMALL // willpower ran out mid-valley, relapse to the small pleasure
-    }
+      return SMALL
+    } // willpower ran out mid-valley, relapse to the small pleasure
   }
 
   return BIG // endured the whole valley, reached the big pleasure

@@ -30,6 +30,7 @@ function components(
 
     let size = 0
     let fr = [s]
+
     comp[s] = id
 
     while (fr.length > 0) {
@@ -130,7 +131,8 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
 
         if (empty >= 1) {
           toClear.push(i)
-        } // a boundary cell, peel it
+        }
+        // a boundary cell, peel it
       }
     }
 
@@ -171,6 +173,7 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   // two ball centers far apart, plus the shortest path between them (the bridge)
   const bfs = (src: number): Int32Array => {
     const d = new Int32Array(N).fill(-1)
+
     d[src] = 0
 
     let fr = [src]

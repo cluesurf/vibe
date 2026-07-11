@@ -31,6 +31,7 @@ function posetFromPairs(
 suite('measure/distance: graphDistance', [
   check('hop count along a path is the index gap', () => {
     const g = pathGraph(5)
+
     equal(graphDistance({ substrate: g, from: 0, to: 4 }), 4)
     equal(graphDistance({ substrate: g, from: 1, to: 3 }), 2)
   }),

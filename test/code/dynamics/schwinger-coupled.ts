@@ -21,6 +21,7 @@ const base = {
 suite('dynamics/schwinger-coupled: decoupling and sourcing', [
   check('zero coupling sources exactly zero field energy', () => {
     const out = runCoupledSchwinger({ ...base, coupling: 0 })
+
     close(
       out.fieldEnergy,
       0,
@@ -30,6 +31,7 @@ suite('dynamics/schwinger-coupled: decoupling and sourcing', [
   }),
   check('a nonzero coupling sources field energy', () => {
     const out = runCoupledSchwinger({ ...base, coupling: 0.4 })
+
     ok(out.fieldEnergy > 0, 'the moving charge sources the field')
   }),
 ])
@@ -38,6 +40,7 @@ suite('dynamics/schwinger-coupled: determinism', [
   check('two identical runs agree', () => {
     const a = runCoupledSchwinger({ ...base, coupling: 0.4 })
     const b = runCoupledSchwinger({ ...base, coupling: 0.4 })
+
     equal(a.fieldEnergy, b.fieldEnergy, 'field energy')
     equal(a.momentumDrift, b.momentumDrift, 'momentum drift')
   }),

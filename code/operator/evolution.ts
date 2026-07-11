@@ -81,6 +81,7 @@ export function permutationOfRule(input: {
 
     for (let cell = 0; cell < cells; cell++) {
       const digit = rest % base
+
       rest = Math.floor(rest / base)
       setTone(config, { element: cell, value: digit - offset })
     }

@@ -35,6 +35,7 @@ suite('operator/margolus-billiard: reversibility', [
     for (const parity of [0, 1]) {
       const start = fillBits(4, 100 + parity)
       const g = start.slice()
+
       margolusStep(4, g, parity)
       margolusStep(4, g, parity)
       ok(
@@ -49,6 +50,7 @@ suite('operator/margolus-billiard: reversibility', [
       const L = 6
       const start = fillBits(L, 7)
       const g = start.slice()
+
       // beat: parity 0 then parity 1
       margolusStep(L, g, 0)
       margolusStep(L, g, 1)
@@ -65,6 +67,7 @@ suite('operator/margolus-billiard: conservation and collisions', [
     for (const parity of [0, 1]) {
       const start = fillBits(4, 55 + parity)
       const g = start.slice()
+
       margolusStep(4, g, parity)
       equal(
         count(g),
@@ -76,10 +79,12 @@ suite('operator/margolus-billiard: conservation and collisions', [
   check('a diagonal two-particle block is fixed', () => {
     const L = 4
     const g = new Uint8Array(L * L)
+
     g[at(L, 0, 0)] = 1
     g[at(L, 1, 1)] = 1
 
     const start = g.slice()
+
     margolusStep(L, g, 0)
     ok(bitsEqual(g, start), 'a diagonal pair (a wall) does not move')
   }),
@@ -88,6 +93,7 @@ suite('operator/margolus-billiard: conservation and collisions', [
     () => {
       const L = 4
       const g = new Uint8Array(L * L)
+
       g[at(L, 0, 0)] = 1
       margolusStep(L, g, 0)
       equal(g[at(L, 0, 0)], 0, 'the original corner is now empty')

@@ -42,6 +42,7 @@ suite('algebra/jordan: the Jordan product and the rank-3 frame', [
       for (let variant = 0; variant < 4; variant++) {
         const a = deterministicHermitian(3, variant)
         const b = deterministicHermitian(3, variant + 1)
+
         ok(isHermitian(a), 'test element A is Hermitian')
         ok(isHermitian(b), 'test element B is Hermitian')
         ok(isHermitian(jordanProduct(a, b)), 'A . B is Hermitian')
@@ -52,6 +53,7 @@ suite('algebra/jordan: the Jordan product and the rank-3 frame', [
     'the diagonal frame: three primitive idempotents, each of trace 1',
     () => {
       const frame = diagonalJordanFrame(3)
+
       equal(frame.length, 3, 'three frame idempotents')
 
       for (const e of frame) {
@@ -64,11 +66,13 @@ suite('algebra/jordan: the Jordan product and the rank-3 frame', [
     'the frame idempotents are pairwise orthogonal and sum to the identity',
     () => {
       const [e0, e1, e2] = diagonalJordanFrame(3)
+
       ok(areJordanOrthogonal(e0!, e1!), 'E0 . E1 = 0')
       ok(areJordanOrthogonal(e0!, e2!), 'E0 . E2 = 0')
       ok(areJordanOrthogonal(e1!, e2!), 'E1 . E2 = 0')
 
       const sum = octonionMatrixAdd(octonionMatrixAdd(e0!, e1!), e2!)
+
       ok(
         octonionMatrixEquals(sum, octonionMatrixIdentity(3)),
         'E0 + E1 + E2 = I',
@@ -85,6 +89,7 @@ suite(
       () => {
         const a = deterministicHermitian(3, 0)
         const b = deterministicHermitian(3, 1)
+
         close(
           jordanIdentityResidual(a, b),
           0,
@@ -100,6 +105,7 @@ suite(
         1e-9,
         'H2(O) is a Jordan algebra',
       )
+
       close(
         maxJordanIdentityResidual(3),
         0,
@@ -126,9 +132,11 @@ suite('algebra/jordan: S_3 slot permutations are automorphisms', [
     'there are exactly 6 permutations of 3 slots (|S_3| = 6)',
     () => {
       const perms = permutations(3)
+
       equal(perms.length, 6, '|S_3| = 6')
 
       const keys = new Set(perms.map(p => p.join(',')))
+
       equal(keys.size, 6, 'all distinct')
 
       for (const p of perms) {

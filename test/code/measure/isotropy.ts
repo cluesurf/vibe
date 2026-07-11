@@ -60,6 +60,7 @@ suite('measure/isotropy: order-4 moments', [
   // two nonzero components), so |diag - 3 mixed| = 2.
   check('cubic axes carry an order-4 anisotropy of exactly 2', () => {
     const m = directionFourthMoments(CUBIC6)
+
     close(m.diagonal, 2, TOL)
     close(m.mixed, 0, TOL)
     close(m.anisotropy, 2, TOL)
@@ -76,6 +77,7 @@ suite('measure/isotropy: order-4 moments', [
       })
 
       const m = directionFourthMoments(dirs)
+
       close(m.diagonal, 3, TOL)
       close(m.mixed, 1, TOL)
       close(m.anisotropy, 0, TOL)

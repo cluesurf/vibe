@@ -71,6 +71,7 @@ export function completeTree(input: {
     for (const node of frontier) {
       for (let c = 0; c < input.branching; c++) {
         const id = parent.length
+
         parent.push(node)
         children.push([])
         children[node]!.push(id)
@@ -123,9 +124,10 @@ export function embedTree(input: {
   hyperbolic: boolean
 }): { coords: Complex[]; depth: number[] } {
   const size = input.parent.length
-  const coords: Complex[] = new Array(size).fill([0, 0])
-  const depth: number[] = new Array(size).fill(0)
+  const coords: Complex[] = new Array<Complex>(size).fill([0, 0])
+  const depth: number[] = new Array<number>(size).fill(0)
   const radius = Math.tanh(input.edge / 2) // Poincare radius of a point at hyperbolic distance `edge` from 0
+
   coords[0] = [0, 0]
 
   // place children of each node, spreading them evenly in the cone facing away from the parent. parentDir is
@@ -155,6 +157,7 @@ export function embedTree(input: {
               Math.max(1, n - (parentDir === undefined ? 0 : 1))
 
       const local = cFromPolar(radius, angle)
+
       coords[kid] = input.hyperbolic
         ? mobiusFromOrigin(here, local)
         : cAdd(here, cFromPolar(input.edge, angle))

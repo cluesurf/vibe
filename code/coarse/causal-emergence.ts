@@ -115,6 +115,7 @@ export function emergenceGain(input: {
   for (let i = input.fine - 1; i > 0; i--) {
     const j = Math.floor(input.rng.next() * (i + 1))
     const tmp = randomGroups[i]!
+
     randomGroups[i] = randomGroups[j]!
     randomGroups[j] = tmp
   }

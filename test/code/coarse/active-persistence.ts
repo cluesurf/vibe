@@ -18,6 +18,7 @@ suite('coarse/active-persistence: structure and reproducibility', [
 
     const a = activePersistence(opts)
     const b = activePersistence(opts)
+
     equal(
       a.survivingSize,
       b.survivingSize,
@@ -28,6 +29,7 @@ suite('coarse/active-persistence: structure and reproducibility', [
   check('outputs are structurally valid for every refuge mode', () => {
     for (const refuge of ['left', 'right', 'none'] as const) {
       const r = activePersistence({ L: 24, beats: 10, seed: 5, refuge })
+
       ok(r.survivingSize >= 0, 'surviving size is a non-negative count')
       ok(
         r.finalX === -1 || (r.finalX >= 0 && r.finalX < 24),

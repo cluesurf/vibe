@@ -36,6 +36,7 @@ export default experiment({
 
     for (const e of EXPECTED) {
       const c = cellCoordination(e.symbol)
+
       measured[`{${e.symbol.join(',')}}`] = c
 
       if (c !== e.coordination) {

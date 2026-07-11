@@ -88,8 +88,8 @@ function generation(
 
       parent = pop[best]!
     } else {
-      parent = pop[Math.floor(rng.next() * K)]! // neutral drift, random parent
-    }
+      parent = pop[Math.floor(rng.next() * K)]!
+    } // neutral drift, random parent
 
     next.push(reproduce(parent, mu, rng))
   }

@@ -90,6 +90,7 @@ export default experiment({
 
         const boost = ballIsometry(scale(normalize(axis), radius))
         const moved = start.map(boost)
+
         worstConformalError = Math.max(
           worstConformalError,
           Math.abs(crossRatio(moved) - crStart),

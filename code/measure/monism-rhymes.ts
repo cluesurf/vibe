@@ -151,6 +151,7 @@ export function chargeConjugationAsymmetry(input: {
 
   for (let i = 0; i < length; i++) {
     const draw = rng.next()
+
     base[i] = draw < 0.2 ? 1 : draw < 0.4 ? -1 : 0
   }
 
@@ -222,6 +223,7 @@ export function nestedGarmentIdentity(input: {
 
   for (let i = 0; i < length; i++) {
     const draw = rng.next()
+
     tone[i] = draw < 0.15 ? 1 : draw < 0.3 ? -1 : 0
   }
 

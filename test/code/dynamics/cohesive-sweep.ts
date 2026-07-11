@@ -59,12 +59,14 @@ suite('dynamics/cohesive-sweep: agreeCount', [
       // tone: [1,1,0,1] on a 4-ring; node 0 neighbours are 3 (tone 1) and 1 (tone 1)
       const small = ringCsr(4)
       const tone = Int8Array.from([1, 1, 0, 1])
+
       // company of node 0 with tone 1, excluding partner 1: only neighbour 3 (tone 1) counts
       equal(
         agreeCount(tone, small.offsets, small.adj, 0, 1, 1),
         1,
         'excludes the partner',
       )
+
       // company of node 0 with tone 1, excluding nothing real (except = -1): both neighbours
       equal(
         agreeCount(tone, small.offsets, small.adj, 0, 1, -1),

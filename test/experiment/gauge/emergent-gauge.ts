@@ -52,6 +52,7 @@ export function emergentGauge(): {
   for (let i = N - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1))
     const tmp = order[i]!
+
     order[i] = order[j]!
     order[j] = tmp
   }
@@ -69,6 +70,7 @@ export function emergentGauge(): {
       }
 
       const [na, nb] = perm(t[u]!, t[w]!)
+
       flux[u]! += na - t[u]!
       flux[w]! += nb - t[w]! // charge change of each from this pair op
       t[u] = na
@@ -97,7 +99,8 @@ export function emergentGauge(): {
 
   for (let i = 0; i < N; i++) {
     A[i] = rnd() < 0.5 ? 1 : -1
-  } // internal index
+  }
+  // internal index
 
   const usd = new Uint8Array(N)
 
@@ -114,6 +117,7 @@ export function emergentGauge(): {
       }
 
       const sum = A[u]! + A[w]!
+
       A[u] = sum >= 0 ? 1 : -1
       A[w] = sum > 0 ? 1 : -1
       usd[u] = 1

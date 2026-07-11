@@ -37,6 +37,7 @@ suite('measure/newton-falloff: 3D box recession', [
         r.largestBoxExponent < -1 + 1e-9,
         `single box should read below -1, got ${r.largestBoxExponent}`,
       )
+
       ok(
         r.extrapolatedExponent > r.largestBoxExponent,
         `extrapolation ${r.extrapolatedExponent} should exceed the largest box ${r.largestBoxExponent}`,

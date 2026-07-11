@@ -74,6 +74,7 @@ suite('measure/nuclear-binding: the iron peak', [
   // With Coulomb on, the most-bound nucleus is in the iron region (A ~ 56-62) at ~8.8 MeV/nucleon.
   check('the binding curve peaks in the iron region', () => {
     const peak = bindingCurvePeak({ maxMass: 250 })
+
     ok(
       peak.massNumber >= 50 && peak.massNumber <= 65,
       `iron peak should be A in [50,65], got ${peak.massNumber}`,

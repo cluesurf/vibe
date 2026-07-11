@@ -41,12 +41,14 @@ suite('tone/alphabet: slot and value counts', [
 suite('tone/alphabet: randomValue mapping', [
   check('ternary: u in thirds maps to -1, 0, +1', () => {
     const a: Alphabet = { form: 'ternary' }
+
     equal(randomValue({ alphabet: a, u: 0 }), -1, 'u=0 -> -1')
     equal(randomValue({ alphabet: a, u: 0.5 }), 0, 'u=0.5 -> 0')
     equal(randomValue({ alphabet: a, u: 0.99 }), 1, 'u=0.99 -> +1')
   }),
   check('boolean: u < 0.5 -> 0 else 1', () => {
     const a: Alphabet = { form: 'boolean' }
+
     equal(randomValue({ alphabet: a, u: 0 }), 0, 'u=0 -> 0')
     equal(randomValue({ alphabet: a, u: 0.49 }), 0, 'u=0.49 -> 0')
     equal(randomValue({ alphabet: a, u: 0.5 }), 1, 'u=0.5 -> 1')
@@ -54,11 +56,13 @@ suite('tone/alphabet: randomValue mapping', [
   }),
   check('clock Z_q: u maps to floor(u*q), staying in [0, q)', () => {
     const a: Alphabet = { form: 'clock', q: 5 }
+
     equal(randomValue({ alphabet: a, u: 0 }), 0, 'u=0 -> 0')
     equal(randomValue({ alphabet: a, u: 0.99 }), 4, 'u=0.99 -> 4')
 
     for (let i = 0; i < 100; i++) {
       const v = randomValue({ alphabet: a, u: i / 100 })
+
       ok(v >= 0 && v < 5, `clock value out of range: ${v}`)
     }
   }),
@@ -67,6 +71,7 @@ suite('tone/alphabet: randomValue mapping', [
 
     for (let i = 0; i < 100; i++) {
       const v = randomValue({ alphabet: a, u: i / 100 })
+
       ok(
         v === -1 || v === 0 || v === 1,
         `ternary value out of range: ${v}`,

@@ -77,6 +77,7 @@ export function secondConservationSearch(input?: { L?: number }): {
 
     for (let x = 0; x < L; x++) {
       const s = tone[x]!
+
       q += s
       act += s * s
       stag += (x % 2 === 0 ? 1 : -1) * s

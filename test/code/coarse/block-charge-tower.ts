@@ -24,6 +24,7 @@ suite('coarse/block-charge-tower: charge conservation up the tower', [
           4,
           'total charge is conserved at every level',
         )
+
         close(
           lv.compressibility,
           0,

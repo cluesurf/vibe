@@ -7,6 +7,7 @@
 
 const hashBit = (id: number, index: number): number => {
   let h = (id ^ Math.imul(index + 1, 0x9e3779b9)) >>> 0
+
   h = Math.imul(h ^ (h >>> 16), 0x21f0aaad) >>> 0
   h = Math.imul(h ^ (h >>> 15), 0x735a2d97) >>> 0
 
@@ -69,7 +70,8 @@ export function vsaRecallAccuracy(input: {
   for (let i = 0; i < items; i++) {
     for (let j = 0; j < dim; j++) {
       noisy[j] = memory[j]! * keys[i]![j]!
-    } // unbind
+    }
+    // unbind
 
     let best = -1
     let bestDot = -Infinity

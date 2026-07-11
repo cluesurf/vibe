@@ -27,6 +27,7 @@ const keysOf = (group: Quaternion[]): Set<string> =>
 suite('algebra/group/cell-24: the 24-cell vertices', [
   check('the 24-cell has 24 distinct unit-quaternion vertices', () => {
     const vertices = cell24Vertices()
+
     equal(vertices.length, 24, '24 vertices')
     equal(keysOf(vertices).size, 24, 'all distinct')
 
@@ -61,6 +62,7 @@ suite('algebra/group/cell-24: triality (omega cube root of unity)', [
     () => {
       const omega2 = multiply(omega, omega)
       const omega3 = multiply(omega2, omega)
+
       close(omega3.w, 1, 1e-12, 'omega^3 w')
       close(omega3.x, 0, 1e-12, 'omega^3 x')
       close(omega3.y, 0, 1e-12, 'omega^3 y')
@@ -74,6 +76,7 @@ suite('algebra/group/cell-24: triality (omega cube root of unity)', [
 suite('algebra/group/cell-24: the three triality cosets', [
   check('three classes of 8 partition the 24 vertices', () => {
     const [classVector, classA, classB] = trialityClasses()
+
     equal(classVector.length, 8, 'class 0 (Q8) has 8')
     equal(classA.length, 8, 'class 1 has 8')
     equal(classB.length, 8, 'class 2 has 8')
@@ -81,6 +84,7 @@ suite('algebra/group/cell-24: the three triality cosets', [
     const k0 = keysOf(classVector)
     const k1 = keysOf(classA)
     const k2 = keysOf(classB)
+
     equal(k0.size, 8, 'class 0 distinct')
     equal(k1.size, 8, 'class 1 distinct')
     equal(k2.size, 8, 'class 2 distinct')
@@ -90,10 +94,12 @@ suite('algebra/group/cell-24: the three triality cosets', [
       [...k0].every(k => !k1.has(k)),
       'class 0 and 1 disjoint',
     )
+
     ok(
       [...k0].every(k => !k2.has(k)),
       'class 0 and 2 disjoint',
     )
+
     ok(
       [...k1].every(k => !k2.has(k)),
       'class 1 and 2 disjoint',
@@ -101,9 +107,11 @@ suite('algebra/group/cell-24: the three triality cosets', [
 
     // union is exactly the 24 vertices
     const union = new Set([...k0, ...k1, ...k2])
+
     equal(union.size, 24, 'the three cosets cover all 24 vertices')
 
     const vertices = keysOf(cell24Vertices())
+
     ok(
       [...union].every(k => vertices.has(k)),
       'union = 24-cell vertices',
@@ -123,10 +131,12 @@ suite('algebra/group/cell-24: the three triality cosets', [
 
       const k1 = keysOf(classA)
       const k2 = keysOf(classB)
+
       ok(
         omega0.size === 8 && [...omega0].every(k => k1.has(k)),
         'omega . class0 = class1',
       )
+
       ok(
         omega1.size === 8 && [...omega1].every(k => k2.has(k)),
         'omega . class1 = class2',

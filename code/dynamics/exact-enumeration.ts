@@ -100,6 +100,7 @@ export function exactCausalSetAverages(input: {
 
     for (let b = 0; b < B; b++) {
       const w = Math.exp(-(input.betas[b] ?? 0) * s)
+
       z[b] = (z[b] ?? 0) + w
 
       const row = weighted[b]!

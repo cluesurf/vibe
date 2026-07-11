@@ -29,6 +29,7 @@ export function slotReversal(input: { opposite: number[] }): Collision {
   return (slots, base) => {
     for (const [left, right] of lines) {
       const hold = slots[base + left]!
+
       slots[base + left] = slots[base + right]!
       slots[base + right] = hold
     }

@@ -75,6 +75,7 @@ export function cyclotronCentroidTrace(input: {
       )
 
       const phase = kx * x
+
       up[idx(x, y)] = [g * Math.cos(phase), g * Math.sin(phase)]
       norm += g * g
     }
@@ -90,11 +91,12 @@ export function cyclotronCentroidTrace(input: {
 
   for (let t = 0; t < steps; t++) {
     // coin
-    const u1: Complex[] = new Array(N)
-    const d1: Complex[] = new Array(N)
+    const u1: Complex[] = new Array<Complex>(N)
+    const d1: Complex[] = new Array<Complex>(N)
 
     for (let i = 0; i < N; i++) {
       const [nu, nd] = coinRotate(up[i]!, down[i]!, theta)
+
       u1[i] = nu
       d1[i] = nd
     }
@@ -118,11 +120,12 @@ export function cyclotronCentroidTrace(input: {
     }
 
     // coin
-    const u3: Complex[] = new Array(N)
-    const d3: Complex[] = new Array(N)
+    const u3: Complex[] = new Array<Complex>(N)
+    const d3: Complex[] = new Array<Complex>(N)
 
     for (let i = 0; i < N; i++) {
       const [nu, nd] = coinRotate(u2[i]!, d2[i]!, theta)
+
       u3[i] = nu
       d3[i] = nd
     }
@@ -162,6 +165,7 @@ export function cyclotronCentroidTrace(input: {
         down[i]![1] ** 2
 
       const y = i % L
+
       cy += (y - y0) * p
       ww += p
     }
@@ -192,6 +196,7 @@ export function cyclotronFrequency(input: {
 
     for (let t = 0; t < n; t++) {
       const a = (2 * Math.PI * f * t) / n
+
       re += (trace[t]! - mean) * Math.cos(a)
       im += (trace[t]! - mean) * Math.sin(a)
     }

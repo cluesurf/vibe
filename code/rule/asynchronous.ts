@@ -24,6 +24,7 @@ function randomOrder(input: { size: number; rng: Rng }): number[] {
     const j = input.rng.nextInt({ max: i + 1 })
     const a = order[i] ?? 0
     const b = order[j] ?? 0
+
     order[i] = b
     order[j] = a
   }
@@ -54,6 +55,7 @@ export function asynchronousRule(input: {
       for (const element of order) {
         const self = getTone(next, { element })
         const neighborhood: number[] = []
+
         adjacency.forEachOut({
           node: element,
           visit: to => {
@@ -62,6 +64,7 @@ export function asynchronousRule(input: {
         })
 
         const value = input.local({ self, neighborhood })
+
         setTone(next, { element, value })
       }
 

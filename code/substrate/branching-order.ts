@@ -33,6 +33,7 @@ export function growBranchingOrder(input: {
 
     for (let c = 0; c < w; c++) {
       const frac = (cellIndex * GOLDEN) % 1
+
       next += 1 + (frac < input.spawnFraction ? 1 : 0)
       cellIndex++
     }
@@ -72,6 +73,7 @@ export function growBranchingOrder(input: {
       for (let d = 0; d < wPrev; d++) {
         if (Math.abs(posOf(g - 1, d) - p) <= input.horizon) {
           const parent = (startOf[g - 1] ?? 0) + d
+
           setBit(future, { row: parent, col: child })
 
           // Inherit the parent's past (already transitively closed).
@@ -101,6 +103,7 @@ export function growBranchingOrder(input: {
         }
 
         const parent = (startOf[g - 1] ?? 0) + best
+
         setBit(future, { row: parent, col: child })
 
         for (let a = 0; a < parent; a++) {

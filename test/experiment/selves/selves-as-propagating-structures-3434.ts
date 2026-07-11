@@ -59,6 +59,7 @@ function gliderSelf(): {
 
       for (const [dx, dy] of moore) {
         const nk = `${x! + dx!},${y! + dy!}`
+
         count.set(nk, (count.get(nk) ?? 0) + 1)
       }
     }
@@ -193,6 +194,7 @@ function vibeChurn(): {
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
+
       order[i] = order[j]!
       order[j] = t
     }
@@ -214,6 +216,7 @@ function vibeChurn(): {
         }
 
         const [na, nb] = perm(tone[v]!, tone[w]!)
+
         tone[v] = na
         tone[w] = nb
         used[v] = 1

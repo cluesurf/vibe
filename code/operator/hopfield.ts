@@ -41,6 +41,7 @@ export function hebbianFills(
       }
 
       const f = sign(s)
+
       J[i]![j] = f
       J[j]![i] = f
     }
@@ -103,6 +104,7 @@ export function nearestPattern(
 ): { index: number; overlap: number } {
   let best = -1
   let bestOv = -2
+
   patterns.forEach((p, k) => {
     const o = Math.abs(toneOverlap(tone, p))
 

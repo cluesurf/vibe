@@ -182,6 +182,7 @@ async function gpuDenseRecall(input: {
 
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(overlapPipe)
     pass.setBindGroup(0, ovBind)
     pass.dispatchWorkgroups(Math.ceil(p / WORKGROUP))
@@ -192,6 +193,7 @@ async function gpuDenseRecall(input: {
     device.queue.submit([enc.finish()])
 
     const tmp = stateA
+
     stateA = stateB
     stateB = tmp
   }
@@ -202,11 +204,13 @@ async function gpuDenseRecall(input: {
   })
 
   const enc2 = device.createCommandEncoder()
+
   enc2.copyBufferToBuffer(stateA, 0, read, 0, n * 4)
   device.queue.submit([enc2.finish()])
   await read.mapAsync(GPUMapMode.READ)
 
   const out = new Int32Array(read.getMappedRange().slice(0))
+
   read.unmap()
 
   return { state: out, ms: performance.now() - t0 }
@@ -239,6 +243,7 @@ function corrupt(
 
   for (let k = 0; k < flips; k++) {
     const i = rng.nextInt({ max: pattern.length })
+
     cue[i] = -cue[i]!
   }
 
@@ -301,12 +306,15 @@ async function run(): Promise<void> {
   console.log(
     `dense Hopfield, ${n} neurons, ${p} patterns, power ${POWER}, ${ITERS} relaxation steps`,
   )
+
   console.log(
     `cue overlap to prototype before recall, ${toneOverlap(Int8Array.from(cue), prototype).toFixed(3)}`,
   )
+
   console.log(
     `recall overlap to prototype, cpu ${cpuRecall.toFixed(3)}, gpu ${gpuRecall.toFixed(3)}`,
   )
+
   console.log(
     `gpu vs cpu agreement, ${(agree * 100).toFixed(1)} percent`,
   )
@@ -356,4 +364,5 @@ async function run(): Promise<void> {
 }
 
 const main = run
+
 void main()

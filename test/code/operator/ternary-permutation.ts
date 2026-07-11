@@ -20,6 +20,7 @@ function isBijection(create: boolean): boolean {
   for (const a of TONES) {
     for (const b of TONES) {
       const [na, nb] = ternaryPairPermutation(a, b, create)
+
       seen.add(pairKey(na, nb))
     }
   }
@@ -52,6 +53,7 @@ suite('operator/ternary-permutation: the pair update', [
         isBijection(true),
         'permutes all 9 states when creating (reversible CA mode)',
       )
+
       ok(
         !isBijection(false),
         'NOT a permutation without creation (annihilation has no inverse source)',
@@ -68,26 +70,31 @@ suite('operator/ternary-permutation: the pair update', [
       '1,-1',
       'two peaces create +,- when creating',
     )
+
     equal(
       ternaryPairPermutation(0, 0, false).join(','),
       '0,0',
       'two peaces hold when not creating',
     )
+
     equal(
       ternaryPairPermutation(-1, 1, true).join(','),
       '0,0',
       '-,+ annihilates to 0,0',
     )
+
     equal(
       ternaryPairPermutation(1, -1, true).join(','),
       '-1,1',
       '+,- swaps to -,+',
     )
+
     equal(
       ternaryPairPermutation(1, 0, true).join(','),
       '0,1',
       'a charge hops into the 0',
     )
+
     equal(
       ternaryPairPermutation(1, 1, true).join(','),
       '1,1',
@@ -108,9 +115,11 @@ suite('operator/ternary-permutation: 3D parity-block beat', [
 
     const tone = Int8Array.from([1, -1, 0, 1, -1, 0, 1, -1])
     const before = tone.reduce((s, v) => s + v, 0)
+
     parityBlockBeat3D({ tone, side, index, create: true })
 
     const after = tone.reduce((s, v) => s + v, 0)
+
     equal(
       after,
       before,

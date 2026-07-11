@@ -27,6 +27,7 @@ export function wavefrontProfile(input: {
 
   for (let i = 0; i < n; i++) {
     const row = mesh.neighbors[i] ?? []
+
     laplacian.data[i * n + i] = row.length
 
     for (const j of row) {
@@ -39,6 +40,7 @@ export function wavefrontProfile(input: {
   // Exact spectral evolution of a unit impulse at the centre node.
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
+
   re0[center] = 1
 
   const evolved = evolveByEigendecomposition({

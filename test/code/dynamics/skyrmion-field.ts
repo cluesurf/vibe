@@ -29,12 +29,14 @@ suite('dynamics/skyrmion-field: normalization', [
     'the Skyrmion seed and the snapped-to-trit field are unit spins',
     () => {
       const spins = makeSkyrmionField({ size, coreRadius: 5 })
+
       unitLength(spins)
       unitLength(snapToTrits(spins))
     },
   ),
   check('relaxSpins and precessSpins preserve unit length', () => {
     let spins = makeSkyrmionField({ size, coreRadius: 5 })
+
     spins = relaxSpins({ spins, params, rate: 0.2 })
     unitLength(spins)
     spins = precessSpins({ spins, params, dt: 0.1, open: false })
@@ -53,6 +55,7 @@ suite('dynamics/skyrmion-field: topological degree', [
   }),
   check('a Neel Skyrmion seed carries degree ~ -1', () => {
     const spins = makeSkyrmionField({ size, coreRadius: 5 })
+
     close(skyrmionDegree(spins, size), -1, 0.15, 'degree ~ -1')
   }),
 ])

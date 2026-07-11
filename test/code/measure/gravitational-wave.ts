@@ -19,6 +19,7 @@ suite('measure/gravitational-wave: Kepler and chirp mass', [
   // omega = sqrt(M / a^3), so omega^2 a^3 = M.
   check('Kepler frequency satisfies omega^2 a^3 = M', () => {
     const omega = keplerFrequency({ totalMass: 4, separation: 2 })
+
     close(omega * omega * 2 ** 3, 4, TOL)
   }),
   // Equal masses m: M_c = (m^2)^(3/5) / (2m)^(1/5) = m * 2^(-1/5).
@@ -58,6 +59,7 @@ suite('measure/gravitational-wave: quadrupole strain', [
     const mu = (m1 * m2) / (m1 + m2)
     const omega = keplerFrequency({ totalMass: m1 + m2, separation: a })
     const amp = (4 * mu * omega ** 2 * a ** 2) / r
+
     close(s.omega, omega, TOL)
     close(s.hplus[0]!, -amp, TOL)
     close(s.hcross[0]!, 0, TOL)
@@ -98,6 +100,7 @@ suite('measure/gravitational-wave: radiated power', [
 
     const mu = (m1 * m2) / (m1 + m2)
     const omega = keplerFrequency({ totalMass: m1 + m2, separation: a })
+
     close(P, (32 / 5) * mu ** 2 * a ** 4 * omega ** 6, TOL)
   }),
 ])
@@ -125,6 +128,7 @@ suite('measure/gravitational-wave: Peters inspiral', [
     const tc = a0 ** 4 / (4 * K)
     // fit over the late half of the track, where the near-coalescence power law is clean
     const n = track.times.length
+
     ok(n > 50, `track too short: ${n}`)
 
     const lo = Math.floor(n / 2)
@@ -153,6 +157,7 @@ suite('measure/gravitational-wave: Peters inspiral', [
     }
 
     const slope = cov / varx
+
     close(slope, -3 / 8, 0.01)
   }),
 ])

@@ -85,6 +85,7 @@ export function integrateCentralForceOrbit(input: {
     vy += (dt / 6) * (k1[3] + 2 * k2[3] + 2 * k3[3] + k4[3])
 
     const r = Math.hypot(x, y)
+
     rMin = Math.min(rMin, r)
     rMax = Math.max(rMax, r)
 

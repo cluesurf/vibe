@@ -116,6 +116,7 @@ export function perceptionDynamics(): {
 
   for (let i = 0; i < n; i++) {
     const r = rngD0.next()
+
     death[i] = r < 0.4 ? 1 : r < 0.8 ? -1 : 0 // balanced-ish, Q near 0
   }
 

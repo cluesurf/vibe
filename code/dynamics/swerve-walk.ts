@@ -40,8 +40,8 @@ export function swerveWalk(input: {
       const interval2 = dt * dt - dx * dx
 
       if (interval2 <= 0) {
-        continue // not timelike-future
-      }
+        continue
+      } // not timelike-future
 
       const properTime = Math.sqrt(interval2)
 

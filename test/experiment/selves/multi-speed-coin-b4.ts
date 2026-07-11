@@ -151,6 +151,7 @@ export default experiment({
     // 3, a co-moving pair is a moving bound state, one tight component that travels.
     const coMover = (): Will => {
       const w = makeWill(mesh)
+
       w.data[center * degree + L] = 1
       w.data[neigh(center, L, 1) * degree + L] = 1
 
@@ -168,6 +169,7 @@ export default experiment({
     // 4, an approaching head-on pair does NOT capture, it stays two separate components.
     const approach = (): Will => {
       const w = makeWill(mesh)
+
       w.data[center * degree + L] = 1
       w.data[neigh(center, L, 2) * degree + Lopp] = 1
 

@@ -34,6 +34,7 @@ function smearedKernel2D(n: number, eps: number): number {
 
 function popcount32(x: number): number {
   let v = x - ((x >>> 1) & 0x55555555)
+
   v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
   v = (v + (v >>> 4)) & 0x0f0f0f0f
 
@@ -114,10 +115,12 @@ export function isRelated(state: State, i: number, j: number): boolean {
 // Toggle the single pair i precedes j in both future and past.
 export function toggle(state: State, i: number, j: number): void {
   const fi = i * state.stride + (j >>> 5)
+
   state.future.words[fi] =
     (state.future.words[fi] ?? 0) ^ (1 << (j & 31))
 
   const pi = j * state.stride + (i >>> 5)
+
   state.past.words[pi] = (state.past.words[pi] ?? 0) ^ (1 << (i & 31))
 }
 
@@ -314,14 +317,15 @@ export function sampleUniform(input: {
           currentS = candidateS
           accepts += 1
         } else {
-          toggle(state, lo, hi) // revert
-        }
+          toggle(state, lo, hi)
+        } // revert
       }
     }
 
     if (step >= burnIn && step % sampleEvery === 0) {
       const h = height(state)
       const hr = n > 1 ? h / Math.sqrt(n) : 0
+
       hrSum += hr
 
       const act = useAction

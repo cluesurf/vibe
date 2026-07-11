@@ -52,6 +52,7 @@ function localPhases(theta: number): number[] {
   let backward = new Float64Array(SITES)
 
   const start = SITES >> 1
+
   forward[start] = 1 / Math.SQRT2
   backward[start] = 1 / Math.SQRT2
 

@@ -132,6 +132,7 @@ export function absoluteLimits(input?: { n?: number }): {
 
   const s = base.slice()
   const s2 = base.slice()
+
   s2[center] = s2[center] === 0 ? 1 : 0
 
   const ra = makeRng({ seed: 31 })

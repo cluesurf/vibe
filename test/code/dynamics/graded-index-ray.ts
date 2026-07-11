@@ -31,6 +31,7 @@ suite('dynamics/graded-index-ray: index field', [
         const [gx, gy] = indexGradient(x, y)
         const numGx = (index(x + h, y) - index(x - h, y)) / (2 * h)
         const numGy = (index(x, y + h) - index(x, y - h)) / (2 * h)
+
         close(gx, numGx, 1e-4, `dn/dx at (${x},${y})`)
         close(gy, numGy, 1e-4, `dn/dy at (${x},${y})`)
       }
@@ -42,6 +43,7 @@ suite('dynamics/graded-index-ray: deflection', [
   check('a uniform field (mass 0) bends nothing', () => {
     const field = softenedMassIndexField({ mass: 0 })
     const out = traceGradedIndexRay({ impact: 5, ...field })
+
     close(out.tangentY, 0, 1e-9, 'tangent stays along +x')
     close(
       rayDeflection({ impact: 5, ...field }),
@@ -52,6 +54,7 @@ suite('dynamics/graded-index-ray: deflection', [
   }),
   check('a positive mass bends the ray toward the matter', () => {
     const field = softenedMassIndexField({ mass: 3, soft: 1 })
+
     ok(
       rayDeflection({ impact: 5, ...field }) > 0,
       'bends toward the mass',
@@ -60,6 +63,7 @@ suite('dynamics/graded-index-ray: deflection', [
   check('the trace is deterministic', () => {
     const field = softenedMassIndexField({ mass: 2 })
     const run = (): number => rayDeflection({ impact: 4, ...field })
+
     equal(run(), run(), 'reproducible')
   }),
 ])

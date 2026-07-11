@@ -43,14 +43,17 @@ const TOL = 1e-12
 suite('algebra/group/clifford: Pauli algebra', [
   check('sigma_1, sigma_2, sigma_3 each square to the identity', () => {
     const [, s1, s2, s3] = pauli()
+
     ok(
       cmEquals(cmMultiply(s1!, s1!), cmIdentity(2), TOL),
       'sigma_1^2 = I',
     )
+
     ok(
       cmEquals(cmMultiply(s2!, s2!), cmIdentity(2), TOL),
       'sigma_2^2 = I',
     )
+
     ok(
       cmEquals(cmMultiply(s3!, s3!), cmIdentity(2), TOL),
       'sigma_3^2 = I',
@@ -59,12 +62,14 @@ suite('algebra/group/clifford: Pauli algebra', [
   check('distinct Paulis anticommute: {sigma_i, sigma_j} = 0', () => {
     const [, s1, s2, s3] = pauli()
     const zero = cmZero(2, 2)
+
     ok(cmEquals(cmAntiCommutator(s1!, s2!), zero, TOL), '{s1,s2} = 0')
     ok(cmEquals(cmAntiCommutator(s1!, s3!), zero, TOL), '{s1,s3} = 0')
     ok(cmEquals(cmAntiCommutator(s2!, s3!), zero, TOL), '{s2,s3} = 0')
   }),
   check('the Pauli product law: sigma_1 sigma_2 = i sigma_3', () => {
     const [, s1, s2, s3] = pauli()
+
     ok(
       cmEquals(cmMultiply(s1!, s2!), scaleByComplex(s3!, c(0, 1)), TOL),
       's1 s2 = i s3',
@@ -74,6 +79,7 @@ suite('algebra/group/clifford: Pauli algebra', [
     'the Pauli commutator: [sigma_1, sigma_2] = 2 i sigma_3',
     () => {
       const [, s1, s2, s3] = pauli()
+
       ok(
         cmEquals(
           cmCommutator(s1!, s2!),
@@ -103,6 +109,7 @@ suite('algebra/group/clifford: Dirac gamma algebra', [
 
           if (mu === nu) {
             const expected = cmScale(identity, 2 * minkowski[mu]!)
+
             ok(cmEquals(anti, expected, TOL), `{g${mu},g${mu}} = 2 eta`)
           } else {
             ok(cmEquals(anti, zero, TOL), `{g${mu},g${nu}} = 0`)
@@ -116,6 +123,7 @@ suite('algebra/group/clifford: Dirac gamma algebra', [
     () => {
       const gamma = diracGamma()
       const gamma5 = diracGamma5()
+
       ok(
         cmEquals(cmMultiply(gamma5, gamma5), cmIdentity(4), TOL),
         'gamma5^2 = I',
@@ -156,6 +164,7 @@ suite('algebra/group/clifford: spin double cover', [
     'the spin generator squares to (1/4) I (eigenvalues +/- 1/2)',
     () => {
       const s = spinGeneratorZ()
+
       ok(
         cmEquals(cmMultiply(s, s), cmScale(cmIdentity(4), 0.25), TOL),
         'S_z^2 = 1/4 I',
@@ -182,6 +191,7 @@ suite('algebra/group/clifford: spin double cover', [
       cmEquals(rotor2pi, cmScale(cmIdentity(4), -1), 1e-12),
       'exp(2pi) rotor = -I (the spinor sign)',
     )
+
     ok(
       cmEquals(rotor4pi, cmIdentity(4), 1e-12),
       'exp(4pi) rotor = +I (a spinor needs two full turns)',
@@ -194,14 +204,17 @@ suite('algebra/group/clifford: Coxeter edge rotor', [
     for (const m of [2, 3, 4, 6]) {
       const rotor = coxeterEdgeRotor(m)
       const minusIdentity = cmScale(cmIdentity(4), -1)
+
       ok(
         cmEquals(cmPower(rotor, m), minusIdentity, 1e-10),
         `R^${m} = -I (a 2pi loop where ${m} cells meet)`,
       )
+
       ok(
         cmEquals(cmPower(rotor, 2 * m), cmIdentity(4), 1e-10),
         `R^${2 * m} = +I (the 4pi return)`,
       )
+
       // R^m must be genuinely -I, not accidentally +I.
       ok(
         !cmEquals(cmPower(rotor, m), cmIdentity(4), 1e-6),

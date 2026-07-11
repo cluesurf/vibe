@@ -32,6 +32,7 @@ export function eigHermitian(input: {
     for (let j = 0; j < n; j++) {
       const a = input.matrix.re[i * n + j] ?? 0
       const b = input.matrix.im[i * n + j] ?? 0
+
       set(i, j, a) // top-left A
       set(n + i, n + j, a) // bottom-right A
       set(i, n + j, -b) // top-right -B
@@ -48,6 +49,7 @@ export function eigHermitian(input: {
   for (let i = 0; i < n; i++) {
     // Take one column of each degenerate pair (columns 2i, 2i+1 share eigenvalue).
     const col = 2 * i
+
     values[i] = eig.values[col] ?? 0
 
     for (let a = 0; a < n; a++) {
@@ -86,6 +88,7 @@ export function hermitianMatrixSign(input: {
         // |v><v|_{ab} = v_a * conj(v_b)
         const re = va * vb + vaIm * vbIm
         const im = vaIm * vb - va * vbIm
+
         out.re[a * n + b] = (out.re[a * n + b] ?? 0) + s * re
         out.im[a * n + b] = (out.im[a * n + b] ?? 0) + s * im
       }

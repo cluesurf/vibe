@@ -21,6 +21,7 @@ suite('measure/self-occlusion: exact geometric fractions', [
   }),
   check('bulk-cusp dimensional fraction is 3/4', () => {
     const f = dimensionalCuspFraction()
+
     equal(f.perceived, 3)
     equal(f.total, 4)
     close(f.fraction, 0.75, TOL)
@@ -42,6 +43,7 @@ suite('measure/self-occlusion: directionalFacingFraction', [
     'the centrally symmetric 24-cell faces exactly 1/2 under any view',
     () => {
       const r = directionalFacingFraction([1, 0, 0, 0])
+
       // D4 roots are the 24 vectors +-e_a+-e_b; under view e_0: 6 have +e_0 (visible),
       // 6 have -e_0 (occluded), 12 are perpendicular (rim). (6 + 12/2)/24 = 1/2.
       equal(r.visible, 6)

@@ -22,11 +22,13 @@ suite('tool/bitset: storage and bit ops', [
   check('stride = ceil(cols / 32)', () => {
     for (const cols of [1, 31, 32, 33, 63, 64, 65, 100]) {
       const m = makeBitMatrix({ rows: 2, cols })
+
       equal(m.stride, Math.ceil(cols / 32), `stride for cols=${cols}`)
     }
   }),
   check('words length = rows * stride', () => {
     const m = makeBitMatrix({ rows: 5, cols: 40 })
+
     equal(m.stride, 2, 'stride')
     equal(m.words.length, 5 * 2, 'word count')
   }),
@@ -57,6 +59,7 @@ suite('tool/bitset: storage and bit ops', [
   ),
   check('clearBit removes exactly one bit', () => {
     const m = makeBitMatrix({ rows: 1, cols: 40 })
+
     setBit(m, { row: 0, col: 5 })
     setBit(m, { row: 0, col: 35 })
     clearBit(m, { row: 0, col: 5 })
@@ -87,6 +90,7 @@ suite('tool/bitset: storage and bit ops', [
     }
 
     const shared = a.filter(x => b.includes(x)) // {5, 40, 99}
+
     equal(
       popcountAnd(m, { rowA: 0, rowB: 1 }),
       shared.length,
@@ -115,6 +119,7 @@ suite('tool/bitset: storage and bit ops', [
     }
 
     const seen: number[] = []
+
     forEachSetBit(m, { row: 0, visit: col => seen.push(col) })
     exactArray(
       Uint32Array.from(seen),
@@ -133,6 +138,7 @@ suite('tool/bitset: transitive closure and height', [
   check('Warshall closure matches hand-derived reachability', () => {
     const n = 4
     const asserted = makeBitMatrix({ rows: n, cols: n })
+
     setBit(asserted, { row: 0, col: 1 })
     setBit(asserted, { row: 1, col: 2 })
     setBit(asserted, { row: 0, col: 3 })
@@ -156,6 +162,7 @@ suite('tool/bitset: transitive closure and height', [
   check('closure relation count equals the hand pair count (4)', () => {
     const n = 4
     const asserted = makeBitMatrix({ rows: n, cols: n })
+
     setBit(asserted, { row: 0, col: 1 })
     setBit(asserted, { row: 1, col: 2 })
     setBit(asserted, { row: 0, col: 3 })
@@ -174,16 +181,19 @@ suite('tool/bitset: transitive closure and height', [
   check('height of the chain 0<1<2 (plus 3) is 3', () => {
     const n = 4
     const asserted = makeBitMatrix({ rows: n, cols: n })
+
     setBit(asserted, { row: 0, col: 1 })
     setBit(asserted, { row: 1, col: 2 })
     setBit(asserted, { row: 0, col: 3 })
 
     const closure = bitMatrixTransitiveClosure(asserted, n)
+
     equal(bitMatrixHeight(closure, n), 3, 'longest chain length')
   }),
   check('height of a pure 5-element antichain is 1', () => {
     const n = 5
     const empty = makeBitMatrix({ rows: n, cols: n })
+
     equal(bitMatrixHeight(empty, n), 1, 'antichain height')
   }),
   check('height of a full 6-element chain is 6', () => {
@@ -195,6 +205,7 @@ suite('tool/bitset: transitive closure and height', [
     }
 
     const closure = bitMatrixTransitiveClosure(asserted, n)
+
     equal(bitMatrixHeight(closure, n), 6, 'chain height')
 
     // a full chain has C(6,2) = 15 ordered pairs

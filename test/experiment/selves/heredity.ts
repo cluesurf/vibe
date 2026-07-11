@@ -67,6 +67,7 @@ export function heredity(input?: { n?: number }): {
 
   {
     const seen = new Uint8Array(N)
+
     seen[far] = 1
 
     let fr = [far]
@@ -108,6 +109,7 @@ export function heredity(input?: { n?: number }): {
   for (let i = m - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = parentPat[i]!
+
     parentPat[i] = parentPat[j]!
     parentPat[j] = t
   }
@@ -126,7 +128,8 @@ export function heredity(input?: { n?: number }): {
 
       if (r.next() < mu) {
         v = -v
-      } // mutation
+      }
+      // mutation
 
       daughterPat[i] = v
       charge += v // daughter region was empty (0), so this is the charge created by copying

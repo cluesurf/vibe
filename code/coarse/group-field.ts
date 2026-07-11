@@ -59,6 +59,7 @@ export function cubicBlockGroups(input: {
     const x = i % L
     const y = ((i / L) | 0) % L
     const z = (i / (L * L)) | 0
+
     group[i] =
       (((z / b) | 0) * side + ((y / b) | 0)) * side + ((x / b) | 0)
   }

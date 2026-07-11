@@ -27,9 +27,11 @@ const graph: StoredGraph = {
 suite('tool/graph-store: graph round-trip', [
   check('loadGraph recovers exactly what saveGraph wrote', () => {
     const path = join(dir, 'g.bin')
+
     saveGraph(path, graph)
 
     const back = loadGraph(path)
+
     equal(back.cellCount, graph.cellCount, 'cellCount')
     exactArray(back.offsets, graph.offsets, 'offsets')
     exactArray(back.adj, graph.adj, 'adj')
@@ -44,9 +46,11 @@ suite('tool/graph-store: graph round-trip', [
       }
 
       const path = join(dir, 'empty.bin')
+
       saveGraph(path, empty)
 
       const back = loadGraph(path)
+
       equal(back.cellCount, 2, 'cellCount')
       exactArray(back.offsets, empty.offsets, 'offsets')
       equal(back.adj.length, 0, 'no adjacency')
@@ -58,9 +62,11 @@ suite('tool/graph-store: state round-trip', [
   check('loadState recovers signed tones exactly', () => {
     const tone = Int8Array.from([-1, 0, 1, 1, -1, 0])
     const path = join(dir, 's.bin')
+
     saveState(path, tone)
 
     const back = loadState(path)
+
     equal(back.length, tone.length, 'length')
     exactArray(back, tone, 'tones including the negatives')
   }),

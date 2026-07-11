@@ -28,6 +28,7 @@ suite('operator/ising-rg: exact decimation', [
           1e-12,
           `decimation at K=${k}`,
         )
+
         close(
           isingDecimationFormula(k),
           0.5 * Math.log(Math.cosh(2 * k)),
@@ -66,6 +67,7 @@ suite('operator/ising-rg: correlation', [
       1e-12,
       'hand-computed',
     )
+
     close(
       nearestNeighborCorrelation(Int8Array.from([1, 1, 1, 1])),
       1,
@@ -107,6 +109,7 @@ suite('operator/ising-rg: block-spin recursion', [
       })
 
       const expected = Math.atanh(Math.tanh(k) ** 2)
+
       close(
         measured,
         expected,

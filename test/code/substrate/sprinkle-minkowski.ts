@@ -25,6 +25,7 @@ suite('substrate/sprinkle-minkowski: determinism', [
   check('the same seed produces an identical sprinkle', () => {
     const a = sprinkle(42)
     const b = sprinkle(42)
+
     equal(a.size, b.size, 'size')
     exactArray(
       a.embedding!.coords,
@@ -62,16 +63,19 @@ suite('substrate/sprinkle-minkowski: the sample', [
 
     for (let i = 0; i < p.size; i++) {
       const t = coords[i * d]!
+
       ok(t >= 0 && t <= 1, `t=${t} in [0,1]`)
 
       let radius2 = 0
 
       for (let axis = 1; axis < d; axis++) {
         const x = coords[i * d + axis]!
+
         radius2 += x * x
       }
 
       const reach = Math.min(t, 1 - t)
+
       ok(
         radius2 <= reach * reach + 1e-9,
         `point ${i} inside the diamond`,
@@ -105,6 +109,7 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
 
         for (let axis = 1; axis < d; axis++) {
           const dx = coords[b * d + axis]! - coords[a * d + axis]!
+
           space2 += dx * dx
         }
 

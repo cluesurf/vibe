@@ -81,11 +81,13 @@ suite('algebra/vector: minkowski (J) inner product', [
     'a timelike unit vector has J-square -1, a spacelike one +1',
     () => {
       const metric = [-1, 1, 1, 1] // mostly-plus with timelike axis 0
+
       equal(
         innerJ([1, 0, 0, 0], [1, 0, 0, 0], metric),
         -1,
         'timelike^2 = -1',
       )
+
       equal(
         innerJ([0, 1, 0, 0], [0, 1, 0, 0], metric),
         1,
@@ -95,6 +97,7 @@ suite('algebra/vector: minkowski (J) inner product', [
   ),
   check('normJ is the square root of the absolute J-square', () => {
     const metric = [-1, 1, 1, 1]
+
     // innerJ((2,1,0,0)) = -4 + 1 = -3, normJ = sqrt(3)
     close(
       normJ([2, 1, 0, 0], metric),

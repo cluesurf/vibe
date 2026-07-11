@@ -70,6 +70,7 @@ suite('dynamics/perception-edge-beat: delegation', [
           cohesive: false,
           temperature: 0.02,
         })
+
         conservingEdgeSweep({
           tone: viaSweep,
           eu,
@@ -110,6 +111,7 @@ suite('dynamics/perception-edge-beat: charge conservation', [
           cohesive,
           temperature: 0.05,
         })
+
         equal(
           charge(tone),
           q0,

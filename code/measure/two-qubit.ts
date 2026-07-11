@@ -8,6 +8,7 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { makeDense } from '@/code/algebra/linear/dense'
 
 type Cx = { re: number; im: number }
+
 const cx = (re: number, im = 0): Cx => ({ re, im })
 
 // 2x2 Pauli matrices as complex, keyed by name.
@@ -42,6 +43,7 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
         for (let l = 0; l < 2; l++) {
           const x = a[i]![j]!
           const y = b[k]![l]!
+
           out[i * 2 + k]![j * 2 + l] = cx(
             x.re * y.re - x.im * y.im,
             x.re * y.im + x.im * y.re,

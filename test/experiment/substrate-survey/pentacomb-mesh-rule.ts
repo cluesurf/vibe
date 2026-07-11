@@ -89,7 +89,8 @@ export default experiment({
 
     for (let t = 0; t < steps; t++) {
       occupation = collide(stream(occupation), false)
-    } // exact inverse, reversed order
+    }
+    // exact inverse, reversed order
 
     const reversible = occupation.every((slots, cell) =>
       slots.every((value, d) => value === initial[cell]![d]),

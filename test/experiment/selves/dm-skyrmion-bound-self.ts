@@ -90,6 +90,7 @@ export default experiment({
     for (let y = 15; y < 19; y++) {
       for (let x = 27; x < 31; x++) {
         const n = Math.hypot(1, 0, 0.2)
+
         perturbed[at(x, y)] = [1 / n, 0, 0.2 / n]
       }
     }

@@ -30,6 +30,7 @@ suite(
   [
     check('boundary cells are clamped to exactly zero', () => {
       const source = new Float64Array(7)
+
       source[3] = 1
 
       const phi = latticePoissonJacobi({
@@ -46,6 +47,7 @@ suite(
       'interior cells satisfy deg*phi - sum_neighbors = 4pi*source (fixed point)',
       () => {
         const source = new Float64Array(7)
+
         source[3] = 1
 
         const coeff = 4 * Math.PI
@@ -76,6 +78,7 @@ suite(
       'a custom source coefficient scales the stencil right-hand side',
       () => {
         const source = new Float64Array(7)
+
         source[2] = 1
         source[4] = -1
 

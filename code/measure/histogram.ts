@@ -45,6 +45,7 @@ export function histogramFlatness(input: {
   for (const c of h) {
     if (c > 0) {
       const p = c / kept
+
       ent -= p * Math.log(p)
     }
   }

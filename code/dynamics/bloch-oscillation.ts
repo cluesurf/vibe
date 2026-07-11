@@ -42,12 +42,13 @@ export function blochCentroidTrace(input: {
   const x0 = L >> 1
 
   // localized Gaussian packet at rest: equal weight in both chiralities (symmetric)
-  let R: Complex[] = new Array(L).fill([0, 0])
-  let Lf: Complex[] = new Array(L).fill([0, 0])
+  let R: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let Lf: Complex[] = new Array<Complex>(L).fill([0, 0])
   let seedNorm = 0
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) * (x - x0)) / (2 * sigma * sigma))
+
     R[x] = [g, 0]
     Lf[x] = [g, 0]
     seedNorm += cabs2(R[x]!) + cabs2(Lf[x]!)
@@ -69,6 +70,7 @@ export function blochCentroidTrace(input: {
 
   for (let x = 0; x < L; x++) {
     const v = force * (x - x0)
+
     forceRe[x] = Math.cos(-v)
     forceIm[x] = Math.sin(-v)
   }
@@ -77,14 +79,15 @@ export function blochCentroidTrace(input: {
 
   for (let t = 0; t < steps; t++) {
     // coin: mass mixes the two chiralities
-    const R2: Complex[] = new Array(L)
-    const L2: Complex[] = new Array(L)
+    const R2: Complex[] = new Array<Complex>(L)
+    const L2: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       R2[x] = cadd(
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(IMAG, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(IMAG, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -96,14 +99,15 @@ export function blochCentroidTrace(input: {
       for (let x = 0; x < L; x++) {
         const pr = forceRe[x]!
         const pi = forceIm[x]!
+
         R2[x] = cmul([pr, pi], R2[x]!)
         L2[x] = cmul([pr, pi], L2[x]!)
       }
     }
 
     // shift: R moves +1, L moves -1
-    const R3: Complex[] = new Array(L).fill([0, 0])
-    const L3: Complex[] = new Array(L).fill([0, 0])
+    const R3: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const L3: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!
@@ -120,6 +124,7 @@ export function blochCentroidTrace(input: {
     for (let x = 0; x < L; x++) {
       const dx = ((x - x0 + L + L / 2) % L) - L / 2
       const w = cabs2(R[x]!) + cabs2(Lf[x]!)
+
       cc += dx * w
       wc += w
     }
@@ -150,6 +155,7 @@ export function blochFrequency(input: {
 
     for (let t = 0; t < n; t++) {
       const phase = (2 * Math.PI * f * t) / n
+
       re += (trace[t]! - mean) * Math.cos(phase)
       im += (trace[t]! - mean) * Math.sin(phase)
     }

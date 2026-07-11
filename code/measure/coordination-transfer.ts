@@ -19,6 +19,7 @@ function bfsDistances(
   root: number,
 ): number[] {
   const distance = new Array<number>(neighbors.length).fill(-1)
+
   distance[root] = 0
 
   let frontier = [root]

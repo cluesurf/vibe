@@ -19,6 +19,7 @@ export function lifeStep(state: Set<string>): Set<string> {
 
     for (const [dx, dy] of mooreOffsets) {
       const nk = `${x! + dx},${y! + dy}`
+
       count.set(nk, (count.get(nk) ?? 0) + 1)
     }
   }
@@ -48,6 +49,7 @@ export function cellSetCentroid(state: Set<string>): [number, number] {
 
   for (const k of state) {
     const [x, y] = k.split(',').map(Number)
+
     sx += x!
     sy += y!
   }

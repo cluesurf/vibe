@@ -194,6 +194,7 @@ export function areJordanOrthogonal(
 export function diagonalJordanFrame(n: number): OctonionMatrix[] {
   return Array.from({ length: n }, (_, k) => {
     const e = octonionMatrixZero(n)
+
     e[k]![k] = octonionOne()
 
     return e
@@ -215,6 +216,7 @@ export function deterministicHermitian(
 
     for (let j = i + 1; j < n; j++) {
       const unit = ((i + 2 * j + 3 * variant) % 7) + 1 // one of e1..e7
+
       m[i]![j] = octonionUnit(unit)
       m[j]![i] = octonionConjugate(m[i]![j]!)
     }
@@ -245,6 +247,7 @@ export function maxJordanIdentityResidual(n: number): number {
   for (let variant = 0; variant < 4; variant++) {
     const a = deterministicHermitian(n, variant)
     const b = deterministicHermitian(n, variant + 1)
+
     worst = Math.max(worst, jordanIdentityResidual(a, b))
   }
 

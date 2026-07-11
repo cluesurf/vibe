@@ -146,12 +146,14 @@ export default experiment({
 
       for (const support of ladder) {
         const tone = spreadInput(n, support)
+
         coarse.push(shannonEntropy(blockPlusCounts(tone, blocks)))
         fine.push(Math.log(Math.max(1, occupiedCount(tone))))
       }
 
       const capacity = Math.log(blocks)
       const ceiling = coarse[coarse.length - 1]!
+
       ceilings[blocks] = ceiling
 
       // the plateau equals the window capacity ln(B)
@@ -162,6 +164,7 @@ export default experiment({
 
       // the recorded distinguishability stays flat once the window is full, as the input rises
       const flat = Math.max(...coarse) - Math.min(...coarse)
+
       worstPlateauFlatness = Math.max(worstPlateauFlatness, flat)
 
       // the input's fine complexity keeps rising well past the recorded ceiling

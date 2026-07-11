@@ -73,6 +73,7 @@ suite('substrate/regular-graph: structural invariants', [
 
     for (let i = 0; i < 300; i++) {
       const deg = g.offsets[i + 1]! - g.offsets[i]!
+
       ok(deg <= 6, `node ${i} degree <= 6`)
     }
   }),

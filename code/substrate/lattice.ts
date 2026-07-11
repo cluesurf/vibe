@@ -70,6 +70,7 @@ function latticeLorentzian(input: {
   for (let newIndex = 0; newIndex < size; newIndex++) {
     const oldIndex = order[newIndex] ?? 0
     const point = input.coordsInt[oldIndex] ?? []
+
     sortedInt.push(point)
 
     for (let axis = 0; axis < d; axis++) {

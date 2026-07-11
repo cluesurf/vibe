@@ -93,6 +93,7 @@ suite('operator/dirac: cell complex and boundary', [
     'K4 has the expected cell counts (4 vertices, 6 edges, 4 triangles)',
     () => {
       const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
+
       equal(complex.cellCount[0] ?? -1, 4, 'vertices')
       equal(complex.cellCount[1] ?? -1, 6, 'edges')
       equal(complex.cellCount[2] ?? -1, 4, 'triangles')

@@ -91,6 +91,7 @@ export function ruleInjectivity(input: {
 
   for (const will of input.stateWills) {
     const next = beat(cloneWill(will), input.collision)
+
     images.add(stateKey(next))
   }
 

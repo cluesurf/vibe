@@ -50,6 +50,7 @@ export default experiment({
 
     // a deterministic structured initial condition, never random (the methodology rule), a fixed function of the slot index
     const will = makeWill(mesh)
+
     fillWillPattern(will)
 
     const startMomentum = totalMomentum(will, directions)

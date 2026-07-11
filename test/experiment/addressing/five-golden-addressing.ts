@@ -51,6 +51,7 @@ export default experiment({
       for (let i = 2; i <= n; i++) {
         const nextZero = endZero + endOne
         const nextOne = endZero
+
         endZero = nextZero
         endOne = nextOne
       }

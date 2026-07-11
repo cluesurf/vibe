@@ -41,8 +41,8 @@ export function hamiltonianMatrix(input: {
     const L = cycle.length
 
     if (L === 1) {
-      continue // fixed point: theta = 0, zero block
-    }
+      continue
+    } // fixed point: theta = 0, zero block
 
     // Precompute the wrapped eigenphases.
     const theta = new Float64Array(L)
@@ -70,6 +70,7 @@ export function hamiltonianMatrix(input: {
         for (let m = 0; m < L; m++) {
           const angle = (2 * Math.PI * m * (a - b)) / L
           const th = theta[m] ?? 0
+
           re += th * Math.cos(angle)
           im += th * Math.sin(angle)
         }
@@ -149,6 +150,7 @@ export function pauliLocalityProfile(input: {
 
     for (let c = 0; c < cells; c++) {
       const op = rest & 3
+
       rest >>= 2
       ops[c] = op
 
@@ -177,8 +179,8 @@ export function pauliLocalityProfile(input: {
         const op = ops[c] ?? 0
 
         if (op === 0 || op === 1) {
-          continue // I or X contribute coefficient 1
-        }
+          continue
+        } // I or X contribute coefficient 1
 
         const bit = (u >> c) & 1
 
@@ -193,6 +195,7 @@ export function pauliLocalityProfile(input: {
           const sign = bit === 1 ? -1 : 1
           const nr = -phIm * sign
           const ni = phRe * sign
+
           phRe = nr
           phIm = ni
         }
@@ -200,6 +203,7 @@ export function pauliLocalityProfile(input: {
 
       const hr = h.re[u * n + s] ?? 0
       const hi = h.im[u * n + s] ?? 0
+
       // trace += phase * H[u][s]
       trRe += phRe * hr - phIm * hi
       trIm += phRe * hi + phIm * hr
@@ -215,6 +219,7 @@ export function pauliLocalityProfile(input: {
     }
 
     const range = ringExtent({ sites, cells })
+
     weightByRange[range] = (weightByRange[range] ?? 0) + weight
   }
 
@@ -231,6 +236,7 @@ export function pauliLocalityProfile(input: {
 
   for (let r = 1; r <= cells; r++) {
     const frac = total > 0 ? (weightByRange[r] ?? 0) / total : 0
+
     fractions[r] = frac
     lengthSum += r * frac
   }

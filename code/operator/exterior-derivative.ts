@@ -81,8 +81,10 @@ export function kahlerDirac(complex: CellComplex): Matrix {
         // d: grade -> grade+1 (lower-left block), delta = d transpose (upper-right)
         const lowerRow = offset[grade + 1]! + row
         const upperColumn = offset[grade]! + column
+
         operator[lowerRow]![upperColumn] =
           (operator[lowerRow]![upperColumn] ?? 0) + value
+
         operator[upperColumn]![lowerRow] =
           (operator[upperColumn]![lowerRow] ?? 0) + value
       }

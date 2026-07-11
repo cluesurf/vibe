@@ -128,6 +128,7 @@ export function flatSpatialRP(input?: {
     }
 
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
+
     scan.push({
       arrow,
       density,

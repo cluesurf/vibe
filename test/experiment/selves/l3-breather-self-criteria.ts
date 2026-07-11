@@ -102,6 +102,7 @@ function perturbationRadius(input: {
 
   let clean: Will = { mesh, data: base.data.slice() }
   let dirty: Will = { mesh, data: base.data.slice() }
+
   dirty.data[site * mesh.degree] =
     dirty.data[site * mesh.degree] === 1 ? -1 : 1
 
@@ -127,11 +128,13 @@ function perturbationRadius(input: {
     beatInto({ src: clean, dst: cleanScratch, table, collision })
 
     const swapClean = clean
+
     clean = cleanScratch
     cleanScratch = swapClean
     beatInto({ src: dirty, dst: dirtyScratch, table, collision })
 
     const swapDirty = dirty
+
     dirty = dirtyScratch
     dirtyScratch = swapDirty
 
@@ -182,6 +185,7 @@ export default experiment({
       beatInto({ src: w, dst: wScratch, table, collision })
 
       const swap = w
+
       w = wScratch
       wScratch = swap
       interior.push(sumCharge(w, region.interior))

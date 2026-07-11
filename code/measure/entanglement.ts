@@ -72,6 +72,7 @@ export function regionEntanglementEntropy(input: {
 
   for (let i = 0; i < m; i++) {
     const z = Math.min(1 - 1e-12, Math.max(1e-12, eig.values[i] ?? 0))
+
     s -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
   }
 
@@ -115,6 +116,7 @@ export function pageAverageEntropy(input: {
 
   if (m > n) {
     const t = m
+
     m = n
     n = t
   }

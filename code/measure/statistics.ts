@@ -72,6 +72,7 @@ export function pearson(input: {
   for (let i = 0; i < n; i++) {
     const da = a[i]! - ma
     const db = b[i]! - mb
+
     num += da * db
     va += da * da
     vb += db * db
@@ -191,6 +192,7 @@ export function mutualInformationBits(
   for (let x = 0; x < rows; x++) {
     for (let y = 0; y < cols; y++) {
       const p = (joint[x]![y] ?? 0) / total
+
       px[x] = (px[x] ?? 0) + p
       py[y] = (py[y] ?? 0) + p
     }

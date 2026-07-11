@@ -77,6 +77,7 @@ function run(): void {
   })
 
   const file = join(outDir, `${symbol.join('-')}.gif`)
+
   writeFileSync(file, gif)
   console.log(
     `wrote ${file}  (${scene.cellCount} cells, ${scene.edges.length} edges, ${FRAMES} frames)`,

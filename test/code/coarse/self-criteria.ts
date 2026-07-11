@@ -87,11 +87,13 @@ suite('coarse/self-criteria: region partition and distances', [
   // exterior is {0,4}.
   check('a sub-chain splits into interior, shell, exterior', () => {
     const p = regionPartition({ cluster: [1, 2, 3], graph: chain })
+
     exactArray(p.interior, [2])
     exactArray(
       p.shell.slice().sort((a, b) => a - b),
       [1, 3],
     )
+
     exactArray(
       p.exterior.slice().sort((a, b) => a - b),
       [0, 4],
@@ -99,6 +101,7 @@ suite('coarse/self-criteria: region partition and distances', [
   }),
   check('BFS distances grow by one per hop', () => {
     const d = distancesFrom({ graph: chain, source: 0 })
+
     exactArray(d, [0, 1, 2, 3, 4])
   }),
 ])

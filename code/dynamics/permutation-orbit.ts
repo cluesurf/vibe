@@ -37,6 +37,7 @@ function stepInto(input: {
   sink: boolean
 }): void {
   const { source, target, table, collision, sink } = input
+
   beatInto({ src: source, dst: target, table, collision })
 
   if (sink) {
@@ -68,6 +69,7 @@ export function recurrencePeriod(input: {
   const table = streamSourceTable(mesh)
 
   const init = makeWill(mesh)
+
   fillWillPattern(init)
 
   if (sink) {
@@ -92,6 +94,7 @@ export function recurrencePeriod(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -127,9 +130,11 @@ export function ruleInjective(input: {
   const table = streamSourceTable(mesh)
 
   const a = makeWill(mesh)
+
   fillWillPattern(a)
 
   const b = cloneWill(a)
+
   // flip the slot the sink would clamp, so the two states differ only where the sink erases
   b.data[0] = a.data[0] === 1 ? -1 : 1
 

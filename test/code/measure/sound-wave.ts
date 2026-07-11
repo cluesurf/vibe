@@ -12,6 +12,7 @@ suite('measure/sound-wave: coinLines', [
     () => {
       // opposite=[1,0,3,2] -> lines [0,1] and [2,3].
       const lines = coinLines([1, 0, 3, 2])
+
       equal(lines.length, 2)
       equal(lines[0]![0], 0)
       equal(lines[0]![1], 1)
@@ -22,6 +23,7 @@ suite('measure/sound-wave: coinLines', [
   check('a self-opposite slot (rest) forms no line', () => {
     // opposite=[1,0,2]: dir 2 is its own opposite, excluded.
     const lines = coinLines([1, 0, 2])
+
     equal(lines.length, 1)
     equal(lines[0]![0], 0)
     equal(lines[0]![1], 1)

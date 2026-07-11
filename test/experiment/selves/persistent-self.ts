@@ -14,6 +14,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 
 const GOLDEN = (1 + Math.sqrt(5)) / 2
 const SILVER = 1 + Math.sqrt(2)
+
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
@@ -108,6 +109,7 @@ export function persistentSelf(input?: { n?: number }): {
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
+
     target[a] = target[b]!
     target[b] = t
   }
@@ -150,7 +152,8 @@ export function persistentSelf(input?: { n?: number }): {
 
     for (const i of region) {
       self[i] = target[i]!
-    } // self-maintenance, restore the identity
+    }
+    // self-maintenance, restore the identity
   }
 
   const selfIdentityEnd = identity(self)

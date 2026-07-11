@@ -41,6 +41,7 @@ suite('operator/ca-hamiltonian: Hermiticity', [
             1e-12,
             `re sym (${i},${j})`,
           )
+
           close(
             h.im[i * n + j] ?? 0,
             -(h.im[j * n + i] ?? 0),

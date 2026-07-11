@@ -18,6 +18,7 @@ function reflectionMatrix(
 
   for (let k = 0; k < dimension; k++) {
     const basis = new Array<number>(dimension).fill(0)
+
     basis[k] = 1
     columns.push(reflectRoot(basis, root))
   }
@@ -66,6 +67,7 @@ export function weylGroupOrder(roots: number[][]): number {
 
   for (let k = 0; k < dimension; k++) {
     const e = new Array<number>(dimension).fill(0)
+
     e[k] = 1
     identity.push(e)
   }

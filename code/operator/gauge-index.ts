@@ -87,6 +87,7 @@ export function totalFlux(input: {
       const a = cMul(u1, u2x)
       const b = cMul(cConj(u1y), cConj(u2))
       const p = cMul(a, b)
+
       total += Math.atan2(p.im, p.re)
     }
   }
@@ -107,6 +108,7 @@ export function gaugeWilsonDirac(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
+
       // diagonal mass term: M0 = r * dim = 2.
       addComplexBlock({
         matrix: d,
@@ -122,6 +124,7 @@ export function gaugeWilsonDirac(input: {
       {
         const u = linkPhase({ mu: 1, n1, n2, flux: F, length: L })
         const xPlus = site(n1 + 1, n2, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -141,6 +144,7 @@ export function gaugeWilsonDirac(input: {
         })
 
         const xMinus = site(n1 - 1, n2, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -156,6 +160,7 @@ export function gaugeWilsonDirac(input: {
       {
         const u = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
         const xPlus = site(n1, n2 + 1, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -175,6 +180,7 @@ export function gaugeWilsonDirac(input: {
         })
 
         const xMinus = site(n1, n2 - 1, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -266,6 +272,7 @@ export function overlapIndex(input: {
 
   for (const eigenvalue of eig.values) {
     const lambda = eigenvalue ?? 0
+
     asymmetry += lambda > 0 ? 1 : lambda < 0 ? -1 : 0
   }
 

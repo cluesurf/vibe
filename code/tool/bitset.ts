@@ -29,6 +29,7 @@ export function setBit(
   input: { row: number; col: number },
 ): void {
   const i = input.row * m.stride + (input.col >>> 5)
+
   m.words[i] = (m.words[i] ?? 0) | (1 << (input.col & 31))
 }
 
@@ -46,6 +47,7 @@ export function clearBit(
   input: { row: number; col: number },
 ): void {
   const i = input.row * m.stride + (input.col >>> 5)
+
   m.words[i] = (m.words[i] ?? 0) & ~(1 << (input.col & 31))
 }
 
@@ -116,6 +118,7 @@ export function bitMatrixHeight(f: BitMatrix, n: number): number {
 
 function popcount32(x: number): number {
   let v = x - ((x >>> 1) & 0x55555555)
+
   v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
 
   return (((v + (v >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24
@@ -172,6 +175,7 @@ export function forEachSetBit(
 
     while (bits !== 0) {
       const col = (w << 5) + trailingZeros(bits)
+
       input.visit(col)
       bits &= bits - 1
     }
@@ -184,6 +188,7 @@ export function rowToArray(
   input: { row: number },
 ): Uint32Array {
   const out: number[] = []
+
   forEachSetBit(m, { row: input.row, visit: col => out.push(col) })
 
   return Uint32Array.from(out)

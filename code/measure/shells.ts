@@ -188,6 +188,7 @@ export function geodesicBall(input: {
   const ball: number[] = []
 
   let frontier = [root]
+
   seen[root] = 1
   ball.push(root)
 

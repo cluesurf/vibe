@@ -97,7 +97,8 @@ export function doubleWellAccel(input: {
 
     if (magnitude < amplitude) {
       return sign
-    } // push out toward the vacuum
+    }
+    // push out toward the vacuum
 
     return saturating ? -sign : -sign * (magnitude - amplitude) // pull back beyond the vacuum
   }

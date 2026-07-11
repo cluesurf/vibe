@@ -17,6 +17,7 @@ suite('measure/spectrum: distinctLevels', [
   check('values within tolerance merge into one level', () => {
     // Two clusters near 1 and 2, each split by 1e-5 (< default tol 1e-4) -> {1, 2}.
     const out = distinctLevels([2, 1 + 1e-5, 2 + 1e-5, 1])
+
     equal(out.length, 2)
     close(out[0]!, 1, 1e-9)
     close(out[1]!, 2, 1e-9)
@@ -37,6 +38,7 @@ suite('measure/spectrum: zeroModeCensus', [
     '{-3, -1e-9, 0, 2}: two zero modes by magnitude, minNonzero = 2',
     () => {
       const out = zeroModeCensus([-3, -1e-9, 0, 2])
+
       equal(out.zero, 2)
       equal(out.nonzero, 2)
       close(out.minNonzero, 2, 1e-12)
@@ -48,6 +50,7 @@ suite('measure/spectrum: zeroModeCensus', [
       // The fixed test |v| < tol; a signed v < tol test would call all three of these
       // negatives "zero". They are all nonzero physical modes.
       const out = zeroModeCensus([-3, -2, -1])
+
       equal(out.zero, 0)
       equal(out.nonzero, 3)
       close(out.minNonzero, 1, 1e-12)
@@ -57,6 +60,7 @@ suite('measure/spectrum: zeroModeCensus', [
     'minNonzero takes the smallest MAGNITUDE, even when it is negative',
     () => {
       const out = zeroModeCensus([-0.5, 1, 3])
+
       equal(out.zero, 0)
       equal(out.nonzero, 3)
       close(out.minNonzero, 0.5, 1e-12)
@@ -66,6 +70,7 @@ suite('measure/spectrum: zeroModeCensus', [
     'a symmetric +/-E pair spectrum has the right gap and no false zeros',
     () => {
       const out = zeroModeCensus([-4, -2, 2, 4])
+
       equal(out.zero, 0)
       equal(out.nonzero, 4)
       close(out.minNonzero, 2, 1e-12)

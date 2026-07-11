@@ -81,6 +81,7 @@ export default experiment({
       real = beat(real, headOnRotate({ opposite: opposites(mesh) }))
 
       const e = enstrophy(real)
+
       enstrophyMin = Math.min(enstrophyMin, e)
       enstrophyMax = Math.max(enstrophyMax, e)
 

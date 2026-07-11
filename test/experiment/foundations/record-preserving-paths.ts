@@ -43,6 +43,7 @@ export default experiment({
 
     // the reversible record-preserving path: forward then inverse recovers the start exactly
     const reversibleWill = makeWill(mesh)
+
     fillWillPattern(reversibleWill)
 
     const reversible = roundtrip({
@@ -54,6 +55,7 @@ export default experiment({
 
     // the lossy control: an erasing rule destroys the record, recovery fails on a fraction
     const lossyWill = makeWill(mesh)
+
     fillWillPattern(lossyWill)
 
     const lossy = roundtrip({

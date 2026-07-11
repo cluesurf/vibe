@@ -24,6 +24,7 @@ export function gramMatrix(symbol: number[]): number[][] {
 
   for (let i = 0; i < symbol.length; i++) {
     const c = -Math.cos(Math.PI / (symbol[i] ?? 2))
+
     G[i]![i + 1] = c
     G[i + 1]![i] = c
   }
@@ -74,6 +75,7 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         for (let k = 0; k < n; k++) {
           const akp = a[k]![p]!
           const akq = a[k]![q]!
+
           a[k]![p] = c * akp - s * akq
           a[k]![q] = s * akp + c * akq
         }
@@ -81,6 +83,7 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         for (let k = 0; k < n; k++) {
           const apk = a[p]![k]!
           const aqk = a[q]![k]!
+
           a[p]![k] = c * apk - s * aqk
           a[q]![k] = s * apk + c * aqk
         }
@@ -88,6 +91,7 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         for (let k = 0; k < n; k++) {
           const vkp = v[k]![p]!
           const vkq = v[k]![q]!
+
           v[k]![p] = c * vkp - s * vkq
           v[k]![q] = s * vkp + c * vkq
         }

@@ -61,6 +61,7 @@ function connectAndEmbed(input: {
 
   for (let i = 0; i < n; i++) {
     const rho = Math.tanh((r[i] ?? 0) / 2)
+
     coords[i * dimension] = rho * Math.cos(theta[i] ?? 0)
     coords[i * dimension + 1] = rho * Math.sin(theta[i] ?? 0)
   }
@@ -217,6 +218,7 @@ export function hyperbolicTiling(input: {
 
   for (let k = 0; k < p; k++) {
     const ang = (2 * Math.PI * k) / p
+
     central.push({ x: r0 * Math.cos(ang), y: r0 * Math.sin(ang) })
   }
 
@@ -292,6 +294,7 @@ export function hyperbolicTiling(input: {
 
   for (let i = 0; i < n; i++) {
     const mag = Math.min(0.999999, Math.hypot(vx[i] ?? 0, vy[i] ?? 0))
+
     r[i] = 2 * Math.atanh(mag)
     theta[i] = Math.atan2(vy[i] ?? 0, vx[i] ?? 0)
   }
@@ -321,9 +324,11 @@ export function hyperbolicSunflower(input: {
 
   for (let i = 0; i < n; i++) {
     const u = (i + 0.5) / n
+
     r[i] = radiusFromHeight(u, coshRminus1)
 
     const frac = (i * phiInv) % 1
+
     theta[i] = 2 * Math.PI * frac
   }
 

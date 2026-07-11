@@ -90,6 +90,7 @@ function measureField(n: number): FieldParams {
 
   const base = tone.slice()
   const pert = tone.slice()
+
   pert[center] = base[center] === 0 ? 1 : 0
 
   const T = 5

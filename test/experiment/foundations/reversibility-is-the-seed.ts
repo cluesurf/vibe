@@ -58,6 +58,7 @@ export default experiment({
     // the knit is a bijection: forward then inverse recovers the start bit for bit, so no distinct
     // states could have merged (a difference cannot vanish)
     const will = makeWill(mesh)
+
     will.data.set(asymmetricFill(mesh))
 
     const trip = roundtrip({
@@ -72,9 +73,11 @@ export default experiment({
     // a lossy rule ERASES a difference: two states differing only in the erased slot map to the same
     // successor, so the difference between them vanishes, exactly what the seed forbids
     const stateA = makeWill(mesh)
+
     stateA.data.set(asymmetricFill(mesh))
 
     const stateB = cloneWill(stateA)
+
     stateB.data[0] = stateA.data[0] === 0 ? 1 : 0
 
     const distinctBefore = stateA.data[0] !== stateB.data[0]

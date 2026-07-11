@@ -51,6 +51,7 @@ export default experiment({
   paper: true,
   run() {
     const mesh = squareMesh({ side: SIDE })
+
     meshNeighbors(mesh)
 
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
@@ -82,6 +83,7 @@ export default experiment({
       apexValue: number
       controlValue: number
     }
+
     const records: Record[] = []
 
     for (let dy = -9; dy <= 9; dy++) {
@@ -175,6 +177,7 @@ export default experiment({
         apexMax,
         Math.abs(connectedTriple(i, apexValues)),
       )
+
       controlMax = Math.max(
         controlMax,
         Math.abs(connectedTriple(i, controlValues)),

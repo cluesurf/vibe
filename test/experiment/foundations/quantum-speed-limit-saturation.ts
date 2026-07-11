@@ -90,10 +90,12 @@ export default experiment({
       const speedLimitBound = Math.PI / (2 * energyAboveGround)
 
       const saturation = orthogonalizationTime / speedLimitBound
+
       maxSaturationDeviation = Math.max(
         maxSaturationDeviation,
         Math.abs(saturation - 1),
       )
+
       perPair[`saturation_${indexA}_${indexB}`] = Number(
         saturation.toFixed(4),
       )

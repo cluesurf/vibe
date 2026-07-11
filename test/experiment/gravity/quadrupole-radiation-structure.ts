@@ -92,6 +92,7 @@ export default experiment({
 
       for (const b of bs) {
         const r2 = b.x * b.x + b.y * b.y
+
         M += b.m
         Dx += b.m * b.x
         Qxx += b.m * (3 * b.x * b.x - r2) // traceless quadrupole component

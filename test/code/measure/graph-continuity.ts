@@ -22,10 +22,12 @@ suite('measure/graph-continuity: regionBall and cellDistances', [
       [...regionBall(path, 0, 1)].sort((a, b) => a - b).join(','),
       '0,1',
     )
+
     equal(
       [...regionBall(path, 0, 2)].sort((a, b) => a - b).join(','),
       '0,1,2',
     )
+
     equal(
       [...regionBall(path, 0, 3)].sort((a, b) => a - b).join(','),
       '0,1,2,3',
@@ -39,6 +41,7 @@ suite('measure/graph-continuity: regionBall and cellDistances', [
 suite('measure/graph-continuity: regionCharge', [
   check('sums every slot of every cell in the region', () => {
     const state = [[1, 2], [3], [-1, -1]]
+
     equal(regionCharge(state, new Set([0, 1])), 6) // 1+2+3
     equal(regionCharge(state, new Set([0, 1, 2])), 4) // 6 + (-2)
   }),

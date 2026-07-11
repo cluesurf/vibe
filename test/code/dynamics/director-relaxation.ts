@@ -53,6 +53,7 @@ suite('dynamics/director-relaxation: smoothing', [
 
       const g0 = maxGradient(phi)
       const out = relaxDirector({ phi, steps: 300, dt: 0.1 })
+
       ok(maxGradient(out) < g0, 'smoother after relaxation')
     },
   ),

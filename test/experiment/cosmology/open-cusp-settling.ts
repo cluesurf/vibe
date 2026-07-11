@@ -50,6 +50,7 @@ export default experiment({
 
       for (let i = 0; i < n; i++) {
         const a = cur[i] !== 0 ? 1 : 0
+
         totalAct += a
 
         if (inBand(i)) {

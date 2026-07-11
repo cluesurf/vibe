@@ -26,11 +26,13 @@ import {
 suite('substrate/coxeter/schlafli: Gram matrix and geometry', [
   check('the Gram off-diagonal is -cos(pi/p)', () => {
     const g = gramMatrix([4])
+
     equal(g[0]![0], 1, 'diagonal')
     equal(g[1]![1], 1, 'diagonal')
     close(g[0]![1]!, -Math.cos(Math.PI / 4), 1e-12, 'off-diagonal {4}')
 
     const g3 = gramMatrix([3, 4, 3])
+
     close(g3[0]![1]!, -Math.cos(Math.PI / 3), 1e-12, 'edge 0')
     close(g3[1]![2]!, -Math.cos(Math.PI / 4), 1e-12, 'edge 1')
     equal(g3[0]![2], 0, 'non-adjacent mirrors are perpendicular')
@@ -114,6 +116,7 @@ suite('substrate/coxeter/schlafli: dihedral angles and edge regime', [
       1e-4,
       'tetrahedron',
     )
+
     close(
       dihedralAngleDegrees({ p: 5, q: 3 }),
       116.565051,
@@ -127,16 +130,19 @@ suite('substrate/coxeter/schlafli: dihedral angles and edge regime', [
       'euclidean',
       '{4,3,4} flat',
     )
+
     equal(
       edgeRegime({ p: 4, q: 3, r: 3 }).regime,
       'spherical',
       '{4,3,3} tesseract',
     )
+
     equal(
       edgeRegime({ p: 5, q: 3, r: 4 }).regime,
       'hyperbolic',
       '{5,3,4}',
     )
+
     // r copies of the cube (90 deg each) close at exactly 360 for r=4.
     close(
       edgeRegime({ p: 4, q: 3, r: 4 }).totalAngleDegrees,

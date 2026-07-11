@@ -46,6 +46,7 @@ function run(): void {
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
+
   console.log(
     `moving self, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
   )
@@ -96,6 +97,7 @@ function run(): void {
     px: number
     py: number
   }
+
   const cells: Cell[] = []
 
   for (let i = 0; i < n; i++) {
@@ -107,6 +109,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     cells.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
 
@@ -154,6 +157,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
@@ -209,6 +213,7 @@ function run(): void {
     discreteArrow(tone, g, f, ARROW_PERIOD) // discrete arrow drive; the rule churns, the self leaks at its edge
 
     const centreU = startU + speedU * f // the will steers the self to the right
+
     maintainAt(centreU, cv) // refill it at the new position, so the FORM propagates while matter turns over
 
     for (let i = 0; i < n; i++) {
@@ -263,6 +268,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = r8
           rgba[idx + 1] = g8
           rgba[idx + 2] = b8

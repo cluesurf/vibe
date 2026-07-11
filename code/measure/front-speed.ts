@@ -84,6 +84,7 @@ export function differenceRmsWidthRing(input: {
   for (let x = 0; x < L; x++) {
     if (a[x] !== b[x]) {
       const d = Math.min(Math.abs(x - center), L - Math.abs(x - center))
+
       weight++
       sumSquared += d * d
     }

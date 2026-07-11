@@ -52,6 +52,7 @@ suite('substrate/d4-torus: the 24 D4 roots', [
 
       for (let i = 0; i < roots.length; i++) {
         const o = oppositeIndex(roots, i)
+
         ok(o >= 0, `root ${i} must have an opposite in the set`)
         notOk(o === i, `root ${i} is not its own opposite`)
         equal(oppositeIndex(roots, o), i, 'opposite is an involution')
@@ -67,6 +68,7 @@ suite('substrate/d4-torus: the 24 D4 roots', [
 suite('substrate/d4-torus: the M=4 finite torus', [
   check('the even-sum cells number M^4 / 2 = 128', () => {
     const torus = buildD4Torus(4)
+
     equal(torus.cells.length, 128, 'cell count')
     equal(torus.index.size, 128, 'index size')
   }),
@@ -80,6 +82,7 @@ suite('substrate/d4-torus: the M=4 finite torus', [
 
       for (let i = 0; i < torus.cells.length; i++) {
         const row = torus.neigh[i]!
+
         equal(row.length, 24, `degree of cell ${i}`)
         equal(new Set(row).size, 24, `distinct neighbours of cell ${i}`)
       }

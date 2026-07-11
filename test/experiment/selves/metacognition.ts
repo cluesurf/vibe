@@ -89,6 +89,7 @@ function corrLag(x: number[], y: number[], lag: number): number {
   for (let i = 0; i < n; i++) {
     const dx = xs[i]! - mx
     const dy = ys[i]! - my
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy
@@ -157,6 +158,7 @@ export function metacognition(input?: { n?: number }): {
 
   for (let j = 0; j < inputAll.length; j++) {
     const s = Math.floor((j * K) / inputAll.length)
+
     sectorOf[inputAll[j]!] = s
     sectorCells[s]!.push(inputAll[j]!)
   }
@@ -164,6 +166,7 @@ export function metacognition(input?: { n?: number }): {
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
+
     seen[start] = 1
 
     let fr = [start]

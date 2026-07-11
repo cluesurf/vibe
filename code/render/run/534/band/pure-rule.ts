@@ -30,7 +30,8 @@ const norm = (v: number[]): number => Math.sqrt(dot(v, v))
 function perm(a: number, b: number): [number, number] {
   if (a === -1 && b === -1) {
     return [-1, -1]
-  } // same sign, inert
+  }
+  // same sign, inert
 
   if (a === 1 && b === 1) {
     return [1, 1]
@@ -38,7 +39,8 @@ function perm(a: number, b: number): [number, number] {
 
   if (a === -1 && b === 0) {
     return [0, -1]
-  } // hop
+  }
+  // hop
 
   if (a === 0 && b === -1) {
     return [-1, 0]
@@ -54,11 +56,13 @@ function perm(a: number, b: number): [number, number] {
 
   if (a === 0 && b === 0) {
     return [1, -1]
-  } // the arrow, peace creates a balanced pair
+  }
+  // the arrow, peace creates a balanced pair
 
   if (a === 1 && b === -1) {
     return [-1, 1]
-  } // the create-flip-annihilate 3-cycle
+  }
+  // the create-flip-annihilate 3-cycle
 
   return [0, 0] // (-1, 1) -> (0, 0), annihilation closes the cycle
 }
@@ -135,6 +139,7 @@ function run(): void {
   )
 
   type Cell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
@@ -146,6 +151,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -211,6 +217,7 @@ function run(): void {
         }
 
         const [a, b] = perm(tone[v]!, tone[w]!)
+
         tone[v] = a
         tone[w] = b
         matched[v] = 1
@@ -247,6 +254,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]

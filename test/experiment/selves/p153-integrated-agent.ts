@@ -117,7 +117,8 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
 
     if (planned <= pos) {
       break
-    } // no push within the horizon helps, genuinely stuck
+    }
+    // no push within the horizon helps, genuinely stuck
 
     pos = greedyRollout(V, planned)
     replans++

@@ -72,6 +72,7 @@ export function reducedDensityMatrix(input: {
 
         const reB = real[indexB]!
         const imB = imag[indexB]!
+
         // rho_ab += psi_a conj(psi_b)
         rho.re[a * keptDim + b]! += reA * reB + imA * imB
         rho.im[a * keptDim + b]! += imA * reB - reA * imB
@@ -253,6 +254,7 @@ export function relativeEntropyBits(input: {
         // (cvRe + i cvIm)(rRe + i rIm) = t
         const tRe = cvRe * rRe - cvIm * rIm
         const tIm = cvRe * rIm + cvIm * rRe
+
         // t * (vbRe + i vbIm), real part
         expectation += tRe * vbRe - tIm * vbIm
       }

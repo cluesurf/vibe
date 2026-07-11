@@ -20,6 +20,7 @@ const field = [3, 1, 4, 1, 5, 9, 2, 6]
 function bruteMax(f: number[], active?: number[]): number {
   let idx = -1
   let val = -Infinity
+
   f.forEach((v, c) => {
     if (active && !active[c]) {
       return
@@ -51,9 +52,11 @@ suite('operator/numeric-search: extrema', [
   check('the active mask restricts the search', () => {
     const active = [1, 0, 1, 0, 0, 0, 1, 1] // values 3,4,2,6 visible
     const max = maxIndex({ field, active })
+
     equal(max.index, 7, 'masked argmax is value 6 at index 7')
 
     const min = minIndex({ field, active })
+
     equal(min.index, 6, 'masked argmin is value 2 at index 6')
   }),
 ])
@@ -63,6 +66,7 @@ suite('operator/numeric-search: next value', [
     'nextHigherIndex finds the smallest value strictly above the target',
     () => {
       const r = nextHigherIndex({ field, target: 4 })
+
       equal(r.value, 5, 'next value above 4 is 5')
       equal(r.index, 4, 'at index 4')
     },
@@ -71,6 +75,7 @@ suite('operator/numeric-search: next value', [
     'nextLowerIndex finds the largest value strictly below the target',
     () => {
       const r = nextLowerIndex({ field, target: 4 })
+
       equal(r.value, 3, 'next value below 4 is 3')
       equal(r.index, 0, 'at index 0')
     },
@@ -81,6 +86,7 @@ suite('operator/numeric-search: next value', [
       -1,
       'nothing above the max',
     )
+
     equal(
       nextLowerIndex({ field, target: 1 }).index,
       -1,

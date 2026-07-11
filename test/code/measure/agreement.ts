@@ -23,11 +23,13 @@ suite('measure/agreement: agreement / disagreement', [
     // [1,0,-1,1] vs [1,1,-1,0]: equal at indices 0 and 2 -> 2/4.
     const a = Int8Array.from([1, 0, -1, 1])
     const b = Int8Array.from([1, 1, -1, 0])
+
     equal(agreementFraction(a, b), 0.5)
     equal(disagreementFraction(a, b), 0.5)
   }),
   check('identical vectors agree fully', () => {
     const a = Int8Array.from([1, -1, 0])
+
     equal(agreementFraction(a, a), 1)
     equal(disagreementFraction(a, a), 0)
   }),
@@ -36,11 +38,13 @@ suite('measure/agreement: agreement / disagreement', [
 suite('measure/agreement: targetFidelity', [
   check('a field equal to its target scores +1', () => {
     const t = Int8Array.from([1, -1, 1])
+
     equal(targetFidelity(t, t), 1)
   }),
   check('an anti-aligned field scores -1', () => {
     const target = Int8Array.from([1, -1, 1])
     const tone = Int8Array.from([-1, 1, -1])
+
     close(targetFidelity(tone, target), -1, TOL)
   }),
   check('a zero target gives 0, not NaN', () => {

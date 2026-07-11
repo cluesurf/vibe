@@ -45,10 +45,12 @@ export function refractiveDeflection(input: {
     const n = index(x, y)
     const [gx, gy] = gradient(x, y)
     const gdotT = gx * tx + gy * ty
+
     tx += ((gx - gdotT * tx) / n) * ds
     ty += ((gy - gdotT * ty) / n) * ds
 
     const norm = Math.hypot(tx, ty)
+
     tx /= norm
     ty /= norm
     x += tx * ds

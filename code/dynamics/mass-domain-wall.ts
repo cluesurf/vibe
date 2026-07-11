@@ -54,12 +54,13 @@ export function massWallRetainedWeight(input: {
   const wall = L >> 1
 
   // localized Gaussian packet at rest, seeded AT the wall (symmetric coin)
-  let R: Complex[] = new Array(L).fill([0, 0])
-  let Lf: Complex[] = new Array(L).fill([0, 0])
+  let R: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let Lf: Complex[] = new Array<Complex>(L).fill([0, 0])
   let seedNorm = 0
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - wall) * (x - wall)) / (2 * sigma * sigma))
+
     R[x] = [g, 0]
     Lf[x] = [g, 0]
     seedNorm += cabs2(R[x]!) + cabs2(Lf[x]!)
@@ -90,24 +91,26 @@ export function massWallRetainedWeight(input: {
   }
 
   for (let t = 0; t < steps; t++) {
-    const R2: Complex[] = new Array(L)
-    const L2: Complex[] = new Array(L)
+    const R2: Complex[] = new Array<Complex>(L)
+    const L2: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       const c = cosM[x]!
       const s = sinM[x]!
+
       R2[x] = cadd(
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(IMAG, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(IMAG, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
       ])
     }
 
-    const R3: Complex[] = new Array(L).fill([0, 0])
-    const L3: Complex[] = new Array(L).fill([0, 0])
+    const R3: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const L3: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!
@@ -128,6 +131,7 @@ export function massWallRetainedWeight(input: {
 
   for (let x = wall - window; x <= wall + window; x++) {
     const xi = wrap(x)
+
     retained += cabs2(R[xi]!) + cabs2(Lf[xi]!)
   }
 

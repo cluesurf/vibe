@@ -52,6 +52,7 @@ suite('operator/screened-greens-function: Yukawa fixed point', [
 
       const lhs = (phi[i] ?? 0) * (chain[i]!.length + mass2)
       const rhs = (i === start ? 1 : 0) + sum
+
       close(lhs, rhs, 1e-10, `screened fixed point at ${i}`)
     }
   }),
@@ -137,6 +138,7 @@ suite('operator/screened-greens-function: clamped leaky diffusion', [
         }
 
         const base = i === source ? 1 : 0
+
         close(
           p[i] ?? 0,
           base + inflow,

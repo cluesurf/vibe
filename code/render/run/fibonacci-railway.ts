@@ -41,6 +41,7 @@ type Config = {
   shown: number
   make: () => RailRegister
 }
+
 const CONFIGS: Config[] = [
   { name: 'unary', base: 1, shown: 60, make: () => makeUnaryCounter() },
   {
@@ -132,6 +133,7 @@ function renderBase(
   }
 
   const finalTerm = a.count()
+
   console.log(
     `literal railway CA (${cfg.name}): fib(${N}) = ${finalTerm} via ${snaps.length} locomotive increments`,
   )
@@ -188,6 +190,7 @@ function renderBase(
     join(outDir, `fibonacci-7-3-railway-${cfg.name}.gif`),
     gif,
   )
+
   console.log(
     `wrote fibonacci-7-3-railway-${cfg.name}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frames.length} frames  ${SIZE}x${SIZE}`,
   )

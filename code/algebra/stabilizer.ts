@@ -93,11 +93,13 @@ export function logicalOperators(input: {
 
       if (!generators.every(s => pauliCommute(p, s))) {
         continue
-      } // not in the normalizer
+      }
+      // not in the normalizer
 
       if (span.has(x | (z << qubits))) {
         continue
-      } // a trivial (stabilizer) logical
+      }
+      // a trivial (stabilizer) logical
 
       logicals.push(p)
     }

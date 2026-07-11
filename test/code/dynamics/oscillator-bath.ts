@@ -59,6 +59,7 @@ suite('dynamics/oscillator-bath: determinism', [
   check('two identical runs agree', () => {
     const a = oscillatorBathTrajectory({ ...common, absorbing: true })
     const b = oscillatorBathTrajectory({ ...common, absorbing: true })
+
     equal(a.length, b.length, 'same length')
 
     for (let i = 0; i < a.length; i++) {

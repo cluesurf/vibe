@@ -32,6 +32,7 @@ export function logLawSlope1D(input: { n: number }): number {
 
   for (const L of lengths) {
     const region = Array.from({ length: L }, (_, i) => i)
+
     lnL.push(Math.log(L))
     s.push(regionEntanglementEntropy({ c, n: input.n, region }))
   }

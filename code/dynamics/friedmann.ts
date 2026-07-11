@@ -76,6 +76,7 @@ export function integrateFriedmann(input: {
   while (time <= input.tMax) {
     let rt = 0
     let pt = 0
+
     rhos.forEach((r, i) => {
       rt += r
       pt += (input.comps[i]?.w ?? 0) * r

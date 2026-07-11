@@ -47,6 +47,7 @@ export async function createVibeRenderer(input: {
   }
 
   const format = gpu.getPreferredCanvasFormat()
+
   context.configure({ device, format, alphaMode: 'opaque' })
 
   let mode: FoldMode = input.mode
@@ -77,6 +78,7 @@ export async function createVibeRenderer(input: {
   }
 
   const observer = new ResizeObserver(resize)
+
   observer.observe(input.canvas)
   resize()
 
@@ -90,6 +92,7 @@ export async function createVibeRenderer(input: {
     }
 
     const dt = Math.min(0.05, (now - last) / 1000)
+
     last = now
     controls.tick(dt)
 

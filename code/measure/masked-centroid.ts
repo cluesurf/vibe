@@ -72,6 +72,7 @@ export function maskedWillCentroidX(input: {
 
     for (let d = 0; d < degree; d++) {
       const t = data[cell * degree + d] ?? 0
+
       mass += t === 0 ? 0 : 1
     }
 

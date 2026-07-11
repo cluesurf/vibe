@@ -48,6 +48,7 @@ export function cohesiveEdgeSweep(input: {
     input
 
   const escapeProbability = input.escapeProbability ?? 0.02
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
@@ -120,6 +121,7 @@ export function cohesiveEdgeSweepHashed(input: {
     input
 
   const escapeProbability = input.escapeProbability ?? 0.02
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {

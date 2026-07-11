@@ -94,6 +94,7 @@ export function measuredEmergentMass(): {
     const massDispersion = dispersionMassAt(coupling)
     const h = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: coupling })
     const massChirality = cmMaxAbs(cmCommutator(h, gamma5)) / 2
+
     maxMassDisagreement = Math.max(
       maxMassDisagreement,
       Math.abs(massDispersion - massChirality),

@@ -65,6 +65,7 @@ export function eternalBootstrap(): {
       }
 
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+
       nx[i] = v
 
       if (v !== cur[i]!) {
@@ -155,6 +156,7 @@ export function eternalBootstrap(): {
       }
 
       const v = (Math.round(s / 7) % 3) as 0 | 1 | 2
+
       nx[i] = v
 
       if (v !== m[i]!) {

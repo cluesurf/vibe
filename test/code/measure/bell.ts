@@ -58,6 +58,7 @@ suite('measure/bell: chsh (local hidden variable)', [
         Math.abs(out.s) <= 2.2,
         `local |S| = ${out.s} must stay at/under the classical bound`,
       )
+
       ok(
         Math.abs(out.s) < 2.5,
         `local |S| = ${out.s} must not reach the Tsirelson value`,

@@ -3,7 +3,7 @@ allowBuilds:
   webgpu: true
 
 minimumReleaseAgeExclude:
-  - '@cluesurf/wash@0.10.0 || 0.10.2'
+  - '@cluesurf/wash@0.10.0 || 0.10.2 || 0.10.4 || 0.10.6 || 0.10.8 || 0.10.10'
 
 overrides:
   # critical

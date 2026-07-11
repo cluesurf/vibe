@@ -67,7 +67,7 @@ export function matrixProduct(
   const out: number[][] = []
 
   for (let i = 0; i < n; i++) {
-    const row: number[] = new Array(cols).fill(0)
+    const row: number[] = new Array<number>(cols).fill(0)
 
     for (let k = 0; k < inner; k++) {
       const aik = a[i]![k]!
@@ -113,6 +113,7 @@ export function determinant(a: number[][]): number {
 
     if (pivot !== col) {
       const tmp = m[pivot]!
+
       m[pivot] = m[col]!
       m[col] = tmp
       det = -det
@@ -153,6 +154,7 @@ export function solveLinearSystem(input: {
     }
 
     const tmp = m[col]!
+
     m[col] = m[pivot]!
     m[pivot] = tmp
 

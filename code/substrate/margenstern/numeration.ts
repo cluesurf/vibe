@@ -51,6 +51,7 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
 
     for (let i = top; i >= 0; i--) {
       const digit = Math.floor(remainder / basis[i]!)
+
       digits.push(digit)
       remainder -= digit * basis[i]!
     }
@@ -107,7 +108,8 @@ export function recurrenceBasis(input: {
 
     if (next <= basis[basis.length - 1]!) {
       break
-    } // basis must strictly increase to be a valid numeration
+    }
+    // basis must strictly increase to be a valid numeration
 
     basis.push(next)
   }

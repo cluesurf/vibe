@@ -53,6 +53,7 @@ function selfDynamics(g: Graph): {
   const { tone, cluster } = emergeSelfHashed(g, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
+
   beatHashed(tl, g, moved, 0, 0, 0.22)
 
   const leakPerBeat =
@@ -127,6 +128,7 @@ export function horosphereSelf(input?: {
 
   for (let i = 0; i < bigCells; i++) {
     const r = hashRand(i, 0, 7)
+
     toneB[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 

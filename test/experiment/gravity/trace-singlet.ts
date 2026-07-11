@@ -32,6 +32,7 @@ const SPATIAL_DEGREE = 24
 // the number of orbits is the dimension of the space of symmetry-invariant linear functionals on the sites.
 function orbitCount(roots: number[][]): number {
   const index = new Map<string, number>()
+
   roots.forEach((r, i) => index.set(vectorKey(r), i))
 
   const parent = roots.map((_, i) => i)
@@ -81,6 +82,7 @@ function functionalInvariant(
   weight: (i: number) => number,
 ): boolean {
   const index = new Map<string, number>()
+
   roots.forEach((r, i) => index.set(vectorKey(r), i))
 
   for (let i = 0; i < roots.length; i++) {

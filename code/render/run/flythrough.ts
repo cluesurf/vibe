@@ -81,6 +81,7 @@ async function run(): Promise<void> {
     })
 
     const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
+
     frames.push(rgba)
 
     if (frame === 0 || frame === Math.floor(FRAMES / 2)) {

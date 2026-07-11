@@ -46,6 +46,7 @@ export function blockChargeTower(input: {
 
     const variance = varSum / level.length
     const compressibility = variance / blockSize
+
     levels.push({
       level: lv,
       blockSize,

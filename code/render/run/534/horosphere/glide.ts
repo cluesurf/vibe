@@ -109,6 +109,7 @@ async function run(): Promise<void> {
     const d = sub(slab.coords[i]!, xi, 1)
     const dd = dot(d, d) || 1e-9
     const inv = d.map(x => x / dd)
+
     U[i] = dot(inv, e1)
     V[i] = dot(inv, e2)
   }
@@ -159,6 +160,7 @@ async function run(): Promise<void> {
 
   for (let a = 0; a < B; a++) {
     const i = bandList[a]!
+
     px[a] = Math.round(IMG / 2 + ((U[i]! - cu) / ext) * halfPx)
     py[a] = Math.round(IMG / 2 + ((V[i]! - cv) / ext) * halfPx)
   }
@@ -206,6 +208,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -251,6 +254,7 @@ async function run(): Promise<void> {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', 'make', 'frames-glide')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -261,6 +265,7 @@ async function run(): Promise<void> {
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -271,6 +276,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     // signed discrete tone on the band, then COARSE-GRAIN (display only) to reveal the emergent wave
@@ -278,6 +284,7 @@ async function run(): Promise<void> {
 
     for (let a = 0; a < B; a++) {
       const t = signedTone(currentOf(tones[bandList[a]!]!))
+
       sm[a] = t
 
       if (reached[a]! < 0 && t !== 0) {
@@ -327,13 +334,15 @@ async function run(): Promise<void> {
     for (let a = 0; a < B; a++) {
       if (reached[a]! < 0) {
         continue
-      } // outside the causal cone, black
+      }
+      // outside the causal cone, black
 
       const s = sm[a]!
 
       if (Math.abs(s) < eps) {
         continue
-      } // peace, black
+      }
+      // peace, black
 
       const col = s > 0 ? BLUE : RED
       const cx = px[a]!,
@@ -353,6 +362,7 @@ async function run(): Promise<void> {
           }
 
           const o = (y * IMG + x) * 4
+
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
           rgba[o + 2] = col[2]

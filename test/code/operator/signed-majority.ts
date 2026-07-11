@@ -36,6 +36,7 @@ suite('operator/signed-majority: symmetric edge fills', [
         for (let k = 0; k < row.length; k++) {
           const w = row[k]!
           const kk = ring4[w]!.indexOf(v)
+
           equal(
             fills[v]![k],
             fills[w]![kk],
@@ -73,6 +74,7 @@ suite('operator/signed-majority: synchronous step', [
 
       const tone = Int8Array.from([1, 1, 1])
       const next = signedMajorityStep({ neighbors, fills, tone })
+
       // next0 = sign(1*tone1) = +1; next1 = sign(1*tone0 - 1*tone2) = sign(0) = 0; next2 = sign(-1*tone1) = -1
       equal(next[0], 1, 'cell 0 -> +1')
       equal(next[1], 0, 'cell 1 has a tied field -> 0')
@@ -118,6 +120,7 @@ suite('operator/signed-majority: asynchronous driver', [
       b.settledFraction,
       'same seed -> same settled fraction',
     )
+
     equal(
       a.toneHistogram.minus,
       b.toneHistogram.minus,
@@ -136,11 +139,13 @@ suite('operator/signed-majority: asynchronous driver', [
       })
 
       const { minus, zero, plus } = r.toneHistogram
+
       equal(
         minus + zero + plus,
         ring4.length,
         'histogram sums to the cell count',
       )
+
       ok(
         r.settledFraction >= 0 && r.settledFraction <= 1,
         'settled fraction is a fraction',

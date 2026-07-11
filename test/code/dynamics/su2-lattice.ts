@@ -92,6 +92,7 @@ suite('dynamics/su2-lattice: SU(2) group membership', [
     for (const q of quats) {
       const u = colorMatrix(q)
       const p = matMul(u, dagger(u))
+
       close(p[0][0][0], 1, TOL, 'Re U U^dag [0,0]')
       close(p[0][0][1], 0, TOL, 'Im U U^dag [0,0]')
       close(p[1][1][0], 1, TOL, 'Re U U^dag [1,1]')
@@ -105,6 +106,7 @@ suite('dynamics/su2-lattice: SU(2) group membership', [
   check('det U = 1 for every unit quaternion', () => {
     for (const q of quats) {
       const d = det(colorMatrix(q))
+
       close(d[0], 1, TOL, 'Re det U')
       close(d[1], 0, TOL, 'Im det U')
     }

@@ -45,6 +45,7 @@ suite('measure/molecular-bond: bonding vs antibonding', [
       withoutK > withK,
       `no-resonance ${withoutK} should be above bonding ${withK}`,
     )
+
     ok(
       withoutK > DISSOCIATION,
       'no-resonance state should not be bound',
@@ -56,6 +57,7 @@ suite('measure/molecular-bond: bond geometry', [
   // Fixed exponent one: minimum near 2.5 Bohr, well depth near 1.8 eV.
   check('the simple bond is near 2.5 Bohr and 1.8 eV', () => {
     const b = hydrogenMolecularIonSimpleBond()
+
     close(b.equilibriumSeparation, 2.5, 0.15)
     close(b.dissociationEnergyEv, 1.8, 0.25)
   }),
@@ -64,6 +66,7 @@ suite('measure/molecular-bond: bond geometry', [
     'the variational bond contracts to zeta ~1.24 at ~2.0 Bohr',
     () => {
       const v = hydrogenMolecularIonVariationalBond()
+
       close(v.effectiveCharge, 1.24, 0.05)
       close(v.equilibriumSeparation, 2.0, 0.1)
       close(v.dissociationEnergyEv, 2.35, 0.2)
@@ -73,6 +76,7 @@ suite('measure/molecular-bond: bond geometry', [
   check('the variational bond is deeper than the simple bond', () => {
     const v = hydrogenMolecularIonVariationalBond()
     const s = hydrogenMolecularIonSimpleBond()
+
     ok(
       v.dissociationEnergyEv > s.dissociationEnergyEv,
       `variational ${v.dissociationEnergyEv} should exceed simple ${s.dissociationEnergyEv}`,

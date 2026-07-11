@@ -124,6 +124,7 @@ export default experiment({
     let body = restBody()
 
     const start = extent(body)
+
     body = run(body, rule, beats)
 
     const end = extent(body)
@@ -167,6 +168,7 @@ export default experiment({
 
         {
           const s = clean
+
           clean = cleanScratch
           cleanScratch = s
         }
@@ -180,6 +182,7 @@ export default experiment({
 
         {
           const s = pert
+
           pert = pertScratch
           pertScratch = s
         }
@@ -215,6 +218,7 @@ export default experiment({
     const displaced = (): Will => {
       const w = cloneWill(restBody())
       const nb = base.neighbour(center, 0)
+
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
 
@@ -240,6 +244,7 @@ export default experiment({
 
       {
         const s = dsp
+
         dsp = dspScratch
         dspScratch = s
       }
@@ -253,6 +258,7 @@ export default experiment({
 
       {
         const s = cleanBody
+
         cleanBody = cleanBodyScratch
         cleanBodyScratch = s
       }

@@ -67,7 +67,8 @@ export function compileToRailway(
 
   for (const p of parameters) {
     reg(p)
-  } // parameters are registers 0..k-1
+  }
+  // parameters are registers 0..k-1
 
   const scratch = (): number => reg('$scratch')
 
@@ -154,6 +155,7 @@ export function compileToRailway(
       for (const decl of stmt.declarationList.declarations) {
         const name = (decl.name as ts.Identifier).text
         const r = reg(name)
+
         clear(r)
 
         if (decl.initializer && ts.isNumericLiteral(decl.initializer)) {
@@ -220,7 +222,8 @@ export function compileToRailway(
 
     if (ts.isReturnStatement(stmt)) {
       return
-    } // the return register is recorded separately
+    }
+    // the return register is recorded separately
 
     throw new Error(
       `unsupported statement: ${ts.SyntaxKind[stmt.kind]}`,

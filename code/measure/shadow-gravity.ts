@@ -15,6 +15,7 @@ export function fibonacciSphereDirections(count: number): number[][] {
     const y = 1 - (2 * i + 1) / count
     const radius = Math.sqrt(Math.max(0, 1 - y * y))
     const theta = golden * i
+
     directions.push([
       Math.cos(theta) * radius,
       y,
@@ -111,6 +112,7 @@ export function leSageDrag(input: {
 
   for (const d of input.directions) {
     const dx = d[0]!
+
     force += -(1 + input.velocity * dx) * dx
   }
 

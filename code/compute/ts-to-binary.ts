@@ -94,6 +94,7 @@ export function compileToBinary(source: string): CompiledBinary {
       for (const decl of stmt.declarationList.declarations) {
         const r = reg((decl.name as ts.Identifier).text)
         const init = decl.initializer
+
         setConst(
           r,
           init && ts.isNumericLiteral(init) ? Number(init.text) : 0,

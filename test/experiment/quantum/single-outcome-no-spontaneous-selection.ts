@@ -81,6 +81,7 @@ export default experiment({
     // PIECE ONE (control): a one-sided drain (only x=0 open) settles a DEFINITE record.
     const oneSided = phases.map(phase => {
       const init = makeWill(mesh)
+
       fillWillPattern(init, phase)
 
       return settledSignedPointer({
@@ -96,6 +97,7 @@ export default experiment({
 
     // determinism: the same microstate gives the identical outcome twice.
     const detInit = makeWill(mesh)
+
     fillWillPattern(detInit, 1)
 
     const runA = settledSignedPointer({
@@ -123,6 +125,7 @@ export default experiment({
     // translation symmetry.
     const symmetric = phases.map(phase => {
       const init = makeWill(mesh)
+
       fillWillPattern(init, phase)
       symmetriseLeftRight(init)
 
@@ -202,6 +205,7 @@ export default experiment({
     const seededShift = [
       ...phases.map(phase => {
         const base = makeWill(mesh)
+
         fillWillPattern(base, phase)
         symmetriseLeftRight(base)
 
@@ -218,6 +222,7 @@ export default experiment({
       })
 
       const seeded = cloneWill(base)
+
       seeded.data[degree] = 1 // flip one slot in the low-x half (cell 1 is at x=1)
 
       const tipped = settledSignedPointer({

@@ -100,6 +100,7 @@ export function selfNesting73(): {
     }
 
     const t = prev
+
     prev = cur
     cur = nxt
     nxt = t
@@ -129,6 +130,7 @@ export function selfNesting73(): {
       }
 
       const a = ancestorAt(i, depth)
+
       m.set(a, (m.get(a) ?? 0) + t[i]!)
     }
 
@@ -190,6 +192,7 @@ export function selfNesting73(): {
         for (let i = N - 1; i > 0; i--) {
           const j = Math.floor(rnd() * (i + 1))
           const tt = s[i]!
+
           s[i] = s[j]!
           s[j] = tt
         }

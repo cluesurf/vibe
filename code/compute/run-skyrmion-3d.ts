@@ -146,6 +146,7 @@ async function run(): Promise<void> {
     )
 
     const bufs: [GPUBuffer, GPUBuffer] = [mk(), mk()]
+
     device.queue.writeBuffer(bufs[0], 0, seed)
 
     const layout = pipeline.getBindGroupLayout(0)
@@ -163,18 +164,21 @@ async function run(): Promise<void> {
 
     const readCharge = async (): Promise<number> => {
       const enc = device.createCommandEncoder()
+
       enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, bytes)
       device.queue.submit([enc.finish()])
       await staging.mapAsync(GPUMapMode.READ)
 
       const out = new Float32Array(staging.getMappedRange().slice(0))
+
       staging.unmap()
 
       let tot = 0
 
       for (let z = 4; z < L; z += 8) {
         tot += Math.abs(sliceCharge(out, z))
-      } // average |Q| over several slices
+      }
+      // average |Q| over several slices
 
       return tot / Math.floor((L - 4) / 8)
     }
@@ -188,6 +192,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
+
       pass.setPipeline(pipeline)
       pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
       pass.dispatchWorkgroups(dispatch)
@@ -209,6 +214,7 @@ async function run(): Promise<void> {
   console.log(
     '  => if WITH-stabilizer holds non-zero charge while NO-stabilizer decays to 0, topological',
   )
+
   console.log(
     '     selves FORM and PERSIST spontaneously in 3D once the rule supplies the stabilizer.',
   )

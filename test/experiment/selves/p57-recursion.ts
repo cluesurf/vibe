@@ -61,6 +61,7 @@ function coarseGrain(
   const cluster = new Int32Array(n).fill(-1)
 
   let frontier: number[] = []
+
   seeds.forEach((sd, c) => {
     cluster[sd] = c
     frontier.push(sd)
@@ -112,6 +113,7 @@ function coarseGrain(
 
   for (let v = 0; v < n; v++) {
     const c = cluster[v] ?? 0
+
     count[c] = (count[c] ?? 0) + 1
 
     for (let a = 0; a < dim; a++) {
@@ -150,6 +152,7 @@ function coarseGrain(
         superNbr[cw]?.add(cv)
 
         const key = cv < cw ? `${cv},${cw}` : `${cw},${cv}`
+
         edgeFill.set(key, (edgeFill.get(key) ?? 0) + (fl[k] ?? 0))
       }
     }

@@ -14,6 +14,7 @@ import { ringNeighbors, ringEdges } from '@/code/substrate/ring'
 suite('substrate/ring: the cycle graph', [
   check('every site has degree 2 with the cyclic neighbours', () => {
     const n = ringNeighbors(6)
+
     equal(n.length, 6, 'site count')
 
     for (let x = 0; x < 6; x++) {
@@ -46,6 +47,7 @@ suite('substrate/ring: the cycle graph', [
   }),
   check('ringEdges lists (i, i+1) mod N once each', () => {
     const { eu, ev } = ringEdges(5)
+
     equal(eu.length, 5, 'edge count')
 
     for (let i = 0; i < 5; i++) {

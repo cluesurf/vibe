@@ -45,6 +45,7 @@ export default experiment({
     for (const mass of MASSES) {
       const slope = landauZenerSlope({ mass, forces: FORCES })
       const predicted = -Math.PI * mass * mass
+
       slopes[mass.toFixed(2)] = Number(slope.toFixed(4))
       worstRatioError = Math.max(
         worstRatioError,

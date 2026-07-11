@@ -40,6 +40,7 @@ suite('dynamics/genesis: counts and balancing', [
   }),
   check('balanceToZero forces total charge to 0', () => {
     const tone = makeTone(30)
+
     equal(
       totalCharge(balanceToZero(tone)),
       0,

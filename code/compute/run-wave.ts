@@ -46,6 +46,7 @@ function cpuStep(
         currentOf(state[yd * width + x]!)
 
       const nx = (s + 9 - prev) % 3
+
       out[i] = pack(nx, cur)
     }
   }
@@ -85,6 +86,7 @@ function makeField(
 
   const bufA = make()
   const bufB = make()
+
   device.queue.writeBuffer(bufA, 0, init)
 
   const module = device.createShaderModule({ code: WAVE_STEP_WGSL })
@@ -125,11 +127,13 @@ async function readBack(
   })
 
   const enc = device.createCommandEncoder()
+
   enc.copyBufferToBuffer(buffer, 0, staging, 0, byteLength)
   device.queue.submit([enc.finish()])
   await staging.mapAsync(GPUMapMode.READ)
 
   const copy = new Uint32Array(staging.getMappedRange().slice(0))
+
   staging.unmap()
 
   return copy
@@ -169,6 +173,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < beats; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(field.pipeline)
     pass.setBindGroup(
       0,
@@ -201,6 +206,7 @@ async function run(): Promise<void> {
   }
 
   const selfCheckOk = mismatches === 0
+
   console.log(
     `self-check ${sw}x${sh}, ${beats} beats: GPU vs CPU mismatches ${mismatches} -> ${selfCheckOk ? 'IDENTICAL' : 'FAIL'}`,
   )
@@ -209,6 +215,7 @@ async function run(): Promise<void> {
   const bw = 2048
   const bh = 2048
   const big = new Uint32Array(bw * bh)
+
   big[(bh >> 1) * bw + (bw >> 1)] = pack(1, 0) // a single pulse at the centre
 
   const bigField = makeField(device, big, bw, bh)
@@ -219,6 +226,7 @@ async function run(): Promise<void> {
   {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(bigField.pipeline)
     pass.setBindGroup(
       0,
@@ -238,6 +246,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < benchBeats; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(bigField.pipeline)
     pass.setBindGroup(
       0,
@@ -258,9 +267,11 @@ async function run(): Promise<void> {
   console.log(
     `benchmark ${bw}x${bh} = ${bigField.count.toLocaleString()} cells, ${benchBeats} beats in ${seconds.toFixed(2)}s`,
   )
+
   console.log(
     `  ${beatsPerSec.toFixed(1)} beats/sec, ${(cellsPerSec / 1e9).toFixed(2)} billion cell-updates/sec`,
   )
+
   console.log(
     selfCheckOk
       ? 'OK, the GPU field is correct and fast'

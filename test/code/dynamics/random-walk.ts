@@ -27,6 +27,7 @@ suite('dynamics/random-walk: diffusive baseline', [
     'MSD starts at 0 and grows roughly linearly (exponent ~ 1)',
     () => {
       const msd = classicalWalkMSD({ steps: 200, runs: 400 })
+
       equal(msd[0]!, 0, 'MSD(0) = 0')
 
       // log-log slope over [10, 200]
@@ -43,6 +44,7 @@ suite('dynamics/random-walk: diffusive baseline', [
 
         const x = Math.log(t)
         const y = Math.log(msd[t]!)
+
         sx += x
         sy += y
         sxx += x * x
@@ -51,6 +53,7 @@ suite('dynamics/random-walk: diffusive baseline', [
       }
 
       const exponent = (m * sxy - sx * sy) / (m * sxx - sx * sx)
+
       close(exponent, 1, 0.2, `diffusive exponent ${exponent} ~ 1`)
     },
   ),

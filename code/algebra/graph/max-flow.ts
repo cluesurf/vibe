@@ -25,10 +25,12 @@ export class FlowNetwork {
   // an UNDIRECTED unit edge is addArc(u, v, 1, 1).
   addArc(from: number, to: number, cap: number, reverseCap = 0): void {
     const forward = this.arcs.length
+
     this.arcs.push({ to, cap, flow: 0, twin: forward + 1 })
     this.out[from]!.push(forward)
 
     const backward = this.arcs.length
+
     this.arcs.push({
       to: from,
       cap: reverseCap,
@@ -40,6 +42,7 @@ export class FlowNetwork {
 
   private buildLevels(source: number, sink: number): Int32Array | null {
     const level = new Int32Array(this.nodeCount).fill(-1)
+
     level[source] = 0
 
     let frontier = [source]

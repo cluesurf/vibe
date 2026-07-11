@@ -42,6 +42,7 @@ suite('operator/maintain-to-target: conservation', [
       const tone = Int8Array.from(t)
       const target = Int8Array.from(g)
       const before = sum(tone)
+
       conservingMaintainToTarget(tone, target, tone.length)
       equal(sum(tone), before, 'sum of tones unchanged by maintenance')
     }
@@ -50,6 +51,7 @@ suite('operator/maintain-to-target: conservation', [
     const tone = Int8Array.from([1, 1, -1, -1, 0, 0])
     const target = Int8Array.from([0, -1, 1, 0, 1, -1])
     const before = matches(tone, target)
+
     conservingMaintainToTarget(tone, target, tone.length)
     ok(
       matches(tone, target) >= before,
@@ -64,6 +66,7 @@ suite('operator/maintain-to-target: reaching the target', [
     const tone = Int8Array.from([-1, 1])
     const target = Int8Array.from([1, -1])
     const ops = conservingMaintainToTarget(tone, target, 2)
+
     equal(ops, 1, 'one swap')
     ok(
       tone.every((v, i) => v === target[i]),
@@ -76,6 +79,7 @@ suite('operator/maintain-to-target: reaching the target', [
     const tone = Int8Array.from([0, 0])
     const target = Int8Array.from([1, -1])
     const ops = conservingMaintainToTarget(tone, target, 2)
+
     ok(
       tone.every((v, i) => v === target[i]),
       'tone reaches the target via pair-fill',

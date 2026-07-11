@@ -32,6 +32,7 @@ suite('dynamics/leapfrog-wave: reversibility', [
     const next = leapfrogWaveStep(u, uPrev, r2)
     // reverse: 2u - next + r2 lap(u) = uPrev, which is exactly leapfrogWaveStep(u, next, r2)
     const back = leapfrogWaveStep(u, next, r2)
+
     closeArray(back, uPrev, TOL, 'recovered previous slice')
   }),
   check(
@@ -51,6 +52,7 @@ suite('dynamics/leapfrog-wave: reversibility', [
       // forward: (u_n, u_{n-1}) -> u_{n+1} = step(u_n, u_{n-1})
       for (let t = 0; t < steps; t++) {
         const next = leapfrogWaveStep(u, uPrev, r2)
+
         uPrev = u
         u = next
       }
@@ -58,6 +60,7 @@ suite('dynamics/leapfrog-wave: reversibility', [
       // backward: from (u_n, u_{n-1}) recover u_{n-2} = step(u_{n-1}, u_n) (the step is its own inverse)
       for (let t = 0; t < steps; t++) {
         const earlier = leapfrogWaveStep(uPrev, u, r2)
+
         u = uPrev
         uPrev = earlier
       }
@@ -78,6 +81,7 @@ suite('dynamics/leapfrog-wave: known limits and helpers', [
       const u = new Float64Array(L).fill(c)
       const uPrev = new Float64Array(L).fill(c)
       const next = leapfrogWaveStep(u, uPrev, 0.4)
+
       closeArray(next, u, TOL, 'flat field unchanged')
     },
   ),
@@ -86,6 +90,7 @@ suite('dynamics/leapfrog-wave: known limits and helpers', [
     () => {
       const u = Float64Array.from([1, 3, 10, 20, 100, 200])
       const out = blockAverage(u, 2)
+
       closeArray(
         out,
         Float64Array.from([2, 15, 150]),

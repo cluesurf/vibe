@@ -12,6 +12,7 @@ export function rootsDn(n: number): number[][] {
       for (const si of [1, -1]) {
         for (const sj of [1, -1]) {
           const v = new Array<number>(n).fill(0)
+
           v[i] = si
           v[j] = sj
           roots.push(v)
@@ -32,6 +33,7 @@ export function rootsAn(n: number): number[][] {
     for (let j = 0; j < n; j++) {
       if (i !== j) {
         const v = new Array<number>(n).fill(0)
+
         v[i] = 1
         v[j] = -1
         roots.push(v)
@@ -85,13 +87,15 @@ export function standardModelEmbedsInRootSystem(
     for (const b of roots) {
       if (dotVec(a, b) !== -1) {
         continue
-      } // 120 degrees -> A2 generator pair
+      }
+      // 120 degrees -> A2 generator pair
 
       const ab = a.map((x, i) => x + b[i]!)
 
       if (!roots.some(r => vecEqExact(r, ab))) {
         continue
-      } // a + b must be a root (A2 closes)
+      }
+      // a + b must be a root (A2 closes)
 
       // an A1 orthogonal to the whole A2 (orthogonal to a and b, hence to a + b)
       if (roots.some(c => dotVec(c, a) === 0 && dotVec(c, b) === 0)) {
@@ -137,6 +141,7 @@ export function rootsD4(): number[][] {
       for (const signFirst of [1, -1]) {
         for (const signSecond of [1, -1]) {
           const root = [0, 0, 0, 0]
+
           root[first] = signFirst
           root[second] = signSecond
           roots.push(root)
@@ -159,6 +164,7 @@ export function rootsB4(): number[][] {
   for (let axis = 0; axis < 4; axis++) {
     for (const sign of [1, -1]) {
       const root = [0, 0, 0, 0]
+
       root[axis] = sign
       roots.push(root)
     }
@@ -176,6 +182,7 @@ export function hypercubicAxes(dimension: number): number[][] {
   for (let axis = 0; axis < dimension; axis++) {
     for (const sign of [1, -1]) {
       const direction = new Array<number>(dimension).fill(0)
+
       direction[axis] = sign
       axes.push(direction)
     }
@@ -233,6 +240,7 @@ export function rootsF4(): number[][] {
   for (let axis = 0; axis < 4; axis++) {
     for (const sign of [1, -1]) {
       const root = [0, 0, 0, 0]
+
       root[axis] = sign
       roots.push(root)
     }
@@ -258,6 +266,7 @@ export function rootsF4(): number[][] {
 export function e8SimpleRoots(): number[][] {
   const axis = (i: number): number[] => {
     const v = new Array<number>(8).fill(0)
+
     v[i] = 1
 
     return v

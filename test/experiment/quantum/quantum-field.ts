@@ -73,6 +73,7 @@ export function quantumField(input?: { n?: number }): {
   const d1 = nonzero(vac)
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
   const before = vac.slice()
+
   beat(vac, eu, ev, moved, rng, ARROW)
 
   let changed = 0
@@ -143,6 +144,7 @@ export function quantumField(input?: { n?: number }): {
 
   const base = vac.slice()
   const pert = vac.slice()
+
   pert[center] =
     (pert[center]! + 1) % 2 === 0 ? 1 : pert[center] === 1 ? -1 : 1 // flip the center
   pert[center] = base[center] === 0 ? 1 : 0

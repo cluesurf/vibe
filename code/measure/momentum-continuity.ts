@@ -84,6 +84,7 @@ export function maxMomentumResidual(input: {
 
   // collide in place on a copy, then account the stream flux from that state
   const collided = cloneWill(will)
+
   collide(collided, collision)
 
   const blocks = (side / block) ** 4
@@ -109,6 +110,7 @@ export function maxMomentumResidual(input: {
 
         for (let k = 0; k < components; k++) {
           const p = t * (root[k] ?? 0)
+
           flux[k]![from] = (flux[k]![from] ?? 0) + p
           flux[k]![to] = (flux[k]![to] ?? 0) - p
         }

@@ -24,6 +24,7 @@ suite('substrate/coxeter/coxeter-growth: finite Poincare polynomials', [
       [[4, 3], 48n],
     ] as const) {
       const seq = expandSeries(coxeterGrowthSeries([...symbol]), 40)
+
       equal(seq[0], 1n, `[${String(symbol)}] identity coefficient`)
       ok(
         sum(seq) === order,
@@ -97,6 +98,7 @@ suite('substrate/coxeter/coxeter-growth: self-consistent expansion', [
     'an infinite (hyperbolic) group growth is monotone and unbounded',
     () => {
       const seq = expandSeries(coxeterGrowthSeries([7, 3]), 12)
+
       equal(seq[0], 1n, 'identity at length 0')
 
       for (let i = 1; i < seq.length; i++) {

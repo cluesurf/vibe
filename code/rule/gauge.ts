@@ -124,6 +124,7 @@ export function gaugeRule(input: {
         const step = rng.next() < 0.5 ? -1 : 1
         const current = field.link[i] ?? 0
         const proposed = (((current + step) % q) + q) % q
+
         field.link[i] = proposed
 
         // Local action after the move.

@@ -168,11 +168,13 @@ export function familyPermutation(
       const perm: Record<number, number> = { [unit]: unit }
       const a = p1[flip1 ? 1 : 0]!
       const b = p1[flip1 ? 0 : 1]!
+
       perm[p0[0]!] = a
       perm[p0[1]!] = b
 
       const c = p2[flip2 ? 1 : 0]!
       const d = p2[flip2 ? 0 : 1]!
+
       perm[a] = c
       perm[b] = d
       perm[c] = p0[0]!

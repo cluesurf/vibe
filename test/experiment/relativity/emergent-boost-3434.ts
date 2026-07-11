@@ -70,7 +70,8 @@ export function emergentBoost(): {
 
       if (gal > 1) {
         galileanWrong = true
-      } // Galilean would exceed c, relativistic never does
+      }
+      // Galilean would exceed c, relativistic never does
     }
   }
 

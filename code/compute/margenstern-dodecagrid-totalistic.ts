@@ -6,6 +6,7 @@
 // land/text/papers/more-5/2108.13094.pdf and note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type DodecaTotalisticState = 'W' | 'B' | 'R' | 'G'
+
 const RANK: Record<string, number> = { W: 0, B: 1, R: 2, G: 3 }
 
 // the complete transition table, [current state, neighbourhood weight, new state]

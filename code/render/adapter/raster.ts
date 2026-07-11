@@ -140,6 +140,7 @@ export function renderSceneToRgba(input: RasterOptions): {
           sxw = Math.sin(rotateXW)
 
         const x2 = cxw * x - sxw * w
+
         w = sxw * x + cxw * w
         x = x2
 
@@ -147,12 +148,14 @@ export function renderSceneToRgba(input: RasterOptions): {
           szw = Math.sin(rotateZW)
 
         const z2 = czw * z - szw * w
+
         w = szw * z + czw * w
         z = z2
 
         // perspective projection from 4D to 3D, w nearer the 4D eye (W_EYE) magnifies, like a 3D camera does
         const W_EYE = 2.2
         const k = W_EYE / (W_EYE - w)
+
         x *= k
         y *= k
         z *= k
@@ -198,9 +201,11 @@ export function renderSceneToRgba(input: RasterOptions): {
 
     if (threeD) {
       t = (depth + 1) / 2
-    } // -1..1 -> 0..1, near (high z) -> 1
+    }
+    // -1..1 -> 0..1, near (high z) -> 1
     else {
       const mr = midRadius(e.a, e.b)
+
       t = 1 - Math.min(1, mr)
     } // centre -> 1, boundary -> 0
 
@@ -282,6 +287,7 @@ export function renderSceneToRgba(input: RasterOptions): {
     cy = (minY + maxY) / 2
 
     const span = Math.max(maxX - minX, maxY - minY) || 1
+
     scale = (size * margin) / span
   }
 
@@ -355,6 +361,7 @@ function downsample(
 
         for (let bx = 0; bx < block; bx++) {
           const so = (sy * srcSize + (x * block + bx)) * 4
+
           r += src[so]!
           g += src[so + 1]!
           b += src[so + 2]!
@@ -363,6 +370,7 @@ function downsample(
       }
 
       const o = (y * dstSize + x) * 4
+
       out[o] = Math.round(r / area)
       out[o + 1] = Math.round(g / area)
       out[o + 2] = Math.round(b / area)
@@ -425,6 +433,7 @@ function fillPolygon(
 
       for (let x = xa; x <= xb; x++) {
         const o = (y * size + x) * 4
+
         rgba[o] = color[0]
         rgba[o + 1] = color[1]
         rgba[o + 2] = color[2]
@@ -438,6 +447,7 @@ function midRadius(a: Vec, b: Vec): number {
 
   for (let i = 0; i < a.length; i++) {
     const m = (a[i]! + b[i]!) / 2
+
     s += m * m
   }
 
@@ -492,6 +502,7 @@ function drawLine(
         }
 
         const o = (py * size + px) * 4
+
         rgba[o] = color[0]
         rgba[o + 1] = color[1]
         rgba[o + 2] = color[2]
@@ -521,6 +532,7 @@ function strokeCircle(
     }
 
     const o = (py * size + px) * 4
+
     rgba[o] = color[0]
     rgba[o + 1] = color[1]
     rgba[o + 2] = color[2]

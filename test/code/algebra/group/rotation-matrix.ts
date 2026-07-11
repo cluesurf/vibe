@@ -43,18 +43,21 @@ suite('algebra/group/rotation-matrix: 3x3 operations', [
     'multiply by identity returns the matrix; identity is the unit',
     () => {
       const R = rotationMatrix3([1, 2, -1], 0.7)
+
       closeMatrix(multiply3(R, IDENTITY3), R, 'R I = R')
       closeMatrix(multiply3(IDENTITY3, R), R, 'I R = R')
     },
   ),
   check('transpose is an involution', () => {
     const R = rotationMatrix3([0, 1, 2], 1.3)
+
     closeMatrix(transpose3(transpose3(R)), R, 'R^TT = R')
   }),
   check('multiplication is associative', () => {
     const A = rotationMatrix3([1, 0, 0], 0.5)
     const B = rotationMatrix3([0, 1, 0], 0.9)
     const C = rotationMatrix3([0, 0, 1], 1.7)
+
     closeMatrix(
       multiply3(multiply3(A, B), C),
       multiply3(A, multiply3(B, C)),
@@ -68,6 +71,7 @@ suite('algebra/group/rotation-matrix: rotations are in SO(3)', [
     for (const axis of AXES) {
       for (const ang of ANGLES) {
         const R = rotationMatrix3(axis, ang)
+
         closeMatrix(multiply3(R, transpose3(R)), IDENTITY3, 'R R^T = I')
       }
     }
@@ -114,6 +118,7 @@ suite('algebra/group/rotation-matrix: the rotation homomorphism', [
   }),
   check('90 deg about z sends e_x -> e_y, e_y -> -e_x', () => {
     const R = rotationMatrix3(Z, Math.PI / 2)
+
     // column j of R is the image of basis vector e_j
     closeArray(
       [R[0]![0]!, R[1]![0]!, R[2]![0]!],
@@ -121,6 +126,7 @@ suite('algebra/group/rotation-matrix: the rotation homomorphism', [
       TOL,
       'e_x -> e_y',
     )
+
     closeArray(
       [R[0]![1]!, R[1]![1]!, R[2]![1]!],
       [-1, 0, 0],

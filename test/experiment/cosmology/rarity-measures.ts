@@ -38,6 +38,7 @@ function evolve(
 
   for (let i = 0; i < N; i++) {
     const r = ((i + 1) * GOLDEN) % 1
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 

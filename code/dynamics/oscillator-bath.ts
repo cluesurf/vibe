@@ -48,6 +48,7 @@ export function oscillatorBathTrajectory(
     for (let x = 0; x < chain; x++) {
       const left = x > 0 ? u[x - 1]! : 0
       const right = x < chain - 1 ? u[x + 1]! : 0
+
       au[x] = waveSpeed2 * (left - 2 * u[x]! + right)
     }
 
@@ -72,6 +73,7 @@ export function oscillatorBathTrajectory(
       for (let x = chain - sponge; x < chain; x++) {
         const depth = (x - (chain - sponge)) / sponge
         const damp = 1 - 0.06 * depth
+
         u[x]! *= damp
         w[x]! *= damp
       }
@@ -127,6 +129,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
     for (let x = 0; x < chain; x++) {
       const left = x > 0 ? u[x - 1]! : 0
       const right = x < chain - 1 ? u[x + 1]! : 0
+
       au[x] = waveSpeed2 * (left - 2 * u[x]! + right)
     }
 
@@ -141,6 +144,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
       for (let x = chain - sponge; x < chain; x++) {
         const depth = (x - (chain - sponge)) / sponge
         const damp = 1 - 0.06 * depth
+
         u[x]! *= damp
         w[x]! *= damp
       }

@@ -8,6 +8,7 @@ import { torusGrid } from '@/code/substrate/torus-grid'
 suite('substrate/torus-grid: uniform degree 2d', [
   check('a 2D torus has L^2 cells, all of degree 4', () => {
     const adj = torusGrid(2, 3)
+
     equal(adj.length, 9, 'L^d cells')
 
     for (let i = 0; i < adj.length; i++) {
@@ -16,6 +17,7 @@ suite('substrate/torus-grid: uniform degree 2d', [
   }),
   check('a 3D torus has L^3 cells, all of degree 6', () => {
     const adj = torusGrid(3, 3)
+
     equal(adj.length, 27, 'L^d cells')
 
     for (let i = 0; i < adj.length; i++) {

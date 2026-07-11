@@ -34,6 +34,7 @@ function updateParity(input: {
   ) {
     const self = getTone(input.source, { element })
     const neighborhood: number[] = []
+
     input.adjacency.forEachOut({
       node: element,
       visit: to => {
@@ -42,6 +43,7 @@ function updateParity(input: {
     })
 
     const value = input.local({ self, neighborhood })
+
     setTone(input.target, { element, value })
   }
 }
@@ -59,6 +61,7 @@ export function reversibleEvenOdd(input: {
 
       // Half-step 1: even elements read the (unchanged) odd elements.
       const afterEven = cloneConfiguration(configuration)
+
       updateParity({
         parity: 0,
         source: configuration,
@@ -69,6 +72,7 @@ export function reversibleEvenOdd(input: {
 
       // Half-step 2: odd elements read the now-updated even elements.
       const afterOdd = cloneConfiguration(afterEven)
+
       updateParity({
         parity: 1,
         source: afterEven,

@@ -59,6 +59,7 @@ async function run(): Promise<void> {
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
+
   console.log(
     `targeted slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()} cells`,
   )
@@ -104,6 +105,7 @@ async function run(): Promise<void> {
 
   // the band cells (|busemann| < half), with fixed pixel positions, zoomed on the dense core
   type BandCell = { index: number; px: number; py: number }
+
   // flatten the horosphere correctly by STEREOGRAPHIC INVERSION from the ideal point xi, w = (p - xi)/|p - xi|^2,
   // which maps the horosphere to a true Euclidean plane (an orthographic drop of xi folds it into a ring)
   const raw: { index: number; u: number; v: number }[] = []
@@ -117,6 +119,7 @@ async function run(): Promise<void> {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -174,6 +177,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -231,6 +235,7 @@ async function run(): Promise<void> {
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -241,6 +246,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -280,6 +286,7 @@ async function run(): Promise<void> {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]

@@ -61,6 +61,7 @@ export default experiment({
     const seed = (): { prev: Uint8Array; cur: Uint8Array } => {
       const prev = new Uint8Array(n)
       const cur = new Uint8Array(n)
+
       cur[center] = 1
 
       return { prev, cur }

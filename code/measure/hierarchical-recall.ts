@@ -50,6 +50,7 @@ export function leafPattern(
 
   for (let level = 0; level < model.depth; level++) {
     const bit = (leaf >> (model.depth - 1 - level)) & 1
+
     pattern.push(...model.feature[level]![bit]!)
   }
 

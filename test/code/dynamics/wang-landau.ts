@@ -66,6 +66,7 @@ suite('dynamics/wang-landau: free-energy post-processing', [
   }),
   check('crossing beta is log 2', () => {
     const star = crossingBeta(wl, 5)
+
     close(star ?? NaN, log2, 1e-6, 'bisection finds beta* = log 2')
   }),
   check(
@@ -95,6 +96,7 @@ suite('dynamics/wang-landau: determinism', [
 
     const a = run()
     const b = run()
+
     exactArray(a.heights, b.heights, 'height bins')
     exactArray(a.logG, b.logG, 'log g per height')
     equal(a.converged, b.converged, 'converged flag')

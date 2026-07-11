@@ -36,6 +36,7 @@ export function recenterCellSet(cells: Set<string>): Set<string> {
 
   for (const key of cells) {
     const point = parseKey(key)
+
     out.add(point.map((v, d) => v - (centroid[d] ?? 0)).join(','))
   }
 

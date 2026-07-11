@@ -18,6 +18,7 @@ function directions(): number[][] {
       for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
+
           v[a] = sa
           v[b] = sb
           dirs.push(v)
@@ -124,6 +125,7 @@ function buildLineStructure(): LineStructure {
     for (let L = 0; L < 12; L++) {
       const v = dirs[lines[L]!]!
       const reflected = reflectRoot(v, root).map(x => Math.round(x))
+
       lp[L] = lineOfDir(idx.get(key(reflected))!)
     }
 
@@ -254,6 +256,7 @@ export function generationCosetStructure(): {
 
   for (const g of f4) {
     const label = cosetLabel(g)
+
     labelOf.set(permKey(g), label)
 
     if (!cosetMembers.has(label)) {

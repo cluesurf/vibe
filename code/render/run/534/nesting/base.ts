@@ -57,6 +57,7 @@ function run(): void {
 
   // BFS shell depth from cell 0
   const depth = new Array<number>(n).fill(-1)
+
   depth[0] = 0
 
   let frontier = [0]
@@ -111,6 +112,7 @@ function run(): void {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, 'frames-nesting-534')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -153,6 +155,7 @@ function run(): void {
           py = half - scale * y
 
         const rad = Math.max(0.7, DOT_SCALE * (1 - r2))
+
         drawDisk({
           rgba,
           width: IMG,

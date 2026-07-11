@@ -97,6 +97,7 @@ export default experiment({
         beatInto({ src: current, dst: scratch, table, collision: rule })
 
         const swap = current
+
         current = scratch
         scratch = swap
 
@@ -114,6 +115,7 @@ export default experiment({
     const cone = (rule: Collision): number => {
       let plain = packet()
       let pert = cloneWill(packet())
+
       pert.data[center * degree + 0] =
         pert.data[center * degree + 0] === 1 ? -1 : 1
 
@@ -138,6 +140,7 @@ export default experiment({
         })
 
         const ps = plain
+
         plain = plainScratch
         plainScratch = ps
         beatInto({
@@ -148,6 +151,7 @@ export default experiment({
         })
 
         const pe = pert
+
         pert = pertScratch
         pertScratch = pe
 

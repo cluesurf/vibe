@@ -84,6 +84,7 @@ export function selfTrajectory(input: {
     beatHashed(tone, graph, moved, t, 0.01, 0.22)
 
     const cx = positiveCentroidX(tone, L)
+
     centroids.push(cx)
     labels.push(toBin(cx))
 

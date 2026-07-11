@@ -18,6 +18,7 @@ function variant(parent: Int8Array, tag: number): Int8Array {
 
   for (let s = 0; s < flips; s++) {
     const i = (tag * 31 + s * 17) % n
+
     child[i] = -child[i]!
   }
 

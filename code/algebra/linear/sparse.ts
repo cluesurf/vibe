@@ -40,6 +40,7 @@ export function sparseFromTriplets(input: {
 
   for (const t of input.triplets) {
     const pos = cursor[t.row] ?? 0
+
     colIdx[pos] = t.col
     value[pos] = t.value
     cursor[t.row] = pos + 1

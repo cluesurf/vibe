@@ -52,6 +52,7 @@ export default experiment({
     // a self would shed it (final near 0), instead it spreads into persistent order-1 turbulence that does not
     // drain (final stays near peak).
     let flat: TernaryField = makeTernaryField({ size, fill: () => 0 })
+
     flat.curr[center] = 1
 
     const nonzero = (u: Int8Array): number => {
@@ -92,6 +93,7 @@ export default experiment({
 
     let clean = makeKink()
     let hit = makeKink()
+
     hit.curr[center] = (hit.curr[center]! + 1) % 3
     hit.curr[center - 1] = (hit.curr[center - 1]! + 2) % 3
 
@@ -103,6 +105,7 @@ export default experiment({
         rule: decoupledTernaryRule,
         boundary: { form: 'absorbing', left: 0, right: 1 },
       })
+
       hit = stepTernaryField({
         field: hit,
         rule: decoupledTernaryRule,

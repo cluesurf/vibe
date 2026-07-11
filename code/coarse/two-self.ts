@@ -114,6 +114,7 @@ export function runTwoSelfAnnihilation(input: {
   const graph = flatGraph(L)
   const tone = new Int8Array(L * L)
   const cy = Math.floor(L / 2)
+
   stampShape({
     tone,
     L,
@@ -122,6 +123,7 @@ export function runTwoSelfAnnihilation(input: {
     py: cy,
     sign: 1,
   })
+
   stampShape({
     tone,
     L,
@@ -195,6 +197,7 @@ export function runTwoSelf(input: {
   const graph = flatGraph(L)
   const tone = new Int8Array(L * L)
   const cy = Math.floor(L / 2)
+
   stampShape({
     tone,
     L,
@@ -202,6 +205,7 @@ export function runTwoSelf(input: {
     px: Math.round(L / 2 - d / 2),
     py: cy,
   })
+
   stampShape({
     tone,
     L,

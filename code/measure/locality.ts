@@ -84,6 +84,7 @@ export function ruleLocalityRange(input: {
     for (let slot = 0; slot < slots; slot++) {
       const current = getTone(perturbed, { element: center, slot })
       const shifted = distinct > 1 ? (current + 1) % distinct : current
+
       setTone(perturbed, { element: center, slot, value: shifted })
     }
 

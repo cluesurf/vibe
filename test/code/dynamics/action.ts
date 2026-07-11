@@ -61,6 +61,7 @@ suite('dynamics/action: sharp Benincasa-Dowker (2D)', [
 suite('dynamics/action: smeared 2D kernel', [
   check('closed forms at epsilon 0.1', () => {
     const e = 0.1
+
     close(smearedKernel2D({ n: 0, epsilon: e }), 1, 1e-12, 'f(0) = 1')
     close(
       smearedKernel2D({ n: 1, epsilon: e }),
@@ -68,6 +69,7 @@ suite('dynamics/action: smeared 2D kernel', [
       1e-12,
       'f(1) = 1 - 3e',
     )
+
     close(
       smearedKernel2D({ n: 2, epsilon: e }),
       1 - 6 * e + 6 * e * e,
@@ -85,6 +87,7 @@ suite('dynamics/action: smeared 2D kernel', [
     const f0 = smearedKernel2D({ n: 0, epsilon: e })
     const f1 = smearedKernel2D({ n: 1, epsilon: e })
     const f2 = smearedKernel2D({ n: 2, epsilon: e })
+
     ok(f0 > f1 && f1 > f2, 'f(0) > f(1) > f(2)')
   }),
 ])
@@ -99,6 +102,7 @@ suite('dynamics/action: smeared Benincasa-Dowker action (2D)', [
 
     // sum over related pairs of f(interval): two interval-0 pairs and one interval-1 pair.
     const expected = -3 / 2 + e * (2 * 1 + (1 - 3 * e))
+
     close(value, expected, 1e-12, 'chain smeared action')
   }),
   check('3-antichain value is -N/2 (no related pairs)', () => {
@@ -119,12 +123,14 @@ suite('dynamics/action: dimension-target action', [
     'value is the squared deviation of the Myrheim-Meyer dimension',
     () => {
       const d = myrheimMeyerDimension({ poset: chain3 })
+
       close(
         dimensionTargetAction({ target: d }).value({ poset: chain3 }),
         0,
         1e-9,
         'target = measured dimension -> 0',
       )
+
       close(
         dimensionTargetAction({ target: d + 2 }).value({
           poset: chain3,

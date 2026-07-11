@@ -83,6 +83,7 @@ export function vortexGaugeField(input: {
     for (let y = 0; y < L; y++) {
       Ax[x]![y] =
         (Phi / (2 * Math.PI)) * wrap(theta(x + 1, y) - theta(x, y))
+
       Ay[x]![y] =
         (Phi / (2 * Math.PI)) * wrap(theta(x, y + 1) - theta(x, y))
     }
@@ -103,6 +104,7 @@ export function gridGaugeTransform(
     for (let y = 0; y < side; y++) {
       Ax[x]![y] =
         g.Ax[x]![y]! + lambda[(x + 1) % side]![y]! - lambda[x]![y]!
+
       Ay[x]![y] =
         g.Ay[x]![y]! + lambda[x]![(y + 1) % side]! - lambda[x]![y]!
     }

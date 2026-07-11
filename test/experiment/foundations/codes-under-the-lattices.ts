@@ -66,6 +66,7 @@ export default experiment({
 
     for (const codeword of hamming) {
       const w = vectorWeight(codeword)
+
       weightCounts[w] = (weightCounts[w] ?? 0) + 1
     }
 

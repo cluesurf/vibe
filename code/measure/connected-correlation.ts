@@ -121,6 +121,7 @@ export function correlationLengthFromDecay(input: {
     }
 
     const y = Math.log(ac)
+
     sx += r
     sy += y
     sxx += r * r

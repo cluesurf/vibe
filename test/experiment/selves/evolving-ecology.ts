@@ -22,7 +22,8 @@ function makeBarriers(B: number, base: number, step: number): number[] {
 
   for (let k = 0; k < B; k++) {
     reqs.push(base + k * step)
-  } // the horizon needed to cross barrier k
+  }
+  // the horizon needed to cross barrier k
 
   return reqs
 }
@@ -38,7 +39,8 @@ function agentReach(reqs: number[], horizon: number): number {
     } // the horizon spans this barrier, the re-planning loop crosses it
     else {
       break
-    } // stuck at the first barrier the horizon cannot span
+    }
+    // stuck at the first barrier the horizon cannot span
   }
 
   return crossed / reqs.length
@@ -61,7 +63,8 @@ function evolvePopulation(
 
   for (let i = 0; i < P; i++) {
     pop.push(1 + Math.floor(rng.next() * 4))
-  } // random small initial horizons
+  }
+  // random small initial horizons
 
   const meanFitnessByGen: number[] = []
 
@@ -81,6 +84,7 @@ function evolvePopulation(
         const step = 1 + Math.floor(rng.next() * 3) // mutate by 1, 2, or 3 (enough to climb the barrier gaps)
 
         let h = s.h + (rng.next() < 0.5 ? -step : step)
+
         h = Math.max(1, Math.min(60, h))
         next.push(h)
       }

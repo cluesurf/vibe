@@ -28,6 +28,7 @@ export function synchronousRule(input: {
       for (let element = 0; element < configuration.size; element++) {
         const self = getTone(configuration, { element })
         const neighborhood: number[] = []
+
         adjacency.forEachOut({
           node: element,
           visit: to => {
@@ -36,6 +37,7 @@ export function synchronousRule(input: {
         })
 
         const value = input.local({ self, neighborhood })
+
         setTone(next, { element, value })
       }
 

@@ -13,6 +13,7 @@ suite('algebra/graph/max-flow: directed max flow', [
   check('the classic CLRS network has max flow 23', () => {
     // nodes: s=0, v1=1, v2=2, v3=3, v4=4, t=5
     const net = new FlowNetwork(6)
+
     net.addArc(0, 1, 16)
     net.addArc(0, 2, 13)
     net.addArc(1, 2, 10)
@@ -28,6 +29,7 @@ suite('algebra/graph/max-flow: directed max flow', [
   check('two unit-capacity parallel paths give flow 2', () => {
     // s=0 -> a=1 -> t=3 and s -> b=2 -> t, each arc capacity 1
     const net = new FlowNetwork(4)
+
     net.addArc(0, 1, 1)
     net.addArc(1, 3, 1)
     net.addArc(0, 2, 1)
@@ -37,6 +39,7 @@ suite('algebra/graph/max-flow: directed max flow', [
   check('a single bottleneck arc caps the flow', () => {
     // s -> a (cap 5) -> b (cap 2, the bottleneck) -> t (cap 5)
     const net = new FlowNetwork(4)
+
     net.addArc(0, 1, 5)
     net.addArc(1, 2, 2)
     net.addArc(2, 3, 5)
@@ -79,6 +82,7 @@ suite('algebra/graph/max-flow: undirected min cut (RT surface)', [
   ),
   check('a path graph has min cut 1 (cut any single edge)', () => {
     const adjacency = [[1], [0, 2], [1, 3], [2, 4], [3]]
+
     equal(
       undirectedMinCut({ adjacency, sources: [0], sinks: [4] }),
       1,

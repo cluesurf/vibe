@@ -76,6 +76,7 @@ function step(
       const f = plusFraction(grid, side, x, y, radius)
       const isPlus = grid[y * side + x] === 1
       const becomes = isPlus ? f >= stay : f >= grow
+
       next[y * side + x] = becomes ? 1 : -1
     }
   }

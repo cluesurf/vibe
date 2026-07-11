@@ -51,6 +51,7 @@ export function phMagnetism(): {
     }
 
     const n = Math.hypot(...S)
+
     S = S.map(x => x / n)
   }
 

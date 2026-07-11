@@ -34,6 +34,7 @@ const translate = (
 
   for (const k of s) {
     const [x, y] = k.split(',').map(Number)
+
     out.add(`${x! + dx},${y! + dy}`)
   }
 
@@ -46,6 +47,7 @@ const minXY = (s: Set<string>): [number, number] => {
 
   for (const k of s) {
     const [x, y] = k.split(',').map(Number)
+
     mx = Math.min(mx, x!)
     my = Math.min(my, y!)
   }
@@ -94,6 +96,7 @@ suite('operator/conway-life: still life and oscillator', [
       cellSetEqual(lifeStep(horizontal), vertical),
       'one step rotates to vertical',
     )
+
     ok(
       cellSetEqual(steps(horizontal, 2), horizontal),
       'two steps returns to horizontal',
@@ -114,12 +117,14 @@ suite('operator/conway-life: glider', [
       ])
 
       const after = steps(glider, 4)
+
       equal(after.size, glider.size, 'the glider keeps its 5 cells')
 
       const [mx0, my0] = minXY(glider)
       const [mx1, my1] = minXY(after)
       const dx = mx1 - mx0
       const dy = my1 - my0
+
       ok(
         cellSetEqual(after, translate(glider, dx, dy)),
         'the pattern moves rigidly',
@@ -136,6 +141,7 @@ suite('operator/conway-life: glider', [
     ])
 
     const [cx, cy] = cellSetCentroid(s)
+
     equal(cx, 1, 'mean x = (0+2+1)/3')
     equal(cy, 1, 'mean y = (0+0+3)/3')
   }),

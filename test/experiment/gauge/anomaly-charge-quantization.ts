@@ -19,6 +19,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // One generation of left-handed Weyl fermions, with their multiplicities (color x weak) and the
 // SU(3) and SU(2) embedding used by the anomaly coefficients.
 type Field = { name: string; color: number; weak: number; t3: number[] }
+
 const FIELDS: Field[] = [
   { name: 'Q', color: 3, weak: 2, t3: [+0.5, -0.5] }, // quark doublet
   { name: 'uc', color: 3, weak: 1, t3: [0] }, // up antiquark

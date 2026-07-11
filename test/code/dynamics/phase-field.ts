@@ -15,6 +15,7 @@ import {
 suite('dynamics/phase-field: uniform fixed point', [
   check('gradientStructure of a uniform field is 0', () => {
     const uniform = new Array<number>(20).fill(0.7)
+
     close(gradientStructure(uniform), 0, 1e-12, 'no gradient')
   }),
   check('a uniform field is unchanged by the relaxation', () => {

@@ -35,6 +35,7 @@ function centralWell(): Float64Array {
     for (let j = 0; j < SIDE; j++) {
       const r2 = (i - center) ** 2 + (j - center) ** 2
       const v = -V0 + K * r2
+
       potential[i * SIDE + j] = v < 0 ? v : 0 // inside the bowl it is a well, outside it is the free band
     }
   }

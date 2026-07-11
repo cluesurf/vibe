@@ -20,6 +20,7 @@ import {
 suite('measure/probe-directions: coordinateAxes', [
   check('dimension 3 returns the 6 signed coordinate axes', () => {
     const axes = coordinateAxes(3)
+
     equal(axes.length, 6)
     exactArray(axes[0]!, [1, 0, 0])
     exactArray(axes[1]!, [-1, 0, 0])
@@ -37,6 +38,7 @@ suite('measure/probe-directions: probeDirections unit vectors', [
   check('every direction is a unit vector (dim 3 and 4)', () => {
     for (const dimension of [3, 4]) {
       const dirs = probeDirections({ count: 50, dimension })
+
       equal(dirs.length, 50)
 
       for (const d of dirs) {

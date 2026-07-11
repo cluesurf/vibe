@@ -20,6 +20,7 @@ import {
 } from '@/code/rule/collision'
 
 type Tone = -1 | 0 | 1
+
 const TONES: Tone[] = [-1, 0, 1]
 const pairKey = (left: Tone, right: Tone): number =>
   (left + 1) * 3 + (right + 1)
@@ -46,6 +47,7 @@ function isBijection(table: [Tone, Tone][]): boolean {
   for (const left of TONES) {
     for (const right of TONES) {
       const out = table[pairKey(left, right)]!
+
       seen.add(pairKey(out[0], out[1]))
     }
   }
@@ -100,6 +102,7 @@ const squareOpposite = [1, 0, 3, 2]
 
 function applied(collision: Collision, slots: Int8Array): Int8Array {
   const copy = Int8Array.from(slots)
+
   collision(copy, 0, copy.length)
 
   return copy
@@ -148,6 +151,7 @@ suite('rule/collision: nine-state tables', [
   ),
   check('the arrow: peace creates a balanced pair', () => {
     const out = PAIR_FORWARD[pairKey(0, 0)]!
+
     equal(out[0], 1, 'peace,peace -> +,-  (left)')
     equal(out[1], -1, 'peace,peace -> +,-  (right)')
   }),

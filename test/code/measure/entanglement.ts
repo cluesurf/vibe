@@ -93,6 +93,7 @@ suite(
     }),
     check('two independent half-filled modes give 2 ln 2', () => {
       const c = Float64Array.from([0.5, 0, 0, 0.5])
+
       close(
         regionEntanglementEntropy({ c, n: 2, region: [0, 1] }),
         2 * LN2,
@@ -103,6 +104,7 @@ suite(
       'eigenvalues 0 and 1 (a product cut) give ~ 0 entropy',
       () => {
         const c = Float64Array.from([1, 0, 0, 0])
+
         close(
           regionEntanglementEntropy({ c, n: 2, region: [0, 1] }),
           0,
@@ -117,6 +119,7 @@ suite('measure/entanglement: cross-cut connectivity', [
   check('sums |C_ij| over the region pair', () => {
     // c = [[a, b],[c, d]]; regionA={0}, regionB={1} -> |b|.
     const c = Float64Array.from([0.1, -0.7, 0.3, 0.4])
+
     close(
       crossCutConnectivity({ c, n: 2, regionA: [0], regionB: [1] }),
       0.7,

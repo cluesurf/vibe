@@ -82,6 +82,7 @@ export default experiment({
       })
 
       const identity = (2 * coherence) ** 2 + record ** 2
+
       worstIdentityError = Math.max(
         worstIdentityError,
         Math.abs(identity - 1),

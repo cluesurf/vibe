@@ -85,7 +85,8 @@ export function fourDAutoSelection(): {
 
           if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) {
             idealCubicCuspFourD.push(`{${sym.join(',')}}`)
-          } // cubic cusp {4,3,4}
+          }
+          // cubic cusp {4,3,4}
         }
       }
     }

@@ -47,6 +47,7 @@ export function normSquared(x: number[]): number {
 
 function unit(dimension: number, index: number): number[] {
   const v = new Array<number>(dimension).fill(0)
+
   v[index] = 1
 
   return v

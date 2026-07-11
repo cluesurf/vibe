@@ -64,6 +64,7 @@ export function shearGasSetup(input: {
 
   const carrierLines = input.carrierLines ?? 'coupled'
   const will = makeWill(mesh)
+
   pairGasFill({ will, pairFill })
 
   const lines = coinLines(meshOpposites(mesh))
@@ -87,6 +88,7 @@ export function shearGasSetup(input: {
       ) {
         const positiveSlot = momComponent > 0 ? a : o
         const negativeSlot = momComponent > 0 ? o : a
+
         will.data[base + positiveSlot] = bias > 0 ? 1 : 0
         will.data[base + negativeSlot] = bias > 0 ? 0 : 1
       }

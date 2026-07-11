@@ -61,6 +61,7 @@ function pairKey(left: Tone, right: Tone): number {
 // pair sum and permutes the nine states, so the rule is reversible.
 function buildPairForward(): [Tone, Tone][] {
   const table = new Array<[Tone, Tone]>(9)
+
   table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
   table[pairKey(1, 1)] = [1, 1]
   table[pairKey(-1, 0)] = [0, -1] // a charge hops past a peace
@@ -80,6 +81,7 @@ function invertPairTable(forward: [Tone, Tone][]): [Tone, Tone][] {
   for (const left of TONES) {
     for (const right of TONES) {
       const out = forward[pairKey(left, right)]!
+
       inverse[pairKey(out[0], out[1])] = [left, right]
     }
   }
@@ -122,6 +124,7 @@ function tableCollision(
       const a = (slots[base + left] ?? 0) as Tone
       const b = (slots[base + right] ?? 0) as Tone
       const out = table[pairKey(a, b)]!
+
       slots[base + left] = out[0]
       slots[base + right] = out[1]
     }
@@ -152,6 +155,7 @@ export function pairCollision(input: {
 // has a paired inverse, like the pair table.
 function buildBindMoveForward(): [Tone, Tone][] {
   const table = new Array<[Tone, Tone]>(9)
+
   table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
   table[pairKey(1, 1)] = [1, 1]
   table[pairKey(-1, 0)] = [-1, 0] // HOP OFF, the lone charge is left to stream (mobility)
@@ -189,6 +193,7 @@ export function bindAndMove(input: {
 // the rest fixed), reversible and charge-conserving.
 function buildLeakyConfineForward(): [Tone, Tone][] {
   const table = new Array<[Tone, Tone]>(9)
+
   table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
   table[pairKey(1, 1)] = [1, 1]
   table[pairKey(1, 0)] = [0, 1] // a lone charge REFLECTS (confine the body)
@@ -290,6 +295,7 @@ export function stickyReflect(input: {
 
     for (const [left, right] of lines) {
       const temporary = slots[base + left]!
+
       slots[base + left] = slots[base + right]!
       slots[base + right] = temporary
     }

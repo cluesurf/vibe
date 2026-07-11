@@ -40,6 +40,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   const parent = new Int32Array(g.size).fill(-1)
   const depth = new Int32Array(g.size).fill(-1)
   const children: number[][] = g.neighbors.map(() => [])
+
   parent[root] = root
   depth[root] = 0
 
@@ -87,6 +88,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
 
     const p = parent[v] ?? root
     const ordinal = (children[p] ?? []).indexOf(v)
+
     address[v] = [...(address[p] ?? []), ordinal]
   }
 

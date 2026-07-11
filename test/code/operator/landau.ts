@@ -74,6 +74,7 @@ suite('operator/landau: Dirac Landau levels', [
             0,
             `re symmetric [${i}][${j}]`,
           )
+
           close(
             h.im[i * n + j] ?? 0,
             -(h.im[j * n + i] ?? 0),
@@ -108,6 +109,7 @@ suite('operator/landau: g = 2 magnetic moment', [
   check('scalar lowest minus Dirac lowest squared equals qB', () => {
     const scalarLowest = scalarSpec()[0] ?? NaN
     const diracLowestSquared = Math.min(...diracSpec().map(e => e * e))
+
     close(
       scalarLowest - diracLowestSquared,
       qB,

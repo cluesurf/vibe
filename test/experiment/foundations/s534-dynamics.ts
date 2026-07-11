@@ -68,6 +68,7 @@ export function s534Dynamics(): {
   }
 
   const dist = new Int32Array(N).fill(-1)
+
   dist[center] = 0
 
   let fr = [center]
@@ -117,6 +118,7 @@ export function s534Dynamics(): {
       }
 
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+
       nx[i] = v
 
       if (v !== cur[i]!) {

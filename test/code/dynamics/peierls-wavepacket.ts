@@ -25,6 +25,7 @@ suite('dynamics/peierls-wavepacket: gauge field deflection', [
         plus * minus < 0,
         'reversing the field reverses the deflection',
       )
+
       // the magnitudes are comparable (the small residual asymmetry is the lattice-boundary nonlinearity in B)
       close(
         plus,

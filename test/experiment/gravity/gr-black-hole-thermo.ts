@@ -71,6 +71,7 @@ function firstLaw(): { maxRelError: number; ok: boolean } {
     const dM = 1e-6
     const dS = bhEntropy(M + dM) - bhEntropy(M - dM)
     const predicted = hawkingTemp(M) * dS
+
     maxRelError = Math.max(
       maxRelError,
       Math.abs(predicted - 2 * dM) / (2 * dM),
@@ -98,6 +99,7 @@ function bekensteinSaturation(): { maxRelError: number; ok: boolean } {
 
   for (let M = 1; M <= 20; M += 0.5) {
     const bound = 2 * Math.PI * horizonRadius(M) * M
+
     maxRelError = Math.max(
       maxRelError,
       Math.abs(bhEntropy(M) - bound) / bound,

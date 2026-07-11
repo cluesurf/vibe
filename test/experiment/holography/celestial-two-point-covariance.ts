@@ -94,6 +94,7 @@ export default experiment({
         const omegaX = ballBoundaryConformalFactor(axis, x)
         const omegaY = ballBoundaryConformalFactor(axis, y)
         const d = distortion(boost, x, y)
+
         factorResidual = Math.max(
           factorResidual,
           Math.abs(d - omegaX * omegaY) / (omegaX * omegaY),

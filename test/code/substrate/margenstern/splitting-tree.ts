@@ -29,6 +29,7 @@ suite('substrate/margenstern/splitting-tree: the splitting rule', [
     'children are the address plus 00/01/(10), preferred son first',
     () => {
       const kids = childrenOf('10')
+
       equal(kids[0], '1000', 'preferred')
       equal(kids[0], preferredSon('10'), 'preferred = +00')
       equal(kids[1], '1001', 'second')
@@ -90,6 +91,7 @@ suite('substrate/margenstern/splitting-tree: the materialized tree', [
     'growth materializes consistent parents and unique addresses',
     () => {
       const tree = new SplittingTree()
+
       tree.grow(80)
       ok(tree.size >= 80, 'grew to at least 80 cells')
 
@@ -97,6 +99,7 @@ suite('substrate/margenstern/splitting-tree: the materialized tree', [
 
       for (let id = 0; id < tree.size; id++) {
         const a = tree.address(id)
+
         ok(isZeckendorf(a), `address ${a} legal`)
         notOk(seen.has(a), `address ${a} unique`)
         seen.add(a)
@@ -111,10 +114,12 @@ suite('substrate/margenstern/splitting-tree: the materialized tree', [
   ),
   check('every non-root cell is one of its parent children', () => {
     const tree = new SplittingTree()
+
     tree.grow(60)
 
     for (let id = 1; id < tree.size; id++) {
       const p = tree.parent(id)
+
       ok(
         childrenOf(tree.address(p)).includes(tree.address(id)),
         `${id} is a child of ${p}`,
@@ -123,10 +128,12 @@ suite('substrate/margenstern/splitting-tree: the materialized tree', [
   }),
   check('pathToRoot reaches the root', () => {
     const tree = new SplittingTree()
+
     tree.grow(40)
 
     for (let id = 0; id < tree.size; id++) {
       const path = tree.pathToRoot(id)
+
       equal(path[0], id, 'starts at the node')
       equal(path[path.length - 1], tree.root, 'ends at the root')
     }

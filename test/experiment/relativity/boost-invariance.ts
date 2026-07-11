@@ -43,7 +43,8 @@ export function boostInvariance(input?: {
 
   for (let i = 1; i <= 200; i++) {
     ks.push((Math.PI * i) / 200)
-  } // k in (0, pi]
+  }
+  // k in (0, pi]
 
   // (1) massless: omega = |k| exactly (an exact lightcone, boost-invariant for all k)
   let masslessMaxDeviation = 0
@@ -97,11 +98,13 @@ export function boostInvariance(input?: {
 
         if (m > 0 && k > massiveWindow) {
           continue
-        } // only test inside the relativistic window
+        }
+        // only test inside the relativistic window
 
         if (m === 0 && k > 2.5) {
           continue
-        } // avoid the lattice cutoff corner
+        }
+        // avoid the lattice cutoff corner
 
         const wB = gamma * (w - v * k)
         const kB = gamma * (k - v * w)
@@ -111,6 +114,7 @@ export function boostInvariance(input?: {
         }
 
         const wExpected = omegaOf(Math.abs(kB), m) // where the dispersion says the boosted mode should sit
+
         boostResidual += Math.abs(wB - wExpected)
         boostCount++
       }

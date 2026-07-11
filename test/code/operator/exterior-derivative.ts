@@ -48,6 +48,7 @@ suite('operator/exterior-derivative: chain complex identities', [
       for (let grade = 0; grade < pentagon.boundary.length; grade++) {
         const d = exteriorDerivative(pentagon, grade)
         const bt = transpose(pentagon.boundary[grade]!)
+
         equal(d.length, bt.length, `grade ${grade} rows`)
 
         for (let i = 0; i < d.length; i++) {

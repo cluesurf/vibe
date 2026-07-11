@@ -93,7 +93,8 @@ export function reflectionPositivity(input?: {
 
   for (let t = 0; t < 120; t++) {
     beat(tone, euA, evA, moved, rng, arrow)
-  } // steady state
+  }
+  // steady state
 
   // accumulate the two-point function C(r) of phi over the spine, averaged over many beats
   const maxR = 12

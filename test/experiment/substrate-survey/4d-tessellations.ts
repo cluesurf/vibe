@@ -16,6 +16,7 @@ type Cand = {
   flat?: boolean
   note: string
 }
+
 const HONEYCOMBS: Cand[] = [
   // the substrate and its closest relatives
   {

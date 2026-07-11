@@ -85,6 +85,7 @@ export function background(
           nz = a * a + b * b - cc * cc - dd * dd
 
           const m = Math.hypot(nx, ny, nz) || 1
+
           nx /= m
           ny /= m
           nz /= m
@@ -96,6 +97,7 @@ export function background(
         }
 
         const b = s * 8
+
         rt[b] = nz
         rt[b + 1] = 0
         rt[b + 2] = nx
@@ -161,12 +163,14 @@ export function makeDirac(
 
                 if (sp >= 0) {
                   const j = sp * 8 + dpr * 2 + t
+
                   o.re[oi]! += cr * v.re[j]! - ci * v.im[j]!
                   o.im[oi]! += cr * v.im[j]! + ci * v.re[j]!
                 }
 
                 if (sm >= 0) {
                   const j = sm * 8 + dpr * 2 + t
+
                   o.re[oi]! -= cr * v.re[j]! - ci * v.im[j]!
                   o.im[oi]! -= cr * v.im[j]! + ci * v.re[j]!
                 }
@@ -196,10 +200,13 @@ export function makeDirac(
 
             o.re[i0]! +=
               g * (m00r * p0r - m00i * p0i + m01r * p1r - m01i * p1i)
+
             o.im[i0]! +=
               g * (m00r * p0i + m00i * p0r + m01r * p1i + m01i * p1r)
+
             o.re[i1]! +=
               g * (m10r * p0r - m10i * p0i + m11r * p1r - m11i * p1i)
+
             o.im[i1]! +=
               g * (m10r * p0i + m10i * p0r + m11r * p1i + m11i * p1r)
           }

@@ -101,6 +101,7 @@ export function unifiedModel(input?: { n?: number }): {
 
   const s = tone.slice()
   const s2 = tone.slice()
+
   s2[center] = s2[center] === 0 ? 1 : 0
 
   const ra = makeRng({ seed: 99 })
@@ -116,6 +117,7 @@ export function unifiedModel(input?: { n?: number }): {
       rng: ra,
       arrow: arrow,
     })
+
     conservingEdgeSweep({
       tone: s2,
       eu,
@@ -163,6 +165,7 @@ export function unifiedModel(input?: { n?: number }): {
 
     for (let i = 0; i < sample.length; i++) {
       const k = sample[i]!
+
       C[pre[i]! * S9 + (st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))]! +=
         1
     }

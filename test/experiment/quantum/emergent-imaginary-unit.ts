@@ -51,6 +51,7 @@ function realTwoComponentWalk(coupled: boolean): {
   let backward = new Float64Array(SITES)
 
   const start = SITES >> 1
+
   forward[start] = 1 / Math.SQRT2
   backward[start] = 1 / Math.SQRT2
 
@@ -95,6 +96,7 @@ function realTwoComponentWalk(coupled: boolean): {
 // A classical incoherent walk: probabilities split and add, no phase, no rotation.
 function classicalWalk(): Float64Array {
   let probability = new Float64Array(SITES)
+
   probability[SITES >> 1] = 1
 
   for (let t = 0; t < STEPS; t++) {

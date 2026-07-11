@@ -65,6 +65,7 @@ export function vacuumIsFixed(
   degree: number,
 ): boolean {
   const slots = new Int8Array(degree)
+
   collision(slots, 0, degree)
 
   for (let direction = 0; direction < degree; direction++) {

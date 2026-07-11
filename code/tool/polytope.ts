@@ -37,6 +37,7 @@ export function orthogonalToThree(
 
   for (let k = 0; k < 4; k++) {
     const minor = rows.map(row => row.filter((_, i) => i !== k))
+
     normal[k] = (k % 2 === 0 ? 1 : -1) * determinant3(minor)
   }
 

@@ -98,6 +98,7 @@ export function dreamingAndWaking(input: { seed: number }): {
 
     if (phase < cueHold) {
       const p = patterns[mode] ?? new Int8Array(size)
+
       cue = new Int8Array(size)
 
       for (let i = 0; i < cueCount; i++) {
@@ -110,6 +111,7 @@ export function dreamingAndWaking(input: { seed: number }): {
     // sample at the window midpoint (transition, blends) and end (settled memory)
     if (phase === Math.floor(dwell / 2)) {
       const np = nearestPattern(dreaming, patterns)
+
       windows++
 
       if (np.overlap <= 0.6) {

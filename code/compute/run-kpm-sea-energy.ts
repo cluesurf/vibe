@@ -53,6 +53,7 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
           nz = a * a + b * b - cc * cc - dd * dd
 
           const m = Math.hypot(nx, ny, nz) || 1
+
           nx /= m
           ny /= m
           nz /= m
@@ -70,6 +71,7 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
 
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
+
   c[0] = 2 / Math.PI
 
   for (let k = 1; 2 * k < M; k++) {
@@ -270,6 +272,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pMat)
       pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
       pass.dispatchWorkgroups(wgN)
@@ -299,6 +302,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pDP)
       pass.setBindGroup(0, bg(pDP, xi, cur, partials))
       pass.dispatchWorkgroups(wgF)
@@ -319,12 +323,14 @@ async function run(): Promise<void> {
 
     for (let n = 2; n < MCHEB; n++) {
       const itn = 3 - i0 - i1
+
       step(B[i1]!, B[itn]!, 2 / A, 1, B[i0]!, n, B[itn]!)
       i0 = i1
       i1 = itn
     }
 
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
@@ -345,6 +351,7 @@ async function run(): Promise<void> {
   const texN = Rs.map(R => nrt3('texture', R))
   const dMu = Rs.map(() => new Float64Array(MCHEB))
   const rng = makeRng({ seed: 999 })
+
   console.log(
     `GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`,
   )
@@ -401,12 +408,14 @@ async function run(): Promise<void> {
   }
 
   const hasMin = minI > 0 && minI < deltaE.length - 1
+
   console.log(`  minimum at R=${deltaE[minI]![0]} (interior=${hasMin})`)
   console.log(
     hasMin
       ? '  => MINIMUM found: Delta E ~ B*R + D/R with D>0 (Skyrme STABILIZING). GATE CLOSED (positive sign).'
       : '  => no interior minimum: the 1/R term is still not isolated at this L; honest partial.',
   )
+
   console.log(
     `RESULT: deltaE ${deltaE.map(d => d[1]).join('/')}, interior minimum ${hasMin}`,
   )

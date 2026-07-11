@@ -74,6 +74,7 @@ export default experiment({
       const state = wClassState({ a: rest, b: share, c: rest })
       const ab = horodeckiChsh({ state, first: 0, second: 1 })
       const ac = horodeckiChsh({ state, first: 0, second: 2 })
+
       worstSum = Math.max(worstSum, ab * ab + ac * ac)
     }
 

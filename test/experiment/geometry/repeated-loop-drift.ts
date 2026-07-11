@@ -56,6 +56,7 @@ export default experiment({
         (2 * Math.PI)
 
       const measured = accumulatedFrameAngle({ holonomy, repetitions })
+
       worstAccumulation = Math.max(
         worstAccumulation,
         Math.abs(measured - expected),
@@ -72,6 +73,7 @@ export default experiment({
     ) {
       const angle = accumulatedFrameAngle({ holonomy, repetitions })
       const distanceToHome = Math.min(angle, 2 * Math.PI - angle)
+
       genericNearestReturn = Math.min(
         genericNearestReturn,
         distanceToHome,

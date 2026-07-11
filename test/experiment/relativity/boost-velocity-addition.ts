@@ -60,6 +60,7 @@ export function boostVelocityAddition(): {
 
     for (const phi of [-1.2, -0.6, 0.3, 0.9, 1.5]) {
       const b = boost(w, k, phi)
+
       // a lightlike vector stays lightlike, |w'| = |k'|
       coneDev = Math.max(
         coneDev,
@@ -105,6 +106,7 @@ export function boostVelocityAddition(): {
       const b0 = boost(w0, k0, phi)
       const b1 = boost(w1, k0 + e, phi)
       const vBoosted = (b1.w - b0.w) / (b1.k - b0.k)
+
       velErr = Math.max(velErr, Math.abs(vBoosted - relativistic))
     }
   }
@@ -117,6 +119,7 @@ export function boostVelocityAddition(): {
   for (const k of [0.05, 0.1, 0.15]) {
     const w = omega(k, m)
     const inv = w * w - k * k
+
     irDev = Math.max(irDev, Math.abs(inv - m * m))
   }
 

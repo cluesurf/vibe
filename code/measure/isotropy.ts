@@ -21,6 +21,7 @@ export function frontCoefficientOfVariation(input: {
   const { neighbors, coords, start, radius } = input
   const N = neighbors.length
   const dist = new Int32Array(N).fill(-1)
+
   dist[start] = 0
 
   let fr = [start]
@@ -118,6 +119,7 @@ export function harmonicAnisotropy(input: {
 
     for (let b = 0; b < bins; b++) {
       const theta = (2 * Math.PI * (b + 0.5)) / bins
+
       re += (profile[b] ?? 0) * Math.cos(m * theta)
       im += (profile[b] ?? 0) * Math.sin(m * theta)
     }
@@ -171,6 +173,7 @@ export function nearestLinkHarmonicAnisotropy(input: {
       const dx = (points[best]?.x ?? 0) - (points[i]?.x ?? 0)
       const dy = (points[best]?.y ?? 0) - (points[i]?.y ?? 0)
       const ang = Math.atan2(dy, dx)
+
       re += Math.cos(harmonic * ang)
       im += Math.sin(harmonic * ang)
       n += 1

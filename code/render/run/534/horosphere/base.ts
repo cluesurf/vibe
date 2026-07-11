@@ -62,6 +62,7 @@ async function run(): Promise<void> {
   const n = g.cellCount
   const coords = g.coords
   const dim = coords[0]!.length
+
   console.log(
     `built {5,3,4} bulk, ${n.toLocaleString()} cells (${dim}D ball coordinates)`,
   )
@@ -102,6 +103,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -144,6 +146,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < BEATS; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -159,6 +162,7 @@ async function run(): Promise<void> {
 
   {
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
     device.queue.submit([enc.finish()])
   }
@@ -166,6 +170,7 @@ async function run(): Promise<void> {
   await staging.mapAsync(GPUMapMode.READ)
 
   const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
   staging.unmap()
 
   // (3) EXTRACT the horosphere, the cells in the Busemann band, and project them to 2D (the plane perp to xi)
@@ -202,11 +207,13 @@ async function run(): Promise<void> {
   }
 
   let e2raw = sub(seedVec(axis2), xi, dot(seedVec(axis2), xi))
+
   e2raw = sub(e2raw, e1, dot(e2raw, e1))
 
   const e2 = normalize(e2raw)
 
   type Cell = { u: number; v: number; tone: number }
+
   const band: Cell[] = []
 
   for (const i of extractBand({
@@ -217,6 +224,7 @@ async function run(): Promise<void> {
     const x = coords[i]!
     const px = dot(x, xi)
     const proj = sub(x, xi, px) // component in the horosphere plane
+
     band.push({
       u: dot(proj, e1),
       v: dot(proj, e2),
@@ -265,7 +273,8 @@ async function run(): Promise<void> {
   for (const c of band) {
     if (c.tone === 0) {
       continue
-    } // peace is black, draw only the charges
+    }
+    // peace is black, draw only the charges
 
     const cx = pad + ((c.u - minU) / span) * (IMG - 2 * pad)
     const cy = pad + ((c.v - minV) / span) * (IMG - 2 * pad)
@@ -285,6 +294,7 @@ async function run(): Promise<void> {
         }
 
         const idx = (py * IMG + px) * 4
+
         rgba[idx] = col[0]
         rgba[idx + 1] = col[1]
         rgba[idx + 2] = col[2]
@@ -303,6 +313,7 @@ async function run(): Promise<void> {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, 'horosphere.png')
+
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))
   console.log(`wrote ${outPath}`)
   console.log(

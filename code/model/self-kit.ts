@@ -230,6 +230,7 @@ export function beat(
 ): void {
   const { offsets, adj } = g
   const N = tone.length
+
   moved.fill(0)
 
   const start = Math.floor(rng.next() * N)
@@ -311,6 +312,7 @@ export function beatHashed(
 ): void {
   const { offsets, adj } = g
   const N = tone.length
+
   moved.fill(0)
 
   const start = Math.floor((((beat + 1) * GOLDEN_SK) % 1) * N)
@@ -424,6 +426,7 @@ export function largestPositiveCluster(
     const cells: number[] = []
 
     let fr = [s]
+
     seen[s] = 1
 
     while (fr.length) {
@@ -472,6 +475,7 @@ export function positiveClusters(
     const cells: number[] = []
 
     let fr = [s]
+
     seen[s] = 1
 
     while (fr.length) {
@@ -563,6 +567,7 @@ export function countLargeSameSignComponents(input: {
     }
 
     const r = find(v)
+
     size.set(r, (size.get(r) ?? 0) + 1)
   }
 
@@ -627,6 +632,7 @@ export function emergeSelf(
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
@@ -651,6 +657,7 @@ export function emergeSelfHashed(
 
   for (let i = 0; i < N; i++) {
     const r = hashRand(i, 0, 7)
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
@@ -682,6 +689,7 @@ export function selfLeakAndFidelity(input: {
   const { tone, cluster } = emergeSelf(g, rng, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
+
   beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, cohesion)
 
   const leakPerBeat =

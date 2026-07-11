@@ -17,11 +17,13 @@ const common = {
 suite('dynamics/nucleation: critical nucleus', [
   check('a small seed dies out', () => {
     const small = nucleate({ ...common, seedRadius: 2 })
+
     ok(!small.survived, 'sub-critical seed dies')
     ok(small.finalFraction < 0.004, 'fraction collapses to ~ 0')
   }),
   check('a large seed survives and spreads', () => {
     const large = nucleate({ ...common, seedRadius: 8 })
+
     ok(large.survived, 'super-critical seed persists')
     ok(
       large.finalFraction > large.initialFraction * 0.5,
@@ -50,6 +52,7 @@ suite('dynamics/nucleation: determinism', [
   check('two runs agree', () => {
     const a = nucleate({ ...common, seedRadius: 8 })
     const b = nucleate({ ...common, seedRadius: 8 })
+
     equal(a.finalFraction, b.finalFraction, 'final fraction')
     equal(a.survived, b.survived, 'survived')
   }),

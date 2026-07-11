@@ -84,10 +84,13 @@ export function stream(
     for (let y = 0; y < length; y++) {
       o.E[latticeIndex(length, x, y)] =
         s.E[latticeIndex(length, x - 1, y)]!
+
       o.W[latticeIndex(length, x, y)] =
         s.W[latticeIndex(length, x + 1, y)]!
+
       o.N[latticeIndex(length, x, y)] =
         s.N[latticeIndex(length, x, y - 1)]!
+
       o.S[latticeIndex(length, x, y)] =
         s.S[latticeIndex(length, x, y + 1)]!
     }
@@ -113,10 +116,13 @@ export function streamInverse(
     for (let y = 0; y < length; y++) {
       o.E[latticeIndex(length, x, y)] =
         s.E[latticeIndex(length, x + 1, y)]!
+
       o.W[latticeIndex(length, x, y)] =
         s.W[latticeIndex(length, x - 1, y)]!
+
       o.N[latticeIndex(length, x, y)] =
         s.N[latticeIndex(length, x, y + 1)]!
+
       o.S[latticeIndex(length, x, y)] =
         s.S[latticeIndex(length, x, y - 1)]!
     }

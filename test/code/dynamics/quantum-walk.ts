@@ -104,12 +104,14 @@ suite('dynamics/quantum-walk: continuous-time t=0 limit', [
       const n = 3
       const vectors = Float64Array.from([1, 0, 0, 0, 1, 0, 0, 0, 1])
       const eig = { values: [0.5, 1.0, 2.0], vectors }
+
       close(
         continuousQuantumWalkMsd({ eig, n, center: 1, t: 0 }),
         0,
         1e-12,
         'quantum MSD(0)=0',
       )
+
       close(
         continuousClassicalWalkMsd({ eig, n, center: 1, t: 0 }),
         0,
@@ -144,6 +146,7 @@ suite('dynamics/quantum-walk: ballistic spreading', [
 
         const x = Math.log(t)
         const y = Math.log(msd[t]!)
+
         sx += x
         sy += y
         sxx += x * x
@@ -152,6 +155,7 @@ suite('dynamics/quantum-walk: ballistic spreading', [
       }
 
       const exponent = (m * sxy - sx * sy) / (m * sxx - sx * sx)
+
       ok(exponent > 1.5, `ballistic exponent ${exponent} > 1.5`)
     },
   ),

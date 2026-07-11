@@ -59,6 +59,7 @@ suite('dynamics/renormalization-blocks: partition validity', [
   check('geometricBlocks assigns every cell a block', () => {
     const { g } = ring()
     const { cl, K } = geometricBlocks(g, 6, makeRng({ seed: 2 }))
+
     ok(K >= 2, 'at least two blocks')
 
     for (let c = 0; c < N; c++) {
@@ -101,6 +102,7 @@ suite(
         for (let k = 0; k < row.length; k++) {
           const w = row[k]!
           const kk = g.neighbors[w]!.indexOf(v)
+
           equal(
             fills[v]![k]!,
             fills[w]![kk]!,

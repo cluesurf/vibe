@@ -58,6 +58,7 @@ function measure(
 
     const treePath = depth[src]! + depth[b]! - 2 * lcaDepth(src, b)
     const coupling = Math.pow(tau, treePath)
+
     pts.push([sdist[b]!, coupling])
   }
 

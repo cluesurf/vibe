@@ -34,6 +34,7 @@ suite('substrate/coxeter/growth: layer recurrences', [
     'heptagrid {7,3} first layers and recurrence a(n)=3a(n-1)-a(n-2)',
     () => {
       const seq = polygonsAddedPerLayer73(6)
+
       equal(seq[0], 1n, 'layer 0 = 1')
       equal(seq[1], 7n, 'layer 1 = 7 heptagons')
       equal(seq[2], 21n, 'layer 2 = 21')
@@ -55,6 +56,7 @@ suite('substrate/coxeter/growth: layer recurrences', [
         regular2DFaceLayers(5, 4, 10),
         '{5,4} vs general',
       )
+
       eqBig(
         polygonsAddedPerLayer73(10),
         regular2DFaceLayers(7, 3, 10),
@@ -64,6 +66,7 @@ suite('substrate/coxeter/growth: layer recurrences', [
   ),
   check('dodecagrid {5,3,4} first cell layers and recurrence', () => {
     const seq = cellsAddedPerLayer5354(6)
+
     equal(seq[0], 1n, 'layer 0 = 1')
     equal(seq[1], 12n, 'layer 1 = 12 dodecahedron faces')
     equal(seq[2], 102n, 'layer 2 = 102')

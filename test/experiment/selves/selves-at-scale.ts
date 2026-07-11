@@ -64,6 +64,7 @@ function domainSizes(
 
     while (parent[x] !== r) {
       const nx = parent[x]!
+
       parent[x] = r
       x = nx
     }
@@ -93,6 +94,7 @@ function domainSizes(
     }
 
     const r = find(i)
+
     size.set(r, (size.get(r) ?? 0) + 1)
   }
 
@@ -147,6 +149,7 @@ export function selvesAtScale(input?: { n?: number }): {
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(hashRand(i, 0, 2) * (i + 1))
     const t = shuffled[i]!
+
     shuffled[i] = shuffled[j]!
     shuffled[j] = t
   }

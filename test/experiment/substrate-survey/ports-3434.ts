@@ -22,6 +22,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
     nxt = new Int8Array(L * L * L)
 
   const c = L >> 1
+
   cur[at(c, c, c)] = 1
 
   const D = [
@@ -72,6 +73,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
     }
 
     const t = prev
+
     prev = cur
     cur = nxt
     nxt = t

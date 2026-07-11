@@ -90,6 +90,7 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const out = b.slice()
+
     out[0] = orientCos * x - orientSin * y
     out[1] = orientSin * x + orientCos * y
 
@@ -222,6 +223,7 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const out = b.slice()
+
     out[0] = orientCos * x - orientSin * y
     out[1] = orientSin * x + orientCos * y
 

@@ -12,6 +12,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
+
 const N = 80
 const blank = (): V[][] => blankDirectionField2d(N)
 const addSky = (
@@ -51,6 +52,7 @@ function bindingCurve(phase: number): {
 
   for (const d of SEPARATIONS) {
     const f = blank()
+
     addSky(f, c - d / 2, c, R, 1)
     placeSkyrmion2d({
       field: f,
@@ -110,10 +112,12 @@ export function solitonMatter(): {
   // (2) mass vs charge (additive matter): a charge-2 configuration (two well-separated
   // charge-1 solitons) has about twice the rest mass of one
   const one = blank()
+
   addSky(one, c, c, R, 1)
 
   const m1 = energy(one, KAPPA)
   const two = blank()
+
   addSky(two, c - 16, c, R, 1)
   addSky(two, c + 16, c, R, 1)
 

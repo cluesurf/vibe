@@ -92,6 +92,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     bandCells.push(i)
     uv.push([dot(w, e1), dot(w, e2)])
   }
@@ -172,6 +173,7 @@ function run(): void {
 
   for (let i = 0; i < E; i++) {
     const at = cur[color[i]!]!++
+
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
@@ -183,6 +185,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const x = rr()
+
     tone[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
 
@@ -193,6 +196,7 @@ function run(): void {
           w = edgeW[e]!
 
         const o = PERM[tone[v]! * 3 + tone[w]!]!
+
         tone[v] = (o / 3) | 0
         tone[w] = o % 3
       }
@@ -238,6 +242,7 @@ function run(): void {
       }
 
       const t = q
+
       q = q2
       q2 = t
     }
@@ -287,6 +292,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]

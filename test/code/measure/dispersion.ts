@@ -78,6 +78,7 @@ suite('measure/dispersion: waveModeFrequency reads omega = k', [
   check('a bounded mode oscillates at its own wavenumber', () => {
     for (const k of [0.4, 0.7, 1.1]) {
       const out = waveModeFrequency({ wavenumber: k })
+
       ok(out.oscillates, `k=${k} must oscillate`)
       ok(out.bounded, `k=${k} must stay bounded`)
       close(out.omega, k, 1e-2)

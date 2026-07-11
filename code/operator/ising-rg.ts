@@ -42,6 +42,7 @@ export function sampleIsingChain(
   rng: Rng,
 ): Int8Array {
   const s = new Int8Array(n)
+
   s[0] = rng.next() < 0.5 ? -1 : 1
 
   const pAlign =

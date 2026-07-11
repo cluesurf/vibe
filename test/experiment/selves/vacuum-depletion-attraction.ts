@@ -175,10 +175,12 @@ export default experiment({
         })
 
         const swap = will
+
         will = willScratch
         willScratch = swap
 
         const occupied = occupiedOf(will)
+
         v = vacuumDensity({
           occupied,
           neighbour,
@@ -238,10 +240,12 @@ export default experiment({
         })
 
         const swap = will
+
         will = willScratch
         willScratch = swap
 
         const occupied = occupiedOf(will)
+
         phi = relaxPotential({
           source: bulkMass({
             occupied,

@@ -220,6 +220,7 @@ export function runConformance(): { passed: number; failed: number } {
   // 1. bitset basics
   {
     const m = makeBitMatrix({ rows: 2, cols: 40 })
+
     setBit(m, { row: 0, col: 3 })
     setBit(m, { row: 0, col: 35 })
     check({
@@ -229,6 +230,7 @@ export function runConformance(): { passed: number; failed: number } {
         getBit(m, { row: 0, col: 35 }) &&
         !getBit(m, { row: 0, col: 4 }),
     })
+
     check({
       name: 'bitset popcountRow',
       ok: popcountRow(m, { row: 0 }) === 2,
@@ -247,6 +249,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: relationCount(p) === 6,
       detail: `got ${relationCount(p)}`,
     })
+
     check({
       name: 'poset longest chain 0..3 is 3',
       ok: longestChain({ poset: p, from: 0, to: 3 }) === 3,
@@ -259,6 +262,7 @@ export function runConformance(): { passed: number; failed: number } {
     const rng = makeRng({ seed: 1 })
     const poset = sprinkleMinkowski({ dimension: 2, count: 1500, rng })
     const d = myrheimMeyerDimension({ poset })
+
     check({
       name: 'sprinkle M^2 recovers dimension near 2',
       ok: d > 1.3 && d < 2.9,
@@ -327,10 +331,12 @@ export function runConformance(): { passed: number; failed: number } {
 
     const lap = laplacian({ substrate: g })
     const spec = laplacianSpectrum({ substrate: g, count: 3 })
+
     check({
       name: 'laplacian builds and has finite spectrum',
       ok: lap.rows === g.size && allFinite(spec) && spec.length > 0,
     })
+
     check({
       name: 'connected Laplacian lowest eigenvalue near 0',
       ok: Math.abs(spec[0] ?? 1) < 1e-3,
@@ -348,6 +354,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     const complex = cellComplexOf({ substrate: g, maxGrade: 2 })
     const spec = diracSpectrum({ complex, count: 8 })
+
     check({
       name: 'Kahler-Dirac spectrum is finite and non-empty',
       ok: spec.length > 0 && allFinite(spec),
@@ -366,6 +373,7 @@ export function runConformance(): { passed: number; failed: number } {
     }
 
     const disordered = averagePlaquette({ lattice: lat })
+
     check({
       name: 'SU(2) cold is ordered, strong coupling disorders it',
       ok: cold > 0.999 && disordered < 0.3,
@@ -391,6 +399,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: naive.species === 4,
       detail: `species ${naive.species}`,
     })
+
     check({
       name: 'overlap: 1 species with exact chiral symmetry (GW ~ 0)',
       ok: overlap.species === 1 && overlap.gwResidualMax < 1e-9,
@@ -404,6 +413,7 @@ export function runConformance(): { passed: number; failed: number } {
     const i0 = overlapIndex({ length: 5, charge: 0 })
     const i1 = overlapIndex({ length: 5, charge: 1 })
     const i2 = overlapIndex({ length: 5, charge: 2 })
+
     check({
       name: 'lattice index theorem: overlap index = -Q (gauge topology)',
       ok:
@@ -420,6 +430,7 @@ export function runConformance(): { passed: number; failed: number } {
   {
     const kr = kleitmanRothschildOrder({ size: 72 })
     const height = posetHeight({ poset: kr })
+
     check({
       name: 'Kleitman-Rothschild order has height 3 (layered)',
       ok: height === 3,
@@ -462,6 +473,7 @@ export function runConformance(): { passed: number; failed: number } {
     })
 
     const iso = lorentzIsotropy({ substrate: graph, samples: 200, rng })
+
     check({
       name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
       ok: iso.anisotropy < 0.25,
@@ -512,6 +524,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     for (let i = 0; i < cells; i++) {
       const row = ring.neighbors[i] ?? new Uint32Array(0)
+
       m.data[i * cells + i] = row.length
 
       for (const col of row) {
@@ -584,6 +597,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     const fracCold = result.means[1]?.[0] ?? 0
     const fracHot = result.means[0]?.[0] ?? 0
+
     check({
       name: 'exact: smeared action raises manifold fraction on the true measure',
       ok: result.count > 0 && fracCold > fracHot,
@@ -712,12 +726,14 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'vector dot/norm',
       ok: vdot([1, 2, 2], [1, 2, 2]) === 9 && vnorm([3, 4]) === 5,
     })
+
     check({
       name: 'vector sub/normalize',
       ok:
         vsub([5, 5], [1, 1])[0] === 4 &&
         Math.abs(vnorm(vnormalize([3, 4])) - 1) < 1e-12,
     })
+
     check({
       name: 'vector innerJ (Minkowski)',
       ok: innerJ([1, 1, 1], [1, 1, 1], [1, 1, -1]) === 1,
@@ -729,6 +745,7 @@ export function runConformance(): { passed: number; failed: number } {
     )
 
     const sh = bfsShells({ neighbors: path, root: 0 })
+
     check({
       name: 'bfsShells path graph',
       ok:
@@ -738,10 +755,12 @@ export function runConformance(): { passed: number; failed: number } {
     })
 
     const ball = geodesicBall({ neighbors: path, root: 0, radius: 2 })
+
     check({ name: 'geodesicBall radius 2', ok: ball.length === 3 })
 
     // csr round-trip
     const csr = toCsr([[1, 2], [0], [0]])
+
     check({
       name: 'toCsr offsets/adj',
       ok:
@@ -753,6 +772,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     // tone pack round-trip and signed mapping
     const pk = packTone({ current: 1, previous: 2 })
+
     check({
       name: 'tone pack/unpack',
       ok:
@@ -766,6 +786,7 @@ export function runConformance(): { passed: number; failed: number } {
     // octonions: the Fano table (e1 e2 = e3, e2 e1 = -e3) and the multiplicative norm
     const e1e2 = octonionMultiply(octonionUnit(1), octonionUnit(2))
     const e2e1 = octonionMultiply(octonionUnit(2), octonionUnit(1))
+
     check({
       name: 'octonion Fano product',
       ok:
@@ -811,6 +832,7 @@ export function runConformance(): { passed: number; failed: number } {
         maxJordanIdentityResidual(2) < 1e-9 &&
         maxJordanIdentityResidual(3) < 1e-9,
     })
+
     check({
       name: 'jordan identity fails at n=4 (control)',
       ok: maxJordanIdentityResidual(4) > 1e-3,
@@ -820,10 +842,12 @@ export function runConformance(): { passed: number; failed: number } {
     // permutes the frame E0 -> E1 -> E2 (the candidate generation triality)
     const s3 = permutations(3)
     const frame3 = diagonalJordanFrame(3)
+
     check({
       name: 'jordan S3 all automorphisms',
       ok: s3.length === 6 && s3.every(p => isJordanAutomorphism(p)),
     })
+
     check({
       name: 'jordan cyclic permutes frame',
       ok: octonionMatrixEquals(
@@ -865,12 +889,14 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'landau Dirac zero mode at m^2 (g=2)',
       ok: Math.abs(diracLowSquared - landauM * landauM) < 1e-3,
     })
+
     check({
       name: 'landau scalar lowest at m^2+qB (no zero mode, control)',
       ok:
         Math.abs(scalarLowSquared - (landauM * landauM + landauB)) <
         1e-3,
     })
+
     check({
       name: 'landau g-factor reads 2',
       ok:
@@ -905,6 +931,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'schwinger e=0 sources no field (decoupled)',
       ok: decoupled.fieldEnergy < 1e-12,
     })
+
     check({
       name: 'schwinger e>0 sources a field',
       ok: coupled.fieldEnergy > 1e-6,
@@ -951,6 +978,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'return probability: hopping spreads (low return)',
       ok: spread.timeAverage < 0.5 && spread.normDrift < 0.05,
     })
+
     check({
       name: 'return probability: no hopping traps (return ~ 1)',
       ok: trapped.timeAverage > 0.99,
@@ -959,10 +987,12 @@ export function runConformance(): { passed: number; failed: number } {
     // disclination holonomy: odd winding flips the spinor (-1), even returns it (+1), vector always blind
     const disc1 = disclinationHolonomy({ winding: 1, steps: 24 })
     const disc2 = disclinationHolonomy({ winding: 2, steps: 24 })
+
     check({
       name: 'disclination: odd winding gives spinor -1, vector +1',
       ok: disc1.spinorIsMinusOne && disc1.vectorReturnsToSelf,
     })
+
     check({
       name: 'disclination: even winding gives spinor +1 (Z2 control)',
       ok: disc2.spinorIsPlusOne && disc2.vectorReturnsToSelf,
@@ -1020,6 +1050,7 @@ export function runConformance(): { passed: number; failed: number } {
     const g5 = diracGamma5()
     const massive = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0.7 })
     const massless = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0 })
+
     check({
       name: 'gamma5: mass couples chiralities, massless conserves (Weyl)',
       ok:
@@ -1042,10 +1073,12 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'tessellation battery: {5,3,4} hyperbolic, no spinor coin',
       ok: dodeca.hyperbolic && !dodeca.spinorHook && dodeca.cells > 500,
     })
+
     check({
       name: 'tessellation battery: {3,4,3,4} has the 24-cell spinor coin',
       ok: icositetra.hyperbolic && icositetra.spinorHook,
     })
+
     check({
       name: 'tessellation catalog has 45 entries, 42 buildable',
       ok:
@@ -1086,6 +1119,7 @@ export function runConformance(): { passed: number; failed: number } {
     })
 
     const splitTree = new MargensternSplittingTree()
+
     splitTree.grow(5000)
 
     let splitLegal = true
@@ -1126,6 +1160,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: splitLegal && splitParent,
       detail: `${splitCoords.size} cells`,
     })
+
     check({
       name: 'Margenstern: every tile has a unique preferred son (+00 continuator)',
       ok: splitPreferred,
@@ -1172,6 +1207,7 @@ export function runConformance(): { passed: number; failed: number } {
       }
 
       const tag = gridSymbol.join(',')
+
       check({
         name: `Margenstern grid {${tag}} (${gridSymbol.length}D): exact distinct coordinates, address-only route valid along edges`,
         ok: gridCoords.size === grid.size && gridRouteValid,
@@ -1314,10 +1350,12 @@ export function runConformance(): { passed: number; failed: number } {
     const q = 6
     const prev0 = new Uint8Array(waveN)
     const cur0 = new Uint8Array(waveN)
+
     cur0[0] = q - 1
     prev0[3 % waveN] = 2
 
     const fwd = new Uint8Array(waveN)
+
     reversibleWaveStep({
       neighbors: tiling.neighbors,
       previous: prev0,
@@ -1328,6 +1366,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     // the reverse step, roles of previous and current swapped, recovers the earlier slice
     const back = new Uint8Array(waveN)
+
     reversibleWaveStep({
       neighbors: tiling.neighbors,
       previous: fwd,
@@ -1547,6 +1586,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: centerIsSector0 && sectorCount === 8 && nodeClasses <= 3,
       detail: `${sectorCount} sectors`,
     })
+
     check({
       name: 'computation capstone: address-route signal path is a valid edge walk',
       ok: routeWalk,
@@ -1560,6 +1600,7 @@ export function runConformance(): { passed: number; failed: number } {
     const ffA = routeSwitch(flipFlop, 0)
     const ffActiveAfter = flipFlop.active
     const memSwitch: RailSwitch = { kind: 'memory', active: 1 }
+
     routeSwitch(memSwitch, 2)
 
     const switchesOk =
@@ -1631,6 +1672,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     }
 
     const fibOk = fibValues.join(',') === '1,1,2,3,5,8,13,21,34,55'
+
     check({
       name: 'TypeScript -> railway compiler: fib(1..10) computed by the compiled register machine',
       ok: fibOk,
@@ -1764,6 +1806,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         pentagrid3State.states.join('') === 'BRW' &&
         pentagrid3State.conflicts === 0,
     })
+
     check({
       name: 'Margenstern pentagrid 2-state: 352 rules, {B,W}, conflict-free',
       ok:
@@ -1771,6 +1814,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         pentagrid2State.states.join('') === 'BW' &&
         pentagrid2State.conflicts === 0,
     })
+
     check({
       name: 'Margenstern heptagrid 4-state: 1168 rules, {B,G,R,W}, conflict-free',
       ok:
@@ -1778,6 +1822,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         heptagrid4State.states.join('') === 'BGRW' &&
         heptagrid4State.conflicts === 0,
     })
+
     check({
       name: 'Margenstern dodecagrid 5-state (3D): 261 rules, {B,G,R,W,Y} loaded',
       ok:
@@ -1830,6 +1875,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     ffCa.step()
 
     const switchOk = ffCa.headAt() === 2 && ffCa.cells[1]!.active === 2 // routed to active branch, flipped
+
     check({
       name: 'uniform railway CA (tiling-agnostic, new): locomotive loops forward and a flip-flop routes+flips',
       ok: loopOk && switchOk,

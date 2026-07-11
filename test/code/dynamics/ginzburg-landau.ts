@@ -46,12 +46,14 @@ suite('dynamics/ginzburg-landau: gradient flow', [
       const field = ringDefectPair(48)
       const e0 = ringFieldEnergy(field)
       const relaxed = relaxRingField({ field, steps: 500, dt: 0.05 })
+
       ok(ringFieldEnergy(relaxed) < e0, 'energy descended')
     },
   ),
   check('energy is monotone non-increasing along the flow', () => {
     const field = ringDefectPair(40)
     const samples: number[] = []
+
     relaxRingField({
       field,
       steps: 400,

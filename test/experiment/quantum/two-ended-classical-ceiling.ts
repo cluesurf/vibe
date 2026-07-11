@@ -49,6 +49,7 @@ export default experiment({
   paper: true,
   run() {
     const mesh = squareMesh({ side: SIDE })
+
     meshNeighbors(mesh)
 
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
@@ -91,6 +92,7 @@ export default experiment({
       near: Map<number, number> // connected future region charge sign, by side
       far: Map<number, number> // disconnected future region charge sign, by side
     }
+
     const records: Record[] = []
 
     for (let dy = -9; dy <= 9; dy++) {

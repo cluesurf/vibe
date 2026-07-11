@@ -41,6 +41,7 @@ suite('measure/gravity-potential: brane potential', [
   check('long range recovers the 3D 1/(4 pi L r) law', () => {
     const L = 1
     const r = 1000
+
     close(
       branePotential({ radius: r, extraDimension: L }) *
         (4 * Math.PI * L * r),
@@ -53,11 +54,13 @@ suite('measure/gravity-potential: brane potential', [
   check('short range is 4D (r^2 * brane -> 1/(8 pi^2))', () => {
     const L = 100
     const c = 1 / (8 * Math.PI ** 2)
+
     close(
       branePotential({ radius: 0.1, extraDimension: L }) * 0.1 ** 2,
       c,
       2e-4,
     )
+
     close(
       branePotential({ radius: 0.2, extraDimension: L }) * 0.2 ** 2,
       c,
@@ -70,12 +73,14 @@ suite('measure/gravity-potential: light deflection', [
   // integral_{-inf}^{inf} b/(x^2+b^2)^{3/2} dx = 2/b, so newtonAngle = M*2/b = 2M/b and grAngle = 4M/b.
   check('Newton angle is 2M/b, GR angle is 4M/b', () => {
     const d = weakFieldLightDeflection({ mass: 1, impact: 1 })
+
     close(d.newtonAngle, 2, 5e-3)
     close(d.grAngle, 4, 1e-2)
   }),
   // The GR result is exactly twice the Newtonian (time + space terms vs time only).
   check('the GR-to-Newton ratio is exactly 2', () => {
     const d = weakFieldLightDeflection({ mass: 2, impact: 3 })
+
     equal(d.ratio, 2)
     close(d.grAngle, 2 * d.newtonAngle, TOL)
   }),
@@ -91,6 +96,7 @@ suite('measure/gravity-potential: light deflection', [
       2 * base,
       1e-2,
     )
+
     close(
       weakFieldLightDeflection({ mass: 1, impact: 2 }).newtonAngle,
       base / 2,

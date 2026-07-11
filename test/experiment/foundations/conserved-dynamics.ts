@@ -162,7 +162,8 @@ export function conservedDynamics(): {
 
     if (inner.length % 2 === 1) {
       t[inner[inner.length - 1]!] = 0
-    } // keep Q = 0
+    }
+    // keep Q = 0
 
     void rng
 

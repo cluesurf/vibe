@@ -27,6 +27,7 @@ suite('operator/chain-operators: A and L = D - A structure', [
       for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
           const expected = Math.abs(i - j) === 1 ? 1 : 0
+
           equal(A.data[i * n + j] ?? 0, expected, `A[${i}][${j}]`)
           equal(
             A.data[i * n + j] ?? 0,

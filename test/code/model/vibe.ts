@@ -10,6 +10,7 @@ import { vibe } from '@/code/model/vibe'
 suite('model/vibe: the committed default', [
   check('vibe() is the committed model config', () => {
     const c = vibe().config()
+
     equal(c.mesh, 'hyperbolic')
     equal(c.tone, 'ternary')
     equal(c.fill, 'ternary-symmetric')
@@ -27,16 +28,19 @@ suite('model/vibe: setters compose immutably', [
     () => {
       const base = vibe()
       const sized = base.size(1500)
+
       equal(
         base.config().size,
         1000,
         'the original builder is unchanged',
       )
+
       equal(
         sized.config().size,
         1500,
         'the new builder carries the change',
       )
+
       equal(
         sized.config().mesh,
         'hyperbolic',
@@ -65,10 +69,12 @@ suite('model/vibe: setters compose immutably', [
       vibe().fill('ternary-directed').config().fill,
       'ternary-directed',
     )
+
     equal(
       vibe().rule('signed-majority').config().rule,
       'signed-majority',
     )
+
     equal(
       vibe().schedule('synchronous').config().schedule,
       'synchronous',
@@ -80,6 +86,7 @@ suite('model/vibe: setters compose immutably', [
 suite('model/vibe: describe renders the config', [
   check('describe mentions the model and the chosen mesh', () => {
     const text = vibe().mesh('coxeter').describe()
+
     ok(text.includes('vibe model'), 'has the header')
     ok(text.includes('coxeter'), 'reflects the chosen mesh')
   }),

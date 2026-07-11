@@ -48,8 +48,8 @@ function survivalUnderLeak(leak: number): number {
   const tone = new Int8Array(RING_LENGTH)
 
   for (let i = 90; i < 110; i++) {
-    tone[i] = 1 // the self, a gathered blob of charge
-  }
+    tone[i] = 1
+  } // the self, a gathered blob of charge
 
   const moved = new Uint8Array(RING_LENGTH)
   const rng = makeRng({ seed: SEED })

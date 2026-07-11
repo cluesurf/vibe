@@ -20,11 +20,13 @@ suite('tone/pack: pack / unpack round-trip', [
       for (const previous of CODES) {
         for (const current of CODES) {
           const packed = pack({ current, previous })
+
           equal(
             currentOf(packed),
             current,
             `current of (${previous},${current})`,
           )
+
           equal(
             previousOf(packed),
             previous,

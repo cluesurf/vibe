@@ -36,6 +36,7 @@ export function everpresentDynamical(input: {
     for (let r = 0; r < input.repeats; r++) {
       const n = poissonSample({ lambda: v, rng }) // the genuine causal-set element count, Poisson(V)
       const lambda = (n - v) / v
+
       sumSq += lambda * lambda
     }
 

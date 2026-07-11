@@ -36,6 +36,7 @@ function randomBalanced(M: number, rng: Rng): Int8Array {
   for (let i = M - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = p[i]!
+
     p[i] = p[j]!
     p[j] = t
   }
@@ -53,6 +54,7 @@ function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
       // swap with a random other cell, keeps the pattern balanced (a conserving mutation)
       const j = Math.floor(rng.next() * M)
       const t = child[i]!
+
       child[i] = child[j]!
       child[j] = t
     }
@@ -95,6 +97,7 @@ function evolve(
 
   for (let g = 0; g < G; g++) {
     const scored = pop.map(o => ({ o, f: fitness(o, target) }))
+
     meanByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
 
     // selection, keep the fitter half (the arrow's value), or a random half (drift control)
@@ -108,6 +111,7 @@ function evolve(
     for (const s of survivors) {
       for (let k = 0; k < 2; k++) {
         const child = reproduce(s.o, mu, rng)
+
         next.push(child)
         heritSum += (s.f - M / 2) * (fitness(child, target) - M / 2)
         heritCount++
@@ -118,6 +122,7 @@ function evolve(
   }
 
   const scored = pop.map(o => fitness(o, target))
+
   meanByGen.push(scored.reduce((a, b) => a + b, 0) / P)
 
   // heritability proxy, parent-child fitness covariance sign (positive = heritable)

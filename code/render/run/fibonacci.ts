@@ -81,6 +81,7 @@ function run(): void {
   const nIndex = compiled.registers.get('n')!
   const bIndex = compiled.registers.get('b')!
   const initial = new Array<number>(compiled.program.registers).fill(0)
+
   initial[0] = N
 
   // ONE execution of the compiled machine. We trace every instruction and remember the loop-iteration
@@ -92,6 +93,7 @@ function run(): void {
 
   const latchedAt: number[] = [] // the Fibonacci value showing in the centre at each step
   const boundaries: number[] = [] // trace indices where a new term completes (the n-- of each iteration)
+
   runRailway(compiled.program, initial, step => {
     // latch the latest complete term at a loop decrement while n is still nonzero; skip the final exit (n == 0),
     // which would otherwise latch b = the already-computed next term
@@ -121,6 +123,7 @@ function run(): void {
   const wedges = layoutWedges(tiling.centers, names.length)
 
   const edges = cellOutlines(tiling.polygons)
+
   void boundaries
 
   // FAITHFUL + EQUAL-PER-NUMBER pacing. The machine is unary, so a literal tick-by-tick view makes bigger numbers
@@ -129,6 +132,7 @@ function run(): void {
   // giving each operation the same number of frames makes every Fibonacci number take the same screen time, while
   // each frame still shows the machine's real register state (interpolated across the operation's actual steps).
   const opIndex = compiled.opIndex
+
   type Segment = {
     pre: number[]
     post: number[]
@@ -136,6 +140,7 @@ function run(): void {
     active: number
     mode: 'add' | 'sub' | 'idle'
   }
+
   const segments: Segment[] = []
 
   let start = 0
@@ -302,6 +307,7 @@ function renderFrame(input: {
     mode === 'add' ? 'emerald' : mode === 'sub' ? 'violet' : 'zinc'
 
   const opRgb = shade(opHue, mode === 'idle' ? 0.4 : 0.6)
+
   faces.push({
     polygon: tiling.polygons[0]!,
     color: [

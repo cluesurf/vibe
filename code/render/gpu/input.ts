@@ -58,6 +58,7 @@ export function attachControls(input: {
 
     const dx = e.clientX - lastX
     const dy = e.clientY - lastY
+
     lastX = e.clientX
     lastY = e.clientY
     camera.turn(-dx * MOUSE_LOOK)

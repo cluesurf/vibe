@@ -81,6 +81,7 @@ export default experiment({
 
     for (const m of MASSES) {
       const speed = maxGroupSpeed(m)
+
       massiveMaxSpeed = Math.max(massiveMaxSpeed, speed)
       // the analytic anchor: the mass gap below light speed is 1 - cos(m)
       massiveGapAnalyticResidual = Math.max(

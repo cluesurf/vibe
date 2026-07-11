@@ -57,6 +57,7 @@ function reconstruct(
         const vb = eig.vectorsRe[b * n + i]!
         const vbI = eig.vectorsIm[b * n + i]!
         const lam = eig.values[i]!
+
         // v_a * conj(v_b) = (va + i vaI)(vb - i vbI)
         sr += lam * (va * vb + vaI * vbI)
         si += lam * (vaI * vb - va * vbI)

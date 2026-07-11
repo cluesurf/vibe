@@ -18,6 +18,7 @@ suite('substrate/proximity-graph: adaptive connectivity', [
     // Sorted [1,1,1,8], median = index floor(4/2)=2 -> 1. threshold = 1.7.
     const coords = [[0], [1], [2], [10]]
     const n = proximityGraph({ coords, distance: lineDist })
+
     // pairs below 1.7: (0,1)=1, (1,2)=1; (0,2)=2 excluded; 10 isolated.
     equal(n[0]!.join(','), '1', 'point 0 connects to 1')
     equal(
@@ -52,6 +53,7 @@ suite('substrate/proximity-graph: the seed point', [
       1,
       'nearest the origin',
     )
+
     equal(
       centerNearestOrigin([[-1], [2], [0.5]]),
       2,

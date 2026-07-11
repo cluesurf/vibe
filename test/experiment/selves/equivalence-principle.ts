@@ -198,6 +198,7 @@ export default experiment({
     // the control, a flat field has no gradient and no body moves
     const flatField = new Int32Array(cellCount)
     const flatBody = new Uint8Array(cellCount)
+
     flatBody[index(20, 10, 10, 10)] = 1
 
     let flatMoves = 0

@@ -84,6 +84,7 @@ export default experiment({
 
     for (const wavelength of wavelengths) {
       const tau = decayTime(wavelength)
+
       taus.push(tau)
 
       if (!Number.isNaN(tau)) {

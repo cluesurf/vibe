@@ -105,6 +105,7 @@ export function determinant(a: Mat): number {
 
     if (pivot !== col) {
       const tmp = m[pivot]!
+
       m[pivot] = m[col]!
       m[col] = tmp
       det = -det
@@ -161,6 +162,7 @@ export function cellCenter(
 
   for (let j = 0; j < m; j++) {
     const sub = rows.map(row => row.filter((_, col) => col !== j))
+
     c[j] = (j % 2 === 0 ? 1 : -1) * determinant(sub)
   }
 
@@ -265,6 +267,7 @@ export function orthogonalComplementBasis(pole: Vec): Vec[] {
 
   for (let axis = 0; axis < m && basis.length < m - 1; axis++) {
     const e: Vec = new Array<number>(m).fill(0)
+
     e[axis] = 1
 
     // remove the pole component and every chosen basis component
@@ -351,6 +354,7 @@ export function nullVector(normals: Mat, metric: number[]): Vec {
 
   for (let i = 0; i < dim; i++) {
     const minor = M.map(row => row.filter((_, k) => k !== i))
+
     v[i] = (i % 2 === 0 ? 1 : -1) * determinant(minor)
   }
 

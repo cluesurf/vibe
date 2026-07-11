@@ -54,6 +54,7 @@ export function gutBreaking(): {
 
   for (const w of six) {
     const m = w.filter(x => x < 0).length
+
     byMinus[m] = (byMinus[m] ?? 0) + 1
   }
 

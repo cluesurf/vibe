@@ -23,6 +23,7 @@ suite('algebra/linear/bethe-resolvent: cavity decay closed forms', [
       1e-12,
       'z=3',
     )
+
     // z = 4, b = 3 -> mu = 1/3
     close(
       betheCavityDecay({ coordination: 4, energy: 4 }),
@@ -30,6 +31,7 @@ suite('algebra/linear/bethe-resolvent: cavity decay closed forms', [
       1e-12,
       'z=4',
     )
+
     // z = 5, b = 4 -> mu = 1/4
     close(
       betheCavityDecay({ coordination: 5, energy: 5 }),
@@ -43,6 +45,7 @@ suite('algebra/linear/bethe-resolvent: cavity decay closed forms', [
     const energy = 5 // above the band edge 2 sqrt(3) ~ 3.46
     const b = z - 1
     const mu = betheCavityDecay({ coordination: z, energy })
+
     close(
       b * mu * mu - energy * mu + 1,
       0,
@@ -73,12 +76,14 @@ suite('algebra/linear/bethe-resolvent: boundary exponent', [
       1e-12,
       'z=3',
     )
+
     close(
       betheBoundaryExponent({ coordination: 4, energy: 4 }),
       2,
       1e-12,
       'z=4',
     )
+
     close(
       betheBoundaryExponent({ coordination: 5, energy: 5 }),
       2,
@@ -92,6 +97,7 @@ suite('algebra/linear/bethe-resolvent: boundary exponent', [
     const b = z - 1
     const mu = betheCavityDecay({ coordination: z, energy })
     const expected = (2 * Math.log(1 / mu)) / Math.log(b)
+
     close(
       betheBoundaryExponent({ coordination: z, energy }),
       expected,

@@ -227,6 +227,7 @@ function invColumnMod(C: number[][], col: number, p: number): IVec {
   const n = 4
   const a = C.map(row => row.map(v => modulo(v, p)))
   const b = new Array<number>(n).fill(0)
+
   b[col] = 1
 
   for (let i = 0; i < n; i++) {
@@ -761,6 +762,7 @@ export function buildSliver(input: {
 
     for (let t = 0; t < 2 * L; t++) {
       const even = t % 2 === 0
+
       M1 = matMulMod(M1, even ? faces1[a]! : faces1[b]!, p1)
       M2 = matMulMod(M2, even ? faces2[a]! : faces2[b]!, p2)
 
@@ -824,10 +826,12 @@ export function buildSliver(input: {
 
   let M1 = identityMod()
   let M2 = identityMod()
+
   add(M1, M2, 0)
 
   for (let t = 0; t < best - 1; t++) {
     const even = t % 2 === 0
+
     M1 = matMulMod(M1, even ? faces1[ba]! : faces1[bb]!, p1)
     M2 = matMulMod(M2, even ? faces2[ba]! : faces2[bb]!, p2)
     add(M1, M2, t + 1)
@@ -1040,6 +1044,7 @@ export function makeLazyEngine(): LazyEngine {
       faces1.push(f1)
 
       const h2 = stab2[idx]!
+
       faces2.push(
         matMulMod(matMulMod(h2, gen2.R[3]!, p2), matInvMod(h2, p2), p2),
       )

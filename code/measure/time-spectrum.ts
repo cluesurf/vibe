@@ -22,6 +22,7 @@ export function dominantAngularFrequency(
 
     for (let t = 0; t < n; t++) {
       const phase = (-2 * Math.PI * f * t) / n
+
       re += series[t]! * Math.cos(phase)
       im += series[t]! * Math.sin(phase)
     }

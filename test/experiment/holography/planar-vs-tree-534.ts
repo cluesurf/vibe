@@ -16,6 +16,7 @@ const reachableBoundary = (
   centre: number,
 ): number => {
   const seen = new Uint8Array(neighbors.length)
+
   seen[centre] = 1
 
   let frontier = [centre]
@@ -61,6 +62,7 @@ export default experiment({
     const size = planar.length
     const depth: number[] = new Array<number>(size).fill(-1)
     const parent: number[] = new Array<number>(size).fill(-1)
+
     depth[0] = 0
 
     let frontier = [0]

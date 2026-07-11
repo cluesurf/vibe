@@ -56,6 +56,7 @@ export function nearestRecallRate(input: {
 
     for (let i = 0; i < flips; i++) {
       const k = rng.nextInt({ max: mem.wordBits })
+
       q[k] = (q[k]! + 1 + rng.nextInt({ max: 2 })) % 3
     }
 

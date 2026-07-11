@@ -29,7 +29,7 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
   }
 
   const maxDepth = d.reduce((a, b) => Math.max(a, b), 0)
-  const widths: number[] = new Array(maxDepth + 1).fill(0)
+  const widths: number[] = new Array<number>(maxDepth + 1).fill(0)
 
   for (let i = 0; i < n; i++) {
     widths[d[i] ?? 0] = widths[d[i] ?? 0]! + 1

@@ -89,6 +89,7 @@ function settle(input: {
       }
 
       const t: Tone = h > 1e-12 ? 1 : h < -1e-12 ? -1 : 0
+
       next[i] = t
 
       if (t !== state[i]) {

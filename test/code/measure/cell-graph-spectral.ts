@@ -21,6 +21,7 @@ suite('measure/cell-graph-spectral: bulk degree', [
         }).degree,
         6,
       )
+
       equal(
         cellGraphSpectral({
           symbol: [5, 3, 4],
@@ -30,6 +31,7 @@ suite('measure/cell-graph-spectral: bulk degree', [
         }).degree,
         12,
       )
+
       equal(
         cellGraphSpectral({
           symbol: [3, 5, 3],
@@ -55,6 +57,7 @@ suite('measure/cell-graph-spectral: bulk degree', [
       Number.isFinite(r.specDim) && r.specDim > 0,
       `specDim should be positive, got ${r.specDim}`,
     )
+
     ok(
       r.specDim < 6,
       `specDim should be a sane dimension, got ${r.specDim}`,

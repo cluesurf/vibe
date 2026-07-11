@@ -44,6 +44,7 @@ export function ternaryPattern(n: number, index: number): Int8Array {
 
   for (let i = 0; i < n; i++) {
     const frac = ((((i + 1) * GOLDEN + index * SILVER) % 1) + 1) % 1
+
     v[i] = Math.floor(3 * frac) - 1
   }
 
@@ -113,6 +114,7 @@ function step(input: {
     }
 
     const t: Tone = h > 1e-12 ? 1 : h < -1e-12 ? -1 : 0
+
     next[i] = t
 
     if (t !== state[i]) {
@@ -323,6 +325,7 @@ export function consensusStep(
 
     for (let i = 0; i < s.length; i++) {
       const h = coupling * (aggregate[i] ?? 0) + (s[i] ?? 0)
+
       out[i] = h > 0 ? 1 : h < 0 ? -1 : 0
     }
 

@@ -62,6 +62,7 @@ export function identityThroughTurnover(input: {
   for (let r = 0; r < input.rounds; r++) {
     // corrupt a moving block, then repair using ONLY the self's own field (no external drive)
     const corrupted = corrupt(state, (r * k) % n, k)
+
     state = settle({
       patterns: self,
       coupling: input.coupling,

@@ -62,6 +62,7 @@ export function sourceEnergyTrace(input: {
       // second-order reversible wave with a degree-normalized graph Laplacian, a proper
       // d'Alembertian, u_next = 2u - u_prev - L_norm u, CFL-stable so it stays bounded.
       const degree = row.length || 1
+
       next[i] = 2 * curr[i]! - prev[i]! + (sum / degree - curr[i]!)
     }
 
@@ -86,6 +87,7 @@ export function sourceEnergyTrace(input: {
 
     for (const cell of ball) {
       const d = curr[cell]! - mean
+
       energy += d * d
     }
 

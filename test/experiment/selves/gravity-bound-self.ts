@@ -222,6 +222,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       const r = evolve(body, bodyScratch, phiB, 4, false)
+
       bodyScratch = body
       body = r.will
       phiB = r.phi
@@ -255,6 +256,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       const r = evolve(displaced, displacedScratch, phiD, 4, false)
+
       displacedScratch = displaced
       displaced = r.will
       phiD = r.phi
@@ -289,11 +291,13 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         const a = evolve(clean, cleanScratch, phiC, 4, open)
+
         cleanScratch = clean
         clean = a.will
         phiC = a.phi
 
         const b = evolve(pert, pertScratch, phiP, 4, open)
+
         pertScratch = pert
         pert = b.will
         phiP = b.phi

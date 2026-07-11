@@ -52,6 +52,7 @@ export function differenceSignSequence(values: number[]): number[] {
 
   for (let i = 1; i < values.length; i++) {
     const d = values[i]! - values[i - 1]!
+
     out.push(d > 0 ? 1 : d < 0 ? -1 : 0)
   }
 

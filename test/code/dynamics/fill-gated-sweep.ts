@@ -40,6 +40,7 @@ suite('dynamics/fill-gated-sweep: charge conservation', [
     const tone = makeTone(N)
     const before = tone.slice()
     const fill = new Int8Array(N) // all zero = insulating
+
     fillGatedSweep({
       tone,
       edges: edges(N),

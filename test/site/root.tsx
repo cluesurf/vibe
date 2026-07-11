@@ -1,14 +1,30 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, type LinksFunction } from 'react-router'
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  type LinksFunction,
+} from 'react-router'
 import appCss from './style/app.css?url'
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: appCss }]
+export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: appCss },
+]
 
-export function Layout({ children }: { children: React.ReactNode }): React.ReactElement {
+export function Layout({
+  children,
+}: {
+  children: React.ReactNode
+}): React.ReactElement {
   return (
-    <html lang="en">
+    <html lang='en'>
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet='utf-8' />
+        <meta
+          name='viewport'
+          content='width=device-width, initial-scale=1'
+        />
         <title>Vibe — hyperbolic renderer</title>
         <Meta />
         <Links />

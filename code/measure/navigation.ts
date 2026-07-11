@@ -31,6 +31,7 @@ function targetDistance(input: {
   for (let axis = 0; axis < d; axis++) {
     const a = e.coords[input.node * d + axis] ?? 0
     const b = e.coords[input.target * d + axis] ?? 0
+
     sum2 += (a - b) * (a - b)
     nodeNorm2 += a * a
     targetNorm2 += b * b
@@ -85,7 +86,8 @@ export function greedyRouteHops(input: {
 
     if (best === -1) {
       return -1
-    } // stuck at a local minimum, greedy failed
+    }
+    // stuck at a local minimum, greedy failed
 
     current = best
     hops += 1
@@ -241,6 +243,7 @@ export function routingWithBacktrack(input: {
 
     const visited = new Uint8Array(size)
     const stack: number[] = [source]
+
     visited[source] = 1
 
     let steps = 0
@@ -317,6 +320,7 @@ function bfsHops(input: {
 
   const size = input.graph.size
   const distance = new Int32Array(size).fill(-1)
+
   distance[input.from] = 0
 
   let frontier: number[] = [input.from]

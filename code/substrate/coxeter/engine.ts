@@ -65,6 +65,7 @@ function determinant(a: number[][]): number {
 
     if (pivot !== col) {
       const tmp = m[pivot]!
+
       m[pivot] = m[col]!
       m[col] = tmp
       det = -det
@@ -122,6 +123,7 @@ function cellCenter(input: {
 
   for (let j = 0; j < m; j++) {
     const sub = rows.map(row => row.filter((_, col) => col !== j))
+
     c[j] = (j % 2 === 0 ? 1 : -1) * determinant(sub)
   }
 
@@ -202,6 +204,7 @@ export function buildCoxeterMesh(input: {
     }
 
     const id = cellCenters.length
+
     cellId.set(key, id)
     cellCenters.push(cc)
     cellCoords.push(toPoincare(cc, timeAxis))
@@ -210,6 +213,7 @@ export function buildCoxeterMesh(input: {
   }
 
   const seenChamber = new Set<string>([round(toPoincare(g0, timeAxis))])
+
   registerCell(c0)
 
   let frontier: { g: number[]; cc: number[] }[] = [{ g: g0, cc: c0 }]
@@ -237,6 +241,7 @@ export function buildCoxeterMesh(input: {
         seenChamber.add(key)
 
         const cc = reflect(ch.cc, normals[i]!, metric)
+
         registerCell(cc)
         next.push({ g, cc })
         chamberCount++
@@ -291,6 +296,7 @@ export function buildCoxeterMesh(input: {
 
   // generation = face-adjacency BFS distance from the seed cell (cell 0)
   const generation = new Array<number>(n).fill(-1)
+
   generation[0] = 0
 
   let ring = [0]

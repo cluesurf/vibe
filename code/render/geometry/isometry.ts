@@ -124,6 +124,7 @@ export function rotateAboutOrigin(input: {
     const out = p.slice()
     const pi = p[i] ?? 0
     const pj = p[j] ?? 0
+
     out[i] = c * pi - s * pj
     out[j] = s * pi + c * pj
 

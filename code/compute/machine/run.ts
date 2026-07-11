@@ -13,24 +13,31 @@ import type {
 function show(label: string, machine: VibeComputer): void {
   const r: VibeComputerReport = machine.report()
   const ballHead = r.memory.capacityByRadius.slice(0, 6).join(', ')
+
   console.log(
     `\n=== ${label}  {${r.symbol.join(',')}}  (${r.dimension}D) ===`,
   )
+
   console.log(
     `substrate : ${r.cellCount} cells, degree ${r.degree} (the cell's direction count)`,
   )
+
   console.log(
     `compute   : ${r.compute.program} = ${r.compute.result} (${r.compute.backend}, ${r.compute.cost} digit-ops)`,
   )
+
   console.log(
     `railway   : locomotive ${r.railway.ran ? 'traversed' : 'did NOT traverse'} a ${r.railway.cycleLength}-cell loop on the substrate`,
   )
+
   console.log(
     `memory    : stored ${r.memory.stored} ternary words, recalled cell ${r.memory.queryCell} by content: ${r.memory.found ? 'FOUND' : 'MISS'}`,
   )
+
   console.log(
     `          : search latency ${r.memory.searchLatency} beats, full coverage ${r.memory.coverageBeat} beats (~log N)`,
   )
+
   console.log(
     `          : capacity by radius: ${ballHead}, ... (exponential)`,
   )

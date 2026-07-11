@@ -22,6 +22,7 @@ const gramMatrix = (symbol: number[]): number[][] => {
 
   for (let k = 0; k < symbol.length; k++) {
     const c = -Math.cos(Math.PI / symbol[k]!)
+
     gram[k]![k + 1] = c
     gram[k + 1]![k] = c
   }

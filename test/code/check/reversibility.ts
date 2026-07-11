@@ -34,6 +34,7 @@ function oppositeOf(mesh: Mesh): number[] {
 
 function patternWill(mesh: Mesh): Will {
   const will = makeWill(mesh)
+
   fillWillPattern(will)
 
   return will
@@ -69,6 +70,7 @@ suite('check/reversibility: round-trip Hamming distance', [
   }),
   check('Hamming is > 0 for a lossy (erasing) collision', () => {
     const will = patternWill(square)
+
     ok(
       charge(will) !== 0,
       'the test will must carry information to lose',

@@ -88,6 +88,7 @@ export function coarseGrainingFixedPoint(input: {
 
   const dims: number[] = []
   const sizes: number[] = []
+
   dims.push(myrheimMeyerDimension({ poset }))
   sizes.push(poset.size)
 

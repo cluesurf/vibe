@@ -67,6 +67,7 @@ export function physicsOnRealSpace(): void {
 
   const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
   const rmap = new Map<number, number>()
+
   bandIdx.forEach((id, i) => rmap.set(id, i))
 
   const bnb: number[][] = bandIdx.map(() => [])
@@ -88,6 +89,7 @@ export function physicsOnRealSpace(): void {
   )
 
   const lc0 = mostConnectedNode(lnb)
+
   spectralDim(lnb, lc0, 3, 12)
   gravityExponent(lnb, lc0)
 }
@@ -127,6 +129,7 @@ export default experiment({
 
     const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
     const rmap = new Map<number, number>()
+
     bandIdx.forEach((id, i) => rmap.set(id, i))
 
     const bnb: number[][] = bandIdx.map(() => [])

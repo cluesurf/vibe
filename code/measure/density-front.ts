@@ -39,6 +39,7 @@ export function pairGasFill(input: {
     for (let line = 0; line < lines.length; line++) {
       if (hashRand(cell, line, PAIR_SALT) < pairFill) {
         const [a, o] = lines[line]!
+
         will.data[base + a] = 1
         will.data[base + o] = 1
       }
@@ -154,6 +155,7 @@ export function excessProfileSeries(input: {
       referenceScratch,
       referenceCurrent,
     ]
+
     beatInto({
       src: bumpedCurrent,
       dst: bumpedScratch,
@@ -181,6 +183,7 @@ function smoothedExcess(input: {
 
   for (let d = -smooth; d <= smooth; d++) {
     const slab = (((center + offset + d) % side) + side) % side
+
     sum += excess[slab] ?? 0
   }
 

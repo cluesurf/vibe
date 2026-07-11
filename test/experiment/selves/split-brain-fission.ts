@@ -43,10 +43,12 @@ function componentSizes(
     let size = 0
 
     const stack = [start]
+
     seen.add(start)
 
     while (stack.length > 0) {
       const cell = stack.pop()!
+
       size++
 
       for (const next of adjacency[cell]!) {
@@ -120,6 +122,7 @@ export default experiment({
           randomAdjacency[cell] = randomAdjacency[cell]!.filter(
             x => x !== next,
           )
+
           randomAdjacency[next] = randomAdjacency[next]!.filter(
             x => x !== cell,
           )

@@ -62,6 +62,7 @@ export function algebraicConnectivity(input: {
   }
 
   const indexOf = new Map<number, number>()
+
   nodes.forEach((node, i) => indexOf.set(node, i))
 
   // Local adjacency restricted to the region.
@@ -137,6 +138,7 @@ export function algebraicConnectivity(input: {
   // estimate of the eigenvalue it converged to.
   const estimateFromStart = (start: Float64Array): number => {
     let x = Float64Array.from(start)
+
     orthogonalize(x)
 
     let estimate = 0
@@ -279,6 +281,7 @@ export function toneIntegration(input: {
   const cuts = input.bipartitions ?? 16
   const fillOf = input.fillOf ?? ((): number => 1)
   const indexOf = new Map<number, number>()
+
   nodes.forEach((node, i) => indexOf.set(node, i))
 
   const nb: { j: number; f: number }[][] = nodes.map(node => {
@@ -376,6 +379,7 @@ export function toneIntegration(input: {
 
       const infA = sizeA > 0 ? changedA / sizeA : 0
       const infB = sizeB > 0 ? changedB / sizeB : 0
+
       total += Math.min(infA, infB)
     }
 
@@ -429,6 +433,7 @@ export function toneIntegration(input: {
       for (let i = order.length - 1; i > 0; i--) {
         const k = input.rng.nextInt({ max: i + 1 })
         const tmp = order[i] ?? 0
+
         order[i] = order[k] ?? 0
         order[k] = tmp
       }

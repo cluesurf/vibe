@@ -62,6 +62,7 @@ function seedWill(
       const x = cell % SIDE
       const sign = x < SIDE / 2 ? 1 : -1
       const base = cell * mesh.degree
+
       // place the sign on a streaming pair (the +x and +y movers) so the charge
       // sign of the cell is the domain-wall value and the rule can still act.
       will.data[base + 0] = sign
@@ -116,6 +117,7 @@ export default experiment({
 
       for (let cell = 0; cell < mesh.cellCount; cell++) {
         const tone = cellTone(will, cell)
+
         out[cell] = tone > 0 ? 1 : tone < 0 ? -1 : 0
       }
 

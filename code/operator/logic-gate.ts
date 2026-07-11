@@ -79,6 +79,7 @@ export function functionFromTable(
       const cb = (p >> 1) & 1
       const rb = p & 1
       const minterm = and(and(lit(l, lb), lit(c, cb)), lit(r, rb))
+
       acc = or(acc, minterm)
     }
 

@@ -62,6 +62,7 @@ export function solveGraphPoisson(input: {
   const n = b.length
   const phi = new Float64Array(n)
   const residual = new Float64Array(b)
+
   subtractMean(residual)
 
   const direction = new Float64Array(residual)
@@ -111,6 +112,7 @@ export function graphLaplacianGreensFunction(input: {
 }): Float64Array {
   const n = input.neighbors.length
   const b = new Float64Array(n)
+
   b.fill(-1 / n)
   b[input.center] = 1 - 1 / n
 

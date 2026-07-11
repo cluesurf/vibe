@@ -36,7 +36,8 @@ export function routeSwitch(sw: RailSwitch, entryPort: number): number {
 
     if (sw.kind === 'flip-flop') {
       sw.active = sw.active === 1 ? 2 : 1
-    } // the active passage flips it
+    }
+    // the active passage flips it
 
     return exit
   }
@@ -44,7 +45,8 @@ export function routeSwitch(sw: RailSwitch, entryPort: number): number {
   // a branch -> trunk
   if (sw.kind === 'memory') {
     sw.active = entryPort as 1 | 2
-  } // remember which branch we came from
+  }
+  // remember which branch we came from
 
   return 0
 }
@@ -95,7 +97,8 @@ export function railDecrementOrZero(reg: RailRegister): boolean {
 
   if (i === 0) {
     return false
-  } // already zero
+  }
+  // already zero
 
   reg.cells[i - 1] = 0
 
@@ -162,6 +165,7 @@ export function runRailway(
       pc = ins.next
     } else {
       const ok = railDecrementOrZero(regs[ins.reg]!)
+
       pc = ok ? ins.next : ins.zero
     }
 

@@ -20,6 +20,7 @@ const normSquared = (v: number[]): number =>
 suite('algebra/group/so8-triality: the three 8-dim reps', [
   check('8v: 8 distinct signed unit axes', () => {
     const v = vectorRep8()
+
     equal(v.length, 8, '8 vectors')
     equal(vectorSetKey(v).size, 8, 'distinct')
 
@@ -29,6 +30,7 @@ suite('algebra/group/so8-triality: the three 8-dim reps', [
   }),
   check('8s: 8 even-parity half-integer vectors of norm^2 = 1', () => {
     const s = spinorRepEven8()
+
     equal(s.length, 8, '8 even-parity weights')
 
     for (const x of s) {
@@ -42,6 +44,7 @@ suite('algebra/group/so8-triality: the three 8-dim reps', [
   }),
   check('8c: 8 odd-parity half-integer vectors of norm^2 = 1', () => {
     const c = spinorRepOdd8()
+
     equal(c.length, 8, '8 odd-parity weights')
 
     for (const x of c) {
@@ -58,10 +61,12 @@ suite('algebra/group/so8-triality: the three 8-dim reps', [
     () => {
       const sKeys = vectorSetKey(spinorRepEven8())
       const cKeys = vectorSetKey(spinorRepOdd8())
+
       ok(
         [...sKeys].every(k => !cKeys.has(k)),
         '8s and 8c disjoint',
       )
+
       equal(
         new Set([...sKeys, ...cKeys]).size,
         16,

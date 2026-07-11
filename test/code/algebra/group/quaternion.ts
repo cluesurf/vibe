@@ -81,6 +81,7 @@ suite('algebra/group/quaternion: Hamilton relations', [
   }),
   check('1 is the multiplicative identity', () => {
     const q = quaternion(2, -3, 5, 7)
+
     equalQuaternion(multiply(ONE, q), q, '1 q')
     equalQuaternion(multiply(q, ONE), q, 'q 1')
   }),
@@ -90,12 +91,14 @@ suite('algebra/group/quaternion: norm and conjugate', [
   check('q conjugate(q) = |q|^2 (a real quaternion)', () => {
     const q = quaternion(1, 2, 3, 4)
     const product = multiply(q, conjugate(q))
+
     equalQuaternion(product, quaternion(30, 0, 0, 0), 'q q*')
     equal(normSquared(q), 30, '|q|^2')
   }),
   check('the norm is multiplicative: |pq|^2 = |p|^2 |q|^2', () => {
     const p = quaternion(1, 2, 3, 4)
     const q = quaternion(2, -1, 0, 5)
+
     equal(
       normSquared(multiply(p, q)),
       normSquared(p) * normSquared(q),
@@ -105,6 +108,7 @@ suite('algebra/group/quaternion: norm and conjugate', [
   check('conjugation is an anti-homomorphism: (pq)* = q* p*', () => {
     const p = quaternion(1, 2, 3, 4)
     const q = quaternion(0, 1, -2, 3)
+
     equalQuaternion(
       conjugate(multiply(p, q)),
       multiply(conjugate(q), conjugate(p)),
@@ -113,6 +117,7 @@ suite('algebra/group/quaternion: norm and conjugate', [
   }),
   check('negate is an involution and (-1)^2 = 1', () => {
     const q = quaternion(3, -1, 4, -1)
+
     equalQuaternion(negate(negate(q)), q, '--q')
     equalQuaternion(multiply(MINUS_ONE, MINUS_ONE), ONE, '(-1)^2')
   }),
@@ -121,6 +126,7 @@ suite('algebra/group/quaternion: norm and conjugate', [
 suite('algebra/group/quaternion: finite unit groups', [
   check('Q8 has 8 distinct unit elements', () => {
     const group = quaternionGroup()
+
     equal(group.length, 8, 'Q8 size')
     equal(distinctCount(group), 8, 'Q8 distinct')
 
@@ -133,6 +139,7 @@ suite('algebra/group/quaternion: finite unit groups', [
   }),
   check('2T (binary tetrahedral) has 24 distinct units', () => {
     const group = binaryTetrahedral()
+
     equal(group.length, 24, '2T size')
     equal(distinctCount(group), 24, '2T distinct')
 
@@ -152,6 +159,7 @@ suite('algebra/group/quaternion: finite unit groups', [
     '2I (binary icosahedral) has 120 distinct units of norm 1',
     () => {
       const group = binaryIcosahedral()
+
       equal(group.length, 120, '2I size')
       equal(distinctCount(group), 120, '2I distinct')
 
@@ -173,6 +181,7 @@ suite('algebra/group/quaternion: even permutations', [
     'there are 12 even permutations of 4 elements (|A4| = 12)',
     () => {
       const evens = evenPermutations([0, 1, 2, 3])
+
       equal(evens.length, 12, 'count of even permutations of S4')
     },
   ),

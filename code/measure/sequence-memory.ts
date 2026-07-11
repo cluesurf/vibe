@@ -71,6 +71,7 @@ export function sequenceStep(input: {
     for (let j = 0; j < size; j++) {
       // the scrambled control shifts each row, breaking the sequence links
       const column = scramble ? (j * 7 + 3) % size : j
+
       sum += weight[i]![column]! * state[j]!
     }
 

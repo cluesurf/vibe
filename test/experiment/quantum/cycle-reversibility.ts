@@ -128,6 +128,7 @@ export function cycleReversibility(input?: { n?: number }): {
 
   for (let t = 0; t < warmup + beats; t++) {
     const record = t >= warmup
+
     moved.fill(0)
 
     for (let k = 0; k < euA.length; k++) {
@@ -158,7 +159,8 @@ export function cycleReversibility(input?: { n?: number }): {
 
           if (record) {
             flow[k]! += cc === v ? 1 : -1
-          } // net flow from v to w is +1 if charge went v->w
+          }
+          // net flow from v to w is +1 if charge went v->w
         }
       } else if (a === 0 && b === 0) {
         if (rng.next() < arrow) {

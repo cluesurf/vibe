@@ -113,6 +113,7 @@ suite('rule/asynchronous: random order is deterministic per seed', [
   check('same seed gives the same result', () => {
     const a = stepAsync('random', [1, 0, 1, -1], 42)
     const b = stepAsync('random', [1, 0, 1, -1], 42)
+
     equal(
       JSON.stringify(a),
       JSON.stringify(b),

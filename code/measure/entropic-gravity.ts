@@ -57,6 +57,7 @@ export function screenBitSeries(input: {
 
   for (const radius of input.radii) {
     const region = ballRegion({ side: input.side, radius })
+
     radii.push(radius)
     volumes.push(region.length)
     bits.push(

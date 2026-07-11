@@ -28,6 +28,7 @@ suite('measure/light-cone: free streaming front', [
     'the graph-distance streaming cone is also ballistic (z = 1)',
     () => {
       const mesh = cubicMesh({ side: 13 })
+
       exactArray(
         streamingConeRadii({ mesh, beats: 5 }),
         [1, 2, 3, 4, 5],

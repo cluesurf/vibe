@@ -57,5 +57,6 @@ const rows = allExperiments()
   })
 
 const csv = [header, ...rows].join('\n') + '\n'
+
 writeFileSync('test/catalog.csv', csv)
 console.log(`wrote ${rows.length} experiments to test/catalog.csv`)

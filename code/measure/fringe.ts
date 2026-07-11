@@ -14,7 +14,8 @@ export function fringeStatistics(input: {
 
   for (let x = off % 2; x < W; x += 2) {
     arr.push(P[x]!)
-  } // the populated parity
+  }
+  // the populated parity
 
   let peak = 0
 

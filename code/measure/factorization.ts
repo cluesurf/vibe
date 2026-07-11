@@ -42,6 +42,7 @@ export function nearestSeedLabels(input: {
 
   while (head < queue.length) {
     const cell = queue[head]!
+
     head++
 
     const row = neighbors[cell]!

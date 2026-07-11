@@ -52,6 +52,7 @@ function detailProfile(will: {
 
   for (const block of [1, 2]) {
     const fine = blockMeanField({ will, side: SIDE, block })
+
     norms.push(scaleDetailNorm({ fine, fineBlocks: SIDE / block }))
   }
 
@@ -149,6 +150,7 @@ export default experiment({
     // cell identical and the detail identically zero, the degenerate-fill trap
     // the audit flagged, so the texture must vary cell to cell.
     const start = makeWill(mesh)
+
     fillTexture(start)
 
     const evolved = run(start, collision, BEATS)

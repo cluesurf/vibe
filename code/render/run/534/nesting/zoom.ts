@@ -56,6 +56,7 @@ function run(): void {
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells: MAX_CELLS })
   const n = g.cellCount
   const depth = new Array<number>(n).fill(-1)
+
   depth[0] = 0
 
   let frontier = [0]
@@ -119,6 +120,7 @@ function run(): void {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, 'frames-nesting-zoom-534')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -145,6 +147,7 @@ function run(): void {
 
         if (dx * dx + dy * dy <= rr) {
           const o = (py * IMG + px) * 4
+
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
           rgba[o + 2] = col[2]

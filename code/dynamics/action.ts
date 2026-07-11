@@ -59,6 +59,7 @@ function intervalAbundance(input: { poset: Poset }): {
       row: a,
       visit: b => {
         const take = index % stride === 0
+
         index += 1
 
         if (!take) {
@@ -216,6 +217,7 @@ export function smearedBenincasaDowker(input: {
           row: a,
           visit: b => {
             const take = index % stride === 0
+
             index += 1
 
             if (!take) {
@@ -225,6 +227,7 @@ export function smearedBenincasaDowker(input: {
             seen += 1
 
             const n = intervalSize(poset, { a, b, past })
+
             sum += kernel({ n, epsilon: input.epsilon })
           },
         })

@@ -149,6 +149,7 @@ export function cooperationTower(): {
           }
 
           const flow = 0.02 * (strengths[i]! - strengths[j]!) // stronger gains, conserving
+
           c[i]! += flow
           c[j]! -= flow
           wasted += 2 * W // both spend effort, win or lose
@@ -181,6 +182,7 @@ export function cooperationTower(): {
 
         // each gives what is cheap to it for what is dear, a small mutual value gain, charge unchanged
         const give = 0.01
+
         c[i]! += give
         c[j]! -= give
         valueGain += 0.05 // both better off in their own value-landscapes
@@ -207,7 +209,8 @@ export function cooperationTower(): {
 
       for (const k of g) {
         c[k] = m
-      } // share in balance, no grabbing within
+      }
+      // share in balance, no grabbing within
 
       order += orderOf(g.length) // positive-sum, super-linear
     }

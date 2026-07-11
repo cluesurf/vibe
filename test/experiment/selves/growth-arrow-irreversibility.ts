@@ -83,6 +83,7 @@ function loschmidtEcho(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -128,6 +129,7 @@ function occupancyProfile(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -187,6 +189,7 @@ export default experiment({
     // a deterministic structured fill (a fixed ternary function of the slot index, never random), the methodology
     // initial condition, with about a third peace so the create move has room to act.
     const init = makeWill(mesh)
+
     fillWillPattern(init)
 
     const frontierX = 0

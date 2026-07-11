@@ -62,6 +62,7 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
     const halfPeriod = firstMinimumTime(series)
     const omega = halfPeriod > 0 ? Math.PI / halfPeriod : 0
     const k = (2 * Math.PI) / wavelength
+
     wavenumbers.push(k)
     frequencies.push(omega)
     phaseSpeeds.push(k > 0 ? omega / k : 0)

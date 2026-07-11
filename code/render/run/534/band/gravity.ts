@@ -107,6 +107,7 @@ function run(): void {
   )
 
   type BandCell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
@@ -118,6 +119,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -149,6 +151,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < 2 * SEED_DENSITY ? -1 : 0 // BALANCED, net charge 0
   }
 
@@ -314,6 +317,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = r8
           rgba[idx + 1] = g8
           rgba[idx + 2] = b8

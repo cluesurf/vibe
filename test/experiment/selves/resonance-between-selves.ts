@@ -24,6 +24,7 @@ function combinedUrge(pole: Int8Array, other: Int8Array): Int8Array {
 
   for (let i = 0; i < n; i++) {
     const s = 2 * (pole[i] ?? 0) + (other[i] ?? 0)
+
     out[i] = s > 0 ? 1 : s < 0 ? -1 : 0
   }
 
@@ -52,6 +53,7 @@ function coupledResonance(input: {
       urgeWeight: 1.5,
       init: a,
     }).state
+
     b = settle({
       patterns: input.patterns,
       coupling: 2,
@@ -89,6 +91,7 @@ export function resonanceResult(input: { n: number; trials: number }): {
       poleB: pole,
       rounds: 4,
     })
+
     // anti: the two selves driven toward opposite poles, so they frustrate
     anti += coupledResonance({
       patterns,

@@ -66,6 +66,7 @@ suite('rule/gauge: structural invariants of a sweep', [
       1,
       'tone 0 unchanged',
     )
+
     equal(
       getTone(out.configuration, { element: 2 }),
       -1,

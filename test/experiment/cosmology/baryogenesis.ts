@@ -39,8 +39,8 @@ function relicAsymmetry(input: {
     const nEq = Math.exp(-t)
 
     if (!input.outOfEquilibrium) {
-      nX = nEq // forced equilibrium: no departure, hence no source
-    }
+      nX = nEq
+    } // forced equilibrium: no departure, hence no source
 
     const departure = nX - nEq
     const source = input.bViolating ? input.epsilon * K * departure : 0

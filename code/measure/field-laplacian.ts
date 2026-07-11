@@ -26,6 +26,7 @@ export function fieldLaplacianProfile(input: {
         4 * field(i, j)
 
       const mag = Math.abs(lap)
+
       total += mag
 
       if (mag > peakValue) {

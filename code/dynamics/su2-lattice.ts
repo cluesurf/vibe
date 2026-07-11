@@ -105,6 +105,7 @@ export function makeSu2Lattice(input: {
     for (let mu = 0; mu < dim; mu++) {
       const q = input.hot ? randomSu2({ rng: input.rng }) : IDENTITY
       const o = (s * dim + mu) * 4
+
       links[o] = q[0]
       links[o + 1] = q[1]
       links[o + 2] = q[2]
@@ -156,6 +157,7 @@ function setLink(
   input: { site: number; mu: number; q: Quat },
 ): void {
   const o = (input.site * lat.dim + input.mu) * 4
+
   lat.links[o] = input.q[0]
   lat.links[o + 1] = input.q[1]
   lat.links[o + 2] = input.q[2]
@@ -229,6 +231,7 @@ export function metropolisSweep(input: {
       // S contribution ~ beta * (const - (1/2)Tr(U A)); dS = -beta * dTr.
       const dTr = halfTrace(qmul(uNew, a)) - halfTrace(qmul(u, a))
       const dS = -input.beta * dTr
+
       proposed += 1
 
       if (dS <= 0 || input.rng.next() < Math.exp(-dS)) {

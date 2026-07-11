@@ -44,6 +44,7 @@ function step(
   coupling: number,
 ): Uint8Array {
   const next = new Uint8Array(neighbors.length)
+
   reversibleWaveStepNonlinear({
     neighbors,
     previous,
@@ -121,6 +122,7 @@ function reverseAndBound(coupling: number): {
 
   for (let beat = 0; beat < beats; beat++) {
     const next = step(neighbors, previous, current, coupling)
+
     previous = current
     current = next
 
@@ -140,6 +142,7 @@ function reverseAndBound(coupling: number): {
 
   for (let beat = 0; beat < beats; beat++) {
     const next = step(neighbors, revPrev, revCur, coupling)
+
     revPrev = revCur
     revCur = next
   }

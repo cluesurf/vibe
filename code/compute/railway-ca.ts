@@ -229,11 +229,13 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
 
   for (let i = 0; i < bits; i++) {
     const prev = i === 0 ? pre : carry[i - 1]!
+
     cells[tin[i]!] = {
       role: 'track',
       links: [prev, ff[i]!],
       state: 'C',
     }
+
     cells[ff[i]!] = {
       role: 'switch',
       links: [tin[i]!, done[i]!, carry[i]!],
@@ -241,11 +243,13 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
       active: 1,
       state: 'C',
     }
+
     cells[done[i]!] = {
       role: 'track',
       links: [ff[i]!, output],
       state: 'C',
     }
+
     cells[carry[i]!] = {
       role: 'track',
       links: [ff[i]!, i + 1 < bits ? tin[i + 1]! : output],
@@ -402,7 +406,8 @@ export function makeSelfExtendingCounter(): SelfExtendingCounter {
 
       if (i < bits.length) {
         bits[i] = 2
-      } // the first clear bit takes the increment, no carry out
+      }
+      // the first clear bit takes the increment, no carry out
       else {
         bits.push(2)
         builds++
@@ -439,6 +444,7 @@ export function makeTrackLoop(
 
   for (let r = 0; r < k; r++) {
     const id = ringIds[r]!
+
     cells[id] = {
       role: 'track',
       links: [ringIds[(r - 1 + k) % k]!, ringIds[(r + 1) % k]!],

@@ -75,6 +75,7 @@ export function buildMargensternGrid(input: {
   const parentOf = new Int32Array(count).fill(-1)
   const depthOf = new Int32Array(count).fill(-1)
   const childrenOf: number[][] = Array.from({ length: count }, () => [])
+
   depthOf[root] = 0
   parentOf[root] = -1
 
@@ -122,6 +123,7 @@ export function buildMargensternGrid(input: {
     }
 
     const p = parentOf[cell]!
+
     address[cell] = [...address[p]!, childrenOf[p]!.indexOf(cell)]
   }
 

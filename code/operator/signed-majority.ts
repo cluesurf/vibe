@@ -43,6 +43,7 @@ export function symmetricEdgeFills(input: {
 
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
+
         fv[k] = f
 
         const fw = fills[w]
@@ -119,6 +120,7 @@ export function runAsynchronousSignedMajority(input: {
     for (const b of neighbors[a]!) {
       if (b > a) {
         const f = rng.nextInt({ max: 3 }) - 1
+
         fill[a]!.set(b, f)
         fill[b]!.set(a, f)
       }

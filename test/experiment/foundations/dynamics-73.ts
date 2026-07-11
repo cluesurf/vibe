@@ -90,6 +90,7 @@ export function dynamics73(): {
     }
 
     const t = prev
+
     prev = cur
     cur = nxt
     nxt = t
@@ -125,6 +126,7 @@ export function dynamics73(): {
     for (let i = N - 1; i > 0; i--) {
       const j = Math.floor(rnd() * (i + 1))
       const tmp = order[i]!
+
       order[i] = order[j]!
       order[j] = tmp
     }
@@ -142,6 +144,7 @@ export function dynamics73(): {
         }
 
         const [na, nb] = perm(t[u]!, t[w]!)
+
         t[u] = na
         t[w] = nb
         used[u] = 1

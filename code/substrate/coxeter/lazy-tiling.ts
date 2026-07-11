@@ -51,6 +51,7 @@ export function makeLazyTiling(input: {
     }
 
     const id = records.length
+
     idOf.set(key, id)
     records.push({ matrix, center, spin: null })
 
@@ -84,7 +85,8 @@ export function makeLazyTiling(input: {
 
       if (id === cell) {
         continue
-      } // a face that folds back onto the cell itself (degenerate), skip
+      }
+      // a face that folds back onto the cell itself (degenerate), skip
 
       const angle = twoD
         ? angleFrom(record.center, records[id]!.center)
@@ -101,6 +103,7 @@ export function makeLazyTiling(input: {
     }
 
     const spin = neighbors.map(n => n.id)
+
     record.spin = spin
 
     return spin

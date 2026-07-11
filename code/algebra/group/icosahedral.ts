@@ -126,6 +126,7 @@ export function icosahedralFacePermutationDecomposition(): {
 
     if (!(o in fixByOrder)) {
       const p = permutation(m)
+
       fixByOrder[o] = p.filter((pj, j) => pj === j).length
     }
   }

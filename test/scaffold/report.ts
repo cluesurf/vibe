@@ -57,6 +57,7 @@ export function writeReport(input: {
   // Human output: a readable table, one row per parameter point.
   const metricKeys = metricKeysOf(result)
   const lines: string[] = []
+
   lines.push(`# Scan: ${result.name}`)
   lines.push('')
   lines.push(
@@ -69,6 +70,7 @@ export function writeReport(input: {
   lines.push('')
 
   const header = ['parameter', ...metricKeys]
+
   lines.push(`| ${header.join(' | ')} |`)
   lines.push(`| ${header.map(() => '---').join(' | ')} |`)
 
@@ -82,6 +84,7 @@ export function writeReport(input: {
     for (const key of metricKeys) {
       const mean = point.mean[key] ?? 0
       const std = point.std[key] ?? 0
+
       cells.push(`${formatNumber(mean)} ± ${formatNumber(std)}`)
     }
 

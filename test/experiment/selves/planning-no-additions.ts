@@ -52,7 +52,8 @@ function greedyRollout(V: number[], from: number): number {
 
     if (up <= V[pos]! && down <= V[pos]!) {
       break
-    } // stuck at a local optimum
+    }
+    // stuck at a local optimum
 
     pos += up >= down ? 1 : -1
   }

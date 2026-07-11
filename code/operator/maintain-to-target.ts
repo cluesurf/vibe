@@ -30,6 +30,7 @@ export function conservingMaintainToTarget(
     const hi = tooHigh[k]!
     const lo = tooLow[k]!
     const t = tone[hi]!
+
     tone[hi] = tone[lo]!
     tone[lo] = t
     ops++

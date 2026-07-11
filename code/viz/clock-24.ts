@@ -56,6 +56,7 @@ function buildSvg(): string {
   // 12 spokes, centre to the outer ring (drawn first, behind)
   for (let i = 0; i < COUNT; i++) {
     const [ox, oy] = onCircle(R_OUT, angleDeg(i))
+
     parts.push(
       `<line x1="${CX}" y1="${CY}" x2="${ox.toFixed(2)}" y2="${oy.toFixed(2)}" ` +
         `stroke="${ZINC[300]}" stroke-width="1"/>`,
@@ -66,6 +67,7 @@ function buildSvg(): string {
   parts.push(
     `<circle cx="${CX}" cy="${CY}" r="${R_IN}" fill="none" stroke="${ZINC[400]}" stroke-width="1.4"/>`,
   )
+
   parts.push(
     `<circle cx="${CX}" cy="${CY}" r="${R_OUT}" fill="none" stroke="${ZINC[700]}" stroke-width="2.5"/>`,
   )

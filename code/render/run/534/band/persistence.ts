@@ -23,6 +23,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 type Mode = 'free' | 'maintained' | 'autonomous'
+
 const MODE: Mode =
   process.argv[2] === 'maintained'
     ? 'maintained'
@@ -61,6 +62,7 @@ function run(): void {
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
+
   console.log(
     `mode ${MODE}, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
   )
@@ -111,6 +113,7 @@ function run(): void {
     u: number
     v: number
   }
+
   const raw: BandCell[] = []
 
   for (let i = 0; i < n; i++) {
@@ -122,6 +125,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
 
@@ -209,6 +213,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
@@ -281,6 +286,7 @@ function run(): void {
 
       let size = 0
       let fr = [s]
+
       seen[s] = 1
 
       while (fr.length) {
@@ -408,6 +414,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = r8
           rgba[idx + 1] = g8
           rgba[idx + 2] = b8

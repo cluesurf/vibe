@@ -11,6 +11,7 @@ function bfsDistances(
   size: number,
 ): Int32Array {
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -95,6 +96,7 @@ export function meanCurvature(input: { substrate: Substrate }): number {
         const degreeA = row.length
         const degreeB = (adjacency[b] ?? new Uint32Array(0)).length
         const triangles = triangleCount({ adjacency, a, b })
+
         total += 4 - degreeA - degreeB + 3 * triangles
         edges++
       }
@@ -186,6 +188,7 @@ export function gromovDelta(input: {
     const s3 = dij(0, 3) + dij(1, 2)
     const sorted = [s1, s2, s3].sort((a, b) => b - a)
     const delta = ((sorted[0] ?? 0) - (sorted[1] ?? 0)) / 2
+
     worst = Math.max(worst, delta)
   }
 

@@ -85,6 +85,7 @@ export function pointerTrajectory(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -132,6 +133,7 @@ export function slabOccupancySeries(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -172,6 +174,7 @@ export function loschmidtEcho(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -288,6 +291,7 @@ export function settledSignedPointer(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -348,6 +352,7 @@ export function perturbationGrowth(input: {
 }): { peakFraction: number; finalFraction: number } {
   const flipped = cloneWill(input.init)
   const value = flipped.data[input.slot] ?? 0
+
   flipped.data[input.slot] = ((value + 2) % 3) - 1
 
   let base = cloneWill(input.init)
@@ -371,6 +376,7 @@ export function perturbationGrowth(input: {
       table: input.table,
       collision: input.forward,
     })
+
     beatInto({
       src: perturbed,
       dst: perturbedScratch,
@@ -379,10 +385,12 @@ export function perturbationGrowth(input: {
     })
 
     const baseSwap = base
+
     base = baseScratch
     baseScratch = baseSwap
 
     const perturbedSwap = perturbed
+
     perturbed = perturbedScratch
     perturbedScratch = perturbedSwap
 

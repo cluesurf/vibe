@@ -49,6 +49,7 @@ suite('tool/poset: total order on four elements', [
   }),
   check('covering relations form the chain 0->1->2->3', () => {
     const p = totalOrder()
+
     exactArray(p.links[0]!, Uint32Array.from([1]), 'links[0]')
     exactArray(p.links[1]!, Uint32Array.from([2]), 'links[1]')
     exactArray(p.links[2]!, Uint32Array.from([3]), 'links[2]')
@@ -59,6 +60,7 @@ suite('tool/poset: total order on four elements', [
     () => {
       const p = totalOrder()
       const past = pastMatrix(p)
+
       equal(intervalSize(p, { a: 0, b: 3, past }), 2, '|A(0,3)|')
       // A(0,1) is empty (no element strictly between adjacent chain links)
       equal(intervalSize(p, { a: 0, b: 1, past }), 0, '|A(0,1)|')
@@ -72,6 +74,7 @@ suite('tool/poset: diamond', [
   }),
   check('covering relations omit the transitive 0->3', () => {
     const p = diamond()
+
     exactArray(p.links[0]!, Uint32Array.from([1, 2]), 'links[0]')
     exactArray(p.links[1]!, Uint32Array.from([3]), 'links[1]')
     exactArray(p.links[2]!, Uint32Array.from([3]), 'links[2]')
@@ -80,10 +83,12 @@ suite('tool/poset: diamond', [
   check('interval A(0,3) has the two middle elements 1,2', () => {
     const p = diamond()
     const past = pastMatrix(p)
+
     equal(intervalSize(p, { a: 0, b: 3, past }), 2, '|A(0,3)| diamond')
   }),
   check('subPoset on {0,1,3} keeps the induced order 0<1<3', () => {
     const sub = subPoset(diamond(), { elements: [0, 1, 3] })
+
     // relabelled 0->0, 1->1, 3->2; chain of three: pairs (0,1),(0,2),(1,2) = 3
     equal(relationCount(sub), 3, 'induced pair count')
     equal(precedes(sub, { a: 0, b: 2 }), true, 'induced 0<3')

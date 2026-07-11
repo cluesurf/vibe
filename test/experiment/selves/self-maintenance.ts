@@ -134,7 +134,8 @@ export function selfMaintenance(input?: { n?: number }): {
 
   for (const i of chunkSet) {
     ctrl[i] = 0
-  } // erase the whole self
+  }
+  // erase the whole self
 
   for (let b = 0; b < beats; b++) {
     beat(ctrl, eu, ev, g.offsets, g.adj, moved, b)

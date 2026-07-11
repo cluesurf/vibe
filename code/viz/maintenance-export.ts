@@ -160,6 +160,7 @@ export function exportMaintenance(input?: {
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
+
     target[a] = target[b]!
     target[b] = t
   }
@@ -240,6 +241,7 @@ export function exportMaintenance(input?: {
 
         const d2 = dx * dx + dy * dy + 1e-9
         const f = (2.2 * ideal * ideal) / d2
+
         dx *= f
         dy *= f
         dispX[i]! += dx
@@ -258,6 +260,7 @@ export function exportMaintenance(input?: {
 
       const d = Math.hypot(dx, dy) + 1e-6
       const f = (0.9 * d * d) / ideal
+
       dx = (dx / d) * f
       dy = (dy / d) * f
       dispX[a]! -= dx
@@ -270,6 +273,7 @@ export function exportMaintenance(input?: {
 
     for (let i = 0; i < view.length; i++) {
       const len = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
+
       position[i]![0]! += (dispX[i]! / len) * Math.min(len, temp)
       position[i]![1]! += (dispY[i]! / len) * Math.min(len, temp)
     }
@@ -303,6 +307,7 @@ export function exportMaintenance(input?: {
 
   const maintained = new Int8Array(N)
   const free = new Int8Array(N)
+
   seed(maintained, makeRng({ seed: 5 }))
   seed(free, makeRng({ seed: 5 }))
 
@@ -322,7 +327,8 @@ export function exportMaintenance(input?: {
 
       for (const i of region) {
         maintained[i] = target[i]!
-      } // self-maintenance, restore the identity (P171)
+      }
+      // self-maintenance, restore the identity (P171)
 
       beat(free, edges, moved, rngB, arrow)
     }
@@ -353,6 +359,7 @@ export function exportMaintenance(input?: {
 }
 
 const result = exportMaintenance()
+
 console.log('maintenance export (real {5,3,4}, P171):')
 console.log(`  bulk cells: ${result.bulkCells}`)
 console.log(`  self region (placed probe): ${result.regionCells} cells`)

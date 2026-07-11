@@ -83,6 +83,7 @@ suite('algebra/linear/voigt: energy preservation', [
   ),
   check('self inner product equals the Frobenius norm squared', () => {
     const v = symmetricTensorToVoigt(S)
+
     close(euclid(v, v), frobenius(S, S), 1e-9, '|voigt S|^2 = |S|_F^2')
   }),
 ])

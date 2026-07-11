@@ -71,6 +71,7 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         if (will.data[c * degree + dir] !== 0) {
           const v = will.data[c * degree + dir]!
+
           will.data[c * degree + dir] = 0
           will.data[c * degree + 6] = v
           break
@@ -99,6 +100,7 @@ export default experiment({
 
         {
           const swap = clean
+
           clean = cleanScratch
           cleanScratch = swap
         }
@@ -107,6 +109,7 @@ export default experiment({
 
         {
           const swap = hit
+
           hit = hitScratch
           hitScratch = swap
         }
@@ -157,6 +160,7 @@ export default experiment({
       beatInto({ src: hit, dst: hitScratch, table, collision: rule })
 
       const swap = hit
+
       hit = hitScratch
       hitScratch = swap
       absorbBoundary(hit)

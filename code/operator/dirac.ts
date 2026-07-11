@@ -179,6 +179,7 @@ export function kahlerDirac(input: {
 
   // Offsets of each grade block within the stacked vector.
   const offset: number[] = new Array<number>(grades + 1)
+
   offset[0] = 0
 
   for (let k = 0; k < grades; k++) {
@@ -208,12 +209,14 @@ export function kahlerDirac(input: {
       for (let p = start; p < end; p++) {
         const c = b.colIdx[p] ?? 0
         const value = b.value[p] ?? 0
+
         // delta block: maps high grade k down to low grade k-1.
         triplets.push({
           row: lowOffset + r,
           col: highOffset + c,
           value,
         })
+
         // d block (transpose): maps low grade k-1 up to high grade k.
         triplets.push({
           row: highOffset + c,

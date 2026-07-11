@@ -113,6 +113,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
     for (let i = 0; i < N; i++) {
       const grad = 0.25 * (1 - distP[i]! / (maxd + 1)) // dilute +1 gas, denser near the pole
+
       tone[i] = rng.next() < grad ? 1 : 0
     }
 
@@ -198,6 +199,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
   for (let i = split; i < m; i++) {
     const pred = diffusionConstant * samplesX[i]!
+
     ssRes += (samplesY[i]! - pred) ** 2
     ssTot += (samplesY[i]! - meanY) ** 2
   }

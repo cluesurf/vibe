@@ -54,6 +54,7 @@ export function clampedLeakyDiffusion(input: {
   } = input
 
   let p = new Float64Array(N)
+
   p[src] = 1
 
   let np = new Float64Array(N)
@@ -78,6 +79,7 @@ export function clampedLeakyDiffusion(input: {
     }
 
     const tmp = p
+
     p = np
     np = tmp
   }

@@ -54,6 +54,7 @@ export default experiment({
 
       // a perturbation, flip one cell up by one clock step, then evolve and see if the winding survives.
       let pert: ClockRing = makeTwist({ size, states, turns: 1 })
+
       pert.curr[Math.floor(size / 2)] =
         (pert.curr[Math.floor(size / 2)]! + 1) % states
 

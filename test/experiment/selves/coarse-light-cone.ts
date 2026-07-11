@@ -30,6 +30,7 @@ function perturbAndWatch(input: {
   const dist = distancesFrom({ graph, source: site })
   const control = base.slice()
   const perturbed = base.slice()
+
   perturbed[site] = perturbed[site] === 1 ? -1 : 1
 
   const movedA = new Uint8Array(graph.cellCount)

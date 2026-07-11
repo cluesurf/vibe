@@ -86,14 +86,14 @@ async function run(): Promise<void> {
   }
 
   const C = maxColor + 1
-  const colorOffsets = new Array(C + 1).fill(0)
+  const colorOffsets = new Array<number>(C + 1).fill(0)
 
   for (let i = 0; i < E; i++) {
-    colorOffsets[color[i]! + 1]++
+    colorOffsets[color[i]! + 1] = colorOffsets[color[i]! + 1]! + 1
   }
 
   for (let c = 0; c < C; c++) {
-    colorOffsets[c + 1] += colorOffsets[c]!
+    colorOffsets[c + 1] = colorOffsets[c + 1]! + colorOffsets[c]!
   }
 
   const edgeV = new Uint32Array(E),
@@ -103,6 +103,7 @@ async function run(): Promise<void> {
 
   for (let i = 0; i < E; i++) {
     const at = cur[color[i]!]!++
+
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
@@ -131,6 +132,7 @@ async function run(): Promise<void> {
       }
 
       const id = nb++
+
       ballOf[s] = id
 
       let frontier = [s]
@@ -183,6 +185,7 @@ async function run(): Promise<void> {
 
   for (let i = 0; i < N; i++) {
     const x = nx()
+
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
 
@@ -243,6 +246,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const p = enc.beginComputePass()
+
       p.setPipeline(pipeline)
       p.setBindGroup(0, bind)
       p.dispatchWorkgroups(Math.ceil(count / WORKGROUP))
@@ -269,6 +273,7 @@ async function run(): Promise<void> {
 
     {
       const enc = device.createCommandEncoder()
+
       enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
       device.queue.submit([enc.finish()])
     }
@@ -276,6 +281,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const t = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     for (let sc = 0; sc < SCALES.length; sc++) {
@@ -287,6 +293,7 @@ async function run(): Promise<void> {
 
         if (q) {
           const bi = ballOf[i]!
+
           arr[bi] = arr[bi]! + q
         }
       }
@@ -297,6 +304,7 @@ async function run(): Promise<void> {
   console.log(
     'Persistence by scale: temporal autocorrelation of coarse charge (slower decay at coarse = a layer)',
   )
+
   console.log(
     '  scale | C(1 step) | C(2) | C(4) | C(8)  [steps of ' +
       K +

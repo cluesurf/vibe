@@ -22,6 +22,7 @@ export function d4Directions(): number[][] {
       for (const signA of [1, -1]) {
         for (const signB of [1, -1]) {
           const vector = [0, 0, 0, 0]
+
           vector[a] = signA
           vector[b] = signB
           directions.push(vector)

@@ -42,6 +42,7 @@ function correlation(xs: number[], ys: number[]): number {
   for (let i = 0; i < n; i++) {
     const dx = xs[i]! - mx
     const dy = ys[i]! - my
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy

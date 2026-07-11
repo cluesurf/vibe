@@ -120,6 +120,7 @@ function sampleBall(input: {
 
   for (let i = 0; i < dim; i++) {
     const g = input.rng.nextGaussian()
+
     out[i] = g
     norm2 += g * g
   }

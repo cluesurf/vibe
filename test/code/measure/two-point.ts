@@ -78,10 +78,12 @@ suite('measure/two-point: dirac correlator', [
     for (let n = 1; n < modes; n++) {
       const k = (Math.PI * n) / modes
       const omega = Math.acos(Math.cos(k) * Math.cos(mass))
+
       weight += 1 / (2 * omega) / modes
     }
 
     const c = diracEqualTimeCorrelator({ mass, maxR: 4, modes })
+
     close(c[0]!, weight, TOL)
   }),
   // A larger mass shortens the range: C decays faster, so C(4)/C(0) is smaller for the
@@ -101,6 +103,7 @@ suite('measure/two-point: dirac correlator', [
 
     const lightRatio = Math.abs(light[6]! / light[0]!)
     const heavyRatio = Math.abs(heavy[6]! / heavy[0]!)
+
     ok(
       heavyRatio < lightRatio,
       'the heavier field must fall off faster relative to C(0)',

@@ -50,6 +50,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
   let previous = new Uint8Array(RING)
   let current = new Uint8Array(RING)
+
   current[center] = 1
 
   const seedPrev = previous.slice()
@@ -59,6 +60,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
+
     reversibleWaveStep({
       neighbors,
       previous,
@@ -92,6 +94,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
+
     reversibleWaveStep({
       neighbors,
       previous: revPrev,

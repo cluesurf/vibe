@@ -54,7 +54,8 @@ export function dodecagridNavigation(input: { seed: number }): {
 
     if (shortest <= 0) {
       continue
-    } // not connected (or same), skip
+    }
+    // not connected (or same), skip
 
     attempted += 1
 

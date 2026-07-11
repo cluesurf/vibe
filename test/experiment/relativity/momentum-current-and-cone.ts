@@ -40,6 +40,7 @@ export default experiment({
 
     // momentum conservation on a deterministic structured fill.
     const filled = makeWill(mesh)
+
     fillWillPattern(filled)
 
     const p0 = totalMomentum(filled)

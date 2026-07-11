@@ -24,6 +24,7 @@ export function covariantKahlerDirac(input: {
 
   // Offsets of each grade block within the stacked vector.
   const offset: number[] = new Array<number>(grades + 1)
+
   offset[0] = 0
 
   for (let k = 0; k < grades; k++) {
@@ -106,6 +107,7 @@ export function covariantKahlerDirac(input: {
           col: highOffset + c,
           value,
         })
+
         triplets.push({
           row: highOffset + c,
           col: lowOffset + r,

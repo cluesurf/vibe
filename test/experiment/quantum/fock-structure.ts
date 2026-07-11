@@ -149,6 +149,7 @@ export default experiment({
         }
 
         const expected = a === b ? 1 : 0
+
         worstGram = Math.max(
           worstGram,
           Math.hypot(inner[0] - expected, inner[1]),

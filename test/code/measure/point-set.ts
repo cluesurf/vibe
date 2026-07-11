@@ -23,11 +23,13 @@ const TOL = 1e-12
 suite('measure/point-set: centroid and recenter', [
   check('centroid of a symmetric square is its center', () => {
     const cells = new Set(['0,0', '2,0', '0,2', '2,2'])
+
     exactArray(centroidOfCellSet(cells), [1, 1])
   }),
   check('recenter shifts the rounded centroid to the origin', () => {
     const cells = new Set(['0,0', '2,0', '0,2', '2,2'])
     const out = recenterCellSet(cells)
+
     // centroid (1,1) -> each cell minus (1,1).
     ok(out.has('-1,-1'))
     ok(out.has('1,-1'))
@@ -42,6 +44,7 @@ suite('measure/point-set: overlap and gyration', [
     // {0,0;1,0} vs {1,0;2,0}: one shared cell, max size 2 -> 0.5.
     const a = new Set(['0,0', '1,0'])
     const b = new Set(['1,0', '2,0'])
+
     close(cellSetOverlap(a, b), 0.5, TOL)
   }),
   check('radius of gyration of two unit-offset cells is 1', () => {

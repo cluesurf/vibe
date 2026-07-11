@@ -40,6 +40,7 @@ function dirs(): { vecs: number[][]; swap: number[] } {
       for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
+
           v[a] = sa
           v[b] = sb
           vecs.push(v)
@@ -109,6 +110,7 @@ function cpuBeat(
 
     for (let k = 0; k < DIRN; k++) {
       const o = vecs[k]!
+
       pop[k] =
         inp[ix(x - o[0]!, y - o[1]!, z - o[2]!, w - o[3]!) * DIRN + k]!
     }
@@ -120,6 +122,7 @@ function cpuBeat(
 
     for (let k = 0; k < DIRN; k++) {
       const o = vecs[k]!
+
       mx += pop[k]! * o[0]!
       my += pop[k]! * o[1]!
       mz += pop[k]! * o[2]!
@@ -196,6 +199,7 @@ function rmsRadius(state: Int32Array, L: number): number {
           }
 
           const r2 = dd(x) + dd(y) + dd(z) + dd(w)
+
           weight += q
           sumR2 += q * r2
         }
@@ -219,6 +223,7 @@ function totals(
   for (let cell = 0; cell < n; cell++) {
     for (let k = 0; k < DIRN; k++) {
       const v = state[cell * DIRN + k]!
+
       charge += v
 
       for (let j = 0; j < 4; j++) {
@@ -295,6 +300,7 @@ async function run(): Promise<void> {
     device.queue.writeBuffer(uni, 0, new Uint32Array([L, 0, 0, 0]))
 
     const init = seedProtoSelf(L, 1)
+
     device.queue.writeBuffer(a, 0, init)
 
     const stepOnce = (src: GPUBuffer, dst: GPUBuffer): void => {
@@ -311,6 +317,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
+
       pass.setPipeline(pipeline)
       pass.setBindGroup(0, bg)
       pass.dispatchWorkgroups(Math.ceil(N / WG))
@@ -320,11 +327,13 @@ async function run(): Promise<void> {
 
     const readState = async (buf: GPUBuffer): Promise<Int32Array> => {
       const enc = device.createCommandEncoder()
+
       enc.copyBufferToBuffer(buf, 0, stage, 0, SZ * 4)
       device.queue.submit([enc.finish()])
       await stage.mapAsync(GPUMapMode.READ)
 
       const out = new Int32Array(stage.getMappedRange().slice(0))
+
       stage.unmap()
 
       return out
@@ -342,11 +351,13 @@ async function run(): Promise<void> {
       stepOnce(src, dst)
 
       const tmp = src
+
       src = dst
       dst = tmp
 
       if (t % captureEvery === 0 || t === beats) {
         const s = await readState(src)
+
         radii.push({ beat: t, radius: rmsRadius(s, L) })
       }
     }
@@ -385,6 +396,7 @@ async function run(): Promise<void> {
   console.log(
     `\nGPU proto-self persistence, 4D L=${L} (${N.toLocaleString()} docks x 24 sites = ${(N * DIRN).toLocaleString()} vibes), ${BEATS} beats:`,
   )
+
   console.log(
     `  determinism backbone: charge conserved ${chargeOk} (${sim.start.charge} -> ${sim.end.charge}), momentum conserved ${momOk}`,
   )
@@ -405,9 +417,11 @@ async function run(): Promise<void> {
   console.log(
     `  radius growth per beat: ${growthPerBeat.toFixed(3)} (ballistic baseline, near 1 means the bare rule does NOT bind)`,
   )
+
   console.log(
     'RESULT: at scale the bare conserving knit-gas conserves exactly and the proto-self',
   )
+
   console.log(
     `        ${growthPerBeat > 0.5 ? 'SPREADS (no binding from the bare rule, as expected, the honest baseline)' : 'STAYS LOCALIZED (binding signal, investigate for artifacts)'}.`,
   )

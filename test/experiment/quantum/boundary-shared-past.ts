@@ -49,6 +49,7 @@ function pearson(xs: number[], ys: number[]): number {
   for (let i = 0; i < n; i++) {
     const dx = (xs[i] ?? 0) - meanX
     const dy = (ys[i] ?? 0) - meanY
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy

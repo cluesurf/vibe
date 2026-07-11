@@ -36,6 +36,7 @@ export function dCubePoissonGreens(input: {
       for (let k = 0; k < d; k++) {
         for (const s of [-1, 1]) {
           const cc = c.slice()
+
           cc[k]! += s
 
           if (cc[k]! >= 0 && cc[k]! < L) {
@@ -60,6 +61,7 @@ export function dCubePoissonGreens(input: {
 
   const b = new Float64Array(N)
   const c0 = d === 3 ? [L >> 1, L >> 1, L >> 1] : [L >> 1, L >> 1]
+
   b[idx(c0)] = 1
 
   const x = new Float64Array(N),

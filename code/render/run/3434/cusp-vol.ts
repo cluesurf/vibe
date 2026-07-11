@@ -144,6 +144,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -208,6 +209,7 @@ async function run(): Promise<void> {
         const x2 = ox * cosy + z1 * siny
         const z2 = -ox * siny + z1 * cosy
         const i = idx(x, y, z)
+
         PX[i] = Math.round(IMG / 2 + x2 * scale)
         PY[i] = Math.round(IMG / 2 - y1 * scale)
         z2arr[i] = z2
@@ -242,6 +244,7 @@ async function run(): Promise<void> {
     // read back current field
     {
       const enc = device.createCommandEncoder()
+
       enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
       device.queue.submit([enc.finish()])
     }
@@ -249,6 +252,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const field = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     accR.fill(0)
@@ -282,6 +286,7 @@ async function run(): Promise<void> {
           }
 
           const pix = iy * IMG + ix
+
           accR[pix] = accR[pix]! * (1 - ALPHA) + col[0] * d * ALPHA
           accG[pix] = accG[pix]! * (1 - ALPHA) + col[1] * d * ALPHA
           accB[pix] = accB[pix]! * (1 - ALPHA) + col[2] * d * ALPHA
@@ -303,6 +308,7 @@ async function run(): Promise<void> {
     // advance one beat on the GPU
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)

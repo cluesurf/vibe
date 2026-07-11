@@ -55,8 +55,8 @@ export function minimumInterval(input: {
 
   for (const p of pts) {
     if (!p || p.t > 6 || Math.abs(p.x) > 6) {
-      continue // keep away from the boundary
-    }
+      continue
+    } // keep away from the boundary
 
     let best = Infinity
 

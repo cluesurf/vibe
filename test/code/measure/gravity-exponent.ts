@@ -68,6 +68,7 @@ suite('measure/gravity-exponent: 3D Coulomb falloff', [
         alpha > 0,
         `a decaying potential must give a positive exponent, got ${alpha}`,
       )
+
       // Closer to the area-law value 1 than to 0 or 2 (Newtonian band).
       ok(
         alpha > 0.5 && alpha < 1.5,

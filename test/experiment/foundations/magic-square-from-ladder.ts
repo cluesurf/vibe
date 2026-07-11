@@ -69,6 +69,7 @@ export default experiment({
     for (let r = 0; r < LADDER.length; r++) {
       for (let c = 0; c < LADDER.length; c++) {
         const computed = magicSquareDim(LADDER[r]!, LADDER[c]!)
+
         maxResidual = Math.max(
           maxResidual,
           Math.abs(computed - EXPECTED[r]![c]!),

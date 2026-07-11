@@ -50,6 +50,7 @@ export function packetRmsTrace(input: {
   const curr = new Float64Array(length)
   const next = new Float64Array(length)
   const history: Float64Array[] = []
+
   curr[center] = amplitude
 
   // the memory slot is the average of the last `width` states, so width one is the bare
@@ -79,6 +80,7 @@ export function packetRmsTrace(input: {
       const left = curr[(i - 1 + length) % length]!
       const right = curr[(i + 1) % length]!
       const laplacian = (left + right) / 2 - curr[i]!
+
       // second-order wave with the memory slot in place of the single previous beat.
       next[i] = 2 * curr[i]! - memoryAt(i) + laplacian
     }

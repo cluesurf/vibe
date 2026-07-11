@@ -78,6 +78,7 @@ export function lowestEigenpairs(input: {
     }
 
     const energy = dot(phi, operator.apply({ x: phi }))
+
     found.push({ energy, state: phi })
   }
 

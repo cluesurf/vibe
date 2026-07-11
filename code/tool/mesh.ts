@@ -23,6 +23,7 @@ export type Mesh = {
 // Unreachable cells stay -1 (none, on a connected periodic mesh).
 export function shellDistances(mesh: Mesh, source: number): Int32Array {
   const distance = new Int32Array(mesh.cellCount).fill(-1)
+
   distance[source] = 0
 
   let frontier = [source]
@@ -240,6 +241,7 @@ export function betheMesh(input: {
     for (const node of frontier) {
       for (let k = 0; k < coordination; k++) {
         const child = parent.length
+
         parent.push(node)
         children.push([])
         children[node]!.push(child)

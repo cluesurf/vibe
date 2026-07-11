@@ -142,6 +142,7 @@ export function lowestAbsoluteEigenvalues(input: {
     }
 
     const aj = realDot(v, w, dimension)
+
     alpha.push(aj)
 
     for (let i = 0; i < dimension; i++) {

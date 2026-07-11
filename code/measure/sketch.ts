@@ -8,6 +8,7 @@
 // uniformly across the slots.
 const mix = (key: number, salt: number, modulus: number): number => {
   let h = (key ^ Math.imul(salt + 1, 0x9e3779b9)) >>> 0
+
   h = Math.imul(h ^ (h >>> 16), 0x21f0aaad) >>> 0
   h = Math.imul(h ^ (h >>> 15), 0x735a2d97) >>> 0
   h = (h ^ (h >>> 15)) >>> 0

@@ -47,6 +47,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
 
   for (const b of [2, 4]) {
     const K = Math.floor(fineSteps / b)
+
     rungErrors.push({
       b,
       error: leapfrogWaveCommutingError({

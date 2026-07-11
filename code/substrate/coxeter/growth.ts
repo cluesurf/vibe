@@ -130,26 +130,32 @@ export function outermostShellFraction(shells: number[]): number {
 
 export function main(): void {
   const count = 12
+
   console.log(
     '{7,3} face layers:',
     toStrings(polygonsAddedPerLayer73(count)).join(', '),
   )
+
   console.log(
     '{5,4} face layers:',
     toStrings(polygonsAddedPerLayer54(count)).join(', '),
   )
+
   console.log(
     '{5,3,4} cell layers:',
     toStrings(cellsAddedPerLayer5354(count)).join(', '),
   )
+
   console.log(
     'general 2D {7,3}:',
     toStrings(regular2DFaceLayers(7, 3, count)).join(', '),
   )
+
   console.log(
     'general 2D {5,4}:',
     toStrings(regular2DFaceLayers(5, 4, count)).join(', '),
   )
+
   console.log(
     'cumulative {5,3,4}:',
     toStrings(cumulative(cellsAddedPerLayer5354(count))).join(', '),

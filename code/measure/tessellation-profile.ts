@@ -29,6 +29,7 @@ const bfsDepths = (
   root: number,
 ): number[] => {
   const depth = new Array<number>(adjacency.length).fill(-1)
+
   depth[root] = 0
 
   let frontier = [root]
@@ -75,8 +76,8 @@ export function cellCoordination(symbol: number[]): number {
   const cellOrder = buildCoxeterMatrixMesh(cell, cap).adjacency.length
 
   if (cellOrder >= cap) {
-    return Infinity // the cell is a tiling, infinite coordination
-  }
+    return Infinity
+  } // the cell is a tiling, infinite coordination
 
   const facetOrder =
     facet.length === 0

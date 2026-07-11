@@ -117,6 +117,7 @@ export function scramblePermutation(
   for (let i = size - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const swap = permutation[i]!
+
     permutation[i] = permutation[j]!
     permutation[j] = swap
   }

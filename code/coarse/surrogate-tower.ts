@@ -73,6 +73,7 @@ export function surrogateTower(input: {
 
     const surrogateCost = Math.ceil(span / lag) * bins * bins
     const baseCost = span * cellCount
+
     out.push({
       level,
       lag,

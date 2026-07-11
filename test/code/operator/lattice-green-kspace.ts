@@ -28,6 +28,7 @@ suite('operator/lattice-green-kspace: difference identities', [
   check('antisymmetry: diff(a,b) = -diff(b,a)', () => {
     const ab = latticeGreenDifferenceX({ r: 4, r0: 1, gridPoints: M })
     const ba = latticeGreenDifferenceX({ r: 1, r0: 4, gridPoints: M })
+
     close(ab + ba, 0, 1e-13, 'antisymmetry')
   }),
   check('additivity: diff(4,1) = diff(4,2) + diff(2,1)', () => {
@@ -58,6 +59,7 @@ suite('operator/lattice-green-kspace: difference identities', [
         latticeGreenDifferenceX({ r: 2, r0: 1, gridPoints: M }) < 0,
         'G(2) < G(1)',
       )
+
       ok(
         latticeGreenDifferenceX({ r: 4, r0: 2, gridPoints: M }) < 0,
         'G(4) < G(2)',

@@ -104,6 +104,7 @@ export function coxeterEngine(): {
 
   const dodecagridGenerations = gens.map(g => {
     const newCells = perGen.get(g) ?? 0
+
     cum += newCells
 
     return { generation: g, newCells, total: cum }

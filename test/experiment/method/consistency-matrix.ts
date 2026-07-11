@@ -37,6 +37,7 @@ function d4Roots(): number[][] {
       for (const si of [1, -1]) {
         for (const sj of [1, -1]) {
           const v = [0, 0, 0, 0]
+
           v[i] = si
           v[j] = sj
           roots.push(v)
@@ -76,6 +77,7 @@ function conservationResidual(
   collision: Collision,
 ): number {
   const w = makeWill(mesh)
+
   fillWillPattern(w)
 
   const before = charge(w)
@@ -90,6 +92,7 @@ function reversibilityMismatch(
   collision: Collision,
 ): number {
   const w = makeWill(mesh)
+
   fillWillPattern(w)
 
   const original = w.data.slice()
@@ -140,6 +143,7 @@ export default experiment({
     // a structured deterministic will on d4 for the continuity arena.
     const continuityResidual = (collision: Collision): number => {
       const w = makeWill(d4)
+
       fillWillPattern(w)
 
       return coarseContinuityResidual({

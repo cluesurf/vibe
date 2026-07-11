@@ -66,6 +66,7 @@ export function runMachine(
   }
 
   const initial = new Array<bigint>(compiled.program.registers).fill(0n)
+
   inputs.forEach((v, i) => (initial[i] = BigInt(v)))
 
   if (compiled.backend === 'ternary') {

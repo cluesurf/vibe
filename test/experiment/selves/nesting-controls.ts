@@ -31,6 +31,7 @@ const shuf = <T>(a: T[]): T[] => {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1))
     const t = a[i]!
+
     a[i] = a[j]!
     a[j] = t
   }
@@ -60,6 +61,7 @@ function stepPerception(t: Int8Array): void {
       }
 
       const [na, nb] = perm(t[v]!, t[w]!)
+
       t[v] = na
       t[w] = nb
       m[v] = 1
@@ -92,6 +94,7 @@ function stepDiffusion(t: Int8Array): void {
       }
 
       const a = t[v]!
+
       t[v] = t[w]!
       t[w] = a
       m[v] = 1

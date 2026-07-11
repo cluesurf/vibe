@@ -36,6 +36,7 @@ export function loneParticle(
   tone: Tone = 1,
 ): Will {
   const will = makeWill(mesh)
+
   will.data[cell * mesh.degree + direction] = tone
 
   return will

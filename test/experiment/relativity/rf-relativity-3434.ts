@@ -108,6 +108,7 @@ export function rfRelativity(): {
 
     for (const pt of parts) {
       const k = `${Math.floor(wrap(pt.p[0]!) / 2)},${Math.floor(wrap(pt.p[1]!) / 2)},${Math.floor(wrap(pt.p[2]!) / 2)},${Math.floor(wrap(pt.p[3]!) / 2)}`
+
       bins.set(k, (bins.get(k) ?? 0) + 1)
     }
 
@@ -115,6 +116,7 @@ export function rfRelativity(): {
 
     for (const c of bins.values()) {
       const p = c / NP
+
       H -= p * Math.log(p)
     }
 

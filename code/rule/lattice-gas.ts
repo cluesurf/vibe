@@ -21,6 +21,7 @@ export function stream(will: Will): Will {
 
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, mesh.opposite(direction))
+
       output[base + direction] = input[source * degree + direction] ?? 0
     }
   }
@@ -40,6 +41,7 @@ export function streamInverse(will: Will): Will {
 
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, direction)
+
       output[base + direction] = input[source * degree + direction] ?? 0
     }
   }
@@ -86,6 +88,7 @@ export function streamSourceTable(mesh: Mesh): Int32Array {
 
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, mesh.opposite(direction))
+
       table[base + direction] = source * degree + direction
     }
   }
@@ -107,6 +110,7 @@ export function beatInto(input: {
   collision: Collision
 }): void {
   const { src, dst, table, collision } = input
+
   collide(src, collision)
 
   const sd = src.data
@@ -120,6 +124,7 @@ export function beatInto(input: {
 // one inverse beat, un-stream then collide, since the collision is an involution.
 export function inverseBeat(will: Will, collision: Collision): Will {
   const back = streamInverse(will)
+
   collide(back, collision)
 
   return back
@@ -149,6 +154,7 @@ export function run(
     beatInto({ src: a, dst: b, table, collision })
 
     const swap = a
+
     a = b
     b = swap
   }

@@ -47,6 +47,7 @@ function labeledBeat(
 ): void {
   const { offsets, adj } = g
   const N = tone.length
+
   moved.fill(0)
 
   const start = Math.floor(rng.next() * N)

@@ -30,6 +30,7 @@ suite('coarse/pattern-persistence: reproducibility and bounds', [
     const opts = { L: 30, radius: 3, beats: 40, seed: 7, arrow: 0.1 }
     const a = patternSurvivalTime(opts)
     const b = patternSurvivalTime(opts)
+
     equal(a, b, 'same seed, same survival time')
     ok(a >= 0 && a <= 40, 'survival time is within the run length')
   }),

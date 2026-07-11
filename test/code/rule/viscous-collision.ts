@@ -47,6 +47,7 @@ function count(slots: Int8Array): number {
 
 function apply(collision: Collision, slots: Int8Array): Int8Array {
   const copy = Int8Array.from(slots)
+
   collision(copy, 0, copy.length)
 
   return copy
@@ -125,6 +126,7 @@ suite(
     check('it conserves mass and the full momentum vector', () => {
       const start = pattern()
       const after = apply(viscousRotate({ directions: D4 }), start)
+
       equal(count(after), count(start), 'count (mass) conserved')
       equal(
         JSON.stringify(momentum(after)),
@@ -143,10 +145,12 @@ suite(
         ]
 
         const slots = new Int8Array(DEGREE)
+
         slots[a] = 1
         slots[b] = 1 // pair occupied, partner (c,d) empty -> must swap
 
         const after = apply(viscousRotate({ directions: D4 }), slots)
+
         equal(after[a], 0, 'pair emptied')
         equal(after[b], 0, 'pair emptied')
         equal(after[c], 1, 'partner filled')
@@ -163,6 +167,7 @@ suite(
       const start = pattern()
       const collision = controlledViscousRotate({ directions: D4 })
       const twice = apply(collision, apply(collision, start))
+
       equal(
         JSON.stringify(Array.from(twice)),
         JSON.stringify(Array.from(start)),

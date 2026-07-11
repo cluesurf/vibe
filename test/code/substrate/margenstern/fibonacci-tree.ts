@@ -39,6 +39,7 @@ suite(
             nodeType(n),
             `son count = nodeType for ${n}`,
           )
+
           ok(
             nodeType(n) === 2 || nodeType(n) === 3,
             `nodeType in {2,3} for ${n}`,
@@ -70,6 +71,7 @@ suite('substrate/margenstern/fibonacci-tree: depth, paths and routes', [
 
     for (let n = 1; n <= 50; n++) {
       const p = pathToRoot(n)
+
       equal(p[0], n, 'path starts at the node')
       equal(p[p.length - 1], 1, 'path ends at the root')
       equal(p.length, depth(n) + 1, 'path length = depth + 1')
@@ -108,12 +110,14 @@ suite('substrate/margenstern/fibonacci-tree: depth, paths and routes', [
 
       for (const [from, to] of pairs) {
         const r = route(from, to)
+
         equal(r[0], from, `route starts at ${from}`)
         equal(r[r.length - 1], to, `route ends at ${to}`)
 
         for (let i = 0; i + 1 < r.length; i++) {
           const a = r[i]!
           const b = r[i + 1]!
+
           // every step is a parent/child edge: one is the father of the other.
           ok(
             father(a) === b || father(b) === a,

@@ -106,6 +106,7 @@ export function finiteTreeResolventRatio(input: {
   // constant and read a decay ratio of one.
   const phi = new Float64Array(N)
   const src = new Float64Array(N)
+
   src[0] = 1
 
   for (let it = 0; it < 4000; it++) {

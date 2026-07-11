@@ -24,6 +24,7 @@ export function radialSchrodingerLevels(input: {
 
   for (let i = 0; i < points; i++) {
     const r = (i + 1) * spacing
+
     h.data[i * points + i] =
       2 * kinetic + (l * (l + 1)) / (2 * mass * r * r) + potential(r)
 

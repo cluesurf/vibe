@@ -67,6 +67,7 @@ function disjointSweep(input: {
 
     for (let j = 0; j < input.blockSize; j++) {
       const pos = (start + j) % input.cells
+
       v |= ((state >> pos) & 1) << j
     }
 
@@ -165,6 +166,7 @@ suite('operator/block-ca: global permutation', [
           isPermutation(blockCaPermutation(config)),
           `propagating perm cells=${config.cells}`,
         )
+
         ok(
           isPermutation(blockCaPermutation({ ...config, offsets: 1 })),
           `disjoint perm cells=${config.cells}`,

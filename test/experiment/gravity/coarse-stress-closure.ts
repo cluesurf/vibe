@@ -74,6 +74,7 @@ function worstResidual(rule: 'rotate' | 'pair'): {
       : pairCollision({ opposite })
 
   let will = makeWill(mesh)
+
   fillTexture(will)
 
   const chargeBefore = charge(will)

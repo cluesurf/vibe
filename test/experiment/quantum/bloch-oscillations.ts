@@ -53,6 +53,7 @@ export default experiment({
 
     for (const force of FORCES) {
       const frequency = blochFrequency({ ...BASE, force })
+
       worstFreqRatioError = Math.max(
         worstFreqRatioError,
         Math.abs(frequency / force - 1),

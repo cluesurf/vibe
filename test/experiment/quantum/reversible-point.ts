@@ -36,7 +36,8 @@ function dbViolation(
 
   for (let t = 0; t < 60; t++) {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-  } // reach steady state
+  }
+  // reach steady state
 
   // sample a fixed subset of edges, count (a,b) -> (a',b') transitions over many beats (9 states each)
   const sampleEdges: number[] = []
@@ -62,6 +63,7 @@ function dbViolation(
     for (let i = 0; i < sampleEdges.length; i++) {
       const k = sampleEdges[i]!
       const post = st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!)
+
       C[pre[i]! * S9 + post]! += 1
     }
 

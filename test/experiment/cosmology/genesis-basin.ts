@@ -49,6 +49,7 @@ export default experiment({
     const theVoid = new Int8Array(n)
     const pairSeed = (() => {
       const t = new Int8Array(n)
+
       t[center] = 1
       t[mesh.neighbors[center]![0]!] = -1
 

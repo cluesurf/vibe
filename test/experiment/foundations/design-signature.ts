@@ -106,6 +106,7 @@ export function designSignature(input?: { n?: number }): {
       }
 
       const r = isRich(tone, eu, ev)
+
       grid.push({ arrow, share, rich: r.rich, density: r.density })
     }
   }

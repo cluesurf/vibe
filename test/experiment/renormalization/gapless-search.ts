@@ -136,6 +136,7 @@ export function gaplessSearch(input?: {
   for (const arrow of arrows) {
     for (const share of shares) {
       const { range, xi, density } = measure(arrow, share)
+
       grid.push({ arrow, share, density, range, correlationLength: xi })
     }
   }

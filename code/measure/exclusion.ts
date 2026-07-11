@@ -32,6 +32,7 @@ export function coreWithHalo(input: {
   for (let k = 0; k < haloSize; k++) {
     const halo = coreSize + k
     const anchor = k % coreSize
+
     sets[halo]!.add(anchor)
     sets[anchor]!.add(halo)
   }

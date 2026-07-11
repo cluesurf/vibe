@@ -58,7 +58,8 @@ export function canExtendKissing(
       units.some(existing => dot(existing, candidateUnit) > 1 - 1e-9)
     ) {
       return false
-    } // already present
+    }
+    // already present
 
     return units.every(
       existing => dot(existing, candidateUnit) <= threshold + 1e-9,

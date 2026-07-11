@@ -71,6 +71,7 @@ export default experiment({
     for (let i = fine - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const tmp = randomGroups[i]!
+
       randomGroups[i] = randomGroups[j]!
       randomGroups[j] = tmp
     }

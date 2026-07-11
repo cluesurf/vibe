@@ -31,6 +31,7 @@ function nrt3(k: number): Float32Array {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
+
         out[s * 3] = Math.sin(q * x)
         out[s * 3 + 1] = -Math.cos(q * x) * Math.sin(q * y)
         out[s * 3 + 2] = Math.cos(q * x) * Math.cos(q * y)
@@ -50,6 +51,7 @@ function nrt3helix(k: number): Float32Array {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
+
         out[s * 3] = Math.sin(q * x)
         out[s * 3 + 1] = 0
         out[s * 3 + 2] = Math.cos(q * x)
@@ -62,6 +64,7 @@ function nrt3helix(k: number): Float32Array {
 
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
+
   c[0] = 2 / Math.PI
 
   for (let k = 1; 2 * k < M; k++) {
@@ -248,6 +251,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pMat)
       pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
       pass.dispatchWorkgroups(wgN)
@@ -276,6 +280,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pDP)
       pass.setBindGroup(0, bg(pDP, xi, cur, partials))
       pass.dispatchWorkgroups(wgF)
@@ -296,12 +301,14 @@ async function run(): Promise<void> {
 
     for (let n = 2; n < MCHEB; n++) {
       const itn = 3 - i0 - i1
+
       step(Bb[i1]!, Bb[itn]!, 2 / A, 1, Bb[i0]!, n, Bb[itn]!)
       i0 = i1
       i1 = itn
     }
 
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
@@ -326,6 +333,7 @@ async function run(): Promise<void> {
     dMuH = Ks.map(() => new Float64Array(MCHEB))
 
   const rng = makeRng({ seed: 271 })
+
   console.log(
     `GPU Skyrme twist (double + helix control), L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, a=${A.toFixed(2)}`,
   )
@@ -424,9 +432,11 @@ async function run(): Promise<void> {
   // the helix q^4 is the pure lattice-exchange artifact; scale it by the exchange ratio (A_double/A_helix) and subtract
   const ratio = fD.A / fH.A
   const skyrme = fD.B - ratio * fH.B
+
   console.log(
     `  double:  A(q^2)=${fD.A.toFixed(1)}, B(q^4)=${fD.B.toFixed(1)}`,
   )
+
   console.log(
     `  helix :  A(q^2)=${fH.A.toFixed(1)}, B(q^4)=${fH.B.toFixed(1)}  (pure lattice artifact, no Skyrme)`,
   )
@@ -436,9 +446,11 @@ async function run(): Promise<void> {
   )
 
   const stabilizing = skyrme > 0
+
   console.log(
     `  => ${stabilizing ? 'SKYRME > 0 (POSITIVE): the fermion supplies a STABILIZING term. GATE CLOSED (positive sign).' : 'Skyrme <= 0 after subtraction: not stabilizing by this measure. Honest result.'}`,
   )
+
   console.log(
     `RESULT: skyrme=${skyrme.toFixed(1)} (raw B_double=${fD.B.toFixed(1)}, B_helix=${fH.B.toFixed(1)}), stabilizing ${stabilizing}`,
   )

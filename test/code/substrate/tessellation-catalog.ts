@@ -103,6 +103,7 @@ suite('substrate/tessellation-catalog: the vibe coin degrees', [
     'the {5,3,4} cell (dodecahedron) gives a 12-direction coin',
     () => {
       const entry = TESSELLATIONS.find(t => t.symbol === '{5,3,4}')!
+
       equal(entry.cells, 'dodecahedra', 'cell type')
       // A dodecahedron has 12 faces, independently the 12 icosahedral coin directions.
       equal(
@@ -116,6 +117,7 @@ suite('substrate/tessellation-catalog: the vibe coin degrees', [
     'the {3,4,3,4} cell (24-cell) gives a 24-direction coin',
     () => {
       const entry = TESSELLATIONS.find(t => t.symbol === '{3,4,3,4}')!
+
       equal(entry.cells, '24-cells', 'cell type')
       // A 24-cell has 24 octahedral facets, independently the 24 D4 roots.
       equal(rootsD4().length, 24, '{3,4,3,4} coin degree')

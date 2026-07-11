@@ -47,6 +47,7 @@ export function binaryQuadrupoleStrain(input: {
 
   for (let n = 0; n < samples; n++) {
     const phi = omega * (n * dt)
+
     hplus.push(-amp * Math.cos(2 * phi))
     hcross.push(-amp * Math.sin(2 * phi))
   }
@@ -96,6 +97,7 @@ export function petersInspiralTrack(input: {
 
   while (a > floor && t < maxTime) {
     const dadt = (-(64 / 5) * (mass1 * mass2 * Mtot)) / a ** 3
+
     a += dadt * dt
     t += dt
 
@@ -104,6 +106,7 @@ export function petersInspiralTrack(input: {
     }
 
     const omega = keplerFrequency({ totalMass: Mtot, separation: a })
+
     times.push(t)
     gwFrequencies.push((2 * omega) / (2 * Math.PI))
   }

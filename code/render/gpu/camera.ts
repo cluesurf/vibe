@@ -78,9 +78,11 @@ export function makeCamera(mode: FoldMode): Camera {
 
       if (mode === '2d') {
         const dir = [-Math.sin(angle), Math.cos(angle)]
+
         pos2 = mobiusAdd(pos2, scale(dir, t)) as [number, number]
       } else {
         const f = forward3()
+
         pos3 = mobiusAdd(pos3, scale(f, t)) as [number, number, number]
       }
     },
@@ -89,9 +91,11 @@ export function makeCamera(mode: FoldMode): Camera {
 
       if (mode === '2d') {
         const dir = [Math.cos(angle), Math.sin(angle)]
+
         pos2 = mobiusAdd(pos2, scale(dir, t)) as [number, number]
       } else {
         const r = right3()
+
         pos3 = mobiusAdd(pos3, scale(r, t)) as [number, number, number]
       }
     },

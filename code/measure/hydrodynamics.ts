@@ -85,6 +85,7 @@ export function coarseGradientEnergy(input: {
 
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const g = coordAlong(cell, gradAxis, side)
+
     profile[g]! += cellMomentum(will, cell, directions, momAxis)
   }
 
@@ -92,6 +93,7 @@ export function coarseGradientEnergy(input: {
 
   for (let g = 0; g < side; g++) {
     const difference = profile[(g + 1) % side]! - profile[g]!
+
     energy += difference * difference
   }
 
@@ -354,6 +356,7 @@ export function plugSetup(input: {
       if (component !== 0) {
         if (filled < limit) {
           const positiveSlot = component > 0 ? direction : other
+
           will.data[base + positiveSlot] = 1
           filled++
         }
@@ -387,6 +390,7 @@ export function momentumProfile(input: {
 
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const g = coordAlong(cell, gradAxis, side)
+
     profile[g]! += cellMomentum(will, cell, directions, momAxis)
   }
 

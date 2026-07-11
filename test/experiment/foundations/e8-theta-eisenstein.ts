@@ -46,6 +46,7 @@ export default experiment({
     for (const n of SHELLS) {
       const counted = e8ThetaCoefficient(2 * n)
       const predicted = 240 * sigmaCubes(n)
+
       worstError = Math.max(worstError, Math.abs(counted - predicted))
     }
 

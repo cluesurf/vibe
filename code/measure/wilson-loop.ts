@@ -27,6 +27,7 @@ export function wilsonLoopPhase(input: {
   for (let i = 0; i < length; i++) {
     const from = loop[i] ?? 0
     const to = loop[(i + 1) % length] ?? 0
+
     phase += linkPhase(input.field, { from, to })
   }
 

@@ -26,11 +26,13 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
   if (kind === 0) {
     for (let i = 0; i < M; i++) {
       t[i] = i < half ? 1 : -1
-    } // blocks
+    }
+    // blocks
   } else if (kind === 1) {
     for (let i = 0; i < M; i++) {
       t[i] = i % 2 === 0 ? 1 : -1
-    } // stripes
+    }
+    // stripes
   } else {
     for (let i = 0; i < M; i++) {
       t[i] = i < half ? 1 : -1
@@ -39,6 +41,7 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
     for (let i = M - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const a = t[i]!
+
       t[i] = t[j]!
       t[j] = a
     }
@@ -91,6 +94,7 @@ function maintain(target: Int8Array, rng: Rng): number {
       const a = Math.floor(rng.next() * M)
       const b = Math.floor(rng.next() * M)
       const t = s[a]!
+
       s[a] = s[b]!
       s[b] = t
     }

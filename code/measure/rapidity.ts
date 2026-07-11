@@ -34,7 +34,8 @@ export function linkRapidities(input: {
 
       if (Math.abs(v) >= 1 - 1e-9) {
         continue
-      } // null/spacelike, no finite rapidity
+      }
+      // null/spacelike, no finite rapidity
 
       if (band && (ta < band.lo || tb > band.hi)) {
         continue
@@ -106,6 +107,7 @@ export function boostCoords(input: {
   for (let i = 0; i < n; i++) {
     const t = coords[i * 2] ?? 0
     const x = coords[i * 2 + 1] ?? 0
+
     out[i * 2] = ch * t + sh * x
     out[i * 2 + 1] = sh * t + ch * x
   }

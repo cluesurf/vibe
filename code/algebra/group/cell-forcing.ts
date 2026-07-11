@@ -36,6 +36,7 @@ export function toneWordCensus(): Map<number, number> {
       for (let c = -1; c <= 1; c++) {
         for (let d = -1; d <= 1; d++) {
           const steps = [a, b, c, d].filter(v => v !== 0).length
+
           census.set(steps, (census.get(steps) ?? 0) + 1)
         }
       }

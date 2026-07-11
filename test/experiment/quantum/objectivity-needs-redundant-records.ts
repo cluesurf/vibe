@@ -119,10 +119,12 @@ export default experiment({
         worstCopySingleCell,
         pointerDistance({ chain: copy, fragment: [0] }),
       )
+
       worstCopyRedundancy = Math.min(
         worstCopyRedundancy,
         redundantCells(copy),
       )
+
       worstCopyCoherence = Math.max(
         worstCopyCoherence,
         coherenceOf(copy),
@@ -139,14 +141,17 @@ export default experiment({
         worstGlobalSingleCell,
         pointerDistance({ chain: global, fragment: [0] }),
       )
+
       largestFragmentGlobal = Math.max(
         largestFragmentGlobal,
         pointerDistance({ chain: global, fragment: allButOne }),
       )
+
       worstGlobalRedundancy = Math.max(
         worstGlobalRedundancy,
         redundantCells(global),
       )
+
       worstGlobalCoherence = Math.max(
         worstGlobalCoherence,
         coherenceOf(global),

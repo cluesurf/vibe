@@ -52,6 +52,7 @@ export function gramSignature(symbol: number[]): {
 
   for (let edge = 0; edge < symbol.length; edge++) {
     const value = -Math.cos(Math.PI / symbol[edge]!)
+
     data[edge * size + (edge + 1)] = value
     data[(edge + 1) * size + edge] = value
   }

@@ -56,6 +56,7 @@ function interiorShellRatios(input: {
 
   for (let r = 1; r < clean.length; r++) {
     const prev = clean[r - 1] ?? 0
+
     ratios.push(prev > 0 ? (clean[r] ?? 0) / prev : 0)
   }
 

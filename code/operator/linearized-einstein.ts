@@ -11,6 +11,7 @@ import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 export const GRAVITON_DIMENSION = 4
+
 const D = GRAVITON_DIMENSION
 const ETA = [-1, 1, 1, 1] // Minkowski signature, diagonal
 
@@ -50,6 +51,7 @@ export function gravitonShift(
   L: number,
 ): number[] {
   const c = coords.slice()
+
   c[axis] = ((c[axis] ?? 0) + delta + L) % L
 
   return c
@@ -268,6 +270,7 @@ function gravitonBasisField(
   for (let site = 0; site < h.data.length; site++) {
     const c = gravitonCoordsOf(site, L)
     const phase = Math.cos(kz * (c[3] ?? 0))
+
     h.data[site]![a * D + b] = amp * phase
     h.data[site]![b * D + a] = amp * phase
   }
@@ -290,6 +293,7 @@ function gravitonProjectOntoMode(g: TensorField, kz: number): number[] {
     for (let site = 0; site < g.data.length; site++) {
       const c = gravitonCoordsOf(site, g.L)
       const phase = Math.cos(kz * (c[3] ?? 0))
+
       num += amp * (g.data[site]![a * D + b] ?? 0) * phase
       den += phase * phase
     }
@@ -398,10 +402,12 @@ export function gravitonPolarizationsFromSpectrum(input: {
 
   // TT modes for k along z (axis 3): h_xx = -h_yy (index 1, 2), and h_xy (index 7).
   const ttPlus = new Array<number>(GRAVITON_PAIRS.length).fill(0)
+
   ttPlus[1] = 1
   ttPlus[2] = -1
 
   const ttCross = new Array<number>(GRAVITON_PAIRS.length).fill(0)
+
   ttCross[7] = 1
 
   let physical = 0

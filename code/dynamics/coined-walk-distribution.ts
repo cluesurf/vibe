@@ -21,6 +21,7 @@ export function coinedWalkQuantumDistribution(input: {
   const off = T + 1
   const re = [new Float64Array(W), new Float64Array(W)]
   const im = [new Float64Array(W), new Float64Array(W)]
+
   // symmetric start at x=0, (|L> + i|R>)/sqrt2 (a symmetric two-horned distribution)
   re[0]![off] = 1 / Math.SQRT2
   im[1]![off] = 1 / Math.SQRT2
@@ -41,6 +42,7 @@ export function coinedWalkQuantumDistribution(input: {
       const c0i = h * (ai + bi)
       const c1r = h * (ar - br)
       const c1i = h * (ai - bi)
+
       // shift: c0 (left) -> x-1, c1 (right) -> x+1
       nr[0]![x - 1]! += c0r
       ni[0]![x - 1]! += c0i
@@ -77,6 +79,7 @@ export function coinedWalkClassicalDistribution(input: {
   const W = 2 * T + 3
   const off = T + 1
   const p = [new Float64Array(W), new Float64Array(W)]
+
   p[0]![off] = 0.5
   p[1]![off] = 0.5
 
@@ -89,6 +92,7 @@ export function coinedWalkClassicalDistribution(input: {
       const b = p[1]![x]!
       const c0 = 0.5 * a + 0.5 * b
       const c1 = 0.5 * a + 0.5 * b
+
       np[0]![x - 1]! += c0
       np[1]![x + 1]! += c1
     }

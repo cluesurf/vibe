@@ -163,6 +163,7 @@ export function circleAreaIntegrated(input: {
 
   for (let i = 0; i < steps; i++) {
     const rho = ((i + 0.5) / steps) * radius
+
     radial += Math.sinh(rho) * (radius / steps)
   }
 

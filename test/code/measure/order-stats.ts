@@ -71,6 +71,7 @@ suite('measure/order-stats: orderStatistics', [
     'a chain of 5: ordering fraction 1, height 5, ratio sqrt5, dimension ~ 1',
     () => {
       const out = orderStatistics({ poset: chain(5) })
+
       close(out.orderingFraction, 1, 1e-12)
       equal(out.height, 5)
       close(out.heightRatio, 5 / Math.sqrt(5), 1e-12)
@@ -81,6 +82,7 @@ suite('measure/order-stats: orderStatistics', [
     'a star of 4 has ordering fraction 1/2 and dimension ~ 2',
     () => {
       const out = orderStatistics({ poset: star(4) })
+
       close(out.orderingFraction, 0.5, 1e-12)
       equal(out.height, 2)
       close(out.mmDimension, 2, 1e-2)

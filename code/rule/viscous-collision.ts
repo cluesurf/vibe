@@ -72,6 +72,7 @@ export function buildViscousQuads(directions: number[][]): number[][] {
 
       if (pending.length === 2) {
         const [p1, p2] = pending
+
         quads.push([p1![0], p1![1], p2![0], p2![1]])
         used[p1![0]] = 1
         used[p1![1]] = 1
@@ -102,7 +103,8 @@ export function controlledViscousRotate(input: {
 
   if (controlPool.length === 0) {
     return viscousRotate(input)
-  } // no control slots free, fall back
+  }
+  // no control slots free, fall back
 
   return (slots, base) => {
     for (let i = 0; i < gated.length; i++) {

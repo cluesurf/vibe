@@ -27,6 +27,7 @@ function denseLaplacian(graph: Graph): ReturnType<typeof makeDense> {
 
   for (let i = 0; i < n; i++) {
     const row = graph.neighbors[i] ?? new Uint32Array(0)
+
     m.data[i * n + i] = row.length
 
     for (const j of row) {

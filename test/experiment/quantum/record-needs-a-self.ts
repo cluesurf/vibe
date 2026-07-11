@@ -94,6 +94,7 @@ function genericTone(size: number, salt: number): Int8Array {
 
   for (let i = 0; i < size; i++) {
     const r = hashRand(i, 0, salt)
+
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }
 

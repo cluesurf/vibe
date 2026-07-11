@@ -93,6 +93,7 @@ export default experiment({
 
     for (let step = 0; step < beats; step++) {
       const result = attentionBeat({ will: attn, collision: rule })
+
       attn = result.will
       sparseOps += result.collideOps
     }
@@ -104,6 +105,7 @@ export default experiment({
 
     // the dense control, almost no vacuum, so pruning saves nothing
     const dense = makeWill(mesh)
+
     fillWillPattern(dense)
 
     let denseFull = cloneWill(dense)
@@ -114,6 +116,7 @@ export default experiment({
       denseFull = beat(denseFull, rule)
 
       const result = attentionBeat({ will: denseAttn, collision: rule })
+
       denseAttn = result.will
       denseOps += result.collideOps
     }

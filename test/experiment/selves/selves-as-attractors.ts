@@ -47,6 +47,7 @@ function perturb(
   for (let i = 0; i < k; i++) {
     const j = i + rng.nextInt({ max: p.length - i })
     const tmp = idx[i]!
+
     idx[i] = idx[j]!
     idx[j] = tmp
     out[idx[i]!] = -(p[idx[i]!] ?? 0)

@@ -20,7 +20,8 @@ export function corruptConnectedRegion(input: {
 
   for (let index = 0; index < corrupt; index++) {
     boundary[index] = 1 - input.logical
-  } // flip a connected block
+  }
+  // flip a connected block
 
   return boundary
 }

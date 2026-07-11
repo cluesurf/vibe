@@ -48,6 +48,7 @@ function maxQ(masses: (light: number) => number[]): number {
 
   for (let i = 0; i <= 4000; i++) {
     const light = (i / 4000) * 0.3 // lightest mass 0 to 0.3 eV (well past cosmological bounds)
+
     mx = Math.max(mx, koideQ(masses(light)))
   }
 

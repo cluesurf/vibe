@@ -98,6 +98,7 @@ function selfModelAt(
 
   for (let j = 0; j < inputAll.length; j++) {
     const s = Math.floor((j * K) / inputAll.length)
+
     sectorOf[inputAll[j]!] = s
     sectorCells[s]!.push(inputAll[j]!)
   }
@@ -105,6 +106,7 @@ function selfModelAt(
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
+
     seen[start] = 1
 
     let fr = [start]

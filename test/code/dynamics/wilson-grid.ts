@@ -24,6 +24,7 @@ suite('dynamics/wilson-grid: actions', [
     const L = 3
     const plaqs = gridPlaquettes(L)
     const theta = new Float64Array(3 * L * L * L) // all zero
+
     close(gridWilsonAction(theta, plaqs), 0, 1e-12, 'Wilson = 0')
     close(gridMaxwellAction(theta, plaqs), 0, 1e-12, 'Maxwell = 0')
   }),

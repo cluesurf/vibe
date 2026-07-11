@@ -237,6 +237,7 @@ export function buildWordMesh(input: {
     }
 
     const i = words.length
+
     id.set(k, i)
     words.push(w)
 
@@ -310,6 +311,7 @@ export function buildWordMesh(input: {
 
     while (parent[x] !== r) {
       const nx = parent[x]!
+
       parent[x] = r
       x = nx
     }

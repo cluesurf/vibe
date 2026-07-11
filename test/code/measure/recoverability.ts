@@ -12,6 +12,7 @@ import { passThrough } from '@/code/rule/collision'
 
 function patternWill() {
   const will = makeWill(d4Mesh({ side: 4 }))
+
   fillWillPattern(will)
 
   return will
@@ -53,6 +54,7 @@ suite('measure/recoverability: reversible knit conserves rGlobal = 1', [
             point.rWindow <= point.rGlobal + 1e-9,
           'rWindow in [0, rGlobal]',
         )
+
         ok(
           point.rCoarse >= -1e-12 &&
             point.rCoarse <= point.rGlobal + 1e-9,

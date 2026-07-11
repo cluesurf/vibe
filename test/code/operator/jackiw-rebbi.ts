@@ -75,6 +75,7 @@ suite('operator/jackiw-rebbi: spectrum', [
     const { dense } = build(24, 1, 4)
     const values = Array.from(eigSymmetric({ matrix: dense }).values)
     const minAbs = Math.min(...values.map(v => Math.abs(v)))
+
     close(minAbs, 0, 1e-6, 'Jackiw-Rebbi zero mode')
   }),
   check(

@@ -48,7 +48,7 @@ function hierarchicalMesh(input: {
   const n = cellSize * b ** depth
   const adj: Map<number, number>[] = Array.from(
     { length: n },
-    () => new Map(),
+    () => new Map<number, number>(),
   )
 
   const add = (u: number, v: number): void => {
@@ -135,6 +135,7 @@ export function towerOfSelves(input: { seed: number }): {
     const parent = toneOfUnit(level + 1, Math.floor(id / b))
     const flip = ir.next() < 0.18 + 0.04 * level
     const t = flip ? -parent : parent
+
     unitTone.set(key, t)
 
     return t
@@ -187,6 +188,7 @@ export function towerOfSelves(input: { seed: number }): {
     if (level < depth && K >= 3) {
       const eff = effectiveCouplings(g, fills, cl, K)
       const superTone = aggregate(cl, K, base)
+
       ruleAgreement = agreement(
         superTone,
         renormMacroStep(superTone, eff),

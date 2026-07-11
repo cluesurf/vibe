@@ -104,6 +104,7 @@ export function deterministicPerception(input?: {
 
   const a = base.slice()
   const b = base.slice()
+
   b[center] = (b[center]! + 1) % 3 === 0 ? -1 : b[center]! + 1 // perturb one cell
 
   if (b[center] === base[center]) {

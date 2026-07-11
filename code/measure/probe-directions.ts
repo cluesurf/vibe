@@ -10,6 +10,7 @@ export function coordinateAxes(dimension: number): number[][] {
   for (let index = 0; index < dimension; index++) {
     for (const sign of [1, -1]) {
       const axis = new Array<number>(dimension).fill(0)
+
       axis[index] = sign
       axes.push(axis)
     }
@@ -72,6 +73,7 @@ export function probeDirections(input: {
     }
 
     const norm = Math.hypot(...raw)
+
     directions.push(raw.map(value => value / norm))
   }
 

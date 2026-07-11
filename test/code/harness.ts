@@ -34,6 +34,7 @@ const registry: Suite[] = []
 // experiment registry works.
 export function suite(name: string, checks: Check[]): Suite {
   const value = { name, checks }
+
   registry.push(value)
 
   return value

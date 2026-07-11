@@ -24,6 +24,7 @@ export function returnProbability(input: {
   // d(real)/dt = H imaginary, d(imaginary)/dt = -H real. The leapfrog staggers the two.
   const real = new Float64Array(n)
   const imaginary = new Float64Array(n)
+
   real[source] = 1
 
   // the leapfrog keeps the imaginary part half a step ahead of the real part. To read a physical
@@ -37,6 +38,7 @@ export function returnProbability(input: {
 
     for (let i = 0; i < n; i++) {
       const imSync = imaginary[i]! + 0.5 * dt * hReal[i]!
+
       sum += real[i]! * real[i]! + imSync * imSync
     }
 
@@ -119,6 +121,7 @@ export function boundStateDecayExponent(input: {
 
   // shells from the origin by breadth-first search
   const shell = new Int32Array(cellCount).fill(-1)
+
   shell[origin] = 0
 
   let frontier = [origin]
@@ -154,6 +157,7 @@ export function boundStateDecayExponent(input: {
   // P_origin. Start from the localized origin vector (deterministic, no random).
   const s = maxDegree + wellDepth + 2
   const psi = new Float64Array(cellCount)
+
   psi[origin] = 1
 
   const out = new Float64Array(cellCount)

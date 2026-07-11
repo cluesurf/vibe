@@ -113,6 +113,7 @@ export function radialCoherence(input?: {
     radialGroup.push(anc)
 
     const k = remap.size
+
     groupCounts.push(k)
 
     // null, random partition into k groups of the SAME sizes as the radial groups
@@ -127,6 +128,7 @@ export function radialCoherence(input?: {
     for (let i = N - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
+
       order[i] = order[j]!
       order[j] = t
     }

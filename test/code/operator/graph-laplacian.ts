@@ -33,6 +33,7 @@ const path5: number[][] = [[1], [0, 2], [1, 3], [2, 4], [3]]
 
 function apply(neighbors: number[][], x: Float64Array): Float64Array {
   const out = new Float64Array(x.length)
+
   graphLaplacian({ neighbors, x, out })
 
   return out
@@ -45,6 +46,7 @@ function denseRows(neighbors: number[][]): number[][] {
 
   for (let j = 0; j < n; j++) {
     const e = new Float64Array(n)
+
     e[j] = 1
     cols.push(apply(neighbors, e))
   }
@@ -103,6 +105,7 @@ suite('operator/graph-laplacian: Poisson solve', [
     () => {
       const b = new Float64Array([1, -1, 1, -1])
       const phi = solveGraphPoisson({ neighbors: cycle4, b })
+
       closeArray(apply(cycle4, phi), b, 1e-9, 'cycle4 L phi vs b')
     },
   ),
@@ -111,6 +114,7 @@ suite('operator/graph-laplacian: Poisson solve', [
     () => {
       const b = new Float64Array([2, -1, 0, -1, 0])
       const phi = solveGraphPoisson({ neighbors: path5, b })
+
       closeArray(apply(path5, phi), b, 1e-9, 'path5 L phi vs b')
     },
   ),

@@ -27,6 +27,7 @@ function buildT(c: number, s: number, h: number): number[][] {
 
     const set = (na: number, nb: number, p: number): void => {
       const ns = 3 * (na + 1) + (nb + 1)
+
       T[st]![ns]! += p
     }
 
@@ -42,8 +43,8 @@ function buildT(c: number, s: number, h: number): number[][] {
       set(-1, 1, c / 2) // create -+
       set(0, 0, 1 - c)
     } else {
-      set(a, b, 1) // (+,+) or (-,-): inert
-    }
+      set(a, b, 1)
+    } // (+,+) or (-,-): inert
   }
 
   return T
@@ -131,6 +132,7 @@ export function doiPelitiCheck(): {
     for (let b = a + 1; b < 9; b++) {
       const fwd = pi[a]! * T[a]![b]!
       const rev = pi[b]! * T[b]![a]!
+
       dbv += Math.abs(fwd - rev)
       scale += fwd + rev
     }

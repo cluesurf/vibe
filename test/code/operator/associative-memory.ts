@@ -54,14 +54,17 @@ suite('operator/associative-memory: words', [
     }
 
     const keys = new Set(words.map(w => w.join('')))
+
     equal(keys.size, words.length, 'all words distinct')
   }),
   check('storeWord then readWord round-trips', () => {
     const mem = makeAssociativeMemory({ neighbors: line, wordBits })
     const w = ternaryWord(42, wordBits)
+
     storeWord(mem, 3, w)
 
     const back = readWord(mem, 3)
+
     ok(
       back.every((v, k) => v === w[k]),
       'read recovers the stored word',
@@ -72,6 +75,7 @@ suite('operator/associative-memory: words', [
     equal(comparedSlots(wordBits), wordBits, 'all slots without a mask')
 
     const mask = new Int8Array(wordBits)
+
     mask[0] = 1
     mask[5] = 1
     mask[20] = 1
@@ -87,11 +91,13 @@ suite('operator/associative-memory: search', [
   check('matchScore is wordBits for an exact match', () => {
     const mem = freshMemory()
     const w = readWord(mem, 4)
+
     equal(
       matchScore(mem, 4, w),
       wordBits,
       'a cell matches its own word fully',
     )
+
     ok(
       matchScore(mem, 4, ternaryWord(999999, wordBits)) < wordBits,
       'a foreign word scores lower',
@@ -124,6 +130,7 @@ suite('operator/associative-memory: search', [
     const mem = freshMemory()
     const target = readWord(mem, 6)
     const { cell, score } = searchBest({ mem, comparand: target })
+
     equal(cell, 6, 'the exact owner is the best responder')
     equal(score, wordBits, 'full score')
   }),

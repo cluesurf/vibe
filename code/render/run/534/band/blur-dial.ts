@@ -82,6 +82,7 @@ function run(): void {
     const d = sub(slab.coords[i]!, xi, 1)
     const dd = dot(d, d) || 1e-9
     const inv = d.map(x => x / dd)
+
     U[i] = dot(inv, e1)
     V[i] = dot(inv, e2)
   }
@@ -132,6 +133,7 @@ function run(): void {
 
   for (let a = 0; a < B; a++) {
     const i = bandList[a]!
+
     un[a] = (U[i]! - cu) / ext
     vn[a] = (V[i]! - cv) / ext
     px[a] = Math.round(IMG / 2 + un[a]! * halfPx)
@@ -153,6 +155,7 @@ function run(): void {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', 'make', 'frames-blur')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -176,6 +179,7 @@ function run(): void {
         }
 
         const o = (y * IMG + x) * 4
+
         rgba[o] = col[0]
         rgba[o + 1] = col[1]
         rgba[o + 2] = col[2]

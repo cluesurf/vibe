@@ -71,11 +71,13 @@ function distinctNeighbours(mesh: Mesh, cell: number): number {
 suite('tool/mesh: degree and cell count', [
   check('squareMesh has degree 4 and side^2 cells', () => {
     const m = squareMesh({ side: 5 })
+
     equal(m.degree, 4, 'square degree')
     equal(m.cellCount, 25, 'square cells')
   }),
   check('cubicMesh has degree 6 and side^3 cells', () => {
     const m = cubicMesh({ side: 4 })
+
     equal(m.degree, 6, 'cubic degree')
     equal(m.cellCount, 64, 'cubic cells')
   }),
@@ -83,6 +85,7 @@ suite('tool/mesh: degree and cell count', [
     'd4Mesh has degree 24 (the {3,4,3,4} coin) and side^4 cells',
     () => {
       const m = d4Mesh({ side: 3 })
+
       equal(m.degree, 24, 'd4 degree is the 24 D4 roots')
       equal(m.cellCount, 81, 'd4 cells = 3^4')
     },
@@ -91,6 +94,7 @@ suite('tool/mesh: degree and cell count', [
     'b4Mesh has degree 32 (24 long + 8 short) and side^4 cells',
     () => {
       const m = b4Mesh({ side: 3 })
+
       equal(m.degree, 32, 'b4 degree')
       equal(m.cellCount, 81, 'b4 cells = 3^4')
     },
@@ -99,6 +103,7 @@ suite('tool/mesh: degree and cell count', [
     'd4MeshWithRest adds one rest slot: degree 25, same cell count',
     () => {
       const m = d4MeshWithRest({ side: 3 })
+
       equal(m.degree, 25, 'd4+rest degree')
       equal(m.cellCount, 81, 'd4+rest cells')
     },
@@ -188,6 +193,7 @@ suite('tool/mesh: streaming round-trips and symmetry', [
     'd4 coin reaches 24 distinct neighbours from a bulk cell',
     () => {
       const m = d4Mesh({ side: 3 })
+
       // the 24 D4 roots are distinct offsets, distinct mod side for side >= 3
       equal(
         distinctNeighbours(m, 0),
@@ -204,6 +210,7 @@ suite('tool/mesh: shell distances', [
     () => {
       const m = squareMesh({ side: 5 })
       const d = shellDistances(m, 0)
+
       equal(d[0], 0, 'source is distance 0')
 
       for (let cell = 0; cell < m.cellCount; cell++) {
@@ -223,6 +230,7 @@ suite('tool/mesh: shell distances', [
         const x = cell % side
         const y = (cell - x) / side
         const expected = torus(x) + torus(y)
+
         equal(d[cell], expected, `taxicab distance to cell ${cell}`)
       }
     },

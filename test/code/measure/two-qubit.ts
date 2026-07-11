@@ -47,6 +47,7 @@ suite('measure/two-qubit: concurrence', [
 suite('measure/two-qubit: spin correlation matrix', [
   check('|Phi+> gives T = diag(1, -1, 1)', () => {
     const t = twoQubitCorrelationMatrix(bell)
+
     close(t[0]![0]!, 1, TIGHT) // <XX>
     close(t[1]![1]!, -1, TIGHT) // <YY>
     close(t[2]![2]!, 1, TIGHT) // <ZZ>
@@ -57,6 +58,7 @@ suite('measure/two-qubit: spin correlation matrix', [
   }),
   check('product state |00>: only <ZZ> = 1 survives', () => {
     const t = twoQubitCorrelationMatrix(product)
+
     close(t[2]![2]!, 1, TIGHT)
     close(t[0]![0]!, 0, TIGHT)
     close(t[1]![1]!, 0, TIGHT)
@@ -67,11 +69,13 @@ suite('measure/two-qubit: Horodecki maximal CHSH', [
   check('Bell state reaches the Tsirelson value 2 sqrt 2', () => {
     // T = diag(1,-1,1) -> M = T^T T = I, two largest eigenvalues 1+1=2, 2 sqrt 2.
     const t = twoQubitCorrelationMatrix(bell)
+
     close(horodeckiMaxChsh(t), 2 * Math.SQRT2, TIGHT)
   }),
   check('product state gives 2 (no Bell violation possible)', () => {
     // T = diag(0,0,1) -> two largest eigenvalues 1+0=1, 2 sqrt 1 = 2.
     const t = twoQubitCorrelationMatrix(product)
+
     close(horodeckiMaxChsh(t), 2, TIGHT)
   }),
 ])

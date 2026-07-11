@@ -146,8 +146,8 @@ export function sampleCausalSets(input: {
         currentAction = candidateAction
         accepted += 1
       } else {
-        toggle(state, lo, hi) // revert
-      }
+        toggle(state, lo, hi)
+      } // revert
     }
 
     observeCounter += 1

@@ -29,6 +29,7 @@ const directions = rootsD4()
 
 function sample(): Will {
   const will = makeWill(mesh)
+
   fillWillPattern(will, 1) // deterministic structured ternary fill
 
   return will
@@ -37,6 +38,7 @@ function sample(): Will {
 suite('rule/symmetry: charge conjugation C', [
   check('C is an involution', () => {
     const w = sample()
+
     exactArray(
       chargeConjugate(chargeConjugate(w)).data,
       w.data,
@@ -45,6 +47,7 @@ suite('rule/symmetry: charge conjugation C', [
   }),
   check('C flips the total charge', () => {
     const w = sample()
+
     equal(
       charge(chargeConjugate(w)),
       -charge(w),
@@ -53,6 +56,7 @@ suite('rule/symmetry: charge conjugation C', [
   }),
   check('C negates a single known slot', () => {
     const w = makeWill(mesh)
+
     w.data[5] = 1
     equal(chargeConjugate(w).data[5], -1, 'a +1 tone becomes -1')
   }),
@@ -61,11 +65,13 @@ suite('rule/symmetry: charge conjugation C', [
 suite('rule/symmetry: time reversal T', [
   check('T is an involution', () => {
     const w = sample()
+
     exactArray(timeReverse(timeReverse(w)).data, w.data, 'T(T(w)) = w')
   }),
   check('T preserves the total charge and every per-cell tone', () => {
     const w = sample()
     const t = timeReverse(w)
+
     equal(charge(t), charge(w), 'T conserves total charge')
 
     for (let cell = 0; cell < mesh.cellCount; cell++) {

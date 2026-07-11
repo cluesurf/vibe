@@ -111,6 +111,7 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
   }
 
   const rho = new Float64Array(n)
+
   rho[src] = 1
 
   const phi = latticePoissonJacobi({

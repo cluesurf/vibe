@@ -127,6 +127,7 @@ export function unifiedWave(input?: {
   }
 
   const pertS = baseS.slice()
+
   pertS[center] = baseS[center] === 0 ? 1 : 0
 
   const pos0 = s.position[center]!

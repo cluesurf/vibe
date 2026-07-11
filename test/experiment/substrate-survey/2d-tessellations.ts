@@ -9,6 +9,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
+
 const TILINGS: Cand[] = [
   { sym: [7, 3], note: 'REFERENCE (heptagonal, done)' },
   {

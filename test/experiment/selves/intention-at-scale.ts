@@ -123,6 +123,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
         if (willRegion[c]) {
           const toward = dT[e]! < dT[c]! ? 1 : dT[e]! > dT[c]! ? -1 : 0
+
           prob = 0.5 + bias * toward
         }
 
@@ -206,7 +207,8 @@ export function intentionAtScale(input?: { n?: number }): {
 
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0, rng1b)
-  } // no will (unbiased)
+  }
+  // no will (unbiased)
 
   const driftNoWill = dt0 - meanDT(tone, () => true)
   // the RELATIVE effect of the will (with minus without) is the intention signal, the absolute drift is
@@ -217,6 +219,7 @@ export function intentionAtScale(input?: { n?: number }): {
   // CHECK 2: top-down, will only at the HUB, does the PERIPHERY drift toward target?
   const peri = (i: number): boolean => selfSet[i] === 1 && hub[i] === 0
   const dtPeri0 = meanDT(initSelf(), peri)
+
   tone = initSelf()
 
   const rng2 = makeRng({ seed: 7 })
@@ -226,6 +229,7 @@ export function intentionAtScale(input?: { n?: number }): {
   }
 
   const peripheryDriftHubWill = dtPeri0 - meanDT(tone, peri)
+
   tone = initSelf()
 
   const rng2b = makeRng({ seed: 7 })
@@ -261,6 +265,7 @@ export function intentionAtScale(input?: { n?: number }): {
       tone[c] = 0
 
       const dest = self[Math.floor(rng3.next() * self.length)]!
+
       tone[dest] = 1
     }
   }

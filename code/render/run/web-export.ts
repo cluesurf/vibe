@@ -72,6 +72,7 @@ function run(): void {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, 'index.html')
+
   writeFileSync(outPath, html)
   console.log(`wrote the interactive WebGPU explorer to ${outPath}`)
   console.log(

@@ -172,6 +172,7 @@ export function makeVibeComputer(input: {
 function findCycle(neighbors: number[][]): number[] {
   const n = neighbors.length
   const parent = new Int32Array(n).fill(-2)
+
   parent[0] = -1
 
   const queue = [0]

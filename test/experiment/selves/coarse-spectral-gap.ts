@@ -25,6 +25,7 @@ function shuffled(labels: number[], seed: number): number[] {
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = out[i]!
+
     out[i] = out[j]!
     out[j] = tmp
   }

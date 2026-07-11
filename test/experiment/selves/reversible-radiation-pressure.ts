@@ -117,6 +117,7 @@ export default experiment({
           for (let li = 0; li < longLines.length; li++) {
             if ((c * 31 + li * 17) % 12 < density) {
               const [l0, l1] = longLines[li]!
+
               will.data[c * degree + l0] = 1
               will.data[c * degree + l1] = 1
             }
@@ -185,6 +186,7 @@ export default experiment({
       })
 
       const swap = will
+
       will = scratch
       scratch = swap
       final = slowCentroidX(will)

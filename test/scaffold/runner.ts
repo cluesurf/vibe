@@ -81,11 +81,13 @@ export function runScan<P>(input: {
 
       for (let i = 0; i < count; i++) {
         const diff = (values[i] ?? 0) - m
+
         variance += diff * diff
       }
 
       // Population standard deviation across the repeats.
       const sd = count > 0 ? Math.sqrt(variance / count) : 0
+
       mean[key] = m
       std[key] = sd
     }

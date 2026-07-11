@@ -117,6 +117,7 @@ function runRoute(input: { aware: boolean; withHazard: boolean }): {
   })
 
   const tone = new Int8Array(graph.cellCount)
+
   stampBody(tone)
 
   const bodySize = plusCount(tone)

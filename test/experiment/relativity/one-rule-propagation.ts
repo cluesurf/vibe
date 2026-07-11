@@ -61,6 +61,7 @@ export function propagation(input: {
   }
 
   let toneB = Int8Array.from(toneA)
+
   toneB[source] = (((toneA[source] ?? 0) + 1 + 1) % 3) - 1 // guaranteed different ternary value
 
   const frontRadius: number[] = []
@@ -73,6 +74,7 @@ export function propagation(input: {
       fills,
       tone: toneA,
     })
+
     toneB = signedMajorityStep({
       neighbors: g.neighbors,
       fills,

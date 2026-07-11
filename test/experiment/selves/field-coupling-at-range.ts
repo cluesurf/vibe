@@ -134,6 +134,7 @@ function runWorld(input: {
   const cy = L >> 1
 
   let will = makeWill(mesh)
+
   stampBody(will, ax, cy)
   stampBody(will, bx, cy)
 
@@ -182,6 +183,7 @@ function response(input: {
 
   for (let b = HIT_BEAT; b < BEATS; b++) {
     const d = (withHit[b] ?? 0) - (without[b] ?? 0)
+
     s += d * d
     n++
   }
@@ -242,6 +244,7 @@ export default experiment({
 
     // charge conservation sanity on the severed mesh (the seam reflects, never leaks)
     const probe = makeWill(severed)
+
     stampBody(probe, seam - 8, L >> 1)
 
     const conserved =

@@ -91,6 +91,7 @@ export function wClassState(input: {
   c: number
 }): ThreeQubit {
   const state = new Array<number>(8).fill(0)
+
   state[0b100] = input.a
   state[0b010] = input.b
   state[0b001] = input.c
@@ -101,6 +102,7 @@ export function wClassState(input: {
 // The GHZ state (|000> + |111>)/sqrt(2).
 export function ghzState(): ThreeQubit {
   const state = new Array<number>(8).fill(0)
+
   state[0b000] = 1 / Math.SQRT2
   state[0b111] = 1 / Math.SQRT2
 

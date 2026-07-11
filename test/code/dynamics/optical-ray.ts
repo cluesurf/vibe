@@ -23,6 +23,7 @@ suite('dynamics/optical-ray: refractive deflection', [
       const b = 20
       const strength = 1
       const def = refractiveDeflection({ impactParameter: b, strength })
+
       ok(def < 0, 'bends toward the mass (negative)')
       close(
         def,

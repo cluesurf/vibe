@@ -83,6 +83,7 @@ export function avalancheCriticality(input?: { n?: number }): {
     const median = sizes[Math.floor(sizes.length / 2)]!
     const max = sizes[sizes.length - 1]!
     const span = max / Math.max(median, 1)
+
     scan.push({ c0, bg, median, max, span })
   }
 

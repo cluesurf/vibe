@@ -48,6 +48,7 @@ export default experiment({
 
     for (const radius of radii) {
       const region = ballAtRadius({ mesh, center: 0, radius })
+
       meshMargins.push(bindingMargin({ neighbors, region }).margin)
       scrambleMargins.push(
         bindingMargin({ neighbors: scrambled, region }).margin,

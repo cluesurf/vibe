@@ -199,6 +199,7 @@ export function attentionWorkspace(input?: {
   const hubBall = (): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
+
     seen[center] = 1
 
     let fr = [center]

@@ -14,6 +14,7 @@ suite('substrate/tree-addressing: the spanning tree', [
   check('the root has depth 0 and is its own parent', () => {
     const g = modularGraph(60)
     const tree = buildAddressedTree(g)
+
     equal(tree.depth[tree.root], 0, 'root depth 0')
     equal(tree.parent[tree.root], tree.root, 'root is self-parent')
     equal(tree.levelSizes[0], 1, 'level 0 has just the root')
@@ -29,6 +30,7 @@ suite('substrate/tree-addressing: the spanning tree', [
       }
 
       const key = tree.address[v]!.join(',')
+
       notOk(seen.has(key), `address of ${v} is unique`)
       seen.add(key)
     }
@@ -70,6 +72,7 @@ suite('substrate/tree-addressing: routing by address', [
     }
 
     const route = routeByAddress(tree, tree.root, target)
+
     equal(route[0], tree.root, 'starts at the root')
     equal(route[route.length - 1], target, 'ends at the target')
 

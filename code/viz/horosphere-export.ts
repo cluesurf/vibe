@@ -172,6 +172,7 @@ export function exportHorosphere(input?: {
   ]
 
   const e1n = norm(e1)
+
   e1 = e1.map(v => v / e1n)
 
   // e2 = xi cross e1
@@ -255,6 +256,7 @@ export function exportHorosphere(input?: {
 
   for (let i = 0; i < bandCount; i++) {
     const r = Math.sqrt((i + 0.5) / bandCount)
+
     position[i] = [r * Math.cos(i * GOLDEN), r * Math.sin(i * GOLDEN)]
   }
 
@@ -278,6 +280,7 @@ export function exportHorosphere(input?: {
 
         const dist2 = dx * dx + dy * dy + 1e-9
         const force = (2.2 * idealLength * idealLength) / dist2
+
         dx *= force
         dy *= force
         dispX[i]! += dx
@@ -297,6 +300,7 @@ export function exportHorosphere(input?: {
 
       const dist = Math.hypot(dx, dy) + 1e-6
       const force = (0.9 * dist * dist) / idealLength
+
       dx = (dx / dist) * force
       dy = (dy / dist) * force
       dispX[a]! -= dx
@@ -309,8 +313,10 @@ export function exportHorosphere(input?: {
 
     for (let i = 0; i < bandCount; i++) {
       const length = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
+
       position[i]![0]! +=
         (dispX[i]! / length) * Math.min(length, temperature)
+
       position[i]![1]! +=
         (dispY[i]! / length) * Math.min(length, temperature)
     }
@@ -381,6 +387,7 @@ export function exportHorosphere(input?: {
 }
 
 const result = exportHorosphere()
+
 console.log('horosphere export:')
 console.log(`  bulk {5,3,4} cells: ${result.bulkCells}`)
 console.log(`  horosphere band cells (flat 2D): ${result.bandCells}`)

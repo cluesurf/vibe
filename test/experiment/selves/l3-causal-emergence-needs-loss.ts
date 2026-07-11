@@ -71,6 +71,7 @@ export default experiment({
 
     const micro: string[] = []
     const coarse: string[] = []
+
     micro.push(microHash(will))
     coarse.push(chargeHash(will))
 
@@ -78,6 +79,7 @@ export default experiment({
       beatInto({ src: will, dst: scratch, table, collision })
 
       const swap = will
+
       will = scratch
       scratch = swap
       micro.push(microHash(will))

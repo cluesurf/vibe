@@ -85,6 +85,7 @@ export function runBinary(
 
     if (ins.op === 'set') {
       const value = BigInt(ins.value)
+
       regs[ins.reg] = value
       bits = wordWidth(value)
       reg = ins.reg
@@ -98,6 +99,7 @@ export function runBinary(
       pc = ins.next
     } else if (ins.op === 'add') {
       const before = regs[ins.dst]!
+
       regs[ins.dst] = before + regs[ins.src]!
       bits = wordWidth(before, regs[ins.src]!, regs[ins.dst]!) // the ripple spans the longest operand / sum
       reg = ins.dst
@@ -105,6 +107,7 @@ export function runBinary(
       pc = ins.next
     } else if (ins.op === 'sub1') {
       const before = regs[ins.reg]!
+
       regs[ins.reg] = before > 0n ? before - 1n : 0n
       bits = wordWidth(before) // borrow can ripple the whole word in the worst case
       reg = ins.reg

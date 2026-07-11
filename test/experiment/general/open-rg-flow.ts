@@ -35,6 +35,7 @@ export default experiment({
     for (let K = 0.05; K <= 2; K += 0.05) {
       const bySum = isingDecimationBySummation(K)
       const byFormula = isingDecimationFormula(K)
+
       maxErr = Math.max(maxErr, Math.abs(bySum - byFormula))
     }
 

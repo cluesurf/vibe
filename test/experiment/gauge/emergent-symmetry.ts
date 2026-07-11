@@ -13,6 +13,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type M = number[][]
+
 const I4: M = [
   [1, 0, 0, 0],
   [0, 1, 0, 0],

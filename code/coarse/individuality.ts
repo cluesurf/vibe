@@ -29,6 +29,7 @@ export function fitnessVariancePartition(groups: number[][]): {
     }
 
     const groupMean = group.reduce((a, b) => a + b, 0) / group.length
+
     between +=
       (group.length *
         (groupMean - grandMean) *

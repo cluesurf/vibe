@@ -26,7 +26,8 @@ export function toBalancedTernary(
 
     if (remainder === 2) {
       remainder = -1
-    } // balance: 2 becomes -1 with a carry
+    }
+    // balance: 2 becomes -1 with a carry
 
     out.push(remainder)
     v = Math.round((v - remainder) / 3)

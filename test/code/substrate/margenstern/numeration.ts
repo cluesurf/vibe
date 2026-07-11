@@ -55,12 +55,14 @@ suite('substrate/margenstern/numeration: encode/decode round trip', [
   check('a mixed-radix-like basis still inverts', () => {
     // Powers of two: a standard place-value system, digits {0,1}.
     const num = makeNumeration({ basis: [1, 2, 4, 8, 16, 32] })
+
     equal(num.encode(11).join(''), '1011', 'binary of 11')
     equal(num.decode([1, 0, 1, 1]), 11, 'decode binary 11')
     equal(num.maxDigit(63), 1, 'binary max digit')
   }),
   check('encode(0) is [0] and a basis must start at 1', () => {
     const num = makeNumeration({ basis: [1, 2, 4] })
+
     exactArray(num.encode(0), [0], 'zero')
     equal(num.decode([0]), 0, 'decode zero')
     throws(

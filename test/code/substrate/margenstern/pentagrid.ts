@@ -14,6 +14,7 @@ suite('substrate/margenstern/pentagrid: the address-arithmetic graph', [
     'there are four quarter roots, each with five neighbours',
     () => {
       const roots = pentagridRoots()
+
       equal(roots.length, 4, 'quarter roots')
 
       for (const r of roots) {
@@ -31,6 +32,7 @@ suite('substrate/margenstern/pentagrid: the address-arithmetic graph', [
   }),
   check('the built graph is 5-regular in its interior', () => {
     const grid = buildPentagridPure({ maxCells: 2000 })
+
     equal(grid.facetCount, 5, 'max degree is 5')
 
     // No tile exceeds degree 5; interior tiles (all neighbours materialized) reach it.

@@ -38,6 +38,7 @@ function gravitonModes(): {
 
   for (let kx = 0.02; kx < 0.3; kx += 0.02) {
     const latt = Math.sqrt(2 * (1 - Math.cos(kx))) // 1D lattice dispersion
+
     maxErr = Math.max(maxErr, Math.abs(latt - kx) / kx)
   }
 

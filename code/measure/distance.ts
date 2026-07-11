@@ -18,6 +18,7 @@ export function graphDistance(input: {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const size = input.substrate.size
   const distance = new Int32Array(size).fill(-1)
+
   distance[input.from] = 0
 
   let frontier: number[] = [input.from]
@@ -111,6 +112,7 @@ export function longestChain(input: {
   // best[x] = longest chain length (in links) from `from` to x. A chain of L
   // links has L+1 elements. Relax covering links forward.
   const best = new Int32Array(p.size).fill(-1)
+
   best[input.from] = 0
 
   for (const x of cone) {

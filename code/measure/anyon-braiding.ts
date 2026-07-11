@@ -65,6 +65,7 @@ export function zNVortexHolonomy(input: {
   for (let i = 0; i < loop.length; i++) {
     const a = loop[i]!
     const b = loop[(i + 1) % loop.length]!
+
     sum += (1 / n) * wrap(angle(b[0], b[1]) - angle(a[0], a[1]))
   }
 

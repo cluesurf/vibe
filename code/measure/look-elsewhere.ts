@@ -93,8 +93,8 @@ export function numerologyMenu(input: {
     menu.push(n)
 
     for (let d = 1; d <= maxInteger; d++) {
-      menu.push(n / d) // simple ratios
-    }
+      menu.push(n / d)
+    } // simple ratios
   }
 
   for (const base of bases) {

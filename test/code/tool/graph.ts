@@ -50,11 +50,13 @@ function csrByHand(neighbors: number[][]): {
 suite('tool/graph: adjacency and CSR', [
   check('degree reads the neighbour-row length', () => {
     const g = makeGraph({ size: 4, directed: false, neighbors: PATH })
+
     equal(degree(g, { node: 0 }), 1, 'endpoint degree')
     equal(degree(g, { node: 1 }), 2, 'interior degree')
   }),
   check('meanDegree = total degree / size (= 2 * edges / size)', () => {
     const g = makeGraph({ size: 4, directed: false, neighbors: PATH })
+
     // degrees 1+2+2+1 = 6, six = 2*3 edges, mean 6/4 = 1.5
     close(meanDegree(g), 1.5, 1e-12, 'mean degree')
   }),
@@ -68,12 +70,14 @@ suite('tool/graph: adjacency and CSR', [
   check('toCsr matches the prefix-sum CSR built by hand', () => {
     const want = csrByHand(PATH)
     const got = toCsr(PATH)
+
     exactArray(got.offsets, Uint32Array.from(want.offsets), 'offsets')
     exactArray(got.adj, Uint32Array.from(want.adj), 'adj')
   }),
   check('toCsr offsets end at the total neighbour count', () => {
     const got = toCsr(PATH)
     const totalNeighbours = PATH.reduce((s, row) => s + row.length, 0)
+
     equal(got.offsets[PATH.length]!, totalNeighbours, 'final offset')
   }),
   check(
@@ -81,6 +85,7 @@ suite('tool/graph: adjacency and CSR', [
     () => {
       const { offsets, adj } = toCsr(PATH)
       const { eu, ev } = edgesFromCsr(offsets, adj, 4)
+
       // path edges: (0,1),(1,2),(2,3)
       exactArray(eu, Int32Array.from([0, 1, 2]), 'eu')
       exactArray(ev, Int32Array.from([1, 2, 3]), 'ev')
@@ -89,6 +94,7 @@ suite('tool/graph: adjacency and CSR', [
   check('edgesOf returns each undirected edge once with v < w', () => {
     const g = makeGraph({ size: 4, directed: false, neighbors: PATH })
     const edges = edgesOf(g.neighbors)
+
     equal(edges.length, 3, 'edge count')
     exactArray(
       Int32Array.from(edges.flat()),
@@ -103,6 +109,7 @@ suite('tool/graph: adjacency and CSR', [
         adjacencyListsEqual(PATH, [[1], [2, 0], [3, 1], [2]]),
         'same up to order',
       )
+
       ok(
         !adjacencyListsEqual(PATH, [[1], [0], [1, 3], [2]]),
         'missing edge differs',
@@ -117,6 +124,7 @@ suite('tool/graph: BFS traversal', [
     () => {
       const { offsets, adj } = toCsr(PATH)
       const dist = csrDistances({ offsets, adj, size: 4, source: 0 })
+
       exactArray(dist, Int32Array.from([0, 1, 2, 3]), 'path distances')
     },
   ),
@@ -155,6 +163,7 @@ suite('tool/graph: BFS traversal', [
 
       const { offsets, adj } = toCsr(cyc)
       const dist = csrDistances({ offsets, adj, size: 6, source: 0 })
+
       // distances on a 6-cycle from 0: 0,1,2,3,2,1
       exactArray(
         dist,
@@ -166,6 +175,7 @@ suite('tool/graph: BFS traversal', [
   check('csrBfsOrder lists every node once starting from 0', () => {
     const { offsets, adj } = toCsr(PATH)
     const order = csrBfsOrder({ offsets, adj, size: 4 })
+
     exactArray(order, Int32Array.from([0, 1, 2, 3]), 'bfs order')
   }),
   check(
@@ -174,6 +184,7 @@ suite('tool/graph: BFS traversal', [
       // two disjoint edges: {0,1} and {2,3}, first found (size 2) is kept
       const two: number[][] = [[1], [0], [3], [2]]
       const comp = largestComponentNodes(two)
+
       equal(comp.length, 2, 'component size')
       exactArray(
         Int32Array.from([...comp].sort((a, b) => a - b)),

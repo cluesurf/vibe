@@ -60,6 +60,7 @@ function domainStats(
 
     while (parent[x] !== r) {
       const nx = parent[x]!
+
       parent[x] = r
       x = nx
     }
@@ -89,6 +90,7 @@ function domainStats(
     }
 
     const r = find(i)
+
     size.set(r, (size.get(r) ?? 0) + 1)
   }
 
@@ -161,6 +163,7 @@ export function selvesDynamics(input?: { n?: number }): {
     }
 
     const st = domainStats(tone, g.offsets, g.adj, N)
+
     trajectory.push({
       beat: 30 + s,
       largest: st.largest,

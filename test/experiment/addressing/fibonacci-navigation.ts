@@ -77,6 +77,7 @@ export function fibonacciNavigation(input: {
       delivered++
 
       const hops = path.length - 1
+
       hopSum += hops
 
       const d = graphDistance({ substrate: g, from: s, to: t })

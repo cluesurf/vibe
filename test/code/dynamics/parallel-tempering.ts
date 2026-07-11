@@ -67,6 +67,7 @@ suite('dynamics/parallel-tempering: determinism', [
 
     const a = run()
     const b = run()
+
     equal(a.swapAcceptance, b.swapAcceptance, 'swap acceptance')
     equal(
       a.samplesByBeta.length,
@@ -77,6 +78,7 @@ suite('dynamics/parallel-tempering: determinism', [
     for (let r = 0; r < a.samplesByBeta.length; r++) {
       const sa = a.samplesByBeta[r]!
       const sb = b.samplesByBeta[r]!
+
       equal(sa.length, sb.length, `beta ${r}: sample count`)
 
       for (let i = 0; i < sa.length; i++) {

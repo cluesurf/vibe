@@ -25,6 +25,7 @@ suite('operator/directional-charge-stream: conservation', [
     const neighbors = ring(5)
     const charge = neighbors.map((_, i) => [i - 2, 2 * i - 3])
     const next = streamDirectionalChargeStep({ neighbors, charge })
+
     equal(
       totalDirectionalCharge(next),
       totalDirectionalCharge(charge),
@@ -36,6 +37,7 @@ suite('operator/directional-charge-stream: conservation', [
     const charge = neighbors.map((_, i) => [3 * i - 7, -i])
     const total0 = totalDirectionalCharge(charge)
     const out = streamDirectionalCharge({ neighbors, charge, steps: 9 })
+
     equal(
       totalDirectionalCharge(out),
       total0,
@@ -52,9 +54,11 @@ suite('operator/directional-charge-stream: transport', [
       const neighbors = ring(n)
       // place 5 on cell 0 port 1 (-> next cell 1). cell 1 lists 0 at its port 0.
       const charge = neighbors.map(row => row.map(() => 0))
+
       charge[0]![1] = 5
 
       const next = streamDirectionalChargeStep({ neighbors, charge })
+
       equal(next[1]![0], 5, 'charge[0][1] moves to next[1][0]')
 
       // everything else is zero

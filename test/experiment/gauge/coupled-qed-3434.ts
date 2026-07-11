@@ -17,6 +17,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
+
 const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
 const cmul = (a: C, b: C): C => [
   a[0] * b[0] - a[1] * b[1],
@@ -42,11 +43,11 @@ export function coupledQED(): {
     s = Math.sin(mass)
 
   // fermion psi = (psiR, psiL) per site; gauge link phase theta_n on bond n->n+1; electric field E_n
-  let R: C[] = new Array(L).fill([0, 0]),
-    Lf: C[] = new Array(L).fill([0, 0])
+  let R: C[] = new Array<C>(L).fill([0, 0]),
+    Lf: C[] = new Array<C>(L).fill([0, 0])
 
-  const theta: number[] = new Array(L).fill(0),
-    E: number[] = new Array(L).fill(0)
+  const theta: number[] = new Array<number>(L).fill(0),
+    E: number[] = new Array<number>(L).fill(0)
 
   // a charged wavepacket centered, moving right
   const x0 = 30,
@@ -54,6 +55,7 @@ export function coupledQED(): {
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) ** 2) / (2 * w * w))
+
     R[x] = cscale(eUp(0.8 * x), g)
     Lf[x] = [0, 0]
   }
@@ -75,14 +77,15 @@ export function coupledQED(): {
 
   const step = (): void => {
     // fermion coin (mass)
-    const R2: C[] = new Array(L),
-      L2: C[] = new Array(L)
+    const R2: C[] = new Array<C>(L),
+      L2: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R2[x] = cadd(
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(I, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -96,8 +99,8 @@ export function coupledQED(): {
     )
 
     // gauge-covariant shift: R hops +1 with the link phase e^{i theta}, L hops -1 with e^{-i theta} (minimal coupling)
-    const R3: C[] = new Array(L).fill([0, 0]),
-      L3: C[] = new Array(L).fill([0, 0])
+    const R3: C[] = new Array<C>(L).fill([0, 0]),
+      L3: C[] = new Array<C>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = cmul(R2[x]!, eUp(theta[x]!))
@@ -133,7 +136,7 @@ export function coupledQED(): {
     (_, x) => (x === 40 ? 1 : 0) - 1 / L,
   ) // a charge at 40, neutralizing background
 
-  const Eg = new Array(L).fill(0)
+  const Eg = new Array<number>(L).fill(0)
 
   for (let x = 1; x < L; x++) {
     Eg[x] = Eg[x - 1]! + rhoStatic[x]!

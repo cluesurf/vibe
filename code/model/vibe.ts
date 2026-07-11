@@ -157,6 +157,7 @@ export class VibeWorld {
 
     const n = this.substrate.size
     const toneValues = cfg.tone === 'ternary' ? 3 : 2
+
     this.tone = new Int8Array(n)
 
     for (let i = 0; i < n; i++) {
@@ -309,6 +310,7 @@ function countHigherVibes(
 
     let size = 0
     let frontier = [s]
+
     seen[s] = 1
 
     while (frontier.length > 0) {
@@ -421,6 +423,7 @@ function buildFills(
 
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
+
         fv[k] = f
 
         const fw = fills[w]

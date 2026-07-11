@@ -28,6 +28,7 @@ export function spatialActivityDistribution(will: Will): Float64Array {
 
   for (let cell = 0; cell < cellCount; cell++) {
     const activity = cellActivity(will, cell)
+
     distribution[cell] = activity
     total += activity
   }
@@ -62,6 +63,7 @@ export function blockActivityDistribution(input: {
   for (let cell = 0; cell < cellCount; cell++) {
     const activity = cellActivity(will, cell)
     const block = Math.min(blocks - 1, Math.floor(cell / blockSize))
+
     distribution[block] = distribution[block]! + activity
     total += activity
   }
@@ -142,6 +144,7 @@ export function windowSlope(input: {
   for (let i = lo; i <= hi; i++) {
     const x = i - lo
     const y = series[i]!
+
     sumX += x
     sumY += y
     sumXY += x * y

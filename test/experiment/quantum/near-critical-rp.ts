@@ -140,6 +140,7 @@ export function nearCriticalRP(input?: {
     for (let r = 0; r <= maxR; r++) {
       // approximate pair count per time-step is (hi-lo+1-r); normalize consistently
       const pairsR = (hi - lo + 1 - r) * T
+
       c.push(sumMM[r]! / pairsR - mean * mean)
     }
 
@@ -174,6 +175,7 @@ export function nearCriticalRP(input?: {
     }
 
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
+
     scan.push({
       arrow,
       density,
@@ -209,6 +211,7 @@ export function nearCriticalRP(input?: {
     const row = extended.reduce((a, b) => (b.range > a.range ? b : a))
     const directPSD = row.directMinEig > -tol
     const staggeredPSD = row.staggeredMinEig > -tol
+
     reflectionPositive = directPSD || staggeredPSD
     classicalMimic = !directPSD && !staggeredPSD
   }

@@ -55,6 +55,7 @@ export function e8ThetaCoefficient(normSquared: number): number {
     } else {
       for (let k = -3; k <= 2; k++) {
         const c = k + 0.5
+
         recurse(coset, index + 1, integerSum + k, norm + c * c)
       }
     }
@@ -117,6 +118,7 @@ export function fibonacci(n: number): number {
 
   for (let i = 2; i <= n; i++) {
     const next = a + b
+
     a = b
     b = next
   }
@@ -145,6 +147,7 @@ export function cubicRoots(a: number, b: number, c: number): number[] {
   } else {
     const u = Math.cbrt(-q / 2 + Math.sqrt(discriminant))
     const v = Math.cbrt(-q / 2 - Math.sqrt(discriminant))
+
     roots.push(u + v - a / 3)
   }
 

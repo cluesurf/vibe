@@ -15,6 +15,7 @@ export function shellCountsFromGraph(input: {
 }): number[] {
   const root = input.root ?? 0
   const distance = new Array<number>(input.cellCount).fill(-1)
+
   distance[root] = 0
 
   let frontier = [root]

@@ -50,6 +50,7 @@ export function evaporateWithCutoff(input: {
   ) {
     const power = horizonLuminosity(mass)
     const dt = (fraction * mass) / power
+
     mass -= power * dt
     steps++
   }

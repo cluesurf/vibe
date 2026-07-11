@@ -36,6 +36,7 @@ suite('substrate/lattice: the riemannian mesh', [
       // Row-major index: axis 0 fastest. The centre (1,1) is index 4 with degree 4 = 2d,
       // corner (0,0) index 0 has degree 2, edge (1,0) index 1 has degree 3.
       const g = asGraph({ dimension: 2, extent: 3 })
+
       equal(g.size, 9, 'cell count')
       equal(degree(g, { node: 4 }), 4, 'interior degree 2d')
       equal(degree(g, { node: 0 }), 2, 'corner degree')
@@ -56,6 +57,7 @@ suite('substrate/lattice: the riemannian mesh', [
   }),
   check('a 3x3x3 mesh centre has degree 2d = 6', () => {
     const g = asGraph({ dimension: 3, extent: 3 })
+
     equal(g.size, 27, 'cell count')
     equal(degree(g, { node: 13 }), 6, 'interior degree')
   }),

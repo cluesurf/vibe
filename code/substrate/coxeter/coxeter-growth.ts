@@ -119,15 +119,18 @@ function componentExponents(
 
     if (key === '3,3') {
       return [1, 2, 3]
-    } // A3
+    }
+    // A3
 
     if (key === '4,3' || key === '3,4') {
       return [1, 3, 5]
-    } // B3
+    }
+    // B3
 
     if (key === '5,3' || key === '3,5') {
       return [1, 5, 9]
-    } // H3
+    }
+    // H3
 
     return null
   }
@@ -137,19 +140,23 @@ function componentExponents(
 
     if (key === '3,3,3') {
       return [1, 2, 3, 4]
-    } // A4
+    }
+    // A4
 
     if (key === '4,3,3' || key === '3,3,4') {
       return [1, 3, 5, 7]
-    } // B4
+    }
+    // B4
 
     if (key === '3,4,3') {
       return [1, 5, 7, 11]
-    } // F4
+    }
+    // F4
 
     if (key === '5,3,3' || key === '3,3,5') {
       return [1, 11, 19, 29]
-    } // H4
+    }
+    // H4
 
     return null
   }
@@ -205,6 +212,7 @@ export function coxeterGrowthSeries(labels: number[]): Rational {
     }
 
     const sign = bitCount(mask) % 2 === 0 ? 1n : -1n
+
     sum = rationalAdd(sum, { num: [sign], den: finiteGrowth })
   }
 
@@ -310,10 +318,12 @@ export function main(): void {
     const series = coxeterGrowthSeries([...labels])
     const seq = expandSeries(series, 20)
     const rec = recurrenceFromDenominator(series.den)
+
     console.log(`\n${name}`)
     console.log(
       `W(t) = (${polyToString(series.num)}) / (${polyToString(series.den)})`,
     )
+
     console.log(
       `recurrence coefficients: ${rec.map(String).join(', ')}`,
     )

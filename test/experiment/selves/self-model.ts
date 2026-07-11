@@ -119,6 +119,7 @@ function run(withDynamics: boolean): {
 
   for (let j = 0; j < inputAll.length; j++) {
     const s = Math.floor((j * K) / inputAll.length)
+
     sectorOf[inputAll[j]!] = s
     sectorCells[s]!.push(inputAll[j]!)
   }
@@ -132,6 +133,7 @@ function run(withDynamics: boolean): {
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
+
     seen[start] = 1
 
     let fr = [start]
@@ -238,6 +240,7 @@ function run(withDynamics: boolean): {
   for (let i = perm.length - 1; i > 0; i--) {
     const j = Math.floor(hashRand(i, 0, 9) * (i + 1))
     const tmp = perm[i]!
+
     perm[i] = perm[j]!
     perm[j] = tmp
   }

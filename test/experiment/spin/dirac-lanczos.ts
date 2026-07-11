@@ -77,6 +77,7 @@ export function diracLanczos(): {
   for (const R of [2, 4, 6]) {
     const sp = run(R)
     const gap = sp.find(e => e > 0.08) ?? sp[sp.length - 1]!
+
     gapVsSize.push([R, Math.round(gap * 1000) / 1000])
   }
 

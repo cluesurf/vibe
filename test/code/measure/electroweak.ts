@@ -38,6 +38,7 @@ suite('measure/electroweak: W/Z mass ratio', [
   check('the tree relation makes rho = 1', () => {
     const sin2 = 0.231
     const ratio = wToZMassRatio(sin2)
+
     close((ratio * ratio) / (1 - sin2), 1, TOL)
   }),
 ])

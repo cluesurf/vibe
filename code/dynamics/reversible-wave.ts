@@ -63,6 +63,7 @@ export function reversibleWaveStepNonlinear(input: {
 
     const c = current[i]!
     const nl = selfCoupling * c * c
+
     next[i] =
       (((sum - previous[i]! + nl) % modulus) + modulus) % modulus
   }

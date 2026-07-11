@@ -116,6 +116,7 @@ export function ballGrowth(input: {
 
   let frontier: number[] = [input.center]
   let reached = 1
+
   growth[0] = reached
 
   for (let radius = 1; radius <= input.maxRadius; radius++) {
@@ -165,11 +166,13 @@ export function ballGrowthDimension(input: {
 
   for (const c of centers) {
     const dist = new Map<number, number>()
+
     dist.set(c, 0)
 
     let frontier = [c]
 
-    const counts: number[] = new Array(maxRadius + 1).fill(0)
+    const counts: number[] = new Array<number>(maxRadius + 1).fill(0)
+
     counts[0] = 1
 
     for (let r = 1; r <= maxRadius; r++) {
@@ -232,6 +235,7 @@ export function boxCountingDimension(input: {
     for (const i of cells) {
       const x = i % L
       const y = Math.floor(i / L)
+
       boxes.add(Math.floor(x / b) * K + Math.floor(y / b))
     }
 
@@ -439,6 +443,7 @@ export function spectralDimension(input: {
   const N = neighbors.length
 
   let p = new Float64Array(N)
+
   p[start] = 1
 
   let np = new Float64Array(N)
@@ -474,6 +479,7 @@ export function spectralDimension(input: {
     }
 
     const tmp = p
+
     p = np
     np = tmp
   }
@@ -553,6 +559,7 @@ export function growthFromShells(sizes: readonly number[]): {
   for (let r = 1; r < cum.length; r++) {
     const x = Math.log(r + 1)
     const y = Math.log(cum[r]!)
+
     sx += x
     sy += y
     sxx += x * x

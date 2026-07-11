@@ -57,6 +57,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
 
     // Hankel matrix H[i][j] = C(i+j), PSD test
     const minEig = hankelMinEigenvalue({ sequence: c, size: mHankel })
+
     results.push({
       mass,
       range,

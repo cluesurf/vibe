@@ -55,6 +55,7 @@ function lightCone(
   }
 
   let b = Int8Array.from(a)
+
   b[center] = (((a[center] ?? 0) + 1 + 1) % 3) - 1
 
   const step = (tone: Int8Array): Int8Array =>

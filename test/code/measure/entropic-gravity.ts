@@ -17,6 +17,7 @@ suite('measure/entropic-gravity: Verlinde law', [
   // Area law: N ~ r^2 gives force r^-2 and potential r^-1 (Newton), Newtonian true.
   check('the area law (exponent 2) is Newtonian', () => {
     const r = verlindeForceLaw({ bitExponent: 2 })
+
     equal(r.forceExponent, 2)
     equal(r.potentialExponent, 1)
     equal(r.isNewtonian, true)
@@ -24,6 +25,7 @@ suite('measure/entropic-gravity: Verlinde law', [
   // Volume law: N ~ r^3 gives the wrong r^-3 force, not Newtonian.
   check('the volume law (exponent 3) is not Newtonian', () => {
     const r = verlindeForceLaw({ bitExponent: 3 })
+
     equal(r.forceExponent, 3)
     equal(r.potentialExponent, 2)
     equal(r.isNewtonian, false)

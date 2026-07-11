@@ -30,12 +30,14 @@ suite('operator/evolution: state space', [
       9,
       '3^2',
     )
+
     equal(
       makeStateSpace({ cells: 3, alphabet: { form: 'boolean' } })
         .dimension,
       8,
       '2^3',
     )
+
     equal(
       makeStateSpace({ cells: 2, alphabet: { form: 'clock', q: 4 } })
         .dimension,
@@ -74,6 +76,7 @@ suite('operator/evolution: Hamiltonian from a permutation', [
     })
 
     const expected = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]
+
     equal(out.eigenvalues.length, 4, 'four phases')
 
     for (let k = 0; k < 4; k++) {

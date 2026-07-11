@@ -77,6 +77,7 @@ export function shadowPressureRun(input: {
 
     // measure the integer momentum flux at the mass cell
     const flux = right[mass]! - left[mass]!
+
     hitsRight += right[mass]!
     hitsLeft += left[mass]!
 
@@ -141,6 +142,7 @@ export function shadowPressureD4(input: {
     for (let c = 0; c < cellCount; c++) {
       for (let d = 0; d < degree; d++) {
         const src = mesh.neighbour(c, mesh.opposite(d))
+
         out[c * degree + d] = data[src * degree + d]!
       }
     }
@@ -242,6 +244,7 @@ export function selfContainedShadowD4(input: {
     for (let c = 0; c < cellCount; c++) {
       for (let d = 0; d < degree; d++) {
         const src = mesh.neighbour(c, mesh.opposite(d))
+
         next[c * degree + d] = occ[src * degree + d]!
       }
     }

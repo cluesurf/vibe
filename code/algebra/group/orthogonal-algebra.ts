@@ -55,6 +55,7 @@ export function algebraViolation(m: Matrix, metric: number[]): number {
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const value = metric[i]! * m[i]![j]! + m[j]![i]! * metric[j]!
+
       worst = Math.max(worst, Math.abs(value))
     }
   }

@@ -38,6 +38,7 @@ suite('substrate/radial-tree: the BFS tree and LCA', [
     const neighbors = [[1], [0, 2], [1, 3], [2]]
     const radii = [0, 1, 2, 3]
     const tree = radialBfsTree({ neighbors, radii })
+
     equal(tree.root, 0, 'root is the innermost cell')
     equal(tree.depth[0], 0, 'depth of root')
     equal(tree.depth[3], 3, 'depth of far end')
@@ -80,6 +81,7 @@ suite('substrate/radial-tree: the BFS tree and LCA', [
 
       const radii = [0, 1, 1, 2, 2, 2, 2]
       const tree = radialBfsTree({ neighbors, radii })
+
       equal(tree.root, 0, 'root')
       equal(tree.lcaDepth(3, 4), 1, 'siblings under 1')
       equal(tree.lcaDepth(3, 6), 0, 'cross-subtree meets at the root')

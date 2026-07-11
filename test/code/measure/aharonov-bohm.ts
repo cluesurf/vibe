@@ -18,6 +18,7 @@ function squareField(linkValue: number): GaugeField {
   ]
 
   const edgeIndex = new Map<string, number>()
+
   edges.forEach((e, i) => edgeIndex.set(edgeKey(e), i))
 
   return {

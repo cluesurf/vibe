@@ -80,6 +80,7 @@ suite('operator/d4-lattice-gas: streaming', [
     const occ = fillOccupancy(3)
     const there = streamD4({ occupancy: occ, neigh })
     const back = streamD4Inverse({ occupancy: there, neigh, opp })
+
     ok(occEqual(back, occ), 'streaming is exactly reversible')
   }),
   check(
@@ -87,6 +88,7 @@ suite('operator/d4-lattice-gas: streaming', [
     () => {
       const occ = fillOccupancy(5)
       const there = streamD4({ occupancy: occ, neigh })
+
       equal(d4Count(there), d4Count(occ), 'count conserved by stream')
     },
   ),
@@ -108,6 +110,7 @@ suite('operator/d4-lattice-gas: collision', [
   check('the collision involution is its own inverse', () => {
     const collide = d4CollisionInvolution({ roots, opp })
     const occ = fillOccupancy(13)
+
     ok(
       occEqual(collide(collide(occ)), occ),
       'collide applied twice is the identity',
@@ -128,10 +131,12 @@ suite('operator/d4-lattice-gas: collision', [
       const A = (1 << 0) | (1 << opp[0]!)
       const B = (1 << k) | (1 << opp[k]!)
       const occ = new Array<number>(N).fill(0)
+
       occ[0] = A
       occ[1 % N] = B
 
       const out = collide(occ)
+
       equal(d4Count(out), d4Count(occ), 'count conserved by collision')
 
       const m0 = d4Momentum({ occupancy: occ, roots })
@@ -151,6 +156,7 @@ suite('operator/d4-lattice-gas: collision', [
 suite('operator/d4-lattice-gas: count', [
   check('d4Count equals an independent popcount', () => {
     const occ = fillOccupancy(17)
+
     equal(
       d4Count(occ),
       popcountTotal(occ),

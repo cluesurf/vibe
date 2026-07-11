@@ -20,6 +20,7 @@ import '@/test/experiment/all'
 // Ctrl+C handling: the first interrupt asks the loop to stop at the next boundary,
 // a second interrupt exits hard. Without this a long synchronous run ignores Ctrl+C.
 let interrupted = false
+
 process.on('SIGINT', () => {
   if (interrupted) {
     console.error('\nsecond interrupt, exiting now')
@@ -74,6 +75,7 @@ async function main(): Promise<void> {
       continue
     } finally {
       const ms = Date.now() - started
+
       timings.push({ id: experiment.id, ms })
 
       if (ms >= SLOW_MILLISECONDS) {

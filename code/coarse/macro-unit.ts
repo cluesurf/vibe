@@ -48,6 +48,7 @@ export function extractUnits(input: {
     const members: number[] = []
 
     let frontier = [s]
+
     seen[s] = 1
 
     while (frontier.length) {
@@ -78,6 +79,7 @@ export function extractUnits(input: {
 
     for (const m of members) {
       const [x, y] = positions(m)
+
       cx += x
       cy += y
     }

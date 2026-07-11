@@ -50,8 +50,8 @@ function stampBody(will: Will): void {
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
       if (dx === 1 && dy === 1) {
-        continue // the missing corner makes the body L-shaped
-      }
+        continue
+      } // the missing corner makes the body L-shaped
 
       const x = c + dx
       const y = c + dy
@@ -90,6 +90,7 @@ function driftTowardResource(resourceEast: boolean): number {
 
   const collision = pairCollision({ opposite })
   const will = makeWill(mesh)
+
   stampBody(will)
   stampResource(will, resourceEast ? SIDE - 1 : 0)
 

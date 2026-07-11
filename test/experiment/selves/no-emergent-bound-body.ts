@@ -183,6 +183,7 @@ export default experiment({
       beatInto({ src: current, dst: scratch, table, collision: rule })
 
       const swap = current
+
       current = scratch
       scratch = swap
 

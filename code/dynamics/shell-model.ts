@@ -6,6 +6,7 @@
 // proportional to k^(-5/3), the Kolmogorov law. Turning the nonlinearity off removes the cascade, the control.
 
 type Complex = [number, number]
+
 const mul = (a: Complex, b: Complex): Complex => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
@@ -66,11 +67,13 @@ export function goyShellSpectrum(input: {
       }
 
       const dissipation: Complex = scale(u[i]!, -nu * k[i]! * k[i]!)
+
       du[i] = add(advection, dissipation)
 
       if (i === 1) {
         du[i] = add(du[i]!, [0.01, 0.01])
-      } // constant forcing at a low shell
+      }
+      // constant forcing at a low shell
     }
 
     return du
@@ -92,6 +95,7 @@ export function goyShellSpectrum(input: {
     const d1 = derivative(u)
     const mid = u.map((ui, i) => add(ui, scale(d1[i]!, dt / 2)))
     const d2 = derivative(mid)
+
     u = u.map((ui, i) => add(ui, scale(d2[i]!, dt)))
 
     if (step > transient && step % 100 === 0) {

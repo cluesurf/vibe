@@ -107,6 +107,7 @@ async function run(): Promise<void> {
   })) {
     const x = coords[i]!
     const proj = sub(x, xi, dot(x, xi))
+
     raw.push({ index: i, u: dot(proj, e1), v: dot(proj, e2) })
   }
 
@@ -192,6 +193,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -235,6 +237,7 @@ async function run(): Promise<void> {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', 'make', 'frames-ripple')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -243,6 +246,7 @@ async function run(): Promise<void> {
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -253,6 +257,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -287,6 +292,7 @@ async function run(): Promise<void> {
           }
 
           const o = (y * IMG + x) * 4
+
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
           rgba[o + 2] = col[2]

@@ -62,6 +62,7 @@ suite('measure/atomic-energy: variational minimum', [
     () => {
       const v = heliumVariationalEnergy(2)
       const p = heliumPerturbativeEnergy(2)
+
       ok(v < p, `variational ${v} should be below perturbative ${p}`)
       ok(v > -4, `variational ${v} should be above the no-repulsion -4`)
     },

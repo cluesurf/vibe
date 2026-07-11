@@ -76,6 +76,7 @@ export function buildAddressing(input: {
 
   // BFS shells from the root
   const dist = new Array<number>(n).fill(-1)
+
   dist[root] = 0
 
   const queue = [root]
@@ -135,6 +136,7 @@ export function buildAddressing(input: {
   // because BFS order is itself address-monotone within a shell once children are angle-ordered, gives
   // a stable tree. We then assign child digits by the embedding key.
   const bfsRank = new Array<number>(n).fill(Infinity)
+
   order.forEach((cell, rank) => (bfsRank[cell] = rank))
 
   for (const cell of order) {
@@ -506,6 +508,7 @@ export function regionTypes(a: Addressing): {
     }
 
     const i = idx.get(t)!
+
     cnt[i]!++
 
     for (const kid of a.children[cell]!) {

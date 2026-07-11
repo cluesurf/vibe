@@ -100,6 +100,7 @@ export default experiment({
 
       const table = streamSourceTable(mesh)
       const init = makeWill(mesh)
+
       fillWillPattern(init) // a deterministic body, never random
 
       // the coherence clock: open loses it irreversibly, closed keeps it exactly

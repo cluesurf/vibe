@@ -48,7 +48,8 @@ export function criticalityScan(input?: { n?: number }): {
 
     for (let t = 0; t < 200; t++) {
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-    } // relax to steady state
+    }
+    // relax to steady state
 
     const samples = 100
 

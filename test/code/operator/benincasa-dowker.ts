@@ -68,6 +68,7 @@ function expected(
     }
 
     const n = intervalSize(poset, { a: y, b: index, past })
+
     s +=
       smearedKernel2D({ n, epsilon }) *
       phi(coords[y * 2] ?? 0, coords[y * 2 + 1] ?? 0)

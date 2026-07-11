@@ -26,6 +26,7 @@ export function latticeDiracEnergy1d(input: {
   m: number
 }): number {
   const h = makeDense({ rows: 2, cols: 2 })
+
   h.data[0] = input.m
   h.data[1] = Math.sin(input.k)
   h.data[2] = Math.sin(input.k)

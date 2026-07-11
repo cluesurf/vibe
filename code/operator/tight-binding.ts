@@ -18,6 +18,7 @@ export function ringHoppingHamiltonian(input: {
 
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n
+
     h.data[i * n + j] = t
     h.data[j * n + i] = t
   }
@@ -41,6 +42,7 @@ export function weakBondChainHamiltonian(input: {
 
   for (let i = 0; i < n - 1; i++) {
     const w = i === bondIndex ? weight : 1
+
     h.data[i * n + (i + 1)] = -t * w
     h.data[(i + 1) * n + i] = -t * w
   }
@@ -86,6 +88,7 @@ export function mediatorChainHamiltonian(input: {
 
   for (let i = 0; i < n - 1; i++) {
     const weight = i === aMBond || i === mBBond ? mediatorWeight : 1
+
     bond(i, i + 1, weight)
   }
 
@@ -244,6 +247,7 @@ export function torusHoppingHamiltonian(input: {
     for (let d = 0; d < dimension; d++) {
       const next = (coord[d]! + 1) % side
       const w = v - coord[d]! * strides[d]! + next * strides[d]!
+
       h.data[v * n + w] = t
       h.data[w * n + v] = t
     }
@@ -282,6 +286,7 @@ export function staggeredMassCubicHamiltonian(input: {
     for (let y = 0; y < side; y++) {
       for (let z = 0; z < side; z++) {
         const i = index(x, y, z)
+
         h.data[i * n + i] = ((x + y + z) % 2 === 0 ? 1 : -1) * mass
 
         if (x + 1 < side) {

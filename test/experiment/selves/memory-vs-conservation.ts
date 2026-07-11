@@ -13,6 +13,7 @@ import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 
 const GOLDEN = (1 + Math.sqrt(5)) / 2
 const SILVER = 1 + Math.sqrt(2)
+
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -61,6 +62,7 @@ export function memoryVsConservation(input?: { n?: number }): {
 
   {
     const seen = new Uint8Array(N)
+
     seen[0] = 1
 
     let fr = [0]
@@ -96,6 +98,7 @@ export function memoryVsConservation(input?: { n?: number }): {
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
+
     target[a] = target[b]!
     target[b] = t
   }

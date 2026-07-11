@@ -31,6 +31,7 @@ suite('geometry/distance: the metric axioms', [
   check('d(u, v) = d(v, u): the distance is symmetric', () => {
     const u = [0.1, 0.2]
     const v = [-0.3, 0.1]
+
     close(
       poincareDistance(u, v),
       poincareDistance(v, u),
@@ -44,6 +45,7 @@ suite('geometry/distance: the metric axioms', [
     const c = [0.2, -0.4]
     const ac = poincareDistance(a, c)
     const abc = poincareDistance(a, b) + poincareDistance(b, c)
+
     ok(ac <= abc + 1e-12, `${ac} must not exceed ${abc}`)
   }),
 ])
@@ -53,6 +55,7 @@ suite('geometry/distance: the known-value identity', [
     // u = 0, v = (0.5, 0): independently cosh(2 atanh r) = (1 + r^2)/(1 - r^2).
     const r = 0.5
     const expected = (1 + r * r) / (1 - r * r)
+
     close(poincareCosh([0, 0], [r, 0]), expected, TOL, 'centred cosh')
   }),
   check('d(0, (0.5,0)) = 2 atanh(0.5)', () => {
@@ -67,6 +70,7 @@ suite('geometry/distance: the known-value identity', [
     const p = [0.1, 0.2]
     const q = [0.3, -0.1]
     const flat = Float64Array.from([...p, ...q])
+
     close(
       poincareDistanceIndexed(flat, 2, 0, 1),
       poincareDistance(p, q),
@@ -105,6 +109,7 @@ suite('geometry/distance: negative curvature', [
       // edge is infinitely far, the signature of negative curvature.
       const near = poincareDistance([0, 0], [0.45, 0])
       const far = poincareDistance([0, 0], [0.9, 0])
+
       ok(far > 2 * near, `${far} should exceed twice ${near}`)
     },
   ),
@@ -113,6 +118,7 @@ suite('geometry/distance: negative curvature', [
     // a longer hyperbolic distance when anchored near the rim than at the centre.
     const centre = poincareDistance([0, 0], [0, 0.05])
     const edge = poincareDistance([0.8, 0], [0.8, 0.05])
+
     ok(
       edge > centre,
       `${edge} (near rim) should exceed ${centre} (centre)`,

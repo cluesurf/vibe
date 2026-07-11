@@ -31,7 +31,8 @@ export function latticeGreenDifferenceX(input: {
 
         if (den < 1e-12) {
           continue
-        } // k=0: the cosine-difference integrand goes to 0 here anyway
+        }
+        // k=0: the cosine-difference integrand goes to 0 here anyway
 
         s += drx / (2 * den)
       }

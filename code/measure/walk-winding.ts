@@ -132,6 +132,7 @@ export function quasienergyGaps(input: {
     const m = frameU(k, input.theta1, input.theta2)
     const a0 = (m[0][0] + m[3][0]) / 2 // Re tr(U) / 2 = cos(quasienergy)
     const energy = Math.acos(Math.max(-1, Math.min(1, a0)))
+
     gapZero = Math.min(gapZero, energy)
     gapPi = Math.min(gapPi, Math.abs(energy - Math.PI))
   }

@@ -81,6 +81,7 @@ function observables(
 
   while (efolds < targetN && phi < 200) {
     const p = pot(phi)
+
     efolds += Math.abs((p.V / p.Vp) * dphi)
     phi += dphi
   }

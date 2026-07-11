@@ -100,6 +100,7 @@ async function gpuResponders(input: {
   const t0 = performance.now()
   const enc = device.createCommandEncoder()
   const pass = enc.beginComputePass()
+
   pass.setPipeline(pipeline)
   pass.setBindGroup(0, bind)
   pass.dispatchWorkgroups(Math.ceil(cellCount / WORKGROUP))
@@ -109,6 +110,7 @@ async function gpuResponders(input: {
   await readback.mapAsync(GPUMapMode.READ)
 
   const out = new Uint32Array(readback.getMappedRange().slice(0))
+
   readback.unmap()
 
   const ms = performance.now() - t0
@@ -214,6 +216,7 @@ async function run(): Promise<void> {
   console.log(
     `exact match, cpu ${cpuExact.length} responder(s), gpu ${gpuExactCells.length}, agree ${exactMatch}`,
   )
+
   console.log(
     `partial match (minScore ${minScore}), cpu ${cpuPartial.length}, gpu ${gpuPartialCells.length}, agree ${partialMatch}`,
   )
@@ -267,4 +270,5 @@ async function run(): Promise<void> {
 }
 
 const main = run
+
 void main()

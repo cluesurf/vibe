@@ -67,6 +67,7 @@ export default experiment({
         fullQuantumGap,
         Math.abs(zero[i]! - full[i]!),
       )
+
       halfQuantumGap = Math.max(
         halfQuantumGap,
         Math.abs(zero[i]! - half[i]!),

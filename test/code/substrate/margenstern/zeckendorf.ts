@@ -113,6 +113,7 @@ suite('substrate/margenstern/zeckendorf: growth and continuator', [
     }
 
     const got = expected.map((_, n) => sectorGeneration(n))
+
     exactArray(got, expected, 'sector generations')
   }),
 ])

@@ -39,6 +39,7 @@ export function runModel(
 
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
+
         fv[k] = f
 
         const fw = fills[w]

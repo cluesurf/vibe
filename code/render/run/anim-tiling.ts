@@ -93,6 +93,7 @@ export function drawCentralNumber(input: {
 
     const mx = ((a[0] ?? 0) + (b[0] ?? 0)) / 2 - bx
     const my = ((a[1] ?? 0) + (b[1] ?? 0)) / 2 - by
+
     inradiusBall = Math.min(inradiusBall, Math.hypot(mx, my))
   }
 
@@ -111,6 +112,7 @@ export function drawCentralNumber(input: {
   )
 
   const shadow = Math.max(2, scale * 0.18)
+
   drawNumber(
     rgba,
     size,
@@ -201,6 +203,7 @@ function fillRect(
       }
 
       const o = (yy * size + xx) * 4
+
       rgba[o] = color[0]
       rgba[o + 1] = color[1]
       rgba[o + 2] = color[2]

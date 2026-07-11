@@ -127,6 +127,7 @@ export default experiment({
       })
 
       const swap = torus
+
       torus = torusScratch
       torusScratch = swap
 
@@ -152,6 +153,7 @@ export default experiment({
       beatInto({ src: open, dst: openScratch, table, collision: rule })
 
       const swap = open
+
       open = openScratch
       openScratch = swap
       absorbBoundary(open)

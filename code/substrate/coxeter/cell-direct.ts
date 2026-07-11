@@ -167,6 +167,7 @@ export function buildEuclideanLattice(input: {
     for (let i = 0; i < d; i++) {
       for (const s of [1, -1]) {
         const v = new Array<number>(d).fill(0)
+
         v[i] = s
         o.push(v)
       }
@@ -183,6 +184,7 @@ export function buildEuclideanLattice(input: {
         for (const si of [1, -1]) {
           for (const sj of [1, -1]) {
             const v = new Array<number>(d).fill(0)
+
             v[i] = si
             v[j] = sj
             o.push(v)
@@ -481,7 +483,8 @@ export function buildHorosphereBand(input: {
   for (let head = 0; head < cellMat.length; head++) {
     if (Math.abs(cellBus[head]!) >= expandLimit) {
       continue
-    } // pruned, outside the slab, do not expand
+    }
+    // pruned, outside the slab, do not expand
 
     const g = cellMat[head]!
 
@@ -492,7 +495,8 @@ export function buildHorosphereBand(input: {
 
       if (Math.abs(b) >= expandLimit) {
         continue
-      } // drop cells outside the slab entirely
+      }
+      // drop cells outside the slab entirely
 
       const k = keyOf(coord)
 

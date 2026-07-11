@@ -61,6 +61,7 @@ export function parityReflect(input: {
   // the direction permutation under the reflection of the chosen axis
   const reflectedDirection = directions.map(v => {
     const w = [...v]
+
     w[axis] = -w[axis]!
 
     return directionIndex.get(key(w))!

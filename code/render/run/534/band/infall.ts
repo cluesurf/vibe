@@ -100,6 +100,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     bandCells.push(i)
     uv.push([dot(w, e1), dot(w, e2)])
   }
@@ -183,6 +184,7 @@ function run(): void {
   mkdirSync(outDir, { recursive: true })
 
   const startDist = meanSurroundDist()
+
   console.log(
     `band ${bandCells.length.toLocaleString()} cells, mass radius ${massR.toFixed(1)}, surround starts at mean distance ${startDist.toFixed(1)}`,
   )
@@ -219,6 +221,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
@@ -246,6 +249,7 @@ function run(): void {
   console.log(
     `surround mean distance ${startDist.toFixed(1)} -> ${endDist.toFixed(1)}, ${verdict}`,
   )
+
   console.log(
     `wrote ${FRAMES} frames, assemble with task/render-video.sh`,
   )

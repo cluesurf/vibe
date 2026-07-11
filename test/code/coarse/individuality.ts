@@ -48,10 +48,12 @@ suite('coarse/individuality: variance partition', [
     ]
 
     const r = fitnessVariancePartition(groups)
+
     close(r.between + r.within, totalVariance(groups.flat()), TOL)
   }),
   check('an empty population is all zeros', () => {
     const r = fitnessVariancePartition([])
+
     close(r.between, 0, TOL)
     close(r.within, 0, TOL)
     close(r.ratio, 0, TOL)

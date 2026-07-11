@@ -87,6 +87,7 @@ suite(
     check('path-graph-3 tridiagonal: 2 + sqrt2*{-1,0,1}', () => {
       // adjacency of P3 has eigenvalues {-sqrt2, 0, sqrt2}; +2 on the diagonal shifts.
       const r2 = Math.SQRT2
+
       closeArray(
         jacobiEigenvalues([
           [2, 1, 0],
@@ -107,12 +108,14 @@ suite(
 
       const vals = jacobiEigenvalues(m)
       const trace = 4 + 3 + 5
+
       close(
         vals.reduce((s, v) => s + v, 0),
         trace,
         1e-9,
         'sum of eigenvalues = trace',
       )
+
       // det = 4(15-1) - 1(5+2) + 2(-1-6) = 56 - 7 - 14 = 35
       close(
         vals.reduce((s, v) => s * v, 1),

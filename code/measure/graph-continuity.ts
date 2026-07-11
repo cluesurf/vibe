@@ -45,6 +45,7 @@ export function cellDistances(
   center: number,
 ): number[] {
   const dist = new Array<number>(adjacency.length).fill(-1)
+
   dist[center] = 0
 
   let frontier = [center]

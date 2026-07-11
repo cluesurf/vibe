@@ -39,6 +39,7 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
     for (let k = 0; k < 3; k++) {
       const akp = a[k]![p]!
       const akq = a[k]![q]!
+
       a[k]![p] = c * akp - s * akq
       a[k]![q] = s * akp + c * akq
     }
@@ -46,6 +47,7 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
     for (let k = 0; k < 3; k++) {
       const apk = a[p]![k]!
       const aqk = a[q]![k]!
+
       a[p]![k] = c * apk - s * aqk
       a[q]![k] = s * apk + c * aqk
     }
@@ -94,6 +96,7 @@ export function jacobiEigenvalues(
         for (let k = 0; k < n; k++) {
           const kp = a[k]![p]!
           const kq = a[k]![q]!
+
           a[k]![p] = c * kp - s * kq
           a[k]![q] = s * kp + c * kq
         }
@@ -101,6 +104,7 @@ export function jacobiEigenvalues(
         for (let k = 0; k < n; k++) {
           const pk = a[p]![k]!
           const qk = a[q]![k]!
+
           a[p]![k] = c * pk - s * qk
           a[q]![k] = s * pk + c * qk
         }
@@ -168,6 +172,7 @@ export function eigSymmetric(input: {
         for (let k = 0; k < n; k++) {
           const akp = at(k, p)
           const akq = at(k, q)
+
           setA(k, p, c * akp - s * akq)
           setA(k, q, s * akp + c * akq)
         }
@@ -175,6 +180,7 @@ export function eigSymmetric(input: {
         for (let k = 0; k < n; k++) {
           const apk = at(p, k)
           const aqk = at(q, k)
+
           setA(p, k, c * apk - s * aqk)
           setA(q, k, s * apk + c * aqk)
         }
@@ -182,6 +188,7 @@ export function eigSymmetric(input: {
         for (let k = 0; k < n; k++) {
           const vkp = v[k * n + p] ?? 0
           const vkq = v[k * n + q] ?? 0
+
           v[k * n + p] = c * vkp - s * vkq
           v[k * n + q] = s * vkp + c * vkq
         }

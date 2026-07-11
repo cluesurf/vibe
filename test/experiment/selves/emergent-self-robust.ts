@@ -63,6 +63,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
   for (let i = 0; i < N; i++) {
     const r = hashRand(i, 0, 1)
+
     tone[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
@@ -77,6 +78,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   for (let i = N - 1; i > 0; i--) {
     const j = Math.floor(hashRand(i, 0, 2) * (i + 1))
     const tmp = shuf[i]!
+
     shuf[i] = shuf[j]!
     shuf[j] = tmp
   }

@@ -67,6 +67,7 @@ export function deterministicWave(input?: {
 
   for (let t = 0; t < 50; t++) {
     const next = new Uint8Array(L)
+
     step(prev, cur, next)
     prev = cur
     cur = next
@@ -75,6 +76,7 @@ export function deterministicWave(input?: {
   // reverse: the inverse step recovers prev from (cur, next), so step backward with roles swapped
   for (let t = 0; t < 50; t++) {
     const back = new Uint8Array(L)
+
     step(cur, prev, back) // symmetric form recovers the earlier slice
     cur = prev
     prev = back
@@ -106,6 +108,7 @@ export function deterministicWave(input?: {
     let ca = c0.slice()
     let pb = p0.slice()
     let cb = c0.slice()
+
     cb[center] = (cb[center]! + 1) % 3 // the perturbation
 
     const times: number[] = []
@@ -114,6 +117,7 @@ export function deterministicWave(input?: {
     for (let t = 1; t <= beats; t++) {
       const na = new Uint8Array(L)
       const nb = new Uint8Array(L)
+
       step(pa, ca, na)
       step(pb, cb, nb)
       pa = ca
@@ -148,6 +152,7 @@ export function deterministicWave(input?: {
 
     for (let run = 0; run < runs; run++) {
       const tone = new Int8Array(L)
+
       tone[center] = 1
 
       const r = makeRng({ seed: 200 + run })

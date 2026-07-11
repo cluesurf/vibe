@@ -110,6 +110,7 @@ function run(): void {
       for (let x = 0; x < L; x++) {
         const [px, py, pz] = project(x, y, z)
         const i = idx(x, y, z)
+
         PX[i] = Math.round(px)
         PY[i] = Math.round(py)
         z2arr[i] = pz
@@ -171,7 +172,8 @@ function run(): void {
 
   for (let k = 0; k < 6; k++) {
     tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1
-  } // a 7-cell cluster glider
+  }
+  // a 7-cell cluster glider
 
   tone[idx(8, 45, 45)] = 1
 
@@ -228,6 +230,7 @@ function run(): void {
         }
 
         const pix = iy * IMG + ix
+
         accR[pix] = 26
         accG[pix] = 28
         accB[pix] = 34
@@ -269,6 +272,7 @@ function run(): void {
           }
 
           const pix = iy * IMG + ix
+
           accR[pix] = accR[pix]! * (1 - a) + col[0] * d * a
           accG[pix] = accG[pix]! * (1 - a) + col[1] * d * a
           accB[pix] = accB[pix]! * (1 - a) + col[2] * d * a

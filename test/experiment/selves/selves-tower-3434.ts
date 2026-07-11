@@ -47,6 +47,7 @@ function makeStep(
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
+
       order[i] = order[j]!
       order[j] = t
     }
@@ -68,6 +69,7 @@ function makeStep(
         }
 
         const [na, nb] = pairOp(tone[v]!, tone[w]!)
+
         tone[v] = na
         tone[w] = nb
         used[v] = 1
@@ -139,6 +141,7 @@ function shuffledGroups(
   for (let i = perm2.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = perm2[i]!
+
     perm2[i] = perm2[j]!
     perm2[j] = t
   }
@@ -188,7 +191,8 @@ function cuspTower(): {
 
   for (let f = 0; f < 40; f++) {
     stepPerception(tone, offsets, adj, rng)
-  } // settle
+  }
+  // settle
 
   const blocks = [1, 2, 4, 6]
   const real: number[] = []
@@ -197,6 +201,7 @@ function cuspTower(): {
 
   for (const b of blocks) {
     const grp = groupAt(b)
+
     real.push(
       formPersistence(
         tone.slice(),
@@ -207,6 +212,7 @@ function cuspTower(): {
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
+
     diff.push(
       formPersistence(
         tone.slice(),
@@ -217,6 +223,7 @@ function cuspTower(): {
         { lag: 8, frames: 24, step: stepDiffusion },
       ),
     )
+
     nul.push(
       formPersistence(
         tone.slice(),
@@ -293,6 +300,7 @@ function bulkTower(): {
 
   for (const d of depths) {
     const grp = groupAtDepth(d)
+
     real.push(
       formPersistence(
         tone.slice(),
@@ -303,6 +311,7 @@ function bulkTower(): {
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
+
     diff.push(
       formPersistence(
         tone.slice(),
@@ -313,6 +322,7 @@ function bulkTower(): {
         { lag: 8, frames: 24, step: stepDiffusion },
       ),
     )
+
     nul.push(
       formPersistence(
         tone.slice(),

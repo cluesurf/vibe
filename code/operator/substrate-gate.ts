@@ -23,6 +23,7 @@ export function makeCircuit(): SubstrateCircuit {
 
 export function addCell(c: SubstrateCircuit, clampValue?: Bit): number {
   const id = c.size++
+
   c.fills.set(id, new Map())
 
   if (clampValue !== undefined) {
@@ -128,6 +129,7 @@ export function settle(
     for (let i = free.length - 1; i > 0; i--) {
       const k = rng.nextInt({ max: i + 1 })
       const t = free[i] ?? 0
+
       free[i] = free[k] ?? 0
       free[k] = t
     }

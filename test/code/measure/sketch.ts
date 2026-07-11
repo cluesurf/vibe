@@ -16,6 +16,7 @@ suite('measure/sketch: cellHash', [
     equal(cellHash(123, 1000), cellHash(123, 1000))
 
     const h = cellHash(123, 1000)
+
     ok(h >= 0 && h < 1000)
   }),
 ])
@@ -23,6 +24,7 @@ suite('measure/sketch: cellHash', [
 suite('measure/sketch: hashTableProbeStats', [
   check('a single key never collides (mean probe 1)', () => {
     const s = hashTableProbeStats({ cells: 10, keys: 1 })
+
     equal(s.collisionRate, 0)
     close(s.meanProbe, 1, 1e-12)
   }),
@@ -30,6 +32,7 @@ suite('measure/sketch: hashTableProbeStats', [
     // key0: 1 probe, placed. key1: slot full, 1 wrap probe -> 2 probes, a collision.
     // collisionRate = 1/2, meanProbe = (1+2)/2 = 1.5.
     const s = hashTableProbeStats({ cells: 1, keys: 2 })
+
     close(s.collisionRate, 0.5, 1e-12)
     close(s.meanProbe, 1.5, 1e-12)
   }),

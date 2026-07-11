@@ -46,6 +46,7 @@ suite('algebra/group/special-linear: SL(2,p) order and determinants', [
   check('all listed matrices are distinct', () => {
     for (const p of [2, 3, 5, 7]) {
       const group = specialLinear(p)
+
       equal(
         new Set(group.map(key)).size,
         group.length,
@@ -63,6 +64,7 @@ suite('algebra/group/special-linear: group axioms', [
       const group = specialLinear(p)
       const present = new Set(group.map(key))
       const id = identityModP()
+
       equal(detModP(id, p), 1, 'identity has det 1')
 
       for (const m of group) {
@@ -86,6 +88,7 @@ suite('algebra/group/special-linear: group axioms', [
       const a = g[i]!
       const b = g[(i * 3 + 1) % g.length]!
       const c = g[(i * 5 + 2) % g.length]!
+
       ok(
         equalsModP(
           multiplyModP(multiplyModP(a, b, p), c, p),
@@ -111,6 +114,7 @@ suite('algebra/group/special-linear: centre and PSL(2,p)', [
     () => {
       for (const p of [3, 5, 7]) {
         const minus = minusIdentityModP(p)
+
         equal(
           detModP(minus, p),
           1,
@@ -118,6 +122,7 @@ suite('algebra/group/special-linear: centre and PSL(2,p)', [
         )
 
         const centreKeys = new Set(centre(p).map(key))
+
         ok(centreKeys.has(key(minus)), '-I is central')
         ok(!equalsModP(minus, identityModP()), '-I != I for odd p')
       }

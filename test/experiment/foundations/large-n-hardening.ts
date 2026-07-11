@@ -36,6 +36,7 @@ function sprinkleCoords(input: {
 
     for (let axis = 0; axis < spaceDim; axis++) {
       const x = input.rng.next() - 0.5
+
       cand[axis] = x
       radius2 += x * x
     }

@@ -137,6 +137,7 @@ export function dynamicDispersion(input?: {
         // linear interpolation between tau-1 and tau
         const a0 = norm[tau - 1]!
         const a1 = norm[tau]!
+
         relaxTime = tau - 1 + (a0 - Math.exp(-1)) / (a0 - a1)
         break
       }

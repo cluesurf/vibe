@@ -41,6 +41,7 @@ function windingNumber(z: (k: number) => [number, number]): number {
     // signed angle from previous to current: atan2(prev x cur, prev . cur)
     const cross = previous[0] * current[1] - previous[1] * current[0]
     const dot = previous[0] * current[0] + previous[1] * current[1]
+
     total += Math.atan2(cross, dot)
     previous = current
   }

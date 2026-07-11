@@ -124,6 +124,7 @@ export class RegisterMachine {
 
     while (pc < program.length && steps < maxSteps) {
       const instr = program[pc]!
+
       steps++
 
       if (instr.op === 'halt') {

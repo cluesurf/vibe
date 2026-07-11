@@ -84,6 +84,7 @@ export function route(from: number, to: number): number[] {
   const up = pathToRoot(from) // [from, ..., 1]
   const down = pathToRoot(to) // [to, ..., 1]
   const depthOnUp = new Map<number, number>()
+
   up.forEach((node, index) => depthOnUp.set(node, index))
 
   // the common ancestor is the first node of `down` that also lies on `up`

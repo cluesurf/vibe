@@ -23,10 +23,12 @@ export function laplacian(input: {
 
   for (let a = 0; a < n; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
+
     triplets.push({ row: a, col: a, value: row.length })
 
     for (const rowValue of row) {
       const b = rowValue ?? 0
+
       triplets.push({ row: a, col: b, value: -1 })
     }
   }
@@ -81,6 +83,7 @@ export function laplacianGreensFunction(input: {
   const L = laplacian({ substrate: input.substrate })
   const n = L.rows
   const b = new Float64Array(n)
+
   b.fill(-1 / n)
   b[input.center] = 1 - 1 / n
 
@@ -92,6 +95,7 @@ export function laplacianGreensFunction(input: {
 
   for (let iter = 0; iter < 4 * n; iter++) {
     const temp = sparseMatVec(L, { x: direction })
+
     subtractMean(temp)
 
     const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)

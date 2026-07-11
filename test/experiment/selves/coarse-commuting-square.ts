@@ -65,6 +65,7 @@ export default experiment({
 
     const microStep = (tone: Int8Array): Int8Array => {
       const copy = tone.slice()
+
       beat(copy, graph, moved, stepRng, 0.01, 0.22)
 
       return copy

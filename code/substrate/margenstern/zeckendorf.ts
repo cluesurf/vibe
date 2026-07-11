@@ -13,6 +13,7 @@ function fibUpTo(n: number): number[] {
   while (FIB_CACHE[FIB_CACHE.length - 1]! <= n) {
     const a = FIB_CACHE[FIB_CACHE.length - 1]!
     const b = FIB_CACHE[FIB_CACHE.length - 2]!
+
     FIB_CACHE.push(a + b)
   }
 
@@ -53,11 +54,13 @@ export function fromZeckendorf(address: string): number {
   let sum = 0
 
   const len = address.length
+
   fibUpTo(0)
 
   while (FIB_CACHE.length < len) {
     const a = FIB_CACHE[FIB_CACHE.length - 1]!
     const b = FIB_CACHE[FIB_CACHE.length - 2]!
+
     FIB_CACHE.push(a + b)
   }
 
@@ -96,6 +99,7 @@ export function sectorGeneration(n: number): number {
 
   for (let i = 1; i < n; i++) {
     const next = 3 * b - a
+
     a = b
     b = next
   }

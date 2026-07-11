@@ -52,6 +52,7 @@ export function schwarzschildEvaporationLifetime(input: {
   while (mass > floor) {
     const power = horizonLuminosity(mass)
     const dt = (fraction * mass) / power
+
     mass -= power * dt
     time += dt
   }

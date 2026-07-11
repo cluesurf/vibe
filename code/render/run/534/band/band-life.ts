@@ -49,6 +49,7 @@ function run(): void {
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
+
   console.log(
     `horosphere slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}, running the cohesive rule`,
   )
@@ -93,6 +94,7 @@ function run(): void {
   )
 
   type BandCell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
@@ -104,6 +106,7 @@ function run(): void {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -136,6 +139,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
@@ -186,6 +190,7 @@ function run(): void {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
@@ -208,9 +213,11 @@ function run(): void {
   }
 
   const finalSelf = largestPositiveCluster(tone, g).length
+
   console.log(
     `emergence test, largest self grew from ${firstSelf} to ${finalSelf} cells, ${finalSelf > firstSelf * 3 ? 'SELVES EMERGED' : 'weak'}`,
   )
+
   console.log(
     `wrote ${FRAMES} frames, assemble with task/render-video.sh`,
   )

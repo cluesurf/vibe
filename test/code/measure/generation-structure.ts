@@ -15,10 +15,12 @@ suite('measure/generation-structure: J3(O)', [
   // Jordan identity holds at n=3, fails at n=4 (octonions do not associate).
   check('the Jordan identity holds at 3 and fails at 4', () => {
     const s = exceptionalJordanGenerationStructure()
+
     ok(
       s.residualAt3 < 1e-6,
       `residual at 3 should be ~0, got ${s.residualAt3}`,
     )
+
     ok(
       s.residualAt4 > 1e-3,
       `residual at 4 should be large, got ${s.residualAt4}`,
@@ -31,6 +33,7 @@ suite('measure/generation-structure: J3(O)', [
   // S_3 has 3! = 6 elements, all automorphisms (the generation horizontal symmetry).
   check('the six S_3 slot permutations are automorphisms', () => {
     const s = exceptionalJordanGenerationStructure()
+
     equal(s.s3Count, 6)
     equal(s.s3AreAutomorphisms, true)
   }),
@@ -39,6 +42,7 @@ suite('measure/generation-structure: J3(O)', [
     'the naive piece = generation identification fails (8 != 16)',
     () => {
       const s = exceptionalJordanGenerationStructure()
+
       equal(s.pieceDimension, 8)
       equal(s.generationFermions, 16)
       equal(s.naiveIdentificationHolds, false)

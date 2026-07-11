@@ -34,13 +34,16 @@ function makeLandscape(L: number): {
   for (let p = 0; p <= L; p++) {
     if (p <= localPeak) {
       V[p] = 0.6 * (p / localPeak)
-    } // rise to local peak 0.6
+    }
+    // rise to local peak 0.6
     else if (p <= valley) {
       V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak))
-    } // dip to 0.2
+    }
+    // dip to 0.2
     else {
       V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
-    } // rise to global peak 1.0 at the goal
+    }
+    // rise to global peak 1.0 at the goal
   }
 
   const start = Math.floor(L * 0.1)
@@ -99,7 +102,8 @@ function runAgent(
     // move toward the better horizon, only if it beats staying (otherwise stuck at a local optimum)
     if (up <= here && down <= here) {
       break
-    } // stuck, no reachable improvement within the horizon
+    }
+    // stuck, no reachable improvement within the horizon
 
     pos += up >= down ? 1 : -1
   }
@@ -135,6 +139,7 @@ export function detourPlanning(input?: { L?: number }): {
   for (let K = 1; K <= L; K++) {
     const r = runAgent(V, start, K)
     const reached = r.finalPos >= goal - 1
+
     scan.push({ K, reachedGoal: reached })
 
     if (reached && thresholdK < 0) {

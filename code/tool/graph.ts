@@ -187,6 +187,7 @@ export function largestComponentNodes(
 
     const comp: number[] = []
     const q = [s]
+
     seen[s] = s
 
     for (const u of q) {
@@ -223,6 +224,7 @@ export function csrDistances(input: {
 }): Int32Array {
   const { offsets, adj, size, source, allowed } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let fr = [source]
@@ -289,6 +291,7 @@ export function csrBallNodes(input: {
   const seen = new Uint8Array(size)
 
   let frontier = [source]
+
   seen[source] = 1
 
   while (frontier.length > 0 && ball.length < limit) {
@@ -323,6 +326,7 @@ export function csrEccentricity(input: {
 }): { dist: Int32Array; far: number } {
   const { offsets, adj, size, source } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let fr = [source]
@@ -369,6 +373,7 @@ export function csrBfsOrder(input: {
 
   let head = 0
   let tail = 0
+
   seen[0] = 1
   order[tail++] = 0
 
@@ -400,6 +405,7 @@ export function csrFarthestNode(input: {
 }): number {
   const { offsets, adj, size, source } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let fr = [source]
@@ -435,6 +441,7 @@ export function neighborDistances(input: {
 }): Int32Array {
   const { neighbors, size, source } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -468,6 +475,7 @@ export function neighborBfsTree(input: {
   const { neighbors, size, source } = input
   const dist = new Int32Array(size).fill(-1)
   const parent = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -561,6 +569,7 @@ export function greedyEdgeColoring(input: {
 
       if (w > v) {
         const e = eu.length
+
         eu.push(v)
         ev.push(w)
         incident[v]!.push(e)
@@ -647,6 +656,7 @@ export function largestComponent(g: Graph): Graph {
   }
 
   const reach = new Int32Array(g.size).fill(-1)
+
   reach[center] = 0
 
   let frontier = [center]
@@ -670,6 +680,7 @@ export function largestComponent(g: Graph): Graph {
   }
 
   const remap = new Map<number, number>()
+
   kept.forEach((old, i) => remap.set(old, i))
 
   const dim = g.embedding?.dimension ?? 2

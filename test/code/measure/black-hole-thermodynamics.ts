@@ -71,6 +71,7 @@ suite('measure/black-hole-thermodynamics: Schwarzschild', [
     () => {
       const t1 = schwarzschildEvaporationLifetime({ mass: 1 })
       const t2 = schwarzschildEvaporationLifetime({ mass: 2 })
+
       close(t2 / t1, 8, 0.2)
     },
   ),
@@ -80,6 +81,7 @@ suite('measure/black-hole-thermodynamics: de Sitter', [
   // radius 1/H, area 4 pi / H^2, entropy pi / H^2, temperature H / 2pi, Lambda = 3 H^2.
   check('the Gibbons-Hawking horizon set for H = 2', () => {
     const d = deSitterHorizon(2)
+
     close(d.radius, 0.5, TOL)
     close(d.area, Math.PI, TOL)
     close(d.entropy, Math.PI / 4, TOL)
@@ -90,6 +92,7 @@ suite('measure/black-hole-thermodynamics: de Sitter', [
   check('entropy is A/4 and Lambda = 3 H^2 across H', () => {
     for (const H of [0.5, 1, 3]) {
       const d = deSitterHorizon(H)
+
       close(d.entropy, d.area / 4, TOL)
       close(d.cosmologicalConstant, 3 * H * H, TOL)
       close(d.temperature, H / (2 * Math.PI), TOL)

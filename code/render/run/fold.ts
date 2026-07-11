@@ -84,6 +84,7 @@ async function run(): Promise<void> {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, `${key}.png`)
+
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))
   console.log(
     `rendered {${symbol.join(',')}} ${threeD ? 'honeycomb (raymarch)' : 'tiling (Poincare disk)'} at ${SIZE}x${SIZE}, wrote ${outPath}`,

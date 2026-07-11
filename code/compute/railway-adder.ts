@@ -43,6 +43,7 @@ export function fibOnRailway(input: { n: number; bits?: number }): {
   const a = makeBinaryCounter(bits)
   const b = makeBinaryCounter(bits)
   const t = makeBinaryCounter(bits)
+
   a.clear()
   b.set(1)
   t.clear()

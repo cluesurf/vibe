@@ -76,12 +76,14 @@ export function determinantN(input: Complex[][]): Complex {
 
     if (pivot !== col) {
       const swap = matrix[pivot]!
+
       matrix[pivot] = matrix[col]!
       matrix[col] = swap
       det = [-det[0], -det[1]]
     }
 
     const lead = matrix[col]![col]!
+
     det = cMul(det, lead)
 
     const inverseMagnitude = 1 / cAbs2(lead)
@@ -95,6 +97,7 @@ export function determinantN(input: Complex[][]): Complex {
 
       for (let k = col; k < n; k++) {
         const product = cMul(factor, matrix[col]![k]!)
+
         matrix[row]![k] = [
           matrix[row]![k]![0] - product[0],
           matrix[row]![k]![1] - product[1],
@@ -116,7 +119,7 @@ export function walkStep(input: {
   const { vector, size, mass } = input
   const c = Math.cos(mass)
   const s = Math.sin(mass)
-  const next: Complex[] = new Array(2 * size).fill([0, 0])
+  const next: Complex[] = new Array<Complex>(2 * size).fill([0, 0])
 
   for (let x = 0; x < size; x++) {
     const right = vector[x]!
@@ -145,7 +148,8 @@ export function propagatorColumn(input: {
 }): Complex[] {
   const { from, size, mass, beats } = input
 
-  let vector: Complex[] = new Array(2 * size).fill([0, 0])
+  let vector: Complex[] = new Array<Complex>(2 * size).fill([0, 0])
+
   vector[from] = [1, 0]
 
   for (let t = 0; t < beats; t++) {

@@ -54,6 +54,7 @@ export function densityWaveAlongAxis(input: {
 
       if (hash < target) {
         const [a, z] = lines[line]!
+
         will.data[base + a] = 1
         will.data[base + z] = 1
       }

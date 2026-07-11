@@ -31,6 +31,7 @@ type Sub = {
   soliton: string
   stats: string
 }
+
 const SUBS: Sub[] = [
   {
     sym: [7, 3],

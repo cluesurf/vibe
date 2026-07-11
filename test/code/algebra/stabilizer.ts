@@ -45,6 +45,7 @@ suite('algebra/stabilizer: symplectic primitives', [
         pauliCommute({ x: 1, z: 0 }, { x: 0, z: 1 }),
         'X0 and Z0 anticommute',
       )
+
       ok(
         pauliCommute({ x: 1, z: 0 }, { x: 0, z: 2 }),
         'X0 and Z1 commute',

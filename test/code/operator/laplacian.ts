@@ -141,6 +141,7 @@ suite('operator/laplacian: spectrum', [
     () => {
       const L = toDense(laplacian({ substrate: cycle4 }))
       const eig = eigSymmetric({ matrix: L })
+
       closeArray(eig.values, cycle4Spectrum, 1e-9, 'cycle4 spectrum')
     },
   ),
@@ -149,6 +150,7 @@ suite('operator/laplacian: spectrum', [
     () => {
       const L = toDense(laplacian({ substrate: path5 }))
       const eig = eigSymmetric({ matrix: L })
+
       closeArray(eig.values, path5Spectrum, 1e-9, 'path5 spectrum')
     },
   ),
@@ -157,6 +159,7 @@ suite('operator/laplacian: spectrum', [
     () => {
       for (const g of [cycle4, path5]) {
         const values = laplacianSpectrum({ substrate: g, count: 3 })
+
         close(
           values[0] ?? NaN,
           0,

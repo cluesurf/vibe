@@ -90,6 +90,7 @@ suite('operator/linearized-einstein: lattice gauge invariance', [
         tensorFieldMaxAbs(h) > 0.1,
         'the pure-gauge field is nontrivial',
       )
+
       close(
         tensorFieldMaxAbs(linearizedEinstein(h)),
         0,

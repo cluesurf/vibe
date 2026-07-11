@@ -60,6 +60,7 @@ function run(): void {
   let current = new Uint8Array(n)
 
   const next = new Uint8Array(n)
+
   current[0] = MODULUS - 1
   previous[0] = MODULUS - 1
 
@@ -73,7 +74,8 @@ function run(): void {
 
       if (tone === 0) {
         continue
-      } // leave rest cells as background, so the wavefront reads clearly
+      }
+      // leave rest cells as background, so the wavefront reads clearly
 
       faces.push({
         polygon: tiling.polygons[cell]!,
@@ -118,6 +120,7 @@ function run(): void {
     })
 
     const spent = previous
+
     previous = current
     current = next.slice()
     spent.fill(0)
@@ -134,6 +137,7 @@ function run(): void {
     join(outDir, `automaton-${symbolText}-${model}.gif`),
     gif,
   )
+
   console.log(
     `wrote automaton-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}  (${n} cells)`,
   )

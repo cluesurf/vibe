@@ -13,7 +13,10 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const packageRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../..',
+)
 const CODE_PATTERN = /^E-[A-Z]{3}-\d{4}$/
 
 // Map every experiment code to its source file, read from the registry. The code is the

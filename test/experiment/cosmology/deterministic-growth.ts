@@ -45,12 +45,14 @@ export function deterministicGrowth(
 
   // 1. Resumable: grow in many small chunks vs one big step.
   const oneShot = new GrowingPentagrid()
+
   oneShot.grow(N)
 
   const chunked = new GrowingPentagrid()
 
   for (let i = 0; i < N; ) {
     const step = Math.min(37, N - i)
+
     chunked.grow(step)
     i += step
   }
@@ -63,9 +65,11 @@ export function deterministicGrowth(
   // changed. Growth only ever ADDS (a frontier cell may still gain children), never edits, so
   // every snapshot edge must still be present.
   const mesh = new GrowingPentagrid()
+
   mesh.grow(500)
 
   const snapshot = mesh.adjacency.slice(0, 500).map(row => [...row])
+
   mesh.grow(1500)
 
   let appendOnly = true
@@ -93,6 +97,7 @@ export function deterministicGrowth(
 
   const staticCount = staticRings.reduce((a, b) => a + b, 0)
   const grownToMatch = new GrowingPentagrid()
+
   grownToMatch.grow(staticCount - 1) // root already present
 
   const grownRings = ringSizes(grownToMatch.adjacency)

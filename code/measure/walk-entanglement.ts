@@ -11,6 +11,7 @@ import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 type Cx = [number, number]
+
 const cMul = (a: Cx, b: Cx): Cx => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
@@ -62,6 +63,7 @@ function lowerBandProjector(theta: number, k: number): Cx[][] {
   for (let a = 0; a < 2; a++) {
     for (let b = 0; b < 2; b++) {
       const num = cSub(u[a]![b]!, a === b ? eiE : [0, 0])
+
       p[a]![b] = cDiv(num, denom)
     }
   }
@@ -165,6 +167,7 @@ export function coinedWalkIntervalEntropy(input: {
 
   for (const value of values) {
     const z = Math.min(1 - 1e-12, Math.max(1e-12, value ?? 0))
+
     entropy -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
   }
 

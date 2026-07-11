@@ -107,6 +107,7 @@ async function run(): Promise<void> {
 
   // extract the horosphere band ONCE, the cell index plus its fixed pixel position
   type BandCell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (const i of extractBand({
@@ -116,6 +117,7 @@ async function run(): Promise<void> {
   })) {
     const x = coords[i]!
     const proj = sub(x, xi, dot(x, xi))
+
     raw.push({ index: i, u: dot(proj, e1), v: dot(proj, e2) })
   }
 
@@ -179,6 +181,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -237,6 +240,7 @@ async function run(): Promise<void> {
     // one beat
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -248,6 +252,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     // rasterize the band coloured by this beat's tones
@@ -265,7 +270,8 @@ async function run(): Promise<void> {
 
       if (tone === 0) {
         continue
-      } // peace is black, the background, draw only the charges
+      }
+      // peace is black, the background, draw only the charges
 
       const col = COLORS[tone]!
 
@@ -283,6 +289,7 @@ async function run(): Promise<void> {
           }
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]

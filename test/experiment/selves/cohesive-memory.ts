@@ -81,6 +81,7 @@ function beat(
       if (cohesive) {
         const agreeC = agreeCount(tone, neighbors, c, q, e)
         const agreeE = agreeCount(tone, neighbors, e, q, c)
+
         doHop = agreeE >= agreeC ? true : rng.next() < temp // move toward more agreement
       } else {
         doHop = rng.next() < 0.5

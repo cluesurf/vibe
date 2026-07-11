@@ -20,6 +20,7 @@ suite('dynamics/schwarzschild-photon: shadow radius', [
       1e-12,
       'r_s = 1',
     )
+
     close(
       photonSphereShadowRadius(2),
       3 * Math.sqrt(3),
@@ -32,6 +33,7 @@ suite('dynamics/schwarzschild-photon: shadow radius', [
     () => {
       const rs = 1
       const measured = measuredShadowRadius({ schwarzschildRadius: rs })
+
       close(
         measured,
         photonSphereShadowRadius(rs),
@@ -65,6 +67,7 @@ suite('dynamics/schwarzschild-photon: weak field and capture', [
   check('a photon below the shadow radius is captured (null)', () => {
     const rs = 1
     const bc = photonSphereShadowRadius(rs)
+
     equal(
       schwarzschildPhotonDeflection({
         impactParameter: bc * 0.8,
@@ -73,6 +76,7 @@ suite('dynamics/schwarzschild-photon: weak field and capture', [
       null,
       'captured below the shadow',
     )
+
     ok(
       schwarzschildPhotonDeflection({
         impactParameter: bc * 1.5,

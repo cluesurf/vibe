@@ -20,6 +20,7 @@ export function phaseRelaxStep(
   for (let i = 0; i < n; i++) {
     const left = theta[(i - 1 + n) % n]!
     const right = theta[(i + 1) % n]!
+
     next[i] = wrapAngle(
       theta[i]! +
         alpha *

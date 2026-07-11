@@ -72,6 +72,7 @@ export default experiment({
     const knit = pairCollision({ opposite, forward: true })
 
     let will = makeWill(mesh)
+
     fillWillPattern(will)
 
     const startNorm = occupationNorm(will)
@@ -99,6 +100,7 @@ export default experiment({
     // control: a lossy rule dissipates the occupation (a definite loss), distinct from the knit's
     // conservative oscillation, so the substrate is conservative but not amplitude-unitary
     let lossyWill = makeWill(mesh)
+
     fillWillPattern(lossyWill)
 
     const lossyStartNorm = occupationNorm(lossyWill)

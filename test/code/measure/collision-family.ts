@@ -30,10 +30,12 @@ suite('measure/collision-family: linePairingFamily', [
     'symmetric pairings are a nonempty subset of all pairings',
     () => {
       const { totalPairings, symmetricPairings } = linePairingFamily()
+
       ok(
         symmetricPairings >= 1,
         'at least one B4-invariant pairing exists',
       )
+
       ok(
         symmetricPairings <= totalPairings,
         'symmetric count cannot exceed total',

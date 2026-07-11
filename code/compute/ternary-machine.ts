@@ -73,6 +73,7 @@ export function runTernary(
 
     if (ins.op === 'set') {
       const value = BigInt(ins.value)
+
       regs[ins.reg] = value
       trits = tritWidth(value)
       reg = ins.reg
@@ -86,6 +87,7 @@ export function runTernary(
       pc = ins.next
     } else if (ins.op === 'add') {
       const before = regs[ins.dst]!
+
       regs[ins.dst] = before + regs[ins.src]!
       trits = tritWidth(before, regs[ins.src]!, regs[ins.dst]!)
       reg = ins.dst
@@ -93,6 +95,7 @@ export function runTernary(
       pc = ins.next
     } else if (ins.op === 'sub1') {
       const before = regs[ins.reg]!
+
       regs[ins.reg] = before > 0n ? before - 1n : 0n
       trits = tritWidth(before)
       reg = ins.reg

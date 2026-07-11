@@ -15,6 +15,7 @@ export function flatWilledDriftSweep(input: {
   bias: number
 }): void {
   const { tone, length: L, moved, rng, bias } = input
+
   moved.fill(0)
 
   for (let y = 0; y < L; y++) {

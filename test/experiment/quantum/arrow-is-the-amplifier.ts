@@ -67,6 +67,7 @@ function genericTone(size: number, salt: number): Int8Array {
 
   for (let i = 0; i < size; i++) {
     const r = hashRand(i, 0, salt)
+
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }
 
@@ -114,6 +115,7 @@ function seedGrowth(input: {
   const { size, eu, ev, salt, arrow } = input
   const base = genericTone(size, salt)
   const perturbed = Int8Array.from(base)
+
   perturbed[0] = perturbed[0] === 1 ? -1 : 1
 
   const movedBase = new Uint8Array(size)
@@ -132,6 +134,7 @@ function seedGrowth(input: {
       beat: t,
       arrow,
     })
+
     conservingEdgeSweepHashed({
       tone: b,
       eu,
@@ -185,6 +188,7 @@ export default experiment({
           worstArrowOnCoarse,
           on.coarseDivergence,
         )
+
         worstArrowOffPeak = Math.max(
           worstArrowOffPeak,
           off.peakFraction,

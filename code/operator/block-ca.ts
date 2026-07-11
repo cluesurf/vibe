@@ -57,6 +57,7 @@ function applySweep(input: {
 
       for (let j = 0; j < blockSize; j++) {
         const pos = (start + j) % cells
+
         v |= ((state >> pos) & 1) << j
       }
 

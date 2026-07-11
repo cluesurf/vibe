@@ -53,6 +53,7 @@ export default experiment({
     // a deterministic bulk logical value and a boundary that carries it by the reversible parity rule
     const logical = 1
     const leaves: number[] = new Array<number>(leafCount).fill(0)
+
     leaves[0] = logical // a deterministic boundary configuration with the right root parity
 
     // (1) DERIVED, the root (bulk) is recoverable from the FULL boundary it causally reaches (the wedge)
@@ -73,6 +74,7 @@ export default experiment({
 
     // (2) THE GAP, erase one boundary cell (set it to unknown, here flip it) and the parity rule loses the root
     const erased = leaves.slice()
+
     erased[0] = 1 - erased[0]! // a single erasure flips the recovered parity
 
     const rootAfterErasure = subtreeParity(depth, 0, erased, branching)

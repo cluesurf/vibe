@@ -56,6 +56,7 @@ function baseTone(L: number, density: number): Int8Array {
 
   for (let i = 0; i < tone.length; i++) {
     const r = hashRand(i, 0, 7)
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 

@@ -97,12 +97,14 @@ export function renderDigitFibonacci(input: {
   const bIndex = compiled.registers.get('b')!
   const names = [...compiled.registers.keys()]
   const initial = new Array<bigint>(compiled.program.registers).fill(0n)
+
   initial[0] = BigInt(n)
 
   const steps: DigitStep[] = []
   const display: number[] = []
 
   let latched = 0
+
   runner(compiled.program, initial, step => {
     if (
       step.kind === 'jz' &&
@@ -153,6 +155,7 @@ export function renderDigitFibonacci(input: {
 
     for (let f = 0; f < FRAMES_PER_OP; f++) {
       const flash = f === 0 ? changed : new Set<number>()
+
       frames.push(
         renderFrame({
           tiling,
@@ -283,6 +286,7 @@ function renderFrame(input: {
     mode === 'add' ? 'emerald' : mode === 'sub' ? 'violet' : 'zinc'
 
   const opRgb = shade(opHue, mode === 'idle' ? 0.4 : 0.6)
+
   faces.push({
     polygon: tiling.polygons[0]!,
     color: [

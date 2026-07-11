@@ -216,10 +216,12 @@ function legRegisterMachine(a: Addressing): boolean {
     [0, 5],
   ] as [number, number][]) {
     const m = makeMachine3434(a, 5, 60)
+
     m.set(R0, x)
     m.set(R1, y)
 
     const { conserved } = m.run(PROG_ADD)
+
     cases.push({
       name: 'add',
       inputs: [x, y],
@@ -235,10 +237,12 @@ function legRegisterMachine(a: Addressing): boolean {
     [2, 0],
   ] as [number, number][]) {
     const m = makeMachine3434(a, 5, 60)
+
     m.set(R0, x)
     m.set(R1, y)
 
     const { conserved } = m.run(PROG_MUL)
+
     cases.push({
       name: 'mul',
       inputs: [x, y],
@@ -282,6 +286,7 @@ function legCuspLife(): boolean {
   // extract the z=0 plane and index cells by (x,y)
   const cellAt = new Map<string, number>()
   const planeCells: { id: number; x: number; y: number }[] = []
+
   g.coords.forEach((c, id) => {
     if (c[2] === 0) {
       cellAt.set(`${c[0]},${c[1]}`, id)

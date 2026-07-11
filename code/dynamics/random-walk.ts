@@ -57,6 +57,7 @@ export function graphWalkMsdExponent(input: {
 
     for (let t = 0; t <= beats; t++) {
       const dd = dist[cur]!
+
       msd[t]! += dd * dd
 
       if (t < beats) {
@@ -86,6 +87,7 @@ export function graphWalkMsdExponent(input: {
 
     const x = Math.log(t)
     const y = Math.log(msd[t]!)
+
     sx += x
     sy += y
     sxx += x * x

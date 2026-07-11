@@ -81,6 +81,7 @@ export function truncateScene(
 
     const cuts = ordered.map(({ u }) => {
       const cut = geodesicFraction(v, u, fraction)
+
       cutAt.set(cutKey(key, vertexKey(u)), cut)
 
       return cut
@@ -93,7 +94,8 @@ export function truncateScene(
 
       if (cuts.length === 2 && i === 1) {
         break
-      } // a degree-2 vertex makes a single segment, not a digon
+      }
+      // a degree-2 vertex makes a single segment, not a digon
 
       edges.push({ a, b })
     }

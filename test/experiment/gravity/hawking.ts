@@ -79,6 +79,7 @@ export function hawking(input: Record<string, never> = {}): {
     const fm = unruhResponse({ E: -E, a, eps: 0.01, samples })
     const ratio = fp / fm
     const expected = Math.exp((-2 * Math.PI * E) / a)
+
     thermalResidual = Math.max(
       thermalResidual,
       Math.abs(ratio - expected) / expected,

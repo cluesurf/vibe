@@ -82,6 +82,7 @@ export default experiment({
         })
 
         const swap = current
+
         current = scratch
         scratch = swap
         out.push(slabOccupancy(current, 0))
@@ -103,6 +104,7 @@ export default experiment({
     }
 
     const body = makeWill(mesh)
+
     fillWillPattern(body)
 
     // a second body: SAME coarse view (occupancy) but momenta reversed (a different microstate)

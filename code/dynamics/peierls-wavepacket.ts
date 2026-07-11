@@ -6,6 +6,7 @@
 // the same as the inline magnetism probe. Returns the transverse drift <y - y0>.
 
 type C = [number, number]
+
 const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
 const cmul = (a: C, b: C): C => [
   a[0] * b[0] - a[1] * b[1],
@@ -33,13 +34,14 @@ export function peierlsWavepacketDrift(input: {
   const x0 = L / 2
   const y0 = L / 2
 
-  let psi: C[] = new Array(L * L).fill([0, 0])
+  let psi: C[] = new Array<C>(L * L).fill([0, 0])
   let nrm = 0
 
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const g = Math.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * w * w))
       const ph = phase(kx * x)
+
       psi[idx(x, y)] = cscale(ph, g)
       nrm += g * g
     }
@@ -81,6 +83,7 @@ export function peierlsWavepacketDrift(input: {
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const p = cabs2(psi[idx(x, y)]!)
+
       ybar += (y - y0) * p
       wsum += p
     }

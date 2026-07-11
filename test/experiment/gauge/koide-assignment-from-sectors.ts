@@ -55,6 +55,7 @@ function sectors(): { v: number[][]; s: number[][]; c: number[][] } {
   for (let i = 0; i < 4; i++) {
     for (const sign of [1, -1]) {
       const x = [0, 0, 0, 0]
+
       x[i] = sign
       v.push(x)
     }

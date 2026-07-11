@@ -93,6 +93,7 @@ export default experiment({
 
           for (let i = 0; i < 6; i++) {
             const [a, zz] = lines[i]!
+
             will.data[b + a] = 1
             will.data[b + zz] = 1
           }
@@ -108,6 +109,7 @@ export default experiment({
 
       for (let i = 0; i < 6; i++) {
         const [a, zz] = lines[i]!
+
         w.data[center * degree + a] = -1
         w.data[center * degree + zz] = -1
       }
@@ -138,6 +140,7 @@ export default experiment({
 
         if (n > 0) {
           const [x, y, z, w] = coord(c)
+
           total += n
           sx += n * x
           sy += n * y
@@ -162,6 +165,7 @@ export default experiment({
 
         if (n > 0) {
           const [x, y, z, w] = coord(c)
+
           v +=
             n *
             ((x - mx) ** 2 +
@@ -188,6 +192,7 @@ export default experiment({
         beatInto({ src: bd, dst: bdScratch, table, collision: rule })
 
         const swap = bd
+
         bd = bdScratch
         bdScratch = swap
 
@@ -221,6 +226,7 @@ export default experiment({
           })
 
           const cs = clean
+
           clean = cleanScratch
           cleanScratch = cs
           beatInto({
@@ -231,6 +237,7 @@ export default experiment({
           })
 
           const ps = pert
+
           pert = pertScratch
           pertScratch = ps
 

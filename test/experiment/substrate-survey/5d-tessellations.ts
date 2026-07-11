@@ -9,6 +9,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
+
 const CANDIDATES: Cand[] = [
   {
     sym: [3, 4, 3, 4],

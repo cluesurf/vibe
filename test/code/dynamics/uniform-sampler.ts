@@ -59,6 +59,7 @@ suite('dynamics/uniform-sampler: height', [
 suite('dynamics/uniform-sampler: toggle and validity', [
   check('toggle flips a single relation on then off', () => {
     const state = antichainState(4)
+
     notOk(isRelated(state, 0, 1), 'starts unrelated')
     toggle(state, 0, 1)
     ok(isRelated(state, 0, 1), 'toggled on')
@@ -67,6 +68,7 @@ suite('dynamics/uniform-sampler: toggle and validity', [
   }),
   check('adding a pair to an antichain keeps it valid', () => {
     const state = antichainState(4)
+
     ok(
       toggleKeepsValid(state, 0, 1, false),
       'adding 0<1 to an antichain is transitive',
@@ -76,6 +78,7 @@ suite('dynamics/uniform-sampler: toggle and validity', [
     'removing a mediated relation (0<1<2, drop 0<2) is rejected',
     () => {
       const state = chainState(3)
+
       ok(isRelated(state, 0, 2), '0<2 holds in the chain')
       notOk(
         toggleKeepsValid(state, 0, 2, true),
@@ -85,6 +88,7 @@ suite('dynamics/uniform-sampler: toggle and validity', [
   ),
   check('removing a covering relation (drop 0<1) is allowed', () => {
     const state = chainState(3)
+
     ok(
       toggleKeepsValid(state, 0, 1, true),
       'dropping the covering pair 0<1 keeps the order transitive',
@@ -99,6 +103,7 @@ suite('dynamics/uniform-sampler: smeared action', [
       const e = 0.1
       // f(0) = 1, f(1) = 1 - 3e (the 2D smeared kernel).
       const expected = -3 / 2 + e * (2 * 1 + (1 - 3 * e))
+
       close(
         smearedAction(chainState(3), e),
         expected,
@@ -130,6 +135,7 @@ suite('dynamics/uniform-sampler: determinism', [
 
     const a = run()
     const b = run()
+
     equal(a.acceptance, b.acceptance, 'acceptance')
     equal(a.meanHeightRatio, b.meanHeightRatio, 'mean height ratio')
     equal(

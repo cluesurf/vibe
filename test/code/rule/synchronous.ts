@@ -76,12 +76,14 @@ suite('rule/synchronous: simultaneous update from the input state', [
   }),
   check('the step does not mutate the input configuration', () => {
     const input = configFrom([1, 0, 0, 1])
+
     synchronousRule({ name: 'test', local: sumLocal }).step({
       substrate: graph,
       configuration: input,
       beat: 0,
       rng: makeRng({ seed: 1 }),
     })
+
     equal(
       JSON.stringify(readAll(input)),
       JSON.stringify([1, 0, 0, 1]),

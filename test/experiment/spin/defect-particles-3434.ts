@@ -18,6 +18,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Z = Complex2
+
 const winding = (theta: number[]): number => phaseWinding(theta)
 const phase = (z: Z): number => Math.atan2(z.im, z.re)
 const energy = (psi: Z[]): number => ringFieldEnergy(psi)

@@ -22,6 +22,7 @@ export function causalLattice(input: { half: number }): Poset {
 
   const n = pts.length
   const coords = new Float64Array(n * 2)
+
   pts.forEach(([t, x], i) => {
     coords[i * 2] = t
     coords[i * 2 + 1] = x

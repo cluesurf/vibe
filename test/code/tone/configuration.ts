@@ -82,6 +82,7 @@ suite('tone/configuration: get / set / clone', [
     setTone(c, { element: 0, value: 1 })
 
     const copy = cloneConfiguration(c)
+
     setTone(copy, { element: 0, value: -1 })
     equal(getTone(c, { element: 0 }), 1, 'original unchanged')
     equal(getTone(copy, { element: 0 }), -1, 'copy changed')

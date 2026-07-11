@@ -19,6 +19,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
+
 const cabs = (z: C): number => Math.hypot(z[0], z[1])
 const cphase = (z: C): number => Math.atan2(z[1], z[0])
 const winding = (psi: C[]): number => phaseWinding(psi.map(cphase))

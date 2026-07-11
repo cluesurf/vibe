@@ -93,6 +93,7 @@ function bareRuleRecall(input: {
 
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     const v = will.data[c * mesh.degree + slot] ?? 0
+
     out[c] = v > 0 ? 1 : v < 0 ? -1 : (cue[c] ?? 0)
   }
 

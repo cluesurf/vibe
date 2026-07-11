@@ -65,6 +65,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   ): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
+
     seen[seed] = 1
 
     let fr = [seed]

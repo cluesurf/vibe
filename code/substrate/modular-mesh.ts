@@ -21,7 +21,7 @@ export function modularMesh(input: {
   const n = numCells * cellSize
   const adj: Map<number, number>[] = Array.from(
     { length: n },
-    () => new Map(),
+    () => new Map<number, number>(),
   )
 
   const addEdge = (u: number, v: number, f: number): void => {
@@ -46,6 +46,7 @@ export function modularMesh(input: {
 
       for (let d = 0; d < intraDegree; d++) {
         const v = c * cellSize + rng.nextInt({ max: cellSize })
+
         addEdge(u, v, 1)
       }
     }
@@ -59,6 +60,7 @@ export function modularMesh(input: {
         (c + 1 + rng.nextInt({ max: numCells - 1 })) % numCells
 
       const v = other * cellSize + rng.nextInt({ max: cellSize })
+
       addEdge(u, v, 1)
     }
   }

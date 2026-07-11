@@ -56,7 +56,8 @@ function makeTone(n: number): Int8Array {
 
   for (let i = 0; i < n; i++) {
     t[i] = ((i * 7 + 2) % 3) - 1
-  } // values in {-1, 0, 1}
+  }
+  // values in {-1, 0, 1}
 
   return t
 }
@@ -164,12 +165,14 @@ suite(
 
         const evolved = makeTone(N)
         const q1 = charge(evolved)
+
         evolveConservingRing({
           tone: evolved,
           beats: 25,
           arrow: 0.3,
           rng: makeRng({ seed: 5 }),
         })
+
         equal(
           charge(evolved),
           q1,
@@ -203,6 +206,7 @@ suite(
             rng,
             arrow: 0.2,
           })
+
           conservingEdgeSweepSteered({
             tone: steered,
             eu,
@@ -212,6 +216,7 @@ suite(
             distGoal: pumpField,
             towardSign: -1,
           })
+
           conservingEdgeListSweepPumped({
             tone: pumped,
             edges,
@@ -220,6 +225,7 @@ suite(
             arrow: 0.2,
             pump: pumpField,
           })
+
           conservingEdgeSweepHashed({
             tone: hashed,
             eu,
@@ -317,6 +323,7 @@ suite('dynamics/conserving-sweep: determinism and equivalences', [
           rng: rngA,
           arrow: 0.25,
         })
+
         conservingEdgeListSweepPumped({
           tone: b,
           edges,
@@ -337,6 +344,7 @@ suite('dynamics/conserving-sweep: determinism and equivalences', [
       [99, 7, 3],
     ] as const) {
       const v = hashRand(k, beat, salt)
+
       equal(v, hashRand(k, beat, salt), 'reproducible')
       ok(v >= 0 && v < 1, `in range (${v})`)
     }

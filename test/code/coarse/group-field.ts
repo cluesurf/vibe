@@ -65,6 +65,7 @@ suite('coarse/group-field: block sum conserves the total', [
 
     const total = out.reduce((a, b) => a + b, 0)
     const fieldTotal = field.reduce((a, b) => a + b, 0)
+
     close(
       total,
       fieldTotal,

@@ -61,6 +61,7 @@ function subdivideFace(face: Vec3[]): Vec3[][] {
 
   for (let i = 0; i < face.length; i++) {
     const prev = m[(i - 1 + face.length) % face.length]!
+
     out.push([face[i]!, m[i]!, c, prev])
   }
 
@@ -191,6 +192,7 @@ function line(
   for (;;) {
     if (x >= 0 && x < IMG && y >= 0 && y < IMG) {
       const i = (y * IMG + x) * 4
+
       rgba[i] = Math.min(255, (rgba[i]! + b * 0.45) | 0)
       rgba[i + 1] = Math.min(255, (rgba[i + 1]! + b * 0.75) | 0)
       rgba[i + 2] = Math.min(255, rgba[i + 2]! + b)
@@ -262,6 +264,7 @@ function run(): void {
     for (let i = 0; i < pts.length; i++) {
       const a = pts[i]!
       const c = pts[(i + 1) % pts.length]!
+
       line(
         rgba,
         Math.round(a[0]),
@@ -283,6 +286,7 @@ function run(): void {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, 'jewel-mesh.png')
+
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))
   console.log(`wrote ${outPath}`)
 }

@@ -80,6 +80,7 @@ export function holography(): {
       const x = Math.log(Math.sin(theta / 2))
       const key = Math.round(x * 8) / 8
       const b = bins.get(key) ?? { sum: 0, count: 0 }
+
       b.sum += dist[r] ?? 0
       b.count++
       bins.set(key, b)

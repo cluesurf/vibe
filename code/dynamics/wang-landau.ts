@@ -82,6 +82,7 @@ export function wangLandauHeight(input: {
     Math.min(H - 1, Math.max(0, h - minHeight))
 
   let curBin = binOf(height(state))
+
   seen[curBin] = true
 
   let curS = smearedAction(state, input.epsilon)
@@ -145,6 +146,7 @@ export function wangLandauHeight(input: {
     // (builds the shape) and small late (refines it), which converges log g where
     // flat-then-halve stalls against the steep entropy barrier.
     const lnf = 1 / steps
+
     logG[curBin] = (logG[curBin] ?? 0) + lnf
     hist[curBin] = (hist[curBin] ?? 0) + 1
 
@@ -187,6 +189,7 @@ export function wangLandauHeight(input: {
     heights.push(b + minHeight)
 
     const ok = (seen[b] ?? false) && (actN[b] ?? 0) > 0
+
     visited.push(ok)
     outLogG.push(ok ? (logG[b] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (actSum[b] ?? 0) / (actN[b] ?? 1) : NaN)
@@ -226,6 +229,7 @@ export function windowedWangLandau(input: {
 
   while (lo < input.maxHeight) {
     const hi = Math.min(input.maxHeight, lo + input.windowSize - 1)
+
     windows.push({ lo, hi })
 
     if (hi >= input.maxHeight) {
@@ -315,6 +319,7 @@ export function windowedWangLandau(input: {
     heights.push(gi + minHeight)
 
     const ok = !Number.isNaN(globalLogG[gi] ?? NaN)
+
     visited.push(ok)
     outLogG.push(ok ? (globalLogG[gi] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (globalAct[gi] ?? NaN) : NaN)

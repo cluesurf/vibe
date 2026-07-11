@@ -85,6 +85,7 @@ export function scaleDetailNorm(input: {
                     (px * 2 + dx)
 
                   const v = fine[b] ?? 0
+
                   children.push(v)
                   mean += v
                 }

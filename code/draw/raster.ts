@@ -15,6 +15,7 @@ export function makeCanvas(input: {
 
   for (let pixel = 0; pixel < width * height; pixel++) {
     const offset = pixel * 4
+
     rgba[offset] = background[0]
     rgba[offset + 1] = background[1]
     rgba[offset + 2] = background[2]
@@ -33,6 +34,7 @@ export function setPixel(
   color: Color,
 ): void {
   const offset = (y * width + x) * 4
+
   rgba[offset] = color[0]
   rgba[offset + 1] = color[1]
   rgba[offset + 2] = color[2]

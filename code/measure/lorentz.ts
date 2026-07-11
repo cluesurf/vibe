@@ -107,6 +107,7 @@ export function lorentzIsotropy(input: {
 
     for (let h = 0; h < HARMONICS.length; h++) {
       const m = HARMONICS[h] ?? 1
+
       cosSum[h] = (cosSum[h] ?? 0) + Math.cos(m * theta)
       sinSum[h] = (sinSum[h] ?? 0) + Math.sin(m * theta)
     }

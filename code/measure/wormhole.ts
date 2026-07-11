@@ -55,7 +55,7 @@ export function teleportationFidelity(input: {
   const invSqrt2 = 1 / Math.SQRT2
 
   // three qubits |q0 q1 q2>: q0 the message, (q1, q2) the shared Bell pair
-  let amplitude: Complex[] = new Array(8).fill([0, 0])
+  let amplitude: Complex[] = new Array<Complex>(8).fill([0, 0])
 
   for (let a = 0; a < 2; a++) {
     for (let b = 0; b < 2; b++) {
@@ -69,25 +69,28 @@ export function teleportationFidelity(input: {
   }
 
   // Bell measurement on (q0, q1): CNOT from q0 to q1, then Hadamard on q0
-  const afterCnot: Complex[] = new Array(8).fill([0, 0])
+  const afterCnot: Complex[] = new Array<Complex>(8).fill([0, 0])
 
   for (let i = 0; i < 8; i++) {
     const q0 = (i >> 2) & 1
     const q1 = (i >> 1) & 1
     const q2 = i & 1
+
     afterCnot[(q0 << 2) | ((q1 ^ q0) << 1) | q2] = amplitude[i]!
   }
 
-  const afterHadamard: Complex[] = new Array(8).fill([0, 0])
+  const afterHadamard: Complex[] = new Array<Complex>(8).fill([0, 0])
 
   for (let i = 0; i < 8; i++) {
     const q0 = (i >> 2) & 1
     const rest = i & 3
     const sign = q0 === 0 ? 1 : -1
+
     afterHadamard[rest] = add(afterHadamard[rest]!, [
       afterCnot[i]![0] * invSqrt2,
       afterCnot[i]![1] * invSqrt2,
     ])
+
     afterHadamard[(1 << 2) | rest] = add(
       afterHadamard[(1 << 2) | rest]!,
       [
@@ -119,6 +122,7 @@ export function teleportationFidelity(input: {
         // apply X^m1 then Z^m0 to undo the teleportation byproduct
         if (m1) {
           const swap = corrected0
+
           corrected0 = corrected1
           corrected1 = swap
         }

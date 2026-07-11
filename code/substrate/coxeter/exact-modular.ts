@@ -214,6 +214,7 @@ function matInv(m: Mat, n: number, p: number): Mat {
       for (let j = 0; j < n; j++) {
         a[r * n + j] =
           (((a[r * n + j]! - f * a[col * n + j]!) % p) + p) % p
+
         inv[r * n + j] =
           (((inv[r * n + j]! - f * inv[col * n + j]!) % p) + p) % p
       }
@@ -281,6 +282,7 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
 
     for (let i = 0; i < n - 1; i++) {
       const off = offDiagonal(symbol[i]!, p)
+
       cartan[i]![i + 1] = off
       cartan[i + 1]![i] = off
     }

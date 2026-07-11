@@ -47,6 +47,7 @@ export function controlsBattery(): {
         for (const si of [1, -1]) {
           for (const sj of [1, -1]) {
             const v = [0, 0, 0, 0]
+
             v[i] = si
             v[j] = sj
             roots.push(v)
@@ -91,6 +92,7 @@ export function controlsBattery(): {
 
     for (let r = 1; r <= R; r++) {
       const cur = r === 1 ? deg : prev * (deg - 1)
+
       shells.push(cur)
       prev = cur
     }

@@ -80,6 +80,7 @@ export function coarseContinuityResidual(input: {
 
   // collide in place, then stream. The collided tones are exactly what crosses the boundaries.
   const collided = cloneWill(will)
+
   collide(collided, collision)
 
   const after = stream(collided)
@@ -95,6 +96,7 @@ export function coarseContinuityResidual(input: {
 
   for (let cell = 0; cell < cellCount; cell++) {
     const b = blockId[cell]!
+
     dQ[b] =
       dQ[b]! + (cellCharge(after.data, cell, degree) - before[cell]!)
   }
@@ -132,6 +134,7 @@ export function coarseContinuityResidual(input: {
 
   for (let b = 0; b < blocks; b++) {
     const netOut = outFlux[b]! - inFlux[b]!
+
     absResidual += Math.abs(dQ[b]! + netOut)
   }
 

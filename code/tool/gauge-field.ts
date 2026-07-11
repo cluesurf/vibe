@@ -41,6 +41,7 @@ export function makeGaugeField(input: {
 
   for (const e of edgeList(input.graph)) {
     const idx = edges.length
+
     edges.push({ from: e.a, to: e.b })
     edgeIndex.set(edgeKey({ from: e.a, to: e.b }), idx)
   }

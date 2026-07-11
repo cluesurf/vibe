@@ -49,6 +49,7 @@ export function componentCount(will: Will): number {
     components++
 
     const stack = [start]
+
     seen.add(start)
 
     while (stack.length > 0) {

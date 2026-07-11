@@ -45,10 +45,12 @@ suite('algebra/octonion: imaginary units', [
   }),
   check('e0 is the multiplicative identity', () => {
     const x: Octonion = [1, 2, 3, 4, 5, 6, 7, 8]
+
     ok(
       octonionEquals(octonionMultiply(octonionOne(), x), x),
       'e0 x = x',
     )
+
     ok(
       octonionEquals(octonionMultiply(x, octonionOne()), x),
       'x e0 = x',
@@ -76,6 +78,7 @@ suite('algebra/octonion: imaginary units', [
       for (let i = 1; i < 8; i++) {
         for (let j = i + 1; j < 8; j++) {
           const product = octonionMultiply(unit(i), unit(j))
+
           ok(
             Math.abs(octonionNormSquared(product) - 1) < 1e-12,
             `|e${i} e${j}| = 1`,
@@ -92,6 +95,7 @@ suite('algebra/octonion: alternative but not associative', [
     const x: Octonion = [0, 1, 0, 2, 0, 1, 1, 0]
     const y: Octonion = [1, 0, 2, 0, 1, 0, 1, 3]
     const xx = octonionMultiply(x, x)
+
     ok(
       octonionEquals(
         octonionMultiply(xx, y),
@@ -116,12 +120,14 @@ suite('algebra/octonion: alternative but not associative', [
       octonionEquals(left, right),
       '(e1 e2) e4 differs from e1 (e2 e4)',
     )
+
     // For three orthogonal imaginary units off a common line the two associations
     // are exact negatives: (xy)z = -x(yz).
     ok(
       octonionEquals(left, negate(right)),
       '(e1 e2) e4 = -(e1 (e2 e4))',
     )
+
     ok(
       Math.abs(octonionNormSquared(left) - 1) < 1e-12,
       'each side is a unit',
@@ -154,6 +160,7 @@ suite('algebra/octonion: norm, conjugate, division algebra', [
     const x: Octonion = [1, 2, 0, 1, 3, 0, 1, 2]
     const product = octonionMultiply(x, octonionConjugate(x))
     const expected = octonionReal(octonionNormSquared(x))
+
     ok(octonionEquals(product, expected), 'x x* = |x|^2 e0')
     // and the reverse order agrees
     ok(
@@ -187,6 +194,7 @@ suite('algebra/octonion: norm, conjugate, division algebra', [
   check('conjugation is an anti-homomorphism: (xy)* = y* x*', () => {
     const x: Octonion = [1, 2, 0, 1, 0, 1, 1, 0]
     const y: Octonion = [0, 1, 1, 0, 2, 0, 1, 1]
+
     ok(
       octonionEquals(
         octonionConjugate(octonionMultiply(x, y)),

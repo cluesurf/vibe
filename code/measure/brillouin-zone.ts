@@ -112,6 +112,7 @@ export function scanTorusZeroSet(input: {
 
     const centroidI = (((sumI / size) % n) + n) % n
     const centroidJ = (((sumJ / size) % n) + n) % n
+
     clusters.push({ size, s1: centroidI / n, s2: centroidJ / n })
   }
 
@@ -164,6 +165,7 @@ export function directionalConeVelocities(input: {
     )
 
     const fit = proportionalFit({ xs: [...radii], ys: energies })
+
     velocities.push(fit.slope)
     rSquares.push(fit.r2)
   }

@@ -46,6 +46,7 @@ export function connectedToneCorrelation(input: {
 
   for (let r = 0; r <= maxRadius; r++) {
     const c = count[r] ?? 0
+
     correlation.push(c > 0 ? (sum[r] ?? 0) / c - mean * mean : 0)
   }
 

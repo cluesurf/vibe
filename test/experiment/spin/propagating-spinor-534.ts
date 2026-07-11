@@ -96,7 +96,8 @@ export default experiment({
 
     for (let t = half; t < loop; t++) {
       field = step(field, link)
-    } // finish the loop, back to cell 0
+    }
+    // finish the loop, back to cell 0
 
     const afterOneLoop = field[0]! // back at the start after going around
     const minusSeed: Spinor = [complex({ re: -1, im: 0 }), zero()]
@@ -104,7 +105,8 @@ export default experiment({
 
     for (let t = 0; t < loop; t++) {
       field = step(field, link)
-    } // a second loop
+    }
+    // a second loop
 
     const afterTwoLoops = field[0]!
     const spinorReturnAfterTwoLoops = closeTo(afterTwoLoops, seed)

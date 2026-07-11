@@ -48,6 +48,7 @@ export function bianchiResidual(input: {
     for (let i = 0; i < 3; i++) {
       for (let j = i; j < 3; j++) {
         const v = rng.next() * 2 - 1
+
         h[i]![j] = v
         h[j]![i] = v
       }
@@ -77,6 +78,7 @@ export function bianchiResidual(input: {
     }
 
     const rel = hn > 0 ? Math.sqrt(div2) / Math.sqrt(hn) : 0
+
     worst = Math.max(worst, rel)
   }
 

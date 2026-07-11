@@ -123,6 +123,7 @@ function loopPhase(field: GaugeField, loop: Uint32Array): number {
   for (let k = 0; k < len; k++) {
     const from = loop[k] ?? 0
     const to = loop[(k + 1) % len] ?? 0
+
     phase += linkPhase(field, { from, to })
   }
 
@@ -203,6 +204,7 @@ export function heatBathSweep(input: {
 
     for (const p of plaquetteIndices) {
       const loop = input.plaquettes.loops[p] ?? new Uint32Array(0)
+
       total += 1 - Math.cos(loopPhase(field, loop))
     }
 
@@ -229,6 +231,7 @@ export function heatBathSweep(input: {
     const delta = input.rng.next() < 0.5 ? 1 : -1
     // Wrap into [0, q) so the clock variable stays in range.
     const proposed = (((old + delta) % q) + q) % q
+
     field.link[e] = proposed
 
     const after = localEnergy(touching)

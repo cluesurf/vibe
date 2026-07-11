@@ -29,6 +29,7 @@ export function sprinkleDeSitter(input: {
     // Inverse-CDF sample of tau with density proportional to a(tau) = e^{H tau}.
     const u = input.rng.next()
     const t = (1 / H) * Math.log(1 + u * (eHT - 1))
+
     tau.push(t)
     x.push(input.rng.next() * input.comovingWidth)
     eta.push((1 - Math.exp(-H * t)) / H)

@@ -40,6 +40,7 @@ const RIGHT_SPINE = new Set<number>()
     RIGHT_SPINE.add(n)
 
     const s = sons(n)
+
     n = s[s.length - 1]!
   }
 }

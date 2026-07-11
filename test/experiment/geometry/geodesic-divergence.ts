@@ -50,6 +50,7 @@ export default experiment({
         geodesicSeparation({ arcLength: arc, angle: ANGLE }) / ANGLE
 
       const jacobi = Math.sinh(arc)
+
       worstJacobiError = Math.max(
         worstJacobiError,
         Math.abs(measured - jacobi) / jacobi,

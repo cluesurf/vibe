@@ -56,6 +56,7 @@ export function squareLatticeMesh(input: { side: number }): Mesh {
   for (let j = 0; j < side; j++) {
     for (let i = 0; i < side; i++) {
       const v = idx(i, j)
+
       coords[v * 2] = i / (side - 1)
       coords[v * 2 + 1] = j / (side - 1)
 

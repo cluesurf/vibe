@@ -58,6 +58,7 @@ export class Camera {
     this.shape = buildCellShape(input.symbol)
 
     const frame = this.shape.frame
+
     this.faces = frame.faces
     this.c0 = frame.center
     this.timeAxis = frame.timeAxis
@@ -65,6 +66,7 @@ export class Camera {
     this.faceCenters = this.faces.map(f =>
       toPoincare(matVec(f, this.c0), this.timeAxis),
     )
+
     this.straightAhead = this.faceCenters.map(dir =>
       this.mostOpposite(dir),
     )
@@ -83,6 +85,7 @@ export class Camera {
 
     for (const g of this.window) {
       const c = toPoincare(matVec(g, this.c0), this.timeAxis)
+
       m = Math.max(m, norm(c))
     }
 
@@ -175,7 +178,8 @@ export class Camera {
 
       if (window.length > 200000) {
         break
-      } // safety, a huge window means windowNorm is too close to 1
+      }
+      // safety, a huge window means windowNorm is too close to 1
     }
 
     return window

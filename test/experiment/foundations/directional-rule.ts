@@ -29,6 +29,7 @@ export default experiment({
     // The 2D reference: the momentum-rotate involution on a periodic square mesh.
     const square = squareMesh({ side: 48 })
     const squareWill = makeWill(square)
+
     fillWillPattern(squareWill)
 
     const squareConserves = conservesCharge(
@@ -46,6 +47,7 @@ export default experiment({
     // The committed coin: the 9-state directional rule on the 24-direction D4 mesh.
     const d4 = d4Mesh({ side: 6 })
     const d4Will = makeWill(d4)
+
     fillWillPattern(d4Will, 1)
 
     const opposite = Array.from({ length: d4.degree }, (_, direction) =>

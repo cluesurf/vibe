@@ -121,6 +121,7 @@ export function measureTessellation(input: {
 
   if (input.withPropagation) {
     const propagation = kahlerDiracReturn({ neighbors: mesh.adjacency })
+
     measurement.cleanReturn = propagation.clean
     measurement.localizedReturn = propagation.localized
     measurement.fermionPropagates =

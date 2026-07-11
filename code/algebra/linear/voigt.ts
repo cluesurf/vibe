@@ -42,6 +42,7 @@ export function operatorToVoigtMatrix(
 
   for (let a = 0; a < 6; a++) {
     const e = [0, 0, 0, 0, 0, 0]
+
     e[a] = 1
 
     const col = symmetricTensorToVoigt(

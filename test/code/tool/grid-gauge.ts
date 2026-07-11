@@ -97,6 +97,7 @@ suite(
     ),
     check('a unit-cell loop equals that single plaquette flux', () => {
       const g = integerField()
+
       equal(
         gridWilsonLoop(g, { x0: 2, x1: 3, y0: 1, y1: 2 }),
         plaquetteFlux(g, { x: 2, y: 1, side: SIDE }),
@@ -147,6 +148,7 @@ suite('tool/grid-gauge: gauge invariance', [
 
       const g2 = gridGaugeTransform(g, lambda, SIDE)
       const rect = { x0: 1, x1: 4, y0: 1, y1: 3 }
+
       equal(
         gridWilsonLoop(g2, rect),
         gridWilsonLoop(g, rect),

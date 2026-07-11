@@ -68,6 +68,7 @@ function run(): void {
       // a faint sector tint on the non-track backdrop so the tiling structure still reads
       if (color === BACKDROP) {
         const s = patternClass(grid, cell, 'sector') % 3
+
         color = [26 + s * 6, 24 + s * 4, 44 + s * 8]
       }
 

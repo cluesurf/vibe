@@ -73,10 +73,12 @@ export default experiment({
 
       for (let c = 0; c < coin.cellCount; c++) {
         const n = will.data[c * degree + rest]!
+
         q[c] = n
 
         if (n > 0) {
           const [x, y, z, w] = coord(c)
+
           total += n
           sx += n * x
           sy += n * y
@@ -109,7 +111,8 @@ export default experiment({
 
         if (nearby >= 3) {
           continue
-        } // bulk stays, no collapse
+        }
+        // bulk stays, no collapse
 
         let bestNb = -1,
           bestDist = Infinity
@@ -226,6 +229,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       const next = stepFull(body, bodyScratch, false)
+
       bodyScratch = body
       body = next
     }
@@ -257,6 +261,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       const next = stepFull(displaced, displacedScratch, false)
+
       displacedScratch = displaced
       displaced = next
     }
@@ -288,10 +293,12 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         const nc = stepFull(clean, cleanScratch, open)
+
         cleanScratch = clean
         clean = nc
 
         const np = stepFull(pert, pertScratch, open)
+
         pertScratch = pert
         pert = np
 

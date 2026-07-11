@@ -86,6 +86,7 @@ function readUsedNumbers(): Map<string, Set<number>> {
     const arena = match[1]!
     const number = Number(match[2])
     const set = used.get(arena) ?? new Set<number>()
+
     set.add(number)
     used.set(arena, set)
   }
@@ -147,6 +148,7 @@ if (parsed.values.json) {
     const tally = `used ${String(result.used).padStart(3)}`
     const nextList = result.next.join(', ')
     const warn = result.known ? '' : '  (not in test/codes.csv)'
+
     console.log(
       `${result.arena}  ${label}  ${tally}  next ${nextList}${warn}`,
     )

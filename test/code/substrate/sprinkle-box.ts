@@ -12,6 +12,7 @@ const cfg = { density: 5, tMax: 4, xMax: 3 }
 suite('substrate/sprinkle-box: count, bounds, order', [
   check('the point count is round(density * area)', () => {
     const pts = sprinkleBox({ ...cfg, rng: makeRng({ seed: 1 }) })
+
     // area = tMax * 2 * xMax = 4 * 6 = 24, expected count round(5*24) = 120.
     equal(pts.length, 120, 'count = density * area')
   }),
@@ -33,6 +34,7 @@ suite('substrate/sprinkle-box: determinism', [
   check('the same seed reproduces the same points', () => {
     const a = sprinkleBox({ ...cfg, rng: makeRng({ seed: 42 }) })
     const b = sprinkleBox({ ...cfg, rng: makeRng({ seed: 42 }) })
+
     equal(a.length, b.length, 'same count')
 
     for (let i = 0; i < a.length; i++) {

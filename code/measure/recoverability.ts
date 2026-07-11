@@ -132,6 +132,7 @@ export function recoverabilityTrace(input: {
 
       for (let d = 0; d < degree; d++) {
         const t = data[base + d]!
+
         cellAbs += Math.abs(t)
         cellNet += t
       }

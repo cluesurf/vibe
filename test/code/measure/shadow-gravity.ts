@@ -17,6 +17,7 @@ suite('measure/shadow-gravity: Fibonacci directions', [
   // Every direction is a unit vector.
   check('the directions are unit vectors', () => {
     const dirs = fibonacciSphereDirections(500)
+
     equal(dirs.length, 500)
 
     for (const d of dirs) {
@@ -35,6 +36,7 @@ suite('measure/shadow-gravity: Fibonacci directions', [
     }
 
     const mean = sum.map(s => s / dirs.length)
+
     ok(
       Math.hypot(mean[0]!, mean[1]!, mean[2]!) < 0.01,
       `centroid ${String(mean)}`,
@@ -56,6 +58,7 @@ suite('measure/shadow-gravity: isotropic (1/r^2) shadow', [
       })
 
       const expected = (1 - Math.sqrt(1 - (a / r) ** 2)) / 2
+
       close(f, expected, expected * 0.1)
     }
   }),
@@ -92,6 +95,7 @@ suite('measure/shadow-gravity: Le Sage drag', [
   // Mean over the sphere of -(1 + v d_x) d_x = -v/3 (mean d_x = 0, mean d_x^2 = 1/3).
   check('the drag is -velocity/3, first order in velocity', () => {
     const dirs = fibonacciSphereDirections(60000)
+
     close(leSageDrag({ directions: dirs, velocity: 0 }), 0, 0.01)
     close(leSageDrag({ directions: dirs, velocity: 0.6 }), -0.2, 0.01)
     close(leSageDrag({ directions: dirs, velocity: 0.9 }), -0.3, 0.01)

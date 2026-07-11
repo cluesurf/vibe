@@ -40,6 +40,7 @@ export function horosphereReality(): {
 
   for (let a = 0; a < B; a++) {
     const d = bnb[a]!.length
+
     degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1
   }
 

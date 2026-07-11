@@ -159,10 +159,12 @@ suite('measure/greens-function: decay class', [
       r.powSlope < 0,
       `potential should decay, got slope ${r.powSlope}`,
     )
+
     ok(
       Number.isFinite(r.expR2) && Number.isFinite(r.powR2),
       'both fits must produce finite R^2',
     )
+
     ok(
       r.exponential === r.expR2 > r.powR2,
       'the verdict must match the better R^2',

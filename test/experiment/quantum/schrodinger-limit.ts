@@ -45,6 +45,7 @@ export default experiment({
     for (const k of [0.05, 0.1, 0.2, 0.5]) {
       const measured = omegaFromDynamics({ k, mass: MASS })
       const exact = Math.acos(Math.cos(MASS) * Math.cos(k))
+
       worstDispersionError = Math.max(
         worstDispersionError,
         Math.abs(measured - exact),

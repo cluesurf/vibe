@@ -50,6 +50,7 @@ export function ringFieldEnergy(psi: readonly Complex2[]): number {
   for (let i = 0; i < length; i++) {
     const a = psi[(i + 1) % length]!
     const z = psi[i]!
+
     e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2
   }
 

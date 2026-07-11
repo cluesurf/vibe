@@ -57,17 +57,20 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
 
   for (let i = 0; i < K; i++) {
     P[i]![sink] = 1
-  } // every leaf -> sink (degenerate)
+  }
+  // every leaf -> sink (degenerate)
 
   for (let j = 0; j < K; j++) {
     P[sink]![j] = 1 / K
-  } // sink -> uniform over leaves
+  }
+  // sink -> uniform over leaves
 
   const groups = new Array<number>(N)
 
   for (let i = 0; i < K; i++) {
     groups[i] = 0
-  } // the leaves are one macro-state (the self)
+  }
+  // the leaves are one macro-state (the self)
 
   groups[sink] = 1 // the sink is the other macro-state
 
@@ -126,6 +129,7 @@ export function causalEmergence(input?: { K?: number }): {
 
   for (const k of [2, 4, 8, 16, 32]) {
     const f = buildFunnel(k)
+
     byDegeneracy.push({
       K: k,
       emergence:

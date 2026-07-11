@@ -74,6 +74,7 @@ export function associativeSequenceRecall(input?: {
 
   for (let i = 0; i < path.length; i++) {
     const item = ternaryWord(1000 + i, wordBits)
+
     items.push(item)
     storeWord(mem, path[i]!, item)
   }

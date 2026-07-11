@@ -18,6 +18,7 @@ suite('model/selection: determinism', [
 
     const a = evolvePopulation(opts)
     const b = evolvePopulation(opts)
+
     equal(a.initialFitness, b.initialFitness, 'same initial fitness')
     equal(a.finalFitness, b.finalFitness, 'same final fitness')
   }),
@@ -29,15 +30,18 @@ suite('model/selection: selection beats the control', [
     const base = { n: 60, populationSize: 24, generations: 20 }
     const selected = evolvePopulation({ ...base, select: true })
     const control = evolvePopulation({ ...base, select: false })
+
     equal(
       selected.initialFitness,
       control.initialFitness,
       'both start from the same population',
     )
+
     ok(
       selected.finalFitness > selected.initialFitness,
       'selection raises mean fitness',
     )
+
     ok(
       selected.finalFitness > control.finalFitness,
       'selection ends fitter than the unselected control',

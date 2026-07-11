@@ -22,6 +22,7 @@ type C4 = {
   re: [number, number, number, number]
   im: [number, number, number, number]
 }
+
 // Spin projectors I -/+ gamma_mu (gamma1 = sigma_x, gamma2 = sigma_y), as complex
 // 2x2 blocks in row-major [00, 01, 10, 11].
 const SPIN_I_MINUS_SX: C4 = { re: [1, -1, -1, 1], im: [0, 0, 0, 0] }
@@ -78,13 +79,16 @@ function addBlock4(input: {
           // (sp * co) * coef
           let re = spRe * coRe - spIm * coIm
           let im = spRe * coIm + spIm * coRe
+
           re *= input.coef
           im *= input.coef
 
           const row = input.rowSite * 4 + si * 2 + ci
           const col = input.colSite * 4 + sj * 2 + cj
+
           input.m.re[row * n + col] =
             (input.m.re[row * n + col] ?? 0) + re
+
           input.m.im[row * n + col] =
             (input.m.im[row * n + col] ?? 0) + im
         }
@@ -120,6 +124,7 @@ function gaugeWilsonDiracSu2(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
+
       // diagonal mass term M0 = 2 (spin identity tensor color identity).
       addBlock4({
         m: d,
@@ -129,6 +134,7 @@ function gaugeWilsonDiracSu2(input: {
         color: IDENT_COLOR,
         coef: 2,
       })
+
       // mu = 1
       addBlock4({
         m: d,
@@ -138,6 +144,7 @@ function gaugeWilsonDiracSu2(input: {
         color: colorMatrix(input.links1[x] ?? [1, 0, 0, 0], false),
         coef: -0.5,
       })
+
       addBlock4({
         m: d,
         rowSite: x,
@@ -149,6 +156,7 @@ function gaugeWilsonDiracSu2(input: {
         ),
         coef: -0.5,
       })
+
       // mu = 2
       addBlock4({
         m: d,
@@ -158,6 +166,7 @@ function gaugeWilsonDiracSu2(input: {
         color: colorMatrix(input.links2[x] ?? [1, 0, 0, 0], false),
         coef: -0.5,
       })
+
       addBlock4({
         m: d,
         rowSite: x,
