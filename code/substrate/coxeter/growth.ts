@@ -14,18 +14,16 @@ export function sequence(
   count: number,
   spec: RecurrenceSpec,
 ): bigint[] {
-  if (!Number.isInteger(count) || count < 0) {
+  if (!Number.isInteger(count) || count < 0)
     throw new Error('count must be a nonnegative integer')
-  }
 
   const out = spec.seed.slice(0, count)
 
   for (let n = spec.seed.length; n < count; n++) {
     let next = 0n
 
-    for (let i = 0; i < spec.coeffs.length; i++) {
+    for (let i = 0; i < spec.coeffs.length; i++)
       next += spec.coeffs[i]! * out[n - 1 - i]!
-    }
 
     out.push(next)
   }
@@ -57,13 +55,11 @@ export function regular2DFaceLayers(
   q: number,
   count: number,
 ): bigint[] {
-  if (!Number.isInteger(p) || !Number.isInteger(q) || p < 3 || q < 3) {
+  if (!Number.isInteger(p) || !Number.isInteger(q) || p < 3 || q < 3)
     throw new Error('p and q must be integers >= 3')
-  }
 
-  if (1 / p + 1 / q > 1 / 2) {
+  if (1 / p + 1 / q > 1 / 2)
     throw new Error(`{${p},${q}} is spherical/finite, not infinite`)
-  }
 
   if (q === 3) {
     return sequence(count, {
@@ -105,9 +101,7 @@ export function toStrings(seq: bigint[]): string[] {
 export function lastCompleteShellRatio(shells: number[]): number {
   const count = shells.length
 
-  if (count < 4) {
-    return 1
-  }
+  if (count < 4) return 1
 
   return shells[count - 2]! / shells[count - 3]!
 }
@@ -118,9 +112,7 @@ export function lastCompleteShellRatio(shells: number[]): number {
 export function outermostShellFraction(shells: number[]): number {
   const count = shells.length
 
-  if (count < 3) {
-    return 0
-  }
+  if (count < 3) return 0
 
   const complete = shells.slice(0, count - 1) // drop the truncated final shell
   const total = complete.reduce((sum, size) => sum + size, 0)
@@ -130,26 +122,32 @@ export function outermostShellFraction(shells: number[]): number {
 
 export function main(): void {
   const count = 12
+
   console.log(
     '{7,3} face layers:',
     toStrings(polygonsAddedPerLayer73(count)).join(', '),
   )
+
   console.log(
     '{5,4} face layers:',
     toStrings(polygonsAddedPerLayer54(count)).join(', '),
   )
+
   console.log(
     '{5,3,4} cell layers:',
     toStrings(cellsAddedPerLayer5354(count)).join(', '),
   )
+
   console.log(
     'general 2D {7,3}:',
     toStrings(regular2DFaceLayers(7, 3, count)).join(', '),
   )
+
   console.log(
     'general 2D {5,4}:',
     toStrings(regular2DFaceLayers(5, 4, count)).join(', '),
   )
+
   console.log(
     'cumulative {5,3,4}:',
     toStrings(cumulative(cellsAddedPerLayer5354(count))).join(', '),
@@ -159,6 +157,5 @@ export function main(): void {
 if (
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+)
   main()
-}

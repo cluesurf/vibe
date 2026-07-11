@@ -44,9 +44,8 @@ function cpuDenseRecall(
 
       const base = mu * n
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         s += patternsFlat[base + i]! * state[i]!
-      }
 
       overlap[mu] = s
     }
@@ -61,9 +60,7 @@ function cpuDenseRecall(
 
         const o = overlap[mu]!
 
-        for (let e = 1; e < power; e++) {
-          w = Math.fround(w * o)
-        }
+        for (let e = 1; e < power; e++) w = Math.fround(w * o)
 
         field = Math.fround(
           field + Math.fround(patternsFlat[mu * n + i]! * w),
@@ -182,6 +179,7 @@ async function gpuDenseRecall(input: {
 
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(overlapPipe)
     pass.setBindGroup(0, ovBind)
     pass.dispatchWorkgroups(Math.ceil(p / WORKGROUP))
@@ -192,6 +190,7 @@ async function gpuDenseRecall(input: {
     device.queue.submit([enc.finish()])
 
     const tmp = stateA
+
     stateA = stateB
     stateB = tmp
   }
@@ -202,11 +201,13 @@ async function gpuDenseRecall(input: {
   })
 
   const enc2 = device.createCommandEncoder()
+
   enc2.copyBufferToBuffer(stateA, 0, read, 0, n * 4)
   device.queue.submit([enc2.finish()])
   await read.mapAsync(GPUMapMode.READ)
 
   const out = new Int32Array(read.getMappedRange().slice(0))
+
   read.unmap()
 
   return { state: out, ms: performance.now() - t0 }
@@ -221,9 +222,7 @@ function buildPatterns(
   const flat = new Int32Array(n * p)
 
   for (let mu = 0; mu < p; mu++) {
-    for (let i = 0; i < n; i++) {
-      flat[mu * n + i] = list[mu]![i]!
-    }
+    for (let i = 0; i < n; i++) flat[mu * n + i] = list[mu]![i]!
   }
 
   return { flat, list }
@@ -239,6 +238,7 @@ function corrupt(
 
   for (let k = 0; k < flips; k++) {
     const i = rng.nextInt({ max: pattern.length })
+
     cue[i] = -cue[i]!
   }
 
@@ -301,12 +301,15 @@ async function run(): Promise<void> {
   console.log(
     `dense Hopfield, ${n} neurons, ${p} patterns, power ${POWER}, ${ITERS} relaxation steps`,
   )
+
   console.log(
     `cue overlap to prototype before recall, ${toneOverlap(Int8Array.from(cue), prototype).toFixed(3)}`,
   )
+
   console.log(
     `recall overlap to prototype, cpu ${cpuRecall.toFixed(3)}, gpu ${gpuRecall.toFixed(3)}`,
   )
+
   console.log(
     `gpu vs cpu agreement, ${(agree * 100).toFixed(1)} percent`,
   )
@@ -356,4 +359,5 @@ async function run(): Promise<void> {
 }
 
 const main = run
+
 void main()

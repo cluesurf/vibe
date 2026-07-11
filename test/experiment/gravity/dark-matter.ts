@@ -40,6 +40,7 @@ export function rotationCurve(input: {
   const mid = Math.floor(input.side / 2)
   const center = mid + input.side * (mid + input.side * mid)
   const b = new Float64Array(n).fill(-1 / n)
+
   b[center] = 1 - 1 / n
 
   const phi1 = cgSolve(lat.neighbors, b)
@@ -48,13 +49,10 @@ export function rotationCurve(input: {
   if (input.nonlocal !== 0) {
     const phi2 = cgSolve(lat.neighbors, phi1) // L^-2 b
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++)
       phi[i] = (phi1[i] ?? 0) + input.nonlocal * (phi2[i] ?? 0)
-    }
   } else {
-    for (let i = 0; i < n; i++) {
-      phi[i] = phi1[i] ?? 0
-    }
+    for (let i = 0; i < n; i++) phi[i] = phi1[i] ?? 0
   }
 
   // Bin the potential by distance from the center.

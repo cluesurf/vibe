@@ -68,6 +68,7 @@ export default experiment({
 
     for (let x = center + 3; x < length; x++) {
       const dist = x - center
+
       decay[x] = dist <= R ? -Math.ceil(R / dist) : 0
     }
 

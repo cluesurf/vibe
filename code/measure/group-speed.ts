@@ -49,6 +49,7 @@ export function groupSpeedAnisotropy(input: {
 
   for (let a = 0; a < samples; a++) {
     const theta = (a / samples) * (Math.PI / 2)
+
     speeds.push(
       groupSpeed({
         omega,

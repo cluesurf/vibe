@@ -30,6 +30,7 @@ function perturbAndWatch(input: {
   const dist = distancesFrom({ graph, source: site })
   const control = base.slice()
   const perturbed = base.slice()
+
   perturbed[site] = perturbed[site] === 1 ? -1 : 1
 
   const movedA = new Uint8Array(graph.cellCount)
@@ -51,19 +52,13 @@ function perturbAndWatch(input: {
       if (control[i] !== perturbed[i]) {
         count++
 
-        if (dist[i]! > maxR) {
-          maxR = dist[i]!
-        }
+        if (dist[i]! > maxR) maxR = dist[i]!
       }
     }
 
-    if (count > peak) {
-      peak = count
-    }
+    if (count > peak) peak = count
 
-    if (maxR > radius) {
-      radius = maxR
-    }
+    if (maxR > radius) radius = maxR
 
     final = count
   }

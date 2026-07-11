@@ -33,9 +33,7 @@ function breather(side: number): { mesh: Mesh; will: Will } {
     for (let x = c - 3; x <= c + 3; x++) {
       const base = (y * side + x) * mesh.degree
 
-      for (let d = 0; d < mesh.degree; d++) {
-        will.data[base + d] = 1
-      }
+      for (let d = 0; d < mesh.degree; d++) will.data[base + d] = 1
     }
   }
 
@@ -65,13 +63,9 @@ function boxRegions(
       const r = Math.max(Math.abs(x - cx), Math.abs(y - cy))
       const cell = y * side + x
 
-      if (r <= inner) {
-        interior.push(cell)
-      } else if (r <= outer) {
-        shell.push(cell)
-      } else if (r <= outer + 1) {
-        exterior.push(cell)
-      }
+      if (r <= inner) interior.push(cell)
+      else if (r <= outer) shell.push(cell)
+      else if (r <= outer + 1) exterior.push(cell)
     }
   }
 
@@ -81,9 +75,7 @@ function boxRegions(
 function sumCharge(will: Will, cells: number[]): number {
   let s = 0
 
-  for (const c of cells) {
-    s += cellTone(will, c)
-  }
+  for (const c of cells) s += cellTone(will, c)
 
   return s
 }
@@ -102,6 +94,7 @@ function perturbationRadius(input: {
 
   let clean: Will = { mesh, data: base.data.slice() }
   let dirty: Will = { mesh, data: base.data.slice() }
+
   dirty.data[site * mesh.degree] =
     dirty.data[site * mesh.degree] === 1 ? -1 : 1
 
@@ -127,11 +120,13 @@ function perturbationRadius(input: {
     beatInto({ src: clean, dst: cleanScratch, table, collision })
 
     const swapClean = clean
+
     clean = cleanScratch
     cleanScratch = swapClean
     beatInto({ src: dirty, dst: dirtyScratch, table, collision })
 
     const swapDirty = dirty
+
     dirty = dirtyScratch
     dirtyScratch = swapDirty
 
@@ -139,9 +134,8 @@ function perturbationRadius(input: {
       if (
         cellTone(clean, c) !== cellTone(dirty, c) &&
         dist[c]! > maxRadius
-      ) {
+      )
         maxRadius = dist[c]!
-      }
     }
   }
 
@@ -182,6 +176,7 @@ export default experiment({
       beatInto({ src: w, dst: wScratch, table, collision })
 
       const swap = w
+
       w = wScratch
       wScratch = swap
       interior.push(sumCharge(w, region.interior))

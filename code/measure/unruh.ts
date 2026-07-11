@@ -38,6 +38,7 @@ export function unruhDetectorResponse(input: {
     // e^{-iE tau}
     const c = Math.cos(energy * tau)
     const s = -Math.sin(energy * tau)
+
     re += (wReal * c - wImag * s) * input.step
     im += (wReal * s + wImag * c) * input.step
   }

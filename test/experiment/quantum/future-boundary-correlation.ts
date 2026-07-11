@@ -51,6 +51,7 @@ export default experiment({
   paper: true,
   run() {
     const mesh = squareMesh({ side: SIDE })
+
     meshNeighbors(mesh)
 
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
@@ -105,15 +106,12 @@ export default experiment({
 
           let mid = will
 
-          for (let t = 0; t < T_MID; t++) {
-            mid = beat(mid, collision)
-          }
+          for (let t = 0; t < T_MID; t++) mid = beat(mid, collision)
 
           let future: Will = { ...mid, data: mid.data.slice() }
 
-          for (let t = T_MID; t < T_FINAL; t++) {
+          for (let t = T_MID; t < T_FINAL; t++)
             future = beat(future, collision)
-          }
 
           records.push({
             a: distances.map(d =>
@@ -175,6 +173,7 @@ export default experiment({
         apexMax,
         Math.abs(connectedTriple(i, apexValues)),
       )
+
       controlMax = Math.max(
         controlMax,
         Math.abs(connectedTriple(i, controlValues)),

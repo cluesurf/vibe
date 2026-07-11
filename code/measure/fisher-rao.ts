@@ -28,17 +28,15 @@ export function spatialActivityDistribution(will: Will): Float64Array {
 
   for (let cell = 0; cell < cellCount; cell++) {
     const activity = cellActivity(will, cell)
+
     distribution[cell] = activity
     total += activity
   }
 
-  if (total === 0) {
-    return distribution
-  }
+  if (total === 0) return distribution
 
-  for (let cell = 0; cell < cellCount; cell++) {
+  for (let cell = 0; cell < cellCount; cell++)
     distribution[cell] = distribution[cell]! / total
-  }
 
   return distribution
 }
@@ -62,17 +60,15 @@ export function blockActivityDistribution(input: {
   for (let cell = 0; cell < cellCount; cell++) {
     const activity = cellActivity(will, cell)
     const block = Math.min(blocks - 1, Math.floor(cell / blockSize))
+
     distribution[block] = distribution[block]! + activity
     total += activity
   }
 
-  if (total === 0) {
-    return distribution
-  }
+  if (total === 0) return distribution
 
-  for (let block = 0; block < blocks; block++) {
+  for (let block = 0; block < blocks; block++)
     distribution[block] = distribution[block]! / total
-  }
 
   return distribution
 }
@@ -88,9 +84,8 @@ export function fisherRaoDistance(
 
   let overlap = 0
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     overlap += Math.sqrt((p[i] ?? 0) * (q[i] ?? 0))
-  }
 
   const clamped = overlap < 0 ? 0 : overlap > 1 ? 1 : overlap
 
@@ -130,9 +125,7 @@ export function windowSlope(input: {
   const hi = Math.min(series.length - 1, to)
   const count = hi - lo + 1
 
-  if (count < 2) {
-    return 0
-  }
+  if (count < 2) return 0
 
   let sumX = 0
   let sumY = 0
@@ -142,6 +135,7 @@ export function windowSlope(input: {
   for (let i = lo; i <= hi; i++) {
     const x = i - lo
     const y = series[i]!
+
     sumX += x
     sumY += y
     sumXY += x * y

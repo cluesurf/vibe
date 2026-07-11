@@ -50,9 +50,8 @@ function study(input: { beta: number; seed: number }): {
   const measurements = 120
 
   for (let m = 0; m < measurements; m++) {
-    for (let s = 0; s < 3; s++) {
+    for (let s = 0; s < 3; s++)
       metropolisSweep({ lattice, beta: input.beta, eps, rng })
-    }
 
     w11 += wilsonLoop({ lattice, r: 1, t: 1 })
     w21 += wilsonLoop({ lattice, r: 2, t: 1 })

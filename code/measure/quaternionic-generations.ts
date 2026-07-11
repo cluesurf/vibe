@@ -27,13 +27,11 @@ function signedProduct(
   const product = octonionMultiply(octonionUnit(i), octonionUnit(j))
 
   for (let k = 1; k <= 7; k++) {
-    if (octonionEquals(product, octonionUnit(k))) {
+    if (octonionEquals(product, octonionUnit(k)))
       return { index: k, sign: 1 }
-    }
 
-    if (octonionEquals(product, octonionScale(octonionUnit(k), -1))) {
+    if (octonionEquals(product, octonionScale(octonionUnit(k), -1)))
       return { index: k, sign: -1 }
-    }
   }
 
   return null
@@ -61,9 +59,7 @@ export function octonionFanoLines(): [number, number, number][] {
             line[2] === triple[2],
         )
 
-        if (!seen) {
-          lines.push(triple)
-        }
+        if (!seen) lines.push(triple)
       }
     }
   }
@@ -92,14 +88,11 @@ export function closesAsQuaternion(units: readonly number[]): boolean {
         if (
           octonionEquals(product, octonionUnit(k)) ||
           octonionEquals(product, octonionScale(octonionUnit(k), -1))
-        ) {
+        )
           closed = true
-        }
       }
 
-      if (!closed) {
-        return false
-      }
+      if (!closed) return false
     }
   }
 
@@ -113,15 +106,11 @@ export function isSignedOctonionAutomorphism(
 ): boolean {
   for (let i = 1; i <= 7; i++) {
     for (let j = 1; j <= 7; j++) {
-      if (i === j) {
-        continue
-      }
+      if (i === j) continue
 
       const product = signedProduct(i, j)
 
-      if (!product) {
-        continue
-      }
+      if (!product) continue
 
       const mapped = octonionMultiply(
         octonionUnit(perm[i]!),
@@ -137,9 +126,8 @@ export function isSignedOctonionAutomorphism(
       if (
         !octonionEquals(mapped, targetPlus) &&
         !octonionEquals(mapped, targetMinus)
-      ) {
+      )
         return false
-      }
     }
   }
 
@@ -156,9 +144,7 @@ export function familyPermutation(
     line.filter(u => u !== unit),
   )
 
-  if (pairs.length !== 3) {
-    return null
-  }
+  if (pairs.length !== 3) return null
 
   const [p0, p1, p2] = pairs as [number[], number[], number[]]
 
@@ -168,11 +154,13 @@ export function familyPermutation(
       const perm: Record<number, number> = { [unit]: unit }
       const a = p1[flip1 ? 1 : 0]!
       const b = p1[flip1 ? 0 : 1]!
+
       perm[p0[0]!] = a
       perm[p0[1]!] = b
 
       const c = p2[flip2 ? 1 : 0]!
       const d = p2[flip2 ? 0 : 1]!
+
       perm[a] = c
       perm[b] = d
       perm[c] = p0[0]!
@@ -180,9 +168,8 @@ export function familyPermutation(
 
       const image = new Set(Object.values(perm))
 
-      if (image.size === 7 && isSignedOctonionAutomorphism(perm)) {
+      if (image.size === 7 && isSignedOctonionAutomorphism(perm))
         return perm
-      }
     }
   }
 
@@ -212,13 +199,9 @@ export function subalgebraPrincipalAngles(
 
   const angles: number[] = []
 
-  for (let i = 0; i < shared; i++) {
-    angles.push(0)
-  }
+  for (let i = 0; i < shared; i++) angles.push(0)
 
-  for (let i = 0; i < axesA.size - shared; i++) {
-    angles.push(90)
-  }
+  for (let i = 0; i < axesA.size - shared; i++) angles.push(90)
 
   return angles.sort((a, b) => a - b)
 }
@@ -235,9 +218,7 @@ function* allPermutations(
   for (let i = 0; i < items.length; i++) {
     const rest = [...items.slice(0, i), ...items.slice(i + 1)]
 
-    for (const tail of allPermutations(rest)) {
-      yield [items[i]!, ...tail]
-    }
+    for (const tail of allPermutations(rest)) yield [items[i]!, ...tail]
   }
 }
 
@@ -249,13 +230,9 @@ export function allUnitAutomorphisms(): Record<number, number>[] {
   for (const image of allPermutations([1, 2, 3, 4, 5, 6, 7])) {
     const perm: Record<number, number> = {}
 
-    for (let i = 1; i <= 7; i++) {
-      perm[i] = image[i - 1]!
-    }
+    for (let i = 1; i <= 7; i++) perm[i] = image[i - 1]!
 
-    if (isSignedOctonionAutomorphism(perm)) {
-      out.push(perm)
-    }
+    if (isSignedOctonionAutomorphism(perm)) out.push(perm)
   }
 
   return out

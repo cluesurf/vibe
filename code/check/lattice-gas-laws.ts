@@ -15,9 +15,8 @@ export function streamIsPermutation(mesh: Mesh): boolean {
   const seen = new Uint8Array(table.length)
 
   for (const source of table) {
-    if (source < 0 || source >= table.length || seen[source]) {
+    if (source < 0 || source >= table.length || seen[source])
       return false
-    }
 
     seen[source] = 1
   }
@@ -38,13 +37,9 @@ export function toneCensus(tone: Int8Array): {
   let plus = 0
 
   for (const value of tone) {
-    if (value < 0) {
-      minus += 1
-    } else if (value > 0) {
-      plus += 1
-    } else {
-      zero += 1
-    }
+    if (value < 0) minus += 1
+    else if (value > 0) plus += 1
+    else zero += 1
   }
 
   return { minus, zero, plus }

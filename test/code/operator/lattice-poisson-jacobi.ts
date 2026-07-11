@@ -14,13 +14,9 @@ const chain: number[][] = []
 for (let i = 0; i < 7; i++) {
   const row: number[] = []
 
-  if (i > 0) {
-    row.push(i - 1)
-  }
+  if (i > 0) row.push(i - 1)
 
-  if (i < 6) {
-    row.push(i + 1)
-  }
+  if (i < 6) row.push(i + 1)
 
   chain.push(row)
 }
@@ -30,6 +26,7 @@ suite(
   [
     check('boundary cells are clamped to exactly zero', () => {
       const source = new Float64Array(7)
+
       source[3] = 1
 
       const phi = latticePoissonJacobi({
@@ -46,6 +43,7 @@ suite(
       'interior cells satisfy deg*phi - sum_neighbors = 4pi*source (fixed point)',
       () => {
         const source = new Float64Array(7)
+
         source[3] = 1
 
         const coeff = 4 * Math.PI
@@ -59,9 +57,7 @@ suite(
         for (let i = 1; i < 6; i++) {
           let sum = 0
 
-          for (const j of chain[i]!) {
-            sum += phi[j] ?? 0
-          }
+          for (const j of chain[i]!) sum += phi[j] ?? 0
 
           close(
             2 * (phi[i] ?? 0) - sum,
@@ -76,6 +72,7 @@ suite(
       'a custom source coefficient scales the stencil right-hand side',
       () => {
         const source = new Float64Array(7)
+
         source[2] = 1
         source[4] = -1
 
@@ -91,9 +88,7 @@ suite(
         for (let i = 1; i < 6; i++) {
           let sum = 0
 
-          for (const j of chain[i]!) {
-            sum += phi[j] ?? 0
-          }
+          for (const j of chain[i]!) sum += phi[j] ?? 0
 
           close(
             2 * (phi[i] ?? 0) - sum,

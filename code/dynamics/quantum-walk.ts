@@ -16,6 +16,7 @@ export function coinedWalkMSD(input: {
   const C = Math.floor(L / 2) // center position
   const reL = new Float64Array(2 * L) // [x*2 + c] real
   const imL = new Float64Array(2 * L)
+
   reL[C * 2 + 0] = Math.SQRT1_2 // start localized at center, symmetric coin
   reL[C * 2 + 1] = Math.SQRT1_2
 
@@ -43,9 +44,7 @@ export function coinedWalkMSD(input: {
 
     msd.push(m / norm)
 
-    if (t === steps) {
-      break
-    }
+    if (t === steps) break
 
     // coin: rotation by theta mixing the two coin components
     // shift: left-component to x-1, right-component to x+1
@@ -61,6 +60,7 @@ export function coinedWalkMSD(input: {
       const newAI = ct * aI + st * bI
       const newBR = st * aR - ct * bR
       const newBI = st * aI - ct * bI
+
       re2[(x - 1) * 2 + 0]! += newAR
       im2[(x - 1) * 2 + 0]! += newAI
       re2[(x + 1) * 2 + 1]! += newBR
@@ -102,11 +102,13 @@ export function continuousQuantumWalkMsd(input: {
         (eig.vectors[j * n + k] ?? 0)
 
       const lambda = eig.values[k] ?? 0
+
       re += amp * Math.cos(lambda * t)
       im += amp * -Math.sin(lambda * t)
     }
 
     const prob = re * re + im * im
+
     msd += prob * (j - center) * (j - center)
   }
 
@@ -136,6 +138,7 @@ export function continuousClassicalWalkMsd(input: {
         (eig.vectors[j * n + k] ?? 0)
 
       const lambda = eig.values[k] ?? 0
+
       p += amp * Math.exp(-lambda * t)
     }
 
@@ -185,9 +188,7 @@ export function measuredCoinedWalkFrequency(input: {
   const right = new Float64Array(size)
   const left = new Float64Array(size)
 
-  for (let x = 0; x < size; x++) {
-    right[x] = Math.cos(k * x)
-  }
+  for (let x = 0; x < size; x++) right[x] = Math.cos(k * x)
 
   const series = new Float64Array(beats)
   const rightNext = new Float64Array(size)
@@ -212,6 +213,7 @@ export function measuredCoinedWalkFrequency(input: {
       for (let x = 0; x < size; x++) {
         const r = rightNext[x]!
         const l = leftNext[x]!
+
         right[x] = cm * r - sm * l
         left[x] = sm * r + cm * l
       }
@@ -228,6 +230,7 @@ export function measuredCoinedWalkFrequency(input: {
 
     for (let t = 0; t < beats; t++) {
       const phase = (-2 * Math.PI * f * t) / beats
+
       re += series[t]! * Math.cos(phase)
       im += series[t]! * Math.sin(phase)
     }
@@ -304,6 +307,7 @@ export function diracQuantumWalk(input: {
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(I, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -344,6 +348,7 @@ export function diracQuantumWalk(input: {
 
   for (let x = 0; x < L; x++) {
     const dx = ((x - x0 + L + L / 2) % L) - L / 2
+
     cR += dx * cabs2(R[x]!)
     wR += cabs2(R[x]!)
     cL += dx * cabs2(Lf[x]!)
@@ -357,6 +362,7 @@ export function diracQuantumWalk(input: {
   for (let x = 0; x < L; x++) {
     const dx = ((x - x0 + L + L / 2) % L) - L / 2
     const w = cabs2(R[x]!) + cabs2(Lf[x]!)
+
     cc += dx * w
     wc += w
   }
@@ -392,6 +398,7 @@ export function singleParticleQuantumWalk(input: {
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-(((x - x0) / w) ** 2))
+
     // a right-moving packet at momentum k0 (weight on the right coin), e^{i k0 x}
     re[1]![x] = g * Math.cos(k0 * x)
     im[1]![x] = g * Math.sin(k0 * x)
@@ -435,6 +442,7 @@ export function singleParticleQuantumWalk(input: {
       // shift: c0 -> x-1, c1 -> x+1
       const xm = (x - 1 + L) % L
       const xp = (x + 1) % L
+
       nr[0]![xm]! += a0r
       ni[0]![xm]! += a0i
       nr[1]![xp]! += a1r
@@ -512,6 +520,7 @@ export function twoParticleQuantumWalk(input: {
 
       const ph = k0 * (x1 + x2) // both moving right (net CoM momentum)
       const i = idx(x1, x2, 1, 1)
+
       re[i] = g * Math.cos(ph)
       im[i] = g * Math.sin(ph)
       norm += g * g
@@ -539,6 +548,7 @@ export function twoParticleQuantumWalk(input: {
         for (let c1 = 0; c1 < 2; c1++) {
           for (let c2 = 0; c2 < 2; c2++) {
             const i = idx(x1, x2, c1, c2)
+
             p += re[i]! ** 2 + im[i]! ** 2
           }
         }
@@ -564,6 +574,7 @@ export function twoParticleQuantumWalk(input: {
           const a0i = cm * im[i0]! - sm * im[i1]!
           const a1r = sm * re[i0]! + cm * re[i1]!
           const a1i = sm * im[i0]! + cm * im[i1]!
+
           nr[i0] = a0r
           ni[i0] = a0i
           nr[i1] = a1r
@@ -584,6 +595,7 @@ export function twoParticleQuantumWalk(input: {
           const a0i = cm * ni[i0]! - sm * ni[i1]!
           const a1r = sm * nr[i0]! + cm * nr[i1]!
           const a1i = sm * ni[i0]! + cm * ni[i1]!
+
           mr[i0] = a0r
           mi[i0] = a0i
           mr[i1] = a1r
@@ -612,11 +624,13 @@ export function twoParticleQuantumWalk(input: {
               const st = Math.sin(theta)
               const r2 = ct * vr - st * vi
               const i2 = st * vr + ct * vi
+
               vr = r2
               vi = i2
             }
 
             const j = idx(nx1, nx2, c1, c2)
+
             re[j]! += vr
             im[j]! += vi
           }
@@ -715,6 +729,7 @@ export function diracTwoModeSurvival(input: {
   for (let x = 0; x < size; x++) {
     const pa = expo(ka * x)
     const pb = expo(kb * x)
+
     right[x] = add(mul(ea.right, pa), mul(eb.right, pb))
     left[x] = add(mul(ea.left, pa), mul(eb.left, pb))
   }
@@ -749,6 +764,7 @@ export function diracTwoModeSurvival(input: {
     for (let x = 0; x < size; x++) {
       const a = mul(conj(right0[x]!), right[x]!)
       const b = mul(conj(left0[x]!), left[x]!)
+
       overlapRe += a[0] + b[0]
       overlapIm += a[1] + b[1]
     }
@@ -765,6 +781,7 @@ export function diracTwoModeSurvival(input: {
     for (let x = 0; x < size; x++) {
       const r = rightNext[x]!
       const l = leftNext[x]!
+
       right[x] = [cm * r[0] - sm * l[0], cm * r[1] - sm * l[1]]
       left[x] = [sm * r[0] + cm * l[0], sm * r[1] + cm * l[1]]
     }
@@ -843,6 +860,7 @@ export function diracOverlapEvolution(input: {
 
       for (let x = 0; x < size; x++) {
         const phase = expo(k * x)
+
         right[x] = add(right[x]!, mul(mul(e.right, phase), weight))
         left[x] = add(left[x]!, mul(mul(e.left, phase), weight))
       }
@@ -883,6 +901,7 @@ export function diracOverlapEvolution(input: {
     for (let x = 0; x < size; x++) {
       const r = rightNext[x]!
       const l = leftNext[x]!
+
       state.right[x] = [cm * r[0] - sm * l[0], cm * r[1] - sm * l[1]]
       state.left[x] = [sm * r[0] + cm * l[0], sm * r[1] + cm * l[1]]
     }
@@ -893,6 +912,7 @@ export function diracOverlapEvolution(input: {
         state.right[0]![0] * (1 - leak),
         state.right[0]![1] * (1 - leak),
       ]
+
       state.left[0] = [
         state.left[0]![0] * (1 - leak),
         state.left[0]![1] * (1 - leak),
@@ -909,6 +929,7 @@ export function diracOverlapEvolution(input: {
     for (let x = 0; x < size; x++) {
       const p = mul(conj(a.right[x]!), b.right[x]!)
       const q = mul(conj(a.left[x]!), b.left[x]!)
+
       re += p[0] + q[0]
       im += p[1] + q[1]
     }

@@ -61,6 +61,7 @@ function subdivideFace(face: Vec3[]): Vec3[][] {
 
   for (let i = 0; i < face.length; i++) {
     const prev = m[(i - 1 + face.length) % face.length]!
+
     out.push([face[i]!, m[i]!, c, prev])
   }
 
@@ -191,14 +192,13 @@ function line(
   for (;;) {
     if (x >= 0 && x < IMG && y >= 0 && y < IMG) {
       const i = (y * IMG + x) * 4
+
       rgba[i] = Math.min(255, (rgba[i]! + b * 0.45) | 0)
       rgba[i + 1] = Math.min(255, (rgba[i + 1]! + b * 0.75) | 0)
       rgba[i + 2] = Math.min(255, rgba[i + 2]! + b)
     }
 
-    if (x === x1 && y === y1) {
-      break
-    }
+    if (x === x1 && y === y1) break
 
     const e2 = 2 * err
 
@@ -217,9 +217,7 @@ function line(
 function run(): void {
   let faces = dodecahedronFaces()
 
-  for (let d = 0; d < DEPTH; d++) {
-    faces = faces.flatMap(subdivideFace)
-  }
+  for (let d = 0; d < DEPTH; d++) faces = faces.flatMap(subdivideFace)
 
   console.log(
     `jewel mesh, dodecahedron surface subdivided depth ${DEPTH} -> ${faces.length.toLocaleString()} faces`,
@@ -227,9 +225,7 @@ function run(): void {
 
   const rgba = new Uint8Array(IMG * IMG * 4)
 
-  for (let i = 0; i < IMG * IMG; i++) {
-    rgba[i * 4 + 3] = 255
-  }
+  for (let i = 0; i < IMG * IMG; i++) rgba[i * 4 + 3] = 255
 
   const cam = 5.5
   const scale = IMG * 1.55
@@ -246,9 +242,7 @@ function run(): void {
     // backface cull, only draw faces whose outward normal faces the camera (+z toward viewer)
     const n = cross(sub(r[1]!, r[0]!), sub(r[2]!, r[0]!))
 
-    if (n[2] <= 0) {
-      continue
-    }
+    if (n[2] <= 0) continue
 
     // depth brightness, front (larger z) brighter
     const zc = (r[0]![2] + r[1]![2] + r[2]![2] + r[3]![2]) / 4
@@ -262,6 +256,7 @@ function run(): void {
     for (let i = 0; i < pts.length; i++) {
       const a = pts[i]!
       const c = pts[(i + 1) % pts.length]!
+
       line(
         rgba,
         Math.round(a[0]),
@@ -283,6 +278,7 @@ function run(): void {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, 'jewel-mesh.png')
+
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))
   console.log(`wrote ${outPath}`)
 }

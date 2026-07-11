@@ -32,12 +32,14 @@ suite('measure/group-speed: groupSpeed (2D)', [
     'omega = |k| has group speed 1 everywhere off the origin',
     () => {
       const omega = (kx: number, ky: number) => Math.hypot(kx, ky)
+
       close(groupSpeed({ omega, kx: 3, ky: 4 }), 1, 1e-4)
       close(groupSpeed({ omega, kx: 1, ky: 0 }), 1, 1e-4)
     },
   ),
   check('omega = kx^2 + ky^2 has |grad| = 2|k|', () => {
     const omega = (kx: number, ky: number) => kx * kx + ky * ky
+
     close(groupSpeed({ omega, kx: 1, ky: 0 }), 2, 1e-4)
     close(groupSpeed({ omega, kx: 3, ky: 4 }), 2 * 5, 1e-4)
   }),

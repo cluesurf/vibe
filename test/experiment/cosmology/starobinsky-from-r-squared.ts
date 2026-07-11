@@ -66,9 +66,8 @@ export default experiment({
     const passingN: number[] = []
 
     for (let n = 40; n <= 70; n++) {
-      if (Math.abs(starobinsky(n).ns - 0.9649) < nsTolerance) {
+      if (Math.abs(starobinsky(n).ns - 0.9649) < nsTolerance)
         passingN.push(n)
-      }
     }
 
     const nsWindowMinN = passingN[0] ?? 0
@@ -80,9 +79,7 @@ export default experiment({
     for (let n = 40; n <= 70; n++) {
       const rn = starobinsky(n).r
 
-      if (rn <= 0.001 || rn >= 0.06) {
-        rInWindowAcrossScan = false
-      }
+      if (rn <= 0.001 || rn >= 0.06) rInWindowAcrossScan = false
     }
 
     // 1. n_s at the chosen pivot matches the Planck central value.

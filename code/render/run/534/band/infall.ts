@@ -65,9 +65,7 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -75,9 +73,7 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -92,14 +88,13 @@ function run(): void {
   const uv: [number, number][] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      continue
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) continue
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     bandCells.push(i)
     uv.push([dot(w, e1), dot(w, e2)])
   }
@@ -132,9 +127,8 @@ function run(): void {
     const i = bandCells[j]!,
       r = fdistOf(j)
 
-    if (r <= massR) {
-      tone[i] = 1
-    } else if (r <= surroundR && rng.next() < SURROUND_DENSITY) {
+    if (r <= massR) tone[i] = 1
+    else if (r <= surroundR && rng.next() < SURROUND_DENSITY) {
       tone[i] = 1
       isSurround[i] = 1
     }
@@ -183,6 +177,7 @@ function run(): void {
   mkdirSync(outDir, { recursive: true })
 
   const startDist = meanSurroundDist()
+
   console.log(
     `band ${bandCells.length.toLocaleString()} cells, mass radius ${massR.toFixed(1)}, surround starts at mean distance ${startDist.toFixed(1)}`,
   )
@@ -202,9 +197,7 @@ function run(): void {
     for (let j = 0; j < bandCells.length; j++) {
       const t = tone[bandCells[j]!]!
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const col = COLORS[t === 1 ? 1 : 2]!
       const [cx, cy] = pix[j]!
@@ -214,11 +207,10 @@ function run(): void {
           const x = cx + dx,
             y = cy + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
@@ -246,6 +238,7 @@ function run(): void {
   console.log(
     `surround mean distance ${startDist.toFixed(1)} -> ${endDist.toFixed(1)}, ${verdict}`,
   )
+
   console.log(
     `wrote ${FRAMES} frames, assemble with task/render-video.sh`,
   )

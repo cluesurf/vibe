@@ -47,6 +47,7 @@ function labeledBeat(
 ): void {
   const { offsets, adj } = g
   const N = tone.length
+
   moved.fill(0)
 
   const start = Math.floor(rng.next() * N)
@@ -54,18 +55,14 @@ function labeledBeat(
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
 
-    if (moved[v]) {
-      continue
-    }
+    if (moved[v]) continue
 
     const a = tone[v]!
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (moved[w]) {
-        continue
-      }
+      if (moved[w]) continue
 
       const b = tone[w]!
 
@@ -173,9 +170,7 @@ export function activePersistence(input: {
       for (let c = 0; c < graph.cellCount; c++) {
         if (inRefuge(c)) {
           // replenished refuge charge is NOT original-disk charge, so it carries no label
-          if (tone[c] !== 1) {
-            label[c] = 0
-          }
+          if (tone[c] !== 1) label[c] = 0
 
           tone[c] = 1
         }
@@ -200,27 +195,21 @@ export function activePersistence(input: {
 
     const inRefugeNow = countLabeled(inRefuge)
 
-    if (inRefugeNow > originalInRefugeEver) {
+    if (inRefugeNow > originalInRefugeEver)
       originalInRefugeEver = inRefugeNow
-    }
 
     const remaining = countLabeled()
 
-    if (withSelf && remaining === 0 && originalExtinctionBeat === -1) {
+    if (withSelf && remaining === 0 && originalExtinctionBeat === -1)
       originalExtinctionBeat = t + 1
-    }
 
-    if ((t + 1) % 100 === 0) {
-      originalTrace.push(remaining)
-    }
+    if ((t + 1) % 100 === 0) originalTrace.push(remaining)
   }
 
   const masked = tone.slice()
 
   for (let c = 0; c < masked.length; c++) {
-    if (inRefuge(c)) {
-      masked[c] = 0
-    }
+    if (inRefuge(c)) masked[c] = 0
   }
 
   const cells = largestPositiveCluster(masked, graph)

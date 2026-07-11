@@ -48,6 +48,7 @@ export function bianchiResidual(input: {
     for (let i = 0; i < 3; i++) {
       for (let j = i; j < 3; j++) {
         const v = rng.next() * 2 - 1
+
         h[i]![j] = v
         h[j]![i] = v
       }
@@ -58,9 +59,7 @@ export function bianchiResidual(input: {
     let hn = 0
 
     for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        hn += (h[i]?.[j] ?? 0) ** 2
-      }
+      for (let j = 0; j < 3; j++) hn += (h[i]?.[j] ?? 0) ** 2
     }
 
     // k_i G_ij summed over i, for each j, then the norm of that 3-vector.
@@ -69,14 +68,14 @@ export function bianchiResidual(input: {
     for (let j = 0; j < 3; j++) {
       let d = 0
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 3; i++)
         d += (input.k[i] ?? 0) * (g[i]?.[j] ?? 0)
-      }
 
       div2 += d * d
     }
 
     const rel = hn > 0 ? Math.sqrt(div2) / Math.sqrt(hn) : 0
+
     worst = Math.max(worst, rel)
   }
 

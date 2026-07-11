@@ -49,9 +49,7 @@ function stampBody(will: Will): void {
 
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
-      if (dx === 1 && dy === 1) {
-        continue // the missing corner makes the body L-shaped
-      }
+      if (dx === 1 && dy === 1) continue // the missing corner makes the body L-shaped
 
       const x = c + dx
       const y = c + dy
@@ -60,9 +58,8 @@ function stampBody(will: Will): void {
       // slot fill depends on x, so the body is x-asymmetric by construction
       const slots = 2 + ((x + 2 * dy) % 3)
 
-      for (let d = 0; d < slots; d++) {
+      for (let d = 0; d < slots; d++)
         data[cell * mesh.degree + d] = d % 2 === 0 ? 1 : -1
-      }
     }
   }
 }
@@ -74,9 +71,7 @@ function stampResource(will: Will, atX: number): void {
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     if (cell % side === atX) {
-      for (let d = 0; d < 6; d++) {
-        data[cell * mesh.degree + d] = 1
-      }
+      for (let d = 0; d < 6; d++) data[cell * mesh.degree + d] = 1
     }
   }
 }
@@ -90,6 +85,7 @@ function driftTowardResource(resourceEast: boolean): number {
 
   const collision = pairCollision({ opposite })
   const will = makeWill(mesh)
+
   stampBody(will)
   stampResource(will, resourceEast ? SIDE - 1 : 0)
 
@@ -105,9 +101,8 @@ function driftTowardResource(resourceEast: boolean): number {
 
   const chargeAfter = charge(evolved)
 
-  if (chargeAfter !== chargeBefore) {
+  if (chargeAfter !== chargeBefore)
     throw new Error('charge not conserved, the base rule is broken')
-  }
 
   const centroidAfter = maskedWillCentroidX({
     will: evolved,

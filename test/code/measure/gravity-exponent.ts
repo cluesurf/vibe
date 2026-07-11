@@ -20,29 +20,17 @@ function cubicNeighbors(L: number): number[][] {
       for (let x = 0; x < L; x++) {
         const row: number[] = []
 
-        if (x + 1 < L) {
-          row.push(at(x + 1, y, z))
-        }
+        if (x + 1 < L) row.push(at(x + 1, y, z))
 
-        if (x - 1 >= 0) {
-          row.push(at(x - 1, y, z))
-        }
+        if (x - 1 >= 0) row.push(at(x - 1, y, z))
 
-        if (y + 1 < L) {
-          row.push(at(x, y + 1, z))
-        }
+        if (y + 1 < L) row.push(at(x, y + 1, z))
 
-        if (y - 1 >= 0) {
-          row.push(at(x, y - 1, z))
-        }
+        if (y - 1 >= 0) row.push(at(x, y - 1, z))
 
-        if (z + 1 < L) {
-          row.push(at(x, y, z + 1))
-        }
+        if (z + 1 < L) row.push(at(x, y, z + 1))
 
-        if (z - 1 >= 0) {
-          row.push(at(x, y, z - 1))
-        }
+        if (z - 1 >= 0) row.push(at(x, y, z - 1))
 
         neighbors.push(row)
       }
@@ -68,6 +56,7 @@ suite('measure/gravity-exponent: 3D Coulomb falloff', [
         alpha > 0,
         `a decaying potential must give a positive exponent, got ${alpha}`,
       )
+
       // Closer to the area-law value 1 than to 0 or 2 (Newtonian band).
       ok(
         alpha > 0.5 && alpha < 1.5,

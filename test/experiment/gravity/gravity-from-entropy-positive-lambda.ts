@@ -33,6 +33,7 @@ const THETAS = [0, 0.1, 0.3, 0.6, 1.0, Math.PI / 2]
 
 function geometryState(): ComplexMatrix {
   const m = makeComplexMatrix({ rows: 2, cols: 2 })
+
   m.re[0] = GEOMETRY_EIGENVALUES[0]!
   m.re[3] = GEOMETRY_EIGENVALUES[1]!
 
@@ -47,6 +48,7 @@ function matterState(theta: number): ComplexMatrix {
   const p = GEOMETRY_EIGENVALUES[0]!
   const q = GEOMETRY_EIGENVALUES[1]!
   const m = makeComplexMatrix({ rows: 2, cols: 2 })
+
   m.re[0] = p * c * c + q * s * s
   m.re[1] = (p - q) * c * s
   m.re[2] = (p - q) * c * s
@@ -79,17 +81,11 @@ export default experiment({
 
       worstNegative = Math.min(worstNegative, lambda)
 
-      if (theta === 0) {
-        entropyAtMatch = lambda
-      }
+      if (theta === 0) entropyAtMatch = lambda
 
-      if (Math.abs(theta - 0.1) < 1e-9) {
-        entropyAtSmallMismatch = lambda
-      }
+      if (Math.abs(theta - 0.1) < 1e-9) entropyAtSmallMismatch = lambda
 
-      if (lambda < previous - 1e-12) {
-        monotone = false
-      }
+      if (lambda < previous - 1e-12) monotone = false
 
       previous = lambda
     }
@@ -98,9 +94,7 @@ export default experiment({
     let smallestPositiveMismatch = Infinity
 
     for (const theta of THETAS) {
-      if (theta <= 0) {
-        continue
-      }
+      if (theta <= 0) continue
 
       smallestPositiveMismatch = Math.min(
         smallestPositiveMismatch,

@@ -42,9 +42,7 @@ function beat(
     const v = e[0]!
     const w = e[1]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -89,6 +87,7 @@ function bfsDistance(
   n: number,
 ): Int32Array {
   const dist = new Int32Array(n).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -120,6 +119,7 @@ function makeLump(
 ): number[] {
   const inLump = new Uint8Array(n)
   const lump: number[] = []
+
   inLump[center] = 1
 
   let frontier = [center]
@@ -128,9 +128,7 @@ function makeLump(
     const next: number[] = []
 
     for (const u of frontier) {
-      if (lump.length >= size) {
-        break
-      }
+      if (lump.length >= size) break
 
       lump.push(u)
 
@@ -175,9 +173,7 @@ export function gravityTest(input?: {
 
   for (let v = 0; v < n; v++) {
     for (const w of neighbors[v]!) {
-      if (w > v) {
-        edges.push([v, w])
-      }
+      if (w > v) edges.push([v, w])
     }
   }
 
@@ -201,23 +197,17 @@ export function gravityTest(input?: {
       }
     }
 
-    if (frontier.length === 0) {
-      return -1
-    }
+    if (frontier.length === 0) return -1
 
     const chargedB = new Set(lumpB.filter(i => tone[i] !== 0))
 
-    if (chargedB.size === 0) {
-      return -1
-    }
+    if (chargedB.size === 0) return -1
 
     while (frontier.length > 0) {
       const next: number[] = []
 
       for (const u of frontier) {
-        if (chargedB.has(u)) {
-          return distA[u]!
-        }
+        if (chargedB.has(u)) return distA[u]!
 
         for (const w of neighbors[u]!) {
           if (distA[w] === -1) {
@@ -264,13 +254,9 @@ export function gravityTest(input?: {
     const rng = makeRng({ seed: 7 })
 
     // matter, balanced charges so the lumps are neutral mass (not driven by net charge)
-    for (const i of lumpA) {
-      tone[i] = rng.next() < 0.5 ? 1 : -1
-    }
+    for (const i of lumpA) tone[i] = rng.next() < 0.5 ? 1 : -1
 
-    for (const i of lumpB) {
-      tone[i] = rng.next() < 0.5 ? 1 : -1
-    }
+    for (const i of lumpB) tone[i] = rng.next() < 0.5 ? 1 : -1
 
     const moved = new Uint8Array(n)
     const gaps: number[] = []
@@ -278,6 +264,7 @@ export function gravityTest(input?: {
     for (let t = 0; t <= beats; t++) {
       if (t % 10 === 0) {
         const s = separation(tone, lumpA, lumpB)
+
         gaps.push(s)
       }
 
@@ -289,6 +276,7 @@ export function gravityTest(input?: {
     const last = valid[valid.length - 1] ?? -1
     const approached = first > 0 && last >= 0 && last < first - 1
     const merged = last === 0
+
     trials.push({ startGap, gaps, approached, merged })
   }
 
@@ -311,6 +299,7 @@ export function gravityTest(input?: {
 
 export function main(): void {
   const r = gravityTest()
+
   console.log(
     'Gravity hole-finder: do two lumps of matter attract across a gap on the {5,3,4}?',
   )
@@ -330,6 +319,7 @@ export function main(): void {
   console.log(
     `  LONG-RANGE attraction (far lumps fall together, gravity): ${r.anyLongRangeAttraction}`,
   )
+
   console.log(
     `  only CONTACT interaction (merge when touching, ignore across a gap): ${r.onlyContactInteraction}`,
   )
@@ -339,9 +329,11 @@ export function main(): void {
     console.log(
       '  => HOLE FOUND. The bare rule has contact forces (merge on touch, P110) but NO long-range',
     )
+
     console.log(
       '     attraction. Matter does not fall together across space, so there is NO GRAVITY in the',
     )
+
     console.log(
       '     five base things as they stand. Gravity is a missing ingredient.',
     )
@@ -355,6 +347,5 @@ export function main(): void {
 if (
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+)
   main()
-}

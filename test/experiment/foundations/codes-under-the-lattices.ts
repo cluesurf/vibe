@@ -66,6 +66,7 @@ export default experiment({
 
     for (const codeword of hamming) {
       const w = vectorWeight(codeword)
+
       weightCounts[w] = (weightCounts[w] ?? 0) + 1
     }
 
@@ -94,9 +95,7 @@ export default experiment({
         (unused, i) => (m >> i) & 1,
       )
 
-      if (vectorWeight(vector) % 2 === 1) {
-        odd.push(vector)
-      }
+      if (vectorWeight(vector) % 2 === 1) odd.push(vector)
     }
 
     const oddNotClosed = !closedUnderAddition(odd, 4)

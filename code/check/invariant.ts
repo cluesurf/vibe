@@ -26,15 +26,12 @@ export function totalMomentum(
     for (let direction = 0; direction < degree; direction++) {
       const value = data[base + direction] ?? 0
 
-      if (value === 0) {
-        continue
-      }
+      if (value === 0) continue
 
       const vector = directions[direction]!
 
-      for (let axis = 0; axis < dimension; axis++) {
+      for (let axis = 0; axis < dimension; axis++)
         momentum[axis]! += value * (vector[axis] ?? 0)
-      }
     }
   }
 
@@ -52,9 +49,8 @@ export function conservesMomentum(
 
   let current = cloneWill(will)
 
-  for (let step = 0; step < beats; step++) {
+  for (let step = 0; step < beats; step++)
     current = beat(current, collision)
-  }
 
   const after = totalMomentum(current, directions)
 
@@ -71,9 +67,8 @@ export function conservesCharge(
 
   let current = cloneWill(will)
 
-  for (let step = 0; step < beats; step++) {
+  for (let step = 0; step < beats; step++)
     current = beat(current, collision)
-  }
 
   return charge(current) === before
 }
@@ -92,24 +87,18 @@ export function isReversible(
 
   let forward = cloneWill(will)
 
-  for (let step = 0; step < beats; step++) {
+  for (let step = 0; step < beats; step++)
     forward = beat(forward, collision)
-  }
 
   let back = forward
 
-  for (let step = 0; step < beats; step++) {
+  for (let step = 0; step < beats; step++)
     back = inverseBeat(back, inverseCollision)
-  }
 
-  if (back.data.length !== start.data.length) {
-    return false
-  }
+  if (back.data.length !== start.data.length) return false
 
   for (let index = 0; index < back.data.length; index++) {
-    if (back.data[index] !== start.data[index]) {
-      return false
-    }
+    if (back.data[index] !== start.data[index]) return false
   }
 
   return true

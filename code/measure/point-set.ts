@@ -18,9 +18,8 @@ export function centroidOfCellSet(cells: Set<string>): number[] {
   for (const key of cells) {
     const point = parseKey(key)
 
-    for (let d = 0; d < point.length; d++) {
+    for (let d = 0; d < point.length; d++)
       sums[d] = (sums[d] ?? 0) + point[d]!
-    }
   }
 
   const size = Math.max(1, cells.size)
@@ -36,6 +35,7 @@ export function recenterCellSet(cells: Set<string>): Set<string> {
 
   for (const key of cells) {
     const point = parseKey(key)
+
     out.add(point.map((v, d) => v - (centroid[d] ?? 0)).join(','))
   }
 
@@ -68,9 +68,8 @@ export function radiusOfGyrationOfCellSet(cells: Set<string>): number {
 
     let d2 = 0
 
-    for (let d = 0; d < point.length; d++) {
+    for (let d = 0; d < point.length; d++)
       d2 += (point[d]! - (centroid[d] ?? 0)) ** 2
-    }
 
     sum += d2
   }

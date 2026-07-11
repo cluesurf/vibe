@@ -22,6 +22,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
     nxt = new Int8Array(L * L * L)
 
   const c = L >> 1
+
   cur[at(c, c, c)] = 1
 
   const D = [
@@ -62,9 +63,8 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
         for (let x = 0; x < L; x++) {
           let s = 0
 
-          for (const d of D) {
+          for (const d of D)
             s += cur[at(x + d[0]!, y + d[1]!, z + d[2]!)]!
-          }
 
           nxt[at(x, y, z)] = (((s - prev[at(x, y, z)]!) % 3) + 3) % 3
         }
@@ -72,6 +72,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
     }
 
     const t = prev
+
     prev = cur
     cur = nxt
     nxt = t
@@ -97,13 +98,10 @@ export function ports(): {
   const rnd = (): number => rng.next()
   const t = new Int8Array(L * L * L)
 
-  for (let k = 0; k < 200; k++) {
+  for (let k = 0; k < 200; k++)
     t[Math.floor(rnd() * L * L * L)] = rnd() < 0.5 ? 1 : -1
-  }
 
-  for (let b = 0; b < 40; b++) {
-    beat(t, true)
-  }
+  for (let b = 0; b < 40; b++) beat(t, true)
 
   let ch = 0
 
@@ -145,9 +143,7 @@ export function ports(): {
 
   const start = count()
 
-  for (let b = 0; b < 40; b++) {
-    beat(t2, false)
-  }
+  for (let b = 0; b < 40; b++) beat(t2, false)
 
   const end = count()
   const annihilates = end[0] < start[0]

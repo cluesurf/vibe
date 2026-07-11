@@ -50,6 +50,7 @@ export function encodeGif(input: {
 
   frames.forEach((frame, i) => {
     const index = applyPalette(frame, palette)
+
     gif.writeFrame(index, width, height, {
       palette,
       delay: delayMs,

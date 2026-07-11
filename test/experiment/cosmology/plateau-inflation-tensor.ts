@@ -58,9 +58,7 @@ function findEnd(pot: Potential, guess: number): number {
     const p = pot(phi)
     const eps = 0.5 * (p.Vp / p.V) ** 2
 
-    if (eps >= 1) {
-      return phi
-    }
+    if (eps >= 1) return phi
 
     phi -= 1e-4
   }
@@ -81,6 +79,7 @@ function observables(
 
   while (efolds < targetN && phi < 200) {
     const p = pot(phi)
+
     efolds += Math.abs((p.V / p.Vp) * dphi)
     phi += dphi
   }

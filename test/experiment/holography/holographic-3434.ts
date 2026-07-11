@@ -17,9 +17,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function flatShells(maxShell: number): number[] {
   const s = [1]
 
-  for (let n = 1; n <= maxShell; n++) {
-    s.push(4 * n * n + 2)
-  }
+  for (let n = 1; n <= maxShell; n++) s.push(4 * n * n + 2)
 
   return s
 }

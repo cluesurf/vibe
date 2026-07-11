@@ -25,9 +25,7 @@ function corrupt(
   const out = Int8Array.from(state)
   const n = state.length
 
-  for (let s = 0; s < k; s++) {
-    out[(offset + s) % n] = 0
-  }
+  for (let s = 0; s < k; s++) out[(offset + s) % n] = 0
 
   return out
 }
@@ -62,6 +60,7 @@ export function identityThroughTurnover(input: {
   for (let r = 0; r < input.rounds; r++) {
     // corrupt a moving block, then repair using ONLY the self's own field (no external drive)
     const corrupted = corrupt(state, (r * k) % n, k)
+
     state = settle({
       patterns: self,
       coupling: input.coupling,

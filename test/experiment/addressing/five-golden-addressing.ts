@@ -51,6 +51,7 @@ export default experiment({
       for (let i = 2; i <= n; i++) {
         const nextZero = endZero + endOne
         const nextOne = endZero
+
         endZero = nextZero
         endOne = nextOne
       }
@@ -65,9 +66,8 @@ export default experiment({
       if (
         counts(DEPTHS[i]!) !==
         counts(DEPTHS[i]! - 1) + counts(DEPTHS[i]! - 2)
-      ) {
+      )
         recurrenceHolds = false
-      }
     }
 
     // the successive ratio converges to the golden ratio

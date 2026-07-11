@@ -50,6 +50,7 @@ export function quasiperiodicWalkSpread(input: {
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) * (x - x0)) / (2 * sigma * sigma))
+
     R[x] = [g, 0]
     Lf[x] = [g, 0]
     seedNorm += cabs2(R[x]!) + cabs2(Lf[x]!)
@@ -68,6 +69,7 @@ export function quasiperiodicWalkSpread(input: {
 
   for (let x = 0; x < L; x++) {
     const m = mass + lambda * Math.cos(2 * Math.PI * GOLDEN * (x - x0))
+
     cosM[x] = Math.cos(m)
     sinM[x] = Math.sin(m)
   }
@@ -79,10 +81,12 @@ export function quasiperiodicWalkSpread(input: {
     for (let x = 0; x < L; x++) {
       const c = cosM[x]!
       const s = sinM[x]!
+
       R2[x] = cadd(
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(IMAG, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(IMAG, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -108,6 +112,7 @@ export function quasiperiodicWalkSpread(input: {
   for (let x = 0; x < L; x++) {
     const dx = ((x - x0 + L + L / 2) % L) - L / 2
     const w = cabs2(R[x]!) + cabs2(Lf[x]!)
+
     mean += dx * w
     wsum += w
   }
@@ -119,6 +124,7 @@ export function quasiperiodicWalkSpread(input: {
   for (let x = 0; x < L; x++) {
     const dx = ((x - x0 + L + L / 2) % L) - L / 2
     const w = cabs2(R[x]!) + cabs2(Lf[x]!)
+
     variance += (dx - mean) * (dx - mean) * w
   }
 

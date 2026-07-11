@@ -49,9 +49,8 @@ export function patternClassCount(
 ): number {
   let max = 0
 
-  for (let c = 0; c < grid.size; c++) {
+  for (let c = 0; c < grid.size; c++)
     max = Math.max(max, patternClass(grid, c, scheme))
-  }
 
   return max + 1
 }

@@ -22,6 +22,7 @@ function shuffle(labels: number[], seed: number): number[] {
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = out[i]!
+
     out[i] = out[j]!
     out[j] = tmp
   }
@@ -66,6 +67,7 @@ export default experiment({
       const labels = quantileLabels({ series: traj.centroids, bins })
       const real = lambda2(labels, bins, lag)
       const shuffled = lambda2(shuffle(labels, 7 * L + 1), bins, lag)
+
       metrics[`real_L${L}`] = real
       metrics[`shuffled_L${L}`] = shuffled
       worstMargin = Math.min(worstMargin, real - shuffled)

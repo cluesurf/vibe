@@ -15,15 +15,15 @@ import {
 suite('dynamics/phase-field: uniform fixed point', [
   check('gradientStructure of a uniform field is 0', () => {
     const uniform = new Array<number>(20).fill(0.7)
+
     close(gradientStructure(uniform), 0, 1e-12, 'no gradient')
   }),
   check('a uniform field is unchanged by the relaxation', () => {
     const uniform = new Array<number>(20).fill(0.7)
     const next = phaseRelaxStep(uniform, 0.2)
 
-    for (let i = 0; i < next.length; i++) {
+    for (let i = 0; i < next.length; i++)
       close(next[i]!, 0.7, 1e-12, `cell ${i}`)
-    }
   }),
 ])
 
@@ -40,9 +40,7 @@ suite('dynamics/phase-field: healing', [
 
       const s0 = gradientStructure(field)
 
-      for (let t = 0; t < 200; t++) {
-        field = phaseRelaxStep(field, 0.1)
-      }
+      for (let t = 0; t < 200; t++) field = phaseRelaxStep(field, 0.1)
 
       ok(gradientStructure(field) < s0, 'gradient structure decreased')
     },
@@ -60,9 +58,7 @@ suite('dynamics/phase-field: determinism', [
     const run = (): number[] => {
       let f = seed.slice()
 
-      for (let t = 0; t < 50; t++) {
-        f = phaseRelaxStep(f, 0.1)
-      }
+      for (let t = 0; t < 50; t++) f = phaseRelaxStep(f, 0.1)
 
       return f
     }
@@ -70,8 +66,6 @@ suite('dynamics/phase-field: determinism', [
     const a = run()
     const b = run()
 
-    for (let i = 0; i < a.length; i++) {
-      equal(a[i]!, b[i]!, `cell ${i}`)
-    }
+    for (let i = 0; i < a.length; i++) equal(a[i]!, b[i]!, `cell ${i}`)
   }),
 ])

@@ -13,9 +13,7 @@ function distributionFromEven(even: number[]): Float64Array {
   for (let i = 0; i < even.length; i++) {
     p[2 * i] = even[i]!
 
-    if (2 * i + 1 < p.length) {
-      p[2 * i + 1] = 99
-    }
+    if (2 * i + 1 < p.length) p[2 * i + 1] = 99
   }
 
   return p

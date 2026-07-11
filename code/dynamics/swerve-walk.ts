@@ -32,28 +32,20 @@ export function swerveWalk(input: {
     for (const q of pts) {
       const dt = q.t - cur.t
 
-      if (dt <= 0) {
-        continue
-      }
+      if (dt <= 0) continue
 
       const dx = q.x - cur.x
       const interval2 = dt * dt - dx * dx
 
-      if (interval2 <= 0) {
-        continue // not timelike-future
-      }
+      if (interval2 <= 0) continue // not timelike-future
 
       const properTime = Math.sqrt(interval2)
 
-      if (properTime < input.tauLo || properTime > input.tauHi) {
-        continue
-      }
+      if (properTime < input.tauLo || properTime > input.tauHi) continue
 
       const v = dx / dt
 
-      if (Math.abs(v) >= 0.999) {
-        continue
-      }
+      if (Math.abs(v) >= 0.999) continue
 
       const rapidity = Math.atanh(v)
       const delta = Math.abs(rapidity - xi)
@@ -66,9 +58,7 @@ export function swerveWalk(input: {
       }
     }
 
-    if (best === null) {
-      break
-    }
+    if (best === null) break
 
     cur = best
     xi = bestRapidity

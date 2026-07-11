@@ -44,9 +44,7 @@ export type Scene = {
 export function ballNorm(v: Vec): number {
   let s = 0
 
-  for (const x of v) {
-    s += x * x
-  }
+  for (const x of v) s += x * x
 
   return Math.sqrt(s)
 }

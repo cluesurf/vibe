@@ -31,11 +31,13 @@ suite('measure/unruh: temperature from detailed balance', [
   check('the recovered temperature does not depend on kappa', () => {
     const T0 = 0.2
     const r = (E: number) => Math.exp(-E / (2 * T0))
+
     close(
       temperatureFromDetailedBalance({ kappa: 0.5, response: r }),
       T0,
       TOL,
     )
+
     close(
       temperatureFromDetailedBalance({ kappa: 3, response: r }),
       T0,
@@ -46,6 +48,7 @@ suite('measure/unruh: temperature from detailed balance', [
   check('custom energy factors give the same temperature', () => {
     const T0 = 0.9
     const r = (E: number) => Math.exp(-E / (2 * T0))
+
     close(
       temperatureFromDetailedBalance({
         kappa: 1,

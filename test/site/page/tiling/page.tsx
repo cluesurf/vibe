@@ -3,9 +3,9 @@ import { Viewer } from '../../component/viewer'
 export default function TilingPage(): React.ReactElement {
   return (
     <Viewer
-      title="2D tilings"
-      mode="2d"
-      hint="A regular {p,q} tiling of the hyperbolic plane, folded per-pixel on the GPU. Walk it like HyperRogue."
+      title='2D tilings'
+      mode='2d'
+      hint='A regular {p,q} tiling of the hyperbolic plane, folded per-pixel on the GPU. Walk it like HyperRogue.'
       symbols={[
         { label: '{7,3} heptagonal', value: [7, 3] },
         { label: '{5,4} pentagonal', value: [5, 4] },

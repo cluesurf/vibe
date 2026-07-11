@@ -45,9 +45,8 @@ export default experiment({
     const directions = rootsD4()
     const opposite: number[] = []
 
-    for (let d = 0; d < mesh.degree; d++) {
+    for (let d = 0; d < mesh.degree; d++)
       opposite.push(mesh.opposite(d))
-    }
 
     const viscous = viscousRotate({ directions })
     const committed = headOnRotate({ opposite })
@@ -96,6 +95,7 @@ export default experiment({
 
     for (const wavelength of wavelengths) {
       const tau = decayTime(viscous, wavelength)
+
       taus.push(tau)
 
       if (!Number.isNaN(tau)) {
@@ -128,9 +128,8 @@ export default experiment({
     // the richer collision is a valid base-class rule
     const probe = makeWill(mesh)
 
-    for (let i = 0; i < probe.data.length; i++) {
+    for (let i = 0; i < probe.data.length; i++)
       probe.data[i] = i % 2 === 0 ? 1 : 0
-    }
 
     const validRule =
       conservesCharge(probe, viscous, 20) &&

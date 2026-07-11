@@ -61,6 +61,7 @@ export function waveIsotropy(input?: {
 
   let prev = new Uint8Array(N)
   let cur = new Uint8Array(N)
+
   cur[0] = 1 // the perturbation
 
   const prev0 = prev.slice()
@@ -68,6 +69,7 @@ export function waveIsotropy(input?: {
 
   for (let t = 0; t < beats; t++) {
     const next = new Uint8Array(N)
+
     stepWave(prev, cur, next)
     prev = cur
     cur = next
@@ -79,6 +81,7 @@ export function waveIsotropy(input?: {
 
   for (let t = 0; t < beats; t++) {
     const back = new Uint8Array(N)
+
     stepWave(cu, pr, back)
     cu = pr
     pr = back

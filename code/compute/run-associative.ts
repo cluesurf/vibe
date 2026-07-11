@@ -100,6 +100,7 @@ async function gpuResponders(input: {
   const t0 = performance.now()
   const enc = device.createCommandEncoder()
   const pass = enc.beginComputePass()
+
   pass.setPipeline(pipeline)
   pass.setBindGroup(0, bind)
   pass.dispatchWorkgroups(Math.ceil(cellCount / WORKGROUP))
@@ -109,6 +110,7 @@ async function gpuResponders(input: {
   await readback.mapAsync(GPUMapMode.READ)
 
   const out = new Uint32Array(readback.getMappedRange().slice(0))
+
   readback.unmap()
 
   const ms = performance.now() - t0
@@ -149,9 +151,8 @@ async function run(): Promise<void> {
     wordBits: WORD_BITS,
   })
 
-  for (let c = 0; c < n; c++) {
+  for (let c = 0; c < n; c++)
     storeWord(mem, c, ternaryWord(c, WORD_BITS))
-  }
 
   const wordsU = Uint32Array.from(mem.words)
   const maskU = new Uint32Array(WORD_BITS).fill(1)
@@ -175,9 +176,7 @@ async function run(): Promise<void> {
   const gpuExactCells: number[] = []
 
   for (let c = 0; c < n; c++) {
-    if (gpuExact.responders[c] === 1) {
-      gpuExactCells.push(c)
-    }
+    if (gpuExact.responders[c] === 1) gpuExactCells.push(c)
   }
 
   const exactMatch =
@@ -201,9 +200,7 @@ async function run(): Promise<void> {
   const gpuPartialCells: number[] = []
 
   for (let c = 0; c < n; c++) {
-    if (gpuPartial.responders[c] === 1) {
-      gpuPartialCells.push(c)
-    }
+    if (gpuPartial.responders[c] === 1) gpuPartialCells.push(c)
   }
 
   const partialMatch =
@@ -214,6 +211,7 @@ async function run(): Promise<void> {
   console.log(
     `exact match, cpu ${cpuExact.length} responder(s), gpu ${gpuExactCells.length}, agree ${exactMatch}`,
   )
+
   console.log(
     `partial match (minScore ${minScore}), cpu ${cpuPartial.length}, gpu ${gpuPartialCells.length}, agree ${partialMatch}`,
   )
@@ -230,9 +228,8 @@ async function run(): Promise<void> {
     wordBits: WORD_BITS,
   })
 
-  for (let c = 0; c < nb; c++) {
+  for (let c = 0; c < nb; c++)
     storeWord(memb, c, ternaryWord(c, WORD_BITS))
-  }
 
   const wordsUb = Uint32Array.from(memb.words)
   const comparandUb = Uint32Array.from(
@@ -267,4 +264,5 @@ async function run(): Promise<void> {
 }
 
 const main = run
+
 void main()

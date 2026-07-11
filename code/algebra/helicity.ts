@@ -32,9 +32,8 @@ export function conjugateTensor(r: Matrix3, e: Matrix3): Matrix3 {
       let sum = 0
 
       for (let a = 0; a < 3; a++) {
-        for (let b = 0; b < 3; b++) {
+        for (let b = 0; b < 3; b++)
           sum += r[i]![a]! * e[a]![b]! * r[j]![b]!
-        }
       }
 
       out[i]![j] = sum
@@ -49,9 +48,7 @@ export function tensorInner(a: Matrix3, b: Matrix3): number {
   let sum = 0
 
   for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      sum += a[i]![j]! * b[i]![j]!
-    }
+    for (let j = 0; j < 3; j++) sum += a[i]![j]! * b[i]![j]!
   }
 
   return sum

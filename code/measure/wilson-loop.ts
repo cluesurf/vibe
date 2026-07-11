@@ -18,15 +18,14 @@ export function wilsonLoopPhase(input: {
   const loop = input.loop
   const length = loop.length
 
-  if (length < 2) {
-    return 0
-  }
+  if (length < 2) return 0
 
   let phase = 0
 
   for (let i = 0; i < length; i++) {
     const from = loop[i] ?? 0
     const to = loop[(i + 1) % length] ?? 0
+
     phase += linkPhase(input.field, { from, to })
   }
 
@@ -71,15 +70,12 @@ export function staticPotentialProxy(input: {
 }): number {
   const loops = input.plaquettes.loops
 
-  if (loops.length === 0) {
-    return 0
-  }
+  if (loops.length === 0) return 0
 
   let total = 0
 
-  for (const loop of loops) {
+  for (const loop of loops)
     total += 1 - wilsonLoopValue({ field: input.field, loop })
-  }
 
   return total / loops.length
 }

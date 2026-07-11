@@ -33,11 +33,8 @@ function turningPoint(
       for (let k = 0; k < 60; k++) {
         const mid = (lo + hi) / 2
 
-        if (f(mid) > 0) {
-          lo = mid
-        } else {
-          hi = mid
-        }
+        if (f(mid) > 0) lo = mid
+        else hi = mid
       }
 
       return (lo + hi) / 2
@@ -61,9 +58,7 @@ export function schwarzschildPhotonDeflection(input: {
   const rs = input.schwarzschildRadius
   const uMax = turningPoint(b, rs)
 
-  if (uMax === null) {
-    return null
-  }
+  if (uMax === null) return null
 
   const f = (u: number): number => 1 / (b * b) - u * u + rs * u * u * u
   const w = Math.sqrt(uMax)
@@ -76,9 +71,7 @@ export function schwarzschildPhotonDeflection(input: {
     const u = uMax - wi * wi
     const value = f(u)
 
-    if (value <= 0) {
-      continue
-    }
+    if (value <= 0) continue
 
     integral += ((2 * wi) / Math.sqrt(value)) * (w / samples)
   }
@@ -112,11 +105,9 @@ export function measuredShadowRadius(input: {
         impactParameter: mid,
         schwarzschildRadius: rs,
       }) === null
-    ) {
+    )
       captured = mid
-    } else {
-      escapes = mid
-    }
+    else escapes = mid
   }
 
   return (captured + escapes) / 2

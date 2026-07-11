@@ -36,9 +36,7 @@ export default experiment({
     let center = 0
 
     for (let i = 1; i < n; i++) {
-      if (neighbors[i]!.length > neighbors[center]!.length) {
-        center = i
-      }
+      if (neighbors[i]!.length > neighbors[center]!.length) center = i
     }
 
     const dist = neighborDistances({
@@ -50,9 +48,7 @@ export default experiment({
     let maxD = 0
 
     for (let i = 0; i < n; i++) {
-      if (dist[i]! > maxD) {
-        maxD = dist[i]!
-      }
+      if (dist[i]! > maxD) maxD = dist[i]!
     }
 
     const q = 251 // a prime modulus
@@ -61,6 +57,7 @@ export default experiment({
     const seed = (): { prev: Uint8Array; cur: Uint8Array } => {
       const prev = new Uint8Array(n)
       const cur = new Uint8Array(n)
+
       cur[center] = 1
 
       return { prev, cur }
@@ -96,9 +93,7 @@ export default experiment({
       let front = 0
 
       for (let i = 0; i < n; i++) {
-        if (cur[i] !== 0 && dist[i]! > front) {
-          front = dist[i]!
-        }
+        if (cur[i] !== 0 && dist[i]! > front) front = dist[i]!
       }
 
       return front / probe // disturbed-front distance per beat
@@ -175,9 +170,7 @@ export default experiment({
         for (let i = 0; i < n; i++) {
           let s = 0
 
-          for (const j of neighbors[i]!) {
-            s += a[j]!
-          }
+          for (const j of neighbors[i]!) s += a[j]!
 
           b[i] = ((s % q) + q) % q
         }

@@ -50,11 +50,10 @@ export default experiment({
 
       for (let i = 0; i < n; i++) {
         const a = cur[i] !== 0 ? 1 : 0
+
         totalAct += a
 
-        if (inBand(i)) {
-          bandAct += a
-        }
+        if (inBand(i)) bandAct += a
       }
 
       return totalAct > 0 ? bandAct / totalAct / bandShare : 1
@@ -69,9 +68,7 @@ export default experiment({
       for (let i = 0; i < n; i++) {
         let s = 0
 
-        for (let p = off[i]!; p < off[i + 1]!; p++) {
-          s += cur[adj[p]!]!
-        }
+        for (let p = off[i]!; p < off[i + 1]!; p++) s += cur[adj[p]!]!
 
         next[i] = (s + 27 - prev[i]!) % 3
       }

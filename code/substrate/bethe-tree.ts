@@ -18,6 +18,7 @@ export function betheTree(q: number, depth: number): Uint32Array[] {
 
       for (let c = 0; c < children; c++) {
         const id = adj.length
+
         adj.push([parent])
         adj[parent]!.push(id)
         next.push(id)

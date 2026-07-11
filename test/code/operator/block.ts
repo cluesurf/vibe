@@ -17,6 +17,7 @@ suite('operator/block: addComplexBlock', [
     () => {
       // two sites -> a 4x4 matrix.
       const m = makeComplexMatrix({ rows: 4, cols: 4 })
+
       addComplexBlock({
         matrix: m,
         rowSite: 0,
@@ -70,12 +71,14 @@ suite('operator/block: addComplexBlock', [
           const wantIm = pr * bi + pi * br
           const row = 1 * 2 + s
           const col = 0 + t
+
           close(
             m.re[row * 4 + col] ?? 0,
             wantRe,
             1e-12,
             `re at (${row},${col})`,
           )
+
           close(
             m.im[row * 4 + col] ?? 0,
             wantIm,
@@ -97,6 +100,7 @@ suite('operator/block: addComplexBlock', [
               0,
               `re untouched at (${row},${col})`,
             )
+
             equal(
               m.im[row * 4 + col] ?? 0,
               0,
@@ -133,6 +137,7 @@ suite('operator/block: addComplexBlock', [
           1e-12,
           `re[${k}] doubled`,
         )
+
         close(
           twice.im[k] ?? 0,
           2 * (once.im[k] ?? 0),
@@ -146,6 +151,7 @@ suite('operator/block: addComplexBlock', [
     'blocks land at the correct offsets in a 4-site (8x8) matrix',
     () => {
       const m = makeComplexMatrix({ rows: 8, cols: 8 })
+
       // place the identity at (rowSite=2, colSite=3): rows {4,5}, cols {6,7}.
       addComplexBlock({
         matrix: m,

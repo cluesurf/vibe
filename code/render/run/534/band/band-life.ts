@@ -49,6 +49,7 @@ function run(): void {
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
+
   console.log(
     `horosphere slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}, running the cohesive rule`,
   )
@@ -69,9 +70,7 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -79,9 +78,7 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -96,14 +93,13 @@ function run(): void {
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      continue
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) continue
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -136,6 +132,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
@@ -170,9 +167,7 @@ function run(): void {
     for (const c of band) {
       const t = tone[c.index]!
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const col = COLORS[t === 1 ? 1 : 2]!
 
@@ -181,11 +176,10 @@ function run(): void {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
@@ -199,18 +193,18 @@ function run(): void {
     if (f % 40 === 0 || f === FRAMES - 1) {
       const largest = largestPositiveCluster(tone, g).length
 
-      if (f === 0) {
-        firstSelf = largest
-      }
+      if (f === 0) firstSelf = largest
 
       console.log(`  beat ${f}, largest self ${largest} cells`)
     }
   }
 
   const finalSelf = largestPositiveCluster(tone, g).length
+
   console.log(
     `emergence test, largest self grew from ${firstSelf} to ${finalSelf} cells, ${finalSelf > firstSelf * 3 ? 'SELVES EMERGED' : 'weak'}`,
   )
+
   console.log(
     `wrote ${FRAMES} frames, assemble with task/render-video.sh`,
   )

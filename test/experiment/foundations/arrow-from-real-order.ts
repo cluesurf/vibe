@@ -38,6 +38,7 @@ function realImaginaryAxes(level: number): {
 
   for (let i = 0; i < dimension; i++) {
     const e = new Array<number>(dimension).fill(0)
+
     e[i] = 1
 
     const square = cayleyMultiply(e, e)[0]!

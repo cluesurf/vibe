@@ -14,9 +14,7 @@ export function directionsAreCrystallographic(
     for (const b of directions) {
       const r = (2 * dot(a, b)) / dot(b, b)
 
-      if (Math.abs(r - Math.round(r)) > tolerance) {
-        return false
-      }
+      if (Math.abs(r - Math.round(r)) > tolerance) return false
     }
   }
 

@@ -18,9 +18,8 @@ import { verdict } from '@/test/scaffold/verdict'
 function gradientWord(index: number, wordBits: number): Int8Array {
   const word = new Int8Array(wordBits)
 
-  for (let k = 0; k < wordBits; k++) {
+  for (let k = 0; k < wordBits; k++)
     word[k] = Math.floor(index / Math.pow(2, k % 7)) % 3
-  }
 
   return word
 }
@@ -45,9 +44,8 @@ export function associativeChaining(input?: {
     wordBits,
   })
 
-  for (let c = 0; c < g.cellCount; c++) {
+  for (let c = 0; c < g.cellCount; c++)
     storeWord(mem, c, gradientWord(c, wordBits))
-  }
 
   // start the chain at a deterministic cue, the recalled word becomes the next comparand, and we forbid
   // revisiting so a related-but-new memory is picked each step
@@ -63,9 +61,7 @@ export function associativeChaining(input?: {
     let bestScore = -1
 
     for (let c = 0; c < g.cellCount; c++) {
-      if (visited.has(c)) {
-        continue
-      }
+      if (visited.has(c)) continue
 
       const sc = matchScore(mem, c, comparand)
 
@@ -75,9 +71,7 @@ export function associativeChaining(input?: {
       }
     }
 
-    if (bestCell < 0) {
-      break
-    }
+    if (bestCell < 0) break
 
     visited.add(bestCell)
     chain.push(bestCell)

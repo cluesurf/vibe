@@ -36,11 +36,13 @@ function cycleNeighbors(n: number): number[][] {
 suite('measure/shells: bfsShells', [
   check('a path from one end has depths 0..n-1 and unit shells', () => {
     const out = bfsShells({ neighbors: pathNeighbors(6), root: 0 })
+
     exactArray(out.depth, [0, 1, 2, 3, 4, 5])
     exactArray(out.shellCounts, [1, 1, 1, 1, 1, 1])
   }),
   check('a 6-cycle from a node has shells 1,2,2,1', () => {
     const out = bfsShells({ neighbors: cycleNeighbors(6), root: 0 })
+
     // depth: 0->0, 1->1, 5->1, 2->2, 4->2, 3->3.
     exactArray(out.depth, [0, 1, 2, 3, 2, 1])
     exactArray(out.shellCounts, [1, 2, 2, 1])

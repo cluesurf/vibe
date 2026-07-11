@@ -66,11 +66,13 @@ suite('algebra/helicity: the polarization tensors', [
         2,
         '|plus|^2 = 2',
       )
+
       equal(
         tensorInner(CROSS_POLARIZATION, CROSS_POLARIZATION),
         2,
         '|cross|^2 = 2',
       )
+
       equal(
         tensorInner(PLUS_POLARIZATION, CROSS_POLARIZATION),
         0,
@@ -97,9 +99,8 @@ suite('algebra/helicity: the polarization tensors', [
 
 suite('algebra/helicity: spin-2 overlaps', [
   check('plusSelfOverlap(theta) = cos(2 theta), period 180 deg', () => {
-    for (const t of [0, 0.4, Math.PI / 6, 1.2, 2.7]) {
+    for (const t of [0, 0.4, Math.PI / 6, 1.2, 2.7])
       close(plusSelfOverlap(t), Math.cos(2 * t), 1e-12, 'self overlap')
-    }
 
     close(plusSelfOverlap(0), 1, 1e-12, 'theta=0 -> 1')
     close(plusSelfOverlap(Math.PI / 4), 0, 1e-12, '45 deg -> 0')
@@ -136,6 +137,7 @@ suite('algebra/helicity: spin-2 overlaps', [
     for (const t of [0.2, 0.9, 1.7, 2.4]) {
       const c = plusSelfOverlap(t)
       const s = plusToCrossOverlap(t)
+
       close(c * c + s * s, 1, 1e-12, 'unit circle')
     }
   }),

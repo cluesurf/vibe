@@ -70,9 +70,8 @@ export function eternalLadder(input: {
   let growsMonotonically = true
 
   for (let i = 1; i < epochs.length; i++) {
-    if ((epochs[i]?.cells ?? 0) <= (epochs[i - 1]?.cells ?? 0)) {
+    if ((epochs[i]?.cells ?? 0) <= (epochs[i - 1]?.cells ?? 0))
       growsMonotonically = false
-    }
   }
 
   return {

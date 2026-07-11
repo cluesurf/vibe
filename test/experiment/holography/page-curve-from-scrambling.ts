@@ -87,15 +87,11 @@ export default experiment({
     let risesThenFalls = true
 
     for (let i = 1; i <= half; i++) {
-      if (gapless[i]! < gapless[i - 1]! - 1e-9) {
-        risesThenFalls = false
-      }
+      if (gapless[i]! < gapless[i - 1]! - 1e-9) risesThenFalls = false
     }
 
     for (let i = half + 1; i < gapless.length; i++) {
-      if (gapless[i]! > gapless[i - 1]! + 1e-9) {
-        risesThenFalls = false
-      }
+      if (gapless[i]! > gapless[i - 1]! + 1e-9) risesThenFalls = false
     }
 
     // CONTROL: the gapped walk saturates (area law), the interior is nearly flat, no tent

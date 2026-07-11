@@ -27,6 +27,7 @@ export function gaugeFromCoinTone(): {
   const vectors8 = [0, 1, 2, 3].flatMap(i =>
     [1, -1].map(s => {
       const v = [0, 0, 0, 0, 0]
+
       v[i] = s
 
       return v

@@ -20,11 +20,13 @@ suite('tone/pack: pack / unpack round-trip', [
       for (const previous of CODES) {
         for (const current of CODES) {
           const packed = pack({ current, previous })
+
           equal(
             currentOf(packed),
             current,
             `current of (${previous},${current})`,
           )
+
           equal(
             previousOf(packed),
             previous,
@@ -52,9 +54,7 @@ suite('tone/pack: pack / unpack round-trip', [
     const seen = new Set<number>()
 
     for (const previous of CODES) {
-      for (const current of CODES) {
-        seen.add(pack({ current, previous }))
-      }
+      for (const current of CODES) seen.add(pack({ current, previous }))
     }
 
     equal(seen.size, 9, 'nine distinct codes')

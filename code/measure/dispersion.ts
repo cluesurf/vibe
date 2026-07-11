@@ -48,6 +48,7 @@ export function dispersionAxisDiagonalAnisotropy(input: {
 }): number {
   const { directions, dimension, magnitude } = input
   const axis = new Array<number>(dimension).fill(0)
+
   axis[0] = magnitude
 
   const diagonal = new Array<number>(dimension).fill(
@@ -94,11 +95,12 @@ export function waveModeFrequency(input: {
 
   for (let t = 0; t < maxBeats && zeros.length < 2; t++) {
     const next = factor * current - previous // q(t+1)
+
     maxAbs = Math.max(maxAbs, Math.abs(next))
 
-    if (current >= 0 !== next >= 0) {
+    if (current >= 0 !== next >= 0)
       zeros.push(t + current / (current - next))
-    } // interpolated zero in (t, t+1)
+    // interpolated zero in (t, t+1)
 
     previous = current
     current = next

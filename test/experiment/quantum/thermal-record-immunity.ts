@@ -46,9 +46,8 @@ function heat(base: ReturnType<typeof makeWill>, temperature: number) {
   const rng = makeRng({ seed: SEED })
 
   for (let i = 0; i < hot.data.length; i++) {
-    if (rng.next() < temperature) {
+    if (rng.next() < temperature)
       hot.data[i] = hot.data[i] === 0 ? 1 : 0
-    }
   }
 
   return hot
@@ -61,9 +60,7 @@ function windowMean(
 ): number {
   let sum = 0
 
-  for (let t = lo; t < hi; t++) {
-    sum += trajectory[t] ?? 0
-  }
+  for (let t = lo; t < hi; t++) sum += trajectory[t] ?? 0
 
   return sum / Math.max(1, hi - lo)
 }
@@ -90,6 +87,7 @@ export default experiment({
 
     const table = streamSourceTable(mesh)
     const base = makeWill(mesh)
+
     fillWillPattern(base) // a deterministic body, never random
 
     let minRecord = Infinity

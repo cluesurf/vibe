@@ -49,9 +49,8 @@ export default experiment({
       const active = new Uint8Array(mesh.cellCount)
 
       for (let cell = 0; cell < mesh.cellCount; cell++) {
-        if (distance[cell]! >= 0 && distance[cell]! <= seedRadius) {
+        if (distance[cell]! >= 0 && distance[cell]! <= seedRadius)
           active[cell] = 1
-        }
       }
 
       let changed = true
@@ -62,9 +61,7 @@ export default experiment({
         iterations++
 
         for (let cell = 0; cell < mesh.cellCount; cell++) {
-          if (active[cell]) {
-            continue
-          }
+          if (active[cell]) continue
 
           let count = 0
 
@@ -83,9 +80,7 @@ export default experiment({
 
       let total = 0
 
-      for (const value of active) {
-        total += value
-      }
+      for (const value of active) total += value
 
       return total / mesh.cellCount
     }

@@ -6,7 +6,10 @@
 //   <VibeView symbol={[5, 3, 4]} mode="3d-interior" /> fly the textured dodecahedral rooms
 
 import { useEffect, useRef, useState } from 'react'
-import { createVibeRenderer, type VibeRenderer } from '@/code/render/gpu/engine'
+import {
+  createVibeRenderer,
+  type VibeRenderer,
+} from '@/code/render/gpu/engine'
 import type { FoldMode } from '@/code/render/gpu/fold-scene'
 
 export type VibeViewProps = {
@@ -16,7 +19,12 @@ export type VibeViewProps = {
   style?: React.CSSProperties
 }
 
-export function VibeView({ symbol, mode, className, style }: VibeViewProps): React.ReactElement {
+export function VibeView({
+  symbol,
+  mode,
+  className,
+  style,
+}: VibeViewProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [error, setError] = useState<string | null>(null)
   const key = `${symbol.join('-')}:${mode}`
@@ -28,11 +36,13 @@ export function VibeView({ symbol, mode, className, style }: VibeViewProps): Rea
     let disposed = false
     setError(null)
     createVibeRenderer({ canvas, symbol, mode })
-      .then((r) => {
+      .then(r => {
         if (disposed) r.dispose()
         else renderer = r
       })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
+      .catch((e: unknown) =>
+        setError(e instanceof Error ? e.message : String(e)),
+      )
     return () => {
       disposed = true
       renderer?.dispose()
@@ -41,11 +51,20 @@ export function VibeView({ symbol, mode, className, style }: VibeViewProps): Rea
   }, [key])
 
   return (
-    <div className={className} style={{ position: 'relative', ...style }}>
+    <div
+      className={className}
+      style={{ position: 'relative', ...style }}
+    >
       <canvas
         ref={canvasRef}
         tabIndex={0}
-        style={{ width: '100%', height: '100%', display: 'block', outline: 'none', cursor: 'grab' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          outline: 'none',
+          cursor: 'grab',
+        }}
       />
       {error ? (
         <div
@@ -61,7 +80,9 @@ export function VibeView({ symbol, mode, className, style }: VibeViewProps): Rea
           }}
         >
           <div>
-            <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>WebGPU could not start</p>
+            <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>
+              WebGPU could not start
+            </p>
             <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>{error}</p>
           </div>
         </div>

@@ -15,9 +15,7 @@ export type CellComplex = {
 }
 
 export function transpose(matrix: Matrix): Matrix {
-  if (matrix.length === 0) {
-    return []
-  }
+  if (matrix.length === 0) return []
 
   return matrix[0]!.map((_, column) => matrix.map(row => row[column]!))
 }
@@ -29,9 +27,8 @@ export function multiply(left: Matrix, right: Matrix): Matrix {
     (right[0] ?? []).map((_, column) => {
       let sum = 0
 
-      for (let index = 0; index < inner; index++) {
+      for (let index = 0; index < inner; index++)
         sum += (row[index] ?? 0) * (right[index]![column] ?? 0)
-      }
 
       return sum
     }),
@@ -74,15 +71,15 @@ export function kahlerDirac(complex: CellComplex): Matrix {
       for (let column = 0; column < derivative[row]!.length; column++) {
         const value = derivative[row]![column]!
 
-        if (value === 0) {
-          continue
-        }
+        if (value === 0) continue
 
         // d: grade -> grade+1 (lower-left block), delta = d transpose (upper-right)
         const lowerRow = offset[grade + 1]! + row
         const upperColumn = offset[grade]! + column
+
         operator[lowerRow]![upperColumn] =
           (operator[lowerRow]![upperColumn] ?? 0) + value
+
         operator[upperColumn]![lowerRow] =
           (operator[upperColumn]![lowerRow] ?? 0) + value
       }
@@ -123,11 +120,8 @@ export function boundaryOfBoundaryIsZero(
       complex.boundary[grade + 1]!,
     )
 
-    if (
-      product.some(row => row.some(value => Math.abs(value) > 1e-9))
-    ) {
+    if (product.some(row => row.some(value => Math.abs(value) > 1e-9)))
       return false
-    }
   }
 
   return true

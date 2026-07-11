@@ -26,9 +26,7 @@ export function lorentzIsotropy(input: {
 }): { preferredFrame: boolean; anisotropy: number } {
   const embedding = input.substrate.embedding
 
-  if (!embedding) {
-    return { preferredFrame: false, anisotropy: 0 }
-  }
+  if (!embedding) return { preferredFrame: false, anisotropy: 0 }
 
   const dim = embedding.dimension
   // Spatial axes: skip the time axis only for a Lorentzian embedding.
@@ -43,9 +41,7 @@ export function lorentzIsotropy(input: {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const size = input.substrate.size
 
-  if (size === 0) {
-    return { preferredFrame: false, anisotropy: 0 }
-  }
+  if (size === 0) return { preferredFrame: false, anisotropy: 0 }
 
   // Running sums of cos(m theta) and sin(m theta) for each harmonic m.
   const cosSum = new Array<number>(HARMONICS.length).fill(0)
@@ -59,9 +55,7 @@ export function lorentzIsotropy(input: {
     const node = input.rng.nextInt({ max: size })
     const row = adjacency[node] ?? new Uint32Array(0)
 
-    if (row.length === 0) {
-      continue
-    }
+    if (row.length === 0) continue
 
     // Nearest link by spatial distance gives the strongest directional cue.
     let nearest = -1
@@ -86,9 +80,7 @@ export function lorentzIsotropy(input: {
       }
     }
 
-    if (nearest < 0) {
-      continue
-    }
+    if (nearest < 0) continue
 
     // Angle in the plane of the first two spatial axes.
     const ax0 =
@@ -99,14 +91,13 @@ export function lorentzIsotropy(input: {
       coordOf(embedding, { element: nearest, axis: spatialStart + 1 }) -
       coordOf(embedding, { element: node, axis: spatialStart + 1 })
 
-    if (ax0 === 0 && ax1 === 0) {
-      continue
-    }
+    if (ax0 === 0 && ax1 === 0) continue
 
     const theta = Math.atan2(ax1, ax0)
 
     for (let h = 0; h < HARMONICS.length; h++) {
       const m = HARMONICS[h] ?? 1
+
       cosSum[h] = (cosSum[h] ?? 0) + Math.cos(m * theta)
       sinSum[h] = (sinSum[h] ?? 0) + Math.sin(m * theta)
     }
@@ -114,9 +105,7 @@ export function lorentzIsotropy(input: {
     used++
   }
 
-  if (used === 0) {
-    return { preferredFrame: false, anisotropy: 0 }
-  }
+  if (used === 0) return { preferredFrame: false, anisotropy: 0 }
 
   // Anisotropy is the strongest angular order parameter |<e^{i m theta}>|.
   let anisotropy = 0
@@ -126,9 +115,7 @@ export function lorentzIsotropy(input: {
     const si = (sinSum[h] ?? 0) / used
     const magnitude = Math.sqrt(c * c + si * si)
 
-    if (magnitude > anisotropy) {
-      anisotropy = magnitude
-    }
+    if (magnitude > anisotropy) anisotropy = magnitude
   }
 
   return {
@@ -178,9 +165,8 @@ function latticePoints(side: number): { x: number; y: number }[] {
   const pts: { x: number; y: number }[] = []
 
   for (let i = 0; i < side; i++) {
-    for (let j = 0; j < side; j++) {
+    for (let j = 0; j < side; j++)
       pts.push({ x: i / side, y: j / side })
-    }
   }
 
   return pts

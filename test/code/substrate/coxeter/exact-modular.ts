@@ -16,10 +16,12 @@ suite(
       'a pentagon cell has 5 faces and each step is reversible',
       () => {
         const engine = makeExactEngine([5, 4])
+
         equal(engine.faceCount, 5, '{5,4} facet count')
 
         const home = engine.fingerprint(engine.origin)
         const neighbors = engine.neighbors(engine.origin)
+
         equal(neighbors.length, 5, 'five neighbours of the origin')
 
         for (const nc of neighbors) {
@@ -46,6 +48,7 @@ suite('substrate/coxeter/exact-modular: the built graph', [
     '{5,4} builds a symmetric degree-5 graph with no self-loops',
     () => {
       const g = buildTilingExact({ symbol: [5, 4], maxCells: 60 })
+
       equal(g.facetCount, 5, 'max facet count')
       ok(g.cellCount > 1, 'more than one cell')
 
@@ -54,9 +57,8 @@ suite('substrate/coxeter/exact-modular: the built graph', [
       for (let i = 0; i < g.cellCount; i++) {
         notOk(sets[i]!.has(i), `cell ${i} has no self-loop`)
 
-        for (const j of g.neighbors[i]!) {
+        for (const j of g.neighbors[i]!)
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
-        }
       }
     },
   ),

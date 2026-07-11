@@ -74,9 +74,7 @@ export default experiment({
     let shrinking = true
 
     for (let i = 1; i < gaps.length; i++) {
-      if (gaps[i]! >= gaps[i - 1]!) {
-        shrinking = false
-      }
+      if (gaps[i]! >= gaps[i - 1]!) shrinking = false
     }
 
     // CONTROL: the massive dispersion carries finite lattice corrections at large momentum

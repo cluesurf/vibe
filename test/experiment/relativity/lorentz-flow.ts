@@ -60,6 +60,7 @@ export function lorentzFlow(input?: {
     let z = axRng.next() * 2 - 1
 
     const len = Math.hypot(x, y, z) || 1
+
     x /= len
     y /= len
     z /= len
@@ -92,9 +93,7 @@ export function lorentzFlow(input?: {
 
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
 
-      if (len < 1e-9) {
-        continue
-      }
+      if (len < 1e-9) continue
 
       dirs.push([d[0]! / len, d[1]! / len, d[2]! / len])
     }

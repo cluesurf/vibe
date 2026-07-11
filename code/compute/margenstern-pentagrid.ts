@@ -310,6 +310,7 @@ export function stepPentagridCA(input: {
 
   for (let cell = 0; cell < states.length; cell++) {
     const ring = cyclicNeighbors[cell]!.map(n => states[n]!)
+
     next[cell] = pentagridNext(table, states[cell]!, ring)
   }
 

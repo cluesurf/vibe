@@ -55,9 +55,7 @@ export default experiment({
       local: ({ self, neighborhood }) => {
         let parity = 0
 
-        for (const t of neighborhood) {
-          parity ^= t & 1
-        }
+        for (const t of neighborhood) parity ^= t & 1
 
         return (self ^ parity) & 1
       },

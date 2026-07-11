@@ -9,9 +9,7 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
+  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
 
   return s
 }
@@ -20,9 +18,8 @@ function axpy(
   y: Float64Array,
   input: { alpha: number; x: Float64Array },
 ): void {
-  for (let i = 0; i < y.length; i++) {
+  for (let i = 0; i < y.length; i++)
     y[i] = (y[i] ?? 0) + input.alpha * (input.x[i] ?? 0)
-  }
 }
 
 // A small deterministic PRNG (mulberry32) for the Lanczos start vector. Using a
@@ -36,6 +33,7 @@ function deterministicRand(): () => number {
     a = (a + 0x6d2b79f5) >>> 0
 
     let t = a
+
     t = Math.imul(t ^ (t >>> 15), t | 1)
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
 
@@ -62,15 +60,11 @@ export function lowestEigenvalues(input: {
 
   let v = new Float64Array(n)
 
-  for (let i = 0; i < n; i++) {
-    v[i] = rand() - 0.5
-  }
+  for (let i = 0; i < n; i++) v[i] = rand() - 0.5
 
   const norm = Math.sqrt(dot(v, v))
 
-  for (let i = 0; i < n; i++) {
-    v[i] = (v[i] ?? 0) / (norm || 1)
-  }
+  for (let i = 0; i < n; i++) v[i] = (v[i] ?? 0) / (norm || 1)
 
   const alpha = new Float64Array(m)
   const beta = new Float64Array(m)
@@ -82,39 +76,31 @@ export function lowestEigenvalues(input: {
 
     const w = input.operator.apply({ x: v })
     const a = dot(w, v)
+
     alpha[j] = a
     axpy(w, { alpha: -a, x: v })
 
-    if (j > 0) {
-      axpy(w, { alpha: -(beta[j] ?? 0), x: prev })
-    }
+    if (j > 0) axpy(w, { alpha: -(beta[j] ?? 0), x: prev })
 
     // full reorthogonalisation against the stored basis (m is small)
     for (const bk of basis) {
-      if (!bk) {
-        continue
-      }
+      if (!bk) continue
 
       const proj = dot(w, bk)
+
       axpy(w, { alpha: -proj, x: bk })
     }
 
     const b = Math.sqrt(dot(w, w))
 
-    if (j + 1 < m) {
-      beta[j + 1] = b
-    }
+    if (j + 1 < m) beta[j + 1] = b
 
-    if (b < 1e-12) {
-      break
-    }
+    if (b < 1e-12) break
 
     prev = v
     v = new Float64Array(n)
 
-    for (let i = 0; i < n; i++) {
-      v[i] = (w[i] ?? 0) / b
-    }
+    for (let i = 0; i < n; i++) v[i] = (w[i] ?? 0) / b
   }
 
   const t = makeDense({ rows: basis.length, cols: basis.length })
@@ -124,6 +110,7 @@ export function lowestEigenvalues(input: {
 
     if (j + 1 < basis.length) {
       const b = beta[j + 1] ?? 0
+
       denseSet(t, { row: j, col: j + 1, value: b })
       denseSet(t, { row: j + 1, col: j, value: b })
     }

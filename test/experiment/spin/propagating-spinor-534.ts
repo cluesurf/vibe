@@ -84,9 +84,7 @@ export default experiment({
     const half = Math.floor(loop / 2)
 
     // after half a loop, the packet should have moved to the opposite cell and left cell 0
-    for (let t = 0; t < half; t++) {
-      field = step(field, link)
-    }
+    for (let t = 0; t < half; t++) field = step(field, link)
 
     const amplitudeAt = (cell: Spinor): number =>
       cAbs2(cell[0]) + cAbs2(cell[1])
@@ -94,17 +92,15 @@ export default experiment({
     const propagated =
       amplitudeAt(field[half]!) > 0.5 && amplitudeAt(field[0]!) < 1e-9
 
-    for (let t = half; t < loop; t++) {
-      field = step(field, link)
-    } // finish the loop, back to cell 0
+    for (let t = half; t < loop; t++) field = step(field, link)
+    // finish the loop, back to cell 0
 
     const afterOneLoop = field[0]! // back at the start after going around
     const minusSeed: Spinor = [complex({ re: -1, im: 0 }), zero()]
     const spinorFlipAfterOneLoop = closeTo(afterOneLoop, minusSeed)
 
-    for (let t = 0; t < loop; t++) {
-      field = step(field, link)
-    } // a second loop
+    for (let t = 0; t < loop; t++) field = step(field, link)
+    // a second loop
 
     const afterTwoLoops = field[0]!
     const spinorReturnAfterTwoLoops = closeTo(afterTwoLoops, seed)
@@ -112,9 +108,7 @@ export default experiment({
     // (B) CONTROL, the trivial connection, the same streaming field returns to PLUS itself, no spinor
     let control = makeField()
 
-    for (let t = 0; t < loop; t++) {
-      control = step(control, trivialLink)
-    }
+    for (let t = 0; t < loop; t++) control = step(control, trivialLink)
 
     const trivialAfterOneLoop = control[0]!
     const trivialReturnsPlus = closeTo(trivialAfterOneLoop, seed)

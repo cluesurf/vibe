@@ -50,9 +50,7 @@ export function sp1SpinDoubleCover(): {
 
   for (const a of U) {
     for (const b of U) {
-      if (!set.has(qkey(qmul(a, b)))) {
-        closed = false
-      }
+      if (!set.has(qkey(qmul(a, b)))) closed = false
     }
   }
 

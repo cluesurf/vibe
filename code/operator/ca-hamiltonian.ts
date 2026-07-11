@@ -23,9 +23,7 @@ export function hamiltonianMatrix(input: {
   const visited = new Uint8Array(n)
 
   for (let start = 0; start < n; start++) {
-    if ((visited[start] ?? 0) === 1) {
-      continue
-    }
+    if ((visited[start] ?? 0) === 1) continue
 
     // Collect the cycle in order: cycle[j+1] = perm[cycle[j]].
     const cycle: number[] = []
@@ -40,9 +38,7 @@ export function hamiltonianMatrix(input: {
 
     const L = cycle.length
 
-    if (L === 1) {
-      continue // fixed point: theta = 0, zero block
-    }
+    if (L === 1) continue // fixed point: theta = 0, zero block
 
     // Precompute the wrapped eigenphases.
     const theta = new Float64Array(L)
@@ -50,9 +46,7 @@ export function hamiltonianMatrix(input: {
     for (let m = 0; m < L; m++) {
       let t = (2 * Math.PI * m) / L
 
-      if (t > Math.PI) {
-        t -= 2 * Math.PI
-      }
+      if (t > Math.PI) t -= 2 * Math.PI
 
       theta[m] = t
     }
@@ -70,6 +64,7 @@ export function hamiltonianMatrix(input: {
         for (let m = 0; m < L; m++) {
           const angle = (2 * Math.PI * m * (a - b)) / L
           const th = theta[m] ?? 0
+
           re += th * Math.cos(angle)
           im += th * Math.sin(angle)
         }
@@ -86,13 +81,9 @@ export function hamiltonianMatrix(input: {
 // The smallest arc on a ring of `cells` sites that covers the given non-identity
 // positions (the interaction range of a Pauli string on a periodic lattice).
 function ringExtent(input: { sites: number[]; cells: number }): number {
-  if (input.sites.length === 0) {
-    return 0
-  }
+  if (input.sites.length === 0) return 0
 
-  if (input.sites.length === 1) {
-    return 1
-  }
+  if (input.sites.length === 1) return 1
 
   const sorted = [...input.sites].sort((a, b) => a - b)
 
@@ -108,9 +99,7 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
         ? next - cur
         : input.cells - cur + (sorted[0] ?? 0)
 
-    if (step > largestStep) {
-      largestStep = step
-    }
+    if (step > largestStep) largestStep = step
   }
 
   return input.cells - largestStep + 1
@@ -149,6 +138,7 @@ export function pauliLocalityProfile(input: {
 
     for (let c = 0; c < cells; c++) {
       const op = rest & 3
+
       rest >>= 2
       ops[c] = op
 
@@ -157,9 +147,7 @@ export function pauliLocalityProfile(input: {
         sites.push(c)
       }
 
-      if (op === 1 || op === 2) {
-        flipMask |= 1 << c
-      }
+      if (op === 1 || op === 2) flipMask |= 1 << c
     }
 
     // Tr(P H) = sum_s phase(u) * H[u][s], u = s XOR flipMask.
@@ -176,9 +164,7 @@ export function pauliLocalityProfile(input: {
       for (let c = 0; c < cells; c++) {
         const op = ops[c] ?? 0
 
-        if (op === 0 || op === 1) {
-          continue // I or X contribute coefficient 1
-        }
+        if (op === 0 || op === 1) continue // I or X contribute coefficient 1
 
         const bit = (u >> c) & 1
 
@@ -193,6 +179,7 @@ export function pauliLocalityProfile(input: {
           const sign = bit === 1 ? -1 : 1
           const nr = -phIm * sign
           const ni = phRe * sign
+
           phRe = nr
           phIm = ni
         }
@@ -200,6 +187,7 @@ export function pauliLocalityProfile(input: {
 
       const hr = h.re[u * n + s] ?? 0
       const hi = h.im[u * n + s] ?? 0
+
       // trace += phase * H[u][s]
       trRe += phRe * hr - phIm * hi
       trIm += phRe * hi + phIm * hr
@@ -215,15 +203,14 @@ export function pauliLocalityProfile(input: {
     }
 
     const range = ringExtent({ sites, cells })
+
     weightByRange[range] = (weightByRange[range] ?? 0) + weight
   }
 
   // Total interaction weight (excluding the identity / constant offset).
   let total = 0
 
-  for (let r = 1; r <= cells; r++) {
-    total += weightByRange[r] ?? 0
-  }
+  for (let r = 1; r <= cells; r++) total += weightByRange[r] ?? 0
 
   let lengthSum = 0
 
@@ -231,6 +218,7 @@ export function pauliLocalityProfile(input: {
 
   for (let r = 1; r <= cells; r++) {
     const frac = total > 0 ? (weightByRange[r] ?? 0) / total : 0
+
     fractions[r] = frac
     lengthSum += r * frac
   }

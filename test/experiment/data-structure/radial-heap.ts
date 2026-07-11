@@ -26,13 +26,10 @@ export default experiment({
     for (let cell = 0; cell < cells; cell++) {
       const parent = a.parent[cell]!
 
-      if (parent !== -1 && !(a.dist[parent]! < a.dist[cell]!)) {
+      if (parent !== -1 && !(a.dist[parent]! < a.dist[cell]!))
         heapOrdered = false
-      }
 
-      if (a.dist[cell]! > maxDepth) {
-        maxDepth = a.dist[cell]!
-      }
+      if (a.dist[cell]! > maxDepth) maxDepth = a.dist[cell]!
     }
 
     const peekMinIsRoot = a.dist[a.root] === 0

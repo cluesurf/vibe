@@ -68,9 +68,7 @@ export default experiment({
         if (dist[c]! >= 0 && dist[c]! <= 2) {
           const base = c * degree
 
-          for (let d = 0; d < degree; d++) {
-            will.data[base + d] = 1
-          }
+          for (let d = 0; d < degree; d++) will.data[base + d] = 1
         }
       }
 
@@ -91,6 +89,7 @@ export default experiment({
         beatInto({ src: current, dst: scratch, table, collision })
 
         const swap = current
+
         current = scratch
         scratch = swap
 

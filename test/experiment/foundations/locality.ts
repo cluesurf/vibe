@@ -33,9 +33,7 @@ function controlLocality(cells: number): {
   const n = 1 << cells
   const perm = new Int32Array(n)
 
-  for (let s = 0; s < n; s++) {
-    perm[s] = s ^ 1
-  }
+  for (let s = 0; s < n; s++) perm[s] = s ^ 1
 
   const profile = pauliLocalityProfile({
     matrix: hamiltonianMatrix({ perm }),
@@ -66,9 +64,7 @@ function localityOf(cells: number): {
     local: ({ self, neighborhood }) => {
       let parity = 0
 
-      for (const t of neighborhood) {
-        parity ^= t & 1
-      }
+      for (const t of neighborhood) parity ^= t & 1
 
       return (self ^ parity) & 1
     },

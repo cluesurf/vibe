@@ -16,6 +16,7 @@ export function torusGrid(d: number, L: number): Uint32Array[] {
       const stride = pow[a] ?? 1
       const coord = Math.floor(i / stride) % L
       const base = i - coord * stride
+
       ns.push(base + ((coord + 1) % L) * stride)
       ns.push(base + ((coord - 1 + L) % L) * stride)
     }

@@ -24,6 +24,7 @@ export function returnProbability(input: {
   // d(real)/dt = H imaginary, d(imaginary)/dt = -H real. The leapfrog staggers the two.
   const real = new Float64Array(n)
   const imaginary = new Float64Array(n)
+
   real[source] = 1
 
   // the leapfrog keeps the imaginary part half a step ahead of the real part. To read a physical
@@ -37,6 +38,7 @@ export function returnProbability(input: {
 
     for (let i = 0; i < n; i++) {
       const imSync = imaginary[i]! + 0.5 * dt * hReal[i]!
+
       sum += real[i]! * real[i]! + imSync * imSync
     }
 
@@ -53,9 +55,8 @@ export function returnProbability(input: {
   // half-step kick to stagger the imaginary part. startNorm is measured AFTER (synchronized).
   const first = apply(real)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     imaginary[i] = imaginary[i]! - 0.5 * dt * first[i]!
-  }
 
   const startNorm = syncNormAt()
 
@@ -64,19 +65,14 @@ export function returnProbability(input: {
   for (let step = 1; step <= steps; step++) {
     const dImag = apply(imaginary)
 
-    for (let i = 0; i < n; i++) {
-      real[i] = real[i]! + dt * dImag[i]!
-    }
+    for (let i = 0; i < n; i++) real[i] = real[i]! + dt * dImag[i]!
 
     const dReal = apply(real)
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++)
       imaginary[i] = imaginary[i]! - dt * dReal[i]!
-    }
 
-    if (step % sampleEvery === 0) {
-      samples.push(returnAt())
-    }
+    if (step % sampleEvery === 0) samples.push(returnAt())
   }
 
   const timeAverage = samples.length
@@ -119,6 +115,7 @@ export function boundStateDecayExponent(input: {
 
   // shells from the origin by breadth-first search
   const shell = new Int32Array(cellCount).fill(-1)
+
   shell[origin] = 0
 
   let frontier = [origin]
@@ -129,9 +126,7 @@ export function boundStateDecayExponent(input: {
     for (const cell of frontier) {
       const row = neighbors[cell]
 
-      if (!row) {
-        continue
-      }
+      if (!row) continue
 
       for (const value of row as readonly number[]) {
         const nb = value
@@ -154,6 +149,7 @@ export function boundStateDecayExponent(input: {
   // P_origin. Start from the localized origin vector (deterministic, no random).
   const s = maxDegree + wellDepth + 2
   const psi = new Float64Array(cellCount)
+
   psi[origin] = 1
 
   const out = new Float64Array(cellCount)
@@ -165,29 +161,21 @@ export function boundStateDecayExponent(input: {
       const row = neighbors[i]
 
       if (row) {
-        for (const value of row as readonly number[]) {
-          acc += psi[value]!
-        }
+        for (const value of row as readonly number[]) acc += psi[value]!
       }
 
-      if (i === origin) {
-        acc += wellDepth * psi[origin]
-      }
+      if (i === origin) acc += wellDepth * psi[origin]
 
       out[i] = acc
     }
 
     let norm = 0
 
-    for (let i = 0; i < cellCount; i++) {
-      norm += out[i]! * out[i]!
-    }
+    for (let i = 0; i < cellCount; i++) norm += out[i]! * out[i]!
 
     norm = Math.sqrt(norm) || 1
 
-    for (let i = 0; i < cellCount; i++) {
-      psi[i] = out[i]! / norm
-    }
+    for (let i = 0; i < cellCount; i++) psi[i] = out[i]! / norm
   }
 
   // the root-mean-square amplitude per shell

@@ -220,6 +220,7 @@ export function runConformance(): { passed: number; failed: number } {
   // 1. bitset basics
   {
     const m = makeBitMatrix({ rows: 2, cols: 40 })
+
     setBit(m, { row: 0, col: 3 })
     setBit(m, { row: 0, col: 35 })
     check({
@@ -229,6 +230,7 @@ export function runConformance(): { passed: number; failed: number } {
         getBit(m, { row: 0, col: 35 }) &&
         !getBit(m, { row: 0, col: 4 }),
     })
+
     check({
       name: 'bitset popcountRow',
       ok: popcountRow(m, { row: 0 }) === 2,
@@ -247,6 +249,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: relationCount(p) === 6,
       detail: `got ${relationCount(p)}`,
     })
+
     check({
       name: 'poset longest chain 0..3 is 3',
       ok: longestChain({ poset: p, from: 0, to: 3 }) === 3,
@@ -259,6 +262,7 @@ export function runConformance(): { passed: number; failed: number } {
     const rng = makeRng({ seed: 1 })
     const poset = sprinkleMinkowski({ dimension: 2, count: 1500, rng })
     const d = myrheimMeyerDimension({ poset })
+
     check({
       name: 'sprinkle M^2 recovers dimension near 2',
       ok: d > 1.3 && d < 2.9,
@@ -327,10 +331,12 @@ export function runConformance(): { passed: number; failed: number } {
 
     const lap = laplacian({ substrate: g })
     const spec = laplacianSpectrum({ substrate: g, count: 3 })
+
     check({
       name: 'laplacian builds and has finite spectrum',
       ok: lap.rows === g.size && allFinite(spec) && spec.length > 0,
     })
+
     check({
       name: 'connected Laplacian lowest eigenvalue near 0',
       ok: Math.abs(spec[0] ?? 1) < 1e-3,
@@ -348,6 +354,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     const complex = cellComplexOf({ substrate: g, maxGrade: 2 })
     const spec = diracSpectrum({ complex, count: 8 })
+
     check({
       name: 'Kahler-Dirac spectrum is finite and non-empty',
       ok: spec.length > 0 && allFinite(spec),
@@ -361,11 +368,11 @@ export function runConformance(): { passed: number; failed: number } {
     const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
     const cold = averagePlaquette({ lattice: lat })
 
-    for (let s = 0; s < 100; s++) {
+    for (let s = 0; s < 100; s++)
       metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
-    }
 
     const disordered = averagePlaquette({ lattice: lat })
+
     check({
       name: 'SU(2) cold is ordered, strong coupling disorders it',
       ok: cold > 0.999 && disordered < 0.3,
@@ -391,6 +398,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: naive.species === 4,
       detail: `species ${naive.species}`,
     })
+
     check({
       name: 'overlap: 1 species with exact chiral symmetry (GW ~ 0)',
       ok: overlap.species === 1 && overlap.gwResidualMax < 1e-9,
@@ -404,6 +412,7 @@ export function runConformance(): { passed: number; failed: number } {
     const i0 = overlapIndex({ length: 5, charge: 0 })
     const i1 = overlapIndex({ length: 5, charge: 1 })
     const i2 = overlapIndex({ length: 5, charge: 2 })
+
     check({
       name: 'lattice index theorem: overlap index = -Q (gauge topology)',
       ok:
@@ -420,6 +429,7 @@ export function runConformance(): { passed: number; failed: number } {
   {
     const kr = kleitmanRothschildOrder({ size: 72 })
     const height = posetHeight({ poset: kr })
+
     check({
       name: 'Kleitman-Rothschild order has height 3 (layered)',
       ok: height === 3,
@@ -434,9 +444,7 @@ export function runConformance(): { passed: number; failed: number } {
     const n = 1 << cells
     const perm = new Int32Array(n)
 
-    for (let s = 0; s < n; s++) {
-      perm[s] = s ^ 1
-    }
+    for (let s = 0; s < n; s++) perm[s] = s ^ 1
 
     const profile = pauliLocalityProfile({
       matrix: hamiltonianMatrix({ perm }),
@@ -462,6 +470,7 @@ export function runConformance(): { passed: number; failed: number } {
     })
 
     const iso = lorentzIsotropy({ substrate: graph, samples: 200, rng })
+
     check({
       name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
       ok: iso.anisotropy < 0.25,
@@ -487,9 +496,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     let lo = Infinity
 
-    for (const value of eig.values) {
-      lo = Math.min(lo, value ?? 0)
-    }
+    for (const value of eig.values) lo = Math.min(lo, value ?? 0)
 
     check({
       name: 'commuting-gate rule has a local, bounded-below Hamiltonian',
@@ -512,20 +519,17 @@ export function runConformance(): { passed: number; failed: number } {
 
     for (let i = 0; i < cells; i++) {
       const row = ring.neighbors[i] ?? new Uint32Array(0)
+
       m.data[i * cells + i] = row.length
 
-      for (const col of row) {
-        m.data[i * cells + (col ?? 0)] = -1
-      }
+      for (const col of row) m.data[i * cells + (col ?? 0)] = -1
     }
 
     const eig = eigSymmetric({ matrix: m })
 
     let lo = Infinity
 
-    for (const value of eig.values) {
-      lo = Math.min(lo, value ?? 0)
-    }
+    for (const value of eig.values) lo = Math.min(lo, value ?? 0)
 
     check({
       name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
@@ -584,6 +588,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     const fracCold = result.means[1]?.[0] ?? 0
     const fracHot = result.means[0]?.[0] ?? 0
+
     check({
       name: 'exact: smeared action raises manifold fraction on the true measure',
       ok: result.count > 0 && fracCold > fracHot,
@@ -676,19 +681,16 @@ export function runConformance(): { passed: number; failed: number } {
     for (let i = 0; i < a.cellCount && identical; i++) {
       const sa = new Set<number>()
 
-      for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
+      for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++)
         sa.add(a.adj[p]!)
-      }
 
       const sb = new Set<number>()
 
-      for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
+      for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++)
         sb.add(b.adj[p]!)
-      }
 
-      if (sa.size !== sb.size) {
-        identical = false
-      } else {
+      if (sa.size !== sb.size) identical = false
+      else {
         for (const x of sa) {
           if (!sb.has(x)) {
             identical = false
@@ -712,12 +714,14 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'vector dot/norm',
       ok: vdot([1, 2, 2], [1, 2, 2]) === 9 && vnorm([3, 4]) === 5,
     })
+
     check({
       name: 'vector sub/normalize',
       ok:
         vsub([5, 5], [1, 1])[0] === 4 &&
         Math.abs(vnorm(vnormalize([3, 4])) - 1) < 1e-12,
     })
+
     check({
       name: 'vector innerJ (Minkowski)',
       ok: innerJ([1, 1, 1], [1, 1, 1], [1, 1, -1]) === 1,
@@ -729,6 +733,7 @@ export function runConformance(): { passed: number; failed: number } {
     )
 
     const sh = bfsShells({ neighbors: path, root: 0 })
+
     check({
       name: 'bfsShells path graph',
       ok:
@@ -738,10 +743,12 @@ export function runConformance(): { passed: number; failed: number } {
     })
 
     const ball = geodesicBall({ neighbors: path, root: 0, radius: 2 })
+
     check({ name: 'geodesicBall radius 2', ok: ball.length === 3 })
 
     // csr round-trip
     const csr = toCsr([[1, 2], [0], [0]])
+
     check({
       name: 'toCsr offsets/adj',
       ok:
@@ -753,6 +760,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     // tone pack round-trip and signed mapping
     const pk = packTone({ current: 1, previous: 2 })
+
     check({
       name: 'tone pack/unpack',
       ok:
@@ -766,6 +774,7 @@ export function runConformance(): { passed: number; failed: number } {
     // octonions: the Fano table (e1 e2 = e3, e2 e1 = -e3) and the multiplicative norm
     const e1e2 = octonionMultiply(octonionUnit(1), octonionUnit(2))
     const e2e1 = octonionMultiply(octonionUnit(2), octonionUnit(1))
+
     check({
       name: 'octonion Fano product',
       ok:
@@ -811,6 +820,7 @@ export function runConformance(): { passed: number; failed: number } {
         maxJordanIdentityResidual(2) < 1e-9 &&
         maxJordanIdentityResidual(3) < 1e-9,
     })
+
     check({
       name: 'jordan identity fails at n=4 (control)',
       ok: maxJordanIdentityResidual(4) > 1e-3,
@@ -820,10 +830,12 @@ export function runConformance(): { passed: number; failed: number } {
     // permutes the frame E0 -> E1 -> E2 (the candidate generation triality)
     const s3 = permutations(3)
     const frame3 = diagonalJordanFrame(3)
+
     check({
       name: 'jordan S3 all automorphisms',
       ok: s3.length === 6 && s3.every(p => isJordanAutomorphism(p)),
     })
+
     check({
       name: 'jordan cyclic permutes frame',
       ok: octonionMatrixEquals(
@@ -865,12 +877,14 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'landau Dirac zero mode at m^2 (g=2)',
       ok: Math.abs(diracLowSquared - landauM * landauM) < 1e-3,
     })
+
     check({
       name: 'landau scalar lowest at m^2+qB (no zero mode, control)',
       ok:
         Math.abs(scalarLowSquared - (landauM * landauM + landauB)) <
         1e-3,
     })
+
     check({
       name: 'landau g-factor reads 2',
       ok:
@@ -905,6 +919,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'schwinger e=0 sources no field (decoupled)',
       ok: decoupled.fieldEnergy < 1e-12,
     })
+
     check({
       name: 'schwinger e>0 sources a field',
       ok: coupled.fieldEnergy > 1e-6,
@@ -917,9 +932,8 @@ export function runConformance(): { passed: number; failed: number } {
       apply: ({ x }: { x: Float64Array }) => {
         const y = new Float64Array(chainSize)
 
-        for (let i = 0; i < chainSize; i++) {
+        for (let i = 0; i < chainSize; i++)
           y[i] = (x[i - 1] ?? 0) + (x[i + 1] ?? 0)
-        }
 
         return y
       },
@@ -951,6 +965,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'return probability: hopping spreads (low return)',
       ok: spread.timeAverage < 0.5 && spread.normDrift < 0.05,
     })
+
     check({
       name: 'return probability: no hopping traps (return ~ 1)',
       ok: trapped.timeAverage > 0.99,
@@ -959,10 +974,12 @@ export function runConformance(): { passed: number; failed: number } {
     // disclination holonomy: odd winding flips the spinor (-1), even returns it (+1), vector always blind
     const disc1 = disclinationHolonomy({ winding: 1, steps: 24 })
     const disc2 = disclinationHolonomy({ winding: 2, steps: 24 })
+
     check({
       name: 'disclination: odd winding gives spinor -1, vector +1',
       ok: disc1.spinorIsMinusOne && disc1.vectorReturnsToSelf,
     })
+
     check({
       name: 'disclination: even winding gives spinor +1 (Z2 control)',
       ok: disc2.spinorIsPlusOne && disc2.vectorReturnsToSelf,
@@ -1020,6 +1037,7 @@ export function runConformance(): { passed: number; failed: number } {
     const g5 = diracGamma5()
     const massive = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0.7 })
     const massless = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0 })
+
     check({
       name: 'gamma5: mass couples chiralities, massless conserves (Weyl)',
       ok:
@@ -1042,10 +1060,12 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'tessellation battery: {5,3,4} hyperbolic, no spinor coin',
       ok: dodeca.hyperbolic && !dodeca.spinorHook && dodeca.cells > 500,
     })
+
     check({
       name: 'tessellation battery: {3,4,3,4} has the 24-cell spinor coin',
       ok: icositetra.hyperbolic && icositetra.spinorHook,
     })
+
     check({
       name: 'tessellation catalog has 45 entries, 42 buildable',
       ok:
@@ -1061,13 +1081,9 @@ export function runConformance(): { passed: number; failed: number } {
     for (let n = 1; n <= 5000; n++) {
       const z = margensternToZeckendorf(n)
 
-      if (margensternFromZeckendorf(z) !== n) {
-        zeckRoundTrips = false
-      }
+      if (margensternFromZeckendorf(z) !== n) zeckRoundTrips = false
 
-      if (z.includes('11')) {
-        zeckNo11 = false
-      }
+      if (z.includes('11')) zeckNo11 = false
     }
 
     check({
@@ -1086,6 +1102,7 @@ export function runConformance(): { passed: number; failed: number } {
     })
 
     const splitTree = new MargensternSplittingTree()
+
     splitTree.grow(5000)
 
     let splitLegal = true
@@ -1098,9 +1115,7 @@ export function runConformance(): { passed: number; failed: number } {
       const a = splitTree.address(id)
       const co = splitTree.coordinate(id)
 
-      if (splitCoords.has(co)) {
-        splitLegal = false
-      }
+      if (splitCoords.has(co)) splitLegal = false
 
       splitCoords.add(co)
 
@@ -1108,16 +1123,14 @@ export function runConformance(): { passed: number; failed: number } {
 
       if (
         kids.filter(k => k === margensternPreferredSon(a)).length !== 1
-      ) {
+      )
         splitPreferred = false
-      }
 
       if (id !== splitTree.root) {
         const p = margensternParentOf(a)
 
-        if (p === null || !margensternChildrenOf(p).includes(a)) {
+        if (p === null || !margensternChildrenOf(p).includes(a))
           splitParent = false
-        }
       }
     }
 
@@ -1126,6 +1139,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: splitLegal && splitParent,
       detail: `${splitCoords.size} cells`,
     })
+
     check({
       name: 'Margenstern: every tile has a unique preferred son (+00 continuator)',
       ok: splitPreferred,
@@ -1146,9 +1160,8 @@ export function runConformance(): { passed: number; failed: number } {
 
       const gridCoords = new Set<number>()
 
-      for (let c = 0; c < grid.size; c++) {
+      for (let c = 0; c < grid.size; c++)
         gridCoords.add(grid.coordinate(c))
-      }
 
       const target = Math.min(900, grid.size - 1)
       const gridPath = grid.route(grid.origin, target)
@@ -1161,17 +1174,15 @@ export function runConformance(): { passed: number; failed: number } {
         let adjacent = false
 
         for (let s = 0; s < grid.degree(gridPath[i]!); s++) {
-          if (grid.step(gridPath[i]!, s).cell === gridPath[i + 1]!) {
+          if (grid.step(gridPath[i]!, s).cell === gridPath[i + 1]!)
             adjacent = true
-          }
         }
 
-        if (!adjacent) {
-          gridRouteValid = false
-        }
+        if (!adjacent) gridRouteValid = false
       }
 
       const tag = gridSymbol.join(',')
+
       check({
         name: `Margenstern grid {${tag}} (${gridSymbol.length}D): exact distinct coordinates, address-only route valid along edges`,
         ok: gridCoords.size === grid.size && gridRouteValid,
@@ -1186,9 +1197,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     for (let nn = 1; nn <= 4000; nn++) {
       for (const s of margensternSons(nn)) {
-        if (margensternFather(s) !== nn) {
-          fibFatherOk = false
-        }
+        if (margensternFather(s) !== nn) fibFatherOk = false
       }
     }
 
@@ -1197,17 +1206,14 @@ export function runConformance(): { passed: number; failed: number } {
       const b = 2 + ((i * 53) % 900)
       const p = margensternRoute(a, b)
 
-      if (p[0] !== a || p[p.length - 1] !== b) {
-        fibRouteOk = false
-      }
+      if (p[0] !== a || p[p.length - 1] !== b) fibRouteOk = false
 
       for (let j = 0; j + 1 < p.length; j++) {
         if (
           margensternFather(p[j]!) !== p[j + 1]! &&
           margensternFather(p[j + 1]!) !== p[j]!
-        ) {
+        )
           fibRouteOk = false
-        }
       }
     }
 
@@ -1240,9 +1246,8 @@ export function runConformance(): { passed: number; failed: number } {
       if (
         fibNum.decode(fibNum.encode(n)) !== n ||
         sixFour.decode(sixFour.encode(n)) !== n
-      ) {
+      )
         numOk = false
-      }
     }
 
     check({
@@ -1299,9 +1304,7 @@ export function runConformance(): { passed: number; failed: number } {
     let polygonsWellFormed = true
 
     for (const poly of tiling.polygons) {
-      if (poly.length < 5) {
-        polygonsWellFormed = false
-      }
+      if (poly.length < 5) polygonsWellFormed = false
     }
 
     check({
@@ -1314,10 +1317,12 @@ export function runConformance(): { passed: number; failed: number } {
     const q = 6
     const prev0 = new Uint8Array(waveN)
     const cur0 = new Uint8Array(waveN)
+
     cur0[0] = q - 1
     prev0[3 % waveN] = 2
 
     const fwd = new Uint8Array(waveN)
+
     reversibleWaveStep({
       neighbors: tiling.neighbors,
       previous: prev0,
@@ -1328,6 +1333,7 @@ export function runConformance(): { passed: number; failed: number } {
 
     // the reverse step, roles of previous and current swapped, recovers the earlier slice
     const back = new Uint8Array(waveN)
+
     reversibleWaveStep({
       neighbors: tiling.neighbors,
       previous: fwd,
@@ -1339,9 +1345,7 @@ export function runConformance(): { passed: number; failed: number } {
     let reversible = true
 
     for (let i = 0; i < waveN; i++) {
-      if (back[i] !== prev0[i]) {
-        reversible = false
-      }
+      if (back[i] !== prev0[i]) reversible = false
     }
 
     check({
@@ -1369,9 +1373,8 @@ export function runConformance(): { passed: number; failed: number } {
     for (const { symbol, faces, edges } of PLATONIC) {
       const s = buildSphericalScene({ symbol, maxCells: 400 })
 
-      if (s.cellCount !== faces || s.edges.length !== edges) {
+      if (s.cellCount !== faces || s.edges.length !== edges)
         platonicOk = false
-      }
     }
 
     check({
@@ -1442,17 +1445,14 @@ export function runConformance(): { passed: number; failed: number } {
     let pureInterior = 0
 
     for (let i = 0; i < pure.cellCount; i++) {
-      if (pure.neighbors[i]!.length !== 5) {
-        continue
-      }
+      if (pure.neighbors[i]!.length !== 5) continue
 
       pureInterior++
 
       if (
         !pure.neighbors[i]!.every(j => pure.neighbors[j]!.includes(i))
-      ) {
+      )
         pureSymmetric = false
-      }
     }
 
     check({
@@ -1481,9 +1481,7 @@ export function runConformance(): { passed: number; failed: number } {
       const histOf = (nb: number[][]): string => {
         const h: Record<number, number> = {}
 
-        for (const r of nb) {
-          h[r.length] = (h[r.length] ?? 0) + 1
-        }
+        for (const r of nb) h[r.length] = (h[r.length] ?? 0) + 1
 
         return JSON.stringify(Object.entries(h).sort())
       }
@@ -1492,9 +1490,7 @@ export function runConformance(): { passed: number; failed: number } {
 
       for (let i = 0; i < exact.cellCount; i++) {
         for (const j of exact.neighbors[i]!) {
-          if (!exact.neighbors[j]!.includes(i)) {
-            exactSymmetric = false
-          }
+          if (!exact.neighbors[j]!.includes(i)) exactSymmetric = false
         }
       }
 
@@ -1532,14 +1528,11 @@ export function runConformance(): { passed: number; failed: number } {
       let adjacent = false
 
       for (let s = 0; s < patGrid.degree(routePath[i]!); s++) {
-        if (patGrid.step(routePath[i]!, s).cell === routePath[i + 1]!) {
+        if (patGrid.step(routePath[i]!, s).cell === routePath[i + 1]!)
           adjacent = true
-        }
       }
 
-      if (!adjacent) {
-        routeWalk = false
-      }
+      if (!adjacent) routeWalk = false
     }
 
     check({
@@ -1547,6 +1540,7 @@ export function runConformance(): { passed: number; failed: number } {
       ok: centerIsSector0 && sectorCount === 8 && nodeClasses <= 3,
       detail: `${sectorCount} sectors`,
     })
+
     check({
       name: 'computation capstone: address-route signal path is a valid edge walk',
       ok: routeWalk,
@@ -1560,6 +1554,7 @@ export function runConformance(): { passed: number; failed: number } {
     const ffA = routeSwitch(flipFlop, 0)
     const ffActiveAfter = flipFlop.active
     const memSwitch: RailSwitch = { kind: 'memory', active: 1 }
+
     routeSwitch(memSwitch, 2)
 
     const switchesOk =
@@ -1599,9 +1594,7 @@ export function runConformance(): { passed: number; failed: number } {
         [a, b, 0, 0],
       )
 
-      if (out.registers[2] !== a * b) {
-        railwayUniversal = false
-      }
+      if (out.registers[2] !== a * b) railwayUniversal = false
     }
 
     check({
@@ -1631,6 +1624,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     }
 
     const fibOk = fibValues.join(',') === '1,1,2,3,5,8,13,21,34,55'
+
     check({
       name: 'TypeScript -> railway compiler: fib(1..10) computed by the compiled register machine',
       ok: fibOk,
@@ -1672,9 +1666,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const ter = compileMachine(FIB_SRC, { backend: 'ternary' })
     const terVals: string[] = []
 
-    for (let m = 1; m <= 10; m++) {
+    for (let m = 1; m <= 10; m++)
       terVals.push(runMachine(ter, [m]).result.toString())
-    }
 
     check({
       name: 'ternary backend: base-3 register machine computes fib(1..10) on the shared program',
@@ -1685,9 +1678,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the LITERAL railway-CA adder: addition by the actual locomotive rippling carries through flip-flop switches
     const railFib: string[] = []
 
-    for (let m = 1; m <= 10; m++) {
+    for (let m = 1; m <= 10; m++)
       railFib.push(String(fibOnRailway({ n: m, bits: 8 }).value))
-    }
 
     check({
       name: 'literal railway-CA adder: the locomotive computes fib(1..10) by real carry ripples',
@@ -1718,9 +1710,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         r.compute.result !== '55' ||
         !r.railway.ran ||
         !r.memory.found
-      ) {
+      )
         protoOk = false
-      }
     }
 
     check({
@@ -1735,9 +1726,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const alpha = new Set<string>()
 
     for (const r of PENTAGRID_RULES) {
-      for (const ch of r) {
-        alpha.add(ch)
-      }
+      for (const ch of r) alpha.add(ch)
     }
 
     const fivState = [...alpha].sort().join('') === 'BGRWY'
@@ -1764,6 +1753,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         pentagrid3State.states.join('') === 'BRW' &&
         pentagrid3State.conflicts === 0,
     })
+
     check({
       name: 'Margenstern pentagrid 2-state: 352 rules, {B,W}, conflict-free',
       ok:
@@ -1771,6 +1761,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         pentagrid2State.states.join('') === 'BW' &&
         pentagrid2State.conflicts === 0,
     })
+
     check({
       name: 'Margenstern heptagrid 4-state: 1168 rules, {B,G,R,W}, conflict-free',
       ok:
@@ -1778,6 +1769,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         heptagrid4State.states.join('') === 'BGRW' &&
         heptagrid4State.conflicts === 0,
     })
+
     check({
       name: 'Margenstern dodecagrid 5-state (3D): 261 rules, {B,G,R,W,Y} loaded',
       ok:
@@ -1830,6 +1822,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     ffCa.step()
 
     const switchOk = ffCa.headAt() === 2 && ffCa.cells[1]!.active === 2 // routed to active branch, flipped
+
     check({
       name: 'uniform railway CA (tiling-agnostic, new): locomotive loops forward and a flip-flop routes+flips',
       ok: loopOk && switchOk,
@@ -1851,9 +1844,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       for (let c = 0; c < g.size; c++) {
         const row: number[] = []
 
-        for (let s = 0; s < g.degree(c); s++) {
+        for (let s = 0; s < g.degree(c); s++)
           row.push(g.step(c, s).cell)
-        }
 
         gnb.push(row)
         gdepth.push(g.depth(c))
@@ -1871,17 +1863,13 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       let built = 0
 
       for (let t = 0; t < 2000; t++) {
-        if (!builder.step()) {
-          break
-        }
+        if (!builder.step()) break
 
         built++
 
         const d = g.depth(builder.headAt())
 
-        if (d !== prev + 1) {
-          monotone = false
-        }
+        if (d !== prev + 1) monotone = false
 
         prev = d
       }
@@ -1904,9 +1892,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     for (let k = 1; k <= 20; k++) {
       const reached = counter.increment()
 
-      if (!reached || counter.count() !== k) {
-        counterOk = false
-      }
+      if (!reached || counter.count() !== k) counterOk = false
     }
 
     check({
@@ -1924,9 +1910,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     for (let k = 1; k <= 100; k++) {
       sec.increment()
 
-      if (sec.count() !== k) {
-        secOk = false
-      }
+      if (sec.count() !== k) secOk = false
     }
 
     check({
@@ -1952,9 +1936,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       for (let c = 0; c < rg.size; c++) {
         const row: number[] = []
 
-        for (let s = 0; s < rg.degree(c); s++) {
+        for (let s = 0; s < rg.degree(c); s++)
           row.push(rg.step(c, s).cell)
-        }
 
         rnb.push(row)
       }
@@ -2006,35 +1989,27 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
                 }
               }
 
-              if (lca < 0) {
-                continue
-              }
+              if (lca < 0) continue
 
               const aa: number[] = []
 
               for (const z of up) {
                 aa.push(z)
 
-                if (z === lca) {
-                  break
-                }
+                if (z === lca) break
               }
 
               const bb: number[] = []
 
               for (const z of vp) {
-                if (z === lca) {
-                  break
-                }
+                if (z === lca) break
 
                 bb.push(z)
               }
 
               const c2 = [...aa, ...bb.reverse()]
 
-              if (c2.length >= 4) {
-                cyc = c2
-              }
+              if (c2.length >= 4) cyc = c2
             }
           }
         }

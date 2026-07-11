@@ -27,9 +27,8 @@ function realDot(
 ): number {
   let s = 0
 
-  for (let i = 0; i < dimension; i++) {
+  for (let i = 0; i < dimension; i++)
     s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
-  }
 
   return s
 }
@@ -53,15 +52,11 @@ export function largestEigenvalueOfSquare(input: {
   const iterations = input.iterations ?? 40
   const v = newVector(dimension)
 
-  for (let i = 0; i < dimension; i++) {
-    v.re[i] = rand() - 0.5
-  }
+  for (let i = 0; i < dimension; i++) v.re[i] = rand() - 0.5
 
   let norm = Math.sqrt(realDot(v, v, dimension))
 
-  for (let i = 0; i < dimension; i++) {
-    v.re[i]! /= norm
-  }
+  for (let i = 0; i < dimension; i++) v.re[i]! /= norm
 
   const t = newVector(dimension)
   const w = newVector(dimension)
@@ -101,15 +96,11 @@ export function lowestAbsoluteEigenvalues(input: {
 
   let v = newVector(dimension)
 
-  for (let i = 0; i < dimension; i++) {
-    v.re[i] = rand() - 0.5
-  }
+  for (let i = 0; i < dimension; i++) v.re[i] = rand() - 0.5
 
   const norm = Math.sqrt(realDot(v, v, dimension))
 
-  for (let i = 0; i < dimension; i++) {
-    v.re[i]! /= norm
-  }
+  for (let i = 0; i < dimension; i++) v.re[i]! /= norm
 
   const alpha: number[] = []
   const beta: number[] = []
@@ -142,6 +133,7 @@ export function lowestAbsoluteEigenvalues(input: {
     }
 
     const aj = realDot(v, w, dimension)
+
     alpha.push(aj)
 
     for (let i = 0; i < dimension; i++) {
@@ -161,9 +153,7 @@ export function lowestAbsoluteEigenvalues(input: {
 
     const bj = Math.sqrt(realDot(w, w, dimension))
 
-    if (bj < 1e-9 || j === steps - 1) {
-      break
-    }
+    if (bj < 1e-9 || j === steps - 1) break
 
     beta.push(bj)
     vprev = { re: v.re.slice(), im: v.im.slice() }

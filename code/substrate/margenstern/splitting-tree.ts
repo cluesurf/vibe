@@ -32,9 +32,7 @@ export function colorOf(address: string): TileColor {
 export function childrenOf(address: string): string[] {
   const kids = [address + '00', address + '01']
 
-  if (colorOf(address) === 'white') {
-    kids.push(address + '10')
-  }
+  if (colorOf(address) === 'white') kids.push(address + '10')
 
   return kids
 }
@@ -46,9 +44,7 @@ export function preferredSon(address: string): string {
 
 // the parent address, the tile's address with its last two digits stripped, or null at a sector root
 export function parentOf(address: string): string | null {
-  if (address.length <= 2) {
-    return null
-  }
+  if (address.length <= 2) return null
 
   return address.slice(0, -2)
 }
@@ -106,9 +102,7 @@ export class SplittingTree {
   children(id: number): number[] {
     const cached = this.childIds[id]
 
-    if (cached) {
-      return cached
-    }
+    if (cached) return cached
 
     const kids: number[] = []
 
@@ -142,9 +136,8 @@ export class SplittingTree {
       let id = 0;
       id < this.addresses.length && this.addresses.length < count;
       id++
-    ) {
+    )
       this.children(id)
-    }
   }
 
   // the path of tile ids from a node up to the sector root

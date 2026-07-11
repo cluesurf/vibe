@@ -51,9 +51,7 @@ function matterForceExponent(): { exponent: number; binds: boolean } {
     v += -(k / (r * r)) * dt
     r += v * dt
 
-    if (r < 1) {
-      break
-    }
+    if (r < 1) break
   }
 
   return { exponent, binds: r < 12 }

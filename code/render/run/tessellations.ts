@@ -73,9 +73,7 @@ function parseSymbol(text: string): number[] | null {
     .split(',')
     .map(p => Number(p.trim()))
 
-  if (nums.some(n => !Number.isInteger(n) || n <= 0)) {
-    return null
-  }
+  if (nums.some(n => !Number.isInteger(n) || n <= 0)) return null
 
   return nums
 }
@@ -117,9 +115,7 @@ function run(): void {
 
     const key = symbol.join('-')
 
-    if (want.length && !want.includes(key)) {
-      continue
-    }
+    if (want.length && !want.includes(key)) continue
 
     const twoD = dimension === 2
     const maxCells = twoD ? 2800 : dimension === 3 ? 600 : 350

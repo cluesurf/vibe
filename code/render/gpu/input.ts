@@ -35,9 +35,8 @@ export function attachControls(input: {
   const onKeyDown = (e: KeyboardEvent): void => {
     held.add(e.key.length === 1 ? e.key.toLowerCase() : e.key)
 
-    if (NAV_KEYS.has(e.key) || NAV_KEYS.has(e.key.toLowerCase())) {
+    if (NAV_KEYS.has(e.key) || NAV_KEYS.has(e.key.toLowerCase()))
       e.preventDefault()
-    }
   }
 
   const onKeyUp = (e: KeyboardEvent): void => {
@@ -52,12 +51,11 @@ export function attachControls(input: {
   }
 
   const onPointerMove = (e: PointerEvent): void => {
-    if (!dragging) {
-      return
-    }
+    if (!dragging) return
 
     const dx = e.clientX - lastX
     const dy = e.clientY - lastY
+
     lastX = e.clientX
     lastY = e.clientY
     camera.turn(-dx * MOUSE_LOOK)
@@ -67,19 +65,16 @@ export function attachControls(input: {
   const onPointerUp = (e: PointerEvent): void => {
     dragging = false
 
-    if (canvas.hasPointerCapture(e.pointerId)) {
+    if (canvas.hasPointerCapture(e.pointerId))
       canvas.releasePointerCapture(e.pointerId)
-    }
   }
 
   const onWheel = (e: WheelEvent): void => {
     e.preventDefault()
 
-    if (camera.mode === '2d') {
+    if (camera.mode === '2d')
       camera.zoomBy(Math.exp(-e.deltaY * WHEEL_ZOOM))
-    } else {
-      camera.moveForward(-e.deltaY * WHEEL_MOVE)
-    }
+    else camera.moveForward(-e.deltaY * WHEEL_MOVE)
   }
 
   window.addEventListener('keydown', onKeyDown)
@@ -100,21 +95,13 @@ export function attachControls(input: {
       const strafe = axis(['e'], ['q'])
       const lift = axis([' '], ['Shift'])
 
-      if (forward) {
-        camera.moveForward(forward * MOVE_SPEED * dt)
-      }
+      if (forward) camera.moveForward(forward * MOVE_SPEED * dt)
 
-      if (turn) {
-        camera.turn(turn * TURN_SPEED * dt)
-      }
+      if (turn) camera.turn(turn * TURN_SPEED * dt)
 
-      if (strafe) {
-        camera.moveRight(strafe * MOVE_SPEED * dt)
-      }
+      if (strafe) camera.moveRight(strafe * MOVE_SPEED * dt)
 
-      if (lift) {
-        camera.moveUp(lift * MOVE_SPEED * dt)
-      }
+      if (lift) camera.moveUp(lift * MOVE_SPEED * dt)
     },
     detach() {
       window.removeEventListener('keydown', onKeyDown)

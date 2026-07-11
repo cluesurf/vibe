@@ -15,9 +15,8 @@ function chord(a: Vec, b: Vec): number {
 export function crossRatio(points: Vec[]): number {
   const [p1, p2, p3, p4] = points
 
-  if (!p1 || !p2 || !p3 || !p4 || points.length !== 4) {
+  if (!p1 || !p2 || !p3 || !p4 || points.length !== 4)
     throw new Error('crossRatio needs exactly four points')
-  }
 
   const denominator = chord(p1, p3) * chord(p2, p4)
 
@@ -39,9 +38,7 @@ export function maxChordDistortion(
       const a = chord(after[i]!, after[j]!)
       const rel = Math.abs(a - b) / Math.max(1e-12, b)
 
-      if (rel > worst) {
-        worst = rel
-      }
+      if (rel > worst) worst = rel
     }
   }
 

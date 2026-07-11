@@ -53,15 +53,13 @@ export function clusterMajority(
 ): Int8Array {
   const sum = new Float64Array(clusterCount)
 
-  for (let v = 0; v < tone.length; v++) {
+  for (let v = 0; v < tone.length; v++)
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
-  }
 
   const out = new Int8Array(clusterCount)
 
-  for (let c = 0; c < clusterCount; c++) {
+  for (let c = 0; c < clusterCount; c++)
     out[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
-  }
 
   return out
 }

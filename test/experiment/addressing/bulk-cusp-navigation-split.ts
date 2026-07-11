@@ -88,9 +88,7 @@ export default experiment({
     let bulkDecays = true
 
     for (let i = 1; i < bulkExponents.length; i++) {
-      if (bulkExponents[i]! >= bulkExponents[i - 1]!) {
-        bulkDecays = false
-      }
+      if (bulkExponents[i]! >= bulkExponents[i - 1]!) bulkDecays = false
     }
 
     const bulkIsSubPolynomial =

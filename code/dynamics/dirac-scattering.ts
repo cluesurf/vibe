@@ -49,15 +49,15 @@ export function diracScatter(input: {
     )
 
     const phase = momentum * x
+
     right[x] = [envelope * Math.cos(phase), envelope * Math.sin(phase)]
     normalization += abs2(right[x]!)
   }
 
   const scale = 1 / Math.sqrt(normalization)
 
-  for (let x = 0; x < L; x++) {
+  for (let x = 0; x < L; x++)
     right[x] = [right[x]![0] * scale, right[x]![1] * scale]
-  }
 
   const massAt = (x: number): number => (x >= barrier ? barrierMass : 0)
   const damp = 1 - leak
@@ -75,6 +75,7 @@ export function diracScatter(input: {
         [cosMass * right[x]![0], cosMass * right[x]![1]],
         mul([-sinMass, 0], mul(IMAG, left[x]!)),
       )
+
       coinedLeft[x] = add(mul([-sinMass, 0], mul(IMAG, right[x]!)), [
         cosMass * left[x]![0],
         cosMass * left[x]![1],
@@ -112,11 +113,8 @@ export function diracScatter(input: {
   for (let x = 0; x < L; x++) {
     const probability = abs2(right[x]!) + abs2(left[x]!)
 
-    if (x >= barrier) {
-      transmitted += probability
-    } else {
-      reflected += probability
-    }
+    if (x >= barrier) transmitted += probability
+    else reflected += probability
   }
 
   return { transmitted, reflected, total: transmitted + reflected }
@@ -178,15 +176,15 @@ export function diracTunnel(input: {
     )
 
     const phase = momentum * x
+
     right[x] = [envelope * Math.cos(phase), envelope * Math.sin(phase)]
     normalization += abs2(right[x]!)
   }
 
   const scale = 1 / Math.sqrt(normalization)
 
-  for (let x = 0; x < L; x++) {
+  for (let x = 0; x < L; x++)
     right[x] = [right[x]![0] * scale, right[x]![1] * scale]
-  }
 
   const cosBarrier = Math.cos(barrierMass)
   const sinBarrier = Math.sin(barrierMass)
@@ -206,6 +204,7 @@ export function diracTunnel(input: {
         [cosMass * right[x]![0], cosMass * right[x]![1]],
         mul([-sinMass, 0], mul(IMAG, left[x]!)),
       )
+
       coinedLeft[x] = add(mul([-sinMass, 0], mul(IMAG, right[x]!)), [
         cosMass * left[x]![0],
         cosMass * left[x]![1],
@@ -216,13 +215,9 @@ export function diracTunnel(input: {
     const nextLeft: Complex[] = new Array(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
-      if (x + 1 < L) {
-        nextRight[x + 1] = coinedRight[x]!
-      }
+      if (x + 1 < L) nextRight[x + 1] = coinedRight[x]!
 
-      if (x - 1 >= 0) {
-        nextLeft[x - 1] = coinedLeft[x]!
-      }
+      if (x - 1 >= 0) nextLeft[x - 1] = coinedLeft[x]!
     }
 
     right = nextRight
@@ -231,9 +226,8 @@ export function diracTunnel(input: {
 
   let transmitted = 0
 
-  for (let x = barrierStart + barrierWidth; x < L; x++) {
+  for (let x = barrierStart + barrierWidth; x < L; x++)
     transmitted += abs2(right[x]!) + abs2(left[x]!)
-  }
 
   return transmitted
 }

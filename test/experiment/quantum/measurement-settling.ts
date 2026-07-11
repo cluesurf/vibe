@@ -50,6 +50,7 @@ export default experiment({
 
     const table = streamSourceTable(mesh)
     const init = makeWill(mesh)
+
     fillWillPattern(init) // a deterministic coherent body, never random
 
     const frontierX = 0

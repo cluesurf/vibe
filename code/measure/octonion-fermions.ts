@@ -27,16 +27,16 @@ function leftMultiplication(a: number): number[][] {
 
   for (let j = 0; j < 8; j++) {
     const basis = new Array<number>(8).fill(0)
+
     basis[j] = 1
 
     const unit = new Array<number>(8).fill(0)
+
     unit[a] = 1
 
     const product = cayleyMultiply(unit, basis)
 
-    for (let i = 0; i < 8; i++) {
-      m[i]![j] = product[i]!
-    }
+    for (let i = 0; i < 8; i++) m[i]![j] = product[i]!
   }
 
   return m
@@ -56,9 +56,7 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
       const ar = a.re[i]![k]!
       const ai = a.im[i]![k]!
 
-      if (ar === 0 && ai === 0) {
-        continue
-      }
+      if (ar === 0 && ai === 0) continue
 
       const reRow = re[i]!
       const imRow = im[i]!
@@ -126,9 +124,8 @@ function isZeroMatrix(a: ComplexMatrix): boolean {
       if (
         Math.abs(a.re[i]![j]!) > 1e-9 ||
         Math.abs(a.im[i]![j]!) > 1e-9
-      ) {
+      )
         return false
-      }
     }
   }
 
@@ -143,9 +140,8 @@ function isIdentityMatrix(a: ComplexMatrix): boolean {
       if (
         Math.abs(a.re[i]![j]! - want) > 1e-9 ||
         Math.abs(a.im[i]![j]!) > 1e-9
-      ) {
+      )
         return false
-      }
     }
   }
 
@@ -160,9 +156,7 @@ const anticommutator = (
 const trace = (a: ComplexMatrix): number => {
   let t = 0
 
-  for (let i = 0; i < 8; i++) {
-    t += a.re[i]![i]!
-  }
+  for (let i = 0; i < 8; i++) t += a.re[i]![i]!
 
   return t
 }
@@ -188,9 +182,9 @@ export function octonionFermionGeneration(): {
     const real = complex(left[a]!, zero8())
     const square = multiply(real, real)
 
-    if (!isZeroMatrix(addMatrices(square, identity8))) {
+    if (!isZeroMatrix(addMatrices(square, identity8)))
       leftMultsAreClifford = false
-    } // L^2 = -I
+    // L^2 = -I
   }
 
   for (let a = 1; a <= 7 && leftMultsAreClifford; a++) {
@@ -200,9 +194,7 @@ export function octonionFermionGeneration(): {
         complex(left[b]!, zero8()),
       )
 
-      if (!isZeroMatrix(anti)) {
-        leftMultsAreClifford = false
-      }
+      if (!isZeroMatrix(anti)) leftMultsAreClifford = false
     }
   }
 
@@ -219,16 +211,11 @@ export function octonionFermionGeneration(): {
       const withDagger = anticommutator(ladder[i]!, dagger(ladder[j]!))
 
       if (i === j) {
-        if (!isIdentityMatrix(withDagger)) {
-          ladderRelationsHold = false
-        }
-      } else if (!isZeroMatrix(withDagger)) {
-        ladderRelationsHold = false
-      }
+        if (!isIdentityMatrix(withDagger)) ladderRelationsHold = false
+      } else if (!isZeroMatrix(withDagger)) ladderRelationsHold = false
 
-      if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!))) {
+      if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!)))
         ladderRelationsHold = false
-      }
     }
   }
 

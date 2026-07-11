@@ -10,41 +10,23 @@ export function perceptionPermutation(
   a: number,
   b: number,
 ): [number, number] {
-  if (a === -1 && b === -1) {
-    return [-1, -1]
-  }
+  if (a === -1 && b === -1) return [-1, -1]
 
-  if (a === 1 && b === 1) {
-    return [1, 1]
-  }
+  if (a === 1 && b === 1) return [1, 1]
 
-  if (a === -1 && b === 0) {
-    return [0, -1]
-  }
+  if (a === -1 && b === 0) return [0, -1]
 
-  if (a === 0 && b === -1) {
-    return [-1, 0]
-  }
+  if (a === 0 && b === -1) return [-1, 0]
 
-  if (a === 1 && b === 0) {
-    return [0, 1]
-  }
+  if (a === 1 && b === 0) return [0, 1]
 
-  if (a === 0 && b === 1) {
-    return [1, 0]
-  }
+  if (a === 0 && b === 1) return [1, 0]
 
-  if (a === 0 && b === 0) {
-    return [1, -1]
-  }
+  if (a === 0 && b === 0) return [1, -1]
 
-  if (a === 1 && b === -1) {
-    return [-1, 1]
-  }
+  if (a === 1 && b === -1) return [-1, 1]
 
-  if (a === -1 && b === 1) {
-    return [0, 0]
-  }
+  if (a === -1 && b === 1) return [0, 0]
 
   return [a, b]
 }
@@ -71,23 +53,21 @@ export function perceptionMatchingSweepCsr(input: {
 }): void {
   const { tone, offsets, adj, matched, start } = input
   const N = tone.length
+
   matched.fill(0)
 
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
 
-    if (matched[v]) {
-      continue
-    }
+    if (matched[v]) continue
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (matched[w]) {
-        continue
-      }
+      if (matched[w]) continue
 
       const [a, b] = perceptionPermutation(tone[v]!, tone[w]!)
+
       tone[v] = a
       tone[w] = b
       matched[v] = 1
@@ -122,9 +102,7 @@ export function perceptionMatchingSweep3d(input: {
   for (let s = 0; s < N; s++) {
     const v = (s0 + s) % N
 
-    if (matched[v]) {
-      continue
-    }
+    if (matched[v]) continue
 
     const vx = v % L
     const vy = ((v / L) | 0) % L
@@ -134,6 +112,7 @@ export function perceptionMatchingSweep3d(input: {
     for (let i = 5; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = ord[i]!
+
       ord[i] = ord[j]!
       ord[j] = t
     }
@@ -142,11 +121,10 @@ export function perceptionMatchingSweep3d(input: {
       const d = PERCEPTION_GRID_DIRECTIONS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
 
-      if (matched[w]) {
-        continue
-      }
+      if (matched[w]) continue
 
       const [na, nb] = perceptionPermutation(tone[v]!, tone[w]!)
+
       tone[v] = na
       tone[w] = nb
       matched[v] = 1
@@ -189,6 +167,7 @@ export function perceptionEdgeColoringSweep(input: {
       const u = eu[e]!
       const v = ev[e]!
       const ni = table[3 * (tone[u]! + 1) + (tone[v]! + 1)]!
+
       tone[u] = Math.floor(ni / 3) - 1
       tone[v] = (ni % 3) - 1
     }
@@ -213,6 +192,7 @@ export function perceptionBlockBeat(input: {
     const w = (i + 1) % length
     const idx = (tone[v]! + 1) * 3 + (tone[w]! + 1)
     const ni = table[idx]!
+
     tone[v] = Math.floor(ni / 3) - 1
     tone[w] = (ni % 3) - 1
   }

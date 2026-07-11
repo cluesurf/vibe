@@ -21,6 +21,7 @@ export function deterministicMicrostate(input: {
 
   for (let i = 0; i < size; i++) {
     const r = hashRand(i, 0, salt)
+
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }
 
@@ -49,6 +50,7 @@ export function perturbationLyapunovExponent(input: {
   const capFraction = input.capFraction ?? 0.15
   const a = deterministicMicrostate({ size, salt })
   const b = Int8Array.from(a)
+
   b[0] = b[0] === 1 ? -1 : 1
 
   const movedA = new Uint8Array(size)
@@ -67,6 +69,7 @@ export function perturbationLyapunovExponent(input: {
       beat: t,
       arrow,
     })
+
     conservingEdgeSweepHashed({
       tone: b,
       eu,
@@ -89,16 +92,12 @@ export function perturbationLyapunovExponent(input: {
       ys.push(Math.log(h))
     }
 
-    if (h >= cap) {
-      break
-    }
+    if (h >= cap) break
   }
 
   const n = xs.length
 
-  if (n < 5) {
-    return 0
-  }
+  if (n < 5) return 0
 
   let sx = 0
   let sy = 0

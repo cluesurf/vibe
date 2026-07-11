@@ -47,9 +47,8 @@ function toRows(m: SparseMatrix): number[][] {
   )
 
   for (let r = 0; r < m.rows; r++) {
-    for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++) {
+    for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++)
       out[r]![m.colIdx[p] ?? 0]! += m.value[p] ?? 0
-    }
   }
 
   return out
@@ -59,9 +58,8 @@ function toDense(m: SparseMatrix): DenseMatrix {
   const d = makeDense({ rows: m.rows, cols: m.cols })
 
   for (let r = 0; r < m.rows; r++) {
-    for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++) {
+    for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++)
       d.data[r * m.cols + (m.colIdx[p] ?? 0)]! += m.value[p] ?? 0
-    }
   }
 
   return d
@@ -80,9 +78,7 @@ function countZeroModes(complexInput: { substrate: Graph }): number {
   let zeroModes = 0
 
   for (const v of eig.values) {
-    if (Math.abs(v ?? 0) < 1e-7) {
-      zeroModes += 1
-    }
+    if (Math.abs(v ?? 0) < 1e-7) zeroModes += 1
   }
 
   return zeroModes
@@ -93,6 +89,7 @@ suite('operator/dirac: cell complex and boundary', [
     'K4 has the expected cell counts (4 vertices, 6 edges, 4 triangles)',
     () => {
       const complex = cellComplexOf({ substrate: k4, maxGrade: 2 })
+
       equal(complex.cellCount[0] ?? -1, 4, 'vertices')
       equal(complex.cellCount[1] ?? -1, 6, 'edges')
       equal(complex.cellCount[2] ?? -1, 4, 'triangles')
@@ -106,9 +103,8 @@ suite('operator/dirac: cell complex and boundary', [
     )
 
     for (let i = 0; i < product.length; i++) {
-      for (let j = 0; j < (product[i]?.length ?? 0); j++) {
+      for (let j = 0; j < (product[i]?.length ?? 0); j++)
         equal(product[i]![j] ?? 0, 0, `(B1 B2)[${i}][${j}] must be 0`)
-      }
     }
   }),
   check('boundary of boundary is zero: B1 . B2 = 0 (K3)', () => {
@@ -119,9 +115,7 @@ suite('operator/dirac: cell complex and boundary', [
     )
 
     for (const row of product) {
-      for (const value of row) {
-        equal(value, 0, 'B1 B2 entry must be 0')
-      }
+      for (const value of row) equal(value, 0, 'B1 B2 entry must be 0')
     }
   }),
 ])

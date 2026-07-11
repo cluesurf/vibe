@@ -124,6 +124,7 @@ suite('tool/balanced-ternary: round-trip over the whole range', [
         4,
         'clamp to +4 at K=2',
       )
+
       equal(
         fromBalancedTernary(toBalancedTernary(-99, 2)),
         -4,
@@ -141,18 +142,22 @@ suite('tool/balanced-ternary: field representability', [
         isBalancedTernaryField([-13, 0, 7, 13], 3),
         'all within +/-13 at K=3',
       )
+
       ok(
         !isBalancedTernaryField([0, 14], 3),
         '14 exceeds the K=3 cap of 13',
       )
+
       ok(
         !isBalancedTernaryField([-14, 0], 3),
         '-14 exceeds the K=3 cap',
       )
+
       ok(
         isBalancedTernaryField([1, -1, 0], 1),
         'single trits all within +/-1',
       )
+
       ok(
         !isBalancedTernaryField([2], 1),
         '2 exceeds the single-trit cap',

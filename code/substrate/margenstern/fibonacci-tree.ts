@@ -18,9 +18,7 @@ import {
 
 // the father of a node, by stripping the last two Fibonacci digits and adding back the high one (root -> 0)
 export function father(node: number): number {
-  if (node <= 1) {
-    return 0
-  }
+  if (node <= 1) return 0
 
   const z = toZeckendorf(node)
   const stripped = z.length <= 2 ? '' : z.slice(0, -2)
@@ -84,6 +82,7 @@ export function route(from: number, to: number): number[] {
   const up = pathToRoot(from) // [from, ..., 1]
   const down = pathToRoot(to) // [to, ..., 1]
   const depthOnUp = new Map<number, number>()
+
   up.forEach((node, index) => depthOnUp.set(node, index))
 
   // the common ancestor is the first node of `down` that also lies on `up`

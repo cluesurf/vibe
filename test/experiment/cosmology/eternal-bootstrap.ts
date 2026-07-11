@@ -38,9 +38,7 @@ export function eternalBootstrap(): {
   const netCharge = (a: Int8Array): number => {
     let s = 0
 
-    for (let i = 0; i < N; i++) {
-      s += signedTone(a[i]!)
-    }
+    for (let i = 0; i < N; i++) s += signedTone(a[i]!)
 
     return s
   }
@@ -60,11 +58,10 @@ export function eternalBootstrap(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (const j of nbCache[i]!) {
-        s += cur[j]!
-      }
+      for (const j of nbCache[i]!) s += cur[j]!
 
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+
       nx[i] = v
 
       if (v !== cur[i]!) {
@@ -96,9 +93,7 @@ export function eternalBootstrap(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (const j of nbCache[i]!) {
-        s += fc[j]!
-      }
+      for (const j of nbCache[i]!) s += fc[j]!
 
       nx[i] = (((s - fp[i]!) % 3) + 3) % 3
     }
@@ -117,9 +112,7 @@ export function eternalBootstrap(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (const j of nbCache[i]!) {
-        s += bp[j]!
-      }
+      for (const j of nbCache[i]!) s += bp[j]!
 
       pr[i] = (((s - bc[i]!) % 3) + 3) % 3
     }
@@ -150,11 +143,10 @@ export function eternalBootstrap(): {
     for (let i = 0; i < N; i++) {
       let s = m[i]!
 
-      for (const j of nbCache[i]!) {
-        s += m[j]!
-      }
+      for (const j of nbCache[i]!) s += m[j]!
 
       const v = (Math.round(s / 7) % 3) as 0 | 1 | 2
+
       nx[i] = v
 
       if (v !== m[i]!) {

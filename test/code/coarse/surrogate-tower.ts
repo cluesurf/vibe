@@ -31,6 +31,7 @@ suite('coarse/surrogate-tower: lag doubling and cost', [
     equal(tower.length, 3)
     tower.forEach((level, k) => {
       const expectedLag = 1 * 2 ** k
+
       equal(level.lag, expectedLag, `level ${k} lag`)
       equal(
         level.surrogateCost,
@@ -68,6 +69,7 @@ suite('coarse/surrogate-tower: fidelity vs the shuffled control', [
           1e-12,
           'period-2 series is perfectly predictable',
         )
+
         ok(
           level.accuracy >= level.shuffledAccuracy,
           'the learned surrogate is at least as good as its time-shuffled control',

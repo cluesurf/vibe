@@ -13,6 +13,7 @@ function fibUpTo(n: number): number[] {
   while (FIB_CACHE[FIB_CACHE.length - 1]! <= n) {
     const a = FIB_CACHE[FIB_CACHE.length - 1]!
     const b = FIB_CACHE[FIB_CACHE.length - 2]!
+
     FIB_CACHE.push(a + b)
   }
 
@@ -21,9 +22,8 @@ function fibUpTo(n: number): number[] {
 
 // the Zeckendorf address of a positive integer, as a binary string most-significant-digit first, no "11"
 export function toZeckendorf(value: number): string {
-  if (!Number.isInteger(value) || value <= 0) {
+  if (!Number.isInteger(value) || value <= 0)
     throw new Error(`Zeckendorf needs a positive integer, got ${value}`)
-  }
 
   const fib = fibUpTo(value)
 
@@ -40,9 +40,7 @@ export function toZeckendorf(value: number): string {
     if (fib[i]! <= remainder) {
       out += '1'
       remainder -= fib[i]!
-    } else if (out.length > 0) {
-      out += '0'
-    }
+    } else if (out.length > 0) out += '0'
   }
 
   return out
@@ -53,18 +51,18 @@ export function fromZeckendorf(address: string): number {
   let sum = 0
 
   const len = address.length
+
   fibUpTo(0)
 
   while (FIB_CACHE.length < len) {
     const a = FIB_CACHE[FIB_CACHE.length - 1]!
     const b = FIB_CACHE[FIB_CACHE.length - 2]!
+
     FIB_CACHE.push(a + b)
   }
 
   for (let i = 0; i < len; i++) {
-    if (address[len - 1 - i] === '1') {
-      sum += FIB_CACHE[i]!
-    }
+    if (address[len - 1 - i] === '1') sum += FIB_CACHE[i]!
   }
 
   return sum
@@ -90,12 +88,11 @@ export function sectorGeneration(n: number): number {
   let a = 1
   let b = 3
 
-  if (n === 0) {
-    return 1
-  }
+  if (n === 0) return 1
 
   for (let i = 1; i < n; i++) {
     const next = 3 * b - a
+
     a = b
     b = next
   }

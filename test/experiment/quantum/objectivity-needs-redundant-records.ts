@@ -119,10 +119,12 @@ export default experiment({
         worstCopySingleCell,
         pointerDistance({ chain: copy, fragment: [0] }),
       )
+
       worstCopyRedundancy = Math.min(
         worstCopyRedundancy,
         redundantCells(copy),
       )
+
       worstCopyCoherence = Math.max(
         worstCopyCoherence,
         coherenceOf(copy),
@@ -131,22 +133,23 @@ export default experiment({
       // GLOBAL control: no fragment short of the whole records the pointer
       const allButOne: number[] = []
 
-      for (let cell = 0; cell < n - 1; cell++) {
-        allButOne.push(cell)
-      }
+      for (let cell = 0; cell < n - 1; cell++) allButOne.push(cell)
 
       worstGlobalSingleCell = Math.max(
         worstGlobalSingleCell,
         pointerDistance({ chain: global, fragment: [0] }),
       )
+
       largestFragmentGlobal = Math.max(
         largestFragmentGlobal,
         pointerDistance({ chain: global, fragment: allButOne }),
       )
+
       worstGlobalRedundancy = Math.max(
         worstGlobalRedundancy,
         redundantCells(global),
       )
+
       worstGlobalCoherence = Math.max(
         worstGlobalCoherence,
         coherenceOf(global),
@@ -155,9 +158,7 @@ export default experiment({
       // the whole bath DOES record it (a global measurement recovers the pointer)
       const whole: number[] = []
 
-      for (let cell = 0; cell < n; cell++) {
-        whole.push(cell)
-      }
+      for (let cell = 0; cell < n; cell++) whole.push(cell)
 
       worstGlobalFullBath = Math.min(
         worstGlobalFullBath,

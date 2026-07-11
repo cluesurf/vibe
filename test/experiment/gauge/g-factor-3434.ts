@@ -54,6 +54,7 @@ function measureG(input: {
 
   for (let n = 0; n < 4; n++) {
     const predicted = mass * mass + 2 * fieldStrength * n
+
     ladderResidual = Math.max(
       ladderResidual,
       Math.abs(diracLevels[n]! - predicted),

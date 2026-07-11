@@ -41,6 +41,7 @@ suite('operator/ca-hamiltonian: Hermiticity', [
             1e-12,
             `re sym (${i},${j})`,
           )
+
           close(
             h.im[i * n + j] ?? 0,
             -(h.im[j * n + i] ?? 0),
@@ -94,9 +95,8 @@ suite('operator/ca-hamiltonian: exact small cases', [
 function frobeniusSquared(h: ComplexMatrix): number {
   let s = 0
 
-  for (let k = 0; k < h.re.length; k++) {
+  for (let k = 0; k < h.re.length; k++)
     s += (h.re[k] ?? 0) ** 2 + (h.im[k] ?? 0) ** 2
-  }
 
   return s
 }
@@ -104,9 +104,7 @@ function frobeniusSquared(h: ComplexMatrix): number {
 function trace(h: ComplexMatrix): number {
   let s = 0
 
-  for (let i = 0; i < h.rows; i++) {
-    s += h.re[i * h.rows + i] ?? 0
-  }
+  for (let i = 0; i < h.rows; i++) s += h.re[i * h.rows + i] ?? 0
 
   return s
 }
@@ -132,9 +130,8 @@ suite('operator/ca-hamiltonian: Pauli locality profile', [
 
       let fractionSum = 0
 
-      for (let r = 1; r <= 2; r++) {
+      for (let r = 1; r <= 2; r++)
         fractionSum += profile.weightByRange[r] ?? 0
-      }
 
       close(fractionSum, 1, 1e-12, 'range fractions sum to 1')
       ok(

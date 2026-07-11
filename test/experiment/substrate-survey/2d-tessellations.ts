@@ -62,9 +62,7 @@ export function twodTessellations(): void {
   for (const c of TILINGS) {
     const m = measure(c.sym)
 
-    if (!m.ok) {
-      continue
-    }
+    if (!m.ok) continue
   }
 }
 

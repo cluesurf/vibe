@@ -62,6 +62,7 @@ suite('coarse/macro-unit: extraction', [
       units[0]!.members.slice().sort((a, b) => a - b),
       [0, 1],
     )
+
     exactArray(
       units[1]!.members.slice().sort((a, b) => a - b),
       [3, 4],
@@ -102,6 +103,7 @@ suite('coarse/macro-unit: coarse map and compression', [
     })
 
     const labels = coarseLabels({ units, cellCount: 5 })
+
     exactArray(labels, [0, 0, -1, 1, 1])
   }),
   check('mean unit size is the arithmetic mean of the sizes', () => {

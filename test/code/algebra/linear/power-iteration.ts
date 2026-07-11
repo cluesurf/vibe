@@ -23,9 +23,7 @@ function operatorFrom(rows: number[][]): LinearOperator {
     for (let c = 0; c < n; c++) {
       const v = rows[r]![c]!
 
-      if (v !== 0) {
-        triplets.push({ row: r, col: c, value: v })
-      }
+      if (v !== 0) triplets.push({ row: r, col: c, value: v })
     }
   }
 
@@ -37,9 +35,7 @@ function operatorFrom(rows: number[][]): LinearOperator {
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += a[i]! * b[i]!
-  }
+  for (let i = 0; i < a.length; i++) s += a[i]! * b[i]!
 
   return s
 }

@@ -13,6 +13,7 @@ suite('dynamics/inflaton: Hubble rate', [
     const potential = (phi: number): number => 2 * phi * phi
     const h = inflatonHubble({ phi: 3, phidot: 0.5, potential })
     const expected = Math.sqrt((0.5 * 0.25 + 2 * 9) / 3)
+
     close(h, expected, 1e-12, 'Hubble closed form')
   }),
 ])

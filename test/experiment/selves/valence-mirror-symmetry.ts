@@ -53,9 +53,7 @@ export function mirrorSymmetry(input: { n: number; trials: number }): {
 
     // the mirrored outcome must be the exact negation of the original
     for (let i = 0; i < n; i++) {
-      if (mirrorOut[i] !== -out[i]!) {
-        equivariant = false
-      }
+      if (mirrorOut[i] !== -out[i]!) equivariant = false
     }
 
     // and the outcome is not the all-zero fixed point (so the equivariance is non-trivial)

@@ -41,9 +41,8 @@ function fillTexture(will: Will, period: number): void {
   const { mesh, data } = will
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    for (let d = 0; d < mesh.degree; d++) {
+    for (let d = 0; d < mesh.degree; d++)
       data[cell * mesh.degree + d] = (((cell * 5 + d) % period) % 3) - 1
-    }
   }
 }
 
@@ -82,6 +81,7 @@ export default experiment({
 
       for (const period of FILL_PERIODS) {
         const will = makeWill(mesh)
+
         fillTexture(will, period)
 
         allConserve = allConserve && conservesCharge(will, knit, BEATS)
@@ -89,6 +89,7 @@ export default experiment({
           allReverse && isReversible(will, knit, BEATS, knitInverse)
 
         const q = charge(will)
+
         smallestCharge = Math.min(smallestCharge, q)
         largestCharge = Math.max(largestCharge, q)
         cases++
@@ -101,6 +102,7 @@ export default experiment({
     // the control: the erasing rule conserves neither charge nor reversibility (on the mid size)
     const controlMesh = d4Mesh({ side: 6 })
     const lossyWill = makeWill(controlMesh)
+
     fillTexture(lossyWill, 7)
 
     const lossyConserves = conservesCharge(

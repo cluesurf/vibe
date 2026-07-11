@@ -48,6 +48,7 @@ export function blochCentroidTrace(input: {
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) * (x - x0)) / (2 * sigma * sigma))
+
     R[x] = [g, 0]
     Lf[x] = [g, 0]
     seedNorm += cabs2(R[x]!) + cabs2(Lf[x]!)
@@ -69,6 +70,7 @@ export function blochCentroidTrace(input: {
 
   for (let x = 0; x < L; x++) {
     const v = force * (x - x0)
+
     forceRe[x] = Math.cos(-v)
     forceIm[x] = Math.sin(-v)
   }
@@ -85,6 +87,7 @@ export function blochCentroidTrace(input: {
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(IMAG, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(IMAG, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -96,6 +99,7 @@ export function blochCentroidTrace(input: {
       for (let x = 0; x < L; x++) {
         const pr = forceRe[x]!
         const pi = forceIm[x]!
+
         R2[x] = cmul([pr, pi], R2[x]!)
         L2[x] = cmul([pr, pi], L2[x]!)
       }
@@ -120,6 +124,7 @@ export function blochCentroidTrace(input: {
     for (let x = 0; x < L; x++) {
       const dx = ((x - x0 + L + L / 2) % L) - L / 2
       const w = cabs2(R[x]!) + cabs2(Lf[x]!)
+
       cc += dx * w
       wc += w
     }
@@ -150,6 +155,7 @@ export function blochFrequency(input: {
 
     for (let t = 0; t < n; t++) {
       const phase = (2 * Math.PI * f * t) / n
+
       re += (trace[t]! - mean) * Math.cos(phase)
       im += (trace[t]! - mean) * Math.sin(phase)
     }

@@ -39,9 +39,7 @@ export default experiment({
     let strictlyNested = true
 
     for (let i = 1; i < cumulative.length; i++) {
-      if (cumulative[i]! < cumulative[i - 1]!) {
-        strictlyNested = false
-      }
+      if (cumulative[i]! < cumulative[i - 1]!) strictlyNested = false
     }
 
     const total = cumulative[cumulative.length - 1]!

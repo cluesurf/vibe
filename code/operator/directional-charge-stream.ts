@@ -24,9 +24,7 @@ export function streamDirectionalChargeStep(input: {
       const j = neighbors[i]![k]!
       const back = neighbors[j]!.indexOf(i)
 
-      if (back >= 0) {
-        next[j]![back] = next[j]![back]! + charge[i]![k]!
-      }
+      if (back >= 0) next[j]![back] = next[j]![back]! + charge[i]![k]!
     }
   }
 

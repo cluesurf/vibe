@@ -118,9 +118,8 @@ export function breakEvenSeparation(input: {
   for (let s = 2; s <= maximum; s++) {
     if (
       bulkTravelBeats({ separation: s, branching }) < cuspTravelBeats(s)
-    ) {
+    )
       return s
-    }
   }
 
   return -1
@@ -154,9 +153,8 @@ export function enclosedRegion(input: {
 
   let start = 0
 
-  for (let level = 0; level < ancestor; level++) {
+  for (let level = 0; level < ancestor; level++)
     start = start * branching + digits[level]!
-  }
 
   const size = branching ** (depth - ancestor)
 

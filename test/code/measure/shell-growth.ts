@@ -33,6 +33,7 @@ function regularTree(
     for (const parent of frontier) {
       for (let c = 0; c < b; c++) {
         const child = neighbors.length
+
         neighbors.push([parent])
         neighbors[parent]!.push(child)
         next.push(child)
@@ -64,6 +65,7 @@ suite('measure/shell-growth: tree shell counts', [
   // growthRatioFromShellCounts drops the truncated last shell and reads ratio at len-2: 27/9 = 3.
   check('the growth ratio of the tree is the branching factor', () => {
     const r = growthRatioFromShellCounts([1, 3, 9, 27, 81])
+
     equal(r.ratio, 3)
     equal(r.shell, 3)
   }),
@@ -87,6 +89,7 @@ suite('measure/shell-growth: Euclidean L1 shells', [
       5 / 4,
       1e-9,
     )
+
     close(
       euclideanL1ShellRatio({ dimension: 2, shell: 100 }),
       100 / 99,
@@ -103,6 +106,7 @@ suite('measure/shell-growth: growth-rate algebra', [
       3,
       1e-12,
     )
+
     close(
       shellSeparationExponent({ ratio: 81, growthRate: 3 }),
       4,
@@ -133,6 +137,7 @@ suite('measure/shell-growth: growth-rate algebra', [
     'the Fibonacci shell sequence fits an order-2 integer recurrence',
     () => {
       const r = fitOrder2Recurrence([1, 1, 2, 3, 5, 8, 999])
+
       close(r.a, 1, 1e-9)
       close(r.b, 1, 1e-9)
       equal(r.isInteger, true)

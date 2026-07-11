@@ -32,6 +32,7 @@ suite('algebra/linear/sparse: CSR matvec', [
     ]
 
     const m = sparseFromTriplets({ rows: 2, cols: 2, triplets })
+
     // (1,1) -> (3,3) ; eigenvector (1,-1) -> (1,-1)
     closeArray(
       sparseMatVec(m, { x: Float64Array.from([1, 1]) }),
@@ -39,6 +40,7 @@ suite('algebra/linear/sparse: CSR matvec', [
       1e-12,
       'x=(1,1)',
     )
+
     closeArray(
       sparseMatVec(m, { x: Float64Array.from([1, -1]) }),
       [1, -1],
@@ -54,6 +56,7 @@ suite('algebra/linear/sparse: CSR matvec', [
     ]
 
     const m = sparseFromTriplets({ rows: 2, cols: 2, triplets })
+
     closeArray(
       sparseMatVec(m, { x: Float64Array.from([1, 1]) }),
       [2, 3],
@@ -74,6 +77,7 @@ suite('algebra/linear/sparse: CSR matvec', [
       })
 
       const op = operatorFromSparse(m)
+
       equal(op.size, 3, 'size')
       closeArray(
         op.apply({ x: Float64Array.from([1, 1, 1]) }),
@@ -97,6 +101,7 @@ suite('algebra/linear/sparse: Aubry-Andre potential', [
     })
 
     const op = sparseWithAubryAndrePotential(m, 0)
+
     closeArray(
       op.apply({ x: Float64Array.from([1, 1]) }),
       [1, 1],
@@ -115,10 +120,12 @@ suite('algebra/linear/sparse: Aubry-Andre potential', [
       // applying to a basis vector e_i reads out V_i on row i.
       for (let i = 0; i < 3; i++) {
         const e = new Float64Array(3)
+
         e[i] = 1
 
         const expected = strength * Math.cos(2 * Math.PI * GOLDEN * i)
         const y = op.apply({ x: e })
+
         close(y[i]!, expected, 1e-9, `V_${i}`)
       }
     },

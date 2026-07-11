@@ -12,9 +12,8 @@ import { Poset, precedes, relationCount } from '@/code/tool/poset'
 function asGraph(input: { dimension: number; extent: number }): Graph {
   const s = lattice({ ...input, signature: 'riemannian' })
 
-  if (s.form !== 'graph') {
+  if (s.form !== 'graph')
     throw new Error('riemannian lattice must be a graph')
-  }
 
   return s
 }
@@ -22,9 +21,8 @@ function asGraph(input: { dimension: number; extent: number }): Graph {
 function asPoset(input: { dimension: number; extent: number }): Poset {
   const s = lattice({ ...input, signature: 'lorentzian' })
 
-  if (s.form !== 'poset') {
+  if (s.form !== 'poset')
     throw new Error('lorentzian lattice must be a poset')
-  }
 
   return s
 }
@@ -36,6 +34,7 @@ suite('substrate/lattice: the riemannian mesh', [
       // Row-major index: axis 0 fastest. The centre (1,1) is index 4 with degree 4 = 2d,
       // corner (0,0) index 0 has degree 2, edge (1,0) index 1 has degree 3.
       const g = asGraph({ dimension: 2, extent: 3 })
+
       equal(g.size, 9, 'cell count')
       equal(degree(g, { node: 4 }), 4, 'interior degree 2d')
       equal(degree(g, { node: 0 }), 2, 'corner degree')
@@ -48,14 +47,13 @@ suite('substrate/lattice: the riemannian mesh', [
 
     let total = 0
 
-    for (let i = 0; i < g.size; i++) {
-      total += degree(g, { node: i })
-    }
+    for (let i = 0; i < g.size; i++) total += degree(g, { node: i })
 
     equal(total, 24, 'sum of degrees')
   }),
   check('a 3x3x3 mesh centre has degree 2d = 6', () => {
     const g = asGraph({ dimension: 3, extent: 3 })
+
     equal(g.size, 27, 'cell count')
     equal(degree(g, { node: 13 }), 6, 'interior degree')
   }),
@@ -64,9 +62,8 @@ suite('substrate/lattice: the riemannian mesh', [
     const sets = g.neighbors.map(row => new Set(row))
 
     for (let i = 0; i < g.size; i++) {
-      for (const j of g.neighbors[i]!) {
+      for (const j of g.neighbors[i]!)
         ok(sets[j]!.has(i), `edge ${i}-${j} must be mutual`)
-      }
     }
   }),
 ])
@@ -107,9 +104,7 @@ suite('substrate/lattice: the lorentzian causal order', [
 
     for (let a = 0; a < p.size; a++) {
       for (let b = 0; b < p.size; b++) {
-        if (!precedes(p, { a, b })) {
-          continue
-        }
+        if (!precedes(p, { a, b })) continue
 
         for (let c = 0; c < p.size; c++) {
           if (precedes(p, { a: b, b: c })) {

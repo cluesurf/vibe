@@ -49,9 +49,8 @@ export default experiment({
     const directions = rootsD4()
     const opposite: number[] = []
 
-    for (let d = 0; d < mesh.degree; d++) {
+    for (let d = 0; d < mesh.degree; d++)
       opposite.push(mesh.opposite(d))
-    }
 
     const collision = headOnRotate({ opposite })
 
@@ -75,9 +74,7 @@ export default experiment({
 
     const same = (a: Will, b: Will): boolean => {
       for (let i = 0; i < a.data.length; i++) {
-        if (a.data[i] !== b.data[i]) {
-          return false
-        }
+        if (a.data[i] !== b.data[i]) return false
       }
 
       return true

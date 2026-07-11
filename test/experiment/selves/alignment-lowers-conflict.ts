@@ -34,6 +34,7 @@ function noisy(
 
   for (let s = 0; s < flips; s++) {
     const i = (offset * 7 + s * 13) % n
+
     out[i] = -out[i]!
   }
 

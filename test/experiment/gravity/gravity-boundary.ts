@@ -88,9 +88,8 @@ export default experiment({
       if (
         Math.abs(slopes[i]!.slope + 1) >=
         Math.abs(slopes[i - 1]!.slope + 1)
-      ) {
+      )
         convergesToNewton = false
-      }
     }
 
     // the 2D dimensional control: the potential is a logarithm, not a power, so G falls

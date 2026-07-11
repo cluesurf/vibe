@@ -52,9 +52,7 @@ suite('substrate/branching-order: determinism', [
       )
       equal(r.widthPerGen[0], params.initialWidth, 'initial width')
 
-      for (const w of r.widthPerGen) {
-        ok(w >= 1, 'width at least 1')
-      }
+      for (const w of r.widthPerGen) ok(w >= 1, 'width at least 1')
     },
   ),
 ])
@@ -63,9 +61,8 @@ suite('substrate/branching-order: it is a partial order', [
   check('irreflexive, antisymmetric, transitive', () => {
     const { poset } = growBranchingOrder(params)
 
-    for (let i = 0; i < poset.size; i++) {
+    for (let i = 0; i < poset.size; i++)
       notOk(precedes(poset, { a: i, b: i }), `no self-relation (${i})`)
-    }
 
     for (let a = 0; a < poset.size; a++) {
       for (let b = 0; b < poset.size; b++) {

@@ -41,9 +41,7 @@ function detStream(): Rng {
 function randomCode(m: number, rng: Rng): Int8Array {
   const c = new Int8Array(m)
 
-  for (let i = 0; i < m; i++) {
-    c[i] = rng.next() < 0.5 ? 1 : -1
-  }
+  for (let i = 0; i < m; i++) c[i] = rng.next() < 0.5 ? 1 : -1
 
   return c
 }
@@ -52,9 +50,8 @@ function randomCode(m: number, rng: Rng): Int8Array {
 function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
   const child = new Int8Array(parent.length)
 
-  for (let i = 0; i < parent.length; i++) {
+  for (let i = 0; i < parent.length; i++)
     child[i] = rng.next() < mu ? -parent[i]! : parent[i]!
-  }
 
   return child
 }
@@ -81,15 +78,11 @@ function generation(
       for (let t = 0; t < 2; t++) {
         const c = Math.floor(rng.next() * K)
 
-        if (fit[c]! > fit[best]!) {
-          best = c
-        }
+        if (fit[c]! > fit[best]!) best = c
       }
 
       parent = pop[best]!
-    } else {
-      parent = pop[Math.floor(rng.next() * K)]! // neutral drift, random parent
-    }
+    } else parent = pop[Math.floor(rng.next() * K)]! // neutral drift, random parent
 
     next.push(reproduce(parent, mu, rng))
   }
@@ -133,27 +126,24 @@ export function evolution(input?: {
 
   const startFitness = meanFitness(pop, target)
 
-  for (let g = 0; g < G; g++) {
+  for (let g = 0; g < G; g++)
     pop = generation(pop, target, mu, true, rng)
-  }
 
   const selectedFitness = meanFitness(pop, target)
 
   // control, neutral drift (no selection), fitness should NOT rise
   let popD = initPop()
 
-  for (let g = 0; g < G; g++) {
+  for (let g = 0; g < G; g++)
     popD = generation(popD, target, mu, false, rng)
-  }
 
   const driftFitness = meanFitness(popD, target)
 
   // (3) variation needed, selection with ZERO mutation stalls (no raw material)
   let popN = initPop()
 
-  for (let g = 0; g < G; g++) {
+  for (let g = 0; g < G; g++)
     popN = generation(popN, target, 0, true, rng)
-  }
 
   const noMutationFitness = meanFitness(popN, target)
 
@@ -164,9 +154,8 @@ export function evolution(input?: {
 
   const fitOnNew = meanFitness(popA, target2) // fitness on the NEW target (should start low)
 
-  for (let g = 0; g < G; g++) {
+  for (let g = 0; g < G; g++)
     popA = generation(popA, target2, mu, true, rng)
-  }
 
   const adaptedFitness = meanFitness(popA, target2)
 

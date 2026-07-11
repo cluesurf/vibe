@@ -40,6 +40,7 @@ suite('dynamics/genesis: counts and balancing', [
   }),
   check('balanceToZero forces total charge to 0', () => {
     const tone = makeTone(30)
+
     equal(
       totalCharge(balanceToZero(tone)),
       0,
@@ -131,8 +132,7 @@ suite('dynamics/genesis: determinism', [
     const a = run()
     const b = run()
 
-    for (let i = 0; i < a.length; i++) {
+    for (let i = 0; i < a.length; i++)
       equal(a[i]!, b[i]!, `trajectory ${i}`)
-    }
   }),
 ])

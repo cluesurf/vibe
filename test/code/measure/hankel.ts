@@ -26,6 +26,7 @@ suite('measure/hankel: hankelMatrix', [
   check('H[i][j] = sequence[i+j]', () => {
     // sequence 1..5, size 2 -> 3x3 with anti-diagonal-constant structure.
     const h = hankelMatrix({ sequence: [1, 2, 3, 4, 5], size: 2 })
+
     equal(h.length, 3)
     closeArray(h[0]!, [1, 2, 3], 0)
     closeArray(h[1]!, [2, 3, 4], 0)
@@ -57,6 +58,7 @@ suite('measure/hankel: eigenvalues', [
       [-1, 3],
       TOL,
     )
+
     close(
       symmetricMinEigenvalue([
         [1, 2],

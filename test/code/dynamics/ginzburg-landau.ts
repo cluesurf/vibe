@@ -18,9 +18,8 @@ suite('dynamics/ginzburg-landau: field construction', [
   check('a winding field is unit modulus everywhere', () => {
     const field = ringFieldWithWinding(32, 2)
 
-    for (const z of field) {
+    for (const z of field)
       close(Math.hypot(z.re, z.im), 1, 1e-12, 'unit modulus')
-    }
   }),
   check(
     'uniform field has zero Dirichlet energy; a winding field has positive energy',
@@ -46,12 +45,14 @@ suite('dynamics/ginzburg-landau: gradient flow', [
       const field = ringDefectPair(48)
       const e0 = ringFieldEnergy(field)
       const relaxed = relaxRingField({ field, steps: 500, dt: 0.05 })
+
       ok(ringFieldEnergy(relaxed) < e0, 'energy descended')
     },
   ),
   check('energy is monotone non-increasing along the flow', () => {
     const field = ringDefectPair(40)
     const samples: number[] = []
+
     relaxRingField({
       field,
       steps: 400,

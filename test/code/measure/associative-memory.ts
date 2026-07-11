@@ -19,6 +19,7 @@ suite('measure/associative-memory: vsaRecallAccuracy', [
   ),
   check('accuracy is a fraction in [0,1]', () => {
     const a = vsaRecallAccuracy({ dim: 128, items: 5 })
+
     ok(a >= 0 && a <= 1)
   }),
 ])

@@ -60,6 +60,7 @@ export default experiment({
       })
 
       const will = makeWill(mesh)
+
       will.data.set(asymmetricFill(mesh))
 
       return {

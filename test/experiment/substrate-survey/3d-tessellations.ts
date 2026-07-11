@@ -94,9 +94,7 @@ export function threedTessellations(): void {
   for (const c of HONEYCOMBS) {
     const m = measure(c.sym, SURVEY_SCALE)
 
-    if (!m.ok) {
-      continue
-    }
+    if (!m.ok) continue
   }
 }
 

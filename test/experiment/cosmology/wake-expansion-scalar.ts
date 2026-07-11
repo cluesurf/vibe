@@ -60,9 +60,7 @@ export default experiment({
     for (let cell = 0; cell < dist.length; cell++) {
       const d = dist[cell]!
 
-      if (d >= 0 && d <= grownDepth) {
-        shellCells[d]!.push(cell)
-      }
+      if (d >= 0 && d <= grownDepth) shellCells[d]!.push(cell)
     }
 
     // the settled bulk: a small interior ball that is fully born after the first few beats and never sees a
@@ -116,9 +114,7 @@ export default experiment({
         edgeResiduals.push(edgeResidual)
         edgeBorn.push(born)
 
-        if (edgeResidual !== born) {
-          edgeMatchesBorn = false
-        }
+        if (edgeResidual !== born) edgeMatchesBorn = false
 
         // the bulk is source-free only once it is fully born (t beyond its radius), so check it from then on.
         if (t > bulkRadius) {

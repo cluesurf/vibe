@@ -17,11 +17,13 @@ suite('measure/acoustic-horizon: speed profile', [
       0,
       1e-12,
     )
+
     close(
       tanhHorizonSpeed({ radius: 1, horizon: 1, gradient: 0.5 }),
       0,
       1e-12,
     )
+
     close(
       tanhHorizonSpeed({ radius: 3, horizon: 1, gradient: 0.5 }),
       Math.tanh(1),

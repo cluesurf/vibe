@@ -50,6 +50,7 @@ export function ringFieldEnergy(psi: readonly Complex2[]): number {
   for (let i = 0; i < length; i++) {
     const a = psi[(i + 1) % length]!
     const z = psi[i]!
+
     e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2
   }
 
@@ -93,9 +94,8 @@ export function relaxRingField(input: {
   for (let t = 0; t < steps; t++) {
     cur = relaxStep(cur, dt)
 
-    if (onSample && sampleEvery && t % sampleEvery === 0) {
+    if (onSample && sampleEvery && t % sampleEvery === 0)
       onSample(cur, t)
-    }
   }
 
   return cur

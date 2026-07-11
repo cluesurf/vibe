@@ -30,16 +30,19 @@ const observe = ({ poset }: { poset: Poset }): number =>
 suite('dynamics/mcmc: transitive closure', [
   check('0->1 and 1->2 close to include 0->2', () => {
     const relation = makeBitMatrix({ rows: 3, cols: 3 })
+
     setBit(relation, { row: 0, col: 1 })
     setBit(relation, { row: 1, col: 2 })
 
     const closed = transitiveClosure({ size: 3, relation })
+
     ok(getBit(closed, { row: 0, col: 1 }), '0->1 retained')
     ok(getBit(closed, { row: 1, col: 2 }), '1->2 retained')
     ok(
       getBit(closed, { row: 0, col: 2 }),
       '0->2 inferred by transitivity',
     )
+
     ok(
       !getBit(closed, { row: 1, col: 0 }),
       'no spurious reverse relation',
@@ -63,6 +66,7 @@ suite('dynamics/mcmc: acceptance at beta = 0', [
 
       const free = at(0)
       const cold = at(10)
+
       ok(free > 0, 'some valid move is accepted at beta=0')
       ok(
         free >= cold,
@@ -86,6 +90,7 @@ suite('dynamics/mcmc: determinism', [
 
     const a = run()
     const b = run()
+
     equal(a.acceptanceRate, b.acceptanceRate, 'acceptance rate')
     equal(a.meanObservable, b.meanObservable, 'mean observable')
     exactArray(

@@ -67,6 +67,7 @@ export default experiment({
       )
 
       const naive = omega * omega - k * k
+
       naiveSpreadMin = Math.min(naiveSpreadMin, naive)
       naiveSpreadMax = Math.max(naiveSpreadMax, naive)
     }

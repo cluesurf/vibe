@@ -140,6 +140,7 @@ export function renderSceneToRgba(input: RasterOptions): {
           sxw = Math.sin(rotateXW)
 
         const x2 = cxw * x - sxw * w
+
         w = sxw * x + cxw * w
         x = x2
 
@@ -147,12 +148,14 @@ export function renderSceneToRgba(input: RasterOptions): {
           szw = Math.sin(rotateZW)
 
         const z2 = czw * z - szw * w
+
         w = szw * z + czw * w
         z = z2
 
         // perspective projection from 4D to 3D, w nearer the 4D eye (W_EYE) magnifies, like a 3D camera does
         const W_EYE = 2.2
         const k = W_EYE / (W_EYE - w)
+
         x *= k
         y *= k
         z *= k
@@ -188,19 +191,17 @@ export function renderSceneToRgba(input: RasterOptions): {
 
     let depth = 0
 
-    for (const p of plane) {
-      depth += p.z
-    }
+    for (const p of plane) depth += p.z
 
     depth /= plane.length
 
     let t: number
 
-    if (threeD) {
-      t = (depth + 1) / 2
-    } // -1..1 -> 0..1, near (high z) -> 1
+    if (threeD) t = (depth + 1) / 2
+    // -1..1 -> 0..1, near (high z) -> 1
     else {
       const mr = midRadius(e.a, e.b)
+
       t = 1 - Math.min(1, mr)
     } // centre -> 1, boundary -> 0
 
@@ -218,16 +219,13 @@ export function renderSceneToRgba(input: RasterOptions): {
       const b = f.polygon[(i + 1) % f.polygon.length]!
       const samples = geodesicPoints(a, b, faceSegments)
 
-      for (let k = 0; k < samples.length - 1; k++) {
+      for (let k = 0; k < samples.length - 1; k++)
         boundary.push(toPlane(samples[k]!))
-      }
     }
 
     let depth = 0
 
-    for (const p of boundary) {
-      depth += p.z
-    }
+    for (const p of boundary) depth += p.z
 
     depth /= boundary.length || 1
 
@@ -249,39 +247,28 @@ export function renderSceneToRgba(input: RasterOptions): {
       maxY = -Infinity
 
     const include = (x: number, y: number): void => {
-      if (x < minX) {
-        minX = x
-      }
+      if (x < minX) minX = x
 
-      if (x > maxX) {
-        maxX = x
-      }
+      if (x > maxX) maxX = x
 
-      if (y < minY) {
-        minY = y
-      }
+      if (y < minY) minY = y
 
-      if (y > maxY) {
-        maxY = y
-      }
+      if (y > maxY) maxY = y
     }
 
     for (const d of drawn) {
-      for (const p of d.plane) {
-        include(p.x, p.y)
-      }
+      for (const p of d.plane) include(p.x, p.y)
     }
 
     for (const f of faces) {
-      for (const p of f.boundary) {
-        include(p.x, p.y)
-      }
+      for (const p of f.boundary) include(p.x, p.y)
     }
 
     cx = (minX + maxX) / 2
     cy = (minY + maxY) / 2
 
     const span = Math.max(maxX - minX, maxY - minY) || 1
+
     scale = (size * margin) / span
   }
 
@@ -355,6 +342,7 @@ function downsample(
 
         for (let bx = 0; bx < block; bx++) {
           const so = (sy * srcSize + (x * block + bx)) * 4
+
           r += src[so]!
           g += src[so + 1]!
           b += src[so + 2]!
@@ -363,6 +351,7 @@ function downsample(
       }
 
       const o = (y * dstSize + x) * 4
+
       out[o] = Math.round(r / area)
       out[o + 1] = Math.round(g / area)
       out[o + 2] = Math.round(b / area)
@@ -379,21 +368,15 @@ function fillPolygon(
   pts: { x: number; y: number }[],
   color: Rgb,
 ): void {
-  if (pts.length < 3) {
-    return
-  }
+  if (pts.length < 3) return
 
   let minY = Infinity,
     maxY = -Infinity
 
   for (const p of pts) {
-    if (p.y < minY) {
-      minY = p.y
-    }
+    if (p.y < minY) minY = p.y
 
-    if (p.y > maxY) {
-      maxY = p.y
-    }
+    if (p.y > maxY) maxY = p.y
   }
 
   const y0 = Math.max(0, Math.ceil(minY))
@@ -408,14 +391,11 @@ function fillPolygon(
       const ay = a.y,
         by = b.y
 
-      if ((ay <= y && by > y) || (by <= y && ay > y)) {
+      if ((ay <= y && by > y) || (by <= y && ay > y))
         xs.push(a.x + ((y - ay) / (by - ay)) * (b.x - a.x))
-      }
     }
 
-    if (xs.length < 2) {
-      continue
-    }
+    if (xs.length < 2) continue
 
     xs.sort((p, q) => p - q)
 
@@ -425,6 +405,7 @@ function fillPolygon(
 
       for (let x = xa; x <= xb; x++) {
         const o = (y * size + x) * 4
+
         rgba[o] = color[0]
         rgba[o + 1] = color[1]
         rgba[o + 2] = color[2]
@@ -438,6 +419,7 @@ function midRadius(a: Vec, b: Vec): number {
 
   for (let i = 0; i < a.length; i++) {
     const m = (a[i]! + b[i]!) / 2
+
     s += m * m
   }
 
@@ -480,18 +462,15 @@ function drawLine(
 
     for (let oy = -r0; oy <= r0; oy++) {
       for (let ox = -r0; ox <= r0; ox++) {
-        if (ox * ox + oy * oy > rad * rad) {
-          continue
-        }
+        if (ox * ox + oy * oy > rad * rad) continue
 
         const px = Math.round(cx) + ox,
           py = Math.round(cy) + oy
 
-        if (px < 0 || px >= size || py < 0 || py >= size) {
-          continue
-        }
+        if (px < 0 || px >= size || py < 0 || py >= size) continue
 
         const o = (py * size + px) * 4
+
         rgba[o] = color[0]
         rgba[o + 1] = color[1]
         rgba[o + 2] = color[2]
@@ -516,11 +495,10 @@ function strokeCircle(
     const px = Math.round(cx + r * Math.cos(th)),
       py = Math.round(cy + r * Math.sin(th))
 
-    if (px < 0 || px >= size || py < 0 || py >= size) {
-      continue
-    }
+    if (px < 0 || px >= size || py < 0 || py >= size) continue
 
     const o = (py * size + px) * 4
+
     rgba[o] = color[0]
     rgba[o + 1] = color[1]
     rgba[o + 2] = color[2]

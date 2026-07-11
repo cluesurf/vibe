@@ -70,9 +70,8 @@ function blockSignature(tone: Int8Array): number[] {
   const sig = new Array<number>(BLOCKS).fill(0)
   const per = Math.ceil(tone.length / BLOCKS)
 
-  for (let i = 0; i < tone.length; i++) {
+  for (let i = 0; i < tone.length; i++)
     sig[Math.min(BLOCKS - 1, Math.floor(i / per))]! += tone[i]!
-  }
 
   return sig
 }
@@ -94,6 +93,7 @@ function genericTone(size: number, salt: number): Int8Array {
 
   for (let i = 0; i < size; i++) {
     const r = hashRand(i, 0, salt)
+
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }
 
@@ -146,13 +146,9 @@ export default experiment({
         arrow: 0.1,
       })
 
-      if (t === 250) {
-        snapEarly = blockSignature(arrowOnTone)
-      }
+      if (t === 250) snapEarly = blockSignature(arrowOnTone)
 
-      if (t === 300) {
-        snapLate = blockSignature(arrowOnTone)
-      }
+      if (t === 300) snapLate = blockSignature(arrowOnTone)
     }
 
     const arrowOnActivity = activity(arrowOnTone)
@@ -173,9 +169,7 @@ export default experiment({
         arrow: 0,
       })
 
-      for (let i = 0; i < drain; i++) {
-        arrowOffTone[i] = 0
-      }
+      for (let i = 0; i < drain; i++) arrowOffTone[i] = 0
     }
 
     const arrowOffActivity = activity(arrowOffTone)
@@ -193,9 +187,8 @@ export default experiment({
       })
 
       // let it reach its held configuration, then take a reference and check it holds.
-      for (let t = 0; t < 60; t++) {
+      for (let t = 0; t < 60; t++)
         beatHashed(tone, sg, moved, 100 + t, 0.01, 0.22)
-      }
 
       const reference = largestPositiveCluster(tone, sg)
 
@@ -203,9 +196,8 @@ export default experiment({
       let minAct = 1
 
       for (let block = 0; block < 4; block++) {
-        for (let t = 0; t < 20; t++) {
+        for (let t = 0; t < 20; t++)
           beatHashed(tone, sg, moved, 200 + block * 20 + t, 0.01, 0.22)
-        }
 
         minHold = Math.min(
           minHold,

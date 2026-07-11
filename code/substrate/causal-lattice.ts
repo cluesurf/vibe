@@ -15,13 +15,12 @@ export function causalLattice(input: { half: number }): Poset {
   for (let t = 0; t <= 2 * half; t++) {
     const reach = Math.min(t, 2 * half - t)
 
-    for (let x = -reach; x <= reach; x++) {
-      pts.push([t, x])
-    }
+    for (let x = -reach; x <= reach; x++) pts.push([t, x])
   }
 
   const n = pts.length
   const coords = new Float64Array(n * 2)
+
   pts.forEach(([t, x], i) => {
     coords[i * 2] = t
     coords[i * 2 + 1] = x

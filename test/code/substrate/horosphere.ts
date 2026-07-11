@@ -30,6 +30,7 @@ suite('substrate/horosphere: ideal direction and Busemann height', [
   check('the Busemann height vanishes at the origin', () => {
     // b(0) = log(|0 - xi|^2 / (1 - 0)) = log(|xi|^2) = log 1 = 0 for a unit ideal point.
     const b = busemann({ coords: [[0, 0]], ideal: [1, 0] })
+
     close(b[0]!, 0, 1e-12, 'b(origin) = 0')
   }),
 ])
@@ -39,6 +40,7 @@ suite('substrate/horosphere: the horosphere frame', [
     'the 2D frame is one unit vector perpendicular to the ideal point',
     () => {
       const frame = horoFrame([1, 0])
+
       equal(frame.length, 1, 'dim - 1 vectors')
       close(norm(frame[0]!), 1, 1e-12, 'unit')
       close(dot(frame[0]!, [1, 0]), 0, 1e-12, 'perpendicular to xi')
@@ -49,6 +51,7 @@ suite('substrate/horosphere: the horosphere frame', [
     () => {
       const ideal = [0, 0, 1]
       const frame = horoFrame(ideal)
+
       equal(frame.length, 2, 'dim - 1 vectors')
 
       for (const e of frame) {

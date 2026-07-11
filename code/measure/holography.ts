@@ -12,6 +12,7 @@ const bfsGeodesic = (
   to: number,
 ): number => {
   const distance = new Int32Array(neighbors.length).fill(-1)
+
   distance[from] = 0
 
   let frontier = [from]
@@ -24,9 +25,7 @@ const bfsGeodesic = (
         if (distance[neighbor] === -1) {
           distance[neighbor] = distance[node]! + 1
 
-          if (neighbor === to) {
-            return distance[neighbor]
-          }
+          if (neighbor === to) return distance[neighbor]
 
           next.push(neighbor)
         }
@@ -60,9 +59,8 @@ const fit = (
 
   let residual = 0
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     residual += (y[i]! - (meanY + slope * (x[i]! - meanX))) ** 2
-  }
 
   return { slope, residual }
 }
@@ -74,6 +72,7 @@ const bfsField = (
   allowed?: Set<number>,
 ): Int32Array => {
   const distance = new Int32Array(neighbors.length).fill(-1)
+
   distance[source] = 0
 
   let frontier = [source]
@@ -140,9 +139,7 @@ export function bulkShortcutScaling(input: {
   let maxDepth = 0
 
   for (let i = 0; i < n; i++) {
-    if (depth[i]! > maxDepth) {
-      maxDepth = depth[i]!
-    }
+    if (depth[i]! > maxDepth) maxDepth = depth[i]!
   }
 
   const band = new Set(
@@ -161,9 +158,7 @@ export function bulkShortcutScaling(input: {
     const s = through[cell]!
 
     if (l > 0 && s >= 0) {
-      if (!byL.has(l)) {
-        byL.set(l, [])
-      }
+      if (!byL.has(l)) byL.set(l, [])
 
       byL.get(l)!.push(s)
     }
@@ -184,6 +179,7 @@ export function bulkShortcutScaling(input: {
   // exclude the saturated plateau (S near the graph diameter), keep the strictly informative regime
   const maxS = Math.max(...ss)
   const unsaturated = ss.map(s => s < 0.9 * maxS)
+
   ls = ls.filter((_, i) => unsaturated[i])
   ss = ss.filter((_, i) => unsaturated[i])
 
@@ -232,6 +228,7 @@ export function ryuTakayanagiScaling(input: {
   }
 
   const depth = new Int32Array(n).fill(-1)
+
   depth[center] = 0
 
   let frontier = [center]

@@ -100,6 +100,7 @@ export default experiment({
 
       // the no-chaos baseline: arrow zero (no pair creation), the blob just diffuses
       const baseline = rows.find(r => r.arrow === 0)!.contrast
+
       worstBaseline = Math.max(worstBaseline, Math.abs(baseline))
 
       // high lambda (chaotic): the worst (largest) contrast among the strongly chaotic arrows,

@@ -48,6 +48,7 @@ function meanMomentum(
 
   for (let x = 0; x < sites; x++) {
     const next = wrap(x + 1)
+
     current +=
       cMul(cConj(R[x]!), R[next]!).im +
       cMul(cConj(Lf[x]!), Lf[next]!).im
@@ -87,16 +88,16 @@ export function runCoupledSchwinger(
 
     for (let x = 0; x < sites; x++) {
       const envelope = Math.exp(-((x - x0) ** 2) / (2 * width * width))
+
       r[x] = cScale(cFromPhase({ phase: momentumStart * x }), envelope)
     }
 
     let norm = 0
 
-    for (let x = 0; x < sites; x++) {
-      norm += cAbs2(r[x]!) + cAbs2(lf[x]!)
-    }
+    for (let x = 0; x < sites; x++) norm += cAbs2(r[x]!) + cAbs2(lf[x]!)
 
     const inverse = 1 / Math.sqrt(norm)
+
     r = r.map(z => cScale(z, inverse))
     lf = lf.map(z => cScale(z, inverse))
     R.push(r)
@@ -123,6 +124,7 @@ export function runCoupledSchwinger(
           cScale(r[x]!, cosM),
           cScale(cMul(IMAGINARY, lf[x]!), -sinM),
         )
+
         l2[x] = cAdd(
           cScale(cMul(IMAGINARY, r[x]!), -sinM),
           cScale(lf[x]!, cosM),
@@ -130,9 +132,8 @@ export function runCoupledSchwinger(
       }
 
       // (2) this flavor's current across each bond, before the shift, accumulated into the shared field
-      for (let x = 0; x < sites; x++) {
+      for (let x = 0; x < sites; x++)
         current[x]! += cAbs2(r2[x]!) - cAbs2(l2[wrap(x + 1)]!)
-      }
 
       // (3) gauge-covariant shift: R hops +1 with e^{i e theta}, L hops -1 with e^{-i e theta}
       const r3: Complex[] = new Array(sites).fill(ZERO)
@@ -143,6 +144,7 @@ export function runCoupledSchwinger(
           r2[x]!,
           cFromPhase({ phase: coupling * theta[x]! }),
         )
+
         l3[wrap(x - 1)] = cMul(
           l2[x]!,
           cFromPhase({ phase: -coupling * theta[wrap(x - 1)]! }),
@@ -154,21 +156,16 @@ export function runCoupledSchwinger(
     }
 
     // (4) the shared gauge field back-reacts to the total current and evolves the link
-    for (let x = 0; x < sites; x++) {
+    for (let x = 0; x < sites; x++)
       electric[x]! -= coupling * current[x]! * dt
-    }
 
-    for (let x = 0; x < sites; x++) {
-      theta[x]! += electric[x]! * dt
-    }
+    for (let x = 0; x < sites; x++) theta[x]! += electric[x]! * dt
   }
 
   const momentumBefore = meanMomentum(R[0]!, Lf[0]!, wrap)
   const backgroundEnergy = backgroundField * backgroundField * sites
 
-  for (let t = 0; t < steps; t++) {
-    step()
-  }
+  for (let t = 0; t < steps; t++) step()
 
   const momentumAfter = meanMomentum(R[0]!, Lf[0]!, wrap)
   const fieldEnergy =

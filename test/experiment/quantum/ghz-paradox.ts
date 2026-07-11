@@ -72,9 +72,8 @@ export default experiment({
         xyyProduct === -1 &&
         yxyProduct === -1 &&
         yyxProduct === -1
-      ) {
+      )
         localAssignmentExists = true
-      }
     }
 
     // CONTROL: the product state has no correlations, all four expectations vanish

@@ -89,20 +89,17 @@ export function describeTessellation(
   const idealOk = (x: Geometry): boolean =>
     x === 'spherical' || x === 'euclidean'
 
-  if (geometry === 'spherical') {
-    compactness = 'finite-polytope'
-  } else if (finite(cellGeometry) && finite(vertexFigureGeometry)) {
+  if (geometry === 'spherical') compactness = 'finite-polytope'
+  else if (finite(cellGeometry) && finite(vertexFigureGeometry))
     compactness = 'compact'
-  } else if (idealOk(cellGeometry) && idealOk(vertexFigureGeometry)) {
+  else if (idealOk(cellGeometry) && idealOk(vertexFigureGeometry))
     compactness = 'paracompact'
-  } else if (
+  else if (
     cellGeometry === 'hyperbolic' ||
     vertexFigureGeometry === 'hyperbolic'
-  ) {
+  )
     compactness = 'hyperideal'
-  } else {
-    compactness = 'unknown'
-  }
+  else compactness = 'unknown'
 
   // builder selection
   let builder: Builder
@@ -192,9 +189,7 @@ export function inspectTessellation(graph: CellGraph): {
   let facetDegree = 0
 
   for (const nb of graph.neighbors) {
-    if (nb.length > facetDegree) {
-      facetDegree = nb.length
-    }
+    if (nb.length > facetDegree) facetDegree = nb.length
   }
 
   let matching = 0

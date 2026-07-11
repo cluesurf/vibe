@@ -19,9 +19,7 @@ export function addInto(
 ): number {
   const times = src.count()
 
-  for (let k = 0; k < times; k++) {
-    dst.increment()
-  }
+  for (let k = 0; k < times; k++) dst.increment()
 
   return times
 }
@@ -43,6 +41,7 @@ export function fibOnRailway(input: { n: number; bits?: number }): {
   const a = makeBinaryCounter(bits)
   const b = makeBinaryCounter(bits)
   const t = makeBinaryCounter(bits)
+
   a.clear()
   b.set(1)
   t.clear()

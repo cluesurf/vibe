@@ -31,9 +31,8 @@ export function buildRecallModel(input: {
     feature.push([[], []])
 
     for (let bit = 0; bit < 2; bit++) {
-      for (let d = 0; d < blockSize; d++) {
+      for (let d = 0; d < blockSize; d++)
         feature[level]![bit]!.push(rng.next() < 0.5 ? -1 : 1)
-      }
     }
   }
 
@@ -50,6 +49,7 @@ export function leafPattern(
 
   for (let level = 0; level < model.depth; level++) {
     const bit = (leaf >> (model.depth - 1 - level)) & 1
+
     pattern.push(...model.feature[level]![bit]!)
   }
 
@@ -77,9 +77,7 @@ export function recall(input: {
   )
 
   const childFeature = (level: number, bit: number): number[] => {
-    if (!scramble) {
-      return feature[level]![bit]!
-    }
+    if (!scramble) return feature[level]![bit]!
 
     // a scrambled coarse feature that no longer matches either real child
     return feature[level]![bit]!.map(

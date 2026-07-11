@@ -11,9 +11,7 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 function posetHeight(input: { poset: Poset }): number {
   const p = input.poset
 
-  if (p.size === 0) {
-    return 0
-  }
+  if (p.size === 0) return 0
 
   // Longest-chain height by repeated relaxation of covering links. Iterating
   // until no value changes converges to the true longest chain regardless of
@@ -38,17 +36,13 @@ function posetHeight(input: { poset: Poset }): number {
       }
     }
 
-    if (!changed) {
-      break
-    }
+    if (!changed) break
   }
 
   let max = 0
 
   for (let x = 0; x < p.size; x++) {
-    if ((best[x] ?? 0) > max) {
-      max = best[x] ?? 0
-    }
+    if ((best[x] ?? 0) > max) max = best[x] ?? 0
   }
 
   return max
@@ -89,11 +83,10 @@ export function manifoldLikeness(input: { poset: Poset }): {
     // Dimension band: full credit inside [1,6], smooth falloff outside.
     let dimScore: number
 
-    if (estimatedDimension >= 1 && estimatedDimension <= 6) {
-      dimScore = 1
-    } else if (estimatedDimension < 1) {
+    if (estimatedDimension >= 1 && estimatedDimension <= 6) dimScore = 1
+    else if (estimatedDimension < 1)
       dimScore = Math.max(0, estimatedDimension / 1)
-    } else {
+    else {
       // d > 6: decay by one unit of penalty per extra dimension.
       dimScore = Math.max(0, 1 - (estimatedDimension - 6) / 6)
     }

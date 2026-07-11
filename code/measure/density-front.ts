@@ -39,6 +39,7 @@ export function pairGasFill(input: {
     for (let line = 0; line < lines.length; line++) {
       if (hashRand(cell, line, PAIR_SALT) < pairFill) {
         const [a, o] = lines[line]!
+
         will.data[base + a] = 1
         will.data[base + o] = 1
       }
@@ -70,9 +71,8 @@ export function addDensitySlab(input: {
     if (dx <= halfWidth) {
       const base = cell * mesh.degree
 
-      for (let direction = 0; direction < mesh.degree; direction++) {
+      for (let direction = 0; direction < mesh.degree; direction++)
         will.data[base + direction] = 1
-      }
     }
   }
 }
@@ -88,9 +88,8 @@ export function slabToneProfile(input: {
   const axis = input.axis ?? 0
   const sum = new Array<number>(side).fill(0)
 
-  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+  for (let cell = 0; cell < will.mesh.cellCount; cell++)
     sum[coordAlong(cell, axis, side)]! += cellTone(will, cell)
-  }
 
   const cellsPerSlab = will.mesh.cellCount / side
 
@@ -154,6 +153,7 @@ export function excessProfileSeries(input: {
       referenceScratch,
       referenceCurrent,
     ]
+
     beatInto({
       src: bumpedCurrent,
       dst: bumpedScratch,
@@ -181,6 +181,7 @@ function smoothedExcess(input: {
 
   for (let d = -smooth; d <= smooth; d++) {
     const slab = (((center + offset + d) % side) + side) % side
+
     sum += excess[slab] ?? 0
   }
 
@@ -220,9 +221,7 @@ export function pulseMidpoint(input: {
     }
   }
 
-  if (peakValue <= 0) {
-    return 0
-  }
+  if (peakValue <= 0) return 0
 
   let leading = peakOffset
 

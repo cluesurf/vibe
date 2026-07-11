@@ -54,13 +54,10 @@ export default experiment({
     const golden = (1 + Math.sqrt(5)) / 2
     const candidates: number[] = []
 
-    for (let k = 1; k <= 12; k++) {
+    for (let k = 1; k <= 12; k++)
       candidates.push(Math.PI * k, Math.E * k, Math.PI ** 2 * (k / 6))
-    }
 
-    for (let k = 2; k <= 8; k++) {
-      candidates.push(golden ** k)
-    }
+    for (let k = 2; k <= 8; k++) candidates.push(golden ** k)
 
     const nearestSimpleError = Math.min(
       ...candidates.map(c => Math.abs(c - dominant)),

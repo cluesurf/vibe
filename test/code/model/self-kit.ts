@@ -30,6 +30,7 @@ suite('model/self-kit: graph construction', [
   // neighbours, the off-diagonal pair reach three via the (1,-1)/(-1,1) bonds).
   check('the flat triangular graph has the right degrees', () => {
     const g = flatGraph(2)
+
     equal(g.cellCount, 4)
     equal(degreeOf(g, 0), 2)
     equal(degreeOf(g, 1), 3)
@@ -39,14 +40,14 @@ suite('model/self-kit: graph construction', [
   // squareGraph(2): every cell of a 2x2 4-neighbour patch reaches exactly two in-bounds neighbours.
   check('the square graph has degree 2 at every corner', () => {
     const g = squareGraph(2)
+
     equal(g.cellCount, 4)
 
-    for (let c = 0; c < 4; c++) {
-      equal(degreeOf(g, c), 2)
-    }
+    for (let c = 0; c < 4; c++) equal(degreeOf(g, c), 2)
   }),
   check('toCSR round-trips an adjacency list', () => {
     const g = toCSR([[1, 2], [0], [0]])
+
     equal(g.cellCount, 3)
     equal(degreeOf(g, 0), 2)
     equal(degreeOf(g, 1), 1)
@@ -62,6 +63,7 @@ suite('model/self-kit: ball and boundary', [
     'a radius-0 ball is the centre and a large ball is everything',
     () => {
       const g = flatGraph(4)
+
       equal(ball(g, 5, 0).length, 1)
       equal(
         ball(g, 5, 20).length,
@@ -75,12 +77,14 @@ suite('model/self-kit: ball and boundary', [
     () => {
       const g = flatGraph(4)
       const all = Array.from({ length: 16 }, (_, i) => i)
+
       close(
         boundaryFraction(all, g),
         0,
         1e-12,
         'no cell of the full set touches outside',
       )
+
       close(
         boundaryFraction([5], g),
         1,
@@ -99,16 +103,13 @@ suite('model/self-kit: charge conservation', [
     const tone = new Int8Array(g.cellCount)
     const rng = makeRng({ seed: 1 })
 
-    for (let i = 0; i < tone.length; i++) {
+    for (let i = 0; i < tone.length; i++)
       tone[i] = i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0
-    }
 
     const before = totalCharge(tone)
     const moved = new Uint8Array(g.cellCount)
 
-    for (let t = 0; t < 25; t++) {
-      beat(tone, g, moved, rng, 0, 0.22)
-    }
+    for (let t = 0; t < 25; t++) beat(tone, g, moved, rng, 0, 0.22)
 
     equal(
       totalCharge(tone),
@@ -125,6 +126,7 @@ suite('model/self-kit: the discrete arrow', [
     const g = flatGraph(8)
     const tone = new Int8Array(g.cellCount)
     const created = discreteArrow(tone, g, 0, 4)
+
     ok(created > 0, 'some pairs were created')
     equal(totalCharge(tone), 0, 'balanced pairs add no net charge')
 
@@ -148,6 +150,7 @@ suite('model/self-kit: the discrete arrow', [
     const b = new Int8Array(g.cellCount)
     const ca = discreteArrow(a, g, 2, 4)
     const cb = discreteArrow(b, g, 2, 4)
+
     equal(ca, cb)
     equal(JSON.stringify(Array.from(a)), JSON.stringify(Array.from(b)))
   }),
@@ -160,11 +163,13 @@ suite('model/self-kit: cluster detection', [
     () => {
       const g = flatGraph(5)
       const tone = new Int8Array(g.cellCount)
+
       tone[0] = 1
       tone[1] = 1
       tone[24] = 1
 
       const largest = largestPositiveCluster(tone, g)
+
       equal(largest.length, 2, 'the two-cell cluster is largest')
       equal(
         positiveClusters(tone, g).length,
@@ -182,6 +187,7 @@ suite('model/self-kit: cluster detection', [
         1,
         'one component of size >= 2',
       )
+
       equal(
         countLargeSameSignComponents({
           tone,
@@ -198,6 +204,7 @@ suite('model/self-kit: cluster detection', [
   // (0->1 and 1->0), so integration = 2/6 = 1/3.
   check('cluster integration is the internal-edge fraction', () => {
     const g = flatGraph(5)
+
     close(clusterIntegration([0, 1], g), 1 / 3, 1e-12)
   }),
 ])
@@ -214,10 +221,10 @@ suite('model/self-kit: emergence reproducibility', [
 
     const a = run()
     const b = run()
+
     equal(a.length, b.length)
 
-    for (let i = 0; i < a.length; i++) {
+    for (let i = 0; i < a.length; i++)
       equal(a[i]!, b[i]!, 'same seed, same emerged field')
-    }
   }),
 ])

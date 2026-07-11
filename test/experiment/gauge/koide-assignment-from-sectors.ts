@@ -55,6 +55,7 @@ function sectors(): { v: number[][]; s: number[][]; c: number[][] } {
   for (let i = 0; i < 4; i++) {
     for (const sign of [1, -1]) {
       const x = [0, 0, 0, 0]
+
       x[i] = sign
       v.push(x)
     }
@@ -67,11 +68,8 @@ function sectors(): { v: number[][]; s: number[][]; c: number[][] } {
     const x = [0, 1, 2, 3].map(i => ((mask >> i) & 1 ? -0.5 : 0.5))
     const minusCount = x.filter(t => t < 0).length
 
-    if (minusCount % 2 === 0) {
-      s.push(x)
-    } else {
-      c.push(x)
-    }
+    if (minusCount % 2 === 0) s.push(x)
+    else c.push(x)
   }
 
   return { v, s, c }
@@ -90,15 +88,11 @@ function nearestNeighbour(
 
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < b.length; j++) {
-      if (same && i === j) {
-        continue
-      }
+      if (same && i === j) continue
 
       const d = norm(a[i]!.map((x, k) => x - b[j]![k]!))
 
-      if (d > 1e-9 && d < min) {
-        min = d
-      }
+      if (d > 1e-9 && d < min) min = d
     }
   }
 
@@ -116,15 +110,11 @@ function farthestNeighbour(
 
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < b.length; j++) {
-      if (same && i === j) {
-        continue
-      }
+      if (same && i === j) continue
 
       const d = norm(a[i]!.map((x, k) => x - b[j]![k]!))
 
-      if (d > max) {
-        max = d
-      }
+      if (d > max) max = d
     }
   }
 

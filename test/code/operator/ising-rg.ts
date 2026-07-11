@@ -28,6 +28,7 @@ suite('operator/ising-rg: exact decimation', [
           1e-12,
           `decimation at K=${k}`,
         )
+
         close(
           isingDecimationFormula(k),
           0.5 * Math.log(Math.cosh(2 * k)),
@@ -51,9 +52,8 @@ suite('operator/ising-rg: beta function', [
   check('zero at K = 0, negative for K > 0', () => {
     close(isingBetaFunction(0), 0, 1e-12, 'Gaussian fixed point')
 
-    for (const k of [0.2, 0.5, 1.0, 2.0]) {
+    for (const k of [0.2, 0.5, 1.0, 2.0])
       ok(isingBetaFunction(k) < 0, `coupling decreases at K=${k}`)
-    }
   }),
 ])
 
@@ -66,6 +66,7 @@ suite('operator/ising-rg: correlation', [
       1e-12,
       'hand-computed',
     )
+
     close(
       nearestNeighborCorrelation(Int8Array.from([1, 1, 1, 1])),
       1,
@@ -81,9 +82,8 @@ suite('operator/ising-rg: correlation', [
 
     const trials = 200
 
-    for (let i = 0; i < trials; i++) {
+    for (let i = 0; i < trials; i++)
       acc += nearestNeighborCorrelation(sampleIsingChain(400, k, rng))
-    }
 
     close(
       acc / trials,
@@ -107,6 +107,7 @@ suite('operator/ising-rg: block-spin recursion', [
       })
 
       const expected = Math.atanh(Math.tanh(k) ** 2)
+
       close(
         measured,
         expected,

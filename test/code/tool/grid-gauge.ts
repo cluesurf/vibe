@@ -83,9 +83,8 @@ suite(
         let sum = 0
 
         for (let x = rect.x0; x < rect.x1; x++) {
-          for (let y = rect.y0; y < rect.y1; y++) {
+          for (let y = rect.y0; y < rect.y1; y++)
             sum += plaquetteFlux(g, { x, y, side: SIDE })
-          }
         }
 
         equal(
@@ -97,6 +96,7 @@ suite(
     ),
     check('a unit-cell loop equals that single plaquette flux', () => {
       const g = integerField()
+
       equal(
         gridWilsonLoop(g, { x0: 2, x1: 3, y0: 1, y1: 2 }),
         plaquetteFlux(g, { x: 2, y: 1, side: SIDE }),
@@ -115,9 +115,8 @@ suite('tool/grid-gauge: gauge invariance', [
       const lambda = makeGridGrid(SIDE)
 
       for (let x = 0; x < SIDE; x++) {
-        for (let y = 0; y < SIDE; y++) {
+        for (let y = 0; y < SIDE; y++)
           lambda[x]![y] = x * x - 3 * y + 11
-        }
       }
 
       const g2 = gridGaugeTransform(g, lambda, SIDE)
@@ -140,13 +139,12 @@ suite('tool/grid-gauge: gauge invariance', [
       const lambda = makeGridGrid(SIDE)
 
       for (let x = 0; x < SIDE; x++) {
-        for (let y = 0; y < SIDE; y++) {
-          lambda[x]![y] = 2 * x - y
-        }
+        for (let y = 0; y < SIDE; y++) lambda[x]![y] = 2 * x - y
       }
 
       const g2 = gridGaugeTransform(g, lambda, SIDE)
       const rect = { x0: 1, x1: 4, y0: 1, y1: 3 }
+
       equal(
         gridWilsonLoop(g2, rect),
         gridWilsonLoop(g, rect),
@@ -209,9 +207,8 @@ suite('tool/grid-gauge: single-vortex field', [
       let total = 0
 
       for (let x = 0; x < SIDE; x++) {
-        for (let y = 0; y < SIDE; y++) {
+        for (let y = 0; y < SIDE; y++)
           total += plaquetteFlux(g, { x, y, side: SIDE })
-        }
       }
 
       close(total, 0, 1e-9, 'plaquette fluxes sum to zero on a torus')

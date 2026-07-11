@@ -25,9 +25,7 @@ export function bornAtPeace(will: Will, frontierX: number): void {
     if (cell % side === frontierX) {
       const base = cell * degree
 
-      for (let d = 0; d < degree; d++) {
-        will.data[base + d] = 0
-      }
+      for (let d = 0; d < degree; d++) will.data[base + d] = 0
     }
   }
 }
@@ -85,12 +83,11 @@ export function pointerTrajectory(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
-    if (input.open) {
-      bornAtPeace(current, input.frontierX)
-    }
+    if (input.open) bornAtPeace(current, input.frontierX)
 
     trajectory.push(profileGradient(slabOccupancy(current, axis)))
   }
@@ -132,12 +129,11 @@ export function slabOccupancySeries(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
-    if (input.open) {
-      bornAtPeace(current, input.frontierX)
-    }
+    if (input.open) bornAtPeace(current, input.frontierX)
 
     series.push(slabOccupancy(current, axis))
   }
@@ -172,17 +168,15 @@ export function loschmidtEcho(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
-    if (input.open) {
-      bornAtPeace(current, input.frontierX)
-    }
+    if (input.open) bornAtPeace(current, input.frontierX)
   }
 
-  for (let t = 0; t < input.beats; t++) {
+  for (let t = 0; t < input.beats; t++)
     current = inverseBeat(current, input.inverse)
-  }
 
   return disagreementFraction(current.data, input.init.data)
 }
@@ -205,9 +199,7 @@ export function settlingTime(
       }
     }
 
-    if (settled) {
-      return t
-    }
+    if (settled) return t
   }
 
   return trajectory.length
@@ -225,11 +217,8 @@ export function signedSlabPointer(will: Will, axis = 0): number {
   let hi = 0
 
   for (let x = 0; x < side; x++) {
-    if (x < side / 2) {
-      lo += occ[x]!
-    } else {
-      hi += occ[x]!
-    }
+    if (x < side / 2) lo += occ[x]!
+    else hi += occ[x]!
   }
 
   const total = lo + hi
@@ -253,9 +242,7 @@ export function drainSlabs(
     if (drain.has(cell % side)) {
       const base = cell * degree
 
-      for (let d = 0; d < degree; d++) {
-        will.data[base + d] = 0
-      }
+      for (let d = 0; d < degree; d++) will.data[base + d] = 0
     }
   }
 }
@@ -288,6 +275,7 @@ export function settledSignedPointer(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -314,9 +302,8 @@ export function symmetriseLeftRight(will: Will): void {
       const base = cell * degree
       const mirrorBase = mirrorCell * degree
 
-      for (let d = 0; d < degree; d++) {
+      for (let d = 0; d < degree; d++)
         will.data[base + d] = will.data[mirrorBase + d]!
-      }
     }
   }
 }
@@ -348,6 +335,7 @@ export function perturbationGrowth(input: {
 }): { peakFraction: number; finalFraction: number } {
   const flipped = cloneWill(input.init)
   const value = flipped.data[input.slot] ?? 0
+
   flipped.data[input.slot] = ((value + 2) % 3) - 1
 
   let base = cloneWill(input.init)
@@ -371,6 +359,7 @@ export function perturbationGrowth(input: {
       table: input.table,
       collision: input.forward,
     })
+
     beatInto({
       src: perturbed,
       dst: perturbedScratch,
@@ -379,18 +368,18 @@ export function perturbationGrowth(input: {
     })
 
     const baseSwap = base
+
     base = baseScratch
     baseScratch = baseSwap
 
     const perturbedSwap = perturbed
+
     perturbed = perturbedScratch
     perturbedScratch = perturbedSwap
 
     const fraction = disagreementFraction(base.data, perturbed.data)
 
-    if (fraction > peak) {
-      peak = fraction
-    }
+    if (fraction > peak) peak = fraction
   }
 
   return {

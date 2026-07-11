@@ -67,6 +67,7 @@ function genericTone(size: number, salt: number): Int8Array {
 
   for (let i = 0; i < size; i++) {
     const r = hashRand(i, 0, salt)
+
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }
 
@@ -80,9 +81,8 @@ function blockSignature(tone: Int8Array): number[] {
   const sig = new Array<number>(BLOCKS).fill(0)
   const per = Math.ceil(tone.length / BLOCKS)
 
-  for (let i = 0; i < tone.length; i++) {
+  for (let i = 0; i < tone.length; i++)
     sig[Math.min(BLOCKS - 1, Math.floor(i / per))]! += tone[i]!
-  }
 
   return sig
 }
@@ -114,6 +114,7 @@ function seedGrowth(input: {
   const { size, eu, ev, salt, arrow } = input
   const base = genericTone(size, salt)
   const perturbed = Int8Array.from(base)
+
   perturbed[0] = perturbed[0] === 1 ? -1 : 1
 
   const movedBase = new Uint8Array(size)
@@ -132,6 +133,7 @@ function seedGrowth(input: {
       beat: t,
       arrow,
     })
+
     conservingEdgeSweepHashed({
       tone: b,
       eu,
@@ -143,9 +145,7 @@ function seedGrowth(input: {
 
     const fraction = hammingCells(a, b) / size
 
-    if (fraction > peak) {
-      peak = fraction
-    }
+    if (fraction > peak) peak = fraction
   }
 
   return {
@@ -185,6 +185,7 @@ export default experiment({
           worstArrowOnCoarse,
           on.coarseDivergence,
         )
+
         worstArrowOffPeak = Math.max(
           worstArrowOffPeak,
           off.peakFraction,

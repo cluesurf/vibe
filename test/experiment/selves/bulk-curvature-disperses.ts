@@ -32,9 +32,7 @@ function shellGrowthRatio(input: {
   for (let c = 0; c < mesh.cellCount; c++) {
     const d = dist[c]!
 
-    if (d >= 0) {
-      shell.set(d, (shell.get(d) ?? 0) + 1)
-    }
+    if (d >= 0) shell.set(d, (shell.get(d) ?? 0) + 1)
   }
 
   let logSum = 0

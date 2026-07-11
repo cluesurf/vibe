@@ -9,9 +9,7 @@
 function seedPattern(n: number): Int8Array {
   const a = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
-    a[i] = (i * 73 + 17) % 31 < 16 ? 1 : -1
-  }
+  for (let i = 0; i < n; i++) a[i] = (i * 73 + 17) % 31 < 16 ? 1 : -1
 
   return a
 }
@@ -22,9 +20,7 @@ function windowMean(a: Int8Array, i: number, r: number): number {
 
   let sum = 0
 
-  for (let d = -r; d <= r; d++) {
-    sum += a[(((i + d) % n) + n) % n]!
-  }
+  for (let d = -r; d <= r; d++) sum += a[(((i + d) % n) + n) % n]!
 
   return sum / (2 * r + 1)
 }
@@ -71,14 +67,10 @@ function wallSpacingRegularity(a: Int8Array): number {
   const positions: number[] = []
 
   for (let i = 0; i < n; i++) {
-    if (a[i] !== a[(i + 1) % n]) {
-      positions.push(i)
-    }
+    if (a[i] !== a[(i + 1) % n]) positions.push(i)
   }
 
-  if (positions.length < 2) {
-    return 1
-  }
+  if (positions.length < 2) return 1
 
   const gaps = positions.map((p, k) => {
     const next = positions[(k + 1) % positions.length]!
@@ -124,9 +116,7 @@ export function morphogenesis(input: {
   let stable = true
 
   for (let i = 0; i < input.n; i++) {
-    if (a[i] !== previous[i]) {
-      stable = false
-    }
+    if (a[i] !== previous[i]) stable = false
   }
 
   // balanced: not collapsed to a single sign (a real pattern has both)

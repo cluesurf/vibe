@@ -28,6 +28,7 @@ const mesh: Mesh = {
 
 function willWith(set: (data: Int8Array) => void): Will {
   const data = new Int8Array(24)
+
   set(data)
 
   return { mesh, data }
@@ -36,28 +37,33 @@ function willWith(set: (data: Int8Array) => void): Will {
 suite('measure/momentum: totalMomentum', [
   check('a single +1 in direction 0 yields root[0] = (1,1,0,0)', () => {
     const p = totalMomentum(willWith(d => (d[0] = 1)))
+
     exactArray(p, [1, 1, 0, 0])
   }),
   check(
     'a single +1 in direction 1 yields root[1] = (1,-1,0,0)',
     () => {
       const p = totalMomentum(willWith(d => (d[1] = 1)))
+
       exactArray(p, [1, -1, 0, 0])
     },
   ),
   check('a -1 tone negates the root contribution', () => {
     const p = totalMomentum(willWith(d => (d[0] = -1)))
+
     exactArray(p, [-1, -1, 0, 0])
   }),
   check(
     'all directions +1 sum to zero (the roots come in +/- pairs)',
     () => {
       const p = totalMomentum(willWith(d => d.fill(1)))
+
       exactArray(p, [0, 0, 0, 0])
     },
   ),
   check('the empty will has zero momentum', () => {
     const p = totalMomentum(willWith(() => undefined))
+
     exactArray(p, [0, 0, 0, 0])
   }),
 ])

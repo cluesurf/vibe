@@ -43,9 +43,8 @@ export default experiment({
       for (const r of roots) {
         const neighbour = p.map((x, i) => x + r[i]!)
 
-        if (coordinateSum(neighbour) % 2 !== 0) {
+        if (coordinateSum(neighbour) % 2 !== 0)
           allNeighboursValid = false
-        }
       }
     }
 

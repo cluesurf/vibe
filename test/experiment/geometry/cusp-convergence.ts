@@ -78,9 +78,7 @@ export function cuspConvergence(): void {
 
     const ok = dimOk && gravConverged
 
-    if (ok && sufficientL === 0) {
-      sufficientL = L
-    }
+    if (ok && sufficientL === 0) sufficientL = L
 
     prevGe = ge
   }

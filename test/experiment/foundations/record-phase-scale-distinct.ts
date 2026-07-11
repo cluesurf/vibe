@@ -90,6 +90,7 @@ export default experiment({
     const collision = pairCollision({ opposite, forward: true })
 
     let will = makeWill(mesh)
+
     fillWillPattern(will)
 
     const cellCountStart = mesh.cellCount
@@ -97,6 +98,7 @@ export default experiment({
 
     for (let t = 0; t < BEATS; t++) {
       const before = cloneWill(will)
+
       will = beat(will, collision)
       perBeatChange.push(hamming(before, will))
     }

@@ -35,6 +35,7 @@ suite('dynamics/replication: faithful inheritance', [
 suite('dynamics/replication: lossy constructor', [
   check('a lossy copier breaks the identity', () => {
     const out = replicate({ template, generations: 4, faithful: false })
+
     ok(out.meanIdentity < 1, 'mean identity drops below 1')
     ok(!out.allIdentical, 'not all identical')
   }),
@@ -44,6 +45,7 @@ suite('dynamics/replication: determinism', [
   check('two identical runs agree', () => {
     const a = replicate({ template, generations: 4, faithful: false })
     const b = replicate({ template, generations: 4, faithful: false })
+
     equal(a.copies, b.copies, 'copies')
     equal(a.meanIdentity, b.meanIdentity, 'mean identity')
   }),

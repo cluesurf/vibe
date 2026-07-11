@@ -12,9 +12,7 @@ import { applyExchangeUnitary } from '@/code/operator/exchange-unitary'
 const norm = (re: Float64Array, im: Float64Array): number => {
   let s = 0
 
-  for (let i = 0; i < 4; i++) {
-    s += re[i]! * re[i]! + im[i]! * im[i]!
-  }
+  for (let i = 0; i < 4; i++) s += re[i]! * re[i]! + im[i]! * im[i]!
 
   return s
 }
@@ -25,6 +23,7 @@ suite('operator/exchange-unitary: identity and locality', [
     const im = Float64Array.from([0.0, 0.4, -0.2, 0.1])
     const re0 = re.slice()
     const im0 = im.slice()
+
     applyExchangeUnitary({ re, im, theta: 0 })
 
     for (let i = 0; i < 4; i++) {
@@ -35,6 +34,7 @@ suite('operator/exchange-unitary: identity and locality', [
   check('the |00> and |11> amplitudes are untouched', () => {
     const re = Float64Array.from([0.7, 0.5, 0.3, -0.9])
     const im = Float64Array.from([0.2, 0.1, 0.4, 0.6])
+
     applyExchangeUnitary({ re, im, theta: 0.37 })
     close(re[0]!, 0.7, 1e-12, '|00> real untouched')
     close(im[0]!, 0.2, 1e-12, '|00> imag untouched')
@@ -47,9 +47,11 @@ suite('operator/exchange-unitary: entangling action', [
   check('theta = pi/8 sends |01> to (|01> - i|10>)/sqrt(2)', () => {
     const re = Float64Array.from([0, 1, 0, 0])
     const im = Float64Array.from([0, 0, 0, 0])
+
     applyExchangeUnitary({ re, im, theta: Math.PI / 8 })
 
     const inv = 1 / Math.sqrt(2)
+
     close(re[1]!, inv, 1e-12, '|01> amplitude cos(pi/4)')
     close(im[1]!, 0, 1e-12, '|01> imag zero')
     close(re[2]!, 0, 1e-12, '|10> real zero')
@@ -62,6 +64,7 @@ suite('operator/exchange-unitary: unitarity', [
     const re = Float64Array.from([0.2, 0.5, -0.4, 0.3])
     const im = Float64Array.from([0.1, -0.3, 0.2, 0.5])
     const n0 = norm(re, im)
+
     applyExchangeUnitary({ re, im, theta: 0.6 })
     close(norm(re, im), n0, 1e-12, 'norm conserved')
   }),
@@ -70,6 +73,7 @@ suite('operator/exchange-unitary: unitarity', [
     const im = Float64Array.from([0.1, -0.3, 0.2, 0.5])
     const re0 = re.slice()
     const im0 = im.slice()
+
     applyExchangeUnitary({ re, im, theta: 0.6 })
     applyExchangeUnitary({ re, im, theta: -0.6 })
 

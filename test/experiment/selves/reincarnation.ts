@@ -31,9 +31,7 @@ function settle(
 
   let t = state
 
-  for (let i = 0; i < steps; i++) {
-    t = hopfieldStep(J, t, zero, null)
-  }
+  for (let i = 0; i < steps; i++) t = hopfieldStep(J, t, zero, null)
 
   return t
 }
@@ -62,6 +60,7 @@ export function reincarnation(input: { seed: number }): {
   while (seen.size < size && rounds < 1000) {
     for (let k = 0; k < Math.round(0.2 * size); k++) {
       const v = tr.nextInt({ max: size })
+
       state[v] = tr.nextInt({ max: 3 }) - 1 // fresh material
       seen.add(v)
     }
@@ -83,9 +82,8 @@ export function reincarnation(input: { seed: number }): {
   const dissolvedOverlap = Math.abs(overlap(blank, P))
   const seedFraction = 0.35
 
-  for (let i = 0; i < Math.round(seedFraction * size); i++) {
+  for (let i = 0; i < Math.round(seedFraction * size); i++)
     blank[i] = P[i] as -1 | 0 | 1
-  }
 
   const reborn = settle(J, blank, 30)
   const reconstituteFromSeed = Math.abs(overlap(reborn, P))

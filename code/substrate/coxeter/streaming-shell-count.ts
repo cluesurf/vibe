@@ -59,9 +59,7 @@ class HashedKeySet {
         return true
       }
 
-      if (slot === value) {
-        return false
-      }
+      if (slot === value) return false
 
       i = (i + 1) & this.mask
     }
@@ -84,6 +82,7 @@ export function streamingShellCounts(input: {
     pointKey(toPoincare(matVec(g, center), timeAxis))
 
   const root = identity(dim)
+
   seen.addIfNew(hashKey(positionKey(root)))
 
   let frontier: Mat[] = [root]
@@ -103,9 +102,7 @@ export function streamingShellCounts(input: {
         if (seen.addIfNew(hashKey(positionKey(child)))) {
           count++
 
-          if (storeMatrices) {
-            next.push(child)
-          }
+          if (storeMatrices) next.push(child)
         }
       }
     }
@@ -113,9 +110,7 @@ export function streamingShellCounts(input: {
     counts.push(count)
     frontier = next
 
-    if (!storeMatrices) {
-      break
-    }
+    if (!storeMatrices) break
   }
 
   return counts

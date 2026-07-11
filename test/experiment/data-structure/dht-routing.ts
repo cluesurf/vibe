@@ -14,9 +14,7 @@ const commonPrefixLength = (a: number[], b: number[]): number => {
 
   let k = 0
 
-  while (k < n && a[k] === b[k]) {
-    k += 1
-  }
+  while (k < n && a[k] === b[k]) k += 1
 
   return k
 }
@@ -55,9 +53,7 @@ export default experiment({
 
       sumHops += hops
 
-      if (hops > maxHops) {
-        maxHops = hops
-      }
+      if (hops > maxHops) maxHops = hops
     }
 
     const meanHops = sumHops / pairs

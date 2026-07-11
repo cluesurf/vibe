@@ -14,9 +14,7 @@ const lexCompare = (a: number[], b: number[]): number => {
   const n = Math.min(a.length, b.length)
 
   for (let i = 0; i < n; i++) {
-    if (a[i] !== b[i]) {
-      return a[i]! - b[i]!
-    }
+    if (a[i] !== b[i]) return a[i]! - b[i]!
   }
 
   return a.length - b.length
@@ -53,9 +51,8 @@ export default experiment({
           addressing.address[order[i - 1]!]!,
           addressing.address[order[i]!]!,
         ) >= 0
-      ) {
+      )
         strictlyOrdered = false
-      }
     }
 
     const totalOrder = stats.allUnique && strictlyOrdered

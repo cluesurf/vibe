@@ -119,9 +119,8 @@ function measure(
 }
 
 export function fourdTessellations(): void {
-  for (const c of HONEYCOMBS) {
+  for (const c of HONEYCOMBS)
     measure(c.sym, c.flat ?? false, SURVEY_SCALE)
-  }
 }
 
 export default experiment({

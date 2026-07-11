@@ -90,9 +90,7 @@ function spill(
   const blockSize = Math.ceil(n / 32)
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < blockSize; i++) {
-    tone[i] = 1
-  }
+  for (let i = 0; i < blockSize; i++) tone[i] = 1
 
   const injected = blockSize
   const { eu, ev } = edgesFromCsr(csr.offsets, csr.adj, n)
@@ -110,9 +108,7 @@ function spill(
 
     if (lossy) {
       for (let i = blockSize; i < n; i++) {
-        if (tone[i] === 1) {
-          tone[i] = 0
-        }
+        if (tone[i] === 1) tone[i] = 0
       }
     }
   }
@@ -146,12 +142,14 @@ export default experiment({
 
       for (const support of ladder) {
         const tone = spreadInput(n, support)
+
         coarse.push(shannonEntropy(blockPlusCounts(tone, blocks)))
         fine.push(Math.log(Math.max(1, occupiedCount(tone))))
       }
 
       const capacity = Math.log(blocks)
       const ceiling = coarse[coarse.length - 1]!
+
       ceilings[blocks] = ceiling
 
       // the plateau equals the window capacity ln(B)
@@ -162,6 +160,7 @@ export default experiment({
 
       // the recorded distinguishability stays flat once the window is full, as the input rises
       const flat = Math.max(...coarse) - Math.min(...coarse)
+
       worstPlateauFlatness = Math.max(worstPlateauFlatness, flat)
 
       // the input's fine complexity keeps rising well past the recorded ceiling

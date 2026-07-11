@@ -83,15 +83,14 @@ export function avalancheCriticality(input?: { n?: number }): {
     const median = sizes[Math.floor(sizes.length / 2)]!
     const max = sizes[sizes.length - 1]!
     const span = max / Math.max(median, 1)
+
     scan.push({ c0, bg, median, max, span })
   }
 
   let bestSpan = 0
 
   for (const s of scan) {
-    if (s.span > bestSpan) {
-      bestSpan = s.span
-    }
+    if (s.span > bestSpan) bestSpan = s.span
   }
 
   // a scale-free avalanche regime would have avalanches spanning many scales (heavy tail). It does NOT

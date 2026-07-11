@@ -54,9 +54,7 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = nz(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -64,9 +62,7 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = nz(
@@ -81,14 +77,13 @@ function run(): void {
     uv: [number, number][] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      continue
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) continue
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     bandCells.push(i)
     uv.push([dot(w, e1), dot(w, e2)])
   }
@@ -146,21 +141,16 @@ function run(): void {
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
 
-    if (c > maxC) {
-      maxC = c
-    }
+    if (c > maxC) maxC = c
   }
 
   const Cn = maxC + 1
   const off = new Array<number>(Cn + 1).fill(0)
 
-  for (let i = 0; i < E; i++) {
+  for (let i = 0; i < E; i++)
     off[color[i]! + 1] = off[color[i]! + 1]! + 1
-  }
 
-  for (let c = 0; c < Cn; c++) {
-    off[c + 1] = off[c + 1]! + off[c]!
-  }
+  for (let c = 0; c < Cn; c++) off[c + 1] = off[c + 1]! + off[c]!
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E),
@@ -168,6 +158,7 @@ function run(): void {
 
   for (let i = 0; i < E; i++) {
     const at = cur[color[i]!]!++
+
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
@@ -182,6 +173,7 @@ function run(): void {
   for (let i = 0; i < n; i++) {
     const x = rr()
     const v = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
+
     A[i] = v
     B[i] = v
   }
@@ -201,9 +193,7 @@ function run(): void {
 
   A[ctr] = (A[ctr]! + 1) % 3
 
-  for (const w of nb[ctr]!) {
-    A[w] = (A[w]! + 1) % 3
-  }
+  for (const w of nb[ctr]!) A[w] = (A[w]! + 1) % 3
 
   const beat = (t: Uint8Array): void => {
     for (let c = 0; c < Cn; c++) {
@@ -212,6 +202,7 @@ function run(): void {
           w = edgeW[e]!
 
         const o = PERM[t[v]! * 3 + t[w]!]!
+
         t[v] = (o / 3) | 0
         t[w] = o % 3
       }
@@ -250,9 +241,7 @@ function run(): void {
     for (let j = 0; j < bandCells.length; j++) {
       const i = bandCells[j]!
 
-      if (A[i] === B[i]) {
-        continue
-      }
+      if (A[i] === B[i]) continue
 
       diff++
 
@@ -265,11 +254,10 @@ function run(): void {
           const x = cx + dx,
             y = cy + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
@@ -279,9 +267,8 @@ function run(): void {
 
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
-    if (f % 30 === 0) {
+    if (f % 30 === 0)
       console.log(`  frame ${f}, cone ${diff.toLocaleString()} cells`)
-    }
   }
 
   console.log('wrote frames, assemble with ffmpeg')

@@ -31,15 +31,14 @@ export default experiment({
     const degree = mesh.degree
     const opposite: number[] = []
 
-    for (let d = 0; d < degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    for (let d = 0; d < degree; d++) opposite.push(mesh.opposite(d))
 
     const knit = headOnRotate({ opposite })
     const beats = 8
 
     // momentum conservation on a deterministic structured fill.
     const filled = makeWill(mesh)
+
     fillWillPattern(filled)
 
     const p0 = totalMomentum(filled)
@@ -72,9 +71,7 @@ export default experiment({
     const dist = shellDistances(mesh, centre)
     const pert = makeWill(mesh)
 
-    for (let d = 0; d < degree; d++) {
-      pert.data[centre * degree + d] = 1
-    }
+    for (let d = 0; d < degree; d++) pert.data[centre * degree + d] = 1
 
     let ps = pert
 
@@ -97,9 +94,8 @@ export default experiment({
           }
         }
 
-        if (nonzero && (dist[cell] ?? 0) > outer) {
+        if (nonzero && (dist[cell] ?? 0) > outer)
           outer = dist[cell] ?? 0
-        }
       }
 
       radii.push(outer)

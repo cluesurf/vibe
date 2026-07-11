@@ -10,9 +10,7 @@ function measurementVector(
   theta: number,
   outcome: 1 | -1,
 ): [number, number] {
-  if (outcome === 1) {
-    return [Math.cos(theta / 2), Math.sin(theta / 2)]
-  }
+  if (outcome === 1) return [Math.cos(theta / 2), Math.sin(theta / 2)]
 
   return [-Math.sin(theta / 2), Math.cos(theta / 2)]
 }
@@ -91,6 +89,7 @@ export function wClassState(input: {
   c: number
 }): ThreeQubit {
   const state = new Array<number>(8).fill(0)
+
   state[0b100] = input.a
   state[0b010] = input.b
   state[0b001] = input.c
@@ -101,6 +100,7 @@ export function wClassState(input: {
 // The GHZ state (|000> + |111>)/sqrt(2).
 export function ghzState(): ThreeQubit {
   const state = new Array<number>(8).fill(0)
+
   state[0b000] = 1 / Math.SQRT2
   state[0b111] = 1 / Math.SQRT2
 
@@ -134,9 +134,7 @@ export function reducedCorrelation(input: {
     for (let label = 0; label < 8; label++) {
       const amplitude = state[label]!
 
-      if (amplitude === 0) {
-        continue
-      }
+      if (amplitude === 0) continue
 
       let target = label
       let factor = 1
@@ -147,11 +145,9 @@ export function reducedCorrelation(input: {
       ] as const) {
         const bit = bitOf(target, q)
 
-        if (pauli === 'x') {
-          target ^= 1 << (2 - q)
-        } else if (pauli === 'z') {
-          factor *= bit === 0 ? 1 : -1
-        } else {
+        if (pauli === 'x') target ^= 1 << (2 - q)
+        else if (pauli === 'z') factor *= bit === 0 ? 1 : -1
+        else {
           // sigma-y = i sigma-x sigma-z acting on real states: the two i factors across the two
           // qubits give -1 times the combined flip-and-sign action
           factor *= bit === 0 ? 1 : -1
@@ -188,18 +184,14 @@ export function pauliExpectation3(input: {
   const { state, paulis } = input
   const yCount = paulis.filter(pauli => pauli === 'y').length
 
-  if (yCount % 2 !== 0) {
-    return 0
-  }
+  if (yCount % 2 !== 0) return 0
 
   let total = 0
 
   for (let label = 0; label < 8; label++) {
     const amplitude = state[label]!
 
-    if (amplitude === 0) {
-      continue
-    }
+    if (amplitude === 0) continue
 
     let target = label
     let factor = 1
@@ -208,11 +200,9 @@ export function pauliExpectation3(input: {
       const bit = (target >> (2 - q)) & 1
       const pauli = paulis[q]!
 
-      if (pauli === 'x') {
-        target ^= 1 << (2 - q)
-      } else if (pauli === 'z') {
-        factor *= bit === 0 ? 1 : -1
-      } else {
+      if (pauli === 'x') target ^= 1 << (2 - q)
+      else if (pauli === 'z') factor *= bit === 0 ? 1 : -1
+      else {
         factor *= bit === 0 ? 1 : -1
         target ^= 1 << (2 - q)
       }

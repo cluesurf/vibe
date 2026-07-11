@@ -50,9 +50,7 @@ const BEATS = 8
 function occupationNorm(will: Will): number {
   let sum = 0
 
-  for (const value of will.data) {
-    sum += value * value
-  }
+  for (const value of will.data) sum += value * value
 
   return sum
 }
@@ -72,6 +70,7 @@ export default experiment({
     const knit = pairCollision({ opposite, forward: true })
 
     let will = makeWill(mesh)
+
     fillWillPattern(will)
 
     const startNorm = occupationNorm(will)
@@ -99,13 +98,13 @@ export default experiment({
     // control: a lossy rule dissipates the occupation (a definite loss), distinct from the knit's
     // conservative oscillation, so the substrate is conservative but not amplitude-unitary
     let lossyWill = makeWill(mesh)
+
     fillWillPattern(lossyWill)
 
     const lossyStartNorm = occupationNorm(lossyWill)
 
-    for (let t = 0; t < BEATS; t++) {
+    for (let t = 0; t < BEATS; t++)
       lossyWill = beat(lossyWill, erasingCollision)
-    }
 
     const lossyEndNorm = occupationNorm(lossyWill)
     const lossyDissipates = lossyEndNorm < lossyStartNorm

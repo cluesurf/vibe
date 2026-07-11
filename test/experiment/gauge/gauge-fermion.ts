@@ -30,9 +30,8 @@ function study(): { potential: number; lowest: number[] } {
   const field = makeGaugeField({ graph, group: { form: 'u1', q: 12 } })
   const plaquettes = plaquettesOf({ graph })
 
-  for (let sweep = 0; sweep < 40; sweep++) {
+  for (let sweep = 0; sweep < 40; sweep++)
     heatBathSweep({ field, plaquettes, beta: 1.5, rng })
-  }
 
   const potential = staticPotentialProxy({ field, plaquettes })
 

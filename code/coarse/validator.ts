@@ -16,9 +16,7 @@ export function commutingSquareError<State>(input: {
 }): number {
   const { states, microStep, coarseMap, macroStep } = input
 
-  if (states.length === 0) {
-    return 1
-  }
+  if (states.length === 0) return 1
 
   let disagree = 0
 

@@ -284,9 +284,7 @@ function check(input: {
 
 function allFinite(xs: ArrayLike<number>): boolean {
   for (const x of Array.from(xs)) {
-    if (!Number.isFinite(x ?? NaN)) {
-      return false
-    }
+    if (!Number.isFinite(x ?? NaN)) return false
   }
 
   return true
@@ -295,6 +293,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // 1. bitset basics
 {
   const m = makeBitMatrix({ rows: 2, cols: 40 })
+
   setBit(m, { row: 0, col: 3 })
   setBit(m, { row: 0, col: 35 })
   check({
@@ -304,6 +303,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
       getBit(m, { row: 0, col: 35 }) &&
       !getBit(m, { row: 0, col: 4 }),
   })
+
   check({
     name: 'bitset popcountRow',
     ok: popcountRow(m, { row: 0 }) === 2,
@@ -322,6 +322,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     ok: relationCount(p) === 6,
     detail: `got ${relationCount(p)}`,
   })
+
   check({
     name: 'poset longest chain 0..3 is 3',
     ok: longestChain({ poset: p, from: 0, to: 3 }) === 3,
@@ -334,6 +335,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const rng = makeRng({ seed: 1 })
   const poset = sprinkleMinkowski({ dimension: 2, count: 1500, rng })
   const d = myrheimMeyerDimension({ poset })
+
   check({
     name: 'sprinkle M^2 recovers dimension near 2',
     ok: d > 1.3 && d < 2.9,
@@ -402,10 +404,12 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   const lap = laplacian({ substrate: g })
   const spec = laplacianSpectrum({ substrate: g, count: 3 })
+
   check({
     name: 'laplacian builds and has finite spectrum',
     ok: lap.rows === g.size && allFinite(spec) && spec.length > 0,
   })
+
   check({
     name: 'connected Laplacian lowest eigenvalue near 0',
     ok: Math.abs(spec[0] ?? 1) < 1e-3,
@@ -423,6 +427,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   const complex = cellComplexOf({ substrate: g, maxGrade: 2 })
   const spec = diracSpectrum({ complex, count: 8 })
+
   check({
     name: 'Kahler-Dirac spectrum is finite and non-empty',
     ok: spec.length > 0 && allFinite(spec),
@@ -436,11 +441,11 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
   const cold = averagePlaquette({ lattice: lat })
 
-  for (let s = 0; s < 100; s++) {
+  for (let s = 0; s < 100; s++)
     metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
-  }
 
   const disordered = averagePlaquette({ lattice: lat })
+
   check({
     name: 'SU(2) cold is ordered, strong coupling disorders it',
     ok: cold > 0.999 && disordered < 0.3,
@@ -466,6 +471,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     ok: naive.species === 4,
     detail: `species ${naive.species}`,
   })
+
   check({
     name: 'overlap: 1 species with exact chiral symmetry (GW ~ 0)',
     ok: overlap.species === 1 && overlap.gwResidualMax < 1e-9,
@@ -479,6 +485,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const i0 = overlapIndex({ length: 5, charge: 0 })
   const i1 = overlapIndex({ length: 5, charge: 1 })
   const i2 = overlapIndex({ length: 5, charge: 2 })
+
   check({
     name: 'lattice index theorem: overlap index = -Q (gauge topology)',
     ok:
@@ -495,6 +502,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const kr = kleitmanRothschildOrder({ size: 72 })
   const height = posetHeight({ poset: kr })
+
   check({
     name: 'Kleitman-Rothschild order has height 3 (layered)',
     ok: height === 3,
@@ -509,9 +517,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const n = 1 << cells
   const perm = new Int32Array(n)
 
-  for (let s = 0; s < n; s++) {
-    perm[s] = s ^ 1
-  }
+  for (let s = 0; s < n; s++) perm[s] = s ^ 1
 
   const profile = pauliLocalityProfile({
     matrix: hamiltonianMatrix({ perm }),
@@ -537,6 +543,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 
   const iso = lorentzIsotropy({ substrate: graph, samples: 200, rng })
+
   check({
     name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
     ok: iso.anisotropy < 0.25,
@@ -562,9 +569,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   let lo = Infinity
 
-  for (const value of eig.values) {
-    lo = Math.min(lo, value ?? 0)
-  }
+  for (const value of eig.values) lo = Math.min(lo, value ?? 0)
 
   check({
     name: 'commuting-gate rule has a local, bounded-below Hamiltonian',
@@ -612,20 +617,17 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   for (let i = 0; i < cells; i++) {
     const row = ring.neighbors[i] ?? new Uint32Array(0)
+
     m.data[i * cells + i] = row.length
 
-    for (const col of row) {
-      m.data[i * cells + (col ?? 0)] = -1
-    }
+    for (const col of row) m.data[i * cells + (col ?? 0)] = -1
   }
 
   const eig = eigSymmetric({ matrix: m })
 
   let lo = Infinity
 
-  for (const value of eig.values) {
-    lo = Math.min(lo, value ?? 0)
-  }
+  for (const value of eig.values) lo = Math.min(lo, value ?? 0)
 
   check({
     name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
@@ -706,6 +708,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   const fracCold = result.means[1]?.[0] ?? 0
   const fracHot = result.means[0]?.[0] ?? 0
+
   check({
     name: 'exact: smeared action raises manifold fraction on the true measure',
     ok: result.count > 0 && fracCold > fracHot,
@@ -829,6 +832,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 
   const dim = dimensionFromOrderingFraction(r.meanOrderingFraction)
+
   check({
     name: 'P6: stable 2D manifold phase has dimension near 2',
     ok: dim > 1.7 && dim < 2.4,
@@ -843,6 +847,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const inv = fitForm(three.r, three.phi, r => 1 / r)
   const invSq = fitForm(three.r, three.phi, r => 1 / (r * r))
   const logf = fitForm(three.r, three.phi, r => Math.log(r))
+
   check({
     name: 'P16: 3D static potential is Newtonian (1/r is the best fit)',
     ok: inv.r2 > invSq.r2 && inv.r2 > logf.r2 && inv.r2 > 0.95,
@@ -878,6 +883,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // dispersion omega^2 = a*k^2 + b with a near 1 and b near m^2.
 {
   const s = massStudy({ m: 0.3 })
+
   check({
     name: 'P14: mass gives gap = m and relativistic dispersion (b ~ m^2)',
     ok:
@@ -894,6 +900,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const slope1D = logLawSlope1D({ n: 120 })
   const two = areaLaw2D({ side: 12 })
+
   check({
     name: 'P15: 1D conformal log law (c ~ 1) and 2D entanglement area law',
     ok:
@@ -909,6 +916,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // only accumulate) and a finite recovered dimension.
 {
   const r = csgCosmology({ size: 200, p: 0.08, seed: 1 })
+
   check({
     name: 'P13: growth gives a monotone arrow of time and a finite dimension',
     ok: r.arrowMonotone && r.dimension > 0 && r.dimension < 4,
@@ -934,6 +942,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const betaStar = crossingBeta(wl, 8)
   const f0 = manifoldFractionAt(wl, 0)
   const f1 = manifoldFractionAt(wl, 1)
+
   check({
     name: 'P12 Wang-Landau: a measured finite free-energy crossing (layered to manifold)',
     ok:
@@ -951,6 +960,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // plain percolation), with a finite manifold-like dimension.
 {
   const r = deSitterExpansion({ count: 500, hubble: 1, seed: 1 })
+
   check({
     name: 'P13 de Sitter: expanding geometry gives an expanding causal order',
     ok:
@@ -969,6 +979,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const stat = branchingExpansion({ spawnFraction: 0 })
   const grow = branchingExpansion({ spawnFraction: 0.3 })
+
   check({
     name: 'P13 growth rule: net-positive birth gives emergent expansion (static control at q=0)',
     ok:
@@ -989,6 +1000,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const local = rotationCurve({ side: 19, nonlocal: 0 })
   const nonlocal = rotationCurve({ side: 19, nonlocal: 1.5 })
+
   check({
     name: 'P18 dark matter: nonlocal gravity flattens the rotation curve (no dark particle)',
     ok:
@@ -1021,6 +1033,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const a = photonStudy({ side: 3 })
   const b = photonStudy({ side: 5 })
   const gaugeFraction = a.gauge / a.dof
+
   check({
     name: 'P20 photon: massless, gauge-invariant U(1) field (two transverse polarizations)',
     ok:
@@ -1056,6 +1069,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // the symmetric phase).
 {
   const r = higgsStudy({ side: 4, coupling: 1 })
+
   check({
     name: 'P22 Higgs: symmetry breaking generates a photon mass (gv)^2 (massless when unbroken)',
     ok:
@@ -1075,6 +1089,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = gaugeFromAction({ side: 4 })
   const last = r.ratios[r.ratios.length - 1] ?? 0
+
   check({
     name: 'P23: Maxwell operator derived from the Wilson action (small-field limit)',
     ok: last > 0.999 && last < 1.001,
@@ -1089,6 +1104,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = gravitonFromAction({ k: [1, 1, 1] })
   const bd = bdSignature({ realizations: 150, count: 1800, seed: 1 })
+
   check({
     name: "P24: graviton operator derived (BD d'Alembertian recovers box from a sprinkling; pipeline gives diffeo-invariance + two modes)",
     ok:
@@ -1131,6 +1147,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const low = latticeAnisotropy(0.2).anisotropy
   const high = latticeAnisotropy(2.6).anisotropy
   const s = lorentzSafety()
+
   check({
     name: 'P27 Lorentz: lattice violates (energy-dependent), sprinkle is Lorentz-safe',
     ok:
@@ -1149,6 +1166,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const a = minimumInterval({ density: 1, seed: 1 })
   const b = minimumInterval({ density: 16, seed: 1 })
+
   check({
     name: 'P28 singularity resolution: discreteness caps the curvature (finite, density-set)',
     ok:
@@ -1183,6 +1201,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // a graceful exit (the field leaves slow-roll by itself and the expansion decelerates).
 {
   const r = inflate({ phi0: 16 })
+
   check({
     name: 'P30 inflation: slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)',
     ok:
@@ -1198,6 +1217,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // amplitudes interfere (the cross term is nonzero), the pillars of quantum mechanics.
 {
   const r = quantumFormalism({ n: 40 })
+
   check({
     name: 'P31 quantum formalism: unitarity, the Born rule, and interference of amplitudes',
     ok:
@@ -1213,6 +1233,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const res = bianchiResidual({ k: [2, 1, 3], samples: 30, seed: 1 })
   const speed = gravitonSpeed(0.5)
+
   check({
     name: 'P32 Einstein equations: conservation (transverse G) and a c-speed graviton',
     ok: res < 1e-10 && Math.abs(speed - 1) < 1e-6,
@@ -1242,6 +1263,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // and the arrow of accumulation.
 {
   const r = capstone({ count: 1000, seed: 1 })
+
   check({
     name: 'P34 capstone: the committed model runs end-to-end (one mesh, one rule, all structures)',
     ok:
@@ -1264,6 +1286,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const de = darkEnergyPrediction()
   const liv = lorentzPrediction()
+
   check({
     name: 'P35 contact with data: adopted everpresent scaling lands at the observed dark-energy order of magnitude (value adopted, not derived), no linear Lorentz violation',
     ok:
@@ -1281,6 +1304,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const d = dslDemo()
   const describesModel = vibe().describe().includes('signed-majority')
+
   check({
     name: 'P36 model DSL: vibe() builds the committed model and expresses variants',
     ok:
@@ -1298,6 +1322,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // light-cone (a disturbance never outruns one hop per beat) and the front advances.
 {
   const r = propagation({ count: 600, beats: 8, seed: 1 })
+
   check({
     name: 'P37 one rule: causal light-cone from the rule itself (finite-speed propagation)',
     ok: r.lightConeHolds && r.frontAdvances,
@@ -1310,6 +1335,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const two = sliceDimension({ dimension: 2, count: 5000, seed: 1 })
   const three = sliceDimension({ dimension: 3, count: 11000, seed: 1 })
+
   check({
     name: 'P38 emergent spatial geometry: slice dimension below spacetime, rising by ~1 (d-1 trend)',
     ok:
@@ -1325,6 +1351,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // random sprinkle (anisotropy in the same low band) with exponential reach, no rng.
 {
   const r = deterministicSubstrate({ count: 1200, seed: 1 })
+
   check({
     name: 'P39 deterministic substrate: non-random sunflower is as Lorentz-safe as the random sprinkle',
     ok:
@@ -1382,6 +1409,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // delivers every signal exactly, efficiently (low stretch), with exponential ring growth.
 {
   const r = fibonacciNavigation({ pairs: 1000, seed: 1 })
+
   check({
     name: 'P42 Fibonacci navigation: exact addressed routing on the heptagrid, efficient',
     ok:
@@ -1397,6 +1425,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // authored by self and urge, with agency scaling by self-structure, and irreducible.
 {
   const r = freedomChoice({ n: 80, seed: 1 })
+
   check({
     name: 'P43 freedom and choice: determined yet self-authored, not predetermined by any part, irreducible',
     ok:
@@ -1415,6 +1444,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // not evaluated as functions, which also refutes the dissipation worry).
 {
   const r = universality()
+
   check({
     name: 'P44 universality: functionally complete (NAND, adder, Rule 110) AND gates run on the live dynamics as stable fixed points (substrate NAND + 6-gate XOR)',
     ok:
@@ -1433,6 +1463,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // scrambles direction in 3D too), while a flat cubic lattice is not.
 {
   const r = dodecagrid({ seed: 2 })
+
   check({
     name: 'P45 dodecagrid {5,3,4}: the 3D hyperbolic honeycomb is Lorentz-safe, flat cubic lattice is not',
     ok:
@@ -1450,6 +1481,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // independently derived (honest scope); P19/P29's static-action attempts used the wrong observable.
 {
   const r = everpresent({ seed: 1 })
+
   check({
     name: 'P46 everpresent Lambda: genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude (value not independently derived)',
     ok: r.solved && r.matchesEverpresent && r.sameOrderAsObserved,
@@ -1462,6 +1494,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = coxeterUnification({ seed: 2 })
   const all = Object.values(r)
+
   check({
     name: 'P47 Coxeter unification: one machine yields all the tessellations, all Lorentz-safe',
     ok:
@@ -1477,6 +1510,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // golden ratio is its central geodesic (Fibonacci convergents reach phi).
 {
   const r = modularBase({ seed: 2 })
+
   check({
     name: 'P48 modular base: parameter-free, Lorentz-safe, continued-fraction addressed, golden-ratio central',
     ok: r.lorentzSafe && r.addressingExact && r.goldenError < 1e-4,
@@ -1488,6 +1522,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // from inside (both unlike a flat lattice) and is tree-like (small Gromov delta).
 {
   const r = crystalHiddenHierarchical({ seed: 2 })
+
   check({
     name: 'P49 crystal: indistinguishable from foam inside, tree-like (hierarchical), unlike a flat lattice',
     ok: r.indistinguishable && r.crystalIsTreeLike,
@@ -1500,6 +1535,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const mod = fullLadder({ base: 'modular', seed: 2 })
   const hept = fullLadder({ base: [7, 3], seed: 2 })
+
   check({
     name: 'P51 full ladder: integers to lived substrate in one pipeline (modular and {7,3})',
     ok:
@@ -1546,6 +1582,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = renormalization({ seed: 1 })
   const rg = isingRG({ seed: 1 })
+
   check({
     name: "P53 renormalization: measured block-spin coupling matches tanh K' = tanh^2 K and flows to the fixed point K* = 0 (dimension a coarse-graining invariant)",
     ok:
@@ -1593,6 +1630,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (light-cone) sectors all appear in one run.
 {
   const r = oneRuleAllSectors({ count: 1200, seed: 1 })
+
   check({
     name: 'P55 one rule, all sectors: matter, force, and radiation from one operator on one mesh',
     ok:
@@ -1637,6 +1675,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // stable because the micro-self is, and the tower continues to another level.
 {
   const r = recursion({ count: 1500, seed: 1 })
+
   check({
     name: 'P57 recursion: higher vibes are aggregate views (no stored layer), self-similar, inherited-stable, towering',
     ok:
@@ -1654,6 +1693,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // not a same-tone-cluster tautology.
 {
   const r = emergentMacroRule({ count: 1500, seed: 1 })
+
   check({
     name: 'P58 emergent macro-rule: renormalized rule emerges on tone-independent blocks in the ordered regime (beats naive), fails when frustrated',
     ok:
@@ -1670,6 +1710,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // undisturbed (the higher self keeps its identity).
 {
   const r = nestedSelves({ seed: 1 })
+
   check({
     name: 'P59 nested selves: small wounds heal, whole-cell flips persist, body stays intact',
     ok:
@@ -1686,6 +1727,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // rule holding at every level.
 {
   const r = towerOfSelves({ seed: 1 })
+
   check({
     name: 'P60 tower of selves: clean multi-level hierarchy to one top, rule holds every level',
     ok:
@@ -1706,6 +1748,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // copies diverge (the infinite mirror).
 {
   const r = noSelfStorage({ count: 1500, seed: 1 })
+
   check({
     name: 'P61 no self-storage: lossless self-record needs the whole, lossy regress converges, no infinite mirror',
     ok:
@@ -1724,6 +1767,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = dimensionWindow({ maxP: 8, maxDimension: 6 })
   const c = n => r.byDimension.find(d => d.dimension === n)?.count ?? -1
+
   check({
     name: 'P62 dimension window: compact hyperbolic crystals only in dims 2,3,4 (H^3=4, H^4=5, H^5+=0)',
     ok:
@@ -1743,6 +1787,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // unchanged, which a topology-only measure could never detect.
 {
   const r = integratedInformation({ seed: 1 })
+
   check({
     name: 'P63 integrated information (tone-aware): selves are tone-integration local maxima, and the measure reads the dynamics (fills cut collapses Phi, graph unchanged)',
     ok:
@@ -1760,6 +1805,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // reasserts its pattern. The urge as a real second layer, not an abstract bias field.
 {
   const r = subtleLayerUrges({ seed: 1 })
+
   check({
     name: 'P64 subtle-layer urges: deep layer steers the surface and reasserts after disorder',
     ok: r.solved && r.steeringRises && r.reassertion > 0.8,
@@ -1772,6 +1818,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // whole stored landscape. The only difference is whether the shared external constraint is imposed.
 {
   const r = dreamingAndWaking({ seed: 1 })
+
   check({
     name: 'P65 dreaming and waking: waking pinned to one veridical memory, dreaming roams the landscape',
     ok:
@@ -1788,6 +1835,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // A self is a pattern, separable in principle from any particular substrate.
 {
   const r = reincarnation({ seed: 1 })
+
   check({
     name: 'P66 reincarnation: self persists through total turnover and reconstitutes from a seed',
     ok:
@@ -1806,6 +1854,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (the same mechanism as the Bell result P7).
 {
   const r = synchronicity({ seed: 1 })
+
   check({
     name: 'P67 synchronicity: diverged-but-related subsystems correlate without a link, tracking inherited ancestry and fading with divergence',
     ok:
@@ -1827,6 +1876,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const d3 = r.byDimension.find(x => x.dimension === 3)
   const d2 = r.byDimension.find(x => x.dimension === 2)
   const d4 = r.byDimension.find(x => x.dimension === 4)
+
   check({
     name: 'P68 dimension selection: only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
     ok:
@@ -1848,6 +1898,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const d2 = r.flat.find(x => x.target === 2)
   const d3 = r.flat.find(x => x.target === 3)
   const d4 = r.flat.find(x => x.target === 4)
+
   check({
     name: 'P69 emergent dimension: flat grids unbiased (2/3/4), curved meshes exponential',
     ok:
@@ -1866,6 +1917,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // probabilities), which holds only at p=2; fair substrate sampling then yields |c|^2.
 {
   const r = bornRule({ seed: 1 })
+
   check({
     name: 'P70 Born rule: exponent 2 forced by quadrature + additivity (functional equation), fair sampling gives |c|^2',
     ok:
@@ -1883,6 +1935,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // turns over (computed from random-state entanglement entropy, not a hardcoded triangle).
 {
   const r = hawking()
+
   check({
     name: 'P71 Hawking: thermal spectrum derived from the Unruh response (detailed balance), T = kappa/2pi, T ~ 1/M, Page curve turns over',
     ok:
@@ -1901,6 +1954,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // multi-component history (no closed form) shows the deceleration-to-acceleration transition.
 {
   const r = nonlinearEinstein()
+
   check({
     name: 'P72 nonlinear Einstein: a(t) integrated (not plugged in), power laws emerge, acceleration residual shrinks with dt, decel-to-accel transition',
     ok:
@@ -1917,6 +1971,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // verified to be propagating eigenvectors of the operator, alongside 4 gauge zero-modes in the spectrum.
 {
   const r = discreteGraviton({ seed: 1 })
+
   check({
     name: 'P73 discrete graviton: gauge-invariant, massless, two polarizations verified as propagating eigenmodes (4 gauge zeros in the spectrum)',
     ok:
@@ -1934,6 +1989,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // single-pair move is stuck, unblocking the crossing at large N.
 {
   const r = largeNCrossing({ sizes: [32, 64] })
+
   check({
     name: 'P74 large-N crossing: cluster move traverses heights, single-pair stuck',
     ok: r.solved && r.clusterTraverses && r.singlePairStuck,
@@ -1950,6 +2006,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // keeps its identity over time, and the mesh holds several selves with the count growing with N.
 {
   const r = selvesAsAttractors({ seed: 1 })
+
   check({
     name: 'P75 selves as attractors: stable basin, persistent identity, capacity grows with size',
     ok:
@@ -1965,6 +2022,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // delivers nearly every pair at low stretch.
 {
   const r = dodecagridNavigation({ seed: 1 })
+
   check({
     name: 'P76 3D navigation: greedy address routing on the dodecagrid delivers at low stretch',
     ok: r.solved && r.successRate > 0.9 && r.meanStretch < 2,
@@ -1976,6 +2034,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // chiralities cancel (the Nielsen-Ninomiya obstruction), and a Wilson term leaves one species.
 {
   const r = chiralGauge()
+
   check({
     name: 'P77 chiral gauge: doubling 2^d with net chirality 0, Wilson leaves one species',
     ok:
@@ -1996,6 +2055,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // seed, the density contrast scaling as (mean count)^{-1/2}.
 {
   const r = primordialSpectrum({ seed: 1 })
+
   check({
     name: 'P78 primordial seed: scale-free Poisson density contrast, exponent -1/2',
     ok:
@@ -2008,6 +2068,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // generation is exactly the Standard Model hypercharges, with quantized electric charges.
 {
   const r = anomalyChargeQuantization()
+
   check({
     name: 'P79 anomaly cancellation forces the Standard Model hypercharges and charge quantization',
     ok:
@@ -2026,6 +2087,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // peak at intermediate washout that a biased coin cannot produce.
 {
   const r = baryogenesis({ seed: 1 })
+
   check({
     name: 'P80 baryogenesis: emergent asymmetry (eta = epsilon * efficiency, not epsilon), all three Sakharov conditions necessary, freeze-out peak at intermediate washout',
     ok:
@@ -2043,6 +2105,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // length (stated, not derived); the mechanism and order of magnitude are the result.
 {
   const r = massHierarchy()
+
   check({
     name: 'P81 mass hierarchy: geometric (unfitted) spacing gives a multi-decade exponential hierarchy, same order as observed, beating power-law',
     ok: r.solved && r.mechanismHolds && r.sameOrderAsObserved,
@@ -2054,6 +2117,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // same bound excludes a lattice, and the swerve vanishes as discreteness fines.
 {
   const r = predictionsVsBounds({ seed: 1 })
+
   check({
     name: 'P82 predictions vs bounds: passes GRB Lorentz bounds, excludes a lattice, swerve vanishes',
     ok:
@@ -2069,6 +2133,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // equal one shot), append-only, faithful to the static tiling, with hyperbolic geometry emerging.
 {
   const r = deterministicGrowth()
+
   check({
     name: 'P83 deterministic growth: resumable, append-only, faithful, geometry emerges (golden ratio)',
     ok:
@@ -2085,6 +2150,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (boost-invariant, no preferred frame) and boost-covariant, while a lattice piles up at rapidity 0.
 {
   const r = lorentzBoost({ seed: 1 })
+
   check({
     name: 'P84 Lorentz boost: sprinkle rapidity flat + boost-covariant, lattice peaked at a rest frame',
     ok:
@@ -2102,6 +2168,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = coxeterEngine()
   const dodeca = r.facetCounts.find(f => f.symbol === '{5,3,4}')
+
   check({
     name: 'P85 Coxeter engine: full facet-adjacency exact (heptagrid 7, dodecagrid 12), parallel explosion, dodecagrid runs',
     ok:
@@ -2117,6 +2184,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // pick {5,3,4}, with the golden 5 forced (dodeca reaches it at r=4, cube needs 5, tetra never).
 {
   const r = autoSelection()
+
   check({
     name: 'P86 auto-selection: ternary + minimal eternal closure forces {5,3,4}, the 5 emerges',
     ok: r.solved && r.forcedSymbol === '{5,3,4}' && r.fiveIsForced,
@@ -2129,6 +2197,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // hyperbolic crystals (heptagrid 7, dodecagrid 12) coordinate-free, with no rim crowding.
 {
   const r = wordEngine()
+
   check({
     name: 'P87 word engine: exact finite orders (H3=120) and exact cell facets (dodecagrid 12), coordinate-free',
     ok:
@@ -2146,6 +2215,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // as an emergent metric from the fills, upgrading P16/P24/P32.
 {
   const r = effectiveMetric()
+
   check({
     name: 'P88 effective metric from fills: rays bend toward matter (lensing) scaling with mass, curvature sourced by matter',
     ok:
@@ -2163,6 +2233,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // Hawking temperature T_H = kappa / 2pi (detailed balance), scaling with kappa.
 {
   const r = analogHawking()
+
   check({
     name: 'P89 analog-Hawking on the crystal: ray redshift gives surface gravity, detector thermal at T_H = kappa/2pi',
     ok:
@@ -2180,6 +2251,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // short-range deviation from inverse-square would reveal a 4D bulk, and its absence bounds the bulk.
 {
   const r = braneworld()
+
   check({
     name: 'P90 braneworld test: 3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range',
     ok:
@@ -2197,6 +2269,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // the connecting geodesic encodes the boundary separation (depth is the renormalization scale).
 {
   const r = holography()
+
   check({
     name: 'P91 holography on the crystal: Ryu-Takayanagi log law (CFT2 entropy), geodesic shortcut, depth-as-scale',
     ok: r.solved && r.rtLogLawHolds && r.isShortcut && r.depthIsScale,
@@ -2211,6 +2284,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // wholes build disproportionately more order), which is the tower.
 {
   const r = cooperationTower()
+
   check({
     name: 'P92 cooperation tower: charge conserved, grabbing makes hierarchy/standoff, integration wins on order and recurs',
     ok:
@@ -2229,6 +2303,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // fills create plus-minus pairs from peace which sharing fills then annihilate, all at fixed Q.
 {
   const r = conservedDynamics()
+
   check({
     name: 'P94 conserved dynamics on {5,3,4}: Q conserved, diffusion drains, pumping concentrates, pairs create and annihilate',
     ok:
@@ -2249,6 +2324,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // overrides the will. There is a sharp willpower threshold at the valley length.
 {
   const r = willFork()
+
   check({
     name: 'P98 the will (the fork): delays gratification with willpower, relapses when depleted, field overrides, sharp threshold',
     ok:
@@ -2267,6 +2343,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // to 1.0, the largest patch grows). So durable selves need adaptive fills. Charge Q conserved throughout.
 {
   const r = selfEmergence()
+
   check({
     name: 'P97 self-emergence: fixed fills do not self-organize selves, adaptive fills do (durable selves need a sixth, fill-dynamics, rule)',
     ok:
@@ -2286,6 +2363,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // diffuse while arrow-biased hops pump. Charge Q conserved throughout. Supersedes the fill-based P94.
 {
   const r = perceptionDynamics()
+
   check({
     name: 'P100 perception rule (no fills): Q conserved, arrow creates life from peace, no-arrow relaxes to peace, dynamic balance, diffuse and pump',
     ok:
@@ -2305,6 +2383,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (Living but mindless. Durable selves need a stickier rule or more than the perception rule.) Q conserved.
 {
   const r = selfEmergencePerception()
+
   check({
     name: 'P101 self-emergence on perception ontology: living balance is structureless churn, no durable selves from tones alone (honest negative)',
     ok:
@@ -2324,6 +2403,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // just imperfect, no stored relations needed.
 {
   const r = cohesiveMemory()
+
   check({
     name: 'P102 cohesive memory (no stored relations): cohesion roughly doubles imprint memory vs the churning rule (the sixth feature, memory, without fills)',
     ok:
@@ -2340,6 +2420,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // agnostic. (Run at 150k here for the suite, a million in main().)
 {
   const r = millionScale({ n: 150000 })
+
   check({
     name: 'P103 perception dynamics at scale (expander proxy): charge conserved, arrow creates life, dynamic balance hold at scale',
     ok:
@@ -2354,6 +2435,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // blob-memory erodes, reported by the experiment, not the pass condition.)
 {
   const r = exactScale({ n: 25000 })
+
   check({
     name: 'P104 exact {5,3,4} at scale (modular fingerprints): matches float engine, exceeds the precision wall, facet 12, round-trips through disk',
     ok:
@@ -2380,19 +2462,16 @@ function allFinite(xs: ArrayLike<number>): boolean {
   for (let i = 0; i < a.cellCount && identical; i++) {
     const sa = new Set<number>()
 
-    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
+    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++)
       sa.add(a.adj[p]!)
-    }
 
     const sb = new Set<number>()
 
-    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
+    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++)
       sb.add(b.adj[p]!)
-    }
 
-    if (sa.size !== sb.size) {
-      identical = false
-    } else {
+    if (sa.size !== sb.size) identical = false
+    else {
       for (const x of sa) {
         if (!sb.has(x)) {
           identical = false
@@ -2416,6 +2495,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // clean win, long-term dynamic persistence still erodes under the conserving rule.)
 {
   const r = holographicMemory({ n: 30000 })
+
   check({
     name: 'P105 holographic memory on exact {5,3,4}: a spread-encoded bit survives a bounded erasure and decodes, a blob is destroyed (erasure protection, no new state)',
     ok:
@@ -2433,6 +2513,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (the tower). So integrated selves emerge on the real crystal at scale. Charge conserved.
 {
   const r = selvesAtScale({ n: 60000 })
+
   check({
     name: 'P106 selves at scale: coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy (the tower)',
     ok:
@@ -2452,6 +2533,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // but it must be actively maintained, like a living mind holding itself together.
 {
   const r = permanentMemory({ n: 30000 })
+
   check({
     name: 'P107 permanent memory by active maintenance: maintained codeword stays at full fidelity where unmaintained erodes, conserving, at a cost (the will)',
     ok:
@@ -2469,6 +2551,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // Charge conserved. This is the tower in action on the real substrate (the P92 resolution, in the crystal).
 {
   const r = selvesDynamics({ n: 60000 })
+
   check({
     name: 'P108 selves dynamics (the living tower): the largest self grows while a hierarchy of patches persists on the exact {5,3,4}',
     ok: r.solved && r.conserved && r.coarsens,
@@ -2483,6 +2566,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // external re-stamping of P107 (which only tops it up to full).
 {
   const r = selfMaintenance({ n: 30000 })
+
   check({
     name: 'P109 emergent self-maintenance: a self heals its own damage by the rule alone (from its redundant surround), control with no surround does not',
     ok:
@@ -2500,6 +2584,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // A real interaction law (opposite annihilate, same merge), confirmed at a million cells. Conserving.
 {
   const r = selvesInteracting({ n: 60000 })
+
   check({
     name: 'P110 selves interacting: opposite selves annihilate at contact (split), same selves merge into one (a real interaction law)',
     ok:
@@ -2516,6 +2601,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // one self reaches a maximally-distant self (control shows none).
 {
   const r = signaling({ n: 60000 })
+
   check({
     name: 'P111 signaling (the field beneath): tiny diameter, a signal crosses the whole universe via the bulk to a far self',
     ok:
@@ -2532,6 +2618,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // stays ONE self. Reproduction here is de novo (the arrow births new selves, P106), not by division.
 {
   const r = reproduction({ n: 60000 })
+
   check({
     name: 'P112 reproduction: fission is suppressed on hyperbolic geometry (a self stays one), reproduction is de novo not by division',
     ok: r.solved && r.conserved && r.fissionSuppressed,
@@ -2544,6 +2631,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // does not. Steering is directional (a hop or so, a large fraction of the tiny diameter). Conserving.
 {
   const r = willSteering({ n: 120000 })
+
   check({
     name: 'P113 the will steering a self: with the will it moves toward a target (merge) and away from a threat (avoid), unbiased does not',
     ok: r.solved && r.willSteers && r.mergeWorks && r.avoidWorks,
@@ -2557,6 +2645,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // lightcone (bounded influence speed), and a conserved charge. The vibe vacuum is field-like.
 {
   const r = quantumField({ n: 60000 })
+
   check({
     name: 'P114 field-theoretic vacuum: fluctuating virtual pairs, correlator with pair anti-correlation and finite correlation length (effective mass), causal lightcone, conserved current',
     ok:
@@ -2577,6 +2666,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // justification for the multiscale shortcut.
 {
   const r = renormalizationKeystone({ small: 30000, large: 150000 })
+
   check({
     name: 'P115 renormalization keystone: the field effective parameters are slice-invariant (a slice equals the large field), justifying test-a-slice-assume-all-scales',
     ok:
@@ -2597,6 +2687,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // self-model is a free consequence of integration on the hyperbolic geometry.
 {
   const r = selfModel()
+
   check({
     name: 'P116 self-model emerges (one self): a localized hub represents the self global state (mirrors the whole), beating local regions, real vs shuffle, needs the dynamics, no added mechanism',
     ok:
@@ -2614,6 +2705,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // hub represents its own self), so self-models are relative to the self, many of them.
 {
   const r = manySelfModels({ n: 60000 })
+
   check({
     name: 'P117 many self-models: every self forms its own self-model at its own hub (not one privileged center), distinct selves',
     ok:
@@ -2630,6 +2722,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // of the model) is the further step.
 {
   const r = metacognition({ n: 60000 })
+
   check({
     name: 'P118 predictive metacognition: the self-model predicts the self next state, beating local regions (a usable forward model)',
     ok: r.solved && r.predictsFuture && r.beatsLocal,
@@ -2644,6 +2737,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = attentionWorkspace({ n: 60000 })
   const first = r.cases[0]!
+
   check({
     name: 'P119 attention and workspace differential: raising the drive gain on a region raises its hub correlation in every deterministic schedule (the strong salience/gain bars stay open, E-SLF-0006)',
     ok: r.allPositiveDifferential,
@@ -2658,6 +2752,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // creative source. Tested at an EFFECTIVE level (cells are heritable units, not Planck vibes).
 {
   const r = heredity({ n: 60000 })
+
   check({
     name: 'P120 heredity + conservation: a daughter inherits the parent with tunable variation, and reproduction is CONSERVING creation (the arrow), so the base supports it',
     ok:
@@ -2675,6 +2770,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // chain world -> model1 -> model2(model1) holds.
 {
   const r = modelOfModel({ n: 60000 })
+
   check({
     name: 'P121 full recursion (a model of the model): hub2 represents hub1 (the tower of self-models), the chain world->model1->model2(model1)',
     ok:
@@ -2691,6 +2787,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // diameter) to measure transport, motivating the sliver.
 {
   const r = rgStep({ n: 30000 })
+
   check({
     name: 'P122 RG step: the first inter-layer transform enriches the alphabet and conserves charge (a ball is too short to show transport)',
     ok: r.solved && r.alphabetEnriched && r.conserved,
@@ -2703,6 +2800,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // finite propagation speed = a lightcone, the relativistic-field ingredient, not slow diffusion.
 {
   const r = sliverTransport({ length: 70, beats: 40, runs: 400 })
+
   check({
     name: 'P123 sliver transport: a long geodesic tube reveals BALLISTIC transport (finite escape speed = a lightcone), the relativistic-field ingredient, not diffusion',
     ok: r.solved && r.longSliver && r.isBallistic && !r.isDiffusive,
@@ -2715,6 +2813,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // icosahedral cell symmetry gives emergent rotational invariance for free. Boosts remain.
 {
   const r = lorentzIsotropyTensor({ maxCells: 8000 })
+
   check({
     name: 'P124 Lorentz isotropy: the one-step diffusion tensor is isotropic (equal eigenvalues), emergent rotational invariance from the icosahedral cell symmetry',
     ok: r.solved && r.isotropic,
@@ -2727,6 +2826,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // invariance is emergent AND improves with coarse-graining.
 {
   const r = lorentzFlow({ maxCells: 9000 })
+
   check({
     name: 'P125 Lorentz restoration: higher-order angular anisotropy (rank-4, rank-6) shrinks under coarse-graining, rank-2 at the floor',
     ok: r.solved && r.a4Shrinks && r.a6Shrinks && r.rank2AtFloor,
@@ -2740,6 +2840,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // refuting the "arrow is irreversible" worry at the local level. (Caveat: multi-cell cycles untested.)
 {
   const r = reversiblePoint({ n: 20000 })
+
   check({
     name: 'P126 reversible point: local detailed balance holds at all arrow rates (the arrow creates balanced pairs), the precondition for quantization is locally met',
     ok: r.solved && r.localDetailedBalance,
@@ -2753,6 +2854,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // precondition for reflection positivity / quantization is met (the irreversibility worry is refuted).
 {
   const r = cycleReversibility({ n: 20000 })
+
   check({
     name: 'P128 multi-cell reversibility: no persistent charge circulation around closed loops (Kolmogorov holds), the dynamics is a genuine equilibrium process',
     ok: r.solved && r.reversible,
@@ -2766,6 +2868,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // the upper critical dimension), and the continuum limit is a mean-field / Gaussian free field.
 {
   const r = criticalityScan({ n: 20000 })
+
   check({
     name: 'P129 criticality scan: an absorbing critical point at arrow->0 with mean-field exponent beta~1/2 (density ~ sqrt(arrow)), continuum limit is a free field',
     ok: r.solved && r.meanField && r.vanishesAtZero && r.betaR2 > 0.9,
@@ -2779,6 +2882,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // not a clean violation. A definitive verdict needs the near-critical regime (large correlation length).
 {
   const r = reflectionPositivity({ length: 60, arrow: 0.05 })
+
   check({
     name: 'P130 reflection positivity: in the massive regime the correlation is contact-dominated, so RP is undecided (needs the near-critical regime), an honest inconclusive',
     ok: r.solved && r.contactDominated && !r.rpDecidable,
@@ -2792,6 +2896,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // model, and reversibility makes its Doi-Peliti Hamiltonian Hermitian (genuinely quantum).
 {
   const r = doiPelitiCheck()
+
   check({
     name: 'P131 Doi-Peliti transcription: the rule is a spin-1 S^z-conserving reversible exchange model (U(1) charge, unit exchange, exact detailed balance), a Hermitian quantum Hamiltonian',
     ok:
@@ -2807,6 +2912,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // ballistic (lightcone) propagation, so it needs a terminating-cascade protocol.
 {
   const r = selfOrganizedCriticality({ n: 15000 })
+
   check({
     name: 'P135 self-organized criticality: demand-driven creation self-tunes the activity to one interior set-point from any start (homeostasis, no external tuning); criticality left open',
     ok: r.solved && r.selfTunes,
@@ -2821,6 +2927,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // Hierarchical integration must instead come from the fast ballistic field beneath (P111), not avalanches.
 {
   const r = avalancheCriticality({ n: 12000 })
+
   check({
     name: 'P138 avalanche criticality: no scale-free avalanches at any background (span ~1, ballistic spread), so the SOC route does not apply, the lightcone precludes branching avalanches',
     ok: r.solved && r.ballisticNotCritical && !r.scaleFree,
@@ -2834,6 +2941,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // hierarchy (fast integration via the field beneath, P111), not critical avalanches (P138).
 {
   const r = hierarchicalSolving()
+
   check({
     name: 'P139 hierarchical solving: the global coordination distance is O(log N) and tiny (a handful of hops), far below a Euclidean N^(1/3), so global problems are solved fast by integration',
     ok: r.solved && r.logScaling,
@@ -2847,6 +2955,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // detour, reaching the goal. Planning ability switches on exactly when the horizon spans the barrier.
 {
   const r = detourPlanning({ L: 40 })
+
   check({
     name: 'P140 detour planning (LOGIC, with an explicit lookahead): lookahead beats greedy on a barrier, planning switches on when the horizon spans the barrier',
     ok: r.solved && r.plannerBeatsGreedy && r.thresholdMatchesBarrier,
@@ -2859,6 +2968,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // a multiplication program and computes correctly. The substrate hosts universal computation (Margenstern).
 {
   const r = meansComputation({ n: 4000 })
+
   check({
     name: 'P141 means check: the {5,3,4} hosts universal computation (a Minsky machine with registers as mesh charge computes multiplication correctly)',
     ok: r.solved && r.allCorrect,
@@ -2872,6 +2982,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // heuristic. So planning emerges from the five base things, it is not a new ingredient.
 {
   const r = planningNoAdditions({ L: 40 })
+
   check({
     name: 'P143 planning with nothing added: a planner built only from the arrow + the rule + the will (no search heuristic) crosses a barrier greedy cannot, planning emerges from the base',
     ok: r.solved && r.plannerBeatsGreedy && r.usesOnlyEmergent,
@@ -2885,6 +2996,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (INTENTION, the gap is astronomical). The bridge from computable (P141) to intentional.
 {
   const r = directionIntention()
+
   check({
     name: 'P147 direction and intention: a goal-directed search solves in ~K steps (direction), an un-goaled one needs ~2^K and fails (intention, astronomical gap), the arrow makes computation intentional',
     ok: r.solved && r.directionHolds && r.intentionHolds,
@@ -2900,6 +3012,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // Wallstrom (single-valued complex amplitudes).
 {
   const r = quantumWalkField({ steps: 120 })
+
   check({
     name: 'P151 quantum-walk field: the unitary completion is relativistic (ballistic z=1, Dirac dispersion, tunable mass) and reflection-positive, the genuine quantum field, the stochastic rule its classical diffusive shadow',
     ok:
@@ -2917,6 +3030,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // variation, the full Darwinian loop, with nothing added.
 {
   const r = evolution({ M: 40 })
+
   check({
     name: 'P152 evolution: heredity + variation + selection drives mean fitness up (beats drift) on heritable variation, the Darwinian loop from the base (reproduction = the arrow conserving copy, selection = its value)',
     ok: r.solved && r.fitnessRises && r.beatsDrift && r.heritable,
@@ -2930,6 +3044,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // goal, where a reactive agent stalls at barrier 1 and a one-shot planner at barrier 2. Mind end-to-end.
 {
   const r = integratedAgent({ L: 80, B: 4 })
+
   check({
     name: 'P153 integrated agent: the closed perceive-plan-act loop (arrow + rule + will, bounded foresight) crosses a sequence of barriers to the goal, beating reactive and one-shot, mind end-to-end from the base',
     ok:
@@ -2947,6 +3062,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // not separate one-offs.
 {
   const r = unifiedModel({ n: 30000 })
+
   check({
     name: 'P155 unified model (integration): one mesh, one rule, all phenomena co-occur in one run (conservation, life vs dead, lightcone, reversibility, coherence), the model is unified not a pile of one-offs',
     ok:
@@ -2968,6 +3084,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // a work cost (Landauer).
 {
   const r = memoryVsConservation({ n: 30000 })
+
   check({
     name: 'P159 memory vs conservation: Q is exactly conserved while the pattern correlation decays to noise (lost = information not charge), and maintenance holds it at a work cost',
     ok:
@@ -2981,6 +3098,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // no-fission limit is bulk-specific, not absolute, lifted where the emergent geometry is flat.
 {
   const r = fissionFlatLayer()
+
   check({
     name: 'P160 fission on the flat layer: a self divides into two on the emergent flat (Euclidean) geometry where the hyperbolic bulk cannot (P112), the no-fission limit is bulk-specific not absolute',
     ok: r.solved && r.flatFissioned && !r.hyperbolicFissioned,
@@ -2993,6 +3111,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // constructive form of "any positive thing consistent with the absolute laws is realizable".
 {
   const r = arbitraryStructure({ M: 60 })
+
   check({
     name: 'P161 arbitrary-structure realization: the substrate constructs and maintains any specified balanced structure (blocks/stripes/random), the constructive claim that any positive structure is realizable',
     ok: r.solved && r.allBuilt && r.allMaintained,
@@ -3005,6 +3124,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // coarse-graining level, drawing the true boundary of the possible.
 {
   const r = absoluteLimits({ n: 20000 })
+
   check({
     name: 'P162 absolute limits are absolute: net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level (conservation and causality pass up every codec), the true boundary of the possible',
     ok: r.solved && r.chargeAbsolute && r.lightconeAbsolute,
@@ -3017,6 +3137,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // fixed point across block sizes 1..32, so "test a slice, assume all scales" is earned (P115 extended).
 {
   const r = coarseGrainingChain({ L: 8192 })
+
   check({
     name: 'P164 coarse-graining chain: charge exactly preserved at every level and the effective parameter is a fixed point across the tower (block sizes 1..32), the multiscale chain is faithful end to end',
     ok: r.solved && r.chargePreservedAllLevels && r.fixedPointConverges,
@@ -3030,6 +3151,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // harder task evolves a larger horizon).
 {
   const r = evolvingEcology()
+
   check({
     name: 'P165 evolving ecology: a population of planning agents evolves better problem-solving (fitness rises) and ADAPTS its foresight to task difficulty (harder task evolves a larger horizon), life and mind co-evolving from the base',
     ok:
@@ -3045,6 +3167,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // dispensable (the designed/idealist reading stays possible but empirically superfluous, Occam).
 {
   const r = designSignature({ n: 16000 })
+
   check({
     name: 'P166 design-signature test: the rich regime is broad (not fine-tuned), dead only at the degenerate point, structure forced and self-organizing, so no design/tuning signature, a designer is dispensable',
     ok: r.solved && !r.fineTuningSignature && r.designerDispensable,
@@ -3058,6 +3181,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // intention belongs to the emergent FLAT layer, the scaffold supports the COORDINATION half (P116, P139).
 {
   const r = intentionAtScale({ n: 60000 })
+
   check({
     name: 'P145 large-scale intention: the will coherently biases the whole self, but directed action at scale (top-down, sustained drift) is geometrically frustrated on the scaffold, it belongs to the flat layer',
     ok: r.solved && r.coherent && r.directedFrustrated,
@@ -3071,6 +3195,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // older it gets, with complementary recovery from the rim.
 {
   const r = growingCode({ n: 200000 })
+
   check({
     name: 'P127 growing holographic code: the erasure threshold rises with shell radius (age), redundancy grows as the universe expands, complementary recovery',
     ok:
@@ -3088,6 +3213,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // positive-energy unitary theory is consistent in the time direction.
 {
   const r = timeReflectionPositivity({ n: 40000 })
+
   check({
     name: 'P132 time reflection positivity: the beat-autocorrelation Hankel is PSD within statistical noise (positive-energy unitary theory consistent in time, modulo a small temporal doubler)',
     ok: r.solved && r.reflectionPositive,
@@ -3101,6 +3227,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // be tested on the hyperbolic scaffold, it belongs to the emergent FLAT geometry. Correctly diagnosed.
 {
   const r = nearCriticalRP({ length: 80 })
+
   check({
     name: 'P133 near-critical spatial RP: the correlation stays contact-dominated toward criticality (hyperbolic obstruction, mean-field), so spatial RP belongs to the emergent flat layer, not the scaffold',
     ok: r.solved && (r.reflectionPositive || r.hyperbolicObstruction),
@@ -3114,6 +3241,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // real open problem is the absence of an accessible massless/critical regime for a sharp RP/Lorentz test.
 {
   const r = flatSpatialRP({ L: 4000 })
+
   check({
     name: 'P134 flat spatial RP: the field is generically MASSIVE on flat too (the rule, not geometry, revising P133), RP-consistent for a massive field, masslessness is the open gap',
     ok:
@@ -3131,6 +3259,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // mode is therefore expected to be the conserved charge's DYNAMIC hydrodynamic mode, not a static one.)
 {
   const r = gaplessSearch({ L: 3000 })
+
   check({
     name: 'P136 gapless search: no static gapless critical point over the (arrow, share) plane, the conserved-exchange field is robustly MASSIVE (the gapless mode must be dynamic/hydrodynamic, not static)',
     ok: r.solved && r.robustlyMassive && !r.gaplessFound,
@@ -3144,6 +3273,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (z=1, omega ~ c|k|) would need momentum conservation / inertia (a second field), which the bare rule lacks.
 {
   const r = dynamicDispersion({ L: 2400 })
+
   check({
     name: 'P137 dynamic dispersion: the conserved charge has a gapless hydrodynamic mode, but it is DIFFUSIVE (z~2, non-relativistic), a relativistic z=1 mode needs momentum conservation/inertia',
     ok: r.solved && r.gapless && r.diffusive,
@@ -3158,6 +3288,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // emergent Lorentz/QFT physics belongs.
 {
   const r = horosphereFlat({ maxCells: 14000 })
+
   check({
     name: 'P142 horosphere is flat: a Busemann level set of {5,3,4} grows polynomially (effective dim ~2, a flat 2D sheet) vs the exponential bulk, the natural Euclidean flat layer inside the curved crystal',
     ok:
@@ -3175,6 +3306,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // conservation law (momentum, P137), not a different geometry.
 {
   const r = horosphereDynamics({ maxCells: 14000 })
+
   check({
     name: 'P144 horosphere dynamics: the field is MASSIVE on the emergent flat layer too, so the masslessness gap is the rule (geometry-independent), a relativistic mode needs a second conservation law',
     ok: r.solved && r.horoIsMassive,
@@ -3186,6 +3318,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // no spontaneous order appears, so no second conserved current or Goldstone emerges from the random rule.
 {
   const r = secondConservationSearch({ L: 3000 })
+
   check({
     name: 'P146 second-conservation search: the stochastic rule conserves only the U(1) charge and has no spontaneous order, so no second current emerges from the RANDOM rule',
     ok: r.solved && r.onlyChargeConserved && !r.spontaneousOrder,
@@ -3199,6 +3332,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // random hop (P137 z=2) was an artifact of the illegitimate randomness.
 {
   const r = deterministicWave({ L: 2000 })
+
   check({
     name: 'P148 deterministic wave: a deterministic REVERSIBLE rule propagates ballistically (z=1), so momentum/relativity emerges from removing the randomness (no new field needed), the random rule was the obstruction',
     ok:
@@ -3215,6 +3349,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (z=1, exponent ~1), so the relativistic mode is there once the randomness is removed, no new field.
 {
   const r = deterministicPerception({ L: 2000 })
+
   check({
     name: 'P149 deterministic perception rule: the hop/create/annihilate content as a deterministic reversible charge-conserving block CA is ballistic (z=1), the relativistic mode without randomness or a new field',
     ok: r.solved && r.chargeConserved && r.reversible && r.isBallistic,
@@ -3227,6 +3362,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // directions (anisotropy ~0), an emergent isotropic light speed.
 {
   const r = waveIsotropy({ maxCells: 13000 })
+
   check({
     name: 'P150 wave isotropy: the deterministic reversible wave on {5,3,4} has an ISOTROPIC speed (anisotropy ~0 across the 12 directions), an emergent light speed, the rotational half of Lorentz',
     ok: r.solved && r.isotropic && r.reversible,
@@ -3240,6 +3376,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (the decisive QFT verdict), once the randomness is removed. (Complements the boost/Lorentz closure.)
 {
   const r = deterministicRP()
+
   check({
     name: 'P154 deterministic reflection positivity: the wave dispersion is real, linear and massless (omega=|k|), a positive-norm massless particle, so spatial RP is POSITIVE, a genuine relativistic field',
     ok:
@@ -3257,6 +3394,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // the cutoff. Boosts here plus rotations (P150) give the FULL emergent Lorentz group.
 {
   const r = boostInvariance()
+
   check({
     name: 'P154 boost invariance: the massless mode has an EXACT lightcone (omega=|k|, boost-invariant), massive modes boost-invariant in the IR window, full Lorentz with rotations (P150)',
     ok:
@@ -3274,6 +3412,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // across all 12 directions, isotropy measured directly in P150/P124).
 {
   const r = unifiedWave({ n: 30000 })
+
   check({
     name: 'P156 unified wave: one charge-conserving + reversible + ballistic + isotropic rule on {5,3,4} (P149 and P150 united)',
     ok:
@@ -3292,6 +3431,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // on the scaffold.
 {
   const r = flatIntention({ L: 120 })
+
   check({
     name: 'P157 flat intention: directed intention works on the flat layer (clear net drift toward the goal), the half that was frustrated on the hyperbolic scaffold (P145)',
     ok: r.solved && r.directedIntentionWorks,
@@ -3304,6 +3444,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // and exact unitarity makes |psi|^2 a genuine probability (Born). The genuinely-quantum behaviour.
 {
   const r = bornInterference({ steps: 80 })
+
   check({
     name: 'P158 Born and interference: the unitary rule shows genuine interference (fringes/nodes, amplitudes cancel) absent in the classical shadow, and unitarity makes |psi|^2 a genuine probability (Born rule)',
     ok: r.solved && r.interferes && r.unitary && r.bornRule,
@@ -3316,6 +3457,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // needed, and it re-adapts when the environment changes (open-ended).
 {
   const r = evolutionLoop({ K: 120, m: 200, generations: 60, mu: 0.03 })
+
   check({
     name: 'P161 evolution: open-ended natural selection from heredity + the arrow as fitness gradient (selection raises fitness, drift does not, re-adapts to a new environment)',
     ok: r.solved && r.selectionWorks && r.openEnded,
@@ -3328,6 +3470,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // where a reactive (greedy) agent gets stuck. Mind end-to-end from the base on the flat layer.
 {
   const r = integratedMetaAgent({ L: 31 })
+
   check({
     name: 'P162 integrated agent: multi-step lookahead through the forward model solves a detour the reactive agent cannot, mind end-to-end (will + rule-as-forward-model + arrow)',
     ok: r.solved && r.multiStepSolves && r.reactiveFails,
@@ -3341,6 +3484,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // spatial-RP gate the stochastic rule could not.
 {
   const r = deterministicSpatialRP({ masses: [0.5, 0.2, 0.05] })
+
   check({
     name: 'P169 deterministic spatial RP: the deterministic field is long-range and reflection-positive (positive spectral weight), passing the spatial-RP gate the stochastic contact field could not',
     ok: r.solved && r.longRangeForSmallMass && r.reflectionPositive,
@@ -3354,6 +3498,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // renormalization fixed point and the multiscale tower is proven for the dynamics.
 {
   const r = waveChain()
+
   check({
     name: 'P167 dynamical coarse-graining chain: the wave equation commutes up the tower (commuting square small at each rung, speed invariant), a renormalization fixed point for the dynamics not just the charge',
     ok: r.solved && r.errorsSmall && r.speedInvariant,
@@ -3368,6 +3513,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (composite -> agent) is P162. Each cross-domain rung commutes.
 {
   const r = crossDomainChain()
+
   check({
     name: 'P168 cross-domain chain: field -> particle (centroid obeys free-particle motion, Ehrenfest) and particle -> composite (center of mass moves freely, momentum conserved through interaction), cross-domain rungs commute',
     ok: r.solved && r.rung1.commutes && r.rung2.commutes,
@@ -3382,6 +3528,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // (free center of mass) this completes particle -> composite, a bound atom that moves freely.
 {
   const r = boundComposite()
+
   check({
     name: 'P172 bound composite: two attracting particles form a true bound state (localized, positive binding energy) with discrete internal energy levels, completing particle -> composite (a bound atom, with P168 free center of mass)',
     ok:
@@ -3398,6 +3545,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // whose correlations violate CHSH at the Tsirelson bound 2 sqrt(2), impossible for any classical theory.
 {
   const r = entanglementBell()
+
   check({
     name: 'P173 entanglement and Bell violation: the exchange dynamics produces a maximally entangled state (concurrence 1) that violates CHSH at the Tsirelson bound, so the substrate is quantum in the strongest sense',
     ok:
@@ -3414,6 +3562,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // Boosts act as genuine Lorentz transformations, completing the operational relativity picture.
 {
   const r = boostVelocityAddition()
+
   check({
     name: 'P175 boost and velocity addition: the lightcone is frame-independent (deviation ~1e-15), no group velocity exceeds c, and velocities add relativistically, so boosts are genuine Lorentz transformations',
     ok:
@@ -3431,6 +3580,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // memory (P105/P107) are present. Reversibility is no obstacle to universality.
 {
   const r = reversibleUniversality()
+
   check({
     name: 'P176 reversible universality: the {5,3,4} with our reversible rule is computationally universal (Margenstern geometry + a reversible-bijection rule + Toffoli completeness + routing + gates + memory), reconciling with Margenstern',
     ok:
@@ -3448,6 +3598,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // all correct, with the total charge conserved throughout, an explicit universal machine in the system.
 {
   const r = substrateComputer({ n: 5000 })
+
   check({
     name: 'P177 substrate computer: a programmable register machine on the {5,3,4} charge dynamics runs three different programs (add, monus, multiply) correctly with charge conserved, an explicit general-purpose computer in the system',
     ok: r.solved && r.allCorrect && r.allConserved && r.generalPurpose,
@@ -3464,6 +3615,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // diffusion (P102). Nothing is hand-placed and nothing creates charge from nothing.
 {
   const r = emergentSelfRobust({ n: 20000 })
+
   check({
     name: 'P178 robust emergent self: a self EMERGES by cohesion (not hand-placed), CONSERVING maintenance holds it at high fidelity vs decay (charge exactly conserved, the honest fix to P171), and the unmaintained self is a finite lifetime, with the honest hyperbolic limits (no compact blobs, no free permanence)',
     ok:
@@ -3484,6 +3636,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = autonomousSelf({ n: 20000 })
   const gap = r.maintainedFidelity - r.unmaintainedFidelity
+
   check({
     name: 'P179 autonomous self: a purely local repair rule (no global target list, no outside knower) raises fidelity over the unmaintained control with charge exactly conserved (knife-edge magnitude, E-SLF-0007 partial)',
     ok: gap > 0.1 && r.conserved,
@@ -3498,6 +3651,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // This validates the layered ontology, bulk = experience, horosphere = selves, physics = the distilled surface.
 {
   const r = horosphereSelf()
+
   check({
     name: 'P180 horosphere self: selves are compact-possible, lower-leak, and far more persistent on the flat horosphere than in the hyperbolic bulk, and the horosphere is built DIRECTLY as a 2D lattice ~1000x larger than any affordable bulk (the layered ontology: bulk experience, horosphere selves, physics the distilled surface)',
     ok:
@@ -3517,6 +3671,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // condenses below a critical charge density, and it stays modest above (life rare even with abundant matter).
 {
   const r = rarityMeasures({ L: 300 })
+
   check({
     name: 'P183 rarity measures: three independent measures confirm life is a rare, thin, threshold-gated tail of matter (integration spectrum high-Phi tail tiny, alive set lower box-dimension than matter, condensation gated by a critical density)',
     ok:
@@ -3532,6 +3687,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // degeneracy. This grounds downward causation and the macro-compatibilist free will, no base change.
 {
   const r = causalEmergence({ K: 16 })
+
   check({
     name: 'P185 causal emergence: a coarse-grained macro (self) has more effective information (causal power) than the degenerate micro substrate, growing with degeneracy, grounding downward causation and macro-compatibilist free will without changing the base',
     ok: r.solved && r.emerges && r.growsWithDegeneracy,
@@ -3546,6 +3702,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // dividing line emergent gravity needs. No base change.
 {
   const r = areaLaw({ L: 96 })
+
   check({
     name: 'P186 area law: the emergent fields ground state is area-law (massive entanglement saturates, massless grows as a conformal log with central charge ~1) while a thermal state is volume-law, the precondition for emergent gravity and holography',
     ok: r.solved && r.massiveSaturates && r.masslessLog && r.volumeLaw,
@@ -3560,6 +3717,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // {5,3,4}, with {3,4,3,4} a unique candidate requiring extra postulates.
 {
   const r = fourDAutoSelection()
+
   check({
     name: 'P188 4D auto-selection: {5,3,4} stays forced in 3D (ternary q=3, compact), and {3,4,3,4} is the unique ideal cubic-cusp H4 honeycomb but is NOT forced by the same principle (bulk q=4, ideal not compact, ternary only in the cusp), so the substrate stays {5,3,4} with {3,4,3,4} a candidate',
     ok:
@@ -3577,6 +3735,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // shells crowd the boundary sphere). The mesh is recursively nested at every scale.
 {
   const r = nestedStructure534()
+
   check({
     name: 'P189 nested structure on {5,3,4}: BFS shells grow exponentially with a CONVERGING ratio (self-similar recursive nesting, growth constant ~7.87) and accumulate toward the boundary (mean Poincare radius -> 1 monotonically), confirming the mesh is recursively nested at every scale',
     ok:
@@ -3594,6 +3753,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // silent degeneration. Headline, {3,4,3,4} builds with 24 facets (the 24-cell) and the cubic {4,3,4} cusp.
 {
   const r = genericTessellationEngine()
+
   check({
     name: 'P199 generic tessellation engine: ANY regular hyperbolic honeycomb {p,q,r,...} (2D to 4D, compact and paracompact) classifies and builds correctly through one generic front-end, with right facet degrees and unbuildable cases flagged not degenerated, headline {3,4,3,4} builds with 24 facets and the cubic {4,3,4} cusp',
     ok:
@@ -3613,6 +3773,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // horosphere idealization was sound, and {5,3,4} keeps its forced geometry.
 {
   const r = exactHorosphere()
+
   check({
     name: 'P182 exact horosphere: on the EXACT {4,4} square horosphere of {4,4,3} the geometric self-physics (compact-possible, low per-beat leak) is identical to the triangular {5,3,4}-horosphere idealization and absent in the bulk, so it is a fact about flat curvature, validating the idealization while {5,3,4} keeps its forced geometry',
     ok:
@@ -3631,6 +3792,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // demand with no graph stored. Proves the on-demand mechanism the shader port builds on.
 {
   const r = lazyNeighbors({ n: 20000 })
+
   check({
     name: 'P184 lazy neighbors: on-demand neighbor computation (no stored adjacency) reproduces the exact buildDodecagrid graph byte-for-byte and supports random access to any deep cell, the verified seed of the lazy WebGPU billion-cell path',
     ok:
@@ -3648,6 +3810,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // esoteric reading interprets as telepathy and synchronicity (a real non-local layer beneath the physical).
 {
   const r = bulkNonlocality({ n: 40000 })
+
   check({
     name: 'P170 bulk non-locality: distant points on the physical surface are joined by a short hidden path through the bulk (the surface is internally disconnected, the bulk is the only channel), a real non-local layer beneath the physical',
     ok: r.solved && r.nonLocalChannel,
@@ -3662,6 +3825,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // maintenance, which the five supply, not a sixth base thing. The same-tone blob is a structureless proxy.
 {
   const r = persistentSelf({ n: 20000 })
+
   check({
     name: 'P171 persistent self: a self-maintaining integrated region keeps its identity and boundary (persistent, bounded), while the same unmaintained pattern dissolves into churn, so a real self comes from the five via maintenance not a same-tone blob',
     ok:
@@ -3675,6 +3839,4 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
 console.log(`\n${passed} passed, ${failed} failed`)
 
-if (failed > 0) {
-  process.exit(1)
-}
+if (failed > 0) process.exit(1)

@@ -70,6 +70,7 @@ export default experiment({
         globalDrift,
         Math.abs(totalCharge(conserving) - globalStart),
       )
+
       localDriftRelative = Math.max(
         localDriftRelative,
         Math.abs(localPlus(conserving, cluster) - localStart) /

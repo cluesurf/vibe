@@ -41,6 +41,7 @@ function applyStep(
       const ui = im[idx(x, 0)]!
       const dr = re[idx(x, 1)]!
       const di = im[idx(x, 1)]!
+
       r2[idx(x, 0)] = c * ur - s * dr
       i2[idx(x, 0)] = c * ui - s * di
       r2[idx(x, 1)] = s * ur + c * dr
@@ -99,9 +100,11 @@ export function edgeModeCountFromProfile(input: {
   for (let j = 0; j < N; j++) {
     const re = new Float64Array(N)
     const im = new Float64Array(N)
+
     re[j] = 1
 
     const [r, i] = applyStep(re, im, L, th1, th2Fn)
+
     columnRe.push(r)
     columnIm.push(i)
   }
@@ -115,6 +118,7 @@ export function edgeModeCountFromProfile(input: {
       const uab_i = columnIm[b]![a]!
       const uba_r = columnRe[a]![b]!
       const uba_i = columnIm[a]![b]!
+
       mat.re[a * N + b] = (uab_r + uba_r) / 2
       mat.im[a * N + b] = (uab_i - uba_i) / 2 // conj(U[b][a]) = uba_r - i uba_i
     }
@@ -131,9 +135,7 @@ export function edgeModeCountFromProfile(input: {
     const nearZero = ev > gapTol
     const nearPi = ev < -gapTol
 
-    if (!nearZero && !nearPi) {
-      continue
-    }
+    if (!nearZero && !nearPi) continue
 
     // localization: fraction of weight within locRadius of either interface (x = ifaceA or x = 0)
     let wIface = 0
@@ -155,9 +157,7 @@ export function edgeModeCountFromProfile(input: {
 
         const dB = Math.min(x, L - x)
 
-        if (dA <= locRadius || dB <= locRadius) {
-          wIface += p
-        }
+        if (dA <= locRadius || dB <= locRadius) wIface += p
       }
     }
 

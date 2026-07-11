@@ -80,9 +80,7 @@ export default experiment({
             arrow,
           })
 
-          if (exponent <= 0.01) {
-            allArrowPositive = false
-          }
+          if (exponent <= 0.01) allArrowPositive = false
 
           if (exponent > bestArrowExponent) {
             bestArrowExponent = exponent

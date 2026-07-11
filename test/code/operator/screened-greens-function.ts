@@ -21,13 +21,9 @@ const chain: number[][] = []
 for (let i = 0; i < 9; i++) {
   const row: number[] = []
 
-  if (i > 0) {
-    row.push(i - 1)
-  }
+  if (i > 0) row.push(i - 1)
 
-  if (i < 8) {
-    row.push(i + 1)
-  }
+  if (i < 8) row.push(i + 1)
 
   chain.push(row)
 }
@@ -46,12 +42,11 @@ suite('operator/screened-greens-function: Yukawa fixed point', [
     for (let i = 0; i < chain.length; i++) {
       let sum = 0
 
-      for (const j of chain[i]!) {
-        sum += phi[j] ?? 0
-      }
+      for (const j of chain[i]!) sum += phi[j] ?? 0
 
       const lhs = (phi[i] ?? 0) * (chain[i]!.length + mass2)
       const rhs = (i === start ? 1 : 0) + sum
+
       close(lhs, rhs, 1e-10, `screened fixed point at ${i}`)
     }
   }),
@@ -68,16 +63,13 @@ suite('operator/screened-greens-function: Yukawa fixed point', [
       let argmax = 0
 
       for (let i = 1; i < phi.length; i++) {
-        if ((phi[i] ?? 0) > (phi[argmax] ?? 0)) {
-          argmax = i
-        }
+        if ((phi[i] ?? 0) > (phi[argmax] ?? 0)) argmax = i
       }
 
       equal(argmax, 4, 'peak at source')
 
-      for (let i = 0; i < phi.length; i++) {
+      for (let i = 0; i < phi.length; i++)
         ok((phi[i] ?? 0) > 0, `phi[${i}] positive`)
-      }
     },
   ),
   check(
@@ -131,12 +123,12 @@ suite('operator/screened-greens-function: clamped leaky diffusion', [
         let inflow = 0
 
         for (let j = 0; j < chain.length; j++) {
-          if (chain[j]!.includes(i)) {
+          if (chain[j]!.includes(i))
             inflow += ((1 - leak) * (p[j] ?? 0)) / chain[j]!.length
-          }
         }
 
         const base = i === source ? 1 : 0
+
         close(
           p[i] ?? 0,
           base + inflow,
@@ -160,15 +152,12 @@ suite('operator/screened-greens-function: clamped leaky diffusion', [
     let argmax = 0
 
     for (let i = 1; i < p.length; i++) {
-      if ((p[i] ?? 0) > (p[argmax] ?? 0)) {
-        argmax = i
-      }
+      if ((p[i] ?? 0) > (p[argmax] ?? 0)) argmax = i
     }
 
     equal(argmax, 4, 'peak at source')
 
-    for (let i = 0; i < p.length; i++) {
+    for (let i = 0; i < p.length; i++)
       ok((p[i] ?? 0) > 0, `p[${i}] positive`)
-    }
   }),
 ])

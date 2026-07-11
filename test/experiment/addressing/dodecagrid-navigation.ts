@@ -46,15 +46,12 @@ export function dodecagridNavigation(input: { seed: number }): {
 
     let t = rng.nextInt({ max: g.size })
 
-    if (t === s) {
-      t = (t + 1) % g.size
-    }
+    if (t === s) t = (t + 1) % g.size
 
     const shortest = graphDistance({ substrate: g, from: s, to: t })
 
-    if (shortest <= 0) {
-      continue
-    } // not connected (or same), skip
+    if (shortest <= 0) continue
+    // not connected (or same), skip
 
     attempted += 1
 

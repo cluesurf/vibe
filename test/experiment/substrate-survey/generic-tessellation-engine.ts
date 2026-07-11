@@ -163,9 +163,8 @@ export function genericTessellationEngine(): {
         maxCells: 4000,
       })
 
-      if (built.graph) {
+      if (built.graph)
         facet = inspectTessellation(built.graph).facetDegree
-      }
     }
 
     const geomOk = d.geometry === c.geometry

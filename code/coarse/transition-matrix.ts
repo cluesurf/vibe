@@ -12,9 +12,7 @@ export function quantileLabels(input: {
 }): number[] {
   const { series, bins } = input
 
-  if (series.length === 0) {
-    return []
-  }
+  if (series.length === 0) return []
 
   const sorted = [...series].sort((a, b) => a - b)
   const thresholds = Array.from(
@@ -80,6 +78,7 @@ export function detailedBalanceViolation(input: {
     for (let sp = s + 1; sp < states; sp++) {
       const f = counts[s * states + sp]!
       const r = counts[sp * states + s]!
+
       asymmetry += Math.abs(f - r)
       total += f + r
 
@@ -91,6 +90,7 @@ export function detailedBalanceViolation(input: {
   }
 
   const violation = total > 0 ? asymmetry / total : 0
+
   meanCount = pairs > 0 ? meanCount / pairs : 1
 
   const floor = Math.sqrt(2 / Math.max(meanCount, 1))
@@ -107,6 +107,7 @@ export function rowStochastic(counts: number[][]): number[][] {
 
     if (sum === 0) {
       const e = new Array<number>(n).fill(0)
+
       e[i] = 1
 
       return e
@@ -126,22 +127,16 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
     let off = 0
 
     for (let p = 0; p < n; p++) {
-      for (let q = p + 1; q < n; q++) {
-        off += a[p]![q]! * a[p]![q]!
-      }
+      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
     }
 
-    if (off < 1e-18) {
-      break
-    }
+    if (off < 1e-18) break
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
 
-        if (Math.abs(apq) < 1e-15) {
-          continue
-        }
+        if (Math.abs(apq) < 1e-15) continue
 
         const app = a[p]![p]!
         const aqq = a[q]![q]!
@@ -152,6 +147,7 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
         for (let k = 0; k < n; k++) {
           const akp = a[k]![p]!
           const akq = a[k]![q]!
+
           a[k]![p] = c * akp - s * akq
           a[k]![q] = s * akp + c * akq
         }
@@ -159,6 +155,7 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
         for (let k = 0; k < n; k++) {
           const apk = a[p]![k]!
           const aqk = a[q]![k]!
+
           a[p]![k] = c * apk - s * aqk
           a[q]![k] = s * apk + c * aqk
         }
@@ -181,9 +178,8 @@ export function transitionEigenvalues(counts: number[][]): number[] {
   )
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
+    for (let j = 0; j < n; j++)
       sym[i]![j] = 0.5 * (counts[i]![j]! + counts[j]![i]!)
-    }
   }
 
   const degree = sym.map(row => row.reduce((a, b) => a + b, 0))
@@ -195,6 +191,7 @@ export function transitionEigenvalues(counts: number[][]): number[] {
     for (let j = 0; j < n; j++) {
       const di = degree[i]!
       const dj = degree[j]!
+
       // an unvisited state (degree 0) is left at 0, so it contributes a zero eigenvalue, not a spurious slow
       // mode at 1. Spurious 1-eigenvalues from empty bins would otherwise mask the real spectral gap.
       s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : 0
@@ -229,9 +226,8 @@ export function impliedTimescale(input: {
 }): number {
   const { eigenvalue, lag } = input
 
-  if (eigenvalue <= 0 || eigenvalue >= 1) {
+  if (eigenvalue <= 0 || eigenvalue >= 1)
     return eigenvalue >= 1 ? Infinity : 0
-  }
 
   return -lag / Math.log(eigenvalue)
 }

@@ -47,21 +47,18 @@ export default experiment({
       for (let t = 0; t < steps; t++) {
         ring = stepClockRing(ring)
 
-        if (clockWinding(ring.curr, states) !== w0) {
-          conserved = false
-        }
+        if (clockWinding(ring.curr, states) !== w0) conserved = false
       }
 
       // a perturbation, flip one cell up by one clock step, then evolve and see if the winding survives.
       let pert: ClockRing = makeTwist({ size, states, turns: 1 })
+
       pert.curr[Math.floor(size / 2)] =
         (pert.curr[Math.floor(size / 2)]! + 1) % states
 
       const wp0 = clockWinding(pert.curr, states)
 
-      for (let t = 0; t < steps; t++) {
-        pert = stepClockRing(pert)
-      }
+      for (let t = 0; t < steps; t++) pert = stepClockRing(pert)
 
       const perturbRobust = clockWinding(pert.curr, states) === wp0
 

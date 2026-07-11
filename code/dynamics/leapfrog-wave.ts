@@ -20,6 +20,7 @@ export function leapfrogWaveStep(
   for (let i = 0; i < L; i++) {
     const left = u[(i - 1 + L) % L]!
     const right = u[(i + 1) % L]!
+
     next[i] = 2 * u[i]! - uPrev[i]! + r2 * (left + right - 2 * u[i]!)
   }
 
@@ -34,9 +35,7 @@ export function blockAverage(u: Float64Array, b: number): Float64Array {
   for (let I = 0; I < M; I++) {
     let s = 0
 
-    for (let j = 0; j < b; j++) {
-      s += u[I * b + j]!
-    }
+    for (let j = 0; j < b; j++) s += u[I * b + j]!
 
     out[I] = s / b
   }
@@ -59,6 +58,7 @@ export function evolveLeapfrogWave(input: {
 
   for (let t = 0; t < steps; t++) {
     const next = leapfrogWaveStep(u, uPrev, r2)
+
     uPrev = u
     u = next
   }
@@ -116,9 +116,7 @@ export function leapfrogWaveLevelSpeed(input: {
     let f = 0
 
     for (let i = 0; i < arr.length; i++) {
-      if (Math.abs(arr[i]!) > threshold) {
-        f = i
-      }
+      if (Math.abs(arr[i]!) > threshold) f = i
     }
 
     return f

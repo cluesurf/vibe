@@ -18,9 +18,7 @@ export function connectedToneCorrelation(input: {
 
   let total = 0
 
-  for (let cell = 0; cell < size; cell++) {
-    total += readout[cell] ?? 0
-  }
+  for (let cell = 0; cell < size; cell++) total += readout[cell] ?? 0
 
   const mean = size > 0 ? total / size : 0
 
@@ -46,6 +44,7 @@ export function connectedToneCorrelation(input: {
 
   for (let r = 0; r <= maxRadius; r++) {
     const c = count[r] ?? 0
+
     correlation.push(c > 0 ? (sum[r] ?? 0) / c - mean * mean : 0)
   }
 

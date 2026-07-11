@@ -11,9 +11,7 @@ export function sigmaCubes(n: number): number {
   let sum = 0
 
   for (let d = 1; d <= n; d++) {
-    if (n % d === 0) {
-      sum += d * d * d
-    }
+    if (n % d === 0) sum += d * d * d
   }
 
   return sum
@@ -32,14 +30,10 @@ export function e8ThetaCoefficient(normSquared: number): number {
     integerSum: number,
     norm: number,
   ): void => {
-    if (norm > normSquared) {
-      return
-    }
+    if (norm > normSquared) return
 
     if (index === 8) {
-      if (integerSum % 2 !== 0) {
-        return
-      }
+      if (integerSum % 2 !== 0) return
 
       if (norm === normSquared) {
         count++
@@ -49,12 +43,12 @@ export function e8ThetaCoefficient(normSquared: number): number {
     }
 
     if (coset === 0) {
-      for (let x = -2; x <= 2; x++) {
+      for (let x = -2; x <= 2; x++)
         recurse(coset, index + 1, integerSum + x, norm + x * x)
-      }
     } else {
       for (let k = -3; k <= 2; k++) {
         const c = k + 0.5
+
         recurse(coset, index + 1, integerSum + k, norm + c * c)
       }
     }
@@ -98,9 +92,7 @@ export function ternaryPairStates(): {
   const values = new Set<number>()
 
   for (const a of [-1, 0, 1]) {
-    for (const b of [-1, 0, 1]) {
-      values.add(3 * a + b)
-    }
+    for (const b of [-1, 0, 1]) values.add(3 * a + b)
   }
 
   return {
@@ -117,6 +109,7 @@ export function fibonacci(n: number): number {
 
   for (let i = 2; i <= n; i++) {
     const next = a + b
+
     a = b
     b = next
   }
@@ -145,6 +138,7 @@ export function cubicRoots(a: number, b: number, c: number): number[] {
   } else {
     const u = Math.cbrt(-q / 2 + Math.sqrt(discriminant))
     const v = Math.cbrt(-q / 2 - Math.sqrt(discriminant))
+
     roots.push(u + v - a / 3)
   }
 
@@ -170,13 +164,9 @@ export function simpleTargetsWithin(input: {
     const highest = Math.ceil((value + tolerance) * q)
 
     for (let p = 0; p <= highest; p++) {
-      if (!(p === 0 && q === 1) && gcd(p, q) !== 1) {
-        continue
-      }
+      if (!(p === 0 && q === 1) && gcd(p, q) !== 1) continue
 
-      if (Math.abs(p / q - value) < tolerance) {
-        seen.add(`${p}/${q}`)
-      }
+      if (Math.abs(p / q - value) < tolerance) seen.add(`${p}/${q}`)
     }
   }
 

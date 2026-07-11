@@ -44,6 +44,7 @@ function qddotAmplitude(mu: number, a: number, omega: number): number {
     const x = (a / 2) * Math.cos(th)
     const y = (a / 2) * Math.sin(th)
     const r2 = x * x + y * y
+
     q.push(2 * (mu / 2) * (3 * x * x - r2)) // traceless Q_xx over both masses
   }
 
@@ -51,6 +52,7 @@ function qddotAmplitude(mu: number, a: number, omega: number): number {
 
   for (let i = 1; i < steps - 1; i++) {
     const acc = (q[i + 1]! - 2 * q[i]! + q[i - 1]!) / (dt * dt)
+
     maxAccel = Math.max(maxAccel, Math.abs(acc))
   }
 
@@ -67,6 +69,7 @@ function ddotAmplitude(mu: number, a: number, omega: number): number {
 
   for (let s = 0; s < steps; s++) {
     const th = omega * (s * dt)
+
     d.push(mu * (a / 2) * Math.cos(th))
   }
 
@@ -74,6 +77,7 @@ function ddotAmplitude(mu: number, a: number, omega: number): number {
 
   for (let i = 1; i < steps - 1; i++) {
     const v = (d[i + 1]! - d[i - 1]!) / (2 * dt)
+
     maxV = Math.max(maxV, Math.abs(v))
   }
 

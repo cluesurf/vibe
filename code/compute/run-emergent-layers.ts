@@ -80,9 +80,7 @@ async function run(): Promise<void> {
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
 
-    if (c > maxColor) {
-      maxColor = c
-    }
+    if (c > maxColor) maxColor = c
   }
 
   const C = maxColor + 1
@@ -92,9 +90,7 @@ async function run(): Promise<void> {
     colorOffsets[color[i]! + 1]++
   }
 
-  for (let c = 0; c < C; c++) {
-    colorOffsets[c + 1] += colorOffsets[c]!
-  }
+  for (let c = 0; c < C; c++) colorOffsets[c + 1] += colorOffsets[c]!
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
@@ -103,6 +99,7 @@ async function run(): Promise<void> {
 
   for (let i = 0; i < E; i++) {
     const at = cur[color[i]!]!++
+
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
@@ -118,19 +115,16 @@ async function run(): Promise<void> {
     let nb = 0
 
     if (R === 0) {
-      for (let i = 0; i < N; i++) {
-        ballOf[i] = i
-      }
+      for (let i = 0; i < N; i++) ballOf[i] = i
 
       return { ballOf, count: N }
     }
 
     for (let s = 0; s < N; s++) {
-      if (ballOf[s]! >= 0) {
-        continue
-      }
+      if (ballOf[s]! >= 0) continue
 
       const id = nb++
+
       ballOf[s] = id
 
       let frontier = [s]
@@ -183,6 +177,7 @@ async function run(): Promise<void> {
 
   for (let i = 0; i < N; i++) {
     const x = nx()
+
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
 
@@ -231,9 +226,7 @@ async function run(): Promise<void> {
       const start = colorOffsets[c]!,
         count = colorOffsets[c + 1]! - start
 
-      if (!count) {
-        continue
-      }
+      if (!count) continue
 
       device.queue.writeBuffer(
         params,
@@ -243,6 +236,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const p = enc.beginComputePass()
+
       p.setPipeline(pipeline)
       p.setBindGroup(0, bind)
       p.dispatchWorkgroups(Math.ceil(count / WORKGROUP))
@@ -251,9 +245,7 @@ async function run(): Promise<void> {
     }
   }
 
-  for (let b = 0; b < WARMUP; b++) {
-    beatGpu()
-  }
+  for (let b = 0; b < WARMUP; b++) beatGpu()
 
   await device.queue.onSubmittedWorkDone()
 
@@ -263,12 +255,11 @@ async function run(): Promise<void> {
   )
 
   for (let s = 0; s < M; s++) {
-    for (let b = 0; b < K; b++) {
-      beatGpu()
-    }
+    for (let b = 0; b < K; b++) beatGpu()
 
     {
       const enc = device.createCommandEncoder()
+
       enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
       device.queue.submit([enc.finish()])
     }
@@ -276,6 +267,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const t = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     for (let sc = 0; sc < SCALES.length; sc++) {
@@ -287,6 +279,7 @@ async function run(): Promise<void> {
 
         if (q) {
           const bi = ballOf[i]!
+
           arr[bi] = arr[bi]! + q
         }
       }
@@ -297,6 +290,7 @@ async function run(): Promise<void> {
   console.log(
     'Persistence by scale: temporal autocorrelation of coarse charge (slower decay at coarse = a layer)',
   )
+
   console.log(
     '  scale | C(1 step) | C(2) | C(4) | C(8)  [steps of ' +
       K +
@@ -311,9 +305,7 @@ async function run(): Promise<void> {
       let s = 0
 
       for (let st = 0; st < M; st++) {
-        for (let i = 0; i < n; i++) {
-          s += ser[st]![i]! * ser[st]![i]!
-        }
+        for (let i = 0; i < n; i++) s += ser[st]![i]! * ser[st]![i]!
       }
 
       return s
@@ -323,9 +315,8 @@ async function run(): Promise<void> {
       let s = 0
 
       for (let st = 0; st + tau < M; st++) {
-        for (let i = 0; i < n; i++) {
+        for (let i = 0; i < n; i++)
           s += ser[st]![i]! * ser[st + tau]![i]!
-        }
       }
 
       return s

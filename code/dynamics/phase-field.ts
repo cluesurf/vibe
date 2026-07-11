@@ -20,6 +20,7 @@ export function phaseRelaxStep(
   for (let i = 0; i < n; i++) {
     const left = theta[(i - 1 + n) % n]!
     const right = theta[(i + 1) % n]!
+
     next[i] = wrapAngle(
       theta[i]! +
         alpha *
@@ -59,9 +60,8 @@ export function gradientStructure(theta: readonly number[]): number {
   const n = theta.length
   const gradient = new Array<number>(n)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     gradient[i] = Math.sin(theta[(i + 1) % n]! - theta[i]!)
-  }
 
   const mean = gradient.reduce((sum, value) => sum + value, 0) / n
 

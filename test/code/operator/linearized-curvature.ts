@@ -22,9 +22,7 @@ function maxAbs(t: T3): number {
   let m = 0
 
   for (const row of t) {
-    for (const v of row) {
-      m = Math.max(m, Math.abs(v))
-    }
+    for (const v of row) m = Math.max(m, Math.abs(v))
   }
 
   return m
@@ -126,9 +124,8 @@ suite(
       const sum = zero()
 
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
+        for (let j = 0; j < 3; j++)
           sum[i]![j] = 2 * (a[i]![j] ?? 0) - 3 * (b[i]![j] ?? 0)
-        }
       }
 
       const Ga = linearizedEinsteinTensor(a, k)

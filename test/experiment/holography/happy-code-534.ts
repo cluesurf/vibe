@@ -43,9 +43,8 @@ export default experiment({
 
     for (let a = 0; a < 4; a++) {
       for (let b = a + 1; b < 4; b++) {
-        if (!pauliCommute(stabilizers[a]!, stabilizers[b]!)) {
+        if (!pauliCommute(stabilizers[a]!, stabilizers[b]!))
           stabilizersCommute = false
-        }
       }
     }
 
@@ -67,9 +66,7 @@ export default experiment({
       const out: number[] = []
 
       for (let mask = 0; mask < 32; mask++) {
-        if (popcount(mask) === size) {
-          out.push(mask)
-        }
+        if (popcount(mask) === size) out.push(mask)
       }
 
       return out

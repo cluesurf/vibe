@@ -47,6 +47,7 @@ async function run(): Promise<void> {
 
   // BFS depth from cell 0 (for seeding the central packet)
   const depth = new Array<number>(n).fill(-1)
+
   depth[0] = 0
 
   let frontier = [0]
@@ -83,6 +84,7 @@ async function run(): Promise<void> {
       y = g.coords[i]![1]!
 
     const r2 = norm(g.coords[i]!) ** 2
+
     dots.push({
       index: i,
       px: half + scale * x,
@@ -111,9 +113,7 @@ async function run(): Promise<void> {
         current: 1 + Math.floor(nextR() * 2),
         previous: 1 + Math.floor(nextR() * 2),
       })
-    } else {
-      seed[i] = pack({ current: 0, previous: 0 })
-    }
+    } else seed[i] = pack({ current: 0, previous: 0 })
   }
 
   const byteLength = n * 4
@@ -134,6 +134,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -177,6 +178,7 @@ async function run(): Promise<void> {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, 'frames-nesting-wave-534')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -202,6 +204,7 @@ async function run(): Promise<void> {
 
         if (dx * dx + dy * dy <= rr) {
           const o = (py * IMG + px) * 4
+
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
           rgba[o + 2] = col[2]
@@ -216,6 +219,7 @@ async function run(): Promise<void> {
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -226,6 +230,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -245,6 +250,7 @@ async function run(): Promise<void> {
 
       if (px >= 0 && px < IMG && py >= 0 && py < IMG) {
         const o = (py * IMG + px) * 4
+
         rgba[o] = 60
         rgba[o + 1] = 60
         rgba[o + 2] = 68
@@ -254,9 +260,8 @@ async function run(): Promise<void> {
     for (const d of dots) {
       const tone = currentOf(tones[d.index]!)
 
-      if (tone === 0) {
-        continue
-      } // peace is black (the background), draw only the charges
+      if (tone === 0) continue
+      // peace is black (the background), draw only the charges
 
       drawDot(rgba, d.px, d.py, d.rad, toneColor(tone))
     }
@@ -266,9 +271,7 @@ async function run(): Promise<void> {
       encodePng(rgba, IMG, IMG),
     )
 
-    if (f % 20 === 0) {
-      console.log(`  beat ${f}/${FRAMES}`)
-    }
+    if (f % 20 === 0) console.log(`  beat ${f}/${FRAMES}`)
   }
 
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

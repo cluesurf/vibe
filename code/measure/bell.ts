@@ -212,6 +212,7 @@ export function chshShared(input: {
     const a = 1
     const b = lambda >= Math.PI / 4 && lambda < Math.PI / 2 ? -1 : 1
     const cell = ai * 2 + bi
+
     sum[cell] = (sum[cell] ?? 0) + a * b
     count[cell] = (count[cell] ?? 0) + 1
   }

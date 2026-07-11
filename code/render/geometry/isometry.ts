@@ -13,9 +13,7 @@ import type { Scene, SceneEdge, Vec } from '@/code/render/scene'
 function dot(a: Vec, b: Vec): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
+  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
 
   return s
 }
@@ -43,9 +41,8 @@ export function mobiusAdd(a: Vec, x: Vec): Vec {
   const cx = (1 - aa) / (denom || 1e-12)
   const out: Vec = []
 
-  for (let i = 0; i < x.length; i++) {
+  for (let i = 0; i < x.length; i++)
     out.push(ca * (a[i] ?? 0) + cx * (x[i] ?? 0))
-  }
 
   return out
 }
@@ -55,9 +52,7 @@ export function mobiusAdd(a: Vec, x: Vec): Vec {
 export function gyroScale(v: Vec, s: number): Vec {
   const r = norm(v)
 
-  if (r < 1e-12) {
-    return v.map(() => 0)
-  }
+  if (r < 1e-12) return v.map(() => 0)
 
   const factor = Math.tanh(s * Math.atanh(Math.min(0.999999999, r))) / r
 
@@ -88,9 +83,8 @@ export function geodesicPoints(
   const d = mobiusAdd(negate(a), b)
   const out: Vec[] = []
 
-  for (let k = 0; k <= segments; k++) {
+  for (let k = 0; k <= segments; k++)
     out.push(mobiusAdd(a, gyroScale(d, k / segments)))
-  }
 
   return out
 }
@@ -124,6 +118,7 @@ export function rotateAboutOrigin(input: {
     const out = p.slice()
     const pi = p[i] ?? 0
     const pj = p[j] ?? 0
+
     out[i] = c * pi - s * pj
     out[j] = s * pi + c * pj
 

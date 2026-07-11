@@ -46,10 +46,12 @@ suite(
           streamIsPermutation(squareMesh({ side: 5 })),
           'square is a permutation',
         )
+
         ok(
           streamIsPermutation(cubicMesh({ side: 3 })),
           'cubic is a permutation',
         )
+
         ok(
           streamIsPermutation(d4Mesh({ side: 3 })),
           'd4 coin is a permutation',
@@ -64,6 +66,7 @@ suite('check/lattice-gas-laws: tone census', [
     const data = Int8Array.from([-1, -1, 0, 1, 0, 1, 1, -1, 0])
     const c = toneCensus(data)
     const h = handCensus(data)
+
     equal(c.minus, h.minus, 'minus count')
     equal(c.zero, h.zero, 'zero count')
     equal(c.plus, h.plus, 'plus count')
@@ -76,10 +79,12 @@ suite('check/lattice-gas-laws: tone census', [
   }),
   check('censusEqual is true only when all three counts match', () => {
     const a = { minus: 2, zero: 3, plus: 4 }
+
     ok(
       censusEqual(a, { minus: 2, zero: 3, plus: 4 }),
       'identical censuses are equal',
     )
+
     ok(
       !censusEqual(a, { minus: 2, zero: 4, plus: 3 }),
       'shifted zero/plus differ',
@@ -87,10 +92,12 @@ suite('check/lattice-gas-laws: tone census', [
   }),
   check('streaming permutes slots, so the census is conserved', () => {
     const will = makeWill(squareMesh({ side: 6 }))
+
     fillWillPattern(will, 1)
 
     const before = toneCensus(will.data)
     const after = toneCensus(stream(will).data)
+
     ok(
       censusEqual(before, after),
       'a pure slot permutation cannot change the census',

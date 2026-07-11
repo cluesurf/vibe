@@ -23,11 +23,13 @@ suite('measure/cusp-dimension: bulk vs cusp growth', [
       r.bulkRatio > 1.8,
       `bulk should grow exponentially, ratio ${r.bulkRatio}`,
     )
+
     // the cusp horosphere is a flat slice: its ratio is near 1
     ok(
       r.cuspRatio > 0.6 && r.cuspRatio < 1.5,
       `cusp should be flat (ratio near 1), got ${r.cuspRatio}`,
     )
+
     // and the cusp is much flatter than the bulk
     ok(
       r.cuspRatio < r.bulkRatio,

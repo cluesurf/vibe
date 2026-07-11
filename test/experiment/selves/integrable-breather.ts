@@ -63,9 +63,7 @@ export default experiment({
         if (dist[c]! >= 0 && dist[c]! <= 2) {
           const base = c * degree
 
-          for (let d = 0; d < degree; d++) {
-            will.data[base + d] = 1
-          }
+          for (let d = 0; d < degree; d++) will.data[base + d] = 1
         }
       }
 
@@ -109,23 +107,18 @@ export default experiment({
         beatInto({ src: current, dst: scratch, table, collision })
 
         const swap = current
+
         current = scratch
         scratch = swap
 
         const ext = travelDistance({ will: current, start: center })
         const mean = meanDistance(current)
 
-        if (ext > extentMax) {
-          extentMax = ext
-        }
+        if (ext > extentMax) extentMax = ext
 
-        if (mean < meanMin) {
-          meanMin = mean
-        }
+        if (mean < meanMin) meanMin = mean
 
-        if (mean > meanMax) {
-          meanMax = mean
-        }
+        if (mean > meanMax) meanMax = mean
       }
 
       return { extentMax, meanMin, meanMax }
@@ -141,9 +134,8 @@ export default experiment({
       const will = makeWill(mesh)
 
       for (let c = 0; c < mesh.cellCount; c++) {
-        if (dist[c]! >= 0 && dist[c]! <= 2) {
+        if (dist[c]! >= 0 && dist[c]! <= 2)
           will.data[c * degree + 0] = 1
-        }
       }
 
       return will

@@ -9,9 +9,7 @@
 export function vectorWeight(vector: readonly number[]): number {
   let weight = 0
 
-  for (const bit of vector) {
-    weight += bit
-  }
+  for (const bit of vector) weight += bit
 
   return weight
 }
@@ -26,9 +24,7 @@ export function evenWeightCode(n: number): number[][] {
       (unused, i) => (m >> i) & 1,
     )
 
-    if (vectorWeight(vector) % 2 === 0) {
-      out.push(vector)
-    }
+    if (vectorWeight(vector) % 2 === 0) out.push(vector)
   }
 
   return out
@@ -51,9 +47,8 @@ export function reedMuller13(): number[][] {
 
     for (let g = 0; g < 4; g++) {
       if ((m >> g) & 1) {
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 8; i++)
           vector[i] = vector[i]! ^ generators[g]![i]!
-        }
       }
     }
 
@@ -84,16 +79,12 @@ export function dualCode(
     const orthogonal = code.every(codeword => {
       let parity = 0
 
-      for (let i = 0; i < n; i++) {
-        parity ^= codeword[i]! & vector[i]!
-      }
+      for (let i = 0; i < n; i++) parity ^= codeword[i]! & vector[i]!
 
       return parity === 0
     })
 
-    if (orthogonal) {
-      out.push(vector)
-    }
+    if (orthogonal) out.push(vector)
   }
 
   return out
@@ -117,21 +108,15 @@ export function constructionAMinimalVectors(input: {
 
   const recurse = (index: number): void => {
     if (index === n) {
-      if (vector.every(x => x === 0)) {
-        return
-      }
+      if (vector.every(x => x === 0)) return
 
       const residue = vector.map(x => ((x % 2) + 2) % 2).join('')
 
-      if (!residues.has(residue)) {
-        return
-      }
+      if (!residues.has(residue)) return
 
       let norm = 0
 
-      for (const x of vector) {
-        norm += x * x
-      }
+      for (const x of vector) norm += x * x
 
       if (norm < bestNorm) {
         bestNorm = norm
@@ -167,13 +152,9 @@ export function closedUnderAddition(
     for (const b of vectors) {
       const sum: number[] = []
 
-      for (let i = 0; i < n; i++) {
-        sum.push(a[i]! ^ b[i]!)
-      }
+      for (let i = 0; i < n; i++) sum.push(a[i]! ^ b[i]!)
 
-      if (!set.has(sum.join(''))) {
-        return false
-      }
+      if (!set.has(sum.join(''))) return false
     }
   }
 
@@ -200,13 +181,9 @@ export function cssCode(input: {
     for (const z of c1Dual) {
       let overlap = 0
 
-      for (let i = 0; i < n; i++) {
-        overlap += x[i]! & z[i]!
-      }
+      for (let i = 0; i < n; i++) overlap += x[i]! & z[i]!
 
-      if (overlap % 2 !== 0) {
-        commute = false
-      }
+      if (overlap % 2 !== 0) commute = false
     }
   }
 

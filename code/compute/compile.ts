@@ -36,9 +36,8 @@ export function compileMachine(
 ): CompiledMachine {
   const backend = options.backend ?? 'binary'
 
-  if (backend === 'unary') {
+  if (backend === 'unary')
     return { backend, ...compileToRailway(source) }
-  }
 
   // binary and ternary share the (representation-neutral) compiled program
   return { backend, ...compileToBinary(source) }
@@ -66,6 +65,7 @@ export function runMachine(
   }
 
   const initial = new Array<bigint>(compiled.program.registers).fill(0n)
+
   inputs.forEach((v, i) => (initial[i] = BigInt(v)))
 
   if (compiled.backend === 'ternary') {

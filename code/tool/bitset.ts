@@ -29,6 +29,7 @@ export function setBit(
   input: { row: number; col: number },
 ): void {
   const i = input.row * m.stride + (input.col >>> 5)
+
   m.words[i] = (m.words[i] ?? 0) | (1 << (input.col & 31))
 }
 
@@ -46,6 +47,7 @@ export function clearBit(
   input: { row: number; col: number },
 ): void {
   const i = input.row * m.stride + (input.col >>> 5)
+
   m.words[i] = (m.words[i] ?? 0) & ~(1 << (input.col & 31))
 }
 
@@ -56,9 +58,7 @@ export function bitMatricesEqual(
   n: number,
 ): boolean {
   for (let i = 0; i < n * a.stride; i++) {
-    if ((a.words[i] ?? 0) !== (b.words[i] ?? 0)) {
-      return false
-    }
+    if ((a.words[i] ?? 0) !== (b.words[i] ?? 0)) return false
   }
 
   return true
@@ -73,9 +73,8 @@ export function bitMatrixTransitiveClosure(
 ): BitMatrix {
   const f = makeBitMatrix({ rows: n, cols: n })
 
-  for (let i = 0; i < n * f.stride; i++) {
+  for (let i = 0; i < n * f.stride; i++)
     f.words[i] = asserted.words[i] ?? 0
-  }
 
   for (let k = 0; k < n; k++) {
     for (let i = 0; i < n; i++) {
@@ -103,9 +102,8 @@ export function bitMatrixHeight(f: BitMatrix, n: number): number {
 
   for (let j = 0; j < n; j++) {
     for (let i = 0; i < j; i++) {
-      if (getBit(f, { row: i, col: j })) {
+      if (getBit(f, { row: i, col: j }))
         h[j] = Math.max(h[j] ?? 1, (h[i] ?? 1) + 1)
-      }
     }
 
     best = Math.max(best, h[j] ?? 1)
@@ -116,6 +114,7 @@ export function bitMatrixHeight(f: BitMatrix, n: number): number {
 
 function popcount32(x: number): number {
   let v = x - ((x >>> 1) & 0x55555555)
+
   v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
 
   return (((v + (v >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24
@@ -129,9 +128,8 @@ export function popcountRow(
 
   let total = 0
 
-  for (let w = 0; w < m.stride; w++) {
+  for (let w = 0; w < m.stride; w++)
     total += popcount32(m.words[base + w] ?? 0)
-  }
 
   return total
 }
@@ -146,9 +144,8 @@ export function popcountAnd(
 
   let total = 0
 
-  for (let w = 0; w < m.stride; w++) {
+  for (let w = 0; w < m.stride; w++)
     total += popcount32((m.words[a + w] ?? 0) & (m.words[b + w] ?? 0))
-  }
 
   return total
 }
@@ -172,6 +169,7 @@ export function forEachSetBit(
 
     while (bits !== 0) {
       const col = (w << 5) + trailingZeros(bits)
+
       input.visit(col)
       bits &= bits - 1
     }
@@ -184,6 +182,7 @@ export function rowToArray(
   input: { row: number },
 ): Uint32Array {
   const out: number[] = []
+
   forEachSetBit(m, { row: input.row, visit: col => out.push(col) })
 
   return Uint32Array.from(out)

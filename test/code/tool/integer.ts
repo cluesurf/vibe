@@ -52,6 +52,7 @@ suite('tool/integer: modulo', [
     for (let modulus = 1; modulus <= 13; modulus++) {
       for (let value = -50; value <= 50; value++) {
         const r = modulo(value, modulus)
+
         ok(
           r >= 0 && r < modulus,
           `modulo(${value}, ${modulus}) out of range: ${r}`,
@@ -63,6 +64,7 @@ suite('tool/integer: modulo', [
     for (let modulus = 1; modulus <= 13; modulus++) {
       for (let value = -50; value <= 50; value++) {
         const r = modulo(value, modulus)
+
         equal(
           (value - r) % modulus,
           0,

@@ -11,6 +11,7 @@ suite('measure/boundary-dimension: 3D honeycomb boundary', [
     'the boundary is a strict non-empty subset of the cells',
     () => {
       const r = boundaryDimension({ symbol: [4, 3, 5], maxCells: 1500 })
+
       ok(r.boundaryCells > 0, 'boundary should be non-empty')
       ok(
         r.boundaryCells < r.cells,
@@ -21,10 +22,12 @@ suite('measure/boundary-dimension: 3D honeycomb boundary', [
   // A 3D bulk has a 2D boundary screen.
   check('the boundary dimension reads near 2 (an S^2 screen)', () => {
     const r = boundaryDimension({ symbol: [4, 3, 5], maxCells: 1500 })
+
     ok(
       Number.isFinite(r.boundaryDim),
       `boundaryDim should be finite, got ${r.boundaryDim}`,
     )
+
     ok(
       r.boundaryDim > 1.4 && r.boundaryDim < 3,
       `2D boundary should read near 2, got ${r.boundaryDim}`,

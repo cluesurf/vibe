@@ -20,6 +20,7 @@ suite('dynamics/clock-winding: winding number', [
   check('makeTwist has winding equal to its turn count', () => {
     for (const turns of [0, 1, 2, 3]) {
       const ring = makeTwist({ size, states, turns })
+
       equal(
         clockWinding(ring.curr, states),
         turns,
@@ -32,6 +33,7 @@ suite('dynamics/clock-winding: winding number', [
 suite('dynamics/clock-winding: reversibility and conservation', [
   check('the clock wave is exactly reversible (mod n)', () => {
     const ring0 = makeTwist({ size, states, turns: 2 })
+
     // perturb so prev != curr (give it some velocity), staying in range
     ring0.prev[10] = (ring0.prev[10]! + 1) % states
 
@@ -45,6 +47,7 @@ suite('dynamics/clock-winding: reversibility and conservation', [
     }
 
     const back = stepClockRing(reversed)
+
     exactArray(back.curr, prev0, 'recovered the previous slice')
   }),
   check(
@@ -71,9 +74,7 @@ suite('dynamics/clock-winding: determinism', [
     const run = (): Int32Array => {
       let ring = makeTwist({ size, states, turns: 2 })
 
-      for (let t = 0; t < 30; t++) {
-        ring = stepClockRing(ring)
-      }
+      for (let t = 0; t < 30; t++) ring = stepClockRing(ring)
 
       return ring.curr
     }

@@ -62,9 +62,7 @@ export default experiment({
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
 
-      if (d < o) {
-        lines.push([d, o])
-      }
+      if (d < o) lines.push([d, o])
     }
 
     // a diffuse, extended, zero-momentum net-+ cloud, radius 6, low density (both ends of two lines per cell).
@@ -85,6 +83,7 @@ export default experiment({
 
           for (let i = 0; i < 2; i++) {
             const [a, zz] = lines[i]!
+
             will.data[b + a] = 1
             will.data[b + zz] = 1
           }
@@ -108,14 +107,13 @@ export default experiment({
 
         const b = c * degree
 
-        for (let d = 0; d < degree; d++) {
-          n += will.data[b + d]!
-        }
+        for (let d = 0; d < degree; d++) n += will.data[b + d]!
 
         q[c] = n
 
         if (n > 0) {
           const [x, y, z, w] = coord(c)
+
           total += n
           sx += n * x
           sy += n * y
@@ -124,9 +122,7 @@ export default experiment({
         }
       }
 
-      if (total === 0) {
-        return 0
-      }
+      if (total === 0) return 0
 
       const mx = sx / total,
         my = sy / total,
@@ -140,6 +136,7 @@ export default experiment({
 
         if (n > 0) {
           const [x, y, z, w] = coord(c)
+
           v +=
             n *
             ((x - mx) ** 2 +
@@ -167,14 +164,13 @@ export default experiment({
         beatInto({ src: w, dst: scratch, table, collision: rule })
 
         const swap = w
+
         w = scratch
         scratch = swap
 
         const r = netRms(w)
 
-        if (r < min) {
-          min = r
-        }
+        if (r < min) min = r
 
         final = r
       }

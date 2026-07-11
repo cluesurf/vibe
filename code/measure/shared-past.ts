@@ -31,9 +31,7 @@ export function backwardCone(input: {
   for (let cell = 0; cell < input.size; cell++) {
     const hops = distance[cell] ?? -1
 
-    if (hops >= 0 && hops <= input.depth) {
-      cone.add(cell)
-    }
+    if (hops >= 0 && hops <= input.depth) cone.add(cell)
   }
 
   return cone
@@ -174,15 +172,11 @@ export function interiorCellsByDistance(input: {
   for (let cell = 0; cell < input.size; cell++) {
     const hops = fromAnchor[cell] ?? -1
 
-    if (hops < 0 || !wanted.has(hops)) {
-      continue
-    }
+    if (hops < 0 || !wanted.has(hops)) continue
 
     const generation = input.generation[cell] ?? Infinity
 
-    if (generation > input.maxGeneration) {
-      continue
-    }
+    if (generation > input.maxGeneration) continue
 
     const incumbent = bestGeneration.get(hops)
 
@@ -245,9 +239,7 @@ export function criticalSeparation(input: {
   for (const d of distances) {
     const partner = picks.get(d)
 
-    if (partner === undefined) {
-      continue
-    }
+    if (partner === undefined) continue
 
     const eta = bulkSharedPast({
       neighbors,
@@ -259,9 +251,7 @@ export function criticalSeparation(input: {
 
     etaByDistance.set(d, eta)
 
-    if (eta >= etaThreshold) {
-      dStar = Math.max(dStar, d)
-    }
+    if (eta >= etaThreshold) dStar = Math.max(dStar, d)
   }
 
   return { dStar, etaByDistance }

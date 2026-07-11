@@ -41,11 +41,10 @@ suite('measure/division-algebra: Cayley-Dickson product', [
   check('x conj(x) has norm-squared on its real part', () => {
     const x = [2, -1, 3, 1]
     const p = cayleyMultiply(x, cayleyConjugate(x))
+
     close(p[0]!, normSquared(x), 1e-12)
 
-    for (let i = 1; i < 4; i++) {
-      close(p[i]!, 0, 1e-12)
-    }
+    for (let i = 1; i < 4; i++) close(p[i]!, 0, 1e-12)
   }),
 ])
 

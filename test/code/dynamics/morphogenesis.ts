@@ -48,6 +48,7 @@ suite('dynamics/morphogenesis: Turing pattern formation', [
 
       const coarseWavelength = n / Math.max(1, coarse.walls)
       const fineWavelength = n / Math.max(1, fine.walls)
+
       ok(
         coarseWavelength > fineWavelength * 1.5,
         'longer range -> coarser stripes',

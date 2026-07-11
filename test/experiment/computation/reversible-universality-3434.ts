@@ -54,9 +54,7 @@ export default experiment({
         const [c, d] = ruleStep(a, b)
         const key = `${c},${d}`
 
-        if (images.has(key)) {
-          bijection = false
-        }
+        if (images.has(key)) bijection = false
 
         images.add(key)
       }
@@ -75,9 +73,7 @@ export default experiment({
           const [a, b, c] = toffoli(x, y, z)
           const key = `${a}${b}${c}`
 
-          if (seen.has(key)) {
-            tBij = false
-          }
+          if (seen.has(key)) tBij = false
 
           seen.add(key)
         }
@@ -93,9 +89,7 @@ export default experiment({
       for (let y = 0; y < 2; y++) {
         const out = toffoli(x, y, 1)[2]
 
-        if (out !== (x === 1 && y === 1 ? 0 : 1)) {
-          nandOk = false
-        }
+        if (out !== (x === 1 && y === 1 ? 0 : 1)) nandOk = false
       }
     }
 

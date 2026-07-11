@@ -41,19 +41,17 @@ export function sprinkleMinkowski(input: {
 
     for (let axis = 0; axis < spaceDim; axis++) {
       const x = input.rng.next() - 0.5
+
       candidate[axis] = x
       radius2 += x * x
     }
 
-    if (spaceDim > 0 && radius2 > reach * reach) {
-      continue
-    }
+    if (spaceDim > 0 && radius2 > reach * reach) continue
 
     coords[accepted * d] = t
 
-    for (let axis = 0; axis < spaceDim; axis++) {
+    for (let axis = 0; axis < spaceDim; axis++)
       coords[accepted * d + 1 + axis] = candidate[axis] ?? 0
-    }
 
     accepted++
   }
@@ -61,9 +59,7 @@ export function sprinkleMinkowski(input: {
   // Sort element indices by time coordinate so a precedes b implies a is earlier.
   const order: number[] = []
 
-  for (let i = 0; i < n; i++) {
-    order.push(i)
-  }
+  for (let i = 0; i < n; i++) order.push(i)
 
   order.sort((x, y) => (coords[x * d] ?? 0) - (coords[y * d] ?? 0))
 
@@ -72,9 +68,8 @@ export function sprinkleMinkowski(input: {
   for (let newIndex = 0; newIndex < n; newIndex++) {
     const oldIndex = order[newIndex] ?? 0
 
-    for (let axis = 0; axis < d; axis++) {
+    for (let axis = 0; axis < d; axis++)
       sorted[newIndex * d + axis] = coords[oldIndex * d + axis] ?? 0
-    }
   }
 
   const manifold: ManifoldSpec = { form: 'minkowski', dimension: d }
@@ -92,9 +87,7 @@ export function sprinkleMinkowski(input: {
   const precedes = (pair: { a: number; b: number }): boolean => {
     const dt = (sorted[pair.b * d] ?? 0) - (sorted[pair.a * d] ?? 0)
 
-    if (dt <= 0) {
-      return false
-    }
+    if (dt <= 0) return false
 
     let space2 = 0
 

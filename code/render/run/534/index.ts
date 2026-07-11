@@ -32,9 +32,11 @@ function run(): void {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', '..', 'make', 'render')
+
   mkdirSync(outDir, { recursive: true })
 
   const out = join(outDir, 'tessellation-534.png')
+
   writeFileSync(out, png)
   console.log(`wrote ${out}`)
 }

@@ -33,9 +33,8 @@ export function ballRegion(input: {
         const dy = y - center
         const dz = z - center
 
-        if (dx * dx + dy * dy + dz * dz <= radius * radius) {
+        if (dx * dx + dy * dy + dz * dz <= radius * radius)
           region.push(x + side * y + side * side * z)
-        }
       }
     }
   }
@@ -57,6 +56,7 @@ export function screenBitSeries(input: {
 
   for (const radius of input.radii) {
     const region = ballRegion({ side: input.side, radius })
+
     radii.push(radius)
     volumes.push(region.length)
     bits.push(

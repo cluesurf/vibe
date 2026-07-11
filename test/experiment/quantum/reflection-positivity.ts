@@ -70,9 +70,7 @@ export function reflectionPositivity(input?: {
   let maxPos = 0
 
   for (let i = 0; i < N; i++) {
-    if (s.position[i]! > maxPos) {
-      maxPos = s.position[i]!
-    }
+    if (s.position[i]! > maxPos) maxPos = s.position[i]!
   }
 
   const posCells: number[][] = Array.from(
@@ -80,20 +78,16 @@ export function reflectionPositivity(input?: {
     () => [],
   )
 
-  for (let i = 0; i < N; i++) {
-    posCells[s.position[i]!]!.push(i)
-  }
+  for (let i = 0; i < N; i++) posCells[s.position[i]!]!.push(i)
 
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 3 })
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
-  }
 
-  for (let t = 0; t < 120; t++) {
-    beat(tone, euA, evA, moved, rng, arrow)
-  } // steady state
+  for (let t = 0; t < 120; t++) beat(tone, euA, evA, moved, rng, arrow)
+  // steady state
 
   // accumulate the two-point function C(r) of phi over the spine, averaged over many beats
   const maxR = 12
@@ -107,18 +101,14 @@ export function reflectionPositivity(input?: {
     for (let p = 0; p <= maxPos; p++) {
       let sum = 0
 
-      for (const i of posCells[p]!) {
-        sum += tone[i]!
-      }
+      for (const i of posCells[p]!) sum += tone[i]!
 
       phi[p] = posCells[p]!.length > 0 ? sum / posCells[p]!.length : 0
     }
 
     let mean = 0
 
-    for (let p = 0; p <= maxPos; p++) {
-      mean += phi[p]!
-    }
+    for (let p = 0; p <= maxPos; p++) mean += phi[p]!
 
     mean /= maxPos + 1
 
@@ -138,9 +128,8 @@ export function reflectionPositivity(input?: {
 
   const c: number[] = []
 
-  for (let r = 0; r <= maxR; r++) {
+  for (let r = 0; r <= maxR; r++)
     c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
-  }
 
   // Hankel matrix H[i][j] = C(i+j), check positive semi-definiteness
   const K = 6
@@ -163,9 +152,7 @@ export function reflectionPositivity(input?: {
   let correlationRange = 0
 
   for (let r = 1; r <= maxR; r++) {
-    if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
-      correlationRange = r
-    }
+    if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) correlationRange = r
   }
 
   const contactDominated = correlationRange <= 1

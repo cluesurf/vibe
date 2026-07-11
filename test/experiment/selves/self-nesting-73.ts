@@ -18,9 +18,8 @@ export function selfNesting73(): {
   const N = g.cellCount
   const off = new Int32Array(N + 1)
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     off[i + 1] = off[i]! + g.neighbors[i]!.length
-  }
 
   const adj = new Int32Array(off[N]!)
 
@@ -28,9 +27,7 @@ export function selfNesting73(): {
     let p = 0
 
     for (let i = 0; i < N; i++) {
-      for (const w of g.neighbors[i]!) {
-        adj[p++] = w
-      }
+      for (const w of g.neighbors[i]!) adj[p++] = w
     }
   }
 
@@ -81,9 +78,7 @@ export function selfNesting73(): {
   const rnd = (): number => rng.next()
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! < 4) {
-      cur[i] = Math.floor(rnd() * 3) - 1
-    }
+    if (dist[i]! < 4) cur[i] = Math.floor(rnd() * 3) - 1
   }
 
   const series: Int8Array[] = []
@@ -92,30 +87,25 @@ export function selfNesting73(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (let q = off[i]!; q < off[i + 1]!; q++) {
-        s += cur[adj[q]!]!
-      }
+      for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!
 
       nxt[i] = (((s - prev[i]!) % 3) + 3) % 3
     }
 
     const t = prev
+
     prev = cur
     cur = nxt
     nxt = t
 
-    if (b >= 10) {
-      series.push(cur.slice())
-    }
+    if (b >= 10) series.push(cur.slice())
   }
 
   // coarse-grain by ancestor at depth k (radial cone), net charge per cone; lag autocorrelation
   const ancestorAt = (i: number, depth: number): number => {
     let u = i
 
-    while (dist[u]! > depth) {
-      u = par[u]!
-    }
+    while (dist[u]! > depth) u = par[u]!
 
     return u
   }
@@ -124,11 +114,10 @@ export function selfNesting73(): {
     const m = new Map<number, number>()
 
     for (let i = 0; i < N; i++) {
-      if (t[i] === 0) {
-        continue
-      }
+      if (t[i] === 0) continue
 
       const a = ancestorAt(i, depth)
+
       m.set(a, (m.get(a) ?? 0) + t[i]!)
     }
 
@@ -190,6 +179,7 @@ export function selfNesting73(): {
         for (let i = N - 1; i > 0; i--) {
           const j = Math.floor(rnd() * (i + 1))
           const tt = s[i]!
+
           s[i] = s[j]!
           s[j] = tt
         }

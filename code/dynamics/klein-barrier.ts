@@ -74,15 +74,14 @@ export function diracBarrierProbability(input: {
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) * (x - x0)) / (2 * sigma * sigma))
     const phase = k0 * x
+
     R[x] = [g * Math.cos(phase), g * Math.sin(phase)]
     normSeed += cabs2(R[x]!)
   }
 
   const inv = 1 / Math.sqrt(normSeed)
 
-  for (let x = 0; x < L; x++) {
-    R[x] = [R[x]![0] * inv, R[x]![1] * inv]
-  }
+  for (let x = 0; x < L; x++) R[x] = [R[x]![0] * inv, R[x]![1] * inv]
 
   // precompute the local coin (cos m, sin m) per site: a mass barrier raises the local mass
   const cosM = new Float64Array(L)
@@ -104,6 +103,7 @@ export function diracBarrierProbability(input: {
   for (let x = 0; x < L; x++) {
     const inBarrier = x >= barrierStart && x < barrierEnd
     const v = kind === 'potential' && inBarrier ? height : 0
+
     potRe[x] = Math.cos(-v)
     potIm[x] = Math.sin(-v)
   }
@@ -116,10 +116,12 @@ export function diracBarrierProbability(input: {
     for (let x = 0; x < L; x++) {
       const c = cosM[x]!
       const s = sinM[x]!
+
       R2[x] = cadd(
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(IMAG, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(IMAG, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -158,15 +160,12 @@ export function diracBarrierProbability(input: {
 
   for (let x = 0; x < L; x++) {
     const p = cabs2(R[x]!) + cabs2(Lf[x]!)
+
     total += p
 
-    if (x < barrierStart) {
-      reflected += p
-    } else if (x < barrierEnd) {
-      inside += p
-    } else {
-      transmitted += p
-    }
+    if (x < barrierStart) reflected += p
+    else if (x < barrierEnd) inside += p
+    else transmitted += p
   }
 
   const norm = total || 1

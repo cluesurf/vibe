@@ -54,15 +54,14 @@ export function coupledQED(): {
 
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) ** 2) / (2 * w * w))
+
     R[x] = cscale(eUp(0.8 * x), g)
     Lf[x] = [0, 0]
   }
 
   let nrm = 0
 
-  for (let x = 0; x < L; x++) {
-    nrm += cabs2(R[x]!) + cabs2(Lf[x]!)
-  }
+  for (let x = 0; x < L; x++) nrm += cabs2(R[x]!) + cabs2(Lf[x]!)
 
   R = R.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   Lf = Lf.map(z => cscale(z, 1 / Math.sqrt(nrm)))
@@ -83,6 +82,7 @@ export function coupledQED(): {
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(I, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -108,21 +108,15 @@ export function coupledQED(): {
     Lf = L3
 
     // gauge field back-reacts: dE/dt = -j (Ampere), dtheta/dt = E (the field equation)
-    for (let x = 0; x < L; x++) {
-      E[x]! -= 0.1 * j[x]!
-    }
+    for (let x = 0; x < L; x++) E[x]! -= 0.1 * j[x]!
 
-    for (let x = 0; x < L; x++) {
-      theta[x]! += 0.1 * E[x]!
-    }
+    for (let x = 0; x < L; x++) theta[x]! += 0.1 * E[x]!
   }
 
   // (1) charge conservation under the coupled evolution
   const Q0 = rho().reduce((a, b) => a + b, 0)
 
-  for (let t = 0; t < 60; t++) {
-    step()
-  }
+  for (let t = 0; t < 60; t++) step()
 
   const Q1 = rho().reduce((a, b) => a + b, 0)
   const chargeConserved = Math.abs(Q1 - Q0) < 1e-9
@@ -135,9 +129,7 @@ export function coupledQED(): {
 
   const Eg = new Array(L).fill(0)
 
-  for (let x = 1; x < L; x++) {
-    Eg[x] = Eg[x - 1]! + rhoStatic[x]!
-  }
+  for (let x = 1; x < L; x++) Eg[x] = Eg[x - 1]! + rhoStatic[x]!
 
   let gaussErr = 0
 

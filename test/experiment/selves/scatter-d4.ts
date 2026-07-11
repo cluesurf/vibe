@@ -63,12 +63,14 @@ export default experiment({
 
     // 1, DEFLECTION. A head-on pair (s, s) on line (dir, opp) at the center cell.
     const headOn = makeWill(mesh)
+
     headOn.data[center * degree + dir] = 1
     headOn.data[center * degree + opp] = 1
 
     const mBeforePair = momentum(headOn, ROOTS)
 
     const deflected = { mesh, data: headOn.data.slice() }
+
     collide(deflected, mobile)
 
     // after the momentum-conserving collide the incoming line is empty (the pair moved to its partner line).
@@ -86,6 +88,7 @@ export default experiment({
 
     // the control, passThrough leaves the pair on its incoming line (a straight crossing, no deflection).
     const crossed = { mesh, data: headOn.data.slice() }
+
     collide(crossed, passThrough)
 
     const crossingStays =
@@ -95,6 +98,7 @@ export default experiment({
     // 2, INTERACTION under full streaming. Two particles one step apart on the same line, approaching head-on.
     // After streaming they coincide at the center as a head-on pair, then collide and recede on a rotated axis.
     const approach = makeWill(mesh)
+
     approach.data[mesh.neighbour(center, opp) * degree + dir] = 1 // streams forward into the center along dir
     approach.data[mesh.neighbour(center, dir) * degree + opp] = 1 // streams back into the center along opp
 

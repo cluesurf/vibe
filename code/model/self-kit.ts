@@ -24,18 +24,15 @@ export function toCSR(
   const n = neighbors.length
   const offsets = new Int32Array(n + 1)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     offsets[i + 1] = offsets[i]! + neighbors[i]!.length
-  }
 
   const adj = new Int32Array(offsets[n]!)
 
   let p = 0
 
   for (let i = 0; i < n; i++) {
-    for (const w of neighbors[i]!) {
-      adj[p++] = w
-    }
+    for (const w of neighbors[i]!) adj[p++] = w
   }
 
   return { cellCount: n, offsets, adj, coords }
@@ -85,9 +82,8 @@ export const flatGraph = (L: number): Graph => {
     }
   }
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
-  }
 
   const adj = new Int32Array(offsets[N]!)
 
@@ -99,9 +95,7 @@ export const flatGraph = (L: number): Graph => {
         const a = x + dx[k]!
         const b = y + dy[k]!
 
-        if (a >= 0 && a < L && b >= 0 && b < L) {
-          adj[p++] = b * L + a
-        }
+        if (a >= 0 && a < L && b >= 0 && b < L) adj[p++] = b * L + a
       }
     }
   }
@@ -136,9 +130,8 @@ export const squareGraph = (L: number): Graph => {
     }
   }
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
-  }
 
   const adj = new Int32Array(offsets[N]!)
 
@@ -150,9 +143,7 @@ export const squareGraph = (L: number): Graph => {
         const a = x + dx[k]!
         const b = y + dy[k]!
 
-        if (a >= 0 && a < L && b >= 0 && b < L) {
-          adj[p++] = b * L + a
-        }
+        if (a >= 0 && a < L && b >= 0 && b < L) adj[p++] = b * L + a
       }
     }
   }
@@ -230,6 +221,7 @@ export function beat(
 ): void {
   const { offsets, adj } = g
   const N = tone.length
+
   moved.fill(0)
 
   const start = Math.floor(rng.next() * N)
@@ -237,18 +229,14 @@ export function beat(
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
 
-    if (moved[v]) {
-      continue
-    }
+    if (moved[v]) continue
 
     const a = tone[v]!
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (moved[w]) {
-        continue
-      }
+      if (moved[w]) continue
 
       const b = tone[w]!
 
@@ -311,6 +299,7 @@ export function beatHashed(
 ): void {
   const { offsets, adj } = g
   const N = tone.length
+
   moved.fill(0)
 
   const start = Math.floor((((beat + 1) * GOLDEN_SK) % 1) * N)
@@ -318,18 +307,14 @@ export function beatHashed(
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
 
-    if (moved[v]) {
-      continue
-    }
+    if (moved[v]) continue
 
     const a = tone[v]!
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (moved[w]) {
-        continue
-      }
+      if (moved[w]) continue
 
       const b = tone[w]!
 
@@ -381,9 +366,7 @@ export function beatHashed(
 export const totalCharge = (t: Int8Array): number => {
   let s = 0
 
-  for (const value of t) {
-    s += value
-  }
+  for (const value of t) s += value
 
   return s
 }
@@ -417,13 +400,12 @@ export function largestPositiveCluster(
   let best: number[] = []
 
   for (let s = 0; s < N; s++) {
-    if (tone[s] !== 1 || seen[s]) {
-      continue
-    }
+    if (tone[s] !== 1 || seen[s]) continue
 
     const cells: number[] = []
 
     let fr = [s]
+
     seen[s] = 1
 
     while (fr.length) {
@@ -445,9 +427,7 @@ export function largestPositiveCluster(
       fr = nf
     }
 
-    if (cells.length > best.length) {
-      best = cells
-    }
+    if (cells.length > best.length) best = cells
   }
 
   return best
@@ -465,13 +445,12 @@ export function positiveClusters(
   const out: number[][] = []
 
   for (let s = 0; s < N; s++) {
-    if (tone[s] !== 1 || seen[s]) {
-      continue
-    }
+    if (tone[s] !== 1 || seen[s]) continue
 
     const cells: number[] = []
 
     let fr = [s]
+
     seen[s] = 1
 
     while (fr.length) {
@@ -523,46 +502,36 @@ export function countLargeSameSignComponents(input: {
 
   const parent = new Map<number, number>()
 
-  for (const v of cells) {
-    parent.set(v, v)
-  }
+  for (const v of cells) parent.set(v, v)
 
   const find = (x: number): number => {
     let r = x
 
-    while (parent.get(r) !== undefined && parent.get(r) !== r) {
+    while (parent.get(r) !== undefined && parent.get(r) !== r)
       r = parent.get(r)!
-    }
 
     return r
   }
 
   for (const v of cells) {
-    if (!active(v)) {
-      continue
-    }
+    if (!active(v)) continue
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (inSet && !inSet.has(w)) {
-        continue
-      }
+      if (inSet && !inSet.has(w)) continue
 
-      if (tone[w] === tone[v]) {
-        parent.set(find(v), find(w))
-      }
+      if (tone[w] === tone[v]) parent.set(find(v), find(w))
     }
   }
 
   const size = new Map<number, number>()
 
   for (const v of cells) {
-    if (!active(v)) {
-      continue
-    }
+    if (!active(v)) continue
 
     const r = find(v)
+
     size.set(r, (size.get(r) ?? 0) + 1)
   }
 
@@ -627,12 +596,12 @@ export function emergeSelf(
 
   for (let i = 0; i < N; i++) {
     const r = rng.next()
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
-  for (let t = 0; t < (opts?.beats ?? 70); t++) {
+  for (let t = 0; t < (opts?.beats ?? 70); t++)
     beat(tone, g, moved, rng, 0.01, 0.22)
-  }
 
   return { tone, cluster: largestPositiveCluster(tone, g) }
 }
@@ -651,12 +620,12 @@ export function emergeSelfHashed(
 
   for (let i = 0; i < N; i++) {
     const r = hashRand(i, 0, 7)
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
-  for (let t = 0; t < (opts?.beats ?? 70); t++) {
+  for (let t = 0; t < (opts?.beats ?? 70); t++)
     beatHashed(tone, g, moved, t, 0.01, 0.22)
-  }
 
   return { tone, cluster: largestPositiveCluster(tone, g) }
 }
@@ -682,6 +651,7 @@ export function selfLeakAndFidelity(input: {
   const { tone, cluster } = emergeSelf(g, rng, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
+
   beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, cohesion)
 
   const leakPerBeat =
@@ -690,9 +660,7 @@ export function selfLeakAndFidelity(input: {
   const t2 = tone.slice()
   const rng2 = makeRng({ seed: seed + 2 })
 
-  for (let b = 0; b < settle; b++) {
-    beat(t2, g, moved, rng2, 0, cohesion)
-  }
+  for (let b = 0; b < settle; b++) beat(t2, g, moved, rng2, 0, cohesion)
 
   const passiveFidelity =
     cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
@@ -719,9 +687,7 @@ export function discreteArrow(
   const phase = ((beatIndex % period) + period) % period
 
   for (let i = phase; i < N; i += period) {
-    if (tone[i] !== 0) {
-      continue
-    }
+    if (tone[i] !== 0) continue
 
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       const w = g.adj[p]!

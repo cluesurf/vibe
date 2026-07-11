@@ -21,6 +21,7 @@ suite('algebra/linear/kernel-polynomial: |x| coefficients', [
     'c0 = 2/pi and the even coefficients match the closed form',
     () => {
       const c = absoluteValueCoefficients(6)
+
       close(c[0]!, 2 / Math.PI, 1e-15, 'c0 = 2/pi')
       // k=1: -(4/pi)(-1)^1/(4-1) = 4/(3 pi)
       close(c[2]!, 4 / (3 * Math.PI), 1e-15, 'c2 = 4/(3 pi)')
@@ -30,6 +31,7 @@ suite('algebra/linear/kernel-polynomial: |x| coefficients', [
   ),
   check('all odd coefficients are zero (|x| is even)', () => {
     const c = absoluteValueCoefficients(7)
+
     equal(c[1], 0, 'c1 = 0')
     equal(c[3], 0, 'c3 = 0')
     equal(c[5], 0, 'c5 = 0')
@@ -41,9 +43,8 @@ suite('algebra/linear/kernel-polynomial: Jackson kernel', [
     close(jacksonKernel(8)[0]!, 1, 1e-12, 'g0 = 1')
   }),
   check('all Jackson weights lie in [0, 1]', () => {
-    for (const g of jacksonKernel(16)) {
+    for (const g of jacksonKernel(16))
       close(Math.max(0, Math.min(1, g)), g, 1e-12, 'g in [0,1]')
-    }
   }),
 ])
 
@@ -75,6 +76,7 @@ suite('algebra/linear/kernel-polynomial: Chebyshev moment recurrence', [
 
     for (let n = 0; n < count; n++) {
       const tn = Math.cos(n * Math.acos(y))
+
       close(mu[n]!, tn, 1e-12, `mu_${n} = T_${n}(0.5)`)
     }
   }),
@@ -105,9 +107,8 @@ suite('algebra/linear/kernel-polynomial: Chebyshev moment recurrence', [
         dim: 1,
       })
 
-      for (let n = 0; n < 5; n++) {
+      for (let n = 0; n < 5; n++)
         close(mu[n]!, Math.cos(n * Math.acos(0.5)), 1e-12, `mu_${n}`)
-      }
     },
   ),
 ])
@@ -129,6 +130,7 @@ suite('algebra/linear/kernel-polynomial: spectral bound', [
       }
 
       const bound = spectralBound({ operator, dim: d.length })
+
       close(bound, 9, 1e-6, 'max(lambda^2) = 9')
     },
   ),

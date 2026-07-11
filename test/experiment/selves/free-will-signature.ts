@@ -82,6 +82,7 @@ export default experiment({
         })
 
         const swap = current
+
         current = scratch
         scratch = swap
         out.push(slabOccupancy(current, 0))
@@ -94,15 +95,15 @@ export default experiment({
       let maximum = 0
 
       for (let t = 0; t < a.length; t++) {
-        for (let i = 0; i < a[t]!.length; i++) {
+        for (let i = 0; i < a[t]!.length; i++)
           maximum = Math.max(maximum, Math.abs(a[t]![i]! - b[t]![i]!))
-        }
       }
 
       return maximum
     }
 
     const body = makeWill(mesh)
+
     fillWillPattern(body)
 
     // a second body: SAME coarse view (occupancy) but momenta reversed (a different microstate)
@@ -112,13 +113,11 @@ export default experiment({
       const base = cell * degree
       const original: number[] = []
 
-      for (let d = 0; d < degree; d++) {
+      for (let d = 0; d < degree; d++)
         original.push(body.data[base + d]!)
-      }
 
-      for (let d = 0; d < degree; d++) {
+      for (let d = 0; d < degree; d++)
         reversed.data[base + opposite[d]!] = original[d]!
-      }
     }
 
     // the two start from an identical coarse view
@@ -128,9 +127,8 @@ export default experiment({
     let sameInitialCoarse = true
 
     for (let i = 0; i < occupancyBody.length; i++) {
-      if (Math.abs(occupancyBody[i]! - occupancyReversed[i]!) > 1e-9) {
+      if (Math.abs(occupancyBody[i]! - occupancyReversed[i]!) > 1e-9)
         sameInitialCoarse = false
-      }
     }
 
     // determined from outside: the exact microstate replays bit for bit

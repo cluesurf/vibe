@@ -35,13 +35,9 @@ function spectrumCounts(k: number[]): {
   let trace = 0
 
   for (const v of r.eigenvalues) {
-    if (Math.abs(v - target) < tol) {
-      physical += 1
-    } else if (Math.abs(v) < tol) {
-      gauge += 1
-    } else if (Math.abs(v + target) < tol) {
-      trace += 1
-    }
+    if (Math.abs(v - target) < tol) physical += 1
+    else if (Math.abs(v) < tol) gauge += 1
+    else if (Math.abs(v + target) < tol) trace += 1
   }
 
   return { physical, gauge, trace }

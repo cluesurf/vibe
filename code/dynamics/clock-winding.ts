@@ -27,9 +27,7 @@ export function clockWinding(
   for (let x = 0; x < size; x++) {
     let diff = modn(clock[(x + 1) % size]! - clock[x]!, states)
 
-    if (diff > states / 2) {
-      diff -= states
-    }
+    if (diff > states / 2) diff -= states
 
     sum += diff
   }
@@ -62,9 +60,8 @@ export function makeTwist(input: {
   const { size, states, turns } = input
   const clock = new Int32Array(size)
 
-  for (let x = 0; x < size; x++) {
+  for (let x = 0; x < size; x++)
     clock[x] = modn(Math.round((states * turns * x) / size), states)
-  }
 
   return { prev: clock.slice(), curr: clock.slice(), size, states }
 }

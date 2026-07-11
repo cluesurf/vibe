@@ -54,9 +54,7 @@ function centreChebyshev(cell: number, meshSide: number): number {
     const raw = Math.abs(x - c)
     const wrapped = Math.min(raw, meshSide - raw)
 
-    if (wrapped > m) {
-      m = wrapped
-    }
+    if (wrapped > m) m = wrapped
   }
 
   return m
@@ -100,9 +98,7 @@ export function recoverabilityTrace(input: {
   // the normalizer, the total L1 structure of the initial signal.
   let total = 0
 
-  for (const value of will.data) {
-    total += Math.abs(value)
-  }
+  for (const value of will.data) total += Math.abs(value)
 
   total = Math.max(1, total)
 
@@ -132,24 +128,22 @@ export function recoverabilityTrace(input: {
 
       for (let d = 0; d < degree; d++) {
         const t = data[base + d]!
+
         cellAbs += Math.abs(t)
         cellNet += t
       }
 
       global += cellAbs
 
-      if (inWindow[cell]) {
-        windowStructure += cellAbs
-      }
+      if (inWindow[cell]) windowStructure += cellAbs
 
       blockNet[blockId[cell]!] = blockNet[blockId[cell]!]! + cellNet
     }
 
     let coarse = 0
 
-    for (let b = 0; b < blockCount; b++) {
+    for (let b = 0; b < blockCount; b++)
       coarse += Math.abs(blockNet[b]!)
-    }
 
     return {
       beat: step,
@@ -166,9 +160,7 @@ export function recoverabilityTrace(input: {
   for (let step = 0; step <= beats; step++) {
     points.push(measure(state, step))
 
-    if (step < beats) {
-      state = beat(state, collision)
-    }
+    if (step < beats) state = beat(state, collision)
   }
 
   return points

@@ -58,6 +58,7 @@ suite('measure/density-contrast: maximal clumping', [
     const n = 100
     const points = Array.from({ length: n }, () => [0.01, 0.01, 0.01])
     const r = densityContrast({ points, binsPerAxis: bins })
+
     close(r.meanCount, n / cells, 1e-12)
     close(r.delta, Math.sqrt(cells - 1), 1e-9)
   }),

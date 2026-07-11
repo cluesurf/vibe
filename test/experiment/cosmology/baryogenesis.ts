@@ -38,17 +38,13 @@ function relicAsymmetry(input: {
   for (let t = 0; t < tMax; t += dt) {
     const nEq = Math.exp(-t)
 
-    if (!input.outOfEquilibrium) {
-      nX = nEq // forced equilibrium: no departure, hence no source
-    }
+    if (!input.outOfEquilibrium) nX = nEq // forced equilibrium: no departure, hence no source
 
     const departure = nX - nEq
     const source = input.bViolating ? input.epsilon * K * departure : 0
     const washout = K * nEq * eta
 
-    if (input.outOfEquilibrium) {
-      nX += dt * (-K * (nX - nEq))
-    }
+    if (input.outOfEquilibrium) nX += dt * (-K * (nX - nEq))
 
     eta += dt * (source - washout)
   }
@@ -124,9 +120,7 @@ export function baryogenesis(_input: { seed: number }): {
   let peakIdx = 0
 
   for (let i = 1; i < effs.length; i++) {
-    if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) {
-      peakIdx = i
-    }
+    if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) peakIdx = i
   }
 
   const freezeOutPeakK = Ks[peakIdx] ?? 0

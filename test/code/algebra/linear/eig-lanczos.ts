@@ -21,9 +21,7 @@ function operatorFrom(rows: number[][]) {
     for (let c = 0; c < n; c++) {
       const v = rows[r]![c]!
 
-      if (v !== 0) {
-        triplets.push({ row: r, col: c, value: v })
-      }
+      if (v !== 0) triplets.push({ row: r, col: c, value: v })
     }
   }
 
@@ -42,6 +40,7 @@ suite('algebra/linear/eig-lanczos: spectrum is preserved', [
     ])
 
     const vals = lowestEigenvalues({ operator: op, count: 2, steps: 4 })
+
     closeArray(vals, [1, 2], 1e-7, 'lowest two diagonal entries')
   }),
   check(
@@ -75,6 +74,7 @@ suite('algebra/linear/eig-lanczos: spectrum is preserved', [
     ])
 
     const vals = lowestEigenvalues({ operator: op, count: 1, steps: 2 })
+
     closeArray(vals, [1], 1e-7, 'smallest eigenvalue')
   }),
 ])

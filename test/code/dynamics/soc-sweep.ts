@@ -49,12 +49,14 @@ suite('dynamics/soc-sweep: localActivity', [
     'localActivity is the nonzero fraction, 0 for empty and 1 for full',
     () => {
       const empty = new Int8Array(N)
+
       ok(
         localActivity(empty, offsets, adj, 0, 1) === 0,
         'empty neighbourhood = 0',
       )
 
       const full = new Int8Array(N).fill(1)
+
       equal(
         localActivity(full, offsets, adj, 0, 1),
         1,
@@ -136,8 +138,6 @@ suite('dynamics/soc-sweep: determinism', [
     const a = run()
     const b = run()
 
-    for (let i = 0; i < N; i++) {
-      equal(a[i]!, b[i]!, `cell ${i}`)
-    }
+    for (let i = 0; i < N; i++) equal(a[i]!, b[i]!, `cell ${i}`)
   }),
 ])

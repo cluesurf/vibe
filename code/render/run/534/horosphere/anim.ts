@@ -82,9 +82,7 @@ async function run(): Promise<void> {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -92,9 +90,7 @@ async function run(): Promise<void> {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -116,6 +112,7 @@ async function run(): Promise<void> {
   })) {
     const x = coords[i]!
     const proj = sub(x, xi, dot(x, xi))
+
     raw.push({ index: i, u: dot(proj, e1), v: dot(proj, e2) })
   }
 
@@ -179,6 +176,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -237,6 +235,7 @@ async function run(): Promise<void> {
     // one beat
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -248,6 +247,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     // rasterize the band coloured by this beat's tones
@@ -263,26 +263,22 @@ async function run(): Promise<void> {
     for (const c of band) {
       const tone = currentOf(tones[c.index]!)
 
-      if (tone === 0) {
-        continue
-      } // peace is black, the background, draw only the charges
+      if (tone === 0) continue
+      // peace is black, the background, draw only the charges
 
       const col = COLORS[tone]!
 
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
-          if (dx * dx + dy * dy > RADIUS * RADIUS) {
-            continue
-          }
+          if (dx * dx + dy * dy > RADIUS * RADIUS) continue
 
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]

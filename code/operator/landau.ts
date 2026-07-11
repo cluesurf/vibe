@@ -38,6 +38,7 @@ function ladderMomenta(
     for (let n = 0; n < levels; n++) {
       const lower = m === n - 1 ? Math.sqrt(n) : 0 // <m|a|n>
       const raise = m === n + 1 ? Math.sqrt(n + 1) : 0 // <m|a-dagger|n>
+
       pixRe[m]![n] = scale * (lower + raise)
       piyIm[m]![n] = -scale * (lower - raise) // pi_y = -i sqrt(qB/2)(a - a-dagger)
     }
@@ -114,9 +115,7 @@ export function scalarLandauSquared(input: {
           pixRe[i]![k]! * pixRe[k]![j]! - piyIm[i]![k]! * piyIm[k]![j]!
       }
 
-      if (i === j) {
-        sum += mass * mass
-      }
+      if (i === j) sum += mass * mass
 
       out.data[i * levels + j] = sum
     }

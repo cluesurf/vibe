@@ -22,9 +22,8 @@ import {
 function innerJ(x: number[], y: number[], metric: number[]): number {
   let s = 0
 
-  for (let a = 0; a < x.length; a++) {
+  for (let a = 0; a < x.length; a++)
     s += (metric[a] ?? 1) * (x[a] ?? 0) * (y[a] ?? 0)
-  }
 
   return s
 }
@@ -42,9 +41,7 @@ function reflect(
 function determinant(a: number[][]): number {
   const n = a.length
 
-  if (n === 0) {
-    return 1
-  }
+  if (n === 0) return 1
 
   const m = a.map(row => row.slice())
 
@@ -54,17 +51,14 @@ function determinant(a: number[][]): number {
     let pivot = col
 
     for (let r = col + 1; r < n; r++) {
-      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) {
-        pivot = r
-      }
+      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
     }
 
-    if (Math.abs(m[pivot]![col]!) < 1e-15) {
-      return 0
-    }
+    if (Math.abs(m[pivot]![col]!) < 1e-15) return 0
 
     if (pivot !== col) {
       const tmp = m[pivot]!
+
       m[pivot] = m[col]!
       m[col] = tmp
       det = -det
@@ -75,9 +69,7 @@ function determinant(a: number[][]): number {
     for (let r = col + 1; r < n; r++) {
       const f = m[r]![col]! / m[col]![col]!
 
-      for (let c = col; c < n; c++) {
-        m[r]![c]! -= f * m[col]![c]!
-      }
+      for (let c = col; c < n; c++) m[r]![c]! -= f * m[col]![c]!
     }
   }
 
@@ -94,9 +86,7 @@ function normalizeTimelike(
   const out = x.map(v => v * scale)
 
   if ((out[timeAxis] ?? 0) < 0) {
-    for (let a = 0; a < out.length; a++) {
-      out[a] = -(out[a] ?? 0)
-    }
+    for (let a = 0; a < out.length; a++) out[a] = -(out[a] ?? 0)
   }
 
   return out
@@ -114,14 +104,14 @@ function cellCenter(input: {
   const m = metric.length
   const rows: number[][] = []
 
-  for (let i = 0; i < cellMirrors; i++) {
+  for (let i = 0; i < cellMirrors; i++)
     rows.push(normals[i]!.map((val, a) => (metric[a] ?? 1) * val))
-  }
 
   const c: number[] = new Array<number>(m).fill(0)
 
   for (let j = 0; j < m; j++) {
     const sub = rows.map(row => row.filter((_, col) => col !== j))
+
     c[j] = (j % 2 === 0 ? 1 : -1) * determinant(sub)
   }
 
@@ -133,9 +123,7 @@ function toPoincare(x: number[], timeAxis: number): number[] {
   const out: number[] = []
 
   for (let a = 0; a < x.length; a++) {
-    if (a === timeAxis) {
-      continue
-    }
+    if (a === timeAxis) continue
 
     out.push((x[a] ?? 0) / (1 + time))
   }
@@ -174,9 +162,8 @@ export function buildCoxeterMesh(input: {
   const offset = new Array<number>(m).fill(0)
 
   for (let i = 0; i < m; i++) {
-    for (let a = 0; a < m; a++) {
+    for (let a = 0; a < m; a++)
       offset[a]! += (i + 1) * (normals[i]![a] ?? 0)
-    }
   }
 
   const g0 = normalizeTimelike(
@@ -197,11 +184,10 @@ export function buildCoxeterMesh(input: {
     const key = round(toPoincare(cc, timeAxis))
     const found = cellId.get(key)
 
-    if (found !== undefined) {
-      return found
-    }
+    if (found !== undefined) return found
 
     const id = cellCenters.length
+
     cellId.set(key, id)
     cellCenters.push(cc)
     cellCoords.push(toPoincare(cc, timeAxis))
@@ -210,6 +196,7 @@ export function buildCoxeterMesh(input: {
   }
 
   const seenChamber = new Set<string>([round(toPoincare(g0, timeAxis))])
+
   registerCell(c0)
 
   let frontier: { g: number[]; cc: number[] }[] = [{ g: g0, cc: c0 }]
@@ -230,25 +217,20 @@ export function buildCoxeterMesh(input: {
         const g = reflect(ch.g, normals[i]!, metric)
         const key = round(toPoincare(g, timeAxis))
 
-        if (seenChamber.has(key)) {
-          continue
-        }
+        if (seenChamber.has(key)) continue
 
         seenChamber.add(key)
 
         const cc = reflect(ch.cc, normals[i]!, metric)
+
         registerCell(cc)
         next.push({ g, cc })
         chamberCount++
 
-        if (chamberCount >= maxChambers) {
-          break
-        }
+        if (chamberCount >= maxChambers) break
       }
 
-      if (chamberCount >= maxChambers) {
-        break
-      }
+      if (chamberCount >= maxChambers) break
     }
 
     frontier = next
@@ -265,9 +247,7 @@ export function buildCoxeterMesh(input: {
     for (let b = a + 1; b < n; b++) {
       const c = cdist(a, b)
 
-      if (c > 1.0000001 && c < minCosh) {
-        minCosh = c
-      }
+      if (c > 1.0000001 && c < minCosh) minCosh = c
     }
   }
 
@@ -285,12 +265,12 @@ export function buildCoxeterMesh(input: {
 
   let facetCount = 0
 
-  for (const nb of neighbors) {
+  for (const nb of neighbors)
     facetCount = Math.max(facetCount, nb.length)
-  }
 
   // generation = face-adjacency BFS distance from the seed cell (cell 0)
   const generation = new Array<number>(n).fill(-1)
+
   generation[0] = 0
 
   let ring = [0]

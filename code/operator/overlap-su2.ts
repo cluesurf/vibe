@@ -43,9 +43,7 @@ function colorMatrix(
   const re: [number, number, number, number] = [q0, q2, -q2, q0]
   const im: [number, number, number, number] = [q3, q1, q1, -q3]
 
-  if (!dagger) {
-    return { re, im }
-  }
+  if (!dagger) return { re, im }
 
   // Conjugate transpose: swap off-diagonal, negate all imaginary parts.
   return {
@@ -78,13 +76,16 @@ function addBlock4(input: {
           // (sp * co) * coef
           let re = spRe * coRe - spIm * coIm
           let im = spRe * coIm + spIm * coRe
+
           re *= input.coef
           im *= input.coef
 
           const row = input.rowSite * 4 + si * 2 + ci
           const col = input.colSite * 4 + sj * 2 + cj
+
           input.m.re[row * n + col] =
             (input.m.re[row * n + col] ?? 0) + re
+
           input.m.im[row * n + col] =
             (input.m.im[row * n + col] ?? 0) + im
         }
@@ -120,6 +121,7 @@ function gaugeWilsonDiracSu2(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
+
       // diagonal mass term M0 = 2 (spin identity tensor color identity).
       addBlock4({
         m: d,
@@ -129,6 +131,7 @@ function gaugeWilsonDiracSu2(input: {
         color: IDENT_COLOR,
         coef: 2,
       })
+
       // mu = 1
       addBlock4({
         m: d,
@@ -138,6 +141,7 @@ function gaugeWilsonDiracSu2(input: {
         color: colorMatrix(input.links1[x] ?? [1, 0, 0, 0], false),
         coef: -0.5,
       })
+
       addBlock4({
         m: d,
         rowSite: x,
@@ -149,6 +153,7 @@ function gaugeWilsonDiracSu2(input: {
         ),
         coef: -0.5,
       })
+
       // mu = 2
       addBlock4({
         m: d,
@@ -158,6 +163,7 @@ function gaugeWilsonDiracSu2(input: {
         color: colorMatrix(input.links2[x] ?? [1, 0, 0, 0], false),
         coef: -0.5,
       })
+
       addBlock4({
         m: d,
         rowSite: x,
@@ -207,9 +213,8 @@ export function chiralCondensateSignalSU2(input: {
 
     // H_W = gamma5 (D_W - m0). gamma5 acts on spin: rows with spin index 1
     // (local index in {2,3}) flip sign.
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++)
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
-    }
 
     for (let row = 0; row < n; row++) {
       if (row % 4 >= 2) {
@@ -231,9 +236,7 @@ export function chiralCondensateSignalSU2(input: {
     const eig = eigHermitian({ matrix: epsilon })
 
     for (const eigenvalue of eig.values) {
-      if (Math.abs(eigenvalue ?? 0) < tol) {
-        nearZero += 1
-      }
+      if (Math.abs(eigenvalue ?? 0) < tol) nearZero += 1
 
       totalEig += 1
     }

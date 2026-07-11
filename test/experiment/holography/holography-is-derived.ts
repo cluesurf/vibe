@@ -91,9 +91,8 @@ export default experiment({
     const flatFraction = (radius: number): number => {
       let flatBall = 0
 
-      for (let k = 0; k <= radius; k++) {
+      for (let k = 0; k <= radius; k++)
         flatBall += euclideanL1ShellCount({ dimension: 4, shell: k })
-      }
 
       return (
         euclideanL1ShellCount({ dimension: 4, shell: radius }) /

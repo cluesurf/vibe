@@ -46,6 +46,7 @@ export default experiment({
     for (const n of SHELLS) {
       const counted = e8ThetaCoefficient(2 * n)
       const predicted = 240 * sigmaCubes(n)
+
       worstError = Math.max(worstError, Math.abs(counted - predicted))
     }
 
@@ -57,9 +58,7 @@ export default experiment({
       let sum = 0
 
       for (let d = 1; d <= n; d++) {
-        if (n % d === 0) {
-          sum += d
-        }
+        if (n % d === 0) sum += d
       }
 
       return sum
@@ -69,9 +68,7 @@ export default experiment({
       let sum = 0
 
       for (let d = 1; d <= n; d++) {
-        if (n % d === 0) {
-          sum += d * d
-        }
+        if (n % d === 0) sum += d * d
       }
 
       return sum

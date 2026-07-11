@@ -39,9 +39,7 @@ export function emergentGauge(): {
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) {
-    t[i] = Math.floor(rnd() * 3) - 1
-  }
+  for (let i = 0; i < N; i++) t[i] = Math.floor(rnd() * 3) - 1
 
   // (1) U(1) Gauss law: run one beat tracking per-pair charge flux; verify each cell's d(rho) = net inflow EXACTLY
   const before = t.slice()
@@ -52,23 +50,21 @@ export function emergentGauge(): {
   for (let i = N - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1))
     const tmp = order[i]!
+
     order[i] = order[j]!
     order[j] = tmp
   }
 
   for (const u of order) {
-    if (used[u]) {
-      continue
-    }
+    if (used[u]) continue
 
     for (let q = off[u]!; q < off[u + 1]!; q++) {
       const w = adj[q]!
 
-      if (used[w]) {
-        continue
-      }
+      if (used[w]) continue
 
       const [na, nb] = perm(t[u]!, t[w]!)
+
       flux[u]! += na - t[u]!
       flux[w]! += nb - t[w]! // charge change of each from this pair op
       t[u] = na
@@ -81,9 +77,8 @@ export function emergentGauge(): {
 
   let viol = 0
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     viol += Math.abs(t[i]! - before[i]! - flux[i]!)
-  }
 
   const chargeLocallyConserved = viol === 0
 
@@ -95,25 +90,21 @@ export function emergentGauge(): {
 
   const A = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) {
-    A[i] = rnd() < 0.5 ? 1 : -1
-  } // internal index
+  for (let i = 0; i < N; i++) A[i] = rnd() < 0.5 ? 1 : -1
+  // internal index
 
   const usd = new Uint8Array(N)
 
   for (const u of order) {
-    if (usd[u]) {
-      continue
-    }
+    if (usd[u]) continue
 
     for (let q = off[u]!; q < off[u + 1]!; q++) {
       const w = adj[q]!
 
-      if (usd[w]) {
-        continue
-      }
+      if (usd[w]) continue
 
       const sum = A[u]! + A[w]!
+
       A[u] = sum >= 0 ? 1 : -1
       A[w] = sum > 0 ? 1 : -1
       usd[u] = 1

@@ -51,6 +51,7 @@ suite('measure/profile: weightedGridRadiusOfGyration', [
     // cells 0=(0,0) and 3=(1,1) weight 1, else 0. COM=(0.5,0.5),
     // each at squared distance 0.5 -> RMS = sqrt((0.5+0.5)/2) = sqrt(0.5).
     const w = [1, 0, 0, 1]
+
     close(
       weightedGridRadiusOfGyration({
         cellCount: 4,

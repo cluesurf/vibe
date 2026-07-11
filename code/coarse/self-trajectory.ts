@@ -84,12 +84,11 @@ export function selfTrajectory(input: {
     beatHashed(tone, graph, moved, t, 0.01, 0.22)
 
     const cx = positiveCentroidX(tone, L)
+
     centroids.push(cx)
     labels.push(toBin(cx))
 
-    if (t % snapshotEvery === 0) {
-      snapshots.push(tone.slice())
-    }
+    if (t % snapshotEvery === 0) snapshots.push(tone.slice())
   }
 
   const positions = (cell: number): readonly [number, number] => [
@@ -187,9 +186,7 @@ function runUnitTrajectory(input: {
       let largest = units[0]!
 
       for (const u of units) {
-        if (u.size > largest.size) {
-          largest = u
-        }
+        if (u.size > largest.size) largest = u
       }
 
       lastCx = largest.cx

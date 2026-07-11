@@ -56,6 +56,7 @@ function run(): void {
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells: MAX_CELLS })
   const n = g.cellCount
   const depth = new Array<number>(n).fill(-1)
+
   depth[0] = 0
 
   let frontier = [0]
@@ -74,9 +75,7 @@ function run(): void {
       }
     }
 
-    if (next.length) {
-      shellCounts.push(next.length)
-    }
+    if (next.length) shellCounts.push(next.length)
 
     frontier = next
   }
@@ -84,11 +83,8 @@ function run(): void {
   let maxClean = 0
 
   for (let i = 1; i < shellCounts.length; i++) {
-    if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
-      maxClean = i
-    } else {
-      break
-    }
+    if (shellCounts[i]! / shellCounts[i - 1]! > 2) maxClean = i
+    else break
   }
 
   console.log(
@@ -103,9 +99,7 @@ function run(): void {
   }[]
 
   for (let i = 0; i < n; i++) {
-    if (depth[i]! < 0 || depth[i]! > maxClean) {
-      continue
-    }
+    if (depth[i]! < 0 || depth[i]! > maxClean) continue
 
     cells.push({
       x: g.coords[i]![0]!,
@@ -119,6 +113,7 @@ function run(): void {
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, 'frames-nesting-zoom-534')
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -145,6 +140,7 @@ function run(): void {
 
         if (dx * dx + dy * dy <= rr) {
           const o = (py * IMG + px) * 4
+
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
           rgba[o + 2] = col[2]
@@ -170,9 +166,8 @@ function run(): void {
       const px = half + scale * (c.x - TARGET[0]!),
         py = half - scale * (c.y - TARGET[1]!)
 
-      if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20) {
+      if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20)
         continue
-      }
 
       const rad = Math.max(
         0.6,
@@ -187,9 +182,8 @@ function run(): void {
       encodePng(rgba, IMG, IMG),
     )
 
-    if (f % 20 === 0) {
+    if (f % 20 === 0)
       console.log(`  frame ${f}/${FRAMES} zoom ${zoom.toFixed(2)}x`)
-    }
   }
 
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

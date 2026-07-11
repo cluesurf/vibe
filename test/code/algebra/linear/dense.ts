@@ -25,6 +25,7 @@ import {
 suite('algebra/linear/dense: get/set and matvec', [
   check('denseSet then denseGet round-trips by row-major index', () => {
     const m = makeDense({ rows: 2, cols: 3 })
+
     denseSet(m, { row: 1, col: 2, value: 7 })
     equal(denseGet(m, { row: 1, col: 2 }), 7, 'set/get')
     equal(m.data[1 * 3 + 2], 7, 'row-major layout')
@@ -32,6 +33,7 @@ suite('algebra/linear/dense: get/set and matvec', [
   }),
   check('denseMatVec computes A x by hand', () => {
     const m = makeDense({ rows: 2, cols: 2 })
+
     denseSet(m, { row: 0, col: 0, value: 1 })
     denseSet(m, { row: 0, col: 1, value: 2 })
     denseSet(m, { row: 1, col: 0, value: 3 })
@@ -59,6 +61,7 @@ suite('algebra/linear/dense: number[][] product', [
 
     // [[19,22],[43,50]]
     const p = matrixProduct(a, b)
+
     exactArray(p[0]!, [19, 22], 'row 0')
     exactArray(p[1]!, [43, 50], 'row 1')
   }),
@@ -102,6 +105,7 @@ suite('algebra/linear/dense: number[][] product', [
     // row0: (1*1+0*0+2*4, 1*1+0*1+2*0) = (9, 1)
     // row1: (0+0+0, 0+3+0) = (0, 3)
     const p = matrixProduct(a, b)
+
     equal(p.length, 2, 'rows')
     exactArray(p[0]!, [9, 1], 'row 0')
     exactArray(p[1]!, [0, 3], 'row 1')
@@ -119,6 +123,7 @@ suite('algebra/linear/dense: determinant', [
       1e-12,
       'det = 1*4 - 2*3 = -2',
     )
+
     close(
       determinant([
         [2, 0, 0],
@@ -154,6 +159,7 @@ suite('algebra/linear/dense: determinant', [
     const detA = determinant(a)
     const detB = determinant(b)
     const detAB = determinant(matrixProduct(a, b))
+
     close(detAB, detA * detB, 1e-9, 'det(AB) = det(A)det(B)')
   }),
 ])
@@ -170,11 +176,13 @@ suite('algebra/linear/dense: linear solve', [
       const rightHandSide = [3, 5]
       // 2x + y = 3, x + 3y = 5  ->  x = 0.8, y = 1.4
       const x = solveLinearSystem({ matrix, rightHandSide })
+
       closeArray(x, [0.8, 1.4], 1e-9, 'solution')
 
       // substitute back: A x must equal b
       for (let r = 0; r < 2; r++) {
         const lhs = matrix[r]![0]! * x[0]! + matrix[r]![1]! * x[1]!
+
         close(lhs, rightHandSide[r]!, 1e-9, `row ${r} residual`)
       }
     },

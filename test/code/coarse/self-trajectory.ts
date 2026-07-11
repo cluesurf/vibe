@@ -24,6 +24,7 @@ suite('coarse/self-trajectory: the LCG', [
       s = (Math.imul(s, 1664525) + 1013904223) >>> 0
 
       const expected = s / 4294967296
+
       close(rng.next(), expected, 0, `draw ${i}`)
     }
   }),
@@ -33,6 +34,7 @@ suite('coarse/self-trajectory: the LCG', [
 
     for (let i = 0; i < 50; i++) {
       const x = a.next()
+
       ok(x >= 0 && x < 1, 'draw in [0,1)')
       close(b.next(), x, 0, 'same seed, same sequence')
     }
@@ -44,11 +46,13 @@ suite('coarse/self-trajectory: position bin', [
   // floor((1.5/4)*4) = floor(1.5) = 1.
   check('an all-plus field bins by its centroid column', () => {
     const tone = new Int8Array(16).fill(1)
+
     equal(positionBin({ tone, L: 4, bins: 4 }), 1)
   }),
   // An empty field defaults the centroid to L/2 = 2, binning to floor((2/4)*4) = 2.
   check('an empty field falls back to the centre bin', () => {
     const tone = new Int8Array(16)
+
     equal(positionBin({ tone, L: 4, bins: 4 }), 2)
   }),
 ])
@@ -62,6 +66,7 @@ suite('coarse/self-trajectory: trajectory reproducibility', [
 
       const a = make()
       const b = make()
+
       equal(a.labels.length, 10)
       equal(a.centroids.length, 10)
 
@@ -80,6 +85,7 @@ suite('coarse/self-trajectory: trajectory reproducibility', [
   check('selfUnitTrajectory is reproducible', () => {
     const a = selfUnitTrajectory({ L: 20, beats: 8, seed: 11 })
     const b = selfUnitTrajectory({ L: 20, beats: 8, seed: 11 })
+
     equal(a.centroids.length, 8)
 
     for (let i = 0; i < a.centroids.length; i++) {

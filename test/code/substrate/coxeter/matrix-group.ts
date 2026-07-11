@@ -27,6 +27,7 @@ suite('substrate/coxeter/matrix-group: generators are involutions', [
     for (const symbol of [[3], [4], [3, 3], [5, 3]]) {
       const gens = reflections(symbol)
       const n = symbol.length + 1
+
       equal(
         gens.length,
         n,
@@ -61,14 +62,14 @@ suite(
         )
 
         const total = shells.reduce((a, b) => a + b, 0)
+
         equal(total, order, `|{${String(symbol)}}| = ${order}`)
         equal(shells[0], 1, 'identity at shell 0')
 
         // a closed finite group has every generator-neighbour inside the mesh.
         for (const row of adjacency) {
-          for (const j of row) {
+          for (const j of row)
             ok(j >= 0, 'no neighbour falls outside a closed mesh')
-          }
         }
       }
     }),

@@ -8,9 +8,7 @@ export type Vec = number[]
 export function dot(a: Vec, b: Vec): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
+  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
 
   return s
 }
@@ -42,9 +40,8 @@ export function normalize(v: Vec): Vec {
 export function innerJ(a: Vec, b: Vec, metric: number[]): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
+  for (let i = 0; i < a.length; i++)
     s += (metric[i] ?? 1) * (a[i] ?? 0) * (b[i] ?? 0)
-  }
 
   return s
 }

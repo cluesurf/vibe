@@ -57,9 +57,7 @@ function windowMean(
 ): number {
   let sum = 0
 
-  for (let t = lo; t < hi; t++) {
-    sum += trajectory[t] ?? 0
-  }
+  for (let t = lo; t < hi; t++) sum += trajectory[t] ?? 0
 
   return sum / Math.max(1, hi - lo)
 }
@@ -100,6 +98,7 @@ export default experiment({
 
       const table = streamSourceTable(mesh)
       const init = makeWill(mesh)
+
       fillWillPattern(init) // a deterministic body, never random
 
       // the coherence clock: open loses it irreversibly, closed keeps it exactly

@@ -57,9 +57,8 @@ export default experiment({
       coreRadius: 5,
     })
 
-    for (let t = 0; t < 2000; t++) {
+    for (let t = 0; t < 2000; t++)
       base = relaxSpins({ spins: base, params, rate: 0.08 })
-    }
 
     const startQ = skyrmionDegree(base, params.size)
 
@@ -69,9 +68,7 @@ export default experiment({
         const q = (c: number) => Math.round(c)
         const w: Spin = [q(v[0]), q(v[1]), q(v[2])]
 
-        if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
-          return [0, 0, 1]
-        }
+        if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
 
         const n = Math.hypot(w[0], w[1], w[2]) || 1
 
@@ -88,13 +85,9 @@ export default experiment({
 
       const q = skyrmionDegree(st, params.size)
 
-      if (q < tritMin) {
-        tritMin = q
-      }
+      if (q < tritMin) tritMin = q
 
-      if (q > tritMax) {
-        tritMax = q
-      }
+      if (q > tritMax) tritMax = q
     }
 
     const tritStateHolds =
@@ -111,13 +104,9 @@ export default experiment({
 
         const q = skyrmionDegree(s, params.size)
 
-        if (q < min) {
-          min = q
-        }
+        if (q < min) min = q
 
-        if (q > max) {
-          max = q
-        }
+        if (q > max) max = q
       }
 
       return { min, max }

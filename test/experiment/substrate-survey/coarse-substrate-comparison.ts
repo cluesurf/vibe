@@ -36,9 +36,7 @@ function fractionAtSize(input: {
   for (let r = 1; r <= maxRadius; r++) {
     cells = ball(graph, center, r)
 
-    if (cells.length >= targetSize) {
-      break
-    }
+    if (cells.length >= targetSize) break
   }
 
   return {

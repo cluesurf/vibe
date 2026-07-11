@@ -59,11 +59,11 @@ suite('dynamics/renormalization-blocks: partition validity', [
   check('geometricBlocks assigns every cell a block', () => {
     const { g } = ring()
     const { cl, K } = geometricBlocks(g, 6, makeRng({ seed: 2 }))
+
     ok(K >= 2, 'at least two blocks')
 
-    for (let c = 0; c < N; c++) {
+    for (let c = 0; c < N; c++)
       ok(cl[c]! >= 0 && cl[c]! < K, `cell ${c} assigned`)
-    }
   }),
 ])
 
@@ -82,11 +82,9 @@ suite(
       for (let c = 0; c < N; c++) {
         const b = cl[c]!
 
-        if (blockTone.has(b)) {
+        if (blockTone.has(b))
           equal(blockTone.get(b)!, tone[c]!, `block ${b} uniform`)
-        } else {
-          blockTone.set(b, tone[c]!)
-        }
+        else blockTone.set(b, tone[c]!)
       }
 
       ok(K >= 2, 'multiple domains')
@@ -101,6 +99,7 @@ suite(
         for (let k = 0; k < row.length; k++) {
           const w = row[k]!
           const kk = g.neighbors[w]!.indexOf(v)
+
           equal(
             fills[v]![k]!,
             fills[w]![kk]!,
@@ -131,8 +130,6 @@ suite('dynamics/renormalization-blocks: determinism', [
       rng: makeRng({ seed: 9 }),
     }).blockOf
 
-    for (let c = 0; c < N; c++) {
-      equal(a[c]!, b[c]!, `cell ${c}`)
-    }
+    for (let c = 0; c < N; c++) equal(a[c]!, b[c]!, `cell ${c}`)
   }),
 ])

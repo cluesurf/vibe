@@ -43,9 +43,8 @@ suite('tone/configuration: storage', [
       size: 8,
     })
 
-    for (let i = 0; i < c.values.length; i++) {
+    for (let i = 0; i < c.values.length; i++)
       equal(c.values[i], 0, `value ${i} default zero`)
-    }
   }),
 ])
 
@@ -82,6 +81,7 @@ suite('tone/configuration: get / set / clone', [
     setTone(c, { element: 0, value: 1 })
 
     const copy = cloneConfiguration(c)
+
     setTone(copy, { element: 0, value: -1 })
     equal(getTone(c, { element: 0 }), 1, 'original unchanged')
     equal(getTone(copy, { element: 0 }), -1, 'copy changed')

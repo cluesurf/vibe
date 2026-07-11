@@ -20,14 +20,17 @@ suite(
   [
     check('torus (genus 1): chi = V - E + F = 0', () => {
       const c = squareLatticeCellCounts({ side: 3, genus: 1 })
+
       equal(c.vertices - c.edges + c.faces, 0)
     }),
     check('sphere (genus 0): chi = 2', () => {
       const c = squareLatticeCellCounts({ side: 3, genus: 0 })
+
       equal(c.vertices - c.edges + c.faces, 2)
     }),
     check('genus 2: chi = -2', () => {
       const c = squareLatticeCellCounts({ side: 3, genus: 2 })
+
       equal(c.vertices - c.edges + c.faces, -2)
     }),
   ],
@@ -36,19 +39,23 @@ suite(
 suite('measure/quantum-double: ground-state degeneracy N^(2g)', [
   check('Z_3 torus has degeneracy 3^2 = 9', () => {
     const c = squareLatticeCellCounts({ side: 4, genus: 1 })
+
     equal(toricCodeGroundStateDegeneracy({ toneStates: 3, ...c }), 9)
   }),
   check('Z_3 sphere has degeneracy 1 (no topological order)', () => {
     const c = squareLatticeCellCounts({ side: 4, genus: 0 })
+
     equal(toricCodeGroundStateDegeneracy({ toneStates: 3, ...c }), 1)
   }),
   check('Z_3 genus-2 surface has degeneracy 3^4 = 81', () => {
     const c = squareLatticeCellCounts({ side: 4, genus: 2 })
+
     equal(toricCodeGroundStateDegeneracy({ toneStates: 3, ...c }), 81)
   }),
   check('Z_2 torus has degeneracy 4, and is size-independent', () => {
     const small = squareLatticeCellCounts({ side: 3, genus: 1 })
     const big = squareLatticeCellCounts({ side: 9, genus: 1 })
+
     equal(
       toricCodeGroundStateDegeneracy({ toneStates: 2, ...small }),
       4,
@@ -72,6 +79,7 @@ suite('measure/quantum-double: anyons, braiding, quantum dimension', [
       (2 * Math.PI) / 3,
       TIGHT,
     )
+
     // a charge-2 around a flux-1 in Z_3 is twice that
     close(
       mutualBraidingPhase({

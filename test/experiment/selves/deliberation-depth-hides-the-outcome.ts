@@ -28,9 +28,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function correlation(xs: number[], ys: number[]): number {
   const n = xs.length
 
-  if (n === 0) {
-    return 0
-  }
+  if (n === 0) return 0
 
   const mx = xs.reduce((a, b) => a + b, 0) / n
   const my = ys.reduce((a, b) => a + b, 0) / n
@@ -42,6 +40,7 @@ function correlation(xs: number[], ys: number[]): number {
   for (let i = 0; i < n; i++) {
     const dx = xs[i]! - mx
     const dy = ys[i]! - my
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy
@@ -92,11 +91,8 @@ export function depthHidesOutcome(input: {
     beats.push(r.beats)
     errors.push(err)
 
-    if (r.beats <= 2) {
-      shallow.push(err)
-    } else {
-      deep.push(err)
-    }
+    if (r.beats <= 2) shallow.push(err)
+    else deep.push(err)
 
     // control: no self structure. One beat, outcome equals the shortcut.
     const c = settle({

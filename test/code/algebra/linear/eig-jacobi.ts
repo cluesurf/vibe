@@ -22,9 +22,8 @@ function denseFrom(rows: number[][]): DenseMatrix {
   const m = makeDense({ rows: n, cols: n })
 
   for (let r = 0; r < n; r++) {
-    for (let c = 0; c < n; c++) {
+    for (let c = 0; c < n; c++)
       denseSet(m, { row: r, col: c, value: rows[r]![c]! })
-    }
   }
 
   return m
@@ -87,6 +86,7 @@ suite(
     check('path-graph-3 tridiagonal: 2 + sqrt2*{-1,0,1}', () => {
       // adjacency of P3 has eigenvalues {-sqrt2, 0, sqrt2}; +2 on the diagonal shifts.
       const r2 = Math.SQRT2
+
       closeArray(
         jacobiEigenvalues([
           [2, 1, 0],
@@ -107,12 +107,14 @@ suite(
 
       const vals = jacobiEigenvalues(m)
       const trace = 4 + 3 + 5
+
       close(
         vals.reduce((s, v) => s + v, 0),
         trace,
         1e-9,
         'sum of eigenvalues = trace',
       )
+
       // det = 4(15-1) - 1(5+2) + 2(-1-6) = 56 - 7 - 14 = 35
       close(
         vals.reduce((s, v) => s * v, 1),
@@ -144,9 +146,8 @@ suite('algebra/linear/eig-jacobi: eigSymmetric (values + vectors)', [
         for (let k = 0; k < n; k++) {
           let d = 0
 
-          for (let i = 0; i < n; i++) {
+          for (let i = 0; i < n; i++)
             d += eig.vectors[i * n + j]! * eig.vectors[i * n + k]!
-          }
 
           close(d, j === k ? 1 : 0, 1e-9, `<v${j}|v${k}>`)
         }
@@ -169,9 +170,8 @@ suite('algebra/linear/eig-jacobi: eigSymmetric (values + vectors)', [
       for (let i = 0; i < n; i++) {
         let av = 0
 
-        for (let k = 0; k < n; k++) {
+        for (let k = 0; k < n; k++)
           av += A[i]![k]! * eig.vectors[k * n + j]!
-        }
 
         close(
           av,

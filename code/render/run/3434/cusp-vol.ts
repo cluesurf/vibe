@@ -54,15 +54,13 @@ async function run(): Promise<void> {
 
   for (let z = 0; z < L; z++) {
     for (let y = 0; y < L; y++) {
-      for (let x = 0; x < L; x++) {
+      for (let x = 0; x < L; x++)
         offsets[idx(x, y, z) + 1] = deg(x, y, z)
-      }
     }
   }
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
-  }
 
   const adj = new Int32Array(offsets[N]!)
 
@@ -72,29 +70,17 @@ async function run(): Promise<void> {
     for (let z = 0; z < L; z++) {
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
-          if (x > 0) {
-            adj[p++] = idx(x - 1, y, z)
-          }
+          if (x > 0) adj[p++] = idx(x - 1, y, z)
 
-          if (x < L - 1) {
-            adj[p++] = idx(x + 1, y, z)
-          }
+          if (x < L - 1) adj[p++] = idx(x + 1, y, z)
 
-          if (y > 0) {
-            adj[p++] = idx(x, y - 1, z)
-          }
+          if (y > 0) adj[p++] = idx(x, y - 1, z)
 
-          if (y < L - 1) {
-            adj[p++] = idx(x, y + 1, z)
-          }
+          if (y < L - 1) adj[p++] = idx(x, y + 1, z)
 
-          if (z > 0) {
-            adj[p++] = idx(x, y, z - 1)
-          }
+          if (z > 0) adj[p++] = idx(x, y, z - 1)
 
-          if (z < L - 1) {
-            adj[p++] = idx(x, y, z + 1)
-          }
+          if (z < L - 1) adj[p++] = idx(x, y, z + 1)
         }
       }
     }
@@ -114,9 +100,7 @@ async function run(): Promise<void> {
   for (let z = -B; z <= B; z++) {
     for (let y = -B; y <= B; y++) {
       for (let x = -B; x <= B; x++) {
-        if (x * x + y * y + z * z > B * B) {
-          continue
-        }
+        if (x * x + y * y + z * z > B * B) continue
 
         seed[idx(c + x, c + y, c + z)] = pack({
           current: Math.floor(rnd() * 3),
@@ -144,6 +128,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -208,6 +193,7 @@ async function run(): Promise<void> {
         const x2 = ox * cosy + z1 * siny
         const z2 = -ox * siny + z1 * cosy
         const i = idx(x, y, z)
+
         PX[i] = Math.round(IMG / 2 + x2 * scale)
         PY[i] = Math.round(IMG / 2 - y1 * scale)
         z2arr[i] = z2
@@ -242,6 +228,7 @@ async function run(): Promise<void> {
     // read back current field
     {
       const enc = device.createCommandEncoder()
+
       enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
       device.queue.submit([enc.finish()])
     }
@@ -249,6 +236,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const field = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     accR.fill(0)
@@ -263,9 +251,7 @@ async function run(): Promise<void> {
       const cell = order[k]!
       const t = currentOf(field[cell]!)
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const col = t === 1 ? BLUE : RED
       const d = DEPTH[cell]!
@@ -277,11 +263,10 @@ async function run(): Promise<void> {
           const ix = cxp + dx
           const iy = cyp + dy
 
-          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
-            continue
-          }
+          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
 
           const pix = iy * IMG + ix
+
           accR[pix] = accR[pix]! * (1 - ALPHA) + col[0] * d * ALPHA
           accG[pix] = accG[pix]! * (1 - ALPHA) + col[1] * d * ALPHA
           accB[pix] = accB[pix]! * (1 - ALPHA) + col[2] * d * ALPHA
@@ -303,6 +288,7 @@ async function run(): Promise<void> {
     // advance one beat on the GPU
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)

@@ -49,6 +49,7 @@ const poset: Poset = {
 
 function collectOut(s: Graph | Poset, node: number): number[] {
   const out: number[] = []
+
   adjacencyOf({ substrate: s }).forEachOut({
     node,
     visit: to => out.push(to),
@@ -62,6 +63,7 @@ suite('tool/substrate: out-adjacency view', [
     'graph out-degree and out-neighbours match the neighbour lists',
     () => {
       const view = adjacencyOf({ substrate: path })
+
       equal(view.size, 4, 'size')
       equal(
         view.outDegree({ node: 1 }),
@@ -74,11 +76,13 @@ suite('tool/substrate: out-adjacency view', [
   ),
   check('directed graph counts only outgoing arcs', () => {
     const view = adjacencyOf({ substrate: directed })
+
     equal(view.outDegree({ node: 0 }), 1, '0 -> 1 is one out-arc')
     equal(view.outDegree({ node: 1 }), 0, '1 has no out-arc')
   }),
   check('poset out-adjacency follows the covering links', () => {
     const view = adjacencyOf({ substrate: poset })
+
     equal(view.outDegree({ node: 0 }), 2, '0 covers two elements')
     exactArray(collectOut(poset, 0), [1, 2], 'covers of 0')
     equal(view.outDegree({ node: 2 }), 0, 'top element covers nothing')
@@ -90,17 +94,20 @@ suite('tool/substrate: undirected adjacency', [
     'an undirected graph keeps its symmetric lists (deduped, sorted)',
     () => {
       const adj = undirectedAdjacency({ substrate: path })
+
       exactArray(adj[1]!, [0, 2], 'node 1')
       exactArray(adj[3]!, [2], 'endpoint')
     },
   ),
   check('a directed graph gets symmetrised', () => {
     const adj = undirectedAdjacency({ substrate: directed })
+
     exactArray(adj[0]!, [1], '0 keeps its arc')
     exactArray(adj[1]!, [0], '1 gains the reverse')
   }),
   check('a poset is symmetrised over its links', () => {
     const adj = undirectedAdjacency({ substrate: poset })
+
     exactArray(adj[0]!, [1, 2], 'down-set of 0')
     exactArray(adj[1]!, [0, 2], 'links both ways at 1')
     exactArray(adj[2]!, [0, 1], 'top sees its two predecessors')
@@ -115,6 +122,7 @@ suite('tool/substrate: mean degree', [
       6 / 4,
       'path mean out-degree',
     )
+
     // directed out-degrees 1+0 = 1 over 2 nodes.
     equal(
       substrateMeanDegree({ substrate: directed }),
@@ -129,11 +137,13 @@ suite('tool/substrate: mean degree', [
       1,
       'symmetrised mean degree',
     )
+
     ok(
       substrateUndirectedMeanDegree({ substrate: directed }) !==
         substrateMeanDegree({ substrate: directed }),
       'symmetrising changes the directed mean degree',
     )
+
     // poset symmetrised degrees: 2 + 2 + 2 = 6 over 3 -> 2.
     equal(
       substrateUndirectedMeanDegree({ substrate: poset }),

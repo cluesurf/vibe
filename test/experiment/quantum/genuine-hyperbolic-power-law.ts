@@ -69,9 +69,8 @@ export default experiment({
 
     let maxDepth = 0
 
-    for (let cell = 0; cell < size; cell++) {
+    for (let cell = 0; cell < size; cell++)
       maxDepth = Math.max(maxDepth, depth[cell] ?? 0)
-    }
 
     const band = new Set<number>()
 
@@ -79,17 +78,14 @@ export default experiment({
       if (
         (depth[cell] ?? -1) > maxDepth - 2 &&
         (neighbors[cell] ?? []).length >= fullDegree - 2
-      ) {
+      )
         band.add(cell)
-      }
     }
 
     const { offsets, adj } = toCsr(neighbors)
     const allowed = new Float64Array(size)
 
-    for (const cell of band) {
-      allowed[cell] = 1
-    }
+    for (const cell of band) allowed[cell] = 1
 
     const anchors = [...band]
       .filter((_, i) => i % 40 === 0)
@@ -131,9 +127,8 @@ export default experiment({
           withinCusp < 1 ||
           throughBulk < 1 ||
           throughBulk > 2 * CONE_DEPTH
-        ) {
+        )
           continue
-        }
 
         const coneB = backwardCone({
           neighbors,
@@ -152,9 +147,7 @@ export default experiment({
 
         const eta = coneA.size > 0 ? shared / coneA.size : 0
 
-        if (eta > 0) {
-          samples.push({ withinCusp, throughBulk, eta })
-        }
+        if (eta > 0) samples.push({ withinCusp, throughBulk, eta })
       }
     }
 
@@ -162,9 +155,7 @@ export default experiment({
     const byBulk = new Map<number, number[]>()
 
     for (const s of samples) {
-      if (!byBulk.has(s.throughBulk)) {
-        byBulk.set(s.throughBulk, [])
-      }
+      if (!byBulk.has(s.throughBulk)) byBulk.set(s.throughBulk, [])
 
       byBulk.get(s.throughBulk)!.push(s.eta)
     }
@@ -188,9 +179,7 @@ export default experiment({
     const byCusp = new Map<number, number[]>()
 
     for (const s of samples) {
-      if (!byCusp.has(s.withinCusp)) {
-        byCusp.set(s.withinCusp, [])
-      }
+      if (!byCusp.has(s.withinCusp)) byCusp.set(s.withinCusp, [])
 
       byCusp.get(s.withinCusp)!.push(s.throughBulk)
     }

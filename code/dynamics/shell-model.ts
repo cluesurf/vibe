@@ -41,9 +41,8 @@ export function goyShellSpectrum(input: {
       if (nonlinear) {
         let nl: Complex = [0, 0]
 
-        if (i + 2 < n) {
+        if (i + 2 < n)
           nl = add(nl, scale(mul(u[i + 1]!, u[i + 2]!), k[i]!))
-        }
 
         if (i - 1 >= 0 && i + 1 < n) {
           nl = add(
@@ -66,11 +65,11 @@ export function goyShellSpectrum(input: {
       }
 
       const dissipation: Complex = scale(u[i]!, -nu * k[i]! * k[i]!)
+
       du[i] = add(advection, dissipation)
 
-      if (i === 1) {
-        du[i] = add(du[i]!, [0.01, 0.01])
-      } // constant forcing at a low shell
+      if (i === 1) du[i] = add(du[i]!, [0.01, 0.01])
+      // constant forcing at a low shell
     }
 
     return du
@@ -92,12 +91,12 @@ export function goyShellSpectrum(input: {
     const d1 = derivative(u)
     const mid = u.map((ui, i) => add(ui, scale(d1[i]!, dt / 2)))
     const d2 = derivative(mid)
+
     u = u.map((ui, i) => add(ui, scale(d2[i]!, dt)))
 
     if (step > transient && step % 100 === 0) {
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         energy[i]! += u[i]![0] ** 2 + u[i]![1] ** 2
-      }
 
       samples++
     }

@@ -18,9 +18,7 @@ function frobenius(a: number[][], b: number[][]): number {
   let s = 0
 
   for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      s += a[i]![j]! * b[i]![j]!
-    }
+    for (let j = 0; j < 3; j++) s += a[i]![j]! * b[i]![j]!
   }
 
   return s
@@ -29,9 +27,7 @@ function frobenius(a: number[][], b: number[][]): number {
 function euclid(a: number[], b: number[]): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += a[i]! * b[i]!
-  }
+  for (let i = 0; i < a.length; i++) s += a[i]! * b[i]!
 
   return s
 }
@@ -63,9 +59,8 @@ suite('algebra/linear/voigt: encoding and round-trip', [
   check('voigtToSymmetricTensor inverts symmetricTensorToVoigt', () => {
     const back = voigtToSymmetricTensor(symmetricTensorToVoigt(S))
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++)
       closeArray(back[i]!, S[i]!, 1e-12, `row ${i}`)
-    }
   }),
 ])
 
@@ -83,6 +78,7 @@ suite('algebra/linear/voigt: energy preservation', [
   ),
   check('self inner product equals the Frobenius norm squared', () => {
     const v = symmetricTensorToVoigt(S)
+
     close(euclid(v, v), frobenius(S, S), 1e-9, '|voigt S|^2 = |S|_F^2')
   }),
 ])

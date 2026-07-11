@@ -44,9 +44,11 @@ function measureFrontSpeed(input: {
   const beats = Math.floor(side / 2) - 10
 
   const reference = makeWill(mesh)
+
   pairGasFill({ will: reference, pairFill: PAIR_FILL })
 
   const bumped = makeWill(mesh)
+
   pairGasFill({ will: bumped, pairFill: PAIR_FILL })
   addDensitySlab({ will: bumped, side, center, halfWidth })
 

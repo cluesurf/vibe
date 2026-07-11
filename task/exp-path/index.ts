@@ -13,7 +13,10 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const packageRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../..',
+)
 const CODE_PATTERN = /^E-[A-Z]{3}-\d{4}$/
 
 // Map every experiment code to its source file, read from the registry. The code is the
@@ -31,17 +34,14 @@ export function loadExperimentPaths(): Map<string, string> {
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i]!.trim()
 
-    if (!line) {
-      continue
-    }
+    if (!line) continue
 
     const parts = line.split(',')
     const code = parts[0]!.trim()
     const file = parts[parts.length - 1]!.trim()
 
-    if (CODE_PATTERN.test(code) && file.endsWith('.ts')) {
+    if (CODE_PATTERN.test(code) && file.endsWith('.ts'))
       map.set(code, file)
-    }
   }
 
   return map
@@ -67,15 +67,11 @@ if (isMain) {
     file: paths.get(code) ?? null,
   }))
 
-  if (values.json) {
-    console.log(JSON.stringify(results, null, 2))
-  } else {
-    for (const { code, file } of results) {
+  if (values.json) console.log(JSON.stringify(results, null, 2))
+  else {
+    for (const { code, file } of results)
       console.log(file ? `${code}\t${file}` : `${code}\t(unknown)`)
-    }
   }
 
-  if (results.some(result => !result.file)) {
-    process.exit(1)
-  }
+  if (results.some(result => !result.file)) process.exit(1)
 }

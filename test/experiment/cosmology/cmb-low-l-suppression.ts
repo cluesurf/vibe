@@ -81,17 +81,14 @@ export default experiment({
     let hyperbolicRecedes = true
 
     for (let i = 1; i < hyperbolicGaps.length; i++) {
-      if (hyperbolicGaps[i]! > hyperbolicGaps[i - 1]! - 1e-9) {
+      if (hyperbolicGaps[i]! > hyperbolicGaps[i - 1]! - 1e-9)
         hyperbolicRecedes = false
-      }
     }
 
     let flatRecedes = true
 
     for (let i = 1; i < flatGaps.length; i++) {
-      if (flatGaps[i]! > flatGaps[i - 1]! - 1e-9) {
-        flatRecedes = false
-      }
+      if (flatGaps[i]! > flatGaps[i - 1]! - 1e-9) flatRecedes = false
     }
 
     // the honest negative: the hyperbolic gap does NOT persist (largest-size gap well below the

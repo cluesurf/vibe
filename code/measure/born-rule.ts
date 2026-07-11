@@ -35,6 +35,7 @@ export function quadratureAdditivityResidual(
     const a1 = Math.sqrt(n1)
     const a2 = Math.sqrt(n2)
     const merged = Math.sqrt(n1 + n2)
+
     maxRes = Math.max(
       maxRes,
       Math.abs(merged * merged - (a1 * a1 + a2 * a2)),
@@ -61,6 +62,7 @@ export function exponentResidual(input: {
     const a2 = rng.next() + 0.05
     const lhs = Math.pow(a1 * a1 + a2 * a2, input.p / 2)
     const rhs = Math.pow(a1, input.p) + Math.pow(a2, input.p)
+
     maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / (rhs || 1))
   }
 

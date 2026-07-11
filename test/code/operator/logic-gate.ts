@@ -30,6 +30,7 @@ suite('operator/logic-gate: gate truth tables', [
       for (const b of BITS) {
         const an = a === 1
         const bn = b === 1
+
         equal(nand(a, b), an && bn ? -1 : 1, `nand(${a},${b})`)
         equal(and(a, b), an && bn ? 1 : -1, `and(${a},${b})`)
         equal(or(a, b), an || bn ? 1 : -1, `or(${a},${b})`)
@@ -48,6 +49,7 @@ suite('operator/logic-gate: full adder', [
         for (const cin of BITS) {
           const total = bitToNum(a) + bitToNum(b) + bitToNum(cin)
           const { sum, carry } = fullAdder(a, b, cin)
+
           equal(bitToNum(sum), total & 1, `sum bit of ${total}`)
           equal(bitToNum(carry), total >> 1, `carry bit of ${total}`)
         }
@@ -67,9 +69,11 @@ suite('operator/logic-gate: toffoli', [
         const y = (s >> 1) & 1
         const z = s & 1
         const [ox, oy, oz] = toffoli(x, y, z)
+
         seen.add((ox << 2) | (oy << 1) | oz)
 
         const [bx, by, bz] = toffoli(ox, oy, oz)
+
         equal(
           (bx << 2) | (by << 1) | bz,
           s,
@@ -86,11 +90,13 @@ suite('operator/logic-gate: toffoli', [
       '1,1,1',
       'controls high -> flip 0 to 1',
     )
+
     equal(
       toffoli(1, 1, 1).join(','),
       '1,1,0',
       'controls high -> flip 1 to 0',
     )
+
     equal(
       toffoli(1, 0, 0).join(','),
       '1,0,0',
@@ -116,6 +122,7 @@ suite('operator/logic-gate: arbitrary functions', [
         const l: Bit = (p >> 2) & 1 ? 1 : -1
         const c: Bit = (p >> 1) & 1 ? 1 : -1
         const r: Bit = p & 1 ? 1 : -1
+
         equal(f(l, c, r) === 1 ? 1 : 0, table[p]!, `majority at p=${p}`)
       }
     },
@@ -131,6 +138,7 @@ suite('operator/logic-gate: Wolfram elementary rules', [
     for (let i = 0; i < width; i++) {
       const l = line[(i - 1 + width) % width]!
       const r = line[(i + 1) % width]!
+
       equal(next[i], l ^ r, `rule 90 at ${i}`)
     }
   }),
@@ -143,6 +151,7 @@ suite('operator/logic-gate: Wolfram elementary rules', [
       const l = line[(i - 1 + width) % width]!
       const c = line[i]!
       const r = line[(i + 1) % width]!
+
       equal(
         next[i],
         (110 >> ((l << 2) | (c << 1) | r)) & 1,

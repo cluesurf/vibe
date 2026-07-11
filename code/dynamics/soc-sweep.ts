@@ -54,15 +54,14 @@ export function socEdgeSweep(input: {
     input
 
   const quietThreshold = input.quietThreshold ?? 0.12
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!

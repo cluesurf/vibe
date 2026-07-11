@@ -65,9 +65,7 @@ export default experiment({
     let monotone = true
 
     for (let i = 1; i < spreads.length; i++) {
-      if (spreads[i]! > spreads[i - 1]! + 1e-9) {
-        monotone = false
-      }
+      if (spreads[i]! > spreads[i - 1]! + 1e-9) monotone = false
     }
 
     // effort holds: the strongest re-imposition is much tighter than free diffusion

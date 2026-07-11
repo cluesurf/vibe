@@ -30,9 +30,7 @@ export function streamD4(input: {
     const o = occupancy[c]!
 
     for (let d = 0; d < D4_DIRECTIONS; d++) {
-      if ((o >> d) & 1) {
-        out[neigh[c]![d]!]! |= 1 << d
-      }
+      if ((o >> d) & 1) out[neigh[c]![d]!]! |= 1 << d
     }
   }
 
@@ -53,9 +51,7 @@ export function streamD4Inverse(input: {
     const o = occupancy[c]!
 
     for (let d = 0; d < D4_DIRECTIONS; d++) {
-      if ((o >> d) & 1) {
-        out[neigh[c]![opp[d]!]!]! |= 1 << d
-      }
+      if ((o >> d) & 1) out[neigh[c]![opp[d]!]!]! |= 1 << d
     }
   }
 
@@ -88,9 +84,7 @@ export function d4Count(occupancy: readonly number[]): number {
   return occupancy.reduce((s, o) => {
     let c = 0
 
-    for (let d = 0; d < D4_DIRECTIONS; d++) {
-      c += (o >> d) & 1
-    }
+    for (let d = 0; d < D4_DIRECTIONS; d++) c += (o >> d) & 1
 
     return s + c
   }, 0)
@@ -107,9 +101,7 @@ export function d4Momentum(input: {
   for (const o of occupancy) {
     for (let d = 0; d < D4_DIRECTIONS; d++) {
       if ((o >> d) & 1) {
-        for (let q = 0; q < 4; q++) {
-          m[q]! += roots[d]![q]!
-        }
+        for (let q = 0; q < 4; q++) m[q]! += roots[d]![q]!
       }
     }
   }

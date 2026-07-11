@@ -54,9 +54,7 @@ const TOTALISTIC = new Map<string, string>(
 export function dodecagridWeight(neighbours: string[]): number {
   let w = 0
 
-  for (const n of neighbours) {
-    w += RANK[n] ?? 0
-  }
+  for (const n of neighbours) w += RANK[n] ?? 0
 
   return w
 }

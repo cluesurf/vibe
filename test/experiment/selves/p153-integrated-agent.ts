@@ -22,16 +22,12 @@ function multiBarrier(
   const width = L / (B * 4)
   const dips: number[] = []
 
-  for (let k = 1; k <= B; k++) {
-    dips.push((k * L) / (B + 1))
-  }
+  for (let k = 1; k <= B; k++) dips.push((k * L) / (B + 1))
 
   for (let p = 0; p <= L; p++) {
     let v = p / L // overall rising trend, global max at the goal (p=L)
 
-    for (const d of dips) {
-      v -= amp * Math.exp(-(((p - d) / width) ** 2))
-    }
+    for (const d of dips) v -= amp * Math.exp(-(((p - d) / width) ** 2))
 
     V[p] = v
   }
@@ -49,9 +45,7 @@ function greedyRollout(V: number[], from: number): number {
     const up = pos < L ? V[pos + 1]! : -Infinity
     const down = pos > 0 ? V[pos - 1]! : -Infinity
 
-    if (up <= V[pos]! && down <= V[pos]!) {
-      break
-    }
+    if (up <= V[pos]! && down <= V[pos]!) break
 
     pos += up >= down ? 1 : -1
   }
@@ -109,15 +103,12 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
   let replans = 0
 
   for (let iter = 0; iter < 2 * B + 4; iter++) {
-    if (pos >= goal - 1) {
-      break
-    }
+    if (pos >= goal - 1) break
 
     const planned = planStep(V, pos, horizon)
 
-    if (planned <= pos) {
-      break
-    } // no push within the horizon helps, genuinely stuck
+    if (planned <= pos) break
+    // no push within the horizon helps, genuinely stuck
 
     pos = greedyRollout(V, planned)
     replans++

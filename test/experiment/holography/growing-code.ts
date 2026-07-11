@@ -62,39 +62,29 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   let R = 0
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! > R) {
-      R = dist[i]!
-    }
+    if (dist[i]! > R) R = dist[i]!
   }
 
   const core: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! <= 1) {
-      core.push(i)
-    }
+    if (dist[i]! <= 1) core.push(i)
   }
 
   const shellCells: number[][] = Array.from({ length: R + 1 }, () => [])
 
-  for (let i = 0; i < N; i++) {
-    shellCells[dist[i]!]!.push(i)
-  }
+  for (let i = 0; i < N; i++) shellCells[dist[i]!]!.push(i)
 
   // run the encoder for both logical values, clamping the core as a persistent source
   const encode = (bit: 1 | -1): Int8Array => {
     const tone = new Int8Array(N)
 
     for (let t = 0; t < beats; t++) {
-      for (const i of core) {
-        tone[i] = bit
-      }
+      for (const i of core) tone[i] = bit
 
       hopBeat(tone, eu, ev, moved, t)
 
-      for (const i of core) {
-        tone[i] = bit
-      }
+      for (const i of core) tone[i] = bit
     }
 
     return tone
@@ -122,9 +112,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
       let sum = 0
 
       for (let i = 0; i < cells.length; i++) {
-        if (((i + t * 137) * GOLDEN) % 1 >= f) {
-          sum += tone[cells[i]!]!
-        }
+        if (((i + t * 137) * GOLDEN) % 1 >= f) sum += tone[cells[i]!]!
       }
 
       if (Math.sign(sum) === bit) {
@@ -148,9 +136,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
           recoverRate(cells, toneNeg, -1, f)) /
         2
 
-      if (rate >= 0.85) {
-        best = f
-      }
+      if (rate >= 0.85) best = f
     }
 
     return best
@@ -167,9 +153,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   for (let r = 2; r <= R - 1; r++) {
     const cells = shellCells[r]!
 
-    if (cells.length < 20) {
-      continue
-    }
+    if (cells.length < 20) continue
 
     let nz = 0
 
@@ -193,9 +177,8 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   let monotonic = true
 
   for (let i = 1; i < shells.length; i++) {
-    if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9) {
+    if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9)
       monotonic = false
-    }
   }
 
   const first = shells[0]

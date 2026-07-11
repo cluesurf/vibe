@@ -36,15 +36,15 @@ function maxResidual(input: {
     for (let k = 0; k < dimension; k++) {
       for (const s of [-1, 1]) {
         const cc = c.slice()
+
         cc[k]! += s
 
-        if (cc[k]! >= 0 && cc[k]! < side) {
-          v -= x[idx(cc)] ?? 0
-        }
+        if (cc[k]! >= 0 && cc[k]! < side) v -= x[idx(cc)] ?? 0
       }
     }
 
     const b = i === centerIdx ? 1 : 0
+
     worst = Math.max(worst, Math.abs(v - b))
   }
 
@@ -105,12 +105,14 @@ suite(
 
         const mid = side >> 1
         const atCenter = x[idx([mid, mid])] ?? 0
+
         ok(atCenter > 0, 'center potential positive')
 
         // along +x from the centre to the wall, the potential strictly decreases.
         for (let d = 0; mid + d + 1 < side; d++) {
           const here = x[idx([mid + d, mid])] ?? 0
           const next = x[idx([mid + d + 1, mid])] ?? 0
+
           ok(here > next - 1e-12, `decay at offset ${d}`)
         }
       },

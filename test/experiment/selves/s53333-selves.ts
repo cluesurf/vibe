@@ -26,6 +26,7 @@ export function s53333Selves(): {
       Math.PI * (1 - 1 / (1 + (((i + 1.5) / samples) * 6) ** 2))
 
     const df = fNext - f
+
     charge += (2 / Math.PI) * Math.sin(f) ** 2 * df // d/df of (f - sin f cos f)/pi integrated = winding density
   }
 

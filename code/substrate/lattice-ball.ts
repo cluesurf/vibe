@@ -59,9 +59,7 @@ export function latticeWordDistance(input: {
 }): number {
   const { a, b, generators, cap } = input
 
-  if (key(a) === key(b)) {
-    return 0
-  }
+  if (key(a) === key(b)) return 0
 
   const seen = new Set([key(a)])
 
@@ -75,9 +73,7 @@ export function latticeWordDistance(input: {
         const q = add(p, g)
         const k = key(q)
 
-        if (k === key(b)) {
-          return r
-        }
+        if (k === key(b)) return r
 
         if (!seen.has(k)) {
           seen.add(k)

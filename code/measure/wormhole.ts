@@ -21,9 +21,7 @@ const abs2 = (a: Complex): number => a[0] * a[0] + a[1] * a[1]
 
 // The binary entropy of a probability p.
 function binaryEntropy(p: number): number {
-  if (p <= 0 || p >= 1) {
-    return 0
-  }
+  if (p <= 0 || p >= 1) return 0
 
   return -p * Math.log2(p) - (1 - p) * Math.log2(1 - p)
 }
@@ -75,6 +73,7 @@ export function teleportationFidelity(input: {
     const q0 = (i >> 2) & 1
     const q1 = (i >> 1) & 1
     const q2 = i & 1
+
     afterCnot[(q0 << 2) | ((q1 ^ q0) << 1) | q2] = amplitude[i]!
   }
 
@@ -84,10 +83,12 @@ export function teleportationFidelity(input: {
     const q0 = (i >> 2) & 1
     const rest = i & 3
     const sign = q0 === 0 ? 1 : -1
+
     afterHadamard[rest] = add(afterHadamard[rest]!, [
       afterCnot[i]![0] * invSqrt2,
       afterCnot[i]![1] * invSqrt2,
     ])
+
     afterHadamard[(1 << 2) | rest] = add(
       afterHadamard[(1 << 2) | rest]!,
       [
@@ -108,9 +109,7 @@ export function teleportationFidelity(input: {
       const branch1 = amplitude[(m0 << 2) | (m1 << 1) | 1]!
       const probability = abs2(branch0) + abs2(branch1)
 
-      if (probability < 1e-12) {
-        continue
-      }
+      if (probability < 1e-12) continue
 
       let corrected0 = branch0
       let corrected1 = branch1
@@ -119,13 +118,12 @@ export function teleportationFidelity(input: {
         // apply X^m1 then Z^m0 to undo the teleportation byproduct
         if (m1) {
           const swap = corrected0
+
           corrected0 = corrected1
           corrected1 = swap
         }
 
-        if (m0) {
-          corrected1 = [-corrected1[0], -corrected1[1]]
-        }
+        if (m0) corrected1 = [-corrected1[0], -corrected1[1]]
       }
 
       const overlap = add(

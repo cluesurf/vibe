@@ -38,14 +38,14 @@ function evolve(
 
   for (let i = 0; i < N; i++) {
     const r = ((i + 1) * GOLDEN) % 1
+
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
 
   const moved = new Uint8Array(N)
 
-  for (let t = 0; t < beats; t++) {
+  for (let t = 0; t < beats; t++)
     beatHashed(tone, g, moved, t, 0.01, 0.22)
-  }
 
   return tone
 }
@@ -74,9 +74,7 @@ export function rarityMeasures(input?: { L?: number }): {
 
   let totalCharge = 0
 
-  for (const c of clusters) {
-    totalCharge += c.length
-  }
+  for (const c of clusters) totalCharge += c.length
 
   let phiTailMass = 0
   let lowPhiMass = 0
@@ -85,21 +83,15 @@ export function rarityMeasures(input?: { L?: number }): {
   const aliveCells: number[] = []
 
   for (const c of clusters) {
-    for (const u of c) {
-      matterCells.push(u)
-    }
+    for (const u of c) matterCells.push(u)
 
     const phi = clusterIntegration(c, g)
 
     if (phi >= phiAlive && c.length >= 6) {
       phiTailMass += c.length
 
-      for (const u of c) {
-        aliveCells.push(u)
-      }
-    } else if (phi < 0.3) {
-      lowPhiMass += c.length
-    }
+      for (const u of c) aliveCells.push(u)
+    } else if (phi < 0.3) lowPhiMass += c.length
   }
 
   const phiTailFraction =
@@ -134,9 +126,8 @@ export function rarityMeasures(input?: { L?: number }): {
     for (const c of cs) {
       charge += c.length
 
-      if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive) {
+      if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive)
         condensed += c.length
-      }
     }
 
     condensedByDensity.push(charge > 0 ? condensed / charge : 0)
@@ -146,11 +137,8 @@ export function rarityMeasures(input?: { L?: number }): {
   let thresholdDensity = densities[densities.length - 1]!
 
   for (let i = 0; i < densities.length; i++) {
-    if (condensedByDensity[i]! < 0.02) {
-      thresholdDensity = densities[i]!
-    } else {
-      break
-    }
+    if (condensedByDensity[i]! < 0.02) thresholdDensity = densities[i]!
+    else break
   }
 
   const maxCondensed = Math.max(...condensedByDensity)

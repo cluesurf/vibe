@@ -32,9 +32,7 @@ function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
   const n = g.size
   const seeds = new Set<number>()
 
-  while (seeds.size < Math.min(K, n)) {
-    seeds.add(rng.nextInt({ max: n }))
-  }
+  while (seeds.size < Math.min(K, n)) seeds.add(rng.nextInt({ max: n }))
 
   const cl = new Int32Array(n).fill(-1)
 
@@ -83,21 +81,16 @@ function modelFidelity(
   const blocks = cl.reduce((m, c) => Math.max(m, c), 0) + 1
   const sum = new Float64Array(blocks)
 
-  for (let v = 0; v < g.size; v++) {
+  for (let v = 0; v < g.size; v++)
     sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
-  }
 
   const summary = new Int8Array(blocks)
 
-  for (let c = 0; c < blocks; c++) {
-    summary[c] = sign(sum[c] ?? 0)
-  }
+  for (let c = 0; c < blocks; c++) summary[c] = sign(sum[c] ?? 0)
 
   const recon = new Int8Array(g.size)
 
-  for (let v = 0; v < g.size; v++) {
-    recon[v] = summary[cl[v] ?? 0] ?? 0
-  }
+  for (let v = 0; v < g.size; v++) recon[v] = summary[cl[v] ?? 0] ?? 0
 
   return agreementFraction(base, recon)
 }
@@ -126,9 +119,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
 
   let base = new Int8Array(g.size)
 
-  for (let i = 0; i < g.size; i++) {
-    base[i] = rng.nextInt({ max: 3 }) - 1
-  }
+  for (let i = 0; i < g.size; i++) base[i] = rng.nextInt({ max: 3 }) - 1
 
   for (let b = 0; b < 200; b++) {
     base = signedMajorityStep({

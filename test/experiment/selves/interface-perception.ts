@@ -50,9 +50,8 @@ function fitnessLevel(
 ): (state: number) => number {
   let maximum = 0
 
-  for (let s = 0; s < WORLD_STATES; s++) {
+  for (let s = 0; s < WORLD_STATES; s++)
     maximum = Math.max(maximum, fitness(s))
-  }
 
   return (state: number) =>
     Math.min(
@@ -73,10 +72,12 @@ function mutualInformation(
   for (let s = 0; s < WORLD_STATES; s++) {
     const c = category(s)
     const f = level(s)
+
     joint.set(
       `${c},${f}`,
       (joint.get(`${c},${f}`) ?? 0) + 1 / WORLD_STATES,
     )
+
     marginalCategory.set(
       c,
       (marginalCategory.get(c) ?? 0) + 1 / WORLD_STATES,
@@ -88,6 +89,7 @@ function mutualInformation(
 
   for (const [key, probability] of joint) {
     const [c, f] = key.split(',').map(Number) as [number, number]
+
     information +=
       probability *
       Math.log2(

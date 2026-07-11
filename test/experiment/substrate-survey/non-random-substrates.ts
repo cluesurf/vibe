@@ -105,6 +105,7 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
 
   for (const [name, s] of Object.entries(builders)) {
     const e = evaluate(s, input.seed + 1)
+
     out[name] = { ...e, lorentzSafe: e.anisotropy < 0.25 }
   }
 

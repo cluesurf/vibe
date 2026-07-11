@@ -18,9 +18,7 @@ import { Will } from '@/code/tone/will'
 export function chargeConjugate(will: Will): Will {
   const data = new Int8Array(will.data.length)
 
-  for (let i = 0; i < data.length; i++) {
-    data[i] = -(will.data[i] ?? 0)
-  }
+  for (let i = 0; i < data.length; i++) data[i] = -(will.data[i] ?? 0)
 
   return { mesh: will.mesh, data }
 }
@@ -61,6 +59,7 @@ export function parityReflect(input: {
   // the direction permutation under the reflection of the chosen axis
   const reflectedDirection = directions.map(v => {
     const w = [...v]
+
     w[axis] = -w[axis]!
 
     return directionIndex.get(key(w))!

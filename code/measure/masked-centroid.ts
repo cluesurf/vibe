@@ -29,18 +29,14 @@ export function maskedClusterCentroidX(input: {
   for (let c = 0; c < masked.length; c++) {
     const x = c % side
 
-    if (x < margin || x >= side - margin) {
-      masked[c] = 0
-    }
+    if (x < margin || x >= side - margin) masked[c] = 0
   }
 
   const cells = largestPositiveCluster(masked, graph)
 
   let s = 0
 
-  for (const c of cells) {
-    s += c % side
-  }
+  for (const c of cells) s += c % side
 
   return cells.length > 0 ? s / cells.length : side / 2
 }
@@ -64,14 +60,13 @@ export function maskedWillCentroidX(input: {
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const x = cell % side
 
-    if (x < maskLow || x >= side - maskHigh) {
-      continue
-    }
+    if (x < maskLow || x >= side - maskHigh) continue
 
     let mass = 0
 
     for (let d = 0; d < degree; d++) {
       const t = data[cell * degree + d] ?? 0
+
       mass += t === 0 ? 0 : 1
     }
 

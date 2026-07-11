@@ -33,11 +33,8 @@ function distanceToGoal(env: Int8Array): number {
 function worldStep(env: Int8Array, beat: number): void {
   for (let i = 0; i < env.length; i++) {
     if ((i + beat) % 8 === 0) {
-      if (env[i]! > 0) {
-        env[i] = env[i]! - 1
-      } else if (env[i]! < 0) {
-        env[i] = env[i]! + 1
-      }
+      if (env[i]! > 0) env[i] = env[i]! - 1
+      else if (env[i]! < 0) env[i] = env[i]! + 1
     }
   }
 }
@@ -52,9 +49,7 @@ function act(
   effort: number,
   agent: Agent,
 ): void {
-  if (agent === 'none' || effort <= 0) {
-    return
-  }
+  if (agent === 'none' || effort <= 0) return
 
   const m = env.length
   const offset = (beat * 13) % m
@@ -96,9 +91,7 @@ export function runTrajectory(input: {
   const distanceOverTime: number[] = []
 
   for (let beat = 0; beat < input.beats; beat++) {
-    if (input.steered) {
-      act(env, beat, input.effort, input.agent)
-    }
+    if (input.steered) act(env, beat, input.effort, input.agent)
 
     worldStep(env, beat)
     distanceOverTime.push(distanceToGoal(env))

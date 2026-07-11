@@ -16,10 +16,12 @@ import { icosahedralFacePermutationDecomposition } from '@/code/algebra/group/ic
 suite('algebra/group/icosahedral: A5 and the 12-vertex perm rep', [
   check('the generated rotation group has order 60 (= |A5|)', () => {
     const { groupOrder } = icosahedralFacePermutationDecomposition()
+
     equal(groupOrder, 60, '|icosahedral rotation group| = 60')
   }),
   check('the 12-vertex rep decomposes as 1 + 3 + 3prime + 5', () => {
     const { multiplicities } = icosahedralFacePermutationDecomposition()
+
     equal(multiplicities['1'], 1, 'trivial once')
     equal(multiplicities['3'], 1, '3 once')
     equal(multiplicities["3'"], 1, "3' once")
@@ -45,6 +47,7 @@ suite('algebra/group/icosahedral: A5 and the 12-vertex perm rep', [
   }),
   check('the absence of the 4-rep is reported as no spinor', () => {
     const { noSpinor } = icosahedralFacePermutationDecomposition()
+
     ok(noSpinor, 'a linear 12-direction rep cannot carry spin')
   }),
 ])

@@ -24,6 +24,7 @@ export function bellNonlocality(): {
       for (const b0 of [1, -1]) {
         for (const b1 of [1, -1]) {
           const chsh = a0 * b0 + a0 * b1 + a1 * b0 - a1 * b1
+
           localMax = Math.max(localMax, Math.abs(chsh))
         }
       }

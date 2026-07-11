@@ -11,9 +11,7 @@ export type FluidComponent = { rho: number; w: number }
 function hubble(rhos: number[]): number {
   let tot = 0
 
-  for (const r of rhos) {
-    tot += r
-  }
+  for (const r of rhos) tot += r
 
   return Math.sqrt(Math.max(0, tot))
 }
@@ -76,6 +74,7 @@ export function integrateFriedmann(input: {
   while (time <= input.tMax) {
     let rt = 0
     let pt = 0
+
     rhos.forEach((r, i) => {
       rt += r
       pt += (input.comps[i]?.w ?? 0) * r

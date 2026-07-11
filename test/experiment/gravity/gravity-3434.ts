@@ -27,9 +27,7 @@ function measure(
   const boundary = boundaryByRadius({ radii: rad, fraction: 0.9 })
   const isB = new Uint8Array(N)
 
-  for (const b of boundary) {
-    isB[b] = 1
-  }
+  for (const b of boundary) isB[b] = 1
 
   const src = boundary[0]!
   const p = clampedLeakyDiffusion({
@@ -52,9 +50,7 @@ function measure(
   const pts: [number, number][] = []
 
   for (const b of boundary) {
-    if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) {
-      continue
-    }
+    if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) continue
 
     pts.push([dist[b]!, p[b]!])
   }

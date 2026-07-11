@@ -100,6 +100,7 @@ suite(
           1e-12,
           'no enhancement',
         )
+
         ok(
           qcdRunningMassFactor({ ...common }) > 1,
           'colour enhances the running mass',

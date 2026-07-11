@@ -28,9 +28,7 @@ export default experiment({
     for (let term = 0; term < terms; term++) {
       const cell = cellHash(term * 1009 + 7, boundaryCells)
 
-      if (slot[cell] !== -1) {
-        collisions += 1
-      }
+      if (slot[cell] !== -1) collisions += 1
 
       slot[cell] = term
     }

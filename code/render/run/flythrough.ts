@@ -30,9 +30,8 @@ async function run(): Promise<void> {
   const inside = mode !== 'dive'
   const symbol = arg.split('-').map(Number)
 
-  if (symbol.length < 3) {
+  if (symbol.length < 3)
     throw new Error('flythrough is for 3D honeycombs, e.g. 5-3-4')
-  }
 
   const adapter = await navigator.gpu.requestAdapter()
 
@@ -81,6 +80,7 @@ async function run(): Promise<void> {
     })
 
     const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
+
     frames.push(rgba)
 
     if (frame === 0 || frame === Math.floor(FRAMES / 2)) {

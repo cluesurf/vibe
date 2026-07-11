@@ -31,9 +31,7 @@ export function freeFermionCorrelationMatrix(input: {
     for (let i = 0; i < n; i++) {
       const vik = eig.vectors[i * n + k] ?? 0
 
-      if (vik === 0) {
-        continue
-      }
+      if (vik === 0) continue
 
       for (let j = 0; j < n; j++) {
         c[i * n + j] =
@@ -72,6 +70,7 @@ export function regionEntanglementEntropy(input: {
 
   for (let i = 0; i < m; i++) {
     const z = Math.min(1 - 1e-12, Math.max(1e-12, eig.values[i] ?? 0))
+
     s -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
   }
 
@@ -93,9 +92,7 @@ export function crossCutConnectivity(input: {
   let total = 0
 
   for (const i of regionA) {
-    for (const j of regionB) {
-      total += Math.abs(c[i * n + j] ?? 0)
-    }
+    for (const j of regionB) total += Math.abs(c[i * n + j] ?? 0)
   }
 
   return total
@@ -115,15 +112,14 @@ export function pageAverageEntropy(input: {
 
   if (m > n) {
     const t = m
+
     m = n
     n = t
   }
 
   let s = 0
 
-  for (let k = n + 1; k <= m * n; k++) {
-    s += 1 / k
-  }
+  for (let k = n + 1; k <= m * n; k++) s += 1 / k
 
   return s - (m - 1) / (2 * n)
 }

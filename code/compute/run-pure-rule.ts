@@ -52,6 +52,7 @@ function cpuBeat(
         w = edgeW[e]!
 
       const out = PERM[tone[v]! * 3 + tone[w]!]!
+
       tone[v] = Math.floor(out / 3)
       tone[w] = out % 3
     }
@@ -61,9 +62,7 @@ function cpuBeat(
 const charge = (t: Uint32Array): number => {
   let s = 0
 
-  for (const value of t) {
-    s += value === 1 ? 1 : value === 2 ? -1 : 0
-  }
+  for (const value of t) s += value === 1 ? 1 : value === 2 ? -1 : 0
 
   return s
 }
@@ -97,6 +96,7 @@ async function run(): Promise<void> {
   }
 
   const E = eu.length
+
   console.log(
     `built {5,3,4}, ${N.toLocaleString()} cells, ${E.toLocaleString()} edges`,
   )
@@ -120,9 +120,7 @@ async function run(): Promise<void> {
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
 
-    if (c > maxColor) {
-      maxColor = c
-    }
+    if (c > maxColor) maxColor = c
   }
 
   const C = maxColor + 1
@@ -135,9 +133,8 @@ async function run(): Promise<void> {
 
   const colorOffsets = new Array<number>(C + 1).fill(0)
 
-  for (let c = 0; c < C; c++) {
+  for (let c = 0; c < C; c++)
     colorOffsets[c + 1] = colorOffsets[c]! + counts[c]!
-  }
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
@@ -147,6 +144,7 @@ async function run(): Promise<void> {
   for (let i = 0; i < E; i++) {
     const c = color[i]!
     const at = cursor[c]!++
+
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
@@ -162,6 +160,7 @@ async function run(): Promise<void> {
 
   for (let i = 0; i < N; i++) {
     const x = nextR()
+
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
 
@@ -219,9 +218,7 @@ async function run(): Promise<void> {
       const start = colorOffsets[c]!,
         count = colorOffsets[c + 1]! - start
 
-      if (count === 0) {
-        continue
-      }
+      if (count === 0) continue
 
       device.queue.writeBuffer(
         params,
@@ -231,6 +228,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
+
       pass.setPipeline(pipeline)
       pass.setBindGroup(0, bind)
       pass.dispatchWorkgroups(Math.ceil(count / WORKGROUP))
@@ -240,9 +238,7 @@ async function run(): Promise<void> {
   }
 
   // (1) self-check vs CPU
-  for (let b = 0; b < CHECK_BEATS; b++) {
-    beatGpu()
-  }
+  for (let b = 0; b < CHECK_BEATS; b++) beatGpu()
 
   const staging = device.createBuffer({
     size: N * 4,
@@ -251,6 +247,7 @@ async function run(): Promise<void> {
 
   {
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
     device.queue.submit([enc.finish()])
   }
@@ -258,13 +255,13 @@ async function run(): Promise<void> {
   await staging.mapAsync(GPUMapMode.READ)
 
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
+
   staging.unmap()
 
   const cpu = seed.slice()
 
-  for (let b = 0; b < CHECK_BEATS; b++) {
+  for (let b = 0; b < CHECK_BEATS; b++)
     cpuBeat(cpu, edgeV, edgeW, colorOffsets)
-  }
 
   let mism = 0
 
@@ -277,6 +274,7 @@ async function run(): Promise<void> {
   console.log(
     `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mism} -> ${mism === 0 ? 'IDENTICAL' : 'FAIL'}`,
   )
+
   console.log(
     `charge conservation: start ${startCharge} -> after ${charge(gpuOut)} -> ${startCharge === charge(gpuOut) ? 'CONSERVED' : 'BROKEN'}`,
   )
@@ -288,16 +286,16 @@ async function run(): Promise<void> {
 
   const t0 = performance.now()
 
-  for (let b = 0; b < BENCH_BEATS; b++) {
-    beatGpu()
-  }
+  for (let b = 0; b < BENCH_BEATS; b++) beatGpu()
 
   await device.queue.onSubmittedWorkDone()
 
   const secs = (performance.now() - t0) / 1000
+
   console.log(
     `benchmark: ${N.toLocaleString()} cells, ${BENCH_BEATS} beats in ${secs.toFixed(2)}s, ${(BENCH_BEATS / secs).toFixed(0)} beats/sec, ${((BENCH_BEATS * E) / secs / 1e9).toFixed(2)} billion edge-updates/sec`,
   )
+
   console.log(
     mism === 0
       ? 'OK, the pure five-thing rule runs faithfully on the GPU at scale'
@@ -308,14 +306,13 @@ async function run(): Promise<void> {
   // one coarse level (BFS-tree ancestor). NOT physics, just the shape of the pattern the five things make.
   device.queue.writeBuffer(toneBuf, 0, seed)
 
-  for (let b = 0; b < 3000; b++) {
-    beatGpu()
-  }
+  for (let b = 0; b < 3000; b++) beatGpu()
 
   await device.queue.onSubmittedWorkDone()
 
   {
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
     device.queue.submit([enc.finish()])
   }
@@ -323,22 +320,20 @@ async function run(): Promise<void> {
   await staging.mapAsync(GPUMapMode.READ)
 
   const fin = new Uint32Array(staging.getMappedRange().slice(0))
+
   staging.unmap()
 
   const sign = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     sign[i] = fin[i] === 1 ? 1 : fin[i] === 2 ? -1 : 0
-  }
 
   const largestSameSign = (
     s: Int8Array,
   ): { largest: number; charged: number } => {
     const par = new Int32Array(N)
 
-    for (let i = 0; i < N; i++) {
-      par[i] = i
-    }
+    for (let i = 0; i < N; i++) par[i] = i
 
     const find = (x: number): number => {
       while (par[x] !== x) {
@@ -350,16 +345,12 @@ async function run(): Promise<void> {
     }
 
     for (let v = 0; v < N; v++) {
-      if (s[v] === 0) {
-        continue
-      }
+      if (s[v] === 0) continue
 
       for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
         const w = g.adj[p]!
 
-        if (w > v && s[w] === s[v]) {
-          par[find(v)] = find(w)
-        }
+        if (w > v && s[w] === s[v]) par[find(v)] = find(w)
       }
     }
 
@@ -368,26 +359,24 @@ async function run(): Promise<void> {
     let charged = 0
 
     for (let i = 0; i < N; i++) {
-      if (s[i] === 0) {
-        continue
-      }
+      if (s[i] === 0) continue
 
       charged++
 
       const r = find(i)
+
       sz.set(r, (sz.get(r) ?? 0) + 1)
     }
 
     let m = 0
 
-    for (const v of sz.values()) {
-      m = Math.max(m, v)
-    }
+    for (const v of sz.values()) m = Math.max(m, v)
 
     return { largest: m, charged }
   }
 
   const l0 = largestSameSign(sign)
+
   console.log(
     `L0 structure (descriptive): ${l0.charged.toLocaleString()} charged cells (${((100 * l0.charged) / N).toFixed(0)}%), largest same-sign blob ${l0.largest} cells (small = churn, no persistent selves, as P101)`,
   )

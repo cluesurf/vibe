@@ -41,9 +41,8 @@ suite('tool/gauge-field: edge key and construction', [
       )
       equal(field.link.length, 3, 'one link integer per directed edge')
 
-      for (const k of field.link) {
+      for (const k of field.link)
         equal(k, 0, 'every link starts at the identity element 0')
-      }
     },
   ),
   check('the identity field has zero phase on every traversal', () => {
@@ -56,6 +55,7 @@ suite('tool/gauge-field: edge key and construction', [
         1e-12,
         'forward',
       )
+
       close(
         linkPhase(field, { from: e.to, to: e.from }),
         0,
@@ -79,12 +79,14 @@ suite('tool/gauge-field: U(1) link phase', [
     field.link[idx] = 2
 
     const expected = (2 * Math.PI * 2) / q
+
     close(
       linkPhase(field, { from: e.from, to: e.to }),
       expected,
       1e-12,
       'forward phase 2*pi*k/q',
     )
+
     close(
       linkPhase(field, { from: e.to, to: e.from }),
       -expected,
@@ -94,6 +96,7 @@ suite('tool/gauge-field: U(1) link phase', [
   }),
   check('an absent edge carries zero phase', () => {
     const field = makeGaugeField({ graph, group: { form: 'u1', q: 4 } })
+
     // 0 and a nonexistent vertex 99: neither direction is stored.
     close(
       linkPhase(field, { from: 0, to: 99 }),

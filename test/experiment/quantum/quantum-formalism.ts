@@ -21,9 +21,8 @@ const evolve = evolveByEigendecomposition
 function norm(re: Float64Array, im: Float64Array): number {
   let s = 0
 
-  for (let i = 0; i < re.length; i++) {
+  for (let i = 0; i < re.length; i++)
     s += (re[i] ?? 0) ** 2 + (im[i] ?? 0) ** 2
-  }
 
   return s
 }
@@ -41,6 +40,7 @@ export function quantumFormalism(input: { n: number }): {
   // 1. Unitarity: norm of an evolving state at several times.
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
+
   re0[0] = 1 // start localized, norm 1
 
   const norms = [0, 2, 5, 9, 14].map(t =>
@@ -53,9 +53,11 @@ export function quantumFormalism(input: { n: number }): {
   // 2. Interference: two sources at opposite sides, evolve each, compare the
   // probability of the sum to the sum of the probabilities at a target site.
   const aRe = new Float64Array(n)
+
   aRe[0] = 1
 
   const bRe = new Float64Array(n)
+
   bRe[Math.floor(n / 2)] = 1
 
   const t = 6

@@ -60,9 +60,8 @@ export function effortResult(input: { m: number; beats: number }): {
     if (
       selfByEffort[i]!.finalDistance >
       selfByEffort[i - 1]!.finalDistance - 1e-9
-    ) {
+    )
       selfMonotone = false
-    }
   }
 
   // 2. zero effort is far worse than the highest effort (not "happens anyway")

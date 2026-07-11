@@ -56,6 +56,7 @@ function buildSvg(): string {
   // 12 spokes, centre to the outer ring (drawn first, behind)
   for (let i = 0; i < COUNT; i++) {
     const [ox, oy] = onCircle(R_OUT, angleDeg(i))
+
     parts.push(
       `<line x1="${CX}" y1="${CY}" x2="${ox.toFixed(2)}" y2="${oy.toFixed(2)}" ` +
         `stroke="${ZINC[300]}" stroke-width="1"/>`,
@@ -66,18 +67,17 @@ function buildSvg(): string {
   parts.push(
     `<circle cx="${CX}" cy="${CY}" r="${R_IN}" fill="none" stroke="${ZINC[400]}" stroke-width="1.4"/>`,
   )
+
   parts.push(
     `<circle cx="${CX}" cy="${CY}" r="${R_OUT}" fill="none" stroke="${ZINC[700]}" stroke-width="2.5"/>`,
   )
 
   // 12 inner ticks (lighter, smaller), then 12 outer ticks (dark, larger), on top
-  for (let i = 0; i < COUNT; i++) {
+  for (let i = 0; i < COUNT; i++)
     parts.push(tick(R_IN, angleDeg(i), 30, 11, ZINC[400]))
-  }
 
-  for (let i = 0; i < COUNT; i++) {
+  for (let i = 0; i < COUNT; i++)
     parts.push(tick(R_OUT, angleDeg(i), 46, 15, ZINC[800]))
-  }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">
   ${parts.join('\n  ')}

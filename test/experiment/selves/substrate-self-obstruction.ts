@@ -66,9 +66,7 @@ export default experiment({
         if (dist[c]! <= 2) {
           const base = c * degree
 
-          for (let d = 0; d < degree; d++) {
-            will.data[base + d] = 1
-          }
+          for (let d = 0; d < degree; d++) will.data[base + d] = 1
         }
       }
 
@@ -89,14 +87,13 @@ export default experiment({
         beatInto({ src: current, dst: scratch, table, collision })
 
         const swap = current
+
         current = scratch
         scratch = swap
 
         const ext = travelDistance({ will: current, start: center })
 
-        if (ext > maxExtent) {
-          maxExtent = ext
-        }
+        if (ext > maxExtent) maxExtent = ext
       }
 
       return maxExtent
@@ -109,6 +106,7 @@ export default experiment({
     const perturbationCone = (collision: Collision): number => {
       let plain = packet()
       let pert = cloneWill(packet())
+
       pert.data[center * degree + 0] =
         pert.data[center * degree + 0] === 1 ? -1 : 1
 
@@ -128,11 +126,13 @@ export default experiment({
         beatInto({ src: plain, dst: plainScratch, table, collision })
 
         const swapPlain = plain
+
         plain = plainScratch
         plainScratch = swapPlain
         beatInto({ src: pert, dst: pertScratch, table, collision })
 
         const swapPert = pert
+
         pert = pertScratch
         pertScratch = swapPert
 
@@ -148,9 +148,7 @@ export default experiment({
             }
           }
 
-          if (differs && dist[c]! > maxCone) {
-            maxCone = dist[c]!
-          }
+          if (differs && dist[c]! > maxCone) maxCone = dist[c]!
         }
       }
 

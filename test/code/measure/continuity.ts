@@ -12,6 +12,7 @@ import { passThrough } from '@/code/rule/collision'
 
 function patternWill() {
   const will = makeWill(d4Mesh({ side: 4 }))
+
   fillWillPattern(will)
 
   return will

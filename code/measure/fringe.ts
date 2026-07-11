@@ -12,15 +12,12 @@ export function fringeStatistics(input: {
   const { distribution: P, offset: off, width: W } = input
   const arr: number[] = []
 
-  for (let x = off % 2; x < W; x += 2) {
-    arr.push(P[x]!)
-  } // the populated parity
+  for (let x = off % 2; x < W; x += 2) arr.push(P[x]!)
+  // the populated parity
 
   let peak = 0
 
-  for (const v of arr) {
-    peak = Math.max(peak, v)
-  }
+  for (const v of arr) peak = Math.max(peak, v)
 
   let maxima = 0
   let nodes = 0

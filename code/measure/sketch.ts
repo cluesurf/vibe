@@ -8,6 +8,7 @@
 // uniformly across the slots.
 const mix = (key: number, salt: number, modulus: number): number => {
   let h = (key ^ Math.imul(salt + 1, 0x9e3779b9)) >>> 0
+
   h = Math.imul(h ^ (h >>> 16), 0x21f0aaad) >>> 0
   h = Math.imul(h ^ (h >>> 15), 0x735a2d97) >>> 0
   h = (h ^ (h >>> 15)) >>> 0
@@ -40,9 +41,7 @@ export function hashTableProbeStats(input: {
       probe += 1
     }
 
-    if (probe > 1) {
-      collisions += 1
-    }
+    if (probe > 1) collisions += 1
 
     slot[position] = key
     totalProbe += probe
@@ -63,9 +62,8 @@ export function bloomFalsePositiveRate(input: {
   const bits = new Uint8Array(input.cells)
 
   for (let key = 0; key < input.items; key++) {
-    for (let salt = 0; salt < input.hashes; salt++) {
+    for (let salt = 0; salt < input.hashes; salt++)
       bits[mix(key, salt, input.cells)] = 1
-    }
   }
 
   let falsePositives = 0
@@ -82,9 +80,7 @@ export function bloomFalsePositiveRate(input: {
       }
     }
 
-    if (allSet) {
-      falsePositives += 1
-    }
+    if (allSet) falsePositives += 1
   }
 
   return falsePositives / Math.max(1, input.queries)

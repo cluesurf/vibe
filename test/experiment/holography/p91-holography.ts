@@ -47,9 +47,7 @@ export function holography(): {
   const rim = [] as number[]
 
   for (let i = 0; i < n; i++) {
-    if ((radius[i] ?? 0) > 0.93 * rMax) {
-      rim.push(i)
-    }
+    if ((radius[i] ?? 0) > 0.93 * rMax) rim.push(i)
   }
 
   rim.sort((a, b) => (angle[a] ?? 0) - (angle[b] ?? 0))
@@ -69,17 +67,14 @@ export function holography(): {
     for (const r of rim) {
       let theta = Math.abs((angle[r] ?? 0) - (angle[a] ?? 0))
 
-      if (theta > Math.PI) {
-        theta = 2 * Math.PI - theta
-      }
+      if (theta > Math.PI) theta = 2 * Math.PI - theta
 
-      if (theta < 0.3) {
-        continue
-      }
+      if (theta < 0.3) continue
 
       const x = Math.log(Math.sin(theta / 2))
       const key = Math.round(x * 8) / 8
       const b = bins.get(key) ?? { sum: 0, count: 0 }
+
       b.sum += dist[r] ?? 0
       b.count++
       bins.set(key, b)
@@ -124,9 +119,7 @@ export function holography(): {
     let minR = radius[target] ?? rMax
 
     while (node !== -1) {
-      if ((radius[node] ?? rMax) < minR) {
-        minR = radius[node] ?? rMax
-      }
+      if ((radius[node] ?? rMax) < minR) minR = radius[node] ?? rMax
 
       node = parent[node]!
     }

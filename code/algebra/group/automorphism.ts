@@ -18,6 +18,7 @@ function reflectionMatrix(
 
   for (let k = 0; k < dimension; k++) {
     const basis = new Array<number>(dimension).fill(0)
+
     basis[k] = 1
     columns.push(reflectRoot(basis, root))
   }
@@ -39,9 +40,8 @@ function composeColumns(
     const image = new Array<number>(dimension).fill(0)
 
     for (let j = 0; j < dimension; j++) {
-      for (let i = 0; i < dimension; i++) {
+      for (let i = 0; i < dimension; i++)
         image[i]! += after[j]![i]! * middle[j]!
-      }
     }
 
     result.push(image)
@@ -66,6 +66,7 @@ export function weylGroupOrder(roots: number[][]): number {
 
   for (let k = 0; k < dimension; k++) {
     const e = new Array<number>(dimension).fill(0)
+
     e[k] = 1
     identity.push(e)
   }
@@ -113,9 +114,8 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
       if (
         Math.abs(augmented[row]![column]!) >
         Math.abs(augmented[pivot]![column]!)
-      ) {
+      )
         pivot = row
-      }
     }
 
     ;[augmented[column], augmented[pivot]] = [
@@ -125,17 +125,15 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
 
     const diagonal = augmented[column]![column]!
 
-    for (let j = column; j <= size; j++) {
+    for (let j = column; j <= size; j++)
       augmented[column]![j]! /= diagonal
-    }
 
     for (let row = 0; row < size; row++) {
       if (row !== column) {
         const factor = augmented[row]![column]!
 
-        for (let j = column; j <= size; j++) {
+        for (let j = column; j <= size; j++)
           augmented[row]![j]! -= factor * augmented[column]![j]!
-        }
       }
     }
   }
@@ -152,16 +150,12 @@ export function automorphismGroupOrder(roots: number[][]): number {
   const basis: number[][] = []
 
   for (const root of roots) {
-    if (basis.length === dimension) {
-      break
-    }
+    if (basis.length === dimension) break
 
     const test = [...basis, root]
     const gram = test.map(u => test.map(v => dotVec(u, v)))
 
-    if (Math.abs(determinant(gram)) > 1e-9) {
-      basis.push(root)
-    }
+    if (Math.abs(determinant(gram)) > 1e-9) basis.push(root)
   }
 
   const rank = basis.length
@@ -183,14 +177,11 @@ export function automorphismGroupOrder(roots: number[][]): number {
         const image = new Array<number>(dimension).fill(0)
 
         for (let i = 0; i < rank; i++) {
-          for (let axis = 0; axis < dimension; axis++) {
+          for (let axis = 0; axis < dimension; axis++)
             image[axis]! += coordinate[i]! * picked[i]![axis]!
-          }
         }
 
-        if (!rootKeys.has(vectorKey(image))) {
-          return
-        }
+        if (!rootKeys.has(vectorKey(image))) return
       }
 
       count++
@@ -207,14 +198,11 @@ export function automorphismGroupOrder(roots: number[][]): number {
         if (
           Math.abs(dotVec(candidate, picked[i]!) - gram[depth]![i]!) >
           1e-6
-        ) {
+        )
           matches = false
-        }
       }
 
-      if (matches) {
-        choose(depth + 1, [...picked, candidate])
-      }
+      if (matches) choose(depth + 1, [...picked, candidate])
     }
   }
 
@@ -241,9 +229,8 @@ export function diagramAutomorphismOrder(cartan: number[][]): number {
     if (chosen.length === size) {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          if (cartan[chosen[i]!]![chosen[j]!]! !== cartan[i]![j]!) {
+          if (cartan[chosen[i]!]![chosen[j]!]! !== cartan[i]![j]!)
             return
-          }
         }
       }
 
@@ -278,14 +265,11 @@ function determinant(matrix: number[][]): number {
       if (
         Math.abs(working[row]![column]!) >
         Math.abs(working[pivot]![column]!)
-      ) {
+      )
         pivot = row
-      }
     }
 
-    if (Math.abs(working[pivot]![column]!) < 1e-12) {
-      return 0
-    }
+    if (Math.abs(working[pivot]![column]!) < 1e-12) return 0
 
     if (pivot !== column) {
       ;[working[column], working[pivot]] = [
@@ -300,9 +284,8 @@ function determinant(matrix: number[][]): number {
     for (let row = column + 1; row < size; row++) {
       const factor = working[row]![column]! / working[column]![column]!
 
-      for (let j = column; j < size; j++) {
+      for (let j = column; j < size; j++)
         working[row]![j]! -= factor * working[column]![j]!
-      }
     }
   }
 

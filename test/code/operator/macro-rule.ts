@@ -39,6 +39,7 @@ suite('operator/macro-rule: effective couplings', [
       2,
       'cluster 0: edge 0-1 counted from both ends = 2',
     )
+
     equal(
       eff.Jself[1],
       2,
@@ -61,6 +62,7 @@ suite('operator/macro-rule: renorm vs naive step', [
     // naive  cluster 0: h = sign(Jcross)*super1 = -1*1 = -1 -> -1
     const renorm = renormMacroStep(superTone, eff)
     const naive = naiveMacroStep(superTone, eff)
+
     equal(renorm[0], 1, 'renorm holds the majority via self-coupling')
     equal(naive[0], -1, 'naive flips, having dropped the self-coupling')
   }),
@@ -68,6 +70,7 @@ suite('operator/macro-rule: renorm vs naive step', [
     const superTone = Int8Array.from([1, -1])
     // cluster 0: 2*1 + (-1)*(-1) = 3 -> +1; cluster 1: 2*(-1) + (-1)*1 = -3 -> -1
     const renorm = renormMacroStep(superTone, eff)
+
     equal(renorm[0], 1, 'cluster 0 field +3 -> +1')
     equal(renorm[1], -1, 'cluster 1 field -3 -> -1')
   }),

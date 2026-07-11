@@ -43,14 +43,13 @@ export function closedManifold(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (const j of adj[i]!) {
-        s += cur[j]!
-      }
+      for (const j of adj[i]!) s += cur[j]!
 
       nxt[i] = (((s - prev[i]!) % 3) + 3) % 3
     }
 
     const tmp = prev
+
     prev = cur
     cur = nxt
     nxt = tmp

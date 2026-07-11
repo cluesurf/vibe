@@ -75,6 +75,7 @@ export function buildMargensternGrid(input: {
   const parentOf = new Int32Array(count).fill(-1)
   const depthOf = new Int32Array(count).fill(-1)
   const childrenOf: number[][] = Array.from({ length: count }, () => [])
+
   depthOf[root] = 0
   parentOf[root] = -1
 
@@ -117,11 +118,10 @@ export function buildMargensternGrid(input: {
     .sort((a, b) => depthOf[a]! - depthOf[b]!)
 
   for (const cell of byDepth) {
-    if (cell === root) {
-      continue
-    }
+    if (cell === root) continue
 
     const p = parentOf[cell]!
+
     address[cell] = [...address[p]!, childrenOf[p]!.indexOf(cell)]
   }
 
@@ -165,9 +165,7 @@ export function buildMargensternGrid(input: {
   function colorOf(cell: number): TileColor {
     const k = childrenOf[cell]!.length
 
-    if (!twoD) {
-      return 'other'
-    }
+    if (!twoD) return 'other'
 
     return k >= 3 ? 'white' : 'black'
   }
@@ -255,9 +253,7 @@ function childOrder(
     const da = Math.round((a[i]! - (here[i] ?? 0)) * 1e6)
     const db = Math.round((b[i]! - (here[i] ?? 0)) * 1e6)
 
-    if (da !== db) {
-      return da - db
-    }
+    if (da !== db) return da - db
   }
 
   return 0
@@ -268,9 +264,7 @@ function compareAddress(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length)
 
   for (let i = 0; i < len; i++) {
-    if (a[i] !== b[i]) {
-      return a[i]! - b[i]!
-    }
+    if (a[i] !== b[i]) return a[i]! - b[i]!
   }
 
   return a.length - b.length

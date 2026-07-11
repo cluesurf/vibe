@@ -39,6 +39,7 @@ const squareRoots = [
 suite('check/structure: occupancy and components', [
   check('two adjacent occupied cells form one cluster', () => {
     const will = makeWill(mesh)
+
     place(will, 0, 0, 1) // cell 0
     place(will, 1, 0, 1) // cell 1 = neighbour of 0 along +x
     equal(occupiedCells(will), 2, 'two cells hold charge')
@@ -47,6 +48,7 @@ suite('check/structure: occupancy and components', [
   }),
   check('two far-apart occupied cells form two clusters', () => {
     const will = makeWill(mesh)
+
     place(will, 0, 0, 1) // (0,0)
     place(will, 12, 0, 1) // (2,2), not adjacent to (0,0)
     equal(occupiedCells(will), 2, 'two cells hold charge')
@@ -54,6 +56,7 @@ suite('check/structure: occupancy and components', [
   }),
   check('an empty will has zero occupancy and zero components', () => {
     const will = makeWill(mesh)
+
     equal(occupiedCells(will), 0, 'nothing occupied')
     equal(componentCount(will), 0, 'no clusters')
     equal(diameter(will), 0, 'no spread')
@@ -65,6 +68,7 @@ suite('check/structure: travel distance', [
     'travelDistance is the farthest charged cell from the start',
     () => {
       const will = makeWill(mesh)
+
       place(will, 0, 0, 1) // cell 0, distance 0 from start 0
       place(will, 1, 0, 1) // cell 1, distance 1
       equal(
@@ -79,6 +83,7 @@ suite('check/structure: travel distance', [
 suite('check/structure: momentum is the tone-weighted root sum', [
   check('a single +1 along +x has momentum (1,0,0,0)', () => {
     const will = makeWill(mesh)
+
     place(will, 0, 0, 1)
     equal(
       JSON.stringify(momentum(will, squareRoots)),
@@ -87,6 +92,7 @@ suite('check/structure: momentum is the tone-weighted root sum', [
   }),
   check('+x and +y tones add their roots: (1,1,0,0)', () => {
     const will = makeWill(mesh)
+
     place(will, 0, 0, 1)
     place(will, 0, 2, 1)
     equal(
@@ -98,6 +104,7 @@ suite('check/structure: momentum is the tone-weighted root sum', [
     'a -1 tone along +x reverses the contribution: (-1,0,0,0)',
     () => {
       const will = makeWill(mesh)
+
       place(will, 3, 0, -1)
       equal(
         JSON.stringify(momentum(will, squareRoots)),
@@ -109,6 +116,7 @@ suite('check/structure: momentum is the tone-weighted root sum', [
     'opposite directions with equal tone cancel to zero momentum',
     () => {
       const will = makeWill(mesh)
+
       place(will, 0, 0, 1) // +x
       place(will, 0, 1, 1) // -x
       equal(

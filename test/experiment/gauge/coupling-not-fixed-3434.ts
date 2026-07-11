@@ -59,9 +59,7 @@ export function couplingNotFixed(): {
   let isMonotone = true
 
   for (let i = 1; i < n; i++) {
-    if (!(fields[i]! > fields[i - 1]!)) {
-      isMonotone = false
-    }
+    if (!(fields[i]! > fields[i - 1]!)) isMonotone = false
   }
 
   // the e = 0 control: with no coupling the fermion sources no field at all

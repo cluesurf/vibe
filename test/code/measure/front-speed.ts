@@ -18,11 +18,13 @@ const LN3 = Math.log(3)
 suite('measure/front-speed: rangeAnisotropy', [
   check('uniform speeds give anisotropy 0', () => {
     const out = rangeAnisotropy([1, 1, 1])
+
     close(out.meanSpeed, 1, TIGHT)
     close(out.anisotropy, 0, TIGHT)
   }),
   check('speeds [1, 3] give mean 2, anisotropy (3-1)/2 = 1', () => {
     const out = rangeAnisotropy([1, 3])
+
     close(out.meanSpeed, 2, TIGHT)
     close(out.anisotropy, 1, TIGHT)
   }),
@@ -41,6 +43,7 @@ suite('measure/front-speed: differenceRmsWidthRing', [
       // L=10, center 0, differ at x=2 (dist 2) and x=8 (dist min(8,2)=2) -> sqrt((4+4)/2)=2.
       const a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       const b = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0]
+
       close(
         differenceRmsWidthRing({ a, b, length: 10, center: 0 }),
         2,
@@ -50,6 +53,7 @@ suite('measure/front-speed: differenceRmsWidthRing', [
   ),
   check('identical states give width 0', () => {
     const a = [1, 2, 3]
+
     close(
       differenceRmsWidthRing({ a, b: [1, 2, 3], length: 3, center: 0 }),
       0,

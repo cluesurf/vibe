@@ -19,9 +19,8 @@ const size = 16
 const params = { size, exchange: 1, dm: 0.6, field: 0.3 }
 
 const unitLength = (spins: Spin[]): void => {
-  for (const s of spins) {
+  for (const s of spins)
     close(Math.hypot(s[0], s[1], s[2]), 1, 1e-9, 'unit spin')
-  }
 }
 
 suite('dynamics/skyrmion-field: normalization', [
@@ -29,12 +28,14 @@ suite('dynamics/skyrmion-field: normalization', [
     'the Skyrmion seed and the snapped-to-trit field are unit spins',
     () => {
       const spins = makeSkyrmionField({ size, coreRadius: 5 })
+
       unitLength(spins)
       unitLength(snapToTrits(spins))
     },
   ),
   check('relaxSpins and precessSpins preserve unit length', () => {
     let spins = makeSkyrmionField({ size, coreRadius: 5 })
+
     spins = relaxSpins({ spins, params, rate: 0.2 })
     unitLength(spins)
     spins = precessSpins({ spins, params, dt: 0.1, open: false })
@@ -53,6 +54,7 @@ suite('dynamics/skyrmion-field: topological degree', [
   }),
   check('a Neel Skyrmion seed carries degree ~ -1', () => {
     const spins = makeSkyrmionField({ size, coreRadius: 5 })
+
     close(skyrmionDegree(spins, size), -1, 0.15, 'degree ~ -1')
   }),
 ])
@@ -62,9 +64,8 @@ suite('dynamics/skyrmion-field: determinism', [
     const run = (): Spin[] => {
       let spins = makeSkyrmionField({ size, coreRadius: 5 })
 
-      for (let t = 0; t < 10; t++) {
+      for (let t = 0; t < 10; t++)
         spins = precessSpins({ spins, params, dt: 0.1, open: false })
-      }
 
       return spins
     }

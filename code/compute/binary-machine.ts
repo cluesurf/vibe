@@ -34,9 +34,7 @@ export type BinaryStep = {
 
 // the number of bits in a non-negative bigint (at least 1)
 function bitLength(x: bigint): number {
-  if (x <= 0n) {
-    return 1
-  }
+  if (x <= 0n) return 1
 
   return x.toString(2).length
 }
@@ -45,9 +43,7 @@ function bitLength(x: bigint): number {
 function wordWidth(...values: bigint[]): number {
   let bits = WORD_BITS
 
-  for (const v of values) {
-    bits = Math.max(bits, bitLength(v))
-  }
+  for (const v of values) bits = Math.max(bits, bitLength(v))
 
   return bits
 }
@@ -73,9 +69,7 @@ export function runBinary(
   while (ops < maxOps) {
     const ins = program.code[pc]
 
-    if (!ins || ins.op === 'halt') {
-      break
-    }
+    if (!ins || ins.op === 'halt') break
 
     ops++
 
@@ -85,6 +79,7 @@ export function runBinary(
 
     if (ins.op === 'set') {
       const value = BigInt(ins.value)
+
       regs[ins.reg] = value
       bits = wordWidth(value)
       reg = ins.reg
@@ -98,6 +93,7 @@ export function runBinary(
       pc = ins.next
     } else if (ins.op === 'add') {
       const before = regs[ins.dst]!
+
       regs[ins.dst] = before + regs[ins.src]!
       bits = wordWidth(before, regs[ins.src]!, regs[ins.dst]!) // the ripple spans the longest operand / sum
       reg = ins.dst
@@ -105,6 +101,7 @@ export function runBinary(
       pc = ins.next
     } else if (ins.op === 'sub1') {
       const before = regs[ins.reg]!
+
       regs[ins.reg] = before > 0n ? before - 1n : 0n
       bits = wordWidth(before) // borrow can ripple the whole word in the worst case
       reg = ins.reg
@@ -120,9 +117,8 @@ export function runBinary(
 
     totalBits += bits
 
-    if (onStep) {
+    if (onStep)
       onStep({ kind, reg, registers: regs.slice(), bits, width: bits })
-    }
   }
 
   return { registers: regs, totalBits, ops }

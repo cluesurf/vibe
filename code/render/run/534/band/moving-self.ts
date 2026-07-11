@@ -46,6 +46,7 @@ function run(): void {
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
+
   console.log(
     `moving self, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
   )
@@ -65,9 +66,7 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -75,9 +74,7 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -99,14 +96,13 @@ function run(): void {
   const cells: Cell[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      continue
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) continue
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     cells.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
 
@@ -136,17 +132,13 @@ function run(): void {
   // index cells by their own index for the maintenance step
   const cellByIndex = new Map<number, Cell>()
 
-  for (const c of cells) {
-    cellByIndex.set(c.index, c)
-  }
+  for (const c of cells) cellByIndex.set(c.index, c)
 
   // ground for conserving maintenance, off-screen margin cells
   const ground: number[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      ground.push(i)
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
   }
 
   const rng = makeRng({ seed: 7 })
@@ -154,6 +146,7 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
@@ -182,9 +175,7 @@ function run(): void {
     }
 
     for (const gc of ground) {
-      if (need <= 0) {
-        break
-      }
+      if (need <= 0) break
 
       if (tone[gc] === 0) {
         tone[gc] = -1
@@ -209,14 +200,13 @@ function run(): void {
     discreteArrow(tone, g, f, ARROW_PERIOD) // discrete arrow drive; the rule churns, the self leaks at its edge
 
     const centreU = startU + speedU * f // the will steers the self to the right
+
     maintainAt(centreU, cv) // refill it at the new position, so the FORM propagates while matter turns over
 
     for (let i = 0; i < n; i++) {
-      if (tone[i] !== 0 && tone[i] === prev[i]) {
+      if (tone[i] !== 0 && tone[i] === prev[i])
         persist[i] = Math.min(persist[i]! + 1, PMAX)
-      } else {
-        persist[i] = 0
-      }
+      else persist[i] = 0
 
       prev[i] = tone[i]!
     }
@@ -233,9 +223,7 @@ function run(): void {
     for (const c of cells) {
       const t = tone[c.index]!
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
       const r8 =
@@ -258,11 +246,10 @@ function run(): void {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = r8
           rgba[idx + 1] = g8
           rgba[idx + 2] = b8

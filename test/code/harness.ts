@@ -34,6 +34,7 @@ const registry: Suite[] = []
 // experiment registry works.
 export function suite(name: string, checks: Check[]): Suite {
   const value = { name, checks }
+
   registry.push(value)
 
   return value
@@ -77,9 +78,8 @@ export function close(
   tolerance: number,
   message?: string,
 ): void {
-  if (!Number.isFinite(actual)) {
+  if (!Number.isFinite(actual))
     fail(`${message ?? 'close'}: got non-finite ${actual}`)
-  }
 
   if (Math.abs(actual - expected) > tolerance) {
     fail(
@@ -89,15 +89,11 @@ export function close(
 }
 
 export function ok(condition: boolean, message?: string): void {
-  if (!condition) {
-    fail(message ?? 'expected condition to hold')
-  }
+  if (!condition) fail(message ?? 'expected condition to hold')
 }
 
 export function notOk(condition: boolean, message?: string): void {
-  if (condition) {
-    fail(message ?? 'expected condition to be false')
-  }
+  if (condition) fail(message ?? 'expected condition to be false')
 }
 
 // Exact element-wise equality of two array-likes (length included).

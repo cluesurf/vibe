@@ -20,6 +20,7 @@ function multiset(data: Int8Array): number[] {
 
 function structuredWill() {
   const will = makeWill(squareMesh({ side: 4 }))
+
   fillWillPattern(will)
 
   return will
@@ -28,6 +29,7 @@ function structuredWill() {
 suite('control/null: randomNull is a charge-preserving permutation', [
   check('the total charge is preserved exactly', () => {
     const will = structuredWill()
+
     equal(
       charge(randomNull(will, 123)),
       charge(will),
@@ -38,6 +40,7 @@ suite('control/null: randomNull is a charge-preserving permutation', [
   check('the tone multiset is preserved exactly', () => {
     const will = structuredWill()
     const shuffled = randomNull(will, 99)
+
     equal(
       JSON.stringify(multiset(shuffled.data)),
       JSON.stringify(multiset(will.data)),
@@ -48,6 +51,7 @@ suite('control/null: randomNull is a charge-preserving permutation', [
     const will = structuredWill()
     const a = randomNull(will, 7)
     const b = randomNull(will, 7)
+
     equal(
       JSON.stringify(Array.from(a.data)),
       JSON.stringify(Array.from(b.data)),
@@ -76,6 +80,7 @@ suite('control/null: shuffledToneField', [
     () => {
       const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
       const out = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
+
       equal(
         JSON.stringify(multiset(out)),
         JSON.stringify(multiset(tone)),
@@ -92,6 +97,7 @@ suite('control/null: shuffledToneField', [
     const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
     const a = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
     const b = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
+
     equal(JSON.stringify(Array.from(a)), JSON.stringify(Array.from(b)))
   }),
 ])

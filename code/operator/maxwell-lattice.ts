@@ -55,6 +55,7 @@ export function maxwellLatticeSpectrum(input: {
             for (let b = 0; b < 4; b++) {
               const ia = links[a] ?? 0
               const ib = links[b] ?? 0
+
               H.data[ia * dof + ib] =
                 (H.data[ia * dof + ib] ?? 0) +
                 (signs[a] ?? 0) * (signs[b] ?? 0)

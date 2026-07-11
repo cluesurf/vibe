@@ -11,6 +11,7 @@ suite('substrate/coxeter/tessellation: classification', [
     '{5,3,4} is a compact hyperbolic honeycomb, orbit-buildable',
     () => {
       const d = describeTessellation([5, 3, 4])
+
       equal(d.spaceDimension, 3, 'tiles 3-space')
       equal(d.geometry, 'hyperbolic', 'hyperbolic whole')
       equal(d.cell.join(','), '5,3', 'cell')
@@ -26,6 +27,7 @@ suite('substrate/coxeter/tessellation: classification', [
     '{3,4,3,4} is paracompact (Euclidean vertex figure) but still buildable',
     () => {
       const d = describeTessellation([3, 4, 3, 4])
+
       equal(d.geometry, 'hyperbolic', 'hyperbolic whole')
       equal(d.cellGeometry, 'spherical', 'finite 24-cell')
       equal(
@@ -42,6 +44,7 @@ suite('substrate/coxeter/tessellation: classification', [
     'a spherical symbol is a finite polytope, not a tessellation',
     () => {
       const d = describeTessellation([3, 3])
+
       equal(d.geometry, 'spherical', 'spherical')
       equal(d.compactness, 'finite-polytope', 'finite polytope')
       ok(!d.buildable, 'not a tessellation')
@@ -50,11 +53,13 @@ suite('substrate/coxeter/tessellation: classification', [
   ),
   check('a euclidean honeycomb selects the lattice builder', () => {
     const d = describeTessellation([4, 3, 4])
+
     equal(d.geometry, 'euclidean', 'euclidean')
     equal(d.builder, 'euclidean-lattice', 'lattice builder')
   }),
   check('an invalid symbol is reported, not built', () => {
     const d = describeTessellation([1])
+
     ok(!d.buildable, 'invalid symbol not buildable')
   }),
 ])

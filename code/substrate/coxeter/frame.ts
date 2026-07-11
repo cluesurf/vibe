@@ -56,9 +56,8 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
       }
     }
 
-    if (stab.length > 100000) {
-      break
-    } // safety
+    if (stab.length > 100000) break
+    // safety
   }
 
   // the facet (outer) generator's normal, and the facet normals = the H-orbit of it

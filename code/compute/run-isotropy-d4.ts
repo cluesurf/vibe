@@ -42,6 +42,7 @@ function offsets24(): Int32Array {
       for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
+
           v[ax[a]!] = sa
           v[ax[b]!] = sb
           o.push(v[0]!, v[1]!, v[2]!, v[3]!)
@@ -59,6 +60,7 @@ function offsets8(): Int32Array {
   for (let a = 0; a < 4; a++) {
     for (const s of [1, -1]) {
       const v = [0, 0, 0, 0]
+
       v[a] = s
       o.push(v[0]!, v[1]!, v[2]!, v[3]!)
     }
@@ -120,6 +122,7 @@ async function run(): Promise<void> {
     device.queue.writeBuffer(offBuf, 0, off)
 
     const seed = new Int32Array(N)
+
     seed[((C * L + C) * L + C) * L + C] = 1
     device.queue.writeBuffer(cur, 0, seed)
     device.queue.writeBuffer(reached, 0, new Int32Array(N))
@@ -142,6 +145,7 @@ async function run(): Promise<void> {
 
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
+
       pass.setPipeline(pipeline)
       pass.setBindGroup(0, bg)
       pass.dispatchWorkgroups(Math.ceil(N / WG))
@@ -149,17 +153,20 @@ async function run(): Promise<void> {
       device.queue.submit([enc.finish()])
 
       const tmp = prev
+
       prev = cur
       cur = nxt
       nxt = tmp
     }
 
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(reached, 0, stage, 0, N * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
 
     const r = new Int32Array(stage.getMappedRange().slice(0))
+
     stage.unmap()
 
     // light-cone extent, max along an AXIS vs along the body-DIAGONAL (1,1,1,1)/2
@@ -167,9 +174,7 @@ async function run(): Promise<void> {
       diagExt = 0
 
     for (let i = 0; i < N; i++) {
-      if (r[i] === 0) {
-        continue
-      }
+      if (r[i] === 0) continue
 
       const x = i % L,
         y = Math.floor(i / L) % L,
@@ -192,6 +197,7 @@ async function run(): Promise<void> {
     }
 
     const ratio = diagExt / axisExt
+
     console.log(
       `  ${label}: axis extent ${axisExt}, diagonal extent ${diagExt.toFixed(1)}, isotropy ratio diag/axis = ${ratio.toFixed(2)} (1 = isotropic)`,
     )
@@ -216,6 +222,7 @@ async function run(): Promise<void> {
   console.log(
     `  => the 24-direction light cone is ${Math.abs(r24 - 1) < Math.abs(r8 - 1) ? 'MORE ISOTROPIC' : 'not more isotropic'} than the 8-direction`,
   )
+
   console.log(
     '     (24-dir ratio ' +
       r24.toFixed(2) +
@@ -223,9 +230,11 @@ async function run(): Promise<void> {
       r8.toFixed(2) +
       '). The discrete {3,4,3,4} rule',
   )
+
   console.log(
     '     coarse-grains to an isotropic continuum at scale, simulated on the GPU (p233 was the analytic version).',
   )
+
   console.log(
     `RESULT: 24-dir isotropy ${r24.toFixed(2)} vs 8-dir ${r8.toFixed(2)} (1 = isotropic).`,
   )

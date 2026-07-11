@@ -26,9 +26,7 @@ import {
 const growthRatio = (shells: number[]): number => {
   const count = shells.length
 
-  if (count < 4) {
-    return 1
-  }
+  if (count < 4) return 1
 
   return shells[count - 2]! / shells[count - 3]!
 }
@@ -101,9 +99,8 @@ export default experiment({
 
       realState = after
 
-      if (countCoxeterMeshGas(realState) !== charge0) {
+      if (countCoxeterMeshGas(realState) !== charge0)
         globallyConserved = false
-      }
     }
 
     // reversibility: the inverse beat (stream-then-collide-backward) returns the start exactly.
@@ -111,9 +108,8 @@ export default experiment({
 
     let rewound = forwardEnd
 
-    for (let t = 0; t < beats; t++) {
+    for (let t = 0; t < beats; t++)
       rewound = collide(stream(rewound), false)
-    }
 
     const start = makeState()
     const reversible = rewound.every((slots, cell) =>
@@ -151,13 +147,10 @@ export default experiment({
 
         let erasedInRegion = 0
 
-        for (const cell of region) {
-          erasedInRegion += collided[cell]![0]!
-        }
+        for (const cell of region) erasedInRegion += collided[cell]![0]!
 
-        if (residual !== -erasedInRegion) {
+        if (residual !== -erasedInRegion)
           lossyResidualMatchesErased = false
-        }
       }
 
       lossyState = after

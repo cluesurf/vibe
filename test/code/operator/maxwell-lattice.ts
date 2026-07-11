@@ -17,15 +17,14 @@ suite('operator/maxwell-lattice: gauge zero modes', [
     () => {
       const L = 2
       const spectrum = maxwellLatticeSpectrum({ side: L, mass: 0 })
+
       equal(
         spectrum.length,
         3 * L * L * L,
         'degrees of freedom = 3 L^3',
       )
 
-      for (const v of spectrum) {
-        ok(v > -1e-8, `eigenvalue ${v} >= 0`)
-      }
+      for (const v of spectrum) ok(v > -1e-8, `eigenvalue ${v} >= 0`)
     },
   ),
   check(
@@ -34,6 +33,7 @@ suite('operator/maxwell-lattice: gauge zero modes', [
       const L = 2
       const spectrum = maxwellLatticeSpectrum({ side: L, mass: 0 })
       const zeroModes = spectrum.filter(v => Math.abs(v) < 1e-8).length
+
       equal(zeroModes, L * L * L + 2, 'zero-mode count')
     },
   ),
@@ -47,6 +47,7 @@ suite('operator/maxwell-lattice: Proca mass', [
       const mass = 0.5
       const spectrum = maxwellLatticeSpectrum({ side: L, mass })
       const zeroModes = spectrum.filter(v => Math.abs(v) < 1e-8).length
+
       equal(zeroModes, 0, 'no zero modes with a mass')
       close(
         Math.min(...spectrum),

@@ -27,9 +27,7 @@ const countOccupied = (o: Uint8Array): number =>
 
 const minOccupied = (o: Uint8Array): number => {
   for (let i = 0; i < o.length; i++) {
-    if (o[i]) {
-      return i
-    }
+    if (o[i]) return i
   }
 
   return -1
@@ -41,6 +39,7 @@ suite('dynamics/free-fall: mass conservation', [
     () => {
       const setup = lineSetup(20)
       const occupied = new Uint8Array(20)
+
       occupied[10] = 1
       occupied[11] = 1
       occupied[12] = 1
@@ -65,9 +64,11 @@ suite('dynamics/free-fall: equivalence principle', [
     () => {
       const setup = lineSetup(30)
       const light = new Uint8Array(30)
+
       light[20] = 1
 
       const heavy = new Uint8Array(30)
+
       heavy[20] = 1
       heavy[21] = 1
       heavy[22] = 1
@@ -81,6 +82,7 @@ suite('dynamics/free-fall: equivalence principle', [
           20 - b,
           `light leading edge at beat ${b}`,
         )
+
         equal(
           minOccupied(heavy),
           20 - b,
@@ -94,10 +96,12 @@ suite('dynamics/free-fall: equivalence principle', [
     () => {
       const setup = lineSetup(10)
       const occupied = new Uint8Array(10)
+
       occupied[5] = 1
 
       for (let b = 1; b <= 5; b++) {
         const moved = freeFallStep({ occupied, ...setup })
+
         equal(moved, 1, `one move at beat ${b}`)
         equal(minOccupied(occupied), 5 - b, `position at beat ${b}`)
       }
@@ -116,10 +120,12 @@ suite('dynamics/free-fall: determinism', [
   check('two identical setups evolve identically', () => {
     const setup = lineSetup(20)
     const a = new Uint8Array(20)
+
     a[10] = 1
     a[12] = 1
 
     const b = new Uint8Array(20)
+
     b[10] = 1
     b[12] = 1
 
@@ -128,8 +134,6 @@ suite('dynamics/free-fall: determinism', [
       freeFallStep({ occupied: b, ...setup })
     }
 
-    for (let i = 0; i < 20; i++) {
-      equal(a[i]!, b[i]!, `cell ${i}`)
-    }
+    for (let i = 0; i < 20; i++) equal(a[i]!, b[i]!, `cell ${i}`)
   }),
 ])

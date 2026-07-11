@@ -19,6 +19,7 @@ export function blockPlusCounts(
   for (let i = 0; i < n; i++) {
     if (tone[i] === 1) {
       const block = Math.min(blocks - 1, Math.floor(i / blockSize))
+
       counts[block]! += 1
     }
   }
@@ -32,19 +33,16 @@ export function blockPlusCounts(
 export function shannonEntropy(counts: readonly number[]): number {
   let total = 0
 
-  for (const c of counts) {
-    total += c
-  }
+  for (const c of counts) total += c
 
-  if (total === 0) {
-    return 0
-  }
+  if (total === 0) return 0
 
   let entropy = 0
 
   for (const c of counts) {
     if (c > 0) {
       const p = c / total
+
       entropy -= p * Math.log(p)
     }
   }

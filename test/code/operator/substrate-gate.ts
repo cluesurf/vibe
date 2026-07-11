@@ -28,12 +28,14 @@ suite('operator/substrate-gate: NAND gate', [
         // bias width = min(|A|,|B|) = 4, so the margin is 4 > outWidth 1.
         const O = nandBus(c, A, B, 1)
         const tone = settle(c, { seed: 1 })
+
         ok(
           isFixedPoint(c, tone),
           `settled config is a fixed point for (${a},${b})`,
         )
 
         const expected: Bit = a === 1 && b === 1 ? -1 : 1
+
         equal(busValue(tone, O), expected, `nand(${a},${b})`)
       }
     }
@@ -47,6 +49,7 @@ suite('operator/substrate-gate: NOT gate', [
       const X = clampedBus(c, x, 3)
       const G = notBus(c, X, 1)
       const tone = settle(c, { seed: 2 })
+
       ok(
         isFixedPoint(c, tone),
         `settled config is a fixed point for x=${x}`,

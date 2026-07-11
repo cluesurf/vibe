@@ -35,9 +35,7 @@ const LEAKS = [0, 0.001, 0.005, 0.02, 0.05, 0.1]
 function totalCharge(tone: Int8Array): number {
   let sum = 0
 
-  for (const value of tone) {
-    sum += Math.abs(value)
-  }
+  for (const value of tone) sum += Math.abs(value)
 
   return sum
 }
@@ -47,9 +45,7 @@ function totalCharge(tone: Int8Array): number {
 function survivalUnderLeak(leak: number): number {
   const tone = new Int8Array(RING_LENGTH)
 
-  for (let i = 90; i < 110; i++) {
-    tone[i] = 1 // the self, a gathered blob of charge
-  }
+  for (let i = 90; i < 110; i++) tone[i] = 1 // the self, a gathered blob of charge
 
   const moved = new Uint8Array(RING_LENGTH)
   const rng = makeRng({ seed: SEED })
@@ -68,9 +64,7 @@ function survivalUnderLeak(leak: number): number {
 
     if (leak > 0) {
       for (let i = 0; i < RING_LENGTH; i++) {
-        if (tone[i] !== 0 && rng.next() < leak) {
-          tone[i] = 0
-        }
+        if (tone[i] !== 0 && rng.next() < leak) tone[i] = 0
       }
     }
   }
@@ -96,9 +90,7 @@ export default experiment({
     let monotone = true
 
     for (let i = 1; i < survivals.length; i++) {
-      if (survivals[i]! > survivals[i - 1]! + 1e-9) {
-        monotone = false
-      }
+      if (survivals[i]! > survivals[i - 1]! + 1e-9) monotone = false
     }
 
     const survivalAtHighLeak = survivals[survivals.length - 1]!

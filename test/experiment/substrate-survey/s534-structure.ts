@@ -28,9 +28,8 @@ export function s534Structure(): {
   const verts: number[][] = []
 
   for (const a of [1, -1]) {
-    for (const b of [phi, -phi]) {
+    for (const b of [phi, -phi])
       verts.push([0, a, b], [a, b, 0], [b, 0, a])
-    }
   }
 
   const crystallographic = directionsAreCrystallographic(verts)

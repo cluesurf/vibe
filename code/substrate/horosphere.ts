@@ -41,9 +41,7 @@ export function busemann(input: {
   return coords.map(x => {
     let d2 = 0
 
-    for (let k = 0; k < x.length; k++) {
-      d2 += (x[k]! - ideal[k]!) ** 2
-    }
+    for (let k = 0; k < x.length; k++) d2 += (x[k]! - ideal[k]!) ** 2
 
     return Math.log(d2 / Math.max(1e-12, 1 - dot(x, x)))
   })
@@ -66,17 +64,11 @@ export function horoFrame(ideal: Vec): Vec[] {
 
     v = sub(v, ideal, dot(v, ideal))
 
-    for (const e of basis) {
-      v = sub(v, e, dot(v, e))
-    }
+    for (const e of basis) v = sub(v, e, dot(v, e))
 
-    if (norm(v) > 1e-9) {
-      basis.push(normalize(v))
-    }
+    if (norm(v) > 1e-9) basis.push(normalize(v))
 
-    if (basis.length === dim - 1) {
-      break
-    }
+    if (basis.length === dim - 1) break
   }
 
   return basis
@@ -107,9 +99,7 @@ export function extractBand(input: {
   const out: number[] = []
 
   for (let i = 0; i < input.busemann.length; i++) {
-    if (Math.abs(input.busemann[i]! - level) < half) {
-      out.push(i)
-    }
+    if (Math.abs(input.busemann[i]! - level) < half) out.push(i)
   }
 
   return out

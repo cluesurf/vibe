@@ -35,9 +35,8 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   const n = g.size
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     tone[i] = input.rng.nextInt({ max: 3 }) - 1
-  }
 
   // Fills are tones on the notes, ternary, and SYMMETRIC (a note v-w is one shared
   // relational vibe, so fill(v,w) = fill(w,v)). Symmetric couplings make the
@@ -60,15 +59,12 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
 
       let h = 0
 
-      for (let k = 0; k < nb.length; k++) {
+      for (let k = 0; k < nb.length; k++)
         h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
-      }
 
       const next: -1 | 0 | 1 = h > 0 ? 1 : h < 0 ? -1 : 0
 
-      if (next !== tone[v]) {
-        flips += 1
-      }
+      if (next !== tone[v]) flips += 1
 
       tone[v] = next
     }
@@ -79,9 +75,7 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   let allTernary = true
 
   for (const t of tone) {
-    if (t < -1 || t > 1) {
-      allTernary = false
-    }
+    if (t < -1 || t > 1) allTernary = false
   }
 
   return { flipFractions, allTernary }
@@ -145,9 +139,7 @@ export function capstone(input: { count: number; seed: number }): {
 
   let lapMin = Infinity
 
-  for (const v of spectrum) {
-    lapMin = Math.min(lapMin, v)
-  }
+  for (const v of spectrum) lapMin = Math.min(lapMin, v)
 
   // The arrow: as the mesh grows, relations only accumulate.
   let prevEdges = 0
@@ -163,13 +155,10 @@ export function capstone(input: { count: number; seed: number }): {
 
     let edges = 0
 
-    for (let i = 0; i < gc.size; i++) {
+    for (let i = 0; i < gc.size; i++)
       edges += (gc.neighbors[i] ?? new Uint32Array(0)).length
-    }
 
-    if (edges < prevEdges) {
-      arrowMonotone = false
-    }
+    if (edges < prevEdges) arrowMonotone = false
 
     prevEdges = edges
   }

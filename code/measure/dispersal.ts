@@ -18,9 +18,8 @@ export function d4FlatNeighbors(side: number): number[][] {
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const row: number[] = []
 
-    for (let direction = 0; direction < mesh.degree; direction++) {
+    for (let direction = 0; direction < mesh.degree; direction++)
       row.push(mesh.neighbour(cell, direction))
-    }
 
     neighbors.push(row)
   }
@@ -40,6 +39,7 @@ export function diffuseParticipation(input: {
   const n = neighbors.length
 
   let probability = new Float64Array(n)
+
   probability[center] = 1
 
   for (let t = 0; t < steps; t++) {
@@ -48,18 +48,14 @@ export function diffuseParticipation(input: {
     for (let i = 0; i < n; i++) {
       const mass = probability[i]!
 
-      if (mass === 0) {
-        continue
-      }
+      if (mass === 0) continue
 
       next[i]! += 0.5 * mass
 
       const row = neighbors[i]!
       const share = (0.5 * mass) / row.length
 
-      for (const j of row) {
-        next[j]! += share
-      }
+      for (const j of row) next[j]! += share
     }
 
     probability = next
@@ -67,9 +63,7 @@ export function diffuseParticipation(input: {
 
   let sumSquares = 0
 
-  for (const value of probability) {
-    sumSquares += value * value
-  }
+  for (const value of probability) sumSquares += value * value
 
   return {
     returnProbability: probability[center]!,
@@ -100,9 +94,7 @@ export function returnProbabilityDecayRate(input: {
     steps: to,
   }).returnProbability
 
-  if (pFrom <= 0 || pTo <= 0) {
-    return 1
-  }
+  if (pFrom <= 0 || pTo <= 0) return 1
 
   return Math.pow(pTo / pFrom, 1 / (to - from))
 }

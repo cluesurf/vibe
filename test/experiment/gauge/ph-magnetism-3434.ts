@@ -46,11 +46,11 @@ export function phMagnetism(): {
   for (let t = 0; t < N; t++) {
     const cross = [S[1]! * Bz, -S[0]! * Bz, 0]
 
-    for (let k = 0; k < 3; k++) {
+    for (let k = 0; k < 3; k++)
       S[k]! += ((gAssumed * q) / (2 * m)) * cross[k]! * dt
-    }
 
     const n = Math.hypot(...S)
+
     S = S.map(x => x / n)
   }
 

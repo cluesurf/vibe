@@ -28,9 +28,7 @@ export function s73Selves(): {
   for (let x = 1; x < L; x++) {
     const d = Math.abs(phi(x) - phi(x - 1))
 
-    if (d > gradPeak) {
-      gradPeak = d
-    }
+    if (d > gradPeak) gradPeak = d
   }
 
   const hasExchangeStatistics = false // 1D, no braiding, particles cannot be exchanged without colliding

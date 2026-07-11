@@ -13,9 +13,7 @@ export type Graph = {
 export function correlation(x: number[], y: number[]): number {
   const n = Math.min(x.length, y.length)
 
-  if (n === 0) {
-    return 0
-  }
+  if (n === 0) return 0
 
   let mx = 0
   let my = 0
@@ -35,6 +33,7 @@ export function correlation(x: number[], y: number[]): number {
   for (let i = 0; i < n; i++) {
     const dx = x[i]! - mx
     const dy = y[i]! - my
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy
@@ -102,11 +101,8 @@ export function regionPartition(input: {
       }
     }
 
-    if (allIn) {
-      interior.push(c)
-    } else {
-      shell.push(c)
-    }
+    if (allIn) interior.push(c)
+    else shell.push(c)
   }
 
   return { interior, shell, exterior: [...exteriorSet] }
@@ -119,6 +115,7 @@ export function distancesFrom(input: {
 }): Int32Array {
   const { graph, source } = input
   const dist = new Int32Array(graph.cellCount).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]

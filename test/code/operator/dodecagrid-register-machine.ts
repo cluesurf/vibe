@@ -28,6 +28,7 @@ suite('operator/dodecagrid-register-machine: composition', [
       m.set(1, 3)
 
       const { conserved } = m.run(minskyAddProgram())
+
       ok(conserved, 'charge conserved throughout the run')
       equal(m.read(0), 5, 'R0 = 2 + 3')
       equal(m.read(1), 0, 'R1 drained')

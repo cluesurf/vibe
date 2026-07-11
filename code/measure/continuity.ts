@@ -41,9 +41,7 @@ function cellCharge(
 
   const base = cell * degree
 
-  for (let d = 0; d < degree; d++) {
-    s += data[base + d]!
-  }
+  for (let d = 0; d < degree; d++) s += data[base + d]!
 
   return s
 }
@@ -74,27 +72,27 @@ export function coarseContinuityResidual(input: {
   // charge per cell before the beat.
   const before = new Float64Array(cellCount)
 
-  for (let cell = 0; cell < cellCount; cell++) {
+  for (let cell = 0; cell < cellCount; cell++)
     before[cell] = cellCharge(will.data, cell, degree)
-  }
 
   // collide in place, then stream. The collided tones are exactly what crosses the boundaries.
   const collided = cloneWill(will)
+
   collide(collided, collision)
 
   const after = stream(collided)
 
   const blockId = new Int32Array(cellCount)
 
-  for (let cell = 0; cell < cellCount; cell++) {
+  for (let cell = 0; cell < cellCount; cell++)
     blockId[cell] = blockOf(cell, meshSide, blockSide)
-  }
 
   // charge change inside each block.
   const dQ = new Float64Array(blocks)
 
   for (let cell = 0; cell < cellCount; cell++) {
     const b = blockId[cell]!
+
     dQ[b] =
       dQ[b]! + (cellCharge(after.data, cell, degree) - before[cell]!)
   }
@@ -113,9 +111,7 @@ export function coarseContinuityResidual(input: {
     for (let d = 0; d < degree; d++) {
       const t = collided.data[base + d]!
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const dest = mesh.neighbour(cell, d)
       const dstBlock = blockId[dest]!
@@ -132,6 +128,7 @@ export function coarseContinuityResidual(input: {
 
   for (let b = 0; b < blocks; b++) {
     const netOut = outFlux[b]! - inFlux[b]!
+
     absResidual += Math.abs(dQ[b]! + netOut)
   }
 

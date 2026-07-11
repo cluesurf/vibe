@@ -63,6 +63,7 @@ function centroidSeries(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
@@ -115,6 +116,7 @@ export default experiment({
     // a deterministic structured fill (a fixed ternary function of the slot index, never random), the
     // methodology initial condition.
     const init = makeWill(mesh)
+
     fillWillPattern(init)
 
     const mobileSeries = centroidSeries({

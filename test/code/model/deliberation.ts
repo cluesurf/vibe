@@ -43,6 +43,7 @@ suite('model/deliberation: elementary maps', [
       1 / 3,
       1e-12,
     )
+
     close(
       hammingFraction(Int8Array.from([1, 1]), Int8Array.from([1, 1])),
       0,
@@ -95,6 +96,7 @@ suite('model/deliberation: attractor fixed points', [
   }),
   check('self-coherence of a stored pattern is 1', () => {
     const p = Int8Array.from([1, -1, 1, -1])
+
     close(selfCoherence(p, [p]), 1, 1e-12)
   }),
 ])
@@ -128,6 +130,7 @@ suite('model/deliberation: injection and consensus', [
   check('consensus keeps an already-agreeing group fixed', () => {
     const subs = [Int8Array.from([1, 1]), Int8Array.from([1, 1])]
     const out = consensusStep(subs, 1)
+
     exactArray(out[0]!, [1, 1])
     exactArray(out[1]!, [1, 1])
   }),
@@ -138,18 +141,17 @@ suite('model/deliberation: construction stays ternary', [
     'ternaryVector and makeSelf produce ternary patterns of the right shape',
     () => {
       const v = ternaryVector(50, makeRng({ seed: 1 }))
+
       equal(v.length, 50)
 
-      for (const x of v) {
+      for (const x of v)
         ok(x === -1 || x === 0 || x === 1, 'value is ternary')
-      }
 
       const self = makeSelf({ n: 12, patterns: 4, seed: 2 })
+
       equal(self.length, 4)
 
-      for (const pattern of self) {
-        equal(pattern.length, 12)
-      }
+      for (const pattern of self) equal(pattern.length, 12)
     },
   ),
 ])

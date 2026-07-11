@@ -63,11 +63,13 @@ export function selfEmergence(): {
 
   for (let i = 0; i < n; i++) {
     const r = hashRand(i, 0, 1)
+
     tone0[i] = r < 0.4 ? 1 : r < 0.7 ? -1 : 0 // a net-positive charge so domains can persist
   }
 
   for (let i = 0; i < edges.length; i++) {
     const r = hashRand(i, 0, 2)
+
     fill0[i] = r < 0.34 ? 1 : r < 0.67 ? -1 : 0
   }
 
@@ -80,9 +82,8 @@ export function selfEmergence(): {
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
 
-  for (let b = 0; b < BEATS; b++) {
+  for (let b = 0; b < BEATS; b++)
     fillGatedSweepHashed({ tone: tF, edges, fill: fF, beat: b })
-  }
 
   const coherenceFiveEnd = coherence(tF, edges, fF)
   const patchFiveEnd = largestPatch(tF, edges, fF, n)

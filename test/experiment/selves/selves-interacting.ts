@@ -23,9 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 const absCharge = (t: Int8Array): number => {
   let s = 0
 
-  for (const value of t) {
-    s += Math.abs(value)
-  }
+  for (const value of t) s += Math.abs(value)
 
   return s
 }
@@ -87,15 +85,13 @@ export function selvesInteracting(input?: {
   // OPPOSITE: first half +, second half - (a + self touching a - self)
   const opp = new Int8Array(N)
 
-  for (let k = 0; k < region.length; k++) {
+  for (let k = 0; k < region.length; k++)
     opp[region[k]!] = k < half ? 1 : -1
-  }
 
   const oppStart = absCharge(opp)
 
-  for (let b = 0; b < beats; b++) {
+  for (let b = 0; b < beats; b++)
     beat(opp, eu, ev, g.offsets, g.adj, moved, b)
-  }
 
   const oppositeLoss = (oppStart - absCharge(opp)) / oppStart
   const oppositeComponents = countLargeSameSignComponents({
@@ -108,15 +104,12 @@ export function selvesInteracting(input?: {
   // SAME: both halves + (a + self touching a + self)
   const same = new Int8Array(N)
 
-  for (const i of region) {
-    same[i] = 1
-  }
+  for (const i of region) same[i] = 1
 
   const sameStart = absCharge(same)
 
-  for (let b = 0; b < beats; b++) {
+  for (let b = 0; b < beats; b++)
     beat(same, eu, ev, g.offsets, g.adj, moved, b)
-  }
 
   const sameLoss = (sameStart - absCharge(same)) / sameStart
   const sameComponents = countLargeSameSignComponents({

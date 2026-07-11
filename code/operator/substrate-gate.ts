@@ -23,11 +23,10 @@ export function makeCircuit(): SubstrateCircuit {
 
 export function addCell(c: SubstrateCircuit, clampValue?: Bit): number {
   const id = c.size++
+
   c.fills.set(id, new Map())
 
-  if (clampValue !== undefined) {
-    c.clamp.set(id, clampValue)
-  }
+  if (clampValue !== undefined) c.clamp.set(id, clampValue)
 
   return id
 }
@@ -65,17 +64,11 @@ export function nandBus(
   const O = Array.from({ length: outWidth }, () => addCell(c))
 
   for (const o of O) {
-    for (const a of A) {
-      link(c, o, a, -1)
-    }
+    for (const a of A) link(c, o, a, -1)
 
-    for (const b of B) {
-      link(c, o, b, -1)
-    }
+    for (const b of B) link(c, o, b, -1)
 
-    for (const z of bias) {
-      link(c, o, z, 1)
-    }
+    for (const z of bias) link(c, o, z, 1)
   }
 
   return O
@@ -90,9 +83,7 @@ export function notBus(
   const G = Array.from({ length: outWidth }, () => addCell(c))
 
   for (const g of G) {
-    for (const x of X) {
-      link(c, g, x, -1)
-    }
+    for (const x of X) link(c, g, x, -1)
   }
 
   return G
@@ -107,9 +98,7 @@ export function settle(
   const sweeps = input.sweeps ?? 400
   const tone = new Int8Array(c.size)
 
-  for (const [id, v] of c.clamp) {
-    tone[id] = v
-  }
+  for (const [id, v] of c.clamp) tone[id] = v
 
   const free = [...Array(c.size).keys()].filter(i => !c.clamp.has(i))
   const rng = makeRng({ seed: input.seed })
@@ -117,9 +106,7 @@ export function settle(
   const stepCell = (i: number): number => {
     let s = 0
 
-    for (const [j, f] of c.fills.get(i) ?? []) {
-      s += f * (tone[j] ?? 0)
-    }
+    for (const [j, f] of c.fills.get(i) ?? []) s += f * (tone[j] ?? 0)
 
     return s > 0 ? 1 : s < 0 ? -1 : (tone[i] ?? 0)
   }
@@ -128,6 +115,7 @@ export function settle(
     for (let i = free.length - 1; i > 0; i--) {
       const k = rng.nextInt({ max: i + 1 })
       const t = free[i] ?? 0
+
       free[i] = free[k] ?? 0
       free[k] = t
     }
@@ -143,9 +131,7 @@ export function settle(
       }
     }
 
-    if (!changed) {
-      break
-    }
+    if (!changed) break
   }
 
   return tone
@@ -158,21 +144,15 @@ export function isFixedPoint(
   tone: Int8Array,
 ): boolean {
   for (let i = 0; i < c.size; i++) {
-    if (c.clamp.has(i)) {
-      continue
-    }
+    if (c.clamp.has(i)) continue
 
     let s = 0
 
-    for (const [j, f] of c.fills.get(i) ?? []) {
-      s += f * (tone[j] ?? 0)
-    }
+    for (const [j, f] of c.fills.get(i) ?? []) s += f * (tone[j] ?? 0)
 
     const nv = s > 0 ? 1 : s < 0 ? -1 : tone[i]
 
-    if (nv !== tone[i]) {
-      return false
-    }
+    if (nv !== tone[i]) return false
   }
 
   return true
@@ -181,9 +161,7 @@ export function isFixedPoint(
 export function busValue(tone: Int8Array, bus: number[]): Bit {
   let s = 0
 
-  for (const b of bus) {
-    s += tone[b] ?? 0
-  }
+  for (const b of bus) s += tone[b] ?? 0
 
   return s >= 0 ? 1 : -1
 }

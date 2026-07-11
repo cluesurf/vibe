@@ -76,13 +76,12 @@ export function rungArrow(): Rung {
 
     for (let axis = 1; axis < dimension; axis++) {
       const unit = new Array<number>(dimension).fill(0)
+
       unit[axis] = 1
 
       const square = cayleyMultiply(unit, unit)
 
-      if (square[0]! < 0) {
-        return false
-      }
+      if (square[0]! < 0) return false
     }
 
     return true
@@ -149,6 +148,7 @@ export function rungCensus(): Rung {
       for (let c = -1; c <= 1; c++) {
         for (let d = -1; d <= 1; d++) {
           const steps = [a, b, c, d].filter(v => v !== 0).length
+
           shells.set(steps, (shells.get(steps) ?? 0) + 1)
         }
       }

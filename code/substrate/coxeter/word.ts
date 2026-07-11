@@ -16,9 +16,7 @@ export function coxeterMatrix(symbol: number[]): number[][] {
     new Array<number>(m).fill(2),
   )
 
-  for (let i = 0; i < m; i++) {
-    M[i]![i] = 1
-  }
+  for (let i = 0; i < m; i++) M[i]![i] = 1
 
   for (let i = 0; i < symbol.length; i++) {
     M[i]![i + 1] = symbol[i] ?? 2
@@ -39,15 +37,11 @@ function braidStep(word: Word, M: number[][]): Word[] {
     const a = word[p]!
     const b = word[p + 1]!
 
-    if (a === b) {
-      continue
-    }
+    if (a === b) continue
 
     const m = M[a]![b]!
 
-    if (p + m > n) {
-      continue
-    }
+    if (p + m > n) continue
 
     let alternating = true
 
@@ -60,15 +54,11 @@ function braidStep(word: Word, M: number[][]): Word[] {
       }
     }
 
-    if (!alternating) {
-      continue
-    }
+    if (!alternating) continue
 
     const rep: number[] = []
 
-    for (let t = 0; t < m; t++) {
-      rep.push(t % 2 === 0 ? b : a)
-    }
+    for (let t = 0; t < m; t++) rep.push(t % 2 === 0 ? b : a)
 
     out.push([...word.slice(0, p), ...rep, ...word.slice(p + m)])
   }
@@ -83,9 +73,7 @@ function braidClass(word: Word, M: number[][], cap = 20000): Word[] {
   const k = key(word)
   const hit = braidClassCache.get(k)
 
-  if (hit) {
-    return hit
-  }
+  if (hit) return hit
 
   const seen = new Set<string>([k])
   const all: Word[] = [word]
@@ -99,22 +87,16 @@ function braidClass(word: Word, M: number[][], cap = 20000): Word[] {
       for (const nb of braidStep(w, M)) {
         const nk = key(nb)
 
-        if (seen.has(nk)) {
-          continue
-        }
+        if (seen.has(nk)) continue
 
         seen.add(nk)
         all.push(nb)
         next.push(nb)
 
-        if (all.length >= cap) {
-          break
-        }
+        if (all.length >= cap) break
       }
 
-      if (all.length >= cap) {
-        break
-      }
+      if (all.length >= cap) break
     }
 
     frontier = next
@@ -129,9 +111,7 @@ function lexLess(a: Word, b: Word): boolean {
   const n = Math.min(a.length, b.length)
 
   for (let i = 0; i < n; i++) {
-    if (a[i]! !== b[i]!) {
-      return a[i]! < b[i]!
-    }
+    if (a[i]! !== b[i]!) return a[i]! < b[i]!
   }
 
   return a.length < b.length
@@ -155,14 +135,10 @@ function reduce(word: Word, M: number[][]): Word {
         }
       }
 
-      if (cancelled) {
-        break
-      }
+      if (cancelled) break
     }
 
-    if (!cancelled) {
-      return current
-    }
+    if (!cancelled) return current
 
     current = cancelled
   }
@@ -176,18 +152,14 @@ export function normalForm(word: Word, M: number[][]): Word {
   const k = key(word)
   const hit = normalFormCache.get(k)
 
-  if (hit) {
-    return hit
-  }
+  if (hit) return hit
 
   const reduced = reduce(word, M)
 
   let best = reduced
 
   for (const w of braidClass(reduced, M)) {
-    if (lexLess(w, best)) {
-      best = w
-    }
+    if (lexLess(w, best)) best = w
   }
 
   normalFormCache.set(k, best)
@@ -232,11 +204,10 @@ export function buildWordMesh(input: {
     const k = key(w)
     const found = id.get(k)
 
-    if (found !== undefined) {
-      return found
-    }
+    if (found !== undefined) return found
 
     const i = words.length
+
     id.set(k, i)
     words.push(w)
 
@@ -266,11 +237,8 @@ export function buildWordMesh(input: {
         const ni = register(nf)
         const isNew = id.size > before
 
-        if (s === outward) {
-          edgesOut.push([ci, ni])
-        } else {
-          edgesJ.push([ci, ni])
-        }
+        if (s === outward) edgesOut.push([ci, ni])
+        else edgesJ.push([ci, ni])
 
         if (isNew) {
           next.push(ni)
@@ -283,9 +251,7 @@ export function buildWordMesh(input: {
         }
       }
 
-      if (words.length >= maxChambers) {
-        break
-      }
+      if (words.length >= maxChambers) break
     }
 
     frontier = next
@@ -294,9 +260,8 @@ export function buildWordMesh(input: {
   const chamberCount = words.length
   const ballGrowth: number[] = []
 
-  for (const w of words) {
+  for (const w of words)
     ballGrowth[w.length] = (ballGrowth[w.length] ?? 0) + 1
-  }
 
   // Cells: union-find, merging chambers joined by a cell-stabilizer (J) edge.
   const parent = Array.from({ length: chamberCount }, (_, i) => i)
@@ -304,12 +269,11 @@ export function buildWordMesh(input: {
   const find = (x: number): number => {
     let r = x
 
-    while (parent[r] !== r) {
-      r = parent[r]!
-    }
+    while (parent[r] !== r) r = parent[r]!
 
     while (parent[x] !== r) {
       const nx = parent[x]!
+
       parent[x] = r
       x = nx
     }
@@ -321,23 +285,17 @@ export function buildWordMesh(input: {
     const ra = find(a)
     const rb = find(b)
 
-    if (ra !== rb) {
-      parent[ra] = rb
-    }
+    if (ra !== rb) parent[ra] = rb
   }
 
-  for (const [a, b] of edgesJ) {
-    union(a, b)
-  }
+  for (const [a, b] of edgesJ) union(a, b)
 
   const cellOf = new Map<number, number>()
 
   for (let i = 0; i < chamberCount; i++) {
     const r = find(i)
 
-    if (!cellOf.has(r)) {
-      cellOf.set(r, cellOf.size)
-    }
+    if (!cellOf.has(r)) cellOf.set(r, cellOf.size)
   }
 
   const cellCount = cellOf.size
@@ -360,9 +318,8 @@ export function buildWordMesh(input: {
 
   let cellFacetCount = 0
 
-  for (const s of cellNeighbors) {
+  for (const s of cellNeighbors)
     cellFacetCount = Math.max(cellFacetCount, s.size)
-  }
 
   return {
     form: 'coxeter-word-mesh',

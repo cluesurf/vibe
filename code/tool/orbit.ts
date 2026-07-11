@@ -16,6 +16,7 @@ export function orbitClosure<Element>(input: {
   const cap = input.cap ?? 100000
   const seen = new Map<string, Element>()
   const queue: Element[] = [seed]
+
   seen.set(hash(seed), seed)
 
   while (queue.length > 0 && seen.size < cap) {

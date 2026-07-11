@@ -81,6 +81,7 @@ suite('coarse/surrogate: prediction beats the baseline', [
     ]
 
     const test = [0, 1, 0, 1, 0]
+
     close(predictiveLogLikelihood({ tpm, test, lag: 1 }), 0, TOL)
     close(forwardAccuracy({ tpm, test, lag: 1 }), 1, TOL)
   }),
@@ -116,6 +117,7 @@ suite('coarse/surrogate: time shuffle is a permutation', [
   check('time-shuffle preserves the label multiset', () => {
     const traj = [0, 1, 2, 3, 4, 5, 6, 7]
     const shuffled = timeShuffle({ trajectory: traj, seed: 9 })
+
     exactArray(
       shuffled.slice().sort((a, b) => a - b),
       traj,
@@ -126,6 +128,7 @@ suite('coarse/surrogate: time shuffle is a permutation', [
     const traj = [4, 1, 1, 0, 2, 3, 3, 2, 0, 1]
     const a = timeShuffle({ trajectory: traj, seed: 42 })
     const b = timeShuffle({ trajectory: traj, seed: 42 })
+
     exactArray(a, b, 'same seed gives the same shuffle')
   }),
 ])
@@ -134,7 +137,6 @@ suite('coarse/surrogate: time shuffle is a permutation', [
 function closeRow(actual: ArrayLike<number>, expected: number[]): void {
   equal(actual.length, expected.length, 'row length')
 
-  for (let i = 0; i < expected.length; i++) {
+  for (let i = 0; i < expected.length; i++)
     close(actual[i]!, expected[i]!, TOL, `entry ${i}`)
-  }
 }

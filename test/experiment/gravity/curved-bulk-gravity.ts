@@ -36,9 +36,8 @@ export default experiment({
     let center = 0
 
     for (let i = 1; i < n; i++) {
-      if (hyp.neighbors[i]!.length > hyp.neighbors[center]!.length) {
+      if (hyp.neighbors[i]!.length > hyp.neighbors[center]!.length)
         center = i
-      }
     }
 
     const dist = neighborDistances({
@@ -50,9 +49,7 @@ export default experiment({
     let maxD = 0
 
     for (let i = 0; i < n; i++) {
-      if (dist[i]! > maxD) {
-        maxD = dist[i]!
-      }
+      if (dist[i]! > maxD) maxD = dist[i]!
     }
 
     const bulk = greensDecayClass({
@@ -87,9 +84,8 @@ export default experiment({
               b = y + dy!,
               c = z + dz!
 
-            if (a >= 0 && a < L && b >= 0 && b < L && c >= 0 && c < L) {
+            if (a >= 0 && a < L && b >= 0 && b < L && c >= 0 && c < L)
               flatN[i]!.push(idx(a, b, c))
-            }
           }
         }
       }

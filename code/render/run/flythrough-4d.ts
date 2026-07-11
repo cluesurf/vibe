@@ -64,9 +64,7 @@ function run(): void {
 
     frames.push(rgba)
 
-    if (i % 8 === 0) {
-      console.log(`frame ${i + 1}/${FRAMES}`)
-    }
+    if (i % 8 === 0) console.log(`frame ${i + 1}/${FRAMES}`)
   }
 
   const gif = encodeGif({
@@ -77,6 +75,7 @@ function run(): void {
   })
 
   const file = join(outDir, `${symbol.join('-')}.gif`)
+
   writeFileSync(file, gif)
   console.log(
     `wrote ${file}  (${scene.cellCount} cells, ${scene.edges.length} edges, ${FRAMES} frames)`,

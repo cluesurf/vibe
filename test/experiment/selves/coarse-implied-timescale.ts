@@ -24,6 +24,7 @@ function shuffle(labels: number[], seed: number): number[] {
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = out[i]!
+
     out[i] = out[j]!
     out[j] = tmp
   }
@@ -50,9 +51,7 @@ function timescales(
 function coefficientOfVariation(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
 
-  if (mean === 0) {
-    return Infinity
-  }
+  if (mean === 0) return Infinity
 
   const variance =
     values.reduce((a, b) => a + (b - mean) * (b - mean), 0) /

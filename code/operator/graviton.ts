@@ -34,9 +34,7 @@ export function gravitonFromAction(input: { k: number[] }): {
   let gravitonModes = 0
 
   for (const v of eigenvalues) {
-    if (Math.abs(v - target) < 1e-6 * (1 + k2)) {
-      gravitonModes += 1
-    }
+    if (Math.abs(v - target) < 1e-6 * (1 + k2)) gravitonModes += 1
   }
 
   const xi = [0.7, -0.3, 0.5]

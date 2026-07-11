@@ -110,9 +110,7 @@ export default experiment({
         const predPi =
           2 * Math.abs(invariants[ni]!.nuPi - invariants[nj]!.nuPi)
 
-        if (e.zero !== predZero || e.pi !== predPi) {
-          allMatch = false
-        }
+        if (e.zero !== predZero || e.pi !== predPi) allMatch = false
       }
     }
 

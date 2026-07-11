@@ -119,12 +119,11 @@ export function wakeDrivenSweep(input: {
   rate: number
 }): void {
   const { tone, edges, moved, depth, beat, rate } = input
+
   moved.fill(0)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -153,6 +152,7 @@ export function wakeDrivenSweep(input: {
     ) {
       const outer = (depth[v] ?? 0) > (depth[w] ?? 0) ? v : w
       const inner = outer === v ? w : v
+
       tone[outer] = 1
       tone[inner] = -1
       moved[v] = 1
@@ -167,9 +167,7 @@ export function growthRate(depth: Int32Array): number {
   let maxD = 0
 
   for (const d of depth) {
-    if (d > maxD) {
-      maxD = d
-    }
+    if (d > maxD) maxD = d
   }
 
   let frontier = 0
@@ -358,6 +356,7 @@ export function differenceTrajectory(input: {
       arrow,
       pump: null,
     })
+
     conservingEdgeListSweepPumped({
       tone: b,
       edges,
@@ -404,9 +403,7 @@ export function growingMeshGenesis(input: {
   let maxDepth = 0
 
   for (let i = 0; i < n; i++) {
-    if (depth[i]! > maxDepth) {
-      maxDepth = depth[i]!
-    }
+    if (depth[i]! > maxDepth) maxDepth = depth[i]!
   }
 
   const tone = new Int8Array(n)
@@ -422,13 +419,10 @@ export function growingMeshGenesis(input: {
       const dv = depth[v]!
       const dw = depth[w]!
 
-      if (dv > b || dw > b) {
-        continue
-      } // not yet born
+      if (dv > b || dw > b) continue
+      // not yet born
 
-      if (moved[v] || moved[w]) {
-        continue
-      }
+      if (moved[v] || moved[w]) continue
 
       const a = tone[v]!
       const c = tone[w]!
@@ -447,6 +441,7 @@ export function growingMeshGenesis(input: {
       ) {
         const outer = dv > dw ? v : w
         const inner = outer === v ? w : v
+
         tone[outer] = 1
         tone[inner] = -1
         moved[v] = 1
@@ -519,6 +514,7 @@ export function oneBeat(input: {
 }): Int8Array {
   const out = input.tone.slice()
   const moved = new Uint8Array(out.length)
+
   conservingEdgeListSweepPumped({
     tone: out,
     edges: input.edges,
@@ -556,9 +552,7 @@ export function gardenOfEdenFraction(input: {
   const code = (t: Int8Array): number => {
     let k = 0
 
-    for (let i = cells - 1; i >= 0; i--) {
-      k = k * 3 + (t[i]! + 1)
-    }
+    for (let i = cells - 1; i >= 0; i--) k = k * 3 + (t[i]! + 1)
 
     return k
   }

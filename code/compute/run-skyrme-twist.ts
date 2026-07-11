@@ -31,6 +31,7 @@ function nrt3(k: number): Float32Array {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
+
         out[s * 3] = Math.sin(q * x)
         out[s * 3 + 1] = -Math.cos(q * x) * Math.sin(q * y)
         out[s * 3 + 2] = Math.cos(q * x) * Math.cos(q * y)
@@ -50,6 +51,7 @@ function nrt3helix(k: number): Float32Array {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
+
         out[s * 3] = Math.sin(q * x)
         out[s * 3 + 1] = 0
         out[s * 3 + 2] = Math.cos(q * x)
@@ -62,11 +64,11 @@ function nrt3helix(k: number): Float32Array {
 
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
+
   c[0] = 2 / Math.PI
 
-  for (let k = 1; 2 * k < M; k++) {
+  for (let k = 1; 2 * k < M; k++)
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
-  }
 
   return c
 }
@@ -248,6 +250,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pMat)
       pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
       pass.dispatchWorkgroups(wgN)
@@ -276,6 +279,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pDP)
       pass.setBindGroup(0, bg(pDP, xi, cur, partials))
       pass.dispatchWorkgroups(wgF)
@@ -296,12 +300,14 @@ async function run(): Promise<void> {
 
     for (let n = 2; n < MCHEB; n++) {
       const itn = 3 - i0 - i1
+
       step(Bb[i1]!, Bb[itn]!, 2 / A, 1, Bb[i0]!, n, Bb[itn]!)
       i0 = i1
       i1 = itn
     }
 
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
@@ -326,6 +332,7 @@ async function run(): Promise<void> {
     dMuH = Ks.map(() => new Float64Array(MCHEB))
 
   const rng = makeRng({ seed: 271 })
+
   console.log(
     `GPU Skyrme twist (double + helix control), L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, a=${A.toFixed(2)}`,
   )
@@ -333,9 +340,7 @@ async function run(): Promise<void> {
   for (let r = 0; r < NRV; r++) {
     const xd = new Float32Array(FN)
 
-    for (let i = 0; i < FN; i++) {
-      xd[i] = rng.next() < 0.5 ? -1 : 1
-    }
+    for (let i = 0; i < FN; i++) xd[i] = rng.next() < 0.5 ? -1 : 1
 
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN)
@@ -349,18 +354,16 @@ async function run(): Promise<void> {
 
       const mD = await computeMoments()
 
-      for (let n = 0; n < MCHEB; n++) {
+      for (let n = 0; n < MCHEB; n++)
         dMuD[ki]![n]! += (mD[n]! - muV[n]!) / NRV
-      }
 
       device.queue.writeBuffer(nrt, 0, helN[ki]!)
       device.queue.writeBuffer(Bb[0]!, 0, xd)
 
       const mH = await computeMoments()
 
-      for (let n = 0; n < MCHEB; n++) {
+      for (let n = 0; n < MCHEB; n++)
         dMuH[ki]![n]! += (mH[n]! - muV[n]!) / NRV
-      }
     }
 
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
@@ -370,9 +373,7 @@ async function run(): Promise<void> {
     Ks.map((k, ki) => {
       let s = 0
 
-      for (let n = 0; n < MCHEB; n++) {
-        s += g[n]! * c[n]! * dMu[ki]![n]!
-      }
+      for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ki]![n]!
 
       return { q: (2 * Math.PI * k) / L, dE: -0.5 * A * s }
     })
@@ -424,9 +425,11 @@ async function run(): Promise<void> {
   // the helix q^4 is the pure lattice-exchange artifact; scale it by the exchange ratio (A_double/A_helix) and subtract
   const ratio = fD.A / fH.A
   const skyrme = fD.B - ratio * fH.B
+
   console.log(
     `  double:  A(q^2)=${fD.A.toFixed(1)}, B(q^4)=${fD.B.toFixed(1)}`,
   )
+
   console.log(
     `  helix :  A(q^2)=${fH.A.toFixed(1)}, B(q^4)=${fH.B.toFixed(1)}  (pure lattice artifact, no Skyrme)`,
   )
@@ -436,9 +439,11 @@ async function run(): Promise<void> {
   )
 
   const stabilizing = skyrme > 0
+
   console.log(
     `  => ${stabilizing ? 'SKYRME > 0 (POSITIVE): the fermion supplies a STABILIZING term. GATE CLOSED (positive sign).' : 'Skyrme <= 0 after subtraction: not stabilizing by this measure. Honest result.'}`,
   )
+
   console.log(
     `RESULT: skyrme=${skyrme.toFixed(1)} (raw B_double=${fD.B.toFixed(1)}, B_helix=${fH.B.toFixed(1)}), stabilizing ${stabilizing}`,
   )

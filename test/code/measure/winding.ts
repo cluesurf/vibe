@@ -33,6 +33,7 @@ suite('measure/winding: directorWinding', [
   check('a pi-advance (1/2 disclination) reads 1 in pi-units', () => {
     // director angle advances by pi total over the ring -> total/pi = 1.
     const phi = Array.from({ length: 8 }, (_, i) => (Math.PI * i) / 8)
+
     close(directorWinding(phi), 1, 1e-9)
   }),
   check('a full 2*pi director advance reads 2 in pi-units', () => {

@@ -96,9 +96,7 @@ export function rapidityMaxGap(input: {
     for (let m = -range; m <= range; m++) {
       const rapidity = n * Math.log(2) + m * Math.log(3)
 
-      if (rapidity >= 0 && rapidity <= span) {
-        rapidities.push(rapidity)
-      }
+      if (rapidity >= 0 && rapidity <= span) rapidities.push(rapidity)
     }
   }
 
@@ -106,9 +104,8 @@ export function rapidityMaxGap(input: {
 
   let gap = rapidities[0]!
 
-  for (let i = 1; i < rapidities.length; i++) {
+  for (let i = 1; i < rapidities.length; i++)
     gap = Math.max(gap, rapidities[i]! - rapidities[i - 1]!)
-  }
 
   return Math.max(gap, span - rapidities[rapidities.length - 1]!)
 }

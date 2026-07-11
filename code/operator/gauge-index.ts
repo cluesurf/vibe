@@ -40,11 +40,8 @@ function linkPhase(input: {
 
   let phase = 0
 
-  if (input.mu === 1) {
-    phase = -input.flux * n2
-  } else if (n2 === L - 1) {
-    phase = input.flux * L * n1
-  }
+  if (input.mu === 1) phase = -input.flux * n2
+  else if (n2 === L - 1) phase = input.flux * L * n1
 
   return { re: Math.cos(phase), im: Math.sin(phase) }
 }
@@ -87,6 +84,7 @@ export function totalFlux(input: {
       const a = cMul(u1, u2x)
       const b = cMul(cConj(u1y), cConj(u2))
       const p = cMul(a, b)
+
       total += Math.atan2(p.im, p.re)
     }
   }
@@ -107,6 +105,7 @@ export function gaugeWilsonDirac(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
+
       // diagonal mass term: M0 = r * dim = 2.
       addComplexBlock({
         matrix: d,
@@ -122,6 +121,7 @@ export function gaugeWilsonDirac(input: {
       {
         const u = linkPhase({ mu: 1, n1, n2, flux: F, length: L })
         const xPlus = site(n1 + 1, n2, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -141,6 +141,7 @@ export function gaugeWilsonDirac(input: {
         })
 
         const xMinus = site(n1 - 1, n2, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -156,6 +157,7 @@ export function gaugeWilsonDirac(input: {
       {
         const u = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
         const xPlus = site(n1, n2 + 1, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -175,6 +177,7 @@ export function gaugeWilsonDirac(input: {
         })
 
         const xMinus = site(n1, n2 - 1, L)
+
         addComplexBlock({
           matrix: d,
           rowSite: x,
@@ -218,9 +221,7 @@ function hermiticityError(m: ComplexMatrix): number {
       const di = (m.im[i * n + j] ?? 0) + (m.im[j * n + i] ?? 0)
       const e = Math.hypot(dr, di)
 
-      if (e > worst) {
-        worst = e
-      }
+      if (e > worst) worst = e
     }
   }
 
@@ -252,9 +253,8 @@ export function overlapIndex(input: {
   const dw = gaugeWilsonDirac({ length: L, charge: input.charge })
 
   // H_W = gamma5 (D_W - m0): subtract m0 from the diagonal, then apply gamma5.
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
-  }
 
   gamma5RowsInPlace(dw)
 
@@ -266,6 +266,7 @@ export function overlapIndex(input: {
 
   for (const eigenvalue of eig.values) {
     const lambda = eigenvalue ?? 0
+
     asymmetry += lambda > 0 ? 1 : lambda < 0 ? -1 : 0
   }
 

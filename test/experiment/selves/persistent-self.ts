@@ -80,9 +80,7 @@ export function persistentSelf(input?: { n?: number }): {
   // make inRegion match region EXACTLY (the BFS marked some enqueued-but-unadded frontier cells)
   inRegion.fill(0)
 
-  for (const i of region) {
-    inRegion[i] = 1
-  }
+  for (const i of region) inRegion[i] = 1
 
   // boundary cells of the region (have a neighbor outside)
   const boundary: number[] = []
@@ -99,15 +97,15 @@ export function persistentSelf(input?: { n?: number }): {
   // the identity pattern, a balanced +/- structure over the region
   const target = new Int8Array(N)
 
-  for (let idx = 0; idx < region.length; idx++) {
+  for (let idx = 0; idx < region.length; idx++)
     target[region[idx]!] = idx % 2 === 0 ? 1 : -1
-  }
 
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor((((i + 1) * GOLDEN) % 1) * (i + 1))
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
+
     target[a] = target[b]!
     target[b] = t
   }
@@ -127,9 +125,8 @@ export function persistentSelf(input?: { n?: number }): {
   // DETERMINISTIC medium: golden-ratio selection + silver-ratio sign on the cell index, no randomness
   const seedMedium = (tone: Int8Array): void => {
     for (let i = 0; i < N; i++) {
-      if (!inRegion[i] && ((i + 1) * GOLDEN) % 1 < 0.25) {
+      if (!inRegion[i] && ((i + 1) * GOLDEN) % 1 < 0.25)
         tone[i] = ((i + 1) * SILVER) % 1 < 0.5 ? 1 : -1
-      }
     }
   }
 
@@ -137,9 +134,7 @@ export function persistentSelf(input?: { n?: number }): {
   // beat, a conserving operation, the will, P107/P109)
   const self = new Int8Array(N)
 
-  for (const i of region) {
-    self[i] = target[i]!
-  }
+  for (const i of region) self[i] = target[i]!
 
   seedMedium(self)
 
@@ -148,9 +143,8 @@ export function persistentSelf(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     beat(self, eu, ev, moved, t, arrow)
 
-    for (const i of region) {
-      self[i] = target[i]!
-    } // self-maintenance, restore the identity
+    for (const i of region) self[i] = target[i]!
+    // self-maintenance, restore the identity
   }
 
   const selfIdentityEnd = identity(self)
@@ -158,15 +152,11 @@ export function persistentSelf(input?: { n?: number }): {
   // (B) the SAME structured region with NO maintenance, it dissolves into churn (P159)
   const un = new Int8Array(N)
 
-  for (const i of region) {
-    un[i] = target[i]!
-  }
+  for (const i of region) un[i] = target[i]!
 
   seedMedium(un)
 
-  for (let t = 0; t < T; t++) {
-    beat(un, eu, ev, moved, t, arrow)
-  }
+  for (let t = 0; t < T; t++) beat(un, eu, ev, moved, t, arrow)
 
   const unmaintainedIdentityEnd = identity(un)
 

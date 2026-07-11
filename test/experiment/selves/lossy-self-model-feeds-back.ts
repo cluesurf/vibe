@@ -45,9 +45,7 @@ function shiftWithinBlocks(
     if (hi - lo >= 2) {
       const last = out[hi - 1]!
 
-      for (let i = hi - 1; i > lo; i--) {
-        out[i] = out[i - 1]!
-      }
+      for (let i = hi - 1; i > lo; i--) out[i] = out[i - 1]!
 
       out[lo] = last
     }
@@ -85,9 +83,8 @@ export function lossyModelFeedsBack(input: {
         blockCoarse(startA, input.blocks),
         blockCoarse(startB, input.blocks),
       )
-    ) {
+    )
       allCoarseEqual = false
-    }
 
     // with a real self: the micro arrangement steers which basin is reached
     const a1 = settle({

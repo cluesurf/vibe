@@ -31,9 +31,7 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
   for (let i = 0; i < size; i++) {
     const c = coordOf(i)
 
-    for (let a = 0; a < dim; a++) {
-      coords[i * dim + a] = c[a] ?? 0
-    }
+    for (let a = 0; a < dim; a++) coords[i * dim + a] = c[a] ?? 0
 
     for (let a = 0; a < dim; a++) {
       if ((c[a] ?? 0) + 1 < side) {
@@ -108,9 +106,7 @@ export function cubicBoxRows(input: { side: number; dim: number }): {
   for (let i = 0; i < lattice.size; i++) {
     const row: number[] = []
 
-    for (let a = 0; a < dim; a++) {
-      row.push(lattice.coords[i * dim + a]!)
-    }
+    for (let a = 0; a < dim; a++) row.push(lattice.coords[i * dim + a]!)
 
     coords.push(row)
   }

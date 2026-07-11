@@ -31,6 +31,7 @@ export function unifiedEmergence(): {
   const v8: Q[] = ([0, 1, 2, 3] as const).flatMap(i =>
     [1, -1].map(s => {
       const q = [0, 0, 0, 0]
+
       q[i] = s
 
       return q as unknown as Q
@@ -42,9 +43,7 @@ export function unifiedEmergence(): {
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {
-        for (const d of [0.5, -0.5]) {
-          half.push([a, b, c, d])
-        }
+        for (const d of [0.5, -0.5]) half.push([a, b, c, d])
       }
     }
   }

@@ -38,9 +38,7 @@ function candidateRegion(input: {
   const region = new Set<number>([seed])
   const row = input.adjacency[seed] ?? new Uint32Array(0)
 
-  for (const value of row) {
-    region.add(value ?? 0)
-  }
+  for (const value of row) region.add(value ?? 0)
 
   return region
 }
@@ -57,11 +55,10 @@ export function algebraicConnectivity(input: {
   const nodes = [...input.region].sort((a, b) => a - b)
   const n = nodes.length
 
-  if (n < 2) {
-    return 0
-  }
+  if (n < 2) return 0
 
   const indexOf = new Map<number, number>()
+
   nodes.forEach((node, i) => indexOf.set(node, i))
 
   // Local adjacency restricted to the region.
@@ -73,9 +70,7 @@ export function algebraicConnectivity(input: {
       const neighbor = value ?? 0
       const j = indexOf.get(neighbor)
 
-      if (j !== undefined) {
-        local.push(j)
-      }
+      if (j !== undefined) local.push(j)
     }
 
     return local
@@ -92,9 +87,7 @@ export function algebraicConnectivity(input: {
 
       const row = localAdjacency[i] ?? []
 
-      for (const j of row) {
-        value -= x[j] ?? 0
-      }
+      for (const j of row) value -= x[j] ?? 0
 
       out[i] = value
     }
@@ -111,9 +104,7 @@ export function algebraicConnectivity(input: {
   const orthogonalize = (v: Float64Array): void => {
     let mean = 0
 
-    for (let i = 0; i < n; i++) {
-      mean += v[i] ?? 0
-    }
+    for (let i = 0; i < n; i++) mean += v[i] ?? 0
 
     mean /= n
 
@@ -127,9 +118,7 @@ export function algebraicConnectivity(input: {
     norm = Math.sqrt(norm)
 
     if (norm > 0) {
-      for (let i = 0; i < n; i++) {
-        v[i] = (v[i] ?? 0) / norm
-      }
+      for (let i = 0; i < n; i++) v[i] = (v[i] ?? 0) / norm
     }
   }
 
@@ -137,6 +126,7 @@ export function algebraicConnectivity(input: {
   // estimate of the eigenvalue it converged to.
   const estimateFromStart = (start: Float64Array): number => {
     let x = Float64Array.from(start)
+
     orthogonalize(x)
 
     let estimate = 0
@@ -145,9 +135,8 @@ export function algebraicConnectivity(input: {
       const lx = applyLaplacian(x)
       const y = new Float64Array(n)
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         y[i] = lambdaMax * (x[i] ?? 0) - (lx[i] ?? 0)
-      }
 
       orthogonalize(y)
       x = y
@@ -156,9 +145,8 @@ export function algebraicConnectivity(input: {
 
       let rayleigh = 0
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         rayleigh += (x[i] ?? 0) * (lxNew[i] ?? 0)
-      }
 
       estimate = rayleigh
     }
@@ -189,9 +177,7 @@ export function algebraicConnectivity(input: {
   for (const start of starts) {
     const value = estimateFromStart(start)
 
-    if (value > 1e-9 && value < best) {
-      best = value
-    }
+    if (value > 1e-9 && value < best) best = value
   }
 
   // best stays Infinity only for a disconnected region (Fiedler value 0).
@@ -204,9 +190,8 @@ export function integrationCorrelates(input: {
 }): { markovBlanketScore: number; integrationPhi: number } {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
 
-  if (adjacency.length === 0) {
+  if (adjacency.length === 0)
     return { markovBlanketScore: 0, integrationPhi: 0 }
-  }
 
   const region = candidateRegion({ adjacency })
 
@@ -271,14 +256,13 @@ export function toneIntegration(input: {
   const nodes = [...new Set(input.region)].sort((a, b) => a - b)
   const n = nodes.length
 
-  if (n < 2) {
-    return 0
-  }
+  if (n < 2) return 0
 
   const samples = input.samples ?? 24
   const cuts = input.bipartitions ?? 16
   const fillOf = input.fillOf ?? ((): number => 1)
   const indexOf = new Map<number, number>()
+
   nodes.forEach((node, i) => indexOf.set(node, i))
 
   const nb: { j: number; f: number }[][] = nodes.map(node => {
@@ -288,9 +272,7 @@ export function toneIntegration(input: {
     for (const w of row) {
       const j = indexOf.get(w)
 
-      if (j !== undefined) {
-        out.push({ j, f: fillOf(node, w) })
-      }
+      if (j !== undefined) out.push({ j, f: fillOf(node, w) })
     }
 
     return out
@@ -300,9 +282,7 @@ export function toneIntegration(input: {
   const step = (tone: Int8Array, i: number): number => {
     let acc = 0
 
-    for (const { j, f } of nb[i] ?? []) {
-      acc += f * (tone[j] ?? 0)
-    }
+    for (const { j, f } of nb[i] ?? []) acc += f * (tone[j] ?? 0)
 
     return acc > 0 ? 1 : acc < 0 ? -1 : (tone[i] ?? 0)
   }
@@ -314,29 +294,23 @@ export function toneIntegration(input: {
     for (let s = 0; s < samples; s++) {
       const tone = new Int8Array(n)
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         tone[i] = input.rng.next() < 0.5 ? -1 : 1
-      }
 
       const base = new Int8Array(n)
 
-      for (let i = 0; i < n; i++) {
-        base[i] = step(tone, i)
-      }
+      for (let i = 0; i < n; i++) base[i] = step(tone, i)
 
       const repl = new Int8Array(n)
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         repl[i] = input.rng.next() < 0.5 ? -1 : 1
-      }
 
       // B -> A: replace side-1 current tones, recompute side-0 next tones
       const tA = Int8Array.from(tone)
 
       for (let i = 0; i < n; i++) {
-        if (part[i] === 1) {
-          tA[i] = repl[i] ?? 0
-        }
+        if (part[i] === 1) tA[i] = repl[i] ?? 0
       }
 
       let changedA = 0
@@ -356,9 +330,7 @@ export function toneIntegration(input: {
       const tB = Int8Array.from(tone)
 
       for (let i = 0; i < n; i++) {
-        if (part[i] === 0) {
-          tB[i] = repl[i] ?? 0
-        }
+        if (part[i] === 0) tB[i] = repl[i] ?? 0
       }
 
       let changedB = 0
@@ -376,6 +348,7 @@ export function toneIntegration(input: {
 
       const infA = sizeA > 0 ? changedA / sizeA : 0
       const infB = sizeB > 0 ? changedB / sizeB : 0
+
       total += Math.min(infA, infB)
     }
 
@@ -403,13 +376,9 @@ export function toneIntegration(input: {
       if (chosen.length === k) {
         const part = new Uint8Array(n)
 
-        for (const i of chosen) {
-          part[i] = 1
-        }
+        for (const i of chosen) part[i] = 1
 
-        if (!dedupComplement || part[0] === 0) {
-          masks.push(part)
-        }
+        if (!dedupComplement || part[0] === 0) masks.push(part)
 
         return
       }
@@ -429,15 +398,15 @@ export function toneIntegration(input: {
       for (let i = order.length - 1; i > 0; i--) {
         const k = input.rng.nextInt({ max: i + 1 })
         const tmp = order[i] ?? 0
+
         order[i] = order[k] ?? 0
         order[k] = tmp
       }
 
       const part = new Uint8Array(n)
 
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++)
         part[order[i] ?? 0] = i < Math.floor(n / 2) ? 0 : 1
-      }
 
       masks.push(part)
     }
@@ -445,9 +414,7 @@ export function toneIntegration(input: {
 
   let phi = Infinity
 
-  for (const part of masks) {
-    phi = Math.min(phi, cutCost(part))
-  }
+  for (const part of masks) phi = Math.min(phi, cutCost(part))
 
   return phi === Infinity ? 0 : phi
 }

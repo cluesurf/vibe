@@ -70,9 +70,7 @@ export default experiment({
         const dx = x - cx
         const dy = y - cy
 
-        if (dx * dx + dy * dy > radius * radius) {
-          continue
-        }
+        if (dx * dx + dy * dy > radius * radius) continue
 
         const tx = -dy
         const ty = dx
@@ -145,15 +143,11 @@ export default experiment({
           }
         }
 
-        if (!on) {
-          continue
-        }
+        if (!on) continue
 
         const r = Math.sqrt(dx * dx + dy * dy)
 
-        if (r > ext) {
-          ext = r
-        }
+        if (r > ext) ext = r
 
         total++
 
@@ -183,25 +177,21 @@ export default experiment({
       beatInto({ src: current, dst: scratch, table, collision: rule })
 
       const swap = current
+
       current = scratch
       scratch = swap
 
       const will = current
       const { ext, confined } = confinedFraction(will)
 
-      if (ext > maxExtent) {
-        maxExtent = ext
-      }
+      if (ext > maxExtent) maxExtent = ext
 
-      if (confined < minConfined) {
-        minConfined = confined
-      }
+      if (confined < minConfined) minConfined = confined
 
       const ratio = Math.abs(circulation(will) / l0)
 
-      if (t > beats / 2 && ratio > lateCirculationMax) {
+      if (t > beats / 2 && ratio > lateCirculationMax)
         lateCirculationMax = ratio
-      }
     }
 
     // the honest negative, the vortex DISPERSES (extent reaches the boundary, confined fraction drops to zero) and

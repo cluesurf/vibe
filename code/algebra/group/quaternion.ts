@@ -91,9 +91,8 @@ export function binaryTetrahedral(): Quaternion[] {
   for (const signW of [0.5, -0.5]) {
     for (const signX of [0.5, -0.5]) {
       for (const signY of [0.5, -0.5]) {
-        for (const signZ of [0.5, -0.5]) {
+        for (const signZ of [0.5, -0.5])
           units.push(quaternion(signW, signX, signY, signZ))
-        }
       }
     }
   }
@@ -115,9 +114,8 @@ export function binaryIcosahedral(): Quaternion[] {
   for (const order of evenPermutations(positions)) {
     const base = [0, 0, 0, 0]
 
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < 4; index++)
       base[order[index]!] = magnitudes[index]!
-    }
 
     const zeroSlot = order[3]!
     const nonzero = positions.filter(position => position !== zeroSlot)
@@ -126,9 +124,8 @@ export function binaryIcosahedral(): Quaternion[] {
       const components = [...base]
 
       for (let bit = 0; bit < 3; bit++) {
-        if ((signMask >> bit) & 1) {
+        if ((signMask >> bit) & 1)
           components[nonzero[bit]!] = -components[nonzero[bit]!]!
-        }
       }
 
       units.push(
@@ -151,9 +148,7 @@ export function evenPermutations(items: number[]): number[][] {
 
   const recurse = (current: number[], rest: number[]): void => {
     if (rest.length === 0) {
-      if (permutationParity(current) === 0) {
-        result.push(current)
-      }
+      if (permutationParity(current) === 0) result.push(current)
 
       return
     }

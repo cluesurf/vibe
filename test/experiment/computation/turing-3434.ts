@@ -106,9 +106,7 @@ function legTernary(): boolean {
 
   for (const x of [-1, 1] as Bit[]) {
     for (const y of [-1, 1] as Bit[]) {
-      if (nand(x, y) !== nandTable[`${x},${y}`]) {
-        nandOK = false
-      }
+      if (nand(x, y) !== nandTable[`${x},${y}`]) nandOK = false
     }
   }
 
@@ -123,9 +121,7 @@ function legTernary(): boolean {
     const c: Bit = ((p >> 1) & 1) === 1 ? 1 : -1
     const r: Bit = (p & 1) === 1 ? 1 : -1
 
-    if (toNum(fn(l, c, r)) !== rule110[p]) {
-      exprOK = false
-    }
+    if (toNum(fn(l, c, r)) !== rule110[p]) exprOK = false
   }
 
   // evolve Rule 110 (built from the rule's NANDs) against a reference Rule 110 for a few steps
@@ -146,9 +142,7 @@ function legTernary(): boolean {
     const refNext = elementaryRuleStep({ line: ref, rule: 110 })
 
     for (let i = 0; i < W; i++) {
-      if (toNum(next[i]!) !== refNext[i]) {
-        matches = false
-      }
+      if (toNum(next[i]!) !== refNext[i]) matches = false
     }
 
     line = next
@@ -173,9 +167,7 @@ function makeMachine3434(
   const interior: number[] = []
 
   for (let c = 0; c < n; c++) {
-    if (a.complete[c]) {
-      interior.push(c)
-    }
+    if (a.complete[c]) interior.push(c)
   }
 
   interior.sort((x, y) =>
@@ -216,10 +208,12 @@ function legRegisterMachine(a: Addressing): boolean {
     [0, 5],
   ] as [number, number][]) {
     const m = makeMachine3434(a, 5, 60)
+
     m.set(R0, x)
     m.set(R1, y)
 
     const { conserved } = m.run(PROG_ADD)
+
     cases.push({
       name: 'add',
       inputs: [x, y],
@@ -235,10 +229,12 @@ function legRegisterMachine(a: Addressing): boolean {
     [2, 0],
   ] as [number, number][]) {
     const m = makeMachine3434(a, 5, 60)
+
     m.set(R0, x)
     m.set(R1, y)
 
     const { conserved } = m.run(PROG_MUL)
+
     cases.push({
       name: 'mul',
       inputs: [x, y],
@@ -254,13 +250,9 @@ function legRegisterMachine(a: Addressing): boolean {
   for (const c of cases) {
     const ok = c.got === c.expected
 
-    if (!ok) {
-      allCorrect = false
-    }
+    if (!ok) allCorrect = false
 
-    if (!c.conserved) {
-      allConserved = false
-    }
+    if (!c.conserved) allConserved = false
   }
 
   return allCorrect && allConserved
@@ -282,6 +274,7 @@ function legCuspLife(): boolean {
   // extract the z=0 plane and index cells by (x,y)
   const cellAt = new Map<string, number>()
   const planeCells: { id: number; x: number; y: number }[] = []
+
   g.coords.forEach((c, id) => {
     if (c[2] === 0) {
       cellAt.set(`${c[0]},${c[1]}`, id)
@@ -302,9 +295,7 @@ function legCuspLife(): boolean {
     [1, 2],
   ]
 
-  for (const [dx, dy] of glider) {
-    alive.add(`${cx + dx},${cy + dy}`)
-  }
+  for (const [dx, dy] of glider) alive.add(`${cx + dx},${cy + dy}`)
 
   const refAlive = new Set(alive)
 

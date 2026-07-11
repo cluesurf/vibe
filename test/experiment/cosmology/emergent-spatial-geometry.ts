@@ -53,9 +53,7 @@ export function sliceDimension(input: {
   // Time coordinates, to pick a thin band near the median (a coexisting slice).
   const times: number[] = []
 
-  for (let i = 0; i < poset.size; i++) {
-    times.push(coords[i * d] ?? 0)
-  }
+  for (let i = 0; i < poset.size; i++) times.push(coords[i * d] ?? 0)
 
   const sorted = [...times].sort((a, b) => a - b)
   const lo = sorted[Math.floor(sorted.length * 0.48)] ?? 0
@@ -63,9 +61,7 @@ export function sliceDimension(input: {
   const slice: number[] = []
 
   for (let i = 0; i < poset.size; i++) {
-    if ((times[i] ?? 0) >= lo && (times[i] ?? 0) <= hi) {
-      slice.push(i)
-    }
+    if ((times[i] ?? 0) >= lo && (times[i] ?? 0) <= hi) slice.push(i)
   }
 
   // A spatial radius giving a locally connected slice graph: a few times the typical
@@ -78,6 +74,7 @@ export function sliceDimension(input: {
 
   // Build the spatial-neighbor graph on the slice (indices into `slice`).
   const local = new Map<number, number>()
+
   slice.forEach((g, i) => local.set(g, i))
 
   const neighbors: number[][] = slice.map(() => [])
@@ -93,9 +90,7 @@ export function sliceDimension(input: {
 
   let degSum = 0
 
-  for (const row of neighbors) {
-    degSum += row.length
-  }
+  for (const row of neighbors) degSum += row.length
 
   // Centers: the most-connected slice nodes (interior, not on the slice boundary).
   const order = neighbors

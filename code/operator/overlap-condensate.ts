@@ -65,6 +65,7 @@ function gaugeWilsonDiracRandom(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
+
       addComplexBlock({
         matrix: d,
         rowSite: x,
@@ -77,6 +78,7 @@ function gaugeWilsonDiracRandom(input: {
 
       // mu = 1
       const u1x = ph(input.u1[x] ?? 0)
+
       addComplexBlock({
         matrix: d,
         rowSite: x,
@@ -88,6 +90,7 @@ function gaugeWilsonDiracRandom(input: {
       })
 
       const u1b = ph(input.u1[site(n1 - 1, n2, L)] ?? 0)
+
       addComplexBlock({
         matrix: d,
         rowSite: x,
@@ -100,6 +103,7 @@ function gaugeWilsonDiracRandom(input: {
 
       // mu = 2
       const u2x = ph(input.u2[x] ?? 0)
+
       addComplexBlock({
         matrix: d,
         rowSite: x,
@@ -111,6 +115,7 @@ function gaugeWilsonDiracRandom(input: {
       })
 
       const u2b = ph(input.u2[site(n1, n2 - 1, L)] ?? 0)
+
       addComplexBlock({
         matrix: d,
         rowSite: x,
@@ -159,9 +164,8 @@ export function chiralCondensateSignal(input: {
     })
 
     // H_W = gamma5 (D_W - m0): subtract m0 on the diagonal, negate spin-down rows.
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++)
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
-    }
 
     for (let row = 0; row < n; row++) {
       if (row % 2 === 1) {
@@ -183,9 +187,7 @@ export function chiralCondensateSignal(input: {
     const eig = eigHermitian({ matrix: epsilon })
 
     for (const eigenvalue of eig.values) {
-      if (Math.abs(eigenvalue ?? 0) < tol) {
-        nearZero += 1
-      }
+      if (Math.abs(eigenvalue ?? 0) < tol) nearZero += 1
 
       totalEig += 1
     }

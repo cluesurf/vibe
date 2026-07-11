@@ -37,6 +37,7 @@ export default experiment({
       const rotor = coxeterEdgeRotor(m)
       const once = cmPower(rotor, m) // around the edge once, a 2pi rotation
       const twice = cmPower(rotor, 2 * m) // around twice, 4pi
+
       onceMinusOne.push(cmIsScalar(once, minusOne) ? 1 : 0)
       twicePlusOne.push(cmIsScalar(twice, plusOne) ? 1 : 0)
     }

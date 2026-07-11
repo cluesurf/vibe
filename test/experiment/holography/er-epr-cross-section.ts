@@ -47,9 +47,8 @@ export default experiment({
     let monotone = true
 
     for (let i = 1; i < crossSections.length; i++) {
-      if (crossSections[i]! < crossSections[i - 1]! - 1e-12) {
+      if (crossSections[i]! < crossSections[i - 1]! - 1e-12)
         monotone = false
-      }
     }
 
     const pinchedAtProduct = crossSections[0]! < 1e-12

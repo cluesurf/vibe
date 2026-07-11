@@ -41,6 +41,7 @@ suite('algebra/group/finite-group: closure over Z/6', [
   }),
   check('closure of {2} is {0,2,4} (order 3 = 6/gcd(2,6))', () => {
     const sub = new Set(closure([2], cyclic).map(x => cyclic.key(x)))
+
     equal(sub.size, 3, '|<2>| = 3')
     ok(
       [0, 2, 4].every(x => sub.has(String(x))),
@@ -56,10 +57,12 @@ suite('algebra/group/finite-group: closure over Z/6', [
   }),
   check('commutator subgroup of an abelian group is trivial', () => {
     const all = [0, 1, 2, 3, 4, 5]
+
     equal(commutatorSubgroup(all, cyclic).length, 1, "Z/6' = {0}")
   }),
   check('contains tracks membership', () => {
     const sub = closure([2], cyclic)
+
     ok(contains(sub, 4, cyclic), '4 is in <2>')
     notOk(contains(sub, 5, cyclic), '5 is not in <2>')
   }),
@@ -72,6 +75,7 @@ suite(
       'closing the SL(2,2) elements reproduces the group (order 6)',
       () => {
         const group = specialLinear(2)
+
         equal(closure(group, matOps).length, 6, '|SL(2,2)| = 6')
       },
     ),
@@ -93,6 +97,7 @@ suite(
     ),
     check('commutator subgroup of S3 is A3 (order 3)', () => {
       const group = specialLinear(2)
+
       equal(commutatorSubgroup(group, matOps).length, 3, "S3' = A3")
     }),
     check(

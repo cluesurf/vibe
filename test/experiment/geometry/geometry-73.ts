@@ -23,6 +23,7 @@ export function geometry73(): {
 
   for (let i = 0; i < N; i++) {
     const d = off[i + 1]! - off[i]!
+
     degHist[d] = (degHist[d] ?? 0) + 1
   }
 

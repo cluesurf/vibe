@@ -25,6 +25,7 @@ suite('substrate/sprinkle-minkowski: determinism', [
   check('the same seed produces an identical sprinkle', () => {
     const a = sprinkle(42)
     const b = sprinkle(42)
+
     equal(a.size, b.size, 'size')
     exactArray(
       a.embedding!.coords,
@@ -62,16 +63,19 @@ suite('substrate/sprinkle-minkowski: the sample', [
 
     for (let i = 0; i < p.size; i++) {
       const t = coords[i * d]!
+
       ok(t >= 0 && t <= 1, `t=${t} in [0,1]`)
 
       let radius2 = 0
 
       for (let axis = 1; axis < d; axis++) {
         const x = coords[i * d + axis]!
+
         radius2 += x * x
       }
 
       const reach = Math.min(t, 1 - t)
+
       ok(
         radius2 <= reach * reach + 1e-9,
         `point ${i} inside the diamond`,
@@ -97,14 +101,13 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
       const causal = (a: number, b: number): boolean => {
         const dt = coords[b * d]! - coords[a * d]!
 
-        if (dt <= 0) {
-          return false
-        }
+        if (dt <= 0) return false
 
         let space2 = 0
 
         for (let axis = 1; axis < d; axis++) {
           const dx = coords[b * d + axis]! - coords[a * d + axis]!
+
           space2 += dx * dx
         }
 
@@ -113,9 +116,7 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
 
       for (let a = 0; a < n; a++) {
         for (let b = 0; b < n; b++) {
-          if (a === b) {
-            continue
-          }
+          if (a === b) continue
 
           equal(
             precedes(p, { a, b }),
@@ -133,9 +134,8 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
       notOk(precedes(p, { a, b: a }), `irreflexive at ${a}`)
 
       for (let b = 0; b < p.size; b++) {
-        if (precedes(p, { a, b })) {
+        if (precedes(p, { a, b }))
           notOk(precedes(p, { a: b, b: a }), `antisymmetric ${a},${b}`)
-        }
       }
     }
   }),

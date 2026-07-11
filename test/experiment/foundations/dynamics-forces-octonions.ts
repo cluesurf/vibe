@@ -42,9 +42,7 @@ export default experiment({
     const reversibleDims: number[] = []
 
     for (let level = 0; level <= 4; level++) {
-      if (!hasZeroDivisor(level)) {
-        reversibleDims.push(2 ** level)
-      }
+      if (!hasZeroDivisor(level)) reversibleDims.push(2 ** level)
     }
 
     const reversibilityCapsAtEight =
@@ -56,9 +54,8 @@ export default experiment({
     for (const d of [1, 2, 4, 8, 16]) {
       const n = d / 2
 
-      if (Number.isInteger(n) && n >= 4 && hasTriality(n)) {
+      if (Number.isInteger(n) && n >= 4 && hasTriality(n))
         trialityDims.push(d)
-      }
     }
 
     const fermionsRequireEight =

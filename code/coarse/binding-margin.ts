@@ -23,9 +23,8 @@ export function ballAtRadius(input: {
   const region: number[] = []
 
   for (let cell = 0; cell < input.mesh.cellCount; cell++) {
-    if (distance[cell]! >= 0 && distance[cell]! <= input.radius) {
+    if (distance[cell]! >= 0 && distance[cell]! <= input.radius)
       region.push(cell)
-    }
   }
 
   return region

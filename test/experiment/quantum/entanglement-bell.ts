@@ -50,6 +50,7 @@ export function entanglementBell(): {
   // start in the product state |01> (one +1 charge, one -1 charge), apply the exchange at theta = pi/8
   const re = new Float64Array(4)
   const im = new Float64Array(4)
+
   re[1] = 1 // |01>
   applyExchange(re, im, Math.PI / 8) // produces (|01> - i|10>)/sqrt(2), maximally entangled
 
@@ -58,6 +59,7 @@ export function entanglementBell(): {
   // control, a genuine product state stays unentangled (apply nothing, or theta = 0)
   const re2 = new Float64Array(4)
   const im2 = new Float64Array(4)
+
   re2[1] = 1
   applyExchange(re2, im2, 0)
 

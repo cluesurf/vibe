@@ -36,12 +36,14 @@ export function loadGraph(path: string): StoredGraph {
   let off = 8
 
   const offsets = new Int32Array(cellCount + 1)
+
   offsets.set(
     new Int32Array(buf.buffer, buf.byteOffset + off, cellCount + 1),
   )
   off += (cellCount + 1) * 4
 
   const adj = new Int32Array(adjLen)
+
   adj.set(new Int32Array(buf.buffer, buf.byteOffset + off, adjLen))
 
   return { cellCount, offsets, adj }
@@ -62,6 +64,7 @@ export function loadState(path: string): Int8Array {
   const header = new Int32Array(buf.buffer, buf.byteOffset, 1)
   const n = header[0]!
   const tone = new Int8Array(n)
+
   tone.set(new Int8Array(buf.buffer, buf.byteOffset + 4, n))
 
   return tone

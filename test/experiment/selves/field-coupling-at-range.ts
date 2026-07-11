@@ -57,9 +57,7 @@ function severedMesh(base: Mesh, seam: number): Mesh {
       const fromWest = x < seam
       const toWest = next % L < seam
 
-      if (fromWest === toWest) {
-        return next
-      }
+      if (fromWest === toWest) return next
 
       // wrap within the half: the x step folds back into [lo, lo + width)
       const lo = fromWest ? 0 : seam
@@ -87,9 +85,8 @@ function stampBody(will: Will, px: number, py: number): void {
       if (Math.abs(dx) + Math.abs(dy) <= 2) {
         const cell = (py + dy) * L + (px + dx)
 
-        for (let d = 0; d < mesh.degree; d++) {
+        for (let d = 0; d < mesh.degree; d++)
           data[cell * mesh.degree + d] = (dx + dy) % 2 === 0 ? 1 : -1
-        }
       }
     }
   }
@@ -111,9 +108,8 @@ function windowCharge(
       if (x >= 0 && x < L && y >= 0 && y < L) {
         const cell = y * L + x
 
-        for (let d = 0; d < mesh.degree; d++) {
+        for (let d = 0; d < mesh.degree; d++)
           s += data[cell * mesh.degree + d] ?? 0
-        }
       }
     }
   }
@@ -134,6 +130,7 @@ function runWorld(input: {
   const cy = L >> 1
 
   let will = makeWill(mesh)
+
   stampBody(will, ax, cy)
   stampBody(will, bx, cy)
 
@@ -152,9 +149,8 @@ function runWorld(input: {
       ] as const) {
         const cell = (cy + dy) * L + (ax + dx)
 
-        for (let d = 0; d < mesh.degree; d++) {
+        for (let d = 0; d < mesh.degree; d++)
           will.data[cell * mesh.degree + d] = -1
-        }
       }
     }
 
@@ -182,6 +178,7 @@ function response(input: {
 
   for (let b = HIT_BEAT; b < BEATS; b++) {
     const d = (withHit[b] ?? 0) - (without[b] ?? 0)
+
     s += d * d
     n++
   }
@@ -242,6 +239,7 @@ export default experiment({
 
     // charge conservation sanity on the severed mesh (the seam reflects, never leaks)
     const probe = makeWill(severed)
+
     stampBody(probe, seam - 8, L >> 1)
 
     const conserved =

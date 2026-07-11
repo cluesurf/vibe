@@ -17,6 +17,7 @@ export function randomNull(will: Will, seed: number): Will {
   for (let index = data.length - 1; index > 0; index--) {
     const swap = rng.nextInt({ max: index + 1 })
     const held = data[index] ?? 0
+
     data[index] = data[swap] ?? 0
     data[swap] = held
   }
@@ -43,6 +44,7 @@ export function shuffledToneField(input: {
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const held = out[i]!
+
     out[i] = out[j]!
     out[j] = held
   }

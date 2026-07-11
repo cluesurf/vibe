@@ -40,9 +40,8 @@ export function intentionAtScale(input?: { n?: number }): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    ) {
+    )
       center = i
-    }
   }
 
   const distC = csrDistances({
@@ -56,9 +55,7 @@ export function intentionAtScale(input?: { n?: number }): {
   let target = 0
 
   for (let i = 1; i < N; i++) {
-    if (distC[i]! > distC[target]!) {
-      target = i
-    }
+    if (distC[i]! > distC[target]!) target = i
   }
 
   const dT = csrDistances({
@@ -72,23 +69,17 @@ export function intentionAtScale(input?: { n?: number }): {
   const self: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (distC[i]! <= rSelf) {
-      self.push(i)
-    }
+    if (distC[i]! <= rSelf) self.push(i)
   }
 
   const selfSet = new Uint8Array(N)
 
-  for (const i of self) {
-    selfSet[i] = 1
-  }
+  for (const i of self) selfSet[i] = 1
 
   const hub = new Uint8Array(N)
 
   for (const i of self) {
-    if (distC[i]! <= 1) {
-      hub[i] = 1
-    }
+    if (distC[i]! <= 1) hub[i] = 1
   }
 
   // willed beat: charges hop, BIASED toward the target (lower dT), but only for charges in the will region
@@ -104,9 +95,7 @@ export function intentionAtScale(input?: { n?: number }): {
       const v = eu[k]!
       const w = ev[k]!
 
-      if (moved[v] || moved[w]) {
-        continue
-      }
+      if (moved[v] || moved[w]) continue
 
       const a = tone[v]!
       const b = tone[w]!
@@ -115,14 +104,13 @@ export function intentionAtScale(input?: { n?: number }): {
         const c = a === 0 ? w : v // charged
         const e = a === 0 ? v : w // empty
 
-        if (!selfSet[e] && !selfSet[c]) {
-          continue
-        }
+        if (!selfSet[e] && !selfSet[c]) continue
 
         let prob = 0.5
 
         if (willRegion[c]) {
           const toward = dT[e]! < dT[c]! ? 1 : dT[e]! > dT[c]! ? -1 : 0
+
           prob = 0.5 + bias * toward
         }
 
@@ -175,9 +163,7 @@ export function intentionAtScale(input?: { n?: number }): {
   const initSelf = (): Int8Array => {
     const tone = new Int8Array(N)
 
-    for (const i of self) {
-      tone[i] = 1
-    }
+    for (const i of self) tone[i] = 1
 
     return tone
   }
@@ -193,9 +179,7 @@ export function intentionAtScale(input?: { n?: number }): {
   const sp0 = spread(tone)
   const rng1 = makeRng({ seed: 3 })
 
-  for (let t = 0; t < T; t++) {
-    beat(tone, allWill, 0.45, rng1)
-  }
+  for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng1)
 
   const driftWithWill = dt0 - meanDT(tone, () => true) // positive = moved toward target
   const cohesionWithWill = sp0 / spread(tone) // >= ~1 means it did not blow apart
@@ -204,9 +188,8 @@ export function intentionAtScale(input?: { n?: number }): {
 
   const rng1b = makeRng({ seed: 3 })
 
-  for (let t = 0; t < T; t++) {
-    beat(tone, allWill, 0, rng1b)
-  } // no will (unbiased)
+  for (let t = 0; t < T; t++) beat(tone, allWill, 0, rng1b)
+  // no will (unbiased)
 
   const driftNoWill = dt0 - meanDT(tone, () => true)
   // the RELATIVE effect of the will (with minus without) is the intention signal, the absolute drift is
@@ -217,22 +200,20 @@ export function intentionAtScale(input?: { n?: number }): {
   // CHECK 2: top-down, will only at the HUB, does the PERIPHERY drift toward target?
   const peri = (i: number): boolean => selfSet[i] === 1 && hub[i] === 0
   const dtPeri0 = meanDT(initSelf(), peri)
+
   tone = initSelf()
 
   const rng2 = makeRng({ seed: 7 })
 
-  for (let t = 0; t < T; t++) {
-    beat(tone, hub, 0.45, rng2)
-  }
+  for (let t = 0; t < T; t++) beat(tone, hub, 0.45, rng2)
 
   const peripheryDriftHubWill = dtPeri0 - meanDT(tone, peri)
+
   tone = initSelf()
 
   const rng2b = makeRng({ seed: 7 })
 
-  for (let t = 0; t < T; t++) {
-    beat(tone, hub, 0, rng2b)
-  }
+  for (let t = 0; t < T; t++) beat(tone, hub, 0, rng2b)
 
   const peripheryDriftNoWill = dtPeri0 - meanDT(tone, peri)
   const topDownEffect = peripheryDriftHubWill - peripheryDriftNoWill
@@ -243,17 +224,13 @@ export function intentionAtScale(input?: { n?: number }): {
 
   const rng3 = makeRng({ seed: 9 })
 
-  for (let t = 0; t < T; t++) {
-    beat(tone, allWill, 0.45, rng3)
-  }
+  for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng3)
 
   // perturb: randomly relocate ~40% of the charge to random self cells (a shock to the intention)
   const charges: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (tone[i] !== 0) {
-      charges.push(i)
-    }
+    if (tone[i] !== 0) charges.push(i)
   }
 
   for (const c of charges) {
@@ -261,15 +238,14 @@ export function intentionAtScale(input?: { n?: number }): {
       tone[c] = 0
 
       const dest = self[Math.floor(rng3.next() * self.length)]!
+
       tone[dest] = 1
     }
   }
 
   const dtPerturbed = meanDT(tone, () => true)
 
-  for (let t = 0; t < T; t++) {
-    beat(tone, allWill, 0.45, rng3)
-  }
+  for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng3)
 
   const dtRecovered = meanDT(tone, () => true)
   const driftAfterPerturb = dtPerturbed - dtRecovered // resumes moving toward target

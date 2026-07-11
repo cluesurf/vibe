@@ -24,9 +24,7 @@ const matmul = (a: Matrix, b: Matrix): Matrix => {
     for (let j = 0; j < n; j++) {
       let s = 0
 
-      for (let k = 0; k < n; k++) {
-        s += a[i]![k]! * b[k]![j]!
-      }
+      for (let k = 0; k < n; k++) s += a[i]![k]! * b[k]![j]!
 
       out[i]![j] = s
     }
@@ -74,9 +72,7 @@ const R90: Matrix = [
 const c4 = (): Matrix[] => {
   const group: Matrix[] = [identity(2)]
 
-  for (let k = 1; k < 4; k++) {
-    group.push(matmul(group[k - 1]!, R90))
-  }
+  for (let k = 1; k < 4; k++) group.push(matmul(group[k - 1]!, R90))
 
   return group
 }
@@ -91,6 +87,7 @@ const b2 = (): Matrix[] => {
         [sx, 0],
         [0, sy],
       ])
+
       diagonals.push([
         [0, sx],
         [sy, 0],
@@ -126,6 +123,7 @@ suite(
   [
     check('C4 (90 deg rotations): degree-2 = 1, degree-4 = 3', () => {
       const group = c4()
+
       equal(group.length, 4, '|C4| = 4')
       equal(dim(group, 2, 2), 1, 'only x^2+y^2')
       equal(dim(group, 2, 4), 3, '(x^2+y^2)^2, Re and Im of (x+iy)^4')
@@ -134,6 +132,7 @@ suite(
       'B2 (signed perms, order 8): degree-2 = 1, degree-4 = 2',
       () => {
         const group = b2()
+
         equal(group.length, 8, '|B2| = 8')
         equal(dim(group, 2, 2), 1, 'only x^2+y^2')
         equal(

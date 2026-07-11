@@ -113,6 +113,7 @@ export default experiment({
       perPair[`gap_${indexA}_${indexB}`] = Number(
         dispersionGap.toFixed(4),
       )
+
       perPair[`product_${indexA}_${indexB}`] = Number(
         product.toFixed(4),
       )

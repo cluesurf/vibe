@@ -34,6 +34,7 @@ export function replicate(input: {
       if (!input.faithful) {
         // a deterministic copy error: flip one site, chosen by the child's length and generation
         const site = (g * 7 + 3) % child.length
+
         child[site] = -child[site]!
       }
 

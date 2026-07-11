@@ -29,13 +29,9 @@ function pathGraph(n: number): Graph {
   for (let i = 0; i < n; i++) {
     const row: number[] = []
 
-    if (i > 0) {
-      row.push(i - 1)
-    }
+    if (i > 0) row.push(i - 1)
 
-    if (i < n - 1) {
-      row.push(i + 1)
-    }
+    if (i < n - 1) row.push(i + 1)
 
     neighbors.push(row)
   }
@@ -58,6 +54,7 @@ function torusNeighbors(L: number): number[][] {
   for (let y = 0; y < L; y++) {
     for (let x = 0; x < L; x++) {
       const id = y * L + x
+
       out[id] = [
         y * L + ((x + 1) % L),
         y * L + ((x - 1 + L) % L),
@@ -79,21 +76,13 @@ function gridNeighbors(L: number): number[][] {
       const id = y * L + x
       const row: number[] = []
 
-      if (x + 1 < L) {
-        row.push(y * L + x + 1)
-      }
+      if (x + 1 < L) row.push(y * L + x + 1)
 
-      if (x - 1 >= 0) {
-        row.push(y * L + x - 1)
-      }
+      if (x - 1 >= 0) row.push(y * L + x - 1)
 
-      if (y + 1 < L) {
-        row.push((y + 1) * L + x)
-      }
+      if (y + 1 < L) row.push((y + 1) * L + x)
 
-      if (y - 1 >= 0) {
-        row.push((y - 1) * L + x)
-      }
+      if (y - 1 >= 0) row.push((y - 1) * L + x)
 
       out[id] = row
     }
@@ -131,6 +120,7 @@ suite('measure/dimension: Myrheim-Meyer inversion fixed points', [
       const d1 = dimensionFromOrderingFraction(0.8)
       const d2 = dimensionFromOrderingFraction(0.5)
       const d3 = dimensionFromOrderingFraction(0.3)
+
       equal(d1 < d2 && d2 < d3, true)
     },
   ),
@@ -147,9 +137,7 @@ suite('measure/dimension: Myrheim-Meyer on causal sets', [
       const pairs: [number, number][] = []
 
       for (let a = 0; a < 6; a++) {
-        for (let b = a + 1; b < 6; b++) {
-          pairs.push([a, b])
-        }
+        for (let b = a + 1; b < 6; b++) pairs.push([a, b])
       }
 
       close(
@@ -194,6 +182,7 @@ suite('measure/dimension: box-counting (Minkowski) dimension', [
     'a fully filled 32x32 sheet has box-counting dimension exactly 2',
     () => {
       const cells = Array.from({ length: 32 * 32 }, (_, i) => i)
+
       close(boxCountingDimension({ cells, sideLength: 32 }), 2, 1e-9)
     },
   ),
@@ -201,6 +190,7 @@ suite('measure/dimension: box-counting (Minkowski) dimension', [
     'a single filled row (a line) has box-counting dimension exactly 1',
     () => {
       const cells = Array.from({ length: 32 }, (_, x) => x) // y = 0 row
+
       close(boxCountingDimension({ cells, sideLength: 32 }), 1, 1e-9)
     },
   ),

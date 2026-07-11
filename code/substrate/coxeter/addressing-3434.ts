@@ -52,9 +52,7 @@ function lexCompare(a: number[], b: number[]): number {
     const x = a[i] ?? 0
     const y = b[i] ?? 0
 
-    if (x !== y) {
-      return x < y ? -1 : 1
-    }
+    if (x !== y) return x < y ? -1 : 1
   }
 
   return 0
@@ -76,6 +74,7 @@ export function buildAddressing(input: {
 
   // BFS shells from the root
   const dist = new Array<number>(n).fill(-1)
+
   dist[root] = 0
 
   const queue = [root]
@@ -92,9 +91,7 @@ export function buildAddressing(input: {
   let maxShell = 0
 
   for (let i = 0; i < n; i++) {
-    if (dist[i]! > maxShell) {
-      maxShell = dist[i]!
-    }
+    if (dist[i]! > maxShell) maxShell = dist[i]!
   }
 
   const shellSizes = new Array<number>(maxShell + 1).fill(0)
@@ -114,9 +111,8 @@ export function buildAddressing(input: {
   // confluence structure is exact. This is the precision-honest interior filter (degree == facetCount).
   const complete = new Array<boolean>(n).fill(false)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     complete[i] = graph.neighbors[i]!.length === graph.facetCount
-  }
 
   // Canonical parent: among shallower neighbours, the one whose ADDRESS is lexicographically smallest.
   // Addresses are assigned in BFS order, so a cell's shallower neighbours already have addresses. We
@@ -135,12 +131,11 @@ export function buildAddressing(input: {
   // because BFS order is itself address-monotone within a shell once children are angle-ordered, gives
   // a stable tree. We then assign child digits by the embedding key.
   const bfsRank = new Array<number>(n).fill(Infinity)
+
   order.forEach((cell, rank) => (bfsRank[cell] = rank))
 
   for (const cell of order) {
-    if (cell === root) {
-      continue
-    }
+    if (cell === root) continue
 
     const shallower = graph.neighbors[cell]!.filter(
       v => dist[v] === dist[cell]! - 1,
@@ -150,17 +145,13 @@ export function buildAddressing(input: {
     let best = shallower[0]!
 
     for (const v of shallower) {
-      if (bfsRank[v]! < bfsRank[best]!) {
-        best = v
-      }
+      if (bfsRank[v]! < bfsRank[best]!) best = v
     }
 
     parent[cell] = best
 
     for (const v of shallower) {
-      if (v !== best) {
-        altParents[cell]!.push(v)
-      }
+      if (v !== best) altParents[cell]!.push(v)
     }
   }
 
@@ -171,14 +162,10 @@ export function buildAddressing(input: {
   const faceTo = (cell: number, nb: number): number => {
     const fns = faceNeighbor?.[cell]
 
-    if (!fns) {
-      return -1
-    }
+    if (!fns) return -1
 
     for (let fi = 0; fi < fns.length; fi++) {
-      if (fns[fi] === nb) {
-        return fi
-      }
+      if (fns[fi] === nb) return fi
     }
 
     return -1
@@ -194,20 +181,15 @@ export function buildAddressing(input: {
     const kids: number[] = []
 
     for (const v of graph.neighbors[cell]!) {
-      if (dist[v] !== dist[cell]! + 1) {
-        continue
-      }
+      if (dist[v] !== dist[cell]! + 1) continue
 
-      if (parent[v] === cell) {
-        kids.push(v)
-      } else {
-        altChildren[cell]!.push(v)
-      }
+      if (parent[v] === cell) kids.push(v)
+      else altChildren[cell]!.push(v)
     }
 
-    if (faceNeighbor) {
+    if (faceNeighbor)
       kids.sort((a, b) => faceTo(cell, a) - faceTo(cell, b))
-    } else {
+    else {
       kids.sort((a, b) =>
         lexCompare(
           relKey(graph.coords[a]!, graph.coords[cell]!),
@@ -221,9 +203,7 @@ export function buildAddressing(input: {
   }
 
   for (let cell = 0; cell < n; cell++) {
-    if (cell !== root) {
-      upFace[cell] = faceTo(cell, parent[cell]!)
-    }
+    if (cell !== root) upFace[cell] = faceTo(cell, parent[cell]!)
   }
 
   const facePath: number[][] = Array.from({ length: n }, () => [])
@@ -320,9 +300,7 @@ export function buildConfluenceAutomaton(
           prev.appendFaces.join(',') !== value.appendFaces.join(','))
       ) {
         conflicts++
-      } else {
-        table.set(key, value)
-      }
+      } else table.set(key, value)
     }
   }
 
@@ -337,14 +315,10 @@ export function buildConfluenceAutomaton(
 function faceIndexTo(a: Addressing, cell: number, nb: number): number {
   const fns = a.graph.faceNeighbor?.[cell]
 
-  if (!fns) {
-    return -1
-  }
+  if (!fns) return -1
 
   for (let fi = 0; fi < fns.length; fi++) {
-    if (fns[fi] === nb) {
-      return fi
-    }
+    if (fns[fi] === nb) return fi
   }
 
   return -1
@@ -358,9 +332,7 @@ export function decodeFacePath(a: Addressing, faces: number[]): number {
   for (const f of faces) {
     const next = a.graph.faceNeighbor?.[cell]?.[f]
 
-    if (next === undefined || next < 0) {
-      return -1
-    }
+    if (next === undefined || next < 0) return -1
 
     cell = next
   }
@@ -382,18 +354,14 @@ export function predictAltParents(
   const out: number[] = []
   const fns = a.graph.faceNeighbor?.[cell]
 
-  if (!fns) {
-    return out
-  }
+  if (!fns) return out
 
   for (let f = 0; f < fns.length; f++) {
     const k = Math.min(auto.window, fp.length)
     const key = `${fp.slice(fp.length - k).join(',')};${f}`
     const rule = auto.table.get(key)
 
-    if (!rule) {
-      continue
-    }
+    if (!rule) continue
 
     const ancestorPath = fp.slice(0, fp.length - rule.drop)
     const partner = decodeFacePath(a, [
@@ -401,9 +369,7 @@ export function predictAltParents(
       ...rule.appendFaces,
     ])
 
-    if (partner >= 0) {
-      out.push(partner)
-    }
+    if (partner >= 0) out.push(partner)
   }
 
   return out
@@ -422,9 +388,7 @@ export function decode(a: Addressing, digits: number[]): number {
   for (const d of digits) {
     const kids = a.children[cell]!
 
-    if (d < 0 || d >= kids.length) {
-      return -1
-    }
+    if (d < 0 || d >= kids.length) return -1
 
     cell = kids[d]!
   }
@@ -470,9 +434,7 @@ export function regionTypes(a: Addressing): {
   const typeOf = new Array<number>(n).fill(-1)
 
   for (let cell = 0; cell < n; cell++) {
-    if (!a.complete[cell]) {
-      continue
-    }
+    if (!a.complete[cell]) continue
 
     typeOf[cell] = a.children[cell]!.length
   }
@@ -492,20 +454,18 @@ export function regionTypes(a: Addressing): {
   for (let cell = 0; cell < n; cell++) {
     const t = typeOf[cell]
 
-    if (t === undefined || t < 0) {
-      continue
-    }
+    if (t === undefined || t < 0) continue
 
     // only use cells whose children are themselves all typed (complete), so the transition row is exact
     if (
       !a.children[cell]!.every(
         kid => typeOf[kid] !== undefined && typeOf[kid] >= 0,
       )
-    ) {
+    )
       continue
-    }
 
     const i = idx.get(t)!
+
     cnt[i]!++
 
     for (const kid of a.children[cell]!) {
@@ -524,20 +484,14 @@ export function regionTypes(a: Addressing): {
     const w = new Array<number>(k).fill(0)
 
     for (let i = 0; i < k; i++) {
-      for (let j = 0; j < k; j++) {
-        w[j]! += matrix[i]![j]! * v[i]!
-      }
+      for (let j = 0; j < k; j++) w[j]! += matrix[i]![j]! * v[i]!
     }
 
     const norm = Math.hypot(...w)
 
-    if (norm === 0) {
-      break
-    }
+    if (norm === 0) break
 
-    for (let j = 0; j < k; j++) {
-      w[j]! /= norm
-    }
+    for (let j = 0; j < k; j++) w[j]! /= norm
 
     v = w
   }
@@ -546,9 +500,7 @@ export function regionTypes(a: Addressing): {
   const Mv = new Array<number>(k).fill(0)
 
   for (let i = 0; i < k; i++) {
-    for (let j = 0; j < k; j++) {
-      Mv[j]! += matrix[i]![j]! * v[i]!
-    }
+    for (let j = 0; j < k; j++) Mv[j]! += matrix[i]![j]! * v[i]!
   }
 
   let num = 0
@@ -579,9 +531,8 @@ export function addressingStats(a: Addressing): {
   const seen = new Set<string>()
 
   for (const address of a.address) {
-    if (address.length > maxAddressLength) {
+    if (address.length > maxAddressLength)
       maxAddressLength = address.length
-    }
 
     seen.add(address.join(','))
   }

@@ -51,9 +51,7 @@ export function tremblingFrequency(input: {
   // flat (massless) trace: no trembling
   const amplitude = Math.max(...trace) - Math.min(...trace)
 
-  if (amplitude < 1e-9) {
-    return 0
-  }
+  if (amplitude < 1e-9) return 0
 
   const power = (f: number): number => {
     let re = 0
@@ -61,6 +59,7 @@ export function tremblingFrequency(input: {
 
     for (let t = 0; t < n; t++) {
       const phase = (2 * Math.PI * f * t) / n
+
       re += (trace[t]! - mean) * Math.cos(phase)
       im += (trace[t]! - mean) * Math.sin(phase)
     }

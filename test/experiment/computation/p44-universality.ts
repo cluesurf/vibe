@@ -64,9 +64,7 @@ export function universality(): {
 
   for (const a of BITS) {
     for (const b of BITS) {
-      if (nand(a, b) !== nandTable[`${a},${b}`]) {
-        nandCorrect = false
-      }
+      if (nand(a, b) !== nandTable[`${a},${b}`]) nandCorrect = false
     }
   }
 
@@ -79,9 +77,8 @@ export function universality(): {
         const { sum, carry } = fullAdder(a, b, cin)
         const expected = toNum(a) + toNum(b) + toNum(cin)
 
-        if (toNum(sum) + 2 * toNum(carry) !== expected) {
+        if (toNum(sum) + 2 * toNum(carry) !== expected)
           adderCorrect = false
-        }
       }
     }
   }
@@ -97,9 +94,8 @@ export function universality(): {
     const c: Bit = ((p >> 1) & 1) === 1 ? 1 : -1
     const r: Bit = (p & 1) === 1 ? 1 : -1
 
-    if (toNum(rule110Fn(l, c, r)) !== rule110[p]) {
+    if (toNum(rule110Fn(l, c, r)) !== rule110[p])
       rule110Expressible = false
-    }
   }
 
   // Run the substrate-built Rule 110 on a line for a few steps, from a single seed cell,
@@ -144,13 +140,9 @@ export function universality(): {
       const O = nandBus(c, A, B, 3)
       const tone = settle(c, { seed: 1 })
 
-      if (busValue(tone, O) !== nand(a, b)) {
-        substrateNandCorrect = false
-      }
+      if (busValue(tone, O) !== nand(a, b)) substrateNandCorrect = false
 
-      if (!isFixedPoint(c, tone)) {
-        substrateFixedPoint = false
-      }
+      if (!isFixedPoint(c, tone)) substrateFixedPoint = false
     }
   }
 
@@ -170,13 +162,10 @@ export function universality(): {
       const xorOut = notBus(c, andInner, 3) // AND(OR, NAND) = XOR
       const tone = settle(c, { seed: 1 })
 
-      if (busValue(tone, xorOut) !== xor(a, b)) {
+      if (busValue(tone, xorOut) !== xor(a, b))
         substrateXorCorrect = false
-      }
 
-      if (!isFixedPoint(c, tone)) {
-        substrateFixedPoint = false
-      }
+      if (!isFixedPoint(c, tone)) substrateFixedPoint = false
     }
   }
 

@@ -31,9 +31,7 @@ function singleFlipPerm(cells: number): Int32Array {
   const n = 1 << cells
   const perm = new Int32Array(n)
 
-  for (let s = 0; s < n; s++) {
-    perm[s] = s ^ 1
-  }
+  for (let s = 0; s < n; s++) perm[s] = s ^ 1
 
   return perm
 }
@@ -62,13 +60,9 @@ export default experiment({
     let blockMaxEig = -Infinity
 
     for (const value of eig.values) {
-      if (value < blockMinEig) {
-        blockMinEig = value
-      }
+      if (value < blockMinEig) blockMinEig = value
 
-      if (value > blockMaxEig) {
-        blockMaxEig = value
-      }
+      if (value > blockMaxEig) blockMaxEig = value
     }
 
     const ok =

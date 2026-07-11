@@ -84,9 +84,8 @@ export default experiment({
           mass: MASS,
         })
 
-        for (let first = 0; first < dimension; first++) {
+        for (let first = 0; first < dimension; first++)
           afterFirst[first]![second] = evolved[first]!
-        }
       }
 
       pair = afterFirst.map(row =>
@@ -149,6 +148,7 @@ export default experiment({
         }
 
         const expected = a === b ? 1 : 0
+
         worstGram = Math.max(
           worstGram,
           Math.hypot(inner[0] - expected, inner[1]),

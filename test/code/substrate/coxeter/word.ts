@@ -15,6 +15,7 @@ suite('substrate/coxeter/word: the Coxeter matrix and normal form', [
     'the Coxeter matrix is 1/diag, symbol/path, 2/elsewhere',
     () => {
       const m = coxeterMatrix([3, 4])
+
       equal(m[0]![0], 1, 'diag')
       equal(m[1]![1], 1, 'diag')
       equal(m[2]![2], 1, 'diag')
@@ -28,6 +29,7 @@ suite('substrate/coxeter/word: the Coxeter matrix and normal form', [
     'normal form cancels a repeated generator and is idempotent',
     () => {
       const m = coxeterMatrix([3])
+
       equal(normalForm([0, 0], m).length, 0, 's0 s0 cancels')
       equal(normalForm([1, 1], m).length, 0, 's1 s1 cancels')
 
@@ -35,6 +37,7 @@ suite('substrate/coxeter/word: the Coxeter matrix and normal form', [
       // form of either input is the same canonical reduced word.
       const a = normalForm([0, 1, 0], m)
       const b = normalForm([1, 0, 1], m)
+
       equal(
         a.join(','),
         b.join(','),
@@ -56,6 +59,7 @@ suite('substrate/coxeter/word: finite group orders', [
       [6, 12],
     ] as const) {
       const mesh = buildWordMesh({ symbol: [m] })
+
       ok(mesh.finite, `I2(${m}) enumeration closed`)
       equal(mesh.chamberCount, order, `|I2(${m})| = ${order}`)
       equal(mesh.ballGrowth[0], 1, 'identity at length 0')
@@ -64,10 +68,12 @@ suite('substrate/coxeter/word: finite group orders', [
   }),
   check('A3 has order 24 and B3 has order 48', () => {
     const a3 = buildWordMesh({ symbol: [3, 3], maxLength: 16 })
+
     ok(a3.finite, 'A3 closed')
     equal(a3.chamberCount, 24, '|A3| = 24')
 
     const b3 = buildWordMesh({ symbol: [4, 3], maxLength: 16 })
+
     ok(b3.finite, 'B3 closed')
     equal(b3.chamberCount, 48, '|B3| = 48')
     equal(b3.ballGrowth[1], 3, 'three generators at length 1')

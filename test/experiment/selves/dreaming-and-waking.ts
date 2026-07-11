@@ -45,9 +45,7 @@ export function dreamingAndWaking(input: { seed: number }): {
   const cr = makeRng({ seed: input.seed + 1 })
 
   for (let i = 0; i < size; i++) {
-    if (cr.next() < 0.4) {
-      clamp[i] = cuePattern[i] as -1 | 0 | 1
-    }
+    if (cr.next() < 0.4) clamp[i] = cuePattern[i] as -1 | 0 | 1
   }
 
   let waking = Int8Array.from(
@@ -63,9 +61,7 @@ export function dreamingAndWaking(input: { seed: number }): {
     if (t % 25 === 24) {
       const np = nearestPattern(waking, patterns)
 
-      if (np.overlap > 0.5) {
-        wakingVisited.add(np.index)
-      }
+      if (np.overlap > 0.5) wakingVisited.add(np.index)
     }
   }
 
@@ -98,11 +94,10 @@ export function dreamingAndWaking(input: { seed: number }): {
 
     if (phase < cueHold) {
       const p = patterns[mode] ?? new Int8Array(size)
+
       cue = new Int8Array(size)
 
-      for (let i = 0; i < cueCount; i++) {
-        cue[i] = p[i] as -1 | 0 | 1
-      }
+      for (let i = 0; i < cueCount; i++) cue[i] = p[i] as -1 | 0 | 1
     }
 
     dreaming = hopfieldStep(J, dreaming, zeroBias, cue) // brief internal cue, then free relaxation
@@ -110,6 +105,7 @@ export function dreamingAndWaking(input: { seed: number }): {
     // sample at the window midpoint (transition, blends) and end (settled memory)
     if (phase === Math.floor(dwell / 2)) {
       const np = nearestPattern(dreaming, patterns)
+
       windows++
 
       if (np.overlap <= 0.6) {
@@ -120,9 +116,7 @@ export function dreamingAndWaking(input: { seed: number }): {
     if (phase === dwell - 1) {
       const np = nearestPattern(dreaming, patterns)
 
-      if (np.overlap > 0.6) {
-        dreamVisited.add(np.index)
-      }
+      if (np.overlap > 0.6) dreamVisited.add(np.index)
     }
   }
 

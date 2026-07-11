@@ -88,9 +88,7 @@ export function holographicMemory(input?: { n?: number }): {
   const holoAnchors: number[] = []
   const stride = Math.floor(N / A)
 
-  for (let k = 0; k < A; k++) {
-    holoAnchors.push((k * stride) % N)
-  }
+  for (let k = 0; k < A; k++) holoAnchors.push((k * stride) % N)
 
   // BLOB encoding: the same anchors packed into one local ball
   const blobAnchors = ball(g.offsets, g.adj, N, 0, A)
@@ -99,16 +97,12 @@ export function holographicMemory(input?: { n?: number }): {
   const erasedSet = ball(g.offsets, g.adj, N, 0, 4000)
   const erased = new Uint8Array(N)
 
-  for (const i of erasedSet) {
-    erased[i] = 1
-  }
+  for (const i of erasedSet) erased[i] = 1
 
   function makeState(anchors: number[]): Int8Array {
     const t = new Int8Array(N)
 
-    for (const i of anchors) {
-      t[i] = 1
-    }
+    for (const i of anchors) t[i] = 1
 
     return t
   }
@@ -120,9 +114,7 @@ export function holographicMemory(input?: { n?: number }): {
   const decode = (t: Int8Array, anchors: number[]): boolean => {
     let s = 0
 
-    for (const i of anchors) {
-      s += t[i]!
-    }
+    for (const i of anchors) s += t[i]!
 
     return s > 0
   }
@@ -146,13 +138,11 @@ export function holographicMemory(input?: { n?: number }): {
   // run the conserving dynamics and re-measure
   const moved = new Uint8Array(N)
 
-  for (let b = 0; b < 20; b++) {
+  for (let b = 0; b < 20; b++)
     beat(holo, eu, ev, g.offsets, g.adj, moved, b)
-  }
 
-  for (let b = 0; b < 20; b++) {
+  for (let b = 0; b < 20; b++)
     beat(blob, eu, ev, g.offsets, g.adj, moved, b)
-  }
 
   const holoSurvivalAfter = survival(holo, holoAnchors)
   const blobSurvivalAfter = survival(blob, blobAnchors)

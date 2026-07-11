@@ -25,6 +25,7 @@ function assertInsideDisc(g: Graph, label: string): void {
 
   for (let i = 0; i < g.size; i++) {
     const r = Math.hypot(coords[i * 2] ?? 0, coords[i * 2 + 1] ?? 0)
+
     ok(r < 1, `${label}: node ${i} inside the unit disc`)
   }
 }
@@ -35,9 +36,8 @@ function assertSymmetric(g: Graph, label: string): void {
   for (let i = 0; i < g.size; i++) {
     notOk(sets[i]!.has(i), `${label}: node ${i} has no self-loop`)
 
-    for (const j of g.neighbors[i]!) {
+    for (const j of g.neighbors[i]!)
       ok(sets[j]!.has(i), `${label}: edge ${i}-${j} is mutual`)
-    }
   }
 }
 

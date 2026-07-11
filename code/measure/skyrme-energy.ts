@@ -98,9 +98,7 @@ export function placeSkyrmion2d(input: {
     for (let y = 0; y < N; y++) {
       const r = Math.hypot(x - cx, y - cy)
 
-      if (r > 2.2 * R) {
-        continue
-      }
+      if (r > 2.2 * R) continue
 
       const phi = Math.atan2(y - cy, x - cx) * ch + phase,
         fr = Math.PI * Math.max(0, 1 - r / R)
@@ -111,9 +109,7 @@ export function placeSkyrmion2d(input: {
         Math.cos(fr),
       ])
 
-      if (1 - field[x]![y]![2] < 1 - nv[2]) {
-        field[x]![y] = nv
-      }
+      if (1 - field[x]![y]![2] < 1 - nv[2]) field[x]![y] = nv
     }
   }
 }
@@ -139,6 +135,7 @@ export function directionFieldEnergy2d(field: Vector3[][]): {
       exchange += 1 - dot3(n, right) + (1 - dot3(n, up))
 
       const q = sphericalTriangleArea(n, right, up)
+
       skyrme += q * q
     }
   }

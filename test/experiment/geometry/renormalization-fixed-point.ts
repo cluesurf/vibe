@@ -75,9 +75,8 @@ export default experiment({
     // the RG flow contracts: the successive changes in the ratio shrink geometrically
     const changes: number[] = []
 
-    for (let i = 1; i < ratios.length; i++) {
+    for (let i = 1; i < ratios.length; i++)
       changes.push(Math.abs(ratios[i]! - ratios[i - 1]!))
-    }
 
     const flowContracts = changes.every(
       (c, i) => i === 0 || c < changes[i - 1]!,

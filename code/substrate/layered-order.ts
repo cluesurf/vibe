@@ -17,13 +17,9 @@ export function kleitmanRothschildOrder(input: {
   const middleEnd = n - top // [bottom, middleEnd) is the middle layer
 
   const layerOf = (i: number): number => {
-    if (i < bottom) {
-      return 0
-    }
+    if (i < bottom) return 0
 
-    if (i < middleEnd) {
-      return 1
-    }
+    if (i < middleEnd) return 1
 
     return 2
   }

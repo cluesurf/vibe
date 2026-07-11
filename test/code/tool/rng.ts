@@ -15,9 +15,7 @@ function firstK(seed: number, k: number): number[] {
   const rng = makeRng({ seed })
   const out: number[] = []
 
-  for (let i = 0; i < k; i++) {
-    out.push(rng.next())
-  }
+  for (let i = 0; i < k; i++) out.push(rng.next())
 
   return out
 }
@@ -27,9 +25,8 @@ suite('tool/rng: determinism', [
     const a = firstK(12345, 64)
     const b = firstK(12345, 64)
 
-    for (let i = 0; i < a.length; i++) {
+    for (let i = 0; i < a.length; i++)
       equal(a[i]!, b[i]!, `next() #${i}`)
-    }
   }),
   check('same seed produces an identical nextInt() stream', () => {
     const a = makeRng({ seed: 7 })
@@ -47,15 +44,15 @@ suite('tool/rng: determinism', [
     const a = makeRng({ seed: 99 })
     const b = makeRng({ seed: 99 })
 
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < 32; i++)
       equal(a.nextGaussian(), b.nextGaussian(), `gaussian #${i}`)
-    }
   }),
   check(
     'different seeds give a different stream (not constant)',
     () => {
       const a = firstK(1, 16)
       const b = firstK(2, 16)
+
       ok(
         a.some((v, i) => v !== b[i]),
         'streams must differ for different seeds',
@@ -70,6 +67,7 @@ suite('tool/rng: range bounds', [
 
     for (let i = 0; i < 5000; i++) {
       const v = rng.next()
+
       ok(v >= 0 && v < 1, `next out of [0,1): ${v}`)
     }
   }),
@@ -78,6 +76,7 @@ suite('tool/rng: range bounds', [
 
     for (let i = 0; i < 5000; i++) {
       const v = rng.nextInt({ max: 7 })
+
       ok(Number.isInteger(v), `nextInt not integer: ${v}`)
       ok(v >= 0 && v < 7, `nextInt out of [0,7): ${v}`)
     }
@@ -95,6 +94,7 @@ suite('tool/rng: deriveSeed and sampling identities', [
   check('deriveSeed returns a uint32 and varies with the index', () => {
     const s0 = deriveSeed({ base: 100, index: 0 })
     const s1 = deriveSeed({ base: 100, index: 1 })
+
     ok(
       Number.isInteger(s0) && s0 >= 0 && s0 <= 0xffffffff,
       `s0 not uint32: ${s0}`,
@@ -113,11 +113,11 @@ suite('tool/rng: deriveSeed and sampling identities', [
       equal(freqs.length, 4, 'one frequency per bin')
 
       const total = freqs.reduce((s, f) => s + f, 0)
+
       close(total, 1, 1e-9, 'frequencies must normalise to 1')
 
-      for (const f of freqs) {
+      for (const f of freqs)
         ok(f >= 0 && f <= 1, `frequency out of [0,1]: ${f}`)
-      }
     },
   ),
 ])

@@ -21,9 +21,8 @@ function graph(): {
   const N = g.cellCount
   const off = new Int32Array(N + 1)
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     off[i + 1] = off[i]! + g.neighbors[i]!.length
-  }
 
   const adj = new Int32Array(off[N]!)
 
@@ -31,9 +30,7 @@ function graph(): {
     let p = 0
 
     for (let i = 0; i < N; i++) {
-      for (const w of g.neighbors[i]!) {
-        adj[p++] = w
-      }
+      for (const w of g.neighbors[i]!) adj[p++] = w
     }
   }
 
@@ -82,14 +79,13 @@ export function dynamics73(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (let q = off[i]!; q < off[i + 1]!; q++) {
-        s += cur[adj[q]!]!
-      }
+      for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!
 
       nxt[i] = (((s - prev[i]!) % 3) + 3) % 3
     }
 
     const t = prev
+
     prev = cur
     cur = nxt
     nxt = t
@@ -97,9 +93,7 @@ export function dynamics73(): {
     let mr = 0
 
     for (let i = 0; i < N; i++) {
-      if (cur[i] !== 0 && dist[i]! > mr && dist[i]! < 1e8) {
-        mr = dist[i]!
-      }
+      if (cur[i] !== 0 && dist[i]! > mr && dist[i]! < 1e8) mr = dist[i]!
     }
 
     maxReached = Math.max(maxReached, mr <= b + 1 ? mr : b + 1)
@@ -112,9 +106,8 @@ export function dynamics73(): {
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
 
-  for (let k = 0; k < 100; k++) {
+  for (let k = 0; k < 100; k++)
     t[Math.floor(rnd() * N)] = rnd() < 0.5 ? 1 : -1
-  }
 
   const sumBefore = sumOf(t)
 
@@ -125,23 +118,21 @@ export function dynamics73(): {
     for (let i = N - 1; i > 0; i--) {
       const j = Math.floor(rnd() * (i + 1))
       const tmp = order[i]!
+
       order[i] = order[j]!
       order[j] = tmp
     }
 
     for (const u of order) {
-      if (used[u]) {
-        continue
-      }
+      if (used[u]) continue
 
       for (let q = off[u]!; q < off[u + 1]!; q++) {
         const w = adj[q]!
 
-        if (used[w]) {
-          continue
-        }
+        if (used[w]) continue
 
         const [na, nb] = perm(t[u]!, t[w]!)
+
         t[u] = na
         t[w] = nb
         used[u] = 1

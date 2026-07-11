@@ -67,6 +67,7 @@ suite('operator/tight-binding: analytic spectra', [
     'open uniform chain (weight 1) spectrum is -2 cos(pi k / (n+1))',
     () => {
       const n = 7
+
       closeArray(
         spec(weakBondChainHamiltonian({ n, bondIndex: 3, weight: 1 })),
         openChainSpectrum(n),
@@ -121,6 +122,7 @@ suite('operator/tight-binding: analytic spectra', [
 suite('operator/tight-binding: staggered mass and structure', [
   check('staggered mass = 0 reduces to the open chain spectrum', () => {
     const n = 6
+
     closeArray(
       spec(staggeredMassChainHamiltonian({ n, mass: 0 })),
       openChainSpectrum(n),
@@ -167,6 +169,7 @@ suite('operator/tight-binding: staggered mass and structure', [
       weakBondChainHamiltonian({ n: 7, bondIndex: 3, weight: 0.4 }),
       'weak bond',
     )
+
     symmetric(
       torusHoppingHamiltonian({ dimension: 2, side: 3 }),
       'torus',

@@ -54,9 +54,7 @@ export function emergentU1Gauge(): {
   const lam = grid()
 
   for (let x = 0; x < L; x++) {
-    for (let y = 0; y < L; y++) {
-      lam[x]![y] = rnd() * 2 - 1
-    }
+    for (let y = 0; y < L; y++) lam[x]![y] = rnd() * 2 - 1
   } // random gauge
 
   const g2 = gaugeTransform(g, lam)

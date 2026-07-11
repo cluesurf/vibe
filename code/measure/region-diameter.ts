@@ -46,9 +46,7 @@ export function diameterExponent(input: {
 }): number {
   const { diameterSmall, diameterLarge, countSmall, countLarge } = input
 
-  if (diameterSmall <= 0 || diameterLarge <= 0) {
-    return 0
-  }
+  if (diameterSmall <= 0 || diameterLarge <= 0) return 0
 
   return (
     (Math.log(diameterLarge) - Math.log(diameterSmall)) /

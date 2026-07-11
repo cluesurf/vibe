@@ -48,9 +48,8 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed })
 
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       tone[i] = rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0
-    }
 
     let last = 0
 
@@ -67,9 +66,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
         uniform: false,
       })
 
-      if (t >= 150) {
-        last += density(tone) / 10
-      }
+      if (t >= 150) last += density(tone) / 10
     }
 
     return { tone, finalRho: last }
@@ -90,9 +87,8 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     const base = new Int8Array(N)
     const rng0 = makeRng({ seed: 5 })
 
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       base[i] = rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0
-    }
 
     for (let t = 0; t < 120; t++) {
       socEdgeSweep({

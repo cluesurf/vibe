@@ -62,6 +62,7 @@ export default experiment({
     for (let i = 0; i < generators.length; i++) {
       for (let j = i + 1; j < generators.length; j++) {
         const c = commutator(generators[i]!, generators[j]!)
+
         maxCommutatorViolation = Math.max(
           maxCommutatorViolation,
           algebraViolation(c, metric),

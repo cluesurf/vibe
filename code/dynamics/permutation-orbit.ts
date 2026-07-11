@@ -37,11 +37,10 @@ function stepInto(input: {
   sink: boolean
 }): void {
   const { source, target, table, collision, sink } = input
+
   beatInto({ src: source, dst: target, table, collision })
 
-  if (sink) {
-    target.data[0] = 0
-  }
+  if (sink) target.data[0] = 0
 }
 
 // The recurrence period: iterate the rule from the pattern-filled state until the microstate returns
@@ -68,11 +67,10 @@ export function recurrencePeriod(input: {
   const table = streamSourceTable(mesh)
 
   const init = makeWill(mesh)
+
   fillWillPattern(init)
 
-  if (sink) {
-    init.data[0] = 0
-  }
+  if (sink) init.data[0] = 0
 
   const start = hashWill(init)
 
@@ -92,12 +90,11 @@ export function recurrencePeriod(input: {
     })
 
     const swap = current
+
     current = scratch
     scratch = swap
 
-    if (hashWill(current) === start) {
-      return t
-    }
+    if (hashWill(current) === start) return t
   }
 
   return -1
@@ -127,9 +124,11 @@ export function ruleInjective(input: {
   const table = streamSourceTable(mesh)
 
   const a = makeWill(mesh)
+
   fillWillPattern(a)
 
   const b = cloneWill(a)
+
   // flip the slot the sink would clamp, so the two states differ only where the sink erases
   b.data[0] = a.data[0] === 1 ? -1 : 1
 
@@ -147,9 +146,7 @@ export function ruleInjective(input: {
   stepInto({ source: b, target: nextB, table, collision, sink })
 
   for (let i = 0; i < nextA.data.length; i++) {
-    if (nextA.data[i] !== nextB.data[i]) {
-      return true
-    }
+    if (nextA.data[i] !== nextB.data[i]) return true
   }
 
   return false

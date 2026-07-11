@@ -23,9 +23,7 @@ function ringDistance(a: number, b: number, size: number): number {
 
 // step from `from` one cell along the shorter ring arc toward `to`
 function stepToward(from: number, to: number, size: number): number {
-  if (from === to) {
-    return from
-  }
+  if (from === to) return from
 
   const forward = (to - from + size) % size
 
@@ -71,9 +69,9 @@ export function pursueDriftingPeak(input: {
   let lateCount = 0
 
   for (let t = 0; t < beats; t++) {
-    if (policy === 'plan') {
+    if (policy === 'plan')
       position = stepToward(position, plannedTarget, size)
-    } else {
+    else {
       const here = field(position, t)
       const left = field((position - 1 + size) % size, t)
       const right = field((position + 1) % size, t)

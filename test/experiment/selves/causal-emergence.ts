@@ -25,9 +25,7 @@ function effectiveInformation(tpm: number[][]): number {
   const avg = new Array<number>(n).fill(0)
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      avg[j]! += tpm[i]![j]! / n
-    }
+    for (let j = 0; j < n; j++) avg[j]! += tpm[i]![j]! / n
   }
 
   let ei = 0
@@ -36,9 +34,8 @@ function effectiveInformation(tpm: number[][]): number {
     for (let j = 0; j < n; j++) {
       const p = tpm[i]![j]!
 
-      if (p > 1e-12 && avg[j]! > 1e-12) {
+      if (p > 1e-12 && avg[j]! > 1e-12)
         ei += (p * Math.log2(p / avg[j]!)) / n
-      }
     }
   }
 
@@ -55,19 +52,16 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
     new Array<number>(N).fill(0),
   )
 
-  for (let i = 0; i < K; i++) {
-    P[i]![sink] = 1
-  } // every leaf -> sink (degenerate)
+  for (let i = 0; i < K; i++) P[i]![sink] = 1
+  // every leaf -> sink (degenerate)
 
-  for (let j = 0; j < K; j++) {
-    P[sink]![j] = 1 / K
-  } // sink -> uniform over leaves
+  for (let j = 0; j < K; j++) P[sink]![j] = 1 / K
+  // sink -> uniform over leaves
 
   const groups = new Array<number>(N)
 
-  for (let i = 0; i < K; i++) {
-    groups[i] = 0
-  } // the leaves are one macro-state (the self)
+  for (let i = 0; i < K; i++) groups[i] = 0
+  // the leaves are one macro-state (the self)
 
   groups[sink] = 1 // the sink is the other macro-state
 
@@ -88,15 +82,12 @@ function coarseGrain(P: number[][], groups: number[]): number[][] {
   )
 
   for (let i = 0; i < P.length; i++) {
-    for (let j = 0; j < P.length; j++) {
+    for (let j = 0; j < P.length; j++)
       Q[groups[i]!]![groups[j]!]! += P[i]![j]!
-    }
   }
 
   for (let a = 0; a < M; a++) {
-    for (let b = 0; b < M; b++) {
-      Q[a]![b]! /= size[a]!
-    }
+    for (let b = 0; b < M; b++) Q[a]![b]! /= size[a]!
   } // average over the group's micro-states
 
   return Q
@@ -126,6 +117,7 @@ export function causalEmergence(input?: { K?: number }): {
 
   for (const k of [2, 4, 8, 16, 32]) {
     const f = buildFunnel(k)
+
     byDegeneracy.push({
       K: k,
       emergence:

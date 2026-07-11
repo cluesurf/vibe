@@ -59,9 +59,7 @@ export function nonabelianGauge(): {
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
-      if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) {
-        nonAbelian = true
-      }
+      if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) nonAbelian = true
     }
   }
 

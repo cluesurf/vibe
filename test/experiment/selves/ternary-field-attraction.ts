@@ -80,9 +80,8 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        ) {
+        )
           will.data[c * degree + rest] = 1
-        }
       }
 
       return will
@@ -91,9 +90,8 @@ export default experiment({
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
 
-      for (let c = 0; c < coin.cellCount; c++) {
+      for (let c = 0; c < coin.cellCount; c++)
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
-      }
 
       return o
     }
@@ -121,9 +119,7 @@ export default experiment({
             Math.abs(z - half) +
             Math.abs(w - half)
 
-          if (dd > e) {
-            e = dd
-          }
+          if (dd > e) e = dd
         }
       }
 
@@ -138,9 +134,7 @@ export default experiment({
       let will = cloneWill(restBody())
       let nb = center
 
-      for (let k = 0; k < disp; k++) {
-        nb = base.neighbour(nb, 0)
-      }
+      for (let k = 0; k < disp; k++) nb = base.neighbour(nb, 0)
 
       will.data[center * degree + rest] = 0
       will.data[nb * degree + rest] = 1
@@ -170,10 +164,12 @@ export default experiment({
         beatInto({ src: will, dst: scratch, table, collision: rule })
 
         const swap = will
+
         will = scratch
         scratch = swap
 
         const occupied = occupiedOf(will)
+
         phi = relaxPotential({
           source: bulkMass({
             occupied,

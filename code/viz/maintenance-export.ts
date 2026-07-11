@@ -36,9 +36,7 @@ function beat(
     const v = edge[0]!
     const w = edge[1]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -103,9 +101,7 @@ export function exportMaintenance(input?: {
 
   for (let v = 0; v < N; v++) {
     for (const w of neighbors[v]!) {
-      if (w > v) {
-        edges.push([v, w])
-      }
+      if (w > v) edges.push([v, w])
     }
   }
 
@@ -122,9 +118,7 @@ export function exportMaintenance(input?: {
       const next: number[] = []
 
       for (const u of frontier) {
-        if (region.length >= regionSize) {
-          break
-        }
+        if (region.length >= regionSize) break
 
         region.push(u)
 
@@ -142,16 +136,13 @@ export function exportMaintenance(input?: {
 
   inRegion.fill(0)
 
-  for (const i of region) {
-    inRegion[i] = 1
-  }
+  for (const i of region) inRegion[i] = 1
 
   // the BALANCED identity pattern over the region (equal +/-, shuffled), net charge zero
   const target = new Int8Array(N)
 
-  for (let k = 0; k < region.length; k++) {
+  for (let k = 0; k < region.length; k++)
     target[region[k]!] = k % 2 === 0 ? 1 : -1
-  }
 
   const shuffleRng = makeRng({ seed: 4 })
 
@@ -160,6 +151,7 @@ export function exportMaintenance(input?: {
     const a = region[i]!
     const b = region[j]!
     const t = target[a]!
+
     target[a] = target[b]!
     target[b] = t
   }
@@ -167,9 +159,7 @@ export function exportMaintenance(input?: {
   // the LOCAL view, the region plus a few BFS shells around it (the self and its immediate surround)
   const inView = new Uint8Array(N)
 
-  for (const i of region) {
-    inView[i] = 1
-  }
+  for (const i of region) inView[i] = 1
 
   let shell = region.slice()
 
@@ -191,16 +181,12 @@ export function exportMaintenance(input?: {
   const view: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (inView[i]) {
-      view.push(i)
-    }
+    if (inView[i]) view.push(i)
   }
 
   const viewIndex = new Int32Array(N).fill(-1)
 
-  for (let a = 0; a < view.length; a++) {
-    viewIndex[view[a]!] = a
-  }
+  for (let a = 0; a < view.length; a++) viewIndex[view[a]!] = a
 
   // lay the view cells out flat, force-directed on their crystal adjacency (the same honest layout the
   // horosphere view uses, it only positions dots, it never touches the tones)
@@ -210,9 +196,7 @@ export function exportMaintenance(input?: {
     for (const w of neighbors[view[a]!]!) {
       const b = viewIndex[w]!
 
-      if (b > a) {
-        viewEdges.push([a, b])
-      }
+      if (b > a) viewEdges.push([a, b])
     }
   }
 
@@ -240,6 +224,7 @@ export function exportMaintenance(input?: {
 
         const d2 = dx * dx + dy * dy + 1e-9
         const f = (2.2 * ideal * ideal) / d2
+
         dx *= f
         dy *= f
         dispX[i]! += dx
@@ -258,6 +243,7 @@ export function exportMaintenance(input?: {
 
       const d = Math.hypot(dx, dy) + 1e-6
       const f = (0.9 * d * d) / ideal
+
       dx = (dx / d) * f
       dy = (dy / d) * f
       dispX[a]! -= dx
@@ -270,6 +256,7 @@ export function exportMaintenance(input?: {
 
     for (let i = 0; i < view.length; i++) {
       const len = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
+
       position[i]![0]! += (dispX[i]! / len) * Math.min(len, temp)
       position[i]![1]! += (dispY[i]! / len) * Math.min(len, temp)
     }
@@ -277,9 +264,8 @@ export function exportMaintenance(input?: {
 
   let maxAbs = 1e-6
 
-  for (const p of position) {
+  for (const p of position)
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
-  }
 
   const cells2d = position.map(p => [
     Math.round((p[0]! / maxAbs) * 1000) / 1000,
@@ -290,19 +276,17 @@ export function exportMaintenance(input?: {
   const seed = (tone: Int8Array, r: Rng): void => {
     tone.fill(0)
 
-    for (const i of region) {
-      tone[i] = target[i]!
-    }
+    for (const i of region) tone[i] = target[i]!
 
     for (let i = 0; i < N; i++) {
-      if (!inRegion[i] && r.next() < mediumDensity) {
+      if (!inRegion[i] && r.next() < mediumDensity)
         tone[i] = r.next() < 0.5 ? 1 : -1
-      }
     }
   }
 
   const maintained = new Int8Array(N)
   const free = new Int8Array(N)
+
   seed(maintained, makeRng({ seed: 5 }))
   seed(free, makeRng({ seed: 5 }))
 
@@ -320,9 +304,8 @@ export function exportMaintenance(input?: {
     for (let s = 0; s < stride; s++) {
       beat(maintained, edges, moved, rngA, arrow)
 
-      for (const i of region) {
-        maintained[i] = target[i]!
-      } // self-maintenance, restore the identity (P171)
+      for (const i of region) maintained[i] = target[i]!
+      // self-maintenance, restore the identity (P171)
 
       beat(free, edges, moved, rngB, arrow)
     }
@@ -353,6 +336,7 @@ export function exportMaintenance(input?: {
 }
 
 const result = exportMaintenance()
+
 console.log('maintenance export (real {5,3,4}, P171):')
 console.log(`  bulk cells: ${result.bulkCells}`)
 console.log(`  self region (placed probe): ${result.regionCells} cells`)

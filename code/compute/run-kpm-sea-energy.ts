@@ -53,6 +53,7 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
           nz = a * a + b * b - cc * cc - dd * dd
 
           const m = Math.hypot(nx, ny, nz) || 1
+
           nx /= m
           ny /= m
           nz /= m
@@ -70,11 +71,11 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
 
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
+
   c[0] = 2 / Math.PI
 
-  for (let k = 1; 2 * k < M; k++) {
+  for (let k = 1; 2 * k < M; k++)
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
-  }
 
   return c
 }
@@ -270,6 +271,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pMat)
       pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
       pass.dispatchWorkgroups(wgN)
@@ -299,6 +301,7 @@ async function run(): Promise<void> {
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
+
       pass.setPipeline(pDP)
       pass.setBindGroup(0, bg(pDP, xi, cur, partials))
       pass.dispatchWorkgroups(wgF)
@@ -319,12 +322,14 @@ async function run(): Promise<void> {
 
     for (let n = 2; n < MCHEB; n++) {
       const itn = 3 - i0 - i1
+
       step(B[i1]!, B[itn]!, 2 / A, 1, B[i0]!, n, B[itn]!)
       i0 = i1
       i1 = itn
     }
 
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
@@ -345,6 +350,7 @@ async function run(): Promise<void> {
   const texN = Rs.map(R => nrt3('texture', R))
   const dMu = Rs.map(() => new Float64Array(MCHEB))
   const rng = makeRng({ seed: 999 })
+
   console.log(
     `GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`,
   )
@@ -352,9 +358,7 @@ async function run(): Promise<void> {
   for (let r = 0; r < NRV; r++) {
     const xd = new Float32Array(FN)
 
-    for (let i = 0; i < FN; i++) {
-      xd[i] = rng.next() < 0.5 ? -1 : 1
-    }
+    for (let i = 0; i < FN; i++) xd[i] = rng.next() < 0.5 ? -1 : 1
 
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN)
@@ -368,9 +372,8 @@ async function run(): Promise<void> {
 
       const muH = await computeMoments()
 
-      for (let n = 0; n < MCHEB; n++) {
+      for (let n = 0; n < MCHEB; n++)
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
-      }
     }
 
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
@@ -379,34 +382,30 @@ async function run(): Promise<void> {
   const deltaE = Rs.map((R, ri) => {
     let s = 0
 
-    for (let n = 0; n < MCHEB; n++) {
-      s += g[n]! * c[n]! * dMu[ri]![n]!
-    }
+    for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ri]![n]!
 
     return [R, Math.round(-0.5 * A * s * 100) / 100] as [number, number]
   })
 
   console.log('\nDelta E_sea(R) (texture soliton, fermion sea):')
 
-  for (const [R, dE] of deltaE) {
-    console.log(`  R=${R}: ${dE}`)
-  }
+  for (const [R, dE] of deltaE) console.log(`  R=${R}: ${dE}`)
 
   let minI = 0
 
   for (let i = 1; i < deltaE.length; i++) {
-    if (deltaE[i]![1] < deltaE[minI]![1]) {
-      minI = i
-    }
+    if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
   }
 
   const hasMin = minI > 0 && minI < deltaE.length - 1
+
   console.log(`  minimum at R=${deltaE[minI]![0]} (interior=${hasMin})`)
   console.log(
     hasMin
       ? '  => MINIMUM found: Delta E ~ B*R + D/R with D>0 (Skyrme STABILIZING). GATE CLOSED (positive sign).'
       : '  => no interior minimum: the 1/R term is still not isolated at this L; honest partial.',
   )
+
   console.log(
     `RESULT: deltaE ${deltaE.map(d => d[1]).join('/')}, interior minimum ${hasMin}`,
   )

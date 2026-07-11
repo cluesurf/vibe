@@ -21,9 +21,8 @@ suite('substrate/sprinkle-curved: the causal order', [
         rng: makeRng({ seed: 4 }),
       })
 
-      for (let i = 0; i < p.size; i++) {
+      for (let i = 0; i < p.size; i++)
         notOk(precedes(p, { a: i, b: i }), `no self-relation (${i})`)
-      }
 
       for (let a = 0; a < p.size; a++) {
         for (let b = 0; b < p.size; b++) {

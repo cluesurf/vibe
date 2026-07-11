@@ -51,6 +51,7 @@ function maintain(input: {
     beat(tone, graph, moved, rng, 0.01, cohesion)
 
     const c = largestPositiveCluster(tone, graph)
+
     sizes.push(c.length)
 
     if (c.length >= 0.5 * initial) {
@@ -58,6 +59,7 @@ function maintain(input: {
     }
 
     const cur = new Set(c)
+
     turnoverSum += jaccardDistance(prev, cur)
     prev = cur
   }

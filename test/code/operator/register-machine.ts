@@ -50,6 +50,7 @@ suite('operator/register-machine: layout', [
     )
 
     const all = new Set([...regions.flat(), ...ground])
+
     equal(all.size, cellCount, 'no cell is shared or lost')
   }),
 ])
@@ -57,6 +58,7 @@ suite('operator/register-machine: layout', [
 suite('operator/register-machine: conserving primitives', [
   check('INC and DEC keep total charge at zero', () => {
     const m = machine()
+
     equal(m.charge(), 0, 'starts neutral')
     m.inc(0)
     m.inc(0)
@@ -83,10 +85,12 @@ suite('operator/register-machine: Minsky programs', [
         [6, 1],
       ]) {
         const m = machine()
+
         m.set(0, a!)
         m.set(1, b!)
 
         const { conserved } = m.run(minskyAddProgram())
+
         ok(conserved, `charge conserved for ADD ${a}+${b}`)
         equal(m.read(0), a! + b!, `R0 = ${a}+${b}`)
         equal(m.read(1), 0, 'R1 drained')
@@ -102,10 +106,12 @@ suite('operator/register-machine: Minsky programs', [
       [1, 5],
     ]) {
       const m = machine()
+
       m.set(0, a!)
       m.set(1, b!)
 
       const { conserved } = m.run(minskyMultiplyProgram())
+
       ok(conserved, `charge conserved for MUL ${a}*${b}`)
       equal(m.read(2), a! * b!, `R2 = ${a}*${b}`)
     }

@@ -45,6 +45,7 @@ export function nestedSelves(input: { seed: number }): {
 
   // The body's coherent self: all cells aligned. Converge to confirm it is a fixed point.
   let base = new Int8Array(g.size).fill(1)
+
   base = settleAsync({
     graph: g,
     fills,
@@ -55,9 +56,7 @@ export function nestedSelves(input: { seed: number }): {
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
 
-  for (let v = 0; v < g.size; v++) {
-    members[cellOf[v] ?? 0]?.push(v)
-  }
+  for (let v = 0; v < g.size; v++) members[cellOf[v] ?? 0]?.push(v)
 
   // Perturb a varying fraction of one cell, re-settle, measure how much of the cell returns
   // to the body's pattern (absorbed) and how intact the rest of the body stays. Average over
@@ -79,6 +78,7 @@ export function nestedSelves(input: { seed: number }): {
       // flip the first k members (order is arbitrary and fixed, so reproducible)
       for (let i = 0; i < k; i++) {
         const v = mem[i] ?? 0
+
         perturbed[v] = -(base[v] ?? 0)
       }
 
@@ -106,9 +106,7 @@ export function nestedSelves(input: { seed: number }): {
       let bodyTot = 0
 
       for (let v = 0; v < g.size; v++) {
-        if (cellSet.has(v)) {
-          continue
-        }
+        if (cellSet.has(v)) continue
 
         bodyTot++
 

@@ -65,9 +65,8 @@ function run(): void {
     const head = Math.min(f, path.length - 1)
     const onPath = new Map<number, number>() // cell -> brightness phase
 
-    for (let k = 0; k <= head; k++) {
+    for (let k = 0; k <= head; k++)
       onPath.set(path[k]!, k === head ? 2 : 1)
-    }
 
     const sceneFaces: SceneFace[] = []
 
@@ -138,9 +137,7 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 
-      if (seen.has(key)) {
-        continue
-      }
+      if (seen.has(key)) continue
 
       seen.add(key)
       edges.push({ a, b })

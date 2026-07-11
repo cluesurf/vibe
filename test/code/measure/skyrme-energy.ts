@@ -20,6 +20,7 @@ suite('measure/skyrme-energy: the vacuum', [
   check('a uniform field has zero energy and zero charge', () => {
     const f = blankDirectionField2d(20)
     const e = directionFieldEnergy2d(f)
+
     close(e.exchange, 0, 1e-12)
     close(e.skyrme, 0, 1e-12)
     equal(skyrmionCharge2d(f), 0)
@@ -32,6 +33,7 @@ suite('measure/skyrme-energy: topological charge', [
   // fixed orientation convention shared by every plaquette), so the magnitude is the robust check.
   check('a charge-1 skyrmion has |topological charge| 1', () => {
     const f = blankDirectionField2d(48)
+
     placeSkyrmion2d({
       field: f,
       centerX: 24,
@@ -46,6 +48,7 @@ suite('measure/skyrme-energy: topological charge', [
     'a charge-2 skyrmion has |topological charge| 2, same sign as charge 1',
     () => {
       const f1 = blankDirectionField2d(48)
+
       placeSkyrmion2d({
         field: f1,
         centerX: 24,
@@ -55,6 +58,7 @@ suite('measure/skyrme-energy: topological charge', [
       })
 
       const f2 = blankDirectionField2d(48)
+
       placeSkyrmion2d({
         field: f2,
         centerX: 24,
@@ -74,6 +78,7 @@ suite('measure/skyrme-energy: topological charge', [
     'a skyrmion has positive energy; Derrick is exchange + kappa Skyrme',
     () => {
       const f = blankDirectionField2d(48)
+
       placeSkyrmion2d({
         field: f,
         centerX: 24,
@@ -83,6 +88,7 @@ suite('measure/skyrme-energy: topological charge', [
       })
 
       const e = directionFieldEnergy2d(f)
+
       ok(
         e.exchange > 0,
         `exchange should be positive, got ${e.exchange}`,
@@ -90,6 +96,7 @@ suite('measure/skyrme-energy: topological charge', [
       ok(e.skyrme > 0, `skyrme should be positive, got ${e.skyrme}`)
 
       const kappa = 0.5
+
       close(
         directionFieldDerrickEnergy2d(f, kappa),
         e.exchange + kappa * e.skyrme,
@@ -104,6 +111,7 @@ suite('measure/skyrme-energy: 3D field', [
   check('a 3D hedgehog texture has positive energy', () => {
     const f = hedgehogTexture3d({ size: 16, radius: 5 })
     const e = directionFieldEnergy3d(f)
+
     ok(e.exchange > 0, `exchange should be positive, got ${e.exchange}`)
     ok(e.skyrme > 0, `skyrme should be positive, got ${e.skyrme}`)
   }),

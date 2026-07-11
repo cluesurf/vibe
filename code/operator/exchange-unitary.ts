@@ -16,6 +16,7 @@ export function applyExchangeUnitary(input: {
   const i1 = im[1]!
   const r2 = re[2]!
   const i2 = im[2]!
+
   re[1] = c * r1 + s * i2
   im[1] = c * i1 - s * r2
   re[2] = c * r2 + s * i1

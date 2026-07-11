@@ -23,9 +23,8 @@ suite('measure/leggett-garg: temporalCorrelator equals cos(theta)', [
     close(temporalCorrelator(Math.PI), -1, TIGHT),
   ),
   check('matches cos(theta) at a scattering of angles', () => {
-    for (const theta of [0.3, 0.9, 1.7, 2.4, 3.0]) {
+    for (const theta of [0.3, 0.9, 1.7, 2.4, 3.0])
       close(temporalCorrelator(theta), Math.cos(theta), TIGHT)
-    }
   }),
 ])
 
@@ -35,6 +34,7 @@ suite('measure/leggett-garg: the inequality', [
   }),
   check('quantum maximum reaches 3/2 at theta = pi/3', () => {
     const out = leggettGarg({ steps: 360 })
+
     // K(pi/3) = 2 cos(pi/3) - cos(2 pi/3) = 2*(1/2) - (-1/2) = 3/2.
     close(out.quantumMax, 1.5, 1e-9)
     close(out.bestTheta, Math.PI / 3, 0.02)

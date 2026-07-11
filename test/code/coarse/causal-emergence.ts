@@ -42,6 +42,7 @@ suite('coarse/causal-emergence: effective information', [
       0,
       TOL,
     )
+
     close(
       effectiveInformation([
         [0.3, 0.7],
@@ -99,9 +100,8 @@ suite('coarse/causal-emergence: TPM coarse-graining', [
 
     const macro = coarseGrainTpm({ tpm, groups: [0, 0, 1, 1] })
 
-    for (const s of rowSums(macro)) {
+    for (const s of rowSums(macro))
       close(s, 1, TOL, 'each macro row sums to 1')
-    }
   }),
 ])
 
@@ -126,6 +126,7 @@ suite('coarse/causal-emergence: structured vs random gain', [
 
     const a = run()
     const b = run()
+
     allFinite([a.eiMicro, a.eiSpatial, a.eiRandom])
     close(a.eiMicro, b.eiMicro, 0, 'reproducible micro EI')
     close(a.eiSpatial, b.eiSpatial, 0, 'reproducible spatial EI')

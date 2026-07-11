@@ -38,9 +38,7 @@ export function absorbBoundary(will: Will): void {
     if (isBoundaryCell(cell, side)) {
       const base = cell * degree
 
-      for (let d = 0; d < degree; d++) {
-        will.data[base + d] = 0
-      }
+      for (let d = 0; d < degree; d++) will.data[base + d] = 0
     }
   }
 }
@@ -55,9 +53,7 @@ export function frontierToPeace(will: Will, frontierX: number): void {
     if (cell % side === frontierX) {
       const base = cell * degree
 
-      for (let d = 0; d < degree; d++) {
-        will.data[base + d] = 0
-      }
+      for (let d = 0; d < degree; d++) will.data[base + d] = 0
     }
   }
 }

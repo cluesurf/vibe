@@ -31,9 +31,8 @@ const CRC_TABLE = (() => {
   for (let n = 0; n < 256; n++) {
     let c = n
 
-    for (let k = 0; k < 8; k++) {
+    for (let k = 0; k < 8; k++)
       c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
-    }
 
     t[n] = c >>> 0
   }
@@ -44,19 +43,19 @@ const CRC_TABLE = (() => {
 function crc32(buf: Buffer): number {
   let c = 0xffffffff
 
-  for (const byte of buf) {
-    c = CRC_TABLE[(c ^ byte) & 0xff]! ^ (c >>> 8)
-  }
+  for (const byte of buf) c = CRC_TABLE[(c ^ byte) & 0xff]! ^ (c >>> 8)
 
   return (c ^ 0xffffffff) >>> 0
 }
 
 function pngChunk(type: string, data: Buffer): Buffer {
   const len = Buffer.alloc(4)
+
   len.writeUInt32BE(data.length, 0)
 
   const body = Buffer.concat([Buffer.from(type, 'ascii'), data])
   const crc = Buffer.alloc(4)
+
   crc.writeUInt32BE(crc32(body), 0)
 
   return Buffer.concat([len, body, crc])
@@ -69,6 +68,7 @@ function encodePng(
 ): Buffer {
   const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
   const ihdr = Buffer.alloc(13)
+
   ihdr.writeUInt32BE(width, 0)
   ihdr.writeUInt32BE(height, 4)
   ihdr[8] = 8 // bit depth
@@ -125,6 +125,7 @@ async function run(): Promise<void> {
 
   // a single central pulse, the cleanest expanding relativistic lightcone
   const seed = new Uint32Array(count)
+
   seed[(SIZE >> 1) * SIZE + (SIZE >> 1)] = pack({
     current: 1,
     previous: 0,
@@ -140,6 +141,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeBuf(), makeBuf()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   // compute pipeline, the wave step
@@ -167,6 +169,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < BEATS; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(stepPipeline)
     pass.setBindGroup(0, stepBind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -238,6 +241,7 @@ async function run(): Promise<void> {
   await pixelBuffer.mapAsync(GPUMapMode.READ)
 
   const rgba = new Uint8Array(pixelBuffer.getMappedRange().slice(0))
+
   pixelBuffer.unmap()
 
   const outDir = join(
@@ -250,6 +254,7 @@ async function run(): Promise<void> {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, 'field.png')
+
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))
   console.log(
     `rendered ${SIZE}x${SIZE} field after ${BEATS} beats, wrote ${outPath}`,

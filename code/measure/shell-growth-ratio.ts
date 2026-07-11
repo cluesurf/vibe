@@ -15,9 +15,7 @@ export function shellGrowthRatio(input: {
     Math.min(input.to, input.shellCounts.length),
   )
 
-  if (mid.length <= 1 && !input.safeDenominator) {
-    return 0
-  }
+  if (mid.length <= 1 && !input.safeDenominator) return 0
 
   const denominator = input.safeDenominator
     ? Math.max(1, mid.length - 1)

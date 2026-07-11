@@ -92,6 +92,7 @@ export default experiment({
 
       for (const b of bs) {
         const r2 = b.x * b.x + b.y * b.y
+
         M += b.m
         Dx += b.m * b.x
         Qxx += b.m * (3 * b.x * b.x - r2) // traceless quadrupole component
@@ -116,9 +117,8 @@ export default experiment({
     function project(signal: number[], harmonic: number): number {
       let acc = 0
 
-      for (let s = 0; s < steps; s++) {
+      for (let s = 0; s < steps; s++)
         acc += signal[s]! * Math.cos(harmonic * OMEGA * t[s]!) * dt
-      }
 
       return Math.abs(acc) / (periods / F_ORB) // normalise by total time
     }

@@ -27,6 +27,7 @@ suite('dynamics/random-walk: diffusive baseline', [
     'MSD starts at 0 and grows roughly linearly (exponent ~ 1)',
     () => {
       const msd = classicalWalkMSD({ steps: 200, runs: 400 })
+
       equal(msd[0]!, 0, 'MSD(0) = 0')
 
       // log-log slope over [10, 200]
@@ -37,12 +38,11 @@ suite('dynamics/random-walk: diffusive baseline', [
         m = 0
 
       for (let t = 10; t <= 200; t++) {
-        if (msd[t]! <= 0) {
-          continue
-        }
+        if (msd[t]! <= 0) continue
 
         const x = Math.log(t)
         const y = Math.log(msd[t]!)
+
         sx += x
         sy += y
         sxx += x * x
@@ -51,6 +51,7 @@ suite('dynamics/random-walk: diffusive baseline', [
       }
 
       const exponent = (m * sxy - sx * sy) / (m * sxx - sx * sx)
+
       close(exponent, 1, 0.2, `diffusive exponent ${exponent} ~ 1`)
     },
   ),
@@ -104,9 +105,8 @@ suite('dynamics/random-walk: determinism', [
 
     equal(p1.length, 31, 'path includes the start')
 
-    for (let i = 0; i < p1.length; i++) {
+    for (let i = 0; i < p1.length; i++)
       equal(p1[i]!, p2[i]!, `path step ${i}`)
-    }
   }),
   check(
     'classicalWalkMSD is seed-deterministic (fixed internal seeding)',
@@ -114,9 +114,7 @@ suite('dynamics/random-walk: determinism', [
       const a = classicalWalkMSD({ steps: 50, runs: 50 })
       const b = classicalWalkMSD({ steps: 50, runs: 50 })
 
-      for (let i = 0; i < a.length; i++) {
-        equal(a[i]!, b[i]!, `msd ${i}`)
-      }
+      for (let i = 0; i < a.length; i++) equal(a[i]!, b[i]!, `msd ${i}`)
     },
   ),
 ])

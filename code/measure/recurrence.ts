@@ -35,9 +35,7 @@ export function recurrencePeriod(input: {
       }
     }
 
-    if (same) {
-      return t
-    }
+    if (same) return t
   }
 
   return -1

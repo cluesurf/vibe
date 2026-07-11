@@ -60,6 +60,7 @@ suite('dynamics/friedmann: deceleration parameter', [
     () => {
       const dt = 0.1
       const a = Array.from({ length: 9 }, (_, i) => (1 + i * dt) ** 2)
+
       close(
         decelerationParameter({ a, index: 4, dt }),
         -0.5,
@@ -80,6 +81,7 @@ suite('dynamics/friedmann: deceleration parameter', [
       })
 
       const mid = Math.floor(out.a.length / 2)
+
       close(out.rho[mid]!, 1, 1e-3, 'density stays constant')
       close(
         decelerationParameter({ a: out.a, index: mid, dt: 0.001 }),
@@ -103,10 +105,10 @@ suite('dynamics/friedmann: determinism', [
 
     const a = integrateFriedmann(opts)
     const b = integrateFriedmann(opts)
+
     equal(a.a.length, b.a.length, 'same length')
 
-    for (let i = 0; i < a.a.length; i++) {
+    for (let i = 0; i < a.a.length; i++)
       equal(a.a[i]!, b.a[i]!, `a[${i}]`)
-    }
   }),
 ])

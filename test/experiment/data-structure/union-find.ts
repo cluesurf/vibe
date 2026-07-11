@@ -36,19 +36,13 @@ export default experiment({
         steps += 1
       }
 
-      if (node !== a.root) {
-        allReachRoot = false
-      }
+      if (node !== a.root) allReachRoot = false
 
-      if (steps !== a.dist[cell]) {
-        depthMatchesDist = false
-      }
+      if (steps !== a.dist[cell]) depthMatchesDist = false
 
       sumDepth += steps
 
-      if (steps > maxDepth) {
-        maxDepth = steps
-      }
+      if (steps > maxDepth) maxDepth = steps
     }
 
     const meanFindDepth = sumDepth / cells

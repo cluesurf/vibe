@@ -20,6 +20,7 @@ function depthsFrom(parent: number[]): number[] {
 
   for (let i = 0; i < parent.length; i++) {
     const p = parent[i]!
+
     depth[i] = p < 0 ? 0 : depth[p]! + 1
   }
 
@@ -31,6 +32,7 @@ suite('geometry/tree-embedding: the complete tree', [
     const b = 2
     const d = 3
     const tree = completeTree({ branching: b, depth: d })
+
     equal(tree.size, (Math.pow(b, d + 1) - 1) / (b - 1), 'node count') // 15
   }),
   check(
@@ -65,6 +67,7 @@ suite('geometry/tree-embedding: hop distance', [
       // parent = [-1,0,0,1,1,2,2], depth = [0,1,1,2,2,2,2]
       const tree = completeTree({ branching: 2, depth: 2 })
       const depth = depthsFrom(tree.parent)
+
       equal(treeDistance(tree.parent, depth, 3, 3), 0, 'd(x,x)=0')
       equal(treeDistance(tree.parent, depth, 3, 4), 2, 'siblings')
       equal(
@@ -78,6 +81,7 @@ suite('geometry/tree-embedding: hop distance', [
         4,
         'cross-subtree leaves',
       )
+
       equal(
         treeDistance(tree.parent, depth, 3, 6),
         4,
@@ -105,6 +109,7 @@ suite('geometry/tree-embedding: the isometric placement', [
 
       for (let i = 1; i < tree.size; i++) {
         const p = tree.parent[i]!
+
         close(
           hyperbolicDistance(coords[i]!, coords[p]!),
           edge,
@@ -119,6 +124,7 @@ suite('geometry/tree-embedding: the isometric placement', [
     () => {
       const z: [number, number] = [0.3, -0.2]
       const w: [number, number] = [-0.1, 0.4]
+
       close(hyperbolicDistance(z, z), 0, 1e-12, 'd(z,z)=0')
       close(
         hyperbolicDistance(z, w),

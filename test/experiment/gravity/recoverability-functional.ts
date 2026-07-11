@@ -37,9 +37,8 @@ export default experiment({
     const mesh = d4Mesh({ side: meshSide })
     const opposite: number[] = []
 
-    for (let d = 0; d < mesh.degree; d++) {
+    for (let d = 0; d < mesh.degree; d++)
       opposite.push(mesh.opposite(d))
-    }
 
     const collision = headOnRotate({ opposite })
     const degree = mesh.degree
@@ -67,9 +66,8 @@ export default experiment({
       )
 
       if (cheby <= 1) {
-        for (let d = 0; d < degree; d++) {
+        for (let d = 0; d < degree; d++)
           start.data[cell * degree + d] = ((x + 2 * y + d) % 3) - 1
-        }
       }
     }
 

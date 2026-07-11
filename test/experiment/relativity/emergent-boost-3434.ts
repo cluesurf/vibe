@@ -48,9 +48,8 @@ export function emergentBoost(): {
         const E = Eof(m, p),
           [E2, p2] = boost(E, p, phi)
 
-        if (Math.abs(E2 * E2 - p2 * p2 - m * m) > 1e-9) {
+        if (Math.abs(E2 * E2 - p2 * p2 - m * m) > 1e-9)
           invariantPreserved = false
-        }
       }
     }
   }
@@ -64,13 +63,10 @@ export function emergentBoost(): {
       const rel = addVelocities({ velocity: u, frame: v }) // relativistic sum, always < 1
       const gal = u + v
 
-      if (rel >= 1 || rel <= 0) {
-        velocitiesAddRelativistically = false
-      }
+      if (rel >= 1 || rel <= 0) velocitiesAddRelativistically = false
 
-      if (gal > 1) {
-        galileanWrong = true
-      } // Galilean would exceed c, relativistic never does
+      if (gal > 1) galileanWrong = true
+      // Galilean would exceed c, relativistic never does
     }
   }
 

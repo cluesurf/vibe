@@ -10,14 +10,17 @@ const TOL = 1e-12
 suite('measure/tone-entropy: ternaryToneEntropyBits', [
   check('a uniform ternary region has entropy log2(3)', () => {
     const v = Int8Array.from([-1, 0, 1])
+
     close(ternaryToneEntropyBits(v, [0, 1, 2]), Math.log2(3), TOL)
   }),
   check('two equally likely tones carry 1 bit', () => {
     const v = Int8Array.from([-1, 1])
+
     close(ternaryToneEntropyBits(v, [0, 1]), 1, TOL)
   }),
   check('a pure region carries 0 bits', () => {
     const v = Int8Array.from([1, 1, 1])
+
     close(ternaryToneEntropyBits(v, [0, 1, 2]), 0, TOL)
   }),
   check('an empty index set is 0', () => {

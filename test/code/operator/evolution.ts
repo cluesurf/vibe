@@ -30,12 +30,14 @@ suite('operator/evolution: state space', [
       9,
       '3^2',
     )
+
     equal(
       makeStateSpace({ cells: 3, alphabet: { form: 'boolean' } })
         .dimension,
       8,
       '2^3',
     )
+
     equal(
       makeStateSpace({ cells: 2, alphabet: { form: 'clock', q: 4 } })
         .dimension,
@@ -64,9 +66,8 @@ suite('operator/evolution: Hamiltonian from a permutation', [
     ok(out.isPermutation, 'identity is a permutation')
     equal(out.eigenvalues.length, 4, 'one phase per state')
 
-    for (const e of out.eigenvalues) {
+    for (const e of out.eigenvalues)
       close(e, 0, 1e-12, 'every length-1 cycle contributes phase 0')
-    }
   }),
   check('a single 4-cycle gives the four 4th-root phases', () => {
     const out = hamiltonianFromPermutation({
@@ -74,6 +75,7 @@ suite('operator/evolution: Hamiltonian from a permutation', [
     })
 
     const expected = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]
+
     equal(out.eigenvalues.length, 4, 'four phases')
 
     for (let k = 0; k < 4; k++) {
@@ -92,8 +94,7 @@ suite('operator/evolution: Hamiltonian from a permutation', [
 
     const expected = [0, 0, Math.PI, Math.PI]
 
-    for (let k = 0; k < 4; k++) {
+    for (let k = 0; k < 4; k++)
       close(out.eigenvalues[k]!, expected[k]!, 1e-12, `phase ${k}`)
-    }
   }),
 ])

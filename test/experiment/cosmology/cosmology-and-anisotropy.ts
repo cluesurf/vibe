@@ -71,6 +71,7 @@ function anisotropyBound(): { coeff: number; deltaGZK: number } {
 export function cosmologyAndAnisotropy(): void {
   const e = expansionLaw()
   const a = anisotropyBound()
+
   void e
   void a
 }

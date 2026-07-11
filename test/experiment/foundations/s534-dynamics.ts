@@ -44,9 +44,7 @@ export function s534Dynamics(): {
         const j = nb[i]![k]!
         const back = nb[j]!.indexOf(i)
 
-        if (back >= 0) {
-          next[j]![back] = next[j]![back]! + charge[i]![k]!
-        }
+        if (back >= 0) next[j]![back] = next[j]![back]! + charge[i]![k]!
       }
     } // stream to neighbor (placed on its returning slot)
 
@@ -68,6 +66,7 @@ export function s534Dynamics(): {
   }
 
   const dist = new Int32Array(N).fill(-1)
+
   dist[center] = 0
 
   let fr = [center]
@@ -98,9 +97,7 @@ export function s534Dynamics(): {
   let cur = new Int8Array(N),
     prev = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) {
-    cur[i] = Math.floor(rnd() * 3)
-  }
+  for (let i = 0; i < N; i++) cur[i] = Math.floor(rnd() * 3)
 
   const { offsets: off, adj } = toCsr(nb)
 
@@ -112,11 +109,10 @@ export function s534Dynamics(): {
     for (let i = 0; i < N; i++) {
       let s = 0
 
-      for (let q = off[i]!; q < off[i + 1]!; q++) {
-        s += cur[adj[q]!]!
-      }
+      for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!
 
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
+
       nx[i] = v
 
       if (v !== cur[i]!) {

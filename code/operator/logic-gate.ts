@@ -15,9 +15,8 @@ export function ruleGate(
 ): Bit {
   let h = bias
 
-  for (let i = 0; i < inputs.length; i++) {
+  for (let i = 0; i < inputs.length; i++)
     h += (fills[i] ?? 0) * (inputs[i] ?? 1)
-  }
 
   return h > 0 ? 1 : -1
 }
@@ -71,14 +70,13 @@ export function functionFromTable(
     let acc: Bit = -1 // false
 
     for (let p = 0; p < 8; p++) {
-      if (!table[p]) {
-        continue
-      }
+      if (!table[p]) continue
 
       const lb = (p >> 2) & 1
       const cb = (p >> 1) & 1
       const rb = p & 1
       const minterm = and(and(lit(l, lb), lit(c, cb)), lit(r, rb))
+
       acc = or(acc, minterm)
     }
 

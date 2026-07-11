@@ -101,6 +101,7 @@ suite('measure/rapidity: linkRapidities', [
       const coords = Float64Array.from([0, 0, 1, Math.tanh(0.7)])
       const links = [Uint32Array.from([1]), Uint32Array.from([])]
       const out = linkRapidities({ coords, links, band: null })
+
       equal(out.length, 1)
       close(out[0]!, 0.7, 1e-10)
     },
@@ -123,6 +124,7 @@ suite('measure/rapidity: linkRapidities', [
     ]
 
     const out = linkRapidities({ coords, links, band: null })
+
     equal(out.length, 1)
     close(out[0]!, 0.5, 1e-10)
   }),

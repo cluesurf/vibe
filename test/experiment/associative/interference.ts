@@ -24,9 +24,7 @@ function overlappingWord(
   const word = new Int8Array(wordBits)
 
   // shared background, every word agrees here, this is the overlap
-  for (let k = 0; k < wordBits; k++) {
-    word[k] = (k * 2) % 3
-  }
+  for (let k = 0; k < wordBits; k++) word[k] = (k * 2) % 3
 
   // distinguishing slots encode the index in base 3
   let v = index

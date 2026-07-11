@@ -34,9 +34,8 @@ export function associativeExactRecall(input?: {
     wordBits,
   })
 
-  for (let c = 0; c < g.cellCount; c++) {
+  for (let c = 0; c < g.cellCount; c++)
     storeWord(mem, c, ternaryWord(c, wordBits))
-  }
 
   const recall = exactRecallRate(mem)
   const falsePositive = falsePositiveRate({

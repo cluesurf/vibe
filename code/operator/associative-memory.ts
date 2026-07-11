@@ -60,9 +60,7 @@ export function storeWord(
 ): void {
   const base = cell * mem.wordBits
 
-  for (let k = 0; k < mem.wordBits; k++) {
-    mem.words[base + k] = word[k]!
-  }
+  for (let k = 0; k < mem.wordBits; k++) mem.words[base + k] = word[k]!
 
   mem.occupied[cell] = 1
 }
@@ -79,9 +77,7 @@ export function comparedSlots(
   wordBits: number,
   mask?: ArrayLike<number>,
 ): number {
-  if (!mask) {
-    return wordBits
-  }
+  if (!mask) return wordBits
 
   let n = 0
 
@@ -102,18 +98,14 @@ export function matchScore(
   comparand: ArrayLike<number>,
   mask?: ArrayLike<number>,
 ): number {
-  if (!mem.occupied[cell]) {
-    return -1
-  }
+  if (!mem.occupied[cell]) return -1
 
   const base = cell * mem.wordBits
 
   let s = 0
 
   for (let k = 0; k < mem.wordBits; k++) {
-    if (mask && !mask[k]) {
-      continue
-    }
+    if (mask && !mask[k]) continue
 
     if (mem.words[base + k] === comparand[k]) {
       s++
@@ -135,9 +127,7 @@ export function search(input: {
   const out: number[] = []
 
   for (let c = 0; c < mem.cellCount; c++) {
-    if (matchScore(mem, c, comparand, mask) >= minScore) {
-      out.push(c)
-    }
+    if (matchScore(mem, c, comparand, mask) >= minScore) out.push(c)
   }
 
   return out
@@ -228,17 +218,13 @@ export function broadcastWave(input: {
   for (const r of input.responders) {
     const d = depth[r]!
 
-    if (d >= 0 && d < first) {
-      first = d
-    }
+    if (d >= 0 && d < first) first = d
   }
 
   let coverage = 0
 
   for (const d of depth) {
-    if (d > coverage) {
-      coverage = d
-    }
+    if (d > coverage) coverage = d
   }
 
   return {

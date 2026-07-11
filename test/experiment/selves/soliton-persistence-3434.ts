@@ -42,17 +42,13 @@ function solitonSizes(s: number[]): number[] {
     if (b === 1) {
       run++
     } else {
-      if (run > 0) {
-        sizes.push(run)
-      }
+      if (run > 0) sizes.push(run)
 
       run = 0
     }
   }
 
-  if (run > 0) {
-    sizes.push(run)
-  }
+  if (run > 0) sizes.push(run)
 
   return sizes.sort((a, b) => b - a)
 }
@@ -84,6 +80,7 @@ export function solitonPersistence(): {
 
   // (1) single soliton (a block of 3 balls) persists and moves at speed = size
   let s: number[] = new Array(L).fill(0)
+
   s[5] = 1
   s[6] = 1
   s[7] = 1
@@ -112,9 +109,7 @@ export function solitonPersistence(): {
 
     s.forEach((b, i) => {
       if (b === 1) {
-        if (run === 0) {
-          start = i
-        }
+        if (run === 0) start = i
 
         run++
       } else if (run > 0) {
@@ -123,14 +118,13 @@ export function solitonPersistence(): {
       }
     })
 
-    if (run > 0) {
-      out.push({ size: run, pos: start + (run - 1) / 2 })
-    }
+    if (run > 0) out.push({ size: run, pos: start + (run - 1) / 2 })
 
     return out
   }
 
   let s2: number[] = new Array(L).fill(0)
+
   s2[3] = s2[4] = s2[5] = 1
   s2[12] = 1 // a 3 behind a 1, the 3 is faster
 
@@ -139,9 +133,7 @@ export function solitonPersistence(): {
   const big0 = startRuns.find(r => r.size === 3)!,
     small0 = startRuns.find(r => r.size === 1)!
 
-  for (let t = 0; t < 50; t++) {
-    s2 = bbsStep(s2)
-  }
+  for (let t = 0; t < 50; t++) s2 = bbsStep(s2)
 
   const after = solitonSizes(s2)
   const endRuns = runs(s2)

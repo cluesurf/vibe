@@ -92,6 +92,7 @@ export default experiment({
 
       for (const [dx, dy, ax] of bonds) {
         const r = rotateBy(s[idx(x + dx, y + dy)]!, ax, theta)
+
         h[0] += J * r[0]
         h[1] += J * r[1]
         h[2] += J * r[2]
@@ -116,6 +117,7 @@ export default experiment({
         for (let x = 0; x < L; x++) {
           const c = s[idx(x, y)]!
           const h = field(s, x, y)
+
           out[idx(x, y)] = unit([
             c[0] + a * h[0],
             c[1] + a * h[1],
@@ -135,6 +137,7 @@ export default experiment({
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           const h = field(s, x, y)
+
           out[idx(x, y)] = unit(
             rotateBy(
               s[idx(x, y)]!,
@@ -145,18 +148,14 @@ export default experiment({
         }
       }
 
-      if (open) {
-        pinEdge(out)
-      }
+      if (open) pinEdge(out)
 
       return out
     }
 
     let spins = makeSkyrmionField({ size: L, coreRadius: 4 })
 
-    for (let t = 0; t < relaxSteps; t++) {
-      spins = relaxStep(spins, 0.08)
-    }
+    for (let t = 0; t < relaxSteps; t++) spins = relaxStep(spins, 0.08)
 
     const relaxedQ = skyrmionDegree(spins, L)
     const relaxedRadius = skyrmionRadius(spins, L)
@@ -170,13 +169,9 @@ export default experiment({
 
       const q = skyrmionDegree(spins, L)
 
-      if (q < minQ) {
-        minQ = q
-      }
+      if (q < minQ) minQ = q
 
-      if (q > maxQ) {
-        maxQ = q
-      }
+      if (q > maxQ) maxQ = q
     }
 
     const precessedRadius = skyrmionRadius(spins, L)
@@ -186,13 +181,13 @@ export default experiment({
     for (let y = 18; y < 21; y++) {
       for (let x = 26; x < 29; x++) {
         const n = Math.hypot(1, 0, 0.2)
+
         pert[idx(x, y)] = [1 / n, 0, 0.2 / n]
       }
     }
 
-    for (let t = 0; t < precessSteps; t++) {
+    for (let t = 0; t < precessSteps; t++)
       pert = precessStep(pert, false)
-    }
 
     const perturbedQ = skyrmionDegree(pert, L)
 

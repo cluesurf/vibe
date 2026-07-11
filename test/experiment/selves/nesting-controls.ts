@@ -31,6 +31,7 @@ const shuf = <T>(a: T[]): T[] => {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1))
     const t = a[i]!
+
     a[i] = a[j]!
     a[j] = t
   }
@@ -43,9 +44,7 @@ function stepPerception(t: Int8Array): void {
     order = shuf([...Array(L * L * L).keys()])
 
   for (const v of order) {
-    if (m[v]) {
-      continue
-    }
+    if (m[v]) continue
 
     const vx = v % L,
       vy = ((v / L) | 0) % L,
@@ -55,11 +54,10 @@ function stepPerception(t: Int8Array): void {
       const d = DIRS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
 
-      if (m[w]) {
-        continue
-      }
+      if (m[w]) continue
 
       const [na, nb] = perm(t[v]!, t[w]!)
+
       t[v] = na
       t[w] = nb
       m[v] = 1
@@ -75,9 +73,7 @@ function stepDiffusion(t: Int8Array): void {
     order = shuf([...Array(L * L * L).keys()])
 
   for (const v of order) {
-    if (m[v]) {
-      continue
-    }
+    if (m[v]) continue
 
     const vx = v % L,
       vy = ((v / L) | 0) % L,
@@ -87,11 +83,10 @@ function stepDiffusion(t: Int8Array): void {
       const d = DIRS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
 
-      if (m[w]) {
-        continue
-      }
+      if (m[w]) continue
 
       const a = t[v]!
+
       t[v] = t[w]!
       t[w] = a
       m[v] = 1
@@ -126,13 +121,9 @@ function towerOf(step: (t: Int8Array) => void): {
 } {
   const t = new Int8Array(L * L * L)
 
-  for (let i = 0; i < L * L * L; i++) {
-    t[i] = Math.floor(rnd() * 3) - 1
-  }
+  for (let i = 0; i < L * L * L; i++) t[i] = Math.floor(rnd() * 3) - 1
 
-  for (let f = 0; f < 40; f++) {
-    step(t)
-  }
+  for (let f = 0; f < 40; f++) step(t)
 
   const blocks = [2, 4, 8],
     LAG = 8,

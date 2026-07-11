@@ -43,12 +43,12 @@ export function effectiveCouplings(
       const cw = cl[w] ?? 0
       const f = fl[k] ?? 0
 
-      if (cv === cw) {
-        Jself[cv] = (Jself[cv] ?? 0) + f
-      } else {
+      if (cv === cw) Jself[cv] = (Jself[cv] ?? 0) + f
+      else {
         nbrSet[cv]?.add(cw)
 
         const key = `${cv},${cw}`
+
         crossMap.set(key, (crossMap.get(key) ?? 0) + f)
       }
     }
@@ -76,9 +76,8 @@ export function naiveMacroStep(
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
 
-    for (let k = 0; k < nb.length; k++) {
+    for (let k = 0; k < nb.length; k++)
       h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
-    }
 
     out[c] = sign(h)
   }
@@ -100,9 +99,8 @@ export function renormMacroStep(
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
 
-    for (let k = 0; k < nb.length; k++) {
+    for (let k = 0; k < nb.length; k++)
       h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
-    }
 
     out[c] = sign(h)
   }

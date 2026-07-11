@@ -34,9 +34,8 @@ export function margolusStep(
       const diag2 =
         cnt === 2 && ((a === 1 && d === 1) || (b === 1 && c === 1))
 
-      if (diag2) {
-        continue
-      } // collision/wall, fixed (reversible identity)
+      if (diag2) continue
+      // collision/wall, fixed (reversible identity)
 
       // rotate 180: a<->d, b<->c
       g[at(length, x0, y0)] = d

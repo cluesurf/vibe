@@ -18,6 +18,7 @@ suite('measure/born-rule: patchesFromAmplitudes', [
   check('counts = round(c^2 * scale), total is their sum', () => {
     // c = [1, 2], scale = 10 -> round(1*10)=10, round(4*10)=40, total 50.
     const out = patchesFromAmplitudes([1, 2], 10)
+
     equal(out.counts[0], 10)
     equal(out.counts[1], 40)
     equal(out.total, 50)
@@ -25,6 +26,7 @@ suite('measure/born-rule: patchesFromAmplitudes', [
   check('a tiny amplitude is clamped up to at least one vibe', () => {
     // c = 0 would round to 0; the floor of 1 keeps every patch non-empty.
     const out = patchesFromAmplitudes([0, 0], 10)
+
     equal(out.counts[0], 1)
     equal(out.counts[1], 1)
     equal(out.total, 2)
@@ -71,6 +73,7 @@ suite(
         const at2 = exponentResidual({ p: 2, seed: 9 })
         const at1p5 = exponentResidual({ p: 1.5, seed: 9 })
         const at2p5 = exponentResidual({ p: 2.5, seed: 9 })
+
         ok(
           at2 < at1p5 && at2 < at2p5,
           'p=2 is the unique minimiser of the residual',

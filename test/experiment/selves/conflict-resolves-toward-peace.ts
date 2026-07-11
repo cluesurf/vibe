@@ -19,9 +19,8 @@ import { verdict } from '@/test/scaffold/verdict'
 function ring(n: number): ReturnType<typeof toCSR> {
   const neighbors: number[][] = []
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     neighbors.push([(i - 1 + n) % n, (i + 1) % n])
-  }
 
   return toCSR(neighbors)
 }
@@ -51,9 +50,7 @@ function relax(
   const startCharge = totalCharge(tone)
   const startDensity = nonzeroDensity(tone)
 
-  for (let b = 0; b < beats; b++) {
-    beat(tone, g, moved, rng, 0, 0)
-  }
+  for (let b = 0; b < beats; b++) beat(tone, g, moved, rng, 0, 0)
 
   return {
     startDensity,
@@ -74,9 +71,7 @@ export function resolveTowardPeace(input: { n: number }): {
   // opposed: alternating pain and pleasure, all conflict
   const opposed = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
-    opposed[i] = i % 2 === 0 ? 1 : -1
-  }
+  for (let i = 0; i < n; i++) opposed[i] = i % 2 === 0 ? 1 : -1
 
   // agreeing: all pleasure, no conflict (the control)
   const agreeing = new Int8Array(n).fill(1)

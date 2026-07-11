@@ -70,6 +70,7 @@ export default experiment({
       for (let i = n - 1; i > 0; i--) {
         const j = Math.floor(hashRand(i, 0, 3) * (i + 1))
         const t = g[i]!
+
         g[i] = g[j]!
         g[j] = t
       }

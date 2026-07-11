@@ -34,14 +34,10 @@ import {
 } from '@/code/rule/attention'
 
 const sameData = (a: Int8Array, b: Int8Array): boolean => {
-  if (a.length !== b.length) {
-    return false
-  }
+  if (a.length !== b.length) return false
 
   for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false
-    }
+    if (a[i] !== b[i]) return false
   }
 
   return true
@@ -83,9 +79,7 @@ export default experiment({
     // full sweep, the reference
     let full = cloneWill(sparse)
 
-    for (let step = 0; step < beats; step++) {
-      full = beat(full, rule)
-    }
+    for (let step = 0; step < beats; step++) full = beat(full, rule)
 
     // attention update with activity pruning, count the collide ops
     let attn = cloneWill(sparse)
@@ -93,6 +87,7 @@ export default experiment({
 
     for (let step = 0; step < beats; step++) {
       const result = attentionBeat({ will: attn, collision: rule })
+
       attn = result.will
       sparseOps += result.collideOps
     }
@@ -104,6 +99,7 @@ export default experiment({
 
     // the dense control, almost no vacuum, so pruning saves nothing
     const dense = makeWill(mesh)
+
     fillWillPattern(dense)
 
     let denseFull = cloneWill(dense)
@@ -114,6 +110,7 @@ export default experiment({
       denseFull = beat(denseFull, rule)
 
       const result = attentionBeat({ will: denseAttn, collision: rule })
+
       denseAttn = result.will
       denseOps += result.collideOps
     }

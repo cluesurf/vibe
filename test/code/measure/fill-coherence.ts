@@ -29,6 +29,7 @@ suite('measure/fill-coherence: fillCoherence', [
     ]
 
     const fill = Int8Array.from([1, 0, -1])
+
     close(fillCoherence(tone, edges, fill), 1, TOL)
   }),
   check('a wrong fill drops the fraction', () => {
@@ -41,6 +42,7 @@ suite('measure/fill-coherence: fillCoherence', [
     ]
 
     const fill = Int8Array.from([-1, 0, -1])
+
     close(fillCoherence(tone, edges, fill), 2 / 3, TOL)
   }),
 ])
@@ -56,6 +58,7 @@ suite('measure/fill-coherence: adaptFills', [
     ]
 
     const fill = new Int8Array(3)
+
     adaptFills(tone, edges, fill)
     exactArray(fill, [1, -1, 0])
   }),
@@ -72,6 +75,7 @@ suite('measure/fill-coherence: largestSharingPatch', [
     ]
 
     const fill = Int8Array.from([1, 1, 1])
+
     equal(largestSharingPatch(tone, edges, fill, 4), 3)
   }),
   check('non-sharing fills do not grow a patch', () => {
@@ -83,6 +87,7 @@ suite('measure/fill-coherence: largestSharingPatch', [
     ]
 
     const fill = Int8Array.from([-1, -1])
+
     equal(largestSharingPatch(tone, edges, fill, 3), 1)
   }),
 ])

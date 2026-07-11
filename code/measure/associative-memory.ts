@@ -7,6 +7,7 @@
 
 const hashBit = (id: number, index: number): number => {
   let h = (id ^ Math.imul(index + 1, 0x9e3779b9)) >>> 0
+
   h = Math.imul(h ^ (h >>> 16), 0x21f0aaad) >>> 0
   h = Math.imul(h ^ (h >>> 15), 0x735a2d97) >>> 0
 
@@ -16,9 +17,7 @@ const hashBit = (id: number, index: number): number => {
 const bipolar = (id: number, dim: number): Int8Array => {
   const v = new Int8Array(dim)
 
-  for (let i = 0; i < dim; i++) {
-    v[i] = hashBit(id, i)
-  }
+  for (let i = 0; i < dim; i++) v[i] = hashBit(id, i)
 
   return v
 }
@@ -26,9 +25,7 @@ const bipolar = (id: number, dim: number): Int8Array => {
 const dot = (a: Int8Array, b: Int8Array): number => {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += a[i]! * b[i]!
-  }
+  for (let i = 0; i < a.length; i++) s += a[i]! * b[i]!
 
   return s
 }
@@ -51,25 +48,22 @@ export function vsaRecallAccuracy(input: {
   const accumulator = new Int32Array(dim)
 
   for (let i = 0; i < items; i++) {
-    for (let j = 0; j < dim; j++) {
+    for (let j = 0; j < dim; j++)
       accumulator[j]! += keys[i]![j]! * values[i]![j]!
-    }
   }
 
   const memory = new Int8Array(dim)
 
-  for (let j = 0; j < dim; j++) {
+  for (let j = 0; j < dim; j++)
     memory[j] = accumulator[j]! >= 0 ? 1 : -1
-  }
 
   let correct = 0
 
   const noisy = new Int8Array(dim)
 
   for (let i = 0; i < items; i++) {
-    for (let j = 0; j < dim; j++) {
-      noisy[j] = memory[j]! * keys[i]![j]!
-    } // unbind
+    for (let j = 0; j < dim; j++) noisy[j] = memory[j]! * keys[i]![j]!
+    // unbind
 
     let best = -1
     let bestDot = -Infinity
@@ -83,9 +77,7 @@ export function vsaRecallAccuracy(input: {
       }
     }
 
-    if (best === i) {
-      correct += 1
-    }
+    if (best === i) correct += 1
   }
 
   return correct / items

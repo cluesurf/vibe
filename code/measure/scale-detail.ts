@@ -38,16 +38,13 @@ export function blockMeanField(input: {
 
     let q = 0
 
-    for (let d = 0; d < degree; d++) {
-      q += data[cell * degree + d] ?? 0
-    }
+    for (let d = 0; d < degree; d++) q += data[cell * degree + d] ?? 0
 
     field[b] = (field[b] ?? 0) + q
   }
 
-  for (let b = 0; b < field.length; b++) {
+  for (let b = 0; b < field.length; b++)
     field[b] = (field[b] ?? 0) / cellsPerBlock
-  }
 
   return field
 }
@@ -85,6 +82,7 @@ export function scaleDetailNorm(input: {
                     (px * 2 + dx)
 
                   const v = fine[b] ?? 0
+
                   children.push(v)
                   mean += v
                 }
@@ -96,9 +94,7 @@ export function scaleDetailNorm(input: {
 
           let variance = 0
 
-          for (const v of children) {
-            variance += (v - mean) * (v - mean)
-          }
+          for (const v of children) variance += (v - mean) * (v - mean)
 
           sum += variance / children.length
           count++

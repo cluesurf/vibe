@@ -52,6 +52,7 @@ function detailProfile(will: {
 
   for (const block of [1, 2]) {
     const fine = blockMeanField({ will, side: SIDE, block })
+
     norms.push(scaleDetailNorm({ fine, fineBlocks: SIDE / block }))
   }
 
@@ -102,9 +103,7 @@ function cantorDust(mesh: ReturnType<typeof d4Mesh>): {
     let x = v
 
     while (x > 0) {
-      if (x % 3 === 1) {
-        return false
-      }
+      if (x % 3 === 1) return false
 
       x = Math.floor(x / 3)
     }
@@ -116,9 +115,7 @@ function cantorDust(mesh: ReturnType<typeof d4Mesh>): {
     const x = cell % SIDE
 
     if (inDust(x)) {
-      for (let d = 0; d < 6; d++) {
-        will.data[cell * mesh.degree + d] = 1
-      }
+      for (let d = 0; d < 6; d++) will.data[cell * mesh.degree + d] = 1
     }
   }
 
@@ -149,6 +146,7 @@ export default experiment({
     // cell identical and the detail identically zero, the degenerate-fill trap
     // the audit flagged, so the texture must vary cell to cell.
     const start = makeWill(mesh)
+
     fillTexture(start)
 
     const evolved = run(start, collision, BEATS)

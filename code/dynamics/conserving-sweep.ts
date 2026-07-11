@@ -21,15 +21,14 @@ export function conservingEdgeSweep(input: {
 }): void {
   const { tone, eu, ev, moved, rng, arrow } = input
   const onlyCreate = input.onlyCreate ?? false
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -85,15 +84,14 @@ export function conservingEdgeSweepTunable(input: {
   hop: number
 }): void {
   const { tone, eu, ev, moved, rng, arrow, share, hop } = input
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -144,15 +142,14 @@ export function conservingChainSweep(input: {
   arrow: number
 }): void {
   const { tone, length, moved, rng, arrow } = input
+
   moved.fill(0)
 
   for (let i = 0; i < length; i++) {
     const v = i
     const w = (i + 1) % length
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -202,15 +199,14 @@ export function conservingRingSweep(input: {
   arrow: number
 }): void {
   const { tone, length, start, moved, rng, arrow } = input
+
   moved.fill(0)
 
   for (let s = 0; s < length; s++) {
     const i = (start + s) % length
     const j = (i + 1) % length
 
-    if (moved[i] || moved[j]) {
-      continue
-    }
+    if (moved[i] || moved[j]) continue
 
     const a = tone[i]!
     const b = tone[j]!
@@ -262,6 +258,7 @@ export function evolveConservingRing(input: {
   for (let t = 0; t < beats; t++) {
     const moved = new Uint8Array(length)
     const start = Math.floor(rng.next() * length)
+
     conservingRingSweep({ tone, length, start, moved, rng, arrow })
   }
 }
@@ -281,15 +278,14 @@ export function conservingRingSweepTunable(input: {
   hop: number
 }): void {
   const { tone, length, moved, rng, arrow, share, hop } = input
+
   moved.fill(0)
 
   for (let i = 0; i < length; i++) {
     const v = i
     const w = (i + 1) % length
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -340,15 +336,14 @@ export function conservingHopSweep(input: {
   rng: Rng
 }): void {
   const { tone, eu, ev, moved, rng } = input
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -379,15 +374,14 @@ export function conservingHopSweepHashed(input: {
   beat: number
 }): void {
   const { tone, eu, ev, moved, beat } = input
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -417,12 +411,11 @@ export function conservingEdgeListSweep(input: {
   arrow: number
 }): void {
   const { tone, edges, moved, rng, arrow } = input
+
   moved.fill(0)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -477,12 +470,11 @@ export function conservingEdgeListSweepPumped(input: {
   const { tone, edges, moved, rng, arrow, pump } = input
   const far = input.farValue ?? 1e9
   const field = (i: number): number => (pump ? (pump[i] ?? far) : 0)
+
   moved.fill(0)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -544,15 +536,14 @@ export function conservingEdgeSweepSteered(input: {
   const { tone, eu, ev, moved, rng, distGoal, towardSign } = input
   const far = input.farValue ?? 1e9
   const field = (i: number): number => distGoal?.[i] ?? far
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -572,9 +563,7 @@ export function conservingEdgeSweepSteered(input: {
       if (distGoal && q > 0) {
         doHop =
           towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
-      } else {
-        doHop = rng.next() < 0.5
-      }
+      } else doHop = rng.next() < 0.5
 
       if (doHop) {
         tone[e] = q
@@ -601,15 +590,14 @@ export function conservingEdgeSweepSteeredHashed(input: {
   const { tone, eu, ev, moved, beat, distGoal, towardSign } = input
   const far = input.farValue ?? 1e9
   const field = (i: number): number => distGoal?.[i] ?? far
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -629,9 +617,7 @@ export function conservingEdgeSweepSteeredHashed(input: {
       if (distGoal && q > 0) {
         doHop =
           towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
-      } else {
-        doHop = hashRand(k, beat, 1) < 0.5
-      }
+      } else doHop = hashRand(k, beat, 1) < 0.5
 
       if (doHop) {
         tone[e] = q
@@ -678,15 +664,14 @@ export function conservingEdgeSweepHashed(input: {
   arrow: number
 }): void {
   const { tone, eu, ev, moved, beat, arrow } = input
+
   moved.fill(0)
 
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!

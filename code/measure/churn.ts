@@ -26,9 +26,7 @@ export function churnCount(input: {
 
       const row = neighbors[i] ?? []
 
-      for (const cell of row) {
-        s += cur[cell]!
-      }
+      for (const cell of row) s += cur[cell]!
 
       const v = ((((s - prev[i]!) % modulus) + modulus) % modulus) as
         | 0

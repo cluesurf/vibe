@@ -35,9 +35,8 @@ const MODULUS = 251
 function ringNeighbors(size: number): number[][] {
   const neighbors: number[][] = []
 
-  for (let i = 0; i < size; i++) {
+  for (let i = 0; i < size; i++)
     neighbors.push([(i + 1) % size, (i + size - 1) % size])
-  }
 
   return neighbors
 }
@@ -50,6 +49,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
   let previous = new Uint8Array(RING)
   let current = new Uint8Array(RING)
+
   current[center] = 1
 
   const seedPrev = previous.slice()
@@ -59,6 +59,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
+
     reversibleWaveStep({
       neighbors,
       previous,
@@ -77,9 +78,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
           RING - Math.abs(i - center),
         )
 
-        if (d > front) {
-          front = d
-        }
+        if (d > front) front = d
       }
     }
   }
@@ -92,6 +91,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
 
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
+
     reversibleWaveStep({
       neighbors,
       previous: revPrev,
@@ -106,9 +106,8 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   let reversible = true
 
   for (let i = 0; i < RING; i++) {
-    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) {
+    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i])
       reversible = false
-    }
   }
 
   return { frontSpeed, reversible }

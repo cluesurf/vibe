@@ -27,6 +27,7 @@ function dirs(): { vecs: number[][]; swap: number[] } {
       for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
+
           v[a] = sa
           v[b] = sb
           vecs.push(v)
@@ -127,9 +128,7 @@ async function run(): Promise<void> {
   const init = new Int32Array(SZ)
   const rng = makeRng({ seed: 7 })
 
-  for (let i = 0; i < SZ; i++) {
-    init[i] = rng.nextInt({ max: 3 }) - 1
-  }
+  for (let i = 0; i < SZ; i++) init[i] = rng.nextInt({ max: 3 }) - 1
 
   device.queue.writeBuffer(a, 0, init)
 
@@ -149,6 +148,7 @@ async function run(): Promise<void> {
 
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bg)
     pass.dispatchWorkgroups(Math.ceil(N / WG))
@@ -160,11 +160,13 @@ async function run(): Promise<void> {
     buf: GPUBuffer,
   ): Promise<{ charge: number; mom: number[] }> => {
     const enc = device.createCommandEncoder()
+
     enc.copyBufferToBuffer(buf, 0, stage, 0, SZ * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
 
     const d = new Int32Array(stage.getMappedRange().slice(0))
+
     stage.unmap()
 
     let charge = 0
@@ -174,11 +176,10 @@ async function run(): Promise<void> {
     for (let c = 0; c < N; c++) {
       for (let k = 0; k < DIRN; k++) {
         const v = d[c * DIRN + k]!
+
         charge += v
 
-        for (let j = 0; j < 4; j++) {
-          mom[j]! += v * vecs[k]![j]!
-        }
+        for (let j = 0; j < 4; j++) mom[j]! += v * vecs[k]![j]!
       }
     }
 
@@ -186,6 +187,7 @@ async function run(): Promise<void> {
   }
 
   const s0 = await readSums(a)
+
   console.log(
     `GPU 24-direction interacting lattice gas, 4D L=${L} (${N.toLocaleString()} cells x 24 dirs), ${T} beats:`,
   )
@@ -198,6 +200,7 @@ async function run(): Promise<void> {
     stepOnce(src, dst)
 
     const tmp = src
+
     src = dst
     dst = tmp
   }
@@ -209,24 +212,30 @@ async function run(): Promise<void> {
   console.log(
     `  (1) charge conserved: ${chargeOk} (${s0.charge} -> ${s1.charge})`,
   )
+
   console.log(
     `  (2) momentum conserved: ${momOk} ([${String(s0.mom)}] -> [${String(s1.mom)}])`,
   )
+
   // reversibility, the step is (collide then stream); inverse is (un-stream then collide). The combined step
   // here is an involution-collide composed with a shift, so applying the inverse T times recovers the start.
   // We verify by checking the conserved quantities are invariant (a necessary, exactly-checkable signal at scale).
   console.log(
     `  (3) reversible / conserving discrete gas verified by exact charge + momentum invariance at scale.`,
   )
+
   console.log(
     '  => the actual {3,4,3,4} 24-direction rule WITH collisions conserves charge and momentum exactly at',
   )
+
   console.log(
     '     scale on the GPU. Combined with run-isotropy-d4 (the 24-dir light cone is isotropic) this is the',
   )
+
   console.log(
     '     full interacting directional rule, discrete, conserving, reversible, and emergent-isotropic.',
   )
+
   console.log(
     `RESULT: 24-dir gas charge conserved ${chargeOk}, momentum conserved ${momOk}.`,
   )

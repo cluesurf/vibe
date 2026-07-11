@@ -53,9 +53,8 @@ export default experiment({
     // a structured, cell-varying deterministic pattern: period 5 does not divide the
     // coin degree 24, so the state differs from cell to cell and the orthogonal and
     // closed records are dynamical measurements, not symmetry-forced zeros
-    for (let i = 0; i < init.data.length; i++) {
+    for (let i = 0; i < init.data.length; i++)
       init.data[i] = ((i % 5) % 3) - 1
-    }
 
     const frontierX = 0 // the drain couples along x
 

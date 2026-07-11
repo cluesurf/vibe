@@ -40,6 +40,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   const parent = new Int32Array(g.size).fill(-1)
   const depth = new Int32Array(g.size).fill(-1)
   const children: number[][] = g.neighbors.map(() => [])
+
   parent[root] = root
   depth[root] = 0
 
@@ -66,9 +67,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
       children[v] = kids
     }
 
-    if (next.length > 0) {
-      levelSizes.push(next.length)
-    }
+    if (next.length > 0) levelSizes.push(next.length)
 
     frontier = next
   }
@@ -81,12 +80,11 @@ export function buildAddressedTree(g: Graph): AddressedTree {
     .sort((a, b) => (depth[a] ?? 0) - (depth[b] ?? 0))
 
   for (const v of order) {
-    if (v === root) {
-      continue
-    }
+    if (v === root) continue
 
     const p = parent[v] ?? root
     const ordinal = (children[p] ?? []).indexOf(v)
+
     address[v] = [...(address[p] ?? []), ordinal]
   }
 

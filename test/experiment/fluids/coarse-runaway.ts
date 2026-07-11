@@ -28,9 +28,7 @@ function opposites(mesh: {
 }): number[] {
   const out: number[] = []
 
-  for (let d = 0; d < mesh.degree; d++) {
-    out.push(mesh.opposite(d))
-  }
+  for (let d = 0; d < mesh.degree; d++) out.push(mesh.opposite(d))
 
   return out
 }
@@ -81,6 +79,7 @@ export default experiment({
       real = beat(real, headOnRotate({ opposite: opposites(mesh) }))
 
       const e = enstrophy(real)
+
       enstrophyMin = Math.min(enstrophyMin, e)
       enstrophyMax = Math.max(enstrophyMax, e)
 

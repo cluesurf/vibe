@@ -29,6 +29,7 @@ export function sprinkleDeSitter(input: {
     // Inverse-CDF sample of tau with density proportional to a(tau) = e^{H tau}.
     const u = input.rng.next()
     const t = (1 / H) * Math.log(1 + u * (eHT - 1))
+
     tau.push(t)
     x.push(input.rng.next() * input.comovingWidth)
     eta.push((1 - Math.exp(-H * t)) / H)
@@ -51,9 +52,8 @@ export function sprinkleDeSitter(input: {
       if (
         Math.abs((sX[j] ?? 0) - (sX[i] ?? 0)) <=
         (sEta[j] ?? 0) - (sEta[i] ?? 0)
-      ) {
+      )
         setBit(future, { row: i, col: j })
-      }
     }
   }
 
@@ -62,9 +62,8 @@ export function sprinkleDeSitter(input: {
     for (let i = 0; i < k; i++) {
       if (getBit(future, { row: i, col: k })) {
         for (let j = k + 1; j < n; j++) {
-          if (getBit(future, { row: k, col: j })) {
+          if (getBit(future, { row: k, col: j }))
             setBit(future, { row: i, col: j })
-          }
         }
       }
     }

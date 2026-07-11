@@ -44,9 +44,7 @@ function partition(
   const groups: number[][] = []
 
   for (let seed = 0; seed < n; seed++) {
-    if (assigned[seed]) {
-      continue
-    }
+    if (assigned[seed]) continue
 
     const group: number[] = []
     const queue = [seed]
@@ -54,23 +52,17 @@ function partition(
     while (queue.length > 0 && group.length < targetSize) {
       const u = queue.shift()!
 
-      if (assigned[u]) {
-        continue
-      }
+      if (assigned[u]) continue
 
       assigned[u] = 1
       group.push(u)
 
       for (const w of neighbors[u]!) {
-        if (!assigned[w]) {
-          queue.push(w)
-        }
+        if (!assigned[w]) queue.push(w)
       }
     }
 
-    if (group.length > 0) {
-      groups.push(group)
-    }
+    if (group.length > 0) groups.push(group)
   }
 
   return groups
@@ -118,9 +110,7 @@ export function cooperationTower(): {
 
   const meanc = s / n
 
-  for (let i = 0; i < n; i++) {
-    charge0[i]! -= meanc
-  }
+  for (let i = 0; i < n; i++) charge0[i]! -= meanc
 
   const chargeSumStart = charge0.reduce((a, b) => a + b, 0)
   const initialStd = stdev(charge0)
@@ -144,11 +134,10 @@ export function cooperationTower(): {
     for (let beat = 0; beat < 40; beat++) {
       for (let i = 0; i < n; i++) {
         for (const j of neighbors[i]!) {
-          if (j <= i) {
-            continue
-          }
+          if (j <= i) continue
 
           const flow = 0.02 * (strengths[i]! - strengths[j]!) // stronger gains, conserving
+
           c[i]! += flow
           c[j]! -= flow
           wasted += 2 * W // both spend effort, win or lose
@@ -175,12 +164,11 @@ export function cooperationTower(): {
 
     for (let i = 0; i < n; i++) {
       for (const j of neighbors[i]!) {
-        if (j <= i) {
-          continue
-        }
+        if (j <= i) continue
 
         // each gives what is cheap to it for what is dear, a small mutual value gain, charge unchanged
         const give = 0.01
+
         c[i]! += give
         c[j]! -= give
         valueGain += 0.05 // both better off in their own value-landscapes
@@ -205,9 +193,8 @@ export function cooperationTower(): {
     for (const g of groups) {
       const m = g.reduce((a, k) => a + c[k]!, 0) / g.length
 
-      for (const k of g) {
-        c[k] = m
-      } // share in balance, no grabbing within
+      for (const k of g) c[k] = m
+      // share in balance, no grabbing within
 
       order += orderOf(g.length) // positive-sum, super-linear
     }
@@ -235,9 +222,8 @@ export function cooperationTower(): {
     if (
       (towerOrderByLevel[k]?.order ?? 0) <=
       (towerOrderByLevel[k - 1]?.order ?? 0)
-    ) {
+    )
       towerGrows = false
-    }
   }
 
   const integrationWins =

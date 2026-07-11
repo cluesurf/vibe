@@ -49,9 +49,7 @@ export function physicsOnRealSpace(): void {
   let cc = 0
 
   for (let i = 0; i < cube.cellCount; i++) {
-    if (cube.coords[i]!.every(x => x === 0)) {
-      cc = i
-    }
+    if (cube.coords[i]!.every(x => x === 0)) cc = i
   }
 
   spectralDim(cube.neighbors, cc, 3, 12)
@@ -67,6 +65,7 @@ export function physicsOnRealSpace(): void {
 
   const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
   const rmap = new Map<number, number>()
+
   bandIdx.forEach((id, i) => rmap.set(id, i))
 
   const bnb: number[][] = bandIdx.map(() => [])
@@ -75,9 +74,7 @@ export function physicsOnRealSpace(): void {
     for (const w of h.neighbors[bandIdx[a]!]!) {
       const b = rmap.get(w)
 
-      if (b !== undefined) {
-        bnb[a]!.push(b)
-      }
+      if (b !== undefined) bnb[a]!.push(b)
     }
   }
 
@@ -88,6 +85,7 @@ export function physicsOnRealSpace(): void {
   )
 
   const lc0 = mostConnectedNode(lnb)
+
   spectralDim(lnb, lc0, 3, 12)
   gravityExponent(lnb, lc0)
 }
@@ -110,9 +108,7 @@ export default experiment({
     let cubeCenter = 0
 
     for (let i = 0; i < cube.cellCount; i++) {
-      if (cube.coords[i]!.every(x => x === 0)) {
-        cubeCenter = i
-      }
+      if (cube.coords[i]!.every(x => x === 0)) cubeCenter = i
     }
 
     const cubeDim = spectralDim(cube.neighbors, cubeCenter, 3, 12)
@@ -127,6 +123,7 @@ export default experiment({
 
     const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
     const rmap = new Map<number, number>()
+
     bandIdx.forEach((id, i) => rmap.set(id, i))
 
     const bnb: number[][] = bandIdx.map(() => [])
@@ -135,9 +132,7 @@ export default experiment({
       for (const w of h.neighbors[bandIdx[a]!]!) {
         const b = rmap.get(w)
 
-        if (b !== undefined) {
-          bnb[a]!.push(b)
-        }
+        if (b !== undefined) bnb[a]!.push(b)
       }
     }
 

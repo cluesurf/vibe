@@ -87,6 +87,7 @@ export default experiment({
       })
 
       const single = parabolicStep({ ...point, shift: STEP_T + STEP_S })
+
       worstCompositionError = Math.max(
         worstCompositionError,
         Math.hypot(composed.x - single.x, composed.y - single.y),

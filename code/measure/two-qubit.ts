@@ -42,6 +42,7 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
         for (let l = 0; l < 2; l++) {
           const x = a[i]![j]!
           const y = b[k]![l]!
+
           out[i * 2 + k]![j * 2 + l] = cx(
             x.re * y.re - x.im * y.im,
             x.re * y.im + x.im * y.re,
@@ -112,9 +113,7 @@ export function horodeckiMaxChsh(
     for (let j = 0; j < 3; j++) {
       let s = 0
 
-      for (let k = 0; k < 3; k++) {
-        s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
-      }
+      for (let k = 0; k < 3; k++) s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
 
       m.data[i * 3 + j] = s
     }

@@ -31,15 +31,14 @@ export function packetUncertaintyProduct(input: {
 
   const scale = 1 / Math.sqrt(normalization)
 
-  for (let x = 0; x < size; x++) {
-    amplitude[x] = amplitude[x]! * scale
-  }
+  for (let x = 0; x < size; x++) amplitude[x] = amplitude[x]! * scale
 
   let meanX = 0
   let meanX2 = 0
 
   for (let x = 0; x < size; x++) {
     const p = amplitude[x]! * amplitude[x]!
+
     meanX += x * p
     meanX2 += x * x * p
   }
@@ -57,6 +56,7 @@ export function packetUncertaintyProduct(input: {
 
     for (let x = 0; x < size; x++) {
       const theta = (-2 * Math.PI * q * x) / size
+
       real += amplitude[x]! * Math.cos(theta)
       imaginary += amplitude[x]! * Math.sin(theta)
     }

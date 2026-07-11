@@ -95,9 +95,7 @@ export function selfEmergencePerception(): {
   let center = 0
 
   for (let i = 1; i < n; i++) {
-    if (neighbors[i]!.length > neighbors[center]!.length) {
-      center = i
-    }
+    if (neighbors[i]!.length > neighbors[center]!.length) center = i
   }
 
   const distC = neighborDistances({
@@ -137,9 +135,7 @@ export function selfEmergencePerception(): {
   // background mean tone for reference
   let bg = 0
 
-  for (let i = 0; i < n; i++) {
-    bg += imp[i]!
-  }
+  for (let i = 0; i < n; i++) bg += imp[i]!
 
   bg /= n
 

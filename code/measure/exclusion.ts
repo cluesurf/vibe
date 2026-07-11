@@ -23,15 +23,14 @@ export function coreWithHalo(input: {
 
   for (let i = 0; i < coreSize; i++) {
     for (let j = 0; j < coreSize; j++) {
-      if (i !== j) {
-        sets[i]!.add(j)
-      }
+      if (i !== j) sets[i]!.add(j)
     }
   }
 
   for (let k = 0; k < haloSize; k++) {
     const halo = coreSize + k
     const anchor = k % coreSize
+
     sets[halo]!.add(anchor)
     sets[anchor]!.add(halo)
   }
@@ -66,9 +65,7 @@ export function integrationOverNestedRegions(input: {
   return sizes.map(size => {
     const region = new Set<number>()
 
-    for (let i = 0; i < size; i++) {
-      region.add(i)
-    }
+    for (let i = 0; i < size; i++) region.add(i)
 
     return algebraicConnectivity({ adjacency, region })
   })
@@ -85,9 +82,7 @@ export function maximalComplex(values: number[]): {
   let argmax = 0
 
   for (let i = 1; i < values.length; i++) {
-    if (values[i]! > values[argmax]!) {
-      argmax = i
-    }
+    if (values[i]! > values[argmax]!) argmax = i
   }
 
   const interior =

@@ -59,9 +59,7 @@ export function eraseCoxeterMeshGas(input: {
 }): number[][] {
   const collided = collideCoxeterMeshGas(input)
 
-  for (const slots of collided) {
-    slots[0] = 0
-  }
+  for (const slots of collided) slots[0] = 0
 
   return collided
 }

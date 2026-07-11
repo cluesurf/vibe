@@ -31,9 +31,8 @@ function microHash(will: Will): string {
 function chargeHash(will: Will): string {
   const parts: number[] = []
 
-  for (let c = 0; c < will.mesh.cellCount; c++) {
+  for (let c = 0; c < will.mesh.cellCount; c++)
     parts.push(cellTone(will, c))
-  }
 
   return parts.join(',')
 }
@@ -61,9 +60,8 @@ export default experiment({
     // symmetry so the reversible orbit is long and visits many states, a robust sample for the statistics.
     let will: Will = makeWill(mesh)
 
-    for (let i = 0; i < will.data.length; i++) {
+    for (let i = 0; i < will.data.length; i++)
       will.data[i] = ((i * 7 + (i % 5) + 1) % 3) - 1
-    }
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
@@ -71,6 +69,7 @@ export default experiment({
 
     const micro: string[] = []
     const coarse: string[] = []
+
     micro.push(microHash(will))
     coarse.push(chargeHash(will))
 
@@ -78,6 +77,7 @@ export default experiment({
       beatInto({ src: will, dst: scratch, table, collision })
 
       const swap = will
+
       will = scratch
       scratch = swap
       micro.push(microHash(will))
@@ -91,9 +91,8 @@ export default experiment({
     for (let t = 0; t + 1 < micro.length; t++) {
       microNext.set(micro[t]!, micro[t + 1]!)
 
-      if (!predecessors.has(micro[t + 1]!)) {
+      if (!predecessors.has(micro[t + 1]!))
         predecessors.set(micro[t + 1]!, new Set())
-      }
 
       predecessors.get(micro[t + 1]!)!.add(micro[t]!)
     }
@@ -113,9 +112,8 @@ export default experiment({
     const coarseNext = new Map<string, Set<string>>()
 
     for (let t = 0; t + 1 < coarse.length; t++) {
-      if (!coarseNext.has(coarse[t]!)) {
+      if (!coarseNext.has(coarse[t]!))
         coarseNext.set(coarse[t]!, new Set())
-      }
 
       coarseNext.get(coarse[t]!)!.add(coarse[t + 1]!)
     }

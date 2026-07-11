@@ -159,6 +159,7 @@ suite('dynamics/ternary-field: measures', [
     () => {
       const clean = Int8Array.from([0, 0, 0, 0, 0, 0, 0])
       const perturbed = clean.slice()
+
       perturbed[1] = 1
       perturbed[5] = 2
       // centre 3: distances are |3-1|=2 and |5-3|=2
@@ -167,6 +168,7 @@ suite('dynamics/ternary-field: measures', [
         2,
         'radius 2',
       )
+
       equal(
         spreadRadius({ clean, perturbed: clean.slice(), center: 3 }),
         0,

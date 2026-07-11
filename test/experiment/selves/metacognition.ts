@@ -29,9 +29,7 @@ function fullBeat(
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const a = tone[v]!
     const b = tone[w]!
@@ -89,6 +87,7 @@ function corrLag(x: number[], y: number[], lag: number): number {
   for (let i = 0; i < n; i++) {
     const dx = xs[i]! - mx
     const dy = ys[i]! - my
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy
@@ -119,9 +118,8 @@ export function metacognition(input?: { n?: number }): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    ) {
+    )
       center = i
-    }
   }
 
   const dist = csrDistances({
@@ -136,9 +134,7 @@ export function metacognition(input?: { n?: number }): {
   const self: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! >= 0 && dist[i]! <= rSelf) {
-      self.push(i)
-    }
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
   }
 
   const isInput = new Uint8Array(N)
@@ -157,6 +153,7 @@ export function metacognition(input?: { n?: number }): {
 
   for (let j = 0; j < inputAll.length; j++) {
     const s = Math.floor((j * K) / inputAll.length)
+
     sectorOf[inputAll[j]!] = s
     sectorCells[s]!.push(inputAll[j]!)
   }
@@ -164,6 +161,7 @@ export function metacognition(input?: { n?: number }): {
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
+
     seen[start] = 1
 
     let fr = [start]
@@ -172,9 +170,7 @@ export function metacognition(input?: { n?: number }): {
       const nf: number[] = []
 
       for (const u of fr) {
-        if (isInput[u]) {
-          continue
-        }
+        if (isInput[u]) continue
 
         out.push(u)
 
@@ -202,9 +198,7 @@ export function metacognition(input?: { n?: number }): {
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
 
-    for (const i of cells) {
-      s += tone[i]!
-    }
+    for (const i of cells) s += tone[i]!
 
     return cells.length > 0 ? s / cells.length : 0
   }
@@ -223,22 +217,17 @@ export function metacognition(input?: { n?: number }): {
         Math.floor((t + s * 7 + 3) / (17 + s * 4)) % 2 === 0 ? 1 : -1
     }
 
-    for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]!
-    }
+    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]!
 
     fullBeat(tone, eu, ev, moved, t)
 
-    for (const i of inputAll) {
-      tone[i] = sigs[sectorOf[i]!]!
-    }
+    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]!
 
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
 
-    for (let p = 0; p < peripherals.length; p++) {
+    for (let p = 0; p < peripherals.length; p++)
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
-    }
   }
 
   // predictive power: does the hub at t predict the self's GLOBAL state at t+1
@@ -246,9 +235,8 @@ export function metacognition(input?: { n?: number }): {
 
   let peripheralPredict = 0
 
-  for (let p = 0; p < peripherals.length; p++) {
+  for (let p = 0; p < peripherals.length; p++)
     peripheralPredict += Math.abs(corrLag(periSeries[p]!, gSeries, 1))
-  }
 
   peripheralPredict /= peripherals.length
 

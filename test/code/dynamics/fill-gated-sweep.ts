@@ -40,6 +40,7 @@ suite('dynamics/fill-gated-sweep: charge conservation', [
     const tone = makeTone(N)
     const before = tone.slice()
     const fill = new Int8Array(N) // all zero = insulating
+
     fillGatedSweep({
       tone,
       edges: edges(N),
@@ -58,9 +59,8 @@ suite('dynamics/fill-gated-sweep: determinism', [
       const e = edges(N)
       const rng = makeRng({ seed: 7 })
 
-      for (let b = 0; b < 20; b++) {
+      for (let b = 0; b < 20; b++)
         fillGatedSweep({ tone, edges: e, fill, rng })
-      }
 
       return tone
     }

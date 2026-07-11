@@ -65,6 +65,7 @@ suite('coarse/group-field: block sum conserves the total', [
 
     const total = out.reduce((a, b) => a + b, 0)
     const fieldTotal = field.reduce((a, b) => a + b, 0)
+
     close(
       total,
       fieldTotal,
@@ -94,9 +95,7 @@ suite('coarse/group-field: cubic block partition', [
 
     equal(groupCount, 1)
 
-    for (const value of group) {
-      equal(value, 0)
-    }
+    for (const value of group) equal(value, 0)
   }),
   // L=4, b=2: side 2, 8 blocks. Cell (1,0,0)=index 1 shares block 0 with (0,0,0); cell (2,0,0)=index 2
   // is in block 1 (x/b = 1).
@@ -120,9 +119,8 @@ suite('coarse/group-field: cubic block partition', [
         sizes[value]!++
       }
 
-      for (const s of sizes) {
+      for (const s of sizes)
         equal(s, 8, 'each cubic block has b^3 = 8 cells')
-      }
     },
   ),
 ])

@@ -28,9 +28,7 @@ const unit = (a: Spin): Spin => {
 const rotate = (v: Spin, k: Spin): Spin => {
   const angle = Math.hypot(k[0], k[1], k[2])
 
-  if (angle < 1e-12) {
-    return v
-  }
+  if (angle < 1e-12) return v
 
   const u: Spin = [k[0] / angle, k[1] / angle, k[2] / angle]
   const c = Math.cos(angle),
@@ -75,11 +73,13 @@ function localField(
 
   for (const [dx, dy, dh] of BONDS) {
     const nb = spins[at(size, x + dx, y + dy)]!
+
     h[0] += exchange * nb[0]
     h[1] += exchange * nb[1]
     h[2] += exchange * nb[2]
 
     const c = cross(nb, dh)
+
     h[0] -= dm * c[0]
     h[1] -= dm * c[1]
     h[2] -= dm * c[2]
@@ -110,6 +110,7 @@ export function relaxSpins(input: {
     for (let x = 0; x < params.size; x++) {
       const c = spins[at(params.size, x, y)]!
       const h = localField(spins, params, x, y)
+
       out[at(params.size, x, y)] = unit([
         c[0] + rate * h[0],
         c[1] + rate * h[1],
@@ -136,6 +137,7 @@ export function precessSpins(input: {
   for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
       const h = localField(spins, params, x, y)
+
       out[at(params.size, x, y)] = unit(
         rotate(spins[at(params.size, x, y)]!, [
           h[0] * dt,
@@ -146,9 +148,8 @@ export function precessSpins(input: {
     }
   }
 
-  if (open) {
-    pinEdge(out, params.size)
-  } // the bath, edge spins held at the vacuum so spin-waves leave
+  if (open) pinEdge(out, params.size)
+  // the bath, edge spins held at the vacuum so spin-waves leave
 
   return out
 }
@@ -216,6 +217,7 @@ export function makeSkyrmionField(input: {
         phi = Math.atan2(dy, dx)
 
       const theta = r < coreRadius ? Math.PI * (1 - r / coreRadius) : 0
+
       spins[at(size, x, y)] = unit([
         Math.cos(phi) * Math.sin(theta),
         Math.sin(phi) * Math.sin(theta),
@@ -237,9 +239,7 @@ export function snapToTrits(spins: Spin[]): Spin[] {
       Math.round(v[2]),
     ]
 
-    if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
-      return [0, 0, 1]
-    }
+    if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
 
     const n = Math.hypot(w[0], w[1], w[2]) || 1
 

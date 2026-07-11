@@ -34,15 +34,13 @@ export function associativeNoisyRecall(input?: {
     wordBits,
   })
 
-  for (let c = 0; c < g.cellCount; c++) {
+  for (let c = 0; c < g.cellCount; c++)
     storeWord(mem, c, ternaryWord(c, wordBits))
-  }
 
   const sample: number[] = []
 
-  for (let c = 0; c < g.cellCount && sample.length < sampleSize; c++) {
+  for (let c = 0; c < g.cellCount && sample.length < sampleSize; c++)
     sample.push(c)
-  }
 
   const at = (f: number): number =>
     nearestRecallRate({

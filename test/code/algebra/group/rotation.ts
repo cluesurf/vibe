@@ -49,6 +49,7 @@ suite('algebra/group/rotation: vector action (SO(3) by conjugation)', [
     const g = zRotor(1.3)
     const v = quaternion(0, 2, -1, 3)
     const out = rotateVector(g, v)
+
     close(
       out.x * out.x + out.y * out.y + out.z * out.z,
       4 + 1 + 9,
@@ -81,6 +82,7 @@ suite('algebra/group/rotation: spinor action and the double cover', [
   check('rotateSpinor is plain left multiplication', () => {
     // k*(1 + 2i + 3j + 4k) = -4 - 3i + 2j + k, using ki=j, kj=-i, kk=-1
     const psi = quaternion(1, 2, 3, 4)
+
     closeQuat(rotateSpinor(K, psi), quaternion(-4, -3, 2, 1), 'k * psi')
   }),
   check('a 4 pi turn restores the spinor (the cover closes)', () => {
@@ -139,6 +141,7 @@ suite('algebra/group/rotation: Rodrigues matrix companion', [
     ]
 
     const byQuat = rotateVector(zRotor(angle), v)
+
     close(byMatrix[0]!, byQuat.x, 1e-12, 'x agrees')
     close(byMatrix[1]!, byQuat.y, 1e-12, 'y agrees')
     close(byMatrix[2]!, byQuat.z, 1e-12, 'z agrees')

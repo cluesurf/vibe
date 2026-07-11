@@ -59,19 +59,16 @@ function intervalAbundance(input: { poset: Poset }): {
       row: a,
       visit: b => {
         const take = index % stride === 0
+
         index += 1
 
-        if (!take) {
-          return
-        }
+        if (!take) return
 
         seen += 1
 
         const k = intervalSize(p, { a, b, past })
 
-        if (k < BIN_COUNT) {
-          bins[k] = (bins[k] ?? 0) + 1
-        }
+        if (k < BIN_COUNT) bins[k] = (bins[k] ?? 0) + 1
       },
     })
   }
@@ -81,9 +78,7 @@ function intervalAbundance(input: { poset: Poset }): {
   if (seen > 0 && seen < relations) {
     const scale = relations / seen
 
-    for (let k = 0; k < BIN_COUNT; k++) {
-      bins[k] = (bins[k] ?? 0) * scale
-    }
+    for (let k = 0; k < BIN_COUNT; k++) bins[k] = (bins[k] ?? 0) * scale
   }
 
   return { bins, relations }
@@ -119,9 +114,8 @@ export function benincasaDowkerAction(input: {
 
       let combination = relations
 
-      for (let k = 0; k < coefficients.length; k++) {
+      for (let k = 0; k < coefficients.length; k++)
         combination -= (coefficients[k] ?? 0) * (bins[k] ?? 0)
-      }
 
       // epsilon-smearing factor: sharp kernel = 1. Kept explicit so the dial
       // is a visible scalar in the returned action rather than hidden.
@@ -144,9 +138,7 @@ export function smearedKernel2D(input: {
   const n = input.n
   const oneMinus = 1 - e
 
-  if (oneMinus <= 0) {
-    return n === 0 ? 1 : 0
-  }
+  if (oneMinus <= 0) return n === 0 ? 1 : 0
 
   const base = Math.pow(oneMinus, n)
   const term =
@@ -170,9 +162,7 @@ function smearedKernel4D(input: {
   const n = input.n
   const oneMinus = 1 - e
 
-  if (oneMinus <= 0) {
-    return n === 0 ? 1 : 0
-  }
+  if (oneMinus <= 0) return n === 0 ? 1 : 0
 
   const r = e / oneMinus
   const c1 = n
@@ -190,9 +180,8 @@ export function smearedBenincasaDowker(input: {
   epsilon: number
   dimension: number
 }): Action {
-  if (input.dimension !== 2 && input.dimension !== 4) {
+  if (input.dimension !== 2 && input.dimension !== 4)
     return benincasaDowkerAction(input)
-  }
 
   const kernel =
     input.dimension === 4 ? smearedKernel4D : smearedKernel2D
@@ -216,23 +205,21 @@ export function smearedBenincasaDowker(input: {
           row: a,
           visit: b => {
             const take = index % stride === 0
+
             index += 1
 
-            if (!take) {
-              return
-            }
+            if (!take) return
 
             seen += 1
 
             const n = intervalSize(poset, { a, b, past })
+
             sum += kernel({ n, epsilon: input.epsilon })
           },
         })
       }
 
-      if (seen > 0 && seen < relations) {
-        sum *= relations / seen
-      }
+      if (seen > 0 && seen < relations) sum *= relations / seen
 
       return -poset.size / 2 + input.epsilon * sum
     },

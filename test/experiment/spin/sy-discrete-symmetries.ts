@@ -68,6 +68,7 @@ export function syDiscreteSymmetries(): {
         [c * R[x]![0], c * R[x]![1]],
         cmul([-s, 0], cmul(I, Lf[x]!)),
       )
+
       L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [
         c * Lf[x]![0],
         c * Lf[x]![1],
@@ -104,6 +105,7 @@ export function syDiscreteSymmetries(): {
         [c * R2[x]![0], c * R2[x]![1]],
         cmul([s, 0], cmul(I, L2[x]!)),
       )
+
       L3[x] = cadd(cmul([s, 0], cmul(I, R2[x]!)), [
         c * L2[x]![0],
         c * L2[x]![1],
@@ -114,13 +116,9 @@ export function syDiscreteSymmetries(): {
     Lf = L3
   }
 
-  for (let t = 0; t < steps; t++) {
-    fwd()
-  }
+  for (let t = 0; t < steps; t++) fwd()
 
-  for (let t = 0; t < steps; t++) {
-    bwd()
-  }
+  for (let t = 0; t < steps; t++) bwd()
 
   let err = 0
 

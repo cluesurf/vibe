@@ -20,9 +20,7 @@ export function freeFallStep(input: {
   let moved = 0
 
   for (let c = 0; c < cellCount; c++) {
-    if (!snapshot[c]) {
-      continue
-    }
+    if (!snapshot[c]) continue
 
     let best = -1
     let bestPhi = phi[c]!

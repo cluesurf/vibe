@@ -12,15 +12,11 @@ export function canonicalMirrors(symbol: number[]): number[][] {
   const order: number[] = []
 
   for (let a = 0; a < dim; a++) {
-    if ((frame.metric[a] ?? 1) > 0) {
-      order.push(a)
-    }
+    if ((frame.metric[a] ?? 1) > 0) order.push(a)
   }
 
   for (let a = 0; a < dim; a++) {
-    if ((frame.metric[a] ?? 1) < 0) {
-      order.push(a)
-    }
+    if ((frame.metric[a] ?? 1) < 0) order.push(a)
   }
 
   return frame.normals.map(row => order.map(a => row[a] ?? 0))

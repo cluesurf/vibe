@@ -92,9 +92,7 @@ function sharedPastCurve(input: {
   for (const d of distances) {
     const partner = picks.get(d)
 
-    if (partner === undefined) {
-      continue
-    }
+    if (partner === undefined) continue
 
     const bulk = bulkSharedPast({
       neighbors,

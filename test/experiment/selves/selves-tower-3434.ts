@@ -47,14 +47,13 @@ function makeStep(
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
+
       order[i] = order[j]!
       order[j] = t
     }
 
     for (const v of order) {
-      if (used[v]) {
-        continue
-      }
+      if (used[v]) continue
 
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
@@ -63,11 +62,10 @@ function makeStep(
       for (let s = 0; s < deg; s++) {
         const w = adj[start + ((off + s) % deg)]!
 
-        if (used[w] || w === v) {
-          continue
-        }
+        if (used[w] || w === v) continue
 
         const [na, nb] = pairOp(tone[v]!, tone[w]!)
+
         tone[v] = na
         tone[w] = nb
         used[v] = 1
@@ -95,9 +93,7 @@ function formPersistence(
   let numGroups = 0
 
   for (const gi of groupOf) {
-    if (gi + 1 > numGroups) {
-      numGroups = gi + 1
-    }
+    if (gi + 1 > numGroups) numGroups = gi + 1
   }
 
   const series: number[][] = []
@@ -107,9 +103,8 @@ function formPersistence(
 
     const g = new Array<number>(numGroups).fill(0)
 
-    for (let i = 0; i < tone.length; i++) {
+    for (let i = 0; i < tone.length; i++)
       g[groupOf[i]!] = g[groupOf[i]!]! + tone[i]!
-    }
 
     series.push(g)
   }
@@ -139,6 +134,7 @@ function shuffledGroups(
   for (let i = perm2.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = perm2[i]!
+
     perm2[i] = perm2[j]!
     perm2[j] = t
   }
@@ -171,9 +167,7 @@ function cuspTower(): {
     return g.coords.map(c => {
       const k = `${Math.floor(c[0]! / b)},${Math.floor(c[1]! / b)},${Math.floor(c[2]! / b)}`
 
-      if (!idx.has(k)) {
-        idx.set(k, idx.size)
-      }
+      if (!idx.has(k)) idx.set(k, idx.size)
 
       return idx.get(k)!
     })
@@ -182,13 +176,10 @@ function cuspTower(): {
   const rng = makeRng({ seed: 11 })
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
-    tone[i] = rng.nextInt({ max: 3 }) - 1
-  }
+  for (let i = 0; i < n; i++) tone[i] = rng.nextInt({ max: 3 }) - 1
 
-  for (let f = 0; f < 40; f++) {
-    stepPerception(tone, offsets, adj, rng)
-  } // settle
+  for (let f = 0; f < 40; f++) stepPerception(tone, offsets, adj, rng)
+  // settle
 
   const blocks = [1, 2, 4, 6]
   const real: number[] = []
@@ -197,6 +188,7 @@ function cuspTower(): {
 
   for (const b of blocks) {
     const grp = groupAt(b)
+
     real.push(
       formPersistence(
         tone.slice(),
@@ -207,6 +199,7 @@ function cuspTower(): {
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
+
     diff.push(
       formPersistence(
         tone.slice(),
@@ -217,6 +210,7 @@ function cuspTower(): {
         { lag: 8, frames: 24, step: stepDiffusion },
       ),
     )
+
     nul.push(
       formPersistence(
         tone.slice(),
@@ -267,9 +261,7 @@ function bulkTower(): {
     return a.address.map(addr => {
       const k = addr.slice(0, d).join('.') || 'root'
 
-      if (!idx.has(k)) {
-        idx.set(k, idx.size)
-      }
+      if (!idx.has(k)) idx.set(k, idx.size)
 
       return idx.get(k)!
     })
@@ -278,13 +270,9 @@ function bulkTower(): {
   const rng = makeRng({ seed: 13 })
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
-    tone[i] = rng.nextInt({ max: 3 }) - 1
-  }
+  for (let i = 0; i < n; i++) tone[i] = rng.nextInt({ max: 3 }) - 1
 
-  for (let f = 0; f < 40; f++) {
-    stepPerception(tone, offsets, adj, rng)
-  }
+  for (let f = 0; f < 40; f++) stepPerception(tone, offsets, adj, rng)
 
   const depths = [4, 3, 2, 1] // fine -> coarse (address-prefix length)
   const real: number[] = []
@@ -293,6 +281,7 @@ function bulkTower(): {
 
   for (const d of depths) {
     const grp = groupAtDepth(d)
+
     real.push(
       formPersistence(
         tone.slice(),
@@ -303,6 +292,7 @@ function bulkTower(): {
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
+
     diff.push(
       formPersistence(
         tone.slice(),
@@ -313,6 +303,7 @@ function bulkTower(): {
         { lag: 8, frames: 24, step: stepDiffusion },
       ),
     )
+
     nul.push(
       formPersistence(
         tone.slice(),

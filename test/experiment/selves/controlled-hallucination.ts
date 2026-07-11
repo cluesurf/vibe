@@ -63,6 +63,7 @@ export default experiment({
       if (inputPresent) {
         const input = world(beat)
         const error = input - predicted
+
         estimate = predicted + LEARNING * error
         velocity += VELOCITY_LEARNING * error
         trackingErrorSum += Math.abs(input - estimate)

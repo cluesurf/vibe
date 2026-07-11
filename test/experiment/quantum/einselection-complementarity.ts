@@ -82,6 +82,7 @@ export default experiment({
       })
 
       const identity = (2 * coherence) ** 2 + record ** 2
+
       worstIdentityError = Math.max(
         worstIdentityError,
         Math.abs(identity - 1),
@@ -93,20 +94,16 @@ export default experiment({
     let worstBathCoherenceAtHalf = 0
 
     for (const overlap of OVERLAPS) {
-      if (overlap <= 0 || overlap >= 1) {
-        continue
-      }
+      if (overlap <= 0 || overlap >= 1) continue
 
       const one = coherenceAndRecord({ environmentCount: 1, overlap })
       const bath = coherenceAndRecord({ environmentCount: 6, overlap })
 
-      if (bath.coherence > one.coherence + 1e-12) {
+      if (bath.coherence > one.coherence + 1e-12)
         amplificationHolds = false
-      }
 
-      if (Math.abs(overlap - 0.5) < 1e-9) {
+      if (Math.abs(overlap - 0.5) < 1e-9)
         worstBathCoherenceAtHalf = bath.coherence
-      }
     }
 
     // COMPLEMENTARITY: with a bath, no overlap gives both coherence and record above 0.3
@@ -118,9 +115,7 @@ export default experiment({
         overlap,
       })
 
-      if (coherence > 0.3 && record > 0.3) {
-        bothHigh = true
-      }
+      if (coherence > 0.3 && record > 0.3) bothHigh = true
     }
 
     // CONTROLS: the two endpoints

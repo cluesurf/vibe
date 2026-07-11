@@ -98,6 +98,7 @@ function main(): void {
 
   for (const p of panels) {
     const out = `${dir}/curvature-${p.name}.svg`
+
     mkdirSync(dirname(out), { recursive: true })
     writeFileSync(out, buildSvg(p.bulge))
     console.log(`wrote ${out}`)

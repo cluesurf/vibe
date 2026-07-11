@@ -29,6 +29,7 @@ const incrementRule: Rule = {
   scheme: 'synchronous',
   step({ configuration }) {
     const next = cloneConfiguration(configuration)
+
     setTone(next, {
       element: 0,
       value: getTone(next, { element: 0 }) + 1,

@@ -72,14 +72,10 @@ function runChannel(input: {
   const directions = rootsD4()
   const opposite: number[] = []
 
-  for (let d = 0; d < mesh.degree; d++) {
-    opposite.push(mesh.opposite(d))
-  }
+  for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
 
   const isWall = (cell: number): boolean => {
-    if (!walls) {
-      return false
-    }
+    if (!walls) return false
 
     const y = coordAlong(cell, GRAD_AXIS, side)
 
@@ -127,9 +123,7 @@ function runChannel(input: {
   const bulkTotal = (profile: number[]): number => {
     let sum = 0
 
-    for (let y = 1; y < side - 1; y++) {
-      sum += profile[y]!
-    }
+    for (let y = 1; y < side - 1; y++) sum += profile[y]!
 
     return sum
   }
@@ -166,20 +160,14 @@ function fitProfile(input: {
   let n = 0
 
   for (let u = t - 1; u <= t + 1; u++) {
-    if (u < 0 || u >= profiles.length) {
-      continue
-    }
+    if (u < 0 || u >= profiles.length) continue
 
-    for (let y = 1; y < side - 1; y++) {
-      ys[y - 1]! += profiles[u]![y]!
-    }
+    for (let y = 1; y < side - 1; y++) ys[y - 1]! += profiles[u]![y]!
 
     n++
   }
 
-  for (let i = 0; i < ys.length; i++) {
-    ys[i]! /= n
-  }
+  for (let i = 0; i < ys.length; i++) ys[i]! /= n
 
   const xs = ys.map((_, i) => i + 1 - (side - 1) / 2)
   const fit = quadraticFit({ xs, ys })
@@ -190,9 +178,7 @@ function fitProfile(input: {
   let peak = 0
 
   for (let i = 1; i < ys.length; i++) {
-    if (ys[i]! > ys[peak]!) {
-      peak = i
-    }
+    if (ys[i]! > ys[peak]!) peak = i
   }
 
   return {
@@ -233,9 +219,8 @@ export default experiment({
     const coin = d4Mesh({ side: 4 }) // any d4 mesh exposes the shared 24-direction coin
     const opposite: number[] = []
 
-    for (let d = 0; d < coin.degree; d++) {
+    for (let d = 0; d < coin.degree; d++)
       opposite.push(coin.opposite(d))
-    }
 
     const mixing = saturatedViscousRotate({ directions })
 
@@ -318,9 +303,8 @@ export default experiment({
     const probeMesh = d4Mesh({ side: 6 })
     const probe = makeWill(probeMesh)
 
-    for (let i = 0; i < probe.data.length; i++) {
+    for (let i = 0; i < probe.data.length; i++)
       probe.data[i] = i % 3 === 0 ? 1 : 0
-    }
 
     const validRule =
       conservesCharge(probe, mixing, 12) &&

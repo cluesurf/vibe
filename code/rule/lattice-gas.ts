@@ -21,6 +21,7 @@ export function stream(will: Will): Will {
 
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, mesh.opposite(direction))
+
       output[base + direction] = input[source * degree + direction] ?? 0
     }
   }
@@ -40,6 +41,7 @@ export function streamInverse(will: Will): Will {
 
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, direction)
+
       output[base + direction] = input[source * degree + direction] ?? 0
     }
   }
@@ -51,9 +53,8 @@ export function streamInverse(will: Will): Will {
 export function collide(will: Will, collision: Collision): void {
   const degree = will.mesh.degree
 
-  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+  for (let cell = 0; cell < will.mesh.cellCount; cell++)
     collision(will.data, cell * degree, degree)
-  }
 }
 
 // one beat, collide then stream. Returns the new will, since stream allocates.
@@ -74,9 +75,7 @@ const streamTableCache = new WeakMap<Mesh, Int32Array>()
 export function streamSourceTable(mesh: Mesh): Int32Array {
   const cached = streamTableCache.get(mesh)
 
-  if (cached) {
-    return cached
-  }
+  if (cached) return cached
 
   const degree = mesh.degree
   const table = new Int32Array(mesh.cellCount * degree)
@@ -86,6 +85,7 @@ export function streamSourceTable(mesh: Mesh): Int32Array {
 
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, mesh.opposite(direction))
+
       table[base + direction] = source * degree + direction
     }
   }
@@ -107,19 +107,19 @@ export function beatInto(input: {
   collision: Collision
 }): void {
   const { src, dst, table, collision } = input
+
   collide(src, collision)
 
   const sd = src.data
   const dd = dst.data
 
-  for (let i = 0; i < table.length; i++) {
-    dd[i] = sd[table[i]!] ?? 0
-  }
+  for (let i = 0; i < table.length; i++) dd[i] = sd[table[i]!] ?? 0
 }
 
 // one inverse beat, un-stream then collide, since the collision is an involution.
 export function inverseBeat(will: Will, collision: Collision): Will {
   const back = streamInverse(will)
+
   collide(back, collision)
 
   return back
@@ -133,9 +133,7 @@ export function run(
   collision: Collision,
   beats: number,
 ): Will {
-  if (beats <= 0) {
-    return will
-  }
+  if (beats <= 0) return will
 
   const table = streamSourceTable(will.mesh)
 
@@ -149,6 +147,7 @@ export function run(
     beatInto({ src: a, dst: b, table, collision })
 
     const swap = a
+
     a = b
     b = swap
   }

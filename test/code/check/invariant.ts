@@ -46,6 +46,7 @@ function oppositeOf(mesh: Mesh): number[] {
 
 function patternWill(mesh: Mesh, phase = 0): Will {
   const will = makeWill(mesh)
+
   fillWillPattern(will, phase)
 
   return will
@@ -55,9 +56,7 @@ function patternWill(mesh: Mesh, phase = 0): Will {
 // cell was already empty, so on a charged will it is neither charge-conserving nor
 // reversible, the negative control both predicates must reject.
 const erase: Collision = (slots, base, degree) => {
-  for (let d = 0; d < degree; d++) {
-    slots[base + d] = 0
-  }
+  for (let d = 0; d < degree; d++) slots[base + d] = 0
 }
 
 // The square coin direction vectors: 0 +x (E), 1 -x (W), 2 +y (N), 3 -y (S).
@@ -86,10 +85,12 @@ suite('check/invariant: conservesCharge', [
   }),
   check('false for an erasing collision (on a charged will)', () => {
     const will = patternWill(square)
+
     notOk(
       charge(will) === 0,
       'the test will must carry a nonzero charge',
     )
+
     notOk(
       conservesCharge(will, erase, 1),
       'erasing every slot must NOT conserve charge',
@@ -113,6 +114,7 @@ suite('check/invariant: isReversible', [
   check('true for the pair table when given its PAIRED INVERSE', () => {
     const forward = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })
+
     ok(
       isReversible(patternWill(square), forward, 5, inverse),
       'forward + paired inverse must recover the start',
@@ -122,6 +124,7 @@ suite('check/invariant: isReversible', [
     'false for the pair table when given the FORWARD as its own inverse',
     () => {
       const forward = pairCollision({ opposite, forward: true })
+
       notOk(
         isReversible(patternWill(square), forward, 1, forward),
         'a non-involution must not invert itself',
@@ -139,6 +142,7 @@ suite('check/invariant: isReversible', [
 suite('check/invariant: momentum', [
   check('totalMomentum of a lone east-pointing charge is +x', () => {
     const will = loneParticle(square, 5, 0, 1)
+
     exactArray(
       totalMomentum(will, SQUARE_DIRECTIONS),
       [1, 0],
@@ -147,6 +151,7 @@ suite('check/invariant: momentum', [
   }),
   check('totalMomentum of a head-on east+west pair is zero', () => {
     const will = makeWill(square)
+
     will.data[5 * square.degree + 0] = 1 // east, tone +1
     will.data[5 * square.degree + 1] = 1 // west, tone +1
     exactArray(
@@ -157,6 +162,7 @@ suite('check/invariant: momentum', [
   }),
   check('momentumRotate2D conserves the total momentum', () => {
     const will = makeWill(square)
+
     will.data[5 * square.degree + 0] = 1 // east
     will.data[5 * square.degree + 1] = 1 // west (rotates to north,south)
     ok(
@@ -170,12 +176,14 @@ suite('check/invariant: momentum', [
       // A single -1 charge in the WEST slot. The pair table hops it to the EAST slot,
       // reversing its momentum from +x to -x: momentum is not conserved.
       const will = makeWill(square)
+
       will.data[5 * square.degree + 1] = -1 // west slot, tone -1 -> momentum +x
       exactArray(
         totalMomentum(will, SQUARE_DIRECTIONS),
         [1, 0],
         'before the hop',
       )
+
       notOk(
         conservesMomentum(
           will,

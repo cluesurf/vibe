@@ -100,9 +100,8 @@ export default experiment({
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       const row: number[] = []
 
-      for (let direction = 0; direction < mesh.degree; direction++) {
+      for (let direction = 0; direction < mesh.degree; direction++)
         row.push(mesh.neighbour(cell, direction))
-      }
 
       flatNeighbors.push(row)
     }

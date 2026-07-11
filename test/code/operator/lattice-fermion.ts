@@ -91,6 +91,7 @@ suite('operator/lattice-fermion: matrix sign', [
       const h = matAdd(matScaleReal(PAULI_Z, 2), PAULI_X)
       const s = hermitianSign(h)
       const root = Math.sqrt(5)
+
       close(
         dist(s, matScaleReal(h, 1 / root)),
         0,
@@ -119,12 +120,14 @@ suite('operator/lattice-fermion: doublers and dispersion', [
         [3, 8],
       ] as const) {
         const result = latticeFermionDoublers(d)
+
         equal(result.naiveSpecies, species, `naive species in ${d}D`)
         equal(
           result.netChirality,
           0,
           `net chirality in ${d}D (Nielsen-Ninomiya)`,
         )
+
         equal(
           result.wilsonSpecies,
           1,
@@ -157,6 +160,7 @@ suite('operator/lattice-fermion: doublers and dispersion', [
         1e-12,
         'naive zero at origin',
       )
+
       close(
         minSingularValue(naiveDirac2D({ k1: Math.PI / 2, k2: 0 })),
         1,
@@ -172,12 +176,14 @@ suite('operator/lattice-fermion: doublers and dispersion', [
       1e-12,
       'gap at k=0 is m',
     )
+
     close(
       latticeDiracEnergy1d({ k: Math.PI / 2, m: 0 }),
       1,
       1e-12,
       'massless at pi/2',
     )
+
     close(
       latticeDiracEnergy1d({ k: 0.6, m: 0.4 }),
       Math.sqrt(0.16 + Math.sin(0.6) ** 2),
@@ -199,6 +205,7 @@ suite('operator/lattice-fermion: Ginsparg-Wilson', [
 
       for (const k of points) {
         const d = overlapDirac2D({ ...k, m0: 1, r: 1 })
+
         close(
           ginspargWilsonResidual(d),
           0,

@@ -42,13 +42,12 @@ export function criticalityScan(input?: { n?: number }): {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 3 })
 
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < N; i++)
       tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
-    }
 
-    for (let t = 0; t < 200; t++) {
+    for (let t = 0; t < 200; t++)
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-    } // relax to steady state
+    // relax to steady state
 
     const samples = 100
 

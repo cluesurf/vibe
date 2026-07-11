@@ -62,6 +62,7 @@ export default experiment({
     })
 
     const start = makeWill(mesh)
+
     start.data.set(asymmetricFill(mesh))
 
     // the finite orbit: the distinct configurations the knit cycles through
@@ -100,6 +101,7 @@ export default experiment({
     const orbitWills: Will[] = []
 
     let walker = cloneWill(start)
+
     orbitWills.push(cloneWill(walker))
 
     for (let t = 1; t < period; t++) {
@@ -121,6 +123,7 @@ export default experiment({
     // permutation and not unitary.
     const stateA = cloneWill(start)
     const stateB = cloneWill(start)
+
     // slot index 0 is cell 0's first slot, exactly the slot erasingCollision zeroes per cell
     stateB.data[0] = stateA.data[0] === 0 ? 1 : 0
 

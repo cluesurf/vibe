@@ -35,9 +35,8 @@ export default experiment({
     const directions = rootsD4()
     const opposite: number[] = []
 
-    for (let d = 0; d < mesh.degree; d++) {
+    for (let d = 0; d < mesh.degree; d++)
       opposite.push(mesh.opposite(d))
-    }
 
     const collision = headOnRotate({ opposite })
     const beats = 40

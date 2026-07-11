@@ -53,9 +53,7 @@ function maxGroupSpeed(m: number): number {
       groupVelocity1d({ omega: kk => omega(kk, m), k }),
     )
 
-    if (Number.isFinite(v)) {
-      best = Math.max(best, v)
-    }
+    if (Number.isFinite(v)) best = Math.max(best, v)
   }
 
   return best
@@ -81,6 +79,7 @@ export default experiment({
 
     for (const m of MASSES) {
       const speed = maxGroupSpeed(m)
+
       massiveMaxSpeed = Math.max(massiveMaxSpeed, speed)
       // the analytic anchor: the mass gap below light speed is 1 - cos(m)
       massiveGapAnalyticResidual = Math.max(

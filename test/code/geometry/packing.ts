@@ -28,6 +28,7 @@ const D4 = rootsD4()
 suite('geometry/packing: unit normalization', [
   check('unit returns a vector of norm 1', () => {
     const u = unit([3, 4])
+
     close(Math.hypot(...u), 1, 1e-12, 'normalized to the unit sphere')
     close(u[0]!, 0.6, 1e-12, 'x component')
     close(u[1]!, 0.8, 1e-12, 'y component')
@@ -71,12 +72,14 @@ suite('geometry/packing: the 24-cell is the optimal 4D kissing shell', [
   }),
   check('the 24-cell is 8-regular at the minimum angle', () => {
     const histogram = coordinationAtMinAngle(D4)
+
     // Every root must have exactly 8 nearest neighbours; no other coordination.
     equal(
       histogram[8],
       24,
       'all 24 roots have 8 neighbours at 60 degrees',
     )
+
     equal(
       Object.keys(histogram).length,
       1,
@@ -111,6 +114,7 @@ suite('geometry/packing: deterministic spiral and Riesz relaxation', [
     'the spiral returns the requested count of finite unit vectors',
     () => {
       const points = deterministicSpiral(24, 4)
+
       equal(points.length, 24, 'count')
 
       for (const p of points) {

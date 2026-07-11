@@ -91,20 +91,17 @@ export default experiment({
         beatInto({ src: current, dst: scratch, table, collision: rule })
 
         const swap = current
+
         current = scratch
         scratch = swap
 
-        if (open) {
-          absorbBoundary(current)
-        }
+        if (open) absorbBoundary(current)
 
         const c = Math.abs(
           stripeContrast({ will: current, lambda, axisOf, bins: side }),
         )
 
-        if (t > beats / 2 && c > lateMax) {
-          lateMax = c
-        }
+        if (t > beats / 2 && c > lateMax) lateMax = c
 
         final = c
       }

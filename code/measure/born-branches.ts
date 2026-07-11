@@ -10,9 +10,8 @@
 function logBinomial(n: number, k: number): number {
   let total = 0
 
-  for (let i = 1; i <= k; i++) {
+  for (let i = 1; i <= k; i++)
     total += Math.log(n - k + i) - Math.log(i)
-  }
 
   return total
 }
@@ -59,9 +58,8 @@ export function deviantBranchCount(input: {
   for (let k = 0; k <= copies; k++) {
     const frequency = k / copies
 
-    if (Math.abs(frequency - target) > epsilon) {
+    if (Math.abs(frequency - target) > epsilon)
       total += Math.exp(logBinomial(copies, k) + copies * logHalf)
-    }
   }
 
   return total

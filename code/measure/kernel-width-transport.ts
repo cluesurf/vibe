@@ -50,22 +50,20 @@ export function packetRmsTrace(input: {
   const curr = new Float64Array(length)
   const next = new Float64Array(length)
   const history: Float64Array[] = []
+
   curr[center] = amplitude
 
   // the memory slot is the average of the last `width` states, so width one is the bare
   // wave (previous = one beat back) and a wide width smooths the oscillation into a drift.
   const memoryAt = (index: number): number => {
-    if (history.length === 0) {
-      return curr[index]!
-    }
+    if (history.length === 0) return curr[index]!
 
     const window = Math.min(width, history.length)
 
     let sum = 0
 
-    for (let h = 0; h < window; h++) {
+    for (let h = 0; h < window; h++)
       sum += history[history.length - 1 - h]![index]!
-    }
 
     return sum / window
   }
@@ -79,19 +77,16 @@ export function packetRmsTrace(input: {
       const left = curr[(i - 1 + length) % length]!
       const right = curr[(i + 1) % length]!
       const laplacian = (left + right) / 2 - curr[i]!
+
       // second-order wave with the memory slot in place of the single previous beat.
       next[i] = 2 * curr[i]! - memoryAt(i) + laplacian
     }
 
     history.push(Float64Array.from(curr))
 
-    if (history.length > width) {
-      history.shift()
-    }
+    if (history.length > width) history.shift()
 
-    for (let i = 0; i < length; i++) {
-      curr[i] = next[i]!
-    }
+    for (let i = 0; i < length; i++) curr[i] = next[i]!
   }
 
   return trace
@@ -118,9 +113,7 @@ export function transportExponent(input: {
 
   const n = xs.length
 
-  if (n < 2) {
-    return 0
-  }
+  if (n < 2) return 0
 
   const meanX = xs.reduce((s, x) => s + x, 0) / n
   const meanY = ys.reduce((s, y) => s + y, 0) / n

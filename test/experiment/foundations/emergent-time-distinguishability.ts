@@ -67,6 +67,7 @@ function pathGeometry(input: {
     will = beat(will, collision)
 
     const current = spatialActivityDistribution(will)
+
     stepDistances.push(fisherRaoDistance(previous, current))
     fromStart.push(fisherRaoDistance(start, current))
     previous = current

@@ -35,9 +35,8 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const opposite: number[] = []
 
-    for (let d = 0; d < mesh.degree; d++) {
+    for (let d = 0; d < mesh.degree; d++)
       opposite.push(mesh.opposite(d))
-    }
 
     const collision = headOnRotate({ opposite })
     const degree = mesh.degree
@@ -65,9 +64,7 @@ export default experiment({
 
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       if (coordinate(cell, 0) < side / 2) {
-        for (let d = 0; d < degree; d++) {
-          region.push(cell * degree + d)
-        }
+        for (let d = 0; d < degree; d++) region.push(cell * degree + d)
       }
     }
 

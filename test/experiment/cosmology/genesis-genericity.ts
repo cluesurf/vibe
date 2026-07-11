@@ -33,6 +33,7 @@ export default experiment({
       })
 
       const n = mesh.cellCount
+
       sizes.push(n)
 
       const live = chargeTrajectory({
@@ -53,13 +54,10 @@ export default experiment({
 
       fractions.push(live.trajectory[live.trajectory.length - 1]! / n)
 
-      if (live.qEnd !== 0) {
-        allConserved = false
-      }
+      if (live.qEnd !== 0) allConserved = false
 
-      if (dead.trajectory[dead.trajectory.length - 1]! !== 0) {
+      if (dead.trajectory[dead.trajectory.length - 1]! !== 0)
         allControlsDead = false
-      }
     }
 
     const minF = Math.min(...fractions)

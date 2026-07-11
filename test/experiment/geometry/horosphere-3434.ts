@@ -25,9 +25,7 @@ export function horosphere3434(): {
 
   let sum = 0
 
-  for (let i = 0; i < n; i++) {
-    sum += slab.neighbors[i]!.length
-  }
+  for (let i = 0; i < n; i++) sum += slab.neighbors[i]!.length
 
   const center = mostConnectedNode(slab.neighbors)
   // spectral dimension via the lazy-walk return probability, the central difference at

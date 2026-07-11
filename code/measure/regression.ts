@@ -39,12 +39,11 @@ export function powerLawExponent(input: {
   let m = 0
 
   for (let i = 0; i < times.length; i++) {
-    if ((spreads[i] ?? 0) <= 0) {
-      continue
-    }
+    if ((spreads[i] ?? 0) <= 0) continue
 
     const x = Math.log(times[i]!)
     const y = Math.log(spreads[i]!)
+
     sx += x
     sy += y
     sxx += x * x
@@ -86,6 +85,7 @@ export function fitForm(
 
   for (let i = 0; i < n; i++) {
     const pred = a * (g[i] ?? 0) + c
+
     ssRes += ((y[i] ?? 0) - pred) * ((y[i] ?? 0) - pred)
     ssTot += ((y[i] ?? 0) - mp) * ((y[i] ?? 0) - mp)
   }
@@ -121,6 +121,7 @@ export function linearFit(input: {
 
   for (let i = 0; i < n; i++) {
     const pred = slope * (xs[i] ?? 0) + intercept
+
     residual += ((ys[i] ?? 0) - pred) ** 2
     ssTot += ((ys[i] ?? 0) - my) ** 2
   }
@@ -186,6 +187,7 @@ export function quadraticFit(input: {
     const x = xs[i] ?? 0
     const y = ys[i] ?? 0
     const xx = x * x
+
     s1 += x
     s2 += xx
     s3 += xx * x
@@ -206,31 +208,25 @@ export function quadraticFit(input: {
     let pivot = col
 
     for (let row = col + 1; row < 3; row++) {
-      if (Math.abs(m[row]![col]!) > Math.abs(m[pivot]![col]!)) {
+      if (Math.abs(m[row]![col]!) > Math.abs(m[pivot]![col]!))
         pivot = row
-      }
     }
 
     const hold = m[col]!
+
     m[col] = m[pivot]!
     m[pivot] = hold
 
     const head = m[col]![col]!
 
-    if (head === 0) {
-      return { a: 0, b: 0, c: 0, residual: 0, r2: 0 }
-    }
+    if (head === 0) return { a: 0, b: 0, c: 0, residual: 0, r2: 0 }
 
     for (let row = 0; row < 3; row++) {
-      if (row === col) {
-        continue
-      }
+      if (row === col) continue
 
       const factor = m[row]![col]! / head
 
-      for (let k = col; k < 4; k++) {
-        m[row]![k]! -= factor * m[col]![k]!
-      }
+      for (let k = col; k < 4; k++) m[row]![k]! -= factor * m[col]![k]!
     }
   }
 
@@ -246,6 +242,7 @@ export function quadraticFit(input: {
     const x = xs[i] ?? 0
     const y = ys[i] ?? 0
     const predicted = a * x * x + b * x + c
+
     residual += (y - predicted) ** 2
     ssTot += (y - mean) ** 2
   }
@@ -276,12 +273,11 @@ export function loglogExponentWindow(input: {
   let m = 0
 
   for (let t = lo; t <= hi; t++) {
-    if ((values[t] ?? 0) <= 0) {
-      continue
-    }
+    if ((values[t] ?? 0) <= 0) continue
 
     const x = Math.log(t)
     const y = Math.log(values[t]!)
+
     sx += x
     sy += y
     sxx += x * x
@@ -330,6 +326,7 @@ export function powerLawFit(input: {
 
   for (let i = 0; i < n; i++) {
     const predicted = meanY + exponent * (logX[i]! - meanX)
+
     maxDeviation = Math.max(
       maxDeviation,
       Math.abs(logY[i]! - predicted),

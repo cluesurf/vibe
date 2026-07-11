@@ -65,6 +65,7 @@ function square(h: Dense): Dense {
         const ai = h.im[i * n + k] ?? 0
         const br = h.re[k * n + j] ?? 0
         const bi = h.im[k * n + j] ?? 0
+
         sr += ar * br - ai * bi
         si += ar * bi + ai * br
       }
@@ -92,6 +93,7 @@ suite('operator/dirac-skyrmion: Hermiticity', [
           1e-12,
           `re Hermitian (${i},${j})`,
         )
+
         close(
           h.im[i * n + j] ?? 0,
           -(h.im[j * n + i] ?? 0),
@@ -121,6 +123,7 @@ suite('operator/dirac-skyrmion: Clifford algebra via H^2', [
               1e-12,
               `H^2 internal off-diagonal re (${i},${j})`,
             )
+
             close(
               h2.im[i * n + j] ?? 0,
               0,
@@ -153,6 +156,7 @@ suite('operator/dirac-skyrmion: Clifford algebra via H^2', [
               1e-12,
               `internal-independent re sites (${sa},${sb}) comp ${a}`,
             )
+
             close(
               h2.im[(sa * 8 + a) * n + (sb * 8 + a)] ?? 0,
               refIm,
@@ -175,12 +179,14 @@ suite('operator/dirac-skyrmion: Clifford algebra via H^2', [
       for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
           const add = i === j ? M * M : 0
+
           close(
             massive.re[i * n + j] ?? 0,
             (free.re[i * n + j] ?? 0) + add,
             1e-12,
             `H^2(uniform) - H^2(free) re (${i},${j})`,
           )
+
           close(
             massive.im[i * n + j] ?? 0,
             free.im[i * n + j] ?? 0,

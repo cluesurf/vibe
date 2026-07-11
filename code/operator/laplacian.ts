@@ -23,10 +23,12 @@ export function laplacian(input: {
 
   for (let a = 0; a < n; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
+
     triplets.push({ row: a, col: a, value: row.length })
 
     for (const rowValue of row) {
       const b = rowValue ?? 0
+
       triplets.push({ row: a, col: b, value: -1 })
     }
   }
@@ -48,9 +50,7 @@ export function laplacianSpectrum(input: {
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
+  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
 
   return s
 }
@@ -58,15 +58,11 @@ function dot(a: Float64Array, b: Float64Array): number {
 function subtractMean(x: Float64Array): void {
   let m = 0
 
-  for (const value of x) {
-    m += value ?? 0
-  }
+  for (const value of x) m += value ?? 0
 
   m /= x.length
 
-  for (let i = 0; i < x.length; i++) {
-    x[i] = (x[i] ?? 0) - m
-  }
+  for (let i = 0; i < x.length; i++) x[i] = (x[i] ?? 0) - m
 }
 
 // The graph Laplacian Green's function: the static potential phi solving L phi = delta_center
@@ -81,6 +77,7 @@ export function laplacianGreensFunction(input: {
   const L = laplacian({ substrate: input.substrate })
   const n = L.rows
   const b = new Float64Array(n)
+
   b.fill(-1 / n)
   b[input.center] = 1 - 1 / n
 
@@ -92,6 +89,7 @@ export function laplacianGreensFunction(input: {
 
   for (let iter = 0; iter < 4 * n; iter++) {
     const temp = sparseMatVec(L, { x: direction })
+
     subtractMean(temp)
 
     const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)
@@ -103,15 +101,12 @@ export function laplacianGreensFunction(input: {
 
     const rsNew = dot(residual, residual)
 
-    if (rsNew < 1e-14) {
-      break
-    }
+    if (rsNew < 1e-14) break
 
     const beta = rsNew / rsOld
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++)
       direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
-    }
 
     rsOld = rsNew
   }

@@ -73,6 +73,7 @@ export function predictiveLogLikelihood(input: {
 
     if (i >= 0 && j >= 0) {
       const p = tpm[i]?.[j] ?? 0
+
       total += Math.log(p > 0 ? p : Number.MIN_VALUE)
       n++
     }
@@ -98,6 +99,7 @@ export function marginalLogLikelihood(input: {
 
     if (j >= 0) {
       const p = marginal[j] ?? 0
+
       total += Math.log(p > 0 ? p : Number.MIN_VALUE)
       n++
     }
@@ -167,6 +169,7 @@ export function timeShuffle(input: {
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(next() * (i + 1))
     const tmp = out[i]!
+
     out[i] = out[j]!
     out[j] = tmp
   }

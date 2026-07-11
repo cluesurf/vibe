@@ -157,6 +157,7 @@ export class VibeWorld {
 
     const n = this.substrate.size
     const toneValues = cfg.tone === 'ternary' ? 3 : 2
+
     this.tone = new Int8Array(n)
 
     for (let i = 0; i < n; i++) {
@@ -183,9 +184,8 @@ export class VibeWorld {
 
         let h = 0
 
-        for (let k = 0; k < nb.length; k++) {
+        for (let k = 0; k < nb.length; k++)
           h += (fl[k] ?? 0) * (this.tone[nb[k] ?? 0] ?? 0)
-        }
 
         this.tone[v] = h > 0 ? 1 : h < 0 ? -1 : 0
       }
@@ -212,9 +212,8 @@ export class VibeWorld {
 
     let deg = 0
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++)
       deg += (this.neighbors[i] ?? new Uint32Array(0)).length
-    }
 
     const aniso = lorentzIsotropy({
       substrate: this.substrate,
@@ -248,22 +247,16 @@ export class VibeWorld {
 
     let lapMin = Infinity
 
-    for (const v of spectrum) {
-      lapMin = Math.min(lapMin, v)
-    }
+    for (const v of spectrum) lapMin = Math.min(lapMin, v)
 
     let minus = 0
     let zero = 0
     let plus = 0
 
     for (const t of this.tone) {
-      if (t < 0) {
-        minus += 1
-      } else if (t === 0) {
-        zero += 1
-      } else {
-        plus += 1
-      }
+      if (t < 0) minus += 1
+      else if (t === 0) zero += 1
+      else plus += 1
     }
 
     // Integration Phi (P63): the algebraic connectivity of the whole mesh, how strongly it
@@ -303,12 +296,11 @@ function countHigherVibes(
   let count = 0
 
   for (let s = 0; s < n; s++) {
-    if (seen[s]) {
-      continue
-    }
+    if (seen[s]) continue
 
     let size = 0
     let frontier = [s]
+
     seen[s] = 1
 
     while (frontier.length > 0) {
@@ -328,9 +320,7 @@ function countHigherVibes(
       frontier = next
     }
 
-    if (size >= minSize) {
-      count += 1
-    }
+    if (size >= minSize) count += 1
   }
 
   return count
@@ -389,9 +379,8 @@ function buildFills(
       const row = neighbors[v] ?? new Uint32Array(0)
 
       if (fv) {
-        for (let k = 0; k < row.length; k++) {
+        for (let k = 0; k < row.length; k++)
           fv[k] = rng.nextInt({ max: 3 }) - 1
-        }
       }
     }
 
@@ -401,9 +390,7 @@ function buildFills(
   const indexOf = neighbors.map(row => {
     const m = new Map<number, number>()
 
-    for (let k = 0; k < row.length; k++) {
-      m.set(row[k] ?? -1, k)
-    }
+    for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
 
     return m
   })
@@ -412,23 +399,20 @@ function buildFills(
     const fv = fills[v]
     const row = neighbors[v] ?? new Uint32Array(0)
 
-    if (!fv) {
-      continue
-    }
+    if (!fv) continue
 
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
 
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
+
         fv[k] = f
 
         const fw = fills[w]
         const kk = indexOf[w]?.get(v)
 
-        if (fw && kk !== undefined) {
-          fw[kk] = f
-        }
+        if (fw && kk !== undefined) fw[kk] = f
       }
     }
   }

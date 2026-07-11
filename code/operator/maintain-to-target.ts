@@ -15,11 +15,8 @@ export function conservingMaintainToTarget(
   const tooLow: number[] = []
 
   for (let i = 0; i < size; i++) {
-    if (tone[i]! > target[i]!) {
-      tooHigh.push(i)
-    } else if (tone[i]! < target[i]!) {
-      tooLow.push(i)
-    }
+    if (tone[i]! > target[i]!) tooHigh.push(i)
+    else if (tone[i]! < target[i]!) tooLow.push(i)
   }
 
   let ops = 0
@@ -30,6 +27,7 @@ export function conservingMaintainToTarget(
     const hi = tooHigh[k]!
     const lo = tooLow[k]!
     const t = tone[hi]!
+
     tone[hi] = tone[lo]!
     tone[lo] = t
     ops++
@@ -39,15 +37,10 @@ export function conservingMaintainToTarget(
   const needMinus: number[] = []
 
   for (let i = 0; i < size; i++) {
-    if (tone[i]! !== 0) {
-      continue
-    }
+    if (tone[i]! !== 0) continue
 
-    if (target[i] === 1) {
-      needPlus.push(i)
-    } else if (target[i] === -1) {
-      needMinus.push(i)
-    }
+    if (target[i] === 1) needPlus.push(i)
+    else if (target[i] === -1) needMinus.push(i)
   }
 
   const f = Math.min(needPlus.length, needMinus.length)

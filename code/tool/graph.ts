@@ -54,9 +54,7 @@ export function degree(g: Graph, input: { node: number }): number {
 // greedy-routing experiments, it isolates the geometric embedding by destroying the position-address link
 // without touching the graph. The permutation is a fixed half-rotation, so it is deterministic.
 export function withScrambledEmbedding(g: Graph): Graph {
-  if (!g.embedding) {
-    return g
-  }
+  if (!g.embedding) return g
 
   const size = g.size
   const dimension = g.embedding.dimension
@@ -83,9 +81,8 @@ export function withScrambledEmbedding(g: Graph): Graph {
 export function meanDegree(g: Graph): number {
   let total = 0
 
-  for (let i = 0; i < g.size; i++) {
+  for (let i = 0; i < g.size; i++)
     total += (g.neighbors[i] ?? new Uint32Array(0)).length
-  }
 
   return total / Math.max(1, g.size)
 }
@@ -120,9 +117,8 @@ export function toCsr(neighbors: readonly (readonly number[])[]): {
   const n = neighbors.length
   const offsets = new Uint32Array(n + 1)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     offsets[i + 1] = offsets[i]! + (neighbors[i]?.length ?? 0)
-  }
 
   const adj = new Uint32Array(offsets[n]!)
 
@@ -131,9 +127,7 @@ export function toCsr(neighbors: readonly (readonly number[])[]): {
   for (let i = 0; i < n; i++) {
     const row = neighbors[i] ?? []
 
-    for (const value of row) {
-      adj[p++] = value
-    }
+    for (const value of row) adj[p++] = value
   }
 
   return { offsets, adj }
@@ -181,12 +175,11 @@ export function largestComponentNodes(
   let best: number[] = []
 
   for (let s = 0; s < n; s++) {
-    if (seen[s]! >= 0) {
-      continue
-    }
+    if (seen[s]! >= 0) continue
 
     const comp: number[] = []
     const q = [s]
+
     seen[s] = s
 
     for (const u of q) {
@@ -200,9 +193,7 @@ export function largestComponentNodes(
       }
     }
 
-    if (comp.length > best.length) {
-      best = comp
-    }
+    if (comp.length > best.length) best = comp
   }
 
   return best
@@ -223,6 +214,7 @@ export function csrDistances(input: {
 }): Int32Array {
   const { offsets, adj, size, source, allowed } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let fr = [source]
@@ -289,6 +281,7 @@ export function csrBallNodes(input: {
   const seen = new Uint8Array(size)
 
   let frontier = [source]
+
   seen[source] = 1
 
   while (frontier.length > 0 && ball.length < limit) {
@@ -323,6 +316,7 @@ export function csrEccentricity(input: {
 }): { dist: Int32Array; far: number } {
   const { offsets, adj, size, source } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let fr = [source]
@@ -369,6 +363,7 @@ export function csrBfsOrder(input: {
 
   let head = 0
   let tail = 0
+
   seen[0] = 1
   order[tail++] = 0
 
@@ -400,6 +395,7 @@ export function csrFarthestNode(input: {
 }): number {
   const { offsets, adj, size, source } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let fr = [source]
@@ -435,6 +431,7 @@ export function neighborDistances(input: {
 }): Int32Array {
   const { neighbors, size, source } = input
   const dist = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -468,6 +465,7 @@ export function neighborBfsTree(input: {
   const { neighbors, size, source } = input
   const dist = new Int32Array(size).fill(-1)
   const parent = new Int32Array(size).fill(-1)
+
   dist[source] = 0
 
   let frontier = [source]
@@ -497,17 +495,14 @@ export function adjacencyListsEqual(
   a: readonly (readonly number[])[],
   b: readonly (readonly number[])[],
 ): boolean {
-  if (a.length !== b.length) {
-    return false
-  }
+  if (a.length !== b.length) return false
 
   for (let i = 0; i < a.length; i++) {
     const x = [...(a[i] ?? [])].sort((p, q) => p - q)
     const y = [...(b[i] ?? [])].sort((p, q) => p - q)
 
-    if (x.length !== y.length || x.some((v, k) => v !== y[k])) {
+    if (x.length !== y.length || x.some((v, k) => v !== y[k]))
       return false
-    }
   }
 
   return true
@@ -523,17 +518,13 @@ export function edgesOf(
   for (let v = 0; v < neighbors.length; v++) {
     const row = neighbors[v]
 
-    if (!row) {
-      continue
-    }
+    if (!row) continue
 
     // eslint-disable-next-line @typescript-eslint/prefer-for-of -- ArrayLike<number> is not iterable, so for-of would be a type error
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
 
-      if (w > v) {
-        edges.push([v, w])
-      }
+      if (w > v) edges.push([v, w])
     }
   }
 
@@ -561,6 +552,7 @@ export function greedyEdgeColoring(input: {
 
       if (w > v) {
         const e = eu.length
+
         eu.push(v)
         ev.push(w)
         incident[v]!.push(e)
@@ -575,15 +567,11 @@ export function greedyEdgeColoring(input: {
     const used = new Set<number>()
 
     for (const f of incident[eu[e]!]!) {
-      if (color[f]! >= 0) {
-        used.add(color[f]!)
-      }
+      if (color[f]! >= 0) used.add(color[f]!)
     }
 
     for (const f of incident[ev[e]!]!) {
-      if (color[f]! >= 0) {
-        used.add(color[f]!)
-      }
+      if (color[f]! >= 0) used.add(color[f]!)
     }
 
     let c = 0
@@ -597,18 +585,15 @@ export function greedyEdgeColoring(input: {
 
   let colorCount = 0
 
-  for (let e = 0; e < eu.length; e++) {
+  for (let e = 0; e < eu.length; e++)
     colorCount = Math.max(colorCount, color[e]! + 1)
-  }
 
   const byColor: number[][] = Array.from(
     { length: colorCount },
     () => [],
   )
 
-  for (let e = 0; e < eu.length; e++) {
-    byColor[color[e]!]!.push(e)
-  }
+  for (let e = 0; e < eu.length; e++) byColor[color[e]!]!.push(e)
 
   return { eu: Int32Array.from(eu), ev: Int32Array.from(ev), byColor }
 }
@@ -620,9 +605,7 @@ export function edgeList(g: Graph): { a: number; b: number }[] {
     const row = g.neighbors[a] ?? new Uint32Array(0)
 
     for (const b of row) {
-      if (g.directed || a < b) {
-        out.push({ a, b })
-      }
+      if (g.directed || a < b) out.push({ a, b })
     }
   }
 
@@ -647,6 +630,7 @@ export function largestComponent(g: Graph): Graph {
   }
 
   const reach = new Int32Array(g.size).fill(-1)
+
   reach[center] = 0
 
   let frontier = [center]
@@ -670,15 +654,15 @@ export function largestComponent(g: Graph): Graph {
   }
 
   const remap = new Map<number, number>()
+
   kept.forEach((old, i) => remap.set(old, i))
 
   const dim = g.embedding?.dimension ?? 2
   const oldCoords = g.embedding?.coords ?? new Float64Array(0)
   const coords = new Float64Array(kept.length * dim)
   const neighbors: number[][] = kept.map((old, i) => {
-    for (let a = 0; a < dim; a++) {
+    for (let a = 0; a < dim; a++)
       coords[i * dim + a] = oldCoords[old * dim + a] ?? 0
-    }
 
     return Array.from(g.neighbors[old] ?? new Uint32Array(0))
       .map(w => remap.get(w) ?? -1)
@@ -716,9 +700,7 @@ export function csrMultiSourceDistance(input: {
   let tail = 0
 
   for (const s of sources) {
-    if (blocked?.[s]) {
-      continue
-    }
+    if (blocked?.[s]) continue
 
     if (dist[s] === far) {
       dist[s] = 0
@@ -763,9 +745,7 @@ export function filterCsrEdges(input: {
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (keep(v, w)) {
-        kept.push(w)
-      }
+      if (keep(v, w)) kept.push(w)
     }
   }
 

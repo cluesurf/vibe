@@ -32,15 +32,11 @@ export function patternSurvivalTime(input: {
     const dx = (c % L) - centre
     const dy = Math.floor(c / L) - centre
 
-    if (dx * dx + dy * dy <= radius * radius) {
-      disk.push(c)
-    }
+    if (dx * dx + dy * dy <= radius * radius) disk.push(c)
   }
 
   const stamp = (): void => {
-    for (const c of disk) {
-      tone[c] = 1
-    }
+    for (const c of disk) tone[c] = 1
   }
 
   stamp()
@@ -60,13 +56,9 @@ export function patternSurvivalTime(input: {
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, arrow, 0)
 
-    if (maintainEvery > 0 && t % maintainEvery === 0) {
-      stamp()
-    }
+    if (maintainEvery > 0 && t % maintainEvery === 0) stamp()
 
-    if (majority() < 0.5) {
-      return t
-    }
+    if (majority() < 0.5) return t
   }
 
   return beats

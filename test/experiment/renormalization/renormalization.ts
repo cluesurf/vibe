@@ -62,9 +62,8 @@ function measureField(n: number): FieldParams {
   // nearest-neighbour connected correlation (the pair structure), robust over all edges
   let c1 = 0
 
-  for (let k = 0; k < eu.length; k++) {
+  for (let k = 0; k < eu.length; k++)
     c1 += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
-  }
 
   c1 /= eu.length
 
@@ -75,9 +74,8 @@ function measureField(n: number): FieldParams {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    ) {
+    )
       center = i
-    }
   }
 
   const dcenter = csrDistances({
@@ -90,6 +88,7 @@ function measureField(n: number): FieldParams {
 
   const base = tone.slice()
   const pert = tone.slice()
+
   pert[center] = base[center] === 0 ? 1 : 0
 
   const T = 5
@@ -122,9 +121,7 @@ function measureField(n: number): FieldParams {
     if (base[i] !== pert[i]) {
       const r = dcenter[i]!
 
-      if (r > front) {
-        front = r
-      }
+      if (r > front) front = r
     }
   }
 

@@ -24,13 +24,12 @@ export function universality(): {
 } {
   // (1) a lone ball flies ballistically (a wire)
   const g = new Uint8Array(L * L)
+
   g[at(8, 8)] = 1
 
   const start: [number, number] = [8, 8]
 
-  for (let t = 0; t < 16; t++) {
-    step(g, t % 2)
-  }
+  for (let t = 0; t < 16; t++) step(g, t % 2)
 
   let bx = -1,
     by = -1
@@ -53,20 +52,15 @@ export function universality(): {
   const rnd = (): number => rng.next()
   const h = new Uint8Array(L * L)
 
-  for (let i = 0; i < L * L; i++) {
-    h[i] = rnd() < 0.25 ? 1 : 0
-  }
+  for (let i = 0; i < L * L; i++) h[i] = rnd() < 0.25 ? 1 : 0
 
   const orig = h.slice()
   const T = 20
 
-  for (let t = 0; t < T; t++) {
-    step(h, t % 2)
-  }
+  for (let t = 0; t < T; t++) step(h, t % 2)
 
-  for (let t = T - 1; t >= 0; t--) {
-    step(h, t % 2)
-  } // inverse = same block rotation in reverse parity order
+  for (let t = T - 1; t >= 0; t--) step(h, t % 2)
+  // inverse = same block rotation in reverse parity order
 
   let reversible = true
 

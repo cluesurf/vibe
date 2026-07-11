@@ -40,9 +40,7 @@ function ancestorAt(input: {
       }
     }
 
-    if (parent === cell) {
-      break
-    }
+    if (parent === cell) break
 
     cell = parent
   }
@@ -65,9 +63,8 @@ export function commonAncestorGeneration(input: {
       if (
         (input.generation[n] ?? Infinity) <
         (input.generation[cell] ?? 0)
-      ) {
+      )
         return n
-      }
     }
 
     return cell
@@ -77,21 +74,17 @@ export function commonAncestorGeneration(input: {
   let y = input.b
 
   // bring both to the same generation first
-  while ((input.generation[x] ?? 0) > (input.generation[y] ?? 0)) {
+  while ((input.generation[x] ?? 0) > (input.generation[y] ?? 0))
     x = parentOf(x)
-  }
 
-  while ((input.generation[y] ?? 0) > (input.generation[x] ?? 0)) {
+  while ((input.generation[y] ?? 0) > (input.generation[x] ?? 0))
     y = parentOf(y)
-  }
 
   while (x !== y) {
     const px = parentOf(x)
     const py = parentOf(y)
 
-    if (px === x || py === y) {
-      break
-    }
+    if (px === x || py === y) break
 
     x = px
     y = py
@@ -126,9 +119,7 @@ export function bulkTreeSamples(input: {
   const leaves: number[] = []
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    if (generation[cell] === maxGeneration) {
-      leaves.push(cell)
-    }
+    if (generation[cell] === maxGeneration) leaves.push(cell)
   }
 
   const index = new Map(leaves.map((leaf, i) => [leaf, i]))
@@ -146,9 +137,7 @@ export function bulkTreeSamples(input: {
   for (const gap of gaps) {
     const partner = leaves[gap]
 
-    if (partner === undefined) {
-      continue
-    }
+    if (partner === undefined) continue
 
     const partnerAncestor = ancestorAt({
       neighbors,
@@ -157,9 +146,7 @@ export function bulkTreeSamples(input: {
       target,
     })
 
-    if (partnerAncestor === referenceAncestor) {
-      continue
-    }
+    if (partnerAncestor === referenceAncestor) continue
 
     const bulk =
       neighborDistances({
@@ -220,9 +207,7 @@ export function flatLineSamples(input: {
       depth: input.coneDepth,
     }).eta
 
-    if (eta > 0 && bulk > 0) {
-      samples.push({ physical: step, bulk, eta })
-    }
+    if (eta > 0 && bulk > 0) samples.push({ physical: step, bulk, eta })
   }
 
   return samples

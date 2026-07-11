@@ -69,23 +69,20 @@ export function unifiedWave(input?: {
   const rng = makeRng({ seed: 12345 })
   const tone = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < N; i++)
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
-  }
 
   const q0 = tone.reduce((s, x) => s + x, 0)
   const init = tone.slice()
   const T = 30
 
-  for (let t = 0; t < T; t++) {
+  for (let t = 0; t < T; t++)
     beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
-  }
 
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
 
-  for (let t = 0; t < T; t++) {
+  for (let t = 0; t < T; t++)
     beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
-  }
 
   let reversible = true
 
@@ -114,19 +111,18 @@ export function unifiedWave(input?: {
     if (
       Math.abs(s.position[i]! - maxPos / 2) <
       Math.abs(s.position[center]! - maxPos / 2)
-    ) {
+    )
       center = i
-    }
   }
 
   const rng2 = makeRng({ seed: 999 })
   const baseS = new Int8Array(sN)
 
-  for (let i = 0; i < sN; i++) {
+  for (let i = 0; i < sN; i++)
     baseS[i] = rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
-  }
 
   const pertS = baseS.slice()
+
   pertS[center] = baseS[center] === 0 ? 1 : 0
 
   const pos0 = s.position[center]!
@@ -137,9 +133,8 @@ export function unifiedWave(input?: {
     let front = 0
 
     for (let i = 0; i < sN; i++) {
-      if (baseS[i] !== pertS[i]) {
+      if (baseS[i] !== pertS[i])
         front = Math.max(front, Math.abs(s.position[i]! - pos0))
-      }
     }
 
     fronts.push(front)
@@ -154,9 +149,7 @@ export function unifiedWave(input?: {
   const fitFront: number[] = []
 
   for (let t = tlo; t < beatsB; t++) {
-    if (fronts[t]! >= cap) {
-      break
-    }
+    if (fronts[t]! >= cap) break
 
     fitT.push(t)
     fitFront.push(fronts[t]!)

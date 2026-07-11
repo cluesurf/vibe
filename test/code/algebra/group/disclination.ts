@@ -21,6 +21,7 @@ suite(
   [
     check('the loop has `steps` angles starting at 0', () => {
       const angles = directorLoop({ winding: 1, steps: STEPS })
+
       equal(angles.length, STEPS, 'one angle per site')
       close(angles[0]!, 0, 1e-12, 'starts at 0')
     }),
@@ -44,12 +45,14 @@ suite('algebra/group/disclination: spinor holonomy = (-1)^w', [
   check('odd winding gives the -I holonomy', () => {
     for (const w of [1, 3, 5]) {
       const H = spinorHolonomy({ winding: w, steps: STEPS })
+
       ok(cmIsScalar(H, complex({ re: -1, im: 0 })), `H = -I for w=${w}`)
     }
   }),
   check('even winding gives the +I holonomy', () => {
     for (const w of [0, 2, 4]) {
       const H = spinorHolonomy({ winding: w, steps: STEPS })
+
       ok(cmIsScalar(H, complex({ re: 1, im: 0 })), `H = +I for w=${w}`)
     }
   }),
@@ -60,6 +63,7 @@ suite(
   [
     check('w=1: spinor flips (-1), vector returns to itself', () => {
       const h = disclinationHolonomy({ winding: 1, steps: STEPS })
+
       equal(h.spinorIsMinusOne, true, 'spinor = -1')
       equal(h.spinorIsPlusOne, false, 'spinor != +1')
       equal(
@@ -70,12 +74,14 @@ suite(
     }),
     check('w=2: spinor +1, vector returns', () => {
       const h = disclinationHolonomy({ winding: 2, steps: STEPS })
+
       equal(h.spinorIsPlusOne, true, 'spinor = +1')
       equal(h.spinorIsMinusOne, false, 'spinor != -1')
       equal(h.vectorReturnsToSelf, true, 'vector returns')
     }),
     check('w=0: trivial defect, spinor +1', () => {
       const h = disclinationHolonomy({ winding: 0, steps: STEPS })
+
       equal(h.spinorIsPlusOne, true, 'spinor = +1')
       equal(h.vectorReturnsToSelf, true, 'vector returns')
     }),

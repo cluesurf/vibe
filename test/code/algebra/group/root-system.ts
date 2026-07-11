@@ -46,6 +46,7 @@ const byNorm = (roots: number[][]): Map<number, number> => {
 
   for (const r of roots) {
     const n = normSquared(r)
+
     counts.set(n, (counts.get(n) ?? 0) + 1)
   }
 
@@ -67,12 +68,11 @@ const determinant = (matrix: number[][]): number => {
       pivot++
     }
 
-    if (pivot === n) {
-      return 0
-    }
+    if (pivot === n) return 0
 
     if (pivot !== col) {
       const swap = a[col]!
+
       a[col] = a[pivot]!
       a[pivot] = swap
       sign = -sign
@@ -85,17 +85,14 @@ const determinant = (matrix: number[][]): number => {
       const target = a[row]!
       const factor = target[col]! / pivotValue
 
-      for (let k = col; k < n; k++) {
+      for (let k = col; k < n; k++)
         target[k] = target[k]! - factor * pivotRow[k]!
-      }
     }
   }
 
   let det = sign
 
-  for (let i = 0; i < n; i++) {
-    det *= a[i]![i]!
-  }
+  for (let i = 0; i < n; i++) det *= a[i]![i]!
 
   return Math.round(det)
 }
@@ -105,12 +102,12 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
     'D4 has 24 roots, all of norm^2 = 2, closed under negation',
     () => {
       const roots = rootsD4()
+
       equal(roots.length, 24, '|D4 roots| = 2*4*3 = 24')
       equal(distinct(roots), 24, 'distinct')
 
-      for (const r of roots) {
+      for (const r of roots)
         equal(normSquared(r), 2, 'each D4 root has norm^2 = 2')
-      }
 
       ok(closedUnderNegation(roots), 'D4 closed under negation')
     },
@@ -120,17 +117,18 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
     equal(rootsDn(4).length, 24, '|D4 roots| = 24')
     equal(rootsDn(5).length, 40, '|D5 roots| = 40')
 
-    for (const r of rootsDn(5)) {
+    for (const r of rootsDn(5))
       equal(normSquared(r), 2, 'D_n roots have norm^2 = 2')
-    }
   }),
   check(
     'B4 has 32 roots: 24 long (norm^2 2) + 8 short (norm^2 1)',
     () => {
       const roots = rootsB4()
+
       equal(roots.length, 32, '|B4 roots| = 2*4^2 = 32')
 
       const counts = byNorm(roots)
+
       equal(counts.get(2), 24, '24 long roots')
       equal(counts.get(1), 8, '8 short roots')
       ok(closedUnderNegation(roots), 'B4 closed under negation')
@@ -140,10 +138,12 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
     'F4 has 48 roots: 24 long (norm^2 2) + 24 short (norm^2 1)',
     () => {
       const roots = rootsF4()
+
       equal(roots.length, 48, '|F4 roots| = 48')
       equal(distinct(roots), 48, 'distinct')
 
       const counts = byNorm(roots)
+
       equal(counts.get(2), 24, '24 long F4 roots')
       equal(
         counts.get(1),
@@ -157,9 +157,8 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
     equal(rootsAn(3).length, 6, '|A2 roots| = 6 (su(3))')
     equal(rootsAn(4).length, 12, '|A3 roots| = 12 (su(4))')
 
-    for (const r of rootsAn(3)) {
+    for (const r of rootsAn(3))
       equal(normSquared(r), 2, 'A2 root norm^2 = 2')
-    }
   }),
 ])
 
@@ -168,9 +167,8 @@ suite('algebra/group/root-system: reflection and root-system axiom', [
     for (const a of rootsD4()) {
       const reflected = reflectRoot(a, a)
 
-      for (let i = 0; i < a.length; i++) {
+      for (let i = 0; i < a.length; i++)
         equal(reflected[i]!, -a[i]!, 's_a(a) = -a')
-      }
     }
   }),
   check('reflection is an involution on D4 roots', () => {
@@ -180,9 +178,8 @@ suite('algebra/group/root-system: reflection and root-system axiom', [
       const v = roots[0]!
       const twice = reflectRoot(reflectRoot(v, a), a)
 
-      for (let i = 0; i < v.length; i++) {
+      for (let i = 0; i < v.length; i++)
         equal(twice[i]!, v[i]!, 's_a(s_a(v)) = v')
-      }
     }
   }),
   check('D4, B4, F4, A2 are reflection-closed root systems', () => {
@@ -221,6 +218,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
     'D_n has 2^(n-1) even-parity spinor weights, norm^2 = n/4',
     () => {
       const w4 = spinorWeightsDn(4)
+
       equal(w4.length, 8, '|spinor(D4)| = 8')
 
       for (const w of w4) {
@@ -228,6 +226,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
           Math.abs(normSquared(w) - 1) < 1e-12,
           'D4 spinor weight norm^2 = 1',
         )
+
         equal(
           w.filter(x => x < 0).length % 2,
           0,
@@ -236,6 +235,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
       }
 
       const w5 = spinorWeightsDn(5)
+
       equal(w5.length, 16, '|spinor(D5)| = 16 (the so(10) generation)')
 
       for (const w of w5) {
@@ -248,6 +248,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
   ),
   check('E8 has 8 simple roots of norm^2 = 2', () => {
     const simple = e8SimpleRoots()
+
     equal(simple.length, 8, '8 simple roots')
 
     for (const r of simple) {
@@ -274,6 +275,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
               cartan[i]![j] === 0 || cartan[i]![j] === -1,
               'off-diag in {0,-1}',
             )
+
             equal(
               cartan[i]![j]!,
               cartan[j]![i]!,
@@ -295,11 +297,11 @@ suite('algebra/group/root-system: spinor weights and E8', [
     'E8 has 240 roots, all of norm^2 = 2, closed under negation',
     () => {
       const roots = rootsE8()
+
       equal(roots.length, 240, '|E8 roots| = 240')
 
-      for (const r of roots) {
+      for (const r of roots)
         ok(Math.abs(normSquared(r) - 2) < 1e-12, 'E8 root norm^2 = 2')
-      }
 
       ok(closedUnderNegation(roots), 'E8 closed under negation')
     },
@@ -309,6 +311,7 @@ suite('algebra/group/root-system: spinor weights and E8', [
 suite('algebra/group/root-system: ternary shells and code lattice', [
   check('the {-1,0,1}^4 shells are the regular 4-polytopes', () => {
     const shells = ternaryShells(4)
+
     // shell of norm^2 = k has exactly C(4,k) 2^k vectors (k nonzero +-1 coords).
     equal(shells.get(1)!.length, 8, 'norm^2=1: the 16-cell, 4*2 = 8')
     equal(shells.get(2)!.length, 24, 'norm^2=2: the 24-cell, 6*4 = 24')
@@ -322,6 +325,7 @@ suite('algebra/group/root-system: ternary shells and code lattice', [
   check('the norm-2 ternary shell is exactly the 24 D4 roots', () => {
     const shell = new Set(ternaryShells(4).get(2)!.map(vectorKey))
     const d4 = new Set(rootsD4().map(vectorKey))
+
     equal(shell.size, 24, 'shell size')
     equal(d4.size, 24, 'D4 size')
     ok(
@@ -337,9 +341,11 @@ suite('algebra/group/root-system: ternary shells and code lattice', [
     'Construction A on the even-weight code rebuilds the 24 D4 minimal vectors',
     () => {
       const minimal = constructionAMinimalVectors(evenWeightCode(4), 4)
+
       equal(minimal.length, 24, '24 minimal vectors of the D4 lattice')
 
       const d4 = new Set(rootsD4().map(vectorKey))
+
       ok(
         minimal.every(v => d4.has(vectorKey(v))),
         'every minimal vector is a D4 root',
@@ -352,30 +358,29 @@ suite('algebra/group/root-system: probe and lattice direction sets', [
   check('hypercubicAxes(d) gives 2d unit axis vectors', () => {
     for (const d of [3, 4, 5]) {
       const axes = hypercubicAxes(d)
+
       equal(axes.length, 2 * d, '2d axis directions')
 
-      for (const a of axes) {
-        equal(normSquared(a), 1, 'unit axis vector')
-      }
+      for (const a of axes) equal(normSquared(a), 1, 'unit axis vector')
     }
   }),
   check('the 4D probe directions are 7 unit vectors', () => {
     const probes = probeDirections4D()
+
     equal(probes.length, 7, '7 probe directions')
 
-    for (const p of probes) {
+    for (const p of probes)
       ok(Math.abs(normSquared(p) - 1) < 1e-12, 'probe is normalized')
-    }
   }),
   check(
     'the 12 icosahedron directions are unit and negation-closed',
     () => {
       const directions = icosahedronVertexDirections()
+
       equal(directions.length, 12, '12 icosahedron vertex directions')
 
-      for (const d of directions) {
+      for (const d of directions)
         ok(Math.abs(normSquared(d) - 1) < 1e-12, 'unit direction')
-      }
 
       ok(
         closedUnderNegation(directions),

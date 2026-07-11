@@ -119,6 +119,7 @@ suite('dynamics/wave-field: accel and measures', [
     'doubleWellAccel: zeros at 0 and +/-amplitude, pushes toward the vacua',
     () => {
       const accel = doubleWellAccel({ amplitude: 5, saturating: true })
+
       equal(accel(0), 0, 'zero at the barrier')
       equal(accel(5), 0, 'zero at +vacuum')
       equal(accel(-5), 0, 'zero at -vacuum')
@@ -131,6 +132,7 @@ suite('dynamics/wave-field: accel and measures', [
     'non-saturating accel pulls back linearly beyond a vacuum',
     () => {
       const accel = doubleWellAccel({ amplitude: 5, saturating: false })
+
       equal(accel(8), -3, 'pull-back = -(magnitude - amplitude)')
     },
   ),
@@ -138,6 +140,7 @@ suite('dynamics/wave-field: accel and measures', [
     'fieldMaxAbs and domainWallCount read the configuration',
     () => {
       const u = Int32Array.from([0, 2, -3, 0, 4, -1])
+
       equal(fieldMaxAbs(u), 4, 'max absolute value')
       // sign changes between adjacent nonzero cells: 2->-3, 4->-1 (0s break the run)
       equal(domainWallCount(u), 2, 'two domain walls')

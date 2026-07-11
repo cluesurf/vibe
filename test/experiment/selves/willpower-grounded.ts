@@ -52,9 +52,7 @@ export function willpowerGrounded(): {
   let center = 0
 
   for (let i = 1; i < n; i++) {
-    if (neighbors[i]!.length > neighbors[center]!.length) {
-      center = i
-    }
+    if (neighbors[i]!.length > neighbors[center]!.length) center = i
   }
 
   const distC = neighborDistances({
@@ -70,6 +68,7 @@ export function willpowerGrounded(): {
 
   {
     const seen = new Uint8Array(n)
+
     seen[center] = 1
 
     let frontier = [center]
@@ -97,13 +96,11 @@ export function willpowerGrounded(): {
   const inSelf = new Uint8Array(n)
   const inCore = new Uint8Array(n)
 
-  for (let k = 0; k < SELF_SIZE && k < order.length; k++) {
+  for (let k = 0; k < SELF_SIZE && k < order.length; k++)
     inSelf[order[k]!] = 1
-  }
 
-  for (let k = 0; k < CORE_SIZE && k < order.length; k++) {
+  for (let k = 0; k < CORE_SIZE && k < order.length; k++)
     inCore[order[k]!] = 1
-  }
 
   let selfSize = 0
 
@@ -117,9 +114,7 @@ export function willpowerGrounded(): {
     let s = 0
 
     for (let i = 0; i < n; i++) {
-      if (inCore[i]) {
-        s += t[i]!
-      }
+      if (inCore[i]) s += t[i]!
     }
 
     return s
@@ -129,9 +124,7 @@ export function willpowerGrounded(): {
     let s = 0
 
     for (let i = 0; i < n; i++) {
-      if (inSelf[i]) {
-        s += t[i]!
-      }
+      if (inSelf[i]) s += t[i]!
     }
 
     return s
@@ -142,9 +135,7 @@ export function willpowerGrounded(): {
     const t = new Int8Array(n)
 
     for (let i = 0; i < n; i++) {
-      if (inSelf[i]) {
-        t[i] = 1
-      }
+      if (inSelf[i]) t[i] = 1
     }
 
     return t

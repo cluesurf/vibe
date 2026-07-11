@@ -77,9 +77,7 @@ export function stampShape(input: {
     const x = px + dx
     const y = py + dy
 
-    if (x >= 0 && x < L && y >= 0 && y < L) {
-      tone[y * L + x] = sign
-    }
+    if (x >= 0 && x < L && y >= 0 && y < L) tone[y * L + x] = sign
   }
 }
 
@@ -114,6 +112,7 @@ export function runTwoSelfAnnihilation(input: {
   const graph = flatGraph(L)
   const tone = new Int8Array(L * L)
   const cy = Math.floor(L / 2)
+
   stampShape({
     tone,
     L,
@@ -122,6 +121,7 @@ export function runTwoSelfAnnihilation(input: {
     py: cy,
     sign: 1,
   })
+
   stampShape({
     tone,
     L,
@@ -156,9 +156,7 @@ export function twoSelfSeparation(input: {
     .filter(c => c.length >= minSize)
     .sort((a, b) => b.length - a.length)
 
-  if (clusters.length < 2) {
-    return 0
-  }
+  if (clusters.length < 2) return 0
 
   const centroid = (cells: number[]): readonly [number, number] => {
     let cx = 0
@@ -195,6 +193,7 @@ export function runTwoSelf(input: {
   const graph = flatGraph(L)
   const tone = new Int8Array(L * L)
   const cy = Math.floor(L / 2)
+
   stampShape({
     tone,
     L,
@@ -202,6 +201,7 @@ export function runTwoSelf(input: {
     px: Math.round(L / 2 - d / 2),
     py: cy,
   })
+
   stampShape({
     tone,
     L,

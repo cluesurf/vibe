@@ -16,11 +16,11 @@ export type HermitianOperator = (input: Cx, output: Cx) => void
 // into an estimate of Tr|H|.
 export function absoluteValueCoefficients(count: number): number[] {
   const coefficients = new Array<number>(count).fill(0)
+
   coefficients[0] = 2 / Math.PI
 
-  for (let k = 1; 2 * k < count; k++) {
+  for (let k = 1; 2 * k < count; k++)
     coefficients[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
-  }
 
   return coefficients
 }
@@ -55,6 +55,7 @@ export function chebyshevMoments(input: {
 
   let t0: Cx = { re: probe.re.slice(), im: probe.im.slice() }
   let t1 = newCx(dim)
+
   operator(t0, t1)
 
   for (let i = 0; i < dim; i++) {
@@ -80,6 +81,7 @@ export function chebyshevMoments(input: {
     mu[n] = dotR(probe, tn, dim)
 
     const swap = t0
+
     t0 = t1
     t1 = tn
     tn = swap
@@ -99,15 +101,11 @@ export function spectralBound(input: {
   const v = newCx(dim)
   const rng = makeRng({ seed: 1 })
 
-  for (let i = 0; i < dim; i++) {
-    v.re[i] = rng.next() - 0.5
-  }
+  for (let i = 0; i < dim; i++) v.re[i] = rng.next() - 0.5
 
   let norm = Math.sqrt(dotR(v, v, dim))
 
-  for (let i = 0; i < dim; i++) {
-    v.re[i]! /= norm
-  }
+  for (let i = 0; i < dim; i++) v.re[i]! /= norm
 
   const applied = newCx(dim)
   const twice = newCx(dim)

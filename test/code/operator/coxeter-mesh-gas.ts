@@ -59,6 +59,7 @@ suite('operator/coxeter-mesh-gas: streaming', [
       ]
 
       const out = streamCoxeterMeshGas({ state, adjacency, rank })
+
       equal(out[0]![0], 10, 'slot 0 of cell 0 came from cell 1 (swap)')
       equal(out[1]![0], 1, 'slot 0 of cell 1 came from cell 0 (swap)')
       equal(out[0]![1], 2, 'slot 1 (boundary) stays at cell 0')
@@ -72,6 +73,7 @@ suite('operator/coxeter-mesh-gas: streaming', [
     ]
 
     const out = streamCoxeterMeshGas({ state, adjacency, rank })
+
     equal(
       countCoxeterMeshGas(out),
       countCoxeterMeshGas(state),
@@ -121,6 +123,7 @@ suite('operator/coxeter-mesh-gas: collide', [
     ]
 
     const out = collideCoxeterMeshGas({ state, rank: r, forward: true })
+
     equal(
       countCoxeterMeshGas(out),
       countCoxeterMeshGas(state),
@@ -152,6 +155,7 @@ suite('operator/coxeter-mesh-gas: erase control', [
       })
 
       const lost = (collided[0]![0] ?? 0) + (collided[1]![0] ?? 0)
+
       equal(
         countCoxeterMeshGas(erased),
         countCoxeterMeshGas(collided) - lost,

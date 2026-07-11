@@ -125,9 +125,7 @@ export default experiment({
     let growsWithSize = true
 
     for (let i = 1; i < sweep.length; i++) {
-      if (sweep[i]! <= sweep[i - 1]!) {
-        growsWithSize = false
-      }
+      if (sweep[i]! <= sweep[i - 1]!) growsWithSize = false
     }
 
     const approachesHalfTurn =

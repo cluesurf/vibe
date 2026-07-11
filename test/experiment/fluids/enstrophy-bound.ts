@@ -31,6 +31,7 @@ export default experiment({
     const beats = 12
 
     const filled = makeWill(mesh)
+
     fillWillPattern(filled)
 
     const e0 = enstrophy(filled)
@@ -44,6 +45,7 @@ export default experiment({
       real = beat(real, headOnRotate({ opposite: opposites(mesh) }))
 
       const e = enstrophy(real)
+
       realMin = Math.min(realMin, e)
       realMax = Math.max(realMax, e)
     }
@@ -90,9 +92,7 @@ function opposites(mesh: {
 }): number[] {
   const out: number[] = []
 
-  for (let d = 0; d < mesh.degree; d++) {
-    out.push(mesh.opposite(d))
-  }
+  for (let d = 0; d < mesh.degree; d++) out.push(mesh.opposite(d))
 
   return out
 }

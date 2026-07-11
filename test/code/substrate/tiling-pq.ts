@@ -20,9 +20,8 @@ suite('substrate/tiling-pq: tree structure', [
         degSum += g.neighbors[i]!.length
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of g.neighbors[i]!) {
+        for (const j of g.neighbors[i]!)
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
-        }
       }
 
       equal(
@@ -36,6 +35,7 @@ suite('substrate/tiling-pq: tree structure', [
     'the first ring out of the root holds 5 cells (pentagrid)',
     () => {
       const g = tilingPQ({ p: 5, q: 4, generations: 1 })
+
       // root + its 5 first-ring children.
       equal(g.size, 6, 'root plus 5 children')
       equal(g.neighbors[0]!.length, 5, 'root degree 5')
@@ -46,9 +46,7 @@ suite('substrate/tiling-pq: tree structure', [
 
     let degSum = 0
 
-    for (const row of g.neighbors) {
-      degSum += row.length
-    }
+    for (const row of g.neighbors) degSum += row.length
 
     equal(degSum / 2, g.size - 1, 'tree edge count')
     ok(g.size > 1, 'non-trivial')
@@ -59,6 +57,7 @@ suite('substrate/tiling-pq: Zeckendorf addressing', [
   check('every node address is a legal Zeckendorf word', () => {
     const g = tilingPQ({ p: 5, q: 4, generations: 5 })
     const addresses = g.address!
+
     equal(addresses.length, g.size, 'one address per node')
 
     for (const a of addresses) {

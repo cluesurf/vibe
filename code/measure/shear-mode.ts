@@ -64,6 +64,7 @@ export function shearGasSetup(input: {
 
   const carrierLines = input.carrierLines ?? 'coupled'
   const will = makeWill(mesh)
+
   pairGasFill({ will, pairFill })
 
   const lines = coinLines(meshOpposites(mesh))
@@ -87,6 +88,7 @@ export function shearGasSetup(input: {
       ) {
         const positiveSlot = momComponent > 0 ? a : o
         const negativeSlot = momComponent > 0 ? o : a
+
         will.data[base + positiveSlot] = bias > 0 ? 1 : 0
         will.data[base + negativeSlot] = bias > 0 ? 0 : 1
       }
@@ -109,19 +111,13 @@ function directionIncluded(input: {
   const { directions, direction, momAxis, gradAxis, lines } = input
   const momComponent = directions[direction]![momAxis] ?? 0
 
-  if (momComponent === 0) {
-    return false
-  }
+  if (momComponent === 0) return false
 
   const gradComponent = directions[direction]![gradAxis] ?? 0
 
-  if (lines === 'coupled') {
-    return gradComponent !== 0
-  }
+  if (lines === 'coupled') return gradComponent !== 0
 
-  if (lines === 'decoupled') {
-    return gradComponent === 0
-  }
+  if (lines === 'decoupled') return gradComponent === 0
 
   return true
 }
@@ -161,9 +157,8 @@ export function shearModeAmplitude(input: {
 
   const sinTable: number[] = []
 
-  for (let slab = 0; slab < side; slab++) {
+  for (let slab = 0; slab < side; slab++)
     sinTable.push(Math.sin((2 * Math.PI * mode * slab) / side))
-  }
 
   let amplitude = 0
 
@@ -176,9 +171,7 @@ export function shearModeAmplitude(input: {
     for (let direction = 0; direction < degree; direction++) {
       const w = weight[direction]!
 
-      if (w !== 0) {
-        momentum += (will.data[base + direction] ?? 0) * w
-      }
+      if (w !== 0) momentum += (will.data[base + direction] ?? 0) * w
     }
 
     amplitude += momentum * projection
@@ -258,15 +251,12 @@ export function decoupledSlabMomentum(input: {
     const base = cell * degree
 
     for (let direction = 0; direction < degree; direction++) {
-      if ((directions[direction]![gradAxis] ?? 0) !== 0) {
-        continue
-      }
+      if ((directions[direction]![gradAxis] ?? 0) !== 0) continue
 
       const momComponent = directions[direction]![momAxis] ?? 0
 
-      if (momComponent !== 0) {
+      if (momComponent !== 0)
         slab[y]! += (will.data[base + direction] ?? 0) * momComponent
-      }
     }
   }
 
@@ -308,9 +298,7 @@ export function decayRateFit(input: {
   const ceiling = input.ceiling ?? 0.9
   const start = series[0] ?? 0
 
-  if (start === 0) {
-    return { gamma: 0, r2: 0, points: 0 }
-  }
+  if (start === 0) return { gamma: 0, r2: 0, points: 0 }
 
   const xs: number[] = []
   const ys: number[] = []
@@ -318,9 +306,7 @@ export function decayRateFit(input: {
   for (let beat = 1; beat < series.length; beat++) {
     const relative = series[beat]! / start
 
-    if (relative <= floor) {
-      break
-    }
+    if (relative <= floor) break
 
     if (relative <= ceiling) {
       xs.push(beat)
@@ -328,9 +314,7 @@ export function decayRateFit(input: {
     }
   }
 
-  if (xs.length < 2) {
-    return { gamma: 0, r2: 0, points: xs.length }
-  }
+  if (xs.length < 2) return { gamma: 0, r2: 0, points: xs.length }
 
   const fit = linearFit({ xs, ys })
 

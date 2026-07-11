@@ -15,6 +15,7 @@ export function makeCanvas(input: {
 
   for (let pixel = 0; pixel < width * height; pixel++) {
     const offset = pixel * 4
+
     rgba[offset] = background[0]
     rgba[offset + 1] = background[1]
     rgba[offset + 2] = background[2]
@@ -33,6 +34,7 @@ export function setPixel(
   color: Color,
 ): void {
   const offset = (y * width + x) * 4
+
   rgba[offset] = color[0]
   rgba[offset + 1] = color[1]
   rgba[offset + 2] = color[2]
@@ -63,9 +65,8 @@ export function drawDisk(input: {
       const dx = x - centerX
       const dy = y - centerY
 
-      if (dx * dx + dy * dy <= radiusSquared) {
+      if (dx * dx + dy * dy <= radiusSquared)
         setPixel(rgba, width, x, y, color)
-      }
     }
   }
 }

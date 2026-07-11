@@ -18,12 +18,11 @@ export function gramMatrix(symbol: number[]): number[][] {
     new Array<number>(m).fill(0),
   )
 
-  for (let i = 0; i < m; i++) {
-    G[i]![i] = 1
-  }
+  for (let i = 0; i < m; i++) G[i]![i] = 1
 
   for (let i = 0; i < symbol.length; i++) {
     const c = -Math.cos(Math.PI / (symbol[i] ?? 2))
+
     G[i]![i + 1] = c
     G[i + 1]![i] = c
   }
@@ -48,20 +47,14 @@ export function symmetricEigen(input: { matrix: number[][] }): {
     let off = 0
 
     for (let p = 0; p < n; p++) {
-      for (let q = p + 1; q < n; q++) {
-        off += a[p]![q]! * a[p]![q]!
-      }
+      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
     }
 
-    if (off < 1e-28) {
-      break
-    }
+    if (off < 1e-28) break
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
-        if (Math.abs(a[p]![q]!) < 1e-18) {
-          continue
-        }
+        if (Math.abs(a[p]![q]!) < 1e-18) continue
 
         const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
         const t =
@@ -74,6 +67,7 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         for (let k = 0; k < n; k++) {
           const akp = a[k]![p]!
           const akq = a[k]![q]!
+
           a[k]![p] = c * akp - s * akq
           a[k]![q] = s * akp + c * akq
         }
@@ -81,6 +75,7 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         for (let k = 0; k < n; k++) {
           const apk = a[p]![k]!
           const aqk = a[q]![k]!
+
           a[p]![k] = c * apk - s * aqk
           a[q]![k] = s * apk + c * aqk
         }
@@ -88,6 +83,7 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         for (let k = 0; k < n; k++) {
           const vkp = v[k]![p]!
           const vkq = v[k]![q]!
+
           v[k]![p] = c * vkp - s * vkq
           v[k]![q] = s * vkp + c * vkq
         }
@@ -116,17 +112,11 @@ export function classifyGeometry(symbol: number[]): Geometry {
     }
   }
 
-  if (zero > 0) {
-    return 'euclidean'
-  }
+  if (zero > 0) return 'euclidean'
 
-  if (neg === 0) {
-    return 'spherical'
-  }
+  if (neg === 0) return 'spherical'
 
-  if (neg === 1) {
-    return 'hyperbolic'
-  }
+  if (neg === 1) return 'hyperbolic'
 
   return 'higher'
 }
@@ -174,16 +164,12 @@ export function enumerateCompactHoneycombs(input: {
 
   const rec = (prefix: number[]): void => {
     if (prefix.length === dimension) {
-      if (isCompactHoneycomb(prefix)) {
-        found.push(prefix.slice())
-      }
+      if (isCompactHoneycomb(prefix)) found.push(prefix.slice())
 
       return
     }
 
-    for (let p = 3; p <= maxEntry; p++) {
-      rec([...prefix, p])
-    }
+    for (let p = 3; p <= maxEntry; p++) rec([...prefix, p])
   }
 
   rec([])
@@ -217,9 +203,7 @@ export function mirrorFrame(symbol: number[]): {
 
   let timeAxis = metric.findIndex(g => g < 0)
 
-  if (timeAxis < 0) {
-    timeAxis = m - 1
-  }
+  if (timeAxis < 0) timeAxis = m - 1
 
   return { normals, metric, timeAxis }
 }
@@ -234,9 +218,7 @@ export function dihedralAngleDegrees(input: {
   const { p, q } = input
   const s = Math.cos(Math.PI / q) / Math.sin(Math.PI / p)
 
-  if (s > 1) {
-    return Number.NaN
-  }
+  if (s > 1) return Number.NaN
 
   return (2 * Math.asin(s) * 180) / Math.PI
 }

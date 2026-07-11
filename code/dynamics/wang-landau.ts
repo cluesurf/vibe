@@ -34,9 +34,7 @@ function chainFuture(
   const future = makeBitMatrix({ rows: size, cols: size })
 
   for (let a = 0; a < k; a++) {
-    for (let b = a + 1; b < k; b++) {
-      setBit(future, { row: a, col: b })
-    }
+    for (let b = a + 1; b < k; b++) setBit(future, { row: a, col: b })
   }
 
   return future
@@ -82,6 +80,7 @@ export function wangLandauHeight(input: {
     Math.min(H - 1, Math.max(0, h - minHeight))
 
   let curBin = binOf(height(state))
+
   seen[curBin] = true
 
   let curS = smearedAction(state, input.epsilon)
@@ -101,9 +100,7 @@ export function wangLandauHeight(input: {
 
     let j = input.rng.nextInt({ max: n })
 
-    if (i === j) {
-      j = (j + 1) % n
-    }
+    if (i === j) j = (j + 1) % n
 
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
@@ -117,9 +114,9 @@ export function wangLandauHeight(input: {
 
         const newH = height(state)
 
-        if (newH > input.maxHeight || newH < minHeight) {
+        if (newH > input.maxHeight || newH < minHeight)
           toggle(state, lo, hi)
-        } else {
+        else {
           const newBin = binOf(newH)
 
           if (
@@ -129,12 +126,8 @@ export function wangLandauHeight(input: {
             curBin = newBin
             seen[curBin] = true
 
-            if (measuring) {
-              curS = smearedAction(state, input.epsilon)
-            }
-          } else {
-            toggle(state, lo, hi)
-          }
+            if (measuring) curS = smearedAction(state, input.epsilon)
+          } else toggle(state, lo, hi)
         }
       }
     }
@@ -145,6 +138,7 @@ export function wangLandauHeight(input: {
     // (builds the shape) and small late (refines it), which converges log g where
     // flat-then-halve stalls against the steep entropy barrier.
     const lnf = 1 / steps
+
     logG[curBin] = (logG[curBin] ?? 0) + lnf
     hist[curBin] = (hist[curBin] ?? 0) + 1
 
@@ -173,9 +167,8 @@ export function wangLandauHeight(input: {
   let maxLogG = -Infinity
 
   for (let b = 0; b < H; b++) {
-    if (seen[b] && (actN[b] ?? 0) > 0) {
+    if (seen[b] && (actN[b] ?? 0) > 0)
       maxLogG = Math.max(maxLogG, logG[b] ?? 0)
-    }
   }
 
   const heights: number[] = []
@@ -187,6 +180,7 @@ export function wangLandauHeight(input: {
     heights.push(b + minHeight)
 
     const ok = (seen[b] ?? false) && (actN[b] ?? 0) > 0
+
     visited.push(ok)
     outLogG.push(ok ? (logG[b] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (actSum[b] ?? 0) / (actN[b] ?? 1) : NaN)
@@ -226,11 +220,10 @@ export function windowedWangLandau(input: {
 
   while (lo < input.maxHeight) {
     const hi = Math.min(input.maxHeight, lo + input.windowSize - 1)
+
     windows.push({ lo, hi })
 
-    if (hi >= input.maxHeight) {
-      break
-    }
+    if (hi >= input.maxHeight) break
 
     lo = hi - input.overlap + 1
   }
@@ -244,9 +237,7 @@ export function windowedWangLandau(input: {
   for (let wIdx = 0; wIdx < windows.length; wIdx++) {
     const win = windows[wIdx]
 
-    if (!win) {
-      continue
-    }
+    if (!win) continue
 
     const wl = wangLandauHeight({
       size: input.size,
@@ -267,9 +258,7 @@ export function windowedWangLandau(input: {
     let offsetN = 0
 
     for (let b = 0; b < wl.heights.length; b++) {
-      if (!wl.visited[b]) {
-        continue
-      }
+      if (!wl.visited[b]) continue
 
       const h = wl.heights[b] ?? 0
       const gi = h - minHeight
@@ -283,9 +272,7 @@ export function windowedWangLandau(input: {
     const offset = offsetN > 0 ? offsetSum / offsetN : 0
 
     for (let b = 0; b < wl.heights.length; b++) {
-      if (!wl.visited[b]) {
-        continue
-      }
+      if (!wl.visited[b]) continue
 
       const h = wl.heights[b] ?? 0
       const gi = h - minHeight
@@ -301,9 +288,8 @@ export function windowedWangLandau(input: {
   let maxLogG = -Infinity
 
   for (let gi = 0; gi < total; gi++) {
-    if (!Number.isNaN(globalLogG[gi] ?? NaN)) {
+    if (!Number.isNaN(globalLogG[gi] ?? NaN))
       maxLogG = Math.max(maxLogG, globalLogG[gi] ?? -Infinity)
-    }
   }
 
   const heights: number[] = []
@@ -315,6 +301,7 @@ export function windowedWangLandau(input: {
     heights.push(gi + minHeight)
 
     const ok = !Number.isNaN(globalLogG[gi] ?? NaN)
+
     visited.push(ok)
     outLogG.push(ok ? (globalLogG[gi] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (globalAct[gi] ?? NaN) : NaN)
@@ -340,9 +327,8 @@ function logWeight(
   let max = -Infinity
 
   for (let b = 0; b < wl.logG.length; b++) {
-    if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
+    if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold)
       continue
-    }
 
     max = Math.max(
       max,
@@ -350,16 +336,13 @@ function logWeight(
     )
   }
 
-  if (max === -Infinity) {
-    return -Infinity
-  }
+  if (max === -Infinity) return -Infinity
 
   let sum = 0
 
   for (let b = 0; b < wl.logG.length; b++) {
-    if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
+    if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold)
       continue
-    }
 
     sum += Math.exp(
       (wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0) - max,
@@ -377,13 +360,9 @@ export function manifoldFractionAt(
   const lm = logWeight(wl, beta, true)
   const ll = logWeight(wl, beta, false)
 
-  if (lm === -Infinity) {
-    return 0
-  }
+  if (lm === -Infinity) return 0
 
-  if (ll === -Infinity) {
-    return 1
-  }
+  if (ll === -Infinity) return 1
 
   return 1 / (1 + Math.exp(ll - lm))
 }
@@ -400,13 +379,9 @@ export function crossingBeta(
 ): number | null {
   const f = (b: number): number => manifoldFractionAt(wl, b) - 0.5
 
-  if (f(0) >= 0) {
-    return 0
-  }
+  if (f(0) >= 0) return 0
 
-  if (f(betaMax) < 0) {
-    return null
-  }
+  if (f(betaMax) < 0) return null
 
   let lo = 0
   let hi = betaMax
@@ -414,11 +389,8 @@ export function crossingBeta(
   for (let it = 0; it < 60; it++) {
     const mid = 0.5 * (lo + hi)
 
-    if (f(mid) < 0) {
-      lo = mid
-    } else {
-      hi = mid
-    }
+    if (f(mid) < 0) lo = mid
+    else hi = mid
   }
 
   return 0.5 * (lo + hi)

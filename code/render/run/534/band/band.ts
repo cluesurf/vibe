@@ -59,6 +59,7 @@ async function run(): Promise<void> {
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
+
   console.log(
     `targeted slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()} cells`,
   )
@@ -79,9 +80,7 @@ async function run(): Promise<void> {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -89,9 +88,7 @@ async function run(): Promise<void> {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -117,6 +114,7 @@ async function run(): Promise<void> {
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -174,6 +172,7 @@ async function run(): Promise<void> {
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
+
   device.queue.writeBuffer(bufs[0], 0, seed)
 
   const offBuf = device.createBuffer({
@@ -231,6 +230,7 @@ async function run(): Promise<void> {
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(dispatch)
@@ -241,6 +241,7 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
 
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
+
     staging.unmap()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -258,15 +259,12 @@ async function run(): Promise<void> {
         c.px >= IMG + RADIUS ||
         c.py < -RADIUS ||
         c.py >= IMG + RADIUS
-      ) {
+      )
         continue
-      }
 
       const tone = currentOf(tones[c.index]!)
 
-      if (tone === 0) {
-        continue
-      }
+      if (tone === 0) continue
 
       const col = COLORS[tone]!
 
@@ -275,11 +273,10 @@ async function run(): Promise<void> {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]

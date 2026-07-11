@@ -25,9 +25,7 @@ const pairKey = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
 const sum = (a: Int8Array): number => {
   let s = 0
 
-  for (const v of a) {
-    s += v
-  }
+  for (const v of a) s += v
 
   return s
 }
@@ -39,6 +37,7 @@ suite('rule/perception-permutation: the 9-state core', [
       for (const a of TONES) {
         for (const b of TONES) {
           const [na, nb] = perceptionPermutation(a, b)
+
           equal(
             na + nb,
             a + b,
@@ -56,6 +55,7 @@ suite('rule/perception-permutation: the 9-state core', [
       for (const a of TONES) {
         for (const b of TONES) {
           const [na, nb] = perceptionPermutation(a, b)
+
           seen.add(pairKey(na, nb))
         }
       }
@@ -73,6 +73,7 @@ suite('rule/perception-permutation: the 9-state core', [
       for (const a of TONES) {
         for (const b of TONES) {
           const [na, nb] = perceptionPermutation(a, b)
+
           equal(
             PERCEPTION_FORWARD[pairKey(a, b)],
             pairKey(na, nb),
@@ -91,6 +92,7 @@ suite('rule/perception-permutation: the 9-state core', [
           i,
           `inverse undoes index ${i}`,
         )
+
         equal(
           PERCEPTION_FORWARD[PERCEPTION_INVERSE[i]!],
           i,
@@ -101,6 +103,7 @@ suite('rule/perception-permutation: the 9-state core', [
   ),
   check('the arrow: 0,0 mints a balanced pair +1,-1', () => {
     const [a, b] = perceptionPermutation(0, 0)
+
     equal(a, 1, 'peace,peace -> +1 (left)')
     equal(b, -1, 'peace,peace -> -1 (right)')
   }),
@@ -128,12 +131,14 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
 
       for (const parity of [0, 1]) {
         const tone = Int8Array.from(start)
+
         perceptionBlockBeat({
           tone,
           length,
           parity,
           table: PERCEPTION_FORWARD,
         })
+
         perceptionBlockBeat({
           tone,
           length,
@@ -155,6 +160,7 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
     const length = 8
     const tone = Int8Array.from([0, 0, 1, -1, 1, 0, -1, 0])
     const before = sum(tone)
+
     perceptionBlockBeat({
       tone,
       length,
@@ -176,6 +182,7 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
 
       const start = Int8Array.from([0, 0, 1, -1, 0, 1])
       const tone = Int8Array.from(start)
+
       perceptionEdgeColoringSweep({
         tone,
         eu,
@@ -184,6 +191,7 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
         table: PERCEPTION_FORWARD,
         reverse: false,
       })
+
       perceptionEdgeColoringSweep({
         tone,
         eu,
@@ -193,9 +201,8 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
         reverse: true,
       })
 
-      for (let i = 0; i < start.length; i++) {
+      for (let i = 0; i < start.length; i++)
         equal(tone[i], start[i], `vertex ${i} must return to its start`)
-      }
     },
   ),
   check(
@@ -209,6 +216,7 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
       const a = Int8Array.from(base)
       const b = Int8Array.from(base)
       const matched = new Uint8Array(n)
+
       perceptionMatchingSweepCsr({
         tone: a,
         offsets,
@@ -216,6 +224,7 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
         matched,
         start: 0,
       })
+
       perceptionMatchingSweepCsr({
         tone: b,
         offsets,

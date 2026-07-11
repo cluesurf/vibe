@@ -51,6 +51,7 @@ export function buildRecordChain(input: {
   if (form === 'copy') {
     const stay = overlap
     const flip = Math.sqrt(Math.max(0, 1 - overlap * overlap))
+
     // pointer 0: every cell |0>, so only the all-zero bath string
     bath0Real[0] = 1
 
@@ -58,9 +59,8 @@ export function buildRecordChain(input: {
     for (let e = 0; e < bathDimension; e++) {
       let value = 1
 
-      for (let cell = 0; cell < environmentCount; cell++) {
+      for (let cell = 0; cell < environmentCount; cell++)
         value *= (e >> cell) & 1 ? flip : stay
-      }
 
       bath1Real[e] = value
     }
@@ -68,6 +68,7 @@ export function buildRecordChain(input: {
     // global: the two GHZ phases
     const allOnes = bathDimension - 1
     const norm = Math.SQRT1_2
+
     bath0Real[0] = norm
     bath0Real[allOnes] = norm
     bath1Real[0] = norm
@@ -85,6 +86,7 @@ export function buildRecordChain(input: {
   for (let e = 0; e < bathDimension; e++) {
     const index0 = e << 1 // system bit 0
     const index1 = (e << 1) | 1 // system bit 1
+
     jointReal[index0] = amplitude0 * bath0Real[e]!
     jointImag[index0] = amplitude0 * bath0Imag[e]!
     jointReal[index1] = amplitude1 * bath1Real[e]!
@@ -93,9 +95,8 @@ export function buildRecordChain(input: {
 
   const environmentQubits: number[] = []
 
-  for (let cell = 1; cell <= environmentCount; cell++) {
+  for (let cell = 1; cell <= environmentCount; cell++)
     environmentQubits.push(cell)
-  }
 
   return {
     joint: { real: jointReal, imag: jointImag, qubitCount },

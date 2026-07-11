@@ -38,9 +38,7 @@ export function exceptionalJordanGenerationStructure(): {
 
   for (let i = 0; i < 3; i++) {
     for (let j = i + 1; j < 3; j++) {
-      if (!areJordanOrthogonal(frame[i]!, frame[j]!)) {
-        orthogonal = false
-      }
+      if (!areJordanOrthogonal(frame[i]!, frame[j]!)) orthogonal = false
     }
   }
 

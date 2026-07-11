@@ -25,6 +25,7 @@ export function shadowClasses(): Map<string, number[]> {
   for (const root of rootsD4()) {
     const key = vectorKey(transverseShadow(root))
     const existing = classes.get(key) ?? []
+
     existing.push(root[3]!)
     classes.set(key, existing)
   }

@@ -47,6 +47,7 @@ async function gpuWave(input: {
   const offsets = ro(offsetsU)
   const adj = ro(adjU)
   const arrivalInit = new Int32Array(cellCount).fill(-1)
+
   arrivalInit[seed] = 0
 
   const arrival = device.createBuffer({
@@ -97,6 +98,7 @@ async function gpuWave(input: {
 
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind)
     pass.dispatchWorkgroups(Math.ceil(cellCount / WORKGROUP))
@@ -106,11 +108,10 @@ async function gpuWave(input: {
     await changedRead.mapAsync(GPUMapMode.READ)
 
     const c = new Uint32Array(changedRead.getMappedRange())[0]!
+
     changedRead.unmap()
 
-    if (c === 0) {
-      break
-    }
+    if (c === 0) break
 
     beats = beat
   }
@@ -123,11 +124,13 @@ async function gpuWave(input: {
   })
 
   const enc2 = device.createCommandEncoder()
+
   enc2.copyBufferToBuffer(arrival, 0, arrivalRead, 0, cellCount * 4)
   device.queue.submit([enc2.finish()])
   await arrivalRead.mapAsync(GPUMapMode.READ)
 
   const out = new Int32Array(arrivalRead.getMappedRange().slice(0))
+
   arrivalRead.unmap()
 
   return { arrival: out, beats, ms }
@@ -181,17 +184,13 @@ async function run(): Promise<void> {
       mismatches++
     }
 
-    if (w.arrival[c]! > gpuCoverage) {
-      gpuCoverage = w.arrival[c]!
-    }
+    if (w.arrival[c]! > gpuCoverage) gpuCoverage = w.arrival[c]!
   }
 
   let cpuCoverage = 0
 
   for (let c = 0; c < n; c++) {
-    if (cpuDepth[c]! > cpuCoverage) {
-      cpuCoverage = cpuDepth[c]!
-    }
+    if (cpuDepth[c]! > cpuCoverage) cpuCoverage = cpuDepth[c]!
   }
 
   console.log(`{3,4,3,4} bulk, ${n} cells`)
@@ -232,4 +231,5 @@ async function run(): Promise<void> {
 }
 
 const main = run
+
 void main()

@@ -25,9 +25,8 @@ suite('model/trajectory: deterministic distances', [
       steered: true,
     })
 
-    for (const d of r.distanceOverTime) {
+    for (const d of r.distanceOverTime)
       close(d, 1, TOL, 'nothing happens, distance stays maximal')
-    }
 
     close(r.finalDistance, 1, TOL)
   }),

@@ -18,6 +18,7 @@ suite('dynamics/coined-walk-distribution: conservation', [
     () => {
       for (const steps of [5, 20, 50]) {
         const { norm } = coinedWalkQuantumDistribution({ steps })
+
         close(norm, 1, 1e-9, `norm = 1 at T=${steps}`)
       }
     },
@@ -30,9 +31,7 @@ suite('dynamics/coined-walk-distribution: conservation', [
 
       let sum = 0
 
-      for (const p of distribution) {
-        sum += p
-      }
+      for (const p of distribution) sum += p
 
       close(sum, 1, 1e-9, `classical sum = 1 at T=${steps}`)
     }
@@ -42,6 +41,7 @@ suite('dynamics/coined-walk-distribution: conservation', [
 suite('dynamics/coined-walk-distribution: layout and symmetry', [
   check('lattice width = 2T+3 and offset = T+1', () => {
     const q = coinedWalkQuantumDistribution({ steps: 7 })
+
     equal(q.width, 2 * 7 + 3, 'width')
     equal(q.offset, 7 + 1, 'offset')
   }),
@@ -83,8 +83,6 @@ suite('dynamics/coined-walk-distribution: determinism', [
     const a = coinedWalkQuantumDistribution({ steps: 20 }).distribution
     const b = coinedWalkQuantumDistribution({ steps: 20 }).distribution
 
-    for (let i = 0; i < a.length; i++) {
-      equal(a[i]!, b[i]!, `cell ${i}`)
-    }
+    for (let i = 0; i < a.length; i++) equal(a[i]!, b[i]!, `cell ${i}`)
   }),
 ])

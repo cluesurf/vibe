@@ -34,18 +34,15 @@ export function transitiveClosure(input: {
   const stride = closed.stride
 
   // Copy the raw relation into the working matrix.
-  for (let i = 0; i < closed.words.length; i++) {
+  for (let i = 0; i < closed.words.length; i++)
     closed.words[i] = input.relation.words[i] ?? 0
-  }
 
   // Warshall: for each intermediate k, if a -> k then a inherits k's row.
   for (let k = 0; k < n; k++) {
     const kBase = k * stride
 
     for (let a = 0; a < n; a++) {
-      if (!getBit(closed, { row: a, col: k })) {
-        continue
-      }
+      if (!getBit(closed, { row: a, col: k })) continue
 
       const aBase = a * stride
 
@@ -106,16 +103,12 @@ export function sampleCausalSets(input: {
 
     let b = input.rng.nextInt({ max: n })
 
-    if (a === b) {
-      b = (b + 1) % n
-    }
+    if (a === b) b = (b + 1) % n
 
     const lo = Math.min(a, b)
     const hi = Math.max(a, b)
 
-    if (lo === hi) {
-      continue
-    }
+    if (lo === hi) continue
 
     proposed += 1
 
@@ -145,9 +138,7 @@ export function sampleCausalSets(input: {
         poset = candidatePoset
         currentAction = candidateAction
         accepted += 1
-      } else {
-        toggle(state, lo, hi) // revert
-      }
+      } else toggle(state, lo, hi) // revert
     }
 
     observeCounter += 1
@@ -162,9 +153,7 @@ export function sampleCausalSets(input: {
 
   let sum = 0
 
-  for (const value of trace) {
-    sum += value ?? 0
-  }
+  for (const value of trace) sum += value ?? 0
 
   const meanObservable = trace.length > 0 ? sum / trace.length : 0
   const acceptanceRate = proposed > 0 ? accepted / proposed : 0

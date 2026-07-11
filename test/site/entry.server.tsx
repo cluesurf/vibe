@@ -22,23 +22,34 @@ export default function handleRequest(
   return new Promise((resolve, reject) => {
     let shellRendered = false
     let status = responseStatusCode
-    const { pipe, abort } = renderToPipeableStream(<ServerRouter context={routerContext} url={request.url} />, {
-      onShellReady() {
-        shellRendered = true
-        const body = new PassThrough()
-        responseHeaders.set('Content-Type', 'text/html')
-        resolve(new Response(Readable.toWeb(body) as unknown as ReadableStream, { status, headers: responseHeaders }))
-        pipe(body)
+    const { pipe, abort } = renderToPipeableStream(
+      <ServerRouter
+        context={routerContext}
+        url={request.url}
+      />,
+      {
+        onShellReady() {
+          shellRendered = true
+          const body = new PassThrough()
+          responseHeaders.set('Content-Type', 'text/html')
+          resolve(
+            new Response(
+              Readable.toWeb(body) as unknown as ReadableStream,
+              { status, headers: responseHeaders },
+            ),
+          )
+          pipe(body)
+        },
+        onShellError(error) {
+          reject(error)
+        },
+        onError(error) {
+          status = 500
+          // log only after the shell rendered, so a shell error is not double-reported (it rejects above)
+          if (shellRendered) console.error(error)
+        },
       },
-      onShellError(error) {
-        reject(error)
-      },
-      onError(error) {
-        status = 500
-        // log only after the shell rendered, so a shell error is not double-reported (it rejects above)
-        if (shellRendered) console.error(error)
-      },
-    })
+    )
     setTimeout(abort, ABORT_DELAY)
   })
 }

@@ -47,15 +47,11 @@ function permutationOrder(perm: Record<number, number>): number {
   let current = { ...perm }
 
   for (let order = 1; order <= 24; order++) {
-    if ([1, 2, 3, 4, 5, 6, 7].every(u => current[u] === u)) {
-      return order
-    }
+    if ([1, 2, 3, 4, 5, 6, 7].every(u => current[u] === u)) return order
 
     const next: Record<number, number> = {}
 
-    for (let u = 1; u <= 7; u++) {
-      next[u] = perm[current[u]!]!
-    }
+    for (let u = 1; u <= 7; u++) next[u] = perm[current[u]!]!
 
     current = next
   }

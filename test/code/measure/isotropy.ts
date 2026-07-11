@@ -60,6 +60,7 @@ suite('measure/isotropy: order-4 moments', [
   // two nonzero components), so |diag - 3 mixed| = 2.
   check('cubic axes carry an order-4 anisotropy of exactly 2', () => {
     const m = directionFourthMoments(CUBIC6)
+
     close(m.diagonal, 2, TOL)
     close(m.mixed, 0, TOL)
     close(m.anisotropy, 2, TOL)
@@ -76,6 +77,7 @@ suite('measure/isotropy: order-4 moments', [
       })
 
       const m = directionFourthMoments(dirs)
+
       close(m.diagonal, 3, TOL)
       close(m.mixed, 1, TOL)
       close(m.anisotropy, 0, TOL)
@@ -99,9 +101,7 @@ suite('measure/isotropy: harmonic and lattice anisotropy', [
     const points: { x: number; y: number }[] = []
 
     for (let x = 0; x < 5; x++) {
-      for (let y = 0; y < 5; y++) {
-        points.push({ x, y })
-      }
+      for (let y = 0; y < 5; y++) points.push({ x, y })
     }
 
     close(nearestLinkHarmonicAnisotropy({ points }), 1, TOL)
@@ -132,9 +132,7 @@ suite('measure/isotropy: diffusion tensor', [
     close(result.anisotropy, 0, TOL)
     equal(result.count, 6)
 
-    for (const e of result.eigenvalues) {
-      close(e, 1 / 3, 1e-6)
-    }
+    for (const e of result.eigenvalues) close(e, 1 / 3, 1e-6)
   }),
   // Neighbours only along x: covariance = diag(1,0,0), eigenvalues {0,0,1}, mean 1/3,
   // anisotropy (1-0)/(1/3) = 3.

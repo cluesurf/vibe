@@ -31,9 +31,8 @@ export function cellToken(will: Will, cell: number): number {
 
   let key = 0
 
-  for (let direction = 0; direction < degree; direction++) {
+  for (let direction = 0; direction < degree; direction++)
     key = key * 3 + ((will.data[base + direction] ?? 0) + 1)
-  }
 
   return key
 }
@@ -46,9 +45,8 @@ export function isOneHotRouting(mesh: Mesh): boolean {
   const seen = new Uint8Array(table.length)
 
   for (const source of table) {
-    if (source < 0 || source >= table.length || seen[source]) {
+    if (source < 0 || source >= table.length || seen[source])
       return false
-    }
 
     seen[source] = 1
   }
@@ -65,12 +63,11 @@ export function vacuumIsFixed(
   degree: number,
 ): boolean {
   const slots = new Int8Array(degree)
+
   collision(slots, 0, degree)
 
   for (let direction = 0; direction < degree; direction++) {
-    if (slots[direction] !== 0) {
-      return false
-    }
+    if (slots[direction] !== 0) return false
   }
 
   return true
@@ -117,17 +114,14 @@ export function attentionBeat(input: {
   // collide only the active cells, in a copy so the input is untouched
   const collided = cloneWill(will)
 
-  for (const cell of active) {
+  for (const cell of active)
     collision(collided.data, cell * degree, degree)
-  }
 
   // stream: gather through the one-hot attention pattern
   const source = collided.data
   const out = new Int8Array(source.length)
 
-  for (let i = 0; i < out.length; i++) {
-    out[i] = source[table[i]!] ?? 0
-  }
+  for (let i = 0; i < out.length; i++) out[i] = source[table[i]!] ?? 0
 
   return { will: { mesh, data: out }, collideOps: active.length }
 }

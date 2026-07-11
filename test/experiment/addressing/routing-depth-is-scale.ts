@@ -88,9 +88,7 @@ export default experiment({
         depth: DEPTH,
       })
 
-      if (upper - lower !== 1) {
-        stepConstant = false
-      }
+      if (upper - lower !== 1) stepConstant = false
     }
 
     // the route is exactly twice the penetration (dive and climb)
@@ -111,9 +109,7 @@ export default experiment({
         depth: DEPTH,
       })
 
-      if (route !== 2 * penetration) {
-        routeIsTwicePenetration = false
-      }
+      if (route !== 2 * penetration) routeIsTwicePenetration = false
     }
 
     // CONTROL: the flat chain routes linearly, so the compression ratio grows without bound

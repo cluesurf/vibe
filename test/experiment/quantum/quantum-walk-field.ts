@@ -70,9 +70,7 @@ export function quantumWalkField(input?: { steps?: number }): {
     const k = -Math.PI + (2 * Math.PI * i) / 100
     const w = coinedWalkDispersion({ theta, k })
 
-    if (!isFinite(w) || w < -1e-9) {
-      dispersionReal = false
-    }
+    if (!isFinite(w) || w < -1e-9) dispersionReal = false
   }
 
   const reflectionPositive = dispersionReal // a Hermitian Hamiltonian gives a reflection-positive Euclidean theory

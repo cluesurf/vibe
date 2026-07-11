@@ -133,6 +133,7 @@ export default experiment({
             mapResidual,
             norm(sub(boosted[i]!, mapped[i]!)),
           )
+
           controlMismatch = Math.max(
             controlMismatch,
             norm(sub(galilean[i]!, mapped[i]!)),
@@ -143,6 +144,7 @@ export default experiment({
           crossRatioShift,
           Math.abs(crossRatio(boosted.slice(0, 4)) - crReference),
         )
+
         controlCrossRatioShift = Math.max(
           controlCrossRatioShift,
           Math.abs(crossRatio(galilean.slice(0, 4)) - crReference),

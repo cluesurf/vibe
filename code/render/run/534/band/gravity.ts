@@ -47,9 +47,8 @@ function run(): void {
   const xi = slab.idealPoint
   const off = new Int32Array(n + 1)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     off[i + 1] = off[i]! + slab.neighbors[i]!.length
-  }
 
   const adj = new Int32Array(off[n]!)
 
@@ -57,9 +56,7 @@ function run(): void {
     let p = 0
 
     for (let i = 0; i < n; i++) {
-      for (const w of slab.neighbors[i]!) {
-        adj[p++] = w
-      }
+      for (const w of slab.neighbors[i]!) adj[p++] = w
     }
   }
 
@@ -83,9 +80,7 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -93,9 +88,7 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -110,14 +103,13 @@ function run(): void {
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      continue
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) continue
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
 
@@ -149,15 +141,14 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < 2 * SEED_DENSITY ? -1 : 0 // BALANCED, net charge 0
   }
 
   const q0 = (() => {
     let s = 0
 
-    for (let i = 0; i < n; i++) {
-      s += tone[i]!
-    }
+    for (let i = 0; i < n; i++) s += tone[i]!
 
     return s
   })()
@@ -180,9 +171,8 @@ function run(): void {
     for (let i = 0; i < n; i++) {
       let s = tone[i] === sign ? 1 : 0
 
-      for (let p = off[i]!; p < off[i + 1]!; p++) {
+      for (let p = off[i]!; p < off[i + 1]!; p++)
         s += tone[adj[p]!] === sign ? 1 : 0
-      }
 
       d1[i] = s
     }
@@ -190,9 +180,8 @@ function run(): void {
     for (let i = 0; i < n; i++) {
       let s = d1[i]! * (1 - SCREEN)
 
-      for (let p = off[i]!; p < off[i + 1]!; p++) {
+      for (let p = off[i]!; p < off[i + 1]!; p++)
         s += SCREEN * d1[adj[p]!]!
-      }
 
       out[i] = s
     }
@@ -217,9 +206,7 @@ function run(): void {
     for (let s = 0; s < n; s++) {
       const v = (st + s) % n
 
-      if (moved[v] || tone[v] === 0) {
-        continue
-      }
+      if (moved[v] || tone[v] === 0) continue
 
       const dens = tone[v] === 1 ? densP : densM // pull toward SAME-sign mass, like attracts like
 
@@ -229,9 +216,7 @@ function run(): void {
       for (let p = off[v]!; p < off[v + 1]!; p++) {
         const w = adj[p]!
 
-        if (moved[w]) {
-          continue
-        }
+        if (moved[w]) continue
 
         if (tone[w] === -tone[v]!) {
           tone[v] = 0
@@ -283,9 +268,7 @@ function run(): void {
     for (const c of band) {
       const t = tone[c.index]!
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const dfield = t === 1 ? densP : densM
       const inten = 0.15 + 0.85 * Math.min(dfield[c.index]! / DMAX, 1) // brightness by same-sign mass density
@@ -309,11 +292,10 @@ function run(): void {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = r8
           rgba[idx + 1] = g8
           rgba[idx + 2] = b8
@@ -331,9 +313,7 @@ function run(): void {
       for (let i = 0; i < n; i++) {
         const d = Math.max(densP[i]!, densM[i]!)
 
-        if (d > maxD) {
-          maxD = d
-        }
+        if (d > maxD) maxD = d
 
         if (tone[i] !== 0) {
           charged++

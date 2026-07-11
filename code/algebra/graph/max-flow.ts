@@ -25,10 +25,12 @@ export class FlowNetwork {
   // an UNDIRECTED unit edge is addArc(u, v, 1, 1).
   addArc(from: number, to: number, cap: number, reverseCap = 0): void {
     const forward = this.arcs.length
+
     this.arcs.push({ to, cap, flow: 0, twin: forward + 1 })
     this.out[from]!.push(forward)
 
     const backward = this.arcs.length
+
     this.arcs.push({
       to: from,
       cap: reverseCap,
@@ -40,6 +42,7 @@ export class FlowNetwork {
 
   private buildLevels(source: number, sink: number): Int32Array | null {
     const level = new Int32Array(this.nodeCount).fill(-1)
+
     level[source] = 0
 
     let frontier = [source]
@@ -71,9 +74,7 @@ export class FlowNetwork {
     level: Int32Array,
     iter: Int32Array,
   ): number {
-    if (node === sink) {
-      return pushed
-    }
+    if (node === sink) return pushed
 
     for (; iter[node]! < this.out[node]!.length; iter[node]!++) {
       const arcIndex = this.out[node]![iter[node]!]!
@@ -108,9 +109,7 @@ export class FlowNetwork {
     for (;;) {
       const level = this.buildLevels(source, sink)
 
-      if (level === null) {
-        break
-      }
+      if (level === null) break
 
       const iter = new Int32Array(this.nodeCount)
 
@@ -123,9 +122,7 @@ export class FlowNetwork {
           iter,
         )
 
-        if (sent === 0) {
-          break
-        }
+        if (sent === 0) break
 
         total += sent
       }
@@ -153,19 +150,13 @@ export function undirectedMinCut(input: {
 
   for (let u = 0; u < n; u++) {
     for (const v of input.adjacency[u]!) {
-      if (u < v) {
-        network.addArc(u, v, 1, 1)
-      }
+      if (u < v) network.addArc(u, v, 1, 1)
     }
   }
 
-  for (const s of input.sources) {
-    network.addArc(superSource, s, big, 0)
-  }
+  for (const s of input.sources) network.addArc(superSource, s, big, 0)
 
-  for (const t of input.sinks) {
-    network.addArc(t, superSink, big, 0)
-  }
+  for (const t of input.sinks) network.addArc(t, superSink, big, 0)
 
   return network.maxFlow(superSource, superSink)
 }

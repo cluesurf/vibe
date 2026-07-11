@@ -65,9 +65,7 @@ async function run(): Promise<void> {
       detail: 0.0007,
       maxSteps: 600,
     })
-  } else {
-    scene.setCamera2D(camera.uniform2D())
-  }
+  } else scene.setCamera2D(camera.uniform2D())
 
   const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
 
@@ -84,6 +82,7 @@ async function run(): Promise<void> {
   mkdirSync(outDir, { recursive: true })
 
   const outPath = join(outDir, `${key}.png`)
+
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))
   console.log(
     `rendered {${symbol.join(',')}} ${threeD ? 'honeycomb (raymarch)' : 'tiling (Poincare disk)'} at ${SIZE}x${SIZE}, wrote ${outPath}`,

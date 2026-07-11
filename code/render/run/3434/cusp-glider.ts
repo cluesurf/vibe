@@ -35,9 +35,7 @@ function step(tone: Int8Array, f: number): void {
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
 
-    if (m[v] || tone[v] === 0) {
-      continue
-    }
+    if (m[v] || tone[v] === 0) continue
 
     const vx = v % L
     const vy = ((v / L) | 0) % L
@@ -49,9 +47,7 @@ function step(tone: Int8Array, f: number): void {
       const wz = (vz + dz[k]! + L) % L
       const w = idx(wx, wy, wz)
 
-      if (m[w]) {
-        continue
-      }
+      if (m[w]) continue
 
       const a = tone[v]!
       const b = tone[w]!
@@ -110,6 +106,7 @@ function run(): void {
       for (let x = 0; x < L; x++) {
         const [px, py, pz] = project(x, y, z)
         const i = idx(x, y, z)
+
         PX[i] = Math.round(px)
         PY[i] = Math.round(py)
         z2arr[i] = pz
@@ -165,13 +162,11 @@ function run(): void {
     [8, 65, 22, -1],
   ]
 
-  for (const [x, y, z, s] of seeds) {
-    tone[idx(x, y, z)] = s
-  }
+  for (const [x, y, z, s] of seeds) tone[idx(x, y, z)] = s
 
-  for (let k = 0; k < 6; k++) {
+  for (let k = 0; k < 6; k++)
     tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1
-  } // a 7-cell cluster glider
+  // a 7-cell cluster glider
 
   tone[idx(8, 45, 45)] = 1
 
@@ -223,11 +218,10 @@ function run(): void {
         const ix = Math.round(x0 + ((x1 - x0) * s) / steps)
         const iy = Math.round(y0 + ((y1 - y0) * s) / steps)
 
-        if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
-          continue
-        }
+        if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
 
         const pix = iy * IMG + ix
+
         accR[pix] = 26
         accG[pix] = 28
         accB[pix] = 34
@@ -248,9 +242,7 @@ function run(): void {
       const cell = order[k]!
       const tr = trail[cell]!
 
-      if (tr < 0.03) {
-        continue
-      }
+      if (tr < 0.03) continue
 
       const col = tsign[cell] === 1 ? BLUE : RED
       const d = DEPTH[cell]!
@@ -264,11 +256,10 @@ function run(): void {
           const ix = cxp + ddx
           const iy = cyp + ddy
 
-          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
-            continue
-          }
+          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
 
           const pix = iy * IMG + ix
+
           accR[pix] = accR[pix]! * (1 - a) + col[0] * d * a
           accG[pix] = accG[pix]! * (1 - a) + col[1] * d * a
           accB[pix] = accB[pix]! * (1 - a) + col[2] * d * a

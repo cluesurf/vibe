@@ -15,6 +15,7 @@ suite('control/lossy-collision: the erase destroys one slot', [
   // Directly: only slot `base` is zeroed, the other slots of the cell are untouched.
   check('it zeroes slot base and leaves the rest', () => {
     const slots = Int8Array.from([1, -1, 1, -1])
+
     erasingCollision(slots, 0, 4)
     equal(slots[0]!, 0, 'slot base is erased')
     equal(slots[1]!, -1, 'other slots untouched')
@@ -31,6 +32,7 @@ suite('control/lossy-collision: it is a genuine negative', [
     () => {
       const square = squareMesh({ side: 4 })
       const will = makeWill(square)
+
       fillWillPattern(will)
       ok(charge(will) !== 0, 'the will must carry information to lose')
 
@@ -51,6 +53,7 @@ suite('control/lossy-collision: it is a genuine negative', [
   check('a real involution recovers exactly (Hamming 0)', () => {
     const square = squareMesh({ side: 4 })
     const will = makeWill(square)
+
     fillWillPattern(will)
 
     const { roundtripHamming } = roundtrip({

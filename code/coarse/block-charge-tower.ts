@@ -21,9 +21,7 @@ export function blockChargeTower(input: {
 
   let level = new Float64Array(field.length)
 
-  for (let i = 0; i < field.length; i++) {
-    level[i] = field[i]!
-  }
+  for (let i = 0; i < field.length; i++) level[i] = field[i]!
 
   const levels: BlockChargeLevel[] = []
 
@@ -32,20 +30,17 @@ export function blockChargeTower(input: {
   for (let lv = 0; lv <= maxLevel; lv++) {
     let total = 0
 
-    for (const value of level) {
-      total += value
-    }
+    for (const value of level) total += value
 
     const mean = total / level.length
 
     let varSum = 0
 
-    for (const value of level) {
-      varSum += (value - mean) ** 2
-    }
+    for (const value of level) varSum += (value - mean) ** 2
 
     const variance = varSum / level.length
     const compressibility = variance / blockSize
+
     levels.push({
       level: lv,
       blockSize,
@@ -55,9 +50,8 @@ export function blockChargeTower(input: {
 
     const next = new Float64Array(Math.floor(level.length / 2))
 
-    for (let i = 0; i < next.length; i++) {
+    for (let i = 0; i < next.length; i++)
       next[i] = level[2 * i]! + level[2 * i + 1]!
-    }
 
     level = next
     blockSize *= 2

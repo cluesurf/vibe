@@ -61,6 +61,7 @@ function run(): void {
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
+
   console.log(
     `mode ${MODE}, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
   )
@@ -81,9 +82,7 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
-      axis = k
-    }
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -91,9 +90,7 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
-      axis2 = k
-    }
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   }
 
   const e2 = normalize(
@@ -114,14 +111,13 @@ function run(): void {
   const raw: BandCell[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      continue
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) continue
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
+
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
 
@@ -176,9 +172,7 @@ function run(): void {
       for (const u of fr) {
         selfCells.push(u)
 
-        if (selfCells.length >= SELF_SIZE) {
-          break
-        }
+        if (selfCells.length >= SELF_SIZE) break
 
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -198,9 +192,7 @@ function run(): void {
   const ground: number[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) {
-      ground.push(i)
-    }
+    if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
   }
 
   // seed, background churn everywhere, plus the self forced to +1 in maintained mode
@@ -209,12 +201,11 @@ function run(): void {
 
   for (let i = 0; i < n; i++) {
     const r = rng.next()
+
     tone[i] = r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
   }
 
-  for (const c of selfCells) {
-    tone[c] = 1
-  }
+  for (const c of selfCells) tone[c] = 1
 
   const moved = new Uint8Array(n)
   const prev = tone.slice()
@@ -246,9 +237,7 @@ function run(): void {
     let owedPlus = 0
 
     for (let c = 0; c < n; c++) {
-      if (tone[c] !== 0) {
-        continue
-      }
+      if (tone[c] !== 0) continue
 
       const plus = sameSignNeighbors(tone, graph, c, 1)
       const minus = sameSignNeighbors(tone, graph, c, -1)
@@ -273,14 +262,13 @@ function run(): void {
     let best = 0
 
     for (let s = 0; s < n; s++) {
-      if (seen[s] || tone[s] === 0 || persist[s]! < 20) {
-        continue
-      }
+      if (seen[s] || tone[s] === 0 || persist[s]! < 20) continue
 
       const sign = tone[s]!
 
       let size = 0
       let fr = [s]
+
       seen[s] = 1
 
       while (fr.length) {
@@ -302,9 +290,7 @@ function run(): void {
         fr = nf
       }
 
-      if (size > best) {
-        best = size
-      }
+      if (size > best) best = size
     }
 
     return best
@@ -322,9 +308,7 @@ function run(): void {
     }
 
     for (const gc of ground) {
-      if (need <= 0) {
-        break
-      }
+      if (need <= 0) break
 
       if (tone[gc] === 0) {
         tone[gc] = -1
@@ -348,19 +332,14 @@ function run(): void {
     beat(tone, g, moved, rng, 0, COHESION)
     discreteArrow(tone, g, f, ARROW_PERIOD)
 
-    if (MODE === 'maintained') {
-      maintain()
-    } else if (MODE === 'autonomous') {
-      autonomousRepair(g)
-    }
+    if (MODE === 'maintained') maintain()
+    else if (MODE === 'autonomous') autonomousRepair(g)
 
     // update persistence, consecutive beats a cell has held the same nonzero charge
     for (let i = 0; i < n; i++) {
-      if (tone[i] !== 0 && tone[i] === prev[i]) {
+      if (tone[i] !== 0 && tone[i] === prev[i])
         persist[i] = Math.min(persist[i]! + 1, PMAX)
-      } else {
-        persist[i] = 0
-      }
+      else persist[i] = 0
 
       prev[i] = tone[i]!
     }
@@ -378,9 +357,7 @@ function run(): void {
     for (const c of raw) {
       const t = tone[c.index]!
 
-      if (t === 0) {
-        continue
-      }
+      if (t === 0) continue
 
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
       const r8 =
@@ -403,11 +380,10 @@ function run(): void {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
-            continue
-          }
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
 
           const idx = (y * IMG + x) * 4
+
           rgba[idx] = r8
           rgba[idx + 1] = g8
           rgba[idx + 2] = b8
@@ -424,9 +400,8 @@ function run(): void {
       let bgCount = 0
 
       for (const c of raw) {
-        if (inSelf[c.index]) {
-          selfSum += persist[c.index]!
-        } else {
+        if (inSelf[c.index]) selfSum += persist[c.index]!
+        else {
           bgSum += persist[c.index]!
           bgCount++
         }
@@ -444,9 +419,7 @@ function run(): void {
         let maxP = 0
 
         for (let i = 0; i < n; i++) {
-          if (persist[i]! > maxP) {
-            maxP = persist[i]!
-          }
+          if (persist[i]! > maxP) maxP = persist[i]!
         }
 
         console.log(

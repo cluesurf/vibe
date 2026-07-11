@@ -63,12 +63,11 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
   for (let i = 0; i < N; i++) {
     const r = hashRand(i, 0, 1)
+
     tone[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
-  for (let t = 0; t < 70; t++) {
-    beatHashed(tone, g, moved, t, 0.01, 0.22)
-  }
+  for (let t = 0; t < 70; t++) beatHashed(tone, g, moved, t, 0.01, 0.22)
 
   const cluster = largestPositiveCluster(tone, g)
   const emergentCluster = cluster.length
@@ -77,6 +76,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   for (let i = N - 1; i > 0; i--) {
     const j = Math.floor(hashRand(i, 0, 2) * (i + 1))
     const tmp = shuf[i]!
+
     shuf[i] = shuf[j]!
     shuf[j] = tmp
   }
@@ -87,17 +87,13 @@ export function emergentSelfRobust(input?: { n?: number }): {
   // the self's pattern is "these core cells hold +1". the ground pool absorbs the balancing -1 charges.
   const inCore = new Uint8Array(N)
 
-  for (const c of cluster) {
-    inCore[c] = 1
-  }
+  for (const c of cluster) inCore[c] = 1
 
   // a large ground pool (all non-core cells) absorbs the balancing -1 charges without saturating
   const groundPool: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (!inCore[i]) {
-      groundPool.push(i)
-    }
+    if (!inCore[i]) groundPool.push(i)
   }
 
   // CONSERVING maintenance, rewrite the self to its target (+1 on every core cell) by the arrow's BALANCED
@@ -121,9 +117,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     let need = netAdded
 
     for (const gc of groundPool) {
-      if (need <= 0) {
-        break
-      }
+      if (need <= 0) break
 
       if (t2[gc] === 0) {
         t2[gc] = -1
@@ -147,9 +141,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const beats = 60
 
     for (let t = 0; t < beats; t++) {
-      if (maintaining) {
-        workTotal += maintain(t2)
-      }
+      if (maintaining) workTotal += maintain(t2)
 
       beatHashed(t2, g, moved, t, 0, 0.22)
     }
@@ -180,9 +172,8 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const t3 = tone.slice()
     const start = countPlus(t3, cluster)
 
-    for (let t = 0; t < 60; t++) {
+    for (let t = 0; t < 60; t++)
       beatHashed(t3, g, moved, t, 0, cohesion)
-    }
 
     return start > 0 ? countPlus(t3, cluster) / start : 0
   }

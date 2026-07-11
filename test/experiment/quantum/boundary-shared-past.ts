@@ -35,9 +35,7 @@ const CONE_DEPTH = 1
 function pearson(xs: number[], ys: number[]): number {
   const n = xs.length
 
-  if (n < 3) {
-    return 0
-  }
+  if (n < 3) return 0
 
   const meanX = xs.reduce((a, b) => a + b, 0) / n
   const meanY = ys.reduce((a, b) => a + b, 0) / n
@@ -49,6 +47,7 @@ function pearson(xs: number[], ys: number[]): number {
   for (let i = 0; i < n; i++) {
     const dx = (xs[i] ?? 0) - meanX
     const dy = (ys[i] ?? 0) - meanY
+
     sxy += dx * dy
     sxx += dx * dx
     syy += dy * dy
@@ -111,9 +110,8 @@ export default experiment({
         row.length === fullDegree &&
         row.every(n => (neighbors[n] ?? []).length >= fullDegree - 1) &&
         radiusOf(cell) >= 0.3
-      ) {
+      )
         interior.push(cell)
-      }
     }
 
     const eta = (a: number, b: number): number => {
@@ -156,15 +154,11 @@ export default experiment({
         const b = interior[j]!
         const d = fromA[b] ?? -1
 
-        if (d < 1 || d > 6) {
-          continue
-        }
+        if (d < 1 || d > 6) continue
 
         let theta = Math.abs(angleOf(a) - angleOf(b))
 
-        if (theta > Math.PI) {
-          theta = 2 * Math.PI - theta
-        }
+        if (theta > Math.PI) theta = 2 * Math.PI - theta
 
         bulkDistances.push(d)
         boundaryAngles.push(theta)

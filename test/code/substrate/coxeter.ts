@@ -34,6 +34,7 @@ suite('substrate/coxeter: Gram signature classifies the geometry', [
       [3, 3, 3],
     ]) {
       const sig = gramSignature(symbol)
+
       equal(sig.negative, 0, `{${String(symbol)}} negative`)
       equal(sig.zero, 0, `{${String(symbol)}} zero`)
     }
@@ -48,6 +49,7 @@ suite('substrate/coxeter: Gram signature classifies the geometry', [
         [4, 3, 4],
       ]) {
         const sig = gramSignature(symbol)
+
         equal(sig.negative, 0, `{${String(symbol)}} negative`)
         equal(sig.zero, 1, `{${String(symbol)}} zero`)
       }
@@ -64,6 +66,7 @@ suite('substrate/coxeter: Gram signature classifies the geometry', [
         [4, 3, 4, 3],
       ]) {
         const sig = gramSignature(symbol)
+
         equal(sig.negative, 1, `{${String(symbol)}} negative`)
         equal(sig.zero, 0, `{${String(symbol)}} zero`)
       }
@@ -114,9 +117,11 @@ suite('substrate/coxeter: reflections and the -cos(pi/m) entry', [
     // and for a root system this equals -cos(pi/m). Orthogonal roots give m=2 (entry 0),
     // roots at dot -1 give m=3 (entry -1/2).
     const orthogonal = dotVec([1, 1, 0, 0], [1, -1, 0, 0]) / 2
+
     close(orthogonal, -Math.cos(Math.PI / 2), 1e-12, 'm=2 entry')
 
     const obtuse = dotVec([1, 1, 0, 0], [0, -1, 1, 0]) / 2
+
     close(obtuse, -Math.cos(Math.PI / 3), 1e-12, 'm=3 entry')
   }),
   check(

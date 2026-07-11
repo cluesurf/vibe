@@ -61,9 +61,7 @@ function orbitVertices(
       const vr = reflectPoint(v, n, metric)
       const k = pointKey(vr)
 
-      if (visited.has(k)) {
-        continue
-      }
+      if (visited.has(k)) continue
 
       visited.add(k)
       vertices.push(vr)
@@ -87,9 +85,7 @@ function polyhedronEdges(
     for (let j = i + 1; j < cap; j++) {
       const d = geodesicDistance(vertices[i]!, vertices[j]!, metric)
 
-      if (d > 0.01 && d < minDist) {
-        minDist = d
-      }
+      if (d > 0.01 && d < minDist) minDist = d
     }
   }
 
@@ -101,9 +97,7 @@ function polyhedronEdges(
     for (let j = i + 1; j < vertices.length; j++) {
       const d = geodesicDistance(vertices[i]!, vertices[j]!, metric)
 
-      if (d > 0.01 && d < tolerance) {
-        edges.push([i, j])
-      }
+      if (d > 0.01 && d < tolerance) edges.push([i, j])
     }
   }
 

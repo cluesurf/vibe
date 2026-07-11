@@ -78,6 +78,7 @@ suite('rule/rewrite: first-match, single rewrite', [
       out.substrate === undefined,
       'no substrate returned when nothing matches',
     )
+
     equal(
       getTone(out.configuration, { element: 0 }),
       1,

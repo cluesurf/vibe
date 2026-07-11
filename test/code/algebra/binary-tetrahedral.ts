@@ -36,9 +36,8 @@ const equalTuple = (
   expected: Quaternion,
   message: string,
 ): void => {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i++)
     equal(actual[i]!, expected[i]!, `${message} [${i}]`)
-  }
 }
 
 const key = (q: Quaternion): string =>
@@ -64,6 +63,7 @@ suite('algebra/binary-tetrahedral: Hamilton relations (tuple form)', [
     'conjugate is the inverse for a unit quaternion: q q* = 1',
     () => {
       const q: Quaternion = [0.5, 0.5, 0.5, 0.5]
+
       equalTuple(
         quaternionMultiply(q, quaternionConjugate(q)),
         ONE,
@@ -76,12 +76,12 @@ suite('algebra/binary-tetrahedral: Hamilton relations (tuple form)', [
 suite('algebra/binary-tetrahedral: the group 2T', [
   check('2T has 24 distinct unit quaternions', () => {
     const group = binaryTetrahedralGroup()
+
     equal(group.length, 24, '2T size')
     equal(new Set(group.map(key)).size, 24, '2T distinct')
 
-    for (const q of group) {
+    for (const q of group)
       ok(Math.abs(normSquared(q) - 1) < 1e-12, '2T element is a unit')
-    }
   }),
   check('2T is closed under multiplication', () => {
     ok(
@@ -106,6 +106,7 @@ suite('algebra/binary-tetrahedral: spin double cover', [
     'the quaternion -1 acts as -1 on a spinor (2pi turn flips sign)',
     () => {
       const spinor: Quaternion = [0.5, 0.5, 0.5, 0.5]
+
       equalTuple(
         spinorAction(MINUS_ONE, spinor),
         negate(spinor),
@@ -117,6 +118,7 @@ suite('algebra/binary-tetrahedral: spin double cover', [
     'the quaternion -1 acts as +1 on a vector (2pi turn is trivial)',
     () => {
       const vector: Quaternion = [0, 1, 2, 3]
+
       ok(
         quaternionsClose(vectorAction(MINUS_ONE, vector), vector),
         '(-1) v (-1)^-1 = v',
@@ -129,6 +131,7 @@ suite('algebra/binary-tetrahedral: spin double cover', [
       const q: Quaternion = [0.5, 0.5, 0.5, 0.5] // a unit quaternion in 2T
       const vector: Quaternion = [0, 1, -1, 2]
       const spinor: Quaternion = [1, 0, 0, 0]
+
       // vector action: q and -q agree (the double cover collapses on SO(3))
       ok(
         quaternionsClose(
@@ -137,6 +140,7 @@ suite('algebra/binary-tetrahedral: spin double cover', [
         ),
         'q and -q rotate a vector identically',
       )
+
       // spinor action: q and -q differ by the sign
       ok(
         quaternionsClose(
@@ -153,6 +157,7 @@ suite('algebra/binary-tetrahedral: spin double cover', [
       const q: Quaternion = [0.5, 0.5, 0.5, 0.5]
       const vector: Quaternion = [0, 1, 2, 3]
       const rotated = vectorAction(q, vector)
+
       ok(
         Math.abs(normSquared(rotated) - normSquared(vector)) < 1e-9,
         'a rotation preserves length',

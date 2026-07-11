@@ -40,9 +40,8 @@ const SEPARATION_MIN = 0.03
 function velocity(series: number[]): number[] {
   const out: number[] = []
 
-  for (let i = 1; i < series.length; i++) {
+  for (let i = 1; i < series.length; i++)
     out.push(series[i]! - series[i - 1]!)
-  }
 
   return out
 }

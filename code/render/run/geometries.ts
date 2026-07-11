@@ -56,6 +56,7 @@ for (const symbol of SYMBOLS) {
   })
 
   const file = join(outDir, `${symbol.join('-')}-${geometry}.png`)
+
   writeFileSync(file, png)
   console.log(
     `${symbol.join(',')} (${geometry}): ${scene.cellCount} cells, ${scene.edges.length} edges -> ${file}`,

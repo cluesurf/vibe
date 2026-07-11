@@ -71,9 +71,7 @@ export default experiment({
         if (dist[c]! <= 2) {
           const base = c * degree
 
-          for (let d = 0; d < degree; d++) {
-            will.data[base + d] = 1
-          }
+          for (let d = 0; d < degree; d++) will.data[base + d] = 1
         }
       }
 
@@ -97,13 +95,13 @@ export default experiment({
         beatInto({ src: current, dst: scratch, table, collision: rule })
 
         const swap = current
+
         current = scratch
         scratch = swap
 
         for (let c = 0; c < mesh.cellCount; c++) {
-          if (cellTone(current, c) !== 0 && dist[c]! > max) {
+          if (cellTone(current, c) !== 0 && dist[c]! > max)
             max = dist[c]!
-          }
         }
       }
 
@@ -114,6 +112,7 @@ export default experiment({
     const cone = (rule: Collision): number => {
       let plain = packet()
       let pert = cloneWill(packet())
+
       pert.data[center * degree + 0] =
         pert.data[center * degree + 0] === 1 ? -1 : 1
 
@@ -138,6 +137,7 @@ export default experiment({
         })
 
         const ps = plain
+
         plain = plainScratch
         plainScratch = ps
         beatInto({
@@ -148,6 +148,7 @@ export default experiment({
         })
 
         const pe = pert
+
         pert = pertScratch
         pertScratch = pe
 
@@ -163,9 +164,7 @@ export default experiment({
             }
           }
 
-          if (differs && dist[c]! > max) {
-            max = dist[c]!
-          }
+          if (differs && dist[c]! > max) max = dist[c]!
         }
       }
 

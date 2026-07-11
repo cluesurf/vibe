@@ -40,6 +40,7 @@ export function peierlsWavepacketDrift(input: {
     for (let y = 0; y < L; y++) {
       const g = Math.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * w * w))
       const ph = phase(kx * x)
+
       psi[idx(x, y)] = cscale(ph, g)
       nrm += g * g
     }
@@ -68,9 +69,7 @@ export function peierlsWavepacketDrift(input: {
 
     let n2 = 0
 
-    for (const z of next) {
-      n2 += cabs2(z)
-    }
+    for (const z of next) n2 += cabs2(z)
 
     psi = next.map(z => cscale(z, 1 / Math.sqrt(n2)))
   }
@@ -81,6 +80,7 @@ export function peierlsWavepacketDrift(input: {
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const p = cabs2(psi[idx(x, y)]!)
+
       ybar += (y - y0) * p
       wsum += p
     }

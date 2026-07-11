@@ -72,6 +72,7 @@ export function octonionZero(): Octonion {
 // The basis unit e_i (i from 0 to 7). e0 is the multiplicative identity.
 export function octonionUnit(index: number): Octonion {
   const value = octonionZero()
+
   value[index] = 1
 
   return value
@@ -85,6 +86,7 @@ export function octonionOne(): Octonion {
 // A real number embedded as scalar times the unit e0.
 export function octonionReal(scalar: number): Octonion {
   const value = octonionZero()
+
   value[0] = scalar
 
   return value
@@ -109,9 +111,7 @@ export function octonionMultiply(a: Octonion, b: Octonion): Octonion {
   for (let i = 0; i < 8; i++) {
     const ai = a[i]!
 
-    if (ai === 0) {
-      continue
-    }
+    if (ai === 0) continue
 
     const indexRow = PRODUCT_INDEX[i]!
     const signRow = PRODUCT_SIGN[i]!
@@ -119,9 +119,7 @@ export function octonionMultiply(a: Octonion, b: Octonion): Octonion {
     for (let j = 0; j < 8; j++) {
       const bj = b[j]!
 
-      if (bj === 0) {
-        continue
-      }
+      if (bj === 0) continue
 
       out[indexRow[j]!]! += signRow[j]! * ai * bj
     }

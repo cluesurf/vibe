@@ -35,9 +35,7 @@ function chain(n: number): Poset {
   const pairs: [number, number][] = []
 
   for (let a = 0; a < n; a++) {
-    for (let b = a + 1; b < n; b++) {
-      pairs.push([a, b])
-    }
+    for (let b = a + 1; b < n; b++) pairs.push([a, b])
   }
 
   return posetFromPairs(n, pairs)
@@ -47,9 +45,7 @@ function chain(n: number): Poset {
 function star(n: number): Poset {
   const pairs: [number, number][] = []
 
-  for (let b = 1; b < n; b++) {
-    pairs.push([0, b])
-  }
+  for (let b = 1; b < n; b++) pairs.push([0, b])
 
   return posetFromPairs(n, pairs)
 }
@@ -71,6 +67,7 @@ suite('measure/order-stats: orderStatistics', [
     'a chain of 5: ordering fraction 1, height 5, ratio sqrt5, dimension ~ 1',
     () => {
       const out = orderStatistics({ poset: chain(5) })
+
       close(out.orderingFraction, 1, 1e-12)
       equal(out.height, 5)
       close(out.heightRatio, 5 / Math.sqrt(5), 1e-12)
@@ -81,6 +78,7 @@ suite('measure/order-stats: orderStatistics', [
     'a star of 4 has ordering fraction 1/2 and dimension ~ 2',
     () => {
       const out = orderStatistics({ poset: star(4) })
+
       close(out.orderingFraction, 0.5, 1e-12)
       equal(out.height, 2)
       close(out.mmDimension, 2, 1e-2)

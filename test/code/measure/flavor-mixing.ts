@@ -30,6 +30,7 @@ suite('measure/flavor-mixing: Gatto-Sartori-Tonin', [
       [2, 3],
     ]) {
       const r = light! / heavy!
+
       close(
         mixingElementFromMassRatio({
           lightMass: light!,
@@ -69,12 +70,14 @@ suite('measure/flavor-mixing: Wolfenstein hierarchy', [
   check('the three scales are powers of lambda', () => {
     const lambda = 0.22
     const h = wolfensteinHierarchy(lambda)
+
     close(h.vus, lambda, TOL)
     close(h.vcb, lambda * lambda, TOL)
     close(h.vub, lambda ** 3, TOL)
   }),
   check('the hierarchy is strictly decreasing for lambda < 1', () => {
     const h = wolfensteinHierarchy(0.22)
+
     ok(h.vus > h.vcb && h.vcb > h.vub, 'expected vus > vcb > vub')
   }),
 ])

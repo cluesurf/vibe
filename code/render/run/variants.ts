@@ -51,6 +51,7 @@ for (const symbol of symbols) {
     })
 
     const file = join(outDir, `${tag}-${name}.png`)
+
     writeFileSync(file, png)
     console.log(
       `${tag} ${name}: ${scene.edges.length} edges -> ${file}`,

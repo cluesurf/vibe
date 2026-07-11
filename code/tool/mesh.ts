@@ -23,6 +23,7 @@ export type Mesh = {
 // Unreachable cells stay -1 (none, on a connected periodic mesh).
 export function shellDistances(mesh: Mesh, source: number): Int32Array {
   const distance = new Int32Array(mesh.cellCount).fill(-1)
+
   distance[source] = 0
 
   let frontier = [source]
@@ -55,9 +56,8 @@ export function shellDistances(mesh: Mesh, source: number): Int32Array {
 export function meshOpposites(mesh: Mesh): number[] {
   const opposite: number[] = []
 
-  for (let direction = 0; direction < mesh.degree; direction++) {
+  for (let direction = 0; direction < mesh.degree; direction++)
     opposite.push(mesh.opposite(direction))
-  }
 
   return opposite
 }
@@ -76,9 +76,7 @@ export function meshNeighbors(mesh: Mesh): number[][] {
     for (let direction = 0; direction < mesh.degree; direction++) {
       const neighbour = mesh.neighbour(cell, direction)
 
-      if (neighbour !== cell) {
-        row.add(neighbour)
-      }
+      if (neighbour !== cell) row.add(neighbour)
     }
 
     out.push([...row])
@@ -99,18 +97,15 @@ export function meshCsr(mesh: Mesh): {
   const cellCount = mesh.cellCount
   const offsets = new Int32Array(cellCount + 1)
 
-  for (let i = 0; i < cellCount; i++) {
+  for (let i = 0; i < cellCount; i++)
     offsets[i + 1] = offsets[i]! + neighbors[i]!.length
-  }
 
   const adj = new Int32Array(offsets[cellCount]!)
 
   let p = 0
 
   for (let i = 0; i < cellCount; i++) {
-    for (const w of neighbors[i]!) {
-      adj[p++] = w
-    }
+    for (const w of neighbors[i]!) adj[p++] = w
   }
 
   return { cellCount, offsets, adj }
@@ -240,6 +235,7 @@ export function betheMesh(input: {
     for (const node of frontier) {
       for (let k = 0; k < coordination; k++) {
         const child = parent.length
+
         parent.push(node)
         children.push([])
         children[node]!.push(child)

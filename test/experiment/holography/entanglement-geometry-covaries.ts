@@ -60,10 +60,12 @@ export default experiment({
       })
 
       const c = freeFermionCorrelationMatrix({ h, n })
+
       entropy.push(regionEntanglementEntropy({ c, n, region: left }))
       throatConnectivity.push(
         crossCutConnectivity({ c, n, regionA: left, regionB: right }),
       )
+
       farConnectivity.push(
         crossCutConnectivity({
           c,

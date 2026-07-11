@@ -38,6 +38,7 @@ suite('substrate/psl-cayley: Cayley graph structure', [
       })
 
       const deg = g.adjacency[0]!.length
+
       ok(deg >= 1, 'positive degree')
 
       for (let i = 0; i < g.adjacency.length; i++) {
@@ -53,20 +54,21 @@ suite('substrate/psl-cayley: Cayley graph structure', [
       for (let i = 0; i < g.adjacency.length; i++) {
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of g.adjacency[i]!) {
+        for (const j of g.adjacency[i]!)
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
-        }
       }
     },
   ),
   check('matrix multiply mod p has the identity as a unit', () => {
     const id: ProjectiveMatrix = [1, 0, 0, 1]
     const m: ProjectiveMatrix = [2, 3, 1, 4]
+
     equal(
       projectiveMultiply(id, m, 7).join(','),
       m.join(','),
       'I*M = M',
     )
+
     equal(
       projectiveMultiply(m, id, 7).join(','),
       m.join(','),

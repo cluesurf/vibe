@@ -28,9 +28,8 @@ function lowestEigenpairs(
 
   let shift = 2 * t + 1
 
-  for (let r = 0; r < N; r++) {
+  for (let r = 0; r < N; r++)
     shift = Math.max(shift, -V[r]! + 2 * t + 1)
-  }
 
   return lowestEigenpairsOf({
     operator: {
@@ -48,9 +47,8 @@ function spread(state: Float64Array, center: number): number {
   // <|r - center|> under |phi|^2
   let s = 0
 
-  for (let r = 0; r < state.length; r++) {
+  for (let r = 0; r < state.length; r++)
     s += Math.abs(r - center) * state[r]! * state[r]!
-  }
 
   return s
 }
@@ -82,9 +80,7 @@ export function boundComposite(input?: {
     const V = new Float64Array(N)
 
     for (let r = 0; r < N; r++) {
-      if (Math.abs(r - center) <= a) {
-        V[r] = -V0
-      }
+      if (Math.abs(r - center) <= a) V[r] = -V0
     }
 
     return V

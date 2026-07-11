@@ -26,21 +26,13 @@ function squareLattice(L: number): Graph {
       const id = y * L + x
       const row: number[] = []
 
-      if (x + 1 < L) {
-        row.push(y * L + x + 1)
-      }
+      if (x + 1 < L) row.push(y * L + x + 1)
 
-      if (x - 1 >= 0) {
-        row.push(y * L + x - 1)
-      }
+      if (x - 1 >= 0) row.push(y * L + x - 1)
 
-      if (y + 1 < L) {
-        row.push((y + 1) * L + x)
-      }
+      if (y + 1 < L) row.push((y + 1) * L + x)
 
-      if (y - 1 >= 0) {
-        row.push((y - 1) * L + x)
-      }
+      if (y - 1 >= 0) row.push((y - 1) * L + x)
 
       neighbors[id] = row
       coords[id * 2] = x
@@ -129,14 +121,17 @@ suite('measure/lorentz: lorentzSafety', [
     'a lattice is far more anisotropic than a Poisson sprinkle',
     () => {
       const { sprinkle, lattice } = lorentzSafety()
+
       ok(
         lattice > 0.5,
         `lattice 4-fold anisotropy ${lattice} should be strong`,
       )
+
       ok(
         sprinkle < 0.3,
         `sprinkle anisotropy ${sprinkle} should be weak`,
       )
+
       ok(
         lattice > sprinkle,
         'a lattice must be more anisotropic than a sprinkle',
@@ -150,6 +145,7 @@ suite('measure/lorentz: latticeAnisotropy (group-speed)', [
     'at long wavelength the lattice is isotropic with speed ~ 1',
     () => {
       const out = latticeAnisotropy(0.01)
+
       // omega^2 = 2(1-cos kx) + 2(1-cos ky) ~ |k|^2 as k -> 0, so speed -> 1 and the
       // direction dependence vanishes.
       close(out.meanSpeed, 1, 1e-2)
@@ -162,6 +158,7 @@ suite('measure/lorentz: latticeAnisotropy (group-speed)', [
   check('anisotropy grows toward the Brillouin-zone edge', () => {
     const small = latticeAnisotropy(0.01).anisotropy
     const large = latticeAnisotropy(2.5).anisotropy
+
     ok(
       large > small,
       'short-wavelength group speed must be more anisotropic',

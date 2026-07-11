@@ -16,6 +16,7 @@ suite('substrate/layered-order: the layered partial order', [
     const top = 3
     const middle = 6
     const expected = bottom * middle + bottom * top + middle * top
+
     equal(relationCount(p), expected, 'cross-layer relations')
     equal(expected, 45, 'explicit count')
   }),
@@ -45,9 +46,7 @@ suite('substrate/layered-order: the layered partial order', [
 
     for (let a = 0; a < p.size; a++) {
       for (let b = 0; b < p.size; b++) {
-        if (!precedes(p, { a, b })) {
-          continue
-        }
+        if (!precedes(p, { a, b })) continue
 
         for (let c = 0; c < p.size; c++) {
           if (precedes(p, { a: b, b: c })) {

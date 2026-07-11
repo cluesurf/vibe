@@ -25,13 +25,9 @@ export function signedTone(code: number): number {
 
 // the canonical three-tone palette, black = 0 (peace), blue = +1 (pleasure), red = -1 (pain)
 export function toneColor(code: number): [number, number, number] {
-  if (code === 1) {
-    return [60, 130, 255]
-  }
+  if (code === 1) return [60, 130, 255]
 
-  if (code === 2) {
-    return [255, 60, 70]
-  }
+  if (code === 2) return [255, 60, 70]
 
   return [0, 0, 0]
 }

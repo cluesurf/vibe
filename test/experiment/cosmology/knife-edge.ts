@@ -31,6 +31,7 @@ export default experiment({
       })
 
       const n = mesh.cellCount
+
       sizes.push(n)
 
       const z = chargeTrajectory({

@@ -41,9 +41,7 @@ suite(
 
         let tr = 0
 
-        for (let i = 0; i < n; i++) {
-          tr += c[i * n + i]!
-        }
+        for (let i = 0; i < n; i++) tr += c[i * n + i]!
 
         close(tr, Math.floor(n / 2), TIGHT)
       }
@@ -54,9 +52,8 @@ suite(
 
       // symmetry
       for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
+        for (let j = 0; j < n; j++)
           close(c[i * n + j]!, c[j * n + i]!, TIGHT)
-        }
       }
 
       // idempotence: (C C)_ij = C_ij
@@ -66,9 +63,7 @@ suite(
         for (let j = 0; j < n; j++) {
           let s = 0
 
-          for (let k = 0; k < n; k++) {
-            s += c[i * n + k]! * c[k * n + j]!
-          }
+          for (let k = 0; k < n; k++) s += c[i * n + k]! * c[k * n + j]!
 
           c2[i * n + j] = s
         }
@@ -93,6 +88,7 @@ suite(
     }),
     check('two independent half-filled modes give 2 ln 2', () => {
       const c = Float64Array.from([0.5, 0, 0, 0.5])
+
       close(
         regionEntanglementEntropy({ c, n: 2, region: [0, 1] }),
         2 * LN2,
@@ -103,6 +99,7 @@ suite(
       'eigenvalues 0 and 1 (a product cut) give ~ 0 entropy',
       () => {
         const c = Float64Array.from([1, 0, 0, 0])
+
         close(
           regionEntanglementEntropy({ c, n: 2, region: [0, 1] }),
           0,
@@ -117,6 +114,7 @@ suite('measure/entanglement: cross-cut connectivity', [
   check('sums |C_ij| over the region pair', () => {
     // c = [[a, b],[c, d]]; regionA={0}, regionB={1} -> |b|.
     const c = Float64Array.from([0.1, -0.7, 0.3, 0.4])
+
     close(
       crossCutConnectivity({ c, n: 2, regionA: [0], regionB: [1] }),
       0.7,

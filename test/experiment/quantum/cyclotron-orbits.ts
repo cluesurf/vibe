@@ -61,6 +61,7 @@ export default experiment({
     for (const field of FIELDS) {
       const short = span(field, STEPS_SHORT)
       const long = span(field, STEPS_LONG)
+
       amplitudes.push(long)
       worstBoundError = Math.max(
         worstBoundError,

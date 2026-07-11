@@ -27,9 +27,7 @@ function settle(
 
   let t = state
 
-  for (let i = 0; i < steps; i++) {
-    t = step(J, t, zero, null)
-  }
+  for (let i = 0; i < steps; i++) t = step(J, t, zero, null)
 
   return t
 }
@@ -47,6 +45,7 @@ function perturb(
   for (let i = 0; i < k; i++) {
     const j = i + rng.nextInt({ max: p.length - i })
     const tmp = idx[i]!
+
     idx[i] = idx[j]!
     idx[j] = tmp
     out[idx[i]!] = -(p[idx[i]!] ?? 0)
@@ -107,9 +106,7 @@ export function selvesAsAttractors(input: { seed: number }): {
   let basinRadius = 0
 
   for (const b of byFraction) {
-    if (b.recovery > 0.9) {
-      basinRadius = b.fraction
-    }
+    if (b.recovery > 0.9) basinRadius = b.fraction
   }
 
   // Identity over time: settle to a self, run many more beats, confirm it stays itself.
@@ -129,11 +126,8 @@ export function selvesAsAttractors(input: { seed: number }): {
     for (let kk = 2; kk <= Math.round(0.3 * n); kk += 2) {
       const rec = recoveryAt(n, kk, 0.1, input.seed + 7 + n)
 
-      if (rec > 0.9) {
-        capacity = kk
-      } else {
-        break
-      }
+      if (rec > 0.9) capacity = kk
+      else break
     }
 
     return { n, capacity, ratio: capacity / n }

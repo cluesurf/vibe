@@ -18,9 +18,7 @@ function build(sites: number, mass: number, width: number) {
   const dense = makeDense({ rows: n, cols: n })
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      dense.data[i * n + j] = H[i]![j] ?? 0
-    }
+    for (let j = 0; j < n; j++) dense.data[i * n + j] = H[i]![j] ?? 0
   }
 
   return { H, n, dense }
@@ -31,9 +29,8 @@ suite('operator/jackiw-rebbi: structure', [
     const { H, n } = build(20, 1, 4)
 
     for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
+      for (let j = 0; j < n; j++)
         close(H[i]![j] ?? 0, H[j]![i] ?? 0, 0, `symmetry [${i}][${j}]`)
-      }
     }
   }),
   check(
@@ -43,9 +40,7 @@ suite('operator/jackiw-rebbi: structure', [
 
       let trace = 0
 
-      for (let i = 0; i < n; i++) {
-        trace += H[i]![i] ?? 0
-      }
+      for (let i = 0; i < n; i++) trace += H[i]![i] ?? 0
 
       close(trace, 0, 0, 'trace')
     },
@@ -75,6 +70,7 @@ suite('operator/jackiw-rebbi: spectrum', [
     const { dense } = build(24, 1, 4)
     const values = Array.from(eigSymmetric({ matrix: dense }).values)
     const minAbs = Math.min(...values.map(v => Math.abs(v)))
+
     close(minAbs, 0, 1e-6, 'Jackiw-Rebbi zero mode')
   }),
   check(

@@ -66,9 +66,8 @@ export default experiment({
       let i = 0;
       i < mesh.cellCount && scatterPool.length < cellCount;
       i += step
-    ) {
+    )
       scatterPool.push(i)
-    }
 
     // the anesthetic: at dose f keep (1 - f) of the compact core, fill the rest by
     // scattering, holding the cell count fixed
@@ -77,9 +76,7 @@ export default experiment({
       const region = new Set<number>(core.slice(0, keep))
 
       for (const cell of scatterPool) {
-        if (region.size >= cellCount) {
-          break
-        }
+        if (region.size >= cellCount) break
 
         region.add(cell)
       }

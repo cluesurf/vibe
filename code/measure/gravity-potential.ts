@@ -43,9 +43,8 @@ export function weakFieldLightDeflection(input: {
 
   let integral = 0
 
-  for (let x = -L; x <= L; x += dx) {
+  for (let x = -L; x <= L; x += dx)
     integral += ((M * b) / (x * x + b * b) ** 1.5) * dx
-  }
 
   return { grAngle: 2 * integral, newtonAngle: integral, ratio: 2 }
 }

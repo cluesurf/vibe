@@ -24,9 +24,7 @@ export type Tone = -1 | 0 | 1
 export function ternaryVector(n: number, rng: Rng): Int8Array {
   const v = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
-    v[i] = rng.nextInt({ max: 3 }) - 1
-  }
+  for (let i = 0; i < n; i++) v[i] = rng.nextInt({ max: 3 }) - 1
 
   return v
 }
@@ -44,6 +42,7 @@ export function ternaryPattern(n: number, index: number): Int8Array {
 
   for (let i = 0; i < n; i++) {
     const frac = ((((i + 1) * GOLDEN + index * SILVER) % 1) + 1) % 1
+
     v[i] = Math.floor(3 * frac) - 1
   }
 
@@ -94,9 +93,7 @@ function step(input: {
   const proj = patterns.map(xi => {
     let o = 0
 
-    for (let j = 0; j < n; j++) {
-      o += (xi[j] ?? 0) * (state[j] ?? 0)
-    }
+    for (let j = 0; j < n; j++) o += (xi[j] ?? 0) * (state[j] ?? 0)
 
     return o / n
   })
@@ -108,16 +105,14 @@ function step(input: {
   for (let i = 0; i < n; i++) {
     let h = urgeWeight * (urge[i] ?? 0)
 
-    for (let m = 0; m < patterns.length; m++) {
+    for (let m = 0; m < patterns.length; m++)
       h += coupling * (patterns[m]![i] ?? 0) * (proj[m] ?? 0)
-    }
 
     const t: Tone = h > 1e-12 ? 1 : h < -1e-12 ? -1 : 0
+
     next[i] = t
 
-    if (t !== state[i]) {
-      changed = true
-    }
+    if (t !== state[i]) changed = true
   }
 
   return { next, changed }
@@ -151,9 +146,7 @@ export function settle(input: {
     state = next
     beats++
 
-    if (!changed) {
-      break
-    }
+    if (!changed) break
   }
 
   return { state, beats }
@@ -189,9 +182,7 @@ export function settleTrace(input: {
     states.push(Int8Array.from(state))
     beats++
 
-    if (!changed) {
-      break
-    }
+    if (!changed) break
   }
 
   return { states, beats }
@@ -203,9 +194,8 @@ export function oneStepGuess(urge: Int8Array): Int8Array {
   const n = urge.length
   const out = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++)
     out[i] = (urge[i] ?? 0) > 0 ? 1 : (urge[i] ?? 0) < 0 ? -1 : 0
-  }
 
   return out
 }
@@ -214,9 +204,7 @@ export function oneStepGuess(urge: Int8Array): Int8Array {
 export function hammingFraction(a: Int8Array, b: Int8Array): number {
   const n = Math.min(a.length, b.length)
 
-  if (n === 0) {
-    return 0
-  }
+  if (n === 0) return 0
 
   let diff = 0
 
@@ -243,9 +231,8 @@ export function blockCoarse(
   for (let b = 0; b < blocks; b++) {
     let sum = 0
 
-    for (let i = b * size; i < Math.min(n, (b + 1) * size); i++) {
+    for (let i = b * size; i < Math.min(n, (b + 1) * size); i++)
       sum += state[i] ?? 0
-    }
 
     out[b] = sum > 0 ? 1 : sum < 0 ? -1 : 0
   }
@@ -256,14 +243,10 @@ export function blockCoarse(
 // two coarse reads are equal when every block agrees: the lossy model cannot tell the two
 // underlying micro-states apart
 export function coarseEqual(a: Int8Array, b: Int8Array): boolean {
-  if (a.length !== b.length) {
-    return false
-  }
+  if (a.length !== b.length) return false
 
   for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false
-    }
+    if (a[i] !== b[i]) return false
   }
 
   return true
@@ -279,9 +262,7 @@ export function aggregateUrge(parts: Int8Array[]): Int8Array {
   for (let i = 0; i < n; i++) {
     let s = 0
 
-    for (const p of parts) {
-      s += p[i] ?? 0
-    }
+    for (const p of parts) s += p[i] ?? 0
 
     out[i] = s > 0 ? 1 : s < 0 ? -1 : 0
   }
@@ -301,9 +282,7 @@ export function selfCoherence(
   for (const p of patterns) {
     const o = Math.abs(toneOverlap(state, p))
 
-    if (o > best) {
-      best = o
-    }
+    if (o > best) best = o
   }
 
   return best
@@ -323,6 +302,7 @@ export function consensusStep(
 
     for (let i = 0; i < s.length; i++) {
       const h = coupling * (aggregate[i] ?? 0) + (s[i] ?? 0)
+
       out[i] = h > 0 ? 1 : h < 0 ? -1 : 0
     }
 
@@ -360,24 +340,18 @@ export function settleWithInjection(input: {
       urgeWeight: input.urgeWeight,
     })
 
-    for (let i = 0; i < k; i++) {
-      next[i] = input.inject[i] ?? 0
-    }
+    for (let i = 0; i < k; i++) next[i] = input.inject[i] ?? 0
 
     let changed = false
 
     for (let i = 0; i < next.length; i++) {
-      if (next[i] !== state[i]) {
-        changed = true
-      }
+      if (next[i] !== state[i]) changed = true
     }
 
     state = next
     beats++
 
-    if (!changed) {
-      break
-    }
+    if (!changed) break
   }
 
   return { state, beats }

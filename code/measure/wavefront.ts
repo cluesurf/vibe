@@ -27,11 +27,10 @@ export function wavefrontProfile(input: {
 
   for (let i = 0; i < n; i++) {
     const row = mesh.neighbors[i] ?? []
+
     laplacian.data[i * n + i] = row.length
 
-    for (const j of row) {
-      laplacian.data[i * n + j] = -1
-    }
+    for (const j of row) laplacian.data[i * n + j] = -1
   }
 
   const eig = eigSymmetric({ matrix: laplacian })
@@ -39,6 +38,7 @@ export function wavefrontProfile(input: {
   // Exact spectral evolution of a unit impulse at the centre node.
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
+
   re0[center] = 1
 
   const evolved = evolveByEigendecomposition({
@@ -59,18 +59,14 @@ export function wavefrontProfile(input: {
     const dy = (mesh.coords[j * 2 + 1] ?? 0) - cy
     const dist = Math.hypot(dx, dy)
 
-    if (dist < input.rInner || dist > input.rOuter) {
-      continue
-    }
+    if (dist < input.rInner || dist > input.rOuter) continue
 
     const re = evolved.re[j] ?? 0
     const im = evolved.im[j] ?? 0
 
     let angle = Math.atan2(dy, dx)
 
-    if (angle < 0) {
-      angle += 2 * Math.PI
-    }
+    if (angle < 0) angle += 2 * Math.PI
 
     const bin = Math.min(
       input.bins - 1,

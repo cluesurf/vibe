@@ -14,41 +14,23 @@ export function ternaryPairPermutation(
   b: number,
   create: boolean,
 ): [number, number] {
-  if (a === -1 && b === -1) {
-    return [-1, -1]
-  }
+  if (a === -1 && b === -1) return [-1, -1]
 
-  if (a === 1 && b === 1) {
-    return [1, 1]
-  }
+  if (a === 1 && b === 1) return [1, 1]
 
-  if (a === -1 && b === 0) {
-    return [0, -1]
-  }
+  if (a === -1 && b === 0) return [0, -1]
 
-  if (a === 0 && b === -1) {
-    return [-1, 0]
-  }
+  if (a === 0 && b === -1) return [-1, 0]
 
-  if (a === 1 && b === 0) {
-    return [0, 1]
-  }
+  if (a === 1 && b === 0) return [0, 1]
 
-  if (a === 0 && b === 1) {
-    return [1, 0]
-  }
+  if (a === 0 && b === 1) return [1, 0]
 
-  if (a === 0 && b === 0) {
-    return create ? [1, -1] : [0, 0]
-  }
+  if (a === 0 && b === 0) return create ? [1, -1] : [0, 0]
 
-  if (a === 1 && b === -1) {
-    return [-1, 1]
-  }
+  if (a === 1 && b === -1) return [-1, 1]
 
-  if (a === -1 && b === 1) {
-    return [0, 0]
-  }
+  if (a === -1 && b === 1) return [0, 0]
 
   return [a, b]
 }
@@ -76,9 +58,7 @@ export function parityBlockBeat3D(input: {
           for (let x = 0; x < side; x++) {
             const base = axis === 0 ? x : axis === 1 ? y : z
 
-            if (base % 2 !== par) {
-              continue
-            }
+            if (base % 2 !== par) continue
 
             const i = index(x, y, z)
             const j = index(x + dx, y + dy, z + dz)

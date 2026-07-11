@@ -39,9 +39,7 @@ export function scrambleNeighbors(input: {
       const lo = a < b ? a : b
       const hi = a < b ? b : a
 
-      if (lo === hi) {
-        continue
-      }
+      if (lo === hi) continue
 
       const id = key(lo, hi)
 
@@ -60,25 +58,19 @@ export function scrambleNeighbors(input: {
     const i = rng.nextInt({ max: edgeCount })
     const j = rng.nextInt({ max: edgeCount })
 
-    if (i === j) {
-      continue
-    }
+    if (i === j) continue
 
     const [a, b] = edges[i]!
     const [c, d] = edges[j]!
 
     // skip if the four endpoints are not distinct (would make a self-loop)
-    if (a === c || a === d || b === c || b === d) {
-      continue
-    }
+    if (a === c || a === d || b === c || b === d) continue
 
     // proposed new edges a-d and c-b
     const ad = a < d ? key(a, d) : key(d, a)
     const cb = c < b ? key(c, b) : key(b, c)
 
-    if (present.has(ad) || present.has(cb)) {
-      continue
-    }
+    if (present.has(ad) || present.has(cb)) continue
 
     present.delete(key(a, b))
     present.delete(key(c, d))

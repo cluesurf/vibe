@@ -51,6 +51,7 @@ export function meanChiralDisplacement(input: {
   // seed localized at the origin in the +1 eigenstate of the chiral operator sigma_x: (|up>+|down>)/sqrt2
   let up: Complex[] = new Array(L).fill([0, 0])
   let down: Complex[] = new Array(L).fill([0, 0])
+
   up[x0] = [1 / Math.SQRT2, 0]
   down[x0] = [1 / Math.SQRT2, 0]
 
@@ -64,6 +65,7 @@ export function meanChiralDisplacement(input: {
 
     for (let x = 0; x < L; x++) {
       const [nu, nd] = coinRotate(u[x]!, d[x]!, theta)
+
       u2[x] = nu
       d2[x] = nd
     }

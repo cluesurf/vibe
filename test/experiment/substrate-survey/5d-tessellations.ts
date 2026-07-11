@@ -65,9 +65,7 @@ function measure(
 }
 
 export function manyTessellations(): void {
-  for (const c of CANDIDATES) {
-    measure(c.sym, SURVEY_SCALE)
-  }
+  for (const c of CANDIDATES) measure(c.sym, SURVEY_SCALE)
 }
 
 export default experiment({

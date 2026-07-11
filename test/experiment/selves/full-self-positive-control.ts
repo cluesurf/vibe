@@ -73,10 +73,12 @@ export default experiment({
 
       for (let c = 0; c < coin.cellCount; c++) {
         const n = will.data[c * degree + rest]!
+
         q[c] = n
 
         if (n > 0) {
           const [x, y, z, w] = coord(c)
+
           total += n
           sx += n * x
           sy += n * y
@@ -85,9 +87,7 @@ export default experiment({
         }
       }
 
-      if (total === 0) {
-        return
-      }
+      if (total === 0) return
 
       const cx = sx / total,
         cy = sy / total,
@@ -97,19 +97,14 @@ export default experiment({
       const moves: [number, number][] = []
 
       for (let c = 0; c < coin.cellCount; c++) {
-        if (q[c]! <= 0) {
-          continue
-        }
+        if (q[c]! <= 0) continue
 
         let nearby = 0
 
-        for (let d = 0; d < 24; d++) {
-          nearby += q[base.neighbour(c, d)]!
-        }
+        for (let d = 0; d < 24; d++) nearby += q[base.neighbour(c, d)]!
 
-        if (nearby >= 3) {
-          continue
-        } // bulk stays, no collapse
+        if (nearby >= 3) continue
+        // bulk stays, no collapse
 
         let bestNb = -1,
           bestDist = Infinity
@@ -129,9 +124,7 @@ export default experiment({
           }
         }
 
-        if (bestNb >= 0) {
-          moves.push([c, bestNb])
-        }
+        if (bestNb >= 0) moves.push([c, bestNb])
       }
 
       for (const [from, to] of moves) {
@@ -155,9 +148,8 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        ) {
+        )
           will.data[c * degree + rest] = 1
-        }
       }
 
       return will
@@ -189,9 +181,7 @@ export default experiment({
             Math.abs(z - half) +
             Math.abs(w - half)
 
-          if (dd > ext) {
-            ext = dd
-          }
+          if (dd > ext) ext = dd
         }
       }
 
@@ -206,9 +196,7 @@ export default experiment({
       beatInto({ src, dst, table, collision: rule })
       accrete(dst)
 
-      if (open) {
-        absorbBoundary(dst)
-      }
+      if (open) absorbBoundary(dst)
 
       return dst
     }
@@ -226,6 +214,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       const next = stepFull(body, bodyScratch, false)
+
       bodyScratch = body
       body = next
     }
@@ -240,9 +229,7 @@ export default experiment({
 
       let nb = center
 
-      for (let k = 0; k < 4; k++) {
-        nb = base.neighbour(nb, 0)
-      }
+      for (let k = 0; k < 4; k++) nb = base.neighbour(nb, 0)
 
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
@@ -257,6 +244,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       const next = stepFull(displaced, displacedScratch, false)
+
       displacedScratch = displaced
       displaced = next
     }
@@ -270,9 +258,7 @@ export default experiment({
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
 
-      for (let d = 0; d < 8; d++) {
-        w.data[center * degree + d] = 1
-      }
+      for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1
 
       return w
     }
@@ -288,10 +274,12 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         const nc = stepFull(clean, cleanScratch, open)
+
         cleanScratch = clean
         clean = nc
 
         const np = stepFull(pert, pertScratch, open)
+
         pertScratch = pert
         pert = np
 

@@ -36,19 +36,17 @@ function sprinkleCoords(input: {
 
     for (let axis = 0; axis < spaceDim; axis++) {
       const x = input.rng.next() - 0.5
+
       cand[axis] = x
       radius2 += x * x
     }
 
-    if (spaceDim > 0 && radius2 > reach * reach) {
-      continue
-    }
+    if (spaceDim > 0 && radius2 > reach * reach) continue
 
     coords[accepted * d] = t
 
-    for (let axis = 0; axis < spaceDim; axis++) {
+    for (let axis = 0; axis < spaceDim; axis++)
       coords[accepted * d + 1 + axis] = cand[axis] ?? 0
-    }
 
     accepted++
   }
@@ -82,9 +80,7 @@ export function sampledDimension(input: {
 
     let b = rng.nextInt({ max: n })
 
-    if (b === a) {
-      b = (b + 1) % n
-    }
+    if (b === a) b = (b + 1) % n
 
     const dt = (coords[a * d] ?? 0) - (coords[b * d] ?? 0)
 

@@ -35,15 +35,11 @@ const rows = allExperiments()
 
     // Codeless experiments sort after coded ones.
     if (leftCode === '' || rightCode === '') {
-      if (leftCode !== rightCode) {
-        return leftCode === '' ? 1 : -1
-      }
+      if (leftCode !== rightCode) return leftCode === '' ? 1 : -1
     } else {
       const byCode = leftCode.localeCompare(rightCode)
 
-      if (byCode !== 0) {
-        return byCode
-      }
+      if (byCode !== 0) return byCode
     }
 
     return left.id.localeCompare(right.id)
@@ -57,5 +53,6 @@ const rows = allExperiments()
   })
 
 const csv = [header, ...rows].join('\n') + '\n'
+
 writeFileSync('test/catalog.csv', csv)
 console.log(`wrote ${rows.length} experiments to test/catalog.csv`)

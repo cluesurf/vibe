@@ -43,6 +43,7 @@ export function deterministicRP(input?: { ks?: number[] }): {
 
   for (const k of ks) {
     const m = waveModeFrequency({ wavenumber: k })
+
     modes.push({
       k,
       omega: m.omega,

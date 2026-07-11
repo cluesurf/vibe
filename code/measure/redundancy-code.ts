@@ -18,9 +18,9 @@ export function corruptConnectedRegion(input: {
   const boundary = new Array<number>(input.size).fill(input.logical)
   const corrupt = Math.round(input.size * input.fraction)
 
-  for (let index = 0; index < corrupt; index++) {
+  for (let index = 0; index < corrupt; index++)
     boundary[index] = 1 - input.logical
-  } // flip a connected block
+  // flip a connected block
 
   return boundary
 }

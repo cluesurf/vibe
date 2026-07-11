@@ -41,6 +41,7 @@ export function invariantPolynomialDimension(input: {
     const h2 = e1 * h1 - e2
     const h3 = e1 * h2 - e2 * h1 + e3
     const h4 = e1 * h3 - e2 * h2 + e3 * h1 - e4
+
     total += degree === 2 ? h2 : h4
   }
 

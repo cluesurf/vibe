@@ -45,6 +45,7 @@ suite('algebra/stabilizer: symplectic primitives', [
         pauliCommute({ x: 1, z: 0 }, { x: 0, z: 1 }),
         'X0 and Z0 anticommute',
       )
+
       ok(
         pauliCommute({ x: 1, z: 0 }, { x: 0, z: 2 }),
         'X0 and Z1 commute',
@@ -76,9 +77,8 @@ suite('algebra/stabilizer: the [[5,1,3]] perfect code', [
     },
   ),
   check('every generator has weight 4', () => {
-    for (const g of GENERATORS) {
+    for (const g of GENERATORS)
       equal(pauliWeight(g), 4, 'XZZXI-type weight 4')
-    }
   }),
   check('the stabilizer group has 2^4 = 16 elements', () => {
     const span = stabilizerGroup({
@@ -166,9 +166,8 @@ suite('algebra/stabilizer: erasure correctability from distance 3', [
           for (let c = b + 1; c < QUBITS; c++) {
             const erased = (1 << a) | (1 << b) | (1 << c)
 
-            if (!erasureCorrectable({ logicals, erased })) {
+            if (!erasureCorrectable({ logicals, erased }))
               foundUncorrectable = true
-            }
           }
         }
       }

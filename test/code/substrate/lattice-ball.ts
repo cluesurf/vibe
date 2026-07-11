@@ -21,6 +21,7 @@ suite('substrate/lattice-ball: the BFS ball', [
     'the radius-2 L1 ball of Z^2 has 13 points with correct distances',
     () => {
       const ball = latticeBall({ generators: z2, radius: 2 })
+
       // |{x : |x|_1 <= 2}| = 1 + 4 + 8 = 13.
       equal(ball.cells.length, 13, 'taxicab ball size')
       equal(ball.dist.get('0,0'), 0, 'origin distance 0')
@@ -34,6 +35,7 @@ suite('substrate/lattice-ball: the BFS ball', [
 
     for (const [key, d] of ball.dist) {
       const [x, y] = key.split(',').map(Number)
+
       equal(Math.abs(x!) + Math.abs(y!), d, `L1 norm of ${key}`)
     }
   }),

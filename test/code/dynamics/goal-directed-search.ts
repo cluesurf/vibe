@@ -48,6 +48,7 @@ suite('dynamics/goal-directed-search: convergence', [
         undirected.solved,
         'undirected eventually solves a small target',
       )
+
       ok(
         undirected.steps > directed,
         'undirected is slower than directed',
@@ -59,6 +60,7 @@ suite('dynamics/goal-directed-search: convergence', [
 suite('dynamics/goal-directed-search: determinism', [
   check('the same seed gives the same step count', () => {
     const K = 16
+
     equal(
       solveGoalDirected({
         target: target(K),

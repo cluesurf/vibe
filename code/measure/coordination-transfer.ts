@@ -19,6 +19,7 @@ function bfsDistances(
   root: number,
 ): number[] {
   const distance = new Array<number>(neighbors.length).fill(-1)
+
   distance[root] = 0
 
   let frontier = [root]
@@ -149,9 +150,7 @@ export function largestCubicRoot(input: {
 
   let x = seed
 
-  for (let i = 0; i < 100; i++) {
-    x = x - value(x) / slope(x)
-  }
+  for (let i = 0; i < 100; i++) x = x - value(x) / slope(x)
 
   return x
 }

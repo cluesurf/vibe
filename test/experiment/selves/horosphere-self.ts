@@ -53,6 +53,7 @@ function selfDynamics(g: Graph): {
   const { tone, cluster } = emergeSelfHashed(g, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
+
   beatHashed(tl, g, moved, 0, 0, 0.22)
 
   const leakPerBeat =
@@ -60,9 +61,7 @@ function selfDynamics(g: Graph): {
 
   const t2 = tone.slice()
 
-  for (let b = 0; b < 50; b++) {
-    beatHashed(t2, g, moved, b, 0, 0.22)
-  }
+  for (let b = 0; b < 50; b++) beatHashed(t2, g, moved, b, 0, 0.22)
 
   const passiveFidelity =
     cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
@@ -127,14 +126,14 @@ export function horosphereSelf(input?: {
 
   for (let i = 0; i < bigCells; i++) {
     const r = hashRand(i, 0, 7)
+
     toneB[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
 
   const qb0 = totalCharge(toneB)
 
-  for (let t = 0; t < 3; t++) {
+  for (let t = 0; t < 3; t++)
     beatHashed(toneB, big, movedB, t, 0.01, 0.22)
-  }
 
   const bigBuilt = bigCells > 10_000_000
   const bigConserved = totalCharge(toneB) === qb0

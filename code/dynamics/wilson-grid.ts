@@ -38,6 +38,7 @@ export function gridPlaquettes(L: number): PlaquetteLink[][] {
         ] as const) {
           const [x1, y1, z1] = step(x, y, z, d1)
           const [x2, y2, z2] = step(x, y, z, d2)
+
           out.push([
             { link: link(x, y, z, d1), sign: 1 },
             { link: link(x1, y1, z1, d2), sign: 1 },
@@ -58,9 +59,7 @@ function plaquetteCurl(
 ): number {
   let f = 0
 
-  for (const { link, sign } of plaq) {
-    f += sign * (theta[link] ?? 0)
-  }
+  for (const { link, sign } of plaq) f += sign * (theta[link] ?? 0)
 
   return f
 }
@@ -72,9 +71,8 @@ export function gridWilsonAction(
 ): number {
   let s = 0
 
-  for (const plaq of plaqs) {
+  for (const plaq of plaqs)
     s += 1 - Math.cos(plaquetteCurl(theta, plaq))
-  }
 
   return s
 }
@@ -88,6 +86,7 @@ export function gridMaxwellAction(
 
   for (const plaq of plaqs) {
     const f = plaquetteCurl(theta, plaq)
+
     s += 0.5 * f * f
   }
 

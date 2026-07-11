@@ -55,6 +55,7 @@ async function benchOne(
     })
 
   const bufs: [GPUBuffer, GPUBuffer] = [make(), make()]
+
   // a single central pulse (cheap to seed at huge sizes, no big CPU array upload beyond zeros)
   device.queue.writeBuffer(
     bufs[0],
@@ -83,6 +84,7 @@ async function benchOne(
   {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[0], bufs[1]))
     pass.dispatchWorkgroups(gx, gy)
@@ -99,6 +101,7 @@ async function benchOne(
   for (let b = 0; b < BENCH_BEATS; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
+
     pass.setPipeline(pipeline)
     pass.setBindGroup(0, bind(bufs[src]!, bufs[1 - src]!))
     pass.dispatchWorkgroups(gx, gy)
@@ -110,6 +113,7 @@ async function benchOne(
   await device.queue.onSubmittedWorkDone()
 
   const seconds = (performance.now() - start) / 1000
+
   bufs[0].destroy()
   bufs[1].destroy()
 
@@ -126,6 +130,7 @@ async function run(): Promise<void> {
   }
 
   const device = await adapter.requestDevice()
+
   console.log('flat field GPU scale sweep')
   console.log(
     `  ${'grid'.padEnd(12)} ${'cells'.padEnd(14)} ${'beats/sec'.padEnd(12)} cell-updates/sec`,
@@ -135,6 +140,7 @@ async function run(): Promise<void> {
     try {
       const r = await benchOne(device, size)
       const cps = r.beatsPerSec * r.cells
+
       console.log(
         `  ${`${size}x${size}`.padEnd(12)} ${r.cells.toLocaleString().padEnd(14)} ${r.beatsPerSec.toFixed(0).padEnd(12)} ${(cps / 1e9).toFixed(1)} billion`,
       )

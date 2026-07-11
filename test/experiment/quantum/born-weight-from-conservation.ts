@@ -47,6 +47,7 @@ function measureDrifts(
   let backward = new Float64Array(SITES)
 
   const start = SITES >> 1
+
   forward[start] = 1 / Math.SQRT2
   backward[start] = 1 / Math.SQRT2
 
@@ -62,6 +63,7 @@ function measureDrifts(
     for (let x = 0; x < SITES; x++) {
       const a = forward[x] ?? 0
       const b = backward[x] ?? 0
+
       intensitySum += a * a + b * b
       l1Sum += Math.sqrt(a * a + b * b)
       signedSum += a + b
@@ -84,13 +86,9 @@ function measureDrifts(
       const rotatedForward = c * a + s * b
       const rotatedBackward = -s * a + c * b
 
-      if (x + 1 < SITES) {
-        nextForward[x + 1]! += rotatedForward
-      }
+      if (x + 1 < SITES) nextForward[x + 1]! += rotatedForward
 
-      if (x - 1 >= 0) {
-        nextBackward[x - 1]! += rotatedBackward
-      }
+      if (x - 1 >= 0) nextBackward[x - 1]! += rotatedBackward
     }
 
     forward = nextForward

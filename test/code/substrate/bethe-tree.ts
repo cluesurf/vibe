@@ -9,11 +9,13 @@ import { betheTree } from '@/code/substrate/bethe-tree'
 suite('substrate/bethe-tree: coordination and shells', [
   check('q=3 depth=3 has the expected per-shell node counts', () => {
     const adj = betheTree(3, 3)
+
     // Shell sizes: 1, q, q(q-1), q(q-1)^2 = 1, 3, 6, 12 -> 22 nodes.
     equal(adj.length, 22, 'total nodes')
 
     // BFS the adjacency from the root and count by depth, independently.
     const depth = new Array<number>(adj.length).fill(-1)
+
     depth[0] = 0
 
     const queue = [0]
@@ -42,11 +44,13 @@ suite('substrate/bethe-tree: coordination and shells', [
     'the root has degree q and interior cells have degree q',
     () => {
       const adj = betheTree(3, 3)
+
       equal(adj[0]!.length, 3, 'root degree q')
 
       // a node whose neighbours include deeper nodes is interior (degree q).
       for (let i = 0; i < adj.length; i++) {
         const deg = adj[i]!.length
+
         ok(
           deg === 1 || deg === 3,
           `node ${i} degree is 1 (leaf) or q=3`,
@@ -70,9 +74,8 @@ suite('substrate/bethe-tree: tree structure', [
         degSum += adj[i]!.length
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of adj[i]!) {
+        for (const j of adj[i]!)
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
-        }
       }
 
       equal(degSum / 2, adj.length - 1, 'edges = nodes - 1 (a tree)')
@@ -80,6 +83,7 @@ suite('substrate/bethe-tree: tree structure', [
   ),
   check('q=4 depth=2 has root degree 4 and leaves degree 1', () => {
     const adj = betheTree(4, 2)
+
     // shells 1, 4, 12 -> 17 nodes.
     equal(adj.length, 17, 'node count')
     equal(adj[0]!.length, 4, 'root degree q=4')

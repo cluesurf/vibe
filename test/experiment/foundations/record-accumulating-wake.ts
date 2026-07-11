@@ -98,6 +98,7 @@ export default experiment({
     const collision = pairCollision({ opposite, forward: true })
 
     let will = makeWill(mesh)
+
     fillWillPattern(will)
 
     const supports: number[] = [

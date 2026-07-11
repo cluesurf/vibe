@@ -48,9 +48,8 @@ export default experiment({
       coreRadius: 5,
     })
 
-    for (let t = 0; t < 2000; t++) {
+    for (let t = 0; t < 2000; t++)
       base = relaxSpins({ spins: base, params, rate: 0.08 })
-    }
 
     const startQ = skyrmionDegree(base, params.size)
 
@@ -64,13 +63,9 @@ export default experiment({
 
         const q = skyrmionDegree(s, params.size)
 
-        if (q < min) {
-          min = q
-        }
+        if (q < min) min = q
 
-        if (q > max) {
-          max = q
-        }
+        if (q > max) max = q
       }
 
       return { min, max }

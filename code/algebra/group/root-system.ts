@@ -12,6 +12,7 @@ export function rootsDn(n: number): number[][] {
       for (const si of [1, -1]) {
         for (const sj of [1, -1]) {
           const v = new Array<number>(n).fill(0)
+
           v[i] = si
           v[j] = sj
           roots.push(v)
@@ -32,6 +33,7 @@ export function rootsAn(n: number): number[][] {
     for (let j = 0; j < n; j++) {
       if (i !== j) {
         const v = new Array<number>(n).fill(0)
+
         v[i] = 1
         v[j] = -1
         roots.push(v)
@@ -66,9 +68,7 @@ export function isRootSystem(roots: number[][]): boolean {
     for (const v of roots) {
       const w = reflectRoot(v, a)
 
-      if (!roots.some(r => vecEqExact(r, w))) {
-        return false
-      }
+      if (!roots.some(r => vecEqExact(r, w))) return false
     }
   }
 
@@ -83,20 +83,17 @@ export function standardModelEmbedsInRootSystem(
 ): boolean {
   for (const a of roots) {
     for (const b of roots) {
-      if (dotVec(a, b) !== -1) {
-        continue
-      } // 120 degrees -> A2 generator pair
+      if (dotVec(a, b) !== -1) continue
+      // 120 degrees -> A2 generator pair
 
       const ab = a.map((x, i) => x + b[i]!)
 
-      if (!roots.some(r => vecEqExact(r, ab))) {
-        continue
-      } // a + b must be a root (A2 closes)
+      if (!roots.some(r => vecEqExact(r, ab))) continue
+      // a + b must be a root (A2 closes)
 
       // an A1 orthogonal to the whole A2 (orthogonal to a and b, hence to a + b)
-      if (roots.some(c => dotVec(c, a) === 0 && dotVec(c, b) === 0)) {
+      if (roots.some(c => dotVec(c, a) === 0 && dotVec(c, b) === 0))
         return true
-      }
     }
   }
 
@@ -111,9 +108,7 @@ export function spinorWeightsDn(n: number): number[][] {
 
   const build = (acc: number[]): void => {
     if (acc.length === n) {
-      if (acc.filter(x => x < 0).length % 2 === 0) {
-        weights.push(acc)
-      }
+      if (acc.filter(x => x < 0).length % 2 === 0) weights.push(acc)
 
       return
     }
@@ -137,6 +132,7 @@ export function rootsD4(): number[][] {
       for (const signFirst of [1, -1]) {
         for (const signSecond of [1, -1]) {
           const root = [0, 0, 0, 0]
+
           root[first] = signFirst
           root[second] = signSecond
           roots.push(root)
@@ -159,6 +155,7 @@ export function rootsB4(): number[][] {
   for (let axis = 0; axis < 4; axis++) {
     for (const sign of [1, -1]) {
       const root = [0, 0, 0, 0]
+
       root[axis] = sign
       roots.push(root)
     }
@@ -176,6 +173,7 @@ export function hypercubicAxes(dimension: number): number[][] {
   for (let axis = 0; axis < dimension; axis++) {
     for (const sign of [1, -1]) {
       const direction = new Array<number>(dimension).fill(0)
+
       direction[axis] = sign
       axes.push(direction)
     }
@@ -215,9 +213,8 @@ export function icosahedronVertexDirections(): number[][] {
   const raw: number[][] = []
 
   for (const a of [1, -1]) {
-    for (const b of [phi, -phi]) {
+    for (const b of [phi, -phi])
       raw.push([0, a, b], [a, b, 0], [b, 0, a])
-    }
   }
 
   const norm = Math.hypot(...raw[0]!)
@@ -233,6 +230,7 @@ export function rootsF4(): number[][] {
   for (let axis = 0; axis < 4; axis++) {
     for (const sign of [1, -1]) {
       const root = [0, 0, 0, 0]
+
       root[axis] = sign
       roots.push(root)
     }
@@ -241,9 +239,7 @@ export function rootsF4(): number[][] {
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {
-        for (const d of [0.5, -0.5]) {
-          roots.push([a, b, c, d])
-        }
+        for (const d of [0.5, -0.5]) roots.push([a, b, c, d])
       }
     }
   }
@@ -258,6 +254,7 @@ export function rootsF4(): number[][] {
 export function e8SimpleRoots(): number[][] {
   const axis = (i: number): number[] => {
     const v = new Array<number>(8).fill(0)
+
     v[i] = 1
 
     return v
@@ -301,22 +298,16 @@ export function ternaryShells(n: number): Map<number, number[][]> {
         0,
       )
 
-      if (normSquared === 0) {
-        return
-      }
+      if (normSquared === 0) return
 
-      if (!shells.has(normSquared)) {
-        shells.set(normSquared, [])
-      }
+      if (!shells.has(normSquared)) shells.set(normSquared, [])
 
       shells.get(normSquared)!.push([...vector])
 
       return
     }
 
-    for (const value of [-1, 0, 1]) {
-      recurse([...vector, value])
-    }
+    for (const value of [-1, 0, 1]) recurse([...vector, value])
   }
 
   recurse([])
@@ -338,14 +329,10 @@ export function reflectionClosure(seed: number[][]): number[][] {
   const add = (vector: number[]): void => {
     const key = vectorKey(vector)
 
-    if (!found.has(key)) {
-      found.set(key, vector)
-    }
+    if (!found.has(key)) found.set(key, vector)
   }
 
-  for (const root of seed) {
-    add(root)
-  }
+  for (const root of seed) add(root)
 
   let changed = true
 
@@ -398,24 +385,18 @@ export function constructionAMinimalVectors(
         0,
       )
 
-      if (normSquared !== 2) {
-        return
-      }
+      if (normSquared !== 2) return
 
       const reduced = vector
         .map(value => ((value % 2) + 2) % 2)
         .join(',')
 
-      if (inCode.has(reduced)) {
-        minimal.push([...vector])
-      }
+      if (inCode.has(reduced)) minimal.push([...vector])
 
       return
     }
 
-    for (const value of [-1, 0, 1]) {
-      recurse([...vector, value])
-    }
+    for (const value of [-1, 0, 1]) recurse([...vector, value])
   }
 
   recurse([])
@@ -429,16 +410,13 @@ export function evenWeightCode(n: number): number[][] {
 
   const recurse = (vector: number[]): void => {
     if (vector.length === n) {
-      if (vector.reduce((sum, value) => sum + value, 0) % 2 === 0) {
+      if (vector.reduce((sum, value) => sum + value, 0) % 2 === 0)
         words.push([...vector])
-      }
 
       return
     }
 
-    for (const bit of [0, 1]) {
-      recurse([...vector, bit])
-    }
+    for (const bit of [0, 1]) recurse([...vector, bit])
   }
 
   recurse([])

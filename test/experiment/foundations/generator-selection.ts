@@ -21,9 +21,7 @@ import {
 function basis(dim: number, ...entries: [number, number][]): number[] {
   const v = new Array<number>(dim).fill(0)
 
-  for (const [index, value] of entries) {
-    v[index] = value
-  }
+  for (const [index, value] of entries) v[index] = value
 
   return v
 }

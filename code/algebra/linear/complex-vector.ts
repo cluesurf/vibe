@@ -18,9 +18,8 @@ export function newCx(dim: number): Cx {
 export function dotR(a: Cx, b: Cx, dim: number): number {
   let sum = 0
 
-  for (let i = 0; i < dim; i++) {
+  for (let i = 0; i < dim; i++)
     sum += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
-  }
 
   return sum
 }

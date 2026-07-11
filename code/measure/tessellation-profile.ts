@@ -29,6 +29,7 @@ const bfsDepths = (
   root: number,
 ): number[] => {
   const depth = new Array<number>(adjacency.length).fill(-1)
+
   depth[root] = 0
 
   let frontier = [root]
@@ -65,18 +66,14 @@ const ballRatioOf = (shells: number[]): number => {
 // the cell polytope and its facet, both counted by terminating the chamber BFS. Finite for compact honeycombs
 // (a finite B-tree order), Infinity when the cell is itself a tiling (paracompact / noncompact).
 export function cellCoordination(symbol: number[]): number {
-  if (symbol.length < 2) {
-    return symbol[0] ?? 0
-  }
+  if (symbol.length < 2) return symbol[0] ?? 0
 
   const cap = 50000
   const cell = symbol.slice(0, symbol.length - 1)
   const facet = symbol.slice(0, symbol.length - 2)
   const cellOrder = buildCoxeterMatrixMesh(cell, cap).adjacency.length
 
-  if (cellOrder >= cap) {
-    return Infinity // the cell is a tiling, infinite coordination
-  }
+  if (cellOrder >= cap) return Infinity // the cell is a tiling, infinite coordination
 
   const facetOrder =
     facet.length === 0

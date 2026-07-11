@@ -40,6 +40,7 @@ suite('dynamics/reversible-wave: exact reversibility', [
       const prev = makePrev()
       const curr = makeCurr()
       const next = new Uint8Array(N)
+
       reversibleWaveStep({
         neighbors,
         previous: prev,
@@ -50,6 +51,7 @@ suite('dynamics/reversible-wave: exact reversibility', [
 
       // reverse: with previous := next and current := curr, the step yields the old previous
       const back = new Uint8Array(N)
+
       reversibleWaveStep({
         neighbors,
         previous: next,
@@ -67,6 +69,7 @@ suite('dynamics/reversible-wave: exact reversibility', [
       const curr = makeCurr()
       const next = new Uint8Array(N)
       const coupling = 2
+
       reversibleWaveStepNonlinear({
         neighbors,
         previous: prev,
@@ -77,6 +80,7 @@ suite('dynamics/reversible-wave: exact reversibility', [
       })
 
       const back = new Uint8Array(N)
+
       reversibleWaveStepNonlinear({
         neighbors,
         previous: next,
@@ -93,6 +97,7 @@ suite('dynamics/reversible-wave: exact reversibility', [
     const curr = makeCurr()
     const a = new Uint8Array(N)
     const b = new Uint8Array(N)
+
     reversibleWaveStep({
       neighbors,
       previous: prev,
@@ -100,6 +105,7 @@ suite('dynamics/reversible-wave: exact reversibility', [
       next: a,
       modulus: Q,
     })
+
     reversibleWaveStepNonlinear({
       neighbors,
       previous: prev,
@@ -116,6 +122,7 @@ suite('dynamics/reversible-wave: determinism and range', [
   check('two identical forward steps are bit-for-bit equal', () => {
     const a = new Uint8Array(N)
     const b = new Uint8Array(N)
+
     reversibleWaveStep({
       neighbors,
       previous: makePrev(),
@@ -123,6 +130,7 @@ suite('dynamics/reversible-wave: determinism and range', [
       next: a,
       modulus: Q,
     })
+
     reversibleWaveStep({
       neighbors,
       previous: makePrev(),
@@ -138,6 +146,7 @@ suite('dynamics/reversible-wave: determinism and range', [
 
     for (let t = 0; t < 30; t++) {
       const next = new Uint8Array(N)
+
       reversibleWaveStep({
         neighbors,
         previous: prev,
@@ -146,9 +155,8 @@ suite('dynamics/reversible-wave: determinism and range', [
         modulus: Q,
       })
 
-      for (let i = 0; i < N; i++) {
+      for (let i = 0; i < N; i++)
         ok(next[i]! >= 0 && next[i]! < Q, `tone in range at ${i}`)
-      }
 
       prev = curr
       curr = next

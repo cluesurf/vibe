@@ -24,9 +24,7 @@ export function fillGatedSweep(input: {
     const v = edges[i]![0]
     const w = edges[i]![1]
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const f = fill[i]!
     const tv = tone[v]!
@@ -54,6 +52,7 @@ export function fillGatedSweep(input: {
       } else if ((tv === 0) !== (tw === 0) && rng.next() < 0.5) {
         // hop: swap the charged with the neutral
         const tmp = tone[v]!
+
         tone[v] = tone[w]!
         tone[w] = tmp
         moved[v] = 1
@@ -79,9 +78,7 @@ export function fillGatedSweepHashed(input: {
     const v = edges[i]![0]
     const w = edges[i]![1]
 
-    if (moved[v] || moved[w]) {
-      continue
-    }
+    if (moved[v] || moved[w]) continue
 
     const f = fill[i]!
     const tv = tone[v]!
@@ -111,6 +108,7 @@ export function fillGatedSweepHashed(input: {
         hashRand(i, beat, 2) < 0.5
       ) {
         const tmp = tone[v]!
+
         tone[v] = tone[w]!
         tone[w] = tmp
         moved[v] = 1
