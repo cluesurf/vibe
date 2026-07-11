@@ -11,8 +11,7 @@
     "call": "npx tsx --no-warnings=ExperimentalWarning",
     "host": "pnpm make && npm publish --access=public",
     "lint": "eslint \"code/**/*.ts\" \"test/**/*.ts\"",
-    "lint:fix": "eslint --fix \"code/**/*.ts\" \"test/**/*.ts\" \"*.ts\"",
-    "format": "prettier --write \"code/**/*.ts\" \"test/**/*.ts\" \"*.ts\" && eslint --fix \"code/**/*.ts\" \"test/**/*.ts\" \"*.ts\""
+    "format": "eslint --fix \"code/**/*.ts\" \"test/**/*.ts\" \"*.ts\" && prettier --write \"code/**/*.ts\" \"test/**/*.ts\" \"*.ts\""
   },
   "prettier": "@cluesurf/wash/flow.json",
   "devDependencies": {
