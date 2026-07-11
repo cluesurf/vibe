@@ -70,7 +70,9 @@ export function perceptionDynamics(): {
   let center = 0
 
   for (let i = 1; i < n; i++) {
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
   }
 
   const distC = neighborDistances({
@@ -99,7 +101,9 @@ export function perceptionDynamics(): {
       pump: null,
     })
 
-    if (b === 59) balanceMid = nonzero(life)
+    if (b === 59) {
+      balanceMid = nonzero(life)
+    }
   }
 
   const lifeEnd = nonzero(life)
@@ -153,13 +157,18 @@ export function perceptionDynamics(): {
     const inner: number[] = []
 
     for (let i = 0; i < n; i++) {
-      if (dd(distC, i) <= r0) inner.push(i)
+      if (dd(distC, i) <= r0) {
+        inner.push(i)
+      }
     }
 
-    for (let k = 0; k < inner.length; k++)
+    for (let k = 0; k < inner.length; k++) {
       t[inner[k]!] = k % 2 === 0 ? 1 : -1
+    }
 
-    if (inner.length % 2 === 1) t[inner[inner.length - 1]!] = 0
+    if (inner.length % 2 === 1) {
+      t[inner[inner.length - 1]!] = 0
+    }
 
     return t
   }
@@ -168,7 +177,9 @@ export function perceptionDynamics(): {
     let s = 0
 
     for (let i = 0; i < n; i++) {
-      if (dd(distC, i) <= r0) s += Math.abs(t[i]!)
+      if (dd(distC, i) <= r0) {
+        s += Math.abs(t[i]!)
+      }
     }
 
     return s
@@ -178,7 +189,9 @@ export function perceptionDynamics(): {
     let s = 0
 
     for (let i = 0; i < n; i++) {
-      if (dd(distC, i) <= r0) s += t[i]!
+      if (dd(distC, i) <= r0) {
+        s += t[i]!
+      }
     }
 
     return s

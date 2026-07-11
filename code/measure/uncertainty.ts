@@ -31,7 +31,9 @@ export function packetUncertaintyProduct(input: {
 
   const scale = 1 / Math.sqrt(normalization)
 
-  for (let x = 0; x < size; x++) amplitude[x] = amplitude[x]! * scale
+  for (let x = 0; x < size; x++) {
+    amplitude[x] = amplitude[x]! * scale
+  }
 
   let meanX = 0
   let meanX2 = 0

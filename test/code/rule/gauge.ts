@@ -93,8 +93,9 @@ suite('rule/gauge: structural invariants of a sweep', [
       })
     }
 
-    for (const k of field.link)
+    for (const k of field.link) {
       ok(k >= 0 && k < Q, `link element ${k} must be in [0, ${Q})`)
+    }
   }),
   check(
     'a triangle-free graph admits no move (links stay at identity)',
@@ -114,8 +115,9 @@ suite('rule/gauge: structural invariants of a sweep', [
         rng: makeRng({ seed: 3 }),
       })
 
-      for (const k of field.link)
+      for (const k of field.link) {
         equal(k, 0, 'no plaquette through any link, so no update')
+      }
     },
   ),
 ])

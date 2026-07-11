@@ -26,7 +26,9 @@ export function chargeSpread(tone: Int8Array): number {
     }
   }
 
-  if (count === 0) return 0
+  if (count === 0) {
+    return 0
+  }
 
   const mean = sum / count
   const variance = Math.max(0, sumSquares / count - mean * mean)
@@ -83,7 +85,9 @@ export function zenoHoldSpread(input: {
 
   const tone = new Int8Array(length)
 
-  for (let i = regionStart; i < regionEnd; i++) tone[i] = 1
+  for (let i = regionStart; i < regionEnd; i++) {
+    tone[i] = 1
+  }
 
   const moved = new Uint8Array(length)
   const rng = makeRng({ seed })

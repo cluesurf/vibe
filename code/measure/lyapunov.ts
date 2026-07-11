@@ -92,12 +92,16 @@ export function perturbationLyapunovExponent(input: {
       ys.push(Math.log(h))
     }
 
-    if (h >= cap) break
+    if (h >= cap) {
+      break
+    }
   }
 
   const n = xs.length
 
-  if (n < 5) return 0
+  if (n < 5) {
+    return 0
+  }
 
   let sx = 0
   let sy = 0

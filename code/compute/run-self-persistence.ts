@@ -132,10 +132,14 @@ function cpuBeat(
     if (mx === 0 && my === 0 && mz === 0 && mw === 0) {
       const tmp = Int32Array.from(pop)
 
-      for (let k = 0; k < DIRN; k++) pop[k] = tmp[swap[k]!]!
+      for (let k = 0; k < DIRN; k++) {
+        pop[k] = tmp[swap[k]!]!
+      }
     }
 
-    for (let k = 0; k < DIRN; k++) out[cell * DIRN + k] = pop[k]!
+    for (let k = 0; k < DIRN; k++) {
+      out[cell * DIRN + k] = pop[k]!
+    }
   }
 
   return out
@@ -154,7 +158,9 @@ function seedProtoSelf(L: number, radius: number): Int32Array {
         for (let x = c - radius; x <= c + radius; x++) {
           const cell = ((w * L + z) * L + y) * L + x
 
-          for (let k = 0; k < DIRN; k++) state[cell * DIRN + k] = 1
+          for (let k = 0; k < DIRN; k++) {
+            state[cell * DIRN + k] = 1
+          }
         }
       }
     }
@@ -178,9 +184,13 @@ function rmsRadius(state: Int32Array, L: number): number {
 
           let q = 0
 
-          for (let k = 0; k < DIRN; k++) q += state[cell * DIRN + k]!
+          for (let k = 0; k < DIRN; k++) {
+            q += state[cell * DIRN + k]!
+          }
 
-          if (q <= 0) continue
+          if (q <= 0) {
+            continue
+          }
 
           const dd = (a: number): number => {
             const r = ((a - c + L / 2 + L) % L) - L / 2
@@ -216,7 +226,9 @@ function totals(
 
       charge += v
 
-      for (let j = 0; j < 4; j++) mom[j]! += v * vecs[k]![j]!
+      for (let j = 0; j < 4; j++) {
+        mom[j]! += v * vecs[k]![j]!
+      }
     }
   }
 
@@ -390,8 +402,9 @@ async function run(): Promise<void> {
   )
   console.log('  proto-self rms radius over beats (seeded blob):')
 
-  for (const r of sim.radii)
+  for (const r of sim.radii) {
     console.log(`    beat ${r.beat}: radius ${r.radius.toFixed(3)}`)
+  }
 
   // linear (ballistic) growth rate of the radius, the baseline a real binding must beat
   const first = sim.radii[0]!

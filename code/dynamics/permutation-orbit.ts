@@ -40,7 +40,9 @@ function stepInto(input: {
 
   beatInto({ src: source, dst: target, table, collision })
 
-  if (sink) target.data[0] = 0
+  if (sink) {
+    target.data[0] = 0
+  }
 }
 
 // The recurrence period: iterate the rule from the pattern-filled state until the microstate returns
@@ -70,7 +72,9 @@ export function recurrencePeriod(input: {
 
   fillWillPattern(init)
 
-  if (sink) init.data[0] = 0
+  if (sink) {
+    init.data[0] = 0
+  }
 
   const start = hashWill(init)
 
@@ -94,7 +98,9 @@ export function recurrencePeriod(input: {
     current = scratch
     scratch = swap
 
-    if (hashWill(current) === start) return t
+    if (hashWill(current) === start) {
+      return t
+    }
   }
 
   return -1
@@ -146,7 +152,9 @@ export function ruleInjective(input: {
   stepInto({ source: b, target: nextB, table, collision, sink })
 
   for (let i = 0; i < nextA.data.length; i++) {
-    if (nextA.data[i] !== nextB.data[i]) return true
+    if (nextA.data[i] !== nextB.data[i]) {
+      return true
+    }
   }
 
   return false

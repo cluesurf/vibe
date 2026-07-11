@@ -33,7 +33,9 @@ function fillOccupancy(seed: number): number[] {
     let o = 0
 
     for (let d = 0; d < D4_DIRECTIONS; d++) {
-      if (rng.next() < 0.3) o |= 1 << d
+      if (rng.next() < 0.3) {
+        o |= 1 << d
+      }
     }
 
     return o
@@ -45,7 +47,9 @@ function popcountTotal(occ: readonly number[]): number {
   let total = 0
 
   for (const o of occ) {
-    for (let d = 0; d < D4_DIRECTIONS; d++) total += (o >> d) & 1
+    for (let d = 0; d < D4_DIRECTIONS; d++) {
+      total += (o >> d) & 1
+    }
   }
 
   return total
@@ -64,8 +68,9 @@ suite('operator/d4-lattice-gas: opposite directions', [
       ok(opp[d] !== d, `direction ${d} has a distinct opposite`)
       equal(opp[opp[d]!], d, 'opp is an involution')
 
-      for (let q = 0; q < 4; q++)
+      for (let q = 0; q < 4; q++) {
         equal(roots[opp[d]!]![q], -roots[d]![q]!, 'opp[d] is -root[d]')
+      }
     }
   }),
 ])
@@ -95,8 +100,9 @@ suite('operator/d4-lattice-gas: streaming', [
       roots,
     })
 
-    for (let q = 0; q < 4; q++)
+    for (let q = 0; q < 4; q++) {
       equal(m1[q], m0[q], `momentum component ${q} conserved`)
+    }
   }),
 ])
 

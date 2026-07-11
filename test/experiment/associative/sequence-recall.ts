@@ -35,7 +35,9 @@ function buildPath(
       }
     }
 
-    if (next < 0) break
+    if (next < 0) {
+      break
+    }
 
     used.add(next)
     path.push(next)
@@ -98,7 +100,9 @@ export function associativeSequenceRecall(input?: {
   for (let i = 0; i < replay.length && i < path.length; i++) {
     if (replay[i] === path[i]) {
       correctInOrder++
-    } else break
+    } else {
+      break
+    }
   }
 
   const solved = path.length >= 5 && correctInOrder === path.length

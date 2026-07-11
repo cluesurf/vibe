@@ -144,14 +144,17 @@ suite('model/deliberation: construction stays ternary', [
 
       equal(v.length, 50)
 
-      for (const x of v)
+      for (const x of v) {
         ok(x === -1 || x === 0 || x === 1, 'value is ternary')
+      }
 
       const self = makeSelf({ n: 12, patterns: 4, seed: 2 })
 
       equal(self.length, 4)
 
-      for (const pattern of self) equal(pattern.length, 12)
+      for (const pattern of self) {
+        equal(pattern.length, 12)
+      }
     },
   ),
 ])

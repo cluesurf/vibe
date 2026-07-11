@@ -45,8 +45,9 @@ export default experiment({
       let i = 0;
       i < mesh.cellCount && scatterPool.length < cellCount;
       i += step
-    )
+    ) {
       scatterPool.push(i)
+    }
 
     // the gather-to-scatter trajectory: at fraction f, keep (1 - f) of the compact core and
     // fill the rest from the scatter pool, so f = 0 is fully gathered (alive) and f = 1 is
@@ -59,7 +60,9 @@ export default experiment({
       const region = new Set<number>(core.slice(0, keep))
 
       for (const cell of scatterPool) {
-        if (region.size >= cellCount) break
+        if (region.size >= cellCount) {
+          break
+        }
 
         region.add(cell)
       }

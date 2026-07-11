@@ -54,21 +54,29 @@ export function minimumInterval(input: {
   const lengths: number[] = []
 
   for (const p of pts) {
-    if (!p || p.t > 6 || Math.abs(p.x) > 6) continue // keep away from the boundary
+    if (!p || p.t > 6 || Math.abs(p.x) > 6) {
+      continue
+    } // keep away from the boundary
 
     let best = Infinity
 
     for (const q of pts) {
-      if (!q || q.t <= p.t) continue
+      if (!q || q.t <= p.t) {
+        continue
+      }
 
       const dt = q.t - p.t
       const dx = q.x - p.x
       const interval2 = dt * dt - dx * dx
 
-      if (interval2 > 0) best = Math.min(best, Math.sqrt(interval2))
+      if (interval2 > 0) {
+        best = Math.min(best, Math.sqrt(interval2))
+      }
     }
 
-    if (best < Infinity) lengths.push(best)
+    if (best < Infinity) {
+      lengths.push(best)
+    }
   }
 
   const meanLength =

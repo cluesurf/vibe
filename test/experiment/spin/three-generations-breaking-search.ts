@@ -32,8 +32,9 @@ import { octonionReal, type Octonion } from '@/code/algebra/octonion'
 function diagonalVacuum(diagonal: number[]): Octonion[][] {
   const matrix = octonionMatrixZero(diagonal.length)
 
-  for (let i = 0; i < diagonal.length; i++)
+  for (let i = 0; i < diagonal.length; i++) {
     matrix[i]![i] = octonionReal(diagonal[i]!)
+  }
 
   return matrix
 }
@@ -57,8 +58,9 @@ export default experiment({
 
     for (let i = 0; i < 3; i++) {
       for (let j = i + 1; j < 3; j++) {
-        if (!areJordanOrthogonal(frame[i]!, frame[j]!))
+        if (!areJordanOrthogonal(frame[i]!, frame[j]!)) {
           pairwiseOrthogonal = false
+        }
       }
     }
 

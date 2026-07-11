@@ -24,11 +24,14 @@ export function closure<T>(generators: T[], ops: GroupOps<T>): T[] {
     }
   }
 
-  for (const generator of generators) add(generator)
+  for (const generator of generators) {
+    add(generator)
+  }
 
   for (const element of queue) {
-    for (const generator of generators)
+    for (const generator of generators) {
       add(ops.multiply(element, generator))
+    }
   }
 
   return [...seen.values()]

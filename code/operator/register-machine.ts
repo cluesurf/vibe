@@ -38,7 +38,9 @@ export class RegisterMachine {
   charge(): number {
     let s = 0
 
-    for (const toneValue of this.tone) s += toneValue
+    for (const toneValue of this.tone) {
+      s += toneValue
+    }
 
     return s
   }
@@ -56,9 +58,13 @@ export class RegisterMachine {
   }
 
   set(r: number, value: number): void {
-    for (const i of this.regions[r]!) this.tone[i] = 0
+    for (const i of this.regions[r]!) {
+      this.tone[i] = 0
+    }
 
-    for (let k = 0; k < value; k++) this.inc(r)
+    for (let k = 0; k < value; k++) {
+      this.inc(r)
+    }
   }
 
   // INC, the arrow creates a balanced pair, +1 into register r, -1 into the ground.
@@ -73,7 +79,9 @@ export class RegisterMachine {
       }
     }
 
-    if (!placedPlus) throw new Error('register overflow')
+    if (!placedPlus) {
+      throw new Error('register overflow')
+    }
 
     for (const i of this.ground) {
       if (this.tone[i] === 0) {
@@ -119,19 +127,25 @@ export class RegisterMachine {
 
       steps++
 
-      if (instr.op === 'halt') break
-      else if (instr.op === 'inc') {
+      if (instr.op === 'halt') {
+        break
+      } else if (instr.op === 'inc') {
         this.inc(instr.r)
         pc++
       } else if (instr.op === 'decjz') {
-        if (this.read(instr.r) === 0) pc = instr.addr
-        else {
+        if (this.read(instr.r) === 0) {
+          pc = instr.addr
+        } else {
           this.dec(instr.r)
           pc++
         }
-      } else if (instr.op === 'jmp') pc = instr.addr
+      } else if (instr.op === 'jmp') {
+        pc = instr.addr
+      }
 
-      if (this.charge() !== this.charge0) conserved = false
+      if (this.charge() !== this.charge0) {
+        conserved = false
+      }
     }
 
     return { steps, conserved }
@@ -202,8 +216,9 @@ export function carveRegisters(input: {
       let i = 0;
       i < perRegister && cursor < cells.length;
       i++, cursor++
-    )
+    ) {
       region.push(cells[cursor]!)
+    }
 
     regions.push(region)
   }

@@ -17,8 +17,9 @@ export function specialLinear(prime: number): MatrixModP[] {
     for (let b = 0; b < prime; b++) {
       for (let c = 0; c < prime; c++) {
         for (let d = 0; d < prime; d++) {
-          if (reduce(a * d - b * c, prime) === 1)
+          if (reduce(a * d - b * c, prime) === 1) {
             group.push([a, b, c, d])
+          }
         }
       }
     }
@@ -67,8 +68,9 @@ export function centre(prime: number): MatrixModP[] {
   const result: MatrixModP[] = []
 
   for (let lambda = 0; lambda < prime; lambda++) {
-    if (reduce(lambda * lambda, prime) === 1)
+    if (reduce(lambda * lambda, prime) === 1) {
       result.push([lambda, 0, 0, lambda])
+    }
   }
 
   return result

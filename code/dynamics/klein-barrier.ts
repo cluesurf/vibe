@@ -81,7 +81,9 @@ export function diracBarrierProbability(input: {
 
   const inv = 1 / Math.sqrt(normSeed)
 
-  for (let x = 0; x < L; x++) R[x] = [R[x]![0] * inv, R[x]![1] * inv]
+  for (let x = 0; x < L; x++) {
+    R[x] = [R[x]![0] * inv, R[x]![1] * inv]
+  }
 
   // precompute the local coin (cos m, sin m) per site: a mass barrier raises the local mass
   const cosM = new Float64Array(L)
@@ -163,9 +165,13 @@ export function diracBarrierProbability(input: {
 
     total += p
 
-    if (x < barrierStart) reflected += p
-    else if (x < barrierEnd) inside += p
-    else transmitted += p
+    if (x < barrierStart) {
+      reflected += p
+    } else if (x < barrierEnd) {
+      inside += p
+    } else {
+      transmitted += p
+    }
   }
 
   const norm = total || 1

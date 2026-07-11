@@ -31,7 +31,9 @@ suite('measure/recoverability: reversible knit conserves rGlobal = 1', [
         beats: 3,
       })
 
-      for (const point of trace) close(point.rGlobal, 1, 1e-9)
+      for (const point of trace) {
+        close(point.rGlobal, 1, 1e-9)
+      }
     },
   ),
   check(

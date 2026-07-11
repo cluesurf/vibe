@@ -57,8 +57,9 @@ export function nestedSelves(input: {
   const startResonance = groupResonance(subs)
 
   // bind them: consensus rounds
-  for (let r = 0; r < input.rounds; r++)
+  for (let r = 0; r < input.rounds; r++) {
     subs = consensusStep(subs, input.coupling)
+  }
 
   const formedResonance = groupResonance(subs)
 

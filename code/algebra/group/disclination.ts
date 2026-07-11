@@ -64,8 +64,9 @@ export function spinorHolonomy(input: {
 
   let holonomy = cmIdentity(2)
 
-  for (let k = 0; k < steps; k++)
+  for (let k = 0; k < steps; k++) {
     holonomy = cmMultiply(holonomy, stepRotor)
+  }
 
   return holonomy
 }

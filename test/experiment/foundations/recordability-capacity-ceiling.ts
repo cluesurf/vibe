@@ -90,7 +90,9 @@ function spill(
   const blockSize = Math.ceil(n / 32)
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < blockSize; i++) tone[i] = 1
+  for (let i = 0; i < blockSize; i++) {
+    tone[i] = 1
+  }
 
   const injected = blockSize
   const { eu, ev } = edgesFromCsr(csr.offsets, csr.adj, n)
@@ -108,7 +110,9 @@ function spill(
 
     if (lossy) {
       for (let i = blockSize; i < n; i++) {
-        if (tone[i] === 1) tone[i] = 0
+        if (tone[i] === 1) {
+          tone[i] = 0
+        }
       }
     }
   }

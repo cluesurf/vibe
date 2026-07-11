@@ -79,8 +79,9 @@ export function lazyNeighbors(input?: { n?: number }): {
     let pick = ns[Math.floor(rng.next() * ns.length)]!
 
     // avoid immediately bouncing back, so the walk goes genuinely deep
-    if (prev && eng.fingerprint(pick) === eng.fingerprint(prev))
+    if (prev && eng.fingerprint(pick) === eng.fingerprint(prev)) {
       pick = ns[(ns.indexOf(pick) + 1) % ns.length]!
+    }
 
     prev = cur
     cur = pick

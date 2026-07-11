@@ -115,7 +115,9 @@ export function scalarLandauSquared(input: {
           pixRe[i]![k]! * pixRe[k]![j]! - piyIm[i]![k]! * piyIm[k]![j]!
       }
 
-      if (i === j) sum += mass * mass
+      if (i === j) {
+        sum += mass * mass
+      }
 
       out.data[i * levels + j] = sum
     }

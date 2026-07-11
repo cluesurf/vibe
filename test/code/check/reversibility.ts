@@ -41,7 +41,9 @@ function patternWill(mesh: Mesh): Will {
 }
 
 const erase: Collision = (slots, base, degree) => {
-  for (let d = 0; d < degree; d++) slots[base + d] = 0
+  for (let d = 0; d < degree; d++) {
+    slots[base + d] = 0
+  }
 }
 
 const opposite = oppositeOf(square)

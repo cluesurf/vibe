@@ -44,9 +44,13 @@ export function rfRelativity(): {
       let d = Math.floor(rnd() * 24)
 
       for (let t = 0; t < T; t++) {
-        if (rnd() < mix) d = Math.floor(rnd() * 24)
+        if (rnd() < mix) {
+          d = Math.floor(rnd() * 24)
+        }
 
-        for (let q = 0; q < 4; q++) p[q]! += roots[d]![q]!
+        for (let q = 0; q < 4; q++) {
+          p[q]! += roots[d]![q]!
+        }
       }
 
       tot += Math.hypot(...p)
@@ -85,7 +89,9 @@ export function rfRelativity(): {
     const k = 0.1,
       Ek = Math.acos(Math.cos(m) * Math.cos(k))
 
-    if (Math.abs(Ek * Ek - k * k - m * m) > 1e-2) diracOk = false
+    if (Math.abs(Ek * Ek - k * k - m * m) > 1e-2) {
+      diracOk = false
+    }
   }
 
   // RF6: arrow of time, coarse entropy rises from a low-entropy start, micro reversible
@@ -121,7 +127,9 @@ export function rfRelativity(): {
 
   for (let t = 0; t < 30; t++) {
     for (const pt of parts) {
-      for (let q = 0; q < 4; q++) pt.p[q]! += roots[pt.d]![q]!
+      for (let q = 0; q < 4; q++) {
+        pt.p[q]! += roots[pt.d]![q]!
+      }
     }
   }
 

@@ -39,17 +39,24 @@ function goalWorth(): number {
 // Run the fork once: returns the pleasure the self ends up with.
 function run(willpower: number, fieldStrength: number): number {
   // a strong field overrides the will, the self cannot endure
-  if (fieldStrength >= FIELD_OVERRIDE) return SMALL
+  if (fieldStrength >= FIELD_OVERRIDE) {
+    return SMALL
+  }
 
   // is the far reward worth pursuing at all (foresight)
-  if (goalWorth() <= SMALL) return SMALL
+  if (goalWorth() <= SMALL) {
+    return SMALL
+  }
 
   // pursue it: cross the valley, spending willpower each step
   let w = willpower
 
   for (let step = 0; step < VALLEY; step++) {
-    if (w >= COST_PER_STEP) w -= COST_PER_STEP
-    else return SMALL // willpower ran out mid-valley, relapse to the small pleasure
+    if (w >= COST_PER_STEP) {
+      w -= COST_PER_STEP
+    } else {
+      return SMALL
+    } // willpower ran out mid-valley, relapse to the small pleasure
   }
 
   return BIG // endured the whole valley, reached the big pleasure
@@ -79,8 +86,9 @@ export function willFork(): {
   // sweep willpower to find the threshold where the self flips from relapse to delayed gratification
   const willpowerSweep: { willpower: number; outcome: number }[] = []
 
-  for (let wpw = 0; wpw <= 8; wpw++)
+  for (let wpw = 0; wpw <= 8; wpw++) {
     willpowerSweep.push({ willpower: wpw, outcome: run(wpw, 0) })
+  }
 
   let willpowerThreshold = -1
 

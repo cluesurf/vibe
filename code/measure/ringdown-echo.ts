@@ -32,8 +32,9 @@ export function sourceEnergyTrace(input: {
   const ball: number[] = []
 
   for (let cell = 0; cell < n; cell++) {
-    if (distance[cell]! >= 0 && distance[cell]! <= radius)
+    if (distance[cell]! >= 0 && distance[cell]! <= radius) {
       ball.push(cell)
+    }
   }
 
   // a degree-normalized second-order reversible wave (the reversible-wave module uses a
@@ -54,7 +55,9 @@ export function sourceEnergyTrace(input: {
 
       const row = neighbors[i] ?? []
 
-      for (const j of row) sum += curr[j]!
+      for (const j of row) {
+        sum += curr[j]!
+      }
 
       // second-order reversible wave with a degree-normalized graph Laplacian, a proper
       // d'Alembertian, u_next = 2u - u_prev - L_norm u, CFL-stable so it stays bounded.
@@ -74,7 +77,9 @@ export function sourceEnergyTrace(input: {
   for (let beat = 0; beat < beats; beat++) {
     let mean = 0
 
-    for (const cell of ball) mean += curr[cell]!
+    for (const cell of ball) {
+      mean += curr[cell]!
+    }
 
     mean /= ball.length
 
@@ -106,7 +111,9 @@ export function ringdownPersistence(input: {
   const { trace, startBeat, endBeat } = input
   const initial = trace[0] ?? 0
 
-  if (initial <= 0) return 0
+  if (initial <= 0) {
+    return 0
+  }
 
   let sum = 0
   let count = 0
@@ -131,7 +138,9 @@ export function detectEcho(trace: readonly number[]): {
   echoBeat: number
   echoStrength: number
 } {
-  if (trace.length < 4) return { echoBeat: -1, echoStrength: 0 }
+  if (trace.length < 4) {
+    return { echoBeat: -1, echoStrength: 0 }
+  }
 
   const initial = trace[0]!
 

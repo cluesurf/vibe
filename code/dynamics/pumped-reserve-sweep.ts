@@ -27,7 +27,9 @@ export function pumpedReserveSweep(input: {
   const moved = new Uint8Array(tone.length)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const tv = tone[v]!
     const tw = tone[w]!
@@ -41,7 +43,9 @@ export function pumpedReserveSweep(input: {
     } else if (tw === 0 && tv !== 0) {
       e = w
       c = v
-    } else continue
+    } else {
+      continue
+    }
 
     const crossing = inSelf[v] !== inSelf[w]
     const interior = inSelf[v] === 1 && inSelf[w] === 1
@@ -49,10 +53,16 @@ export function pumpedReserveSweep(input: {
     let swap = false
 
     if (pump && interior) {
-      if (rng.next() < fieldLeak) swap = rng.next() < 0.5
-      else swap = tone[c]! > 0 ? dd(e) < dd(c) : dd(e) > dd(c)
-    } else if (pump && crossing) swap = rng.next() < fieldLeak
-    else swap = rng.next() < 0.5
+      if (rng.next() < fieldLeak) {
+        swap = rng.next() < 0.5
+      } else {
+        swap = tone[c]! > 0 ? dd(e) < dd(c) : dd(e) > dd(c)
+      }
+    } else if (pump && crossing) {
+      swap = rng.next() < fieldLeak
+    } else {
+      swap = rng.next() < 0.5
+    }
 
     if (swap) {
       tone[e] = tone[c]!

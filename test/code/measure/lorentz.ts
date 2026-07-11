@@ -26,13 +26,21 @@ function squareLattice(L: number): Graph {
       const id = y * L + x
       const row: number[] = []
 
-      if (x + 1 < L) row.push(y * L + x + 1)
+      if (x + 1 < L) {
+        row.push(y * L + x + 1)
+      }
 
-      if (x - 1 >= 0) row.push(y * L + x - 1)
+      if (x - 1 >= 0) {
+        row.push(y * L + x - 1)
+      }
 
-      if (y + 1 < L) row.push((y + 1) * L + x)
+      if (y + 1 < L) {
+        row.push((y + 1) * L + x)
+      }
 
-      if (y - 1 >= 0) row.push((y - 1) * L + x)
+      if (y - 1 >= 0) {
+        row.push((y - 1) * L + x)
+      }
 
       neighbors[id] = row
       coords[id * 2] = x

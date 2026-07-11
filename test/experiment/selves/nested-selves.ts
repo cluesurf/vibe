@@ -56,7 +56,9 @@ export function nestedSelves(input: { seed: number }): {
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
 
-  for (let v = 0; v < g.size; v++) members[cellOf[v] ?? 0]?.push(v)
+  for (let v = 0; v < g.size; v++) {
+    members[cellOf[v] ?? 0]?.push(v)
+  }
 
   // Perturb a varying fraction of one cell, re-settle, measure how much of the cell returns
   // to the body's pattern (absorbed) and how intact the rest of the body stays. Average over
@@ -106,7 +108,9 @@ export function nestedSelves(input: { seed: number }): {
       let bodyTot = 0
 
       for (let v = 0; v < g.size; v++) {
-        if (cellSet.has(v)) continue
+        if (cellSet.has(v)) {
+          continue
+        }
 
         bodyTot++
 

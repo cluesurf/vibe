@@ -78,8 +78,9 @@ export default experiment({
       let charge = 0
 
       for (let yy = -half; yy <= half; yy++) {
-        for (let xx = -half; xx <= half; xx++)
+        for (let xx = -half; xx <= half; xx++) {
           charge += cellTone(state, cellAt(cx + xx, cy + yy))
+        }
       }
 
       return charge > 0 ? 1 : charge < 0 ? -1 : 0
@@ -91,6 +92,7 @@ export default experiment({
       near: Map<number, number> // connected future region charge sign, by side
       far: Map<number, number> // disconnected future region charge sign, by side
     }
+
     const records: Record[] = []
 
     for (let dy = -9; dy <= 9; dy++) {
@@ -112,12 +114,15 @@ export default experiment({
 
           let mid = will
 
-          for (let t = 0; t < T_MID; t++) mid = beat(mid, collision)
+          for (let t = 0; t < T_MID; t++) {
+            mid = beat(mid, collision)
+          }
 
           let future: Will = { ...mid, data: mid.data.slice() }
 
-          for (let t = T_MID; t < T_FINAL; t++)
+          for (let t = T_MID; t < T_FINAL; t++) {
             future = beat(future, collision)
+          }
 
           const near = new Map<number, number>()
           const far = new Map<number, number>()

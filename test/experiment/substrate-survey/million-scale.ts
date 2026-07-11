@@ -106,7 +106,9 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       limit: 4000,
     })
 
-    for (const i of blob) t[i] = 1
+    for (const i of blob) {
+      t[i] = 1
+    }
 
     const meanBlob = (arr: Int8Array): number =>
       blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
@@ -133,7 +135,9 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
 
     let bg = 0
 
-    for (let i = 0; i < n; i++) bg += t[i]!
+    for (let i = 0; i < n; i++) {
+      bg += t[i]!
+    }
 
     bg /= n
 

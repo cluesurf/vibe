@@ -26,8 +26,9 @@ const orderSL = (p: number): number => p * (p * p - 1)
 
 suite('algebra/group/special-linear: SL(2,p) order and determinants', [
   check('|SL(2,p)| = p(p^2 - 1) for p = 2,3,5,7', () => {
-    for (const p of [2, 3, 5, 7])
+    for (const p of [2, 3, 5, 7]) {
       equal(specialLinear(p).length, orderSL(p), `|SL(2,${p})|`)
+    }
 
     // the named orders
     equal(orderSL(2), 6, '|SL(2,2)| = 6')
@@ -37,8 +38,9 @@ suite('algebra/group/special-linear: SL(2,p) order and determinants', [
   }),
   check('every listed matrix has determinant 1 mod p', () => {
     for (const p of [2, 3, 5, 7]) {
-      for (const m of specialLinear(p))
+      for (const m of specialLinear(p)) {
         equal(detModP(m, p), 1, `det = 1 mod ${p}`)
+      }
     }
   }),
   check('all listed matrices are distinct', () => {
@@ -103,8 +105,9 @@ suite('algebra/group/special-linear: centre and PSL(2,p)', [
     // |Z(SL(2,p))| = gcd(2, p-1): 1 for p=2, else 2.
     equal(centre(2).length, 1, '|Z(SL(2,2))| = 1')
 
-    for (const p of [3, 5, 7])
+    for (const p of [3, 5, 7]) {
       equal(centre(p).length, 2, `|Z(SL(2,${p}))| = 2`)
+    }
   }),
   check(
     '-I has det 1, lies in the centre, and differs from I for odd p',

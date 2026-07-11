@@ -8,6 +8,7 @@ import { suite, check, close } from '@/test/code/harness'
 import { sphericalTriangleArea } from '@/code/measure/topological-charge'
 
 type V = [number, number, number]
+
 const X: V = [1, 0, 0]
 const Y: V = [0, 1, 0]
 const Z: V = [0, 0, 1]

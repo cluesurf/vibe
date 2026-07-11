@@ -47,7 +47,9 @@ import { verdict } from '@/test/scaffold/verdict'
 function orderParameter(betaJ: number, betaH: number): number {
   let m = 0
 
-  for (let i = 0; i < 5000; i++) m = Math.tanh(betaJ * m + betaH)
+  for (let i = 0; i < 5000; i++) {
+    m = Math.tanh(betaJ * m + betaH)
+  }
 
   return m
 }

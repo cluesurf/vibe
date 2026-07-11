@@ -41,8 +41,9 @@ export function unfoldMeshShells(input: {
 export function shellRatios(counts: readonly number[]): number[] {
   const ratios: number[] = []
 
-  for (let i = 1; i < counts.length; i++)
+  for (let i = 1; i < counts.length; i++) {
     ratios.push(counts[i]! / counts[i - 1]!)
+  }
 
   return ratios
 }

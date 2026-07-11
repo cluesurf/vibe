@@ -52,7 +52,9 @@ export function settledAvalancheSizes<
   const base = new Int8Array(size)
   const settleRng = makeRng(settleSeed)
 
-  for (let t = 0; t < settleSteps; t++) relax(base, settleRng)
+  for (let t = 0; t < settleSteps; t++) {
+    relax(base, settleRng)
+  }
 
   const background = toneDensity(base)
   const sizes = avalancheSizes({
@@ -120,9 +122,13 @@ export function avalancheSizes<
         }
       }
 
-      if (diff > peak) peak = diff
+      if (diff > peak) {
+        peak = diff
+      }
 
-      if (mode === 'peak' && diff === 0) break
+      if (mode === 'peak' && diff === 0) {
+        break
+      }
     }
 
     if (mode === 'final') {
@@ -135,7 +141,9 @@ export function avalancheSizes<
       }
 
       sizes.push(diff)
-    } else sizes.push(peak)
+    } else {
+      sizes.push(peak)
+    }
   }
 
   return sizes.sort((a, b) => a - b)

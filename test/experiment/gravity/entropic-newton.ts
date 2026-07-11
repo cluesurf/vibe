@@ -30,7 +30,9 @@ const RADII = [2, 3, 4, 5]
 
 function strictlyDecreasing(values: number[]): boolean {
   for (let i = 1; i < values.length; i++) {
-    if (values[i]! >= values[i - 1]!) return false
+    if (values[i]! >= values[i - 1]!) {
+      return false
+    }
   }
 
   return true

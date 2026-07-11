@@ -24,7 +24,9 @@ const matmul = (a: Matrix, b: Matrix): Matrix => {
     for (let j = 0; j < n; j++) {
       let s = 0
 
-      for (let k = 0; k < n; k++) s += a[i]![k]! * b[k]![j]!
+      for (let k = 0; k < n; k++) {
+        s += a[i]![k]! * b[k]![j]!
+      }
 
       out[i]![j] = s
     }
@@ -72,7 +74,9 @@ const R90: Matrix = [
 const c4 = (): Matrix[] => {
   const group: Matrix[] = [identity(2)]
 
-  for (let k = 1; k < 4; k++) group.push(matmul(group[k - 1]!, R90))
+  for (let k = 1; k < 4; k++) {
+    group.push(matmul(group[k - 1]!, R90))
+  }
 
   return group
 }

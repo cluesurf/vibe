@@ -53,7 +53,9 @@ function makeStep(
     }
 
     for (const v of order) {
-      if (used[v]) continue
+      if (used[v]) {
+        continue
+      }
 
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
@@ -62,7 +64,9 @@ function makeStep(
       for (let s = 0; s < deg; s++) {
         const w = adj[start + ((off + s) % deg)]!
 
-        if (used[w] || w === v) continue
+        if (used[w] || w === v) {
+          continue
+        }
 
         const [na, nb] = pairOp(tone[v]!, tone[w]!)
 
@@ -93,7 +97,9 @@ function formPersistence(
   let numGroups = 0
 
   for (const gi of groupOf) {
-    if (gi + 1 > numGroups) numGroups = gi + 1
+    if (gi + 1 > numGroups) {
+      numGroups = gi + 1
+    }
   }
 
   const series: number[][] = []
@@ -103,8 +109,9 @@ function formPersistence(
 
     const g = new Array<number>(numGroups).fill(0)
 
-    for (let i = 0; i < tone.length; i++)
+    for (let i = 0; i < tone.length; i++) {
       g[groupOf[i]!] = g[groupOf[i]!]! + tone[i]!
+    }
 
     series.push(g)
   }
@@ -167,7 +174,9 @@ function cuspTower(): {
     return g.coords.map(c => {
       const k = `${Math.floor(c[0]! / b)},${Math.floor(c[1]! / b)},${Math.floor(c[2]! / b)}`
 
-      if (!idx.has(k)) idx.set(k, idx.size)
+      if (!idx.has(k)) {
+        idx.set(k, idx.size)
+      }
 
       return idx.get(k)!
     })
@@ -176,9 +185,13 @@ function cuspTower(): {
   const rng = makeRng({ seed: 11 })
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) tone[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < n; i++) {
+    tone[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
-  for (let f = 0; f < 40; f++) stepPerception(tone, offsets, adj, rng)
+  for (let f = 0; f < 40; f++) {
+    stepPerception(tone, offsets, adj, rng)
+  }
   // settle
 
   const blocks = [1, 2, 4, 6]
@@ -261,7 +274,9 @@ function bulkTower(): {
     return a.address.map(addr => {
       const k = addr.slice(0, d).join('.') || 'root'
 
-      if (!idx.has(k)) idx.set(k, idx.size)
+      if (!idx.has(k)) {
+        idx.set(k, idx.size)
+      }
 
       return idx.get(k)!
     })
@@ -270,9 +285,13 @@ function bulkTower(): {
   const rng = makeRng({ seed: 13 })
   const tone = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) tone[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < n; i++) {
+    tone[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
-  for (let f = 0; f < 40; f++) stepPerception(tone, offsets, adj, rng)
+  for (let f = 0; f < 40; f++) {
+    stepPerception(tone, offsets, adj, rng)
+  }
 
   const depths = [4, 3, 2, 1] // fine -> coarse (address-prefix length)
   const real: number[] = []

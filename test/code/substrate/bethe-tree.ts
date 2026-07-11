@@ -74,8 +74,9 @@ suite('substrate/bethe-tree: tree structure', [
         degSum += adj[i]!.length
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of adj[i]!)
+        for (const j of adj[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
       }
 
       equal(degSum / 2, adj.length - 1, 'edges = nodes - 1 (a tree)')

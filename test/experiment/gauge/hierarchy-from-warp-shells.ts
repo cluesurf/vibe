@@ -77,9 +77,13 @@ function lambdaPassRange(): { min: number; max: number } {
     const lambda = Math.exp(logLow + ((logHigh - logLow) * i) / steps)
 
     if (gatesPass(lambda)) {
-      if (lambda < min) min = lambda
+      if (lambda < min) {
+        min = lambda
+      }
 
-      if (lambda > max) max = lambda
+      if (lambda > max) {
+        max = lambda
+      }
     }
   }
 

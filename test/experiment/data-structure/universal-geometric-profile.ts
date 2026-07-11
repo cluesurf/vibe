@@ -60,12 +60,17 @@ export default experiment({
       const inner = levels.slice(0, 3).reduce((s, n) => s + n, 0)
       const outer = levels.slice(3).reduce((s, n) => s + n, 0)
 
-      if (greedy.successRate < 0.85) allGreedyDeliver = false
+      if (greedy.successRate < 0.85) {
+        allGreedyDeliver = false
+      }
 
-      if (!(outer > inner)) allPyramid = false
+      if (!(outer > inner)) {
+        allPyramid = false
+      }
 
-      if (!(greedy.successRate > scrambled.successRate + 0.2))
+      if (!(greedy.successRate > scrambled.successRate + 0.2)) {
         allBeatScrambled = false
+      }
 
       worstGreedy = Math.min(worstGreedy, greedy.successRate)
     }

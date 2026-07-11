@@ -38,9 +38,13 @@ export function disclinationSpin(): {
       ? h.spinorIsMinusOne
       : h.spinorIsPlusOne
 
-    if (!spinorMatches) spinorParityCorrect = false
+    if (!spinorMatches) {
+      spinorParityCorrect = false
+    }
 
-    if (!h.vectorReturnsToSelf) vectorAlwaysReturns = false
+    if (!h.vectorReturnsToSelf) {
+      vectorAlwaysReturns = false
+    }
   }
 
   // the headline: a single (odd, half) disclination flips the spinor while the vector is unmoved
@@ -63,8 +67,9 @@ export function disclinationSpin(): {
       if (
         h.spinorIsMinusOne !== base.spinorIsMinusOne ||
         h.spinorIsPlusOne !== base.spinorIsPlusOne
-      )
+      ) {
         topological = false
+      }
     }
   }
 

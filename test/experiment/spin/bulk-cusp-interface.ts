@@ -53,7 +53,9 @@ function directionProjection(radial: number[]): {
   for (const p of proj) {
     const n = Math.hypot(...p)
 
-    if (n < 1e-9) continue
+    if (n < 1e-9) {
+      continue
+    }
 
     const u = p.map(x => x / n)
 
@@ -87,8 +89,9 @@ export function bulkCuspInterface(): void {
     [1, 1, 1, 1],
     [1, 0, 0, 0],
     [1, 1, 0, 0],
-  ])
+  ]) {
     directionProjection(radial)
+  }
 }
 
 export default experiment({

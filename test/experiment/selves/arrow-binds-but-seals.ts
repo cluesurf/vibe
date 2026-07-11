@@ -63,7 +63,9 @@ export default experiment({
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
 
-      if (d < o) lines.push([d, o])
+      if (d < o) {
+        lines.push([d, o])
+      }
     }
 
     const center =
@@ -130,7 +132,9 @@ export default experiment({
 
         const b = c * degree
 
-        for (let d = 0; d < degree; d++) n += will.data[b + d]!
+        for (let d = 0; d < degree; d++) {
+          n += will.data[b + d]!
+        }
 
         q[c] = n
 
@@ -145,7 +149,9 @@ export default experiment({
         }
       }
 
-      if (total === 0) return 0
+      if (total === 0) {
+        return 0
+      }
 
       const mx = sx / total,
         my = sy / total,
@@ -192,7 +198,9 @@ export default experiment({
 
         const r = netRms(bd)
 
-        if (r > rmsMax) rmsMax = r
+        if (r > rmsMax) {
+          rmsMax = r
+        }
       }
 
       const trace = (open: boolean): number => {

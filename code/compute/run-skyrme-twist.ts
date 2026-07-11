@@ -67,8 +67,9 @@ function absCoeffs(M: number): Float64Array {
 
   c[0] = 2 / Math.PI
 
-  for (let k = 1; 2 * k < M; k++)
+  for (let k = 1; 2 * k < M; k++) {
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
+  }
 
   return c
 }
@@ -340,7 +341,9 @@ async function run(): Promise<void> {
   for (let r = 0; r < NRV; r++) {
     const xd = new Float32Array(FN)
 
-    for (let i = 0; i < FN; i++) xd[i] = rng.next() < 0.5 ? -1 : 1
+    for (let i = 0; i < FN; i++) {
+      xd[i] = rng.next() < 0.5 ? -1 : 1
+    }
 
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN)
@@ -354,16 +357,18 @@ async function run(): Promise<void> {
 
       const mD = await computeMoments()
 
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMuD[ki]![n]! += (mD[n]! - muV[n]!) / NRV
+      }
 
       device.queue.writeBuffer(nrt, 0, helN[ki]!)
       device.queue.writeBuffer(Bb[0]!, 0, xd)
 
       const mH = await computeMoments()
 
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMuH[ki]![n]! += (mH[n]! - muV[n]!) / NRV
+      }
     }
 
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
@@ -373,7 +378,9 @@ async function run(): Promise<void> {
     Ks.map((k, ki) => {
       let s = 0
 
-      for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ki]![n]!
+      for (let n = 0; n < MCHEB; n++) {
+        s += g[n]! * c[n]! * dMu[ki]![n]!
+      }
 
       return { q: (2 * Math.PI * k) / L, dE: -0.5 * A * s }
     })

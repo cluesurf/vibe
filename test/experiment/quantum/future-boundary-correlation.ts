@@ -83,6 +83,7 @@ export default experiment({
       apexValue: number
       controlValue: number
     }
+
     const records: Record[] = []
 
     for (let dy = -9; dy <= 9; dy++) {
@@ -106,12 +107,15 @@ export default experiment({
 
           let mid = will
 
-          for (let t = 0; t < T_MID; t++) mid = beat(mid, collision)
+          for (let t = 0; t < T_MID; t++) {
+            mid = beat(mid, collision)
+          }
 
           let future: Will = { ...mid, data: mid.data.slice() }
 
-          for (let t = T_MID; t < T_FINAL; t++)
+          for (let t = T_MID; t < T_FINAL; t++) {
             future = beat(future, collision)
+          }
 
           records.push({
             a: distances.map(d =>

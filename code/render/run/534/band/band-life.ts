@@ -70,7 +70,9 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -78,7 +80,9 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -90,10 +94,13 @@ function run(): void {
   )
 
   type BandCell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
@@ -167,7 +174,9 @@ function run(): void {
     for (const c of band) {
       const t = tone[c.index]!
 
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
 
       const col = COLORS[t === 1 ? 1 : 2]!
 
@@ -176,7 +185,9 @@ function run(): void {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
 
           const idx = (y * IMG + x) * 4
 
@@ -193,7 +204,9 @@ function run(): void {
     if (f % 40 === 0 || f === FRAMES - 1) {
       const largest = largestPositiveCluster(tone, g).length
 
-      if (f === 0) firstSelf = largest
+      if (f === 0) {
+        firstSelf = largest
+      }
 
       console.log(`  beat ${f}, largest self ${largest} cells`)
     }

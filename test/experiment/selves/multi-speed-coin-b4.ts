@@ -107,7 +107,9 @@ export default experiment({
     ): number => {
       let c = cell
 
-      for (let i = 0; i < steps; i++) c = mesh.neighbour(c, dir)
+      for (let i = 0; i < steps; i++) {
+        c = mesh.neighbour(c, dir)
+      }
 
       return c
     }

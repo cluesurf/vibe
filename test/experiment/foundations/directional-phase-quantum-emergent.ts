@@ -50,7 +50,9 @@ const BEATS = 8
 function occupationNorm(will: Will): number {
   let sum = 0
 
-  for (const value of will.data) sum += value * value
+  for (const value of will.data) {
+    sum += value * value
+  }
 
   return sum
 }
@@ -103,8 +105,9 @@ export default experiment({
 
     const lossyStartNorm = occupationNorm(lossyWill)
 
-    for (let t = 0; t < BEATS; t++)
+    for (let t = 0; t < BEATS; t++) {
       lossyWill = beat(lossyWill, erasingCollision)
+    }
 
     const lossyEndNorm = occupationNorm(lossyWill)
     const lossyDissipates = lossyEndNorm < lossyStartNorm

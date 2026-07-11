@@ -29,7 +29,9 @@ function randomBalanced(M: number, rng: Rng): Int8Array {
   const p = new Int8Array(M)
   const half = Math.floor(M / 2)
 
-  for (let i = 0; i < M; i++) p[i] = i < half ? 1 : -1
+  for (let i = 0; i < M; i++) {
+    p[i] = i < half ? 1 : -1
+  }
 
   for (let i = M - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
@@ -84,7 +86,9 @@ function evolve(
 ): { meanByGen: number[]; heritability: number } {
   let pop: Int8Array[] = []
 
-  for (let i = 0; i < P; i++) pop.push(randomBalanced(M, rng))
+  for (let i = 0; i < P; i++) {
+    pop.push(randomBalanced(M, rng))
+  }
 
   const meanByGen: number[] = []
 

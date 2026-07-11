@@ -20,9 +20,13 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function isCompactHyperbolic(symbol: number[]): boolean {
-  if (symbol.length < 2) return false
+  if (symbol.length < 2) {
+    return false
+  }
 
-  if (classifyGeometry(symbol) !== 'hyperbolic') return false
+  if (classifyGeometry(symbol) !== 'hyperbolic') {
+    return false
+  }
 
   const cell = symbol.slice(0, -1)
   const vertexFigure = symbol.slice(1)
@@ -76,8 +80,9 @@ export function autoSelection(): {
 
   for (let p = 3; p <= 6; p++) {
     for (let r = 3; r <= 8; r++) {
-      if (isCompactHyperbolic([p, 3, r]))
+      if (isCompactHyperbolic([p, 3, r])) {
         allQ3Compact.push({ symbol: `{${p},3,${r}}`, r })
+      }
     }
   }
 

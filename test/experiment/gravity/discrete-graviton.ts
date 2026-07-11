@@ -77,8 +77,9 @@ export function discreteGraviton(input: { seed: number }): {
     }
 
     for (let mu = 0; mu < D; mu++) {
-      for (let nu = 0; nu < D; nu++)
+      for (let nu = 0; nu < D; nu++) {
         hGauge.data[site]![mu * D + nu] = dxi(mu, nu) + dxi(nu, mu)
+      }
     }
   }
 
@@ -89,7 +90,9 @@ export function discreteGraviton(input: { seed: number }): {
   // massless operator gives exactly 0 (it is all derivatives).
   const hConst = makeField(L)
 
-  for (const row of hConst.data) row[1 * D + 1] = 0.7 // a constant h_xx
+  for (const row of hConst.data) {
+    row[1 * D + 1] = 0.7
+  } // a constant h_xx
 
   const massTermResidual = maxAbs(linearizedEinstein(hConst))
 

@@ -56,7 +56,9 @@ export default experiment({
     const leaves: number[] = []
 
     for (let cell = 0; cell < mesh.cellCount; cell++) {
-      if (generation[cell] === maxGeneration) leaves.push(cell)
+      if (generation[cell] === maxGeneration) {
+        leaves.push(cell)
+      }
     }
 
     const reference = leaves[0]!
@@ -69,7 +71,9 @@ export default experiment({
     for (const gap of gaps) {
       const partner = leaves[gap]
 
-      if (partner === undefined) continue
+      if (partner === undefined) {
+        continue
+      }
 
       physical.push(gap)
       ancestorGen.push(

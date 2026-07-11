@@ -21,6 +21,7 @@ type Field = {
   Y: number
   su3index: number
 }
+
 const GENERATION: Field[] = [
   { name: 'Q', color: 3, weak: 2, Y: 1 / 6, su3index: +1 }, // quark doublet, 3 of SU(3)
   { name: 'uc', color: 3, weak: 1, Y: -2 / 3, su3index: -1 }, // up antiquark, 3bar

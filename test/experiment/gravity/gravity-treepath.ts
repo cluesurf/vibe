@@ -35,7 +35,9 @@ function measure(
 
   const isB = new Uint8Array(N)
 
-  for (const b of boundary) isB[b] = 1
+  for (const b of boundary) {
+    isB[b] = 1
+  }
 
   // source boundary cell; surface BFS distance to other boundary cells
   const src = boundary[0]!
@@ -50,7 +52,9 @@ function measure(
   const pts: [number, number][] = []
 
   for (const b of boundary) {
-    if (b === src || sdist[b]! <= 0) continue
+    if (b === src || sdist[b]! <= 0) {
+      continue
+    }
 
     const treePath = depth[src]! + depth[b]! - 2 * lcaDepth(src, b)
     const coupling = Math.pow(tau, treePath)

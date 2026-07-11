@@ -164,8 +164,9 @@ export function chiralCondensateSignal(input: {
     })
 
     // H_W = gamma5 (D_W - m0): subtract m0 on the diagonal, negate spin-down rows.
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
+    }
 
     for (let row = 0; row < n; row++) {
       if (row % 2 === 1) {
@@ -187,7 +188,9 @@ export function chiralCondensateSignal(input: {
     const eig = eigHermitian({ matrix: epsilon })
 
     for (const eigenvalue of eig.values) {
-      if (Math.abs(eigenvalue ?? 0) < tol) nearZero += 1
+      if (Math.abs(eigenvalue ?? 0) < tol) {
+        nearZero += 1
+      }
 
       totalEig += 1
     }

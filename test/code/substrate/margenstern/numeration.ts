@@ -22,8 +22,9 @@ suite('substrate/margenstern/numeration: encode/decode round trip', [
       basis: [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233],
     })
 
-    for (let n = 0; n <= 300; n++)
+    for (let n = 0; n <= 300; n++) {
       equal(num.decode(num.encode(n)), n, `round trip ${n}`)
+    }
   }),
   check('greedy digits times basis sum to the value', () => {
     const basis = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
@@ -36,8 +37,9 @@ suite('substrate/margenstern/numeration: encode/decode round trip', [
 
       const len = digits.length
 
-      for (let i = 0; i < len; i++)
+      for (let i = 0; i < len; i++) {
         sum += digits[i]! * basis[len - 1 - i]!
+      }
 
       equal(sum, n, `digits reconstruct ${n}`)
     }
@@ -93,8 +95,9 @@ suite('substrate/margenstern/numeration: building the basis', [
       // {5,4}: coefficients [p-2,-1] = [3,-1], seeds [1, p-2] = [1, 3].
       const expected: number[] = [1, 3]
 
-      for (let n = 2; n < 8; n++)
+      for (let n = 2; n < 8; n++) {
         expected.push(3 * expected[n - 1]! - expected[n - 2]!)
+      }
 
       const got = recurrenceBasis({
         coefficients: [3, -1],
@@ -115,7 +118,8 @@ suite('substrate/margenstern/numeration: building the basis', [
     // a non-increasing tail is dropped (basis must strictly increase).
     const b = growthBasis([3, 3, 5, 4, 9])
 
-    for (let i = 1; i < b.length; i++)
+    for (let i = 1; i < b.length; i++) {
       ok(b[i]! > b[i - 1]!, 'strictly increasing')
+    }
   }),
 ])

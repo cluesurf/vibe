@@ -12,7 +12,9 @@ import { applyExchangeUnitary } from '@/code/operator/exchange-unitary'
 const norm = (re: Float64Array, im: Float64Array): number => {
   let s = 0
 
-  for (let i = 0; i < 4; i++) s += re[i]! * re[i]! + im[i]! * im[i]!
+  for (let i = 0; i < 4; i++) {
+    s += re[i]! * re[i]! + im[i]! * im[i]!
+  }
 
   return s
 }

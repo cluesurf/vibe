@@ -22,8 +22,9 @@ const det3 = (m: Matrix3): number =>
   m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!)
 
 const closeMatrix = (a: Matrix3, b: Matrix3, message: string): void => {
-  for (let i = 0; i < 3; i++)
+  for (let i = 0; i < 3; i++) {
     closeArray(a[i]!, b[i]!, TOL, `${message} row ${i}`)
+  }
 }
 
 const Z = [0, 0, 1]
@@ -77,8 +78,9 @@ suite('algebra/group/rotation-matrix: rotations are in SO(3)', [
   }),
   check('det(R) = 1 (a proper rotation, not a reflection)', () => {
     for (const axis of AXES) {
-      for (const ang of ANGLES)
+      for (const ang of ANGLES) {
         close(det3(rotationMatrix3(axis, ang)), 1, TOL, 'det = 1')
+      }
     }
   }),
   check('trace(R) = 1 + 2 cos(angle)', () => {

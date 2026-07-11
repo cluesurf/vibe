@@ -82,8 +82,9 @@ export function selfEmergence(): {
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
 
-  for (let b = 0; b < BEATS; b++)
+  for (let b = 0; b < BEATS; b++) {
     fillGatedSweepHashed({ tone: tF, edges, fill: fF, beat: b })
+  }
 
   const coherenceFiveEnd = coherence(tF, edges, fF)
   const patchFiveEnd = largestPatch(tF, edges, fF, n)

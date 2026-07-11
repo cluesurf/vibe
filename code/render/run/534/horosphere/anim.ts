@@ -82,7 +82,9 @@ async function run(): Promise<void> {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -90,7 +92,9 @@ async function run(): Promise<void> {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -103,6 +107,7 @@ async function run(): Promise<void> {
 
   // extract the horosphere band ONCE, the cell index plus its fixed pixel position
   type BandCell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (const i of extractBand({
@@ -263,19 +268,25 @@ async function run(): Promise<void> {
     for (const c of band) {
       const tone = currentOf(tones[c.index]!)
 
-      if (tone === 0) continue
+      if (tone === 0) {
+        continue
+      }
       // peace is black, the background, draw only the charges
 
       const col = COLORS[tone]!
 
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
-          if (dx * dx + dy * dy > RADIUS * RADIUS) continue
+          if (dx * dx + dy * dy > RADIUS * RADIUS) {
+            continue
+          }
 
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
 
           const idx = (y * IMG + x) * 4
 

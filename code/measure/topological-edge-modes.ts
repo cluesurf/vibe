@@ -135,7 +135,9 @@ export function edgeModeCountFromProfile(input: {
     const nearZero = ev > gapTol
     const nearPi = ev < -gapTol
 
-    if (!nearZero && !nearPi) continue
+    if (!nearZero && !nearPi) {
+      continue
+    }
 
     // localization: fraction of weight within locRadius of either interface (x = ifaceA or x = 0)
     let wIface = 0
@@ -157,7 +159,9 @@ export function edgeModeCountFromProfile(input: {
 
         const dB = Math.min(x, L - x)
 
-        if (dA <= locRadius || dB <= locRadius) wIface += p
+        if (dA <= locRadius || dB <= locRadius) {
+          wIface += p
+        }
       }
     }
 

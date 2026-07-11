@@ -66,7 +66,9 @@ export function nearCriticalRP(input?: {
     () => [],
   )
 
-  for (let i = 0; i < N; i++) posCells[s.position[i]!]!.push(i)
+  for (let i = 0; i < N; i++) {
+    posCells[s.position[i]!]!.push(i)
+  }
 
   const lo = 10
   const hi = maxPos - 10
@@ -78,10 +80,13 @@ export function nearCriticalRP(input?: {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 11 })
 
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
+    }
 
-    for (let t = 0; t < 120; t++) beat(tone, eu, ev, moved, rng, arrow)
+    for (let t = 0; t < 120; t++) {
+      beat(tone, eu, ev, moved, rng, arrow)
+    }
 
     const T = 4000
     const sumMM = new Float64Array(maxR + 1)
@@ -97,7 +102,9 @@ export function nearCriticalRP(input?: {
       for (let p = lo; p <= hi; p++) {
         let sm = 0
 
-        for (const i of posCells[p]!) sm += tone[i]!
+        for (const i of posCells[p]!) {
+          sm += tone[i]!
+        }
 
         mp[p] = posCells[p]!.length > 0 ? sm / posCells[p]!.length : 0
       }
@@ -162,7 +169,9 @@ export function nearCriticalRP(input?: {
     let range = 0
 
     for (let r = 1; r <= maxR; r++) {
-      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
+      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
+        range = r
+      }
     }
 
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))

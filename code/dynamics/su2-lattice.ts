@@ -177,7 +177,9 @@ function staple(
   let a: Quat = [0, 0, 0, 0]
 
   for (let nu = 0; nu < lat.dim; nu++) {
-    if (nu === mu) continue
+    if (nu === mu) {
+      continue
+    }
 
     const xMu = stepPlus(lat, { site: x, mu })
     const xNu = stepPlus(lat, { site: x, mu: nu })
@@ -290,7 +292,9 @@ export function wilsonLoop(input: {
 
   for (let mu = 0; mu < lat.dim; mu++) {
     for (let nu = 0; nu < lat.dim; nu++) {
-      if (nu === mu) continue
+      if (nu === mu) {
+        continue
+      }
 
       for (let s = 0; s < lat.sites; s++) {
         let u: Quat = IDENTITY
@@ -343,7 +347,9 @@ export function creutzRatio(input: {
   const numerator = a * b
   const denominator = c * d
 
-  if (numerator <= 0 || denominator <= 0) return 0
+  if (numerator <= 0 || denominator <= 0) {
+    return 0
+  }
 
   return -Math.log(numerator / denominator)
 }

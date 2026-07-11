@@ -106,7 +106,9 @@ function legTernary(): boolean {
 
   for (const x of [-1, 1] as Bit[]) {
     for (const y of [-1, 1] as Bit[]) {
-      if (nand(x, y) !== nandTable[`${x},${y}`]) nandOK = false
+      if (nand(x, y) !== nandTable[`${x},${y}`]) {
+        nandOK = false
+      }
     }
   }
 
@@ -121,7 +123,9 @@ function legTernary(): boolean {
     const c: Bit = ((p >> 1) & 1) === 1 ? 1 : -1
     const r: Bit = (p & 1) === 1 ? 1 : -1
 
-    if (toNum(fn(l, c, r)) !== rule110[p]) exprOK = false
+    if (toNum(fn(l, c, r)) !== rule110[p]) {
+      exprOK = false
+    }
   }
 
   // evolve Rule 110 (built from the rule's NANDs) against a reference Rule 110 for a few steps
@@ -142,7 +146,9 @@ function legTernary(): boolean {
     const refNext = elementaryRuleStep({ line: ref, rule: 110 })
 
     for (let i = 0; i < W; i++) {
-      if (toNum(next[i]!) !== refNext[i]) matches = false
+      if (toNum(next[i]!) !== refNext[i]) {
+        matches = false
+      }
     }
 
     line = next
@@ -167,7 +173,9 @@ function makeMachine3434(
   const interior: number[] = []
 
   for (let c = 0; c < n; c++) {
-    if (a.complete[c]) interior.push(c)
+    if (a.complete[c]) {
+      interior.push(c)
+    }
   }
 
   interior.sort((x, y) =>
@@ -250,9 +258,13 @@ function legRegisterMachine(a: Addressing): boolean {
   for (const c of cases) {
     const ok = c.got === c.expected
 
-    if (!ok) allCorrect = false
+    if (!ok) {
+      allCorrect = false
+    }
 
-    if (!c.conserved) allConserved = false
+    if (!c.conserved) {
+      allConserved = false
+    }
   }
 
   return allCorrect && allConserved
@@ -295,7 +307,9 @@ function legCuspLife(): boolean {
     [1, 2],
   ]
 
-  for (const [dx, dy] of glider) alive.add(`${cx + dx},${cy + dy}`)
+  for (const [dx, dy] of glider) {
+    alive.add(`${cx + dx},${cy + dy}`)
+  }
 
   const refAlive = new Set(alive)
 

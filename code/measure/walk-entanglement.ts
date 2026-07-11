@@ -11,6 +11,7 @@ import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 type Cx = [number, number]
+
 const cMul = (a: Cx, b: Cx): Cx => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
@@ -93,14 +94,16 @@ function correlation(
     const phase: Cx = [Math.cos(k * d), Math.sin(k * d)]
 
     for (let a = 0; a < 2; a++) {
-      for (let b = 0; b < 2; b++)
+      for (let b = 0; b < 2; b++) {
         out[a]![b] = cAdd(out[a]![b]!, cMul(p[a]![b]!, phase))
+      }
     }
   }
 
   for (let a = 0; a < 2; a++) {
-    for (let b = 0; b < 2; b++)
+    for (let b = 0; b < 2; b++) {
       out[a]![b] = cScale(out[a]![b]!, 1 / momentumCount)
+    }
   }
 
   return out

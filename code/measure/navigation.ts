@@ -17,7 +17,9 @@ function targetDistance(input: {
 }): number {
   const e = input.graph.embedding
 
-  if (!e) return 0
+  if (!e) {
+    return 0
+  }
 
   const d = e.dimension
   const isDisc = e.manifold.form === 'hyperbolic'
@@ -35,12 +37,16 @@ function targetDistance(input: {
     targetNorm2 += b * b
   }
 
-  if (!isDisc) return Math.sqrt(sum2)
+  if (!isDisc) {
+    return Math.sqrt(sum2)
+  }
 
   // Poincare disc distance: arccosh(1 + 2|u-v|^2 / ((1-|u|^2)(1-|v|^2))).
   const denom = (1 - nodeNorm2) * (1 - targetNorm2)
 
-  if (denom <= 0) return Math.sqrt(sum2)
+  if (denom <= 0) {
+    return Math.sqrt(sum2)
+  }
 
   return Math.acosh(
     poincareCoshFromParts(sum2, 1 - nodeNorm2, 1 - targetNorm2),
@@ -78,7 +84,9 @@ export function greedyRouteHops(input: {
       }
     }
 
-    if (best === -1) return -1
+    if (best === -1) {
+      return -1
+    }
     // stuck at a local minimum, greedy failed
 
     current = best
@@ -100,8 +108,9 @@ export function greedyRoutingSuccess(input: {
 }): { successRate: number; meanStretch: number; trials: number } {
   const graph = input.graph
 
-  if (!graph.embedding)
+  if (!graph.embedding) {
     return { successRate: 0, meanStretch: 0, trials: 0 }
+  }
 
   const size = graph.size
   const maxHops = input.maxHops ?? 4 * Math.ceil(Math.sqrt(size)) + 20
@@ -115,7 +124,9 @@ export function greedyRoutingSuccess(input: {
 
     let target = input.rng.nextInt({ max: size })
 
-    if (target === source) target = (target + 1) % size
+    if (target === source) {
+      target = (target + 1) % size
+    }
 
     // By default an unreachable target is a connectivity fact, not a routing failure, so we skip
     // disconnected pairs (this measures routing quality GIVEN connectivity, used on connected
@@ -204,8 +215,9 @@ export function routingWithBacktrack(input: {
 }): { successRate: number; meanStretch: number; trials: number } {
   const graph = input.graph
 
-  if (!graph.embedding)
+  if (!graph.embedding) {
     return { successRate: 0, meanStretch: 0, trials: 0 }
+  }
 
   const size = graph.size
   const maxSteps = input.maxSteps ?? 40 * size
@@ -219,11 +231,15 @@ export function routingWithBacktrack(input: {
 
     let target = input.rng.nextInt({ max: size })
 
-    if (target === source) target = (target + 1) % size
+    if (target === source) {
+      target = (target + 1) % size
+    }
 
     const shortest = bfsHops({ graph, from: source, to: target })
 
-    if (shortest < 0) continue
+    if (shortest < 0) {
+      continue
+    }
 
     const visited = new Uint8Array(size)
     const stack: number[] = [source]
@@ -247,7 +263,9 @@ export function routingWithBacktrack(input: {
       let bestDistance = Infinity
 
       for (const neighbor of row) {
-        if ((visited[neighbor] ?? 0) === 1) continue
+        if ((visited[neighbor] ?? 0) === 1) {
+          continue
+        }
 
         const distance = targetDistance({
           graph,
@@ -261,8 +279,9 @@ export function routingWithBacktrack(input: {
         }
       }
 
-      if (best < 0) stack.pop()
-      else {
+      if (best < 0) {
+        stack.pop()
+      } else {
         visited[best] = 1
         stack.push(best)
       }
@@ -277,7 +296,9 @@ export function routingWithBacktrack(input: {
 
       const routeLength = stack.length - 1
 
-      if (shortest > 0) stretchSum += routeLength / shortest
+      if (shortest > 0) {
+        stretchSum += routeLength / shortest
+      }
     }
   }
 
@@ -293,7 +314,9 @@ function bfsHops(input: {
   from: number
   to: number
 }): number {
-  if (input.from === input.to) return 0
+  if (input.from === input.to) {
+    return 0
+  }
 
   const size = input.graph.size
   const distance = new Int32Array(size).fill(-1)
@@ -312,7 +335,9 @@ function bfsHops(input: {
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = (distance[node] ?? 0) + 1
 
-          if (neighbor === input.to) return distance[neighbor] ?? -1
+          if (neighbor === input.to) {
+            return distance[neighbor] ?? -1
+          }
 
           next.push(neighbor)
         }

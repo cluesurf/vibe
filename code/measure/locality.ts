@@ -54,7 +54,9 @@ export function ruleLocalityRange(input: {
 }): number {
   const size = input.substrate.size
 
-  if (size === 0) return 0
+  if (size === 0) {
+    return 0
+  }
 
   const distinct = valueCount(input.configuration.alphabet)
   const slots = input.configuration.slots
@@ -109,7 +111,9 @@ export function ruleLocalityRange(input: {
         }
       }
 
-      if (!changed) continue
+      if (!changed) {
+        continue
+      }
 
       const distance = graphDistance({
         substrate: input.substrate,
@@ -117,13 +121,19 @@ export function ruleLocalityRange(input: {
         to: node,
       })
 
-      if (distance > maxRadius) maxRadius = distance
+      if (distance > maxRadius) {
+        maxRadius = distance
+      }
     }
 
-    if (maxRadius > 0) radii.push(maxRadius)
+    if (maxRadius > 0) {
+      radii.push(maxRadius)
+    }
   }
 
-  if (radii.length === 0) return 0
+  if (radii.length === 0) {
+    return 0
+  }
 
   return radii.reduce((sum, r) => sum + r, 0) / radii.length
 }

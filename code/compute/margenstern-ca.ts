@@ -24,8 +24,9 @@ export function cyclicRotations(
   return (ring: string): string[] => {
     const out: string[] = []
 
-    for (let r = 0; r < count; r++)
+    for (let r = 0; r < count; r++) {
       out.push(ring.slice(r) + ring.slice(0, r))
+    }
 
     return out
   }
@@ -88,7 +89,9 @@ export function compileMargensternCa(input: {
     const neighbours = rule.slice(1, 1 + neighbourLen)
     const next = rule[1 + neighbourLen]!
 
-    for (const ch of rule) states.add(ch)
+    for (const ch of rule) {
+      states.add(ch)
+    }
 
     const key = current + neighbours
     const existing = table.get(key)
@@ -124,7 +127,9 @@ export function compileMargensternCa(input: {
       for (const rotated of rotate(padded)) {
         const hit = table.get(current + rotated)
 
-        if (hit !== undefined) return hit
+        if (hit !== undefined) {
+          return hit
+        }
       }
 
       return current

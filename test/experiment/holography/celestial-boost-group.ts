@@ -47,7 +47,9 @@ function maxPointGap(
 ): number {
   let worst = 0
 
-  for (const p of points) worst = Math.max(worst, norm(sub(a(p), b(p))))
+  for (const p of points) {
+    worst = Math.max(worst, norm(sub(a(p), b(p))))
+  }
 
   return worst
 }

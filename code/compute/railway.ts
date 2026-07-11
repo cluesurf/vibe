@@ -26,20 +26,26 @@ export type RailSwitch = {
 // route the locomotive through a switch: given the port it entered by, return the port it leaves by, mutating
 // the switch state per its kind. crossing is a 4-port straight-through (0<->2, 1<->3).
 export function routeSwitch(sw: RailSwitch, entryPort: number): number {
-  if (sw.kind === 'crossing') return (entryPort + 2) % 4
+  if (sw.kind === 'crossing') {
+    return (entryPort + 2) % 4
+  }
 
   if (entryPort === 0) {
     // trunk -> active branch
     const exit = sw.active
 
-    if (sw.kind === 'flip-flop') sw.active = sw.active === 1 ? 2 : 1
+    if (sw.kind === 'flip-flop') {
+      sw.active = sw.active === 1 ? 2 : 1
+    }
     // the active passage flips it
 
     return exit
   }
 
   // a branch -> trunk
-  if (sw.kind === 'memory') sw.active = entryPort as 1 | 2
+  if (sw.kind === 'memory') {
+    sw.active = entryPort as 1 | 2
+  }
   // remember which branch we came from
 
   return 0
@@ -75,7 +81,9 @@ export function railIncrement(reg: RailRegister): void {
     i++
   }
 
-  if (i < reg.cells.length) reg.cells[i] = 1
+  if (i < reg.cells.length) {
+    reg.cells[i] = 1
+  }
 }
 
 // the locomotive rolls in, over the set cells, and clears the last set cell (decrement). Returns true if it
@@ -87,7 +95,9 @@ export function railDecrementOrZero(reg: RailRegister): boolean {
     i++
   }
 
-  if (i === 0) return false
+  if (i === 0) {
+    return false
+  }
   // already zero
 
   reg.cells[i - 1] = 0
@@ -127,7 +137,9 @@ export function runRailway(
   const regs = Array.from({ length: program.registers }, (_, r) => {
     const reg = makeRegister(program.capacity)
 
-    for (let i = 0; i < (initial[r] ?? 0); i++) railIncrement(reg)
+    for (let i = 0; i < (initial[r] ?? 0); i++) {
+      railIncrement(reg)
+    }
 
     return reg
   })
@@ -140,7 +152,9 @@ export function runRailway(
   while (steps < maxSteps) {
     const ins = program.code[pc]
 
-    if (!ins || ins.op === 'halt') break
+    if (!ins || ins.op === 'halt') {
+      break
+    }
 
     steps++
 

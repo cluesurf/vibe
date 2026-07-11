@@ -108,7 +108,8 @@ suite('dynamics/friedmann: determinism', [
 
     equal(a.a.length, b.a.length, 'same length')
 
-    for (let i = 0; i < a.a.length; i++)
+    for (let i = 0; i < a.a.length; i++) {
       equal(a.a[i]!, b.a[i]!, `a[${i}]`)
+    }
   }),
 ])

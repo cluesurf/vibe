@@ -9,12 +9,15 @@ export function factorComplexity(
   sequence: number[],
   n: number,
 ): number {
-  if (n <= 0 || sequence.length < n) return 0
+  if (n <= 0 || sequence.length < n) {
+    return 0
+  }
 
   const seen = new Set<string>()
 
-  for (let i = 0; i + n <= sequence.length; i++)
+  for (let i = 0; i + n <= sequence.length; i++) {
     seen.add(sequence.slice(i, i + n).join(','))
+  }
 
   return seen.size
 }
@@ -26,8 +29,9 @@ export function factorComplexityProfile(
 ): number[] {
   const profile: number[] = []
 
-  for (let n = 1; n <= maxN; n++)
+  for (let n = 1; n <= maxN; n++) {
     profile.push(factorComplexity(sequence, n))
+  }
 
   return profile
 }

@@ -37,7 +37,9 @@ export function diracFromDiscrete(): {
 
     const ok = Math.abs(E - k) < 0.05
 
-    if (!ok) masslessOk = false
+    if (!ok) {
+      masslessOk = false
+    }
   }
 
   // (2) MASSIVE (emergent mixing rate m) -> cos E = cos(m) cos(k), the Dirac relation
@@ -54,7 +56,9 @@ export function diracFromDiscrete(): {
 
     const ok = Math.abs(lhs - rhs) < 0.05
 
-    if (!ok) massiveOk = false
+    if (!ok) {
+      massiveOk = false
+    }
   }
 
   return { masslessOk, massiveOk }

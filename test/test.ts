@@ -284,7 +284,9 @@ function check(input: {
 
 function allFinite(xs: ArrayLike<number>): boolean {
   for (const x of Array.from(xs)) {
-    if (!Number.isFinite(x ?? NaN)) return false
+    if (!Number.isFinite(x ?? NaN)) {
+      return false
+    }
   }
 
   return true
@@ -441,8 +443,9 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
   const cold = averagePlaquette({ lattice: lat })
 
-  for (let s = 0; s < 100; s++)
+  for (let s = 0; s < 100; s++) {
     metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
+  }
 
   const disordered = averagePlaquette({ lattice: lat })
 
@@ -517,7 +520,9 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const n = 1 << cells
   const perm = new Int32Array(n)
 
-  for (let s = 0; s < n; s++) perm[s] = s ^ 1
+  for (let s = 0; s < n; s++) {
+    perm[s] = s ^ 1
+  }
 
   const profile = pauliLocalityProfile({
     matrix: hamiltonianMatrix({ perm }),
@@ -569,7 +574,9 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
   let lo = Infinity
 
-  for (const value of eig.values) lo = Math.min(lo, value ?? 0)
+  for (const value of eig.values) {
+    lo = Math.min(lo, value ?? 0)
+  }
 
   check({
     name: 'commuting-gate rule has a local, bounded-below Hamiltonian',
@@ -620,14 +627,18 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
     m.data[i * cells + i] = row.length
 
-    for (const col of row) m.data[i * cells + (col ?? 0)] = -1
+    for (const col of row) {
+      m.data[i * cells + (col ?? 0)] = -1
+    }
   }
 
   const eig = eigSymmetric({ matrix: m })
 
   let lo = Infinity
 
-  for (const value of eig.values) lo = Math.min(lo, value ?? 0)
+  for (const value of eig.values) {
+    lo = Math.min(lo, value ?? 0)
+  }
 
   check({
     name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
@@ -2462,16 +2473,19 @@ function allFinite(xs: ArrayLike<number>): boolean {
   for (let i = 0; i < a.cellCount && identical; i++) {
     const sa = new Set<number>()
 
-    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++)
+    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
       sa.add(a.adj[p]!)
+    }
 
     const sb = new Set<number>()
 
-    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++)
+    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
       sb.add(b.adj[p]!)
+    }
 
-    if (sa.size !== sb.size) identical = false
-    else {
+    if (sa.size !== sb.size) {
+      identical = false
+    } else {
       for (const x of sa) {
         if (!sb.has(x)) {
           identical = false
@@ -3839,4 +3853,6 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
 console.log(`\n${passed} passed, ${failed} failed`)
 
-if (failed > 0) process.exit(1)
+if (failed > 0) {
+  process.exit(1)
+}

@@ -100,8 +100,9 @@ suite('coarse/causal-emergence: TPM coarse-graining', [
 
     const macro = coarseGrainTpm({ tpm, groups: [0, 0, 1, 1] })
 
-    for (const s of rowSums(macro))
+    for (const s of rowSums(macro)) {
       close(s, 1, TOL, 'each macro row sums to 1')
+    }
   }),
 ])
 

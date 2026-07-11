@@ -92,7 +92,9 @@ export function mediatorChainHamiltonian(input: {
     bond(i, i + 1, weight)
   }
 
-  if (bypassWeight !== 0) bond(0, n - 1, bypassWeight)
+  if (bypassWeight !== 0) {
+    bond(0, n - 1, bypassWeight)
+  }
 
   const regionA = Array.from({ length: nA }, (_, i) => i)
   const regionM = Array.from({ length: nM }, (_, i) => nA + i)
@@ -113,8 +115,9 @@ export function staggeredMassChainHamiltonian(input: {
   const t = input.hopping ?? 1
   const h = makeDense({ rows: n, cols: n })
 
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     h.data[i * n + i] = (i % 2 === 0 ? 1 : -1) * mass
+  }
 
   for (let i = 0; i < n - 1; i++) {
     h.data[i * n + (i + 1)] = -t
@@ -141,9 +144,13 @@ export function openChainPotentialApply(input: {
   for (let r = 0; r < n; r++) {
     let v = potential[r]! * phi[r]!
 
-    if (r > 0) v += -t * phi[r - 1]!
+    if (r > 0) {
+      v += -t * phi[r - 1]!
+    }
 
-    if (r < n - 1) v += -t * phi[r + 1]!
+    if (r < n - 1) {
+      v += -t * phi[r + 1]!
+    }
 
     out[r] = v
   }
@@ -185,9 +192,13 @@ export function gridPotentialApply(input: {
     for (let d = 0; d < dimension; d++) {
       const coord = Math.floor(rest / strides[d]!) % side
 
-      if (coord > 0) v += -t * phi[r - strides[d]!]!
+      if (coord > 0) {
+        v += -t * phi[r - strides[d]!]!
+      }
 
-      if (coord < side - 1) v += -t * phi[r + strides[d]!]!
+      if (coord < side - 1) {
+        v += -t * phi[r + strides[d]!]!
+      }
     }
 
     out[r] = v
@@ -209,7 +220,9 @@ export function torusHoppingHamiltonian(input: {
 
   let n = 1
 
-  for (let d = 0; d < dimension; d++) n *= side
+  for (let d = 0; d < dimension; d++) {
+    n *= side
+  }
 
   const h = makeDense({ rows: n, cols: n })
   const strides: number[] = []
@@ -276,14 +289,23 @@ export function staggeredMassCubicHamiltonian(input: {
 
         h.data[i * n + i] = ((x + y + z) % 2 === 0 ? 1 : -1) * mass
 
-        if (x + 1 < side) bond(i, index(x + 1, y, z))
-        else if (periodic) bond(i, index(0, y, z))
+        if (x + 1 < side) {
+          bond(i, index(x + 1, y, z))
+        } else if (periodic) {
+          bond(i, index(0, y, z))
+        }
 
-        if (y + 1 < side) bond(i, index(x, y + 1, z))
-        else if (periodic) bond(i, index(x, 0, z))
+        if (y + 1 < side) {
+          bond(i, index(x, y + 1, z))
+        } else if (periodic) {
+          bond(i, index(x, 0, z))
+        }
 
-        if (z + 1 < side) bond(i, index(x, y, z + 1))
-        else if (periodic) bond(i, index(x, y, 0))
+        if (z + 1 < side) {
+          bond(i, index(x, y, z + 1))
+        } else if (periodic) {
+          bond(i, index(x, y, 0))
+        }
       }
     }
   }

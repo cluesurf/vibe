@@ -80,8 +80,9 @@ function cosAngles(
     const dot = r.reduce((s, x, i) => s + x * ref[i]!, 0)
     const cos = dot / (refNorm * setNorm)
 
-    if (Math.abs(cos) > 1e-9 && Math.abs(cos) < 1 - 1e-9)
+    if (Math.abs(cos) > 1e-9 && Math.abs(cos) < 1 - 1e-9) {
       out.add(Number(Math.abs(cos).toFixed(6)))
+    }
   }
 
   return [...out].sort((x, y) => x - y)

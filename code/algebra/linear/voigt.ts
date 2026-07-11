@@ -49,7 +49,9 @@ export function operatorToVoigtMatrix(
       operator(voigtToSymmetricTensor(e)),
     )
 
-    for (let r = 0; r < 6; r++) m.data[r * 6 + a] = col[r] ?? 0
+    for (let r = 0; r < 6; r++) {
+      m.data[r * 6 + a] = col[r] ?? 0
+    }
   }
 
   return m

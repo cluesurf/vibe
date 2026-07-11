@@ -150,7 +150,9 @@ export function largestCubicRoot(input: {
 
   let x = seed
 
-  for (let i = 0; i < 100; i++) x = x - value(x) / slope(x)
+  for (let i = 0; i < 100; i++) {
+    x = x - value(x) / slope(x)
+  }
 
   return x
 }

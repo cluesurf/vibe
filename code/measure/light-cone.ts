@@ -27,7 +27,9 @@ function frontRadius(will: Will, side: number): number {
       }
     }
 
-    if (!occupied) continue
+    if (!occupied) {
+      continue
+    }
 
     const x = cell % side
     const y = Math.floor(cell / side) % side
@@ -35,7 +37,9 @@ function frontRadius(will: Will, side: number): number {
     const radius =
       Math.abs(x - centre) + Math.abs(y - centre) + Math.abs(z - centre)
 
-    if (radius > maximum) maximum = radius
+    if (radius > maximum) {
+      maximum = radius
+    }
   }
 
   return maximum
@@ -54,8 +58,9 @@ export function lightConeRadii(input: {
   const centreCell = (centre * side + centre) * side + centre
   const base = centreCell * mesh.degree
 
-  for (let direction = 0; direction < mesh.degree; direction++)
+  for (let direction = 0; direction < mesh.degree; direction++) {
     will.data[base + direction] = 1
+  }
 
   const radii: number[] = []
 
@@ -89,8 +94,9 @@ export function streamingConeRadii(input: {
   const perturbed = cloneWill(base)
   const centreBase = centre * degree
 
-  for (let direction = 0; direction < degree; direction++)
+  for (let direction = 0; direction < degree; direction++) {
     perturbed.data[centreBase + direction] = 1
+  }
 
   const radii: number[] = []
 
@@ -118,8 +124,9 @@ export function streamingConeRadii(input: {
         }
       }
 
-      if (differs && (distance[cell] ?? 0) > maximum)
+      if (differs && (distance[cell] ?? 0) > maximum) {
         maximum = distance[cell] ?? 0
+      }
     }
 
     radii.push(maximum)
@@ -157,8 +164,9 @@ export function perturbationConeRadii(input: {
   // Perturb the centre cell: set all its slots to +1, a clear local change.
   const centreBase = centre * degree
 
-  for (let direction = 0; direction < degree; direction++)
+  for (let direction = 0; direction < degree; direction++) {
     perturbed.data[centreBase + direction] = 1
+  }
 
   const radii: number[] = []
 
@@ -186,8 +194,9 @@ export function perturbationConeRadii(input: {
         }
       }
 
-      if (differs && (distance[cell] ?? 0) > maximum)
+      if (differs && (distance[cell] ?? 0) > maximum) {
         maximum = distance[cell] ?? 0
+      }
     }
 
     radii.push(maximum)

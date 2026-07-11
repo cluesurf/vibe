@@ -46,14 +46,17 @@ export function sprinkleCurved(input: {
 
     coords[i * d] = t
 
-    for (let axis = 0; axis < spaceDim; axis++)
+    for (let axis = 0; axis < spaceDim; axis++) {
       coords[i * d + 1 + axis] = space[axis] ?? 0
+    }
   }
 
   // Sort by time so a precedes b only if a is earlier.
   const order: number[] = []
 
-  for (let i = 0; i < n; i++) order.push(i)
+  for (let i = 0; i < n; i++) {
+    order.push(i)
+  }
 
   order.sort((x, y) => (coords[x * d] ?? 0) - (coords[y * d] ?? 0))
 
@@ -62,8 +65,9 @@ export function sprinkleCurved(input: {
   for (let newIndex = 0; newIndex < n; newIndex++) {
     const oldIndex = order[newIndex] ?? 0
 
-    for (let axis = 0; axis < d; axis++)
+    for (let axis = 0; axis < d; axis++) {
       sorted[newIndex * d + axis] = coords[oldIndex * d + axis] ?? 0
+    }
   }
 
   const embedding: Embedding = {
@@ -79,7 +83,9 @@ export function sprinkleCurved(input: {
   const precedes = (pair: { a: number; b: number }): boolean => {
     const dt = (sorted[pair.b * d] ?? 0) - (sorted[pair.a * d] ?? 0)
 
-    if (dt <= 0) return false
+    if (dt <= 0) {
+      return false
+    }
 
     let space2 = 0
 
@@ -106,7 +112,9 @@ function sampleBall(input: {
   const dim = input.dimension
   const out = new Float64Array(dim)
 
-  if (dim <= 0 || input.radius <= 0) return out
+  if (dim <= 0 || input.radius <= 0) {
+    return out
+  }
 
   let norm2 = 0
 
@@ -119,12 +127,16 @@ function sampleBall(input: {
 
   const norm = Math.sqrt(norm2)
 
-  if (norm === 0) return out
+  if (norm === 0) {
+    return out
+  }
 
   const radial = input.radius * Math.pow(input.rng.next(), 1 / dim)
   const scale = radial / norm
 
-  for (let i = 0; i < dim; i++) out[i] = (out[i] ?? 0) * scale
+  for (let i = 0; i < dim; i++) {
+    out[i] = (out[i] ?? 0) * scale
+  }
 
   return out
 }

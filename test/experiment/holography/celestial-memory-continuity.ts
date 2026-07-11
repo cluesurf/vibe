@@ -41,7 +41,9 @@ function regionCharge(
 ): number {
   let sum = 0
 
-  for (let i = from; i <= to; i++) sum += charges[i]!
+  for (let i = from; i <= to; i++) {
+    sum += charges[i]!
+  }
 
   return sum
 }

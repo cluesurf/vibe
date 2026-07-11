@@ -34,7 +34,9 @@ suite('tool/tone: will storage and charge', [
       // re-derive: slot i holds (i % 3) - 1
       let expected = 0
 
-      for (let i = 0; i < will.data.length; i++) expected += (i % 3) - 1
+      for (let i = 0; i < will.data.length; i++) {
+        expected += (i % 3) - 1
+      }
 
       equal(charge(will), expected, 'charge = sum of (i%3 - 1)')
       // 36 slots = 12 full {-1,0,1} blocks, each summing to 0
@@ -49,8 +51,9 @@ suite('tool/tone: will storage and charge', [
 
     let expected = 0
 
-    for (let i = 0; i < will.data.length; i++)
+    for (let i = 0; i < will.data.length; i++) {
       expected += ((i + 1) % 3) - 1
+    }
 
     equal(
       charge(will),
@@ -76,8 +79,9 @@ suite('tool/tone: will storage and charge', [
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       let expected = 0
 
-      for (let dir = 0; dir < degree; dir++)
+      for (let dir = 0; dir < degree; dir++) {
         expected += ((cell * degree + dir) % 3) - 1
+      }
 
       equal(cellTone(will, cell), expected, `cellTone(${cell})`)
     }
@@ -90,8 +94,9 @@ suite('tool/tone: will storage and charge', [
 
     let byCells = 0
 
-    for (let cell = 0; cell < mesh.cellCount; cell++)
+    for (let cell = 0; cell < mesh.cellCount; cell++) {
       byCells += cellTone(will, cell)
+    }
 
     equal(charge(will), byCells, 'charge = sum of cellTones')
   }),

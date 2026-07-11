@@ -52,8 +52,9 @@ suite('operator/ising-rg: beta function', [
   check('zero at K = 0, negative for K > 0', () => {
     close(isingBetaFunction(0), 0, 1e-12, 'Gaussian fixed point')
 
-    for (const k of [0.2, 0.5, 1.0, 2.0])
+    for (const k of [0.2, 0.5, 1.0, 2.0]) {
       ok(isingBetaFunction(k) < 0, `coupling decreases at K=${k}`)
+    }
   }),
 ])
 
@@ -82,8 +83,9 @@ suite('operator/ising-rg: correlation', [
 
     const trials = 200
 
-    for (let i = 0; i < trials; i++)
+    for (let i = 0; i < trials; i++) {
       acc += nearestNeighborCorrelation(sampleIsingChain(400, k, rng))
+    }
 
     close(
       acc / trials,

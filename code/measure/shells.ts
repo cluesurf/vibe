@@ -21,7 +21,9 @@ export function bfsShells(input: {
   const maxRadius = input.maxRadius ?? Infinity
   const depth = new Int32Array(n).fill(-1)
 
-  if (n === 0) return { depth, shellCounts: [] }
+  if (n === 0) {
+    return { depth, shellCounts: [] }
+  }
 
   depth[root] = 0
 
@@ -47,7 +49,9 @@ export function bfsShells(input: {
       }
     }
 
-    if (next.length) shellCounts.push(next.length)
+    if (next.length) {
+      shellCounts.push(next.length)
+    }
 
     frontier = next
   }
@@ -95,11 +99,15 @@ export function midShellGrowthRatio(input: {
   const to = input.to ?? 8
   const mid = shellCounts.slice(from, Math.min(to, shellCounts.length))
 
-  if (mid.length < 2) return 0
+  if (mid.length < 2) {
+    return 0
+  }
 
   let sum = 0
 
-  for (let i = 1; i < mid.length; i++) sum += mid[i]! / mid[i - 1]!
+  for (let i = 1; i < mid.length; i++) {
+    sum += mid[i]! / mid[i - 1]!
+  }
 
   return Math.round((sum / (mid.length - 1)) * 100) / 100
 }
@@ -154,13 +162,16 @@ export function meanShellDistanceStep(input: {
   const means: number[] = []
 
   for (let s = 1; s <= maxShell; s++) {
-    if (counts[s]! > 0) means.push(sums[s]! / counts[s]!)
+    if (counts[s]! > 0) {
+      means.push(sums[s]! / counts[s]!)
+    }
   }
 
   let stepSum = 0
 
-  for (let i = 1; i < means.length; i++)
+  for (let i = 1; i < means.length; i++) {
     stepSum += means[i]! - means[i - 1]!
+  }
 
   return means.length > 1 ? stepSum / (means.length - 1) : 0
 }

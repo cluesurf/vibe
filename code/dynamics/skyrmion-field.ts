@@ -28,7 +28,9 @@ const unit = (a: Spin): Spin => {
 const rotate = (v: Spin, k: Spin): Spin => {
   const angle = Math.hypot(k[0], k[1], k[2])
 
-  if (angle < 1e-12) return v
+  if (angle < 1e-12) {
+    return v
+  }
 
   const u: Spin = [k[0] / angle, k[1] / angle, k[2] / angle]
   const c = Math.cos(angle),
@@ -148,7 +150,9 @@ export function precessSpins(input: {
     }
   }
 
-  if (open) pinEdge(out, params.size)
+  if (open) {
+    pinEdge(out, params.size)
+  }
   // the bath, edge spins held at the vacuum so spin-waves leave
 
   return out
@@ -239,7 +243,9 @@ export function snapToTrits(spins: Spin[]): Spin[] {
       Math.round(v[2]),
     ]
 
-    if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
+    if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
+      return [0, 0, 1]
+    }
 
     const n = Math.hypot(w[0], w[1], w[2]) || 1
 

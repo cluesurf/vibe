@@ -34,7 +34,9 @@ function fullBeat(
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -78,8 +80,9 @@ function run(withDynamics: boolean): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
   }
 
   const dist = csrDistances({
@@ -94,7 +97,9 @@ function run(withDynamics: boolean): {
   const self: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) {
+      self.push(i)
+    }
   }
 
   // input boundary divided into K SECTORS, each driven by its OWN signal, so the global state is the
@@ -103,7 +108,9 @@ function run(withDynamics: boolean): {
   const inputAll: number[] = []
 
   for (const i of self) {
-    if (dist[i]! >= rSelf - 1) inputAll.push(i)
+    if (dist[i]! >= rSelf - 1) {
+      inputAll.push(i)
+    }
   }
 
   const K = 4
@@ -119,7 +126,9 @@ function run(withDynamics: boolean): {
 
   const isInput = new Uint8Array(N)
 
-  for (const i of inputAll) isInput[i] = 1
+  for (const i of inputAll) {
+    isInput[i] = 1
+  }
 
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
@@ -133,7 +142,9 @@ function run(withDynamics: boolean): {
       const nf: number[] = []
 
       for (const u of fr) {
-        if (isInput[u]) continue
+        if (isInput[u]) {
+          continue
+        }
 
         out.push(u)
 
@@ -163,7 +174,9 @@ function run(withDynamics: boolean): {
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
 
-    for (const i of cells) s += tone[i]!
+    for (const i of cells) {
+      s += tone[i]!
+    }
 
     return cells.length > 0 ? s / cells.length : 0
   }
@@ -183,28 +196,38 @@ function run(withDynamics: boolean): {
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
       // deterministic well-mixed telegraph (hashRand flips ~6% per beat like the original), no seed
-      if (hashRand(s, t, 5) < 0.06) sigs[s] = -sigs[s]!
+      if (hashRand(s, t, 5) < 0.06) {
+        sigs[s] = -sigs[s]!
+      }
     }
 
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]!
+    for (const i of inputAll) {
+      tone[i] = sigs[sectorOf[i]!]!
+    }
 
-    if (withDynamics) fullBeat(tone, eu, ev, moved, t)
+    if (withDynamics) {
+      fullBeat(tone, eu, ev, moved, t)
+    }
 
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]!
+    for (const i of inputAll) {
+      tone[i] = sigs[sectorOf[i]!]!
+    }
 
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
 
-    for (let p = 0; p < peripherals.length; p++)
+    for (let p = 0; p < peripherals.length; p++) {
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
+    }
   }
 
   const selfModelCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
 
   let randomCorr = 0
 
-  for (let p = 0; p < peripherals.length; p++)
+  for (let p = 0; p < peripherals.length; p++) {
     randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
+  }
 
   randomCorr /= peripherals.length
 

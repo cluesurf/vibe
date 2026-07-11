@@ -54,8 +54,9 @@ suite('substrate/psl-cayley: Cayley graph structure', [
       for (let i = 0; i < g.adjacency.length; i++) {
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of g.adjacency[i]!)
+        for (const j of g.adjacency[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
       }
     },
   ),

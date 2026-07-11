@@ -57,7 +57,9 @@ function severedMesh(base: Mesh, seam: number): Mesh {
       const fromWest = x < seam
       const toWest = next % L < seam
 
-      if (fromWest === toWest) return next
+      if (fromWest === toWest) {
+        return next
+      }
 
       // wrap within the half: the x step folds back into [lo, lo + width)
       const lo = fromWest ? 0 : seam
@@ -85,8 +87,9 @@ function stampBody(will: Will, px: number, py: number): void {
       if (Math.abs(dx) + Math.abs(dy) <= 2) {
         const cell = (py + dy) * L + (px + dx)
 
-        for (let d = 0; d < mesh.degree; d++)
+        for (let d = 0; d < mesh.degree; d++) {
           data[cell * mesh.degree + d] = (dx + dy) % 2 === 0 ? 1 : -1
+        }
       }
     }
   }
@@ -108,8 +111,9 @@ function windowCharge(
       if (x >= 0 && x < L && y >= 0 && y < L) {
         const cell = y * L + x
 
-        for (let d = 0; d < mesh.degree; d++)
+        for (let d = 0; d < mesh.degree; d++) {
           s += data[cell * mesh.degree + d] ?? 0
+        }
       }
     }
   }
@@ -149,8 +153,9 @@ function runWorld(input: {
       ] as const) {
         const cell = (cy + dy) * L + (ax + dx)
 
-        for (let d = 0; d < mesh.degree; d++)
+        for (let d = 0; d < mesh.degree; d++) {
           will.data[cell * mesh.degree + d] = -1
+        }
       }
     }
 

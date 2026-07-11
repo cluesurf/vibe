@@ -18,7 +18,9 @@ import { matrixProduct } from '@/code/algebra/linear/dense'
 
 function isInvolution(gate: BlockGate, size: number): boolean {
   for (let v = 0; v < size; v++) {
-    if (gate(gate(v)) !== v) return false
+    if (gate(gate(v)) !== v) {
+      return false
+    }
   }
 
   return true
@@ -30,7 +32,9 @@ function isBijection(gate: BlockGate, size: number): boolean {
   for (let v = 0; v < size; v++) {
     const w = gate(v)
 
-    if (w < 0 || w >= size) return false
+    if (w < 0 || w >= size) {
+      return false
+    }
 
     seen.add(w)
   }
@@ -41,7 +45,9 @@ function isBijection(gate: BlockGate, size: number): boolean {
 function isPermutation(values: Int32Array): boolean {
   const seen = new Set<number>()
 
-  for (const v of values) seen.add(v)
+  for (const v of values) {
+    seen.add(v)
+  }
 
   return seen.size === values.length
 }
@@ -71,7 +77,9 @@ function disjointSweep(input: {
       const pos = (start + j) % input.cells
       const bit = (w >> j) & 1
 
-      if (((state >> pos) & 1) !== bit) state ^= 1 << pos
+      if (((state >> pos) & 1) !== bit) {
+        state ^= 1 << pos
+      }
     }
   }
 
@@ -93,8 +101,9 @@ function blockGateMatrix(input: {
   for (let c = 0; c < n; c++) {
     let v = 0
 
-    for (let j = 0; j < input.blockSize; j++)
+    for (let j = 0; j < input.blockSize; j++) {
       v |= ((c >> ((input.offset + j) % input.cells)) & 1) << j
+    }
 
     const w = input.gate(v)
 
@@ -104,7 +113,9 @@ function blockGateMatrix(input: {
       const pos = (input.offset + j) % input.cells
       const bit = (w >> j) & 1
 
-      if (((target >> pos) & 1) !== bit) target ^= 1 << pos
+      if (((target >> pos) & 1) !== bit) {
+        target ^= 1 << pos
+      }
     }
 
     G[target]![c] = 1

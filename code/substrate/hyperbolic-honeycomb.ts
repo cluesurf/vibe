@@ -23,7 +23,9 @@ function dodecahedron(): { verts: V3[]; faces: number[][] } {
 
   for (const sx of [-1, 1]) {
     for (const sy of [-1, 1]) {
-      for (const sz of [-1, 1]) verts.push({ x: sx, y: sy, z: sz })
+      for (const sz of [-1, 1]) {
+        verts.push({ x: sx, y: sy, z: sz })
+      }
     }
   }
 
@@ -73,12 +75,16 @@ function faceSphere(p: V3[]): { c: V3; r2: number } | null {
       ((m[1]![0] ?? 0) * (m[2]![1] ?? 0) -
         (m[1]![1] ?? 0) * (m[2]![0] ?? 0))
 
-  if (Math.abs(det) < 1e-12) return null
+  if (Math.abs(det) < 1e-12) {
+    return null
+  }
 
   const solve = (col: number): number => {
     const mm = m.map(row => [...row])
 
-    for (let i = 0; i < 3; i++) mm[i]![col] = b[i] ?? 0
+    for (let i = 0; i < 3; i++) {
+      mm[i]![col] = b[i] ?? 0
+    }
 
     const d =
       (mm[0]![0] ?? 0) *
@@ -168,7 +174,9 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
     const s1 = cell.spheres[fa]
     const s2 = cell.spheres[fb]
 
-    if (!s1 || !s2) return Math.PI
+    if (!s1 || !s2) {
+      return Math.PI
+    }
 
     return dihedral(s1, s2)
   }
@@ -180,8 +188,11 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
   for (let it = 0; it < 60; it++) {
     const mid = (lo + hi) / 2
 
-    if (dihedralAt(mid) < Math.PI / 2) lo = mid
-    else hi = mid
+    if (dihedralAt(mid) < Math.PI / 2) {
+      lo = mid
+    } else {
+      hi = mid
+    }
   }
 
   return (lo + hi) / 2
@@ -244,7 +255,9 @@ export function hyperbolicDodecagrid(input: {
     const next: V3[][] = []
 
     for (const cellVerts of frontier) {
-      if (vx.length >= cap) break
+      if (vx.length >= cap) {
+        break
+      }
 
       // Recompute this cell's face-spheres from its own vertices.
       for (const face of base.faces) {
@@ -254,7 +267,9 @@ export function hyperbolicDodecagrid(input: {
           cellVerts[face[2]!]!,
         ])
 
-        if (!sph) continue
+        if (!sph) {
+          continue
+        }
 
         const reflected = cellVerts.map(v => invert(v, sph.c, sph.r2))
         const ck = cellKey(reflected)

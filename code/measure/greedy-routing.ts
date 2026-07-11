@@ -36,7 +36,9 @@ export function graphDistance(
   while (queue.length > 0) {
     const cell = queue.shift()!
 
-    if (cell === target) return distance.get(cell)!
+    if (cell === target) {
+      return distance.get(cell)!
+    }
 
     for (const neighbor of graph.neighbors[cell] ??
       new Uint32Array(0)) {
@@ -92,7 +94,9 @@ export function greedyRoute(input: {
       }
     }
 
-    if (best < 0) return -1
+    if (best < 0) {
+      return -1
+    }
 
     current = best
     steps++

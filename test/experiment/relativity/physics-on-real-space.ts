@@ -49,7 +49,9 @@ export function physicsOnRealSpace(): void {
   let cc = 0
 
   for (let i = 0; i < cube.cellCount; i++) {
-    if (cube.coords[i]!.every(x => x === 0)) cc = i
+    if (cube.coords[i]!.every(x => x === 0)) {
+      cc = i
+    }
   }
 
   spectralDim(cube.neighbors, cc, 3, 12)
@@ -74,7 +76,9 @@ export function physicsOnRealSpace(): void {
     for (const w of h.neighbors[bandIdx[a]!]!) {
       const b = rmap.get(w)
 
-      if (b !== undefined) bnb[a]!.push(b)
+      if (b !== undefined) {
+        bnb[a]!.push(b)
+      }
     }
   }
 
@@ -108,7 +112,9 @@ export default experiment({
     let cubeCenter = 0
 
     for (let i = 0; i < cube.cellCount; i++) {
-      if (cube.coords[i]!.every(x => x === 0)) cubeCenter = i
+      if (cube.coords[i]!.every(x => x === 0)) {
+        cubeCenter = i
+      }
     }
 
     const cubeDim = spectralDim(cube.neighbors, cubeCenter, 3, 12)
@@ -132,7 +138,9 @@ export default experiment({
       for (const w of h.neighbors[bandIdx[a]!]!) {
         const b = rmap.get(w)
 
-        if (b !== undefined) bnb[a]!.push(b)
+        if (b !== undefined) {
+          bnb[a]!.push(b)
+        }
       }
     }
 

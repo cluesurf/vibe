@@ -97,7 +97,9 @@ suite('measure/probe-directions: non-degeneracy (plastic-number fix)', [
     const mean = [0, 0, 0]
 
     for (const d of dirs) {
-      for (let i = 0; i < 3; i++) mean[i]! += d[i]! / dirs.length
+      for (let i = 0; i < 3; i++) {
+        mean[i]! += d[i]! / dirs.length
+      }
     }
 
     ok(

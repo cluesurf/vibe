@@ -16,8 +16,9 @@ import {
 const eqBig = (a: bigint[], b: bigint[], msg: string): void => {
   equal(a.length, b.length, `${msg} length`)
 
-  for (let i = 0; i < a.length; i++)
+  for (let i = 0; i < a.length; i++) {
     ok(a[i] === b[i], `${msg} at ${i}: ${a[i]} vs ${b[i]}`)
+  }
 }
 
 suite('substrate/coxeter/growth: layer recurrences', [

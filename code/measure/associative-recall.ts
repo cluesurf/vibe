@@ -21,7 +21,9 @@ export function exactRecallRate(mem: AssociativeMemory): number {
   let total = 0
 
   for (let c = 0; c < mem.cellCount; c++) {
-    if (!mem.occupied[c]) continue
+    if (!mem.occupied[c]) {
+      continue
+    }
 
     total++
 
@@ -80,8 +82,9 @@ export function falsePositiveRate(input: {
   for (let t = 0; t < trials; t++) {
     const q = new Int8Array(mem.wordBits)
 
-    for (let k = 0; k < mem.wordBits; k++)
+    for (let k = 0; k < mem.wordBits; k++) {
       q[k] = rng.nextInt({ max: 3 })
+    }
 
     if (searchExact({ mem, comparand: q }).length > 0) {
       hits++
@@ -105,7 +108,9 @@ export function coverageRadius(input: {
   let r = 0
 
   for (const d of depth) {
-    if (d > r) r = d
+    if (d > r) {
+      r = d
+    }
   }
 
   return r
@@ -139,7 +144,9 @@ function occupiedCells(mem: AssociativeMemory): number[] {
   const out: number[] = []
 
   for (let c = 0; c < mem.cellCount; c++) {
-    if (mem.occupied[c]) out.push(c)
+    if (mem.occupied[c]) {
+      out.push(c)
+    }
   }
 
   return out

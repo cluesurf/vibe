@@ -85,8 +85,9 @@ export function measuredEmergentMass(): {
           hSquared,
           complex({ re: pSquared + coupling * coupling, im: 0 }),
         )
-      )
+      ) {
         relativisticEverywhere = false
+      }
     }
 
     // (2) the two independent masses agree
@@ -99,8 +100,9 @@ export function measuredEmergentMass(): {
       Math.abs(massDispersion - massChirality),
     )
 
-    if (Math.abs(massDispersion - massChirality) > 1e-9)
+    if (Math.abs(massDispersion - massChirality) > 1e-9) {
       twoMassesAgree = false
+    }
   }
 
   // (3) the dispersion mass scales with the coupling (it IS the coupling, measured), monotone increasing
@@ -109,7 +111,9 @@ export function measuredEmergentMass(): {
   let massScalesWithCoupling = true
 
   for (let i = 1; i < masses.length; i++) {
-    if (!(masses[i]! > masses[i - 1]!)) massScalesWithCoupling = false
+    if (!(masses[i]! > masses[i - 1]!)) {
+      massScalesWithCoupling = false
+    }
   }
 
   // (4) the Weyl limit, control: at zero coupling the fermion is massless and the chiralities decouple

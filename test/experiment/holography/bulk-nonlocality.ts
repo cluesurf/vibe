@@ -32,8 +32,9 @@ export function bulkNonlocality(input?: { n?: number }): {
   const nbr = (i: number): number[] => {
     const out: number[] = []
 
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
+    }
 
     return out
   }
@@ -53,7 +54,9 @@ export function bulkNonlocality(input?: { n?: number }): {
   let maxR = 0
 
   for (let i = 0; i < N; i++) {
-    if (radial[i]! > maxR) maxR = radial[i]!
+    if (radial[i]! > maxR) {
+      maxR = radial[i]!
+    }
   }
 
   // count internal edges per shell, and pick the shell with the MOST internal edges (a real connected
@@ -63,7 +66,9 @@ export function bulkNonlocality(input?: { n?: number }): {
   for (let v = 0; v < N; v++) {
     const rv = radial[v]!
 
-    if (rv < 0) continue
+    if (rv < 0) {
+      continue
+    }
 
     for (const w of nbr(v)) {
       if (w > v && radial[w] === rv) {
@@ -75,7 +80,9 @@ export function bulkNonlocality(input?: { n?: number }): {
   let shellRadius = 1
 
   for (let r = 1; r <= maxR; r++) {
-    if (internalEdges[r]! > internalEdges[shellRadius]!) shellRadius = r
+    if (internalEdges[r]! > internalEdges[shellRadius]!) {
+      shellRadius = r
+    }
   }
 
   const onShell = new Uint8Array(N)
@@ -109,12 +116,18 @@ export function bulkNonlocality(input?: { n?: number }): {
     let far = src
 
     for (const c of shellCells) {
-      if (c === src) continue
+      if (c === src) {
+        continue
+      }
 
-      if (dBulk[c]! > dBulk[far]!) far = c
+      if (dBulk[c]! > dBulk[far]!) {
+        far = c
+      }
     }
 
-    if (far === src) continue
+    if (far === src) {
+      continue
+    }
 
     bulkSum += dBulk[far]!
     pairs++
@@ -123,7 +136,9 @@ export function bulkNonlocality(input?: { n?: number }): {
 
     if (dSurf[far] === -1) {
       unreachable++
-    } else surfSum += dSurf[far]!
+    } else {
+      surfSum += dSurf[far]!
+    }
   }
 
   const meanBulkDistance = pairs > 0 ? bulkSum / pairs : 0

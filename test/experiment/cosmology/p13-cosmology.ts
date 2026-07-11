@@ -73,8 +73,9 @@ export function csgCosmology(input: {
     if (
       (relationGrowth[i]?.relations ?? 0) <
       (relationGrowth[i - 1]?.relations ?? 0)
-    )
+    ) {
       arrowMonotone = false
+    }
   }
 
   // Spatial slice widths versus proper-time depth, and the height (total proper

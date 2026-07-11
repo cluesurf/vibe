@@ -33,7 +33,9 @@ function conserves(create: boolean): boolean {
     for (const b of TONES) {
       const [na, nb] = ternaryPairPermutation(a, b, create)
 
-      if (na + nb !== a + b) return false
+      if (na + nb !== a + b) {
+        return false
+      }
     }
   }
 

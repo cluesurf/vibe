@@ -101,7 +101,9 @@ export function petersInspiralTrack(input: {
     a += dadt * dt
     t += dt
 
-    if (a <= 0) break
+    if (a <= 0) {
+      break
+    }
 
     const omega = keplerFrequency({ totalMass: Mtot, separation: a })
 

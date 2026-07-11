@@ -28,7 +28,9 @@ function opposites(mesh: {
 }): number[] {
   const out: number[] = []
 
-  for (let d = 0; d < mesh.degree; d++) out.push(mesh.opposite(d))
+  for (let d = 0; d < mesh.degree; d++) {
+    out.push(mesh.opposite(d))
+  }
 
   return out
 }

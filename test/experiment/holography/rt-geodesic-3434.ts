@@ -43,7 +43,9 @@ export default experiment({
     for (let D = 0; D < shells.length; D++) {
       cum += shells[D]!
 
-      if (D >= 2) ratios.push(D / (Math.log(cum) / Math.log(LAMBDA)))
+      if (D >= 2) {
+        ratios.push(D / (Math.log(cum) / Math.log(LAMBDA)))
+      }
     }
 
     // for {3,4,3,4} the ratio D / log_lambda(cells) CONVERGES to ~1 (the bulk radius is logarithmic in cells)

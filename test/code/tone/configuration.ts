@@ -43,8 +43,9 @@ suite('tone/configuration: storage', [
       size: 8,
     })
 
-    for (let i = 0; i < c.values.length; i++)
+    for (let i = 0; i < c.values.length; i++) {
       equal(c.values[i], 0, `value ${i} default zero`)
+    }
   }),
 ])
 

@@ -64,8 +64,9 @@ function accelerationResidual(dt: number): number {
     const lhs = addot / aCur
     const rhs = -0.5 * ((traj.rho[i] ?? 0) + 3 * (traj.p[i] ?? 0))
 
-    if (Math.abs(rhs) > 1e-6)
+    if (Math.abs(rhs) > 1e-6) {
       maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / Math.abs(rhs))
+    }
   }
 
   return maxRel

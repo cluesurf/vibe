@@ -26,7 +26,9 @@ export function controlsBattery(): {
   const injective = (f: (x: number) => number): boolean => {
     const seen = new Set<number>()
 
-    for (let x = 0; x < N; x++) seen.add(f(x))
+    for (let x = 0; x < N; x++) {
+      seen.add(f(x))
+    }
 
     return seen.size === N
   }
@@ -171,8 +173,9 @@ export function controlsBattery(): {
     let s = 0
 
     for (let x = 0; x < Lg; x++) {
-      for (let y = 0; y < Lg; y++)
+      for (let y = 0; y < Lg; y++) {
         s += ax[x]![y]! ** 2 + ay[x]![y]! ** 2
+      }
     }
 
     return s

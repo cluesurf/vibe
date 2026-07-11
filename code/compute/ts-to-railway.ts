@@ -54,7 +54,9 @@ export function compileToRailway(
   const registers = new Map<string, number>()
 
   const reg = (name: string): number => {
-    if (!registers.has(name)) registers.set(name, registers.size)
+    if (!registers.has(name)) {
+      registers.set(name, registers.size)
+    }
 
     return registers.get(name)!
   }
@@ -63,7 +65,9 @@ export function compileToRailway(
     p => (p.name as ts.Identifier).text,
   )
 
-  for (const p of parameters) reg(p)
+  for (const p of parameters) {
+    reg(p)
+  }
   // parameters are registers 0..k-1
 
   const scratch = (): number => reg('$scratch')
@@ -139,7 +143,9 @@ export function compileToRailway(
   }
 
   const compileBlock = (block: ts.Block): void => {
-    for (const stmt of block.statements) compileStatement(stmt)
+    for (const stmt of block.statements) {
+      compileStatement(stmt)
+    }
   }
 
   const compileStatement = (stmt: ts.Statement): void => {
@@ -155,7 +161,9 @@ export function compileToRailway(
         if (decl.initializer && ts.isNumericLiteral(decl.initializer)) {
           const n = Number(decl.initializer.text)
 
-          for (let k = 0; k < n; k++) inc(r)
+          for (let k = 0; k < n; k++) {
+            inc(r)
+          }
         }
       }
 
@@ -176,8 +184,9 @@ export function compileToRailway(
         !ts.isBinaryExpression(cond) ||
         cond.operatorToken.kind !==
           ts.SyntaxKind.ExclamationEqualsEqualsToken
-      )
+      ) {
         throw new Error('only `while (id !== 0)` is supported')
+      }
 
       const g = reg((cond.left as ts.Identifier).text)
       const loop = here()
@@ -211,7 +220,9 @@ export function compileToRailway(
       return
     }
 
-    if (ts.isReturnStatement(stmt)) return
+    if (ts.isReturnStatement(stmt)) {
+      return
+    }
     // the return register is recorded separately
 
     throw new Error(
@@ -223,10 +234,13 @@ export function compileToRailway(
     if (ts.isPostfixUnaryExpression(expr)) {
       const r = reg((expr.operand as ts.Identifier).text)
 
-      if (expr.operator === ts.SyntaxKind.PlusPlusToken) inc(r)
-      else if (expr.operator === ts.SyntaxKind.MinusMinusToken)
+      if (expr.operator === ts.SyntaxKind.PlusPlusToken) {
+        inc(r)
+      } else if (expr.operator === ts.SyntaxKind.MinusMinusToken) {
         decOrStay(r)
-      else throw new Error('unsupported unary')
+      } else {
+        throw new Error('unsupported unary')
+      }
 
       return
     }
@@ -247,10 +261,12 @@ export function compileToRailway(
 
           const n = Number(expr.right.text)
 
-          for (let k = 0; k < n; k++) inc(dst)
-        } else if (ts.isIdentifier(expr.right))
+          for (let k = 0; k < n; k++) {
+            inc(dst)
+          }
+        } else if (ts.isIdentifier(expr.right)) {
           copy(dst, reg(expr.right.text))
-        else {
+        } else {
           throw new Error(
             'assignment rhs must be a number or identifier',
           )

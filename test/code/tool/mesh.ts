@@ -18,7 +18,9 @@ import {
 // opposite is an involution on the whole coin: opposite(opposite(d)) === d.
 function oppositeInvolutes(mesh: Mesh): boolean {
   for (let d = 0; d < mesh.degree; d++) {
-    if (mesh.opposite(mesh.opposite(d)) !== d) return false
+    if (mesh.opposite(mesh.opposite(d)) !== d) {
+      return false
+    }
   }
 
   return true
@@ -31,7 +33,9 @@ function neighbourRoundTrips(mesh: Mesh): boolean {
     for (let d = 0; d < mesh.degree; d++) {
       const there = mesh.neighbour(cell, d)
 
-      if (mesh.neighbour(there, mesh.opposite(d)) !== cell) return false
+      if (mesh.neighbour(there, mesh.opposite(d)) !== cell) {
+        return false
+      }
     }
   }
 
@@ -44,7 +48,9 @@ function streamingSymmetric(mesh: Mesh): boolean {
     for (let d = 0; d < mesh.degree; d++) {
       const b = mesh.neighbour(a, d)
 
-      if (mesh.neighbour(b, mesh.opposite(d)) !== a) return false
+      if (mesh.neighbour(b, mesh.opposite(d)) !== a) {
+        return false
+      }
     }
   }
 
@@ -55,8 +61,9 @@ function streamingSymmetric(mesh: Mesh): boolean {
 function distinctNeighbours(mesh: Mesh, cell: number): number {
   const seen = new Set<number>()
 
-  for (let d = 0; d < mesh.degree; d++)
+  for (let d = 0; d < mesh.degree; d++) {
     seen.add(mesh.neighbour(cell, d))
+  }
 
   return seen.size
 }
@@ -206,8 +213,9 @@ suite('tool/mesh: shell distances', [
 
       equal(d[0], 0, 'source is distance 0')
 
-      for (let cell = 0; cell < m.cellCount; cell++)
+      for (let cell = 0; cell < m.cellCount; cell++) {
         ok(d[cell]! >= 0, `cell ${cell} unreached on a connected mesh`)
+      }
     },
   ),
   check(

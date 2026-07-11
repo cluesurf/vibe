@@ -74,7 +74,9 @@ function distinctCount(values: number[]): number {
   let count = 1
 
   for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i]! - sorted[i - 1]! > 1e-9) count += 1
+    if (sorted[i]! - sorted[i - 1]! > 1e-9) {
+      count += 1
+    }
   }
 
   return count

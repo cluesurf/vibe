@@ -58,8 +58,9 @@ export function steppingShellVertices(steps: number): number[][] {
         for (let d = -1; d <= 1; d++) {
           const word = [a, b, c, d]
 
-          if (word.filter(v => v !== 0).length === steps)
+          if (word.filter(v => v !== 0).length === steps) {
             vertices.push(word)
+          }
         }
       }
     }
@@ -164,7 +165,9 @@ export function halfIntegerUnitQuaternions(): Quaternion[] {
   for (const a of [-0.5, 0.5]) {
     for (const b of [-0.5, 0.5]) {
       for (const c of [-0.5, 0.5]) {
-        for (const d of [-0.5, 0.5]) units.push([a, b, c, d])
+        for (const d of [-0.5, 0.5]) {
+          units.push([a, b, c, d])
+        }
       }
     }
   }

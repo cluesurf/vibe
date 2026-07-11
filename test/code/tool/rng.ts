@@ -15,7 +15,9 @@ function firstK(seed: number, k: number): number[] {
   const rng = makeRng({ seed })
   const out: number[] = []
 
-  for (let i = 0; i < k; i++) out.push(rng.next())
+  for (let i = 0; i < k; i++) {
+    out.push(rng.next())
+  }
 
   return out
 }
@@ -25,8 +27,9 @@ suite('tool/rng: determinism', [
     const a = firstK(12345, 64)
     const b = firstK(12345, 64)
 
-    for (let i = 0; i < a.length; i++)
+    for (let i = 0; i < a.length; i++) {
       equal(a[i]!, b[i]!, `next() #${i}`)
+    }
   }),
   check('same seed produces an identical nextInt() stream', () => {
     const a = makeRng({ seed: 7 })
@@ -44,8 +47,9 @@ suite('tool/rng: determinism', [
     const a = makeRng({ seed: 99 })
     const b = makeRng({ seed: 99 })
 
-    for (let i = 0; i < 32; i++)
+    for (let i = 0; i < 32; i++) {
       equal(a.nextGaussian(), b.nextGaussian(), `gaussian #${i}`)
+    }
   }),
   check(
     'different seeds give a different stream (not constant)',
@@ -116,8 +120,9 @@ suite('tool/rng: deriveSeed and sampling identities', [
 
       close(total, 1, 1e-9, 'frequencies must normalise to 1')
 
-      for (const f of freqs)
+      for (const f of freqs) {
         ok(f >= 0 && f <= 1, `frequency out of [0,1]: ${f}`)
+      }
     },
   ),
 ])

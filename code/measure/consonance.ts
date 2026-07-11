@@ -32,8 +32,9 @@ export function harmonicTone(input: {
   const { fundamental, partials } = input
   const tone: { freq: number; amp: number }[] = []
 
-  for (let n = 1; n <= partials; n++)
+  for (let n = 1; n <= partials; n++) {
     tone.push({ freq: fundamental * n, amp: 1 / n })
+  }
 
   return tone
 }

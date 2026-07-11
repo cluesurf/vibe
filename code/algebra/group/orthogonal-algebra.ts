@@ -24,9 +24,13 @@ export function matrixMultiply(a: Matrix, b: Matrix): Matrix {
     for (let k = 0; k < n; k++) {
       const aik = a[i]![k]!
 
-      if (aik === 0) continue
+      if (aik === 0) {
+        continue
+      }
 
-      for (let j = 0; j < n; j++) out[i]![j]! += aik * b[k]![j]!
+      for (let j = 0; j < n; j++) {
+        out[i]![j]! += aik * b[k]![j]!
+      }
     }
   }
 

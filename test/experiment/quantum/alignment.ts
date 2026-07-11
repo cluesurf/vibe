@@ -40,8 +40,9 @@ function sharedBits(input: { lambda: number; mode: Mode }): {
     }
   }
 
-  if (input.mode === 'misaligned')
+  if (input.mode === 'misaligned') {
     return { a: l < Math.PI / 2 ? 0 : 1, b: l < Math.PI / 2 ? 0 : 1 }
+  }
 
   return { a: randomBit(l, 1), b: randomBit(l, 2) }
 }
@@ -83,7 +84,9 @@ export function measureChshAndDependence(input: {
 
     const arr = joint[ai] ?? joint[0]
 
-    if (arr) arr[bin] = (arr[bin] ?? 0) + 1
+    if (arr) {
+      arr[bin] = (arr[bin] ?? 0) + 1
+    }
   }
 
   const e = (i: number): number =>

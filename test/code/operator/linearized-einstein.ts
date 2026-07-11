@@ -52,8 +52,9 @@ suite('operator/linearized-einstein: lattice gauge invariance', [
         const phase = Math.cos(kz * (c[3] ?? 0))
         const v = new Float64Array(D)
 
-        for (let nu = 0; nu < D; nu++)
+        for (let nu = 0; nu < D; nu++) {
           v[nu] = (amplitude[nu] ?? 0) * phase
+        }
 
         xi.push(v)
       }

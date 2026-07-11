@@ -166,8 +166,9 @@ export default experiment({
     const structured = makeWill(mesh)
 
     // a cell-varying pattern (period 5 does not divide the degree 24, so cells differ)
-    for (let i = 0; i < structured.data.length; i++)
+    for (let i = 0; i < structured.data.length; i++) {
       structured.data[i] = ((i % 5) % 3) - 1
+    }
 
     // overwrite the high-x half with the exact dynamical mirror of the low-x half
     for (let cell = 0; cell < mesh.cellCount; cell++) {

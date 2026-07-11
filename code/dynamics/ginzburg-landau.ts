@@ -94,8 +94,9 @@ export function relaxRingField(input: {
   for (let t = 0; t < steps; t++) {
     cur = relaxStep(cur, dt)
 
-    if (onSample && sampleEvery && t % sampleEvery === 0)
+    if (onSample && sampleEvery && t % sampleEvery === 0) {
       onSample(cur, t)
+    }
   }
 
   return cur

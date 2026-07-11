@@ -33,7 +33,9 @@ function corrupt(input: {
   const out = Int8Array.from(pattern)
 
   for (let i = 0; i < out.length; i++) {
-    if (rng.next() < fraction) out[i] = -(out[i] ?? 0)
+    if (rng.next() < fraction) {
+      out[i] = -(out[i] ?? 0)
+    }
   }
 
   return out
@@ -51,8 +53,9 @@ function hopfieldRelax(input: {
 
   let state = Int8Array.from(cue)
 
-  for (let t = 0; t < beats; t++)
+  for (let t = 0; t < beats; t++) {
     state = hopfieldStep(J, state, zero, null)
+  }
 
   return state
 }
@@ -78,10 +81,13 @@ function bareRuleRecall(input: {
 
   const slot = 0
 
-  for (let c = 0; c < cue.length && c < mesh.cellCount; c++)
+  for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     will.data[c * mesh.degree + slot] = cue[c] ?? 0
+  }
 
-  for (let t = 0; t < beats; t++) will = beat(will, collision)
+  for (let t = 0; t < beats; t++) {
+    will = beat(will, collision)
+  }
 
   const out = new Int8Array(cue.length)
 

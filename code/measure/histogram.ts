@@ -14,14 +14,18 @@ export function histogramFlatness(input: {
 }): number {
   const { samples, range, bins } = input
 
-  if (samples.length === 0) return 0
+  if (samples.length === 0) {
+    return 0
+  }
 
   const h = new Array<number>(bins).fill(0)
 
   let kept = 0
 
   for (const e of samples) {
-    if (e < -range || e > range) continue
+    if (e < -range || e > range) {
+      continue
+    }
 
     const k = Math.min(
       bins - 1,
@@ -32,7 +36,9 @@ export function histogramFlatness(input: {
     kept += 1
   }
 
-  if (kept === 0) return 0
+  if (kept === 0) {
+    return 0
+  }
 
   let ent = 0
 

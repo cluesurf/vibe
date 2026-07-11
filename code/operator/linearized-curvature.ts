@@ -58,12 +58,15 @@ export function linearizedRicci(h: Tensor3, k: number[]): Tensor3 {
     for (let j = 0; j < 3; j++) {
       let klG = 0
 
-      for (let l = 0; l < 3; l++)
+      for (let l = 0; l < 3; l++) {
         klG += (k[l] ?? 0) * (G[l]?.[i]?.[j] ?? 0)
+      }
 
       let trG = 0
 
-      for (let l = 0; l < 3; l++) trG += G[l]?.[i]?.[l] ?? 0
+      for (let l = 0; l < 3; l++) {
+        trG += G[l]?.[i]?.[l] ?? 0
+      }
 
       R[i]![j] = -(klG - (k[j] ?? 0) * trG)
     }
@@ -81,7 +84,9 @@ export function linearizedEinsteinTensor(
 
   let tr = 0
 
-  for (let i = 0; i < 3; i++) tr += R[i]?.[i] ?? 0
+  for (let i = 0; i < 3; i++) {
+    tr += R[i]?.[i] ?? 0
+  }
 
   const E: Tensor3 = [
     [0, 0, 0],
@@ -90,8 +95,9 @@ export function linearizedEinsteinTensor(
   ]
 
   for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++)
+    for (let j = 0; j < 3; j++) {
       E[i]![j] = (R[i]?.[j] ?? 0) - (i === j ? 0.5 * tr : 0)
+    }
   }
 
   return E

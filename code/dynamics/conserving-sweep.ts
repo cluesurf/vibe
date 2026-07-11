@@ -28,7 +28,9 @@ export function conservingEdgeSweep(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -91,7 +93,9 @@ export function conservingEdgeSweepTunable(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -149,7 +153,9 @@ export function conservingChainSweep(input: {
     const v = i
     const w = (i + 1) % length
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -206,7 +212,9 @@ export function conservingRingSweep(input: {
     const i = (start + s) % length
     const j = (i + 1) % length
 
-    if (moved[i] || moved[j]) continue
+    if (moved[i] || moved[j]) {
+      continue
+    }
 
     const a = tone[i]!
     const b = tone[j]!
@@ -285,7 +293,9 @@ export function conservingRingSweepTunable(input: {
     const v = i
     const w = (i + 1) % length
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -343,7 +353,9 @@ export function conservingHopSweep(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -381,7 +393,9 @@ export function conservingHopSweepHashed(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -415,7 +429,9 @@ export function conservingEdgeListSweep(input: {
   moved.fill(0)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -474,7 +490,9 @@ export function conservingEdgeListSweepPumped(input: {
   moved.fill(0)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -543,7 +561,9 @@ export function conservingEdgeSweepSteered(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -563,7 +583,9 @@ export function conservingEdgeSweepSteered(input: {
       if (distGoal && q > 0) {
         doHop =
           towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
-      } else doHop = rng.next() < 0.5
+      } else {
+        doHop = rng.next() < 0.5
+      }
 
       if (doHop) {
         tone[e] = q
@@ -597,7 +619,9 @@ export function conservingEdgeSweepSteeredHashed(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -617,7 +641,9 @@ export function conservingEdgeSweepSteeredHashed(input: {
       if (distGoal && q > 0) {
         doHop =
           towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
-      } else doHop = hashRand(k, beat, 1) < 0.5
+      } else {
+        doHop = hashRand(k, beat, 1) < 0.5
+      }
 
       if (doHop) {
         tone[e] = q
@@ -671,7 +697,9 @@ export function conservingEdgeSweepHashed(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!

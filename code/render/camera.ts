@@ -125,11 +125,15 @@ export class Camera {
         const a = ballVerts[i]!
         const b = ballVerts[j]!
 
-        if (norm(a) > 0.9996 || norm(b) > 0.9996) continue
+        if (norm(a) > 0.9996 || norm(b) > 0.9996) {
+          continue
+        }
 
         const key = pairKey(a, b)
 
-        if (seen.has(key)) continue
+        if (seen.has(key)) {
+          continue
+        }
 
         seen.add(key)
         edges.push({ a, b })
@@ -158,17 +162,23 @@ export class Camera {
         const gp = matMul(g, f)
         const center = toPoincare(matVec(gp, this.c0), this.timeAxis)
 
-        if (norm(center) > this.windowNorm) continue
+        if (norm(center) > this.windowNorm) {
+          continue
+        }
 
         const k = pointKey(center)
 
-        if (seen.has(k)) continue
+        if (seen.has(k)) {
+          continue
+        }
 
         seen.add(k)
         window.push(gp)
       }
 
-      if (window.length > 200000) break
+      if (window.length > 200000) {
+        break
+      }
       // safety, a huge window means windowNorm is too close to 1
     }
 
@@ -196,7 +206,9 @@ export class Camera {
 function dot(a: Vec, b: Vec): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
+  for (let i = 0; i < a.length; i++) {
+    s += (a[i] ?? 0) * (b[i] ?? 0)
+  }
 
   return s
 }

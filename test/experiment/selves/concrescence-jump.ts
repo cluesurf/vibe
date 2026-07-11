@@ -50,8 +50,9 @@ function concrescenceJump(input: {
   for (let p = 0; p < parts; p++) {
     const part = whole.filter(cell => labels[cell] === p)
 
-    if (part.length > 0)
+    if (part.length > 0) {
       sum += bindingMargin({ neighbors, region: part }).margin
+    }
   }
 
   const meanPartMargin = sum / parts

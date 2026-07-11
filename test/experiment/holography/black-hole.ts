@@ -39,8 +39,9 @@ export function blackHoleEntropy(input: { side: number }): {
 
     for (let z = 0; z < l; z++) {
       for (let y = 0; y < l; y++) {
-        for (let x = 0; x < l; x++)
+        for (let x = 0; x < l; x++) {
           region.push((z * side + y) * side + x)
+        }
       }
     }
 

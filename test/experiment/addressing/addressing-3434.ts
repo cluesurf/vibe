@@ -39,7 +39,9 @@ export default experiment({
     let cousins = 0
 
     for (let c = 0; c < n; c++) {
-      if (!a.complete[c]) continue
+      if (!a.complete[c]) {
+        continue
+      }
 
       for (const v of a.graph.neighbors[c]!) {
         if (a.dist[v] === a.dist[c]) {
@@ -55,7 +57,9 @@ export default experiment({
     let roundTripFail = 0
 
     for (let c = 0; c < n; c++) {
-      if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) continue
+      if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
+        continue
+      }
 
       const key = a.address[c]!.join('.')
 
@@ -75,7 +79,9 @@ export default experiment({
     let totalComplete = 0
 
     for (let c = 0; c < n; c++) {
-      if (!a.complete[c]) continue
+      if (!a.complete[c]) {
+        continue
+      }
 
       totalComplete++
 
@@ -92,7 +98,9 @@ export default experiment({
 
       if (same) {
         for (const v of truth) {
-          if (!predicted.has(v)) same = false
+          if (!predicted.has(v)) {
+            same = false
+          }
         }
       }
 

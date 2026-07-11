@@ -14,12 +14,16 @@ import {
 export function effectiveInformation(tpm: number[][]): number {
   const n = tpm.length
 
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
 
   const mean = new Array<number>(n).fill(0)
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) mean[j]! += tpm[i]![j]! / n
+    for (let j = 0; j < n; j++) {
+      mean[j]! += tpm[i]![j]! / n
+    }
   }
 
   let ei = 0
@@ -28,8 +32,9 @@ export function effectiveInformation(tpm: number[][]): number {
     for (let j = 0; j < n; j++) {
       const p = tpm[i]![j]!
 
-      if (p > 1e-12 && mean[j]! > 1e-12)
+      if (p > 1e-12 && mean[j]! > 1e-12) {
         ei += (p * Math.log2(p / mean[j]!)) / n
+      }
     }
   }
 
@@ -57,8 +62,9 @@ export function coarseGrainTpm(input: {
   for (let i = 0; i < tpm.length; i++) {
     const gi = groups[i]!
 
-    for (let j = 0; j < tpm.length; j++)
+    for (let j = 0; j < tpm.length; j++) {
       macro[gi]![groups[j]!]! += tpm[i]![j]! / size[gi]!
+    }
   }
 
   return macro

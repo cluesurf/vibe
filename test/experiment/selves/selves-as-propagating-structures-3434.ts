@@ -67,7 +67,9 @@ function gliderSelf(): {
     const next = new Set<string>()
 
     for (const [k, c] of count) {
-      if (c === 3 || (c === 2 && state.has(k))) next.add(k)
+      if (c === 3 || (c === 2 && state.has(k))) {
+        next.add(k)
+      }
     }
 
     return next
@@ -198,7 +200,9 @@ function vibeChurn(): {
     }
 
     for (const v of order) {
-      if (used[v]) continue
+      if (used[v]) {
+        continue
+      }
 
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
@@ -207,7 +211,9 @@ function vibeChurn(): {
       for (let sft = 0; sft < deg; sft++) {
         const w = adj[start + ((o + sft) % deg)]!
 
-        if (used[w] || w === v) continue
+        if (used[w] || w === v) {
+          continue
+        }
 
         const [na, nb] = perm(tone[v]!, tone[w]!)
 
@@ -220,7 +226,9 @@ function vibeChurn(): {
     }
   }
 
-  for (let t = 0; t < 30; t++) step()
+  for (let t = 0; t < 30; t++) {
+    step()
+  }
 
   const frameT = occupied()
   // identity = overlap of recentered 3D patterns (does the seed keep its shape?), rgGrowth = does it disperse?

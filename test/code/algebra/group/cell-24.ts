@@ -31,8 +31,9 @@ suite('algebra/group/cell-24: the 24-cell vertices', [
     equal(vertices.length, 24, '24 vertices')
     equal(keysOf(vertices).size, 24, 'all distinct')
 
-    for (const v of vertices)
+    for (const v of vertices) {
       close(normSquared(v), 1, 1e-12, 'a vertex is a unit quaternion')
+    }
   }),
   check(
     'the 24 vertices are closed under the quaternion product (the group 2T)',

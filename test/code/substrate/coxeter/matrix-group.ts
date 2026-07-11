@@ -68,8 +68,9 @@ suite(
 
         // a closed finite group has every generator-neighbour inside the mesh.
         for (const row of adjacency) {
-          for (const j of row)
+          for (const j of row) {
             ok(j >= 0, 'no neighbour falls outside a closed mesh')
+          }
         }
       }
     }),

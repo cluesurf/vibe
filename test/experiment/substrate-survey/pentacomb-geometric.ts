@@ -47,12 +47,17 @@ export default experiment({
         maxHops: 200,
       })
 
-      if (graph.embedding!.dimension !== 5) allFiveDimensional = false
+      if (graph.embedding!.dimension !== 5) {
+        allFiveDimensional = false
+      }
 
-      if (greedy.successRate < 0.85) allGeometric = false
+      if (greedy.successRate < 0.85) {
+        allGeometric = false
+      }
 
-      if (!(greedy.successRate > scrambled.successRate + 0.2))
+      if (!(greedy.successRate > scrambled.successRate + 0.2)) {
         allBeatScrambled = false
+      }
 
       worst = Math.min(worst, greedy.successRate)
     }

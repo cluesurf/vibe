@@ -32,7 +32,9 @@ export function vacuumSelection(): {
   // group by minus-count (the su(5) multiplet structure: 0->singlet, 2->10, 4->5bar)
   const byMinus: Record<number, number> = {}
 
-  for (const s of scored) byMinus[s.minus] = s.unbroken
+  for (const s of scored) {
+    byMinus[s.minus] = s.unbroken
+  }
   // same within a multiplet
 
   // every spinor weight preserves exactly 20 roots: they are Weyl-equivalent, each preserves a (conjugate) su(5)

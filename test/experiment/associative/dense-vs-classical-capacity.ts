@@ -39,8 +39,9 @@ function denseStep(input: {
   for (let i = 0; i < n; i++) {
     let h = 0
 
-    for (let m = 0; m < patterns.length; m++)
+    for (let m = 0; m < patterns.length; m++) {
       h += (weights[m] ?? 0) * (patterns[m]![i] ?? 0)
+    }
 
     next[i] = h > 0 ? 1 : h < 0 ? -1 : (state[i] ?? 0)
   }
@@ -58,8 +59,9 @@ function classicalRelax(input: {
 
   let s = Int8Array.from(input.cue)
 
-  for (let t = 0; t < input.beats; t++)
+  for (let t = 0; t < input.beats; t++) {
     s = hopfieldStep(input.J, s, zero, null)
+  }
 
   return s
 }
@@ -106,7 +108,9 @@ function recallRate(input: {
     const cue = Int8Array.from(patterns[m]!)
 
     for (let i = 0; i < size; i++) {
-      if (rng.next() < fraction) cue[i] = -(cue[i] ?? 0)
+      if (rng.next() < fraction) {
+        cue[i] = -(cue[i] ?? 0)
+      }
     }
 
     if (nearestPattern(relax(cue, patterns), patterns).index === m) {
@@ -146,8 +150,11 @@ export function denseVsClassicalCapacity(input?: {
         relax,
       })
 
-      if (rate >= target) best = P
-      else if (P > 4 && rate < target - 0.2) break
+      if (rate >= target) {
+        best = P
+      } else if (P > 4 && rate < target - 0.2) {
+        break
+      }
     }
 
     return best

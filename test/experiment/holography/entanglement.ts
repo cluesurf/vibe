@@ -61,7 +61,9 @@ export function areaLaw2D(input: { side: number }): {
     const region: number[] = []
 
     for (let y = 0; y < l; y++) {
-      for (let x = 0; x < l; x++) region.push(y * input.side + x)
+      for (let x = 0; x < l; x++) {
+        region.push(y * input.side + x)
+      }
     }
 
     ellArr.push(l)

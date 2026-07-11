@@ -32,8 +32,9 @@ function occupiedProfile(
   const out: number[] = []
 
   for (let x = -steps; x <= steps; x++) {
-    if (((x % 2) + 2) % 2 === parity)
+    if (((x % 2) + 2) % 2 === parity) {
       out.push(distribution[offset + x] ?? 0)
+    }
   }
 
   return out

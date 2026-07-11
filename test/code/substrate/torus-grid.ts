@@ -11,16 +11,18 @@ suite('substrate/torus-grid: uniform degree 2d', [
 
     equal(adj.length, 9, 'L^d cells')
 
-    for (let i = 0; i < adj.length; i++)
+    for (let i = 0; i < adj.length; i++) {
       equal(adj[i]!.length, 4, `cell ${i} degree 2d=4`)
+    }
   }),
   check('a 3D torus has L^3 cells, all of degree 6', () => {
     const adj = torusGrid(3, 3)
 
     equal(adj.length, 27, 'L^d cells')
 
-    for (let i = 0; i < adj.length; i++)
+    for (let i = 0; i < adj.length; i++) {
       equal(adj[i]!.length, 6, `cell ${i} degree 2d=6`)
+    }
   }),
   check('adjacency is symmetric with no self-loops', () => {
     const adj = torusGrid(2, 4)
@@ -29,8 +31,9 @@ suite('substrate/torus-grid: uniform degree 2d', [
     for (let i = 0; i < adj.length; i++) {
       notOk(sets[i]!.has(i), `cell ${i} has no self-loop`)
 
-      for (const j of adj[i]!)
+      for (const j of adj[i]!) {
         ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+      }
     }
   }),
 ])

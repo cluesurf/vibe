@@ -15,7 +15,9 @@ function modpow(base: number, exp: number, p: number): number {
   let e = exp
 
   while (e > 0) {
-    if (e & 1) r = (r * b) % p
+    if (e & 1) {
+      r = (r * b) % p
+    }
 
     b = (b * b) % p
     e = Math.floor(e / 2)
@@ -29,12 +31,18 @@ function modInv(a: number, p: number): number {
 }
 
 function isPrime(n: number): boolean {
-  if (n < 2) return false
+  if (n < 2) {
+    return false
+  }
 
-  if (n % 2 === 0) return n === 2
+  if (n % 2 === 0) {
+    return n === 2
+  }
 
   for (let d = 3; d * d <= n; d += 2) {
-    if (n % d === 0) return false
+    if (n % d === 0) {
+      return false
+    }
   }
 
   return true
@@ -50,11 +58,15 @@ function primeFactors(n: number): number[] {
     if (m % d === 0) {
       out.push(d)
 
-      while (m % d === 0) m /= d
+      while (m % d === 0) {
+        m /= d
+      }
     }
   }
 
-  if (m > 1) out.push(m)
+  if (m > 1) {
+    out.push(m)
+  }
 
   return out
 }
@@ -64,7 +76,9 @@ function primeBelow(target: number, modulus: number): number {
   let p = target - ((((target - 1) % modulus) + modulus) % modulus)
 
   while (p > 2) {
-    if (isPrime(p)) return p
+    if (isPrime(p)) {
+      return p
+    }
 
     p -= modulus
   }
@@ -81,7 +95,9 @@ function rootOfUnity(order: number, p: number): number {
   for (let base = 2; base < p; base++) {
     const candidate = modpow(base, exp, p)
 
-    if (candidate === 1) continue
+    if (candidate === 1) {
+      continue
+    }
 
     let primitive = true
 
@@ -92,7 +108,9 @@ function rootOfUnity(order: number, p: number): number {
       }
     }
 
-    if (primitive) return candidate
+    if (primitive) {
+      return candidate
+    }
   }
 
   throw new Error(`no primitive ${order}-th root of unity mod ${p}`)
@@ -104,7 +122,9 @@ type Vec = number[] // length n
 function identity(n: number): Mat {
   const m = new Array<number>(n * n).fill(0)
 
-  for (let i = 0; i < n; i++) m[i * n + i] = 1
+  for (let i = 0; i < n; i++) {
+    m[i * n + i] = 1
+  }
 
   return m
 }
@@ -116,10 +136,13 @@ function matMul(a: Mat, b: Mat, n: number, p: number): Mat {
     for (let k = 0; k < n; k++) {
       const aik = a[i * n + k]!
 
-      if (aik === 0) continue
+      if (aik === 0) {
+        continue
+      }
 
-      for (let j = 0; j < n; j++)
+      for (let j = 0; j < n; j++) {
         out[i * n + j] = (out[i * n + j]! + aik * b[k * n + j]!) % p
+      }
     }
   }
 
@@ -132,7 +155,9 @@ function matVec(a: Mat, x: Vec, n: number, p: number): Vec {
   for (let i = 0; i < n; i++) {
     let s = 0
 
-    for (let j = 0; j < n; j++) s = (s + a[i * n + j]! * x[j]!) % p
+    for (let j = 0; j < n; j++) {
+      s = (s + a[i * n + j]! * x[j]!) % p
+    }
 
     out[i] = s
   }
@@ -151,7 +176,9 @@ function matInv(m: Mat, n: number, p: number): Mat {
       piv++
     }
 
-    if (piv === n) throw new Error('singular matrix mod p')
+    if (piv === n) {
+      throw new Error('singular matrix mod p')
+    }
 
     if (piv !== col) {
       for (let j = 0; j < n; j++) {
@@ -174,11 +201,15 @@ function matInv(m: Mat, n: number, p: number): Mat {
     }
 
     for (let r = 0; r < n; r++) {
-      if (r === col) continue
+      if (r === col) {
+        continue
+      }
 
       const f = a[r * n + col]!
 
-      if (f === 0) continue
+      if (f === 0) {
+        continue
+      }
 
       for (let j = 0; j < n; j++) {
         a[r * n + j] =
@@ -210,7 +241,9 @@ function rootModulus(symbol: number[]): number {
 
   let lcm = 1
 
-  for (const m of symbol) lcm = (lcm / gcd(lcm, 2 * m)) * (2 * m)
+  for (const m of symbol) {
+    lcm = (lcm / gcd(lcm, 2 * m)) * (2 * m)
+  }
 
   return lcm
 }
@@ -243,7 +276,9 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
       new Array<number>(n).fill(0),
     )
 
-    for (let i = 0; i < n; i++) cartan[i]![i] = 2
+    for (let i = 0; i < n; i++) {
+      cartan[i]![i] = 2
+    }
 
     for (let i = 0; i < n - 1; i++) {
       const off = offDiagonal(symbol[i]!, p)
@@ -271,7 +306,9 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     const cartanInv = matInv(cartanFlat, n, p)
     const center: Vec = []
 
-    for (let i = 0; i < n; i++) center.push(cartanInv[i * n + (n - 1)]!)
+    for (let i = 0; i < n; i++) {
+      center.push(cartanInv[i * n + (n - 1)]!)
+    }
 
     // the face reflections, the H-orbit of the outer generator (the distinct conjugates h R_last h^{-1})
     const stab: Mat[] = [identity(n)]
@@ -288,7 +325,9 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
         }
       }
 
-      if (stab.length > 100000) break
+      if (stab.length > 100000) {
+        break
+      }
     }
 
     const faces: Mat[] = []
@@ -393,13 +432,16 @@ export function buildTilingExact(input: {
       }
     }
 
-    if (hit) break
+    if (hit) {
+      break
+    }
   }
 
   let facetCount = 0
 
-  for (const row of neighbors)
+  for (const row of neighbors) {
     facetCount = Math.max(facetCount, row.length)
+  }
 
   return { cellCount: cells.length, neighbors, facetCount }
 }

@@ -37,7 +37,9 @@ function csrByHand(neighbors: number[][]): {
   const adj: number[] = []
 
   for (const row of neighbors) {
-    for (const v of row) adj.push(v)
+    for (const v of row) {
+      adj.push(v)
+    }
 
     offsets.push(adj.length)
   }

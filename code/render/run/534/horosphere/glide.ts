@@ -79,7 +79,9 @@ async function run(): Promise<void> {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -87,7 +89,9 @@ async function run(): Promise<void> {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -119,7 +123,9 @@ async function run(): Promise<void> {
 
   const reindex = new Int32Array(n).fill(-1)
 
-  for (let a = 0; a < bandList.length; a++) reindex[bandList[a]!] = a
+  for (let a = 0; a < bandList.length; a++) {
+    reindex[bandList[a]!] = a
+  }
 
   const B = bandList.length
   const bandNbr: number[][] = bandList.map(() => [])
@@ -128,7 +134,9 @@ async function run(): Promise<void> {
     for (const w of slab.neighbors[bandList[a]!]!) {
       const b = reindex[w]!
 
-      if (b >= 0) bandNbr[a]!.push(b)
+      if (b >= 0) {
+        bandNbr[a]!.push(b)
+      }
     }
   }
 
@@ -279,7 +287,9 @@ async function run(): Promise<void> {
 
       sm[a] = t
 
-      if (reached[a]! < 0 && t !== 0) reached[a] = f
+      if (reached[a]! < 0 && t !== 0) {
+        reached[a] = f
+      }
     }
 
     for (let p = 0; p < SMOOTH_PASSES; p++) {
@@ -305,7 +315,9 @@ async function run(): Promise<void> {
     for (let a = 0; a < B; a++) {
       const v = Math.abs(sm[a]!)
 
-      if (v > mx) mx = v
+      if (v > mx) {
+        mx = v
+      }
     }
 
     const eps = 0.06 * mx
@@ -320,12 +332,16 @@ async function run(): Promise<void> {
     }
 
     for (let a = 0; a < B; a++) {
-      if (reached[a]! < 0) continue
+      if (reached[a]! < 0) {
+        continue
+      }
       // outside the causal cone, black
 
       const s = sm[a]!
 
-      if (Math.abs(s) < eps) continue
+      if (Math.abs(s) < eps) {
+        continue
+      }
       // peace, black
 
       const col = s > 0 ? BLUE : RED
@@ -334,12 +350,16 @@ async function run(): Promise<void> {
 
       for (let dy = -DOT; dy <= DOT; dy++) {
         for (let dx = -DOT; dx <= DOT; dx++) {
-          if (dx * dx + dy * dy > DOT * DOT) continue
+          if (dx * dx + dy * dy > DOT * DOT) {
+            continue
+          }
 
           const x = cx + dx,
             y = cy + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
 
           const o = (y * IMG + x) * 4
 
@@ -359,7 +379,9 @@ async function run(): Promise<void> {
       prefix: 'glide_',
     })
 
-    if (f % 25 === 0) console.log(`  beat ${f}/${FRAMES}`)
+    if (f % 25 === 0) {
+      console.log(`  beat ${f}/${FRAMES}`)
+    }
   }
 
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

@@ -9,8 +9,9 @@ const CRC_TABLE = (() => {
   for (let n = 0; n < 256; n++) {
     let c = n
 
-    for (let k = 0; k < 8; k++)
+    for (let k = 0; k < 8; k++) {
       c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+    }
 
     t[n] = c >>> 0
   }
@@ -21,7 +22,9 @@ const CRC_TABLE = (() => {
 function crc32(buf: Buffer): number {
   let c = 0xffffffff
 
-  for (const byte of buf) c = CRC_TABLE[(c ^ byte) & 0xff]! ^ (c >>> 8)
+  for (const byte of buf) {
+    c = CRC_TABLE[(c ^ byte) & 0xff]! ^ (c >>> 8)
+  }
 
   return (c ^ 0xffffffff) >>> 0
 }

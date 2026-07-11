@@ -42,7 +42,9 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
   const out: number[] = []
 
   for (let j = 0; j < n; j++) {
-    if (j === center) continue
+    if (j === center) {
+      continue
+    }
 
     const d = cubicLatticeDistance({
       lattice: lat,
@@ -50,7 +52,9 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
       to: j,
     })
 
-    if (d < rMin || d > rMax) continue
+    if (d < rMin || d > rMax) {
+      continue
+    }
 
     r.push(d)
     out.push(phi[j] ?? 0)

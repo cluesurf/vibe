@@ -36,7 +36,9 @@ suite('operator/exterior-derivative: chain complex identities', [
       const product = multiply(c.boundary[0]!, c.boundary[1]!)
 
       for (const row of product) {
-        for (const value of row) equal(value, 0, 'B0 B1 entry')
+        for (const value of row) {
+          equal(value, 0, 'B0 B1 entry')
+        }
       }
     }
   }),
@@ -50,8 +52,9 @@ suite('operator/exterior-derivative: chain complex identities', [
         equal(d.length, bt.length, `grade ${grade} rows`)
 
         for (let i = 0; i < d.length; i++) {
-          for (let j = 0; j < d[i]!.length; j++)
+          for (let j = 0; j < d[i]!.length; j++) {
             equal(d[i]![j] ?? 0, bt[i]![j] ?? 0, `d=B^T [${i}][${j}]`)
+          }
         }
       }
     },
@@ -63,8 +66,9 @@ suite('operator/exterior-derivative: Kahler-Dirac operator', [
     const D = kahlerDirac(pentagon)
 
     for (let i = 0; i < D.length; i++) {
-      for (let j = 0; j < D.length; j++)
+      for (let j = 0; j < D.length; j++) {
         equal(D[i]![j] ?? 0, D[j]![i] ?? 0, `D symmetric [${i}][${j}]`)
+      }
     }
   }),
   check(
@@ -122,8 +126,9 @@ suite('operator/exterior-derivative: Kahler-Dirac operator', [
       const dense = makeDense({ rows: n, cols: n })
 
       for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++)
+        for (let j = 0; j < n; j++) {
           dense.data[i * n + j] = D[i]![j] ?? 0
+        }
       }
 
       const values = Array.from(
@@ -133,7 +138,9 @@ suite('operator/exterior-derivative: Kahler-Dirac operator', [
       let zeroModes = 0
 
       for (const v of values) {
-        if (Math.abs(v) < 1e-7) zeroModes += 1
+        if (Math.abs(v) < 1e-7) {
+          zeroModes += 1
+        }
       }
 
       equal(zeroModes, 1, 'disk has b0+b1+b2 = 1 zero mode')

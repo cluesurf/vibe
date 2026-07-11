@@ -39,7 +39,9 @@ export function powerLawExponent(input: {
   let m = 0
 
   for (let i = 0; i < times.length; i++) {
-    if ((spreads[i] ?? 0) <= 0) continue
+    if ((spreads[i] ?? 0) <= 0) {
+      continue
+    }
 
     const x = Math.log(times[i]!)
     const y = Math.log(spreads[i]!)
@@ -208,8 +210,9 @@ export function quadraticFit(input: {
     let pivot = col
 
     for (let row = col + 1; row < 3; row++) {
-      if (Math.abs(m[row]![col]!) > Math.abs(m[pivot]![col]!))
+      if (Math.abs(m[row]![col]!) > Math.abs(m[pivot]![col]!)) {
         pivot = row
+      }
     }
 
     const hold = m[col]!
@@ -219,14 +222,20 @@ export function quadraticFit(input: {
 
     const head = m[col]![col]!
 
-    if (head === 0) return { a: 0, b: 0, c: 0, residual: 0, r2: 0 }
+    if (head === 0) {
+      return { a: 0, b: 0, c: 0, residual: 0, r2: 0 }
+    }
 
     for (let row = 0; row < 3; row++) {
-      if (row === col) continue
+      if (row === col) {
+        continue
+      }
 
       const factor = m[row]![col]! / head
 
-      for (let k = col; k < 4; k++) m[row]![k]! -= factor * m[col]![k]!
+      for (let k = col; k < 4; k++) {
+        m[row]![k]! -= factor * m[col]![k]!
+      }
     }
   }
 
@@ -273,7 +282,9 @@ export function loglogExponentWindow(input: {
   let m = 0
 
   for (let t = lo; t <= hi; t++) {
-    if ((values[t] ?? 0) <= 0) continue
+    if ((values[t] ?? 0) <= 0) {
+      continue
+    }
 
     const x = Math.log(t)
     const y = Math.log(values[t]!)

@@ -40,8 +40,11 @@ function linkPhase(input: {
 
   let phase = 0
 
-  if (input.mu === 1) phase = -input.flux * n2
-  else if (n2 === L - 1) phase = input.flux * L * n1
+  if (input.mu === 1) {
+    phase = -input.flux * n2
+  } else if (n2 === L - 1) {
+    phase = input.flux * L * n1
+  }
 
   return { re: Math.cos(phase), im: Math.sin(phase) }
 }
@@ -221,7 +224,9 @@ function hermiticityError(m: ComplexMatrix): number {
       const di = (m.im[i * n + j] ?? 0) + (m.im[j * n + i] ?? 0)
       const e = Math.hypot(dr, di)
 
-      if (e > worst) worst = e
+      if (e > worst) {
+        worst = e
+      }
     }
   }
 
@@ -253,8 +258,9 @@ export function overlapIndex(input: {
   const dw = gaugeWilsonDirac({ length: L, charge: input.charge })
 
   // H_W = gamma5 (D_W - m0): subtract m0 from the diagonal, then apply gamma5.
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
+  }
 
   gamma5RowsInPlace(dw)
 

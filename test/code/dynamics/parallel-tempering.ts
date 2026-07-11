@@ -81,8 +81,9 @@ suite('dynamics/parallel-tempering: determinism', [
 
       equal(sa.length, sb.length, `beta ${r}: sample count`)
 
-      for (let i = 0; i < sa.length; i++)
+      for (let i = 0; i < sa.length; i++) {
         equal(sa[i], sb[i], `beta ${r} sample ${i}`)
+      }
     }
   }),
 ])

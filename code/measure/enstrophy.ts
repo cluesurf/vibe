@@ -11,7 +11,9 @@ export function enstrophy(will: Will): number {
 
   let s = 0
 
-  for (const t of data) s += t * t
+  for (const t of data) {
+    s += t * t
+  }
 
   return s
 }

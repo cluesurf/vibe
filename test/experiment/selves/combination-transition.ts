@@ -48,7 +48,9 @@ export default experiment({
 
     const centerAtDistance = (distance: number): number => {
       for (let cell = 0; cell < mesh.cellCount; cell++) {
-        if (distanceFromOrigin[cell] === distance) return cell
+        if (distanceFromOrigin[cell] === distance) {
+          return cell
+        }
       }
 
       return 0

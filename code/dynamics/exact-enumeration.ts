@@ -25,7 +25,9 @@ export function exactCausalSetAverages(input: {
   const pairs: [number, number][] = []
 
   for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) pairs.push([i, j])
+    for (let j = i + 1; j < n; j++) {
+      pairs.push([i, j])
+    }
   }
 
   const P = pairs.length
@@ -51,7 +53,9 @@ export function exactCausalSetAverages(input: {
       if ((mask >> p) & 1) {
         const pair = pairs[p]
 
-        if (pair) rel[pair[0]]![pair[1]] = true
+        if (pair) {
+          rel[pair[0]]![pair[1]] = true
+        }
       }
     }
 
@@ -60,7 +64,9 @@ export function exactCausalSetAverages(input: {
 
     for (let i = 0; i < n && transitive; i++) {
       for (let j = i + 1; j < n && transitive; j++) {
-        if (!rel[i]![j]) continue
+        if (!rel[i]![j]) {
+          continue
+        }
 
         for (let k = j + 1; k < n; k++) {
           if (rel[j]![k] && !rel[i]![k]) {
@@ -71,7 +77,9 @@ export function exactCausalSetAverages(input: {
       }
     }
 
-    if (!transitive) continue
+    if (!transitive) {
+      continue
+    }
 
     count += 1
 
@@ -80,7 +88,9 @@ export function exactCausalSetAverages(input: {
 
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
-        if (rel[i]![j]) setBit(future, { row: i, col: j })
+        if (rel[i]![j]) {
+          setBit(future, { row: i, col: j })
+        }
       }
     }
 
@@ -95,8 +105,9 @@ export function exactCausalSetAverages(input: {
 
       const row = weighted[b]!
 
-      for (let o = 0; o < O; o++)
+      for (let o = 0; o < O; o++) {
         row[o] = (row[o] ?? 0) + (obs[o] ?? 0) * w
+      }
     }
   }
 

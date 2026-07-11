@@ -279,12 +279,16 @@ export function latticeFermionDoublers(dimension: number): {
     for (const k of corner) {
       chirality *= Math.cos(k) >= 0 ? 1 : -1
 
-      if (Math.abs(k - Math.PI) < 1e-9) piCount += 1
+      if (Math.abs(k - Math.PI) < 1e-9) {
+        piCount += 1
+      }
     }
 
     netChirality += chirality
 
-    if (piCount === 0) wilsonSpecies += 1
+    if (piCount === 0) {
+      wilsonSpecies += 1
+    }
   }
 
   return { naiveSpecies: corners.length, netChirality, wilsonSpecies }
@@ -310,11 +314,15 @@ export function scanBrillouin(input: {
       const k2 = (2 * Math.PI * j) / n
       const d = input.operator({ k1, k2 })
 
-      if (minSingularValue(d) < tol) species += 1
+      if (minSingularValue(d) < tol) {
+        species += 1
+      }
 
       const residual = ginspargWilsonResidual(d)
 
-      if (residual > gwResidualMax) gwResidualMax = residual
+      if (residual > gwResidualMax) {
+        gwResidualMax = residual
+      }
     }
   }
 

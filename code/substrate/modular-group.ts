@@ -72,7 +72,9 @@ export function modularGraph(maxNodes: number): Graph {
     const next: number[] = []
 
     for (const gi of frontier) {
-      if (mats.length >= maxNodes) break
+      if (mats.length >= maxNodes) {
+        break
+      }
 
       const g = mats[gi]!
 
@@ -81,14 +83,18 @@ export function modularGraph(maxNodes: number): Graph {
         const before = mats.length
         const hi = add(h)
 
-        if (hi >= neighbors.length) neighbors.push([])
+        if (hi >= neighbors.length) {
+          neighbors.push([])
+        }
 
         if (!(neighbors[gi] ?? []).includes(hi) && hi !== gi) {
           neighbors[gi]!.push(hi)
           neighbors[hi]!.push(gi)
         }
 
-        if (hi === before && mats.length < maxNodes) next.push(hi)
+        if (hi === before && mats.length < maxNodes) {
+          next.push(hi)
+        }
       }
     }
 
@@ -159,7 +165,9 @@ export function rationalFromContinuedFraction(cf: number[]): {
   for (let k = 0; k < cf.length; k++) {
     let steps = cf[k] ?? 0
 
-    if (k === cf.length - 1) steps -= 1
+    if (k === cf.length - 1) {
+      steps -= 1
+    }
 
     for (let s = 0; s < steps; s++) {
       if (goRight) {

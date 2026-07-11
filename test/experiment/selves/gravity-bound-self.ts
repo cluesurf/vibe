@@ -88,8 +88,9 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        )
+        ) {
           will.data[c * degree + rest] = 1
+        }
       }
 
       return will
@@ -103,8 +104,9 @@ export default experiment({
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
 
-      for (let c = 0; c < coin.cellCount; c++)
+      for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
+      }
 
       return o
     }
@@ -132,7 +134,9 @@ export default experiment({
             Math.abs(z - half) +
             Math.abs(w - half)
 
-          if (dd > e) e = dd
+          if (dd > e) {
+            e = dd
+          }
         }
       }
 
@@ -184,7 +188,9 @@ export default experiment({
         next.data[to * degree + rest] = 1
       }
 
-      if (open) absorbBoundary(next)
+      if (open) {
+        absorbBoundary(next)
+      }
 
       return { will: next, phi: newPhi }
     }
@@ -232,7 +238,9 @@ export default experiment({
 
       let nb = center
 
-      for (let k = 0; k < 3; k++) nb = base.neighbour(nb, 0)
+      for (let k = 0; k < 3; k++) {
+        nb = base.neighbour(nb, 0)
+      }
 
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
@@ -262,7 +270,9 @@ export default experiment({
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
 
-      for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1
+      for (let d = 0; d < 8; d++) {
+        w.data[center * degree + d] = 1
+      }
 
       return w
     }

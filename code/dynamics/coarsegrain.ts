@@ -13,7 +13,9 @@ export function decimate(input: {
   const survivors: number[] = []
 
   for (let a = 0; a < input.poset.size; a++) {
-    if (input.rng.next() < input.keepProbability) survivors.push(a)
+    if (input.rng.next() < input.keepProbability) {
+      survivors.push(a)
+    }
   }
 
   // subPoset relabels the survivors 0..k-1 and induces the order via precedes.

@@ -78,7 +78,9 @@ export function phPhoton(): {
     let f = 0
 
     for (let x = 0; x < 3; x++) {
-      for (let y = 0; y < 3; y++) f += plaq(Ax, Ay, x, y)
+      for (let y = 0; y < 3; y++) {
+        f += plaq(Ax, Ay, x, y)
+      }
     }
 
     return f

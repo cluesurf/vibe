@@ -42,7 +42,9 @@ export function componentCount(will: Will): number {
   let components = 0
 
   for (const start of occupied) {
-    if (seen.has(start)) continue
+    if (seen.has(start)) {
+      continue
+    }
 
     components++
 
@@ -72,14 +74,18 @@ export function componentCount(will: Will): number {
 export function diameter(will: Will): number {
   const occupied = [...occupiedSet(will)]
 
-  if (occupied.length <= 1) return 0
+  if (occupied.length <= 1) {
+    return 0
+  }
 
   const dist = shellDistances(will.mesh, occupied[0]!)
 
   let max = 0
 
   for (const cell of occupied) {
-    if (dist[cell]! > max) max = dist[cell]!
+    if (dist[cell]! > max) {
+      max = dist[cell]!
+    }
   }
 
   return max
@@ -96,8 +102,9 @@ export function travelDistance(input: {
   let max = 0
 
   for (let cell = 0; cell < input.will.mesh.cellCount; cell++) {
-    if (cellTone(input.will, cell) !== 0 && dist[cell]! > max)
+    if (cellTone(input.will, cell) !== 0 && dist[cell]! > max) {
       max = dist[cell]!
+    }
   }
 
   return max
@@ -118,7 +125,9 @@ export function maxOccupancy(
 
     const count = occupiedCells(current)
 
-    if (count > max) max = count
+    if (count > max) {
+      max = count
+    }
   }
 
   return max
@@ -142,8 +151,9 @@ export function momentum(
       if (tone !== 0) {
         const root = roots[direction]!
 
-        for (let axis = 0; axis < 4; axis++)
+        for (let axis = 0; axis < 4; axis++) {
           m[axis]! += tone * (root[axis] ?? 0)
+        }
       }
     }
   }

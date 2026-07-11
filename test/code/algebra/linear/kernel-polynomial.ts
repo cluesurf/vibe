@@ -43,8 +43,9 @@ suite('algebra/linear/kernel-polynomial: Jackson kernel', [
     close(jacksonKernel(8)[0]!, 1, 1e-12, 'g0 = 1')
   }),
   check('all Jackson weights lie in [0, 1]', () => {
-    for (const g of jacksonKernel(16))
+    for (const g of jacksonKernel(16)) {
       close(Math.max(0, Math.min(1, g)), g, 1e-12, 'g in [0,1]')
+    }
   }),
 ])
 
@@ -107,8 +108,9 @@ suite('algebra/linear/kernel-polynomial: Chebyshev moment recurrence', [
         dim: 1,
       })
 
-      for (let n = 0; n < 5; n++)
+      for (let n = 0; n < 5; n++) {
         close(mu[n]!, Math.cos(n * Math.acos(0.5)), 1e-12, `mu_${n}`)
+      }
     },
   ),
 ])

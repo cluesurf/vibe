@@ -29,7 +29,9 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
 
     // neighbors are sorted; a linear scan is fine for small degrees.
     for (const value of row) {
-      if (value === b) return true
+      if (value === b) {
+        return true
+      }
     }
 
     return false
@@ -40,14 +42,20 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
     const rowA = g.neighbors[a] ?? new Uint32Array(0)
 
     for (const b of rowA) {
-      if (b <= a) continue
+      if (b <= a) {
+        continue
+      }
 
       const rowB = g.neighbors[b] ?? new Uint32Array(0)
 
       for (const c of rowB) {
-        if (c <= b) continue
+        if (c <= b) {
+          continue
+        }
 
-        if (has(a, c)) loops.push(Uint32Array.from([a, b, c]))
+        if (has(a, c)) {
+          loops.push(Uint32Array.from([a, b, c]))
+        }
       }
     }
   }
@@ -59,28 +67,40 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
       const rowA = g.neighbors[a] ?? new Uint32Array(0)
 
       for (const b of rowA) {
-        if (b <= a) continue
+        if (b <= a) {
+          continue
+        }
 
         for (const d of rowA) {
-          if (d <= a || d === b) continue
+          if (d <= a || d === b) {
+            continue
+          }
 
           // c must be adjacent to both b and d, and distinct from a.
           const rowB = g.neighbors[b] ?? new Uint32Array(0)
 
           for (const c of rowB) {
-            if (c === a || c === d || c <= a) continue
+            if (c === a || c === d || c <= a) {
+              continue
+            }
 
-            if (!has(c, d)) continue
+            if (!has(c, d)) {
+              continue
+            }
 
             // Skip if a-c or b-d already form a chord (that is a triangle).
-            if (has(a, c) || has(b, d)) continue
+            if (has(a, c) || has(b, d)) {
+              continue
+            }
 
             const key = [a, b, c, d]
               .slice()
               .sort((x, y) => x - y)
               .join(',')
 
-            if (seen.has(key)) continue
+            if (seen.has(key)) {
+              continue
+            }
 
             seen.add(key)
             loops.push(Uint32Array.from([a, b, c, d]))
@@ -119,8 +139,9 @@ export function wilsonAction(input: {
 }): number {
   let total = 0
 
-  for (const loop of input.plaquettes.loops)
+  for (const loop of input.plaquettes.loops) {
     total += input.beta * (1 - Math.cos(loopPhase(input.field, loop)))
+  }
 
   return total
 }
@@ -148,8 +169,11 @@ function buildEdgePlaquetteIndex(input: {
       ]) {
         const list = index.get(key)
 
-        if (list) list.push(p)
-        else index.set(key, [p])
+        if (list) {
+          list.push(p)
+        } else {
+          index.set(key, [p])
+        }
       }
     }
   }
@@ -190,13 +214,17 @@ export function heatBathSweep(input: {
   for (let e = 0; e < field.link.length; e++) {
     const edge = field.edges[e]
 
-    if (!edge) continue
+    if (!edge) {
+      continue
+    }
 
     const touching =
       edgePlaquettes.get(edgeKey({ from: edge.from, to: edge.to })) ??
       []
 
-    if (touching.length === 0) continue
+    if (touching.length === 0) {
+      continue
+    }
 
     const before = localEnergy(touching)
     const old = field.link[e] ?? 0
@@ -211,6 +239,8 @@ export function heatBathSweep(input: {
     const accept =
       deltaS <= 0 || input.rng.next() < Math.exp(-input.beta * deltaS)
 
-    if (!accept) field.link[e] = old
+    if (!accept) {
+      field.link[e] = old
+    }
   }
 }

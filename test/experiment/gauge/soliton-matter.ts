@@ -12,6 +12,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
+
 const N = 80
 const blank = (): V[][] => blankDirectionField2d(N)
 const addSky = (

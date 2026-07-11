@@ -27,7 +27,9 @@ export function lifeStep(state: Set<string>): Set<string> {
   const next = new Set<string>()
 
   for (const [k, c] of count) {
-    if (c === 3 || (c === 2 && state.has(k))) next.add(k)
+    if (c === 3 || (c === 2 && state.has(k))) {
+      next.add(k)
+    }
   }
 
   return next

@@ -43,7 +43,9 @@ suite('model/self-kit: graph construction', [
 
     equal(g.cellCount, 4)
 
-    for (let c = 0; c < 4; c++) equal(degreeOf(g, c), 2)
+    for (let c = 0; c < 4; c++) {
+      equal(degreeOf(g, c), 2)
+    }
   }),
   check('toCSR round-trips an adjacency list', () => {
     const g = toCSR([[1, 2], [0], [0]])
@@ -103,13 +105,16 @@ suite('model/self-kit: charge conservation', [
     const tone = new Int8Array(g.cellCount)
     const rng = makeRng({ seed: 1 })
 
-    for (let i = 0; i < tone.length; i++)
+    for (let i = 0; i < tone.length; i++) {
       tone[i] = i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0
+    }
 
     const before = totalCharge(tone)
     const moved = new Uint8Array(g.cellCount)
 
-    for (let t = 0; t < 25; t++) beat(tone, g, moved, rng, 0, 0.22)
+    for (let t = 0; t < 25; t++) {
+      beat(tone, g, moved, rng, 0, 0.22)
+    }
 
     equal(
       totalCharge(tone),
@@ -224,7 +229,8 @@ suite('model/self-kit: emergence reproducibility', [
 
     equal(a.length, b.length)
 
-    for (let i = 0; i < a.length; i++)
+    for (let i = 0; i < a.length; i++) {
       equal(a[i]!, b[i]!, 'same seed, same emerged field')
+    }
   }),
 ])

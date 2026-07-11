@@ -110,8 +110,9 @@ export function renderDigitFibonacci(input: {
       step.kind === 'jz' &&
       step.reg === nIndex &&
       step.registers[nIndex] !== 0n
-    )
+    ) {
       latched = Number(step.registers[bIndex]!)
+    }
 
     steps.push(step)
     display.push(latched)
@@ -142,8 +143,9 @@ export function renderDigitFibonacci(input: {
       if (
         digit(step.registers[step.reg]!, p) !==
         digit(prev[step.reg]!, p)
-      )
+      ) {
         changed.add(p)
+      }
     }
 
     const av = step.registers[step.reg]!
@@ -274,8 +276,9 @@ function renderFrame(input: {
             Math.round(rgb01[2] * 255),
           ],
         })
-      } else
+      } else {
         faces.push({ polygon: tiling.polygons[cell]!, color: FAINT })
+      }
     }
   }
 

@@ -12,7 +12,9 @@ export function quantileLabels(input: {
 }): number[] {
   const { series, bins } = input
 
-  if (series.length === 0) return []
+  if (series.length === 0) {
+    return []
+  }
 
   const sorted = [...series].sort((a, b) => a - b)
   const thresholds = Array.from(
@@ -127,16 +129,22 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
     let off = 0
 
     for (let p = 0; p < n; p++) {
-      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
+      for (let q = p + 1; q < n; q++) {
+        off += a[p]![q]! * a[p]![q]!
+      }
     }
 
-    if (off < 1e-18) break
+    if (off < 1e-18) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
 
-        if (Math.abs(apq) < 1e-15) continue
+        if (Math.abs(apq) < 1e-15) {
+          continue
+        }
 
         const app = a[p]![p]!
         const aqq = a[q]![q]!
@@ -178,8 +186,9 @@ export function transitionEigenvalues(counts: number[][]): number[] {
   )
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++)
+    for (let j = 0; j < n; j++) {
       sym[i]![j] = 0.5 * (counts[i]![j]! + counts[j]![i]!)
+    }
   }
 
   const degree = sym.map(row => row.reduce((a, b) => a + b, 0))
@@ -226,8 +235,9 @@ export function impliedTimescale(input: {
 }): number {
   const { eigenvalue, lag } = input
 
-  if (eigenvalue <= 0 || eigenvalue >= 1)
+  if (eigenvalue <= 0 || eigenvalue >= 1) {
     return eigenvalue >= 1 ? Infinity : 0
+  }
 
   return -lag / Math.log(eigenvalue)
 }

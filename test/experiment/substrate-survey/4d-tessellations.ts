@@ -16,6 +16,7 @@ type Cand = {
   flat?: boolean
   note: string
 }
+
 const HONEYCOMBS: Cand[] = [
   // the substrate and its closest relatives
   {
@@ -119,8 +120,9 @@ function measure(
 }
 
 export function fourdTessellations(): void {
-  for (const c of HONEYCOMBS)
+  for (const c of HONEYCOMBS) {
     measure(c.sym, c.flat ?? false, SURVEY_SCALE)
+  }
 }
 
 export default experiment({

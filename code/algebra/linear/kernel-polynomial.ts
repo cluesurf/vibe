@@ -19,8 +19,9 @@ export function absoluteValueCoefficients(count: number): number[] {
 
   coefficients[0] = 2 / Math.PI
 
-  for (let k = 1; 2 * k < count; k++)
+  for (let k = 1; 2 * k < count; k++) {
     coefficients[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
+  }
 
   return coefficients
 }
@@ -101,11 +102,15 @@ export function spectralBound(input: {
   const v = newCx(dim)
   const rng = makeRng({ seed: 1 })
 
-  for (let i = 0; i < dim; i++) v.re[i] = rng.next() - 0.5
+  for (let i = 0; i < dim; i++) {
+    v.re[i] = rng.next() - 0.5
+  }
 
   let norm = Math.sqrt(dotR(v, v, dim))
 
-  for (let i = 0; i < dim; i++) v.re[i]! /= norm
+  for (let i = 0; i < dim; i++) {
+    v.re[i]! /= norm
+  }
 
   const applied = newCx(dim)
   const twice = newCx(dim)

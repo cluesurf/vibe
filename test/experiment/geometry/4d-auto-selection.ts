@@ -57,7 +57,9 @@ export function fourDAutoSelection(): {
       }
     }
 
-    if (threeDForced) break
+    if (threeDForced) {
+      break
+    }
   }
 
   const threeDIsCompact = threeDForced !== null && isCompact([5, 3, 4])
@@ -73,14 +75,17 @@ export function fourDAutoSelection(): {
         for (let s = 3; s <= 6; s++) {
           const sym = [p, q, r, s]
 
-          if (!isIdealFiniteCell(sym)) continue
+          if (!isIdealFiniteCell(sym)) {
+            continue
+          }
 
           idealFourD.push(`{${sym.join(',')}}`)
 
           const vf = vertexFigure(sym)
 
-          if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4)
+          if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) {
             idealCubicCuspFourD.push(`{${sym.join(',')}}`)
+          }
           // cubic cusp {4,3,4}
         }
       }

@@ -35,7 +35,9 @@ export function stateOrbit(input: {
 
     const key = stateKey(current)
 
-    if (key === startKey) return { states, period: t }
+    if (key === startKey) {
+      return { states, period: t }
+    }
 
     states.push(key)
   }
@@ -56,8 +58,9 @@ export function superpositionNormAfterBeat(input: {
   const norm = (re: number[], im: number[]): number => {
     let sum = 0
 
-    for (let i = 0; i < period; i++)
+    for (let i = 0; i < period; i++) {
       sum += re[i]! * re[i]! + im[i]! * im[i]!
+    }
 
     return sum
   }

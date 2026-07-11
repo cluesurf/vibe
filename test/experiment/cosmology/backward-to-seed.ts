@@ -31,8 +31,9 @@ export default experiment({
     let center = 0
 
     for (let i = 1; i < n; i++) {
-      if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length)
+      if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
+      }
     }
 
     const depth = neighborDistances({
@@ -44,7 +45,9 @@ export default experiment({
     let maxDepth = 0
 
     for (let i = 0; i < n; i++) {
-      if (depth[i]! > maxDepth) maxDepth = depth[i]!
+      if (depth[i]! > maxDepth) {
+        maxDepth = depth[i]!
+      }
     }
 
     // peel: the number of cells surviving when we keep only depth <= d, for d from maxDepth down to 0
@@ -68,7 +71,9 @@ export default experiment({
     let monotonic = true
 
     for (let i = 1; i < counts.length; i++) {
-      if (counts[i]! > counts[i - 1]!) monotonic = false
+      if (counts[i]! > counts[i - 1]!) {
+        monotonic = false
+      }
     }
 
     const reachesUniqueSeed = seedSize === 1 // a single seed chamber

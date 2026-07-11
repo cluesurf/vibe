@@ -11,7 +11,9 @@ export function graphDistance(input: {
   from: number
   to: number
 }): number {
-  if (input.from === input.to) return 0
+  if (input.from === input.to) {
+    return 0
+  }
 
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const size = input.substrate.size
@@ -33,7 +35,9 @@ export function graphDistance(input: {
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = (distance[node] ?? 0) + 1
 
-          if (neighbor === input.to) return distance[neighbor] ?? -1
+          if (neighbor === input.to) {
+            return distance[neighbor] ?? -1
+          }
 
           next.push(neighbor)
         }
@@ -56,15 +60,21 @@ export function longestChain(input: {
 }): number {
   const p = input.poset
 
-  if (input.from === input.to) return 0
+  if (input.from === input.to) {
+    return 0
+  }
 
-  if (!precedes(p, { a: input.from, b: input.to })) return 0
+  if (!precedes(p, { a: input.from, b: input.to })) {
+    return 0
+  }
 
   // Restrict to the open interval cone: elements in the future of `from` and
   // the past of `to`, plus the endpoints. Process them in topological order so
   // each element is relaxed after all its predecessors in the cone.
   const inCone = (x: number): boolean => {
-    if (x === input.from || x === input.to) return true
+    if (x === input.from || x === input.to) {
+      return true
+    }
 
     return (
       precedes(p, { a: input.from, b: x }) &&
@@ -78,7 +88,9 @@ export function longestChain(input: {
   const cone: number[] = []
 
   for (let x = 0; x < p.size; x++) {
-    if (inCone(x)) cone.push(x)
+    if (inCone(x)) {
+      cone.push(x)
+    }
   }
 
   const reach = new Int32Array(p.size)
@@ -106,18 +118,24 @@ export function longestChain(input: {
   for (const x of cone) {
     const reachedFrom = best[x] ?? -1
 
-    if (reachedFrom < 0) continue
+    if (reachedFrom < 0) {
+      continue
+    }
 
     const row = p.links[x] ?? new Uint32Array(0)
 
     for (const value of row) {
       const child = value ?? 0
 
-      if (!inCone(child)) continue
+      if (!inCone(child)) {
+        continue
+      }
 
       const candidate = reachedFrom + 1
 
-      if (candidate > (best[child] ?? -1)) best[child] = candidate
+      if (candidate > (best[child] ?? -1)) {
+        best[child] = candidate
+      }
     }
   }
 

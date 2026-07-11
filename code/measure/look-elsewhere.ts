@@ -92,16 +92,22 @@ export function numerologyMenu(input: {
   for (let n = 1; n <= maxInteger; n++) {
     menu.push(n)
 
-    for (let d = 1; d <= maxInteger; d++) menu.push(n / d) // simple ratios
+    for (let d = 1; d <= maxInteger; d++) {
+      menu.push(n / d)
+    } // simple ratios
   }
 
   for (const base of bases) {
     for (let power = -3; power <= 3; power++) {
-      if (power === 0) continue
+      if (power === 0) {
+        continue
+      }
 
       menu.push(base ** power)
 
-      for (let k = 1; k <= 12; k++) menu.push(k * base ** power)
+      for (let k = 1; k <= 12; k++) {
+        menu.push(k * base ** power)
+      }
     }
   }
 

@@ -65,7 +65,9 @@ export default experiment({
     let speedupGrows = true
 
     for (let i = 1; i < speedups.length; i++) {
-      if (speedups[i]! <= speedups[i - 1]!) speedupGrows = false
+      if (speedups[i]! <= speedups[i - 1]!) {
+        speedupGrows = false
+      }
     }
 
     const bigSpeedup = speedups[speedups.length - 1]! > 50

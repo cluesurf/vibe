@@ -51,12 +51,15 @@ export function deterministicPerception(input?: {
   // (1) charge conservation over a run
   const tone = new Int8Array(L)
 
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     tone[i] = rng.next() < 0.4 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
   const q0 = totalCharge(tone)
 
-  for (let t = 0; t < 200; t++) blockBeat(tone, L, t % 2, FWD)
+  for (let t = 0; t < 200; t++) {
+    blockBeat(tone, L, t % 2, FWD)
+  }
 
   const chargeConserved = totalCharge(tone) === q0
 
@@ -64,16 +67,21 @@ export function deterministicPerception(input?: {
   const init = new Int8Array(L)
   const r2 = makeRng({ seed: 3 })
 
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     init[i] = r2.next() < 0.4 ? (r2.next() < 0.5 ? 1 : -1) : 0
+  }
 
   const work = init.slice()
   const T = 80
 
-  for (let t = 0; t < T; t++) blockBeat(work, L, t % 2, FWD)
+  for (let t = 0; t < T; t++) {
+    blockBeat(work, L, t % 2, FWD)
+  }
 
   // reverse: undo each beat in reverse order with the inverse permutation and the same partition parity
-  for (let t = T - 1; t >= 0; t--) blockBeat(work, L, t % 2, INV)
+  for (let t = T - 1; t >= 0; t--) {
+    blockBeat(work, L, t % 2, INV)
+  }
 
   let reversible = true
 
@@ -90,15 +98,18 @@ export function deterministicPerception(input?: {
   const r3 = makeRng({ seed: 11 })
   const base = new Int8Array(L)
 
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     base[i] = r3.next() < 0.4 ? (r3.next() < 0.5 ? 1 : -1) : 0
+  }
 
   const a = base.slice()
   const b = base.slice()
 
   b[center] = (b[center]! + 1) % 3 === 0 ? -1 : b[center]! + 1 // perturb one cell
 
-  if (b[center] === base[center]) b[center] = base[center] === 1 ? 0 : 1
+  if (b[center] === base[center]) {
+    b[center] = base[center] === 1 ? 0 : 1
+  }
 
   const times: number[] = []
   const spreads: number[] = []

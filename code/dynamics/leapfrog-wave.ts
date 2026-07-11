@@ -35,7 +35,9 @@ export function blockAverage(u: Float64Array, b: number): Float64Array {
   for (let I = 0; I < M; I++) {
     let s = 0
 
-    for (let j = 0; j < b; j++) s += u[I * b + j]!
+    for (let j = 0; j < b; j++) {
+      s += u[I * b + j]!
+    }
 
     out[I] = s / b
   }
@@ -116,7 +118,9 @@ export function leapfrogWaveLevelSpeed(input: {
     let f = 0
 
     for (let i = 0; i < arr.length; i++) {
-      if (Math.abs(arr[i]!) > threshold) f = i
+      if (Math.abs(arr[i]!) > threshold) {
+        f = i
+      }
     }
 
     return f

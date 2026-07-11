@@ -45,5 +45,7 @@ export function perceptionEdgeBeat(input: {
       arrow,
       escapeProbability: temperature,
     })
-  } else conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+  } else {
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+  }
 }

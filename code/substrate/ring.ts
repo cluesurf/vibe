@@ -5,8 +5,9 @@
 export function ringNeighbors(length: number): number[][] {
   const neighbors: number[][] = []
 
-  for (let x = 0; x < length; x++)
+  for (let x = 0; x < length; x++) {
     neighbors.push([(x - 1 + length) % length, (x + 1) % length])
+  }
 
   return neighbors
 }

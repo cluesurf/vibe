@@ -13,7 +13,9 @@ export function tanhHorizonSpeed(input: {
   horizon: number
   gradient: number
 }): number {
-  if (input.radius <= input.horizon) return 0
+  if (input.radius <= input.horizon) {
+    return 0
+  }
 
   return Math.tanh(input.gradient * (input.radius - input.horizon))
 }

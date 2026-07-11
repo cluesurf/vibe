@@ -18,8 +18,9 @@ suite('measure/light-cone: free streaming front', [
   check('the front never outruns the beat count (causality)', () => {
     const radii = lightConeRadii({ side: 15, beats: 6 })
 
-    for (let i = 0; i < radii.length; i++)
+    for (let i = 0; i < radii.length; i++) {
       equal(radii[i]!, i + 1, `beat ${i + 1} front radius`)
+    }
   }),
   // The graph-distance cone via streamingConeRadii must agree: the farthest perturbed
   // cell is at graph distance equal to the beat count on the open interior.

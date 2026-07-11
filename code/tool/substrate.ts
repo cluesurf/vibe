@@ -33,7 +33,9 @@ export function adjacencyOf(input: {
       forEachOut: ({ node, visit }) => {
         const row = s.links[node] ?? new Uint32Array(0)
 
-        for (const value of row) visit(value)
+        for (const value of row) {
+          visit(value)
+        }
       },
     }
   }
@@ -45,7 +47,9 @@ export function adjacencyOf(input: {
     forEachOut: ({ node, visit }) => {
       const row = s.neighbors[node] ?? new Uint32Array(0)
 
-      for (const value of row) visit(value)
+      for (const value of row) {
+        visit(value)
+      }
     },
   }
 }
@@ -74,7 +78,9 @@ export function undirectedAdjacency(input: {
       for (const b of row) {
         out[a]?.push(b)
 
-        if (s.directed) out[b]?.push(a)
+        if (s.directed) {
+          out[b]?.push(a)
+        }
       }
     }
   }
@@ -93,8 +99,9 @@ export function substrateMeanDegree(input: {
 
   let total = 0
 
-  for (let node = 0; node < view.size; node++)
+  for (let node = 0; node < view.size; node++) {
     total += view.outDegree({ node })
+  }
 
   return total / Math.max(1, view.size)
 }
@@ -109,8 +116,9 @@ export function substrateUndirectedMeanDegree(input: {
 
   let total = 0
 
-  for (let node = 0; node < input.substrate.size; node++)
+  for (let node = 0; node < input.substrate.size; node++) {
     total += (adjacency[node] ?? new Uint32Array(0)).length
+  }
 
   return total / Math.max(1, input.substrate.size)
 }

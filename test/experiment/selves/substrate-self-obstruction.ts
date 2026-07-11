@@ -66,7 +66,9 @@ export default experiment({
         if (dist[c]! <= 2) {
           const base = c * degree
 
-          for (let d = 0; d < degree; d++) will.data[base + d] = 1
+          for (let d = 0; d < degree; d++) {
+            will.data[base + d] = 1
+          }
         }
       }
 
@@ -93,7 +95,9 @@ export default experiment({
 
         const ext = travelDistance({ will: current, start: center })
 
-        if (ext > maxExtent) maxExtent = ext
+        if (ext > maxExtent) {
+          maxExtent = ext
+        }
       }
 
       return maxExtent
@@ -148,7 +152,9 @@ export default experiment({
             }
           }
 
-          if (differs && dist[c]! > maxCone) maxCone = dist[c]!
+          if (differs && dist[c]! > maxCone) {
+            maxCone = dist[c]!
+          }
         }
       }
 

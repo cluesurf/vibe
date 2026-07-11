@@ -51,7 +51,9 @@ function beat(
     const v = edge[0]!
     const w = edge[1]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -140,7 +142,9 @@ export function exportHorosphere(input?: {
   const busemann = coords.map(x => {
     let d2 = 0
 
-    for (let k = 0; k < x.length; k++) d2 += (x[k]! - xi[k]!) ** 2
+    for (let k = 0; k < x.length; k++) {
+      d2 += (x[k]! - xi[k]!) ** 2
+    }
 
     const r2 = x.reduce((s, v) => s + v * v, 0)
 
@@ -151,7 +155,9 @@ export function exportHorosphere(input?: {
   const band: number[] = []
 
   for (let i = 0; i < bulkCells; i++) {
-    if (Math.abs(busemann[i]! - 0) < bandHalfWidth) band.push(i)
+    if (Math.abs(busemann[i]! - 0) < bandHalfWidth) {
+      band.push(i)
+    }
   }
 
   // a 2D orthonormal frame perpendicular to xi, to flatten the slab onto the plane it is tangent to
@@ -186,7 +192,9 @@ export function exportHorosphere(input?: {
   // honest connectivity of the flat sheet, used both to lay it out and to find the self-patches
   const reindex = new Int32Array(bulkCells).fill(-1)
 
-  for (let a = 0; a < bandCount; a++) reindex[band[a]!] = a
+  for (let a = 0; a < bandCount; a++) {
+    reindex[band[a]!] = a
+  }
 
   const bandNeighbors: number[][] = band.map(() => [])
 
@@ -194,7 +202,9 @@ export function exportHorosphere(input?: {
     for (const w of g.neighbors[band[a]!]!) {
       const b = reindex[w]!
 
-      if (b >= 0) bandNeighbors[a]!.push(b)
+      if (b >= 0) {
+        bandNeighbors[a]!.push(b)
+      }
     }
   }
 
@@ -202,7 +212,9 @@ export function exportHorosphere(input?: {
 
   for (let a = 0; a < bandCount; a++) {
     for (const b of bandNeighbors[a]!) {
-      if (b > a) layoutEdges.push([a, b])
+      if (b > a) {
+        layoutEdges.push([a, b])
+      }
     }
   }
 
@@ -313,8 +325,9 @@ export function exportHorosphere(input?: {
   // normalize the relaxed layout into [-1, 1]
   let maxAbs = 1e-6
 
-  for (const p of position)
+  for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
+  }
 
   const cells2d = position.map(p => [p[0]! / maxAbs, p[1]! / maxAbs])
 
@@ -325,22 +338,26 @@ export function exportHorosphere(input?: {
 
   for (let v = 0; v < bulkCells; v++) {
     for (const w of g.neighbors[v]!) {
-      if (w > v) edges.push([v, w])
+      if (w > v) {
+        edges.push([v, w])
+      }
     }
   }
 
   const rng = makeRng({ seed: 9 })
 
-  for (let b = 0; b < warmup; b++)
+  for (let b = 0; b < warmup; b++) {
     beat(tone, edges, g.neighbors, moved, rng, arrowProb)
+  }
 
   const frames: number[][] = []
 
   for (let f = 0; f < frameCount; f++) {
     frames.push(band.map(i => tone[i]!))
 
-    for (let s = 0; s < stride; s++)
+    for (let s = 0; s < stride; s++) {
       beat(tone, edges, g.neighbors, moved, rng, arrowProb)
+    }
   }
 
   // round the coordinates to keep the file small

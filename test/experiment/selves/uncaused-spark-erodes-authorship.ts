@@ -65,8 +65,9 @@ export function sparkErodes(input: { n: number }): {
     if (
       coherenceByFraction[i]!.coherence >
       coherenceByFraction[i - 1]!.coherence - 1e-9
-    )
+    ) {
       monotoneDown = false
+    }
   }
 
   const first = coherenceByFraction[0]!.coherence

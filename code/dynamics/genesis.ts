@@ -123,7 +123,9 @@ export function wakeDrivenSweep(input: {
   moved.fill(0)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -167,7 +169,9 @@ export function growthRate(depth: Int32Array): number {
   let maxD = 0
 
   for (const d of depth) {
-    if (d > maxD) maxD = d
+    if (d > maxD) {
+      maxD = d
+    }
   }
 
   let frontier = 0
@@ -403,7 +407,9 @@ export function growingMeshGenesis(input: {
   let maxDepth = 0
 
   for (let i = 0; i < n; i++) {
-    if (depth[i]! > maxDepth) maxDepth = depth[i]!
+    if (depth[i]! > maxDepth) {
+      maxDepth = depth[i]!
+    }
   }
 
   const tone = new Int8Array(n)
@@ -419,10 +425,14 @@ export function growingMeshGenesis(input: {
       const dv = depth[v]!
       const dw = depth[w]!
 
-      if (dv > b || dw > b) continue
+      if (dv > b || dw > b) {
+        continue
+      }
       // not yet born
 
-      if (moved[v] || moved[w]) continue
+      if (moved[v] || moved[w]) {
+        continue
+      }
 
       const a = tone[v]!
       const c = tone[w]!
@@ -552,7 +562,9 @@ export function gardenOfEdenFraction(input: {
   const code = (t: Int8Array): number => {
     let k = 0
 
-    for (let i = cells - 1; i >= 0; i--) k = k * 3 + (t[i]! + 1)
+    for (let i = cells - 1; i >= 0; i--) {
+      k = k * 3 + (t[i]! + 1)
+    }
 
     return k
   }

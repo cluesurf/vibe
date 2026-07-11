@@ -61,7 +61,9 @@ function selfDynamics(g: Graph): {
 
   const t2 = tone.slice()
 
-  for (let b = 0; b < 50; b++) beatHashed(t2, g, moved, b, 0, 0.22)
+  for (let b = 0; b < 50; b++) {
+    beatHashed(t2, g, moved, b, 0, 0.22)
+  }
 
   const passiveFidelity =
     cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
@@ -132,8 +134,9 @@ export function horosphereSelf(input?: {
 
   const qb0 = totalCharge(toneB)
 
-  for (let t = 0; t < 3; t++)
+  for (let t = 0; t < 3; t++) {
     beatHashed(toneB, big, movedB, t, 0.01, 0.22)
+  }
 
   const bigBuilt = bigCells > 10_000_000
   const bigConserved = totalCharge(toneB) === qb0

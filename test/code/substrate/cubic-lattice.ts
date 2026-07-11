@@ -39,7 +39,9 @@ suite('substrate/cubic-lattice: degrees and adjacency', [
 
       let degSum = 0
 
-      for (const row of lat.neighbors) degSum += row.length
+      for (const row of lat.neighbors) {
+        degSum += row.length
+      }
 
       // a 3^3 grid has 3 axes * (2 edges per line) * 9 lines = 54 edges.
       equal(degSum / 2, 54, 'edge count')
@@ -52,8 +54,9 @@ suite('substrate/cubic-lattice: degrees and adjacency', [
     for (let i = 0; i < lat.size; i++) {
       notOk(sets[i]!.has(i), `cell ${i} has no self-loop`)
 
-      for (const j of lat.neighbors[i]!)
+      for (const j of lat.neighbors[i]!) {
         ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+      }
     }
   }),
 ])

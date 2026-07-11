@@ -64,7 +64,9 @@ function run(): void {
 
     frames.push(rgba)
 
-    if (i % 8 === 0) console.log(`frame ${i + 1}/${FRAMES}`)
+    if (i % 8 === 0) {
+      console.log(`frame ${i + 1}/${FRAMES}`)
+    }
   }
 
   const gif = encodeGif({

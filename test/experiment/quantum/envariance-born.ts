@@ -12,6 +12,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = { re: number; im: number }
+
 const c = (re: number, im = 0): C => ({ re, im })
 const ceq = (a: C, b: C) =>
   Math.abs(a.re - b.re) < 1e-12 && Math.abs(a.im - b.im) < 1e-12

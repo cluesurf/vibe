@@ -44,7 +44,9 @@ suite('measure/division-algebra: Cayley-Dickson product', [
 
     close(p[0]!, normSquared(x), 1e-12)
 
-    for (let i = 1; i < 4; i++) close(p[i]!, 0, 1e-12)
+    for (let i = 1; i < 4; i++) {
+      close(p[i]!, 0, 1e-12)
+    }
   }),
 ])
 

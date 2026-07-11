@@ -76,8 +76,9 @@ export function coemergenceStructural(): {
     for (let m = 0; m < 16; m++) {
       const f = [0, 1, 2, 3].map(b => (m >> b) & 1)
 
-      if (f.reduce((a, b) => a + b, 0) % 2 === 0)
+      if (f.reduce((a, b) => a + b, 0) % 2 === 0) {
         out.push(f.map(x => (x ? -1 : 1)))
+      }
     }
 
     return out
@@ -102,7 +103,9 @@ export function coemergenceStructural(): {
         for (const v of set) {
           const w = applySign(sgn, applyPerm(p, v))
 
-          if (inWhich(w) !== sec) rotationsPreserveSectors = false
+          if (inWhich(w) !== sec) {
+            rotationsPreserveSectors = false
+          }
         }
       }
     }

@@ -24,13 +24,19 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
   const half = Math.floor(M / 2)
 
   if (kind === 0) {
-    for (let i = 0; i < M; i++) t[i] = i < half ? 1 : -1
+    for (let i = 0; i < M; i++) {
+      t[i] = i < half ? 1 : -1
+    }
     // blocks
   } else if (kind === 1) {
-    for (let i = 0; i < M; i++) t[i] = i % 2 === 0 ? 1 : -1
+    for (let i = 0; i < M; i++) {
+      t[i] = i % 2 === 0 ? 1 : -1
+    }
     // stripes
   } else {
-    for (let i = 0; i < M; i++) t[i] = i < half ? 1 : -1
+    for (let i = 0; i < M; i++) {
+      t[i] = i < half ? 1 : -1
+    }
 
     for (let i = M - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
@@ -49,7 +55,9 @@ function construct(target: Int8Array, rng: Rng): number {
   const M = target.length
   const s = new Int8Array(M)
 
-  for (let i = 0; i < M; i++) s[i] = rng.next() < 0.5 ? 1 : -1
+  for (let i = 0; i < M; i++) {
+    s[i] = rng.next() < 0.5 ? 1 : -1
+  }
 
   let gap = 0
 
@@ -92,7 +100,9 @@ function maintain(target: Int8Array, rng: Rng): number {
     }
 
     // maintain, restore to target (the will)
-    for (let i = 0; i < M; i++) s[i] = target[i]!
+    for (let i = 0; i < M; i++) {
+      s[i] = target[i]!
+    }
   }
 
   let m = 0

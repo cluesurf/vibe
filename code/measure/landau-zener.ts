@@ -159,12 +159,16 @@ export function landauZenerSlope(input: {
       force,
     })
 
-    if (p > 1e-6 && p < 0.2) points.push([1 / force, Math.log(p)])
+    if (p > 1e-6 && p < 0.2) {
+      points.push([1 / force, Math.log(p)])
+    }
   }
 
   const n = points.length
 
-  if (n < 2) return NaN
+  if (n < 2) {
+    return NaN
+  }
 
   let sx = 0
   let sy = 0

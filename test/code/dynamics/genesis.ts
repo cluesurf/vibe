@@ -132,7 +132,8 @@ suite('dynamics/genesis: determinism', [
     const a = run()
     const b = run()
 
-    for (let i = 0; i < a.length; i++)
+    for (let i = 0; i < a.length; i++) {
       equal(a[i]!, b[i]!, `trajectory ${i}`)
+    }
   }),
 ])

@@ -216,7 +216,9 @@ export default experiment({
     const leanTo = (pattern: Int8Array): Int8Array => {
       const start = ternaryPattern(n, 4242)
 
-      for (let i = 0; i < n / 2; i++) start[i] = pattern[i]!
+      for (let i = 0; i < n / 2; i++) {
+        start[i] = pattern[i]!
+      }
 
       return start
     }

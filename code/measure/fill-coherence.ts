@@ -45,8 +45,11 @@ export function adaptFills(
     const tv = tone[edges[i]![0]]!
     const tw = tone[edges[i]![1]]!
 
-    if (tv !== 0 && tw !== 0) fill[i] = tv === tw ? 1 : -1
-    else fill[i] = 0
+    if (tv !== 0 && tw !== 0) {
+      fill[i] = tv === tw ? 1 : -1
+    } else {
+      fill[i] = 0
+    }
   }
 }
 
@@ -60,12 +63,16 @@ export function largestSharingPatch(
 ): number {
   const parent = new Int32Array(n)
 
-  for (let i = 0; i < n; i++) parent[i] = i
+  for (let i = 0; i < n; i++) {
+    parent[i] = i
+  }
 
   const find = (x: number): number => {
     let r = x
 
-    while (parent[r] !== r) r = parent[r]!
+    while (parent[r] !== r) {
+      r = parent[r]!
+    }
 
     while (parent[x] !== r) {
       const nx = parent[x]!
@@ -78,12 +85,16 @@ export function largestSharingPatch(
   }
 
   for (let i = 0; i < edges.length; i++) {
-    if (fill[i] !== 1) continue
+    if (fill[i] !== 1) {
+      continue
+    }
 
     const v = edges[i]![0]
     const w = edges[i]![1]
 
-    if (tone[v] !== 0 && tone[v] === tone[w]) parent[find(v)] = find(w)
+    if (tone[v] !== 0 && tone[v] === tone[w]) {
+      parent[find(v)] = find(w)
+    }
   }
 
   const size = new Int32Array(n)
@@ -91,13 +102,17 @@ export function largestSharingPatch(
   let best = 0
 
   for (let i = 0; i < n; i++) {
-    if (tone[i] === 0) continue
+    if (tone[i] === 0) {
+      continue
+    }
 
     const r = find(i)
 
     size[r]!++
 
-    if (size[r]! > best) best = size[r]!
+    if (size[r]! > best) {
+      best = size[r]!
+    }
   }
 
   return best

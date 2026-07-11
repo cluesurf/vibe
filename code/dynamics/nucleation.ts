@@ -12,8 +12,9 @@ function seedDroplet(side: number, radius: number): Int8Array {
 
   for (let y = 0; y < side; y++) {
     for (let x = 0; x < side; x++) {
-      if ((x - c) ** 2 + (y - c) ** 2 <= radius * radius)
+      if ((x - c) ** 2 + (y - c) ** 2 <= radius * radius) {
         grid[y * side + x] = 1
+      }
     }
   }
 
@@ -33,7 +34,9 @@ function plusFraction(
 
   for (let dy = -radius; dy <= radius; dy++) {
     for (let dx = -radius; dx <= radius; dx++) {
-      if (dx === 0 && dy === 0) continue
+      if (dx === 0 && dy === 0) {
+        continue
+      }
 
       total++
 

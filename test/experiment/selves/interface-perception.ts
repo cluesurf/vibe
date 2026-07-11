@@ -50,8 +50,9 @@ function fitnessLevel(
 ): (state: number) => number {
   let maximum = 0
 
-  for (let s = 0; s < WORLD_STATES; s++)
+  for (let s = 0; s < WORLD_STATES; s++) {
     maximum = Math.max(maximum, fitness(s))
+  }
 
   return (state: number) =>
     Math.min(

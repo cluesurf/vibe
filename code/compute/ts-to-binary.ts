@@ -36,7 +36,9 @@ export function compileToBinary(source: string): CompiledBinary {
   const registers = new Map<string, number>()
 
   const reg = (name: string): number => {
-    if (!registers.has(name)) registers.set(name, registers.size)
+    if (!registers.has(name)) {
+      registers.set(name, registers.size)
+    }
 
     return registers.get(name)!
   }
@@ -45,7 +47,9 @@ export function compileToBinary(source: string): CompiledBinary {
     p => (p.name as ts.Identifier).text,
   )
 
-  for (const p of parameters) reg(p)
+  for (const p of parameters) {
+    reg(p)
+  }
 
   const jump = (): number => reg('$jump') // a scratch register for unconditional back-jumps (both jz branches)
   const one = (): number => reg('$one') // holds the constant 1, for v++
@@ -80,7 +84,9 @@ export function compileToBinary(source: string): CompiledBinary {
     seq(emit({ op: 'sub1', reg: r, next: 0 }))
 
   const compileBlock = (block: ts.Block): void => {
-    for (const stmt of block.statements) compileStatement(stmt)
+    for (const stmt of block.statements) {
+      compileStatement(stmt)
+    }
   }
 
   const compileStatement = (stmt: ts.Statement): void => {
@@ -111,8 +117,9 @@ export function compileToBinary(source: string): CompiledBinary {
         !ts.isBinaryExpression(cond) ||
         cond.operatorToken.kind !==
           ts.SyntaxKind.ExclamationEqualsEqualsToken
-      )
+      ) {
         throw new Error('only `while (id !== 0)` is supported')
+      }
 
       const g = reg((cond.left as ts.Identifier).text)
       const loop = here()
@@ -126,7 +133,9 @@ export function compileToBinary(source: string): CompiledBinary {
       return
     }
 
-    if (ts.isReturnStatement(stmt)) return
+    if (ts.isReturnStatement(stmt)) {
+      return
+    }
 
     throw new Error(
       `unsupported statement: ${ts.SyntaxKind[stmt.kind]}`,
@@ -137,11 +146,14 @@ export function compileToBinary(source: string): CompiledBinary {
     if (ts.isPostfixUnaryExpression(expr)) {
       const r = reg((expr.operand as ts.Identifier).text)
 
-      if (expr.operator === ts.SyntaxKind.MinusMinusToken) sub1(r)
-      else if (expr.operator === ts.SyntaxKind.PlusPlusToken) {
+      if (expr.operator === ts.SyntaxKind.MinusMinusToken) {
+        sub1(r)
+      } else if (expr.operator === ts.SyntaxKind.PlusPlusToken) {
         setConst(one(), 1)
         add(r, one())
-      } else throw new Error('unsupported unary')
+      } else {
+        throw new Error('unsupported unary')
+      }
 
       return
     }
@@ -157,11 +169,11 @@ export function compileToBinary(source: string): CompiledBinary {
       }
 
       if (op === ts.SyntaxKind.EqualsToken) {
-        if (ts.isNumericLiteral(expr.right))
+        if (ts.isNumericLiteral(expr.right)) {
           setConst(dst, Number(expr.right.text))
-        else if (ts.isIdentifier(expr.right))
+        } else if (ts.isIdentifier(expr.right)) {
           copy(dst, reg(expr.right.text))
-        else {
+        } else {
           throw new Error(
             'assignment rhs must be a number or identifier',
           )

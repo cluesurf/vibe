@@ -84,8 +84,9 @@ export default experiment({
           mass: MASS,
         })
 
-        for (let first = 0; first < dimension; first++)
+        for (let first = 0; first < dimension; first++) {
           afterFirst[first]![second] = evolved[first]!
+        }
       }
 
       pair = afterFirst.map(row =>

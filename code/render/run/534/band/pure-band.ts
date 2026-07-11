@@ -57,7 +57,9 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -65,7 +67,9 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -80,7 +84,9 @@ function run(): void {
     uv: [number, number][] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
@@ -145,16 +151,21 @@ function run(): void {
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
 
-    if (c > maxC) maxC = c
+    if (c > maxC) {
+      maxC = c
+    }
   }
 
   const C = maxC + 1
   const off = new Array<number>(C + 1).fill(0)
 
-  for (let i = 0; i < E; i++)
+  for (let i = 0; i < E; i++) {
     off[color[i]! + 1] = off[color[i]! + 1]! + 1
+  }
 
-  for (let c = 0; c < C; c++) off[c + 1] = off[c + 1]! + off[c]!
+  for (let c = 0; c < C; c++) {
+    off[c + 1] = off[c + 1]! + off[c]!
+  }
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E),
@@ -213,8 +224,9 @@ function run(): void {
   for (let f = 0; f < FRAMES; f++) {
     pureBeat()
 
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       q[i] = tone[i] === 1 ? 1 : tone[i] === 2 ? -1 : 0
+    }
 
     for (let it = 0; it < SMOOTH; it++) {
       for (let i = 0; i < n; i++) {
@@ -241,7 +253,9 @@ function run(): void {
     for (const bandCell of bandCells) {
       const v = Math.abs(q[bandCell]!)
 
-      if (v > maxAbs) maxAbs = v
+      if (v > maxAbs) {
+        maxAbs = v
+      }
     }
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -257,7 +271,9 @@ function run(): void {
       const d = q[bandCells[j]!]! / maxAbs
       const a = Math.min(1, Math.abs(d))
 
-      if (a < 0.05) continue
+      if (a < 0.05) {
+        continue
+      }
 
       const col: [number, number, number] =
         d > 0
@@ -271,7 +287,9 @@ function run(): void {
           const x = cx + dx,
             y = cy + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
 
           const idx = (y * IMG + x) * 4
 
@@ -284,7 +302,9 @@ function run(): void {
 
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
-    if (f % 50 === 0) console.log(`  frame ${f}`)
+    if (f % 50 === 0) {
+      console.log(`  frame ${f}`)
+    }
   }
 
   console.log(

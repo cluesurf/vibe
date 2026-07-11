@@ -71,7 +71,9 @@ export function emergentSpaceTest(): {
   let cc = 0
 
   for (let i = 0; i < cube.cellCount; i++) {
-    if (cube.coords[i]!.every(x => x === 0)) cc = i
+    if (cube.coords[i]!.every(x => x === 0)) {
+      cc = i
+    }
   }
 
   const cv = (

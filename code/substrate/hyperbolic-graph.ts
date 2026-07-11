@@ -25,7 +25,9 @@ function connectAndEmbed(input: {
   const coshThreshold = Math.cosh(input.connectThreshold)
   const neighbors: number[][] = []
 
-  for (let i = 0; i < n; i++) neighbors.push([])
+  for (let i = 0; i < n; i++) {
+    neighbors.push([])
+  }
 
   const coshR = new Float64Array(n)
   const sinhR = new Float64Array(n)
@@ -263,7 +265,9 @@ export function hyperbolicTiling(input: {
     const next: { x: number; y: number }[][] = []
 
     for (const poly of frontier) {
-      if (vx.length >= cap) break
+      if (vx.length >= cap) {
+        break
+      }
 
       for (let i = 0; i < poly.length; i++) {
         const a = poly[i]!

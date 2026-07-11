@@ -59,8 +59,9 @@ export function buildRecordChain(input: {
     for (let e = 0; e < bathDimension; e++) {
       let value = 1
 
-      for (let cell = 0; cell < environmentCount; cell++)
+      for (let cell = 0; cell < environmentCount; cell++) {
         value *= (e >> cell) & 1 ? flip : stay
+      }
 
       bath1Real[e] = value
     }
@@ -95,8 +96,9 @@ export function buildRecordChain(input: {
 
   const environmentQubits: number[] = []
 
-  for (let cell = 1; cell <= environmentCount; cell++)
+  for (let cell = 1; cell <= environmentCount; cell++) {
     environmentQubits.push(cell)
+  }
 
   return {
     joint: { real: jointReal, imag: jointImag, qubitCount },

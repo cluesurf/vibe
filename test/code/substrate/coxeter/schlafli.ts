@@ -45,24 +45,27 @@ suite('substrate/coxeter/schlafli: Gram matrix and geometry', [
         [4, 3],
         [5, 3],
         [3, 3, 3],
-      ])
+      ]) {
         equal(classifyGeometry(s), 'spherical', `{${String(s)}}`)
+      }
 
       for (const s of [
         [4, 4],
         [3, 6],
         [6, 3],
         [4, 3, 4],
-      ])
+      ]) {
         equal(classifyGeometry(s), 'euclidean', `{${String(s)}}`)
+      }
 
       for (const s of [
         [7, 3],
         [5, 3, 4],
         [3, 5, 3],
         [3, 4, 3, 4],
-      ])
+      ]) {
         equal(classifyGeometry(s), 'hyperbolic', `{${String(s)}}`)
+      }
     },
   ),
   check('cell and vertex figure drop the last/first entry', () => {
@@ -97,8 +100,9 @@ suite('substrate/coxeter/schlafli: honeycomb taxonomy', [
 
       const set = new Set(found.map(s => s.join(',')))
 
-      for (const s of ['5,3,4', '4,3,5', '3,5,3', '5,3,5'])
+      for (const s of ['5,3,4', '4,3,5', '3,5,3', '5,3,5']) {
         ok(set.has(s), `contains {${s}}`)
+      }
     },
   ),
 ])

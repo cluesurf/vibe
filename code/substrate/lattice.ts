@@ -34,8 +34,9 @@ export function lattice(input: {
     coordsInt.push(point)
   }
 
-  if (input.signature === 'lorentzian')
+  if (input.signature === 'lorentzian') {
     return latticeLorentzian({ dimension: d, size, coordsInt })
+  }
 
   return latticeRiemannian({ dimension: d, extent, size, coordsInt })
 }
@@ -52,7 +53,9 @@ function latticeLorentzian(input: {
   // is no later than b.
   const order: number[] = []
 
-  for (let i = 0; i < size; i++) order.push(i)
+  for (let i = 0; i < size; i++) {
+    order.push(i)
+  }
 
   order.sort((x, y) => {
     const tx = input.coordsInt[x]?.[0] ?? 0
@@ -70,8 +73,9 @@ function latticeLorentzian(input: {
 
     sortedInt.push(point)
 
-    for (let axis = 0; axis < d; axis++)
+    for (let axis = 0; axis < d; axis++) {
       coords[newIndex * d + axis] = point[axis] ?? 0
+    }
   }
 
   const manifold: ManifoldSpec = { form: 'minkowski', dimension: d }
@@ -91,12 +95,15 @@ function latticeLorentzian(input: {
     const pb = sortedInt[pair.b] ?? []
     const dt = (pb[0] ?? 0) - (pa[0] ?? 0)
 
-    if (dt <= 0) return false
+    if (dt <= 0) {
+      return false
+    }
 
     let l1 = 0
 
-    for (let axis = 1; axis < d; axis++)
+    for (let axis = 1; axis < d; axis++) {
       l1 += Math.abs((pb[axis] ?? 0) - (pa[axis] ?? 0))
+    }
 
     return dt >= l1
   }
@@ -119,8 +126,9 @@ function latticeRiemannian(input: {
   for (let i = 0; i < size; i++) {
     const point = input.coordsInt[i] ?? []
 
-    for (let axis = 0; axis < d; axis++)
+    for (let axis = 0; axis < d; axis++) {
       coords[i * d + axis] = point[axis] ?? 0
+    }
   }
 
   // Strides for converting a coordinate vector back to its row-major index.
@@ -142,9 +150,13 @@ function latticeRiemannian(input: {
     for (let axis = 0; axis < d; axis++) {
       const c = point[axis] ?? 0
 
-      if (c + 1 < extent) row.push(i + (stride[axis] ?? 0))
+      if (c + 1 < extent) {
+        row.push(i + (stride[axis] ?? 0))
+      }
 
-      if (c - 1 >= 0) row.push(i - (stride[axis] ?? 0))
+      if (c - 1 >= 0) {
+        row.push(i - (stride[axis] ?? 0))
+      }
     }
 
     neighbors.push(row)

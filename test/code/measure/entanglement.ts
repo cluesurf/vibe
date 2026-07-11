@@ -41,7 +41,9 @@ suite(
 
         let tr = 0
 
-        for (let i = 0; i < n; i++) tr += c[i * n + i]!
+        for (let i = 0; i < n; i++) {
+          tr += c[i * n + i]!
+        }
 
         close(tr, Math.floor(n / 2), TIGHT)
       }
@@ -52,8 +54,9 @@ suite(
 
       // symmetry
       for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++)
+        for (let j = 0; j < n; j++) {
           close(c[i * n + j]!, c[j * n + i]!, TIGHT)
+        }
       }
 
       // idempotence: (C C)_ij = C_ij
@@ -63,7 +66,9 @@ suite(
         for (let j = 0; j < n; j++) {
           let s = 0
 
-          for (let k = 0; k < n; k++) s += c[i * n + k]! * c[k * n + j]!
+          for (let k = 0; k < n; k++) {
+            s += c[i * n + k]! * c[k * n + j]!
+          }
 
           c2[i * n + j] = s
         }

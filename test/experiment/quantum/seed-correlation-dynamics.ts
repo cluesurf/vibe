@@ -127,8 +127,9 @@ export default experiment({
     const evolve = (will: Will): Will => {
       let state = will
 
-      for (let step = 0; step < BEATS; step++)
+      for (let step = 0; step < BEATS; step++) {
         state = beat(state, collision)
+      }
 
       return state
     }

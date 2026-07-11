@@ -21,7 +21,9 @@ function operatorFrom(rows: number[][]) {
     for (let c = 0; c < n; c++) {
       const v = rows[r]![c]!
 
-      if (v !== 0) triplets.push({ row: r, col: c, value: v })
+      if (v !== 0) {
+        triplets.push({ row: r, col: c, value: v })
+      }
     }
   }
 

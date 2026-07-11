@@ -53,7 +53,9 @@ function coarseGrain(
   // Random distinct seeds.
   const seedSet = new Set<number>()
 
-  while (seedSet.size < numSeeds) seedSet.add(rng.nextInt({ max: n }))
+  while (seedSet.size < numSeeds) {
+    seedSet.add(rng.nextInt({ max: n }))
+  }
 
   const seeds = [...seedSet]
   const cluster = new Int32Array(n).fill(-1)
@@ -94,13 +96,15 @@ function coarseGrain(
   // Super-tone (cluster majority) and super-coords (centroid).
   const sum = new Float64Array(K)
 
-  for (let v = 0; v < n; v++)
+  for (let v = 0; v < n; v++) {
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
+  }
 
   const superTone = new Int8Array(K)
 
-  for (let c = 0; c < K; c++)
+  for (let c = 0; c < K; c++) {
     superTone[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
+  }
 
   const dim = g.embedding?.dimension ?? 2
   const oldCoords = g.embedding?.coords ?? new Float64Array(0)
@@ -217,7 +221,9 @@ export function recursion(input: { count: number; seed: number }): {
 
   const init = new Int8Array(g.size)
 
-  for (let i = 0; i < g.size; i++) init[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < g.size; i++) {
+    init[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   // The only dynamics is the micro-rule on micro-tones. Converge it (asynchronously, so it
   // reaches a genuine fixed point) to a stable self.
@@ -246,7 +252,9 @@ export function recursion(input: { count: number; seed: number }): {
   let superTernary = true
 
   for (const t of cg.superTone) {
-    if (t < -1 || t > 1) superTernary = false
+    if (t < -1 || t > 1) {
+      superTernary = false
+    }
   }
 
   const aniso = lorentzIsotropy({
@@ -278,7 +286,9 @@ export function recursion(input: { count: number; seed: number }): {
   // stored layer. It is expected to be partial, the deep open question.
   const r0 = new Int8Array(g.size)
 
-  for (let i = 0; i < g.size; i++) r0[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < g.size; i++) {
+    r0[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   const aggR0 = clusterMajority(cg.cluster, cg.K, r0)
   const aggMicro = clusterMajority(
@@ -307,7 +317,9 @@ export function recursion(input: { count: number; seed: number }): {
   let towerTernary = true
 
   for (const t of cg2.superTone) {
-    if (t < -1 || t > 1) towerTernary = false
+    if (t < -1 || t > 1) {
+      towerTernary = false
+    }
   }
 
   return {

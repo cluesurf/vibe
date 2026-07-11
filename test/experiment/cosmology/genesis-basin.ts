@@ -34,8 +34,9 @@ export default experiment({
     let center = 0
 
     for (let i = 1; i < n; i++) {
-      if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length)
+      if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
+      }
     }
 
     const dist = neighborDistances({
@@ -59,7 +60,9 @@ export default experiment({
       (() => {
         const t = new Int8Array(n)
 
-        for (let i = 0; i < n; i++) t[i] = i % 2 === 0 ? 1 : -1
+        for (let i = 0; i < n; i++) {
+          t[i] = i % 2 === 0 ? 1 : -1
+        }
 
         return t
       })(),
@@ -70,7 +73,9 @@ export default experiment({
         const t = new Int8Array(n)
 
         for (let i = 0; i < n; i++) {
-          if ((dist[i] ?? 9) <= 3) t[i] = i % 2 === 0 ? 1 : -1
+          if ((dist[i] ?? 9) <= 3) {
+            t[i] = i % 2 === 0 ? 1 : -1
+          }
         }
 
         return t

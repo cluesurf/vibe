@@ -57,8 +57,9 @@ suite('substrate/coxeter/exact-modular: the built graph', [
       for (let i = 0; i < g.cellCount; i++) {
         notOk(sets[i]!.has(i), `cell ${i} has no self-loop`)
 
-        for (const j of g.neighbors[i]!)
+        for (const j of g.neighbors[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
       }
     },
   ),

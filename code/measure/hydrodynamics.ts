@@ -31,8 +31,9 @@ function absorbGradientBoundary(
     if (coordinate === 0 || coordinate === side - 1) {
       const base = cell * degree
 
-      for (let direction = 0; direction < degree; direction++)
+      for (let direction = 0; direction < degree; direction++) {
         will.data[base + direction] = 0
+      }
     }
   }
 }
@@ -118,8 +119,9 @@ export function shearSetup(input: {
   const data = will.data
   const opposite: number[] = []
 
-  for (let direction = 0; direction < degree; direction++)
+  for (let direction = 0; direction < degree; direction++) {
     opposite.push(mesh.opposite(direction))
+  }
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const amplitude = Math.sin(
@@ -133,7 +135,9 @@ export function shearSetup(input: {
     for (let direction = 0; direction < degree; direction++) {
       const other = opposite[direction]!
 
-      if (direction >= other) continue
+      if (direction >= other) {
+        continue
+      }
 
       const component = directions[direction]![momAxis] ?? 0 // momAxis component of this line (other has the negative)
 
@@ -240,7 +244,9 @@ export function shearAmplitudeSeries(input: {
     beatInto({ src: current, dst: scratch, table, collision })
     ;[current, scratch] = [scratch, current]
 
-    if (open) absorbGradientBoundary(current, side, gradAxis)
+    if (open) {
+      absorbGradientBoundary(current, side, gradAxis)
+    }
 
     series.push(start === 0 ? 0 : measure(current) / start)
   }
@@ -272,11 +278,13 @@ export function chargeWaveSetup(input: {
     const base = cell * degree
 
     if (amplitude > 0.33) {
-      for (let direction = 0; direction < band; direction++)
+      for (let direction = 0; direction < band; direction++) {
         will.data[base + direction] = 1
+      }
     } else if (amplitude < -0.33) {
-      for (let direction = 0; direction < band; direction++)
+      for (let direction = 0; direction < band; direction++) {
         will.data[base + direction] = -1
+      }
     }
   }
 
@@ -327,7 +335,9 @@ export function plugSetup(input: {
   const limit = input.lines ?? degree
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    if (isWall(cell)) continue
+    if (isWall(cell)) {
+      continue
+    }
 
     const base = cell * degree
 
@@ -337,7 +347,9 @@ export function plugSetup(input: {
     for (let direction = 0; direction < degree; direction++) {
       const other = mesh.opposite(direction)
 
-      if (direction >= other) continue
+      if (direction >= other) {
+        continue
+      }
 
       const component = directions[direction]![momAxis] ?? 0
 
@@ -450,7 +462,9 @@ export function chargeWaveSeries(input: {
     beatInto({ src: current, dst: scratch, table, collision })
     ;[current, scratch] = [scratch, current]
 
-    if (open) absorbGradientBoundary(current, side, gradAxis)
+    if (open) {
+      absorbGradientBoundary(current, side, gradAxis)
+    }
 
     series.push(start === 0 ? 0 : measure(current) / start)
   }

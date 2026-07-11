@@ -24,8 +24,9 @@ suite('substrate/sprinkle-box: count, bounds, order', [
       ok(p.x >= -cfg.xMax && p.x <= cfg.xMax, 'space in range')
     }
 
-    for (let i = 1; i < pts.length; i++)
+    for (let i = 1; i < pts.length; i++) {
       ok(pts[i]!.t >= pts[i - 1]!.t, 'sorted by time')
+    }
   }),
 ])
 

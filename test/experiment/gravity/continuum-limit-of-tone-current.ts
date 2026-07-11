@@ -103,7 +103,9 @@ function cantorDust(mesh: ReturnType<typeof d4Mesh>): {
     let x = v
 
     while (x > 0) {
-      if (x % 3 === 1) return false
+      if (x % 3 === 1) {
+        return false
+      }
 
       x = Math.floor(x / 3)
     }
@@ -115,7 +117,9 @@ function cantorDust(mesh: ReturnType<typeof d4Mesh>): {
     const x = cell % SIDE
 
     if (inDust(x)) {
-      for (let d = 0; d < 6; d++) will.data[cell * mesh.degree + d] = 1
+      for (let d = 0; d < 6; d++) {
+        will.data[cell * mesh.degree + d] = 1
+      }
     }
   }
 

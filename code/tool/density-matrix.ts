@@ -25,7 +25,9 @@ function scatterBits(input: {
   let index = 0
 
   for (let j = 0; j < positions.length; j++) {
-    if ((value >> j) & 1) index |= 1 << positions[j]!
+    if ((value >> j) & 1) {
+      index |= 1 << positions[j]!
+    }
   }
 
   return index
@@ -45,7 +47,9 @@ export function reducedDensityMatrix(input: {
   const traced: number[] = []
 
   for (let q = 0; q < qubitCount; q++) {
-    if (!keep.includes(q)) traced.push(q)
+    if (!keep.includes(q)) {
+      traced.push(q)
+    }
   }
 
   const keptDim = 1 << keptCount
@@ -89,7 +93,9 @@ export function vonNeumannEntropyBits(input: {
   let entropy = 0
 
   for (const lambda of eigen.values) {
-    if (lambda > 1e-12) entropy -= lambda * Math.log2(lambda)
+    if (lambda > 1e-12) {
+      entropy -= lambda * Math.log2(lambda)
+    }
   }
 
   return entropy
@@ -161,7 +167,9 @@ export function traceDistance(input: {
 
   let sum = 0
 
-  for (const v of eigen.values) sum += Math.abs(v)
+  for (const v of eigen.values) {
+    sum += Math.abs(v)
+  }
 
   return sum / 2
 }
@@ -212,7 +220,9 @@ export function relativeEntropyBits(input: {
   for (let i = 0; i < n; i++) {
     const p = eigenRho.values[i]!
 
-    if (p > 1e-12) trRhoLogRho += p * Math.log2(p)
+    if (p > 1e-12) {
+      trRhoLogRho += p * Math.log2(p)
+    }
   }
 
   const eigenSigma = eigHermitian({ matrix: sigma })
@@ -222,7 +232,9 @@ export function relativeEntropyBits(input: {
   for (let j = 0; j < n; j++) {
     const s = eigenSigma.values[j]!
 
-    if (s <= 1e-12) continue
+    if (s <= 1e-12) {
+      continue
+    }
 
     // <v_j| rho |v_j> = sum_ab conj(v_j[a]) rho[a][b] v_j[b], real by Hermiticity
     let expectation = 0

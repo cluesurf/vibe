@@ -112,6 +112,8 @@ suite('dynamics/pumped-reserve-sweep: determinism', [
     const a = run()
     const b = run()
 
-    for (let i = 0; i < N; i++) equal(a[i]!, b[i]!, `cell ${i}`)
+    for (let i = 0; i < N; i++) {
+      equal(a[i]!, b[i]!, `cell ${i}`)
+    }
   }),
 ])

@@ -22,7 +22,9 @@ function bruteMax(f: number[], active?: number[]): number {
   let val = -Infinity
 
   f.forEach((v, c) => {
-    if (active && !active[c]) return
+    if (active && !active[c]) {
+      return
+    }
 
     if (v > val) {
       val = v

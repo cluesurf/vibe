@@ -99,8 +99,9 @@ suite('algebra/helicity: the polarization tensors', [
 
 suite('algebra/helicity: spin-2 overlaps', [
   check('plusSelfOverlap(theta) = cos(2 theta), period 180 deg', () => {
-    for (const t of [0, 0.4, Math.PI / 6, 1.2, 2.7])
+    for (const t of [0, 0.4, Math.PI / 6, 1.2, 2.7]) {
       close(plusSelfOverlap(t), Math.cos(2 * t), 1e-12, 'self overlap')
+    }
 
     close(plusSelfOverlap(0), 1, 1e-12, 'theta=0 -> 1')
     close(plusSelfOverlap(Math.PI / 4), 0, 1e-12, '45 deg -> 0')

@@ -44,7 +44,9 @@ function triangleCount(input: {
   const rowB = input.adjacency[input.b] ?? new Uint32Array(0)
   const setB = new Set<number>()
 
-  for (const value of rowB) setB.add(value ?? -1)
+  for (const value of rowB) {
+    setB.add(value ?? -1)
+  }
 
   let common = 0
 
@@ -134,7 +136,9 @@ export function shellGrowthCurvature(input: {
   const ratios: number[] = []
 
   for (let i = 2; i < shells.length; i++) {
-    if (shells[i - 1]! > 0) ratios.push(shells[i]! / shells[i - 1]!)
+    if (shells[i - 1]! > 0) {
+      ratios.push(shells[i]! / shells[i - 1]!)
+    }
   }
 
   const minInteriorRatio = ratios.length ? Math.min(...ratios) : 1
@@ -142,9 +146,13 @@ export function shellGrowthCurvature(input: {
 
   let sign: CurvatureSign
 
-  if (minInteriorRatio < 0.97) sign = 'positive'
-  else if (lateRatio > negativeThreshold) sign = 'negative'
-  else sign = lateRatio < flatThreshold ? 'flat' : 'negative'
+  if (minInteriorRatio < 0.97) {
+    sign = 'positive'
+  } else if (lateRatio > negativeThreshold) {
+    sign = 'negative'
+  } else {
+    sign = lateRatio < flatThreshold ? 'flat' : 'negative'
+  }
 
   return { sign, lateRatio, minInteriorRatio }
 }

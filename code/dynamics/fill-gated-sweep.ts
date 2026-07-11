@@ -24,7 +24,9 @@ export function fillGatedSweep(input: {
     const v = edges[i]![0]
     const w = edges[i]![1]
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const f = fill[i]!
     const tv = tone[v]!
@@ -78,7 +80,9 @@ export function fillGatedSweepHashed(input: {
     const v = edges[i]![0]
     const w = edges[i]![1]
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const f = fill[i]!
     const tv = tone[v]!

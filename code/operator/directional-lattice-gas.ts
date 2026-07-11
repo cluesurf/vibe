@@ -135,8 +135,9 @@ export function streamInverse(
 export const latticeCharge = (s: LatticeGasState): number => {
   let c = 0
 
-  for (let i = 0; i < s.E.length; i++)
+  for (let i = 0; i < s.E.length; i++) {
     c += s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
+  }
 
   return c
 }
@@ -160,8 +161,9 @@ export const latticeMomentum = (
 export function latticeDensity(s: LatticeGasState): Float64Array {
   const d = new Float64Array(s.E.length)
 
-  for (let i = 0; i < s.E.length; i++)
+  for (let i = 0; i < s.E.length; i++) {
     d[i] = s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
+  }
 
   return d
 }

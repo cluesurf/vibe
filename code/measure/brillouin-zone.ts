@@ -46,15 +46,20 @@ export function scanTorusZeroSet(input: {
       if (value < threshold) {
         marked[i * n + j] = 1
         nearZeroCount++
-      } else if (value < minimumOutsideClusters)
+      } else if (value < minimumOutsideClusters) {
         minimumOutsideClusters = value
+      }
     }
   }
 
   const wrap = (delta: number): number => {
-    if (delta > n / 2) return delta - n
+    if (delta > n / 2) {
+      return delta - n
+    }
 
-    if (delta < -n / 2) return delta + n
+    if (delta < -n / 2) {
+      return delta + n
+    }
 
     return delta
   }
@@ -64,7 +69,9 @@ export function scanTorusZeroSet(input: {
   const stack: number[] = []
 
   for (let start = 0; start < n * n; start++) {
-    if (!marked[start] || seen[start]) continue
+    if (!marked[start] || seen[start]) {
+      continue
+    }
 
     const startI = Math.floor(start / n)
     const startJ = start % n
@@ -87,7 +94,9 @@ export function scanTorusZeroSet(input: {
 
       for (let di = -1; di <= 1; di++) {
         for (let dj = -1; dj <= 1; dj++) {
-          if (di === 0 && dj === 0) continue
+          if (di === 0 && dj === 0) {
+            continue
+          }
 
           const ni = (i + di + n) % n
           const nj = (j + dj + n) % n

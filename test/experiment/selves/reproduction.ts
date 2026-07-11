@@ -80,16 +80,22 @@ export function reproduction(input?: { n?: number }): {
   let ballRadius = 0
 
   for (const i of self) {
-    if (distAll[i]! > ballRadius) ballRadius = distAll[i]!
+    if (distAll[i]! > ballRadius) {
+      ballRadius = distAll[i]!
+    }
   }
 
   const tone = new Int8Array(N)
 
-  for (const i of self) tone[i] = 1
+  for (const i of self) {
+    tone[i] = 1
+  }
 
   let q0 = 0
 
-  for (let i = 0; i < N; i++) q0 += tone[i]!
+  for (let i = 0; i < N; i++) {
+    q0 += tone[i]!
+  }
 
   const startComponents = countLargeSameSignComponents({
     tone,
@@ -100,8 +106,9 @@ export function reproduction(input?: { n?: number }): {
 
   const rng = makeRng({ seed: 5 })
 
-  for (let b = 0; b < 30; b++)
+  for (let b = 0; b < 30; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng)
+  }
 
   const endComponents = countLargeSameSignComponents({
     tone,
@@ -112,7 +119,9 @@ export function reproduction(input?: { n?: number }): {
 
   let q1 = 0
 
-  for (let i = 0; i < N; i++) q1 += tone[i]!
+  for (let i = 0; i < N; i++) {
+    q1 += tone[i]!
+  }
 
   const conserved = q0 === q1
 

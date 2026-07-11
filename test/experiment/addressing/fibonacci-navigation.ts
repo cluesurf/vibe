@@ -58,7 +58,9 @@ export function fibonacciNavigation(input: {
     const s = rng.nextInt({ max: g.size })
     const t = rng.nextInt({ max: g.size })
 
-    if ((tree.depth[s] ?? -1) < 0 || (tree.depth[t] ?? -1) < 0) continue
+    if ((tree.depth[s] ?? -1) < 0 || (tree.depth[t] ?? -1) < 0) {
+      continue
+    }
 
     const path = routeByAddress(tree, s, t)
 
@@ -66,8 +68,9 @@ export function fibonacciNavigation(input: {
     let valid = path[0] === s && path[path.length - 1] === t
 
     for (let i = 0; i + 1 < path.length && valid; i++) {
-      if (!(adj[path[i] ?? 0] ?? new Set()).has(path[i + 1] ?? -1))
+      if (!(adj[path[i] ?? 0] ?? new Set()).has(path[i + 1] ?? -1)) {
         valid = false
+      }
     }
 
     if (valid) {
@@ -91,8 +94,9 @@ export function fibonacciNavigation(input: {
   let peak = 1
 
   for (let i = 1; i < tree.levelSizes.length; i++) {
-    if ((tree.levelSizes[i] ?? 0) > (tree.levelSizes[peak] ?? 0))
+    if ((tree.levelSizes[i] ?? 0) > (tree.levelSizes[peak] ?? 0)) {
       peak = i
+    }
   }
 
   const ratios: number[] = []
@@ -100,7 +104,9 @@ export function fibonacciNavigation(input: {
   for (let i = 2; i <= peak; i++) {
     const prev = tree.levelSizes[i - 1] ?? 0
 
-    if (prev > 0) ratios.push((tree.levelSizes[i] ?? 0) / prev)
+    if (prev > 0) {
+      ratios.push((tree.levelSizes[i] ?? 0) / prev)
+    }
   }
 
   const levelGrowthRatio = ratios.length

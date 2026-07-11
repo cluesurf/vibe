@@ -60,7 +60,9 @@ function readArenaNames(): Map<string, string> {
     .slice(1)) {
     const [code, name] = line.split(',')
 
-    if (code && name) names.set(code.trim(), name.trim())
+    if (code && name) {
+      names.set(code.trim(), name.trim())
+    }
   }
 
   return names
@@ -77,7 +79,9 @@ function readUsedNumbers(): Map<string, Set<number>> {
   for (const code of codes) {
     const match = CODE_PATTERN.exec(code)
 
-    if (!match) continue
+    if (!match) {
+      continue
+    }
 
     const arena = match[1]!
     const number = Number(match[2])
@@ -136,8 +140,9 @@ const results = arenas.map(arena => {
   }
 })
 
-if (parsed.values.json) console.log(JSON.stringify(results, null, 2))
-else {
+if (parsed.values.json) {
+  console.log(JSON.stringify(results, null, 2))
+} else {
   for (const result of results) {
     const label = (result.name ?? 'UNKNOWN ARENA').padEnd(14)
     const tally = `used ${String(result.used).padStart(3)}`

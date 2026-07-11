@@ -125,7 +125,9 @@ export function massWallRetainedWeight(input: {
   let retained = 0
   let total = 0
 
-  for (let x = 0; x < L; x++) total += cabs2(R[x]!) + cabs2(Lf[x]!)
+  for (let x = 0; x < L; x++) {
+    total += cabs2(R[x]!) + cabs2(Lf[x]!)
+  }
 
   for (let x = wall - window; x <= wall + window; x++) {
     const xi = wrap(x)

@@ -117,8 +117,9 @@ export default experiment({
     function project(signal: number[], harmonic: number): number {
       let acc = 0
 
-      for (let s = 0; s < steps; s++)
+      for (let s = 0; s < steps; s++) {
         acc += signal[s]! * Math.cos(harmonic * OMEGA * t[s]!) * dt
+      }
 
       return Math.abs(acc) / (periods / F_ORB) // normalise by total time
     }

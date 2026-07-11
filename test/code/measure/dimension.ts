@@ -29,9 +29,13 @@ function pathGraph(n: number): Graph {
   for (let i = 0; i < n; i++) {
     const row: number[] = []
 
-    if (i > 0) row.push(i - 1)
+    if (i > 0) {
+      row.push(i - 1)
+    }
 
-    if (i < n - 1) row.push(i + 1)
+    if (i < n - 1) {
+      row.push(i + 1)
+    }
 
     neighbors.push(row)
   }
@@ -76,13 +80,21 @@ function gridNeighbors(L: number): number[][] {
       const id = y * L + x
       const row: number[] = []
 
-      if (x + 1 < L) row.push(y * L + x + 1)
+      if (x + 1 < L) {
+        row.push(y * L + x + 1)
+      }
 
-      if (x - 1 >= 0) row.push(y * L + x - 1)
+      if (x - 1 >= 0) {
+        row.push(y * L + x - 1)
+      }
 
-      if (y + 1 < L) row.push((y + 1) * L + x)
+      if (y + 1 < L) {
+        row.push((y + 1) * L + x)
+      }
 
-      if (y - 1 >= 0) row.push((y - 1) * L + x)
+      if (y - 1 >= 0) {
+        row.push((y - 1) * L + x)
+      }
 
       out[id] = row
     }
@@ -137,7 +149,9 @@ suite('measure/dimension: Myrheim-Meyer on causal sets', [
       const pairs: [number, number][] = []
 
       for (let a = 0; a < 6; a++) {
-        for (let b = a + 1; b < 6; b++) pairs.push([a, b])
+        for (let b = a + 1; b < 6; b++) {
+          pairs.push([a, b])
+        }
       }
 
       close(

@@ -74,7 +74,9 @@ suite('dynamics/clock-winding: determinism', [
     const run = (): Int32Array => {
       let ring = makeTwist({ size, states, turns: 2 })
 
-      for (let t = 0; t < 30; t++) ring = stepClockRing(ring)
+      for (let t = 0; t < 30; t++) {
+        ring = stepClockRing(ring)
+      }
 
       return ring.curr
     }

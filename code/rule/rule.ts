@@ -56,7 +56,9 @@ export function runRule(input: {
 
     configuration = out.configuration
 
-    if (out.substrate) substrate = out.substrate
+    if (out.substrate) {
+      substrate = out.substrate
+    }
   }
 
   return { configuration, substrate }

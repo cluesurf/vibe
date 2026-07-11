@@ -9,6 +9,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = { re: number; im: number }
+
 const c = (re: number, im = 0): C => ({ re, im })
 const cmul = (a: C, b: C): C =>
   c(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re)

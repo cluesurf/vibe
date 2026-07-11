@@ -45,7 +45,9 @@ suite('operator/chain-operators: A and L = D - A structure', [
     for (let i = 0; i < n; i++) {
       let degree = 0
 
-      for (let j = 0; j < n; j++) degree += A.data[i * n + j] ?? 0
+      for (let j = 0; j < n; j++) {
+        degree += A.data[i * n + j] ?? 0
+      }
 
       let rowSum = 0
 

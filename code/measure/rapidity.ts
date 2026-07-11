@@ -26,14 +26,20 @@ export function linkRapidities(input: {
       const dt = tb - ta
       const dx = xb - xa
 
-      if (dt <= 1e-9) continue
+      if (dt <= 1e-9) {
+        continue
+      }
 
       const v = dx / dt
 
-      if (Math.abs(v) >= 1 - 1e-9) continue
+      if (Math.abs(v) >= 1 - 1e-9) {
+        continue
+      }
       // null/spacelike, no finite rapidity
 
-      if (band && (ta < band.lo || tb > band.hi)) continue
+      if (band && (ta < band.lo || tb > band.hi)) {
+        continue
+      }
 
       out.push(Math.atanh(v))
     }

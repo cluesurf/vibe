@@ -72,7 +72,9 @@ export function leggettGarg(input: { steps?: number } = {}): {
       for (const q3 of [1, -1]) {
         const k = q1 * q2 + q2 * q3 - q1 * q3
 
-        if (k > classicalBound) classicalBound = k
+        if (k > classicalBound) {
+          classicalBound = k
+        }
       }
     }
   }

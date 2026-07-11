@@ -78,8 +78,9 @@ export function emergentMacroRule(input: {
 
     const r0 = detStream(20)
 
-    for (let i = 0; i < g.size; i++)
+    for (let i = 0; i < g.size; i++) {
       base[i] = r0.nextInt({ max: 3 }) - 1
+    }
 
     for (let b = 0; b < 200; b++) {
       base = signedMajorityStep({

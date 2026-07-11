@@ -74,8 +74,9 @@ export default experiment({
             (p[2]! - half) ** 2 +
             (p[3]! - half) ** 2 <=
           radius * radius
-        )
+        ) {
           body[c] = 1
+        }
       }
 
       const phi = relaxPotential({
@@ -102,7 +103,9 @@ export default experiment({
           mass++
         }
 
-        if (phi[c]! < 0 && distance(c) > range) range = distance(c)
+        if (phi[c]! < 0 && distance(c) > range) {
+          range = distance(c)
+        }
       }
 
       return { mass, range }
@@ -115,7 +118,9 @@ export default experiment({
     // volume does not self-block) fall at the same rate
     const uniformField = new Int32Array(cellCount)
 
-    for (let c = 0; c < cellCount; c++) uniformField[c] = coord(c)[0]!
+    for (let c = 0; c < cellCount; c++) {
+      uniformField[c] = coord(c)[0]!
+    }
 
     const fallRate = (
       shape: 'point' | 'plane' | 'block',
@@ -126,20 +131,24 @@ export default experiment({
       const z0 = 10
       const w0 = 10
 
-      if (shape === 'point') body[index(x0, y0, z0, w0)] = 1
+      if (shape === 'point') {
+        body[index(x0, y0, z0, w0)] = 1
+      }
 
       if (shape === 'plane') {
         for (let dy = 0; dy < 3; dy++) {
-          for (let dz = 0; dz < 3; dz++)
+          for (let dz = 0; dz < 3; dz++) {
             body[index(x0, y0 + dy, z0 + dz, w0)] = 1
+          }
         }
       }
 
       if (shape === 'block') {
         for (let dy = 0; dy < 3; dy++) {
           for (let dz = 0; dz < 3; dz++) {
-            for (let dw = 0; dw < 2; dw++)
+            for (let dw = 0; dw < 2; dw++) {
               body[index(x0, y0 + dy, z0 + dz, w0 + dw)] = 1
+            }
           }
         }
       }

@@ -41,7 +41,9 @@ function fermionBinding(
   const boxLength = wellWidth + 2 * PAD
   const potential = new Float64Array(boxLength)
 
-  for (let r = PAD; r < PAD + wellWidth; r++) potential[r] = -depth
+  for (let r = PAD; r < PAD + wellWidth; r++) {
+    potential[r] = -depth
+  }
 
   const eigenpairs = lowestEigenpairs({
     operator: {
@@ -66,7 +68,9 @@ function singleParticleGround(): number {
   const boxLength = wellWidth + 2 * PAD
   const potential = new Float64Array(boxLength)
 
-  for (let r = PAD; r < PAD + wellWidth; r++) potential[r] = -V0
+  for (let r = PAD; r < PAD + wellWidth; r++) {
+    potential[r] = -V0
+  }
 
   return lowestEigenpairs({
     operator: {

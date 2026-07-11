@@ -56,7 +56,9 @@ function patternWill(mesh: Mesh, phase = 0): Will {
 // cell was already empty, so on a charged will it is neither charge-conserving nor
 // reversible, the negative control both predicates must reject.
 const erase: Collision = (slots, base, degree) => {
-  for (let d = 0; d < degree; d++) slots[base + d] = 0
+  for (let d = 0; d < degree; d++) {
+    slots[base + d] = 0
+  }
 }
 
 // The square coin direction vectors: 0 +x (E), 1 -x (W), 2 +y (N), 3 -y (S).

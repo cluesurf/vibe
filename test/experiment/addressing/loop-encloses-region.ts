@@ -107,8 +107,9 @@ export default experiment({
       if (
         sizes[i]! <= sizes[i - 1]! ||
         penetrations[i]! <= penetrations[i - 1]!
-      )
+      ) {
         widerReachesDeeper = false
+      }
     }
 
     // CONTROL: a degenerate loop (same endpoint) encloses a single leaf, no depth

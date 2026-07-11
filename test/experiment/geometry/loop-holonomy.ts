@@ -62,7 +62,9 @@ export default experiment({
     let growsWithSize = true
 
     for (let i = 1; i < holonomies.length; i++) {
-      if (holonomies[i]! <= holonomies[i - 1]!) growsWithSize = false
+      if (holonomies[i]! <= holonomies[i - 1]!) {
+        growsWithSize = false
+      }
     }
 
     const wideLoopManyTurns =

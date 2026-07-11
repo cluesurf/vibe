@@ -29,7 +29,9 @@ export function formTower(): {
   const step = (): void =>
     perceptionMatchingSweep3d({ tone, matched: m, length: L, rng })
 
-  for (let f = 0; f < 60; f++) step()
+  for (let f = 0; f < 60; f++) {
+    step()
+  }
 
   const blocks = [1, 2, 4, 8]
   const blockGroups = blocks.map(b =>

@@ -33,7 +33,9 @@ export default experiment({
       (() => {
         const t = new Int8Array(n)
 
-        for (let i = 0; i < n; i++) t[i] = i % 2 === 0 ? 1 : -1
+        for (let i = 0; i < n; i++) {
+          t[i] = i % 2 === 0 ? 1 : -1
+        }
 
         return t
       })(),

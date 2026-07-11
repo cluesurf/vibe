@@ -31,7 +31,9 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 function totalCharge(will: Will): number {
   let sum = 0
 
-  for (const value of will.data) sum += Math.abs(value)
+  for (const value of will.data) {
+    sum += Math.abs(value)
+  }
 
   return sum
 }
@@ -51,8 +53,9 @@ function centralCharge(input: {
     if (dist[cell]! >= 0 && dist[cell]! <= input.radius) {
       const base = cell * degree
 
-      for (let d = 0; d < degree; d++)
+      for (let d = 0; d < degree; d++) {
         sum += Math.abs(input.will.data[base + d]!)
+      }
     }
   }
 
@@ -90,7 +93,9 @@ export default experiment({
     const burst = (): Will => {
       const will = makeWill(mesh)
 
-      for (let d = 0; d < 8; d++) will.data[center * degree + d] = 1
+      for (let d = 0; d < 8; d++) {
+        will.data[center * degree + d] = 1
+      }
 
       return will
     }
@@ -129,7 +134,9 @@ export default experiment({
       if (t >= beats / 2) {
         const c = centralCharge({ will: torus, center, radius })
 
-        if (c > torusCentralReturn) torusCentralReturn = c
+        if (c > torusCentralReturn) {
+          torusCentralReturn = c
+        }
       }
     }
 

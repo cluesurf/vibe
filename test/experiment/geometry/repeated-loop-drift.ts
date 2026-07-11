@@ -109,7 +109,9 @@ export default experiment({
 
       const distanceToHome = Math.min(angle, 2 * Math.PI - angle)
 
-      if (distanceToHome > 1e-9) commensurateReturnsAtPeriod = false
+      if (distanceToHome > 1e-9) {
+        commensurateReturnsAtPeriod = false
+      }
     }
 
     // CONTROL: the flat loop (zero holonomy) always returns the frame exactly

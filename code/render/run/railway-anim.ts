@@ -53,11 +53,17 @@ function run(): void {
     for (let cell = 0; cell < faces.cellCount; cell++) {
       let color = BACKDROP
 
-      if (trackSet.has(cell)) color = TRACK
+      if (trackSet.has(cell)) {
+        color = TRACK
+      }
 
-      if (cell === tailCell) color = RED
+      if (cell === tailCell) {
+        color = RED
+      }
 
-      if (cell === headCell) color = GREEN
+      if (cell === headCell) {
+        color = GREEN
+      }
 
       // a faint sector tint on the non-track backdrop so the tiling structure still reads
       if (color === BACKDROP) {
@@ -122,7 +128,9 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
 
       seen.add(key)
       edges.push({ a, b })

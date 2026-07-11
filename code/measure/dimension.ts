@@ -27,8 +27,9 @@ function lgamma(x: number): number {
 
   const t = z + LANCZOS_G + 0.5
 
-  for (let i = 1; i < LANCZOS_COEFFICIENTS.length; i++)
+  for (let i = 1; i < LANCZOS_COEFFICIENTS.length; i++) {
     a += (LANCZOS_COEFFICIENTS[i] ?? 0) / (z + i)
+  }
 
   return (
     0.5 * Math.log(2 * Math.PI) +
@@ -52,16 +53,22 @@ function myrheimMeyerFraction(d: number): number {
 // Invert the Myrheim-Meyer relation: dimension from an ordering fraction r, by
 // bisection on f(d) = r over [0.5, 12]. r <= 0 returns 0.
 export function dimensionFromOrderingFraction(r: number): number {
-  if (r <= 0) return 0
+  if (r <= 0) {
+    return 0
+  }
 
   let lo = 0.5
   let hi = 12
 
   // f is decreasing: f(lo) is the largest value, f(hi) the smallest. If r lies
   // outside the bracket, clamp to the nearest endpoint.
-  if (r >= myrheimMeyerFraction(lo)) return lo
+  if (r >= myrheimMeyerFraction(lo)) {
+    return lo
+  }
 
-  if (r <= myrheimMeyerFraction(hi)) return hi
+  if (r <= myrheimMeyerFraction(hi)) {
+    return hi
+  }
 
   for (let iteration = 0; iteration < 80; iteration++) {
     const mid = 0.5 * (lo + hi)
@@ -70,7 +77,9 @@ export function dimensionFromOrderingFraction(r: number): number {
     if (fMid > r) {
       // mid dimension too small (fraction too high), move right.
       lo = mid
-    } else hi = mid
+    } else {
+      hi = mid
+    }
   }
 
   return 0.5 * (lo + hi)
@@ -80,7 +89,9 @@ export function dimensionFromOrderingFraction(r: number): number {
 export function myrheimMeyerDimension(input: { poset: Poset }): number {
   const n = input.poset.size
 
-  if (n < 2) return 0
+  if (n < 2) {
+    return 0
+  }
 
   const totalPairs = (n * (n - 1)) / 2
 
@@ -130,8 +141,9 @@ export function ballGrowth(input: {
 
     if (next.length === 0) {
       // No more reachable nodes: every larger ball is the same size.
-      for (let r = radius + 1; r <= input.maxRadius; r++)
+      for (let r = radius + 1; r <= input.maxRadius; r++) {
         growth[r] = reached
+      }
 
       break
     }
@@ -189,7 +201,9 @@ export function ballGrowthDimension(input: {
       }
     }
 
-    if (xs.length >= 2) slopes.push(logLogSlope(xs, ys))
+    if (xs.length >= 2) {
+      slopes.push(logLogSlope(xs, ys))
+    }
   }
 
   return slopes.reduce((a, b) => a + b, 0) / Math.max(1, slopes.length)
@@ -206,7 +220,9 @@ export function boxCountingDimension(input: {
 }): number {
   const { cells, sideLength: L } = input
 
-  if (cells.length < 4) return 0
+  if (cells.length < 4) {
+    return 0
+  }
 
   const sizes = input.boxSizes ?? [2, 4, 8, 16, 32]
   const inverseBoxSizes: number[] = []
@@ -266,8 +282,9 @@ export function reachIsExponential(input: {
     const prev = growth[r - 1] ?? 0
     const cur = growth[r] ?? 0
 
-    if (prev >= 2 && prev < 0.5 * final && cur > prev)
+    if (prev >= 2 && prev < 0.5 * final && cur > prev) {
       ratios.push(cur / prev)
+    }
   }
 
   return (
@@ -287,7 +304,9 @@ export function growthIsExponential(input: {
   const g = input.growth
   const last = g[g.length - 1] ?? 0
 
-  if (g.length < 4 || last < 8) return false
+  if (g.length < 4 || last < 8) {
+    return false
+  }
 
   // Successive ball-count ratios in the UNSATURATED regime (count below 60% of
   // the final size). Saturation from a finite substrate would otherwise drive
@@ -298,11 +317,14 @@ export function growthIsExponential(input: {
     const prev = g[r - 1] ?? 0
     const cur = g[r] ?? 0
 
-    if (prev >= 4 && cur > prev && cur < 0.6 * last)
+    if (prev >= 4 && cur > prev && cur < 0.6 * last) {
       ratios.push(cur / prev)
+    }
   }
 
-  if (ratios.length < 2) return false
+  if (ratios.length < 2) {
+    return false
+  }
 
   const mean = ratios.reduce((sum, s) => sum + s, 0) / ratios.length
   const first = ratios[0] ?? 1
@@ -338,11 +360,14 @@ export function meanUnsaturatedGrowthRatio(input: {
       prev >= minimumPrevious &&
       prev < saturationFraction * final &&
       cur > prev
-    )
+    ) {
       ratios.push(cur / prev)
+    }
   }
 
-  if (ratios.length === 0) return NaN
+  if (ratios.length === 0) {
+    return NaN
+  }
 
   return ratios.reduce((a, b) => a + b, 0) / ratios.length
 }
@@ -393,7 +418,9 @@ export function geometricUnsaturatedGrowthRatio(input: {
 export function betheCorrelatorExponent(degree: number): number {
   const b = degree - 1
 
-  if (b <= 1) return 0
+  if (b <= 1) {
+    return 0
+  }
 
   const mu = (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b)
 
@@ -430,7 +457,9 @@ export function spectralDimension(input: {
     for (let i = 0; i < N; i++) {
       const pi = p[i]!
 
-      if (!pi) continue
+      if (!pi) {
+        continue
+      }
 
       const row = neighbors[i] ?? []
       const d = row.length
@@ -444,7 +473,9 @@ export function spectralDimension(input: {
 
       const sh = (0.5 * pi) / d
 
-      for (const j of row) np[j] = np[j]! + sh
+      for (const j of row) {
+        np[j] = np[j]! + sh
+      }
     }
 
     const tmp = p

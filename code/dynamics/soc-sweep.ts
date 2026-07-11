@@ -61,7 +61,9 @@ export function socEdgeSweep(input: {
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!

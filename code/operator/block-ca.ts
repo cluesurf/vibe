@@ -68,7 +68,9 @@ function applySweep(input: {
         const pos = (start + j) % cells
         const bit = (w >> j) & 1
 
-        if (((state >> pos) & 1) !== bit) state ^= 1 << pos
+        if (((state >> pos) & 1) !== bit) {
+          state ^= 1 << pos
+        }
       }
     }
   }
@@ -98,8 +100,9 @@ export function commutingBlockHamiltonian(input: {
       // Apply the gate to the block at p only.
       let v = 0
 
-      for (let j = 0; j < blockSize; j++)
+      for (let j = 0; j < blockSize; j++) {
         v |= ((c >> ((p + j) % cells)) & 1) << j
+      }
 
       const w = gate(v)
 
@@ -109,7 +112,9 @@ export function commutingBlockHamiltonian(input: {
         const pos = (p + j) % cells
         const bit = (w >> j) & 1
 
-        if (((target >> pos) & 1) !== bit) target ^= 1 << pos
+        if (((target >> pos) & 1) !== bit) {
+          target ^= 1 << pos
+        }
       }
 
       // (pi/2)(I - G_block): +pi/2 on the diagonal, -pi/2 at [g(c)][c].

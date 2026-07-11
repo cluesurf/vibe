@@ -31,7 +31,9 @@ export function buildBellNetwork(input: {
       }
     }
 
-    if (agrees) real[index] = amplitude
+    if (agrees) {
+      real[index] = amplitude
+    }
   }
 
   return { real, imag, qubitCount }
@@ -42,8 +44,9 @@ export function buildBellNetwork(input: {
 export function crossCutPairs(qubitCount: number): [number, number][] {
   const pairs: [number, number][] = []
 
-  for (let i = 0; i < qubitCount / 2; i++)
+  for (let i = 0; i < qubitCount / 2; i++) {
     pairs.push([i, qubitCount - 1 - i])
+  }
 
   return pairs
 }
@@ -53,7 +56,9 @@ export function crossCutPairs(qubitCount: number): [number, number][] {
 export function localPairs(qubitCount: number): [number, number][] {
   const pairs: [number, number][] = []
 
-  for (let i = 0; i < qubitCount; i += 2) pairs.push([i, i + 1])
+  for (let i = 0; i < qubitCount; i += 2) {
+    pairs.push([i, i + 1])
+  }
 
   return pairs
 }

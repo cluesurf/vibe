@@ -86,9 +86,13 @@ function measureDrifts(
       const rotatedForward = c * a + s * b
       const rotatedBackward = -s * a + c * b
 
-      if (x + 1 < SITES) nextForward[x + 1]! += rotatedForward
+      if (x + 1 < SITES) {
+        nextForward[x + 1]! += rotatedForward
+      }
 
-      if (x - 1 >= 0) nextBackward[x - 1]! += rotatedBackward
+      if (x - 1 >= 0) {
+        nextBackward[x - 1]! += rotatedBackward
+      }
     }
 
     forward = nextForward

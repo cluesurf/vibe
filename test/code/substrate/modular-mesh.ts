@@ -56,11 +56,13 @@ suite('substrate/modular-mesh: structure', [
       for (let i = 0; i < g.size; i++) {
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of g.neighbors[i]!)
+        for (const j of g.neighbors[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
 
-        for (const f of fills[i]!)
+        for (const f of fills[i]!) {
           equal(f, 1, `fill of node ${i} is +1`)
+        }
       }
     },
   ),

@@ -56,14 +56,17 @@ export function packetRmsTrace(input: {
   // the memory slot is the average of the last `width` states, so width one is the bare
   // wave (previous = one beat back) and a wide width smooths the oscillation into a drift.
   const memoryAt = (index: number): number => {
-    if (history.length === 0) return curr[index]!
+    if (history.length === 0) {
+      return curr[index]!
+    }
 
     const window = Math.min(width, history.length)
 
     let sum = 0
 
-    for (let h = 0; h < window; h++)
+    for (let h = 0; h < window; h++) {
       sum += history[history.length - 1 - h]![index]!
+    }
 
     return sum / window
   }
@@ -84,9 +87,13 @@ export function packetRmsTrace(input: {
 
     history.push(Float64Array.from(curr))
 
-    if (history.length > width) history.shift()
+    if (history.length > width) {
+      history.shift()
+    }
 
-    for (let i = 0; i < length; i++) curr[i] = next[i]!
+    for (let i = 0; i < length; i++) {
+      curr[i] = next[i]!
+    }
   }
 
   return trace
@@ -113,7 +120,9 @@ export function transportExponent(input: {
 
   const n = xs.length
 
-  if (n < 2) return 0
+  if (n < 2) {
+    return 0
+  }
 
   const meanX = xs.reduce((s, x) => s + x, 0) / n
   const meanY = ys.reduce((s, y) => s + y, 0) / n

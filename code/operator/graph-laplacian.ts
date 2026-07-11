@@ -15,7 +15,9 @@ export function graphLaplacian(input: {
 
     let v = row.length * (x[i] ?? 0)
 
-    for (const j of row) v -= x[j] ?? 0
+    for (const j of row) {
+      v -= x[j] ?? 0
+    }
 
     out[i] = v
   }
@@ -24,7 +26,9 @@ export function graphLaplacian(input: {
 function dotProduct(a: Float64Array, b: Float64Array): number {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
+  for (let i = 0; i < a.length; i++) {
+    s += (a[i] ?? 0) * (b[i] ?? 0)
+  }
 
   return s
 }
@@ -32,11 +36,15 @@ function dotProduct(a: Float64Array, b: Float64Array): number {
 function subtractMean(x: Float64Array): void {
   let m = 0
 
-  for (const value of x) m += value ?? 0
+  for (const value of x) {
+    m += value ?? 0
+  }
 
   m /= x.length
 
-  for (let i = 0; i < x.length; i++) x[i] = (x[i] ?? 0) - m
+  for (let i = 0; i < x.length; i++) {
+    x[i] = (x[i] ?? 0) - m
+  }
 }
 
 // Solve L phi = b on a plain neighbor list by deflated conjugate gradient, with the
@@ -75,12 +83,15 @@ export function solveGraphPoisson(input: {
 
     const rsNew = dotProduct(residual, residual)
 
-    if (rsNew < tolerance) break
+    if (rsNew < tolerance) {
+      break
+    }
 
     const beta = rsNew / rsOld
 
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
+    }
 
     rsOld = rsNew
   }

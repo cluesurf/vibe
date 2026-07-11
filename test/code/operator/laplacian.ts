@@ -43,8 +43,9 @@ function toDense(m: SparseMatrix): DenseMatrix {
   const d = makeDense({ rows: m.rows, cols: m.cols })
 
   for (let r = 0; r < m.rows; r++) {
-    for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++)
+    for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++) {
       d.data[r * m.cols + (m.colIdx[p] ?? 0)]! += m.value[p] ?? 0
+    }
   }
 
   return d
@@ -53,8 +54,9 @@ function toDense(m: SparseMatrix): DenseMatrix {
 function rowSum(m: SparseMatrix, r: number): number {
   let s = 0
 
-  for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++)
+  for (let p = m.rowPtr[r] ?? 0; p < (m.rowPtr[r + 1] ?? 0); p++) {
     s += m.value[p] ?? 0
+  }
 
   return s
 }
@@ -83,8 +85,9 @@ suite('operator/laplacian: L = D - A structure', [
     for (const g of [cycle4, path5]) {
       const L = laplacian({ substrate: g })
 
-      for (let r = 0; r < L.rows; r++)
+      for (let r = 0; r < L.rows; r++) {
         equal(rowSum(L, r), 0, `row ${r} of L must sum to 0`)
+      }
     }
   }),
   check('L is symmetric (cycle and path)', () => {
@@ -119,8 +122,9 @@ suite('operator/laplacian: L = D - A structure', [
             let p = L.rowPtr[r] ?? 0;
             p < (L.rowPtr[r + 1] ?? 0);
             p++
-          )
+          ) {
             s += (L.value[p] ?? 0) * (ones[L.colIdx[p] ?? 0] ?? 0)
+          }
 
           product[r] = s
         }
@@ -163,8 +167,9 @@ suite('operator/laplacian: spectrum', [
           `smallest eigenvalue of ${g.size}-node L`,
         )
 
-        for (const v of values)
+        for (const v of values) {
           ok((v ?? 0) >= -1e-8, `eigenvalue ${v} must be non-negative`)
+        }
       }
     },
   ),

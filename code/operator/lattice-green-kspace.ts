@@ -29,7 +29,9 @@ export function latticeGreenDifferenceX(input: {
         const ckz = Math.cos(kz)
         const den = 3 - ckx - cky - ckz
 
-        if (den < 1e-12) continue
+        if (den < 1e-12) {
+          continue
+        }
         // k=0: the cosine-difference integrand goes to 0 here anyway
 
         s += drx / (2 * den)

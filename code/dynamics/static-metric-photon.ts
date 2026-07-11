@@ -61,8 +61,11 @@ export function staticMetricPhotonDeflection(input: {
       for (let k = 0; k < 60; k++) {
         const mid = (lo + hi) / 2
 
-        if (f(mid) > 0) lo = mid
-        else hi = mid
+        if (f(mid) > 0) {
+          lo = mid
+        } else {
+          hi = mid
+        }
       }
 
       uMax = (lo + hi) / 2
@@ -73,7 +76,9 @@ export function staticMetricPhotonDeflection(input: {
     uPrevious = u
   }
 
-  if (uMax === null) return null
+  if (uMax === null) {
+    return null
+  }
 
   const w = Math.sqrt(uMax)
   const samples = 20000
@@ -85,7 +90,9 @@ export function staticMetricPhotonDeflection(input: {
     const u = uMax - wi * wi
     const value = f(u)
 
-    if (value <= 0) continue
+    if (value <= 0) {
+      continue
+    }
 
     integral +=
       ((2 * wi * Math.sqrt(bOf(u))) / Math.sqrt(value)) * (w / samples)

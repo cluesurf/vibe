@@ -17,7 +17,9 @@ const subtreeParity = (
   leaves: number[],
   branching: number,
 ): number => {
-  if (level === 0) return leaves[offset]!
+  if (level === 0) {
+    return leaves[offset]!
+  }
 
   let parity = 0
 

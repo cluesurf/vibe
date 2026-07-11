@@ -93,7 +93,9 @@ function shortRangeSharedPast(input: {
 
   const partner = picks.get(distance)
 
-  if (partner === undefined) return Number.NaN
+  if (partner === undefined) {
+    return Number.NaN
+  }
 
   return bulkSharedPast({
     neighbors,

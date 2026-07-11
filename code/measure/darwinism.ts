@@ -8,7 +8,9 @@
 // definite record out.
 
 function binaryEntropy(p: number): number {
-  if (p <= 0 || p >= 1) return 0
+  if (p <= 0 || p >= 1) {
+    return 0
+  }
 
   return -p * Math.log2(p) - (1 - p) * Math.log2(1 - p)
 }

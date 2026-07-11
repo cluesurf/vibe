@@ -18,7 +18,9 @@ export function connectedToneCorrelation(input: {
 
   let total = 0
 
-  for (let cell = 0; cell < size; cell++) total += readout[cell] ?? 0
+  for (let cell = 0; cell < size; cell++) {
+    total += readout[cell] ?? 0
+  }
 
   const mean = size > 0 ? total / size : 0
 

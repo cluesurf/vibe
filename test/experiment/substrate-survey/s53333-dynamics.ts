@@ -42,7 +42,9 @@ export function s53333Dynamics(): {
   const lightSpeed = 1
   const cur = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) cur[i] = Math.floor(rnd() * 3)
+  for (let i = 0; i < N; i++) {
+    cur[i] = Math.floor(rnd() * 3)
+  }
 
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 20, modulus: 3 }) >

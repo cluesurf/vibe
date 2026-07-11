@@ -49,8 +49,9 @@ const branchB = patterns[1]!
 function biasedUrge(p: number): Int8Array {
   const urge = new Int8Array(N)
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     urge[i] = i < p * N ? branchA[i]! : branchB[i]!
+  }
 
   return urge
 }

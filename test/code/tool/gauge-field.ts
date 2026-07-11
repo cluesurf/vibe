@@ -41,8 +41,9 @@ suite('tool/gauge-field: edge key and construction', [
       )
       equal(field.link.length, 3, 'one link integer per directed edge')
 
-      for (const k of field.link)
+      for (const k of field.link) {
         equal(k, 0, 'every link starts at the identity element 0')
+      }
     },
   ),
   check('the identity field has zero phase on every traversal', () => {

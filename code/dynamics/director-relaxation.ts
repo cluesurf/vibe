@@ -9,9 +9,13 @@
 function foldModPi(angle: number): number {
   let d = angle
 
-  while (d > Math.PI / 2) d -= Math.PI
+  while (d > Math.PI / 2) {
+    d -= Math.PI
+  }
 
-  while (d < -Math.PI / 2) d += Math.PI
+  while (d < -Math.PI / 2) {
+    d += Math.PI
+  }
 
   return d
 }

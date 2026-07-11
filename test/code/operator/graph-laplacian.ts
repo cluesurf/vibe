@@ -68,8 +68,9 @@ suite('operator/graph-laplacian: L = D - A structure', [
     ]
 
     for (let i = 0; i < 4; i++) {
-      for (let j = 0; j < 4; j++)
+      for (let j = 0; j < 4; j++) {
         equal(rows[i]![j], expected[i]![j], `L[${i}][${j}]`)
+      }
     }
   }),
   check('L is symmetric (cycle and path)', () => {
@@ -77,8 +78,9 @@ suite('operator/graph-laplacian: L = D - A structure', [
       const rows = denseRows(g)
 
       for (let i = 0; i < rows.length; i++) {
-        for (let j = 0; j < rows.length; j++)
+        for (let j = 0; j < rows.length; j++) {
           equal(rows[i]![j], rows[j]![i], `symmetry [${i}][${j}]`)
+        }
       }
     }
   }),
@@ -89,8 +91,9 @@ suite('operator/graph-laplacian: L = D - A structure', [
         const ones = new Float64Array(g.length).fill(1)
         const product = apply(g, ones)
 
-        for (let i = 0; i < g.length; i++)
+        for (let i = 0; i < g.length; i++) {
           equal(product[i] ?? NaN, 0, `(L 1)[${i}]`)
+        }
       }
     },
   ),
@@ -123,7 +126,9 @@ suite('operator/graph-laplacian: Poisson solve', [
 
       let mean = 0
 
-      for (const v of phi) mean += v
+      for (const v of phi) {
+        mean += v
+      }
 
       close(mean / phi.length, 0, 1e-12, 'phi mean')
     },

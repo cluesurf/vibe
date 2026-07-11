@@ -81,7 +81,9 @@ export function willSteering(input?: { n?: number }): {
   const mk = (): Int8Array => {
     const t = new Int8Array(N)
 
-    for (const i of selfA) t[i] = 1
+    for (const i of selfA) {
+      t[i] = 1
+    }
 
     return t
   }
@@ -142,8 +144,9 @@ export function willSteering(input?: { n?: number }): {
   const mkSplit = (): Int8Array => {
     const t = new Int8Array(N)
 
-    for (let k = 0; k < region.length; k++)
+    for (let k = 0; k < region.length; k++) {
       t[region[k]!] = k < half ? 1 : -1
+    }
 
     return t
   }

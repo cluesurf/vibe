@@ -24,12 +24,15 @@ function reference(input: {
       Math.max(-1, Math.min(1, Math.cos(k) * Math.cos(mass))),
     )
 
-    if (omega < 1e-9) continue
+    if (omega < 1e-9) {
+      continue
+    }
 
     const w = 1 / (2 * omega)
 
-    for (let r = 0; r <= maxR; r++)
+    for (let r = 0; r <= maxR; r++) {
       c[r]! += (w * Math.cos(k * r)) / modes
+    }
   }
 
   return c
@@ -45,8 +48,9 @@ suite('measure/two-point: dirac correlator', [
 
     const want = reference({ mass: 0.3, maxR: 6, modes: 64 })
 
-    for (let r = 0; r < want.length; r++)
+    for (let r = 0; r < want.length; r++) {
       close(got[r]!, want[r]!, TOL, `C(${r})`)
+    }
   }),
   // Every mode contributes a positive weight 1/(2 omega), so C(0) = sum of weights is
   // the largest value and strictly positive (reflection positivity at zero separation).
@@ -59,8 +63,9 @@ suite('measure/two-point: dirac correlator', [
 
     ok(c[0]! > 0, 'C(0) must be positive')
 
-    for (let r = 1; r < c.length; r++)
+    for (let r = 1; r < c.length; r++) {
       ok(c[0]! >= c[r]!, `C(0) must dominate C(${r})`)
+    }
   }),
   // C(0) equals the plain sum of the spectral weights / modes (cos(0) = 1), an exact tie
   // between the two definitions independent of the cosines.

@@ -66,7 +66,9 @@ export default experiment({
     let monotone = true
 
     for (let i = 1; i < reflections.length; i++) {
-      if (reflections[i]! < reflections[i - 1]! - 1e-9) monotone = false
+      if (reflections[i]! < reflections[i - 1]! - 1e-9) {
+        monotone = false
+      }
     }
 
     const transparentAtZero = reflections[0]! < 0.05

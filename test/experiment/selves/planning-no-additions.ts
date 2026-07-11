@@ -28,10 +28,13 @@ function makeLandscape(L: number): {
   const V = new Array<number>(L + 1).fill(0)
 
   for (let p = 0; p <= L; p++) {
-    if (p <= localPeak) V[p] = 0.6 * (p / localPeak)
-    else if (p <= valley)
+    if (p <= localPeak) {
+      V[p] = 0.6 * (p / localPeak)
+    } else if (p <= valley) {
       V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak))
-    else V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
+    } else {
+      V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
+    }
   }
 
   return { V, start: Math.floor(L * 0.1), goal, localPeak, valley }
@@ -47,7 +50,9 @@ function greedyRollout(V: number[], from: number): number {
     const up = pos < L ? V[pos + 1]! : -Infinity
     const down = pos > 0 ? V[pos - 1]! : -Infinity
 
-    if (up <= V[pos]! && down <= V[pos]!) break
+    if (up <= V[pos]! && down <= V[pos]!) {
+      break
+    }
     // stuck at a local optimum
 
     pos += up >= down ? 1 : -1

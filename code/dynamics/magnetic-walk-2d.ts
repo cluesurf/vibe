@@ -83,7 +83,9 @@ export function cyclotronCentroidTrace(input: {
 
   const s = 1 / Math.sqrt(norm)
 
-  for (let i = 0; i < N; i++) up[i] = [up[i]![0] * s, up[i]![1] * s]
+  for (let i = 0; i < N; i++) {
+    up[i] = [up[i]![0] * s, up[i]![1] * s]
+  }
 
   const trace: number[] = []
 

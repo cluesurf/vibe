@@ -111,7 +111,9 @@ suite('algebra/group/clifford: Dirac gamma algebra', [
             const expected = cmScale(identity, 2 * minkowski[mu]!)
 
             ok(cmEquals(anti, expected, TOL), `{g${mu},g${mu}} = 2 eta`)
-          } else ok(cmEquals(anti, zero, TOL), `{g${mu},g${nu}} = 0`)
+          } else {
+            ok(cmEquals(anti, zero, TOL), `{g${mu},g${nu}} = 0`)
+          }
         }
       }
     },

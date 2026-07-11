@@ -25,8 +25,9 @@ suite(
   [
     check('every son has the node as its father', () => {
       for (let n = 1; n <= 60; n++) {
-        for (const s of sons(n))
+        for (const s of sons(n)) {
           equal(father(s), n, `father(son ${s} of ${n})`)
+        }
       }
     }),
     check(
@@ -56,8 +57,9 @@ suite(
     }),
     check('a son sits one level below its parent', () => {
       for (let n = 1; n <= 60; n++) {
-        for (const s of sons(n))
+        for (const s of sons(n)) {
           equal(depth(s), depth(n) + 1, `depth(${s}) = depth(${n})+1`)
+        }
       }
     }),
   ],
@@ -87,7 +89,9 @@ suite('substrate/margenstern/fibonacci-tree: depth, paths and routes', [
 
       const next: number[] = []
 
-      for (const node of frontier) next.push(...sons(node))
+      for (const node of frontier) {
+        next.push(...sons(node))
+      }
 
       frontier = next
     }

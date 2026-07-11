@@ -100,8 +100,9 @@ export function pslCayleyGraph(input: {
   const adjacency = matrices.map(M => {
     const ns = new Set<number>()
 
-    for (const gen of generators)
+    for (const gen of generators) {
       ns.add(id.get(key(projectiveMultiply(gen, M, p)))!)
+    }
 
     return [...ns]
   })

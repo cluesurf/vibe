@@ -22,7 +22,9 @@ export function multiply3(A: Matrix3, B: Matrix3): Matrix3 {
     for (let j = 0; j < 3; j++) {
       let s = 0
 
-      for (let k = 0; k < 3; k++) s += A[i]![k]! * B[k]![j]!
+      for (let k = 0; k < 3; k++) {
+        s += A[i]![k]! * B[k]![j]!
+      }
 
       C[i]![j] = s
     }

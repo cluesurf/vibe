@@ -19,7 +19,9 @@ import { Rng } from '@/code/tool/rng'
 function smearedKernel2D(n: number, eps: number): number {
   const oneMinus = 1 - eps
 
-  if (oneMinus <= 0) return n === 0 ? 1 : 0
+  if (oneMinus <= 0) {
+    return n === 0 ? 1 : 0
+  }
 
   const base = Math.pow(oneMinus, n)
   const term =
@@ -79,7 +81,9 @@ function rowSubset(
     const a = words[aBase + w] ?? 0
     const b = words[bBase + w] ?? 0
 
-    if ((a & ~b) !== 0) return false
+    if ((a & ~b) !== 0) {
+      return false
+    }
   }
 
   return true
@@ -94,8 +98,9 @@ function rowsDisjoint(
   stride: number,
 ): boolean {
   for (let w = 0; w < stride; w++) {
-    if (((wordsA[aBase + w] ?? 0) & (wordsB[bBase + w] ?? 0)) !== 0)
+    if (((wordsA[aBase + w] ?? 0) & (wordsB[bBase + w] ?? 0)) !== 0) {
       return false
+    }
   }
 
   return true
@@ -151,7 +156,9 @@ function relationCount(state: State): number {
 
   const words = state.future.words
 
-  for (const word of words) total += popcount32(word ?? 0)
+  for (const word of words) {
+    total += popcount32(word ?? 0)
+  }
 
   return total
 }
@@ -179,7 +186,9 @@ export function height(state: State): number {
         if (lv + 1 > (longest[idx] ?? 1)) {
           longest[idx] = lv + 1
 
-          if (lv + 1 > max) max = lv + 1
+          if (lv + 1 > max) {
+            max = lv + 1
+          }
         }
 
         bits ^= bit
@@ -278,12 +287,16 @@ export function sampleUniform(input: {
 
     let j = input.rng.nextInt({ max: n })
 
-    if (i === j) j = (j + 1) % n
+    if (i === j) {
+      j = (j + 1) % n
+    }
 
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
 
-    if (lo === hi) continue
+    if (lo === hi) {
+      continue
+    }
 
     const related = isRelated(state, lo, hi)
 
@@ -303,7 +316,9 @@ export function sampleUniform(input: {
         ) {
           currentS = candidateS
           accepts += 1
-        } else toggle(state, lo, hi) // revert
+        } else {
+          toggle(state, lo, hi)
+        } // revert
       }
     }
 

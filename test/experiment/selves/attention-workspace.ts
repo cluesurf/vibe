@@ -39,7 +39,9 @@ function fullBeat(
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -103,8 +105,9 @@ export function attentionWorkspace(input?: {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
   }
 
   const dist = csrDistances({
@@ -119,7 +122,9 @@ export function attentionWorkspace(input?: {
   const self: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) {
+      self.push(i)
+    }
   }
 
   const isInput = new Uint8Array(N)
@@ -203,7 +208,9 @@ export function attentionWorkspace(input?: {
       const nf: number[] = []
 
       for (const u of fr) {
-        if (isInput[u]) continue
+        if (isInput[u]) {
+          continue
+        }
 
         out.push(u)
 
@@ -228,7 +235,9 @@ export function attentionWorkspace(input?: {
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
 
-    for (const i of cells) s += tone[i]!
+    for (const i of cells) {
+      s += tone[i]!
+    }
 
     return cells.length > 0 ? s / cells.length : 0
   }
@@ -257,11 +266,14 @@ export function attentionWorkspace(input?: {
 
     const drive = (t: number, sig: number): void => {
       for (let j = 0; j < region.length; j++) {
-        if ((j + t) % 4 < duty) tone[region[j]!] = sig
+        if ((j + t) % 4 < duty) {
+          tone[region[j]!] = sig
+        }
       }
 
-      for (const i of noiseTargets)
+      for (const i of noiseTargets) {
         tone[i] = mixBit(i, t) === 1 ? 1 : -1
+      }
     }
 
     for (let t = 0; t < T; t++) {

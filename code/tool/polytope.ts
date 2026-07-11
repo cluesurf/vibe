@@ -70,7 +70,9 @@ export function fourPolytopeFacets(vertices: number[][]): number[][] {
           const normal = orthogonalToThree(edgeOne, edgeTwo, edgeThree)
 
           // affinely dependent four points span no hyperplane, skip
-          if (normal.every(x => x === 0)) continue
+          if (normal.every(x => x === 0)) {
+            continue
+          }
 
           const offset = dot(normal, vertices[i]!)
 
@@ -82,14 +84,20 @@ export function fourPolytopeFacets(vertices: number[][]): number[][] {
           for (let m = 0; m < count; m++) {
             const side = dot(normal, vertices[m]!) - offset
 
-            if (side === 0) onPlane.push(m)
-            else if (side > 0) anyAbove = true
-            else anyBelow = true
+            if (side === 0) {
+              onPlane.push(m)
+            } else if (side > 0) {
+              anyAbove = true
+            } else {
+              anyBelow = true
+            }
           }
 
           // a supporting hyperplane keeps every vertex on one side, so a facet has
           // vertices on at most one side plus the ones exactly on the plane
-          if (anyAbove && anyBelow) continue
+          if (anyAbove && anyBelow) {
+            continue
+          }
 
           // onPlane is ascending because m increased, so its join is a canonical key
           facets.set(onPlane.join(','), onPlane)

@@ -21,8 +21,9 @@ const evolve = evolveByEigendecomposition
 function norm(re: Float64Array, im: Float64Array): number {
   let s = 0
 
-  for (let i = 0; i < re.length; i++)
+  for (let i = 0; i < re.length; i++) {
     s += (re[i] ?? 0) ** 2 + (im[i] ?? 0) ** 2
+  }
 
   return s
 }

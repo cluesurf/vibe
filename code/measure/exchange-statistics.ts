@@ -65,11 +65,14 @@ export function determinantN(input: Complex[][]): Complex {
     let pivot = col
 
     for (let row = col + 1; row < n; row++) {
-      if (cAbs2(matrix[row]![col]!) > cAbs2(matrix[pivot]![col]!))
+      if (cAbs2(matrix[row]![col]!) > cAbs2(matrix[pivot]![col]!)) {
         pivot = row
+      }
     }
 
-    if (cAbs2(matrix[pivot]![col]!) < 1e-30) return [0, 0]
+    if (cAbs2(matrix[pivot]![col]!) < 1e-30) {
+      return [0, 0]
+    }
 
     if (pivot !== col) {
       const swap = matrix[pivot]!
@@ -149,8 +152,9 @@ export function propagatorColumn(input: {
 
   vector[from] = [1, 0]
 
-  for (let t = 0; t < beats; t++)
+  for (let t = 0; t < beats; t++) {
     vector = walkStep({ vector, size, mass })
+  }
 
   return vector
 }

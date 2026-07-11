@@ -69,7 +69,9 @@ export default experiment({
       for (let b = 0; b < 4; b++) {
         const product = cayleyMultiply(make(a), make(b + 1))
 
-        if (Math.abs(normSquared(product) - 1) > 1e-9) su2Closed = false
+        if (Math.abs(normSquared(product) - 1) > 1e-9) {
+          su2Closed = false
+        }
       }
     }
 

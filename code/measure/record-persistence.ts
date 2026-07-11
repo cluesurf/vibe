@@ -20,8 +20,9 @@ function neighborsOf(csr: Csr): number[][] {
   for (let i = 0; i < csr.cellCount; i++) {
     const list: number[] = []
 
-    for (let p = csr.offsets[i]!; p < csr.offsets[i + 1]!; p++)
+    for (let p = csr.offsets[i]!; p < csr.offsets[i + 1]!; p++) {
       list.push(csr.adj[p]!)
+    }
 
     out.push(list)
   }
@@ -46,7 +47,9 @@ export function seedCompactBlob(input: {
   const tone = new Int8Array(csr.cellCount)
 
   for (let i = 0; i < csr.cellCount; i++) {
-    if (distance[i]! >= 0 && distance[i]! <= radius) tone[i] = 1
+    if (distance[i]! >= 0 && distance[i]! <= radius) {
+      tone[i] = 1
+    }
   }
 
   return tone
@@ -85,8 +88,9 @@ export function recordContrast(input: {
   const { eu, ev } = edgesFromCsr(csr.offsets, csr.adj, csr.cellCount)
   const moved = new Uint8Array(csr.cellCount)
 
-  for (let t = 1; t <= beats; t++)
+  for (let t = 1; t <= beats; t++) {
     conservingEdgeSweepHashed({ tone, eu, ev, moved, beat: t, arrow })
+  }
 
   let inPlus = 0
   let outPlus = 0

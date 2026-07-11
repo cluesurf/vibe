@@ -76,7 +76,9 @@ export function regionCharge(
   let total = 0
 
   for (const cell of region) {
-    for (const value of state[cell]!) total += value
+    for (const value of state[cell]!) {
+      total += value
+    }
   }
 
   return total
@@ -98,7 +100,9 @@ function outflow(
     for (let d = 0; d < slots.length; d++) {
       const neighbour = bonds[d]!
 
-      if (neighbour !== -1 && !region.has(neighbour)) total += slots[d]!
+      if (neighbour !== -1 && !region.has(neighbour)) {
+        total += slots[d]!
+      }
     }
   }
 
@@ -115,7 +119,9 @@ function inflow(
   let total = 0
 
   for (let cell = 0; cell < adjacency.length; cell++) {
-    if (region.has(cell)) continue
+    if (region.has(cell)) {
+      continue
+    }
 
     const slots = streamed[cell]!
     const bonds = adjacency[cell]!
@@ -123,7 +129,9 @@ function inflow(
     for (let d = 0; d < slots.length; d++) {
       const neighbour = bonds[d]!
 
-      if (neighbour !== -1 && region.has(neighbour)) total += slots[d]!
+      if (neighbour !== -1 && region.has(neighbour)) {
+        total += slots[d]!
+      }
     }
   }
 

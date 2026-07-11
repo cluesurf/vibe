@@ -53,7 +53,9 @@ function secondMoment(t: number, i: number, j: number): number {
 function stressIntegral(i: number, j: number): number {
   let acc = 0
 
-  for (const b of BODIES) acc += b.m * b.v[i]! * b.v[j]!
+  for (const b of BODIES) {
+    acc += b.m * b.v[i]! * b.v[j]!
+  }
 
   return acc
 }

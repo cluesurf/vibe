@@ -100,7 +100,9 @@ export default experiment({
     let monotonic = true
 
     for (let i = 1; i < periods.length; i++) {
-      if (periods[i]! < periods[i - 1]!) monotonic = false
+      if (periods[i]! < periods[i - 1]!) {
+        monotonic = false
+      }
     }
 
     // the speed is constant (a LINEAR, gapless dispersion omega = c k, the hallmark of sound), within a tight band.

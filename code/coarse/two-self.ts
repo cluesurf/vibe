@@ -77,7 +77,9 @@ export function stampShape(input: {
     const x = px + dx
     const y = py + dy
 
-    if (x >= 0 && x < L && y >= 0 && y < L) tone[y * L + x] = sign
+    if (x >= 0 && x < L && y >= 0 && y < L) {
+      tone[y * L + x] = sign
+    }
   }
 }
 
@@ -156,7 +158,9 @@ export function twoSelfSeparation(input: {
     .filter(c => c.length >= minSize)
     .sort((a, b) => b.length - a.length)
 
-  if (clusters.length < 2) return 0
+  if (clusters.length < 2) {
+    return 0
+  }
 
   const centroid = (cells: number[]): readonly [number, number] => {
     let cx = 0

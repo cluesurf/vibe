@@ -81,11 +81,17 @@ export default experiment({
 
       worstNegative = Math.min(worstNegative, lambda)
 
-      if (theta === 0) entropyAtMatch = lambda
+      if (theta === 0) {
+        entropyAtMatch = lambda
+      }
 
-      if (Math.abs(theta - 0.1) < 1e-9) entropyAtSmallMismatch = lambda
+      if (Math.abs(theta - 0.1) < 1e-9) {
+        entropyAtSmallMismatch = lambda
+      }
 
-      if (lambda < previous - 1e-12) monotone = false
+      if (lambda < previous - 1e-12) {
+        monotone = false
+      }
 
       previous = lambda
     }
@@ -94,7 +100,9 @@ export default experiment({
     let smallestPositiveMismatch = Infinity
 
     for (const theta of THETAS) {
-      if (theta <= 0) continue
+      if (theta <= 0) {
+        continue
+      }
 
       smallestPositiveMismatch = Math.min(
         smallestPositiveMismatch,

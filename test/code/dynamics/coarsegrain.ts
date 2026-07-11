@@ -47,8 +47,9 @@ suite('dynamics/coarsegrain: induced order', [
       ok(out.size <= 30, 'survivors are a subset')
 
       for (let a = 0; a < out.size; a++) {
-        for (let b = a + 1; b < out.size; b++)
+        for (let b = a + 1; b < out.size; b++) {
           ok(precedes(out, { a, b }), `induced order keeps ${a} < ${b}`)
+        }
       }
     },
   ),

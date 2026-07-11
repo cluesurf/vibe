@@ -36,9 +36,13 @@ function square(): ComplexMatrix[][] {
 function contextSign(ops: ComplexMatrix[]): number {
   const product = cmMultiply(cmMultiply(ops[0]!, ops[1]!), ops[2]!)
 
-  if (cmIsScalar(product, complex({ re: 1, im: 0 }))) return 1
+  if (cmIsScalar(product, complex({ re: 1, im: 0 }))) {
+    return 1
+  }
 
-  if (cmIsScalar(product, complex({ re: -1, im: 0 }))) return -1
+  if (cmIsScalar(product, complex({ re: -1, im: 0 }))) {
+    return -1
+  }
 
   return 0 // not a scalar multiple of the identity (should not happen in this square)
 }
@@ -98,7 +102,9 @@ export function peresMerminSquare(): {
   const value = new Array<number>(9)
 
   for (let mask = 0; mask < 512; mask++) {
-    for (let b = 0; b < 9; b++) value[b] = (mask >> b) & 1 ? 1 : -1
+    for (let b = 0; b < 9; b++) {
+      value[b] = (mask >> b) & 1 ? 1 : -1
+    }
 
     const at = (r: number, col: number): number => value[r * 3 + col]!
     const rowProd = (r: number): number =>
@@ -115,7 +121,9 @@ export function peresMerminSquare(): {
       colProd(1) -
       colProd(2)
 
-    if (score > noncontextualBound) noncontextualBound = score
+    if (score > noncontextualBound) {
+      noncontextualBound = score
+    }
   }
 
   return {

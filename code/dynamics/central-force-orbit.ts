@@ -103,16 +103,25 @@ export function integrateCentralForceOrbit(input: {
 
     let dtheta = theta - prevTheta
 
-    if (dtheta > Math.PI) dtheta -= 2 * Math.PI
+    if (dtheta > Math.PI) {
+      dtheta -= 2 * Math.PI
+    }
 
-    if (dtheta < -Math.PI) dtheta += 2 * Math.PI
+    if (dtheta < -Math.PI) {
+      dtheta += 2 * Math.PI
+    }
 
     cumAngle += dtheta
     prevTheta = theta
 
     // periapsis: local minimum of r
-    if (rPrev < rPrevPrev && rPrev <= r && periapsisAngles.length < 12)
+    if (
+      rPrev < rPrevPrev &&
+      rPrev <= r &&
+      periapsisAngles.length < 12
+    ) {
       periapsisAngles.push(cumAngle)
+    }
 
     rPrevPrev = rPrev
     rPrev = r

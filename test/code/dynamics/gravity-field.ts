@@ -65,8 +65,9 @@ suite('dynamics/gravity-field: bounded fields', [
       cap,
     })
 
-    for (let c = 0; c < N; c++)
+    for (let c = 0; c < N; c++) {
       ok(phi[c]! >= -cap && phi[c]! <= cap, `phi in range at ${c}`)
+    }
   }),
   check('vacuumDensity stays within [-cap, cap]', () => {
     const occupied = new Uint8Array(N)
@@ -76,8 +77,9 @@ suite('dynamics/gravity-field: bounded fields', [
     const cap = 6
     const v = vacuumDensity({ occupied, ...base, sweeps: 30, cap })
 
-    for (let c = 0; c < N; c++)
+    for (let c = 0; c < N; c++) {
       ok(v[c]! >= -cap && v[c]! <= cap, `v in range at ${c}`)
+    }
   }),
 ])
 
@@ -137,6 +139,8 @@ suite('dynamics/gravity-field: determinism', [
     const a = run()
     const b = run()
 
-    for (let c = 0; c < N; c++) equal(a[c]!, b[c]!, `phi ${c}`)
+    for (let c = 0; c < N; c++) {
+      equal(a[c]!, b[c]!, `phi ${c}`)
+    }
   }),
 ])

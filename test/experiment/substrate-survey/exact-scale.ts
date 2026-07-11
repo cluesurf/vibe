@@ -72,7 +72,9 @@ export function exactScale(input?: { n?: number }): {
     i < g.adj.length && roundTripsOnDisk;
     i += Math.max(1, Math.floor(g.adj.length / 1000))
   ) {
-    if (loaded.adj[i] !== g.adj[i]) roundTripsOnDisk = false
+    if (loaded.adj[i] !== g.adj[i]) {
+      roundTripsOnDisk = false
+    }
   }
 
   // memory on the real {5,3,4} geometry

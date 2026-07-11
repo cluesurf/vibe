@@ -30,8 +30,9 @@ export function buildSequenceMemory(input: {
   for (let i = 0; i < length; i++) {
     const pattern: number[] = []
 
-    for (let d = 0; d < size; d++)
+    for (let d = 0; d < size; d++) {
       pattern.push(rng.next() < 0.5 ? -1 : 1)
+    }
 
     patterns.push(pattern)
   }
@@ -45,8 +46,9 @@ export function buildSequenceMemory(input: {
     const current = patterns[i]!
 
     for (let x = 0; x < size; x++) {
-      for (let y = 0; y < size; y++)
+      for (let y = 0; y < size; y++) {
         weight[x]![y]! += next[x]! * current[y]!
+      }
     }
   }
 
@@ -93,8 +95,9 @@ export function bestMatch(input: {
   for (let i = 0; i < memory.length; i++) {
     let sum = 0
 
-    for (let d = 0; d < memory.size; d++)
+    for (let d = 0; d < memory.size; d++) {
       sum += state[d]! * memory.patterns[i]![d]!
+    }
 
     const normalized = sum / memory.size
 
@@ -130,12 +133,16 @@ export function convergesToCycle(input: {
 
     const match = bestMatch({ memory, state })
 
-    if (match.overlap > 0.9) visited.push(match.index)
+    if (match.overlap > 0.9) {
+      visited.push(match.index)
+    }
   }
 
   const tail = visited.slice(-memory.length)
 
-  if (tail.length < memory.length) return false
+  if (tail.length < memory.length) {
+    return false
+  }
 
   return tail.every(
     (value, i) => value === (tail[0]! + i) % memory.length,

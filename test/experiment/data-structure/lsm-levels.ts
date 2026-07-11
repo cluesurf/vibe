@@ -28,7 +28,9 @@ export default experiment({
     let monotonic = true
 
     for (let i = 1; i < complete.length; i++) {
-      if (complete[i]! < complete[i - 1]!) monotonic = false
+      if (complete[i]! < complete[i - 1]!) {
+        monotonic = false
+      }
     }
 
     // a stable geometric level fan-out (the level-size ratio), bounded above 1

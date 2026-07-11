@@ -63,7 +63,9 @@ export default experiment({
       if (x < BAND_START || x >= BAND_START + BAND_WIDTH) {
         const base = cell * degree
 
-        for (let d = 0; d < degree; d++) init.data[base + d] = 0
+        for (let d = 0; d < degree; d++) {
+          init.data[base + d] = 0
+        }
       }
     }
 

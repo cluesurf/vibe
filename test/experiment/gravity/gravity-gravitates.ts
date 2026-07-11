@@ -29,8 +29,9 @@ const COUPLING = 3
 function ringNeighbors(size: number): number[][] {
   const neighbors: number[][] = []
 
-  for (let i = 0; i < size; i++)
+  for (let i = 0; i < size; i++) {
     neighbors.push([(i + 1) % size, (i + size - 1) % size])
+  }
 
   return neighbors
 }
@@ -66,9 +67,13 @@ function superpositionDefect(coupling: number): number {
   const prevB = new Uint8Array(RING)
   const curB = new Uint8Array(RING)
 
-  for (let i = 14; i <= 26; i++) curA[i] = 1
+  for (let i = 14; i <= 26; i++) {
+    curA[i] = 1
+  }
 
-  for (let i = 20; i <= 32; i++) curB[i] = 1
+  for (let i = 20; i <= 32; i++) {
+    curB[i] = 1
+  }
 
   const nextA = step(neighbors, prevA, curA, coupling)
   const nextB = step(neighbors, prevB, curB, coupling)
@@ -87,7 +92,9 @@ function superpositionDefect(coupling: number): number {
   for (let i = 0; i < RING; i++) {
     const summed = (nextA[i]! + nextB[i]!) % MODULUS
 
-    if (nextSum[i] !== summed) defect += Math.abs(nextSum[i]! - summed)
+    if (nextSum[i] !== summed) {
+      defect += Math.abs(nextSum[i]! - summed)
+    }
   }
 
   return defect
@@ -104,7 +111,9 @@ function reverseAndBound(coupling: number): {
   let previous = new Uint8Array(RING)
   let current = new Uint8Array(RING)
 
-  for (let i = 22; i <= 26; i++) current[i] = i - 21
+  for (let i = 22; i <= 26; i++) {
+    current[i] = i - 21
+  }
 
   const seedPrev = previous.slice()
   const seedCur = current.slice()
@@ -119,9 +128,13 @@ function reverseAndBound(coupling: number): {
 
     let activity = 0
 
-    for (let i = 0; i < RING; i++) activity += current[i]!
+    for (let i = 0; i < RING; i++) {
+      activity += current[i]!
+    }
 
-    if (activity > peak) peak = activity
+    if (activity > peak) {
+      peak = activity
+    }
   }
 
   let revPrev = current.slice()
@@ -137,8 +150,9 @@ function reverseAndBound(coupling: number): {
   let reversible = true
 
   for (let i = 0; i < RING; i++) {
-    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i])
+    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) {
       reversible = false
+    }
   }
 
   return { reversible, peak }

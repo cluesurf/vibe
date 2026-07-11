@@ -77,8 +77,9 @@ export default experiment({
 
     let revivalPeak = 0
 
-    for (let n = 20; n < reused.length; n++)
+    for (let n = 20; n < reused.length; n++) {
       revivalPeak = Math.max(revivalPeak, reused[n]!)
+    }
 
     const revives = revivalPeak > 0.9
 

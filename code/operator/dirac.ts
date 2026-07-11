@@ -68,7 +68,9 @@ export function cellComplexOf(input: {
   for (let e = 0; e < edges.length; e++) {
     const edge = edges[e]
 
-    if (!edge) continue
+    if (!edge) {
+      continue
+    }
 
     boundary1Triplets.push({ row: edge.b, col: e, value: 1 })
     boundary1Triplets.push({ row: edge.a, col: e, value: -1 })
@@ -98,16 +100,22 @@ export function cellComplexOf(input: {
     const triangles: { a: number; b: number; c: number }[] = []
 
     for (const edge of edges) {
-      if (!edge) continue
+      if (!edge) {
+        continue
+      }
 
       const { a, b } = edge
       const setA = neighborSet[a]
       const setB = neighborSet[b]
 
-      if (!setA || !setB) continue
+      if (!setA || !setB) {
+        continue
+      }
 
       for (const c of setB) {
-        if (c > b && setA.has(c)) triangles.push({ a, b, c })
+        if (c > b && setA.has(c)) {
+          triangles.push({ a, b, c })
+        }
       }
     }
 
@@ -118,20 +126,25 @@ export function cellComplexOf(input: {
     for (let t = 0; t < triangles.length; t++) {
       const tri = triangles[t]
 
-      if (!tri) continue
+      if (!tri) {
+        continue
+      }
 
       const eBC = edgeIndex.get(`${tri.b},${tri.c}`)
       const eAC = edgeIndex.get(`${tri.a},${tri.c}`)
       const eAB = edgeIndex.get(`${tri.a},${tri.b}`)
 
-      if (eBC !== undefined)
+      if (eBC !== undefined) {
         boundary2Triplets.push({ row: eBC, col: t, value: 1 })
+      }
 
-      if (eAC !== undefined)
+      if (eAC !== undefined) {
         boundary2Triplets.push({ row: eAC, col: t, value: -1 })
+      }
 
-      if (eAB !== undefined)
+      if (eAB !== undefined) {
         boundary2Triplets.push({ row: eAB, col: t, value: 1 })
+      }
     }
 
     const boundary2 = sparseFromTriplets({
@@ -169,8 +182,9 @@ export function kahlerDirac(input: {
 
   offset[0] = 0
 
-  for (let k = 0; k < grades; k++)
+  for (let k = 0; k < grades; k++) {
     offset[k + 1] = (offset[k] ?? 0) + (cellCount[k] ?? 0)
+  }
 
   const total = offset[grades] ?? 0
 
@@ -180,7 +194,9 @@ export function kahlerDirac(input: {
   for (let k = 1; k < grades; k++) {
     const b = input.complex.boundary[k]
 
-    if (!b) continue
+    if (!b) {
+      continue
+    }
 
     const lowOffset = offset[k - 1] ?? 0
     const highOffset = offset[k] ?? 0

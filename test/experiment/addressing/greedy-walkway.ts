@@ -70,7 +70,9 @@ export default experiment({
 
     for (let source = 0; source < graph.size; source += 41) {
       for (let target = 7; target < graph.size; target += 61) {
-        if (source === target) continue
+        if (source === target) {
+          continue
+        }
 
         trials++
 

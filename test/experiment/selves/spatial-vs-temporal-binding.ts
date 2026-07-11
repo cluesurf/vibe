@@ -63,9 +63,13 @@ export default experiment({
       (unused, index) => {
         const links: number[] = []
 
-        if (index > 0) links.push(index - 1)
+        if (index > 0) {
+          links.push(index - 1)
+        }
 
-        if (index < size - 1) links.push(index + 1)
+        if (index < size - 1) {
+          links.push(index + 1)
+        }
 
         return Uint32Array.from(links)
       },

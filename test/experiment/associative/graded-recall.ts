@@ -34,7 +34,9 @@ function distributedWord(index: number, wordBits: number): Int8Array {
 function partialMask(wordBits: number, keep: number): Int8Array {
   const mask = new Int8Array(wordBits)
 
-  for (let k = 0; k < keep && k < wordBits; k++) mask[k] = 1
+  for (let k = 0; k < keep && k < wordBits; k++) {
+    mask[k] = 1
+  }
 
   return mask
 }
@@ -57,8 +59,9 @@ export function associativeGradedRecall(input?: {
     wordBits,
   })
 
-  for (let c = 0; c < g.cellCount; c++)
+  for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, distributedWord(c, wordBits))
+  }
 
   // sweep the cue size one slot at a time, from a full cue down to a single slot, so the degradation is
   // sampled finely. A real cliff would show one near-1-to-near-0 step, a graceful decline shows small steps.
@@ -89,15 +92,18 @@ export function associativeGradedRecall(input?: {
   for (let i = 1; i < fidelityByKeep.length; i++) {
     const drop = fidelityByKeep[i - 1]! - fidelityByKeep[i]!
 
-    if (drop > maxDrop) maxDrop = drop
+    if (drop > maxDrop) {
+      maxDrop = drop
+    }
   }
 
   // fidelity should not increase as the cue shrinks
   let monotone = true
 
   for (let i = 1; i < fidelityByKeep.length; i++) {
-    if (fidelityByKeep[i]! > fidelityByKeep[i - 1]! + 1e-9)
+    if (fidelityByKeep[i]! > fidelityByKeep[i - 1]! + 1e-9) {
       monotone = false
+    }
   }
 
   const solved =

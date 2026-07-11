@@ -39,6 +39,7 @@ export function syDiscreteSymmetries(): {
     mass = 0.4
 
   type C = [number, number]
+
   const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
   const cmul = (a: C, b: C): C => [
     a[0] * b[0] - a[1] * b[1],
@@ -116,9 +117,13 @@ export function syDiscreteSymmetries(): {
     Lf = L3
   }
 
-  for (let t = 0; t < steps; t++) fwd()
+  for (let t = 0; t < steps; t++) {
+    fwd()
+  }
 
-  for (let t = 0; t < steps; t++) bwd()
+  for (let t = 0; t < steps; t++) {
+    bwd()
+  }
 
   let err = 0
 

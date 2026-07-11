@@ -31,9 +31,13 @@ export function gridRefinementRewrite(
 
   for (let y = 0; y < side; y++) {
     for (let x = 0; x < side; x++) {
-      if (x + 1 < side) link(index(x, y), index(x + 1, y))
+      if (x + 1 < side) {
+        link(index(x, y), index(x + 1, y))
+      }
 
-      if (y + 1 < side) link(index(x, y), index(x, y + 1))
+      if (y + 1 < side) {
+        link(index(x, y), index(x, y + 1))
+      }
     }
   }
 

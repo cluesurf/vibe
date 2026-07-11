@@ -52,8 +52,9 @@ suite('measure/atomic-energy: variational minimum', [
   }),
   // The minimum value of zeta^2 + (-2Z + 5/8) zeta is -(Z - 5/16)^2.
   check('the variational energy is -(Z - 5/16)^2', () => {
-    for (const Z of [1, 2, 3])
+    for (const Z of [1, 2, 3]) {
       close(heliumVariationalEnergy(Z), -((Z - 5 / 16) ** 2), TOL)
+    }
   }),
   // The variational bound is deeper than perturbation but above the repulsion-free -Z^2.
   check(

@@ -90,8 +90,9 @@ export function measureTessellation(input: {
     wordBits: ASSOCIATIVE_WORD_BITS,
   })
 
-  for (let cell = 0; cell < cells; cell++)
+  for (let cell = 0; cell < cells; cell++) {
     storeWord(memory, cell, ternaryWord(cell, ASSOCIATIVE_WORD_BITS))
+  }
 
   const associativeExactRecall = exactRecallRate(memory)
   const associativeShells = bfsShells({

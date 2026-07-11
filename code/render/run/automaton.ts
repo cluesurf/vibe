@@ -72,7 +72,9 @@ function run(): void {
     for (let cell = 0; cell < n; cell++) {
       const tone = current[cell]!
 
-      if (tone === 0) continue
+      if (tone === 0) {
+        continue
+      }
       // leave rest cells as background, so the wavefront reads clearly
 
       faces.push({
@@ -154,7 +156,9 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
 
       seen.add(key)
       edges.push({ a, b })

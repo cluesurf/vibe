@@ -100,7 +100,9 @@ export function makeCamera(mode: FoldMode): Camera {
       }
     },
     moveUp(step) {
-      if (mode === '2d') return
+      if (mode === '2d') {
+        return
+      }
 
       pos3 = mobiusAdd(pos3, scale([0, 1, 0], tanhHalf(step))) as [
         number,
@@ -109,11 +111,16 @@ export function makeCamera(mode: FoldMode): Camera {
       ]
     },
     turn(delta) {
-      if (mode === '2d') angle += delta
-      else yaw += delta
+      if (mode === '2d') {
+        angle += delta
+      } else {
+        yaw += delta
+      }
     },
     tilt(delta) {
-      if (mode === '2d') return
+      if (mode === '2d') {
+        return
+      }
 
       pitch = Math.max(-1.5, Math.min(1.5, pitch + delta))
     },

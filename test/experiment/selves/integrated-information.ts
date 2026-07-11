@@ -54,7 +54,9 @@ function tonePhi(
 function randomSubset(n: number, size: number, rng: Rng): number[] {
   const s = new Set<number>()
 
-  while (s.size < size) s.add(rng.nextInt({ max: n }))
+  while (s.size < size) {
+    s.add(rng.nextInt({ max: n }))
+  }
 
   return [...s]
 }
@@ -85,7 +87,9 @@ export function integratedInformation(_input: { seed: number }): {
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
 
-  for (let v = 0; v < g.size; v++) members[cellOf[v] ?? 0]?.push(v)
+  for (let v = 0; v < g.size; v++) {
+    members[cellOf[v] ?? 0]?.push(v)
+  }
 
   // (1) tone-integration of genuine selves (cells) versus random same-size bags.
   const pr = detStream(3)
@@ -109,7 +113,9 @@ export function integratedInformation(_input: { seed: number }): {
   for (let c = 0; c < numCells; c++) {
     const mem = members[c] ?? []
 
-    if (mem.length < cellSize) continue
+    if (mem.length < cellSize) {
+      continue
+    }
 
     const cellSet = new Set(mem)
     const perturbed = mem.slice()
@@ -117,7 +123,9 @@ export function integratedInformation(_input: { seed: number }): {
     for (let i = 0; i < 6; i++) {
       let out = sr.nextInt({ max: g.size })
 
-      while (cellSet.has(out)) out = sr.nextInt({ max: g.size })
+      while (cellSet.has(out)) {
+        out = sr.nextInt({ max: g.size })
+      }
 
       perturbed[i] = out
     }

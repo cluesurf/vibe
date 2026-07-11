@@ -34,8 +34,9 @@ export function modularBase(input: { seed: number }): {
 
   let deg = 0
 
-  for (let i = 0; i < g.size; i++)
+  for (let i = 0; i < g.size; i++) {
     deg += (g.neighbors[i] ?? new Uint32Array(0)).length
+  }
 
   const aniso = lorentzIsotropy({
     substrate: g,
@@ -57,7 +58,9 @@ export function modularBase(input: { seed: number }): {
   for (const c of cases) {
     const r = rationalFromContinuedFraction(c.cf)
 
-    if (r.num !== c.num || r.den !== c.den) addressingExact = false
+    if (r.num !== c.num || r.den !== c.den) {
+      addressingExact = false
+    }
   }
 
   // The golden ratio is the all-ones continued fraction. Its convergents are Fibonacci

@@ -18,8 +18,9 @@ suite('dynamics/ginzburg-landau: field construction', [
   check('a winding field is unit modulus everywhere', () => {
     const field = ringFieldWithWinding(32, 2)
 
-    for (const z of field)
+    for (const z of field) {
       close(Math.hypot(z.re, z.im), 1, 1e-12, 'unit modulus')
+    }
   }),
   check(
     'uniform field has zero Dirichlet energy; a winding field has positive energy',

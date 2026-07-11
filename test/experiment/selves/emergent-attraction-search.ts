@@ -33,7 +33,9 @@ function maxDifference(a: Will, b: Will): number {
   for (let i = 0; i < a.data.length; i++) {
     const d = Math.abs(a.data[i]! - b.data[i]!)
 
-    if (d > max) max = d
+    if (d > max) {
+      max = d
+    }
   }
 
   return max
@@ -43,8 +45,9 @@ function maxDifference(a: Will, b: Will): number {
 function overlay(a: Will, b: Will): Will {
   const data = new Int8Array(a.data.length)
 
-  for (let i = 0; i < data.length; i++)
+  for (let i = 0; i < data.length; i++) {
     data[i] = a.data[i]! + b.data[i]!
+  }
 
   return { mesh: a.mesh, data }
 }
@@ -95,8 +98,9 @@ export default experiment({
       const b = loneParticle(mesh, cellB, dir)
       const joint = makeWill(mesh)
 
-      for (let i = 0; i < joint.data.length; i++)
+      for (let i = 0; i < joint.data.length; i++) {
         joint.data[i] = a.data[i]! + b.data[i]!
+      }
 
       const jointFinal = run(joint, rule, beats)
       const overlayFinal = overlay(
@@ -119,8 +123,9 @@ export default experiment({
     const b = loneParticle(mesh, cellB, opp)
     const collide = makeWill(mesh)
 
-    for (let i = 0; i < collide.data.length; i++)
+    for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = a.data[i]! + b.data[i]!
+    }
 
     const collideFinal = run(collide, rule, beats)
     const collideOverlay = overlay(

@@ -56,7 +56,9 @@ export function refractiveDeflection(input: {
     x += tx * ds
     y += ty * ds
 
-    if (x > halfWidth) break
+    if (x > halfWidth) {
+      break
+    }
   }
 
   return Math.atan2(ty, tx)

@@ -56,7 +56,9 @@ function groupShells(
       last.degeneracy += 1
       last.energy =
         (last.energy * (last.degeneracy - 1) + e) / last.degeneracy
-    } else shells.push({ energy: e, degeneracy: 1 })
+    } else {
+      shells.push({ energy: e, degeneracy: 1 })
+    }
   }
 
   return shells
@@ -96,8 +98,9 @@ export default experiment({
     const shells = groupShells(energies)
     const interShellGaps: number[] = []
 
-    for (let s = 1; s < shells.length; s++)
+    for (let s = 1; s < shells.length; s++) {
       interShellGaps.push(shells[s]!.energy - shells[s - 1]!.energy)
+    }
 
     const meanShellGap =
       interShellGaps.reduce((a, b) => a + b, 0) /
@@ -130,7 +133,9 @@ export default experiment({
       let touched = 0
 
       for (const s of shells) {
-        if (remaining <= 0) break
+        if (remaining <= 0) {
+          break
+        }
 
         touched += 1
         remaining -= s.degeneracy * SPIN

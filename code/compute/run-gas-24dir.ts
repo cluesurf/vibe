@@ -128,7 +128,9 @@ async function run(): Promise<void> {
   const init = new Int32Array(SZ)
   const rng = makeRng({ seed: 7 })
 
-  for (let i = 0; i < SZ; i++) init[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < SZ; i++) {
+    init[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   device.queue.writeBuffer(a, 0, init)
 
@@ -179,7 +181,9 @@ async function run(): Promise<void> {
 
         charge += v
 
-        for (let j = 0; j < 4; j++) mom[j]! += v * vecs[k]![j]!
+        for (let j = 0; j < 4; j++) {
+          mom[j]! += v * vecs[k]![j]!
+        }
       }
     }
 

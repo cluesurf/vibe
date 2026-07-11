@@ -25,7 +25,9 @@ function metricKeysOf(result: ScanResult): string[] {
 }
 
 function formatNumber(value: number): string {
-  if (!Number.isFinite(value)) return String(value)
+  if (!Number.isFinite(value)) {
+    return String(value)
+  }
 
   // Compact fixed precision keeps the table readable.
   return value.toFixed(4)

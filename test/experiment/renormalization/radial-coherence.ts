@@ -76,7 +76,9 @@ export function radialCoherence(input?: {
     for (let k = 0; k < d; k++) {
       const p = parent[c]!
 
-      if (p === c) break
+      if (p === c) {
+        break
+      }
 
       c = p
     }
@@ -117,7 +119,9 @@ export function radialCoherence(input?: {
     // null, random partition into k groups of the SAME sizes as the radial groups
     const sizes = new Int32Array(k)
 
-    for (let i = 0; i < N; i++) sizes[anc[i]!] = sizes[anc[i]!]! + 1
+    for (let i = 0; i < N; i++) {
+      sizes[anc[i]!] = sizes[anc[i]!]! + 1
+    }
 
     const order = Array.from({ length: N }, (_, i) => i)
 
@@ -134,7 +138,9 @@ export function radialCoherence(input?: {
     let cursor = 0
 
     for (let gid = 0; gid < k; gid++) {
-      for (let s = 0; s < sizes[gid]!; s++) ng[order[cursor++]!] = gid
+      for (let s = 0; s < sizes[gid]!; s++) {
+        ng[order[cursor++]!] = gid
+      }
     }
 
     nullGroup.push(ng)
@@ -152,7 +158,9 @@ export function radialCoherence(input?: {
       start: (f * 2654435761) % N,
     })
 
-  for (let f = 0; f < WARMUP; f++) step(f)
+  for (let f = 0; f < WARMUP; f++) {
+    step(f)
+  }
 
   // coarse field = mean tone per group, recorded each measure beat for radial and null at every scale
   const coarse = (group: Int32Array, k: number): Float64Array =>

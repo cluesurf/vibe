@@ -100,7 +100,9 @@ function linesOf(opposite: number[]): [number, number][] {
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
 
-    if (direction < other) lines.push([direction, other])
+    if (direction < other) {
+      lines.push([direction, other])
+    }
   }
 
   return lines
@@ -229,13 +231,16 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
   ) {
     const other = input.opposite[direction]!
 
-    if (direction < other) lines.push([direction, other])
+    if (direction < other) {
+      lines.push([direction, other])
+    }
   }
 
   const linePairs: [[number, number], [number, number]][] = []
 
-  for (let k = 0; k + 1 < lines.length; k += 2)
+  for (let k = 0; k + 1 < lines.length; k += 2) {
     linePairs.push([lines[k]!, lines[k + 1]!])
+  }
 
   return (slots, base) => {
     for (const [li, lj] of linePairs) {
@@ -284,7 +289,9 @@ export function stickyReflect(input: {
       }
     }
 
-    if (count < 2) return
+    if (count < 2) {
+      return
+    }
 
     for (const [left, right] of lines) {
       const temporary = slots[base + left]!

@@ -75,7 +75,9 @@ function run(): void {
       }
     }
 
-    if (next.length) shellCounts.push(next.length)
+    if (next.length) {
+      shellCounts.push(next.length)
+    }
 
     frontier = next
   }
@@ -83,8 +85,11 @@ function run(): void {
   let maxClean = 0
 
   for (let i = 1; i < shellCounts.length; i++) {
-    if (shellCounts[i]! / shellCounts[i - 1]! > 2) maxClean = i
-    else break
+    if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
+      maxClean = i
+    } else {
+      break
+    }
   }
 
   console.log(
@@ -99,7 +104,9 @@ function run(): void {
   }[]
 
   for (let i = 0; i < n; i++) {
-    if (depth[i]! < 0 || depth[i]! > maxClean) continue
+    if (depth[i]! < 0 || depth[i]! > maxClean) {
+      continue
+    }
 
     cells.push({
       x: g.coords[i]![0]!,
@@ -166,8 +173,9 @@ function run(): void {
       const px = half + scale * (c.x - TARGET[0]!),
         py = half - scale * (c.y - TARGET[1]!)
 
-      if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20)
+      if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20) {
         continue
+      }
 
       const rad = Math.max(
         0.6,
@@ -182,8 +190,9 @@ function run(): void {
       encodePng(rgba, IMG, IMG),
     )
 
-    if (f % 20 === 0)
+    if (f % 20 === 0) {
       console.log(`  frame ${f}/${FRAMES} zoom ${zoom.toFixed(2)}x`)
+    }
   }
 
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

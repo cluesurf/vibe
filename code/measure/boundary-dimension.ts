@@ -32,7 +32,9 @@ export function boundaryDimension(input: {
 
   const isB = new Uint8Array(N)
 
-  for (const b of boundary) isB[b] = 1
+  for (const b of boundary) {
+    isB[b] = 1
+  }
 
   const id = new Map<number, number>()
 
@@ -43,7 +45,9 @@ export function boundaryDimension(input: {
     const out: number[] = []
 
     for (const w of nb[b]!) {
-      if (isB[w]) out.push(id.get(w)!)
+      if (isB[w]) {
+        out.push(id.get(w)!)
+      }
     }
 
     return out

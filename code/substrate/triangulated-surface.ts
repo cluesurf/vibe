@@ -32,18 +32,26 @@ export function triangulatedSurface(input: {
       const a = idx(i, j)
 
       // right neighbor
-      if (i + 1 < W) addEdge(a, idx(i + 1, j))
-      else if (input.wrapWidth) addEdge(a, idx(0, j))
+      if (i + 1 < W) {
+        addEdge(a, idx(i + 1, j))
+      } else if (input.wrapWidth) {
+        addEdge(a, idx(0, j))
+      }
 
       // up neighbor
-      if (j + 1 < H) addEdge(a, idx(i, j + 1))
-      else if (input.wrapHeight) addEdge(a, idx(i, 0))
+      if (j + 1 < H) {
+        addEdge(a, idx(i, j + 1))
+      } else if (input.wrapHeight) {
+        addEdge(a, idx(i, 0))
+      }
 
       // diagonal up-right, the shared edge that splits the square into triangles
       const ni = i + 1 < W ? i + 1 : input.wrapWidth ? 0 : -1
       const nj = j + 1 < H ? j + 1 : input.wrapHeight ? 0 : -1
 
-      if (ni >= 0 && nj >= 0) addEdge(a, idx(ni, nj))
+      if (ni >= 0 && nj >= 0) {
+        addEdge(a, idx(ni, nj))
+      }
     }
   }
 

@@ -46,7 +46,9 @@ export function frontCoefficientOfVariation(input: {
     Math.sqrt(coords[i]!.reduce((s, x, k) => s + (x - c[k]!) ** 2, 0)),
   )
 
-  if (radii.length < 4) return -1
+  if (radii.length < 4) {
+    return -1
+  }
 
   const mean = radii.reduce((a, b) => a + b, 0) / radii.length
   const sd = Math.sqrt(
@@ -65,12 +67,16 @@ export function angularAnisotropy(input: {
 }): number {
   const { directions, axes, order } = input
 
-  if (directions.length === 0) return 0
+  if (directions.length === 0) {
+    return 0
+  }
 
   const vals = axes.map(u => {
     let s = 0
 
-    for (const n of directions) s += Math.pow(dot(n, u), order)
+    for (const n of directions) {
+      s += Math.pow(dot(n, u), order)
+    }
 
     return s / directions.length
   })
@@ -97,9 +103,13 @@ export function harmonicAnisotropy(input: {
 
   let total = 0
 
-  for (let b = 0; b < bins; b++) total += profile[b] ?? 0
+  for (let b = 0; b < bins; b++) {
+    total += profile[b] ?? 0
+  }
 
-  if (total <= 0) return 0
+  if (total <= 0) {
+    return 0
+  }
 
   let worst = 0
 
@@ -116,7 +126,9 @@ export function harmonicAnisotropy(input: {
 
     const mag = Math.hypot(re, im) / total
 
-    if (mag > worst) worst = mag
+    if (mag > worst) {
+      worst = mag
+    }
   }
 
   return worst
@@ -143,7 +155,9 @@ export function nearestLinkHarmonicAnisotropy(input: {
     let bestD = Infinity
 
     for (let j = 0; j < points.length; j++) {
-      if (i === j) continue
+      if (i === j) {
+        continue
+      }
 
       const dx = (points[j]?.x ?? 0) - (points[i]?.x ?? 0)
       const dy = (points[j]?.y ?? 0) - (points[i]?.y ?? 0)
@@ -203,11 +217,14 @@ export function diffusionTensorAnisotropy(input: {
 
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
 
-      if (len < 1e-9) continue
+      if (len < 1e-9) {
+        continue
+      }
 
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++)
+        for (let j = 0; j < 3; j++) {
           cov[i]![j]! += (d[i]! / len) * (d[j]! / len)
+        }
       }
 
       count++
@@ -215,7 +232,9 @@ export function diffusionTensorAnisotropy(input: {
   }
 
   for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) cov[i]![j]! /= count
+    for (let j = 0; j < 3; j++) {
+      cov[i]![j]! /= count
+    }
   }
 
   const eig = jacobiEigenvalues3(cov).sort((a, b) => a - b)
@@ -259,9 +278,13 @@ export function supportFunctionAnisotropy(input: {
     for (const d of directions) {
       let s = 0
 
-      for (let i = 0; i < dimension; i++) s += d[i]! * u[i]!
+      for (let i = 0; i < dimension; i++) {
+        s += d[i]! * u[i]!
+      }
 
-      if (s > best) best = s
+      if (s > best) {
+        best = s
+      }
     }
 
     supports.push(best / norm)

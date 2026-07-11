@@ -132,6 +132,7 @@ function run(): void {
   // giving each operation the same number of frames makes every Fibonacci number take the same screen time, while
   // each frame still shows the machine's real register state (interpolated across the operation's actual steps).
   const opIndex = compiled.opIndex
+
   type Segment = {
     pre: number[]
     post: number[]
@@ -139,6 +140,7 @@ function run(): void {
     active: number
     mode: 'add' | 'sub' | 'idle'
   }
+
   const segments: Segment[] = []
 
   let start = 0
@@ -148,7 +150,9 @@ function run(): void {
       i === trace.length ||
       opIndex[trace[i]!.pc] !== opIndex[trace[start]!.pc]
 
-    if (!boundary) continue
+    if (!boundary) {
+      continue
+    }
 
     const pre =
       start === 0 ? initial.slice() : trace[start - 1]!.registers
@@ -291,8 +295,9 @@ function renderFrame(input: {
             Math.round(rgb01[2] * 255),
           ],
         })
-      } else
+      } else {
         faces.push({ polygon: tiling.polygons[cell]!, color: FAINT })
+      }
     }
   }
 

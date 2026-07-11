@@ -21,6 +21,7 @@ import { rotationKey } from '@/code/algebra/group/rotation'
 // ---- quaternion algebra in the tuple form used by this experiment, over the
 // shared @/code/algebra/group/quaternion primitives ----
 type Q = readonly [number, number, number, number] // (w, x, y, z)
+
 const toQ = (a: Q): Quaternion => quaternion(a[0], a[1], a[2], a[3])
 const fromQ = (q: Quaternion): Q => [q.w, q.x, q.y, q.z]
 const qmul = (a: Q, b: Q): Q => fromQ(multiply(toQ(a), toQ(b)))
@@ -50,7 +51,9 @@ export function sp1SpinDoubleCover(): {
 
   for (const a of U) {
     for (const b of U) {
-      if (!set.has(qkey(qmul(a, b)))) closed = false
+      if (!set.has(qkey(qmul(a, b)))) {
+        closed = false
+      }
     }
   }
 

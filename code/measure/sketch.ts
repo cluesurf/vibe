@@ -41,7 +41,9 @@ export function hashTableProbeStats(input: {
       probe += 1
     }
 
-    if (probe > 1) collisions += 1
+    if (probe > 1) {
+      collisions += 1
+    }
 
     slot[position] = key
     totalProbe += probe
@@ -62,8 +64,9 @@ export function bloomFalsePositiveRate(input: {
   const bits = new Uint8Array(input.cells)
 
   for (let key = 0; key < input.items; key++) {
-    for (let salt = 0; salt < input.hashes; salt++)
+    for (let salt = 0; salt < input.hashes; salt++) {
       bits[mix(key, salt, input.cells)] = 1
+    }
   }
 
   let falsePositives = 0
@@ -80,7 +83,9 @@ export function bloomFalsePositiveRate(input: {
       }
     }
 
-    if (allSet) falsePositives += 1
+    if (allSet) {
+      falsePositives += 1
+    }
   }
 
   return falsePositives / Math.max(1, input.queries)

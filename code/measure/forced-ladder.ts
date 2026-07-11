@@ -81,7 +81,9 @@ export function rungArrow(): Rung {
 
       const square = cayleyMultiply(unit, unit)
 
-      if (square[0]! < 0) return false
+      if (square[0]! < 0) {
+        return false
+      }
     }
 
     return true

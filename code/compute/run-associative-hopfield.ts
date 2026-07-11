@@ -44,8 +44,9 @@ function cpuDenseRecall(
 
       const base = mu * n
 
-      for (let i = 0; i < n; i++)
+      for (let i = 0; i < n; i++) {
         s += patternsFlat[base + i]! * state[i]!
+      }
 
       overlap[mu] = s
     }
@@ -60,7 +61,9 @@ function cpuDenseRecall(
 
         const o = overlap[mu]!
 
-        for (let e = 1; e < power; e++) w = Math.fround(w * o)
+        for (let e = 1; e < power; e++) {
+          w = Math.fround(w * o)
+        }
 
         field = Math.fround(
           field + Math.fround(patternsFlat[mu * n + i]! * w),
@@ -222,7 +225,9 @@ function buildPatterns(
   const flat = new Int32Array(n * p)
 
   for (let mu = 0; mu < p; mu++) {
-    for (let i = 0; i < n; i++) flat[mu * n + i] = list[mu]![i]!
+    for (let i = 0; i < n; i++) {
+      flat[mu * n + i] = list[mu]![i]!
+    }
   }
 
   return { flat, list }

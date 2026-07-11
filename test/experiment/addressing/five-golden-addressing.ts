@@ -66,8 +66,9 @@ export default experiment({
       if (
         counts(DEPTHS[i]!) !==
         counts(DEPTHS[i]! - 1) + counts(DEPTHS[i]! - 2)
-      )
+      ) {
         recurrenceHolds = false
+      }
     }
 
     // the successive ratio converges to the golden ratio

@@ -58,8 +58,9 @@ suite('substrate/tessellation-catalog: internal consistency', [
     }
   }),
   check('the display symbol reads back the Schlafli integers', () => {
-    for (const t of buildable)
+    for (const t of buildable) {
       equal(t.symbol, `{${t.schlafli.join(',')}}`, `${t.symbol} symbol`)
+    }
   }),
   check('every Schlafli entry is an integer >= 3', () => {
     for (const t of buildable) {
@@ -72,8 +73,9 @@ suite('substrate/tessellation-catalog: internal consistency', [
     }
   }),
   check('the dimension equals the Schlafli rank', () => {
-    for (const t of buildable)
+    for (const t of buildable) {
       equal(t.dimension, t.schlafli.length, `${t.symbol} dimension`)
+    }
   }),
 ])
 

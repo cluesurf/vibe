@@ -21,7 +21,9 @@ export function chargeSpread(tone: Int8Array): number {
     }
   }
 
-  if (count === 0) return 0
+  if (count === 0) {
+    return 0
+  }
 
   const mean = sum / count
   const variance = Math.max(0, sumSquares / count - mean * mean)
@@ -33,7 +35,9 @@ export function chargeSpread(tone: Int8Array): number {
 export function totalCharge(tone: Int8Array): number {
   let sum = 0
 
-  for (const t of tone) sum += Math.abs(t)
+  for (const t of tone) {
+    sum += Math.abs(t)
+  }
 
   return sum
 }
@@ -54,8 +58,9 @@ export function evolveCluster(input: {
   const tone = new Int8Array(length)
   const start = Math.floor((length - count) / 2)
 
-  for (let k = 0; k < count; k++)
+  for (let k = 0; k < count; k++) {
     tone[start + k] = balanced ? (k % 2 ? 1 : -1) : 1
+  }
 
   const initialCharge = totalCharge(tone)
   const moved = new Uint8Array(length)
@@ -111,13 +116,17 @@ function netChargeTrace(input: {
     // asymmetry imposed by hand), used to show the measure detects asymmetry when it is present
     if (flipSink) {
       for (let i = 0; i < length; i++) {
-        if (state[i] === 1 && i % 5 === 0) state[i] = 0
+        if (state[i] === 1 && i % 5 === 0) {
+          state[i] = 0
+        }
       }
     }
 
     let net = 0
 
-    for (let i = 0; i < length; i++) net += state[i]!
+    for (let i = 0; i < length; i++) {
+      net += state[i]!
+    }
 
     trace.push(net)
   }
@@ -168,8 +177,9 @@ export function chargeConjugationAsymmetry(input: {
 
   let worst = 0
 
-  for (let t = 0; t < traceBase.length; t++)
+  for (let t = 0; t < traceBase.length; t++) {
     worst = Math.max(worst, Math.abs(traceBase[t]! + traceFlipped[t]!))
+  }
 
   return worst
 }
@@ -182,7 +192,9 @@ export function blockAverage(tone: Int8Array, block: number): number[] {
   for (let i = 0; i < cells; i++) {
     let sum = 0
 
-    for (let j = 0; j < block; j++) sum += tone[i * block + j]!
+    for (let j = 0; j < block; j++) {
+      sum += tone[i * block + j]!
+    }
 
     coarse.push(sum)
   }
@@ -232,7 +244,9 @@ export function nestedGarmentIdentity(input: {
       for (let i = 0; i < coarser.length; i++) {
         let sum = 0
 
-        for (let j = 0; j < ratio; j++) sum += finer[i * ratio + j]!
+        for (let j = 0; j < ratio; j++) {
+          sum += finer[i * ratio + j]!
+        }
 
         worstWearingError = Math.max(
           worstWearingError,
@@ -258,7 +272,9 @@ export function nestedGarmentIdentity(input: {
 
     if (leak > 0) {
       for (let i = 0; i < length; i++) {
-        if (tone[i] !== 0 && stepRng.next() < leak) tone[i] = 0
+        if (tone[i] !== 0 && stepRng.next() < leak) {
+          tone[i] = 0
+        }
       }
     }
   }

@@ -86,8 +86,9 @@ suite('substrate/modular-group: graph and continued fractions', [
       for (let i = 0; i < g.size; i++) {
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of g.neighbors[i]!)
+        for (const j of g.neighbors[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
       }
 
       const coords = g.embedding!.coords

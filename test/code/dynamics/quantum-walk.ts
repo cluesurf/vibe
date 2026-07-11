@@ -27,7 +27,9 @@ suite('dynamics/quantum-walk: unitarity and chirality', [
       seedMode: 'symmetric',
     })
 
-    for (const n of out.norm) close(n, 1, 1e-9, 'norm stays 1')
+    for (const n of out.norm) {
+      close(n, 1, 1e-9, 'norm stays 1')
+    }
   }),
   check('massless symmetric seed keeps chirality at 0', () => {
     const out = diracQuantumWalk({
@@ -37,8 +39,9 @@ suite('dynamics/quantum-walk: unitarity and chirality', [
       seedMode: 'symmetric',
     })
 
-    for (const c of out.chirality)
+    for (const c of out.chirality) {
       close(c, 0, 1e-9, 'chirality conserved at 0')
+    }
   }),
   check('massless right-mover keeps chirality at +1', () => {
     const out = diracQuantumWalk({
@@ -48,8 +51,9 @@ suite('dynamics/quantum-walk: unitarity and chirality', [
       seedMode: 'right',
     })
 
-    for (const c of out.chirality)
+    for (const c of out.chirality) {
       close(c, 1, 1e-9, 'chirality conserved at +1')
+    }
   }),
   check('a mass makes the chirality oscillate (not constant)', () => {
     const out = diracQuantumWalk({
@@ -61,8 +65,9 @@ suite('dynamics/quantum-walk: unitarity and chirality', [
 
     let spread = 0
 
-    for (const c of out.chirality)
+    for (const c of out.chirality) {
       spread = Math.max(spread, Math.abs(c - out.chirality[0]!))
+    }
 
     ok(spread > 0.05, 'massive chirality varies')
   }),
@@ -135,7 +140,9 @@ suite('dynamics/quantum-walk: ballistic spreading', [
         m = 0
 
       for (let t = 10; t <= 50; t++) {
-        if (msd[t]! <= 0) continue
+        if (msd[t]! <= 0) {
+          continue
+        }
 
         const x = Math.log(t)
         const y = Math.log(msd[t]!)

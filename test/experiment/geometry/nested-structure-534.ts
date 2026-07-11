@@ -44,8 +44,11 @@ export function nestedStructure534(maxCells = 120000): {
   for (let i = 1; i < shellCounts.length; i++) {
     const ratio = shellCounts[i]! / shellCounts[i - 1]!
 
-    if (ratio > 2) cleanShells.push(shellCounts[i]!)
-    else break
+    if (ratio > 2) {
+      cleanShells.push(shellCounts[i]!)
+    } else {
+      break
+    }
     // truncated boundary shell, stop
   }
 
@@ -80,7 +83,9 @@ export function nestedStructure534(maxCells = 120000): {
   let monotone = true
 
   for (let i = 1; i < meanRadius.length; i++) {
-    if (meanRadius[i]! < meanRadius[i - 1]! - 1e-9) monotone = false
+    if (meanRadius[i]! < meanRadius[i - 1]! - 1e-9) {
+      monotone = false
+    }
   }
 
   const boundaryAccumulation =

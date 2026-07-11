@@ -23,7 +23,9 @@ function makeWorld(L: number): {
   const gapY = L - 3 // the only opening, near the top
 
   for (let y = 0; y < L; y++) {
-    if (y !== gapY && y !== gapY - 1) blocked[y * L + wallX] = 1
+    if (y !== gapY && y !== gapY - 1) {
+      blocked[y * L + wallX] = 1
+    }
   }
 
   const start = Math.floor(L / 2) * L + 2 // left side, middle height
@@ -48,13 +50,21 @@ function neighbors(
   const y = Math.floor(p / L)
   const out: number[] = []
 
-  if (x + 1 < L && !blocked[p + 1]) out.push(p + 1)
+  if (x + 1 < L && !blocked[p + 1]) {
+    out.push(p + 1)
+  }
 
-  if (x - 1 >= 0 && !blocked[p - 1]) out.push(p - 1)
+  if (x - 1 >= 0 && !blocked[p - 1]) {
+    out.push(p - 1)
+  }
 
-  if (y + 1 < L && !blocked[p + L]) out.push(p + L)
+  if (y + 1 < L && !blocked[p + L]) {
+    out.push(p + L)
+  }
 
-  if (y - 1 >= 0 && !blocked[p - L]) out.push(p - L)
+  if (y - 1 >= 0 && !blocked[p - L]) {
+    out.push(p - L)
+  }
 
   return out
 }
@@ -82,7 +92,9 @@ function lookahead(
     blocked,
   ).map(c => ({ cell: c, first: c }))
 
-  for (const f of frontier) seen.add(f.cell)
+  for (const f of frontier) {
+    seen.add(f.cell)
+  }
 
   for (let d = 0; d < depth; d++) {
     for (const f of frontier) {
@@ -107,7 +119,9 @@ function lookahead(
 
     frontier = next
 
-    if (frontier.length === 0) break
+    if (frontier.length === 0) {
+      break
+    }
   }
 
   return bestFirst
@@ -125,7 +139,9 @@ function runAgent(
   let stuck = 0
 
   for (let t = 0; t < maxSteps; t++) {
-    if (p === goal) return { reached: true, finalDist: 0, steps: t }
+    if (p === goal) {
+      return { reached: true, finalDist: 0, steps: t }
+    }
 
     const move = lookahead(p, goal, L, blocked, depth)
 
@@ -133,10 +149,16 @@ function runAgent(
       // no improving first move found at this depth (greedy is stuck at the wall)
       stuck++
 
-      if (stuck > 3 && depth <= 1) break
+      if (stuck > 3 && depth <= 1) {
+        break
+      }
 
-      if (move === p) break
-    } else stuck = 0
+      if (move === p) {
+        break
+      }
+    } else {
+      stuck = 0
+    }
 
     p = move
   }

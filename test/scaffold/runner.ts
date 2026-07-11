@@ -55,8 +55,11 @@ export function runScan<P>(input: {
         const value = metrics[key] ?? 0
         const list = samples.get(key)
 
-        if (list) list.push(value)
-        else samples.set(key, [value])
+        if (list) {
+          list.push(value)
+        } else {
+          samples.set(key, [value])
+        }
       }
     }
 
@@ -68,7 +71,9 @@ export function runScan<P>(input: {
 
       let sum = 0
 
-      for (let i = 0; i < count; i++) sum += values[i] ?? 0
+      for (let i = 0; i < count; i++) {
+        sum += values[i] ?? 0
+      }
 
       const m = count > 0 ? sum / count : 0
 

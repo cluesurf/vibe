@@ -42,7 +42,9 @@ function buildT(c: number, s: number, h: number): number[][] {
       set(1, -1, c / 2) // create +-
       set(-1, 1, c / 2) // create -+
       set(0, 0, 1 - c)
-    } else set(a, b, 1) // (+,+) or (-,-): inert
+    } else {
+      set(a, b, 1)
+    } // (+,+) or (-,-): inert
   }
 
   return T
@@ -56,14 +58,20 @@ function stationary(T: number[][]): number[] {
     const next = new Array<number>(9).fill(0)
 
     for (let a = 0; a < 9; a++) {
-      for (let b = 0; b < 9; b++) next[b]! += pi[a]! * T[a]![b]!
+      for (let b = 0; b < 9; b++) {
+        next[b]! += pi[a]! * T[a]![b]!
+      }
     }
 
     let sum = 0
 
-    for (const v of next) sum += v
+    for (const v of next) {
+      sum += v
+    }
 
-    for (let i = 0; i < 9; i++) next[i]! /= sum
+    for (let i = 0; i < 9; i++) {
+      next[i]! /= sum
+    }
 
     pi = next
   }
@@ -89,7 +97,9 @@ export function doiPelitiCheck(): {
   for (let a = 0; a < 9; a++) {
     for (let b = 0; b < 9; b++) {
       if (a !== b && T[a]![b]! > 0) {
-        if (sz(a) !== sz(b)) conservesSz = false
+        if (sz(a) !== sz(b)) {
+          conservesSz = false
+        }
       }
     }
   }
@@ -105,8 +115,9 @@ export function doiPelitiCheck(): {
 
         const dbi = toneOf(b % 3) - toneOf(a % 3)
 
-        if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1)))
+        if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1))) {
           unitExchange = false
+        }
       }
     }
   }

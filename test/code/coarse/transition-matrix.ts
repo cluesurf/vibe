@@ -148,6 +148,7 @@ suite('coarse/transition-matrix: quantile bins', [
 function closeSorted(actual: number[], expected: number[]): void {
   equal(actual.length, expected.length, 'eigenvalue count')
 
-  for (let i = 0; i < expected.length; i++)
+  for (let i = 0; i < expected.length; i++) {
     close(actual[i]!, expected[i]!, TOL, `eigenvalue ${i}`)
+  }
 }

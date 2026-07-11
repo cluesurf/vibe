@@ -54,7 +54,9 @@ export function signaling(input?: { n?: number }): {
   const farBall: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! >= ecc - 1) farBall.push(i)
+    if (dist[i]! >= ecc - 1) {
+      farBall.push(i)
+    }
   }
 
   const moved = new Uint8Array(N)
@@ -71,14 +73,18 @@ export function signaling(input?: { n?: number }): {
     }
   }
 
-  for (let b = 0; b < 4 * ecc; b++) hopBeat(sig, eu, ev, moved, b)
+  for (let b = 0; b < 4 * ecc; b++) {
+    hopBeat(sig, eu, ev, moved, b)
+  }
 
   const signalAtFar = farBall.filter(i => sig[i] === 1).length
 
   // CONTROL: no signal injected
   const ctrl = new Int8Array(N)
 
-  for (let b = 0; b < 4 * ecc; b++) hopBeat(ctrl, eu, ev, moved, b)
+  for (let b = 0; b < 4 * ecc; b++) {
+    hopBeat(ctrl, eu, ev, moved, b)
+  }
 
   const controlAtFar = farBall.filter(i => ctrl[i] === 1).length
 

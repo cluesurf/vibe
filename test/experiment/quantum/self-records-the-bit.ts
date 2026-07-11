@@ -64,11 +64,15 @@ function baseTone(L: number, density: number): Int8Array {
 }
 
 function clusterCentroidX(cluster: number[], L: number): number {
-  if (cluster.length === 0) return -1
+  if (cluster.length === 0) {
+    return -1
+  }
 
   let sum = 0
 
-  for (const cell of cluster) sum += cell % L
+  for (const cell of cluster) {
+    sum += cell % L
+  }
 
   return sum / cluster.length / L
 }
@@ -93,13 +97,16 @@ function record(input: { L: number; bit: 1 | -1 }): {
       const onLeft = x < L * 0.15
       const onRight = x >= L * 0.85
 
-      if ((bit === 1 && onLeft) || (bit === -1 && onRight))
+      if ((bit === 1 && onLeft) || (bit === -1 && onRight)) {
         strip.push(y * L + x)
+      }
     }
   }
 
   for (let t = 0; t < INTERACT; t++) {
-    for (const cell of strip) tone[cell] = 1
+    for (const cell of strip) {
+      tone[cell] = 1
+    }
 
     beatHashed(tone, g, moved, t, 0.02, COHESION)
   }
@@ -109,8 +116,9 @@ function record(input: { L: number; bit: 1 | -1 }): {
   for (let t = 0; t < RECORD; t++) {
     beatHashed(tone, g, moved, INTERACT + t, 0.01, COHESION)
 
-    if (t === Math.floor((RECORD * 2) / 3))
+    if (t === Math.floor((RECORD * 2) / 3)) {
       midCentroid = clusterCentroidX(largestPositiveCluster(tone, g), L)
+    }
   }
 
   const centroid = clusterCentroidX(largestPositiveCluster(tone, g), L)
@@ -145,13 +153,16 @@ export default experiment({
       )
 
       // the record tracks the bit side: plus clamps the left, so its self settles LEFT of minus
-      if (!(plus.centroid < minus.centroid)) tracksBitSide = false
+      if (!(plus.centroid < minus.centroid)) {
+        tracksBitSide = false
+      }
 
       worstDrift = Math.max(worstDrift, plus.drift, minus.drift)
 
       // determinism: the same bit gives the identical record
-      if (record({ L, bit: 1 }).centroid !== plus.centroid)
+      if (record({ L, bit: 1 }).centroid !== plus.centroid) {
         deterministic = false
+      }
     }
 
     // the self records the bit into two distinct held pointers that track the bit side, the record

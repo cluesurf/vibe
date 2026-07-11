@@ -8,7 +8,9 @@ export function dominantAngularFrequency(
 ): number {
   const n = series.length
 
-  if (n < 2) return 0
+  if (n < 2) {
+    return 0
+  }
 
   let bestBin = 1
   let bestPower = -1

@@ -50,13 +50,15 @@ export function finiteTreeResolventRatio(input: {
   // nodes by level, level 0 = root (1 node), level k has b^k nodes; parent of a node = previous level
   const levelSize: number[] = [1]
 
-  for (let k = 1; k <= input.depth; k++)
+  for (let k = 1; k <= input.depth; k++) {
     levelSize.push(levelSize[k - 1]! * b)
+  }
 
   const offset: number[] = [0]
 
-  for (let k = 1; k <= input.depth + 1; k++)
+  for (let k = 1; k <= input.depth + 1; k++) {
     offset.push(offset[k - 1]! + (levelSize[k - 1] ?? 0))
+  }
 
   const N = offset[input.depth + 1]!
 
@@ -73,7 +75,9 @@ export function finiteTreeResolventRatio(input: {
   const parent = (i: number): number => {
     const k = level(i)
 
-    if (k === 0) return -1
+    if (k === 0) {
+      return -1
+    }
 
     const within = i - offset[k]!
 
@@ -83,7 +87,9 @@ export function finiteTreeResolventRatio(input: {
   const children = (i: number): number[] => {
     const k = level(i)
 
-    if (k >= input.depth) return []
+    if (k >= input.depth) {
+      return []
+    }
 
     const within = i - offset[k]!
     const base = offset[k + 1]! + within * b
@@ -109,9 +115,13 @@ export function finiteTreeResolventRatio(input: {
 
       const p = parent(i)
 
-      if (p >= 0) s += phi[p]!
+      if (p >= 0) {
+        s += phi[p]!
+      }
 
-      for (const c of children(i)) s += phi[c]!
+      for (const c of children(i)) {
+        s += phi[c]!
+      }
 
       phi[i] = s / z
     }

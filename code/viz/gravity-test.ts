@@ -42,7 +42,9 @@ function beat(
     const v = e[0]!
     const w = e[1]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -128,7 +130,9 @@ function makeLump(
     const next: number[] = []
 
     for (const u of frontier) {
-      if (lump.length >= size) break
+      if (lump.length >= size) {
+        break
+      }
 
       lump.push(u)
 
@@ -173,7 +177,9 @@ export function gravityTest(input?: {
 
   for (let v = 0; v < n; v++) {
     for (const w of neighbors[v]!) {
-      if (w > v) edges.push([v, w])
+      if (w > v) {
+        edges.push([v, w])
+      }
     }
   }
 
@@ -197,17 +203,23 @@ export function gravityTest(input?: {
       }
     }
 
-    if (frontier.length === 0) return -1
+    if (frontier.length === 0) {
+      return -1
+    }
 
     const chargedB = new Set(lumpB.filter(i => tone[i] !== 0))
 
-    if (chargedB.size === 0) return -1
+    if (chargedB.size === 0) {
+      return -1
+    }
 
     while (frontier.length > 0) {
       const next: number[] = []
 
       for (const u of frontier) {
-        if (chargedB.has(u)) return distA[u]!
+        if (chargedB.has(u)) {
+          return distA[u]!
+        }
 
         for (const w of neighbors[u]!) {
           if (distA[w] === -1) {
@@ -254,9 +266,13 @@ export function gravityTest(input?: {
     const rng = makeRng({ seed: 7 })
 
     // matter, balanced charges so the lumps are neutral mass (not driven by net charge)
-    for (const i of lumpA) tone[i] = rng.next() < 0.5 ? 1 : -1
+    for (const i of lumpA) {
+      tone[i] = rng.next() < 0.5 ? 1 : -1
+    }
 
-    for (const i of lumpB) tone[i] = rng.next() < 0.5 ? 1 : -1
+    for (const i of lumpB) {
+      tone[i] = rng.next() < 0.5 ? 1 : -1
+    }
 
     const moved = new Uint8Array(n)
     const gaps: number[] = []
@@ -347,5 +363,6 @@ export function main(): void {
 if (
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(process.argv[1]).href
-)
+) {
   main()
+}

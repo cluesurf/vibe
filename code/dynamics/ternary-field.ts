@@ -37,7 +37,9 @@ export function makeTernaryField(input: {
   const { size, fill } = input
   const u = new Int8Array(size)
 
-  for (let x = 0; x < size; x++) u[x] = mod3(fill(x))
+  for (let x = 0; x < size; x++) {
+    u[x] = mod3(fill(x))
+  }
 
   // at rest, prev equals curr (zero initial velocity).
   return { prev: u.slice(), curr: u.slice(), size }
@@ -74,9 +76,13 @@ export function stepTernaryField(input: {
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 4
 
-    for (let x = 0; x < margin; x++) next[x] = leftVacuum
+    for (let x = 0; x < margin; x++) {
+      next[x] = leftVacuum
+    }
 
-    for (let x = size - margin; x < size; x++) next[x] = rightVacuum
+    for (let x = size - margin; x < size; x++) {
+      next[x] = rightVacuum
+    }
   }
 
   return { prev: curr, curr: next, size }
@@ -136,13 +142,19 @@ export function spreadRadius(input: {
 
   for (let x = 0; x < clean.length; x++) {
     if (clean[x] !== perturbed[x]) {
-      if (x < low) low = x
+      if (x < low) {
+        low = x
+      }
 
-      if (x > high) high = x
+      if (x > high) {
+        high = x
+      }
     }
   }
 
-  if (high < 0) return 0
+  if (high < 0) {
+    return 0
+  }
 
   return Math.max(center - low, high - center)
 }

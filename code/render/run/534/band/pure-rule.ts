@@ -28,24 +28,40 @@ const norm = (v: number[]): number => Math.sqrt(dot(v, v))
 
 // the exact 9-state perception permutation on an ordered pair (a, b), tones in {-1,0,1}
 function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
+  if (a === -1 && b === -1) {
+    return [-1, -1]
+  }
   // same sign, inert
 
-  if (a === 1 && b === 1) return [1, 1]
+  if (a === 1 && b === 1) {
+    return [1, 1]
+  }
 
-  if (a === -1 && b === 0) return [0, -1]
+  if (a === -1 && b === 0) {
+    return [0, -1]
+  }
   // hop
 
-  if (a === 0 && b === -1) return [-1, 0]
+  if (a === 0 && b === -1) {
+    return [-1, 0]
+  }
 
-  if (a === 1 && b === 0) return [0, 1]
+  if (a === 1 && b === 0) {
+    return [0, 1]
+  }
 
-  if (a === 0 && b === 1) return [1, 0]
+  if (a === 0 && b === 1) {
+    return [1, 0]
+  }
 
-  if (a === 0 && b === 0) return [1, -1]
+  if (a === 0 && b === 0) {
+    return [1, -1]
+  }
   // the arrow, peace creates a balanced pair
 
-  if (a === 1 && b === -1) return [-1, 1]
+  if (a === 1 && b === -1) {
+    return [-1, 1]
+  }
   // the create-flip-annihilate 3-cycle
 
   return [0, 0] // (-1, 1) -> (0, 0), annihilation closes the cycle
@@ -63,8 +79,9 @@ function run(): void {
   const xi = slab.idealPoint
   const off = new Int32Array(n + 1)
 
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     off[i + 1] = off[i]! + slab.neighbors[i]!.length
+  }
 
   const adj = new Int32Array(off[n]!)
 
@@ -72,7 +89,9 @@ function run(): void {
     let p = 0
 
     for (let i = 0; i < n; i++) {
-      for (const w of slab.neighbors[i]!) adj[p++] = w
+      for (const w of slab.neighbors[i]!) {
+        adj[p++] = w
+      }
     }
   }
 
@@ -96,7 +115,9 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -104,7 +125,9 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -116,10 +139,13 @@ function run(): void {
   )
 
   type Cell = { index: number; px: number; py: number }
+
   const raw: { index: number; u: number; v: number }[] = []
 
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
 
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
@@ -179,12 +205,16 @@ function run(): void {
     for (let s = 0; s < n; s++) {
       const v = (start + s) % n
 
-      if (matched[v]) continue
+      if (matched[v]) {
+        continue
+      }
 
       for (let p = off[v]!; p < off[v + 1]!; p++) {
         const w = adj[p]!
 
-        if (matched[w]) continue
+        if (matched[w]) {
+          continue
+        }
 
         const [a, b] = perm(tone[v]!, tone[w]!)
 
@@ -208,7 +238,9 @@ function run(): void {
     for (const c of band) {
       const t = tone[c.index]!
 
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
 
       const col = COLORS[t === 1 ? 1 : 2]!
 
@@ -217,7 +249,9 @@ function run(): void {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
 
           const idx = (y * IMG + x) * 4
 

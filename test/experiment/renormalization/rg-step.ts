@@ -79,7 +79,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   let maxd = 0
 
   for (let i = 0; i < N; i++) {
-    if (distP[i]! > maxd) maxd = distP[i]!
+    if (distP[i]! > maxd) {
+      maxd = distP[i]!
+    }
   }
 
   // Identify the CONSERVED-CHARGE sector's effective rule. We isolate transport (a dilute +1 charge gas
@@ -117,8 +119,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
     const q0 = tone.reduce((s, x) => s + x, 0)
 
-    for (let t = 0; t < warmup; t++)
+    for (let t = 0; t < warmup; t++) {
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
+    }
 
     for (let s = 0; s <= numSamples; s++) {
       const bc = blockCharge(tone)
@@ -126,18 +129,25 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       for (let b = 0; b < numBlocks; b++) {
         meanBC[s]![b]! += bc[b]! / R
 
-        if (bc[b]! < alphaMin) alphaMin = bc[b]!
+        if (bc[b]! < alphaMin) {
+          alphaMin = bc[b]!
+        }
 
-        if (bc[b]! > alphaMax) alphaMax = bc[b]!
+        if (bc[b]! > alphaMax) {
+          alphaMax = bc[b]!
+        }
       }
 
       if (s < numSamples) {
-        for (let k = 0; k < tau; k++)
+        for (let k = 0; k < tau; k++) {
           conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
+        }
       }
     }
 
-    if (tone.reduce((s, x) => s + x, 0) !== q0) conserved = false
+    if (tone.reduce((s, x) => s + x, 0) !== q0) {
+      conserved = false
+    }
   }
 
   const alphabetRange = alphaMax - alphaMin
@@ -153,7 +163,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     for (let b = 0; b < numBlocks; b++) {
       let lap = 0
 
-      for (const w of blockNbr[b]!) lap += q[w]! - q[b]!
+      for (const w of blockNbr[b]!) {
+        lap += q[w]! - q[b]!
+      }
 
       samplesX.push(lap)
       samplesY.push(qn[b]! - q[b]!)
@@ -179,7 +191,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   let ssTot = 0
   let meanY = 0
 
-  for (let i = split; i < m; i++) meanY += samplesY[i]!
+  for (let i = split; i < m; i++) {
+    meanY += samplesY[i]!
+  }
 
   meanY /= m - split
 

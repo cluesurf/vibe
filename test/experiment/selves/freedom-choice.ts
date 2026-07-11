@@ -25,7 +25,9 @@ type Tone = -1 | 0 | 1
 function ternaryVector(n: number, rng: Rng): Int8Array {
   const v = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) v[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < n; i++) {
+    v[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   return v
 }
@@ -67,7 +69,9 @@ function settle(input: {
     const proj = input.patterns.map(xi => {
       let o = 0
 
-      for (let j = 0; j < n; j++) o += (xi[j] ?? 0) * (state[j] ?? 0)
+      for (let j = 0; j < n; j++) {
+        o += (xi[j] ?? 0) * (state[j] ?? 0)
+      }
 
       return o / n
     })
@@ -88,13 +92,17 @@ function settle(input: {
 
       next[i] = t
 
-      if (t !== state[i]) changed = true
+      if (t !== state[i]) {
+        changed = true
+      }
     }
 
     state = next
     beats++
 
-    if (!changed) break
+    if (!changed) {
+      break
+    }
   }
 
   return { state, beats }
@@ -138,7 +146,9 @@ export function freedomChoice(input: { n: number; seed: number }): {
   let deterministic = true
 
   for (let i = 0; i < n; i++) {
-    if (r1.state[i] !== r2.state[i]) deterministic = false
+    if (r1.state[i] !== r2.state[i]) {
+      deterministic = false
+    }
   }
 
   // 2. Self-determination: same urge, different selves, compare choices.
@@ -185,7 +195,9 @@ export function freedomChoice(input: { n: number; seed: number }): {
       init,
     }).state
 
-    if (overlap(baseChoice, c2) < 0.9) urgeCanFlip = true
+    if (overlap(baseChoice, c2) < 0.9) {
+      urgeCanFlip = true
+    }
   }
 
   // 4. Agency scales with structure: stronger self coupling imposes the self over the urge.
@@ -214,8 +226,9 @@ export function freedomChoice(input: { n: number; seed: number }): {
     if (
       (agencyByCoupling[i]!.selfOverlap ?? 0) <
       (agencyByCoupling[i - 1]!.selfOverlap ?? 0) - 1e-9
-    )
+    ) {
       agencyMonotone = false
+    }
   }
 
   // 5. Irreducibility: settling takes several beats, and the choice is not the one-step

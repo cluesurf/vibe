@@ -20,8 +20,9 @@ suite('measure/shadow-gravity: Fibonacci directions', [
 
     equal(dirs.length, 500)
 
-    for (const d of dirs)
+    for (const d of dirs) {
       close(Math.hypot(d[0]!, d[1]!, d[2]!), 1, 1e-9)
+    }
   }),
   // A near-uniform sphere sampling has a centroid near the origin.
   check('the centroid is near the origin', () => {

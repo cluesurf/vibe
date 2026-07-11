@@ -37,12 +37,16 @@ export function scanDispersionBand(input: {
     const k = (i * kMax) / samples
     const w = omega(k, m)
 
-    if (w > maxOmega) maxOmega = w
+    if (w > maxOmega) {
+      maxOmega = w
+    }
 
     if (i < samples) {
       const gv = Math.abs((omega(k + dk, m) - w) / dk)
 
-      if (gv > maxGroupVelocity) maxGroupVelocity = gv
+      if (gv > maxGroupVelocity) {
+        maxGroupVelocity = gv
+      }
     }
   }
 

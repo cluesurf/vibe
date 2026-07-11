@@ -38,7 +38,9 @@ function fillGas(length: number, seed: number): LatticeGasState {
 function gasEqual(a: LatticeGasState, b: LatticeGasState): boolean {
   for (const key of ['E', 'W', 'N', 'S'] as const) {
     for (let i = 0; i < a[key].length; i++) {
-      if (a[key][i] !== b[key][i]) return false
+      if (a[key][i] !== b[key][i]) {
+        return false
+      }
     }
   }
 

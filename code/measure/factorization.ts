@@ -76,7 +76,9 @@ export function edgeRobustness(input: {
     const row = neighbors[a]!
 
     for (const b of row) {
-      if (b <= a) continue
+      if (b <= a) {
+        continue
+      }
 
       if (labels[a] === labels[b]) {
         internal++
@@ -102,8 +104,9 @@ export function evenlySpacedSeeds(input: {
   const seeds: number[] = []
   const step = cellCount / blocks
 
-  for (let i = 0; i < blocks; i++)
+  for (let i = 0; i < blocks; i++) {
     seeds.push(Math.min(cellCount - 1, Math.floor(i * step)))
+  }
 
   return seeds
 }

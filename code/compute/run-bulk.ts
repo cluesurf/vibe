@@ -37,8 +37,9 @@ function cpuStep(
 
     let s = 0
 
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++)
+    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
       s += currentOf(state[adj[p]!]!)
+    }
 
     out[i] = pack((s + 27 - prev) % 3, cur)
   }
@@ -72,8 +73,9 @@ async function run(): Promise<void> {
   const r = makeRng({ seed: 987654321 })
   const nextR = (): number => r.next()
 
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  }
 
   const byteLength = n * 4
   const params = device.createBuffer({
@@ -177,8 +179,9 @@ async function run(): Promise<void> {
 
   let cpu = seed.slice()
 
-  for (let b = 0; b < CHECK_BEATS; b++)
+  for (let b = 0; b < CHECK_BEATS; b++) {
     cpu = cpuStep(cpu, g.offsets, g.adj)
+  }
 
   let mismatches = 0
 

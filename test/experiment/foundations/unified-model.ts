@@ -37,8 +37,9 @@ export function unifiedModel(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
   const q0 = sumQ(tone)
 
@@ -61,8 +62,9 @@ export function unifiedModel(input?: { n?: number }): {
   const dead = new Int8Array(N)
   const rngD = makeRng({ seed: 7 })
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     dead[i] = rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
+  }
 
   for (let t = 0; t < 80; t++) {
     conservingEdgeSweep({
@@ -85,8 +87,9 @@ export function unifiedModel(input?: { n?: number }): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
   }
 
   const distC = csrDistances({
@@ -128,7 +131,9 @@ export function unifiedModel(input?: { n?: number }): {
   let front = 0
 
   for (let i = 0; i < N; i++) {
-    if (s[i] !== s2[i] && distC[i]! > front) front = distC[i]!
+    if (s[i] !== s2[i] && distC[i]! > front) {
+      front = distC[i]!
+    }
   }
 
   const speed = front / T
@@ -140,7 +145,9 @@ export function unifiedModel(input?: { n?: number }): {
   const C = new Float64Array(S9 * S9)
   const sample: number[] = []
 
-  for (let k = 0; k < eu.length; k += 3) sample.push(k)
+  for (let k = 0; k < eu.length; k += 3) {
+    sample.push(k)
+  }
 
   for (let b = 0; b < 60; b++) {
     const pre = sample.map(

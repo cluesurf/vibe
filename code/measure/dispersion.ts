@@ -98,8 +98,9 @@ export function waveModeFrequency(input: {
 
     maxAbs = Math.max(maxAbs, Math.abs(next))
 
-    if (current >= 0 !== next >= 0)
+    if (current >= 0 !== next >= 0) {
       zeros.push(t + current / (current - next))
+    }
     // interpolated zero in (t, t+1)
 
     previous = current

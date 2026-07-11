@@ -15,8 +15,9 @@ export function coarseFieldByGroup(input: {
     count[group[i]!]!++
   }
 
-  for (let g = 0; g < groupCount; g++)
+  for (let g = 0; g < groupCount; g++) {
     sum[g] = count[g]! > 0 ? sum[g]! / count[g]! : 0
+  }
 
   return sum
 }
@@ -32,7 +33,9 @@ export function sumFieldByGroup(input: {
   const { field, group, groupCount } = input
   const sum = new Float64Array(groupCount)
 
-  for (let i = 0; i < field.length; i++) sum[group[i]!]! += field[i]!
+  for (let i = 0; i < field.length; i++) {
+    sum[group[i]!]! += field[i]!
+  }
 
   return sum
 }

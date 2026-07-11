@@ -31,6 +31,7 @@ type Sub = {
   soliton: string
   stats: string
 }
+
 const SUBS: Sub[] = [
   {
     sym: [7, 3],
@@ -118,7 +119,9 @@ function battery(s: Sub): Record<string, string> {
   // churn (mod-3 wave)
   const cur = new Int8Array(N)
 
-  for (let i = 0; i < N; i++) cur[i] = Math.floor(rnd() * 3)
+  for (let i = 0; i < N; i++) {
+    cur[i] = Math.floor(rnd() * 3)
+  }
 
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 15, modulus: 3 }) >

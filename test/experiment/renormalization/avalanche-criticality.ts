@@ -90,7 +90,9 @@ export function avalancheCriticality(input?: { n?: number }): {
   let bestSpan = 0
 
   for (const s of scan) {
-    if (s.span > bestSpan) bestSpan = s.span
+    if (s.span > bestSpan) {
+      bestSpan = s.span
+    }
   }
 
   // a scale-free avalanche regime would have avalanches spanning many scales (heavy tail). It does NOT

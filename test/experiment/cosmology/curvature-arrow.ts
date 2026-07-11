@@ -41,8 +41,9 @@ export default experiment({
       let c = 0
 
       for (let i = 1; i < n; i++) {
-        if (large.neighbors[i]!.length > large.neighbors[c]!.length)
+        if (large.neighbors[i]!.length > large.neighbors[c]!.length) {
           c = i
+        }
       }
 
       const depth = neighborDistances({

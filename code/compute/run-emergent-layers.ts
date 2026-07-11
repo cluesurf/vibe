@@ -80,7 +80,9 @@ async function run(): Promise<void> {
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
 
-    if (c > maxColor) maxColor = c
+    if (c > maxColor) {
+      maxColor = c
+    }
   }
 
   const C = maxColor + 1
@@ -90,7 +92,9 @@ async function run(): Promise<void> {
     colorOffsets[color[i]! + 1]++
   }
 
-  for (let c = 0; c < C; c++) colorOffsets[c + 1] += colorOffsets[c]!
+  for (let c = 0; c < C; c++) {
+    colorOffsets[c + 1] += colorOffsets[c]!
+  }
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
@@ -115,13 +119,17 @@ async function run(): Promise<void> {
     let nb = 0
 
     if (R === 0) {
-      for (let i = 0; i < N; i++) ballOf[i] = i
+      for (let i = 0; i < N; i++) {
+        ballOf[i] = i
+      }
 
       return { ballOf, count: N }
     }
 
     for (let s = 0; s < N; s++) {
-      if (ballOf[s]! >= 0) continue
+      if (ballOf[s]! >= 0) {
+        continue
+      }
 
       const id = nb++
 
@@ -226,7 +234,9 @@ async function run(): Promise<void> {
       const start = colorOffsets[c]!,
         count = colorOffsets[c + 1]! - start
 
-      if (!count) continue
+      if (!count) {
+        continue
+      }
 
       device.queue.writeBuffer(
         params,
@@ -245,7 +255,9 @@ async function run(): Promise<void> {
     }
   }
 
-  for (let b = 0; b < WARMUP; b++) beatGpu()
+  for (let b = 0; b < WARMUP; b++) {
+    beatGpu()
+  }
 
   await device.queue.onSubmittedWorkDone()
 
@@ -255,7 +267,9 @@ async function run(): Promise<void> {
   )
 
   for (let s = 0; s < M; s++) {
-    for (let b = 0; b < K; b++) beatGpu()
+    for (let b = 0; b < K; b++) {
+      beatGpu()
+    }
 
     {
       const enc = device.createCommandEncoder()
@@ -305,7 +319,9 @@ async function run(): Promise<void> {
       let s = 0
 
       for (let st = 0; st < M; st++) {
-        for (let i = 0; i < n; i++) s += ser[st]![i]! * ser[st]![i]!
+        for (let i = 0; i < n; i++) {
+          s += ser[st]![i]! * ser[st]![i]!
+        }
       }
 
       return s
@@ -315,8 +331,9 @@ async function run(): Promise<void> {
       let s = 0
 
       for (let st = 0; st + tau < M; st++) {
-        for (let i = 0; i < n; i++)
+        for (let i = 0; i < n; i++) {
           s += ser[st]![i]! * ser[st + tau]![i]!
+        }
       }
 
       return s

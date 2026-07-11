@@ -49,7 +49,9 @@ export default experiment({
     let shrinking = true
 
     for (let i = 1; i < norms.length; i++) {
-      if (norms[i]! >= norms[i - 1]!) shrinking = false
+      if (norms[i]! >= norms[i - 1]!) {
+        shrinking = false
+      }
     }
 
     const finalNorm = norms[norms.length - 1]!

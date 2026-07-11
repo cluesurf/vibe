@@ -54,8 +54,9 @@ suite('operator/graviton: spectrum from the derived operator', [
     () => {
       const result = gravitonFromAction({ k: [0.3, -0.5, 0.7] })
 
-      for (const v of result.eigenvalues)
+      for (const v of result.eigenvalues) {
         ok(Number.isFinite(v), 'finite eigenvalue')
+      }
 
       // the trace (conformal) sector carries a negative eigenvalue -1/2|k|^2, so the operator is
       // NOT positive semidefinite; the two physical graviton modes are the positive +1/2|k|^2 pair.

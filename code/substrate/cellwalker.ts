@@ -90,7 +90,9 @@ export function vertexRing(
     current = wstepRotate(source, current, 1)
     ring.push(current.cell)
 
-    if (current.cell === startCell && current.spin === startSpin) break
+    if (current.cell === startCell && current.spin === startSpin) {
+      break
+    }
   }
 
   return ring

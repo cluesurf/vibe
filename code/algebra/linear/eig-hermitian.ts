@@ -74,7 +74,9 @@ export function hermitianMatrixSign(input: {
     const lambda = eig.values[i] ?? 0
     const s = lambda > 0 ? 1 : lambda < 0 ? -1 : 0
 
-    if (s === 0) continue
+    if (s === 0) {
+      continue
+    }
 
     for (let a = 0; a < n; a++) {
       const va = eig.vectorsRe[a * n + i] ?? 0
@@ -106,7 +108,9 @@ export function countNearZeroEigenvalues(input: {
   let count = 0
 
   for (const value of eig.values) {
-    if (Math.abs(value ?? 0) < input.tolerance) count += 1
+    if (Math.abs(value ?? 0) < input.tolerance) {
+      count += 1
+    }
   }
 
   return count

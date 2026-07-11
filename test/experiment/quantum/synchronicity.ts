@@ -114,8 +114,9 @@ export function synchronicity(input: { seed: number }): {
     if (
       (sweep[i]?.correlation ?? 0) >
       (sweep[i - 1]?.correlation ?? 1) + 0.02
-    )
+    ) {
       monotoneDecreasing = false
+    }
   }
 
   return {

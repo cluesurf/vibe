@@ -45,7 +45,9 @@ export default experiment({
     const binaryPair = new Set<number>()
 
     for (const a of [0, 1]) {
-      for (const b of [0, 1]) binaryPair.add(2 * a + b)
+      for (const b of [0, 1]) {
+        binaryPair.add(2 * a + b)
+      }
     }
 
     const binaryGivesFour = binaryPair.size === 4

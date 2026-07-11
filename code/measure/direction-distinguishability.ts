@@ -92,8 +92,9 @@ export function permuteDistribution(
 ): number[] {
   const result = new Array<number>(distribution.length).fill(0)
 
-  for (let i = 0; i < distribution.length; i++)
+  for (let i = 0; i < distribution.length; i++) {
     result[permutation[i]!] = distribution[i]!
+  }
 
   return result
 }
@@ -142,8 +143,9 @@ export function adHocSymmetryDeviation(input: {
   const weightedL1 = (a: number[], b: number[]): number => {
     let sum = 0
 
-    for (let i = 0; i < a.length; i++)
+    for (let i = 0; i < a.length; i++) {
       sum += weights[i]! * Math.abs(a[i]! - b[i]!)
+    }
 
     return sum
   }

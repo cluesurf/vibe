@@ -40,8 +40,9 @@ export function heredity(input?: { n?: number }): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
   }
 
   const far = csrFarthestNode({
@@ -75,7 +76,9 @@ export function heredity(input?: { n?: number }): {
       const nf: number[] = []
 
       for (const u of fr) {
-        if (!parentSet.has(u)) daughterCells.push(u)
+        if (!parentSet.has(u)) {
+          daughterCells.push(u)
+        }
 
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -98,8 +101,9 @@ export function heredity(input?: { n?: number }): {
   const parentPat = new Int8Array(m)
   const half = Math.floor(m / 2)
 
-  for (let i = 0; i < m; i++)
+  for (let i = 0; i < m; i++) {
     parentPat[i] = i < half ? 1 : i < 2 * half ? -1 : 0
+  }
 
   // shuffle to make it a real pattern, staying exactly balanced
   for (let i = m - 1; i > 0; i--) {
@@ -122,7 +126,9 @@ export function heredity(input?: { n?: number }): {
     for (let i = 0; i < m; i++) {
       let v = parentPat[i]!
 
-      if (r.next() < mu) v = -v
+      if (r.next() < mu) {
+        v = -v
+      }
       // mutation
 
       daughterPat[i] = v

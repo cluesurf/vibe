@@ -23,8 +23,9 @@ import {
 function basis(upTo: number): number[] {
   const f = [1, 2]
 
-  while (f[f.length - 1]! <= upTo)
+  while (f[f.length - 1]! <= upTo) {
     f.push(f[f.length - 1]! + f[f.length - 2]!)
+  }
 
   return f
 }
@@ -33,8 +34,9 @@ suite('substrate/margenstern/zeckendorf: representation', [
   check(
     'toZeckendorf then fromZeckendorf is the identity on 1..300',
     () => {
-      for (let n = 1; n <= 300; n++)
+      for (let n = 1; n <= 300; n++) {
         equal(fromZeckendorf(toZeckendorf(n)), n, `round trip ${n}`)
+      }
     },
   ),
   check('no representation contains two adjacent ones', () => {
@@ -63,13 +65,16 @@ suite('substrate/margenstern/zeckendorf: representation', [
       equal(rem, 0, `greedy exhausts ${n}`)
 
       // chosen has no two consecutive indices (the defining property).
-      for (const i of chosen)
+      for (const i of chosen) {
         notOk(chosen.has(i + 1), `${n}: indices ${i},${i + 1} both set`)
+      }
 
       // and fromZeckendorf agrees with the sum of chosen basis terms.
       let sum = 0
 
-      for (const i of chosen) sum += f[i]!
+      for (const i of chosen) {
+        sum += f[i]!
+      }
 
       equal(sum, n, `chosen terms sum to ${n}`)
     }
@@ -103,8 +108,9 @@ suite('substrate/margenstern/zeckendorf: growth and continuator', [
     // Independently seed 1, 3 and iterate the recurrence.
     const expected: number[] = [1, 3]
 
-    for (let n = 2; n <= 7; n++)
+    for (let n = 2; n <= 7; n++) {
       expected.push(3 * expected[n - 1]! - expected[n - 2]!)
+    }
 
     const got = expected.map((_, n) => sectorGeneration(n))
 

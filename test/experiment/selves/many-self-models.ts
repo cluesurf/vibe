@@ -29,7 +29,9 @@ function fullBeat(
     const v = eu[k]!
     const w = ev[k]!
 
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -75,7 +77,9 @@ function selfModelAt(
   const self: number[] = []
 
   for (let i = 0; i < N; i++) {
-    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) {
+      self.push(i)
+    }
   }
 
   const isInput = new Uint8Array(N)
@@ -111,7 +115,9 @@ function selfModelAt(
       const nf: number[] = []
 
       for (const u of fr) {
-        if (isInput[u]) continue
+        if (isInput[u]) {
+          continue
+        }
 
         out.push(u)
 
@@ -140,7 +146,9 @@ function selfModelAt(
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
 
-    for (const i of cells) s += tone[i]!
+    for (const i of cells) {
+      s += tone[i]!
+    }
 
     return cells.length > 0 ? s / cells.length : 0
   }
@@ -155,28 +163,36 @@ function selfModelAt(
 
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
-      if (rng.next() < 0.06) sigs[s] = -sigs[s]!
+      if (rng.next() < 0.06) {
+        sigs[s] = -sigs[s]!
+      }
     }
 
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]!
+    for (const i of inputAll) {
+      tone[i] = sigs[sectorOf[i]!]!
+    }
 
     fullBeat(tone, eu, ev, moved, rng)
 
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]!
+    for (const i of inputAll) {
+      tone[i] = sigs[sectorOf[i]!]!
+    }
 
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
 
-    for (let p = 0; p < peripherals.length; p++)
+    for (let p = 0; p < peripherals.length; p++) {
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
+    }
   }
 
   const hubCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
 
   let periCorr = 0
 
-  for (let p = 0; p < peripherals.length; p++)
+  for (let p = 0; p < peripherals.length; p++) {
     periCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
+  }
 
   periCorr /= peripherals.length
 
@@ -209,8 +225,9 @@ export function manySelfModels(input?: { n?: number }): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[hub + 1]! - g.offsets[hub]!
-    )
+    ) {
       hub = i
+    }
   }
 
   const distHub = csrDistances({

@@ -35,7 +35,9 @@ function beat(
   const moved = new Uint8Array(tone.length)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const tv = tone[v]!
     const tw = tone[w]!
@@ -128,7 +130,9 @@ export function conservedDynamics(): {
   let center = 0
 
   for (let i = 1; i < n; i++) {
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
   }
 
   const distC = neighborDistances({
@@ -146,14 +150,19 @@ export function conservedDynamics(): {
     const inner: number[] = []
 
     for (let i = 0; i < n; i++) {
-      if (dist(distC, i) <= r0) inner.push(i)
+      if (dist(distC, i) <= r0) {
+        inner.push(i)
+      }
     }
 
     // alternate +1 / -1 over the inner cells, balanced
-    for (let k = 0; k < inner.length; k++)
+    for (let k = 0; k < inner.length; k++) {
       t[inner[k]!] = k % 2 === 0 ? 1 : -1
+    }
 
-    if (inner.length % 2 === 1) t[inner[inner.length - 1]!] = 0
+    if (inner.length % 2 === 1) {
+      t[inner[inner.length - 1]!] = 0
+    }
     // keep Q = 0
 
     void rng
@@ -165,7 +174,9 @@ export function conservedDynamics(): {
     let s = 0
 
     for (let i = 0; i < n; i++) {
-      if (dist(distC, i) <= r0) s += Math.abs(t[i]!)
+      if (dist(distC, i) <= r0) {
+        s += Math.abs(t[i]!)
+      }
     }
 
     return s
@@ -175,7 +186,9 @@ export function conservedDynamics(): {
     let s = 0
 
     for (let i = 0; i < n; i++) {
-      if (dist(distC, i) <= r0) s += t[i]!
+      if (dist(distC, i) <= r0) {
+        s += t[i]!
+      }
     }
 
     return s
@@ -187,7 +200,9 @@ export function conservedDynamics(): {
   const absChargeStart = absInR0(diff)
   const rngD = makeRng({ seed: 11 })
 
-  for (let b = 0; b < 80; b++) beat(diff, edges, 1, rngD, null)
+  for (let b = 0; b < 80; b++) {
+    beat(diff, edges, 1, rngD, null)
+  }
 
   const absChargeDiffused = absInR0(diff)
   const netCenterDiffused = netInR0(diff)
@@ -198,7 +213,9 @@ export function conservedDynamics(): {
   const q0pump = sumTone(pump)
   const rngP = makeRng({ seed: 11 })
 
-  for (let b = 0; b < 80; b++) beat(pump, edges, 1, rngP, distC)
+  for (let b = 0; b < 80; b++) {
+    beat(pump, edges, 1, rngP, distC)
+  }
 
   const netCenterPumped = netInR0(pump)
   const conservedPump = sumTone(pump) === q0pump
@@ -208,7 +225,9 @@ export function conservedDynamics(): {
   const q0pair = sumTone(pair)
   const rngC = makeRng({ seed: 7 })
 
-  for (let b = 0; b < 40; b++) beat(pair, edges, -1, rngC, null)
+  for (let b = 0; b < 40; b++) {
+    beat(pair, edges, -1, rngC, null)
+  }
 
   let pairsCreated = 0
 
@@ -220,7 +239,9 @@ export function conservedDynamics(): {
 
   const qAfterCreate = sumTone(pair)
 
-  for (let b = 0; b < 120; b++) beat(pair, edges, 1, rngC, null)
+  for (let b = 0; b < 120; b++) {
+    beat(pair, edges, 1, rngC, null)
+  }
 
   let pairsAfterAnnihilation = 0
 

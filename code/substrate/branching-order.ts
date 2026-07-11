@@ -78,8 +78,9 @@ export function growBranchingOrder(input: {
 
           // Inherit the parent's past (already transitively closed).
           for (let a = 0; a < parent; a++) {
-            if (getBit(future, { row: a, col: parent }))
+            if (getBit(future, { row: a, col: parent })) {
               setBit(future, { row: a, col: child })
+            }
           }
 
           hasParent = true
@@ -106,8 +107,9 @@ export function growBranchingOrder(input: {
         setBit(future, { row: parent, col: child })
 
         for (let a = 0; a < parent; a++) {
-          if (getBit(future, { row: a, col: parent }))
+          if (getBit(future, { row: a, col: parent })) {
             setBit(future, { row: a, col: child })
+          }
         }
       }
     }

@@ -66,7 +66,9 @@ export function quantumField(input?: { n?: number }): {
   const q0 = sumTone(vac)
   const rng = makeRng({ seed: 7 })
 
-  for (let b = 0; b < 80; b++) beat(vac, eu, ev, moved, rng, ARROW)
+  for (let b = 0; b < 80; b++) {
+    beat(vac, eu, ev, moved, rng, ARROW)
+  }
 
   const d1 = nonzero(vac)
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
@@ -127,8 +129,9 @@ export function quantumField(input?: { n?: number }): {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
   }
 
   const dcenter = csrDistances({
@@ -150,9 +153,13 @@ export function quantumField(input?: { n?: number }): {
   const rb = makeRng({ seed: 99 })
   const rp = makeRng({ seed: 99 })
 
-  for (let b = 0; b < T; b++) beat(base, eu, ev, moved, rb, ARROW)
+  for (let b = 0; b < T; b++) {
+    beat(base, eu, ev, moved, rb, ARROW)
+  }
 
-  for (let b = 0; b < T; b++) beat(pert, eu, ev, moved, rp, ARROW)
+  for (let b = 0; b < T; b++) {
+    beat(pert, eu, ev, moved, rp, ARROW)
+  }
 
   let front = 0
 
@@ -160,7 +167,9 @@ export function quantumField(input?: { n?: number }): {
     if (base[i] !== pert[i]) {
       const r = dcenter[i]!
 
-      if (r >= 0 && r > front) front = r
+      if (r >= 0 && r > front) {
+        front = r
+      }
     }
   }
 

@@ -37,8 +37,9 @@ function cpuStep(
 
     let s = 0
 
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++)
+    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
       s += currentOf(state[adj[p]!]!)
+    }
 
     out[i] = pack((s + 27 - prev) % 3, cur)
   }
@@ -66,8 +67,9 @@ async function run(): Promise<void> {
   const n = g.cellCount
   const offsets = new Int32Array(n + 1)
 
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
+  }
 
   const adj = new Int32Array(offsets[n]!)
 
@@ -75,7 +77,9 @@ async function run(): Promise<void> {
     let p = 0
 
     for (let i = 0; i < n; i++) {
-      for (const w of g.neighbors[i]!) adj[p++] = w
+      for (const w of g.neighbors[i]!) {
+        adj[p++] = w
+      }
     }
   }
 
@@ -92,8 +96,9 @@ async function run(): Promise<void> {
   const r = makeRng({ seed: 987654321 })
   const nextR = (): number => r.next()
 
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  }
 
   const byteLength = n * 4
   const params = device.createBuffer({
@@ -197,7 +202,9 @@ async function run(): Promise<void> {
 
   let cpu = seed.slice()
 
-  for (let b = 0; b < CHECK_BEATS; b++) cpu = cpuStep(cpu, offsets, adj)
+  for (let b = 0; b < CHECK_BEATS; b++) {
+    cpu = cpuStep(cpu, offsets, adj)
+  }
 
   let mismatches = 0
 

@@ -9,6 +9,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
+
 const TILINGS: Cand[] = [
   { sym: [7, 3], note: 'REFERENCE (heptagonal, done)' },
   {
@@ -62,7 +63,9 @@ export function twodTessellations(): void {
   for (const c of TILINGS) {
     const m = measure(c.sym)
 
-    if (!m.ok) continue
+    if (!m.ok) {
+      continue
+    }
   }
 }
 

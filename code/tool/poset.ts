@@ -48,8 +48,9 @@ export function makePosetFromFuture(input: {
       visit: c => {
         const cb = c * stride
 
-        for (let w = 0; w < stride; w++)
+        for (let w = 0; w < stride; w++) {
           acc[w] = (acc[w] ?? 0) | (f.words[cb + w] ?? 0)
+        }
       },
     })
 
@@ -88,7 +89,9 @@ export function makePosetFromRelation(input: {
 
   for (let a = 0; a < input.size; a++) {
     for (let b = a + 1; b < input.size; b++) {
-      if (input.precedes({ a, b })) setBit(future, { row: a, col: b })
+      if (input.precedes({ a, b })) {
+        setBit(future, { row: a, col: b })
+      }
     }
   }
 
@@ -110,8 +113,9 @@ export function precedes(
 export function relationCount(p: Poset): number {
   let total = 0
 
-  for (let a = 0; a < p.size; a++)
+  for (let a = 0; a < p.size; a++) {
     total += popcountRow(p.future, { row: a })
+  }
 
   return total
 }
@@ -179,8 +183,9 @@ export function subPoset(
       const a = els[i] ?? 0
       const b = els[j] ?? 0
 
-      if (i !== j && precedes(p, { a, b }))
+      if (i !== j && precedes(p, { a, b })) {
         setBit(future, { row: i, col: j })
+      }
     }
   }
 

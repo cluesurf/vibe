@@ -12,6 +12,7 @@
 
 const GOLDEN = (1 + Math.sqrt(5)) / 2
 const SILVER = 1 + Math.sqrt(2)
+
 import {
   makeBitMatrix,
   getBit,
@@ -52,7 +53,9 @@ function heightReach(input: {
 
     let j = Math.floor((((s + 1 + input.seed) * SILVER) % 1) * n)
 
-    if (i === j) j = (j + 1) % n
+    if (i === j) {
+      j = (j + 1) % n
+    }
 
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
@@ -60,8 +63,11 @@ function heightReach(input: {
     if (cluster) {
       const had = getBit(asserted, { row: lo, col: hi })
 
-      if (had) clearBit(asserted, { row: lo, col: hi })
-      else setBit(asserted, { row: lo, col: hi })
+      if (had) {
+        clearBit(asserted, { row: lo, col: hi })
+      } else {
+        setBit(asserted, { row: lo, col: hi })
+      }
 
       const nf = closure(asserted, n)
       const nh = heightOf(nf, n)
@@ -70,19 +76,26 @@ function heightReach(input: {
         f = nf
         heights.add(nh)
       } else {
-        if (had) setBit(asserted, { row: lo, col: hi })
-        else clearBit(asserted, { row: lo, col: hi })
+        if (had) {
+          setBit(asserted, { row: lo, col: hi })
+        } else {
+          clearBit(asserted, { row: lo, col: hi })
+        }
       }
     } else {
       // single-pair: toggle one closure bit, keep only if the result is still transitively closed
       const had = getBit(closureState, { row: lo, col: hi })
       const trial = makeBitMatrix({ rows: n, cols: n })
 
-      for (let w = 0; w < n * trial.stride; w++)
+      for (let w = 0; w < n * trial.stride; w++) {
         trial.words[w] = closureState.words[w] ?? 0
+      }
 
-      if (had) clearBit(trial, { row: lo, col: hi })
-      else setBit(trial, { row: lo, col: hi })
+      if (had) {
+        clearBit(trial, { row: lo, col: hi })
+      } else {
+        setBit(trial, { row: lo, col: hi })
+      }
 
       const reclosed = closure(trial, n)
       const nh = heightOf(reclosed, n)

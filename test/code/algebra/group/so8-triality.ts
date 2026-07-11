@@ -24,8 +24,9 @@ suite('algebra/group/so8-triality: the three 8-dim reps', [
     equal(v.length, 8, '8 vectors')
     equal(vectorSetKey(v).size, 8, 'distinct')
 
-    for (const x of v)
+    for (const x of v) {
       equal(normSquared(x), 1, '8v vector is a signed unit axis')
+    }
   }),
   check('8s: 8 even-parity half-integer vectors of norm^2 = 1', () => {
     const s = spinorRepEven8()

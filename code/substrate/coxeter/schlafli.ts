@@ -18,7 +18,9 @@ export function gramMatrix(symbol: number[]): number[][] {
     new Array<number>(m).fill(0),
   )
 
-  for (let i = 0; i < m; i++) G[i]![i] = 1
+  for (let i = 0; i < m; i++) {
+    G[i]![i] = 1
+  }
 
   for (let i = 0; i < symbol.length; i++) {
     const c = -Math.cos(Math.PI / (symbol[i] ?? 2))
@@ -47,14 +49,20 @@ export function symmetricEigen(input: { matrix: number[][] }): {
     let off = 0
 
     for (let p = 0; p < n; p++) {
-      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
+      for (let q = p + 1; q < n; q++) {
+        off += a[p]![q]! * a[p]![q]!
+      }
     }
 
-    if (off < 1e-28) break
+    if (off < 1e-28) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
-        if (Math.abs(a[p]![q]!) < 1e-18) continue
+        if (Math.abs(a[p]![q]!) < 1e-18) {
+          continue
+        }
 
         const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
         const t =
@@ -112,11 +120,17 @@ export function classifyGeometry(symbol: number[]): Geometry {
     }
   }
 
-  if (zero > 0) return 'euclidean'
+  if (zero > 0) {
+    return 'euclidean'
+  }
 
-  if (neg === 0) return 'spherical'
+  if (neg === 0) {
+    return 'spherical'
+  }
 
-  if (neg === 1) return 'hyperbolic'
+  if (neg === 1) {
+    return 'hyperbolic'
+  }
 
   return 'higher'
 }
@@ -164,12 +178,16 @@ export function enumerateCompactHoneycombs(input: {
 
   const rec = (prefix: number[]): void => {
     if (prefix.length === dimension) {
-      if (isCompactHoneycomb(prefix)) found.push(prefix.slice())
+      if (isCompactHoneycomb(prefix)) {
+        found.push(prefix.slice())
+      }
 
       return
     }
 
-    for (let p = 3; p <= maxEntry; p++) rec([...prefix, p])
+    for (let p = 3; p <= maxEntry; p++) {
+      rec([...prefix, p])
+    }
   }
 
   rec([])
@@ -203,7 +221,9 @@ export function mirrorFrame(symbol: number[]): {
 
   let timeAxis = metric.findIndex(g => g < 0)
 
-  if (timeAxis < 0) timeAxis = m - 1
+  if (timeAxis < 0) {
+    timeAxis = m - 1
+  }
 
   return { normals, metric, timeAxis }
 }
@@ -218,7 +238,9 @@ export function dihedralAngleDegrees(input: {
   const { p, q } = input
   const s = Math.cos(Math.PI / q) / Math.sin(Math.PI / p)
 
-  if (s > 1) return Number.NaN
+  if (s > 1) {
+    return Number.NaN
+  }
 
   return (2 * Math.asin(s) * 180) / Math.PI
 }

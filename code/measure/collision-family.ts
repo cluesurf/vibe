@@ -46,7 +46,9 @@ function* perfectMatchings(remaining: number[]): Generator<number[][]> {
     const b = remaining[k]!
     const rest = remaining.filter((_, i) => i !== 0 && i !== k)
 
-    for (const tail of perfectMatchings(rest)) yield [[a, b], ...tail]
+    for (const tail of perfectMatchings(rest)) {
+      yield [[a, b], ...tail]
+    }
   }
 }
 
@@ -79,7 +81,9 @@ function buildLineStructure(): LineStructure {
   for (let i = 0; i < 24; i++) {
     const c = Math.min(i, negOf[i]!)
 
-    if (!lines.includes(c)) lines.push(c)
+    if (!lines.includes(c)) {
+      lines.push(c)
+    }
   }
 
   const lineIndex = new Map(lines.map((c, k) => [c, k]))
@@ -94,7 +98,9 @@ function buildLineStructure(): LineStructure {
       const v = dirs[lines[L]!]!
       const w = [0, 0, 0, 0]
 
-      for (let c = 0; c < 4; c++) w[perm[c]!] = sign[perm[c]!]! * v[c]!
+      for (let c = 0; c < 4; c++) {
+        w[perm[c]!] = sign[perm[c]!]! * v[c]!
+      }
 
       lp[L] = lineOfDir(idx.get(key(w))!)
     }
@@ -237,7 +243,9 @@ export function generationCosetStructure(): {
     for (const b of b4) {
       const key = permKey(composePerm(b, g))
 
-      if (best === null || key < best) best = key
+      if (best === null || key < best) {
+        best = key
+      }
     }
 
     return best!
@@ -251,7 +259,9 @@ export function generationCosetStructure(): {
 
     labelOf.set(permKey(g), label)
 
-    if (!cosetMembers.has(label)) cosetMembers.set(label, [])
+    if (!cosetMembers.has(label)) {
+      cosetMembers.set(label, [])
+    }
 
     cosetMembers.get(label)!.push(g)
   }
@@ -266,7 +276,9 @@ export function generationCosetStructure(): {
   let trialityOrder = 0
 
   for (const g of f4) {
-    if (b4Set.has(permKey(g))) continue
+    if (b4Set.has(permKey(g))) {
+      continue
+    }
 
     const g2 = composePerm(g, g)
     const g3 = composePerm(g2, g)
@@ -445,7 +457,9 @@ export function maxMatchingStabilizer(): {
   // a matching as a partner array is fixed by g exactly when partner[g[a]] = g[partner[a]]
   const isFixedBy = (partner: number[], g: number[]): boolean => {
     for (let a = 0; a < 12; a++) {
-      if (partner[g[a]!]! !== g[partner[a]!]!) return false
+      if (partner[g[a]!]! !== g[partner[a]!]!) {
+        return false
+      }
     }
 
     return true

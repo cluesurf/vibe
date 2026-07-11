@@ -55,11 +55,13 @@ export default experiment({
     // pair each short line with a long line (the slow-fast coupling), the rest long-long.
     const pairs: [[number, number], [number, number]][] = []
 
-    for (let i = 0; i < shortLines.length; i++)
+    for (let i = 0; i < shortLines.length; i++) {
       pairs.push([shortLines[i]!, longLines[i]!])
+    }
 
-    for (let i = shortLines.length; i + 1 < longLines.length; i += 2)
+    for (let i = shortLines.length; i + 1 < longLines.length; i += 2) {
       pairs.push([longLines[i]!, longLines[i + 1]!])
+    }
 
     // a reversible, momentum-conserving, charge-conserving involution, a head-on pair rotates to its empty partner.
     const coupledRotate: Collision = (slots, base) => {
@@ -133,8 +135,9 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         let m = 0
 
-        for (let d = 24; d < 32; d++)
+        for (let d = 24; d < 32; d++) {
           m += Math.abs(will.data[c * degree + d]!)
+        }
 
         if (m > 0) {
           total += m
@@ -142,7 +145,9 @@ export default experiment({
         }
       }
 
-      if (total === 0) return { cx: half, rms: 0 }
+      if (total === 0) {
+        return { cx: half, rms: 0 }
+      }
 
       const cx = sx / total
 
@@ -151,10 +156,13 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         let m = 0
 
-        for (let d = 24; d < 32; d++)
+        for (let d = 24; d < 32; d++) {
           m += Math.abs(will.data[c * degree + d]!)
+        }
 
-        if (m > 0) v += m * ((c % side) - cx) ** 2
+        if (m > 0) {
+          v += m * ((c % side) - cx) ** 2
+        }
       }
 
       return { cx, rms: Math.sqrt(v / total) }
@@ -183,9 +191,13 @@ export default experiment({
       scratch = swap
       final = slowCentroidX(will)
 
-      if (final.rms > maxRms) maxRms = final.rms
+      if (final.rms > maxRms) {
+        maxRms = final.rms
+      }
 
-      if (final.cx > maxToward) maxToward = final.cx
+      if (final.cx > maxToward) {
+        maxToward = final.cx
+      }
     }
 
     // the honest negative, the mass DISPERSES (rms grows large) and does NOT coherently drift to the sparse side

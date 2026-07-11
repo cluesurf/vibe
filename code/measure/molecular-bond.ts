@@ -93,7 +93,9 @@ export function hydrogenMolecularIonVariationalBond(): {
     const v = bondingElectronNuclear(w)
     const zeta = -(v + 1 / w) / (2 * t) // the exponent that minimizes the energy at fixed w
 
-    if (zeta <= 0) continue
+    if (zeta <= 0) {
+      continue
+    }
 
     const energy = zeta * zeta * t + zeta * (v + 1 / w)
 
@@ -127,7 +129,9 @@ export function hydrogenMolecularIonSimpleBond(): {
   for (let r = 0.5; r < 6; r += 0.0005) {
     const e = hydrogenMolecularIonBondingEnergy({ separation: r })
 
-    if (e < best.energy) best = { equilibriumSeparation: r, energy: e }
+    if (e < best.energy) {
+      best = { equilibriumSeparation: r, energy: e }
+    }
   }
 
   return {

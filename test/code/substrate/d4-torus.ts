@@ -28,8 +28,9 @@ suite('substrate/d4-torus: the 24 D4 roots', [
     equal(rootsD4().length, 24, 'D4 root count')
   }),
   check('every root has norm squared 2', () => {
-    for (const r of rootsD4())
+    for (const r of rootsD4()) {
       equal(dotVec(r, r), 2, `|${String(r)}|^2`)
+    }
   }),
   check('the roots are closed under negation', () => {
     const roots = rootsD4()
@@ -107,8 +108,9 @@ suite('substrate/d4-torus: the M=4 finite torus', [
     for (let i = 0; i < torus.cells.length; i++) {
       notOk(sets[i]!.has(i), `cell ${i} has no self-loop`)
 
-      for (const j of torus.neigh[i]!)
+      for (const j of torus.neigh[i]!) {
         ok(sets[j]!.has(i), `edge ${i}-${j} must be mutual`)
+      }
     }
   }),
 ])

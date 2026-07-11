@@ -44,8 +44,9 @@ export function relabel(
   )
 
   for (let i = 0; i < size; i++) {
-    for (const neighbor of adjacency[i]!)
+    for (const neighbor of adjacency[i]!) {
       out[perm[i]!]!.add(perm[neighbor]!)
+    }
   }
 
   return out.map(set => Uint32Array.from([...set]))
@@ -90,7 +91,9 @@ export function graphObservable(
 ): number {
   const region = new Set<number>()
 
-  for (let i = 0; i < adjacency.length; i++) region.add(i)
+  for (let i = 0; i < adjacency.length; i++) {
+    region.add(i)
+  }
 
   return algebraicConnectivity({ adjacency, region })
 }

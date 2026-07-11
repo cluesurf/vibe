@@ -6,7 +6,9 @@
 
 // the conjugate in the Cayley-Dickson construction, conj(a, b) = (conj(a), -b)
 export function cayleyConjugate(x: number[]): number[] {
-  if (x.length === 1) return [x[0]!]
+  if (x.length === 1) {
+    return [x[0]!]
+  }
 
   const half = x.length / 2
 
@@ -19,7 +21,9 @@ export function cayleyConjugate(x: number[]): number[] {
 // the product in the Cayley-Dickson construction, (a, b)(c, d) = (ac - conj(d) b, d a + b conj(c)). The dimension is
 // the (power-of-two) length of the inputs.
 export function cayleyMultiply(x: number[], y: number[]): number[] {
-  if (x.length === 1) return [x[0]! * y[0]!]
+  if (x.length === 1) {
+    return [x[0]! * y[0]!]
+  }
 
   const half = x.length / 2
   const a = x.slice(0, half)
@@ -66,7 +70,9 @@ export function hasZeroDivisor(level: number): boolean {
             (v, m) => v + unit(dimension, l)[m]!,
           )
 
-          if (normSquared(cayleyMultiply(x, y)) === 0) return true
+          if (normSquared(cayleyMultiply(x, y)) === 0) {
+            return true
+          }
         }
       }
     }
@@ -93,8 +99,9 @@ export function hasNormComposition(level: number): boolean {
     if (
       normSquared(cayleyMultiply(x, y)) !==
       normSquared(x) * normSquared(y)
-    )
+    ) {
       return false
+    }
   }
 
   // also test the basis-unit-sum pairs (the zero-divisor candidates)
@@ -113,8 +120,9 @@ export function hasNormComposition(level: number): boolean {
           if (
             normSquared(cayleyMultiply(x, y)) !==
             normSquared(x) * normSquared(y)
-          )
+          ) {
             return false
+          }
         }
       }
     }

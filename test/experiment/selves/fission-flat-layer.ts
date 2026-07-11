@@ -22,7 +22,9 @@ function components(
   const sizes: number[] = []
 
   for (let s = 0; s < n; s++) {
-    if (on[s] !== 1 || comp[s] !== -1) continue
+    if (on[s] !== 1 || comp[s] !== -1) {
+      continue
+    }
 
     const id = sizes.length
 
@@ -66,13 +68,21 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
     const y = Math.floor(i / W)
     const out: number[] = []
 
-    if (x > 0) out.push(i - 1)
+    if (x > 0) {
+      out.push(i - 1)
+    }
 
-    if (x < W - 1) out.push(i + 1)
+    if (x < W - 1) {
+      out.push(i + 1)
+    }
 
-    if (y > 0) out.push(i - W)
+    if (y > 0) {
+      out.push(i - W)
+    }
 
-    if (y < H - 1) out.push(i + W)
+    if (y < H - 1) {
+      out.push(i + W)
+    }
 
     return out
   }
@@ -89,7 +99,9 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
       const inDisk2 = (x - c2x) ** 2 + (y - cy) ** 2 <= r * r
       const inNeck = x >= c1x && x <= c2x && Math.abs(y - cy) <= 1 // a thin neck (width 3)
 
-      if (inDisk1 || inDisk2 || inNeck) on[idx(x, y)] = 1
+      if (inDisk1 || inDisk2 || inNeck) {
+        on[idx(x, y)] = 1
+      }
     }
   }
 
@@ -117,12 +129,16 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
           }
         }
 
-        if (empty >= 1) toClear.push(i)
+        if (empty >= 1) {
+          toClear.push(i)
+        }
         // a boundary cell, peel it
       }
     }
 
-    for (const i of toClear) on[i] = 0
+    for (const i of toClear) {
+      on[i] = 0
+    }
 
     const sizes = components(on, nbr, N)
 
@@ -130,7 +146,9 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
       lobes = sizes.length
       bothSubstantial = sizes[0]! > 20 && sizes[1]! > 20 // two substantial selves remain
 
-      if (bothSubstantial) break
+      if (bothSubstantial) {
+        break
+      }
     }
   }
 
@@ -145,8 +163,9 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   const nbr = (i: number): number[] => {
     const out: number[] = []
 
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
+    }
 
     return out
   }
@@ -182,7 +201,9 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   let far = 0
 
   for (let i = 0; i < N; i++) {
-    if (d0[i]! > d0[far]!) far = i
+    if (d0[i]! > d0[far]!) {
+      far = i
+    }
   }
 
   const on = new Uint8Array(N)
@@ -190,16 +211,22 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   const dB = bfs(far)
 
   for (let i = 0; i < N; i++) {
-    if (dA[i]! <= 2 || dB[i]! <= 2) on[i] = 1
+    if (dA[i]! <= 2 || dB[i]! <= 2) {
+      on[i] = 1
+    }
   } // two balls
 
   // bridge, cells on a shortest path (where dA + dB is minimal)
   let best = Infinity
 
-  for (let i = 0; i < N; i++) best = Math.min(best, dA[i]! + dB[i]!)
+  for (let i = 0; i < N; i++) {
+    best = Math.min(best, dA[i]! + dB[i]!)
+  }
 
   for (let i = 0; i < N; i++) {
-    if (dA[i]! + dB[i]! <= best + 1) on[i] = 1
+    if (dA[i]! + dB[i]! <= best + 1) {
+      on[i] = 1
+    }
   }
 
   let bothSubstantial = false
@@ -218,12 +245,15 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
       }
     }
 
-    for (const i of toClear) on[i] = 0
+    for (const i of toClear) {
+      on[i] = 0
+    }
 
     const sizes = components(on, nbr, N)
 
-    if (sizes.length >= 2 && sizes[0]! > 20 && sizes[1]! > 20)
+    if (sizes.length >= 2 && sizes[0]! > 20 && sizes[1]! > 20) {
       bothSubstantial = true
+    }
   }
 
   return { bothSubstantial }

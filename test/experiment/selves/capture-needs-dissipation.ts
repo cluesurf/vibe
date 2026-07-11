@@ -89,7 +89,9 @@ export default experiment({
 
       let bStart = center
 
-      for (let i = 0; i < 6; i++) bStart = mesh.neighbour(bStart, dir)
+      for (let i = 0; i < 6; i++) {
+        bStart = mesh.neighbour(bStart, dir)
+      }
 
       const b = gliderLine({
         mesh,

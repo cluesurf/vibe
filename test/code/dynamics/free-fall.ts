@@ -27,7 +27,9 @@ const countOccupied = (o: Uint8Array): number =>
 
 const minOccupied = (o: Uint8Array): number => {
   for (let i = 0; i < o.length; i++) {
-    if (o[i]) return i
+    if (o[i]) {
+      return i
+    }
   }
 
   return -1
@@ -134,6 +136,8 @@ suite('dynamics/free-fall: determinism', [
       freeFallStep({ occupied: b, ...setup })
     }
 
-    for (let i = 0; i < 20; i++) equal(a[i]!, b[i]!, `cell ${i}`)
+    for (let i = 0; i < 20; i++) {
+      equal(a[i]!, b[i]!, `cell ${i}`)
+    }
   }),
 ])

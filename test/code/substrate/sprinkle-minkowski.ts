@@ -101,7 +101,9 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
       const causal = (a: number, b: number): boolean => {
         const dt = coords[b * d]! - coords[a * d]!
 
-        if (dt <= 0) return false
+        if (dt <= 0) {
+          return false
+        }
 
         let space2 = 0
 
@@ -116,7 +118,9 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
 
       for (let a = 0; a < n; a++) {
         for (let b = 0; b < n; b++) {
-          if (a === b) continue
+          if (a === b) {
+            continue
+          }
 
           equal(
             precedes(p, { a, b }),
@@ -134,8 +138,9 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
       notOk(precedes(p, { a, b: a }), `irreflexive at ${a}`)
 
       for (let b = 0; b < p.size; b++) {
-        if (precedes(p, { a, b }))
+        if (precedes(p, { a, b })) {
           notOk(precedes(p, { a: b, b: a }), `antisymmetric ${a},${b}`)
+        }
       }
     }
   }),

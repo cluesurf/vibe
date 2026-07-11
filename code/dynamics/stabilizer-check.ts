@@ -26,7 +26,9 @@ export function syndromeFirstFires(input: {
 
   const tone = new Int8Array(length)
 
-  for (let i = blobStart; i < blobEnd; i++) tone[i] = 1
+  for (let i = blobStart; i < blobEnd; i++) {
+    tone[i] = 1
+  }
 
   const moved = new Uint8Array(length)
   const rng = makeRng({ seed })
@@ -47,7 +49,9 @@ export function syndromeFirstFires(input: {
 
     if (leak > 0) {
       for (let i = 0; i < length; i++) {
-        if (tone[i] !== 0 && rng.next() < leak) tone[i] = 0
+        if (tone[i] !== 0 && rng.next() < leak) {
+          tone[i] = 0
+        }
       }
     }
 
@@ -63,9 +67,13 @@ export function syndromeFirstFires(input: {
 
     let charge = 0
 
-    for (let i = 0; i < length; i++) charge += Math.abs(tone[i]!)
+    for (let i = 0; i < length; i++) {
+      charge += Math.abs(tone[i]!)
+    }
 
-    if (charge !== reference && detectedAt < 0) detectedAt = t
+    if (charge !== reference && detectedAt < 0) {
+      detectedAt = t
+    }
   }
 
   return detectedAt

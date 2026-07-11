@@ -22,15 +22,18 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
       if (
         getBit(p.future, { row: j, col: i }) &&
         (d[j] ?? 0) + 1 > (d[i] ?? 0)
-      )
+      ) {
         d[i] = (d[j] ?? 0) + 1
+      }
     }
   }
 
   const maxDepth = d.reduce((a, b) => Math.max(a, b), 0)
   const widths: number[] = new Array(maxDepth + 1).fill(0)
 
-  for (let i = 0; i < n; i++) widths[d[i] ?? 0] = widths[d[i] ?? 0]! + 1
+  for (let i = 0; i < n; i++) {
+    widths[d[i] ?? 0] = widths[d[i] ?? 0]! + 1
+  }
 
   return widths.slice(1)
 }
@@ -41,7 +44,9 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
 export function posetHeight(input: { poset: Poset }): number {
   const p = input.poset
 
-  if (p.size === 0) return 0
+  if (p.size === 0) {
+    return 0
+  }
 
   const longest = new Int32Array(p.size).fill(1)
 
@@ -55,7 +60,9 @@ export function posetHeight(input: { poset: Poset }): number {
       if (lv + 1 > (longest[w] ?? 1)) {
         longest[w] = lv + 1
 
-        if (lv + 1 > maxHeight) maxHeight = lv + 1
+        if (lv + 1 > maxHeight) {
+          maxHeight = lv + 1
+        }
       }
     }
   }

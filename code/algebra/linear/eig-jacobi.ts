@@ -25,7 +25,9 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
       }
     }
 
-    if (max < 1e-14) break
+    if (max < 1e-14) {
+      break
+    }
 
     const app = a[p]![p]!
     const aqq = a[q]![q]!
@@ -70,16 +72,22 @@ export function jacobiEigenvalues(
     let off = 0
 
     for (let p = 0; p < n; p++) {
-      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
+      for (let q = p + 1; q < n; q++) {
+        off += a[p]![q]! * a[p]![q]!
+      }
     }
 
-    if (off < tolerance) break
+    if (off < tolerance) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
 
-        if (Math.abs(apq) < 1e-12) continue
+        if (Math.abs(apq) < 1e-12) {
+          continue
+        }
 
         const phi = 0.5 * Math.atan2(2 * apq, a[q]![q]! - a[p]![p]!)
         const c = Math.cos(phi)
@@ -122,7 +130,9 @@ export function eigSymmetric(input: {
   const a = Float64Array.from(input.matrix.data)
   const v = new Float64Array(n * n)
 
-  for (let i = 0; i < n; i++) v[i * n + i] = 1
+  for (let i = 0; i < n; i++) {
+    v[i * n + i] = 1
+  }
 
   const at = (r: number, c: number): number => a[r * n + c] ?? 0
 
@@ -136,16 +146,22 @@ export function eigSymmetric(input: {
     let off = 0
 
     for (let p = 0; p < n; p++) {
-      for (let q = p + 1; q < n; q++) off += at(p, q) * at(p, q)
+      for (let q = p + 1; q < n; q++) {
+        off += at(p, q) * at(p, q)
+      }
     }
 
-    if (off < 1e-24) break
+    if (off < 1e-24) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = at(p, q)
 
-        if (Math.abs(apq) < 1e-300) continue
+        if (Math.abs(apq) < 1e-300) {
+          continue
+        }
 
         const app = at(p, p)
         const aqq = at(q, q)
@@ -182,7 +198,9 @@ export function eigSymmetric(input: {
 
   const pairs: { value: number; col: number }[] = []
 
-  for (let i = 0; i < n; i++) pairs.push({ value: at(i, i), col: i })
+  for (let i = 0; i < n; i++) {
+    pairs.push({ value: at(i, i), col: i })
+  }
 
   pairs.sort((x, y) => x.value - y.value)
 
@@ -192,12 +210,15 @@ export function eigSymmetric(input: {
   for (let j = 0; j < n; j++) {
     const pair = pairs[j]
 
-    if (!pair) continue
+    if (!pair) {
+      continue
+    }
 
     values[j] = pair.value
 
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       vectors[i * n + j] = v[i * n + pair.col] ?? 0
+    }
   }
 
   return { values, vectors }

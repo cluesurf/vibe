@@ -20,8 +20,9 @@ suite('substrate/tiling-pq: tree structure', [
         degSum += g.neighbors[i]!.length
         notOk(sets[i]!.has(i), `node ${i} has no self-loop`)
 
-        for (const j of g.neighbors[i]!)
+        for (const j of g.neighbors[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
       }
 
       equal(
@@ -46,7 +47,9 @@ suite('substrate/tiling-pq: tree structure', [
 
     let degSum = 0
 
-    for (const row of g.neighbors) degSum += row.length
+    for (const row of g.neighbors) {
+      degSum += row.length
+    }
 
     equal(degSum / 2, g.size - 1, 'tree edge count')
     ok(g.size > 1, 'non-trivial')

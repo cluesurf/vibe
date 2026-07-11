@@ -41,7 +41,9 @@ function hazardCells(): number[] {
   const cells: number[] = []
 
   for (let y = 8; y < L; y++) {
-    for (let x = 22; x <= 25; x++) cells.push(y * L + x)
+    for (let x = 22; x <= 25; x++) {
+      cells.push(y * L + x)
+    }
   }
 
   return cells
@@ -54,7 +56,9 @@ function stampBody(tone: Int8Array): void {
 
   for (let dy = -4; dy <= 4; dy++) {
     for (let dx = -4; dx <= 4; dx++) {
-      if (dx * dx + dy * dy <= 18) tone[(cy + dy) * L + (cx + dx)] = 1
+      if (dx * dx + dy * dy <= 18) {
+        tone[(cy + dy) * L + (cx + dx)] = 1
+      }
     }
   }
 }
@@ -62,7 +66,9 @@ function stampBody(tone: Int8Array): void {
 function goalCells(): number[] {
   const cells: number[] = []
 
-  for (let y = 0; y < L; y++) cells.push(y * L + (L - 2))
+  for (let y = 0; y < L; y++) {
+    cells.push(y * L + (L - 2))
+  }
 
   return cells
 }
@@ -94,8 +100,9 @@ function runRoute(input: { aware: boolean; withHazard: boolean }): {
         const nx = x + dx
         const ny = y + dy
 
-        if (nx >= 0 && nx < L && ny >= 0 && ny < L)
+        if (nx >= 0 && nx < L && ny >= 0 && ny < L) {
           blocked[ny * L + nx] = 1
+        }
       }
     }
   }
@@ -118,7 +125,9 @@ function runRoute(input: { aware: boolean; withHazard: boolean }): {
 
   for (let b = 0; b < BEATS; b++) {
     // the standing hazard is re-clamped every beat, a fixed decohering region
-    for (const c of hazard) tone[c] = -1
+    for (const c of hazard) {
+      tone[c] = -1
+    }
 
     conservingEdgeSweepSteered({
       tone,
@@ -135,7 +144,9 @@ function runRoute(input: { aware: boolean; withHazard: boolean }): {
     // strip is a standing absorbing region (a declared open-system sink) that
     // eats exactly the plus charge that touches it, never a roaming eater.
     for (let c = 0; c < tone.length; c++) {
-      if (tone[c] === -1) tone[c] = 0
+      if (tone[c] === -1) {
+        tone[c] = 0
+      }
     }
   }
 

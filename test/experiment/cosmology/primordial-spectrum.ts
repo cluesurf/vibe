@@ -27,8 +27,9 @@ export function primordialSpectrum(input: { seed: number }): {
   const rng = makeRng({ seed: input.seed })
   const points: number[][] = []
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     points.push([rng.next(), rng.next(), rng.next()])
+  }
 
   const binChoices = [4, 6, 8, 12, 16, 24]
   const byScale = binChoices.map(b => ({

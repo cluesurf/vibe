@@ -69,9 +69,13 @@ function localPhases(theta: number): number[] {
       const rotatedForward = c * a + s * b
       const rotatedBackward = -s * a + c * b
 
-      if (x + 1 < SITES) nextForward[x + 1]! += rotatedForward
+      if (x + 1 < SITES) {
+        nextForward[x + 1]! += rotatedForward
+      }
 
-      if (x - 1 >= 0) nextBackward[x - 1]! += rotatedBackward
+      if (x - 1 >= 0) {
+        nextBackward[x - 1]! += rotatedBackward
+      }
     }
 
     forward = nextForward
@@ -84,7 +88,9 @@ function localPhases(theta: number): number[] {
     const a = forward[x] ?? 0
     const b = backward[x] ?? 0
 
-    if (a * a + b * b > 1e-10) phases.push(Math.atan2(b, a))
+    if (a * a + b * b > 1e-10) {
+      phases.push(Math.atan2(b, a))
+    }
   }
 
   return phases

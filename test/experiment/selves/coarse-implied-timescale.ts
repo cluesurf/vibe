@@ -51,7 +51,9 @@ function timescales(
 function coefficientOfVariation(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
 
-  if (mean === 0) return Infinity
+  if (mean === 0) {
+    return Infinity
+  }
 
   const variance =
     values.reduce((a, b) => a + (b - mean) * (b - mean), 0) /

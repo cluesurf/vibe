@@ -14,9 +14,13 @@ export function phaseWinding(theta: readonly number[]): number {
   for (let i = 0; i < length; i++) {
     let d = theta[(i + 1) % length]! - theta[i]!
 
-    while (d > Math.PI) d -= 2 * Math.PI
+    while (d > Math.PI) {
+      d -= 2 * Math.PI
+    }
 
-    while (d < -Math.PI) d += 2 * Math.PI
+    while (d < -Math.PI) {
+      d += 2 * Math.PI
+    }
 
     total += d
   }
@@ -38,9 +42,13 @@ export function directorWinding(phi: readonly number[]): number {
   for (let i = 0; i < length; i++) {
     let d = phi[(i + 1) % length]! - phi[i]!
 
-    while (d > Math.PI / 2) d -= Math.PI
+    while (d > Math.PI / 2) {
+      d -= Math.PI
+    }
 
-    while (d < -Math.PI / 2) d += Math.PI
+    while (d < -Math.PI / 2) {
+      d += Math.PI
+    }
 
     total += d
   }

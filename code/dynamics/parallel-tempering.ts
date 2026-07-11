@@ -39,17 +39,23 @@ function localMove(input: {
 
   let b = rng.nextInt({ max: size })
 
-  if (a === b) b = (b + 1) % size
+  if (a === b) {
+    b = (b + 1) % size
+  }
 
   const lo = Math.min(a, b)
   const hi = Math.max(a, b)
 
-  if (lo === hi) return
+  if (lo === hi) {
+    return
+  }
 
   const related = isRelated(replica.state, lo, hi)
 
   // A move that would break transitivity is rejected (the replica stays).
-  if (!toggleKeepsValid(replica.state, lo, hi, related)) return
+  if (!toggleKeepsValid(replica.state, lo, hi, related)) {
+    return
+  }
 
   toggle(replica.state, lo, hi)
 
@@ -64,7 +70,9 @@ function localMove(input: {
   if (deltaS <= 0 || rng.next() < Math.exp(-beta * deltaS)) {
     replica.poset = candidatePoset
     replica.action = candidateAction
-  } else toggle(replica.state, lo, hi) // revert
+  } else {
+    toggle(replica.state, lo, hi)
+  } // revert
 }
 
 // Run parallel tempering. Returns, per beta slot, the samples of an observable
@@ -112,7 +120,9 @@ export function parallelTempering(input: {
       const replica = replicas[r]
       const beta = input.betas[r]
 
-      if (!replica || beta === undefined) continue
+      if (!replica || beta === undefined) {
+        continue
+      }
 
       for (let m = 0; m < input.movesPerSweep; m++) {
         localMove({
@@ -134,7 +144,9 @@ export function parallelTempering(input: {
       const ba = input.betas[r]
       const bb = input.betas[r + 1]
 
-      if (!ra || !rb || ba === undefined || bb === undefined) continue
+      if (!ra || !rb || ba === undefined || bb === undefined) {
+        continue
+      }
 
       swapAttempts += 1
 

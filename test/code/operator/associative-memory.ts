@@ -31,8 +31,9 @@ const line: number[][] = Array.from({ length: 8 }, (_, i) =>
 function freshMemory(): ReturnType<typeof makeAssociativeMemory> {
   const mem = makeAssociativeMemory({ neighbors: line, wordBits })
 
-  for (let c = 0; c < mem.cellCount; c++)
+  for (let c = 0; c < mem.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c * 7 + 1, wordBits))
+  }
 
   return mem
 }
@@ -112,8 +113,9 @@ suite('operator/associative-memory: search', [
       const reference: number[] = []
 
       for (let c = 0; c < mem.cellCount; c++) {
-        if (readWord(mem, c).every((v, k) => v === target[k]))
+        if (readWord(mem, c).every((v, k) => v === target[k])) {
           reference.push(c)
+        }
       }
 
       equal(
@@ -146,7 +148,9 @@ suite('operator/associative-memory: search', [
     const reference: number[] = []
 
     for (let c = 0; c < mem.cellCount; c++) {
-      if (matchScore(mem, c, comparand) >= minScore) reference.push(c)
+      if (matchScore(mem, c, comparand) >= minScore) {
+        reference.push(c)
+      }
     }
 
     equal(

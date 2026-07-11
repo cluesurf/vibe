@@ -81,8 +81,9 @@ function blockSignature(tone: Int8Array): number[] {
   const sig = new Array<number>(BLOCKS).fill(0)
   const per = Math.ceil(tone.length / BLOCKS)
 
-  for (let i = 0; i < tone.length; i++)
+  for (let i = 0; i < tone.length; i++) {
     sig[Math.min(BLOCKS - 1, Math.floor(i / per))]! += tone[i]!
+  }
 
   return sig
 }
@@ -145,7 +146,9 @@ function seedGrowth(input: {
 
     const fraction = hammingCells(a, b) / size
 
-    if (fraction > peak) peak = fraction
+    if (fraction > peak) {
+      peak = fraction
+    }
   }
 
   return {

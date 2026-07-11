@@ -20,6 +20,7 @@ import {
 } from '@/code/rule/collision'
 
 type Tone = -1 | 0 | 1
+
 const TONES: Tone[] = [-1, 0, 1]
 const pairKey = (left: Tone, right: Tone): number =>
   (left + 1) * 3 + (right + 1)
@@ -31,7 +32,9 @@ function conserves(table: [Tone, Tone][]): boolean {
     for (const right of TONES) {
       const out = table[pairKey(left, right)]!
 
-      if (out[0] + out[1] !== left + right) return false
+      if (out[0] + out[1] !== left + right) {
+        return false
+      }
     }
   }
 
@@ -62,7 +65,9 @@ function inverts(
       const out = forward[pairKey(left, right)]!
       const back = inverse[pairKey(out[0], out[1])]!
 
-      if (back[0] !== left || back[1] !== right) return false
+      if (back[0] !== left || back[1] !== right) {
+        return false
+      }
     }
   }
 
@@ -85,7 +90,9 @@ const tables: { name: string; table: [Tone, Tone][] }[] = [
 function cellCharge(slots: Int8Array): number {
   let sum = 0
 
-  for (const value of slots) sum += value
+  for (const value of slots) {
+    sum += value
+  }
 
   return sum
 }
@@ -168,8 +175,9 @@ suite('rule/collision: cell-level wrappers', [
       const there = applied(forward, start)
       const back = applied(backward, there)
 
-      for (let i = 0; i < start.length; i++)
+      for (let i = 0; i < start.length; i++) {
         equal(back[i], start[i], `slot ${i} must return to its start`)
+      }
     },
   ),
   check('every committed collision conserves the cell charge', () => {

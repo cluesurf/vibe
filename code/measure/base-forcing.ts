@@ -27,7 +27,9 @@ export function toneAlphabetQualifies(alphabet: number[]): boolean {
 export function integerAlphabets(range: number): number[][] {
   const universe: number[] = []
 
-  for (let x = -range; x <= range; x++) universe.push(x)
+  for (let x = -range; x <= range; x++) {
+    universe.push(x)
+  }
 
   const subsets: number[][] = []
   const total = 1 << universe.length
@@ -36,7 +38,9 @@ export function integerAlphabets(range: number): number[][] {
     const subset: number[] = []
 
     for (let i = 0; i < universe.length; i++) {
-      if (mask & (1 << i)) subset.push(universe[i]!)
+      if (mask & (1 << i)) {
+        subset.push(universe[i]!)
+      }
     }
 
     subsets.push(subset)
@@ -68,9 +72,13 @@ export function minimalContentQualifyingAlphabet(
   const maxAbs = (a: number[]): number => Math.max(...a.map(Math.abs))
 
   return qualifying.reduce((best, a) => {
-    if (a.length < best.length) return a
+    if (a.length < best.length) {
+      return a
+    }
 
-    if (a.length === best.length && maxAbs(a) < maxAbs(best)) return a
+    if (a.length === best.length && maxAbs(a) < maxAbs(best)) {
+      return a
+    }
 
     return best
   }, qualifying[0]!)
@@ -104,7 +112,9 @@ function dynkinDn(n: number): number[][] {
   const adjacency: number[][] = Array.from({ length: n }, () => [])
   const edges: [number, number][] = []
 
-  for (let i = 0; i < n - 3; i++) edges.push([i, i + 1])
+  for (let i = 0; i < n - 3; i++) {
+    edges.push([i, i + 1])
+  }
 
   edges.push([n - 3, n - 2])
   edges.push([n - 3, n - 1])
@@ -132,7 +142,9 @@ export function dynkinAutomorphismOrder(n: number): number {
     for (let i = 0; i < arr.length; i++) {
       const rest = [...arr.slice(0, i), ...arr.slice(i + 1)]
 
-      for (const p of permutations(rest)) yield [arr[i]!, ...p]
+      for (const p of permutations(rest)) {
+        yield [arr[i]!, ...p]
+      }
     }
   }
 
@@ -163,7 +175,9 @@ export function dynkinAutomorphismOrder(n: number): number {
 // whether D_n has triality (an order-three Dynkin symmetry), true only for n = 4. For n < 4 the D_n diagram is
 // degenerate (D2 = A1 x A1, D3 = A3), no triality.
 export function hasTriality(n: number): boolean {
-  if (n < 4) return false
+  if (n < 4) {
+    return false
+  }
 
   // S3 (order 6) contains an order-three element; Z2 (order 2) does not. D4 alone gives order 6.
   const order = dynkinAutomorphismOrder(n)

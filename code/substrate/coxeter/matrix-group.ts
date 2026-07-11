@@ -82,10 +82,14 @@ export function buildCoxeterMatrixMesh(
         }
       }
 
-      if (index.size >= maxCells) break
+      if (index.size >= maxCells) {
+        break
+      }
     }
 
-    if (next.length > 0) shells.push(next.length)
+    if (next.length > 0) {
+      shells.push(next.length)
+    }
 
     frontier = next
   }

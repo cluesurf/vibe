@@ -9,6 +9,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
+
 const CANDIDATES: Cand[] = [
   {
     sym: [3, 4, 3, 4],
@@ -65,7 +66,9 @@ function measure(
 }
 
 export function manyTessellations(): void {
-  for (const c of CANDIDATES) measure(c.sym, SURVEY_SCALE)
+  for (const c of CANDIDATES) {
+    measure(c.sym, SURVEY_SCALE)
+  }
 }
 
 export default experiment({

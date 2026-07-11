@@ -111,7 +111,9 @@ async function gpuWave(input: {
 
     changedRead.unmap()
 
-    if (c === 0) break
+    if (c === 0) {
+      break
+    }
 
     beats = beat
   }
@@ -184,13 +186,17 @@ async function run(): Promise<void> {
       mismatches++
     }
 
-    if (w.arrival[c]! > gpuCoverage) gpuCoverage = w.arrival[c]!
+    if (w.arrival[c]! > gpuCoverage) {
+      gpuCoverage = w.arrival[c]!
+    }
   }
 
   let cpuCoverage = 0
 
   for (let c = 0; c < n; c++) {
-    if (cpuDepth[c]! > cpuCoverage) cpuCoverage = cpuDepth[c]!
+    if (cpuDepth[c]! > cpuCoverage) {
+      cpuCoverage = cpuDepth[c]!
+    }
   }
 
   console.log(`{3,4,3,4} bulk, ${n} cells`)

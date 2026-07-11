@@ -26,7 +26,9 @@ export function shellCountsFromGraph(input: {
     for (const cell of frontier) {
       const row = input.neighbors[cell]
 
-      if (!row) continue
+      if (!row) {
+        continue
+      }
 
       for (const nb of Array.from(row)) {
         if (distance[nb] === -1) {
@@ -60,7 +62,9 @@ export function growthRatioFromShellCounts(counts: number[]): {
   // the deepest shell that is not the truncated boundary, the second-to-last grown shell
   const reliable = counts.length - 2
 
-  if (reliable < 1) return { ratio: 0, shell: 0 }
+  if (reliable < 1) {
+    return { ratio: 0, shell: 0 }
+  }
 
   return {
     ratio: counts[reliable]! / counts[reliable - 1]!,
@@ -77,16 +81,22 @@ export function euclideanL1ShellCount(input: {
   const memo = new Map<string, number>()
 
   function count(d: number, n: number): number {
-    if (d === 0) return n === 0 ? 1 : 0
+    if (d === 0) {
+      return n === 0 ? 1 : 0
+    }
 
     const key = `${d},${n}`
     const hit = memo.get(key)
 
-    if (hit !== undefined) return hit
+    if (hit !== undefined) {
+      return hit
+    }
 
     let sum = 0
 
-    for (let x = -n; x <= n; x++) sum += count(d - 1, n - Math.abs(x))
+    for (let x = -n; x <= n; x++) {
+      sum += count(d - 1, n - Math.abs(x))
+    }
 
     memo.set(key, sum)
 
@@ -130,17 +140,22 @@ export function extrapolatedGrowthRate(counts: number[]): number {
   // ratios of consecutive reliable shells (drop the truncated last shell, skip shell 0,1 transients)
   const ratios: number[] = []
 
-  for (let i = 2; i < counts.length - 1; i++)
+  for (let i = 2; i < counts.length - 1; i++) {
     ratios.push(counts[i]! / counts[i - 1]!)
+  }
 
-  if (ratios.length < 3) return ratios[ratios.length - 1] ?? 0
+  if (ratios.length < 3) {
+    return ratios[ratios.length - 1] ?? 0
+  }
 
   const x0 = ratios[ratios.length - 3]!
   const x1 = ratios[ratios.length - 2]!
   const x2 = ratios[ratios.length - 1]!
   const denom = x2 - x1 - (x1 - x0)
 
-  if (Math.abs(denom) < 1e-12) return x2
+  if (Math.abs(denom) < 1e-12) {
+    return x2
+  }
 
   return x2 - ((x2 - x1) * (x2 - x1)) / denom // Aitken's delta-squared limit
 }
@@ -156,7 +171,9 @@ export function fitOrder2Recurrence(counts: number[]): {
   // solve s[i] = a s[i-1] + b s[i-2] from two consecutive interior windows
   const s = counts.slice(0, counts.length - 1) // drop truncated last shell
 
-  if (s.length < 5) return { a: 0, b: 0, isInteger: false }
+  if (s.length < 5) {
+    return { a: 0, b: 0, isInteger: false }
+  }
 
   // windows at indices 3 and 4: s3 = a s2 + b s1 ; s4 = a s3 + b s2
   const s1 = s[1]!,
@@ -166,7 +183,9 @@ export function fitOrder2Recurrence(counts: number[]): {
 
   const det = s2 * s2 - s3 * s1
 
-  if (Math.abs(det) < 1e-9) return { a: 0, b: 0, isInteger: false }
+  if (Math.abs(det) < 1e-9) {
+    return { a: 0, b: 0, isInteger: false }
+  }
 
   const a = (s3 * s2 - s4 * s1) / det
   const b = (s2 * s4 - s3 * s3) / det

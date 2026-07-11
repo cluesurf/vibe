@@ -32,7 +32,9 @@ export function boundaryByRadius(input: {
   const out: number[] = []
 
   for (let i = 0; i < radii.length; i++) {
-    if (radii[i]! > cut) out.push(i)
+    if (radii[i]! > cut) {
+      out.push(i)
+    }
   }
 
   return out
@@ -122,9 +124,13 @@ export function radialBfsTree(input: {
     let x = a
     let y = b
 
-    while (depth[x]! > depth[y]!) x = parent[x]!
+    while (depth[x]! > depth[y]!) {
+      x = parent[x]!
+    }
 
-    while (depth[y]! > depth[x]!) y = parent[y]!
+    while (depth[y]! > depth[x]!) {
+      y = parent[y]!
+    }
 
     while (x !== y) {
       x = parent[x]!

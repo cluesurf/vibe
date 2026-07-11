@@ -151,8 +151,9 @@ async function run(): Promise<void> {
     wordBits: WORD_BITS,
   })
 
-  for (let c = 0; c < n; c++)
+  for (let c = 0; c < n; c++) {
     storeWord(mem, c, ternaryWord(c, WORD_BITS))
+  }
 
   const wordsU = Uint32Array.from(mem.words)
   const maskU = new Uint32Array(WORD_BITS).fill(1)
@@ -176,7 +177,9 @@ async function run(): Promise<void> {
   const gpuExactCells: number[] = []
 
   for (let c = 0; c < n; c++) {
-    if (gpuExact.responders[c] === 1) gpuExactCells.push(c)
+    if (gpuExact.responders[c] === 1) {
+      gpuExactCells.push(c)
+    }
   }
 
   const exactMatch =
@@ -200,7 +203,9 @@ async function run(): Promise<void> {
   const gpuPartialCells: number[] = []
 
   for (let c = 0; c < n; c++) {
-    if (gpuPartial.responders[c] === 1) gpuPartialCells.push(c)
+    if (gpuPartial.responders[c] === 1) {
+      gpuPartialCells.push(c)
+    }
   }
 
   const partialMatch =
@@ -228,8 +233,9 @@ async function run(): Promise<void> {
     wordBits: WORD_BITS,
   })
 
-  for (let c = 0; c < nb; c++)
+  for (let c = 0; c < nb; c++) {
     storeWord(memb, c, ternaryWord(c, WORD_BITS))
+  }
 
   const wordsUb = Uint32Array.from(memb.words)
   const comparandUb = Uint32Array.from(

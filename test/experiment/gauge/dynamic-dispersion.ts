@@ -63,10 +63,13 @@ export function dynamicDispersion(input?: {
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 19 })
 
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
-  for (let t = 0; t < 400; t++) beat(tone, L, moved, rng, arrow)
+  for (let t = 0; t < 400; t++) {
+    beat(tone, L, moved, rng, arrow)
+  }
 
   // record the real and imaginary Fourier amplitudes of the charge for each mode over a trajectory
   const T = 9000
@@ -144,7 +147,9 @@ export function dynamicDispersion(input?: {
     let propagating = false
 
     for (let tau = 1; tau <= maxTau; tau++) {
-      if (norm[tau]! < -0.15) propagating = true
+      if (norm[tau]! < -0.15) {
+        propagating = true
+      }
     }
 
     modes.push({

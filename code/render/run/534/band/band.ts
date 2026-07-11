@@ -80,7 +80,9 @@ async function run(): Promise<void> {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -88,7 +90,9 @@ async function run(): Promise<void> {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -101,6 +105,7 @@ async function run(): Promise<void> {
 
   // the band cells (|busemann| < half), with fixed pixel positions, zoomed on the dense core
   type BandCell = { index: number; px: number; py: number }
+
   // flatten the horosphere correctly by STEREOGRAPHIC INVERSION from the ideal point xi, w = (p - xi)/|p - xi|^2,
   // which maps the horosphere to a true Euclidean plane (an orthographic drop of xi folds it into a ring)
   const raw: { index: number; u: number; v: number }[] = []
@@ -259,12 +264,15 @@ async function run(): Promise<void> {
         c.px >= IMG + RADIUS ||
         c.py < -RADIUS ||
         c.py >= IMG + RADIUS
-      )
+      ) {
         continue
+      }
 
       const tone = currentOf(tones[c.index]!)
 
-      if (tone === 0) continue
+      if (tone === 0) {
+        continue
+      }
 
       const col = COLORS[tone]!
 
@@ -273,7 +281,9 @@ async function run(): Promise<void> {
           const x = c.px + dx
           const y = c.py + dy
 
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
 
           const idx = (y * IMG + x) * 4
 

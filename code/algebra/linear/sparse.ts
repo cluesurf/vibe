@@ -23,13 +23,15 @@ export function sparseFromTriplets(input: {
 }): SparseMatrix {
   const counts = new Uint32Array(input.rows)
 
-  for (const t of input.triplets)
+  for (const t of input.triplets) {
     counts[t.row] = (counts[t.row] ?? 0) + 1
+  }
 
   const rowPtr = new Uint32Array(input.rows + 1)
 
-  for (let r = 0; r < input.rows; r++)
+  for (let r = 0; r < input.rows; r++) {
     rowPtr[r + 1] = (rowPtr[r] ?? 0) + (counts[r] ?? 0)
+  }
 
   const nnz = rowPtr[input.rows] ?? 0
   const colIdx = new Uint32Array(nnz)
@@ -66,8 +68,9 @@ export function sparseMatVec(
 
     let s = 0
 
-    for (let k = start; k < end; k++)
+    for (let k = start; k < end; k++) {
       s += (m.value[k] ?? 0) * (input.x[m.colIdx[k] ?? 0] ?? 0)
+    }
 
     y[r] = s
   }
@@ -95,7 +98,9 @@ export function sparseWithAubryAndrePotential(
   m: SparseMatrix,
   strength: number,
 ): LinearOperator {
-  if (strength === 0) return operatorFromSparse(m)
+  if (strength === 0) {
+    return operatorFromSparse(m)
+  }
 
   const potential = new Float64Array(m.rows)
 
@@ -109,8 +114,9 @@ export function sparseWithAubryAndrePotential(
     apply: ({ x }) => {
       const y = sparseMatVec(m, { x })
 
-      for (let i = 0; i < m.rows; i++)
+      for (let i = 0; i < m.rows; i++) {
         y[i] = y[i]! + potential[i]! * x[i]!
+      }
 
       return y
     },

@@ -76,7 +76,9 @@ export function geometricBlocks(
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
   const seedSet = new Set<number>()
 
-  while (seedSet.size < numSeeds) seedSet.add(rng.nextInt({ max: n }))
+  while (seedSet.size < numSeeds) {
+    seedSet.add(rng.nextInt({ max: n }))
+  }
 
   const cl = new Int32Array(n).fill(-1)
 
@@ -125,7 +127,9 @@ export function domainBlocks(
   let K = 0
 
   for (let s = 0; s < n; s++) {
-    if (cl[s] !== -1) continue
+    if (cl[s] !== -1) {
+      continue
+    }
 
     cl[s] = K
 
@@ -162,7 +166,9 @@ export function coherentFills(
   const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
 
-    for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
+    for (let k = 0; k < row.length; k++) {
+      m.set(row[k] ?? -1, k)
+    }
 
     return m
   })

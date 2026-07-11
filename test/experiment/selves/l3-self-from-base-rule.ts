@@ -61,7 +61,9 @@ function packet(side: number): Will {
     for (let x = c - 3; x <= c + 3; x++) {
       const base = (y * side + x) * mesh.degree
 
-      for (let d = 0; d < mesh.degree; d++) will.data[base + d] = 1
+      for (let d = 0; d < mesh.degree; d++) {
+        will.data[base + d] = 1
+      }
     }
   }
 

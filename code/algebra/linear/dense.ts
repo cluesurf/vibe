@@ -45,8 +45,9 @@ export function denseMatVec(
 
     const base = r * m.cols
 
-    for (let c = 0; c < m.cols; c++)
+    for (let c = 0; c < m.cols; c++) {
       s += (m.data[base + c] ?? 0) * (input.x[c] ?? 0)
+    }
 
     y[r] = s
   }
@@ -71,11 +72,15 @@ export function matrixProduct(
     for (let k = 0; k < inner; k++) {
       const aik = a[i]![k]!
 
-      if (aik === 0) continue
+      if (aik === 0) {
+        continue
+      }
 
       const bk = b[k]!
 
-      for (let j = 0; j < cols; j++) row[j]! += aik * bk[j]!
+      for (let j = 0; j < cols; j++) {
+        row[j]! += aik * bk[j]!
+      }
     }
 
     out.push(row)
@@ -97,10 +102,14 @@ export function determinant(a: number[][]): number {
     let pivot = col
 
     for (let r = col + 1; r < n; r++) {
-      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
+      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) {
+        pivot = r
+      }
     }
 
-    if (Math.abs(m[pivot]![col]!) < 1e-15) return 0
+    if (Math.abs(m[pivot]![col]!) < 1e-15) {
+      return 0
+    }
 
     if (pivot !== col) {
       const tmp = m[pivot]!
@@ -115,7 +124,9 @@ export function determinant(a: number[][]): number {
     for (let r = col + 1; r < n; r++) {
       const f = m[r]![col]! / m[col]![col]!
 
-      for (let c = col; c < n; c++) m[r]![c]! -= f * m[col]![c]!
+      for (let c = col; c < n; c++) {
+        m[r]![c]! -= f * m[col]![c]!
+      }
     }
   }
 
@@ -137,7 +148,9 @@ export function solveLinearSystem(input: {
     let pivot = col
 
     for (let r = col + 1; r < n; r++) {
-      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
+      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) {
+        pivot = r
+      }
     }
 
     const tmp = m[col]!
@@ -147,14 +160,20 @@ export function solveLinearSystem(input: {
 
     const d = m[col]![col]!
 
-    for (let c = col; c <= n; c++) m[col]![c]! /= d
+    for (let c = col; c <= n; c++) {
+      m[col]![c]! /= d
+    }
 
     for (let r = 0; r < n; r++) {
-      if (r === col) continue
+      if (r === col) {
+        continue
+      }
 
       const factor = m[r]![col]!
 
-      for (let c = col; c <= n; c++) m[r]![c]! -= factor * m[col]![c]!
+      for (let c = col; c <= n; c++) {
+        m[r]![c]! -= factor * m[col]![c]!
+      }
     }
   }
 

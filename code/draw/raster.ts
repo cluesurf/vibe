@@ -65,8 +65,9 @@ export function drawDisk(input: {
       const dx = x - centerX
       const dy = y - centerY
 
-      if (dx * dx + dy * dy <= radiusSquared)
+      if (dx * dx + dy * dy <= radiusSquared) {
         setPixel(rgba, width, x, y, color)
+      }
     }
   }
 }

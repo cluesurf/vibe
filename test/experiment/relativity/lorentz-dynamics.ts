@@ -45,7 +45,9 @@ export default experiment({
 
       let total = 0
 
-      for (let b = 0; b < annulus.bins; b++) total += profile[b] ?? 0
+      for (let b = 0; b < annulus.bins; b++) {
+        total += profile[b] ?? 0
+      }
 
       for (let b = 0; b < annulus.bins; b++) {
         accum[b] =

@@ -22,6 +22,7 @@ type C4 = {
   re: [number, number, number, number]
   im: [number, number, number, number]
 }
+
 // Spin projectors I -/+ gamma_mu (gamma1 = sigma_x, gamma2 = sigma_y), as complex
 // 2x2 blocks in row-major [00, 01, 10, 11].
 const SPIN_I_MINUS_SX: C4 = { re: [1, -1, -1, 1], im: [0, 0, 0, 0] }
@@ -43,7 +44,9 @@ function colorMatrix(
   const re: [number, number, number, number] = [q0, q2, -q2, q0]
   const im: [number, number, number, number] = [q3, q1, q1, -q3]
 
-  if (!dagger) return { re, im }
+  if (!dagger) {
+    return { re, im }
+  }
 
   // Conjugate transpose: swap off-diagonal, negate all imaginary parts.
   return {
@@ -213,8 +216,9 @@ export function chiralCondensateSignalSU2(input: {
 
     // H_W = gamma5 (D_W - m0). gamma5 acts on spin: rows with spin index 1
     // (local index in {2,3}) flip sign.
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
+    }
 
     for (let row = 0; row < n; row++) {
       if (row % 4 >= 2) {
@@ -236,7 +240,9 @@ export function chiralCondensateSignalSU2(input: {
     const eig = eigHermitian({ matrix: epsilon })
 
     for (const eigenvalue of eig.values) {
-      if (Math.abs(eigenvalue ?? 0) < tol) nearZero += 1
+      if (Math.abs(eigenvalue ?? 0) < tol) {
+        nearZero += 1
+      }
 
       totalEig += 1
     }

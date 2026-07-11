@@ -22,8 +22,9 @@ function denseFrom(rows: number[][]): DenseMatrix {
   const m = makeDense({ rows: n, cols: n })
 
   for (let r = 0; r < n; r++) {
-    for (let c = 0; c < n; c++)
+    for (let c = 0; c < n; c++) {
       denseSet(m, { row: r, col: c, value: rows[r]![c]! })
+    }
   }
 
   return m
@@ -146,8 +147,9 @@ suite('algebra/linear/eig-jacobi: eigSymmetric (values + vectors)', [
         for (let k = 0; k < n; k++) {
           let d = 0
 
-          for (let i = 0; i < n; i++)
+          for (let i = 0; i < n; i++) {
             d += eig.vectors[i * n + j]! * eig.vectors[i * n + k]!
+          }
 
           close(d, j === k ? 1 : 0, 1e-9, `<v${j}|v${k}>`)
         }
@@ -170,8 +172,9 @@ suite('algebra/linear/eig-jacobi: eigSymmetric (values + vectors)', [
       for (let i = 0; i < n; i++) {
         let av = 0
 
-        for (let k = 0; k < n; k++)
+        for (let k = 0; k < n; k++) {
           av += A[i]![k]! * eig.vectors[k * n + j]!
+        }
 
         close(
           av,

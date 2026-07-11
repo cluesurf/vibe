@@ -15,7 +15,9 @@ import { SprinkledPoint } from '@/code/substrate/sprinkle-box'
 function points(): SprinkledPoint[] {
   const pts: SprinkledPoint[] = []
 
-  for (let t = 1; t <= 12; t++) pts.push({ t, x: 0 })
+  for (let t = 1; t <= 12; t++) {
+    pts.push({ t, x: 0 })
+  }
 
   // off-axis but timelike from the origin column (|dx| < dt)
   pts.push({ t: 4, x: 1 })
@@ -61,8 +63,9 @@ suite('dynamics/swerve-walk: proper time and the straight limit', [
 
     ok(trace.length > 1, 'walk took several steps')
 
-    for (let i = 1; i < trace.length; i++)
+    for (let i = 1; i < trace.length; i++) {
       ok(trace[i]!.tau > trace[i - 1]!.tau, `tau increases at ${i}`)
+    }
   }),
   check(
     'a straight-ahead element keeps the rapidity at 0 (no swerve)',

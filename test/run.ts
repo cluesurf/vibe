@@ -122,8 +122,9 @@ async function main(): Promise<void> {
 
   console.log(`\ntotal experiment time ${totalSeconds}s, slowest ten:`)
 
-  for (const t of slowest)
+  for (const t of slowest) {
     console.log(`  ${(t.ms / 1000).toFixed(1)}s  ${t.id}`)
+  }
 
   if (crash > 0 || conformance.failed > 0) {
     console.error(

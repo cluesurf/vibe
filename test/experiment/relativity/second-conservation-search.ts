@@ -56,10 +56,13 @@ export function secondConservationSearch(input?: { L?: number }): {
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 5 })
 
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
-  for (let t = 0; t < 60; t++) beat(tone, ring, moved, rng, 0.1)
+  for (let t = 0; t < 60; t++) {
+    beat(tone, ring, moved, rng, 0.1)
+  }
 
   const T = 1500
   const Q: number[] = []
@@ -123,10 +126,13 @@ export function secondConservationSearch(input?: { L?: number }): {
     const mv = new Uint8Array(L)
     const r2 = makeRng({ seed: 9 })
 
-    for (let i = 0; i < L; i++)
+    for (let i = 0; i < L; i++) {
       tn[i] = r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0
+    }
 
-    for (let t = 0; t < 300; t++) beat(tn, ring, mv, r2, arrow)
+    for (let t = 0; t < 300; t++) {
+      beat(tn, ring, mv, r2, arrow)
+    }
 
     const maxR = 12
     const sumCC = new Float64Array(maxR + 1)
@@ -134,8 +140,9 @@ export function secondConservationSearch(input?: { L?: number }): {
 
     for (let t = 0; t < TT; t++) {
       for (let x = 0; x < L; x++) {
-        for (let r = 0; r <= maxR; r++)
+        for (let r = 0; r <= maxR; r++) {
           sumCC[r]! += tn[x]! * tn[(x + r) % L]!
+        }
       }
 
       beat(tn, ring, mv, r2, arrow)
@@ -151,7 +158,9 @@ export function secondConservationSearch(input?: { L?: number }): {
         ((r % 2 === 0 ? 1 : -1) * sumCC[r]!) / (L * TT),
       )
 
-      if (cstag > 0.05 * Math.abs(c0)) range = r
+      if (cstag > 0.05 * Math.abs(c0)) {
+        range = r
+      }
     }
 
     staggeredScan.push({ arrow, staggeredRange: range })

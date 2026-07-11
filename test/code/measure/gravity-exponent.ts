@@ -20,17 +20,29 @@ function cubicNeighbors(L: number): number[][] {
       for (let x = 0; x < L; x++) {
         const row: number[] = []
 
-        if (x + 1 < L) row.push(at(x + 1, y, z))
+        if (x + 1 < L) {
+          row.push(at(x + 1, y, z))
+        }
 
-        if (x - 1 >= 0) row.push(at(x - 1, y, z))
+        if (x - 1 >= 0) {
+          row.push(at(x - 1, y, z))
+        }
 
-        if (y + 1 < L) row.push(at(x, y + 1, z))
+        if (y + 1 < L) {
+          row.push(at(x, y + 1, z))
+        }
 
-        if (y - 1 >= 0) row.push(at(x, y - 1, z))
+        if (y - 1 >= 0) {
+          row.push(at(x, y - 1, z))
+        }
 
-        if (z + 1 < L) row.push(at(x, y, z + 1))
+        if (z + 1 < L) {
+          row.push(at(x, y, z + 1))
+        }
 
-        if (z - 1 >= 0) row.push(at(x, y, z - 1))
+        if (z - 1 >= 0) {
+          row.push(at(x, y, z - 1))
+        }
 
         neighbors.push(row)
       }

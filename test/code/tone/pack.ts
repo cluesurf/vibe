@@ -54,7 +54,9 @@ suite('tone/pack: pack / unpack round-trip', [
     const seen = new Set<number>()
 
     for (const previous of CODES) {
-      for (const current of CODES) seen.add(pack({ current, previous }))
+      for (const current of CODES) {
+        seen.add(pack({ current, previous }))
+      }
     }
 
     equal(seen.size, 9, 'nine distinct codes')

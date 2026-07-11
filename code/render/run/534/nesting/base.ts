@@ -76,7 +76,9 @@ function run(): void {
       }
     }
 
-    if (next.length) shellCounts.push(next.length)
+    if (next.length) {
+      shellCounts.push(next.length)
+    }
 
     frontier = next
   }
@@ -85,8 +87,11 @@ function run(): void {
   let maxClean = 0
 
   for (let i = 1; i < shellCounts.length; i++) {
-    if (shellCounts[i]! / shellCounts[i - 1]! > 2) maxClean = i
-    else break
+    if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
+      maxClean = i
+    } else {
+      break
+    }
   }
 
   // project ALL clean cells orthographically onto the (x,y) plane (the Poincare-ball shadow), so the disk
@@ -94,7 +99,9 @@ function run(): void {
   const slice: number[] = []
 
   for (let i = 0; i < n; i++) {
-    if (depth[i]! < 0 || depth[i]! > maxClean) continue
+    if (depth[i]! < 0 || depth[i]! > maxClean) {
+      continue
+    }
 
     slice.push(i)
   }
@@ -126,8 +133,9 @@ function run(): void {
       const px = Math.round(half + scale * Math.cos(th)),
         py = Math.round(half + scale * Math.sin(th))
 
-      if (px >= 0 && px < IMG && py >= 0 && py < IMG)
+      if (px >= 0 && px < IMG && py >= 0 && py < IMG) {
         setPixel(rgba, IMG, px, py, [70, 70, 78])
+      }
     }
 
     // draw cells up to shell f, deepest first so shallow shells sit on top
@@ -135,7 +143,9 @@ function run(): void {
       const col = shellColor(s, maxClean)
 
       for (const i of slice) {
-        if (depth[i]! !== s) continue
+        if (depth[i]! !== s) {
+          continue
+        }
 
         const x = g.coords[i]![0]!,
           y = g.coords[i]![1]!

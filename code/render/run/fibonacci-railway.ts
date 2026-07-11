@@ -41,6 +41,7 @@ type Config = {
   shown: number
   make: () => RailRegister
 }
+
 const CONFIGS: Config[] = [
   { name: 'unary', base: 1, shown: 60, make: () => makeUnaryCounter() },
   {
@@ -77,7 +78,9 @@ function run(): void {
     maxCells: MAX_CELLS,
   })
 
-  for (const cfg of CONFIGS) renderBase(cfg, tiling, outDir)
+  for (const cfg of CONFIGS) {
+    renderBase(cfg, tiling, outDir)
+  }
 }
 
 function renderBase(

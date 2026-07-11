@@ -81,7 +81,9 @@ function observablesAtPivot(input: {
     phidot = next.phidot
     lnA += hubble * dt
 
-    if (ended && lnA > endLnA + 0.5) break
+    if (ended && lnA > endLnA + 0.5) {
+      break
+    }
   }
 
   // the pivot mode left the horizon `pivotEfolds` before the end

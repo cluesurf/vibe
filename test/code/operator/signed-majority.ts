@@ -53,8 +53,9 @@ suite('operator/signed-majority: symmetric edge fills', [
     })
 
     for (const row of fills) {
-      for (const f of row)
+      for (const f of row) {
         ok(f === -1 || f === 0 || f === 1, 'coupling in {-1,0,1}')
+      }
     }
   }),
 ])

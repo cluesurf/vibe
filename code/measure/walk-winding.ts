@@ -84,9 +84,13 @@ function frameWinding(
     if (i > 0) {
       let d = phase - previous
 
-      while (d > Math.PI) d -= 2 * Math.PI
+      while (d > Math.PI) {
+        d -= 2 * Math.PI
+      }
 
-      while (d < -Math.PI) d += 2 * Math.PI
+      while (d < -Math.PI) {
+        d += 2 * Math.PI
+      }
 
       total += d
     }

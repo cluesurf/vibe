@@ -65,7 +65,9 @@ async function run(): Promise<void> {
       detail: 0.0007,
       maxSteps: 600,
     })
-  } else scene.setCamera2D(camera.uniform2D())
+  } else {
+    scene.setCamera2D(camera.uniform2D())
+  }
 
   const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
 

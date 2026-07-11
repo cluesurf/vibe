@@ -32,13 +32,17 @@ function main(): void {
     }
   }
 
-  if (failures.length > 0) console.log(failures.join('\n'))
+  if (failures.length > 0) {
+    console.log(failures.join('\n'))
+  }
 
   console.log(
     `\nmath conformance: ${passed} pass, ${failed} fail across ${suites.length} suites`,
   )
 
-  if (failed > 0) process.exit(1)
+  if (failed > 0) {
+    process.exit(1)
+  }
 }
 
 main()

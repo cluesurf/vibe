@@ -38,7 +38,9 @@ export function binaryTetrahedralGroup(): Quaternion[] {
   for (const a of [-0.5, 0.5]) {
     for (const b of [-0.5, 0.5]) {
       for (const c of [-0.5, 0.5]) {
-        for (const d of [-0.5, 0.5]) group.push([a, b, c, d])
+        for (const d of [-0.5, 0.5]) {
+          group.push([a, b, c, d])
+        }
       }
     }
   }
@@ -57,7 +59,9 @@ export function isClosedUnderMultiplication(
 
   for (const a of group) {
     for (const b of group) {
-      if (!present.has(key(quaternionMultiply(a, b)))) return false
+      if (!present.has(key(quaternionMultiply(a, b)))) {
+        return false
+      }
     }
   }
 
@@ -88,7 +92,9 @@ export function quaternionsClose(
   tolerance = 1e-9,
 ): boolean {
   for (let i = 0; i < 4; i++) {
-    if (Math.abs(a[i]! - b[i]!) > tolerance) return false
+    if (Math.abs(a[i]! - b[i]!) > tolerance) {
+      return false
+    }
   }
 
   return true

@@ -48,8 +48,9 @@ export function sampleIsingChain(
   const pAlign =
     Math.exp(coupling) / (Math.exp(coupling) + Math.exp(-coupling))
 
-  for (let i = 1; i < n; i++)
+  for (let i = 1; i < n; i++) {
     s[i] = (rng.next() < pAlign ? s[i - 1] : -(s[i - 1] ?? 1)) as -1 | 1
+  }
 
   return s
 }
@@ -58,8 +59,9 @@ export function sampleIsingChain(
 export function nearestNeighborCorrelation(s: Int8Array): number {
   let c = 0
 
-  for (let i = 0; i + 1 < s.length; i++)
+  for (let i = 0; i + 1 < s.length; i++) {
     c += (s[i] ?? 0) * (s[i + 1] ?? 0)
+  }
 
   return c / Math.max(1, s.length - 1)
 }
@@ -81,7 +83,9 @@ export function measuredBlockSpinCoupling(input: {
     const s = sampleIsingChain(length, coupling, rng)
     const blocked = new Int8Array(Math.floor(length / 2))
 
-    for (let i = 0; i < blocked.length; i++) blocked[i] = s[2 * i] ?? 0
+    for (let i = 0; i < blocked.length; i++) {
+      blocked[i] = s[2 * i] ?? 0
+    }
 
     acc += nearestNeighborCorrelation(blocked)
   }

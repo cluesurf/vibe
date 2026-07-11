@@ -89,7 +89,9 @@ export default experiment({
       kernel.every(perm => {
         // perm squared is the identity
         for (let i = 1; i <= 7; i++) {
-          if (perm[perm[i]!] !== i) return false
+          if (perm[perm[i]!] !== i) {
+            return false
+          }
         }
 
         return true
@@ -98,7 +100,9 @@ export default experiment({
     // CONTROL: a bare transposition of two units is not an automorphism
     const bare: Record<number, number> = {}
 
-    for (let i = 1; i <= 7; i++) bare[i] = i
+    for (let i = 1; i <= 7; i++) {
+      bare[i] = i
+    }
 
     bare[1] = 2
     bare[2] = 1

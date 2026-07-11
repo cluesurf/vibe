@@ -41,8 +41,9 @@ function fillTexture(will: Will, period: number): void {
   const { mesh, data } = will
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    for (let d = 0; d < mesh.degree; d++)
+    for (let d = 0; d < mesh.degree; d++) {
       data[cell * mesh.degree + d] = (((cell * 5 + d) % period) % 3) - 1
+    }
   }
 }
 

@@ -44,7 +44,9 @@ export function coinedWalkMSD(input: {
 
     msd.push(m / norm)
 
-    if (t === steps) break
+    if (t === steps) {
+      break
+    }
 
     // coin: rotation by theta mixing the two coin components
     // shift: left-component to x-1, right-component to x+1
@@ -188,7 +190,9 @@ export function measuredCoinedWalkFrequency(input: {
   const right = new Float64Array(size)
   const left = new Float64Array(size)
 
-  for (let x = 0; x < size; x++) right[x] = Math.cos(k * x)
+  for (let x = 0; x < size; x++) {
+    right[x] = Math.cos(k * x)
+  }
 
   const series = new Float64Array(beats)
   const rightNext = new Float64Array(size)
@@ -268,7 +272,9 @@ export function diracQuantumWalk(input: {
   norm: number[]
 } {
   const { size: L, mass, steps, seedMode } = input
+
   type C = readonly [number, number]
+
   const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
   const cmul = (a: C, b: C): C => [
     a[0] * b[0] - a[1] * b[1],
@@ -679,7 +685,9 @@ export function diracTwoModeSurvival(input: {
   energyB: number
 } {
   const { indexA, indexB, size, mass, beats } = input
+
   type Complex = readonly [number, number]
+
   const add = (u: Complex, v: Complex): Complex => [
     u[0] + v[0],
     u[1] + v[1],
@@ -813,7 +821,9 @@ export function diracOverlapEvolution(input: {
 }): number[] {
   const { statesA, statesB, size, mass, beats } = input
   const leak = input.leak ?? 0
+
   type Complex = readonly [number, number]
+
   const add = (u: Complex, v: Complex): Complex => [
     u[0] + v[0],
     u[1] + v[1],

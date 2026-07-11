@@ -74,8 +74,9 @@ export function kpmSeaEnergy(): {
         dim,
       })
 
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
+      }
     })
   }
 
@@ -83,8 +84,9 @@ export function kpmSeaEnergy(): {
   const deltaE: [number, number][] = Rs.map((R, ri) => {
     let dTrAbs = 0
 
-    for (let n = 0; n < MCHEB; n++)
+    for (let n = 0; n < MCHEB; n++) {
       dTrAbs += g[n]! * c[n]! * dMu[ri]![n]!
+    }
 
     return [R, Math.round(-0.5 * a * dTrAbs * 100) / 100] as [
       number,
@@ -96,7 +98,9 @@ export function kpmSeaEnergy(): {
   let minI = 0
 
   for (let i = 1; i < deltaE.length; i++) {
-    if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
+    if (deltaE[i]![1] < deltaE[minI]![1]) {
+      minI = i
+    }
   }
 
   const hasMinimum = minI > 0 && minI < deltaE.length - 1

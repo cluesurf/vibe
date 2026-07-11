@@ -27,11 +27,15 @@ export function roundtrip(input: {
 
   let w: Will = { mesh: will.mesh, data: Int8Array.from(will.data) }
 
-  for (let b = 0; b < beats; b++) w = beat(w, collision)
+  for (let b = 0; b < beats; b++) {
+    w = beat(w, collision)
+  }
 
   const evolved = Int8Array.from(w.data)
 
-  for (let b = 0; b < beats; b++) w = inverseBeat(w, inverseCollision)
+  for (let b = 0; b < beats; b++) {
+    w = inverseBeat(w, inverseCollision)
+  }
 
   let roundtripHamming = 0
 

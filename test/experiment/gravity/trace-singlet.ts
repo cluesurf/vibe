@@ -50,20 +50,26 @@ function orbitCount(roots: number[][]): number {
     const ra = find(a)
     const rb = find(b)
 
-    if (ra !== rb) parent[ra] = rb
+    if (ra !== rb) {
+      parent[ra] = rb
+    }
   }
 
   for (let i = 0; i < roots.length; i++) {
     for (const a of roots) {
       const image = index.get(vectorKey(reflectRoot(roots[i]!, a)))
 
-      if (image !== undefined) union(i, image)
+      if (image !== undefined) {
+        union(i, image)
+      }
     }
   }
 
   const seen = new Set<number>()
 
-  for (let i = 0; i < roots.length; i++) seen.add(find(i))
+  for (let i = 0; i < roots.length; i++) {
+    seen.add(find(i))
+  }
 
   return seen.size
 }
@@ -83,8 +89,9 @@ function functionalInvariant(
     for (const a of roots) {
       const image = index.get(vectorKey(reflectRoot(roots[i]!, a)))
 
-      if (image !== undefined && weight(i) !== weight(image))
+      if (image !== undefined && weight(i) !== weight(image)) {
         return false
+      }
     }
   }
 
@@ -128,8 +135,9 @@ function traceSourcedBinding(): {
         (p[2]! - half) ** 2 +
         (p[3]! - half) ** 2 <=
       4
-    )
+    ) {
       body[c] = 1
+    }
   }
 
   // the source is the TRACE, the F4-invariant total occupation per cell
@@ -154,7 +162,9 @@ function traceSourcedBinding(): {
 
   let piece = centre
 
-  for (let k = 0; k < 3; k++) piece = neighbour(piece, 0)
+  for (let k = 0; k < 3; k++) {
+    piece = neighbour(piece, 0)
+  }
 
   for (let step = 0; step < 40; step++) {
     let best = -1
@@ -169,11 +179,15 @@ function traceSourcedBinding(): {
       }
     }
 
-    if (best < 0) break
+    if (best < 0) {
+      break
+    }
 
     piece = best
 
-    if (distance(piece) <= 2) break
+    if (distance(piece) <= 2) {
+      break
+    }
   }
 
   return { finalDistance: distance(piece), ternary }

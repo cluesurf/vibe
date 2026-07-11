@@ -62,7 +62,9 @@ export function tilingPQ(input: {
     for (const parentId of frontier) {
       const parent = nodes[parentId]
 
-      if (!parent) continue
+      if (!parent) {
+        continue
+      }
 
       let childCount: number
       let childrenWhite: boolean[]
@@ -108,7 +110,9 @@ export function tilingPQ(input: {
   // Tree adjacency: parent-child edges, undirected.
   const neighbors: number[][] = []
 
-  for (let i = 0; i < size; i++) neighbors.push([])
+  for (let i = 0; i < size; i++) {
+    neighbors.push([])
+  }
 
   for (let i = 0; i < size; i++) {
     const node = nodes[i]
@@ -123,8 +127,9 @@ export function tilingPQ(input: {
   // Zeckendorf form as a 0/1 string with no two adjacent ones.
   const address: string[] = []
 
-  for (let i = 0; i < size; i++)
+  for (let i = 0; i < size; i++) {
     address.push(zeckendorf({ value: i + 1 }))
+  }
 
   return makeGraph({ size, directed: false, neighbors, address })
 }
@@ -135,7 +140,9 @@ export function tilingPQ(input: {
 function zeckendorf(input: { value: number }): string {
   let v = input.value
 
-  if (v <= 0) return '0'
+  if (v <= 0) {
+    return '0'
+  }
 
   // Fibonacci sequence 1, 2, 3, 5, 8, ... (Zeckendorf basis) up to v.
   const fib: number[] = [1, 2]
@@ -156,13 +163,17 @@ function zeckendorf(input: { value: number }): string {
   for (let i = fib.length - 1; i >= 0; i--) {
     const f = fib[i] ?? 0
 
-    if (f > v && !started) continue
+    if (f > v && !started) {
+      continue
+    }
 
     if (f <= v) {
       bits.push('1')
       v -= f
       started = true
-    } else if (started) bits.push('0')
+    } else if (started) {
+      bits.push('0')
+    }
   }
 
   return bits.length > 0 ? bits.join('') : '0'

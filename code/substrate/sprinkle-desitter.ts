@@ -52,8 +52,9 @@ export function sprinkleDeSitter(input: {
       if (
         Math.abs((sX[j] ?? 0) - (sX[i] ?? 0)) <=
         (sEta[j] ?? 0) - (sEta[i] ?? 0)
-      )
+      ) {
         setBit(future, { row: i, col: j })
+      }
     }
   }
 
@@ -62,8 +63,9 @@ export function sprinkleDeSitter(input: {
     for (let i = 0; i < k; i++) {
       if (getBit(future, { row: i, col: k })) {
         for (let j = k + 1; j < n; j++) {
-          if (getBit(future, { row: k, col: j }))
+          if (getBit(future, { row: k, col: j })) {
             setBit(future, { row: i, col: j })
+          }
         }
       }
     }

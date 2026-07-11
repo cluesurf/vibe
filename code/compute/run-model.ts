@@ -17,7 +17,9 @@ export function runModel(
   const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
 
-    for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
+    for (let k = 0; k < row.length; k++) {
+      m.set(row[k] ?? -1, k)
+    }
 
     return m
   })
@@ -28,7 +30,9 @@ export function runModel(
     const fv = fills[v]
     const row = g.neighbors[v] ?? new Uint32Array(0)
 
-    if (!fv) continue
+    if (!fv) {
+      continue
+    }
 
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
@@ -41,14 +45,18 @@ export function runModel(
         const fw = fills[w]
         const kk = indexOf[w]?.get(v)
 
-        if (fw && kk !== undefined) fw[kk] = f
+        if (fw && kk !== undefined) {
+          fw[kk] = f
+        }
       }
     }
   }
 
   const init = new Int8Array(g.size)
 
-  for (let i = 0; i < g.size; i++) init[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < g.size; i++) {
+    init[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   const run = (): Int8Array => {
     let tone = Int8Array.from(init)
@@ -62,8 +70,9 @@ export function runModel(
 
         let h = 0
 
-        for (let k = 0; k < nb.length; k++)
+        for (let k = 0; k < nb.length; k++) {
           h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
+        }
 
         next[v] = h > 0 ? 1 : h < 0 ? -1 : 0
       }
@@ -82,9 +91,13 @@ export function runModel(
   let nonzero = 0
 
   for (let i = 0; i < g.size; i++) {
-    if (a[i] !== b[i]) deterministic = false
+    if (a[i] !== b[i]) {
+      deterministic = false
+    }
 
-    if (a[i] !== init[i]) evolves = true
+    if (a[i] !== init[i]) {
+      evolves = true
+    }
 
     if (a[i] !== 0) {
       nonzero++

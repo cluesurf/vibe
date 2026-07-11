@@ -31,7 +31,9 @@ suite('dynamics/coined-walk-distribution: conservation', [
 
       let sum = 0
 
-      for (const p of distribution) sum += p
+      for (const p of distribution) {
+        sum += p
+      }
 
       close(sum, 1, 1e-9, `classical sum = 1 at T=${steps}`)
     }
@@ -83,6 +85,8 @@ suite('dynamics/coined-walk-distribution: determinism', [
     const a = coinedWalkQuantumDistribution({ steps: 20 }).distribution
     const b = coinedWalkQuantumDistribution({ steps: 20 }).distribution
 
-    for (let i = 0; i < a.length; i++) equal(a[i]!, b[i]!, `cell ${i}`)
+    for (let i = 0; i < a.length; i++) {
+      equal(a[i]!, b[i]!, `cell ${i}`)
+    }
   }),
 ])

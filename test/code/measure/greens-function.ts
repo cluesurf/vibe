@@ -26,17 +26,29 @@ function cubic(L: number): {
       for (let x = 0; x < L; x++) {
         const row: number[] = []
 
-        if (x + 1 < L) row.push(at(x + 1, y, z))
+        if (x + 1 < L) {
+          row.push(at(x + 1, y, z))
+        }
 
-        if (x - 1 >= 0) row.push(at(x - 1, y, z))
+        if (x - 1 >= 0) {
+          row.push(at(x - 1, y, z))
+        }
 
-        if (y + 1 < L) row.push(at(x, y + 1, z))
+        if (y + 1 < L) {
+          row.push(at(x, y + 1, z))
+        }
 
-        if (y - 1 >= 0) row.push(at(x, y - 1, z))
+        if (y - 1 >= 0) {
+          row.push(at(x, y - 1, z))
+        }
 
-        if (z + 1 < L) row.push(at(x, y, z + 1))
+        if (z + 1 < L) {
+          row.push(at(x, y, z + 1))
+        }
 
-        if (z - 1 >= 0) row.push(at(x, y, z - 1))
+        if (z - 1 >= 0) {
+          row.push(at(x, y, z - 1))
+        }
 
         neighbors.push(row)
         coords.push([x, y, z])
@@ -80,7 +92,9 @@ suite('measure/greens-function: Dirichlet Jacobi solve', [
     for (let i = 0; i < neighbors.length; i++) {
       let lap = 2 * phi[i]!
 
-      for (const j of neighbors[i]!) lap -= phi[j]!
+      for (const j of neighbors[i]!) {
+        lap -= phi[j]!
+      }
 
       close(lap, i === center ? 1 : 0, 1e-5, `residual at ${i}`)
     }

@@ -79,7 +79,9 @@ export function boostVelocityAddition(): {
       const k = -Math.PI + (2 * Math.PI * i) / 100
       const v = Math.abs(groupVelocity(k, m))
 
-      if (isFinite(v)) maxV = Math.max(maxV, v)
+      if (isFinite(v)) {
+        maxV = Math.max(maxV, v)
+      }
     }
   }
 

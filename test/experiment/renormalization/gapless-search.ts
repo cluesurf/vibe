@@ -57,8 +57,9 @@ export function gaplessSearch(input?: {
     const moved = new Uint8Array(L)
     const rng = makeRng({ seed: 17 })
 
-    for (let i = 0; i < L; i++)
+    for (let i = 0; i < L; i++) {
       tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
+    }
 
     for (let t = 0; t < 400; t++) {
       conservingRingSweepTunable({
@@ -105,7 +106,9 @@ export function gaplessSearch(input?: {
       let rng2 = 0
 
       for (let r = 1; r <= maxR; r++) {
-        if (Math.abs(cc[r]!) > 0.05 * Math.abs(cc[0]!)) rng2 = r
+        if (Math.abs(cc[r]!) > 0.05 * Math.abs(cc[0]!)) {
+          rng2 = r
+        }
       }
 
       return rng2

@@ -66,10 +66,13 @@ export function flatSpatialRP(input?: {
     const moved = new Uint8Array(L)
     const rng = makeRng({ seed: 13 })
 
-    for (let i = 0; i < L; i++)
+    for (let i = 0; i < L; i++) {
       tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
+    }
 
-    for (let t = 0; t < 300; t++) beat(tone, L, moved, rng, arrow)
+    for (let t = 0; t < 300; t++) {
+      beat(tone, L, moved, rng, arrow)
+    }
 
     const T = 1500
     const sumNN = new Float64Array(maxR + 1)
@@ -79,13 +82,16 @@ export function flatSpatialRP(input?: {
     const n = new Float64Array(L)
 
     for (let t = 0; t < T; t++) {
-      for (let x = 0; x < L; x++) n[x] = tone[x] !== 0 ? 1 : 0
+      for (let x = 0; x < L; x++) {
+        n[x] = tone[x] !== 0 ? 1 : 0
+      }
 
       for (let x = 0; x < L; x++) {
         sumN += n[x]!
 
-        for (let r = 0; r <= maxR; r++)
+        for (let r = 0; r <= maxR; r++) {
           sumNN[r]! += n[x]! * n[(x + r) % L]!
+        }
       }
 
       beat(tone, L, moved, rng, arrow)
@@ -94,8 +100,9 @@ export function flatSpatialRP(input?: {
     const mean = sumN / (L * T)
     const c: number[] = []
 
-    for (let r = 0; r <= maxR; r++)
+    for (let r = 0; r <= maxR; r++) {
       c.push(sumNN[r]! / (L * T) - mean * mean)
+    }
 
     return { c, density: mean }
   }
@@ -115,7 +122,9 @@ export function flatSpatialRP(input?: {
     let range = 0
 
     for (let r = 1; r <= maxR; r++) {
-      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
+      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
+        range = r
+      }
     }
 
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))

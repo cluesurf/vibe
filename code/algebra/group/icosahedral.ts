@@ -108,7 +108,9 @@ export function icosahedralFacePermutationDecomposition(): {
     let p = m
 
     for (let o = 1; o <= 10; o++) {
-      if (close3(p, identity3())) return o
+      if (close3(p, identity3())) {
+        return o
+      }
 
       p = matmul3(m, p)
     }

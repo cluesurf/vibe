@@ -26,8 +26,9 @@ export function cmZero(rows: number, columns: number): ComplexMatrix {
 export function cmIdentity(size: number): ComplexMatrix {
   const matrix = cmZero(size, size)
 
-  for (let index = 0; index < size; index++)
+  for (let index = 0; index < size; index++) {
     matrix[index]![index] = c(1, 0)
+  }
 
   return matrix
 }
@@ -74,8 +75,9 @@ export function cmKron(
   for (let i = 0; i < ar; i++) {
     for (let j = 0; j < ac; j++) {
       for (let k = 0; k < br; k++) {
-        for (let l = 0; l < bc; l++)
+        for (let l = 0; l < bc; l++) {
           out[i * br + k]![j * bc + l] = cMul(a[i]![j]!, b[k]![l]!)
+        }
       }
     }
   }
@@ -240,7 +242,9 @@ export function cmMaxAbs(matrix: ComplexMatrix): number {
   let worst = 0
 
   for (const row of matrix) {
-    for (const z of row) worst = Math.max(worst, Math.hypot(z.re, z.im))
+    for (const z of row) {
+      worst = Math.max(worst, Math.hypot(z.re, z.im))
+    }
   }
 
   return worst
@@ -285,7 +289,9 @@ export function coxeterEdgeRotor(m: number): ComplexMatrix {
 export function cmScalarTrace(matrix: ComplexMatrix): number {
   let s = 0
 
-  for (let i = 0; i < matrix.length; i++) s += matrix[i]![i]!.re
+  for (let i = 0; i < matrix.length; i++) {
+    s += matrix[i]![i]!.re
+  }
 
   return s / matrix.length
 }
@@ -297,8 +303,9 @@ export function cmPower(
 ): ComplexMatrix {
   let result = cmIdentity(matrix.length)
 
-  for (let step = 0; step < exponent; step++)
+  for (let step = 0; step < exponent; step++) {
     result = cmMultiply(result, matrix)
+  }
 
   return result
 }
@@ -309,8 +316,9 @@ export function cmFrobeniusNorm(matrix: ComplexMatrix): number {
   let sum = 0
 
   for (const row of matrix) {
-    for (const value of row)
+    for (const value of row) {
       sum += value.re * value.re + value.im * value.im
+    }
   }
 
   return Math.sqrt(sum)

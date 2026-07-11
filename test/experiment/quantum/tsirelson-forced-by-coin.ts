@@ -68,8 +68,9 @@ function combine(parts: { matrix: Matrix; weight: number }[]): Matrix {
 
   for (const part of parts) {
     for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++)
+      for (let j = 0; j < size; j++) {
         out[i]![j]! += part.weight * (part.matrix[i]?.[j] ?? 0)
+      }
     }
   }
 

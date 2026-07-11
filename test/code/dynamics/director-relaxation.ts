@@ -16,9 +16,13 @@ function maxGradient(phi: readonly number[]): number {
   for (let i = 0; i < n; i++) {
     let d = phi[(i + 1) % n]! - phi[i]!
 
-    while (d > Math.PI / 2) d -= Math.PI
+    while (d > Math.PI / 2) {
+      d -= Math.PI
+    }
 
-    while (d < -Math.PI / 2) d += Math.PI
+    while (d < -Math.PI / 2) {
+      d += Math.PI
+    }
 
     m = Math.max(m, Math.abs(d))
   }
@@ -31,8 +35,9 @@ suite('dynamics/director-relaxation: uniform fixed point', [
     const uniform = new Array<number>(24).fill(0.4)
     const out = relaxDirector({ phi: uniform, steps: 100, dt: 0.1 })
 
-    for (let i = 0; i < out.length; i++)
+    for (let i = 0; i < out.length; i++) {
       close(out[i]!, 0.4, 1e-12, `cell ${i}`)
+    }
   }),
 ])
 
@@ -60,6 +65,8 @@ suite('dynamics/director-relaxation: determinism', [
     const a = relaxDirector({ phi, steps: 50, dt: 0.1 })
     const b = relaxDirector({ phi, steps: 50, dt: 0.1 })
 
-    for (let i = 0; i < a.length; i++) equal(a[i]!, b[i]!, `cell ${i}`)
+    for (let i = 0; i < a.length; i++) {
+      equal(a[i]!, b[i]!, `cell ${i}`)
+    }
   }),
 ])

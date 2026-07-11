@@ -50,7 +50,9 @@ function lightCone(
 
   let a = new Int8Array(n)
 
-  for (let i = 0; i < n; i++) a[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < n; i++) {
+    a[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   let b = Int8Array.from(a)
 
@@ -70,12 +72,16 @@ function lightCone(
     let maxDist = 0
 
     for (let v = 0; v < n; v++) {
-      if (a[v] !== b[v]) maxDist = Math.max(maxDist, dist[v] ?? 0)
+      if (a[v] !== b[v]) {
+        maxDist = Math.max(maxDist, dist[v] ?? 0)
+      }
     }
 
     radii.push(maxDist)
 
-    if (maxDist > beat) holds = false
+    if (maxDist > beat) {
+      holds = false
+    }
   }
 
   return { holds, propagated: Math.max(...radii) >= 1 }
@@ -107,7 +113,9 @@ export function oneRuleAllSectors(input: {
 
   let min = Infinity
 
-  for (const v of spectrum) min = Math.min(min, v)
+  for (const v of spectrum) {
+    min = Math.min(min, v)
+  }
 
   // Force/static sector: the Green's function decays with graph distance.
   const center = mostConnectedNode(g.neighbors)

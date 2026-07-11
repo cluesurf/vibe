@@ -46,7 +46,9 @@ function lateAmplitude(input: {
   for (let t = 0; t < steps * 0.15; t++) {
     const a = Math.abs(trajectory[t]!)
 
-    if (a > early) early = a
+    if (a > early) {
+      early = a
+    }
   }
 
   return { early, late: lateAmp(trajectory) }

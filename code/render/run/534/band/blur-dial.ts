@@ -52,7 +52,9 @@ function run(): void {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -60,7 +62,9 @@ function run(): void {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   const e2 = normalize(
@@ -101,7 +105,9 @@ function run(): void {
     for (const w of slab.neighbors[bandList[a]!]!) {
       const b = reindex[w]!
 
-      if (b >= 0) bandNbr[a]!.push(b)
+      if (b >= 0) {
+        bandNbr[a]!.push(b)
+      }
     }
   }
 
@@ -161,12 +167,16 @@ function run(): void {
   ): void => {
     for (let dy = -DOT; dy <= DOT; dy++) {
       for (let dx = -DOT; dx <= DOT; dx++) {
-        if (dx * dx + dy * dy > DOT * DOT) continue
+        if (dx * dx + dy * dy > DOT * DOT) {
+          continue
+        }
 
         const x = cx + dx,
           y = cy + dy
 
-        if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+        if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+          continue
+        }
 
         const o = (y * IMG + x) * 4
 
@@ -184,7 +194,9 @@ function run(): void {
     for (let a = 0; a < B; a++) {
       const v = Math.abs(field[a]!)
 
-      if (v > mx) mx = v
+      if (v > mx) {
+        mx = v
+      }
     }
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -200,7 +212,9 @@ function run(): void {
       const v = field[a]! / mx
       const m = Math.min(1, Math.abs(v))
 
-      if (m < 0.04) continue
+      if (m < 0.04) {
+        continue
+      }
 
       const col: [number, number, number] =
         v > 0
@@ -244,7 +258,9 @@ function run(): void {
 
     field = ns
 
-    if (f % 12 === 0) console.log(`  pass ${f}/${FRAMES}`)
+    if (f % 12 === 0) {
+      console.log(`  pass ${f}/${FRAMES}`)
+    }
   }
 
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

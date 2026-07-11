@@ -62,8 +62,9 @@ suite('coarse/block-charge-tower: charge conservation up the tower', [
       levels: 2,
     })
 
-    for (const lv of levels)
+    for (const lv of levels) {
       equal(lv.totalCharge, 0, 'balanced field stays charge-neutral')
+    }
 
     // level 0 variance: mean 0, var = (1+1+1+1)/4 = 1, compressibility 1.
     close(levels[0]!.compressibility, 1, 1e-12)

@@ -4,11 +4,15 @@
 export function mean(series: ArrayLike<number>): number {
   const n = series.length
 
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
 
   let s = 0
 
-  for (let i = 0; i < n; i++) s += series[i]!
+  for (let i = 0; i < n; i++) {
+    s += series[i]!
+  }
 
   return s / n
 }
@@ -17,13 +21,17 @@ export function mean(series: ArrayLike<number>): number {
 export function populationVariance(series: ArrayLike<number>): number {
   const n = series.length
 
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
 
   const m = mean(series)
 
   let s = 0
 
-  for (let i = 0; i < n; i++) s += (series[i]! - m) ** 2
+  for (let i = 0; i < n; i++) {
+    s += (series[i]! - m) ** 2
+  }
 
   return s / n
 }
@@ -82,7 +90,9 @@ export function relativeStandardDeviation(
 ): number {
   const n = series.length
 
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
 
   let m = 0
   let scale = 1e-9
@@ -96,7 +106,9 @@ export function relativeStandardDeviation(
 
   let v = 0
 
-  for (let i = 0; i < n; i++) v += (series[i]! - m) ** 2
+  for (let i = 0; i < n; i++) {
+    v += (series[i]! - m) ** 2
+  }
 
   v /= n
 
@@ -165,10 +177,14 @@ export function mutualInformationBits(
   let total = 0
 
   for (let x = 0; x < rows; x++) {
-    for (let y = 0; y < cols; y++) total += joint[x]![y] ?? 0
+    for (let y = 0; y < cols; y++) {
+      total += joint[x]![y] ?? 0
+    }
   }
 
-  if (total <= 0) return 0
+  if (total <= 0) {
+    return 0
+  }
 
   const px = new Array<number>(rows).fill(0)
   const py = new Array<number>(cols).fill(0)
@@ -191,7 +207,9 @@ export function mutualInformationBits(
       if (p > 0) {
         const denom = (px[x] ?? 0) * (py[y] ?? 0)
 
-        if (denom > 0) mi += p * Math.log2(p / denom)
+        if (denom > 0) {
+          mi += p * Math.log2(p / denom)
+        }
       }
     }
   }

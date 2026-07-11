@@ -53,7 +53,9 @@ function maxGroupSpeed(m: number): number {
       groupVelocity1d({ omega: kk => omega(kk, m), k }),
     )
 
-    if (Number.isFinite(v)) best = Math.max(best, v)
+    if (Number.isFinite(v)) {
+      best = Math.max(best, v)
+    }
   }
 
   return best

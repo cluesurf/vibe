@@ -24,7 +24,9 @@ function momentum(slots: Int8Array): number[] {
 
   for (let d = 0; d < DEGREE; d++) {
     if (slots[d] === 1) {
-      for (let axis = 0; axis < 4; axis++) m[axis]! += D4[d]![axis]!
+      for (let axis = 0; axis < 4; axis++) {
+        m[axis]! += D4[d]![axis]!
+      }
     }
   }
 
@@ -98,7 +100,9 @@ suite(
 function pattern(): Int8Array {
   const slots = new Int8Array(DEGREE)
 
-  for (let i = 0; i < DEGREE; i++) slots[i] = i % 3 === 0 ? 1 : 0
+  for (let i = 0; i < DEGREE; i++) {
+    slots[i] = i % 3 === 0 ? 1 : 0
+  }
 
   return slots
 }

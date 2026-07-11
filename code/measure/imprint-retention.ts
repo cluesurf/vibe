@@ -52,7 +52,9 @@ export function imprintRetention(input: {
     limit: blobSize,
   })
 
-  for (const i of blob) tone[i] = 1
+  for (const i of blob) {
+    tone[i] = 1
+  }
 
   const meanBlob = (): number =>
     blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
@@ -79,7 +81,9 @@ export function imprintRetention(input: {
 
   let bg = 0
 
-  for (let i = 0; i < n; i++) bg += tone[i]!
+  for (let i = 0; i < n; i++) {
+    bg += tone[i]!
+  }
 
   bg /= n
 

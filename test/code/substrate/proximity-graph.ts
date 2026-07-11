@@ -35,8 +35,9 @@ suite('substrate/proximity-graph: adaptive connectivity', [
     const sets = n.map(row => new Set(row))
 
     for (let i = 0; i < coords.length; i++) {
-      for (const j of n[i]!)
+      for (const j of n[i]!) {
         ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+      }
     }
   }),
 ])

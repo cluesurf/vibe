@@ -36,14 +36,20 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
   let maxVertex = 0
 
   for (const e of field.edges) {
-    if (e.from > maxVertex) maxVertex = e.from
+    if (e.from > maxVertex) {
+      maxVertex = e.from
+    }
 
-    if (e.to > maxVertex) maxVertex = e.to
+    if (e.to > maxVertex) {
+      maxVertex = e.to
+    }
   }
 
   const neighbors: Set<number>[] = []
 
-  for (let v = 0; v <= maxVertex; v++) neighbors.push(new Set<number>())
+  for (let v = 0; v <= maxVertex; v++) {
+    neighbors.push(new Set<number>())
+  }
 
   for (const e of field.edges) {
     neighbors[e.from]?.add(e.to)
@@ -55,17 +61,23 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
   for (let i = 0; i < field.edges.length; i++) {
     const edge = field.edges[i]
 
-    if (!edge) continue
+    if (!edge) {
+      continue
+    }
 
     const a = edge.from
     const b = edge.to
     const na = neighbors[a]
     const nb = neighbors[b]
 
-    if (!na || !nb) continue
+    if (!na || !nb) {
+      continue
+    }
 
     for (const c of na) {
-      if (c !== b && nb.has(c)) perEdge[i]?.push({ a, b, c })
+      if (c !== b && nb.has(c)) {
+        perEdge[i]?.push({ a, b, c })
+      }
     }
   }
 
@@ -97,13 +109,16 @@ export function gaugeRule(input: {
       for (let i = 0; i < field.link.length; i++) {
         const triangles = edgeTriangles[i]
 
-        if (!triangles || triangles.length === 0) continue
+        if (!triangles || triangles.length === 0) {
+          continue
+        }
 
         // Local action before the move: sum over plaquettes through this link.
         let before = 0
 
-        for (const tri of triangles)
+        for (const tri of triangles) {
           before += 1 - Math.cos(trianglePhase(field, tri))
+        }
 
         // Propose link[i] -> link[i] +/- 1 (mod q).
         const step = rng.next() < 0.5 ? -1 : 1
@@ -115,8 +130,9 @@ export function gaugeRule(input: {
         // Local action after the move.
         let after = 0
 
-        for (const tri of triangles)
+        for (const tri of triangles) {
           after += 1 - Math.cos(trianglePhase(field, tri))
+        }
 
         const deltaAction = after - before
 
@@ -124,8 +140,9 @@ export function gaugeRule(input: {
         if (
           deltaAction > 0 &&
           rng.next() >= Math.exp(-input.beta * deltaAction)
-        )
+        ) {
           field.link[i] = current
+        }
       }
 
       // The tone configuration is untouched; the field mutated by closure.

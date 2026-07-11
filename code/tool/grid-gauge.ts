@@ -39,13 +39,21 @@ export function gridWilsonLoop(
 
   let s = 0
 
-  for (let x = x0; x < x1; x++) s += g.Ax[x]![y0]!
+  for (let x = x0; x < x1; x++) {
+    s += g.Ax[x]![y0]!
+  }
 
-  for (let y = y0; y < y1; y++) s += g.Ay[x1]![y]!
+  for (let y = y0; y < y1; y++) {
+    s += g.Ay[x1]![y]!
+  }
 
-  for (let x = x1 - 1; x >= x0; x--) s -= g.Ax[x]![y1]!
+  for (let x = x1 - 1; x >= x0; x--) {
+    s -= g.Ax[x]![y1]!
+  }
 
-  for (let y = y1 - 1; y >= y0; y--) s -= g.Ay[x0]![y]!
+  for (let y = y1 - 1; y >= y0; y--) {
+    s -= g.Ay[x0]![y]!
+  }
 
   return s
 }

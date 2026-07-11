@@ -32,7 +32,9 @@ function generalisedGoldenRatio(dimension: number): number {
 
   // 64 iterations is far past convergence to double precision for any small
   // dimension, and fixed so the value is bit-identical across runs.
-  for (let step = 0; step < 64; step++) phi = Math.pow(1 + phi, power)
+  for (let step = 0; step < 64; step++) {
+    phi = Math.pow(1 + phi, power)
+  }
 
   return phi
 }
@@ -57,16 +59,18 @@ export function probeDirections(input: {
 
   const alpha = new Array<number>(dimension)
 
-  for (let axis = 0; axis < dimension; axis++)
+  for (let axis = 0; axis < dimension; axis++) {
     alpha[axis] = Math.pow(phi, -(axis + 1))
+  }
 
   const directions: number[][] = []
 
   for (let index = 1; index <= count; index++) {
     const raw: number[] = []
 
-    for (let axis = 0; axis < dimension; axis++)
+    for (let axis = 0; axis < dimension; axis++) {
       raw.push(((index * (alpha[axis] ?? 0.5)) % 1) - 0.5)
+    }
 
     const norm = Math.hypot(...raw)
 

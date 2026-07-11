@@ -191,7 +191,9 @@ async function run(): Promise<void> {
   let axis = 0
 
   for (let k = 1; k < dim; k++) {
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
@@ -199,7 +201,9 @@ async function run(): Promise<void> {
   let axis2 = (axis + 1) % dim
 
   for (let k = 0; k < dim; k++) {
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
   }
 
   let e2raw = sub(seedVec(axis2), xi, dot(seedVec(axis2), xi))
@@ -209,6 +213,7 @@ async function run(): Promise<void> {
   const e2 = normalize(e2raw)
 
   type Cell = { u: number; v: number; tone: number }
+
   const band: Cell[] = []
 
   for (const i of extractBand({
@@ -266,7 +271,9 @@ async function run(): Promise<void> {
   const COLORS = TONE_COLORS
 
   for (const c of band) {
-    if (c.tone === 0) continue
+    if (c.tone === 0) {
+      continue
+    }
     // peace is black, draw only the charges
 
     const cx = pad + ((c.u - minU) / span) * (IMG - 2 * pad)
@@ -275,12 +282,16 @@ async function run(): Promise<void> {
 
     for (let dy = -RADIUS; dy <= RADIUS; dy++) {
       for (let dx = -RADIUS; dx <= RADIUS; dx++) {
-        if (dx * dx + dy * dy > RADIUS * RADIUS) continue
+        if (dx * dx + dy * dy > RADIUS * RADIUS) {
+          continue
+        }
 
         const px = Math.round(cx + dx)
         const py = Math.round(cy + dy)
 
-        if (px < 0 || px >= IMG || py < 0 || py >= IMG) continue
+        if (px < 0 || px >= IMG || py < 0 || py >= IMG) {
+          continue
+        }
 
         const idx = (py * IMG + px) * 4
 

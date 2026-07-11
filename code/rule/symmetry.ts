@@ -18,7 +18,9 @@ import { Will } from '@/code/tone/will'
 export function chargeConjugate(will: Will): Will {
   const data = new Int8Array(will.data.length)
 
-  for (let i = 0; i < data.length; i++) data[i] = -(will.data[i] ?? 0)
+  for (let i = 0; i < data.length; i++) {
+    data[i] = -(will.data[i] ?? 0)
+  }
 
   return { mesh: will.mesh, data }
 }

@@ -19,7 +19,9 @@ export function addInto(
 ): number {
   const times = src.count()
 
-  for (let k = 0; k < times; k++) dst.increment()
+  for (let k = 0; k < times; k++) {
+    dst.increment()
+  }
 
   return times
 }

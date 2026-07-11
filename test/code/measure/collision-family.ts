@@ -11,7 +11,9 @@ import { linePairingFamily } from '@/code/measure/collision-family'
 function doubleFactorialOdd(twoN: number): number {
   let product = 1
 
-  for (let k = twoN - 1; k >= 1; k -= 2) product *= k
+  for (let k = twoN - 1; k >= 1; k -= 2) {
+    product *= k
+  }
 
   return product
 }

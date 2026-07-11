@@ -12,6 +12,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // quaternion helpers (the 8v as vectors via conjugation, the 8s/8c as spinors via left multiplication)
 type Q = readonly [number, number, number, number]
+
 const qmul = (a: Q, b: Q): Q => [
   a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
   a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
@@ -43,7 +44,9 @@ export function unifiedEmergence(): {
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {
-        for (const d of [0.5, -0.5]) half.push([a, b, c, d])
+        for (const d of [0.5, -0.5]) {
+          half.push([a, b, c, d])
+        }
       }
     }
   }

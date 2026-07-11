@@ -49,7 +49,9 @@ function checkAt(maxCells: number): Report {
   let cousins = 0
 
   for (let c = 0; c < n; c++) {
-    if (!a.complete[c]) continue
+    if (!a.complete[c]) {
+      continue
+    }
 
     for (const v of a.graph.neighbors[c]!) {
       if (a.dist[v] === a.dist[c]) {
@@ -69,7 +71,9 @@ function checkAt(maxCells: number): Report {
   let totalEdges = 0
 
   for (let c = 0; c < n; c++) {
-    if (!a.complete[c]) continue
+    if (!a.complete[c]) {
+      continue
+    }
 
     const predicted = new Set(predictAltParents(a, c, auto))
 
@@ -89,7 +93,9 @@ function checkAt(maxCells: number): Report {
   let roundTripFail = 0
 
   for (let c = 0; c < n; c++) {
-    if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) continue
+    if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
+      continue
+    }
 
     const key = a.address[c]!.join('.')
 
@@ -109,7 +115,9 @@ function checkAt(maxCells: number): Report {
   let totalComplete = 0
 
   for (let c = 0; c < n; c++) {
-    if (!a.complete[c]) continue
+    if (!a.complete[c]) {
+      continue
+    }
 
     totalComplete++
 
@@ -126,7 +134,9 @@ function checkAt(maxCells: number): Report {
 
     if (ok) {
       for (const v of truth) {
-        if (!predicted.has(v)) ok = false
+        if (!predicted.has(v)) {
+          ok = false
+        }
       }
     }
 

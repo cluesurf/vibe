@@ -25,7 +25,9 @@ const pairKey = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
 const sum = (a: Int8Array): number => {
   let s = 0
 
-  for (const v of a) s += v
+  for (const v of a) {
+    s += v
+  }
 
   return s
 }
@@ -201,8 +203,9 @@ suite('rule/perception-permutation: reversible sweeps and charge', [
         reverse: true,
       })
 
-      for (let i = 0; i < start.length; i++)
+      for (let i = 0; i < start.length; i++) {
         equal(tone[i], start[i], `vertex ${i} must return to its start`)
+      }
     },
   ),
   check(

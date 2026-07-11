@@ -103,7 +103,9 @@ export function coinedWalkClassicalDistribution(input: {
 
   const distribution = new Float64Array(W)
 
-  for (let x = 0; x < W; x++) distribution[x] = p[0]![x]! + p[1]![x]!
+  for (let x = 0; x < W; x++) {
+    distribution[x] = p[0]![x]! + p[1]![x]!
+  }
 
   return { distribution, offset: off, width: W }
 }

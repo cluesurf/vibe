@@ -42,13 +42,17 @@ function solitonSizes(s: number[]): number[] {
     if (b === 1) {
       run++
     } else {
-      if (run > 0) sizes.push(run)
+      if (run > 0) {
+        sizes.push(run)
+      }
 
       run = 0
     }
   }
 
-  if (run > 0) sizes.push(run)
+  if (run > 0) {
+    sizes.push(run)
+  }
 
   return sizes.sort((a, b) => b - a)
 }
@@ -109,7 +113,9 @@ export function solitonPersistence(): {
 
     s.forEach((b, i) => {
       if (b === 1) {
-        if (run === 0) start = i
+        if (run === 0) {
+          start = i
+        }
 
         run++
       } else if (run > 0) {
@@ -118,7 +124,9 @@ export function solitonPersistence(): {
       }
     })
 
-    if (run > 0) out.push({ size: run, pos: start + (run - 1) / 2 })
+    if (run > 0) {
+      out.push({ size: run, pos: start + (run - 1) / 2 })
+    }
 
     return out
   }
@@ -133,7 +141,9 @@ export function solitonPersistence(): {
   const big0 = startRuns.find(r => r.size === 3)!,
     small0 = startRuns.find(r => r.size === 1)!
 
-  for (let t = 0; t < 50; t++) s2 = bbsStep(s2)
+  for (let t = 0; t < 50; t++) {
+    s2 = bbsStep(s2)
+  }
 
   const after = solitonSizes(s2)
   const endRuns = runs(s2)

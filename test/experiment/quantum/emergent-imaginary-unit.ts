@@ -68,9 +68,13 @@ function realTwoComponentWalk(coupled: boolean): {
       const rotatedForward = c * r + s * l
       const rotatedBackward = -s * r + c * l
 
-      if (x + 1 < SITES) nextForward[x + 1]! += rotatedForward
+      if (x + 1 < SITES) {
+        nextForward[x + 1]! += rotatedForward
+      }
 
-      if (x - 1 >= 0) nextBackward[x - 1]! += rotatedBackward
+      if (x - 1 >= 0) {
+        nextBackward[x - 1]! += rotatedBackward
+      }
     }
 
     forward = nextForward
@@ -99,9 +103,13 @@ function classicalWalk(): Float64Array {
     const next = new Float64Array(SITES)
 
     for (let x = 0; x < SITES; x++) {
-      if (x + 1 < SITES) next[x + 1]! += 0.5 * (probability[x] ?? 0)
+      if (x + 1 < SITES) {
+        next[x + 1]! += 0.5 * (probability[x] ?? 0)
+      }
 
-      if (x - 1 >= 0) next[x - 1]! += 0.5 * (probability[x] ?? 0)
+      if (x - 1 >= 0) {
+        next[x - 1]! += 0.5 * (probability[x] ?? 0)
+      }
     }
 
     probability = next
@@ -121,7 +129,9 @@ function profile(distribution: Float64Array): {
 
   let total = 0
 
-  for (let x = 0; x < SITES; x++) total += distribution[x] ?? 0
+  for (let x = 0; x < SITES; x++) {
+    total += distribution[x] ?? 0
+  }
 
   let support = 0
   let accumulated = 0
@@ -145,9 +155,13 @@ function profile(distribution: Float64Array): {
       (distribution[centre + d] ?? 0) +
       (d > 0 ? (distribution[centre - d] ?? 0) : 0)
 
-    if (d > 0.7 * support && d <= support) edge += value
+    if (d > 0.7 * support && d <= support) {
+      edge += value
+    }
 
-    if (d < 0.3 * support) central += value
+    if (d < 0.3 * support) {
+      central += value
+    }
   }
 
   return {

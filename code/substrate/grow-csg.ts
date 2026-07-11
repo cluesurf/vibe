@@ -35,7 +35,9 @@ export function growCsg(input: {
   for (let m = 1; m < n; m++) {
     // Decide direct ancestry, then take the transitive closure of the past.
     for (let e = 0; e < m; e++) {
-      if (input.rng.next() < p) setBit(future, { row: e, col: m })
+      if (input.rng.next() < p) {
+        setBit(future, { row: e, col: m })
+      }
     }
 
     // Transitive closure: ensure every ancestor of a chosen parent is also an
@@ -43,8 +45,9 @@ export function growCsg(input: {
     for (let e = 0; e < m; e++) {
       if (getBit(future, { row: e, col: m })) {
         for (let d = 0; d < e; d++) {
-          if (getBit(future, { row: d, col: e }))
+          if (getBit(future, { row: d, col: e })) {
             setBit(future, { row: d, col: m })
+          }
         }
       }
     }

@@ -35,7 +35,9 @@ export function buildViscousQuads(directions: number[][]): number[][] {
     for (let b = a + 1; b < count; b++) {
       const key = momentumKey(a, b)
 
-      if (!groups.has(key)) groups.set(key, [])
+      if (!groups.has(key)) {
+        groups.set(key, [])
+      }
 
       groups.get(key)!.push([a, b])
     }
@@ -44,9 +46,13 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   const zeroKey = new Array<number>(dimension).fill(0).join(',')
   // process nonzero-momentum groups first (they give viscosity), then the zero-momentum group
   const orderedKeys = [...groups.keys()].sort((left, right) => {
-    if (left === zeroKey) return 1
+    if (left === zeroKey) {
+      return 1
+    }
 
-    if (right === zeroKey) return -1
+    if (right === zeroKey) {
+      return -1
+    }
 
     return 0
   })
@@ -58,7 +64,9 @@ export function buildViscousQuads(directions: number[][]): number[][] {
     const pending: [number, number][] = []
 
     for (const [a, b] of groups.get(key)!) {
-      if (used[a] || used[b]) continue
+      if (used[a] || used[b]) {
+        continue
+      }
 
       pending.push([a, b])
 
@@ -93,14 +101,18 @@ export function controlledViscousRotate(input: {
   const gated = quads.slice(0, gateCount)
   const controlPool = quads.slice(gateCount).flat()
 
-  if (controlPool.length === 0) return viscousRotate(input)
+  if (controlPool.length === 0) {
+    return viscousRotate(input)
+  }
   // no control slots free, fall back
 
   return (slots, base) => {
     for (let i = 0; i < gated.length; i++) {
       const control = controlPool[i % controlPool.length]!
 
-      if (slots[base + control] !== 1) continue
+      if (slots[base + control] !== 1) {
+        continue
+      }
 
       const quad = gated[i]!
       const a = base + quad[0]!,
@@ -166,7 +178,9 @@ export function saturatedViscousRotate(input: {
     for (let b = a + 1; b < count; b++) {
       const key = momentumKey(a, b)
 
-      if (!groups.has(key)) groups.set(key, [])
+      if (!groups.has(key)) {
+        groups.set(key, [])
+      }
 
       groups.get(key)!.push([a, b])
     }
@@ -177,7 +191,9 @@ export function saturatedViscousRotate(input: {
 
   // a fixed deterministic channel order (sorted momentum keys, then pair enumeration order)
   for (const key of [...groups.keys()].sort()) {
-    if (key === zeroKey) continue
+    if (key === zeroKey) {
+      continue
+    }
 
     const pairs = groups.get(key)!
 
@@ -186,7 +202,9 @@ export function saturatedViscousRotate(input: {
         const [a, b] = pairs[i]!
         const [c, d] = pairs[j]!
 
-        if (a === c || a === d || b === c || b === d) continue
+        if (a === c || a === d || b === c || b === d) {
+          continue
+        }
 
         channels.push([a, b, c, d])
       }

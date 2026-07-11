@@ -135,7 +135,9 @@ export function embedTree(input: {
   const place = (node: number, parentDir: number | undefined): void => {
     const kids = input.children[node]!
 
-    if (kids.length === 0) return
+    if (kids.length === 0) {
+      return
+    }
 
     const here = coords[node]!
     const n = kids.length
@@ -204,7 +206,9 @@ export function embeddingDistortion(input: {
     const scaled = p.embedded / scale
     const ratio = Math.max(scaled / p.tree, p.tree / scaled)
 
-    if (ratio > worst) worst = ratio
+    if (ratio > worst) {
+      worst = ratio
+    }
   }
 
   return worst

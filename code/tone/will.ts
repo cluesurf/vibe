@@ -23,8 +23,9 @@ export function cloneWill(will: Will): Will {
 // the slot index, not a pseudo-random draw. `phase` shifts the pattern for a second
 // independent (still deterministic) initial condition.
 export function fillWillPattern(will: Will, phase = 0): void {
-  for (let index = 0; index < will.data.length; index++)
+  for (let index = 0; index < will.data.length; index++) {
     will.data[index] = ((index + phase) % 3) - 1
+  }
 }
 
 // A single charge at one cell pointing one direction, the minimal deterministic test structure.
@@ -72,7 +73,9 @@ export function charge(will: Will): number {
 
   const data = will.data
 
-  for (const value of data) sum += value ?? 0
+  for (const value of data) {
+    sum += value ?? 0
+  }
 
   return sum
 }
@@ -85,8 +88,9 @@ export function cellTone(will: Will, cell: number): number {
 
   let sum = 0
 
-  for (let direction = 0; direction < degree; direction++)
+  for (let direction = 0; direction < degree; direction++) {
     sum += will.data[base + direction] ?? 0
+  }
 
   return sum
 }
@@ -101,8 +105,9 @@ export function cellActivity(will: Will, cell: number): number {
 
   let sum = 0
 
-  for (let direction = 0; direction < degree; direction++)
+  for (let direction = 0; direction < degree; direction++) {
     sum += Math.abs(will.data[base + direction] ?? 0)
+  }
 
   return sum
 }

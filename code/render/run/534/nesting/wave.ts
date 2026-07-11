@@ -70,6 +70,7 @@ async function run(): Promise<void> {
   // precompute each cell's Poincare-disk pixel position and dot radius (conformal scale), draw far-first
   const half = IMG / 2
   const scale = half * MARGIN
+
   type Dot = {
     index: number
     px: number
@@ -77,6 +78,7 @@ async function run(): Promise<void> {
     rad: number
     r2: number
   }
+
   const dots: Dot[] = []
 
   for (let i = 0; i < n; i++) {
@@ -113,7 +115,9 @@ async function run(): Promise<void> {
         current: 1 + Math.floor(nextR() * 2),
         previous: 1 + Math.floor(nextR() * 2),
       })
-    } else seed[i] = pack({ current: 0, previous: 0 })
+    } else {
+      seed[i] = pack({ current: 0, previous: 0 })
+    }
   }
 
   const byteLength = n * 4
@@ -260,7 +264,9 @@ async function run(): Promise<void> {
     for (const d of dots) {
       const tone = currentOf(tones[d.index]!)
 
-      if (tone === 0) continue
+      if (tone === 0) {
+        continue
+      }
       // peace is black (the background), draw only the charges
 
       drawDot(rgba, d.px, d.py, d.rad, toneColor(tone))
@@ -271,7 +277,9 @@ async function run(): Promise<void> {
       encodePng(rgba, IMG, IMG),
     )
 
-    if (f % 20 === 0) console.log(`  beat ${f}/${FRAMES}`)
+    if (f % 20 === 0) {
+      console.log(`  beat ${f}/${FRAMES}`)
+    }
   }
 
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

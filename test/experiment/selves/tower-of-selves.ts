@@ -70,8 +70,9 @@ function hierarchicalMesh(input: {
       const block = cellSize * b ** level
       const start = Math.floor(v / block) * block
 
-      for (let d = 0; d < deg; d++)
+      for (let d = 0; d < deg; d++) {
         add(v, start + rng.nextInt({ max: block }))
+      }
     }
   }
 
@@ -120,12 +121,16 @@ export function towerOfSelves(input: { seed: number }): {
   const unitTone = new Map<string, number>()
 
   const toneOfUnit = (level: number, id: number): number => {
-    if (level === depth) return topTone
+    if (level === depth) {
+      return topTone
+    }
 
     const key = `${level},${id}`
     const cached = unitTone.get(key)
 
-    if (cached !== undefined) return cached
+    if (cached !== undefined) {
+      return cached
+    }
 
     const parent = toneOfUnit(level + 1, Math.floor(id / b))
     const flip = ir.next() < 0.18 + 0.04 * level
@@ -136,8 +141,9 @@ export function towerOfSelves(input: { seed: number }): {
     return t
   }
 
-  for (let v = 0; v < g.size; v++)
+  for (let v = 0; v < g.size; v++) {
     tone[v] = toneOfUnit(0, unitAtLevel(v, 0))
+  }
 
   // Settle so the assignment is a genuine (metastable) self of the rule.
   const base = settleAsync({
@@ -155,7 +161,9 @@ export function towerOfSelves(input: { seed: number }): {
     const K = countAtLevel(level)
     const cl = new Int32Array(g.size)
 
-    for (let v = 0; v < g.size; v++) cl[v] = unitAtLevel(v, level)
+    for (let v = 0; v < g.size; v++) {
+      cl[v] = unitAtLevel(v, level)
+    }
 
     // coherence: average internal alignment of each unit
     const sum = new Float64Array(K)
@@ -168,8 +176,9 @@ export function towerOfSelves(input: { seed: number }): {
 
     let coh = 0
 
-    for (let c = 0; c < K; c++)
+    for (let c = 0; c < K; c++) {
       coh += Math.abs(sum[c] ?? 0) / Math.max(1, cnt[c] ?? 1)
+    }
 
     coh /= K
 
@@ -203,7 +212,9 @@ export function towerOfSelves(input: { seed: number }): {
     const ratio =
       (rungs[i - 1]?.units ?? 1) / Math.max(1, rungs[i]?.units ?? 1)
 
-    if (Math.abs(ratio - b) > 0.5) cleanBranching = false
+    if (Math.abs(ratio - b) > 0.5) {
+      cleanBranching = false
+    }
   }
 
   const ruleHoldsEveryLevel = rungs

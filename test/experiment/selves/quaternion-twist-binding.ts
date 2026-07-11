@@ -148,14 +148,18 @@ export default experiment({
         }
       }
 
-      if (open) pinEdge(out)
+      if (open) {
+        pinEdge(out)
+      }
 
       return out
     }
 
     let spins = makeSkyrmionField({ size: L, coreRadius: 4 })
 
-    for (let t = 0; t < relaxSteps; t++) spins = relaxStep(spins, 0.08)
+    for (let t = 0; t < relaxSteps; t++) {
+      spins = relaxStep(spins, 0.08)
+    }
 
     const relaxedQ = skyrmionDegree(spins, L)
     const relaxedRadius = skyrmionRadius(spins, L)
@@ -169,9 +173,13 @@ export default experiment({
 
       const q = skyrmionDegree(spins, L)
 
-      if (q < minQ) minQ = q
+      if (q < minQ) {
+        minQ = q
+      }
 
-      if (q > maxQ) maxQ = q
+      if (q > maxQ) {
+        maxQ = q
+      }
     }
 
     const precessedRadius = skyrmionRadius(spins, L)
@@ -186,8 +194,9 @@ export default experiment({
       }
     }
 
-    for (let t = 0; t < precessSteps; t++)
+    for (let t = 0; t < precessSteps; t++) {
       pert = precessStep(pert, false)
+    }
 
     const perturbedQ = skyrmionDegree(pert, L)
 

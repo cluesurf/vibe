@@ -175,8 +175,9 @@ async function run(): Promise<void> {
 
       let tot = 0
 
-      for (let z = 4; z < L; z += 8)
+      for (let z = 4; z < L; z += 8) {
         tot += Math.abs(sliceCharge(out, z))
+      }
       // average |Q| over several slices
 
       return tot / Math.floor((L - 4) / 8)
@@ -185,8 +186,9 @@ async function run(): Promise<void> {
     const marks: number[] = []
 
     for (let s = 0; s < STEPS; s++) {
-      if (s === 0 || s === 300 || s === 600 || s === STEPS - 1)
+      if (s === 0 || s === 300 || s === 600 || s === STEPS - 1) {
         marks.push(Math.round((await readCharge()) * 10) / 10)
+      }
 
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()

@@ -36,8 +36,9 @@ const equalTuple = (
   expected: Quaternion,
   message: string,
 ): void => {
-  for (let i = 0; i < 4; i++)
+  for (let i = 0; i < 4; i++) {
     equal(actual[i]!, expected[i]!, `${message} [${i}]`)
+  }
 }
 
 const key = (q: Quaternion): string =>
@@ -80,8 +81,9 @@ suite('algebra/binary-tetrahedral: the group 2T', [
     equal(group.length, 24, '2T size')
     equal(new Set(group.map(key)).size, 24, '2T distinct')
 
-    for (const q of group)
+    for (const q of group) {
       ok(Math.abs(normSquared(q) - 1) < 1e-12, '2T element is a unit')
+    }
   }),
   check('2T is closed under multiplication', () => {
     ok(

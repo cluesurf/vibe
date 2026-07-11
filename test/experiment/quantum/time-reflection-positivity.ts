@@ -74,7 +74,9 @@ export function reflectionPositivity(input?: { n?: number }): {
       const nf: number[] = []
 
       for (const u of fr) {
-        if (claimed[u]) continue
+        if (claimed[u]) {
+          continue
+        }
 
         out.push(u)
         claimed[u] = 1
@@ -103,7 +105,9 @@ export function reflectionPositivity(input?: { n?: number }): {
   const obs = (tone: Int8Array): number => {
     let a = 0
 
-    for (const i of patchA) a += tone[i]!
+    for (const i of patchA) {
+      a += tone[i]!
+    }
 
     return a / patchA.length
   }
@@ -112,10 +116,13 @@ export function reflectionPositivity(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
-  for (let t = 0; t < 60; t++) beat(tone, eu, ev, moved, rng, ARROW)
+  for (let t = 0; t < 60; t++) {
+    beat(tone, eu, ev, moved, rng, ARROW)
+  }
 
   const T = 8000
   const series = new Float64Array(T)
@@ -138,7 +145,9 @@ export function reflectionPositivity(input?: { n?: number }): {
   ): number => {
     let mean = 0
 
-    for (let t = start; t < start + len; t++) mean += series[t]!
+    for (let t = start; t < start + len; t++) {
+      mean += series[t]!
+    }
 
     mean /= len
 
@@ -165,7 +174,9 @@ export function reflectionPositivity(input?: { n?: number }): {
   // full-sample autocorrelation (for reporting)
   let mean = 0
 
-  for (let t = 0; t < T; t++) mean += series[t]!
+  for (let t = 0; t < T; t++) {
+    mean += series[t]!
+  }
 
   mean /= T
 
@@ -174,8 +185,9 @@ export function reflectionPositivity(input?: { n?: number }): {
   for (let tau = 0; tau <= maxTau; tau++) {
     let s = 0
 
-    for (let t = 0; t + tau < T; t++)
+    for (let t = 0; t + tau < T; t++) {
       s += (series[t]! - mean) * (series[t + tau]! - mean)
+    }
 
     autocorr.push(s / (T - tau))
   }
@@ -188,8 +200,11 @@ export function reflectionPositivity(input?: { n?: number }): {
   let oddSum = 0
 
   for (let tau = 1; tau <= maxTau; tau++) {
-    if (tau % 2 === 0) evenSum += autocorr[tau]!
-    else oddSum += autocorr[tau]!
+    if (tau % 2 === 0) {
+      evenSum += autocorr[tau]!
+    } else {
+      oddSum += autocorr[tau]!
+    }
   }
 
   const doublerAmplitude = (evenSum - oddSum) / autocorr[0]!
@@ -199,8 +214,9 @@ export function reflectionPositivity(input?: { n?: number }): {
   const blockLen = Math.floor(T / blocks)
   const blockEigs: number[] = []
 
-  for (let b = 0; b < blocks; b++)
+  for (let b = 0; b < blocks; b++) {
     blockEigs.push(hankelMinEig(b * blockLen, blockLen, 2))
+  }
 
   const meanBlock = blockEigs.reduce((s, x) => s + x, 0) / blocks
   const stdBlock = Math.sqrt(

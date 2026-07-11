@@ -56,8 +56,9 @@ export function propagation(input: {
   // Random initial state, then the perturbed copy flips the source.
   let toneA = new Int8Array(g.size)
 
-  for (let i = 0; i < g.size; i++)
+  for (let i = 0; i < g.size; i++) {
     toneA[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   let toneB = Int8Array.from(toneA)
 
@@ -83,14 +84,17 @@ export function propagation(input: {
     let maxDist = 0
 
     for (let v = 0; v < g.size; v++) {
-      if (toneA[v] !== toneB[v])
+      if (toneA[v] !== toneB[v]) {
         maxDist = Math.max(maxDist, dist[v] ?? 0)
+      }
     }
 
     frontRadius.push(maxDist)
 
     // The light-cone bound: nothing can differ beyond graph-distance equal to the beat.
-    if (maxDist > beat) lightConeHolds = false
+    if (maxDist > beat) {
+      lightConeHolds = false
+    }
   }
 
   const frontAdvances = (frontRadius[2] ?? 0) > (frontRadius[0] ?? 0)

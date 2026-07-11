@@ -77,8 +77,9 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        )
+        ) {
           will.data[c * degree + rest] = 1
+        }
       }
 
       return will
@@ -110,7 +111,9 @@ export default experiment({
             Math.abs(z - half) +
             Math.abs(w - half)
 
-          if (dd > ext) ext = dd
+          if (dd > ext) {
+            ext = dd
+          }
         }
       }
 
@@ -131,7 +134,9 @@ export default experiment({
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
 
-      for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1
+      for (let d = 0; d < 8; d++) {
+        w.data[center * degree + d] = 1
+      }
 
       return w
     }
@@ -195,7 +200,9 @@ export default experiment({
           }
         }
 
-        if (d > peak) peak = d
+        if (d > peak) {
+          peak = d
+        }
 
         final = d
       }

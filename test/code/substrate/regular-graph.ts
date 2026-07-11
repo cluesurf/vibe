@@ -67,8 +67,9 @@ suite('substrate/regular-graph: structural invariants', [
       rng: makeRng({ seed: 11 }),
     })
 
-    for (let e = 0; e < g.eu.length; e++)
+    for (let e = 0; e < g.eu.length; e++) {
       notOk(g.eu[e] === g.ev[e], `edge ${e} is not a self-loop`)
+    }
 
     for (let i = 0; i < 300; i++) {
       const deg = g.offsets[i + 1]! - g.offsets[i]!
@@ -95,13 +96,15 @@ suite('substrate/regular-graph: structural invariants', [
       )
 
       for (let i = 0; i < 150; i++) {
-        for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+        for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
           sets[i]!.add(g.adj[p]!)
+        }
       }
 
       for (let i = 0; i < 150; i++) {
-        for (const j of sets[i]!)
+        for (const j of sets[i]!) {
           ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+        }
       }
     },
   ),

@@ -55,8 +55,9 @@ function blockMomentum(input: {
       if (t !== 0) {
         const root = roots[d] ?? []
 
-        for (let k = 0; k < components; k++)
+        for (let k = 0; k < components; k++) {
           momentum[k]![b] = (momentum[k]![b] ?? 0) + t * (root[k] ?? 0)
+        }
       }
     }
   }
@@ -98,7 +99,9 @@ export function maxMomentumResidual(input: {
     for (let d = 0; d < mesh.degree; d++) {
       const t = collided.data[cell * mesh.degree + d] ?? 0
 
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
 
       const to = blockOf(mesh.neighbour(cell, d), side, block)
 

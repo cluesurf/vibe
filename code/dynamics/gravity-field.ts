@@ -29,14 +29,19 @@ export function bulkMass(input: {
   const source = new Int8Array(cellCount)
 
   for (let c = 0; c < cellCount; c++) {
-    if (!occupied[c]) continue
+    if (!occupied[c]) {
+      continue
+    }
 
     let count = 0
 
-    for (let d = 0; d < spatialDegree; d++)
+    for (let d = 0; d < spatialDegree; d++) {
       count += occupied[neighbour(c, d)] ? 1 : 0
+    }
 
-    if (count >= minNeighbours) source[c] = 1
+    if (count >= minNeighbours) {
+      source[c] = 1
+    }
   }
 
   return source
@@ -80,8 +85,9 @@ export function relaxPotential(input: {
     for (let c = 0; c < cellCount; c++) {
       let sum = 0
 
-      for (let d = 0; d < spatialDegree; d++)
+      for (let d = 0; d < spatialDegree; d++) {
         sum += phi[neighbour(c, d)]!
+      }
 
       next[c] = clamp(
         Math.round(sum / spatialDegree) -
@@ -120,14 +126,19 @@ export function gravityMoves(input: {
   const moves: [number, number][] = []
 
   for (let c = 0; c < cellCount; c++) {
-    if (!free[c]) continue
+    if (!free[c]) {
+      continue
+    }
 
     let dense = 0
 
-    for (let d = 0; d < spatialDegree; d++)
+    for (let d = 0; d < spatialDegree; d++) {
       dense += free[neighbour(c, d)]!
+    }
 
-    if (dense >= minNeighbours) continue
+    if (dense >= minNeighbours) {
+      continue
+    }
 
     let best = -1
     let bestPhi = phi[c]!
@@ -187,7 +198,9 @@ export function vacuumDensity(input: {
     for (let c = 0; c < cellCount; c++) {
       let sum = 0
 
-      for (let d = 0; d < spatialDegree; d++) sum += v[neighbour(c, d)]!
+      for (let d = 0; d < spatialDegree; d++) {
+        sum += v[neighbour(c, d)]!
+      }
 
       // empty cells pump the vacuum up by one, mass cells push it down by cap (depletion).
       next[c] = clamp(

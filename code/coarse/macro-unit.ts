@@ -41,7 +41,9 @@ export function extractUnits(input: {
   let id = 0
 
   for (let s = 0; s < cellCount; s++) {
-    if (tone[s] !== sign || seen[s]) continue
+    if (tone[s] !== sign || seen[s]) {
+      continue
+    }
 
     const members: number[] = []
 
@@ -68,7 +70,9 @@ export function extractUnits(input: {
       frontier = next
     }
 
-    if (members.length < minSize) continue
+    if (members.length < minSize) {
+      continue
+    }
 
     let cx = 0
     let cy = 0
@@ -103,7 +107,9 @@ export function coarseLabels(input: {
   const labels = new Int32Array(input.cellCount).fill(-1)
 
   for (const unit of input.units) {
-    for (const m of unit.members) labels[m] = unit.id
+    for (const m of unit.members) {
+      labels[m] = unit.id
+    }
   }
 
   return labels
@@ -112,7 +118,9 @@ export function coarseLabels(input: {
 // The compression ratio of one level, the mean number of sub-units per macro-unit (cells per self at level
 // 0). This is the factor C in the effective-vibe-count accounting, effective = N_top * C^L.
 export function meanUnitSize(units: MacroUnit[]): number {
-  if (units.length === 0) return 0
+  if (units.length === 0) {
+    return 0
+  }
 
   return units.reduce((a, u) => a + u.size, 0) / units.length
 }

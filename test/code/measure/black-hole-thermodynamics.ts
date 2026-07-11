@@ -50,13 +50,15 @@ suite('measure/black-hole-thermodynamics: Schwarzschild', [
   }),
   // First law dM = T dS: S = 4 pi M^2 so dS/dM = 8 pi M, and T (dS/dM) = 1.
   check('the first law T dS = dM holds (T * 8 pi M = 1)', () => {
-    for (const M of [0.5, 1, 2, 5])
+    for (const M of [0.5, 1, 2, 5]) {
       close(hawkingTemperature(M) * 8 * Math.PI * M, 1, TOL)
+    }
   }),
   // Smarr relation for Schwarzschild: M = 2 T S. T S = (1/(8 pi M))(4 pi M^2) = M/2.
   check('the Smarr relation M = 2 T S holds', () => {
-    for (const M of [0.5, 1, 3])
+    for (const M of [0.5, 1, 3]) {
       close(2 * hawkingTemperature(M) * schwarzschildEntropy(M), M, TOL)
+    }
   }),
   // L = A T^4 = 1 / (256 pi^3 M^2), so L ~ M^-2: L(1)/L(2) = 4.
   check('luminosity is 1 / (256 pi^3 M^2) and scales as M^-2', () => {

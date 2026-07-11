@@ -39,7 +39,9 @@ function maxResidual(input: {
 
         cc[k]! += s
 
-        if (cc[k]! >= 0 && cc[k]! < side) v -= x[idx(cc)] ?? 0
+        if (cc[k]! >= 0 && cc[k]! < side) {
+          v -= x[idx(cc)] ?? 0
+        }
       }
     }
 

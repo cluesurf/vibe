@@ -20,7 +20,9 @@ export function effectiveVibeCount(input: {
 }): number {
   let count = input.topUnits
 
-  for (const level of input.levels) count *= level.compression
+  for (const level of input.levels) {
+    count *= level.compression
+  }
 
   return count
 }

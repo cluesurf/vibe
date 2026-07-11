@@ -66,7 +66,9 @@ suite('operator/directional-charge-stream: transport', [
 
       for (let i = 0; i < n; i++) {
         for (let k = 0; k < 2; k++) {
-          if (!(i === 1 && k === 0)) elsewhere += next[i]![k]!
+          if (!(i === 1 && k === 0)) {
+            elsewhere += next[i]![k]!
+          }
         }
       }
 

@@ -68,7 +68,9 @@ const determinant = (matrix: number[][]): number => {
       pivot++
     }
 
-    if (pivot === n) return 0
+    if (pivot === n) {
+      return 0
+    }
 
     if (pivot !== col) {
       const swap = a[col]!
@@ -85,14 +87,17 @@ const determinant = (matrix: number[][]): number => {
       const target = a[row]!
       const factor = target[col]! / pivotValue
 
-      for (let k = col; k < n; k++)
+      for (let k = col; k < n; k++) {
         target[k] = target[k]! - factor * pivotRow[k]!
+      }
     }
   }
 
   let det = sign
 
-  for (let i = 0; i < n; i++) det *= a[i]![i]!
+  for (let i = 0; i < n; i++) {
+    det *= a[i]![i]!
+  }
 
   return Math.round(det)
 }
@@ -106,8 +111,9 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
       equal(roots.length, 24, '|D4 roots| = 2*4*3 = 24')
       equal(distinct(roots), 24, 'distinct')
 
-      for (const r of roots)
+      for (const r of roots) {
         equal(normSquared(r), 2, 'each D4 root has norm^2 = 2')
+      }
 
       ok(closedUnderNegation(roots), 'D4 closed under negation')
     },
@@ -117,8 +123,9 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
     equal(rootsDn(4).length, 24, '|D4 roots| = 24')
     equal(rootsDn(5).length, 40, '|D5 roots| = 40')
 
-    for (const r of rootsDn(5))
+    for (const r of rootsDn(5)) {
       equal(normSquared(r), 2, 'D_n roots have norm^2 = 2')
+    }
   }),
   check(
     'B4 has 32 roots: 24 long (norm^2 2) + 8 short (norm^2 1)',
@@ -157,8 +164,9 @@ suite('algebra/group/root-system: D4 / B4 / F4 counts and norms', [
     equal(rootsAn(3).length, 6, '|A2 roots| = 6 (su(3))')
     equal(rootsAn(4).length, 12, '|A3 roots| = 12 (su(4))')
 
-    for (const r of rootsAn(3))
+    for (const r of rootsAn(3)) {
       equal(normSquared(r), 2, 'A2 root norm^2 = 2')
+    }
   }),
 ])
 
@@ -167,8 +175,9 @@ suite('algebra/group/root-system: reflection and root-system axiom', [
     for (const a of rootsD4()) {
       const reflected = reflectRoot(a, a)
 
-      for (let i = 0; i < a.length; i++)
+      for (let i = 0; i < a.length; i++) {
         equal(reflected[i]!, -a[i]!, 's_a(a) = -a')
+      }
     }
   }),
   check('reflection is an involution on D4 roots', () => {
@@ -178,8 +187,9 @@ suite('algebra/group/root-system: reflection and root-system axiom', [
       const v = roots[0]!
       const twice = reflectRoot(reflectRoot(v, a), a)
 
-      for (let i = 0; i < v.length; i++)
+      for (let i = 0; i < v.length; i++) {
         equal(twice[i]!, v[i]!, 's_a(s_a(v)) = v')
+      }
     }
   }),
   check('D4, B4, F4, A2 are reflection-closed root systems', () => {
@@ -300,8 +310,9 @@ suite('algebra/group/root-system: spinor weights and E8', [
 
       equal(roots.length, 240, '|E8 roots| = 240')
 
-      for (const r of roots)
+      for (const r of roots) {
         ok(Math.abs(normSquared(r) - 2) < 1e-12, 'E8 root norm^2 = 2')
+      }
 
       ok(closedUnderNegation(roots), 'E8 closed under negation')
     },
@@ -361,7 +372,9 @@ suite('algebra/group/root-system: probe and lattice direction sets', [
 
       equal(axes.length, 2 * d, '2d axis directions')
 
-      for (const a of axes) equal(normSquared(a), 1, 'unit axis vector')
+      for (const a of axes) {
+        equal(normSquared(a), 1, 'unit axis vector')
+      }
     }
   }),
   check('the 4D probe directions are 7 unit vectors', () => {
@@ -369,8 +382,9 @@ suite('algebra/group/root-system: probe and lattice direction sets', [
 
     equal(probes.length, 7, '7 probe directions')
 
-    for (const p of probes)
+    for (const p of probes) {
       ok(Math.abs(normSquared(p) - 1) < 1e-12, 'probe is normalized')
+    }
   }),
   check(
     'the 12 icosahedron directions are unit and negation-closed',
@@ -379,8 +393,9 @@ suite('algebra/group/root-system: probe and lattice direction sets', [
 
       equal(directions.length, 12, '12 icosahedron vertex directions')
 
-      for (const d of directions)
+      for (const d of directions) {
         ok(Math.abs(normSquared(d) - 1) < 1e-12, 'unit direction')
+      }
 
       ok(
         closedUnderNegation(directions),

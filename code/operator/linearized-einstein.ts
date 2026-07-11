@@ -11,6 +11,7 @@ import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 export const GRAVITON_DIMENSION = 4
+
 const D = GRAVITON_DIMENSION
 const ETA = [-1, 1, 1, 1] // Minkowski signature, diagonal
 
@@ -23,7 +24,9 @@ export type TensorField = {
 export function gravitonSiteIndex(coords: number[], L: number): number {
   let idx = 0
 
-  for (let a = D - 1; a >= 0; a--) idx = idx * L + (coords[a] ?? 0)
+  for (let a = D - 1; a >= 0; a--) {
+    idx = idx * L + (coords[a] ?? 0)
+  }
 
   return idx
 }
@@ -67,7 +70,9 @@ export function tensorFieldMaxAbs(f: TensorField): number {
   let m = 0
 
   for (const row of f.data) {
-    for (const v of row) m = Math.max(m, Math.abs(v))
+    for (const v of row) {
+      m = Math.max(m, Math.abs(v))
+    }
   }
 
   return m
@@ -142,8 +147,9 @@ export function linearizedEinstein(h: TensorField): TensorField {
     const traceAt = (s: number): number => {
       let t = 0
 
-      for (let a = 0; a < D; a++)
+      for (let a = 0; a < D; a++) {
         t += (ETA[a] ?? 1) * (h.data[s]![a * D + a] ?? 0)
+      }
 
       return t
     }
@@ -194,16 +200,18 @@ export function linearizedEinstein(h: TensorField): TensorField {
     for (let a = 0; a < D; a++) {
       boxTrace += (ETA[a] ?? 1) * d2trace(a, a)
 
-      for (let b = 0; b < D; b++)
+      for (let b = 0; b < D; b++) {
         divdiv += (ETA[a] ?? 1) * (ETA[b] ?? 1) * d2(coords, a, b, a, b)
+      }
     }
 
     for (let mu = 0; mu < D; mu++) {
       for (let nu = mu; nu < D; nu++) {
         let boxH = 0
 
-        for (let a = 0; a < D; a++)
+        for (let a = 0; a < D; a++) {
           boxH += (ETA[a] ?? 1) * d2(coords, a, a, mu, nu)
+        }
 
         let divMu = 0
         let divNu = 0
@@ -319,8 +327,9 @@ export function gravitonPolarizationsFromSpectrum(input: {
     const g = linearizedEinstein(gravitonBasisField(L, comp, kz))
     const col = gravitonProjectOntoMode(g, kz)
 
-    for (let r = 0; r < GRAVITON_PAIRS.length; r++)
+    for (let r = 0; r < GRAVITON_PAIRS.length; r++) {
       M.data[r * GRAVITON_PAIRS.length + comp] = col[r] ?? 0
+    }
   }
 
   // symmetrize (the EH operator is self-adjoint; tiny asymmetry is lattice roundoff)
@@ -344,7 +353,9 @@ export function gravitonPolarizationsFromSpectrum(input: {
   let gauge = 0
 
   for (const v of eigenvalues) {
-    if (Math.abs(v) < tol) gauge += 1
+    if (Math.abs(v) < tol) {
+      gauge += 1
+    }
   }
 
   const apply = (v: number[]): number[] => {
@@ -353,8 +364,9 @@ export function gravitonPolarizationsFromSpectrum(input: {
     for (let r = 0; r < GRAVITON_PAIRS.length; r++) {
       let s = 0
 
-      for (let c = 0; c < GRAVITON_PAIRS.length; c++)
+      for (let c = 0; c < GRAVITON_PAIRS.length; c++) {
         s += (M.data[r * GRAVITON_PAIRS.length + c] ?? 0) * (v[c] ?? 0)
+      }
 
       out[r] = s
     }
@@ -365,20 +377,25 @@ export function gravitonPolarizationsFromSpectrum(input: {
   const isPropagatingEigenvector = (v: number[]): boolean => {
     const norm = Math.sqrt(v.reduce((a, b) => a + b * b, 0))
 
-    if (norm < 1e-12) return false
+    if (norm < 1e-12) {
+      return false
+    }
 
     const Mv = apply(v)
 
     let vMv = 0
 
-    for (let i = 0; i < v.length; i++) vMv += (v[i] ?? 0) * (Mv[i] ?? 0)
+    for (let i = 0; i < v.length; i++) {
+      vMv += (v[i] ?? 0) * (Mv[i] ?? 0)
+    }
 
     const lambda = vMv / (norm * norm)
 
     let res = 0
 
-    for (let i = 0; i < v.length; i++)
+    for (let i = 0; i < v.length; i++) {
       res += ((Mv[i] ?? 0) - lambda * (v[i] ?? 0)) ** 2
+    }
 
     return lambda > tol && Math.sqrt(res) < 1e-6 * scale
   }
@@ -396,7 +413,9 @@ export function gravitonPolarizationsFromSpectrum(input: {
   let physical = 0
 
   for (const mode of [ttPlus, ttCross]) {
-    if (isPropagatingEigenvector(mode)) physical += 1
+    if (isPropagatingEigenvector(mode)) {
+      physical += 1
+    }
   }
 
   return { physical, gauge, eigenvalues }

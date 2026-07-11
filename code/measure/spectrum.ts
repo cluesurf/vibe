@@ -15,8 +15,9 @@ export function distinctLevels(
   const out: number[] = []
 
   for (const v of sorted) {
-    if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance)
+    if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance) {
       out.push(v)
+    }
   }
 
   return out
@@ -40,8 +41,9 @@ export function zeroModeCensus(
     // mode. The docstring promises the smallest nonzero MAGNITUDE, so compare |v|.
     const magnitude = Math.abs(v)
 
-    if (magnitude < tolerance) zero += 1
-    else {
+    if (magnitude < tolerance) {
+      zero += 1
+    } else {
       nonzero += 1
       minNonzero = Math.min(minNonzero, magnitude)
     }

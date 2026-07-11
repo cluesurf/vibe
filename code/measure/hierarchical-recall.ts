@@ -31,8 +31,9 @@ export function buildRecallModel(input: {
     feature.push([[], []])
 
     for (let bit = 0; bit < 2; bit++) {
-      for (let d = 0; d < blockSize; d++)
+      for (let d = 0; d < blockSize; d++) {
         feature[level]![bit]!.push(rng.next() < 0.5 ? -1 : 1)
+      }
     }
   }
 
@@ -77,7 +78,9 @@ export function recall(input: {
   )
 
   const childFeature = (level: number, bit: number): number[] => {
-    if (!scramble) return feature[level]![bit]!
+    if (!scramble) {
+      return feature[level]![bit]!
+    }
 
     // a scrambled coarse feature that no longer matches either real child
     return feature[level]![bit]!.map(

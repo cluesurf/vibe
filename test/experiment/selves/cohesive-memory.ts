@@ -59,7 +59,9 @@ function beat(
   const moved = new Uint8Array(tone.length)
 
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
 
     const a = tone[v]!
     const b = tone[w]!
@@ -81,7 +83,9 @@ function beat(
         const agreeE = agreeCount(tone, neighbors, e, q, c)
 
         doHop = agreeE >= agreeC ? true : rng.next() < temp // move toward more agreement
-      } else doHop = rng.next() < 0.5
+      } else {
+        doHop = rng.next() < 0.5
+      }
 
       if (doHop) {
         tone[e] = q
@@ -128,14 +132,16 @@ function measure(cohesive: boolean): {
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
 
-  for (let b = 0; b < 100; b++)
+  for (let b = 0; b < 100; b++) {
     beat(t, edges, neighbors, rng, ARROW, cohesive, TEMP)
+  }
 
   const base = t.slice()
   const work = base.slice()
 
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
+  }
 
   const longLagCorr = pearson({ a: base, b: work })
   const conservedRun = sumTone(t) === q0
@@ -144,7 +150,9 @@ function measure(cohesive: boolean): {
   let center = 0
 
   for (let i = 1; i < n; i++) {
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
   }
 
   const distC = neighborDistances({
@@ -169,14 +177,17 @@ function measure(cohesive: boolean): {
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
 
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)
+  }
 
   const after = meanBlob(imp)
 
   let bg = 0
 
-  for (let i = 0; i < n; i++) bg += imp[i]!
+  for (let i = 0; i < n; i++) {
+    bg += imp[i]!
+  }
 
   bg /= n
 

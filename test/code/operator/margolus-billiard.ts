@@ -18,7 +18,9 @@ function fillBits(length: number, seed: number): Uint8Array {
   const g = new Uint8Array(length * length)
   const rng = makeRng({ seed })
 
-  for (let i = 0; i < g.length; i++) g[i] = rng.next() < 0.5 ? 1 : 0
+  for (let i = 0; i < g.length; i++) {
+    g[i] = rng.next() < 0.5 ? 1 : 0
+  }
 
   return g
 }

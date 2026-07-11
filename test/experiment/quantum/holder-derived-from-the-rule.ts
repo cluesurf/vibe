@@ -82,8 +82,9 @@ function clusterTrace(
       arrow: 0,
     })
 
-    if (t === mid)
+    if (t === mid) {
       midFraction = largestPositiveCluster(tone, g).length / initial
+    }
   }
 
   return {

@@ -106,8 +106,9 @@ suite('substrate/margenstern/splitting-tree: the materialized tree', [
 
         const p = tree.parent(id)
 
-        if (p >= 0)
+        if (p >= 0) {
           equal(parentOf(a), tree.address(p), `parent address of ${a}`)
+        }
       }
     },
   ),

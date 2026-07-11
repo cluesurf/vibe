@@ -51,12 +51,16 @@ function domainSizes(
 ): number[] {
   const parent = new Int32Array(n)
 
-  for (let i = 0; i < n; i++) parent[i] = i
+  for (let i = 0; i < n; i++) {
+    parent[i] = i
+  }
 
   const find = (x: number): number => {
     let r = x
 
-    while (parent[r] !== r) r = parent[r]!
+    while (parent[r] !== r) {
+      r = parent[r]!
+    }
 
     while (parent[x] !== r) {
       const nx = parent[x]!
@@ -69,19 +73,25 @@ function domainSizes(
   }
 
   for (let v = 0; v < n; v++) {
-    if (tone[v] === 0) continue
+    if (tone[v] === 0) {
+      continue
+    }
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
 
-      if (w > v && tone[w] === tone[v]) parent[find(v)] = find(w)
+      if (w > v && tone[w] === tone[v]) {
+        parent[find(v)] = find(w)
+      }
     }
   }
 
   const size = new Map<number, number>()
 
   for (let i = 0; i < n; i++) {
-    if (tone[i] === 0) continue
+    if (tone[i] === 0) {
+      continue
+    }
 
     const r = find(i)
 
@@ -114,8 +124,9 @@ export function selvesAtScale(input?: { n?: number }): {
   const q0 = sumTone(tone)
   const moved = new Uint8Array(N)
 
-  for (let b = 0; b < 100; b++)
+  for (let b = 0; b < 100; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, b, 0.06)
+  }
 
   const conserved = sumTone(tone) === q0
 

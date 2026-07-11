@@ -60,8 +60,9 @@ function bindingTest(digits: number): {
         (p[2]! - half) ** 2 +
         (p[3]! - half) ** 2 <=
       4
-    )
+    ) {
       body[c] = 1
+    }
   }
 
   const cap = balancedTernaryCap(digits)
@@ -86,13 +87,17 @@ function bindingTest(digits: number): {
   let wellRange = 0
 
   for (let c = 0; c < cellCount; c++) {
-    if (phi[c]! < 0 && distance(c) > wellRange) wellRange = distance(c)
+    if (phi[c]! < 0 && distance(c) > wellRange) {
+      wellRange = distance(c)
+    }
   }
 
   // a test mass displaced three cells, walking down the gradient to the body surface (distance two)
   let piece = centre
 
-  for (let k = 0; k < 3; k++) piece = neighbour(piece, 0)
+  for (let k = 0; k < 3; k++) {
+    piece = neighbour(piece, 0)
+  }
 
   for (let step = 0; step < 40; step++) {
     let best = -1
@@ -107,11 +112,15 @@ function bindingTest(digits: number): {
       }
     }
 
-    if (best < 0) break
+    if (best < 0) {
+      break
+    }
 
     piece = best
 
-    if (distance(piece) <= 2) break
+    if (distance(piece) <= 2) {
+      break
+    }
   }
 
   return { finalDistance: distance(piece), ternary, wellRange }

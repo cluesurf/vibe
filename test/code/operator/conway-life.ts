@@ -18,7 +18,9 @@ const set = (cells: [number, number][]): Set<string> =>
 const steps = (s: Set<string>, n: number): Set<string> => {
   let cur = s
 
-  for (let i = 0; i < n; i++) cur = lifeStep(cur)
+  for (let i = 0; i < n; i++) {
+    cur = lifeStep(cur)
+  }
 
   return cur
 }

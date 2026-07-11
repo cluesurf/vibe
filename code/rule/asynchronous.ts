@@ -16,7 +16,9 @@ import { Rng } from '@/code/tool/rng'
 function randomOrder(input: { size: number; rng: Rng }): number[] {
   const order: number[] = []
 
-  for (let i = 0; i < input.size; i++) order.push(i)
+  for (let i = 0; i < input.size; i++) {
+    order.push(i)
+  }
 
   for (let i = input.size - 1; i > 0; i--) {
     const j = input.rng.nextInt({ max: i + 1 })

@@ -54,8 +54,9 @@ export default experiment({
     // 1, relax to the metastable bound Skyrmion (the bound soliton exists, fixed size).
     let spins: Spin[] = makeSkyrmionField({ size, coreRadius: 5 })
 
-    for (let t = 0; t < relaxSteps; t++)
+    for (let t = 0; t < relaxSteps; t++) {
       spins = relaxSpins({ spins, params, rate: 0.08 })
+    }
 
     const relaxedQ = skyrmionDegree(spins, size)
     const relaxedRadius = skyrmionRadius(spins, size)
@@ -70,9 +71,13 @@ export default experiment({
 
       const q = skyrmionDegree(spins, size)
 
-      if (q < minQ) minQ = q
+      if (q < minQ) {
+        minQ = q
+      }
 
-      if (q > maxQ) maxQ = q
+      if (q > maxQ) {
+        maxQ = q
+      }
     }
 
     const precessedRadius = skyrmionRadius(spins, size)
@@ -92,8 +97,9 @@ export default experiment({
 
     let pert = perturbed
 
-    for (let t = 0; t < precessSteps; t++)
+    for (let t = 0; t < precessSteps; t++) {
       pert = precessSpins({ spins: pert, params, dt, open: false })
+    }
 
     const perturbedQ = skyrmionDegree(pert, size)
 

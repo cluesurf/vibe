@@ -21,7 +21,9 @@ export function slotReversal(input: { opposite: number[] }): Collision {
   ) {
     const other = input.opposite[direction]!
 
-    if (direction < other) lines.push([direction, other])
+    if (direction < other) {
+      lines.push([direction, other])
+    }
   }
 
   return (slots, base) => {
@@ -46,7 +48,10 @@ export function channelCollision(input: {
   const { bulk, wall, isWall } = input
 
   return (slots, base, degree) => {
-    if (isWall(base / degree)) wall(slots, base, degree)
-    else bulk(slots, base, degree)
+    if (isWall(base / degree)) {
+      wall(slots, base, degree)
+    } else {
+      bulk(slots, base, degree)
+    }
   }
 }

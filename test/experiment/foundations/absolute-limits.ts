@@ -47,7 +47,9 @@ export function absoluteLimits(input?: { n?: number }): {
       block[i] = nb
 
       for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
-        if (block[g.adj[p]!] === -1) block[g.adj[p]!] = nb
+        if (block[g.adj[p]!] === -1) {
+          block[g.adj[p]!] = nb
+        }
       }
 
       nb++
@@ -57,11 +59,15 @@ export function absoluteLimits(input?: { n?: number }): {
   const coarseQ = (t: Int8Array): number => {
     const bc = new Float64Array(nb)
 
-    for (let i = 0; i < N; i++) bc[block[i]!]! += t[i]!
+    for (let i = 0; i < N; i++) {
+      bc[block[i]!]! += t[i]!
+    }
 
     let s = 0
 
-    for (let b = 0; b < nb; b++) s += bc[b]!
+    for (let b = 0; b < nb; b++) {
+      s += bc[b]!
+    }
 
     return s
   }
@@ -69,8 +75,9 @@ export function absoluteLimits(input?: { n?: number }): {
   // (A) charge, fine conservation, coarse equals fine, and minting fails
   const tone = new Int8Array(N)
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
   const q0 = totalQ(tone)
 
@@ -79,9 +86,13 @@ export function absoluteLimits(input?: { n?: number }): {
   for (let t = 0; t < 60; t++) {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 
-    if (totalQ(tone) !== q0) coarseMatches = false
+    if (totalQ(tone) !== q0) {
+      coarseMatches = false
+    }
 
-    if (coarseQ(tone) !== q0) coarseMatches = false
+    if (coarseQ(tone) !== q0) {
+      coarseMatches = false
+    }
   }
 
   const fineQConserved = totalQ(tone) === q0
@@ -115,8 +126,9 @@ export function absoluteLimits(input?: { n?: number }): {
 
   const base = new Int8Array(N)
 
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     base[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
+  }
 
   const s = base.slice()
   const s2 = base.slice()
@@ -135,7 +147,9 @@ export function absoluteLimits(input?: { n?: number }): {
   let fineFront = 0
 
   for (let i = 0; i < N; i++) {
-    if (s[i] !== s2[i] && distC[i]! > fineFront) fineFront = distC[i]!
+    if (s[i] !== s2[i] && distC[i]! > fineFront) {
+      fineFront = distC[i]!
+    }
   }
 
   const fineSpeed = fineFront / T

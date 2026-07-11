@@ -33,9 +33,13 @@ export function blockPlusCounts(
 export function shannonEntropy(counts: readonly number[]): number {
   let total = 0
 
-  for (const c of counts) total += c
+  for (const c of counts) {
+    total += c
+  }
 
-  if (total === 0) return 0
+  if (total === 0) {
+    return 0
+  }
 
   let entropy = 0
 

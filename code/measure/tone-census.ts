@@ -6,7 +6,9 @@
 export function totalCharge(tone: Int8Array): number {
   let s = 0
 
-  for (const v of tone) s += v
+  for (const v of tone) {
+    s += v
+  }
 
   return s
 }

@@ -25,8 +25,9 @@ export type Numeration = {
 export function makeNumeration(input: { basis: number[] }): Numeration {
   const basis = [...input.basis].sort((a, b) => a - b)
 
-  if (basis[0] !== 1)
+  if (basis[0] !== 1) {
     throw new Error('numeration basis must start at 1')
+  }
 
   function encode(value: number): number[] {
     if (!Number.isInteger(value) || value < 0) {
@@ -35,7 +36,9 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
       )
     }
 
-    if (value === 0) return [0]
+    if (value === 0) {
+      return [0]
+    }
 
     let remainder = value
     let top = basis.length - 1
@@ -61,8 +64,9 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
 
     const len = digits.length
 
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       sum += digits[i]! * basis[len - 1 - i]!
+    }
 
     return sum
   }
@@ -72,7 +76,9 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
 
     for (let n = 1; n <= limit; n++) {
       for (const d of encode(n)) {
-        if (d > m) m = d
+        if (d > m) {
+          m = d
+        }
       }
     }
 
@@ -96,10 +102,13 @@ export function recurrenceBasis(input: {
   while (basis.length < terms) {
     let next = 0
 
-    for (let k = 0; k < coefficients.length; k++)
+    for (let k = 0; k < coefficients.length; k++) {
       next += coefficients[k]! * basis[basis.length - 1 - k]!
+    }
 
-    if (next <= basis[basis.length - 1]!) break
+    if (next <= basis[basis.length - 1]!) {
+      break
+    }
     // basis must strictly increase to be a valid numeration
 
     basis.push(next)
@@ -115,7 +124,9 @@ export function growthBasis(shellCounts: number[]): number[] {
   const basis: number[] = [1]
 
   for (const count of shellCounts) {
-    if (count > basis[basis.length - 1]!) basis.push(count)
+    if (count > basis[basis.length - 1]!) {
+      basis.push(count)
+    }
   }
 
   return basis

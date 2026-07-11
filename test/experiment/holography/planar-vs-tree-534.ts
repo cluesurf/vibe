@@ -39,7 +39,9 @@ const reachableBoundary = (
   let reached = 0
 
   for (const b of boundary) {
-    if (seen[b] === 1) reached += 1
+    if (seen[b] === 1) {
+      reached += 1
+    }
   }
 
   return reached

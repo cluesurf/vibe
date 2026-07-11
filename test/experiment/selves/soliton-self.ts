@@ -127,7 +127,9 @@ export default experiment({
           }
         }
 
-        if (diff > peak) peak = diff
+        if (diff > peak) {
+          peak = diff
+        }
 
         final = diff
       }
@@ -142,8 +144,9 @@ export default experiment({
     const dirCharge = (will: Will, d: number): number => {
       let s = 0
 
-      for (let c = 0; c < mesh.cellCount; c++)
+      for (let c = 0; c < mesh.cellCount; c++) {
         s += Math.abs(will.data[c * degree + d]!)
+      }
 
       return s
     }

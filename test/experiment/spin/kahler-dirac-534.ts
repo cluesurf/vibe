@@ -52,8 +52,9 @@ export default experiment({
             Math.abs(squared[row]![column]!),
           )
 
-          if (Math.abs(squared[row]![column]!) > 1e-9)
+          if (Math.abs(squared[row]![column]!) > 1e-9) {
             blockDiagonal = false
+          }
         }
       }
     }

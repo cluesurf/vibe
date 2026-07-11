@@ -36,7 +36,9 @@ function componentSizes(
   const sizes: number[] = []
 
   for (const start of region) {
-    if (seen.has(start)) continue
+    if (seen.has(start)) {
+      continue
+    }
 
     let size = 0
 

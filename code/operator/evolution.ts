@@ -32,7 +32,9 @@ export function makeStateSpace(input: {
 
   let dimension = 1
 
-  for (let i = 0; i < input.cells; i++) dimension *= base
+  for (let i = 0; i < input.cells; i++) {
+    dimension *= base
+  }
 
   return {
     form: 'state-space',
@@ -158,7 +160,9 @@ export function hamiltonianFromPermutation(input: {
   const energies: number[] = []
 
   for (let start = 0; start < n; start++) {
-    if ((visited[start] ?? 0) === 1) continue
+    if ((visited[start] ?? 0) === 1) {
+      continue
+    }
 
     let length = 0
     let cursor = start
@@ -169,8 +173,9 @@ export function hamiltonianFromPermutation(input: {
       length++
     }
 
-    for (let k = 0; k < length; k++)
+    for (let k = 0; k < length; k++) {
       energies.push((2 * Math.PI * k) / length)
+    }
   }
 
   energies.sort((a, b) => a - b)

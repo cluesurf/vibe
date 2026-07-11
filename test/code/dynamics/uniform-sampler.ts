@@ -33,7 +33,9 @@ function chainFuture(n: number): BitMatrix {
   const future = makeBitMatrix({ rows: n, cols: n })
 
   for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) setBit(future, { row: i, col: j })
+    for (let j = i + 1; j < n; j++) {
+      setBit(future, { row: i, col: j })
+    }
   }
 
   return future
@@ -44,8 +46,9 @@ const antichainState = (n: number): State => makeState(n)
 
 suite('dynamics/uniform-sampler: height', [
   check('a chain of n elements has height n', () => {
-    for (const n of [1, 3, 5, 8])
+    for (const n of [1, 3, 5, 8]) {
       equal(height(chainState(n)), n, `chain of ${n} has height ${n}`)
+    }
   }),
   check('an antichain has height 1 (0 when empty)', () => {
     equal(height(antichainState(5)), 1, 'antichain height = 1')

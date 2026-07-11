@@ -49,10 +49,14 @@ function patternWill(mesh: Mesh, phase = 0): Will {
 }
 
 function sameData(a: Will, b: Will): boolean {
-  if (a.data.length !== b.data.length) return false
+  if (a.data.length !== b.data.length) {
+    return false
+  }
 
   for (let i = 0; i < a.data.length; i++) {
-    if (a.data[i] !== b.data[i]) return false
+    if (a.data[i] !== b.data[i]) {
+      return false
+    }
   }
 
   return true
@@ -70,9 +74,13 @@ function roundTrips(
 
   let w = cloneWill(will)
 
-  for (let b = 0; b < beats; b++) w = beat(w, forward)
+  for (let b = 0; b < beats; b++) {
+    w = beat(w, forward)
+  }
 
-  for (let b = 0; b < beats; b++) w = inverseBeat(w, inverse)
+  for (let b = 0; b < beats; b++) {
+    w = inverseBeat(w, inverse)
+  }
 
   return sameData(w, start)
 }
@@ -124,7 +132,9 @@ suite('rule/lattice-gas: beat = collide then stream', [
 
     let chained = patternWill(square)
 
-    for (let b = 0; b < 5; b++) chained = beat(chained, collision)
+    for (let b = 0; b < 5; b++) {
+      chained = beat(chained, collision)
+    }
 
     const buffered = run(patternWill(square), collision, 5)
 

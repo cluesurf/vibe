@@ -25,7 +25,9 @@ function corrupt(
   const out = Int8Array.from(state)
   const n = state.length
 
-  for (let s = 0; s < k; s++) out[(offset + s) % n] = 0
+  for (let s = 0; s < k; s++) {
+    out[(offset + s) % n] = 0
+  }
 
   return out
 }

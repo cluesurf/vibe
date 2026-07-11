@@ -17,15 +17,17 @@ suite('substrate/margenstern/pentagrid: the address-arithmetic graph', [
 
       equal(roots.length, 4, 'quarter roots')
 
-      for (const r of roots)
+      for (const r of roots) {
         equal(pentagridNeighbors(r).length, 5, 'root has 5 neighbours')
+      }
     },
   ),
   check('every tile reports exactly five neighbours', () => {
     // pentagridNeighbors is the local 5-neighbour rule; it returns five for any tile.
     for (let q = 0; q < 4; q++) {
-      for (let n = 1; n <= 40; n++)
+      for (let n = 1; n <= 40; n++) {
         equal(pentagridNeighbors({ q, n }).length, 5, `tile ${q}.${n}`)
+      }
     }
   }),
   check('the built graph is 5-regular in its interior', () => {
@@ -55,8 +57,9 @@ suite('substrate/margenstern/pentagrid: the address-arithmetic graph', [
     for (let i = 0; i < grid.cellCount; i++) {
       notOk(sets[i]!.has(i), `cell ${i} has no self-loop`)
 
-      for (const j of grid.neighbors[i]!)
+      for (const j of grid.neighbors[i]!) {
         ok(sets[j]!.has(i), `edge ${i}-${j} is mutual`)
+      }
     }
   }),
 ])

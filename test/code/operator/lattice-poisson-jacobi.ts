@@ -14,9 +14,13 @@ const chain: number[][] = []
 for (let i = 0; i < 7; i++) {
   const row: number[] = []
 
-  if (i > 0) row.push(i - 1)
+  if (i > 0) {
+    row.push(i - 1)
+  }
 
-  if (i < 6) row.push(i + 1)
+  if (i < 6) {
+    row.push(i + 1)
+  }
 
   chain.push(row)
 }
@@ -57,7 +61,9 @@ suite(
         for (let i = 1; i < 6; i++) {
           let sum = 0
 
-          for (const j of chain[i]!) sum += phi[j] ?? 0
+          for (const j of chain[i]!) {
+            sum += phi[j] ?? 0
+          }
 
           close(
             2 * (phi[i] ?? 0) - sum,
@@ -88,7 +94,9 @@ suite(
         for (let i = 1; i < 6; i++) {
           let sum = 0
 
-          for (const j of chain[i]!) sum += phi[j] ?? 0
+          for (const j of chain[i]!) {
+            sum += phi[j] ?? 0
+          }
 
           close(
             2 * (phi[i] ?? 0) - sum,

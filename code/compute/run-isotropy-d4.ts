@@ -174,7 +174,9 @@ async function run(): Promise<void> {
       diagExt = 0
 
     for (let i = 0; i < N; i++) {
-      if (r[i] === 0) continue
+      if (r[i] === 0) {
+        continue
+      }
 
       const x = i % L,
         y = Math.floor(i / L) % L,

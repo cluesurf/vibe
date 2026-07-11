@@ -61,8 +61,9 @@ suite('operator/hopfield: recall', [
 
     let state = cue
 
-    for (let t = 0; t < 5; t++)
+    for (let t = 0; t < 5; t++) {
       state = hopfieldStep(J, state, zero, null)
+    }
 
     ok(
       state.every((v, i) => v === pattern[i]),

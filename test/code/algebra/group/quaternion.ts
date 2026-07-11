@@ -31,7 +31,9 @@ const equalQuaternion = (
   const a = components(actual)
   const e = components(expected)
 
-  for (let i = 0; i < 4; i++) equal(a[i]!, e[i]!, `${message} [${i}]`)
+  for (let i = 0; i < 4; i++) {
+    equal(a[i]!, e[i]!, `${message} [${i}]`)
+  }
 }
 
 const ONE = quaternion(1, 0, 0, 0)
@@ -46,7 +48,9 @@ const closedUnderMultiply = (group: Quaternion[]): boolean => {
 
   for (const a of group) {
     for (const b of group) {
-      if (!present.has(quaternionKey(multiply(a, b)))) return false
+      if (!present.has(quaternionKey(multiply(a, b)))) {
+        return false
+      }
     }
   }
 
@@ -126,8 +130,9 @@ suite('algebra/group/quaternion: finite unit groups', [
     equal(group.length, 8, 'Q8 size')
     equal(distinctCount(group), 8, 'Q8 distinct')
 
-    for (const q of group)
+    for (const q of group) {
       equal(normSquared(q), 1, 'Q8 element is a unit')
+    }
   }),
   check('Q8 is closed under the Hamilton product', () => {
     ok(closedUnderMultiply(quaternionGroup()), 'Q8 must be a group')
@@ -158,8 +163,9 @@ suite('algebra/group/quaternion: finite unit groups', [
       equal(group.length, 120, '2I size')
       equal(distinctCount(group), 120, '2I distinct')
 
-      for (const q of group)
+      for (const q of group) {
         close(normSquared(q), 1, 1e-12, '2I element is a unit')
+      }
     },
   ),
   check(

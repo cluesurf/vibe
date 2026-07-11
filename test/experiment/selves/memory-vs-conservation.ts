@@ -13,6 +13,7 @@ import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 
 const GOLDEN = (1 + Math.sqrt(5)) / 2
 const SILVER = 1 + Math.sqrt(2)
+
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -29,7 +30,9 @@ const beat = (
 const totalQ = (t: Int8Array): number => {
   let s = 0
 
-  for (const value of t) s += value
+  for (const value of t) {
+    s += value
+  }
 
   return s
 }
@@ -84,8 +87,9 @@ export function memoryVsConservation(input?: { n?: number }): {
 
   const target = new Int8Array(N) // 0 outside the region
 
-  for (let i = 0; i < region.length; i++)
+  for (let i = 0; i < region.length; i++) {
     target[region[i]!] = i % 2 === 0 ? 1 : -1
+  }
 
   // DETERMINISTIC scramble within the region to make a real pattern, staying balanced (golden-ratio
   // Fisher-Yates, no randomness)
@@ -114,18 +118,23 @@ export function memoryVsConservation(input?: { n?: number }): {
   // UNMAINTAINED, imprint then let the conserving dynamics run
   const tone = new Int8Array(N)
 
-  for (const i of region) tone[i] = target[i]!
+  for (const i of region) {
+    tone[i] = target[i]!
+  }
 
   // a light active background outside, so the medium churns (conserving)
   for (let i = 0; i < N; i++) {
-    if (target[i] === 0 && ((i + 1) * GOLDEN) % 1 < 0.2)
+    if (target[i] === 0 && ((i + 1) * GOLDEN) % 1 < 0.2) {
       tone[i] = ((i + 1) * SILVER) % 1 < 0.5 ? 1 : -1
+    }
   }
 
   const qStart = totalQ(tone)
   const corrStart = corr(tone)
 
-  for (let t = 0; t < 80; t++) beat(tone, eu, ev, moved, t, arrow)
+  for (let t = 0; t < 80; t++) {
+    beat(tone, eu, ev, moved, t, arrow)
+  }
 
   const qEndUnmaintained = totalQ(tone)
   const corrEndUnmaintained = corr(tone)
@@ -133,11 +142,14 @@ export function memoryVsConservation(input?: { n?: number }): {
   // MAINTAINED, same, but re-write the region to the target each beat (the work), count the cost
   const tone2 = new Int8Array(N)
 
-  for (const i of region) tone2[i] = target[i]!
+  for (const i of region) {
+    tone2[i] = target[i]!
+  }
 
   for (let i = 0; i < N; i++) {
-    if (target[i] === 0 && ((i + 1) * GOLDEN) % 1 < 0.2)
+    if (target[i] === 0 && ((i + 1) * GOLDEN) % 1 < 0.2) {
       tone2[i] = ((i + 1) * SILVER) % 1 < 0.5 ? 1 : -1
+    }
   }
 
   let rewrites = 0

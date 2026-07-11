@@ -85,14 +85,20 @@ export function logicalOperators(input: {
 
   for (let x = 0; x < dim; x++) {
     for (let z = 0; z < dim; z++) {
-      if (x === 0 && z === 0) continue
+      if (x === 0 && z === 0) {
+        continue
+      }
 
       const p: Pauli = { x, z }
 
-      if (!generators.every(s => pauliCommute(p, s))) continue
+      if (!generators.every(s => pauliCommute(p, s))) {
+        continue
+      }
       // not in the normalizer
 
-      if (span.has(x | (z << qubits))) continue
+      if (span.has(x | (z << qubits))) {
+        continue
+      }
       // a trivial (stabilizer) logical
 
       logicals.push(p)
@@ -106,8 +112,9 @@ export function logicalOperators(input: {
 export function codeDistance(logicals: readonly Pauli[]): number {
   let distance = Infinity
 
-  for (const l of logicals)
+  for (const l of logicals) {
     distance = Math.min(distance, pauliWeight(l))
+  }
 
   return distance
 }

@@ -25,7 +25,9 @@ suite('substrate/tree-addressing: the spanning tree', [
     const seen = new Set<string>()
 
     for (let v = 0; v < g.size; v++) {
-      if (tree.depth[v] === -1) continue
+      if (tree.depth[v] === -1) {
+        continue
+      }
 
       const key = tree.address[v]!.join(',')
 
@@ -38,7 +40,9 @@ suite('substrate/tree-addressing: the spanning tree', [
     const tree = buildAddressedTree(g)
 
     for (let v = 0; v < g.size; v++) {
-      if (tree.depth[v] === -1 || v === tree.root) continue
+      if (tree.depth[v] === -1 || v === tree.root) {
+        continue
+      }
 
       equal(
         tree.depth[v],
@@ -59,8 +63,12 @@ suite('substrate/tree-addressing: routing by address', [
     let target = tree.root
 
     for (let v = 0; v < g.size; v++) {
-      if (tree.depth[v] !== -1 && tree.depth[v]! > tree.depth[target]!)
+      if (
+        tree.depth[v] !== -1 &&
+        tree.depth[v]! > tree.depth[target]!
+      ) {
         target = v
+      }
     }
 
     const route = routeByAddress(tree, tree.root, target)

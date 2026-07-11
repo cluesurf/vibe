@@ -36,8 +36,9 @@ const DEFECTS = 8
 function distinctMotifs(structure: number[]): number {
   const motifs = new Set<string>()
 
-  for (let i = 0; i + BLOCK <= structure.length; i++)
+  for (let i = 0; i + BLOCK <= structure.length; i++) {
     motifs.add(structure.slice(i, i + BLOCK).join(','))
+  }
 
   return motifs.size
 }
@@ -64,8 +65,9 @@ export default experiment({
     const selected = replicated.slice()
     const defectRng = makeRng({ seed: 7 })
 
-    for (let d = 0; d < DEFECTS; d++)
+    for (let d = 0; d < DEFECTS; d++) {
       selected[Math.floor(defectRng.next() * LENGTH)] = 0
+    }
 
     const selectedAssembly = distinctMotifs(selected)
 

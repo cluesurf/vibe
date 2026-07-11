@@ -52,13 +52,19 @@ function perturbAndWatch(input: {
       if (control[i] !== perturbed[i]) {
         count++
 
-        if (dist[i]! > maxR) maxR = dist[i]!
+        if (dist[i]! > maxR) {
+          maxR = dist[i]!
+        }
       }
     }
 
-    if (count > peak) peak = count
+    if (count > peak) {
+      peak = count
+    }
 
-    if (maxR > radius) radius = maxR
+    if (maxR > radius) {
+      radius = maxR
+    }
 
     final = count
   }

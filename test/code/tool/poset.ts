@@ -39,8 +39,9 @@ suite('tool/poset: total order on four elements', [
     const p = totalOrder()
 
     for (let a = 0; a < 4; a++) {
-      for (let b = 0; b < 4; b++)
+      for (let b = 0; b < 4; b++) {
         equal(precedes(p, { a, b }), a < b, `precedes(${a},${b})`)
+      }
     }
   }),
   check('relationCount = C(4,2) = 6', () => {

@@ -79,7 +79,9 @@ export default experiment({
 
       const c = nonzero(flat.curr)
 
-      if (c > coupledPeak) coupledPeak = c
+      if (c > coupledPeak) {
+        coupledPeak = c
+      }
 
       coupledFinal = c
     }
@@ -116,7 +118,9 @@ export default experiment({
         center,
       })
 
-      if (r > maxSpread) maxSpread = r
+      if (r > maxSpread) {
+        maxSpread = r
+      }
     }
 
     // under the radiating rule the kink SHATTERS, a single clean wall explodes into many (no stable localized

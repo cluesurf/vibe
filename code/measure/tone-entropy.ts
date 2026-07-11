@@ -7,11 +7,15 @@ export function ternaryToneEntropyBits(
   values: Int8Array,
   indices: number[],
 ): number {
-  if (indices.length === 0) return 0
+  if (indices.length === 0) {
+    return 0
+  }
 
   const count: [number, number, number] = [0, 0, 0]
 
-  for (const i of indices) count[(values[i]! + 1) as 0 | 1 | 2] += 1
+  for (const i of indices) {
+    count[(values[i]! + 1) as 0 | 1 | 2] += 1
+  }
 
   const total = indices.length
 

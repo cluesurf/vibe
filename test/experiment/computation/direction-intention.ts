@@ -40,7 +40,9 @@ export function directionIntention(): {
   const scan = Ks.map(K => {
     const target = new Int8Array(K)
 
-    for (let i = 0; i < K; i++) target[i] = rng.next() < 0.5 ? 1 : 0
+    for (let i = 0; i < K; i++) {
+      target[i] = rng.next() < 0.5 ? 1 : 0
+    }
 
     const goalSteps = solveGoalDirected({ target, rng })
 

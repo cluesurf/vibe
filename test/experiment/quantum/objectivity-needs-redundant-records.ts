@@ -133,7 +133,9 @@ export default experiment({
       // GLOBAL control: no fragment short of the whole records the pointer
       const allButOne: number[] = []
 
-      for (let cell = 0; cell < n - 1; cell++) allButOne.push(cell)
+      for (let cell = 0; cell < n - 1; cell++) {
+        allButOne.push(cell)
+      }
 
       worstGlobalSingleCell = Math.max(
         worstGlobalSingleCell,
@@ -158,7 +160,9 @@ export default experiment({
       // the whole bath DOES record it (a global measurement recovers the pointer)
       const whole: number[] = []
 
-      for (let cell = 0; cell < n; cell++) whole.push(cell)
+      for (let cell = 0; cell < n; cell++) {
+        whole.push(cell)
+      }
 
       worstGlobalFullBath = Math.min(
         worstGlobalFullBath,

@@ -22,8 +22,9 @@ suite('coarse/driven-self: the no-dynamics control', [
 
       equal(r.interior.length, 12)
 
-      for (const v of r.interior)
+      for (const v of r.interior) {
         close(v, 0, 1e-12, 'interior stays 0 with dynamics off')
+      }
     },
   ),
 ])
@@ -45,8 +46,9 @@ suite('coarse/driven-self: shapes and reproducibility', [
     for (const row of r.sectorSignals) {
       equal(row.length, 9, 'one signal per beat per sector')
 
-      for (const s of row)
+      for (const s of row) {
         ok(s === 1 || s === -1, 'each sector signal is +-1')
+      }
     }
   }),
   check('the driven run is reproducible for a fixed seed', () => {

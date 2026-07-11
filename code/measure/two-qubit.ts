@@ -8,6 +8,7 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { makeDense } from '@/code/algebra/linear/dense'
 
 type Cx = { re: number; im: number }
+
 const cx = (re: number, im = 0): Cx => ({ re, im })
 
 // 2x2 Pauli matrices as complex, keyed by name.
@@ -113,7 +114,9 @@ export function horodeckiMaxChsh(
     for (let j = 0; j < 3; j++) {
       let s = 0
 
-      for (let k = 0; k < 3; k++) s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
+      for (let k = 0; k < 3; k++) {
+        s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
+      }
 
       m.data[i * 3 + j] = s
     }

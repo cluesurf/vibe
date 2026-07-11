@@ -19,7 +19,9 @@ function halfInteger16(): number[][] {
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {
-        for (const d of [0.5, -0.5]) half.push([a, b, c, d])
+        for (const d of [0.5, -0.5]) {
+          half.push([a, b, c, d])
+        }
       }
     }
   }

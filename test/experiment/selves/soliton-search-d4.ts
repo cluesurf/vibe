@@ -89,8 +89,9 @@ export default experiment({
     // and (if they survive) part. The gap keeps the two clusters disjoint at the start (two components).
     let bStart = center
 
-    for (let i = 0; i < gliderLength + 3; i++)
+    for (let i = 0; i < gliderLength + 3; i++) {
       bStart = mesh.neighbour(bStart, dir)
+    }
 
     const b = gliderLine({
       mesh,

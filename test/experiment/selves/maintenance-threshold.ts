@@ -43,7 +43,9 @@ export function maintenanceThreshold(input: {
 
   for (let r = 0; r < input.rounds; r++) {
     for (let i = 0; i < n; i++) {
-      if ((i + r) % step === 0) state[i] = 0
+      if ((i + r) % step === 0) {
+        state[i] = 0
+      }
     }
 
     // repair: restore up to rk damaged sites toward the identity attractor (the self's maintenance)
@@ -96,7 +98,9 @@ export default experiment({
     // identity rises monotonically with repair (the threshold is real, not a fluke)
     const monotone = sweeps.every(s => {
       for (let i = 1; i < s.length; i++) {
-        if (s[i]!.identity < s[i - 1]!.identity - 1e-9) return false
+        if (s[i]!.identity < s[i - 1]!.identity - 1e-9) {
+          return false
+        }
       }
 
       return true

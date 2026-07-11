@@ -56,7 +56,9 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
       }
     }
 
-    if (stab.length > 100000) break
+    if (stab.length > 100000) {
+      break
+    }
     // safety
   }
 

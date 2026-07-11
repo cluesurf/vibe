@@ -23,8 +23,9 @@ suite('measure/leggett-garg: temporalCorrelator equals cos(theta)', [
     close(temporalCorrelator(Math.PI), -1, TIGHT),
   ),
   check('matches cos(theta) at a scattering of angles', () => {
-    for (const theta of [0.3, 0.9, 1.7, 2.4, 3.0])
+    for (const theta of [0.3, 0.9, 1.7, 2.4, 3.0]) {
       close(temporalCorrelator(theta), Math.cos(theta), TIGHT)
+    }
   }),
 ])
 

@@ -47,8 +47,9 @@ export type Experiment = {
 const registry = new Map<string, Experiment>()
 
 export function experiment(definition: Experiment): Experiment {
-  if (registry.has(definition.id))
+  if (registry.has(definition.id)) {
     throw new Error(`duplicate experiment id: ${definition.id}`)
+  }
 
   registry.set(definition.id, definition)
 

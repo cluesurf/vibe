@@ -155,8 +155,9 @@ suite('dynamics/reversible-wave: determinism and range', [
         modulus: Q,
       })
 
-      for (let i = 0; i < N; i++)
+      for (let i = 0; i < N; i++) {
         ok(next[i]! >= 0 && next[i]! < Q, `tone in range at ${i}`)
+      }
 
       prev = curr
       curr = next

@@ -39,7 +39,9 @@ export default experiment({
 
       measured[`{${e.symbol.join(',')}}`] = c
 
-      if (c !== e.coordination) allMatch = false
+      if (c !== e.coordination) {
+        allMatch = false
+      }
     }
 
     // the paracompact pentacomb has an infinite cell, so infinite coordination (a tiling, not a finite polytope)

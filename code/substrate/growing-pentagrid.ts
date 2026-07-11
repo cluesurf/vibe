@@ -36,7 +36,9 @@ export class GrowingPentagrid {
     while (added < count) {
       const task = this.queue[this.head]
 
-      if (task === undefined) return // frontier exhausted (only happens if count exceeds an unstarted root)
+      if (task === undefined) {
+        return
+      } // frontier exhausted (only happens if count exceeds an unstarted root)
 
       if (task.cursor >= task.children.length) {
         this.head += 1 // this cell is fully expanded, advance the frontier

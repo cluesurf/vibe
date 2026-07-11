@@ -38,7 +38,9 @@ suite('tool/bitset: storage and bit ops', [
       const m = makeBitMatrix({ rows: 3, cols: 70 })
       const set = [0, 31, 32, 35, 63, 64, 69]
 
-      for (const col of set) setBit(m, { row: 1, col })
+      for (const col of set) {
+        setBit(m, { row: 1, col })
+      }
 
       for (let col = 0; col < 70; col++) {
         equal(
@@ -68,7 +70,9 @@ suite('tool/bitset: storage and bit ops', [
     const m = makeBitMatrix({ rows: 1, cols: 100 })
     const set = [0, 1, 33, 64, 99]
 
-    for (const col of set) setBit(m, { row: 0, col })
+    for (const col of set) {
+      setBit(m, { row: 0, col })
+    }
 
     equal(popcountRow(m, { row: 0 }), set.length, 'popcount')
   }),
@@ -77,9 +81,13 @@ suite('tool/bitset: storage and bit ops', [
     const a = [1, 5, 40, 70, 99]
     const b = [5, 6, 40, 71, 99]
 
-    for (const col of a) setBit(m, { row: 0, col })
+    for (const col of a) {
+      setBit(m, { row: 0, col })
+    }
 
-    for (const col of b) setBit(m, { row: 1, col })
+    for (const col of b) {
+      setBit(m, { row: 1, col })
+    }
 
     const shared = a.filter(x => b.includes(x)) // {5, 40, 99}
 
@@ -92,7 +100,9 @@ suite('tool/bitset: storage and bit ops', [
   check('rowToArray returns set columns sorted ascending', () => {
     const m = makeBitMatrix({ rows: 1, cols: 80 })
 
-    for (const col of [70, 3, 33, 0, 64]) setBit(m, { row: 0, col })
+    for (const col of [70, 3, 33, 0, 64]) {
+      setBit(m, { row: 0, col })
+    }
 
     exactArray(
       rowToArray(m, { row: 0 }),
@@ -104,7 +114,9 @@ suite('tool/bitset: storage and bit ops', [
     const m = makeBitMatrix({ rows: 1, cols: 80 })
     const set = [2, 31, 32, 79]
 
-    for (const col of set) setBit(m, { row: 0, col })
+    for (const col of set) {
+      setBit(m, { row: 0, col })
+    }
 
     const seen: number[] = []
 
@@ -159,8 +171,9 @@ suite('tool/bitset: transitive closure and height', [
 
     let total = 0
 
-    for (let row = 0; row < n; row++)
+    for (let row = 0; row < n; row++) {
       total += popcountRow(closure, { row })
+    }
 
     // {(0,1),(0,2),(0,3),(1,2)} = 4
     equal(total, 4, 'closure pair count')
@@ -187,8 +200,9 @@ suite('tool/bitset: transitive closure and height', [
     const n = 6
     const asserted = makeBitMatrix({ rows: n, cols: n })
 
-    for (let i = 0; i + 1 < n; i++)
+    for (let i = 0; i + 1 < n; i++) {
       setBit(asserted, { row: i, col: i + 1 })
+    }
 
     const closure = bitMatrixTransitiveClosure(asserted, n)
 
@@ -197,8 +211,9 @@ suite('tool/bitset: transitive closure and height', [
     // a full chain has C(6,2) = 15 ordered pairs
     let total = 0
 
-    for (let row = 0; row < n; row++)
+    for (let row = 0; row < n; row++) {
       total += popcountRow(closure, { row })
+    }
 
     equal(total, 15, 'chain pair count')
   }),

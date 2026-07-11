@@ -36,8 +36,9 @@ export function rotateSpinorTimes(
 ): Quaternion {
   let current = psi
 
-  for (let step = 0; step < turns; step++)
+  for (let step = 0; step < turns; step++) {
     current = rotateSpinor(g, current)
+  }
 
   return current
 }
@@ -50,8 +51,9 @@ export function rotateVectorTimes(
 ): Quaternion {
   let current = v
 
-  for (let step = 0; step < turns; step++)
+  for (let step = 0; step < turns; step++) {
     current = rotateVector(g, current)
+  }
 
   return current
 }

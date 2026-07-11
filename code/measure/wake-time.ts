@@ -47,8 +47,9 @@ export function wakeDistribution(input: {
 }): Float64Array {
   const distribution = new Float64Array(input.total)
 
-  for (let cell = 0; cell < input.recordCount; cell++)
+  for (let cell = 0; cell < input.recordCount; cell++) {
     distribution[cell] = 1 / input.recordCount
+  }
 
   return distribution
 }

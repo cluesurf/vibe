@@ -27,8 +27,9 @@ export function covariantKahlerDirac(input: {
 
   offset[0] = 0
 
-  for (let k = 0; k < grades; k++)
+  for (let k = 0; k < grades; k++) {
     offset[k + 1] = (offset[k] ?? 0) + (cellCount[k] ?? 0)
+  }
 
   const total = offset[grades] ?? 0
 
@@ -53,8 +54,11 @@ export function covariantKahlerDirac(input: {
         const edge = boundary1.colIdx[p] ?? 0
         const value = boundary1.value[p] ?? 0
 
-        if (value > 0) edgeHead[edge] = r
-        else edgeTail[edge] = r
+        if (value > 0) {
+          edgeHead[edge] = r
+        } else {
+          edgeTail[edge] = r
+        }
       }
     }
   }
@@ -64,7 +68,9 @@ export function covariantKahlerDirac(input: {
   for (let k = 1; k < grades; k++) {
     const b = input.complex.boundary[k]
 
-    if (!b) continue
+    if (!b) {
+      continue
+    }
 
     const lowOffset = offset[k - 1] ?? 0
     const highOffset = offset[k] ?? 0

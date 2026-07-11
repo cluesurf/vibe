@@ -30,7 +30,9 @@ function denseLaplacian(graph: Graph): ReturnType<typeof makeDense> {
 
     m.data[i * n + i] = row.length
 
-    for (const j of row) m.data[i * n + j] = -1
+    for (const j of row) {
+      m.data[i * n + j] = -1
+    }
   }
 
   return m
@@ -51,7 +53,9 @@ function interactionRange(input: {
       if (i !== j && Math.abs(matrix.data[i * n + j] ?? 0) > 1e-12) {
         const d = ringDistance(i, j, n)
 
-        if (d > maxRange) maxRange = d
+        if (d > maxRange) {
+          maxRange = d
+        }
       }
     }
   }

@@ -198,7 +198,9 @@ function line(
       rgba[i + 2] = Math.min(255, rgba[i + 2]! + b)
     }
 
-    if (x === x1 && y === y1) break
+    if (x === x1 && y === y1) {
+      break
+    }
 
     const e2 = 2 * err
 
@@ -217,7 +219,9 @@ function line(
 function run(): void {
   let faces = dodecahedronFaces()
 
-  for (let d = 0; d < DEPTH; d++) faces = faces.flatMap(subdivideFace)
+  for (let d = 0; d < DEPTH; d++) {
+    faces = faces.flatMap(subdivideFace)
+  }
 
   console.log(
     `jewel mesh, dodecahedron surface subdivided depth ${DEPTH} -> ${faces.length.toLocaleString()} faces`,
@@ -225,7 +229,9 @@ function run(): void {
 
   const rgba = new Uint8Array(IMG * IMG * 4)
 
-  for (let i = 0; i < IMG * IMG; i++) rgba[i * 4 + 3] = 255
+  for (let i = 0; i < IMG * IMG; i++) {
+    rgba[i * 4 + 3] = 255
+  }
 
   const cam = 5.5
   const scale = IMG * 1.55
@@ -242,7 +248,9 @@ function run(): void {
     // backface cull, only draw faces whose outward normal faces the camera (+z toward viewer)
     const n = cross(sub(r[1]!, r[0]!), sub(r[2]!, r[0]!))
 
-    if (n[2] <= 0) continue
+    if (n[2] <= 0) {
+      continue
+    }
 
     // depth brightness, front (larger z) brighter
     const zc = (r[0]![2] + r[1]![2] + r[2]![2] + r[3]![2]) / 4
