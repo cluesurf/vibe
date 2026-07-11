@@ -22,8 +22,8 @@ importers:
   .:
     dependencies:
       '@cluesurf/wash':
-        specifier: ^0.9.0
-        version: 0.9.0(jiti@2.7.0)(typescript@5.8.3)
+        specifier: ^0.10.0
+        version: 0.10.0(jiti@2.7.0)(typescript@5.8.3)
       '@termsurf/have':
         specifier: ^0.2.0
         version: 0.2.0
@@ -83,8 +83,8 @@ packages:
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
     engines: {node: '>=6.9.0'}
 
-  '@cluesurf/wash@0.9.0':
-    resolution: {integrity: sha512-XNenkXNH/2ZsjKByQ9BCtSFCJECNibLW43nZgMe3FKHv4Y91d5gyeKGL5askmjHU08EdJPuhXkQ0JFQTGT9Gwg==}
+  '@cluesurf/wash@0.10.0':
+    resolution: {integrity: sha512-XXiuL1Hr/Sbgrl34nsEF5kOn8Sa6zxvj+I48qKBvphfVgqD5lsQTpzpHy8i3HQKrJQYHxozrtZPT83qRzA9Lbg==}
     hasBin: true
 
   '@cspotcode/source-map-support@0.8.1':
@@ -1128,7 +1128,7 @@ snapshots:
 
   '@babel/runtime@7.27.1': {}
 
-  '@cluesurf/wash@0.9.0(jiti@2.7.0)(typescript@5.8.3)':
+  '@cluesurf/wash@0.10.0(jiti@2.7.0)(typescript@5.8.3)':
     dependencies:
       '@eslint/js': 9.39.4
       eslint: 9.39.4(jiti@2.7.0)
