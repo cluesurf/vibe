@@ -348,7 +348,7 @@ export function perturbationGrowth(input: {
 }): { peakFraction: number; finalFraction: number } {
   const flipped = cloneWill(input.init)
   const value = flipped.data[input.slot] ?? 0
-  flipped.data[input.slot] = (((value + 2) % 3) - 1)
+  flipped.data[input.slot] = ((value + 2) % 3) - 1
 
   let base = cloneWill(input.init)
   let baseScratch: Will = {
