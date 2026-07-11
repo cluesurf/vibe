@@ -36,25 +36,32 @@ cd "$ROOT"
 CHUNK="${FORMAT_CHUNK:-300}"
 HEAP="${FORMAT_HEAP:---max-old-space-size=8000}"
 
-# All lintable ts/tsx files (generated / vendored / scratch trees excluded).
-list_files() {
-  find code test . \
+# File discovery. A SINGLE `.` root so the `./test/site` prune actually fires
+# (passing `code test .` as roots re-walked test/ and slipped test/site past the
+# prune). node_modules / host / tmp / test/site are pruned as directories.
+#
+# eslint is TYPE-CHECKED against the main tsconfig, which is `.ts`-only (no jsx).
+# The one `.tsx` under code/ (code/render/react, consumed by the test/site React
+# app) is not in that program, so eslint must NOT be handed `.tsx` or it fails
+# with a project-service parse error. Prettier has no such constraint, so it
+# formats `.ts` AND `.tsx`.
+find_ts() {
+  find . \
     -type d \( -name node_modules -o -name host -o -name tmp -o -path './test/site' \) -prune -o \
-    -type f \( -name '*.ts' -o -name '*.tsx' \) ! -name '*.d.ts' -print 2>/dev/null \
-    | sort -u
+    -type f "$@" ! -name '*.d.ts' -print 2>/dev/null | sort -u
 }
-
-FILES="$(list_files)"
-COUNT="$(printf '%s\n' "$FILES" | grep -c . || true)"
+LINT_FILES="$(find_ts -name '*.ts')"                        # eslint: .ts only
+FMT_FILES="$(find_ts \( -name '*.ts' -o -name '*.tsx' \))"  # prettier: .ts + .tsx
+COUNT="$(printf '%s\n' "$LINT_FILES" | grep -c . || true)"
 
 echo "== eslint --fix: $COUNT files, batches of $CHUNK =="
-printf '%s\n' "$FILES" \
+printf '%s\n' "$LINT_FILES" \
   | xargs -n "$CHUNK" env NODE_OPTIONS="$HEAP" \
-      npx eslint --fix --no-error-on-unmatched-pattern
+      npx eslint --fix --no-error-on-unmatched-pattern --no-warn-ignored
 ES=$?
 echo "== eslint pass done (exit $ES; nonzero = lint warnings/errors remain, fixes still applied) =="
 
 echo "== prettier (final formatting pass) =="
-printf '%s\n' "$FILES" | xargs -n 500 npx prettier --write --log-level warn
+printf '%s\n' "$FMT_FILES" | xargs -n 500 npx prettier --write --log-level warn
 
 echo "== format done =="
