@@ -22,8 +22,8 @@ importers:
   .:
     dependencies:
       '@cluesurf/wash':
-        specifier: ^0.10.6
-        version: 0.10.6(jiti@2.7.0)(typescript@5.8.3)
+        specifier: ^0.10.10
+        version: 0.10.10(jiti@2.7.0)(typescript@5.8.3)
       '@termsurf/have':
         specifier: ^0.2.0
         version: 0.2.0
@@ -83,8 +83,8 @@ packages:
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
     engines: {node: '>=6.9.0'}
 
-  '@cluesurf/wash@0.10.6':
-    resolution: {integrity: sha512-SnQbIZOPi1XK6rNKexbDHIiCIQgPS+j6HNP4aabbDiuJk1C9HUybzzeA4wB8UHOVaFFgoFhrUIjFR1LUp5vjcA==}
+  '@cluesurf/wash@0.10.10':
+    resolution: {integrity: sha512-o3erbJYJ0sGecYO1ZBNxwH9DrQ4+GL8TTjmy8Ne+SAKSve4LOb5vrsCAQy1NLnBuaRhyMHhx3qYf6F4+97X6hA==}
     hasBin: true
 
   '@cspotcode/source-map-support@0.8.1':
@@ -364,6 +364,12 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@stylistic/eslint-plugin@2.13.0':
+    resolution: {integrity: sha512-RnO1SaiCFHn666wNz2QfZEFxvmiNRqhzaMXHXxXXKt+MEP7aajlPxUSMIQpKAaJfverpovEYqjBOXDq6dDcaOQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: '>=8.40.0'
 
   '@termsurf/have@0.2.0':
     resolution: {integrity: sha512-ZopW9vLIKzMhvNkEw0rY0gZpmlKKgqsER82VvCbQqCZxckVlIBDsWid7vfdSVN3ZuOKn9H4mKnpAcx8ndnENkg==}
@@ -1128,9 +1134,10 @@ snapshots:
 
   '@babel/runtime@7.27.1': {}
 
-  '@cluesurf/wash@0.10.6(jiti@2.7.0)(typescript@5.8.3)':
+  '@cluesurf/wash@0.10.10(jiti@2.7.0)(typescript@5.8.3)':
     dependencies:
       '@eslint/js': 9.39.4
+      '@stylistic/eslint-plugin': 2.13.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.8.3)
       eslint: 9.39.4(jiti@2.7.0)
       prettier: 3.8.1
       typescript-eslint: 8.55.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.8.3)
@@ -1341,6 +1348,18 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
+
+  '@stylistic/eslint-plugin@2.13.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.8.3)':
+    dependencies:
+      '@typescript-eslint/utils': 8.55.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.8.3)
+      eslint: 9.39.4(jiti@2.7.0)
+      eslint-visitor-keys: 4.2.1
+      espree: 10.4.0
+      estraverse: 5.3.0
+      picomatch: 4.0.4
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   '@termsurf/have@0.2.0':
     dependencies:
