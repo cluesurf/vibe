@@ -34,7 +34,7 @@ export function peierlsWavepacketDrift(input: {
   const x0 = L / 2
   const y0 = L / 2
 
-  let psi: C[] = new Array(L * L).fill([0, 0])
+  let psi: C[] = new Array<C>(L * L).fill([0, 0])
   let nrm = 0
 
   for (let x = 0; x < L; x++) {

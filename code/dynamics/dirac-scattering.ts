@@ -37,8 +37,8 @@ export function diracScatter(input: {
   const barrier = L >> 1
   const start = L >> 2
 
-  let right: Complex[] = new Array(L).fill([0, 0])
-  let left: Complex[] = new Array(L).fill([0, 0])
+  let right: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let left: Complex[] = new Array<Complex>(L).fill([0, 0])
 
   // an incoming rightward packet: a Gaussian envelope carrying momentum, in the right-mover channel
   let normalization = 0
@@ -64,8 +64,8 @@ export function diracScatter(input: {
   const damp = 1 - leak
 
   for (let t = 0; t < steps; t++) {
-    const coinedRight: Complex[] = new Array(L)
-    const coinedLeft: Complex[] = new Array(L)
+    const coinedRight: Complex[] = new Array<Complex>(L)
+    const coinedLeft: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       const cosMass = Math.cos(massAt(x))
@@ -85,8 +85,8 @@ export function diracScatter(input: {
 
     // shift: right movers advance, left movers retreat. Open ends (no wrap): amplitude that would
     // leave the line is dropped, which is fine because the packet never reaches the ends.
-    const nextRight: Complex[] = new Array(L).fill([0, 0])
-    const nextLeft: Complex[] = new Array(L).fill([0, 0])
+    const nextRight: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const nextLeft: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       if (x + 1 < L) {
@@ -168,8 +168,8 @@ export function diracTunnel(input: {
     steps,
   } = input
 
-  let right: Complex[] = new Array(L).fill([0, 0])
-  let left: Complex[] = new Array(L).fill([0, 0])
+  let right: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let left: Complex[] = new Array<Complex>(L).fill([0, 0])
 
   let normalization = 0
 
@@ -195,8 +195,8 @@ export function diracTunnel(input: {
   const sinBarrier = Math.sin(barrierMass)
 
   for (let t = 0; t < steps; t++) {
-    const coinedRight: Complex[] = new Array(L)
-    const coinedLeft: Complex[] = new Array(L)
+    const coinedRight: Complex[] = new Array<Complex>(L)
+    const coinedLeft: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       const inBarrier =
@@ -216,8 +216,8 @@ export function diracTunnel(input: {
       ])
     }
 
-    const nextRight: Complex[] = new Array(L).fill([0, 0])
-    const nextLeft: Complex[] = new Array(L).fill([0, 0])
+    const nextRight: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const nextLeft: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       if (x + 1 < L) {

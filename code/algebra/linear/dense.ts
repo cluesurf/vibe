@@ -67,7 +67,7 @@ export function matrixProduct(
   const out: number[][] = []
 
   for (let i = 0; i < n; i++) {
-    const row: number[] = new Array(cols).fill(0)
+    const row: number[] = new Array<number>(cols).fill(0)
 
     for (let k = 0; k < inner; k++) {
       const aik = a[i]![k]!

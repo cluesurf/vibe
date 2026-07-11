@@ -15,7 +15,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // box-ball system: a reversible conserving CA. carrier sweeps left to right, picks up balls, drops them.
 function bbsStep(s: number[]): number[] {
-  const out: number[] = new Array(s.length).fill(0)
+  const out: number[] = new Array<number>(s.length).fill(0)
 
   let carrier = 0
 
@@ -83,7 +83,7 @@ export function solitonPersistence(): {
   const L = 200
 
   // (1) single soliton (a block of 3 balls) persists and moves at speed = size
-  let s: number[] = new Array(L).fill(0)
+  let s: number[] = new Array<number>(L).fill(0)
 
   s[5] = 1
   s[6] = 1
@@ -131,7 +131,7 @@ export function solitonPersistence(): {
     return out
   }
 
-  let s2: number[] = new Array(L).fill(0)
+  let s2: number[] = new Array<number>(L).fill(0)
 
   s2[3] = s2[4] = s2[5] = 1
   s2[12] = 1 // a 3 behind a 1, the 3 is faster

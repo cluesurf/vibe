@@ -54,8 +54,8 @@ export function massWallRetainedWeight(input: {
   const wall = L >> 1
 
   // localized Gaussian packet at rest, seeded AT the wall (symmetric coin)
-  let R: Complex[] = new Array(L).fill([0, 0])
-  let Lf: Complex[] = new Array(L).fill([0, 0])
+  let R: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let Lf: Complex[] = new Array<Complex>(L).fill([0, 0])
   let seedNorm = 0
 
   for (let x = 0; x < L; x++) {
@@ -91,8 +91,8 @@ export function massWallRetainedWeight(input: {
   }
 
   for (let t = 0; t < steps; t++) {
-    const R2: Complex[] = new Array(L)
-    const L2: Complex[] = new Array(L)
+    const R2: Complex[] = new Array<Complex>(L)
+    const L2: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       const c = cosM[x]!
@@ -109,8 +109,8 @@ export function massWallRetainedWeight(input: {
       ])
     }
 
-    const R3: Complex[] = new Array(L).fill([0, 0])
-    const L3: Complex[] = new Array(L).fill([0, 0])
+    const R3: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const L3: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!

@@ -7,7 +7,7 @@
 export function torusGrid(d: number, L: number): Uint32Array[] {
   const n = Math.pow(L, d)
   const pow = Array.from({ length: d }, (_, a) => Math.pow(L, a))
-  const neighbors: Uint32Array[] = new Array(n)
+  const neighbors: Uint32Array[] = new Array<Uint32Array>(n)
 
   for (let i = 0; i < n; i++) {
     const ns: number[] = []

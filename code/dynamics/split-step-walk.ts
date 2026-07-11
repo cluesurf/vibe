@@ -49,8 +49,8 @@ export function meanChiralDisplacement(input: {
   const x0 = L >> 1
 
   // seed localized at the origin in the +1 eigenstate of the chiral operator sigma_x: (|up>+|down>)/sqrt2
-  let up: Complex[] = new Array(L).fill([0, 0])
-  let down: Complex[] = new Array(L).fill([0, 0])
+  let up: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let down: Complex[] = new Array<Complex>(L).fill([0, 0])
 
   up[x0] = [1 / Math.SQRT2, 0]
   down[x0] = [1 / Math.SQRT2, 0]
@@ -60,8 +60,8 @@ export function meanChiralDisplacement(input: {
     d: Complex[],
     theta: number,
   ): [Complex[], Complex[]] => {
-    const u2: Complex[] = new Array(L)
-    const d2: Complex[] = new Array(L)
+    const u2: Complex[] = new Array<Complex>(L)
+    const d2: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       const [nu, nd] = coinRotate(u[x]!, d[x]!, theta)
@@ -77,8 +77,8 @@ export function meanChiralDisplacement(input: {
     u: Complex[],
     d: Complex[],
   ): [Complex[], Complex[]] => {
-    const u2: Complex[] = new Array(L).fill([0, 0])
-    const d2: Complex[] = new Array(L).fill([0, 0])
+    const u2: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const d2: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       u2[wrap(x + 1)] = u[x]! // up-mover shifts +1

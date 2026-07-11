@@ -21,7 +21,7 @@ export function modularMesh(input: {
   const n = numCells * cellSize
   const adj: Map<number, number>[] = Array.from(
     { length: n },
-    () => new Map(),
+    () => new Map<number, number>(),
   )
 
   const addEdge = (u: number, v: number, f: number): void => {

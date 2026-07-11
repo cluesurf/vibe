@@ -86,7 +86,7 @@ async function run(): Promise<void> {
   }
 
   const C = maxColor + 1
-  const colorOffsets = new Array(C + 1).fill(0)
+  const colorOffsets = new Array<number>(C + 1).fill(0)
 
   for (let i = 0; i < E; i++) {
     colorOffsets[color[i]! + 1]++

@@ -37,7 +37,7 @@ function twoScale(input: {
   const n = slowCount + fastCount
   const adj: Map<number, number>[] = Array.from(
     { length: n },
-    () => new Map(),
+    () => new Map<number, number>(),
   )
 
   const add = (u: number, v: number): void => {

@@ -83,8 +83,8 @@ export function runCoupledSchwinger(
   const width = sites / 16
 
   for (let f = 0; f < flavors; f++) {
-    let r: Complex[] = new Array(sites).fill(ZERO)
-    let lf: Complex[] = new Array(sites).fill(ZERO)
+    let r: Complex[] = new Array<Complex>(sites).fill(ZERO)
+    let lf: Complex[] = new Array<Complex>(sites).fill(ZERO)
 
     for (let x = 0; x < sites; x++) {
       const envelope = Math.exp(-((x - x0) ** 2) / (2 * width * width))
@@ -118,8 +118,8 @@ export function runCoupledSchwinger(
       const r = R[f]!
       const lf = Lf[f]!
       // (1) the fermion mass coin, mixing the two chiralities
-      const r2: Complex[] = new Array(sites)
-      const l2: Complex[] = new Array(sites)
+      const r2: Complex[] = new Array<Complex>(sites)
+      const l2: Complex[] = new Array<Complex>(sites)
 
       for (let x = 0; x < sites; x++) {
         r2[x] = cAdd(
@@ -139,8 +139,8 @@ export function runCoupledSchwinger(
       }
 
       // (3) gauge-covariant shift: R hops +1 with e^{i e theta}, L hops -1 with e^{-i e theta}
-      const r3: Complex[] = new Array(sites).fill(ZERO)
-      const l3: Complex[] = new Array(sites).fill(ZERO)
+      const r3: Complex[] = new Array<Complex>(sites).fill(ZERO)
+      const l3: Complex[] = new Array<Complex>(sites).fill(ZERO)
 
       for (let x = 0; x < sites; x++) {
         r3[wrap(x + 1)] = cMul(

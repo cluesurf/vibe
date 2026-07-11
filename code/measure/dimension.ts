@@ -171,7 +171,7 @@ export function ballGrowthDimension(input: {
 
     let frontier = [c]
 
-    const counts: number[] = new Array(maxRadius + 1).fill(0)
+    const counts: number[] = new Array<number>(maxRadius + 1).fill(0)
 
     counts[0] = 1
 

@@ -285,8 +285,8 @@ export function diracQuantumWalk(input: {
   const I: C = [0, 1]
   const wrap = (x: number): number => ((x % L) + L) % L
 
-  let R: C[] = new Array(L).fill([0, 0])
-  let Lf: C[] = new Array(L).fill([0, 0])
+  let R: C[] = new Array<C>(L).fill([0, 0])
+  let Lf: C[] = new Array<C>(L).fill([0, 0])
 
   const x0 = L >> 1
 
@@ -305,8 +305,8 @@ export function diracQuantumWalk(input: {
 
   for (let t = 0; t < steps; t++) {
     // coin: mass mixes the two chiralities
-    const R2: C[] = new Array(L)
-    const L2: C[] = new Array(L)
+    const R2: C[] = new Array<C>(L)
+    const L2: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R2[x] = cadd(
@@ -321,8 +321,8 @@ export function diracQuantumWalk(input: {
     }
 
     // shift: R moves +1, L moves -1
-    const R3: C[] = new Array(L)
-    const L3: C[] = new Array(L)
+    const R3: C[] = new Array<C>(L)
+    const L3: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!
@@ -731,8 +731,8 @@ export function diracTwoModeSurvival(input: {
   const ea = eigen(ka)
   const eb = eigen(kb)
 
-  const right: Complex[] = new Array(size).fill([0, 0])
-  const left: Complex[] = new Array(size).fill([0, 0])
+  const right: Complex[] = new Array<Complex>(size).fill([0, 0])
+  const left: Complex[] = new Array<Complex>(size).fill([0, 0])
 
   for (let x = 0; x < size; x++) {
     const pa = expo(ka * x)
@@ -761,8 +761,8 @@ export function diracTwoModeSurvival(input: {
 
   const right0 = right.map(c => [...c] as Complex)
   const left0 = left.map(c => [...c] as Complex)
-  const rightNext: Complex[] = new Array(size).fill([0, 0])
-  const leftNext: Complex[] = new Array(size).fill([0, 0])
+  const rightNext: Complex[] = new Array<Complex>(size).fill([0, 0])
+  const leftNext: Complex[] = new Array<Complex>(size).fill([0, 0])
   const survival: number[] = []
 
   for (let t = 0; t < beats; t++) {
@@ -860,8 +860,8 @@ export function diracOverlapEvolution(input: {
   const build = (
     modes: { index: number; weightReal: number; weightImag: number }[],
   ): { right: Complex[]; left: Complex[] } => {
-    const right: Complex[] = new Array(size).fill([0, 0])
-    const left: Complex[] = new Array(size).fill([0, 0])
+    const right: Complex[] = new Array<Complex>(size).fill([0, 0])
+    const left: Complex[] = new Array<Complex>(size).fill([0, 0])
 
     for (const mode of modes) {
       const k = (2 * Math.PI * mode.index) / size
@@ -900,8 +900,8 @@ export function diracOverlapEvolution(input: {
   const b = build(statesB)
 
   const step = (state: { right: Complex[]; left: Complex[] }): void => {
-    const rightNext: Complex[] = new Array(size).fill([0, 0])
-    const leftNext: Complex[] = new Array(size).fill([0, 0])
+    const rightNext: Complex[] = new Array<Complex>(size).fill([0, 0])
+    const leftNext: Complex[] = new Array<Complex>(size).fill([0, 0])
 
     for (let x = 0; x < size; x++) {
       rightNext[x] = state.right[(x - 1 + size) % size]!

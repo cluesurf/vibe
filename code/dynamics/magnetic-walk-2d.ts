@@ -91,8 +91,8 @@ export function cyclotronCentroidTrace(input: {
 
   for (let t = 0; t < steps; t++) {
     // coin
-    const u1: Complex[] = new Array(N)
-    const d1: Complex[] = new Array(N)
+    const u1: Complex[] = new Array<Complex>(N)
+    const d1: Complex[] = new Array<Complex>(N)
 
     for (let i = 0; i < N; i++) {
       const [nu, nd] = coinRotate(up[i]!, down[i]!, theta)
@@ -120,8 +120,8 @@ export function cyclotronCentroidTrace(input: {
     }
 
     // coin
-    const u3: Complex[] = new Array(N)
-    const d3: Complex[] = new Array(N)
+    const u3: Complex[] = new Array<Complex>(N)
+    const d3: Complex[] = new Array<Complex>(N)
 
     for (let i = 0; i < N; i++) {
       const [nu, nd] = coinRotate(u2[i]!, d2[i]!, theta)

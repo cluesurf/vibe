@@ -124,8 +124,8 @@ export function embedTree(input: {
   hyperbolic: boolean
 }): { coords: Complex[]; depth: number[] } {
   const size = input.parent.length
-  const coords: Complex[] = new Array(size).fill([0, 0])
-  const depth: number[] = new Array(size).fill(0)
+  const coords: Complex[] = new Array<Complex>(size).fill([0, 0])
+  const depth: number[] = new Array<number>(size).fill(0)
   const radius = Math.tanh(input.edge / 2) // Poincare radius of a point at hyperbolic distance `edge` from 0
 
   coords[0] = [0, 0]

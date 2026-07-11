@@ -65,8 +65,8 @@ export function nestedStructure534(maxCells = 120000): {
     tailDiffs[tailDiffs.length - 1]! < 0.02 * growthConstant
 
   // mean Poincare radius per shell (only the clean shells)
-  const sumR: number[] = new Array(cleanShells.length).fill(0)
-  const cntR: number[] = new Array(cleanShells.length).fill(0)
+  const sumR: number[] = new Array<number>(cleanShells.length).fill(0)
+  const cntR: number[] = new Array<number>(cleanShells.length).fill(0)
 
   for (let i = 0; i < n; i++) {
     const d = depth[i]!

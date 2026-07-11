@@ -106,7 +106,7 @@ export function relaxSpins(input: {
   rate: number
 }): Spin[] {
   const { spins, params, rate } = input
-  const out: Spin[] = new Array(params.size * params.size)
+  const out: Spin[] = new Array<Spin>(params.size * params.size)
 
   for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
@@ -134,7 +134,7 @@ export function precessSpins(input: {
   open: boolean
 }): Spin[] {
   const { spins, params, dt, open } = input
-  const out: Spin[] = new Array(params.size * params.size)
+  const out: Spin[] = new Array<Spin>(params.size * params.size)
 
   for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
@@ -210,7 +210,7 @@ export function makeSkyrmionField(input: {
   coreRadius: number
 }): Spin[] {
   const { size, coreRadius } = input
-  const spins: Spin[] = new Array(size * size)
+  const spins: Spin[] = new Array<Spin>(size * size)
   const c = size / 2
 
   for (let y = 0; y < size; y++) {

@@ -42,8 +42,8 @@ export function blochCentroidTrace(input: {
   const x0 = L >> 1
 
   // localized Gaussian packet at rest: equal weight in both chiralities (symmetric)
-  let R: Complex[] = new Array(L).fill([0, 0])
-  let Lf: Complex[] = new Array(L).fill([0, 0])
+  let R: Complex[] = new Array<Complex>(L).fill([0, 0])
+  let Lf: Complex[] = new Array<Complex>(L).fill([0, 0])
   let seedNorm = 0
 
   for (let x = 0; x < L; x++) {
@@ -79,8 +79,8 @@ export function blochCentroidTrace(input: {
 
   for (let t = 0; t < steps; t++) {
     // coin: mass mixes the two chiralities
-    const R2: Complex[] = new Array(L)
-    const L2: Complex[] = new Array(L)
+    const R2: Complex[] = new Array<Complex>(L)
+    const L2: Complex[] = new Array<Complex>(L)
 
     for (let x = 0; x < L; x++) {
       R2[x] = cadd(
@@ -106,8 +106,8 @@ export function blochCentroidTrace(input: {
     }
 
     // shift: R moves +1, L moves -1
-    const R3: Complex[] = new Array(L).fill([0, 0])
-    const L3: Complex[] = new Array(L).fill([0, 0])
+    const R3: Complex[] = new Array<Complex>(L).fill([0, 0])
+    const L3: Complex[] = new Array<Complex>(L).fill([0, 0])
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!

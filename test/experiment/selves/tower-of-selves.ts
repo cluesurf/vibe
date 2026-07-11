@@ -48,7 +48,7 @@ function hierarchicalMesh(input: {
   const n = cellSize * b ** depth
   const adj: Map<number, number>[] = Array.from(
     { length: n },
-    () => new Map(),
+    () => new Map<number, number>(),
   )
 
   const add = (u: number, v: number): void => {

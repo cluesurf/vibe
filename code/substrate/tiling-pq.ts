@@ -72,7 +72,7 @@ export function tilingPQ(input: {
       if (gen === 0) {
         // The first ring out of the root: all white, q (or 5) of them.
         childCount = rootChildCount
-        childrenWhite = new Array(childCount).fill(true)
+        childrenWhite = new Array<boolean>(childCount).fill(true)
       } else if (isPentagrid) {
         // Pentagrid splitting: a white tile has 3 children (white, black,
         // white), a black tile has 2 children (white, black).
@@ -85,7 +85,7 @@ export function tilingPQ(input: {
         }
       } else {
         childCount = genericChildCount
-        childrenWhite = new Array(childCount).fill(true)
+        childrenWhite = new Array<boolean>(childCount).fill(true)
       }
 
       for (let k = 0; k < childCount; k++) {

@@ -51,8 +51,8 @@ export function syDiscreteSymmetries(): {
     s = Math.sin(mass),
     I: C = [0, 1]
 
-  let R: C[] = new Array(L).fill([0, 0]),
-    Lf: C[] = new Array(L).fill([0, 0])
+  let R: C[] = new Array<C>(L).fill([0, 0]),
+    Lf: C[] = new Array<C>(L).fill([0, 0])
 
   R[40] = [0.6, 0]
   Lf[40] = [0.8, 0]
@@ -61,8 +61,8 @@ export function syDiscreteSymmetries(): {
     L0 = Lf.map(z => [...z] as C)
 
   const fwd = (): void => {
-    const R2: C[] = new Array(L),
-      L2: C[] = new Array(L)
+    const R2: C[] = new Array<C>(L),
+      L2: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R2[x] = cadd(
@@ -76,8 +76,8 @@ export function syDiscreteSymmetries(): {
       ])
     }
 
-    const R3: C[] = new Array(L),
-      L3: C[] = new Array(L)
+    const R3: C[] = new Array<C>(L),
+      L3: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = R2[x]!
@@ -90,16 +90,16 @@ export function syDiscreteSymmetries(): {
 
   const bwd = (): void => {
     // inverse: unshift then inverse coin (the coin is unitary, its inverse is +i s mixing)
-    const R2: C[] = new Array(L),
-      L2: C[] = new Array(L)
+    const R2: C[] = new Array<C>(L),
+      L2: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R2[x] = R[wrap(x + 1)]!
       L2[x] = Lf[wrap(x - 1)]!
     }
 
-    const R3: C[] = new Array(L),
-      L3: C[] = new Array(L)
+    const R3: C[] = new Array<C>(L),
+      L3: C[] = new Array<C>(L)
 
     for (let x = 0; x < L; x++) {
       R3[x] = cadd(
@@ -144,14 +144,14 @@ export function syDiscreteSymmetries(): {
     applyParityThenStep: C[][]
     stepThenApplyParity: C[][]
   } => {
-    const r: C[] = new Array(L).fill([0, 0]),
-      l: C[] = new Array(L).fill([0, 0])
+    const r: C[] = new Array<C>(L).fill([0, 0]),
+      l: C[] = new Array<C>(L).fill([0, 0])
 
     r[30] = [1, 0]
 
     const step = (rr: C[], ll: C[]): [C[], C[]] => {
-      const r3: C[] = new Array(L),
-        l3: C[] = new Array(L)
+      const r3: C[] = new Array<C>(L),
+        l3: C[] = new Array<C>(L)
 
       for (let x = 0; x < L; x++) {
         r3[wrap(x + 1)] = rr[x]!
@@ -162,8 +162,8 @@ export function syDiscreteSymmetries(): {
     }
 
     const parity = (rr: C[], ll: C[]): [C[], C[]] => {
-      const r2: C[] = new Array(L),
-        l2: C[] = new Array(L)
+      const r2: C[] = new Array<C>(L),
+        l2: C[] = new Array<C>(L)
 
       for (let x = 0; x < L; x++) {
         r2[x] = ll[wrap(-x)]!

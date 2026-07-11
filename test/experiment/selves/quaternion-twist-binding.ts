@@ -111,7 +111,7 @@ export default experiment({
     }
 
     const relaxStep = (s: Spin[], a: number): Spin[] => {
-      const out: Spin[] = new Array(L * L)
+      const out: Spin[] = new Array<Spin>(L * L)
 
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
@@ -132,7 +132,7 @@ export default experiment({
     }
 
     const precessStep = (s: Spin[], open: boolean): Spin[] => {
-      const out: Spin[] = new Array(L * L)
+      const out: Spin[] = new Array<Spin>(L * L)
 
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {

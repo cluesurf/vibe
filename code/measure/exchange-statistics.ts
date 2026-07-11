@@ -119,7 +119,7 @@ export function walkStep(input: {
   const { vector, size, mass } = input
   const c = Math.cos(mass)
   const s = Math.sin(mass)
-  const next: Complex[] = new Array(2 * size).fill([0, 0])
+  const next: Complex[] = new Array<Complex>(2 * size).fill([0, 0])
 
   for (let x = 0; x < size; x++) {
     const right = vector[x]!
@@ -148,7 +148,7 @@ export function propagatorColumn(input: {
 }): Complex[] {
   const { from, size, mass, beats } = input
 
-  let vector: Complex[] = new Array(2 * size).fill([0, 0])
+  let vector: Complex[] = new Array<Complex>(2 * size).fill([0, 0])
 
   vector[from] = [1, 0]
 

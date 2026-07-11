@@ -129,7 +129,7 @@ async function run(): Promise<void> {
 
   const C = maxColor + 1
   // sort edges by colour, build offsets
-  const counts = new Array(C).fill(0)
+  const counts = new Array<number>(C).fill(0)
 
   for (let i = 0; i < E; i++) {
     counts[color[i]!]++
