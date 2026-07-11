@@ -21,7 +21,7 @@ import {
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Case {
+type Case = {
   symbol: number[]
   geometry: string
   facet?: number // expected interior facet degree (the cell's facet count), if buildable hyperbolic

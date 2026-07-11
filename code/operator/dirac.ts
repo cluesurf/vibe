@@ -19,7 +19,7 @@ import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 // A cell complex: cellCount[k] is the number of k-cells, boundary[k] is the
 // boundary map from k-cells to (k-1)-cells with orientation signs. boundary[0]
 // is a placeholder empty map (vertices have no boundary).
-export interface CellComplex {
+export type CellComplex = {
   readonly form: 'cell-complex'
   readonly cellCount: readonly number[]
   readonly boundary: readonly SparseMatrix[]

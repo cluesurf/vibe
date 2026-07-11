@@ -8,7 +8,7 @@
 
 import { Graph } from '@/code/tool/graph'
 
-export interface AddressedTree {
+export type AddressedTree = {
   parent: Int32Array
   depth: Int32Array
   children: number[][]

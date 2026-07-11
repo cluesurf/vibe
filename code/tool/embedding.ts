@@ -29,7 +29,7 @@ export type ManifoldSpec =
       readonly profile: WaveProfile
     }
 
-export interface Embedding {
+export type Embedding = {
   readonly form: 'embedding'
   readonly dimension: number // spacetime dimension d
   readonly signature: 'lorentzian' | 'riemannian'

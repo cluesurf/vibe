@@ -4,7 +4,7 @@
 // distance all follow from bit operations on (x, z). The holographic HaPPY-code experiment verifies
 // the [[5,1,3]] perfect code and its erasure recovery through these.
 
-export interface Pauli {
+export type Pauli = {
   x: number
   z: number
 }

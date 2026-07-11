@@ -18,7 +18,7 @@ import {
 } from '@/code/algebra/linear/eig-hermitian'
 import { Rng } from '@/code/tool/rng'
 
-interface C4 {
+type C4 = {
   re: [number, number, number, number]
   im: [number, number, number, number]
 }

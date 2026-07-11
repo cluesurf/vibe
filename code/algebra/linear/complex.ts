@@ -1,7 +1,7 @@
 // Complex scalars for operator APIs. Matrices store re/im as parallel
 // Float64Arrays (see dense.ts); this type is for scalar interchange.
 
-export interface Complex {
+export type Complex = {
   readonly re: number
   readonly im: number
 }

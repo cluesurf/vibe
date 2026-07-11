@@ -12,12 +12,12 @@ export type GaugeGroup =
 // Directed edges are indexed; each carries an integer group element. For U(1)
 // the integer k means phase 2*pi*k/q. The forward edge (a->b) is stored; the
 // reverse (b->a) is the group inverse, computed on demand.
-export interface DirectedEdge {
+export type DirectedEdge = {
   readonly from: number
   readonly to: number
 }
 
-export interface GaugeField {
+export type GaugeField = {
   readonly form: 'gauge-field'
   readonly group: GaugeGroup
   readonly edges: readonly DirectedEdge[]
@@ -84,7 +84,7 @@ export function linkPhase(
 }
 
 // A plaquette set: the smallest oriented loops (faces) where field strength lives.
-export interface PlaquetteSet {
+export type PlaquetteSet = {
   readonly form: 'plaquettes'
   // each loop is an ordered list of vertices forming a cycle
   readonly loops: readonly Uint32Array[]

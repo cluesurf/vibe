@@ -23,7 +23,7 @@ import type { TileSource, FaceStep } from '@/code/substrate/tile-source'
 
 export type TileColor = 'white' | 'black' | 'other'
 
-export interface MargensternGrid extends TileSource {
+export type MargensternGrid = {
   // the splitting-tree address, the path of child-ordinals from the root (Margenstern's tree coordinate)
   address(cell: number): number[]
   // the exact integer coordinate, the tile's breadth-first rank (1-based), a drift-free identity
@@ -41,7 +41,7 @@ export interface MargensternGrid extends TileSource {
   depth(cell: number): number
   // the route between two tiles by address arithmetic alone (up to the common ancestor, then down)
   route(from: number, to: number): number[]
-}
+} & TileSource
 
 export function buildMargensternGrid(input: {
   symbol: number[]

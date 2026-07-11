@@ -34,7 +34,7 @@ import { seedCompactBlob } from '@/code/measure/record-persistence'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Graph {
+type Graph = {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array

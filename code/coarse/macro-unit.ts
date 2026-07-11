@@ -9,7 +9,7 @@ export type Graph = {
   adj: Int32Array
 }
 
-export interface MacroUnit {
+export type MacroUnit = {
   id: number
   level: number
   members: number[]

@@ -6,7 +6,7 @@
 
 import { Rng } from '@/code/tool/rng'
 
-export interface SprinkledPoint {
+export type SprinkledPoint = {
   t: number
   x: number
 }

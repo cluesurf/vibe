@@ -12,7 +12,7 @@ import { Graph } from '@/code/tool/graph'
 
 const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
 
-export interface Effective {
+export type Effective = {
   Jself: Float64Array
   nbr: number[][]
   Jcross: Float64Array[]

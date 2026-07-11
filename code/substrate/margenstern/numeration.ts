@@ -10,7 +10,7 @@
 // dimension. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the
 // splitting-method notes.
 
-export interface Numeration {
+export type Numeration = {
   // the increasing basis (term 0 is 1)
   readonly basis: number[]
   // the digits of a positive integer, most-significant first, greedy (largest basis term first)

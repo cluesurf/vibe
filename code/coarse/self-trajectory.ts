@@ -44,7 +44,7 @@ function positiveCentroidX(tone: Int8Array, L: number): number {
   return count > 0 ? sum / count : L / 2
 }
 
-export interface Trajectory {
+export type Trajectory = {
   graph: Graph
   L: number
   bins: number
@@ -134,7 +134,7 @@ export function positionBin(input: {
 // global positive centroid (which the active vacuum's churn dominates), this follows the bound self, so it
 // drifts smoothly and is forward-predictable. Used by the surrogate-fidelity check (multiscale MS1). If the
 // self is momentarily undetected (no cluster at or above minSize) the last known position is held.
-export interface UnitTrajectory {
+export type UnitTrajectory = {
   graph: Graph
   L: number
   // the self centroid x at each beat.

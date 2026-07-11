@@ -275,7 +275,7 @@ function invColumnMod(C: number[][], col: number, p: number): IVec {
   return Int32Array.from(b.map(v => modulo(v, p)))
 }
 
-export interface ScaleGraph {
+export type ScaleGraph = {
   cellCount: number
   facetCount: number
   offsets: Int32Array
@@ -981,11 +981,11 @@ function matInvMod(m: IMat, p: number): IMat {
 // buildDodecagrid in P183. Honest note, carrying the 4x4 matrix is not itself a memory win (it is bigger
 // than a 12-neighbor list), the memory win comes from compact FORMULA addressing (the plan's Stage 1). This
 // proves the on-demand neighbor MECHANISM that the shader port builds on.
-export interface LazyCell {
+export type LazyCell = {
   g1: Int32Array
   g2: Int32Array
 }
-export interface LazyEngine {
+export type LazyEngine = {
   origin: LazyCell
   faceCount: number
   neighbors: (cell: LazyCell) => LazyCell[]

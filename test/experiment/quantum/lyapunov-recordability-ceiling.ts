@@ -40,7 +40,7 @@ import { recordContrast } from '@/code/measure/record-persistence'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Csr {
+type Csr = {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array

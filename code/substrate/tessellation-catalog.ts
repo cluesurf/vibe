@@ -16,7 +16,7 @@ export type TessellationClass =
   | 'noncompact'
   | 'hypercompact'
 
-export interface Tessellation {
+export type Tessellation = {
   readonly symbol: string // display form, e.g. '{5,3,4}'
   readonly schlafli: number[] // integer Schläfli, empty for star/apeirogonal (not buildable)
   readonly name: string

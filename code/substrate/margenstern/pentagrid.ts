@@ -15,7 +15,7 @@ import {
 } from '@/code/substrate/margenstern/fibonacci-tree'
 
 // a pentagrid tile, a quarter q in 0..3 and a node number n >= 1 in that quarter's Fibonacci tree
-export interface PentaTile {
+export type PentaTile = {
   readonly q: number
   readonly n: number
 }

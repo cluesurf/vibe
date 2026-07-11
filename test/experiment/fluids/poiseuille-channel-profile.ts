@@ -46,13 +46,13 @@ import { run } from '@/code/rule/lattice-gas'
 const GRAD_AXIS = 1 // the cross-channel axis (the walls bound it)
 const MOM_AXIS = 0 // the flow axis (periodic, the torus supplies it)
 
-interface ChannelRun {
+type ChannelRun = {
   profiles: number[][]
   chargeExact: boolean
   midBeat: number // first beat the bulk momentum magnitude falls to half, -1 if never
 }
 
-interface ProfileFit {
+type ProfileFit = {
   curvature: number
   r2: number
   margin: number // flat-fit residual over quadratic-fit residual

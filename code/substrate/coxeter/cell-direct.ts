@@ -32,7 +32,7 @@ import {
 
 const keyOf = pointKey
 
-export interface CellGraph {
+export type CellGraph = {
   readonly symbol: number[]
   readonly cellCount: number
   readonly facetCount: number
@@ -288,7 +288,7 @@ export function buildEuclideanLattice(input: {
 // the boundary at infinity (the direction of the farthest cell), compute the Busemann function toward xi
 // (whose level sets ARE the horospheres), and keep the cells in a thin band around one level. The induced
 // subgraph is a flat 2D sheet, verified by its POLYNOMIAL (not exponential) growth.
-export interface HorospherePatch {
+export type HorospherePatch = {
   readonly cellCount: number
   readonly neighbors: number[][] // induced adjacency among band cells (reindexed)
   readonly coords: number[][]

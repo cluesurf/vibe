@@ -8,7 +8,7 @@
 
 import type { TileSource } from '@/code/substrate/tile-source'
 
-export interface CellWalker {
+export type CellWalker = {
   // the cell the walker stands on
   readonly cell: number
   // which edge the walker faces, the cyclic edge index 0..degree-1

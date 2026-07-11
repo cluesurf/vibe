@@ -3,7 +3,7 @@
 // tractable top simulation of N_top units, with L stacked levels each compressing a factor C, reaches an
 // effective substrate of N_top * C^L vibes (see the multi-level-selves plan, E6 and the 10^20 question).
 
-export interface Level {
+export type Level = {
   level: number
   unitCount: number
   // mean sub-units per unit, the compression factor C at this level.

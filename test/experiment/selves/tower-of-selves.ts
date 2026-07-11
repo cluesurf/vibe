@@ -85,7 +85,7 @@ function hierarchicalMesh(input: {
   return { g, fills, unitAtLevel, countAtLevel }
 }
 
-interface Rung {
+type Rung = {
   level: number
   name: string
   units: number

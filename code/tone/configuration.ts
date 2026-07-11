@@ -8,7 +8,7 @@ import {
 } from '@/code/tone/alphabet'
 import { Rng } from '@/code/tool/rng'
 
-export interface Configuration {
+export type Configuration = {
   readonly form: 'configuration'
   readonly alphabet: Alphabet
   readonly size: number // number of elements

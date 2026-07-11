@@ -17,7 +17,7 @@ import { makeRng } from '@/code/tool/rng'
 
 // The finite state space of `cells` elements over an alphabet. The full space
 // has dimension valueCount(alphabet)^cells, so callers keep `cells` small.
-export interface StateSpace {
+export type StateSpace = {
   readonly form: 'state-space'
   readonly cells: number
   readonly alphabet: Alphabet

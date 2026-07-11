@@ -7,7 +7,7 @@
 // the data modules (margenstern-pentagrid*.ts, margenstern-heptagrid.ts). See
 // land/text/papers/maurice-margenstern and note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
-export interface MargensternCa {
+export type MargensternCa = {
   readonly name: string
   readonly states: string[]
   readonly ruleCount: number

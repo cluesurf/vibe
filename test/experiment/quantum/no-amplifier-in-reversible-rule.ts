@@ -178,7 +178,7 @@ export default experiment({
       )
 
       const seeded = cloneWill(state)
-      seeded.data[degree] = (((seeded.data[degree]! + 2) % 3) - 1)
+      seeded.data[degree] = ((seeded.data[degree]! + 2) % 3) - 1
 
       const tipped = settledSignedPointer({
         init: seeded,

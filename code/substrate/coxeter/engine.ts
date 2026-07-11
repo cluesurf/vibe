@@ -143,7 +143,7 @@ function toPoincare(x: number[], timeAxis: number): number[] {
   return out
 }
 
-export interface CoxeterMesh {
+export type CoxeterMesh = {
   readonly form: 'coxeter-mesh'
   readonly symbol: number[]
   readonly geometry: Geometry

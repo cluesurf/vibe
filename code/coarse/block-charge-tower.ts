@@ -4,7 +4,7 @@
 // charge is exactly conserved up every codec; the compressibility converging to a constant across the
 // tower is a renormalization fixed point (a faithful multiscale tower).
 
-export interface BlockChargeLevel {
+export type BlockChargeLevel = {
   level: number
   blockSize: number
   totalCharge: number

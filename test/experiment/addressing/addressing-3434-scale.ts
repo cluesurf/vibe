@@ -21,7 +21,7 @@ import {
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Report {
+type Report = {
   maxCells: number
   cells: number
   complete: number

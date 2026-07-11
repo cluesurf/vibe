@@ -16,7 +16,7 @@ import {
   toggle,
 } from '@/code/dynamics/uniform-sampler'
 
-interface Replica {
+type Replica = {
   state: State
   poset: Poset
   action: number

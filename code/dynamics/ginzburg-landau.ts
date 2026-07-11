@@ -6,7 +6,7 @@
 // while a like-charge pair stays locked above the topological minimum. Used to test
 // that defects behave as conserved particles.
 
-export interface Complex2 {
+export type Complex2 = {
   re: number
   im: number
 }

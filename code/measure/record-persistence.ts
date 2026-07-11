@@ -8,7 +8,7 @@
 import { neighborDistances, edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 
-interface Csr {
+type Csr = {
   cellCount: number
   offsets: Int32Array
   adj: Int32Array

@@ -7,14 +7,14 @@
 import gifenc from 'gifenc'
 
 // gifenc ships no type declarations, so we describe the small slice of its API we use at this boundary.
-interface GifFrameOptions {
+type GifFrameOptions = {
   palette: number[][]
   delay: number
   repeat: number
   first: boolean
 }
 
-interface GifEncoderInstance {
+type GifEncoderInstance = {
   writeFrame: (
     index: Uint8Array,
     width: number,
@@ -25,7 +25,7 @@ interface GifEncoderInstance {
   bytesView: () => Uint8Array
 }
 
-interface GifEnc {
+type GifEnc = {
   GIFEncoder: () => GifEncoderInstance
   quantize: (frame: Uint8Array, maxColors: number) => number[][]
   applyPalette: (frame: Uint8Array, palette: number[][]) => Uint8Array

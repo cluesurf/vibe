@@ -7,7 +7,7 @@
 // start) and conserves total charge and momentum exactly. A reversible conserving
 // lattice gas that coarse-grains to hydrodynamics.
 
-export interface LatticeGasState {
+export type LatticeGasState = {
   E: Int8Array
   W: Int8Array
   N: Int8Array

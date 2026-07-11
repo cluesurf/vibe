@@ -26,7 +26,7 @@ import {
 // across the catalog. 21 ternary slots hold the full 32-bit decorrelating hash without collision.
 const ASSOCIATIVE_WORD_BITS = 21
 
-export interface TessellationMeasurement {
+export type TessellationMeasurement = {
   buildable: boolean
   cells: number
   rank: number // the Coxeter rank, the number of reflection generators (= the mesh degree)

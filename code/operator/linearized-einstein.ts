@@ -15,7 +15,7 @@ const D = GRAVITON_DIMENSION
 const ETA = [-1, 1, 1, 1] // Minkowski signature, diagonal
 
 // A periodic 4D lattice of symmetric rank-2 tensors h_{mu nu}(x). data[site][mu*D+nu].
-export interface TensorField {
+export type TensorField = {
   L: number
   data: Float64Array[]
 }

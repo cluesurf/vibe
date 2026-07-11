@@ -57,7 +57,7 @@ function intersectionSize(a: Set<number>, b: Set<number>): number {
 // The result of a shared-past measurement: the fraction of cell A's causal past
 // that also lies in cell B's, plus the raw cone sizes and overlap count, so the
 // fraction is fully traceable to integer set sizes (exact, no tolerance).
-export interface SharedPast {
+export type SharedPast = {
   readonly eta: number // shared / sizeA, the fraction of A's past shared with B
   readonly shared: number // cells in both cones
   readonly sizeA: number // cells in A's cone

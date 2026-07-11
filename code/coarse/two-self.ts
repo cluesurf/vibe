@@ -13,7 +13,7 @@ import {
 } from '@/code/model/self-kit'
 import { makeRng } from '@/code/coarse/self-trajectory'
 
-export interface SelfShape {
+export type SelfShape = {
   // cell offsets (dx, dy) of the self's plus-charge cells relative to its centroid.
   offsets: (readonly [number, number])[]
   size: number

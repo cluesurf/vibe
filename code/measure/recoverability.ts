@@ -20,7 +20,7 @@ import { Will, cloneWill } from '@/code/tone/will'
 import { Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 
-export interface RecoverabilityPoint {
+export type RecoverabilityPoint = {
   beat: number
   rGlobal: number
   rWindow: number

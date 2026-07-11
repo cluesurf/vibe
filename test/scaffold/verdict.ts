@@ -2,7 +2,7 @@
 // Status, the measured numbers, the control comparison, and the one-sentence
 // claim are data, so suites and reports read every test the same way.
 
-export interface Verdict {
+export type Verdict = {
   status: 'pass' | 'fail' | 'partial' | 'open'
   // one sentence, what was shown.
   claim: string

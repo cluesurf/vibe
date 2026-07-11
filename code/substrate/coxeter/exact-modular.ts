@@ -247,7 +247,7 @@ function rootModulus(symbol: number[]): number {
   return lcm
 }
 
-export interface ExactEngine {
+export type ExactEngine = {
   readonly rank: number
   readonly faceCount: number
   readonly origin: Mat

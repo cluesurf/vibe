@@ -11,7 +11,7 @@ import {
   outermostShellFraction,
 } from '@/code/substrate/coxeter/growth'
 
-export interface TessellationProfile {
+export type TessellationProfile = {
   symbol: number[]
   rank: number
   cells: number

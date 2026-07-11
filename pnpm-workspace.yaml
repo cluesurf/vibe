@@ -2,6 +2,9 @@ allowBuilds:
   esbuild: true
   webgpu: true
 
+minimumReleaseAgeExclude:
+  - '@cluesurf/wash@0.10.0 || 0.10.2'
+
 overrides:
   # critical
   shell-quote: '>=1.8.4'

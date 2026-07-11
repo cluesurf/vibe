@@ -11,7 +11,7 @@
 //   rotation^k:  char = 0 (no face fixed by a nontrivial rotation), class size 2 for k=1..floor(n/2) (pairs)
 //   reflection:  char = 1 (odd n: each reflection fixes one face), class size n
 // (this construction is for odd n, the {7,3} / heptagon case).
-interface DihedralClass {
+type DihedralClass = {
   rep: string
   size: number
   char: number

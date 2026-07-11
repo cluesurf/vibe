@@ -5,7 +5,7 @@
 // relation). All exact rational arithmetic over the charges.
 
 // (name, weak isospin T_3, electric charge Q, multiplicity = colour x weak)
-export interface GenerationFermion {
+export type GenerationFermion = {
   name: string
   t3: number
   q: number

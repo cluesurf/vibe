@@ -40,7 +40,7 @@ function popcount32(x: number): number {
   return (v * 0x01010101) >>> 24
 }
 
-export interface State {
+export type State = {
   size: number
   stride: number
   future: BitMatrix // future.words[a*stride + w]: b's that a precedes

@@ -4,7 +4,7 @@
 // definite but different emergent geometry, the honest long-shot negative). The grower returns neighbor lists
 // usable by code/measure/dimension.ballGrowthDimension.
 
-export interface RewriteGraph {
+export type RewriteGraph = {
   neighbors: number[][]
   nodeCount: number
 }

@@ -4,7 +4,7 @@
 // object churn. The scalar Complex in complex.ts is for interchange; this is for
 // the hot loop.
 
-export interface Cx {
+export type Cx = {
   re: Float64Array
   im: Float64Array
 }

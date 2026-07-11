@@ -8,7 +8,7 @@ import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
 import { Graph, makeGraph } from '@/code/tool/graph'
 import { poincareCoshFromParts } from '@/code/geometry/distance'
 
-interface V3 {
+type V3 = {
   x: number
   y: number
   z: number

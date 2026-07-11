@@ -15,7 +15,7 @@ import {
 import { makeRng } from '@/code/tool/rng'
 import type { Graph, Rng } from '@/code/model/self-kit'
 
-export interface PersistenceResult {
+export type PersistenceResult = {
   // the surviving plus cluster with the refuge source masked out (the audit shows it is the refuge halo).
   survivingSize: number
   // the centroid x of the surviving cluster, or -1 if nothing survived.

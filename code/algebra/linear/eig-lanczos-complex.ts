@@ -10,7 +10,7 @@
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { makeDense } from '@/code/algebra/linear/dense'
 
-export interface ComplexVector {
+export type ComplexVector = {
   re: Float64Array
   im: Float64Array
 }

@@ -14,7 +14,7 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 // binding-by-radiation, reversible in the bulk, discrete throughout. The +x slot holds a +1 tone, the -x slot a -1
 // tone, the empty slot 0, so the state is the ternary tone on a directed coin, the same primitive as the base.
 
-export interface ShadowPressureResult {
+export type ShadowPressureResult = {
   drift: number // net displacement of the test mass (negative = toward the body = attraction)
   netMomentum: number // running sum of integer momentum flux at the mass after warmup (negative = toward body)
   hitsRight: number // total +x tones counted at the mass (the shadowed side when a body is present)

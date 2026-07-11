@@ -22,7 +22,7 @@ import {
 import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
 import type { TileSource, FaceStep } from '@/code/substrate/tile-source'
 
-interface CellRecord {
+type CellRecord = {
   readonly matrix: Mat // the group element g, center = g * c0
   readonly center: number[] // the cell center in the Poincare ball/disk
   spin: number[] | null // spin -> neighbor cell id, cyclically ordered, computed lazily on first expand

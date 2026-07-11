@@ -19,13 +19,13 @@
 // (system qubit 0, bath qubits 1..N) for the coherence, and the two pointer-conditional bath states
 // for the distinguishability of the record in a fragment.
 
-export interface PureState {
+export type PureState = {
   real: Float64Array
   imag: Float64Array
   qubitCount: number
 }
 
-export interface RecordChain {
+export type RecordChain = {
   joint: PureState
   systemQubit: number
   environmentQubits: number[]

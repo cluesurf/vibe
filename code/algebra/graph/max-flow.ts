@@ -3,7 +3,7 @@
 // separating it from the rest of the boundary (the discrete minimal surface). By the max-flow min-cut theorem the
 // min-cut equals the maximum number of edge-disjoint bulk threads from the region to its complement.
 
-interface Arc {
+type Arc = {
   to: number
   cap: number
   flow: number

@@ -250,7 +250,7 @@ export const PENTAGRID_RULES: string[] = [
 ]
 
 // the compiled, rotation-invariant transition table, (current state + the five neighbour states) -> new state
-export interface PentagridRuleTable {
+export type PentagridRuleTable = {
   readonly lookup: Map<string, PentaState>
   // how many distinct (current + neighbours) configurations the rules cover, after expanding rotations
   readonly size: number

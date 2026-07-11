@@ -113,7 +113,7 @@ export function jacobiEigenvalues(
   )
 }
 
-export interface EigenResult {
+export type EigenResult = {
   readonly values: Float64Array // ascending
   // eigenvectors as columns: vectors[i * n + j] is component i of eigenvector j
   readonly vectors: Float64Array

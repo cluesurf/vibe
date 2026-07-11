@@ -26,11 +26,11 @@ export type Category =
 
 export type Depth = 'L0' | 'L1' | 'L2' | 'L3'
 
-export interface Context {
+export type Context = {
   seed: number
 }
 
-export interface Experiment {
+export type Experiment = {
   id: string
   // The stable database code, E-<3-consonant-arena>-<4-digit>, e.g. E-RLT-0007. Optional so older
   // experiments keep working; the registry (test/registry.csv) maps every code to its file, and the
@@ -60,7 +60,7 @@ export function allExperiments(): Experiment[] {
   return [...registry.values()]
 }
 
-export interface SuiteResult {
+export type SuiteResult = {
   id: string
   verdict: Verdict
 }

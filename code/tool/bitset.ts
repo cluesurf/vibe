@@ -1,7 +1,7 @@
 // Bit-packed relation matrix. A Poset of size N stores its transitive closure
 // as N rows of ceil(N/32) words, so set operations on relations are bitwise.
 
-export interface BitMatrix {
+export type BitMatrix = {
   readonly form: 'bit-matrix'
   readonly rows: number
   readonly cols: number

@@ -10,7 +10,7 @@ export function continuumDispersion(k: number, m: number): number {
   return Math.sqrt(m * m + k * k)
 }
 
-export interface DispersionBand {
+export type DispersionBand = {
   // the maximum frequency over the scanned band (a cell-scale cap for a lattice, unbounded for a continuum).
   maxOmega: number
   // the maximum group velocity |d omega / d k| over the band (the signal speed cap).

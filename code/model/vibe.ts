@@ -40,7 +40,7 @@ export type RuleKind = 'signed-majority'
 export type ScheduleKind = 'asynchronous' | 'synchronous'
 export type GrowthKind = 'net-positive' | 'static'
 
-export interface VibeConfig {
+export type VibeConfig = {
   mesh: MeshKind
   tone: ToneKind
   fill: FillKind

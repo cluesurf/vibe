@@ -5,7 +5,7 @@
 // converges to one as the field shrinks, so the Maxwell (curl-curl) operator follows from the Wilson
 // action.
 
-export interface PlaquetteLink {
+export type PlaquetteLink = {
   link: number
   sign: number
 }

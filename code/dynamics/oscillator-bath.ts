@@ -7,7 +7,7 @@
 // returns and the body oscillates forever (a reversible periodic orbit, no attractor). This is the difference
 // between a body that can become a self (bath-coupled, has a basin) and one that cannot (closed, reversible).
 
-export interface OscillatorBathInput {
+export type OscillatorBathInput = {
   absorbing: boolean // an absorbing far end is the bath, a reflecting end is the closed control
   stiffness: number // the binding-well stiffness (positive attracts, the bound state)
   start: number // initial displacement r0
@@ -86,7 +86,7 @@ export function oscillatorBathTrajectory(
 // Two bodies, each in its own well, mutually attracting, both radiating into a shared bath. Under an absorbing
 // bath they settle to a JOINT ground state, the two sub-bodies bind into one composite, a self of selves. The
 // returned trajectories are the two body coordinates over time.
-export interface TwoBodyBathInput {
+export type TwoBodyBathInput = {
   absorbing: boolean
   stiffness: number // each body's own well
   mutual: number // the attraction between the two bodies (binds them into a composite)

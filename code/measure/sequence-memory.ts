@@ -8,7 +8,7 @@ import { makeRng } from '@/code/tool/rng'
 // repeating thought is a stable periodic attractor of the association dynamics, not a fixed idea:
 // it cycles. Scrambling the weights destroys the sequence links, and no cycle forms.
 
-export interface SequenceMemory {
+export type SequenceMemory = {
   size: number
   length: number
   patterns: number[][]

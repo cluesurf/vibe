@@ -11,7 +11,7 @@ import {
   timeShuffle,
 } from '@/code/coarse/surrogate'
 
-export interface TowerLevel {
+export type TowerLevel = {
   level: number
   lag: number
   // forward accuracy of the learned surrogate at this lag, on the held-out window.

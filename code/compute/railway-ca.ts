@@ -16,7 +16,7 @@
 export type RailDyn = 'empty' | 'C' | 'H' | 'A' // empty space, clear track, head, tail
 export type SwitchType = 'fix' | 'flip-flop' | 'memory'
 
-export interface RailwayCell {
+export type RailwayCell = {
   role: 'empty' | 'track' | 'switch'
   // track cells link to their two track neighbours; switch cells use trunk / branchA / branchB
   links: number[] // track: [n1, n2]; switch: [trunk, branchA, branchB]
@@ -25,7 +25,7 @@ export interface RailwayCell {
   state: RailDyn
 }
 
-export interface RailwayCa {
+export type RailwayCa = {
   cells: RailwayCell[]
   step(): void
   headAt(): number // the cell id holding the head, or -1
@@ -130,7 +130,7 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
 // in the initial configuration, a register made this way extends itself as the computation needs it, so the
 // whole machine can start from a FINITE seed. This is the self-construction Margenstern's strongly universal
 // dodecagrid automaton achieves by a special device; here it is a graph-local rule that works on any tiling.
-export interface GrowingTrackCa {
+export type GrowingTrackCa = {
   step(): boolean // build one track cell ahead, false if there is no empty neighbour left (never on an infinite tiling)
   trackLength(): number
   headAt(): number
@@ -193,7 +193,7 @@ export function makeGrowingTrackCa(input: {
 // increment injects the locomotive at the entry; it ripples carries through a chain of flip-flop switches whose
 // selection bits hold the count in binary. This is the universal building block (a register) realized as the
 // actual cellular automaton, not as an abstract simulator. It embeds on any tiling by the standard argument.
-export interface BinaryCounter {
+export type BinaryCounter = {
   increment(): boolean // inject the locomotive and run one ripple, false if it did not reach the output
   count(): number // the value held in the flip-flop selection bits
   clear(): void // reset every bit to 0 (the flip-flop selections to 1), a register reset
@@ -302,7 +302,7 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
 }
 
 // the common interface of a railway register, so the literal adder and animations work over any base
-export interface RailRegister {
+export type RailRegister = {
   increment(): unknown
   count(): number
   clear(): void
@@ -378,7 +378,7 @@ export function makeTernaryCounter(width: number): RailRegister {
 // from a one-bit seed (a finite configuration) and counts without bound, the locomotive rippling carries
 // through the flip-flop bits and, on overflow, BUILDING a new flip-flop bit by the track-building rule. So the
 // memory is not given in the initial configuration, it is constructed on demand from a finite start.
-export interface SelfExtendingCounter {
+export type SelfExtendingCounter = {
   increment(): void
   count(): number
   width(): number // current number of bits (grows from the one-bit seed)
