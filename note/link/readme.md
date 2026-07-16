@@ -21,6 +21,11 @@ the point, the structures each theory derives that vibe also derives.
 | [Chronoflux](chronoflux.md) | Roy Herbert | a conserved temporal current | 5 | one conserved quantity, time-as-divergence, recoverability, entropic gravity |
 | [Orch-OR](orch-or.md) | Hameroff and Penrose | gravitational state collapse | 6 | records persist under noise (divergent on the mechanism) |
 | [CRFT](crft.md) | Brent Borgers | high-D to low-D projection | 5 | the area law, selection-as-law, conservation-makes-selves |
+| [Perspectival Plurality](perspectival-plurality.md) | Joseph McCard | immanently registering activity | 6 | experience-first, self-as-recursive-persistence, choice-determined-yet-irreducible, jointly-constituted-invariants |
+| [Cosmopsychism](cosmopsychism.md) | Philip Goff | consciousness as intrinsic nature | 6 | experience-first, many-selves-by-decomposition, combination-as-a-measured-transition |
+| [Multisense Realism](multisense-realism.md) | Craig Weinberg | sense as felt appearance | 3 | experience-first, self-as-partial-window (divergent on discrete vs computable) |
+
+The last three are experience-first consciousness models rather than physics frameworks. They map onto vibe's selves experiments where a genuine invariant exists, and diverge on physics: they carry no substrate or law, and Multisense Realism diverges further on whether the base may be discrete and computable at all.
 
 ## The grades
 
