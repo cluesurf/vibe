@@ -174,3 +174,67 @@ export function recoverabilityTrace(input: {
 
   return points
 }
+
+// The coarse observer's TIME SERIES, as opposed to a single coarse snapshot. At each beat the per-block
+// total charge is read and serialized, so two runs can be compared for the first beat at which a coarse
+// observer could tell them apart.
+//
+// This exists to separate two things that the recoverability discussion routinely conflates. A coarse
+// SNAPSHOT loses information, because fine structure cancels inside a block. A coarse TRAJECTORY need
+// not, because conservation plus streaming carries a hidden difference across block boundaries, after
+// which it shows up in the block totals. Measuring the trajectory is therefore the honest test of what a
+// coarse observer can eventually recover, and it gives a very different answer from the snapshot.
+export function coarseChargeTrajectory(input: {
+  will: Will
+  collision: Collision
+  beats: number
+  regionOf: (cell: number) => number
+  regionCount: number
+}): string[] {
+  const { will, collision, beats, regionOf, regionCount } = input
+  const degree = will.mesh.degree
+
+  let state = cloneWill(will)
+
+  const series: string[] = []
+
+  for (let step = 0; step < beats; step++) {
+    state = beat(state, collision)
+
+    const totals = new Int32Array(regionCount)
+
+    for (let cell = 0; cell < state.mesh.cellCount; cell++) {
+      const base = cell * degree
+
+      let sum = 0
+
+      for (let d = 0; d < degree; d++) {
+        sum += state.data[base + d]!
+      }
+
+      totals[regionOf(cell)] = totals[regionOf(cell)]! + sum
+    }
+
+    series.push(totals.join(','))
+  }
+
+  return series
+}
+
+// The first beat (one-indexed) at which two coarse trajectories differ, or null when they never do
+// within the measured window. Null is the interesting answer: it means a coarse observer with that
+// resolution could not tell the two histories apart at all.
+export function firstDistinguishedBeat(
+  left: readonly string[],
+  right: readonly string[],
+): number | null {
+  const length = Math.min(left.length, right.length)
+
+  for (let index = 0; index < length; index++) {
+    if (left[index] !== right[index]) {
+      return index + 1
+    }
+  }
+
+  return null
+}

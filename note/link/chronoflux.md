@@ -113,6 +113,34 @@ and it would be a misreading to take this section as showing the smooth carrier 
 is not. It encodes scale-indifference, and vibe's floor is an added commitment of the same kind.
 The two bases are a symmetric trade, stated below.
 
+## The fork is testable in principle, and the number already exists
+
+The fork above is a disagreement over a postulate, so no argument settles it. But a floor is a
+physical commitment and commitments leave marks, so it is worth stating exactly where the mark is
+and how big it is. That number was already measured in this repo, before this bridge existed, for
+a different purpose.
+
+Scale-indifference predicts **exactly zero** rotational anisotropy in the dispersion at every
+scale. A floor predicts a definite nonzero value with a definite exponent. So anisotropy is the
+sharp probe, and [`E-RLT-0041`](../../test/experiment/relativity/lorentz-irrelevance-exponent.ts)
+measures it: the anisotropy falls as a power law whose exponent is near **four** on the committed
+{3,4,3,4} coin and near **two** on a cubic set, because the 24-direction coin is a spherical
+5-design and the cubic axis set is only a 3-design. The library carries the same fact directly, in
+that the D4 set is isotropic to order four while the cubic and hypercubic sets are not.
+
+Both halves of what that implies should be said together, because they pull opposite ways.
+
+- **It is why the model survives observation.** A fourth-order signal dies extremely fast toward
+  long wavelength, so a floor on this coin is very well hidden. Lorentz violation is an irrelevant
+  operator here, and exact Lorentz is the infrared fixed point.
+- **It is why the fork is hard to decide.** The same suppression that protects the model also puts
+  the discriminating measurement far out of reach. Choosing a coin that conceals its own
+  discreteness two orders better than a cubic lattice is a virtue for viability and an obstacle for
+  falsification, and it is the same number in both cases.
+
+Nothing here favours either base. It converts "we each made an underived choice" into "here is the
+precision at which the choice would become testable", which is the honest form of the fork.
+
 ## Shared invariants (the survivors)
 
 Structures both theories derive from different starting points. (An invariant here is a
