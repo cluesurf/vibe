@@ -4,7 +4,13 @@
 // physics claims, so they assert the primitives behave as documented before any experiment leans on them.
 
 import { suite, check, equal, ok, notOk } from '@/test/code/harness'
-import { d4Mesh } from '@/code/tool/mesh'
+import {
+  d4Mesh,
+  squareMesh,
+  cubicMesh,
+  SQUARE_DIRECTIONS,
+  CUBIC_DIRECTIONS,
+} from '@/code/tool/mesh'
 import { makeWill, fillWillPattern, charge } from '@/code/tone/will'
 import { passThrough, pairCollision } from '@/code/rule/collision'
 import { collide } from '@/code/rule/lattice-gas'
@@ -98,8 +104,32 @@ suite(
       ok(out.totalFlux > 0, 'the partition must actually carry flux')
     }),
     check('a one-signed sink breaks the balance', () => {
+      // The one-signed sink removes POSITIVE charge from slot 0 only, so it is inert on a fill whose
+      // slot 0 is never positive. fillWillPattern is exactly such a fill (slot 0 is negative in every
+      // cell), which would leave this control dead and the check vacuous. So the fill is built here
+      // with a positive slot 0, and liveness is asserted before the balance is read.
+      const will = makeWill(d4Mesh({ side: SIDE }))
+      const degree = will.mesh.degree
+
+      for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+        for (let d = 0; d < degree; d++) {
+          will.data[cell * degree + d] = d === 0 ? 1 : ((cell + d) % 3) - 1
+        }
+      }
+
+      const before = charge(will)
+      const drained = makeWill(d4Mesh({ side: SIDE }))
+
+      drained.data.set(will.data)
+      collide(drained, drainingCollision)
+
+      ok(
+        charge(drained) !== before,
+        'the sink must actually remove charge, else the control is dead',
+      )
+
       const out = regionContinuityResidual({
-        will: patternWill(),
+        will,
         collision: drainingCollision,
         regionOf: cell => cell % 7,
         regionCount: 7,
@@ -251,5 +281,49 @@ suite('measure/resolution: the coarse reading is finite and quantised', [
       'growing the block must shrink the quantum',
     )
     ok(coarse.quantum > 0, 'the quantum never reaches zero')
+  }),
+])
+
+suite('tool/mesh: the exported coin vectors match their builders', [
+  check('square vectors are unit and opposite-paired', () => {
+    const mesh = squareMesh({ side: 4 })
+
+    equal(SQUARE_DIRECTIONS.length, mesh.degree)
+
+    // each direction's opposite vector is the negation, the condition streaming needs
+    let allNegated = true
+
+    for (let d = 0; d < mesh.degree; d++) {
+      const here = SQUARE_DIRECTIONS[d]!
+      const there = SQUARE_DIRECTIONS[mesh.opposite(d)]!
+
+      for (let axis = 0; axis < here.length; axis++) {
+        if (there[axis] !== -here[axis]!) {
+          allNegated = false
+        }
+      }
+    }
+
+    ok(allNegated, 'opposite directions must be negated vectors')
+  }),
+  check('cubic vectors are unit and opposite-paired', () => {
+    const mesh = cubicMesh({ side: 4 })
+
+    equal(CUBIC_DIRECTIONS.length, mesh.degree)
+
+    let allNegated = true
+
+    for (let d = 0; d < mesh.degree; d++) {
+      const here = CUBIC_DIRECTIONS[d]!
+      const there = CUBIC_DIRECTIONS[mesh.opposite(d)]!
+
+      for (let axis = 0; axis < here.length; axis++) {
+        if (there[axis] !== -here[axis]!) {
+          allNegated = false
+        }
+      }
+    }
+
+    ok(allNegated, 'opposite directions must be negated vectors')
   }),
 ])

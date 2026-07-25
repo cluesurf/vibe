@@ -120,6 +120,27 @@ export function meshCsr(mesh: Mesh): {
 // A periodic square lattice in two dimensions, four directions (E, W, N, S). The
 // minimal directional mesh, used to pin the rule against the known 2D result.
 // Direction order: 0 is +x (E), 1 is -x (W), 2 is +y (N), 3 is -y (S).
+// The coin geometry of the square mesh, one unit vector per direction in the same order the
+// builder below uses (+x, -x, +y, -y). Exported because any measure that needs a VECTOR
+// quantity (momentum, shear, a current direction) needs the coin's vectors, not just its
+// adjacency, and there should be one source of truth for them.
+export const SQUARE_DIRECTIONS: number[][] = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+]
+
+// The coin geometry of the cubic mesh, in the builder's order (+x, -x, +y, -y, +z, -z).
+export const CUBIC_DIRECTIONS: number[][] = [
+  [1, 0, 0],
+  [-1, 0, 0],
+  [0, 1, 0],
+  [0, -1, 0],
+  [0, 0, 1],
+  [0, 0, -1],
+]
+
 export function squareMesh(input: { side: number }): Mesh {
   const side = input.side
   const wrap = (value: number): number => modulo(value, side)
