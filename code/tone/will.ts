@@ -28,6 +28,40 @@ export function fillWillPattern(will: Will, phase = 0): void {
   }
 }
 
+// Fill one slot of every cell with a PERIODIC function of one coordinate, and the remaining slots
+// with a fixed flux-carrying pattern. `pattern` is the repeating run of tone values written into the
+// target slot, indexed by the cell's coordinate along `axis` modulo the pattern length.
+//
+// This exists because whether a coarse conservation test can SEE a violation turns on the periodic
+// structure of the quantity being violated. A sink that removes one slot destroys, per block, the sum
+// of that slot's pattern over the block, so the pattern's period and its per-period sum are the two
+// controls that decide whether the loss cancels inside a block or survives to be measured. Making
+// them explicit parameters is what turns that from an accident of a fill into something testable.
+export function fillPeriodicSlot(input: {
+  will: Will
+  meshSide: number
+  slot: number
+  axis: number
+  pattern: readonly number[]
+  otherAxis?: number
+}): void {
+  const { will, meshSide, slot, axis, pattern, otherAxis = 1 } = input
+  const degree = will.mesh.degree
+  const period = pattern.length
+
+  const coordinate = (cell: number, which: number): number =>
+    Math.floor(cell / meshSide ** which) % meshSide
+
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    for (let d = 0; d < degree; d++) {
+      will.data[cell * degree + d] =
+        d === slot
+          ? pattern[coordinate(cell, axis) % period]!
+          : ((coordinate(cell, otherAxis) + d) % 3) - 1
+    }
+  }
+}
+
 // A single charge at one cell pointing one direction, the minimal deterministic test structure.
 export function loneParticle(
   mesh: Mesh,

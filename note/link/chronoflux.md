@@ -104,7 +104,42 @@ So the two theories are not in tension, and the discrete base gives up nothing:
 One honest note on grading. The law leg is a real measurement that could have come out nonzero,
 and a lossy control shows it does. The resolution leg is arithmetic, a counting fact about the
 substrate rather than a discovery, and it is labelled that way in the experiment. Its value is
-that it says exactly why no infinity ever appears, not that it proves something surprising.
+that it says exactly why no infinity ever appears on vibe's side, not that it proves something
+surprising.
+
+**Read this section together with the fork in Divergences below.** What is settled here is that
+the LAW needs no continuum, which is a real result. What is NOT settled is which base is right,
+and it would be a misreading to take this section as showing the smooth carrier is gratuitous. It
+is not. It encodes scale-indifference, and vibe's floor is an added commitment of the same kind.
+The two bases are a symmetric trade, stated below.
+
+## The fork is testable in principle, and the number already exists
+
+The fork above is a disagreement over a postulate, so no argument settles it. But a floor is a
+physical commitment and commitments leave marks, so it is worth stating exactly where the mark is
+and how big it is. That number was already measured in this repo, before this bridge existed, for
+a different purpose.
+
+Scale-indifference predicts **exactly zero** rotational anisotropy in the dispersion at every
+scale. A floor predicts a definite nonzero value with a definite exponent. So anisotropy is the
+sharp probe, and [`E-RLT-0041`](../../test/experiment/relativity/lorentz-irrelevance-exponent.ts)
+measures it: the anisotropy falls as a power law whose exponent is near **four** on the committed
+{3,4,3,4} coin and near **two** on a cubic set, because the 24-direction coin is a spherical
+5-design and the cubic axis set is only a 3-design. The library carries the same fact directly, in
+that the D4 set is isotropic to order four while the cubic and hypercubic sets are not.
+
+Both halves of what that implies should be said together, because they pull opposite ways.
+
+- **It is why the model survives observation.** A fourth-order signal dies extremely fast toward
+  long wavelength, so a floor on this coin is very well hidden. Lorentz violation is an irrelevant
+  operator here, and exact Lorentz is the infrared fixed point.
+- **It is why the fork is hard to decide.** The same suppression that protects the model also puts
+  the discriminating measurement far out of reach. Choosing a coin that conceals its own
+  discreteness two orders better than a cubic lattice is a virtue for viability and an obstacle for
+  falsification, and it is the same number in both cases.
+
+Nothing here favours either base. It converts "we each made an underived choice" into "here is the
+precision at which the choice would become testable", which is the honest form of the fork.
 
 ## Shared invariants (the survivors)
 
@@ -157,6 +192,29 @@ quantity or structure that stays fixed: conserved, forced, or matching across bo
   which transfers exactly. It is about whether the metric layer is fundamental. Herbert takes a
   smooth manifold as given. Vibe derives geometry as a coarse limit and refuses the actual
   infinity. See the section above for what each side owes.
+- **The fork, stated symmetrically (corrected after a July 2026 exchange with Herbert).** An
+  earlier version of this sheet said the infinity was "only in the carrier". That is too kind to
+  vibe and too unkind to him, and he pushed back correctly on both halves. His smooth carrier is
+  not gratuitous. It encodes **scale-indifference**, the refusal to name any final partition, and
+  the uncountable degrees of freedom are the price of that refusal rather than its content. Vibe's
+  finite base is likewise not free. Its **floor is put in, not derived**, so the cell faces are a
+  privileged final partition, and he is right that this is an added commitment. So the honest
+  statement is a symmetric trade. He buys scale-indifference and pays in infinities. Vibe buys
+  finiteness and pays with a final partition. **Neither side derives its own choice**, and no
+  experiment here decides between them, because the disagreement is over a postulate about nature
+  and not over a calculation. Two things worth keeping straight on vibe's side of the trade: the
+  adjacency is claimed *derived* rather than picked (the forced-derivation chain), and the cell's
+  absolute size is nowhere fixed, so it is a free dimensionful parameter like a lattice spacing.
+  The commitment is that a floor **exists**, not that it sits at any particular value.
+- **What his objection does and does not reach.** He argued that a finite complex "conserves only
+  across the boundaries it was given", so changing the complex changes the available conservation
+  structure. Measured, that splits in two ([`E-FND-0075`](../../test/experiment/foundations/adjacency-invariance.ts)). The balance law, charge
+  conservation and reversibility are **identical across complexes** of degree 4, 6 and 24, so
+  those are not artefacts of one adjacency. What genuinely is complex-relative is the **richness**
+  of the structure a complex can carry, the count of independent directional slots and whether
+  spinors exist at all, which vibe itself demonstrates with the {5,3,4} no-spinor result. So the
+  law is adjacency-independent while the available content is not, and the two must not be argued
+  as one thing.
 - **Continuum constants.** His fitted continuum numbers (a coupling, a scalar mass, a
   relaxation time) are tuned quantities vibe does not carry.
 - **A dissipative rate.** His collapse machinery carries a damping coefficient put in by hand.
