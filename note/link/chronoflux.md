@@ -35,6 +35,33 @@ representation of the primitive rather than its source. And the whole edifice is
 a typed dependency graph with a uniqueness theorem, which is a methodology claim, not a
 physical one.
 
+He names the branching structure the **Tree of Nature** (10 tiers, 33 sectors, 437 branches,
+5,400 path-distinct authorities), and every leaf is required to carry a lawful return path back
+to the root.
+
+## The seven by seven grid, and why it is not part of the base
+
+Herbert posts often about a seven by seven grid, so it is worth saying exactly what it is. It is
+the **Dictionary Graph Object** (the DGO in his Atlas authority strings), an inheritance lattice
+of nodes indexed one to seven in each direction. A cell becomes active only once its declared
+lower-set dependencies are discharged, and the ordering exists to stop a downstream observable
+from becoming the authority for an upstream state object. In the papers that show it, the live
+derivation occupies only the first sixteen nodes and the rest are reserved for later operators,
+proofs and experimental returns.
+
+**It is provenance, not physics, and he says so himself.** The papers state that the lattice is
+not a physical amplitude matrix, that its weights rank graph inheritance only, that it is
+dimensionless and cannot fix any scale, and that it does not generate a Hamiltonian, Planck's
+constant, or any ontology. So it sits beside the base rather than in it, and it changes nothing
+in the descent above.
+
+What it IS good for on our side is the methodology transfer this bridge has flagged for a while
+as the most valuable one: the demand that results be presented as one dependency structure with
+per-node status, evidence and refutation conditions, so a downstream number can never quietly
+become the warrant for an upstream claim. The seven by seven grid is the compact form of that
+discipline, and vibe's version would be rooted at the five base things with each emergent result
+a typed node carrying its derivation status, its control and its falsifier.
+
 ## The continuity versus discrete question, answered
 
 This is the crux, so it gets its own section. The worry is real: a continuum field carries
