@@ -144,6 +144,42 @@ export function regionContinuityResidual(input: {
   }
 }
 
+// Scan a rule across several coarse-block scales and report which of them read as BALANCED, meaning a zero
+// residual. For a conserving rule every scale reads balanced and that is correct. For a LOSSY rule any scale
+// that reads balanced is a blind spot of the coarse test: the rule destroys charge, yet the measurement at that
+// scale cannot see it, because signed violations cancel inside the block.
+//
+// This exists because a coarse balance is routinely treated as evidence of conservation. It is not, on its own.
+// The scan makes the blind spots explicit so an experiment can either avoid them (measure at the finest scale)
+// or defeat them (use a one-signed sink, whose destroyed charge cannot cancel).
+export function continuityBlindSpotScan(input: {
+  will: Will
+  collision: Collision
+  meshSide: number
+  blockSides: readonly number[]
+}): {
+  blockSide: number
+  absResidual: number
+  balanced: boolean
+}[] {
+  const { will, collision, meshSide, blockSides } = input
+
+  return blockSides.map(blockSide => {
+    const measured = coarseContinuityResidual({
+      will,
+      collision,
+      meshSide,
+      blockSide,
+    })
+
+    return {
+      blockSide,
+      absResidual: measured.absResidual,
+      balanced: measured.absResidual === 0,
+    }
+  })
+}
+
 // Measure the discrete continuity residual of one beat at a chosen coarse-block scale. For each block, the
 // residual is (charge change inside) + (net charge flux out), which is identically zero when the rule conserves.
 // Returns the summed absolute residual over blocks, the total boundary flux (the normalizer), and the relative
