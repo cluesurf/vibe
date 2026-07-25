@@ -131,6 +131,30 @@ export function spinorWeightsDn(n: number): number[][] {
   return weights
 }
 
+// All 2^n half-integer weights (+-1/2, ..., +-1/2), the union of BOTH half-spin classes. `spinorWeightsDn`
+// returns only the even-sign class, and negation preserves that class, so the odd class is not reachable from
+// it. In four dimensions this is the 16 directions that complete the 8 coordinate axes into a 24-cell, which is
+// why a greedy packing over integer directions alone jams at the cross-polytope: the directions that would
+// extend it are not integer vectors and so are absent from an integer candidate set.
+export function halfIntegerWeights(n: number): number[][] {
+  const weights: number[][] = []
+
+  const build = (acc: number[]): void => {
+    if (acc.length === n) {
+      weights.push(acc)
+
+      return
+    }
+
+    build([...acc, 0.5])
+    build([...acc, -0.5])
+  }
+
+  build([])
+
+  return weights
+}
+
 // D4, the 24 roots, all coordinate permutations of (+-1, +-1, 0, 0). These are
 // the 24 directions of the cell, each of norm squared 2.
 export function rootsD4(): number[][] {
