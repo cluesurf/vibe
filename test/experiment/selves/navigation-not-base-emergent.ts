@@ -179,6 +179,7 @@ export default experiment({
         baseApproach: Number(baseApproach.toFixed(4)),
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2 honest negative with a working-instrument positive control. The body is deliberately x-asymmetric so the null is not symmetry-forced, the same unmirrored body is used with the resource east and west, the resource columns are masked from the centroid in both runs, and charge conservation is asserted exactly. The selves-layer control reuses the established valence-drift machinery (E-SLF-0148), whose dissipative lean is a declared added ingredient. The finding aligns with the corrected active-persistence negative (E-SLF-0002): under the bare committed rule nothing seeks, agency needs the emergent layer.',
     })
   },

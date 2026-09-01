@@ -151,7 +151,9 @@ export default experiment({
   substrates: ['3434'],             // or 'any'
   depth: 'L2',                      // the depth rubric, see below
   paper: true,                      // is this a headline result
-  run() {
+  scales: true,                     // optional: run() multiplies its sizes by context.scale
+  run(context) {
+    const scale = context.scale ?? 1 // 1 in the suite, 0.5 and 1.5 under pnpm check:perturbation
     const measured = someMeasure({ ... })
     const ok = measured === expected
     return verdict({

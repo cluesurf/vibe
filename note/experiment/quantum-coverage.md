@@ -15,7 +15,7 @@ E-FND-0080).
 
 | topic | experiments (depth, object) | status |
 | --- | --- | --- |
-| superposition and interference | QTM-0004 born-interference (L2 walk), QTM-0022 quantum-formalism (L2 walk), QTM-0041 emergent-imaginary-unit (L2 walk), QTM-0047 continuous-phase-from-discrete-coin (L2 walk), QTM-0023 quantum-walk ballistic (L2 walk) | reproduced on the walk. From the rule: **no**, E-FND-0080 measures zero cross term |
+| superposition and interference | QTM-0004 born-interference (L2 walk), QTM-0022 quantum-formalism (L2 walk), QTM-0041 emergent-imaginary-unit (L2 walk), QTM-0047 continuous-phase-from-discrete-coin (L2 walk), QTM-0023 quantum-walk ballistic (L2 walk) | reproduced on the walk. From the rule: **no**, and now exactly why: FND-0080 (L2, zero cross term on the charge rule), FND-0081 (L2, the momentum rule's lone tone is an exact ballistic classical particle, signs pass through), FND-0082 (L1, a reversible rule lifted to superpositions is a permutation matrix, so no phase on configurations can interfere), FND-0083 (L1, the induced map on two-tone pairs is a permutation too) |
 | Born rule | QTM-0005 (L1), QTM-0012 envariance (L1), QTM-0046 (L1), QTM-0067 norm concentration (L1), QTM-0091 collapse-is-not-the-weight (L2) | known arguments restated. The square enters by construction in each. Open from the rule |
 | uncertainty relation | QTM-0059 uncertainty-principle (L1 Hilbert) | Gaussian saturation, known math |
 | Schrodinger (nonrelativistic) limit | QTM-0060 schrodinger-limit (L2 walk) | omega = m + k^2 / (2 tan m), the walk's own effective mass |
@@ -49,8 +49,8 @@ E-FND-0080).
 | the vacuum as a field, virtual pairs | QTM-0021 quantum-field (L2) | reproduced. Note: the committed rule's own vacuum is a period-three flash (E-FND-0080), a fact the QFT rows have not yet used |
 | reflection positivity, Osterwalder-Schrader | QTM-0009, 0013, 0017, 0025, 0028 (L2), RLT-0005 (L2) | measured, one undecided (QTM-0025) |
 | Fock space, second quantization | QTM-0064 (L2), FRC-0002 anomaly-free generation (L2 octonion Clifford), foundations fermions-from-octonions | algebraic. The bridge from the rule to "one mode filled" is **open** (next-paper ideas) |
-| propagators, Dirac plus Maxwell | SCL-0006 (L1, fermion dispersion typed, Maxwell spectrum real) | the fermion half must be measured off an operator. **open** |
-| gauge invariance, Gauss law, Ward identity | FRC-0014 emergent-gauge (L2, partial), FRC-0008 coupled-qed-3434 (L2), FRC-0016 Wilson loop (L2) | the Gauss law is measured. A Ward identity (longitudinal photon decoupling) is **open** |
+| propagators, Dirac plus Maxwell | SCL-0006 (L1, fermion dispersion typed, Maxwell spectrum real, its zero-mode count now compared with the predicted sites + 2) | the fermion half must be measured off an operator. **open** |
+| gauge invariance, Gauss law, Ward identity | FRC-0014 emergent-gauge (L2, partial), FRC-0008 coupled-qed-3434 (L2), FRC-0016 Wilson loop (L2), FRC-0072 ward-identity-maxwell (L2 lattice) | the Gauss law is measured, and the Ward identity is now measured exactly: the Maxwell operator annihilates every gradient field, has exactly sites + 2 zero modes (gradients plus the three torus Wilson lines), a Proca mass breaks both by exactly m squared |
 | non-abelian gauge, Yang-Mills, confinement | FRC-0007 confinement (L2 lattice SU(2)), FRC-0039 (L2), FRC-0038 (L2), FRC-0048 condensate (L2), FRC-0049 (L2 1D) | reproduced lattice gauge theory |
 | Higgs mechanism | FRC-0027 higgs (L0), FRC-0012 W and Z masses (L2 formula) | the L0 is circular. A measured Higgs mechanism on a lattice is **open** |
 | Goldstone theorem | none by title | **open** |
@@ -72,8 +72,10 @@ E-FND-0080).
    to amplitudes) is the program's open problem, and the next-paper
    `ideas.md` lists candidate constructions with the test each must
    pass.
-2. **A measured Ward identity** on the lattice Maxwell operator
-   (roadmap quantum-coverage-0004), replacing "zero modes exist".
+2. **A measured Ward identity** on the lattice Maxwell operator. Done
+   (E-FRC-0072), and it corrected its own first prediction: the count
+   is sites + 2, not sites - 1, because the three constant link fields
+   are closed but not exact on the torus.
 3. **The fermion propagator measured off an operator** for SCL-0006,
    from `operator/lattice-fermion`, not a typed dispersion.
 4. **Dynamical spin-statistics**: a spinor defect on the mesh exchanged
@@ -83,6 +85,50 @@ E-FND-0080).
    existing models, worth doing only once labeled honestly as such.
 6. **SPN-0001** rebuilt as a real Z_3 gauge theory on the mesh's
    plaquettes, which would also exercise the period-three vacuum.
+
+## Quantum codes, error correction, qubits, and automata in hyperbolic spaces
+
+What exists, on what object, and what the base can and cannot yet do.
+
+| topic | experiments (depth, object) | status |
+| --- | --- | --- |
+| a stabilizer code from the mesh complex | QTM-0093 toric-code-from-the-mesh (L2, the D4 complex of `d4Mesh`): qubits on edges, X-checks on cells, Z-checks on root triangles, k = 4 per four-torus measured by GF(2) rank, open patch k = 0, checks commute | reproduced on the substrate's own complex. Found on the way that an even-sided `d4Mesh` is two disconnected lattices (roadmap 0017) |
+| classical codes under the lattices | FND-0067 codes-under-the-lattices (L1), QTM-0054 css-codes-from-ladder (L1, the [[4,2,2]] and [[8,3,2]] from D4 and E8) | known algebra |
+| the rule as a classical code | QTM-0055 conservation-as-stabilizer (L2, the conserved charge as a check), HLG-0007 growing-code (L3, erasure thresholds rising with shell on {5,3,4} under the tone dynamics), HLG-0013 holographic-memory (L3, a spread encoding survives an erasure a blob does not) | measured on the rule. These are the only error-correction results that run the base |
+| holographic (HaPPY) codes | HLG-0008 happy-code-534, HLG-0009 happy-tiling-534, HLG-0012 holographic-code-534, HLG-0014 holography-from-rule (all L2, {5,3,4}) | reproduced constructions on the hyperbolic tiling |
+| qubits from the rule | none | **cannot be posed yet**: the rule has no amplitudes (E-FND-0080). A qubit needs a two-dimensional complex state space; the closest object on the rule is a ternary slot |
+| a qutrit (Z_3) code matching the ternary tone | none | **posable now**: the same complex over GF(3), k = b_1 with Z_3 coefficients (still 4 on the torus), and the Z_3 anyons of SPN-0038 as its excitations. Not built |
+| hyperbolic surface codes with constant rate (Breuckmann and Terhal 2016) | none | **posable with one more builder**: needs a closed quotient of {5,3,4} or {7,3} (a compact hyperbolic manifold tiling) so k grows with n at fixed rate. The suite has only open patches of those tilings today |
+| automata in hyperbolic spaces (Margenstern) | CMP-0001 computation-73 (L1, the {7,3} railway prerequisites), CMP-0006 p213-universality, CMP-0012 universality (L2), CMP-0007 and 0008 reversible-universality (L2, the pair table is a bijection and Toffoli computes NAND), CMP-0011 turing-3434 (L2, routing, gates and memory on {3,4,3,4}), FND-0046 beat-computes-on-mesh (L2), the addressing arena (Fibonacci and {3,4,3,4} addressing, greedy routing) | reproduced. Universality is argued from the primitives (bijection, NAND, routing, memory), each measured, but no single experiment runs a complete universal machine on the mesh end to end |
+| a running automaton from the rule | FND-0046 beat-computes-on-mesh, CMP-0011 turing-3434 | partial: gates and routing run under the knit, a full program (a counter, a Turing tape) does not yet |
+
+The honest gap list here: a qutrit code on the D4 complex (cheap), a
+closed hyperbolic quotient builder (medium, unlocks constant-rate
+codes and closed-surface automata), a complete machine run end to end
+under the knit (medium), and qubits from the rule (blocked on the
+middle layer, like everything with an amplitude).
+
+## The rule-level rows: can each be posed on the lattice gas at all?
+
+Every "none from the rule" cell above is one of three kinds. Saying
+which is a finding, not a blank.
+
+| cell | kind | why |
+| --- | --- | --- |
+| superposition, interference, Born rule, entanglement and Bell, Dirac dispersion, tunneling, topological phases, S-matrix, Landau-Zener | **cannot be posed yet**, and the obstruction is now exact | each needs a complex amplitude. E-FND-0082 shows a reversible rule lifted to superpositions of configurations is a permutation matrix (49 branches, 49 images, cross term 0, norm conserved), so a phase assigned to configurations is relabelled, never added, whatever the phase. E-FND-0083 shows the induced map on two-tone pairs is a permutation as well (1104 states, 1104 images). E-FND-0081 shows the momentum rule's single tone is an exact ballistic classical particle whose sign is not a phase. So the middle layer cannot be a phase on configurations or on pairs. What is left is a coarser variable (a count or density over many cells or beats) whose induced dynamics is many-to-one and unitary on the coarse space. The candidates and the test each must pass are in the monorepo's `note/research/vibe/next-paper/ideas.md` |
+| the Ward identity, gauge invariance | **posable now, on the rule's own conserved charge** | the pair table conserves charge per pair (E-FRC-0014 measures the Gauss law). The rule-level Ward statement is that the conserved charge current is the only thing a coupled gauge field can see. It is posable as a lattice-gauge experiment on `d4Mesh` with the tone as the matter current, and has not been done |
+| spin-statistics, exclusion | **posable now, as a dynamics** | two spinor defects on the mesh (E-SPN-0026 has one) exchanged by a sequence of beats and the sign read off. Open |
+| the uncertainty relation, the Schrodinger limit, Ehrenfest, harmonic oscillator, Zeeman, Berry phase, coherent states, density matrices | **cannot be posed yet** | all presuppose an amplitude, the same obstruction as the first row |
+| measurement, records, decoherence | **posed already** | E-QTM-0084 to 0092 run the committed rule with the arrow and measure amplification, records and a Lyapunov ceiling. These are the only quantum-adjacent results on the rule and they are about the classical side of measurement, which is consistent with the rule having no amplitudes |
+| the vacuum | **posed already** | the rule's vacuum is a period-three flash (E-FND-0080), and no QFT row has yet used that fact |
+| CPT, Lorentz | **posed already** | E-SPN-0037, E-RLT-0030, E-RLT-0018 measure them on {3,4,3,4} |
+| Hawking, Unruh, Casimir, Schwinger, black-body | **cannot be posed yet** | field-theoretic quantities on top of a quantum field the rule does not have |
+
+So the quantum arena's honest situation is: everything that needs an
+amplitude waits on one construction, two things (the rule-level Ward
+identity and dynamical spin-statistics) could be attempted today, and
+the measurement and vacuum results already on the rule are classical
+facts about it.
 
 ## Reading this table
 

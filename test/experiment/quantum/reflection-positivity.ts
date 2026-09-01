@@ -10,7 +10,7 @@
 // P114), whose particles may sit at the band edge. Run: npx tsx code/experiment/p130-reflection-positivity.ts
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import {
   hankelMatrix,
@@ -18,17 +18,6 @@ import {
 } from '@/code/measure/hankel'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  moved: Uint8Array,
-  rng: Rng,
-  arrow: number,
-): void {
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-}
 
 export function reflectionPositivity(input?: {
   length?: number
@@ -92,7 +81,7 @@ export function reflectionPositivity(input?: {
   }
 
   for (let t = 0; t < 120; t++) {
-    beat(tone, euA, evA, moved, rng, arrow)
+    conservingEdgeSweep({ tone: tone, eu: euA, ev: evA, moved, rng: rng, arrow: arrow })
   }
   // steady state
 
@@ -134,7 +123,7 @@ export function reflectionPositivity(input?: {
       }
     }
 
-    beat(tone, euA, evA, moved, rng, arrow)
+    conservingEdgeSweep({ tone: tone, eu: euA, ev: evA, moved, rng: rng, arrow: arrow })
   }
 
   const c: number[] = []

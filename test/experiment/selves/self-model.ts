@@ -18,6 +18,7 @@ import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { scaled } from '@/test/scaffold/scale'
 
 // full perception beat (share annihilates opposite, hop transports into empty). Charge flows freely,
 // including out of the clamped input cells, which are re-clamped to the signal after each beat (a source).
@@ -63,12 +64,12 @@ function fullBeat(
   }
 }
 
-function run(withDynamics: boolean): {
+function run(withDynamics: boolean, scale: number | undefined): {
   selfModelCorr: number
   randomCorr: number
   shuffledCorr: number
 } {
-  const g = buildDodecagrid({ maxCells: 60000 })
+  const g = buildDodecagrid({ maxCells: scaled(60000, scale) })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
@@ -250,7 +251,7 @@ function run(withDynamics: boolean): {
   return { selfModelCorr, randomCorr, shuffledCorr }
 }
 
-export function selfModel(): {
+export function selfModel(input?: { scale?: number }): {
   selfModelCorr: number
   randomCorr: number
   shuffledCorr: number
@@ -261,8 +262,8 @@ export function selfModel(): {
   emerges: boolean
   solved: boolean
 } {
-  const live = run(true)
-  const dead = run(false)
+  const live = run(true, input?.scale)
+  const dead = run(false, input?.scale)
   const mirrorsWhole =
     live.selfModelCorr > 0.5 &&
     live.selfModelCorr > live.shuffledCorr + 0.3
@@ -293,8 +294,10 @@ export default experiment({
   substrates: ['534'],
   depth: 'L3',
   paper: true,
-  run() {
-    const r = selfModel()
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = selfModel({ scale })
     const ok =
       r.solved &&
       r.emerges &&
@@ -304,6 +307,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'a central hub comes to represent the self global state far above peripheral local regions, far above a time-shuffled baseline, and vanishes without the dynamics',
       metrics: {

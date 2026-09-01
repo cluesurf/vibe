@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. a measured boundary fraction of a hyperbolic ball, which is the exponential shell growth of hyperbolic space (known), with no rule, dynamics or entanglement in it. Boundary dominance is a precondition for holography, not the area law of an entanglement entropy, so the honest depth is L2 and the word "area law" is dropped from the title.
 // Holography on the COMMITTED {3,4,3,4} substrate (the existing RT experiment is on {7,3}). The defining
 // holographic signature of a hyperbolic bulk is BOUNDARY DOMINANCE: the outermost shell (the cusp/boundary)
 // holds a finite, order-one fraction of ALL cells, so the information and entropy of the bulk live on its
@@ -28,10 +29,10 @@ export default experiment({
   id: 'holography/holographic-3434',
   code: 'E-HLG-0011',
   title:
-    'the committed {3,4,3,4} substrate is holographic: the boundary (cusp) dominates the bulk (~94 percent of cells in the outermost shell, the area law), with the holographic scale = the warp factor lambda, versus a flat volume-law control',
+    'the committed {3,4,3,4} substrate is boundary-dominated: the outermost shell holds about 94 percent of the cells, matching (lambda - 1) / lambda for the measured growth ratio, where a flat lattice is volume-dominated',
   category: 'holography',
   substrates: ['3434'],
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     // the {3,4,3,4} cell-shell counts (boundary dominance is asymptotic; shell 5 is deep enough to see it)
@@ -75,6 +76,7 @@ export default experiment({
         flatIsVolumeLaw: flatIsVolumeLaw ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: regraded from L3 to L2, a measured boundary fraction of a hyperbolic ball, which is the exponential shell growth of hyperbolic space (known), with no rule, dynamics or entanglement in it. Boundary dominance is a precondition for holography, not the area law of an entanglement entropy, so the honest depth is L2 and the word "area law" is dropped from the title. ' +
         'deterministic, no random. The boundary-dominance fraction (lambda-1)/lambda is the discrete area law: a region of the {3,4,3,4} bulk has its entropy carried by its boundary, which holds a constant fraction of the cells, while a flat lattice boundary fraction ~ 1/n vanishes (volume law). The holographic scale is the warp factor lambda ~ 18.28 (depth-as-scale, the same lambda as the mass hierarchy and the experiential-bulk picture). Complements ryu-takayanagi-73 (the RT log law on {7,3}) by establishing the area law on the actual committed substrate.',
     })
   },

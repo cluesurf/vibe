@@ -159,6 +159,7 @@ export default experiment({
         creatingVacuumLive: creatingVacuumLive ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
         'the speedup is collide-op count of the full sweep (cells times beats) over the pruned count (active cells summed over beats). On the sparse glider almost every cell is vacuum, so the pruned update collides only a handful per beat, an exact match to the full sweep because head-on rotate fixes the vacuum. The dense state (fillWillPattern, every cell non-vacuum) gives speedup near one, the honest control that the gain is sparsity. The committed pair rule creates from vacuum, so its vacuum is not a fixed point and activity pruning is invalid for it, a real limit reported rather than hidden. The active set is rescanned here for measurement, a production engine maintains the active frontier incrementally as charges stream.',
     })
   },

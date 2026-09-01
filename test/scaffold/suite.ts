@@ -28,6 +28,10 @@ export type Depth = 'L0' | 'L1' | 'L2' | 'L3'
 
 export type Context = {
   seed: number
+  // A multiplier on the experiment's lattice sizes, 1 by default. The perturbation check
+  // (task/check-perturbation.ts) runs every experiment that declares `scales: true` at 0.5, 1 and 1.5 and
+  // requires the verdict to hold at all three. An experiment that ignores it is not perturbed.
+  scale?: number
 }
 
 export type Experiment = {
@@ -41,6 +45,9 @@ export type Experiment = {
   substrates: string[] | 'any'
   depth: Depth
   paper: boolean
+  // true when run() multiplies its lattice sizes by context.scale, so the perturbation check can rerun it
+  // at half and one and a half times its size without editing the file
+  scales?: boolean
   run(context: Context): Verdict
 }
 

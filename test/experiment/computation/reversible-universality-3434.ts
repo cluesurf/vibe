@@ -130,6 +130,7 @@ export default experiment({
         geometrySupportsRailway: geometrySupportsRailway ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the canonical reversible-universality claim, on the final {3,4,3,4} geometry with the committed knit rule. Consolidates the argument from computation/reversible-universality ({5,3,4}, now comparative). Margenstern supplies the tree-addressing + railway technique, the universality is the model own ternary reversible rule (turing-3434)',
     })
   },

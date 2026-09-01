@@ -30,17 +30,6 @@ import { verdict } from '@/test/scaffold/verdict'
 //   hop:   (+1,0)<->(0,+1) is 7<->5,   (-1,0)<->(0,-1) is 1<->3
 //   cycle: (0,0)->(+1,-1)->(-1,+1)->(0,0) is 4->6->2->4 ;  fixed: (-1,-1)=0, (+1,+1)=8
 
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  byColor: number[][],
-  table: number[],
-  reverse: boolean,
-): void {
-  perceptionEdgeColoringSweep({ tone, eu, ev, byColor, table, reverse })
-}
-
 export function unifiedWave(input?: {
   n?: number
   sliverLength?: number
@@ -78,13 +67,13 @@ export function unifiedWave(input?: {
   const T = 30
 
   for (let t = 0; t < T; t++) {
-    beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
+    perceptionEdgeColoringSweep({ tone: tone, eu: ec.eu, ev: ec.ev, byColor: ec.byColor, table: FWD, reverse: false })
   }
 
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
 
   for (let t = 0; t < T; t++) {
-    beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
+    perceptionEdgeColoringSweep({ tone: tone, eu: ec.eu, ev: ec.ev, byColor: ec.byColor, table: INV, reverse: true })
   }
 
   let reversible = true
@@ -144,8 +133,8 @@ export function unifiedWave(input?: {
     }
 
     fronts.push(front)
-    beat(baseS, sec.eu, sec.ev, sec.byColor, FWD, false)
-    beat(pertS, sec.eu, sec.ev, sec.byColor, FWD, false)
+    perceptionEdgeColoringSweep({ tone: baseS, eu: sec.eu, ev: sec.ev, byColor: sec.byColor, table: FWD, reverse: false })
+    perceptionEdgeColoringSweep({ tone: pertS, eu: sec.eu, ev: sec.ev, byColor: sec.byColor, table: FWD, reverse: false })
   }
 
   // LINEAR fit front = v*t + b over the growth phase (skip noisy start, stop before saturation)

@@ -21,20 +21,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { reversibleWaveStepNonlinear } from '@/code/dynamics/reversible-wave'
+import { ringNeighbors } from '@/code/substrate/ring'
 
 const RING = 48
 const MODULUS = 251
 const COUPLING = 3
-
-function ringNeighbors(size: number): number[][] {
-  const neighbors: number[][] = []
-
-  for (let i = 0; i < size; i++) {
-    neighbors.push([(i + 1) % size, (i + size - 1) % size])
-  }
-
-  return neighbors
-}
 
 // one step of the nonlinear wave on a (previous, current) pair, returning the next slice
 function step(

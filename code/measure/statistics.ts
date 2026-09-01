@@ -216,3 +216,18 @@ export function mutualInformationBits(
 
   return mi
 }
+
+// The mean of a series over the half-open index window [lo, hi), missing entries counted as zero.
+export function windowMean(input: {
+  series: ArrayLike<number>
+  lo: number
+  hi: number
+}): number {
+  let sum = 0
+
+  for (let t = input.lo; t < input.hi; t++) {
+    sum += input.series[t] ?? 0
+  }
+
+  return sum / Math.max(1, input.hi - input.lo)
+}

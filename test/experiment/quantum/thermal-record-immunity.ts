@@ -33,6 +33,7 @@ import {
 import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { windowMean } from '@/code/measure/statistics'
 
 const SIDE = 6
 const BEATS = 300
@@ -52,20 +53,6 @@ function heat(base: ReturnType<typeof makeWill>, temperature: number) {
   }
 
   return hot
-}
-
-function windowMean(
-  trajectory: number[],
-  lo: number,
-  hi: number,
-): number {
-  let sum = 0
-
-  for (let t = lo; t < hi; t++) {
-    sum += trajectory[t] ?? 0
-  }
-
-  return sum / Math.max(1, hi - lo)
 }
 
 export default experiment({
@@ -109,8 +96,8 @@ export default experiment({
         frontierX: FRONTIER_X,
       })
 
-      const early = windowMean(trajectory, 50, 100)
-      const late = windowMean(trajectory, 250, 300)
+      const early = windowMean({ series: trajectory, lo: 50, hi: 100 })
+      const late = windowMean({ series: trajectory, lo: 250, hi: 300 })
       const record = tailMean(trajectory)
       const drift = Math.abs(late - early)
 
@@ -153,6 +140,7 @@ export default experiment({
       // CONTROL: closed run from the hottest body, no wake, so a much weaker record.
       control: { closedRecord: Number(closedRecord.toFixed(4)) },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
         "Hameroff / Orch-OR bridge (author-bridges/stuart-hameroff.md, point 6), the warm prong. Companion to decoherence-immunity (the wet prong). Together they show vibe's definite outcome carries neither the warm nor the coherence bill.",
     })
   },

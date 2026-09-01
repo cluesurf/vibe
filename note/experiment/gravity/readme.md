@@ -108,6 +108,11 @@ The bridge from the reversible conserving substrate to smooth conserved geometry
 - **[`E-GRV-0040`](../../../test/experiment/gravity/recoverability-functional.ts)** - Herbert's recoverability functional R = accessible / total unifies horizons, decoherence, and conservation, staying 1 globally on the reversible base and dropping under a lossy control.
 - **[`E-GRV-0041`](../../../test/experiment/gravity/gravity-induced-entanglement-witness.ts)** - two distant regions become entangled only through the geometric mediator and the mutual information covaries with its strength (the GIE / BMV witness), a direct bypass the control.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-GRV-0028`](../../../test/experiment/gravity/newton-constant-scale.ts)** (L2) - Newton G is the single scale, the bounded area-law bit density fixes G in lattice units, the volume law has no definite G
+
 ## What this arena establishes
 
 - **The static Newtonian force emerges without a new field.** The measured entanglement area law gives the inverse-square force by the Verlinde route, and the flat-cusp lattice Green function is a clean 1/r, both with volume-law and dimensional controls.

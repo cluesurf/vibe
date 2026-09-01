@@ -12,20 +12,9 @@
 // imported. The exact discrete-time stepping deviates at finite F (discreteness corrections); the clean
 // Landau-Zener law is the F -> 0 limit, which is what this measures.
 
-type Complex = readonly [number, number]
+import { ComplexPair as Complex, pairAdd as cadd, pairMul as cmul, pairConj as cconj } from '@/code/algebra/linear/complex-pair'
+
 type Spinor = readonly [Complex, Complex]
-
-const cadd = (a: Complex, b: Complex): Complex => [
-  a[0] + b[0],
-  a[1] + b[1],
-]
-
-const cmul = (a: Complex, b: Complex): Complex => [
-  a[0] * b[0] - a[1] * b[1],
-  a[0] * b[1] + a[1] * b[0],
-]
-
-const cconj = (a: Complex): Complex => [a[0], -a[1]]
 
 // U(k) = shift(k) coin(mass); coin(m) = [[cos m, -i sin m],[-i sin m, cos m]], shift(k) = diag(e^{ik}, e^{-ik}).
 // returns the quasienergy E and the Bloch axis n so that H(k) = E n.sigma.

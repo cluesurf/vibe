@@ -158,6 +158,7 @@ export default experiment({
         fixedMeshCellCount: mesh.cellCount,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, the Fisher-Rao arc length of the wake read on the actual honeycomb (shell counts unfolded through shell three, 1, 24, 456, 8376), reusing code/measure/wake-time (built on code/measure/fisher-rao) and the real dynamics for the control. The record content is the set of existing cells, each one unit of distinguishability, so the wake distribution is uniform over the cells in existence and grows as the mesh unfolds. This closes the gap that emergent-time-distinguishability (E-FND-0048) and record-preserving-paths (E-FND-0049) left open: those measure the reversible knit on a fixed mesh, vibe time-symmetric half, whereas the arrow is the wake, and here the wake record count rises strictly (the arrow) while the fixed-mesh knit record count is bounded (no arrow), the TD record-accumulation the earlier experiments did not reach. Deterministic fill, no random.',
     })
   },

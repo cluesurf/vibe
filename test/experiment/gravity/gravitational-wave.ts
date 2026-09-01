@@ -26,22 +26,13 @@ import {
   plusSelfOverlap,
   plusToCrossOverlap,
 } from '@/code/algebra/helicity'
+import { ringNeighbors } from '@/code/substrate/ring'
 
 const RING = 60
 const BEATS = 18
 const MODULUS = 251
 
 // a ring graph (each node neighbours its two ring-neighbours), the 1D line a wave propagates along
-function ringNeighbors(size: number): number[][] {
-  const neighbors: number[][] = []
-
-  for (let i = 0; i < size; i++) {
-    neighbors.push([(i + 1) % size, (i + size - 1) % size])
-  }
-
-  return neighbors
-}
-
 // evolve a localized pulse with the reversible wave, return the front speed (cells per beat) and whether running it
 // backward recovers the seed exactly
 function propagate(): { frontSpeed: number; reversible: boolean } {

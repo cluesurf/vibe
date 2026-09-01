@@ -112,6 +112,7 @@ export default experiment({
         scrambleJump: scrambleResult.jump,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the jump measures superadditivity of binding: the whole is more bound than the sum of its parts because inter-part coupling turns into intra-whole integration. On the scramble there is no compact part structure, so no jump. This is the discrete, checkable form of concrescence, and it backs vibe use of Whitehead as the metaphysical floor for the many-into-one binding of a self.',
     })
   },

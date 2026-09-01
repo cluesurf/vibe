@@ -16,7 +16,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import {
   hankelMatrix,
@@ -24,17 +24,6 @@ import {
 } from '@/code/measure/hankel'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  moved: Uint8Array,
-  rng: Rng,
-  arrow: number,
-): void {
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-}
 
 export function reflectionPositivity(input?: { n?: number }): {
   n: number
@@ -121,7 +110,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   }
 
   for (let t = 0; t < 60; t++) {
-    beat(tone, eu, ev, moved, rng, ARROW)
+    conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
   }
 
   const T = 8000
@@ -129,7 +118,7 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   for (let t = 0; t < T; t++) {
     series[t] = obs(tone)
-    beat(tone, eu, ev, moved, rng, ARROW)
+    conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
   }
 
   const m = 6

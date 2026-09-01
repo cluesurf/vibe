@@ -16,21 +16,7 @@ import {
   quantileLabels,
 } from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
-
-function shuffle(labels: number[], seed: number): number[] {
-  const rng = makeRng(seed)
-  const out = labels.slice()
-
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
-    const tmp = out[i]!
-
-    out[i] = out[j]!
-    out[j] = tmp
-  }
-
-  return out
-}
+import { shuffled } from '@/code/tool/shuffle'
 
 function timescales(
   labels: number[],
@@ -105,7 +91,7 @@ export default experiment({
       ).lambda2
 
     const lambdaReal = eigOf(labels)
-    const lambdaShuffled = eigOf(shuffle(labels, 321))
+    const lambdaShuffled = eigOf(shuffled({ items: labels, rng: makeRng(321) }))
 
     // two signals together, the timescale is flat across the large lags (a real Markov plateau), and the
     // slow eigenvalue at the plateau lag clearly exceeds the time-shuffled control.

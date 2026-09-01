@@ -147,6 +147,11 @@ Whether the rule stabilizes topological solitons, the route to matter as knots i
 - **[`E-FRC-0029`](../../../test/experiment/gauge/kpm-sea-energy.ts)** - the 3D Dirac sea energy of a texture soliton, probed for an interior minimum, the Skyrme sign.
 - **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** - a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an open gate.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-FRC-0072`](../../../test/experiment/gauge/ward-identity-maxwell.ts)** (L2) - the Ward identity of the lattice Maxwell operator measured exactly: a pure-gauge gradient field is annihilated to machine precision and the zero-mode count equals sites plus two (the gradients plus the three torus Wilson lines) at two lattice sizes, while a Proca mass returns the gradient times m squared and empties the zero-mode space, and a transverse field is not annihilated
+
 ## What this arena establishes
 
 - **Electromagnetism is emergent.** The bare rule's local charge conservation is a U(1) Gauss law, so a massless gauge-invariant photon, the Lorentz force, and a measured g = 2 come out without being put in.

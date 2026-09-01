@@ -142,6 +142,7 @@ export default experiment({
         displacementDeepestMargin: Number(controlDeepest.toFixed(4)),
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
         'Hameroff / Orch-OR bridge (author-bridges/stuart-hameroff.md), the anesthesia anchor. The reversible dose loop and the displacement control are what distinguish this from plain dissolution-death (E-SLF-0160). Reads the graph only, a structural proxy, deterministic.',
     })
   },

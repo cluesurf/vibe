@@ -84,7 +84,7 @@ L3 that never ran a substrate (`cut -d, -f3,4,5 test/catalog.csv`).
 | spin | 1 | 17 | 25 | **0** | 30 |
 | relativity | 1 | 4 | 35 | 3 | 34 |
 | geometry | 0 | 13 | 23 | 2 | 20 |
-| holography | 0 | 8 | 19 | 9 | 18 |
+| holography | 0 | 8 | 24 | 4 | 18 |
 | substrate-survey | 0 | 17 | 12 | 1 | 13 |
 | data-structure | 0 | 16 | 12 | **0** | 28 |
 | associative | 0 | 2 | 9 | 5 | 16 |
@@ -93,12 +93,13 @@ L3 that never ran a substrate (`cut -d, -f3,4,5 test/catalog.csv`).
 | fluids | 0 | 0 | 13 | **0** | 11 |
 | addressing | 0 | 5 | 8 | **0** | 3 |
 | method | 0 | 1 | 5 | 0 | 3 |
-| **total** | **14** | **207** | **554** | **50** | **521** |
+| **total** | **14** | **207** | **559** | **45** | **521** |
 
 The bulk of the suite is L2 (known physics reproduced on a stated
-model). 50 experiments reach L3 (one base rule, a measured consequence,
-a computed control), down from 92 before the audit, and 521 are
-paper-grade. The bolded zeros are the arenas with no L3. Quantum and
+model). 45 experiments reach L3 (one base rule, a measured consequence,
+a computed control), down from 92 before the audit (50 after its first
+sitting, 45 once the five geometry-only holography results were
+regraded), and 521 are paper-grade. The bolded zeros are the arenas with no L3. Quantum and
 spin are zero because every former L3 there ran a hand-written coined
 walk or a textbook calculation, never the rule
 (`foundations/rule-has-no-amplitudes`). That is the clearest place to

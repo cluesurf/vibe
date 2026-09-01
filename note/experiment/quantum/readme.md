@@ -146,6 +146,11 @@ Bosons, fermions, Pauli exclusion, and bound states from the exchange structure 
 - **[`E-QTM-0063`](../../../test/experiment/quantum/hong-ou-mandel.ts)** - bosons never coincide at the balanced splitter (permanent zero, the Hong-Ou-Mandel dip), fermions always do (determinant one), distinguishable particles sit at one half.
 - **[`E-QTM-0064`](../../../test/experiment/quantum/fock-structure.ts)** - the N-fermion amplitude is the Slater determinant of propagator entries (matched to brute force), exact Pauli exclusion and unit norm at six particles, bosons bunch by the permanent.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-QTM-0093`](../../../test/experiment/quantum/toric-code-from-the-mesh.ts)** (L2) - the toric code built from the {3,4,3,4} mesh complex (qubits on D4 edges, X-checks on cells, Z-checks on root triangles) has exactly four logical qubits per connected component, four at side 3 and eight at side 4 where the even side splits the mesh in two, while an open patch has zero and every X-check commutes with every Z-check
+
 ## What this arena establishes
 
 - **The single-particle quantum laws are reproducible on the substrate.** The unitary ballistic walk yields the Dirac and Schrodinger dispersion, uncertainty, an S-matrix, tunneling, and the Aharonov-Bohm phase, mostly at L1 and L2 with lossy controls.

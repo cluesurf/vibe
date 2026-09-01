@@ -17,6 +17,7 @@ import { bfsShells, geometricGrowthRatio } from '@/code/measure/shells'
 import { coverageRadius } from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { scaled } from '@/test/scaffold/scale'
 
 // A representative ladder of buildable tessellations, ordered least to most curved by catalog growth ratio,
 // spanning the 3D and 4D range. The full sweep across all 42 buildable is the battery CSV, this keeps the
@@ -111,10 +112,12 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const r = associativeCapacityVsCurvature({
-      maxCells: LADDER_MAX_CELLS,
-      cubicSide: CUBIC_SIDE,
+      maxCells: scaled(LADDER_MAX_CELLS, scale),
+      cubicSide: scaled(CUBIC_SIDE, scale),
     })
 
     const least = r.rungs[0]!

@@ -1,6 +1,6 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
@@ -21,19 +21,6 @@ import {
 // gradients grow (a transient steepening) while the fine bound never moves, but the rise is small and recurrent:
 // the reversible bulk has no true blow-up at either scale. The CONTROL is the lossy rule, where the fine quadratic
 // collapses, the discriminator that the fine bound is conservation and not a generic feature.
-
-function opposites(mesh: {
-  degree: number
-  opposite(d: number): number
-}): number[] {
-  const out: number[] = []
-
-  for (let d = 0; d < mesh.degree; d++) {
-    out.push(mesh.opposite(d))
-  }
-
-  return out
-}
 
 export default experiment({
   id: 'fluids/coarse-runaway',
@@ -78,7 +65,7 @@ export default experiment({
     let coarseMax = coarse0
 
     for (let b = 0; b < beats; b++) {
-      real = beat(real, headOnRotate({ opposite: opposites(mesh) }))
+      real = beat(real, headOnRotate({ opposite: meshOpposites(mesh) }))
 
       const e = enstrophy(real)
 

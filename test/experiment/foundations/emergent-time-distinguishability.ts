@@ -146,6 +146,7 @@ export default experiment({
         lossyNeverRecurs: lossyNeverRecurs ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, the honest Fisher-Rao path geometry of the fixed-mesh knit, reusing code/measure/fisher-rao (now reading cellActivity, the occupancy count, not the cancelling net charge cellTone). The finding corrects and replaces the earlier claim: the knit path is a recurrent closed loop (reversible, returns to start, no arrow), takes near-maximal discrete steps (the discreteness signature), and is far from geodesic (path length many times the direct distance), so it is not the smooth TD geodesic and not a monotone clock. The monotone arrow and TD emergent time are the WAKE, measured in record-accumulating-wake (E-FND-0051), which this experiment now points to as its counterpart. The lossy rule is the control that breaks the recurrence. Deterministic initial condition (a single tone), no random.',
     })
   },

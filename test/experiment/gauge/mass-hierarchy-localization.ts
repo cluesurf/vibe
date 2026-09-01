@@ -38,6 +38,7 @@ import {
   shellCountsFromGraph,
   shellSeparationExponent,
 } from '@/code/measure/shell-growth'
+import { scaled } from '@/test/scaffold/scale'
 
 // the observed charged-fermion masses (MeV), the TEST data the geometric prediction is compared against (not fitted)
 const SECTORS: { name: string; masses: [number, number, number] }[] = [
@@ -55,9 +56,11 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     // the derived geometric growth rate lambda from the {3,4,3,4} cell-shell counts
-    const addressing = buildAddressing({ maxCells: 60000 })
+    const addressing = buildAddressing({ maxCells: scaled(60000, scale) })
     const shellCounts = shellCountsFromGraph({
       neighbors: addressing.graph.neighbors,
       cellCount: addressing.graph.cellCount,

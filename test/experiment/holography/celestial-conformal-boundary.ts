@@ -24,6 +24,7 @@ import {
 } from '@/code/measure/cross-ratio'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { containsVector } from '@/code/algebra/vector'
 
 // four D4 roots in general position, the substrate's own boundary directions
 const FOUR_DIRECTIONS: Vec[] = [
@@ -38,14 +39,6 @@ const BOOST_AXIS: Vec = [1, 0, -1, 0]
 const BOOST_RADIUS = 0.6
 
 // a D4 root is one of the 24 vectors with two nonzero entries of magnitude one
-function isD4Root(v: Vec, roots: Vec[]): boolean {
-  return roots.some(
-    r =>
-      r.length === v.length &&
-      r.every((c, i) => Math.abs(c - v[i]!) < 1e-9),
-  )
-}
-
 export default experiment({
   id: 'holography/celestial-conformal-boundary',
   code: 'E-HLG-0022',
@@ -60,8 +53,8 @@ export default experiment({
 
     // grounding: the four directions and the boost axis are real coin directions
     const grounded =
-      FOUR_DIRECTIONS.every(v => isD4Root(v, roots)) &&
-      isD4Root(BOOST_AXIS, roots)
+      FOUR_DIRECTIONS.every(v => containsVector({ vectors: roots, vector: v })) &&
+      containsVector({ vectors: roots, vector: BOOST_AXIS })
 
     const points = FOUR_DIRECTIONS.map(normalize)
     const boost = ballIsometry(

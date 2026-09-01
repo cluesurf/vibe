@@ -129,6 +129,15 @@ Negative controls, the no-fine-tuning signature, the absolute conservation limit
 - **[`E-FND-0066`](../../../test/experiment/foundations/event-symmetry-gauge.ts)** - a relational observable is invariant under event relabeling (event symmetry as gauge) but changes under adjacency rewiring (geometry is physical), the Gibbs event-symmetry test.
 - **[`E-FND-0034`](../../../test/experiment/foundations/naturalness.ts)** - an aligned shared past violates CHSH while a generic one does not, the naturalness check on where the quantum setting-state correlation comes from.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-FND-0003`](../../../test/experiment/foundations/arrow-from-real-order.ts)** (L2) - the arrow is the order of the reals (the unique ordered division algebra), time = the 1 real axis (ordered), space = the 7 imaginary axes (unordered)
+- **[`E-FND-0080`](../../../test/experiment/foundations/rule-has-no-amplitudes.ts)** (L2) - the committed rule has no single-particle quantum sector: its vacuum is a global period-three flash, a seeded tone is a classical defect of at most two slots that never spreads, two defects add exactly as sets with zero cross term, while the coined Dirac walk seeded the same way spreads and interferes
+- **[`E-FND-0081`](../../../test/experiment/foundations/momentum-rule-single-particle.ts)** (L2) - under the momentum-conserving knit on the committed mesh a lone tone is a classical ballistic particle: the vacuum stays empty, the tone occupies exactly one slot and moves exactly one cell per beat in a straight line, two tones on parallel or crossing lines evolve as the exact union of their separate runs, and opposite-sign head-on tones pass through without annihilating, while the charge rule flashes and pins and the coined walk spreads
+- **[`E-FND-0082`](../../../test/experiment/foundations/permutation-rule-cannot-interfere.ts)** (L1) - the committed rule lifted to superpositions of configurations is a permutation matrix: 49 phased branches pushed through four beats land on 49 distinct configurations with every weight exactly relabelled (cross term 0) and the norm exactly conserved, so no basis of configurations can interfere, while a conserving irreversible rule merges branches, shows a nonzero cross term, and does not conserve the norm
+- **[`E-FND-0083`](../../../test/experiment/foundations/pair-coarse-map-is-permutation.ts)** (L1) - the induced map of the momentum rule on two-tone pairs at one cell is a permutation: all 1104 two-tone states land on 1104 distinct images (the head-on rotation swaps two lines and fixes everything else), so a pair is as classical as a single tone, while the irreversible sorting collision merges the same states
+
 ## What this arena establishes
 
 - **The base is few things.** A ternary tone, one reversible conserving local rule, and the seed that a difference cannot vanish. Reversibility and the wake are the seed restated, not extra premises.

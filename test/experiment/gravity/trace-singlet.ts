@@ -241,6 +241,7 @@ export default experiment({
         orbitCountIfPlural: orbits,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'vertex-transitivity (one orbit) is what forces the singlet to be unique, the measured orbit count could have been plural and was not. The invariant-functional dimension equals the orbit count, one. Gravity is then the F4-invariant trace read at three trits, no free added field, the same trace that sources the binding well in gravity/ternary-field. The skew functional is the control, a non-uniform weight is not symmetry-invariant, so it cannot be the gravity singlet.',
     })
   },

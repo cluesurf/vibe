@@ -67,7 +67,7 @@ export default experiment({
   id: 'holography/black-hole',
   code: 'E-HLG-0003',
   title:
-    'region entropy scales with horizon area not volume (Bekenstein-Hawking)',
+    'the entanglement entropy of a cubic region of a free-fermion ground state on a 3D torus scales with the region area, not its volume',
   category: 'holography',
   substrates: 'any',
   depth: 'L2',

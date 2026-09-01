@@ -41,6 +41,7 @@ import { boostEnergyMomentum } from '@/code/measure/rapidity'
 import { crossRatio } from '@/code/measure/cross-ratio'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { containsVector } from '@/code/algebra/vector'
 
 // six coin boundary directions as celestial points, and three D4 boost axes
 const CELESTIAL_DIRECTIONS: Vec[] = [
@@ -80,14 +81,6 @@ function galileanDirection(n: Vec, u: Vec, beta: number): Vec {
   return normalize(add(n, scale(u, beta)))
 }
 
-function isD4Root(v: Vec, roots: Vec[]): boolean {
-  return roots.some(
-    r =>
-      r.length === v.length &&
-      r.every((c, i) => Math.abs(c - v[i]!) < 1e-9),
-  )
-}
-
 export default experiment({
   id: 'holography/celestial-boost-aberration',
   code: 'E-HLG-0030',
@@ -102,8 +95,8 @@ export default experiment({
     const directions = CELESTIAL_DIRECTIONS.map(normalize)
 
     const grounded =
-      CELESTIAL_DIRECTIONS.every(v => isD4Root(v, roots)) &&
-      BOOST_AXES.every(v => isD4Root(v, roots))
+      CELESTIAL_DIRECTIONS.every(v => containsVector({ vectors: roots, vector: v })) &&
+      BOOST_AXES.every(v => containsVector({ vectors: roots, vector: v }))
 
     let mapResidual = 0
     let crossRatioShift = 0

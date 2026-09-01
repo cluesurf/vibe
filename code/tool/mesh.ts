@@ -187,6 +187,13 @@ const D4_OPPOSITE = D4_ROOTS.map(root =>
 // (+-1, +-1, 0, 0), the D4 coin that can carry genuine spinors (8v + 8s + 8c).
 // This is the substrate the directional lattice-gas needs for spin. cellCount is
 // side^4, so keep side small (side 6 is 1296 cells, 31104 slots).
+//
+// PARITY, found 2026-08-31 (quantum/toric-code-from-the-mesh): every D4 root moves two coordinates by
+// one, so the coordinate-sum parity of a cell never changes along a direction. On a periodic box of
+// EVEN side the mesh is therefore TWO disconnected lattices (even-sum and odd-sum cells), each of
+// side^4 / 2 cells, and a tone can never reach the other half. An ODD side wraps the two classes into one
+// connected lattice. Choose an odd side when the claim is about one connected mesh, or state that the
+// run is on two.
 export function d4Mesh(input: { side: number }): Mesh {
   const side = input.side
   const area = side * side

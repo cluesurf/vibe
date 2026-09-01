@@ -34,6 +34,7 @@ import {
   growthRatioFromShellCounts,
   shellCountsFromGraph,
 } from '@/code/measure/shell-growth'
+import { scaled } from '@/test/scaffold/scale'
 
 export default experiment({
   id: 'gauge/warp-dictionary',
@@ -44,10 +45,12 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const graph = buildCellGraph({
       symbol: [3, 4, 3, 4],
-      maxCells: 60000,
+      maxCells: scaled(60000, scale),
     })
 
     const cellCount = graph.cellCount

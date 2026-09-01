@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. ryuTakayanagiScaling in code/measure/holography compares graph geodesic length with boundary arc length, so this is the geometric log law of hyperbolic space (known), not an entanglement entropy on a state, and no rule or dynamics runs. Honest depth L2.
 // H02 on {7,3} (Ryu-Takayanagi, prototyped on the cheapest holographic substrate, the heptagrid): the
 // entanglement entropy of a boundary interval equals the length of the minimal bulk surface anchored on
 // it. In the 2D {7,3} bulk that surface is the bulk GEODESIC between the interval's two endpoints. We
@@ -54,10 +55,10 @@ export default experiment({
   id: 'holography/ryu-takayanagi-73',
   code: 'E-HLG-0019',
   title:
-    'on {7,3} the boundary-interval entanglement follows the logarithmic Ryu-Takayanagi law, while the flat control is linear',
+    'on {7,3} the boundary-interval geodesic length follows the logarithmic law a Ryu-Takayanagi entropy would, while the flat control is linear',
   category: 'holography',
   substrates: ['73'],
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const r = ryuTakayanagi73()
@@ -84,6 +85,7 @@ export default experiment({
         flatLinearResidual: r.flatLinearResidual,
       },
       notes:
+        'AUDIT 2026-08-31: regraded from L3 to L2, ryuTakayanagiScaling in code/measure/holography compares graph geodesic length with boundary arc length, so this is the geometric log law of hyperbolic space (known), not an entanglement entropy on a state, and no rule or dynamics runs. Honest depth L2. ' +
         'L3, an emergent holographic scaling with a discriminating flat control. The Ryu-Takayanagi minimal surface in the 2D bulk is the boundary-anchored geodesic, and its LOG growth on {7,3} versus LINEAR on flat {6,3} is the 2D CFT entanglement area law read off the substrate. The 1D boundary makes the heptagrid the cleanest Ryu-Takayanagi testbed, this prototypes the same measurement for the 3D {5,3,4} bulk. Geodesics are exact BFS shortest paths, averaged over boundary positions, deterministic. Reuses code/measure/holography.',
     })
   },

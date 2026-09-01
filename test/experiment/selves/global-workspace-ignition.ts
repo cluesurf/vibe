@@ -134,6 +134,7 @@ export default experiment({
         subThresholdBroadcast: Number(subThreshold.toFixed(4)),
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
         'Global-workspace ignition (Dehaene-Changeux, Baars). The all-or-none broadcast the graded attention-workspace result lacked. Distinct from the persistence threshold (abiogenesis): this is about global availability, not survival.',
     })
   },

@@ -27,18 +27,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { koideRatio } from '@/code/measure/koide'
 
 // Charged-lepton masses in MeV (PDG). Empirical input, Tier B.
 const M_E = 0.51099895
 const M_MU = 105.6583755
 const M_TAU = 1776.86
-
-function koideQ(masses: number[]): number {
-  const sum = masses.reduce((s, m) => s + m, 0)
-  const rootSum = masses.reduce((s, m) => s + Math.sqrt(m), 0)
-
-  return sum / (rootSum * rootSum)
-}
 
 // The angle (degrees) of the square-root-mass vector to the democratic axis, from
 // Q = 1 / (3 cos^2 theta).
@@ -56,11 +50,11 @@ export default experiment({
   depth: 'L1',
   paper: true,
   run() {
-    const q = koideQ([M_E, M_MU, M_TAU])
+    const q = koideRatio([M_E, M_MU, M_TAU])
     const angle = democraticAngle(q)
 
     // a generic (non-lepton) mass triple, the control: it does not hit 2/3.
-    const genericQ = koideQ([1, 4, 9])
+    const genericQ = koideRatio([1, 4, 9])
     const genericAngle = democraticAngle(genericQ)
 
     // 1. the leptons satisfy Koide to high precision.

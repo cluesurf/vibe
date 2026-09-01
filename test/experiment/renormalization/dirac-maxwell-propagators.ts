@@ -133,7 +133,12 @@ export default experiment({
 
     // (3) the VERTEX, the conserved-current coupling, the Ward identity = the exact gauge zero modes (transversality)
     const census = zeroModeCensus(masslessSpectra[sides.length - 1]!)
-    const wardIdentity = census.zero > 0 // a large space of exact zero modes, the transverse (conserved-current) vertex
+    // AUDIT 2026-08-31: this used to be `census.zero > 0`, a check that any gauge operator passes. The
+    // measured identity is in gauge/ward-identity-maxwell (E-FRC-0072). Here the count is compared with the
+    // predicted integer: sites - 1 gradients plus the three constant link fields (closed, not exact, the
+    // torus Wilson lines), sites + 2 exact zero modes on the periodic cubic lattice.
+    const largestSide = sides[sides.length - 1]!
+    const wardIdentity = census.zero === largestSide ** 3 + 2
 
     // CONTROL, a Lorentz-BREAKING anisotropic rule, different hopping along the two axes, the pole is not invariant
     const brokenX = fitMassShell({ axis: 'x', m, tx: 1, ty: 0.5 })

@@ -143,6 +143,7 @@ export default experiment({
         lossyReversible: lossyReversible ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, the committed reversible conserving knit run on the committed d4 substrate, reusing code/rule/lattice-gas and code/check/invariant. This is register two (the running) to the register-one forcing experiments: the equipment is fixed upstream (tone-is-forced, cell-is-forced, the ladder), and the beat computes on it. Charge equality is exact (integer), reversibility is bit-exact. The arrow is not here (the knit runs either way), it is in the wake measured by mesh-unfolds-exactly. The erasing rule is the lossy control failing both properties.',
     })
   },

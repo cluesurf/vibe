@@ -5,23 +5,10 @@
 // the shell energy follows |u_n|^2 proportional to k_n^(-2/3), so the energy spectrum E(k) = |u_n|^2 / k_n is
 // proportional to k^(-5/3), the Kolmogorov law. Turning the nonlinearity off removes the cascade, the control.
 
-type Complex = [number, number]
-
-const mul = (a: Complex, b: Complex): Complex => [
-  a[0] * b[0] - a[1] * b[1],
-  a[0] * b[1] + a[1] * b[0],
-]
-
-const conj = (a: Complex): Complex => [a[0], -a[1]]
-const add = (a: Complex, b: Complex): Complex => [
-  a[0] + b[0],
-  a[1] + b[1],
-]
-
-const scale = (a: Complex, s: number): Complex => [a[0] * s, a[1] * s]
-
 // the time-averaged shell energy spectrum |u_n|^2 of the GOY model, integrated to a statistical steady state. With
 // `nonlinear` false the advective coupling is removed (no cascade, the control).
+import { ComplexPair as Complex, pairMul as mul, pairConj as conj, pairAdd as add, pairScale as scale } from '@/code/algebra/linear/complex-pair'
+
 export function goyShellSpectrum(input: {
   shells: number
   viscosity: number

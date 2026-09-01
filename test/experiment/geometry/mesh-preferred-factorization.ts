@@ -119,6 +119,7 @@ export default experiment({
         scrambledSameLabels,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
         'the discriminating control is the scramble: same 24-regular degree sequence, locality gone. The mesh internal fraction stays high because compact blocks on a real geometry touch only at their boundary, while on the scramble no partition is compact so the fraction falls toward the blocks-to-cells ratio. This is Tegmark integration (internal) and independence (external) at the connectivity level, not a Hilbert-space factorization, so it is scoped L2 and named as the discrete analogue, not the full quantum claim.',
     })
   },

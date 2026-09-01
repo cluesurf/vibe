@@ -193,3 +193,72 @@ export function rowToArray(
 
   return Uint32Array.from(out)
 }
+
+// The rank over GF(2) of a bit matrix, by Gaussian elimination on the packed rows. Rows are copied so the
+// input is untouched. Used for the stabilizer ranks of a code built on a cell complex.
+export function bitMatrixRank(m: BitMatrix): number {
+  const rows = Array.from({ length: m.rows }, (_, r) =>
+    m.words.slice(r * m.stride, (r + 1) * m.stride),
+  )
+
+  let rank = 0
+
+  for (let col = 0; col < m.cols && rank < m.rows; col++) {
+    const word = col >>> 5
+    const mask = 1 << (col & 31)
+
+    let pivot = -1
+
+    for (let r = rank; r < rows.length; r++) {
+      if (((rows[r]![word] ?? 0) & mask) !== 0) {
+        pivot = r
+        break
+      }
+    }
+
+    if (pivot === -1) {
+      continue
+    }
+
+    const pivotRow = rows[pivot]!
+
+    rows[pivot] = rows[rank]!
+    rows[rank] = pivotRow
+
+    for (let r = 0; r < rows.length; r++) {
+      if (r !== rank && ((rows[r]![word] ?? 0) & mask) !== 0) {
+        const row = rows[r]!
+
+        for (let w = word; w < m.stride; w++) {
+          row[w] = (row[w] ?? 0) ^ (pivotRow[w] ?? 0)
+        }
+      }
+    }
+
+    rank++
+  }
+
+  return rank
+}
+
+// The number of columns set in both a row of one matrix and a row of another with the same column count.
+export function popcountAndBetween(input: {
+  a: BitMatrix
+  rowA: number
+  b: BitMatrix
+  rowB: number
+}): number {
+  const { a, b } = input
+  const offsetA = input.rowA * a.stride
+  const offsetB = input.rowB * b.stride
+
+  let total = 0
+
+  for (let w = 0; w < a.stride; w++) {
+    total += popcount32(
+      (a.words[offsetA + w] ?? 0) & (b.words[offsetB + w] ?? 0),
+    )
+  }
+
+  return total
+}

@@ -250,7 +250,8 @@ export default experiment({
         walkCrossTerm: Number(walkCrossTerm.toFixed(4)),
       },
       notes:
-        'The honest negative behind the 2026-08-31 regrade of the quantum arena. Two facts, both about the committed rule as it stands: its vacuum is not quiet (a global period-three flash from the create move), and a seeded tone on top of it is a classical defect that neither spreads nor superposes. This does not show that no middle layer could ever carry amplitudes, only that any amplitude has to be built on top of this and its construction has to be shown before a walk result counts toward the base.',
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'The honest negative behind the 2026-08-31 regrade of the quantum arena. Side 8 is even, so this d4Mesh is two disconnected lattices (see the PARITY note on d4Mesh); both seeds sit on the same half because the offset walks along a root, so the result is about one connected component of 2048 cells. Two facts, both about the committed rule as it stands: its vacuum is not quiet (a global period-three flash from the create move), and a seeded tone on top of it is a classical defect that neither spreads nor superposes. This does not show that no middle layer could ever carry amplitudes, only that any amplitude has to be built on top of this and its construction has to be shown before a walk result counts toward the base.',
     })
   },
 })

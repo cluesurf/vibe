@@ -102,6 +102,11 @@ The payoff. Once fermions and exclusion exist, discrete shells, atoms, nuclei, a
 - **[`E-SPN-0025`](../../../test/experiment/spin/nuclei-binding-saturation.ts)** - several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead.
 - **[`E-SPN-0024`](../../../test/experiment/spin/nuclear-binding-curve.ts)** - the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-SPN-0001`](../../../test/experiment/spin/anyon-deconfinement.ts)** (L1) - the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control
+
 ## What this arena establishes
 
 - **Spin is geometric, not assumed.** The 24 coin directions are the binary tetrahedral double cover 2T, so spin-1/2 (minus sign at 2pi, return at 4pi) is a fact of the substrate, with the vector rep the built-in control.

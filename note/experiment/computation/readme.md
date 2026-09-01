@@ -45,3 +45,7 @@ Universal computation is goal-neutral. These ask whether the substrate coordinat
 ## What it establishes
 
 The substrate **computes**. Universality is shown on the canonical {3,4,3,4} with its own ternary rule and its committed reversible knit, then confirmed across the {5,3,4}, {7,3}, and flat {4,3,4} geometries with explicit Minsky and register machines that run real programs. The base rule is an **exactly reversible, sparse local-attention update** that can copy itself faithfully, and its emergent walk carries genuine quantum interference rather than trivial diffusion. Coordination across the whole mesh is **O(log N)** by the hyperbolic diameter. The one claim of purposeful problem-solving is a flagged **circular negative**, universal computation is goal-neutral and the substrate does not by itself supply intention.
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-CMP-0001`](../../../test/experiment/computation/computation-73.ts)** (L1) - COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})

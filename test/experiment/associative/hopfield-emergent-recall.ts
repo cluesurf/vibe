@@ -207,6 +207,7 @@ export default experiment({
       },
       control: { bareRecall: r.bareRecall, chance: r.chance },
       notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'the bare-rule recall near chance IS the honest negative, the reversible rule conserves charge and has no energy descent, so it has no attractors and cannot clean a noisy cue',
     })
   },

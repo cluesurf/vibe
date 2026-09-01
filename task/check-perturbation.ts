@@ -1,6 +1,8 @@
 // Robustness pass: every remaining L3 whose main function takes a size is
 // called at its default, at half, and at one and a half times, and the verdict boolean is printed at each.
 // A verdict that flips with size is a knife edge. Run: pnpm check:perturbation. Sizes are half, default, one and a half.
+import { allExperiments } from '@/test/scaffold/suite'
+import '@/test/experiment/all'
 import { bulkNonlocality } from '@/test/experiment/holography/bulk-nonlocality'
 import { holographicMemory } from '@/test/experiment/holography/holographic-memory'
 import { signaling } from '@/test/experiment/holography/signaling'
@@ -40,6 +42,51 @@ const probes: Probe[] = [
   { id: 'selves/emergent-self-robust', sizes: [10000, 20000, 40000], run: n => emergentSelfRobust({ n }) },
   { id: 'holography/growing-code', sizes: [100000, 200000, 300000], run: n => growingCode({ n }) },
 ]
+
+// Phase 2: every registered experiment that declares `scales: true` is run through its own run() at
+// context.scale 0.5, 1 and 1.5. A verdict status that changes with the scale is a knife edge.
+const SCALES = [0.5, 1, 1.5]
+
+let scaledExperiments = 0
+let scaledFlips = 0
+
+for (const candidate of allExperiments()) {
+  if (!candidate.scales) {
+    continue
+  }
+
+  scaledExperiments++
+
+  const statuses: string[] = []
+
+  for (const scale of SCALES) {
+    const started = Date.now()
+
+    try {
+      const v = candidate.run({ seed: 1, scale })
+
+      statuses.push(`${scale}: ${v.status} ${Date.now() - started}ms`)
+    } catch (error) {
+      statuses.push(`${scale}: CRASH ${(error as Error).message}`)
+    }
+  }
+
+  const distinct = new Set(statuses.map(s => s.split(' ')[1]))
+
+  if (distinct.size > 1) {
+    scaledFlips++
+  }
+
+  console.log(`${candidate.id}  [${candidate.depth}, scales]`)
+
+  for (const s of statuses) {
+    console.log(`  ${s}`)
+  }
+}
+
+console.log(
+  `\ncheck:perturbation phase 2  ${scaledExperiments} scale-aware experiments, ${scaledFlips} with a status that changes across scales 0.5, 1, 1.5\n`,
+)
 
 for (const probe of probes) {
   const verdicts: string[] = []

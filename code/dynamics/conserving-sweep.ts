@@ -735,3 +735,25 @@ export function conservingEdgeSweepHashed(input: {
     }
   }
 }
+
+// A counter-indexed hash stream as an Rng: deterministic, seedless apart from `salt`, a drop-in for a
+// seeded generator where an experiment wants a reproducible fill. Until 2026-08-31 four experiments
+// each defined this as a local `detStream`. Note the methodology: a hashed fill is still a pseudo-random
+// initial condition, and a result that needs one is an ensemble claim unless size, not salt, is varied.
+export function makeHashRng(input: { salt: number }): Rng {
+  let counter = 0
+
+  const next = (): number => hashRand(counter++, 0, input.salt)
+
+  return {
+    next,
+    nextInt: ({ max }) => Math.floor(next() * max),
+    nextGaussian: () => {
+      // Box-Muller from two hashed uniforms
+      const u = 1 - next()
+      const v = next()
+
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+    },
+  }
+}

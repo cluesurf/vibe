@@ -149,6 +149,7 @@ export default experiment({
         rotateWorstResidual: rotate.worst,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, exact conservation mathematics measured on the committed substrate. The residual is asserted as exact integer equality (zero tolerance) under the momentum-conserving rule, per the exactness methodology, and the control residual is strictly positive. Full covariance (frame invariance under emergent boosts) is the standing relativity-category result (Lorentz-safe first order, E-RLT-0029) and is cited, not re-measured. The bridge reading is that the scalar law (E-GRV-0039), the smooth limit (E-GRV-0046), and this momentum closure together give the Chronoflux transport sector a complete discrete origin, with the fitted continuum constants staying out per the bridge rules.',
     })
   },

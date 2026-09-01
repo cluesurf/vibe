@@ -4,24 +4,8 @@
 // fit a node's children at large angular separation, where Euclidean circles crowd them. Reference, Sarkar
 // 2011, "Low Distortion Delaunay Embedding of Trees in Hyperbolic Plane".
 
-type Complex = [number, number]
+import { ComplexPair as Complex, pairAdd as cAdd, pairSub as cSub, pairMul as cMul, pairConj as cConj } from '@/code/algebra/linear/complex-pair'
 
-const cAdd = (a: Complex, b: Complex): Complex => [
-  a[0] + b[0],
-  a[1] + b[1],
-]
-
-const cSub = (a: Complex, b: Complex): Complex => [
-  a[0] - b[0],
-  a[1] - b[1],
-]
-
-const cMul = (a: Complex, b: Complex): Complex => [
-  a[0] * b[0] - a[1] * b[1],
-  a[0] * b[1] + a[1] * b[0],
-]
-
-const cConj = (a: Complex): Complex => [a[0], -a[1]]
 const cAbs = (a: Complex): number => Math.hypot(a[0], a[1])
 
 const cDiv = (a: Complex, b: Complex): Complex => {

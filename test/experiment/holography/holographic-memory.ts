@@ -159,7 +159,10 @@ export function holographicMemory(input?: { n?: number }): {
   const holoDecodeAfter = decode(holo, holoAnchors)
   const blobDecodeAfter = decode(blob, blobAnchors)
   // conservation: the rule conserves; erasure deliberately removed charge, so compare post-erasure totals
-  const conserved = qHolo === A && qBlob === A // both encodings started with A units
+  // AUDIT 2026-08-31: this compared both totals with A, but the blob ball holds whole shells and so not exactly A
+  // cells, which made the flag false at every size. Compare each with its own anchor count.
+  const conserved =
+    qHolo === holoAnchors.length && qBlob === blobAnchors.length
 
   const holographicWins =
     holoSurvivalInit > 0.6 &&

@@ -116,6 +116,7 @@ export default experiment({
         eiMacroRandom: Number(eiMacroR.toFixed(3)),
       },
       notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'A6 / MS3 spatial, the self of selves at L3, two recursive coarse-grainings with the structured-vs-random control at each level.',
     })
   },

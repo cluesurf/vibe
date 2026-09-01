@@ -18,6 +18,7 @@ import { neighborsOf } from '@/code/tool/graph'
 import { poincareDistanceIndexed } from '@/code/geometry/distance'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { scaled } from '@/test/scaffold/scale'
 
 const CHARGED_FERMIONS = 9 // e, mu, tau, u, c, t, d, s, b
 // Observed span: top quark over electron, about 173000 MeV / 0.511 MeV.
@@ -29,11 +30,11 @@ function decades(ratio: number): number {
 
 // Mean hyperbolic distance between consecutive BFS shells of the dodecagrid, the natural spacing a
 // mode would move through as it sits a few cells further out.
-function meanInterShellDistance(): number {
+function meanInterShellDistance(scale: number | undefined): number {
   const g = hyperbolicDodecagrid({
     depth: 4,
     connectThreshold: 2.0,
-    maxVertices: 1200,
+    maxVertices: scaled(1200, scale),
   })
 
   const dim = g.embedding?.dimension ?? 3
@@ -74,7 +75,7 @@ function meanInterShellDistance(): number {
   })
 }
 
-export function massHierarchy(_input: Record<string, never> = {}): {
+export function massHierarchy(input?: { scale?: number }): {
   spacing: number
   exponentialMasses: number[]
   exponentialSpanDecades: number
@@ -89,7 +90,7 @@ export function massHierarchy(_input: Record<string, never> = {}): {
   // No fitting to the observed masses. The per-step log-decay of the overlap is the crystal's OWN
   // inter-shell hyperbolic distance (measured from the substrate), with the localization length set
   // to one curvature radius (the only natural length). The span is then a PREDICTION, not a fit.
-  const interShellDistance = meanInterShellDistance()
+  const interShellDistance = meanInterShellDistance(input?.scale)
   const spacing = interShellDistance // localization length xi = 1 (one curvature radius)
 
   // Exponential overlap (hyperbolic substrate): y_i = exp(-i * spacing).
@@ -154,8 +155,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = massHierarchy()
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = massHierarchy({ scale })
     const ok = r.solved && r.mechanismHolds && r.sameOrderAsObserved
 
     return verdict({

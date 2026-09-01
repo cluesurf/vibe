@@ -14,7 +14,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import {
   totalCharge as sumTone,
@@ -28,17 +28,6 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // vacuum dynamics: the arrow creates pairs, share annihilates, hops carry charge (the field)
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  moved: Uint8Array,
-  rng: Rng,
-  arrow: number,
-): void {
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-}
-
 export function quantumField(input?: { n?: number }): {
   n: number
   vacuumDensity: number
@@ -67,14 +56,14 @@ export function quantumField(input?: { n?: number }): {
   const rng = makeRng({ seed: 7 })
 
   for (let b = 0; b < 80; b++) {
-    beat(vac, eu, ev, moved, rng, ARROW)
+    conservingEdgeSweep({ tone: vac, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
   }
 
   const d1 = nonzero(vac)
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
   const before = vac.slice()
 
-  beat(vac, eu, ev, moved, rng, ARROW)
+  conservingEdgeSweep({ tone: vac, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
 
   let changed = 0
 
@@ -154,11 +143,11 @@ export function quantumField(input?: { n?: number }): {
   const rp = makeRng({ seed: 99 })
 
   for (let b = 0; b < T; b++) {
-    beat(base, eu, ev, moved, rb, ARROW)
+    conservingEdgeSweep({ tone: base, eu: eu, ev: ev, moved, rng: rb, arrow: ARROW })
   }
 
   for (let b = 0; b < T; b++) {
-    beat(pert, eu, ev, moved, rp, ARROW)
+    conservingEdgeSweep({ tone: pert, eu: eu, ev: ev, moved, rng: rp, arrow: ARROW })
   }
 
   let front = 0

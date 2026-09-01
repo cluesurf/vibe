@@ -150,6 +150,7 @@ export default experiment({
         bulkExists: bulkExists ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, the two structures measured on the substrate. Scale (TD v, connectivity) is the static ball growth of the honeycomb (a function of radius, no time), and time (TD u, record-phase) is the dynamical per-beat state change on a fixed mesh plus the wake growth, so they are carried by cell position versus tone evolution, manifestly independent. This answers TD five-dimension exclusion argument on vibe own terms: vibe does not conflate the record-phase and scale directions, so its emergent time is not circular, and the single coupling (the wake frontier, outermost scale equals beat count) is the monotone arrow. Reuses code/substrate/mesh-unfolding and code/measure/wake-time; the fixed-scale time test uses the real knit dynamics. Deterministic fill, no random.',
     })
   },

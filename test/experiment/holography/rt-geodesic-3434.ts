@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. a measured shell-count and geodesic property of the {3,4,3,4} graph, which is hyperbolic geometry (known), with no rule or dynamics in it. It is the geometric precondition for a Ryu-Takayanagi law, not an entanglement measurement, so the honest depth is L2.
 // The Ryu-Takayanagi / geodesic-shortcut LOG law on the committed {3,4,3,4} substrate (the RT log law was shown
 // on {7,3}; the area law on {3,4,3,4} via boundary dominance in holography/holographic-3434; this is the
 // minimal-surface/geodesic version on {3,4,3,4}). In a hyperbolic bulk, two boundary points separated by a
@@ -24,10 +25,10 @@ export default experiment({
   id: 'holography/rt-geodesic-3434',
   code: 'E-HLG-0018',
   title:
-    'the RT / geodesic-shortcut LOG law on the committed {3,4,3,4}: the bulk radius D ~ log_lambda(cells), so a bulk geodesic between boundary points is ~2 log_lambda of their boundary separation, versus a flat polynomial control',
+    'the geodesic-shortcut log law on the committed {3,4,3,4}: the bulk radius D grows as log_lambda(cells), so a bulk geodesic between boundary points is logarithmic in their boundary separation, with a flat lattice as the control',
   category: 'holography',
   substrates: ['3434'],
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     // measured {3,4,3,4} shell counts; the bulk radius is the shell index D, the cells are the cumulative count
@@ -85,6 +86,7 @@ export default experiment({
         flatGrows: flatGrows ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: regraded from L3 to L2, a measured shell-count and geodesic property of the {3,4,3,4} graph, which is hyperbolic geometry (known), with no rule or dynamics in it. It is the geometric precondition for a Ryu-Takayanagi law, not an entanglement measurement, so the honest depth is L2. ' +
         'deterministic, no random. The geodesic shortcut is the RT structure: the minimal bulk surface anchored on a boundary region has length logarithmic in the region size on a hyperbolic bulk. Here measured as the ball bulk radius D ~ log_lambda(cells) (each shell x lambda in cells, +1 in radius), the convergent ratio ~0.98 -> 1. The flat control D ~ cells^(1/3) gives a growing ratio (no shortcut). This is the depth-as-scale / holographic RG direction made quantitative on {3,4,3,4}, the same lambda as the warp factor and the area law.',
     })
   },

@@ -199,6 +199,7 @@ export default experiment({
         convergenceExponent: Number(exponent.toFixed(3)),
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, known coarse-graining mathematics (self-averaging and the hydrodynamic limit of a conserving lattice gas) measured on the committed substrate, completing the E-GRV-0039 pair: that experiment shows the LAW survives every coarse scale exactly, this one shows the FIELD converges across scales, and together they are the discrete-to-continuum map (a smooth conserved current, the Chronoflux primitive, as the coarse face of the discrete tone). The two detail norms give a two-point slope, an honest small-sample fit, stated as such, and the gate leaves margin below the central-limit expectation of minus two. The Cantor control is measured statically (its point is scale structure in the field, not the dynamics). The bridge identification is a reading, the measured content is the exponent, the shallow control, and the exact conservation.',
     })
   },
