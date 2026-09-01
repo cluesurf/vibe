@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is the textbook helium variational energy E(z) = z^2 - 2Zz + 5z/8, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // Helium, the simplest multi-electron atom, the ground-state energy with electron-electron repulsion. Hydrogen
 // (`spin/hydrogen-spectrum`) is one electron in the nuclear well, a clean closed-form spectrum. Helium is the first
 // step beyond, TWO electrons, and the new physics is the mutual REPULSION between them, the reason atoms are not just
@@ -41,8 +42,8 @@ export default experiment({
   title:
     'helium ground-state energy from the screened two-electron variational treatment, within 2 percent of observed, the no-repulsion energy the control',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: false,
   run() {
     const Z = 2
@@ -110,6 +111,7 @@ export default experiment({
         controlTooDeep: controlTooDeep ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is the textbook helium variational energy E(z) = z^2 - 2Zz + 5z/8, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'the two-electron energy is E(zeta) = zeta^2 - 2 Z zeta + (5/8) zeta in Hartree, the kinetic energy, the nuclear attraction, and the electron-electron repulsion expectation for two 1s orbitals. The perturbative value (zeta = Z = 2) is -2.75 Hartree, and minimizing over zeta gives the screened charge zeta = Z - 5/16 = 1.6875 and the variational energy -2.848 Hartree, a rigorous upper bound 1.9 percent above the observed -2.9037 (the small residual is the correlation energy, the part beyond the independent-orbital ansatz). The ionization energy is the variational energy minus the hydrogenic He+ energy (-2 Hartree), about 23 to 25 eV near the observed 24.59. The no-repulsion control (-4 Hartree, both electrons in the bare Z = 2 well) is 38 percent too deep, so the electron-electron repulsion is the essential new physics beyond hydrogen. This is the multi-electron-atom row of the per-particle verification, the helium ground state with repulsion, the quantitative companion to the qualitative shell filling (`spin/atoms-shell-filling`).',
     })
   },

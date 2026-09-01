@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is Zurek's envariance argument restated on 2x2 and 3x3 diagonal amplitude matrices, where the fine-graining step inserts |amplitude|^2 by construction, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // The Born rule DERIVED from envariance (environment-assisted invariance, Zurek) on the deterministic substrate.
 // This goes beyond the structural uniqueness argument (gauge/born-rule: |amplitude|^2 is the unique additive
 // quadrature-invariant measure). Here the Born WEIGHTS are forced by a SYMMETRY of the deterministic entangled
@@ -76,7 +77,7 @@ export default experiment({
     'the Born rule is DERIVED from envariance: equal-amplitude entangled outcomes are swap-symmetric (equiprobable), unequal ones fine-grain to the equal case, giving |amplitude|^2, with a product-state control that has no symmetry',
   category: 'quantum',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     // 1. EQUAL amplitudes: the entangled state is envariant under the system swap -> the two outcomes are interchangeable
@@ -138,6 +139,7 @@ export default experiment({
         controlBreaks: controlBreaks ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is Zurek\'s envariance argument restated on 2x2 and 3x3 diagonal amplitude matrices, where the fine-graining step inserts |amplitude|^2 by construction, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'L3 derivation, not a put-in-by-hand measure. Envariance (Zurek) reduces the Born weights to the SYMMETRY of the deterministic entangled state: equal-amplitude branches are swap-interchangeable (equiprobable), unequal ones reduce to equal by fine-graining. The framework supplies the deterministic entanglement (quantum/entanglement-bell, CHSH = 2sqrt2). HONEST residual: the derivation assumes the weak principle that envariant (physically interchangeable) branches are equiprobable; no fully assumption-free Born derivation exists (this is the measurement problem). The advance over gauge/born-rule (the structural uniqueness of |amp|^2) is that the WEIGHTS are now forced by a concrete symmetry of the deterministic state, with a control that fails.',
     })
   },

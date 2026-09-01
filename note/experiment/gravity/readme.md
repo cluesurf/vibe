@@ -29,7 +29,7 @@ Gravity **is** geometry. A mass curves the effective metric and free rays follow
 The gravitational potential rides entirely on the **entanglement area law** of the emergent matter field. These tests measure that the ground-state entropy is boundary-set (area) not volume-set, and derive the Newtonian force the Verlinde way, with the volume-law thermal state as the control.
 
 - **[`E-GRV-0002`](../../../test/experiment/gravity/area-law-from-knit-walk.ts)** - the area law read off the knit's own coined Dirac walk: a massive walk saturates (area law), a gapless walk grows (control).
-- **[`E-GRV-0003`](../../../test/experiment/gravity/area-law-universality.ts)** - the area law is universal across gapped masses, so the proxy is the genuine emergent relativistic field, not an arbitrary stand-in.
+- **[`E-GRV-0003`](../../../test/experiment/gravity/area-law-universality.ts)** - the area law is universal across gapped masses, so the proxy is a genuine relativistic field model, not an arbitrary stand-in.
 - **[`E-GRV-0013`](../../../test/experiment/gravity/entropic-newton.ts)** - the static Newtonian 1/r force from the measured area law by the Verlinde route, no new field.
 - **[`E-GRV-0015`](../../../test/experiment/gravity/gr-einstein-equations.ts)** - the measured area law forces the Einstein equation as an equation of state (Jacobson), with a measured 1/r Newtonian limit.
 - **[`E-GRV-0028`](../../../test/experiment/gravity/newton-constant-scale.ts)** - Newton's G is the single scale: the bounded area-law bit density fixes G in lattice units, the volume law has no definite G.
@@ -107,6 +107,11 @@ The bridge from the reversible conserving substrate to smooth conserved geometry
 - **[`E-GRV-0047`](../../../test/experiment/gravity/coarse-stress-closure.ts)** - the momentum-transport law also closes integer-exactly at every coarse block, completing the covariant closure, the pair-table control leaving a residual.
 - **[`E-GRV-0040`](../../../test/experiment/gravity/recoverability-functional.ts)** - Herbert's recoverability functional R = accessible / total unifies horizons, decoherence, and conservation, staying 1 globally on the reversible base and dropping under a lossy control.
 - **[`E-GRV-0041`](../../../test/experiment/gravity/gravity-induced-entanglement-witness.ts)** - two distant regions become entangled only through the geometric mediator and the mutual information covaries with its strength (the GIE / BMV witness), a direct bypass the control.
+
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-GRV-0028`](../../../test/experiment/gravity/newton-constant-scale.ts)** (L2) - Newton G is the single scale, the bounded area-law bit density fixes G in lattice units, the volume law has no definite G
 
 ## What this arena establishes
 

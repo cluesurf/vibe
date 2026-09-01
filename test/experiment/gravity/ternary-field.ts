@@ -160,6 +160,7 @@ export default experiment({
       },
       control: { oneTritFinalDistance: oneTrit.finalDistance },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'balanced ternary uses the digits {-1,0,+1}, exactly the tone alphabet, so a K-trit potential is a stack of K tones. Three trits (range thirteen) bind a three-cell displacement, a single trit (range one) is too coarse, matching selves/minimal-attraction-field. The field is verified balanced-ternary at every cell. This makes the added gravity field ternary-native rather than binary.',
     })
   },

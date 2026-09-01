@@ -107,7 +107,7 @@ export default experiment({
   title:
     'one coupled rule binds the photon and fermion sectors both ways, and decoupling kills both together',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

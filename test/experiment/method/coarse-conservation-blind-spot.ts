@@ -25,7 +25,7 @@
 // is also a live audit of our own controls: the both-signed sink is used as a control elsewhere in this
 // repo, and this experiment marks exactly where it goes dead.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import {
   drainingCollision,
@@ -63,11 +63,7 @@ export default experiment({
     for (const meshSide of MESH_SIDES) {
       const mesh = d4Mesh({ side: meshSide })
       const degree = mesh.degree
-      const opposite: number[] = []
-
-      for (let d = 0; d < degree; d++) {
-        opposite.push(mesh.opposite(d))
-      }
+      const opposite = meshOpposites(mesh)
 
       const knit = pairCollision({ opposite })
       const blockSides = CANDIDATE_BLOCK_SIDES.filter(

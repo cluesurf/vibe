@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a deliberation model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // An uncaused spark does not create freedom. It erodes authorship. The deterministic self is the most yours.
 //
 // People imagine free will as an uncaused spark, a bit of the choice that comes from nothing, not from your
@@ -97,7 +98,7 @@ export default experiment({
     'an uncaused spark lowers self-coherence, so the deterministic self is the most self-authored',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     // robustness by varying the SIZE (never by averaging over a seed), per the deterministic model
@@ -129,6 +130,7 @@ export default experiment({
         coherenceDeterministic: f0,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a deliberation model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model. freedom is not indeterminism. an uncaused spark replaces the self with noise. the determined self resolving its own structure is the most authored. not a base-emergence claim',
     })
   },

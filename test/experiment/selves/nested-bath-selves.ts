@@ -30,7 +30,7 @@ export default experiment({
   title:
     'two bath-coupled bodies bind into a higher composite self with its own identity and agency, selves nest',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

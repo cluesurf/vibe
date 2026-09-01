@@ -7,7 +7,7 @@
 // does NOT yet exhibit a coarse-grained velocity field whose naive gradient runs away while the fine bound holds,
 // which needs a constructed interacting flow, so the full "truncation hides a bound" demonstration stays a target.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill, cloneWill, fillWillPattern } from '@/code/tone/will'
@@ -42,7 +42,7 @@ export default experiment({
     let realMax = e0
 
     for (let b = 0; b < beats; b++) {
-      real = beat(real, headOnRotate({ opposite: opposites(mesh) }))
+      real = beat(real, headOnRotate({ opposite: meshOpposites(mesh) }))
 
       const e = enstrophy(real)
 
@@ -86,15 +86,3 @@ export default experiment({
   },
 })
 
-function opposites(mesh: {
-  degree: number
-  opposite(d: number): number
-}): number[] {
-  const out: number[] = []
-
-  for (let d = 0; d < mesh.degree; d++) {
-    out.push(mesh.opposite(d))
-  }
-
-  return out
-}

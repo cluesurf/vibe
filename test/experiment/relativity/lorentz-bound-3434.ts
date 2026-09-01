@@ -100,6 +100,7 @@ export default experiment({
         cubicResidualAtGRB: cubicResidual,
       },
       notes:
+        'AUDIT 2026-08-31: there is no lattice size here to perturb, the dispersion is evaluated on the 24 D4 root directions at |k| = 0.4, 0.2, 0.1, 0.05, so this result is exempt from the scale check by construction. ' +
         'deterministic: no random sprinkling, no seeds. The D4 moment identities (sum d_i^2 isotropic, and sum d_i^4 = 3 sum d_i^2 d_j^2 = 12) cancel the order-2 and order-4 angular anisotropy of omega^2(k), so the leading anisotropy is order 6, measured here as a q^6 scaling (cubic is q^2). HONEST scope: the GRB LINEAR bound is satisfied by any even-dispersion lattice (xi1 = 0), so it does not on its own exclude the cubic; the real, measurable difference is the isotropy ORDER (rotational symmetry restored to order 4 on D4, order 0 on the cubic). This is the correct deterministic basis for the substrate-choice argument, replacing the random-sprinkling framing of relativity/predictions-vs-bounds (which used a forbidden random structure and the wrong substrate).',
     })
   },

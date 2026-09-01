@@ -43,7 +43,7 @@ export default experiment({
   title:
     'a predictive perceiver tracks input then runs on its prior when input is ablated (a controlled hallucination) while a memoryless perceiver falls silent, Seth predictive processing',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

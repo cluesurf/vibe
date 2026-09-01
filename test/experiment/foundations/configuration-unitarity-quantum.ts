@@ -173,6 +173,7 @@ export default experiment({
         lossyMergesDistinctStates: lossyNotInjective ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         "L2, the configuration-space unitarity of the reversible knit, reusing code/measure/qca-unitarity and the asymmetric fill from code/measure/recurrence. The knit is a bijection on configurations (measured injective on the orbit), so its Hilbert-space operator is a permutation matrix, unitary, and a complex superposition over the orbit keeps its norm exactly. The lossy rule merges states (not injective), the non-unitary control. This resolves the deterministic-CA-versus-quantum tension via the Bisio-D'Ariano QCA framework: the quantum unitarity is at the configuration level, not the raw occupation (which oscillates, E-FND-0053), and superposition is the coarse-grained amplitude over configurations. Deterministic amplitudes and fill, no random.",
     })
   },

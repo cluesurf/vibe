@@ -12,7 +12,7 @@
 // roundtrip Hamming), the case purification forbids. Honest scope: the classical-reversibility form on the
 // deterministic base, not full quantum purification (that lives at the emergent quantum layer).
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill } from '@/code/tone/will'
@@ -33,11 +33,7 @@ export default experiment({
   run() {
     const side = 6
     const mesh = d4Mesh({ side })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = headOnRotate({ opposite })
     const degree = mesh.degree

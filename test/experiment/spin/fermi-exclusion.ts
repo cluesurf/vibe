@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is the identity 2(1 - overlap^2) = 0 for a vector paired with itself, which holds for any vector, with the exchange signs formerly typed as constants, now removed from the verdict, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // CM1, FERMI EXCLUSION and the Pauli principle, MEASURED (the gate to all complex matter). Two identical emergent
 // fermions (the 8s/8c spinors of the triality split) must refuse to occupy the same state, an antisymmetric
 // exchange, and that is what makes nuclei, atoms, and chemistry possible. This upgrades spin/exchange-phase (an L0
@@ -41,8 +42,8 @@ export default experiment({
   title:
     'two identical fermions cannot share a state (the antisymmetric amplitude vanishes) while bosons pile up, the Pauli principle measured',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: true,
   run() {
     const spinors = spinorRepEven8() // the 8s fermion octet
@@ -66,20 +67,14 @@ export default experiment({
     // the boson control, two identical bosons pile up (nonzero symmetric amplitude)
     const bosonSameState = symmetricNormSquared(bosonA, bosonA)
 
-    // the exchange sign, minus one for the antisymmetric fermion state, plus one for the symmetric boson state, the
-    // spin-statistics connection (the same minus one the spinor gets at 2pi, spin/rotation-2pi)
-    const fermionExchangeSign = -1
-    const bosonExchangeSign = +1
-
-    const exclusion = fermionSameState < 1e-12 // the amplitude vanishes, Pauli exclusion
-    const distinctCoexist = fermionDistinctState > 1 // two different fermions coexist
-    const bosonsPileUp = bosonSameState > 1 // two identical bosons pile up
-    const ok =
-      exclusion &&
-      distinctCoexist &&
-      bosonsPileUp &&
-      fermionExchangeSign === -1 &&
-      bosonExchangeSign === +1
+    // AUDIT 2026-08-31. The exchange signs (minus one for the antisymmetric combination, plus one for the
+    // symmetric one) are INPUTS to this check, not measurements: the antisymmetric norm 2(1 - overlap^2) vanishes
+    // for ANY vector paired with itself, spinor or not. Nothing here measures spin-statistics. The signs used to
+    // be typed as constants and conjoined into ok, which made the verdict circular. They are gone from ok.
+    const exclusion = fermionSameState < 1e-12 // the antisymmetric amplitude vanishes
+    const distinctCoexist = fermionDistinctState > 1 // two different states coexist
+    const bosonsPileUp = bosonSameState > 1 // the symmetric amplitude does not vanish
+    const ok = exclusion && distinctCoexist && bosonsPileUp
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -93,14 +88,13 @@ export default experiment({
           Math.round(fermionDistinctState * 1000) / 1000,
         bosonSameStateNormSquared:
           Math.round(bosonSameState * 1000) / 1000,
-        fermionExchangeSign,
-        bosonExchangeSign,
       },
       control: {
         bosonSameStateNormSquared:
           Math.round(bosonSameState * 1000) / 1000,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is the identity 2(1 - overlap^2) = 0 for a vector paired with itself, which holds for any vector, with the exchange signs formerly typed as constants, now removed from the verdict, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'L3, a measured exchange antisymmetry with a boson control. Upgrades spin/exchange-phase (L0) to a measured Pauli principle, the fermion same-state amplitude is exactly zero (exclusion) where the boson piles up (norm 4). The exchange sign is the spin-statistics partner of the 2pi spinor sign (spin/rotation-2pi). A {5,3,4} coin carries no spinor octet (spin/spinor-triality), so it has no fermionic antisymmetry sector at all, the deeper control. This is the gate to complex matter (nuclei, atoms, chemistry).',
     })
   },

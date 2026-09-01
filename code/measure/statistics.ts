@@ -216,3 +216,32 @@ export function mutualInformationBits(
 
   return mi
 }
+
+// The mean of a series over the half-open index window [lo, hi), missing entries counted as zero.
+export function windowMean(input: {
+  series: ArrayLike<number>
+  lo: number
+  hi: number
+}): number {
+  let sum = 0
+
+  for (let t = input.lo; t < input.hi; t++) {
+    sum += input.series[t] ?? 0
+  }
+
+  return sum / Math.max(1, input.hi - input.lo)
+}
+
+// The net value of `values` summed over `blocks` contiguous index blocks of equal size (the last
+// block takes the remainder): the coarse signature a block detector reads. Two quantum
+// experiments each carried this.
+export function blockSums(values: ArrayLike<number>, blocks: number): number[] {
+  const sig = new Array<number>(blocks).fill(0)
+  const per = Math.ceil(values.length / blocks)
+
+  for (let i = 0; i < values.length; i++) {
+    sig[Math.min(blocks - 1, Math.floor(i / per))]! += values[i]!
+  }
+
+  return sig
+}

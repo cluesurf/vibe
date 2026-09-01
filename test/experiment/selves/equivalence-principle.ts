@@ -246,6 +246,7 @@ export default experiment({
       },
       control: { flatMoves },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the source range grows with the body mass (the gravitational mass), and the free-fall rate is identical across masses (one cell per beat for every body, the inertial-equals-gravitational equivalence principle), because the free fall follows the field gradient, the same for all bodies. The bodies are oriented perpendicular to the field so excluded volume does not self-block. The flat-field control moves nothing, confirming it is the GRADIENT that gravitates, so a uniform field term (the wake uniform growth) is a no-local-force cosmological constant, the dark-energy term. This closes the matter-coupling frontier, the self both sources and falls.',
     })
   },

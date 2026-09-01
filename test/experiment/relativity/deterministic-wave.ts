@@ -21,6 +21,7 @@ import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { ringEdges, ringNeighbors } from '@/code/substrate/ring'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { scaled } from '@/test/scaffold/scale'
 
 export function deterministicWave(input?: {
   L?: number
@@ -232,8 +233,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = deterministicWave({ L: 2000 })
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = deterministicWave({ L: scaled(2000, scale) })
     const ok =
       r.solved &&
       r.reversible &&
@@ -242,6 +245,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'removing the randomness turns diffusion into a ballistic wave with z=1, so momentum emerges from a deterministic reversible rule with no new field',
       metrics: {

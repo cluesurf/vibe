@@ -61,7 +61,7 @@ export default experiment({
   title:
     'a charge with a direction streams ballistically while a memoryless scalar diffuses',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

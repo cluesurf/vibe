@@ -120,7 +120,7 @@ export default experiment({
   title:
     'a winding-1 defect persists under relaxation while a winding-0 bump decays',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

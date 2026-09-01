@@ -24,7 +24,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -69,9 +69,7 @@ export default experiment({
       }
     }
 
-    const opposite = Array.from({ length: degree }, (unused, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,
@@ -142,6 +140,7 @@ export default experiment({
         maxClosedAutocorr: Number(maxClosedAutocorr.toFixed(4)),
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'Hameroff / Orch-OR bridge (author-bridges/stuart-hameroff.md), the spatial companion to the scalar record-drift in decoherence-immunity (E-QTM-0049). Uses a localized body so the coarse profile has spatial variance, the fix for the degenerate flat-profile probe.',
     })
   },

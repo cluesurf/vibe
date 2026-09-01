@@ -47,7 +47,7 @@ export default experiment({
   title:
     'integration peaks at a definite interior maximum at the core boundary (a bordered complex, subsets and supersets integrate less) while a homogeneous graph has none, IIT exclusion postulate',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

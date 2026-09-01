@@ -34,7 +34,7 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { diracTwoModeSurvival } from '@/code/dynamics/quantum-walk'
-import { dominantAngularFrequency } from '@/code/measure/time-spectrum'
+import { dominantBinAngularFrequency } from '@/code/measure/dominant-frequency'
 
 const SIZE = 400
 const MASS = 0.5
@@ -74,7 +74,7 @@ export default experiment({
   title:
     'the emergent quantum dephasing (collapse) time is set by the energy gap, t = pi / dE, the deterministic reconstruction of Penrose OR t = h-bar / E_G (Hameroff bridge)',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
@@ -95,7 +95,7 @@ export default experiment({
       })
 
       // the dephasing rate read off the survival curve (dynamics) vs the dispersion gap
-      const measuredGap = dominantAngularFrequency(survival)
+      const measuredGap = dominantBinAngularFrequency(survival)
       const gapError = Math.abs(measuredGap / dispersionGap - 1)
 
       // the survival reaches zero (full orthogonality) and its first minimum sits at pi/dE

@@ -12,23 +12,12 @@
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  moved: Uint8Array,
-  rng: Rng,
-  arrow: number,
-): void {
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-}
 
 const hankelMinEig = (c: number[], m: number): number =>
   hankelMinEigenvalue({ sequence: c, size: m })
@@ -85,7 +74,7 @@ export function nearCriticalRP(input?: {
     }
 
     for (let t = 0; t < 120; t++) {
-      beat(tone, eu, ev, moved, rng, arrow)
+      conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: arrow })
     }
 
     const T = 4000
@@ -130,7 +119,7 @@ export function nearCriticalRP(input?: {
         }
       }
 
-      beat(tone, eu, ev, moved, rng, arrow)
+      conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: arrow })
     }
 
     const mean = sumM / mCnt

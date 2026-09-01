@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a Hopfield recall model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // A self keeps its identity by repair, through total turnover of its substance. A non-self dies. This is the
 // ship of Theseus, resolved, and the model behind death, identity over time, and the soul ([questions 04]).
 //
@@ -85,7 +86,7 @@ export default experiment({
     'a self keeps its identity by repair through total substance turnover, while a structureless self dies',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const sizes = [80, 120, 160]
@@ -128,6 +129,7 @@ export default experiment({
         noSelfIdentity: lastControl.finalIdentity,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a Hopfield recall model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model of identity over time, the ship of Theseus resolved, and the basis for death as loss of maintenance and the soul as the maintained pattern. not a base-emergence claim',
     })
   },

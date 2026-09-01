@@ -42,7 +42,7 @@ export default experiment({
   title:
     'a balanced (paired) charge cluster self-organizes to a compact bound remnant (it holds together) while an unbalanced (same-sign) cluster cannot pair and disperses, so only balanced structure endures as a self',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -38,7 +38,7 @@ export default experiment({
   title:
     'the emergent Dirac walk gives a unitary two-channel S-matrix (transmission plus reflection sum to one across a barrier sweep, reflection rising with barrier height) while a lossy walk loses probability',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

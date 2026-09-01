@@ -20,7 +20,7 @@ export default experiment({
   title:
     'the weak mixing angle sin^2(theta_W) = 3/8 is pinned by the discrete charge content, and an altered charge breaks it',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

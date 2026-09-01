@@ -73,6 +73,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side.',
       claim:
         'the stream-collide rule conserves total charge and runs backward exactly, on both the square reference and the 24-direction D4 coin',
       metrics: {

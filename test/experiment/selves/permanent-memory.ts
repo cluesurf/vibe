@@ -148,6 +148,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'an actively maintained spatial codeword stays at full fidelity indefinitely while an unmaintained one erodes, conserving charge, at a measured maintenance cost',
       metrics: {

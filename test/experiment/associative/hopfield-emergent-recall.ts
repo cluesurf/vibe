@@ -8,7 +8,7 @@
 // minimizes energy. The honest negative is part of the result, not a bug.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
@@ -19,6 +19,7 @@ import {
   toneOverlap,
 } from '@/code/operator/hopfield'
 import { makeRng } from '@/code/tool/rng'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -72,9 +73,7 @@ function bareRuleRecall(input: {
   const { cue, side, beats } = input
   const mesh = d4Mesh({ side })
   const collision = pairCollision({
-    opposite: Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    ),
+    opposite: meshOpposites(mesh),
   })
 
   let will = makeWill(mesh)
@@ -191,8 +190,10 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
-  run() {
-    const r = hopfieldEmergentRecall()
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = hopfieldEmergentRecall({ maxCells: scaled(256, scale) })
 
     return verdict({
       status: r.solved ? 'pass' : 'fail',
@@ -207,6 +208,7 @@ export default experiment({
       },
       control: { bareRecall: r.bareRecall, chance: r.chance },
       notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'the bare-rule recall near chance IS the honest negative, the reversible rule conserves charge and has no energy descent, so it has no attractors and cannot clean a noisy cue',
     })
   },

@@ -24,21 +24,11 @@
 // from-below account of the emergent i, complementary to the two-component walk derivation
 // (E-QTM-0046), not a new physical claim.
 
+import { type Matrix2 as Matrix, multiply2 as multiply } from '@/code/algebra/linear/matrix2'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a two-by-two real matrix as [m00, m01, m10, m11]
-type Matrix = [number, number, number, number]
-
-function multiply(a: Matrix, b: Matrix): Matrix {
-  return [
-    a[0] * b[0] + a[1] * b[2],
-    a[0] * b[1] + a[1] * b[3],
-    a[2] * b[0] + a[3] * b[2],
-    a[2] * b[1] + a[3] * b[3],
-  ]
-}
-
 function distance(a: Matrix, b: Matrix): number {
   return Math.max(
     ...a.map((value, index) => Math.abs(value - b[index]!)),
@@ -62,7 +52,7 @@ export default experiment({
   title:
     'the emergent complex unit i is built from the signed tone distinction and the beat alone (Kauffman iterant), with a tone-alphabet control',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

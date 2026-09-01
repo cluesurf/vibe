@@ -1,0 +1,51 @@
+\section{The Method}
+
+Every experiment declares a depth, and the audit made the four grades mean something exact.
+
+\begin{itemize}
+\item \textbf{L0, circular.} The answer was put in by hand. A typed constant that reaches the verdict, an integrated
+equation whose coefficient is then reported as a discovery. Proves nothing, kept only as a consistency note.
+\item \textbf{L1, known mathematics.} An established fact correctly confirmed. The twenty-four directions form the
+binary tetrahedral group. A textbook formula evaluated with no mesh built.
+\item \textbf{L2, known physics on a stated model.} A known construction run on this system and reproducing what it
+is known to produce. A coined Dirac walk, a lattice gauge theory, a tight-binding chain, a small Hilbert space.
+\item \textbf{L3, emergent.} One base rule produced the result as a measured consequence on a substrate the
+experiment built, against a control that was computed and could have said no.
+\end{itemize}
+
+Two further fields were tightened. The substrate label names a mesh the experiment builds or runs on, or the coin
+algebra of that mesh, and an experiment with none of that in its transitive import graph or its own code carries no
+substrate label. The control field holds numbers the experiment computed. A literal or a typed formula is not a
+control. Both are now enforced by checks that run with the suite, and a third check keeps the coverage map in step
+with the catalog.
+
+\textbf{What the checks found.} Of 92 experiments graded L3, 40 touched no substrate, no rule and no coin algebra
+anywhere in their import graph. Of 817 experiments, 166 declared the $\{3,4,3,4\}$ substrate with nothing related
+to it imported, and 129 of those were relabelled after fourteen were read by hand, with 20 octonion-algebra files
+held for review. Twenty-four literal constants in twenty files reached a verdict, among them a control for proton
+decay that was the word \texttt{false}. Four registered experiments had never been imported by the suite's barrel.
+The type checker, which the runner never invoked, reported eleven errors. Every one of these is now zero, and the
+counts stand at 832 experiments in 825 files: 14 at L0, 209 at L1, 564 at L2, 45 at L3, of which 39 are marked for
+publication.
+
+\textbf{Robustness.} A verdict that holds at one size is a knife edge until shown otherwise. The harness now carries
+a scale, and 44 of the 45 emergent results run at half, default and one and a half times their size, 27 through the
+scale and 17 through their own size parameters. The one exception evaluates a dispersion on the twenty-four roots and
+has no size. Four flips came out. One was a measurement artifact, a frequency read off in whole beats that was exact
+only because every default wavelength had an integer half-period, corrected with an interpolated transform. Two are
+size floors, stated in the experiments. One is a genuine knife edge, an adaptive-fill experiment whose largest
+self-organised patch grows from ten cells to fifteen against a strict threshold of fifteen. It fails at its default
+size and passes at one and a half times, and its threshold was not moved. The scale check also caught its own blind
+spot: five experiments built their Coxeter mesh with a depth that bound the size before the chamber cap did, so the
+first scaled run moved nothing. Those builds were changed to the cap that reproduces the default mesh cell for cell,
+and rerun with the size actually changing.
+
+\textbf{Identity under refactoring.} The audit removed duplicated code from the library, one coined-walk stepper in
+place of six copies, one complex-pair module in place of seven, one opposite-direction helper in place of seventy
+inline copies, and smaller pairs. Each hoist was proved by running every affected experiment before and after and
+diffing status, metrics and control. The diffs are empty, apart from the one change made on purpose.
+
+\textbf{Determinism.} The base admits no random number. Where an experiment's initial condition is a hashed or
+seeded fill, its notes say so and call the result ensemble-style, with robustness from the size sweep rather than
+from seeds. Fourteen of the emergent results carry such a fill, and replacing the fills with structured patterns is
+open work.

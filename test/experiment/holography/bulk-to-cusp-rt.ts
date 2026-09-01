@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. a measured graph-geodesic scaling on hyperbolic tessellations against a flat lattice, which is hyperbolic geometry (known), with no rule or dynamics. It is the geometric form of the Ryu-Takayanagi minimal surface, not an entanglement entropy, so the honest depth is L2.
 // Gravity as the emergent bulk geometry, the bulk-to-cusp bridge (3B holographic). The 2D prototype
 // (`holography/ryu-takayanagi-73`) showed the entanglement of a boundary interval is the minimal bulk surface,
 // the bulk geodesic, growing as LOG of the interval on a hyperbolic tiling. Here that Ryu-Takayanagi structure is
@@ -24,10 +25,10 @@ export default experiment({
   id: 'holography/bulk-to-cusp-rt',
   code: 'E-HLG-0005',
   title:
-    'the 3D and committed-4D hyperbolic bulks carry the Ryu-Takayanagi shortcut S ~ log L to the flat cusp, the flat control is linear',
+    'the 3D and committed-4D hyperbolic bulks carry a geodesic shortcut whose length grows as log L between cusp points, the flat control is linear',
   category: 'holography',
   substrates: ['3434'],
-  depth: 'L3',
+  depth: 'L2',
   paper: false,
   run() {
     const bulk534 = buildCellGraph({
@@ -89,6 +90,7 @@ export default experiment({
         flatIsLinear: !rtFlat.isLogarithmic ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: regraded from L3 to L2, a measured graph-geodesic scaling on hyperbolic tessellations against a flat lattice, which is hyperbolic geometry (known), with no rule or dynamics. It is the geometric form of the Ryu-Takayanagi minimal surface, not an entanglement entropy, so the honest depth is L2. ' +
         'L3, an emergent holographic scaling with a discriminating flat control. The boundary band is the cusp, the flat physical layer. The through-bulk shortcut (S ~ log L, slope near 0.3) is the 3D and 4D generalization of the {7,3} geodesic Ryu-Takayanagi prototype, with the flat {4,3,4} (slope one, S equals L) the control that could have failed. This is the bulk-to-cusp bridge, the cusp area law that drives the entropic static force is set by the hyperbolic bulk, so gravity is the emergent bulk geometry. The saturated plateau (S at the graph diameter) is excluded so the fit is clean. Geodesics are exact BFS, deterministic.',
     })
   },

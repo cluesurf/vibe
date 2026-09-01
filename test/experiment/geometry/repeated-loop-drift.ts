@@ -41,7 +41,7 @@ export default experiment({
   title:
     'repeating a bulk loop accumulates holonomy linearly (N times the single-loop rotation) and returns the frame exactly only at the commensurate meta-period, so a generic loop never repeats its viewpoint while a tuned loop closes, and a flat loop always returns',
   category: 'geometry',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

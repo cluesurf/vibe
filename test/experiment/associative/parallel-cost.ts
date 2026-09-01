@@ -11,6 +11,7 @@ import {
 } from '@/code/substrate/cubic-lattice'
 import { numericSearchSteps } from '@/code/operator/numeric-search'
 import { coverageRadius } from '@/code/measure/associative-recall'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -106,10 +107,12 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const r = associativeParallelCost({
-      smallCells: 2000,
-      largeCells: 16000,
+      smallCells: scaled(2000, scale),
+      largeCells: scaled(16000, scale),
     })
 
     return verdict({

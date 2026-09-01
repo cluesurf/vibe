@@ -69,7 +69,7 @@ export default experiment({
   title:
     'the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode',
   category: 'relativity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

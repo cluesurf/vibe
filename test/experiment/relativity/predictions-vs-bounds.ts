@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. the substrate here is a random Poisson sprinkling, not the {3,4,3,4} base, and the methodology does not admit a random structure as foundational. The measured comparison against a lattice is real, so the honest depth is L2. The former typed constant modelPassesQuadratic = true is removed from the verdict.
 // P82: sharp predictions against the experimental bounds.
 // P26 (the swerve) and P27 (Lorentz safety) are the model's two distinctive observational
 // signatures. Here we turn them into concrete numbers and set them against the tightest current
@@ -37,7 +38,6 @@ export function predictionsVsBounds(input: { seed: number }): {
   modelPassesLinear: boolean
   latticeExcludedLinear: boolean
   quadraticBoundGeV: number
-  modelPassesQuadratic: boolean
   swerveScalingExponent: number
   swerveVanishesWithDiscreteness: boolean
   solved: boolean
@@ -52,8 +52,9 @@ export function predictionsVsBounds(input: { seed: number }): {
   const modelPassesLinear = modelLinearXi < XI1_BOUND
   const latticeExcludedLinear = latticeLinearXi > XI1_BOUND
 
-  // Quadratic: the model predicts no leading Lorentz violation at any order, so it passes.
-  const modelPassesQuadratic = true
+  // Quadratic. AUDIT 2026-08-31: there used to be a typed constant modelPassesQuadratic = true conjoined into
+  // solved. It was a STATEMENT about the model (no leading Lorentz violation at any order), not something this
+  // file measures, so it is removed. The measured quadratic check is open.
 
   // The swerve. Measure how the rapidity-diffusion rate scales with the sprinkling density: a
   // negative exponent means finer discreteness gives a smaller swerve, so the Planckian value
@@ -78,7 +79,6 @@ export function predictionsVsBounds(input: { seed: number }): {
     modelPassesLinear,
     latticeExcludedLinear,
     quadraticBoundGeV: GRB_QUADRATIC_EQG_GEV,
-    modelPassesQuadratic,
     swerveScalingExponent,
     swerveVanishesWithDiscreteness,
     // Solved: the model passes the GRB bounds, the prediction is discriminating (a lattice is
@@ -86,7 +86,6 @@ export function predictionsVsBounds(input: { seed: number }): {
     solved:
       modelPassesLinear &&
       latticeExcludedLinear &&
-      modelPassesQuadratic &&
       swerveVanishesWithDiscreteness,
   }
 }
@@ -98,7 +97,7 @@ export default experiment({
     'the model passes the GRB Lorentz bound that excludes a lattice',
   category: 'relativity',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const r = predictionsVsBounds({ seed: 1 })
@@ -110,6 +109,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the substrate here is a random Poisson sprinkling, not the {3,4,3,4} base, and the methodology does not admit a random structure as foundational. The measured comparison against a lattice is real, so the honest depth is L2. The former typed constant modelPassesQuadratic = true is removed from the verdict.',
       claim:
         'the sprinkle model passes the linear gamma-ray-burst Lorentz bound that the same bound uses to exclude a lattice while the swerve vanishes as discreteness fines',
       metrics: {

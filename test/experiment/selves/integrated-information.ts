@@ -13,28 +13,19 @@
 // Run: npx tsx code/experiment/p63-integrated-information.ts
 
 import { Rng } from '@/code/tool/rng'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { makeHashRng } from '@/code/dynamics/conserving-sweep'
 import { undirectedAdjacency } from '@/code/tool/substrate'
 import {
   toneIntegration,
   algebraicConnectivity,
 } from '@/code/measure/integration'
 import { modularMesh } from '@/code/substrate/modular-mesh'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a DETERMINISTIC counter-indexed hash stream (no seed, no randomness); the salt distinguishes
 // independent streams (same salt = same sequence, preserving the "same seed" relationships)
-function detStream(salt: number): Rng {
-  let c = 0
-
-  return {
-    next: () => hashRand(c++, 0, salt),
-    nextInt: ({ max }: { max: number }) =>
-      Math.floor(hashRand(c++, 0, salt) * max),
-  } as Rng
-}
-
 function tonePhi(
   adjacency: readonly Uint32Array[],
   region: number[],
@@ -61,7 +52,10 @@ function randomSubset(n: number, size: number, rng: Rng): number[] {
   return [...s]
 }
 
-export function integratedInformation(_input: { seed: number }): {
+export function integratedInformation(input: {
+  seed: number
+  scale?: number
+}): {
   phiCell: number
   phiRandom: number
   separation: number
@@ -72,9 +66,9 @@ export function integratedInformation(_input: { seed: number }): {
   readsDynamics: boolean
   solved: boolean
 } {
-  const numCells = 12
-  const cellSize = 20
-  const rng = detStream(0)
+  const numCells = scaled(12, input.scale)
+  const cellSize = scaled(20, input.scale)
+  const rng = makeHashRng({ salt: 0 })
   const { g, cellOf } = modularMesh({
     numCells,
     cellSize,
@@ -92,10 +86,10 @@ export function integratedInformation(_input: { seed: number }): {
   }
 
   // (1) tone-integration of genuine selves (cells) versus random same-size bags.
-  const pr = detStream(3)
+  const pr = makeHashRng({ salt: 3 })
   const cellPhis = members.map(m => tonePhi(adjacency, m, pr))
   const phiCell = cellPhis.reduce((a, b) => a + b, 0) / cellPhis.length
-  const rr = detStream(5)
+  const rr = makeHashRng({ salt: 5 })
   const randomPhis = Array.from({ length: numCells }, () =>
     tonePhi(adjacency, randomSubset(g.size, cellSize, rr), pr),
   )
@@ -107,8 +101,8 @@ export function integratedInformation(_input: { seed: number }): {
   let higher = 0
   let trials = 0
 
-  const sr = detStream(9)
-  const pm = detStream(11)
+  const sr = makeHashRng({ salt: 9 })
+  const pm = makeHashRng({ salt: 11 })
 
   for (let c = 0; c < numCells; c++) {
     const mem = members[c] ?? []
@@ -151,9 +145,9 @@ export function integratedInformation(_input: { seed: number }): {
   const sameHalf = (a: number, b: number): boolean =>
     half.has(a) === half.has(b)
 
-  const dr = detStream(21)
+  const dr = makeHashRng({ salt: 21 })
   const tonePhiFull = tonePhi(adjacency, cell, dr)
-  const dr2 = detStream(21) // same seed: only the fills differ
+  const dr2 = makeHashRng({ salt: 21 }) // same seed: only the fills differ
   const tonePhiFillsCut = tonePhi(adjacency, cell, dr2, (a, b) =>
     sameHalf(a, b) ? 1 : 0,
   )
@@ -198,8 +192,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = integratedInformation({ seed: 1 })
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = integratedInformation({ seed: 1, scale })
     const ok =
       r.solved &&
       r.separation > 3 &&
@@ -209,6 +205,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'a cohesive cell is a tone-integration local maximum far above a random bag, and cutting the fills collapses integration while the wiring is unchanged',
       metrics: {

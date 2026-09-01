@@ -211,7 +211,7 @@ export default experiment({
   title:
     'one coupled rule conserves charge, stays gauge invariant, and back-reacts, lattice QED',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

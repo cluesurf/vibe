@@ -40,8 +40,9 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
 import {
   conservingEdgeSweepHashed,
-  hashRand,
+  hashedTone,
 } from '@/code/dynamics/conserving-sweep'
+import { blockSums } from '@/code/measure/statistics'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -62,35 +63,9 @@ function hammingCells(a: Int8Array, b: Int8Array): number {
 }
 
 // a deterministic generic tone (well-mixed ternary from the stateless hash, no randomness)
-function genericTone(size: number, salt: number): Int8Array {
-  const tone = new Int8Array(size)
-
-  for (let i = 0; i < size; i++) {
-    const r = hashRand(i, 0, salt)
-
-    tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
-  }
-
-  return tone
-}
-
-// a coarse block signature: the net tone summed over BLOCKS contiguous index-blocks, the
-// macroscopic observable a coarse detector reads (charge can move between blocks even though it
-// is globally conserved). The L1 distance between two signatures is the macroscopic divergence.
-function blockSignature(tone: Int8Array): number[] {
-  const sig = new Array<number>(BLOCKS).fill(0)
-  const per = Math.ceil(tone.length / BLOCKS)
-
-  for (let i = 0; i < tone.length; i++) {
-    sig[Math.min(BLOCKS - 1, Math.floor(i / per))]! += tone[i]!
-  }
-
-  return sig
-}
-
 function coarseDivergence(a: Int8Array, b: Int8Array): number {
-  const sa = blockSignature(a)
-  const sb = blockSignature(b)
+  const sa = blockSums(a, BLOCKS)
+  const sb = blockSums(b, BLOCKS)
 
   let sum = 0
   let norm = 0
@@ -113,7 +88,7 @@ function seedGrowth(input: {
   arrow: number
 }): { peakFraction: number; coarseDivergence: number } {
   const { size, eu, ev, salt, arrow } = input
-  const base = genericTone(size, salt)
+  const base = hashedTone(size, salt)
   const perturbed = Int8Array.from(base)
 
   perturbed[0] = perturbed[0] === 1 ? -1 : 1
@@ -202,7 +177,7 @@ export default experiment({
     const { eu, ev } = edgesFromCsr(g.offsets, g.adj, size)
 
     const runOnce = (): Int8Array => {
-      const tone = genericTone(size, 5)
+      const tone = hashedTone(size, 5)
       const moved = new Uint8Array(size)
 
       for (let t = 1; t <= BEATS; t++) {

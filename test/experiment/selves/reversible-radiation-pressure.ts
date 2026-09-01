@@ -15,7 +15,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { b4Mesh, type Mesh } from '@/code/tool/mesh'
+import { b4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import type { Collision } from '@/code/rule/collision'
@@ -34,9 +34,7 @@ export default experiment({
     const beats = 40
     const mesh: Mesh = b4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2

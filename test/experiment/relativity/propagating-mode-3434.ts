@@ -11,42 +11,48 @@
 // cannot, closing the sharpest open gap of the program. Deterministic throughout, the wave is a fixed
 // sinusoidal function of the cell coordinate, no random.
 
+import { dominantAngularFrequency } from '@/code/measure/dominant-frequency'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
 import {
   shearSetup,
   shearAmplitudeSeries,
 } from '@/code/measure/hydrodynamics'
-import { firstMinimumTime } from '@/code/measure/sound-wave'
 import { relativisticDispersionFit } from '@/code/measure/dispersion'
+import { scaledSide } from '@/test/scaffold/scale'
 
 const SIDE = 24
-const WAVELENGTHS = [24, 12, 8, 6]
-const BEATS = 40
+// the wavelengths are the side and its halves, thirds and quarters, [24, 12, 8, 6] at the default side, so
+// they always divide the periodic box when the side is scaled
+// Below six cells the lattice dispersion bends (the phase speed at wavelengths 3 and 4 measured 0.73), which
+// is the discreteness signature of relativity/discreteness-signature, not the propagating mode, so the claim
+// here is for wavelengths of six cells and up and shorter ones are dropped from the set.
+const wavelengthsFor = (side: number): number[] =>
+  [side, side / 2, side / 3, side / 4].map(Math.round).filter(w => w >= 6)
 
 // the measured frequency omega(k) of a longitudinal momentum wave under a collision, read from the first
 // minimum of its amplitude trace (a half period). A propagating mode oscillates (a real first minimum), a
 // diffusive one decays. Returns omega, k, and the phase speed omega / k for each wavelength.
-function dispersion(collision: ReturnType<typeof headOnRotate>): {
+function dispersion(collision: ReturnType<typeof headOnRotate>, side: number): {
   wavenumbers: number[]
   frequencies: number[]
   phaseSpeeds: number[]
 } {
-  const mesh = d4Mesh({ side: SIDE })
+  const mesh = d4Mesh({ side })
   const directions = rootsD4()
   const wavenumbers: number[] = []
   const frequencies: number[] = []
   const phaseSpeeds: number[] = []
 
-  for (const wavelength of WAVELENGTHS) {
+  for (const wavelength of wavelengthsFor(side)) {
     const cfg = {
       gradAxis: 0,
       momAxis: 0,
       wavelength,
-      side: SIDE,
+      side,
       directions,
     }
 
@@ -54,13 +60,16 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
     const series = shearAmplitudeSeries({
       will,
       collision,
-      beats: BEATS,
+      beats: 3 * side, // three periods of the longest wave, enough for the frequency transform
       open: false,
       ...cfg,
     })
 
-    const halfPeriod = firstMinimumTime(series)
-    const omega = halfPeriod > 0 ? Math.PI / halfPeriod : 0
+    // AUDIT 2026-08-31: the frequency used to be pi over the first-minimum time in whole beats, which is
+    // exact only when the half period is an integer (it was, for every default wavelength) and is off by ten
+    // percent at wavelength nine. The dominant frequency of the amplitude series with sub-beat interpolation
+    // measures the same thing at any wavelength.
+    const omega = dominantAngularFrequency({ trace: series })
     const k = (2 * Math.PI) / wavelength
 
     wavenumbers.push(k)
@@ -90,16 +99,15 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
-  run() {
-    const mesh = d4Mesh({ side: SIDE })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const side = scaledSide(SIDE, scale)
+    const mesh = d4Mesh({ side })
+    const opposite = meshOpposites(mesh)
 
     // the momentum-conserving rule, the propagating mode
-    const momentum = dispersion(headOnRotate({ opposite }))
+    const momentum = dispersion(headOnRotate({ opposite }), side)
     const fit = relativisticDispersionFit({
       wavenumbers: momentum.wavenumbers,
       frequencies: momentum.frequencies,
@@ -110,6 +118,7 @@ export default experiment({
     // the control, the committed charge-only pair table, no propagating mode (frequency pinned at the cutoff)
     const charge = dispersion(
       pairCollision({ opposite, forward: true }),
+      side,
     )
 
     const chargePhaseSpeedSpread = spread(charge.phaseSpeeds)
@@ -140,6 +149,8 @@ export default experiment({
       },
       control: { chargePhaseSpeedSpread },
       notes:
+        'AUDIT 2026-08-31 (perturbation): the original frequency read-off (pi over the first-minimum time in whole beats) was exact only because every default wavelength had an integer half period, and failed at side 36 (wavelength 9). With the interpolated DFT the verdict holds at sides 12, 24 and 36 with speed squared 0.959, 0.980, 0.985 and phase-speed spread under 0.01, converging toward one with size. Wavelengths below six cells are excluded: at 3 and 4 cells the phase speed is 0.73, the lattice dispersion bend, not the propagating mode. ' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'omega is read from the stepped simulation (the first minimum of the amplitude trace, a half period), not a formula. The momentum rule gives omega = c k with c = 1 across every wavelength (a constant phase speed), the charge rule gives a wavelength-independent cutoff frequency (a non-constant phase speed, no propagation). This closes ST1, the second conserved quantity established in relativity/second-conserved-quantity-3434 yields a propagating z=1 mode.',
     })
   },

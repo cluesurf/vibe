@@ -11,9 +11,10 @@ Import from `@/code/tool/<file>`.
 | `rng` | `makeRng`, `deriveSeed`, `poissonSample`, `sampleEmpiricalFrequencies`, `Rng` | the seeded PRNG (`next`, `nextInt`, `nextGaussian`), child seeds for scans, sampling helpers |
 | `graph` | `makeGraph`, `Graph`, `degree`, `meanDegree`, `toCsr`, `edgesFromCsr`, `csrDistances`, `csrBallNodes`, `largestComponent`, `greedyEdgeColoring`, `withScrambledEmbedding` | graphs, the compact CSR sparse form, BFS and distance helpers, edge colouring |
 | `poset` | `makePosetFromRelation`, `makePosetFromFuture`, `Poset`, `precedes`, `relationCount`, `intervalSize`, `pastMatrix`, `subPoset` | causal sets, built from a precedence test |
-| `bitset` | `makeBitMatrix`, `setBit`, `getBit`, `clearBit`, `popcountRow`, `popcountAnd`, `forEachSetBit`, `bitMatrixTransitiveClosure` | dense bit storage for reachability matrices |
+| `bitset` | `makeBitMatrix`, `setBit`, `getBit`, `clearBit`, `popcountRow`, `popcountAnd`, `popcountAndBetween`, `forEachSetBit`, `bitMatrixTransitiveClosure`, `bitMatrixRank` | dense bit storage for reachability matrices, and GF(2) rank |
+| `shuffle` | `shuffled` | a seeded Fisher-Yates shuffle |
 | `substrate` | `Substrate`, `AdjacencyView`, `adjacencyOf`, `undirectedAdjacency`, `substrateMeanDegree`, `embeddingOf` | the `Poset | Graph` union and a shared adjacency view, measure on either form |
-| `mesh` | `Mesh`, `squareMesh`, `cubicMesh`, `d4Mesh`, `b4Mesh`, `betheMesh`, `shellDistances`, `meshOpposites`, `meshNeighbors` | the uniform coin-of-directions interface and its builders |
+| `mesh` | `Mesh`, `squareMesh`, `cubicMesh`, `d4Mesh`, `b4Mesh`, `betheMesh`, `shellDistances`, `meshOpposites`, `meshNeighbors` | the uniform coin-of-directions interface and its builders. `d4Mesh` on an EVEN side is two disconnected lattices (see its PARITY note) |
 | `embedding` | `Embedding`, `coordOf`, `ElementId`, `WaveProfile`, `ManifoldSpec` | optional coordinate provenance for a sprinkled substrate, output-only, never read by a rule |
 | `integer` | `modulo` | the sign-correct remainder for torus wrap and field reduction |
 | `balanced-ternary` | `toBalancedTernary`, `fromBalancedTernary`, `balancedTernaryCap`, `isBalancedTernaryField` | balanced-ternary encoding (the tone alphabet's number system) |

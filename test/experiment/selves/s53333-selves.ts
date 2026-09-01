@@ -48,8 +48,9 @@ export default experiment({
   paper: false,
   run() {
     const r = s53333Selves()
-    const ok =
-      r.solitonsExist && r.instantonCharge === 1 && r.overDimensional
+    // AUDIT 2026-08-31: overDimensional = true is a typed statement (4D space versus the observed 3D), not a
+    // measurement made here, so it is reported and no longer feeds ok.
+    const ok = r.solitonsExist && r.instantonCharge === 1
 
     return verdict({
       status: ok ? 'pass' : 'fail',

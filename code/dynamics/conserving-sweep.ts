@@ -659,6 +659,20 @@ export function conservingEdgeSweepSteeredHashed(input: {
 // Used by the hashed sweep so that perturbing one cell does NOT shift the random
 // stream seen by distant edges (which would be a spurious instantaneous global
 // difference). Both copies of a damage-spreading run see the same hash per edge.
+// A generic ternary tone from the hash stream: each cell -1 with probability 0.3, +1 with 0.3,
+// else 0, a fixed function of (cell, salt). Two quantum experiments each carried this.
+export function hashedTone(size: number, salt: number): Int8Array {
+  const tone = new Int8Array(size)
+
+  for (let i = 0; i < size; i++) {
+    const r = hashRand(i, 0, salt)
+
+    tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
+  }
+
+  return tone
+}
+
 export function hashRand(
   key: number,
   beat: number,
@@ -733,5 +747,27 @@ export function conservingEdgeSweepHashed(input: {
         moved[w] = 1
       }
     }
+  }
+}
+
+// A counter-indexed hash stream as an Rng: deterministic, seedless apart from `salt`, a drop-in for a
+// seeded generator where an experiment wants a reproducible fill. Until 2026-08-31 four experiments
+// each defined this as a local `detStream`. Note the methodology: a hashed fill is still a pseudo-random
+// initial condition, and a result that needs one is an ensemble claim unless size, not salt, is varied.
+export function makeHashRng(input: { salt: number }): Rng {
+  let counter = 0
+
+  const next = (): number => hashRand(counter++, 0, input.salt)
+
+  return {
+    next,
+    nextInt: ({ max }) => Math.floor(next() * max),
+    nextGaussian: () => {
+      // Box-Muller from two hashed uniforms
+      const u = 1 - next()
+      const v = next()
+
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+    },
   }
 }

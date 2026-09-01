@@ -24,6 +24,7 @@ import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { reachIsExponential } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { scaled } from '@/test/scaffold/scale'
 
 // The exponential-reach classifier lives in code/measure/dimension.
 const reachExponential = (s: Substrate): boolean =>
@@ -46,7 +47,7 @@ function evaluate(
   }
 }
 
-export function nonRandomSubstrates(input: { seed: number }): Record<
+export function nonRandomSubstrates(input: { seed: number; scale?: number }): Record<
   string,
   {
     degree: number
@@ -77,14 +78,14 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
       q: 3,
       depth: 5,
       connectThreshold: 0.8,
-      maxVertices: 2500,
+      maxVertices: scaled(2500, input.scale),
     }),
     'tiling {5,4}': hyperbolicTiling({
       p: 5,
       q: 4,
       depth: 6,
       connectThreshold: 0.9,
-      maxVertices: 2500,
+      maxVertices: scaled(2500, input.scale),
     }),
     'flat lattice (control)': lattice({
       dimension: 2,
@@ -121,8 +122,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = nonRandomSubstrates({ seed: 1 })
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = nonRandomSubstrates({ seed: 1, scale })
     const hyperbolicSafe = [
       'random sprinkle',
       'sunflower (golden angle)',
@@ -142,6 +145,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'random, sunflower, halton, and the regular hyperbolic tilings are all Lorentz-safe while the flat lattice is not, so regularity does not break Lorentz invariance once the space is curved',
       metrics: {

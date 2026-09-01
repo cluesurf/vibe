@@ -28,10 +28,11 @@ import {
   largestSharingPatch as largestPatch,
 } from '@/code/measure/fill-coherence'
 import { fillGatedSweepHashed } from '@/code/dynamics/fill-gated-sweep'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function selfEmergence(): {
+export function selfEmergence(input?: { scale?: number }): {
   cells: number
   coherenceFiveStart: number
   coherenceFiveEnd: number
@@ -49,8 +50,10 @@ export function selfEmergence(): {
 } {
   const mesh = buildCoxeterMesh({
     symbol: [5, 3, 4],
-    depth: 20,
-    maxChambers: 60000,
+    // AUDIT 2026-08-31: depth 60 so the chamber cap is what binds. 30000 chambers is exactly the
+    // depth-20 mesh (1316 cells, verified identical neighbour by neighbour), and it scales.
+    depth: 60,
+    maxChambers: scaled(30000, input?.scale),
   })
 
   const neighbors = mesh.neighbors
@@ -147,8 +150,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = selfEmergence()
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = selfEmergence({ scale })
     const ok =
       r.solved &&
       r.conserved &&
@@ -158,6 +163,9 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, the scale check: the status is a knife edge on the largest-patch criterion. Adaptive-fill coherence reaches 1.0 at every size, but the largest sharing patch in 1316 cells is 10 cells and grows to 15, which is not strictly more than 1.5 times 10, so the default fails. At 1792 cells (scale 1.5) it grows 10 to 17 and the verdict passes, at 709 cells (scale 0.5) 8 to 11 and it fails. The patch measure is at its integer floor at these sizes and the threshold has not been moved to make it pass.',
       claim:
         'fixed fills do not self-organize coherent patches while adaptive Hebbian fills do, so durable selves need an adaptive fill-dynamics rule',
       metrics: {

@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a repair loop that restores identity by copying the original state back, so the threshold is built in, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.
 // Life is a threshold. A self survives only while its repair keeps pace with its decay. Below that line it dies.
 // This is the metabolic boundary behind living and death ([questions 04], [alignment 06]).
 //
@@ -69,7 +70,7 @@ export default experiment({
     'a self lives only while repair keeps pace with decay, and dies below that threshold',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const sizes = [120, 200, 320]
@@ -130,6 +131,7 @@ export default experiment({
           .identity,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a repair loop that restores identity by copying the original state back, so the threshold is built in, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model of the metabolic life-death threshold. life requires repair >= decay. not a base-emergence claim',
     })
   },

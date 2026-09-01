@@ -68,7 +68,7 @@ export default experiment({
   title:
     'a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

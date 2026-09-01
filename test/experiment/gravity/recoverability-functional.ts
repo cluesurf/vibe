@@ -15,7 +15,7 @@
 // structure, so its rGlobal drops below 1, the discriminator that the reversible base loses nothing globally and
 // a limited observer's loss is access, not destruction.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill } from '@/code/tone/will'
@@ -35,11 +35,7 @@ export default experiment({
   run() {
     const meshSide = 10 // 10^4 = 10000 cells, divisible by block side 2
     const mesh = d4Mesh({ side: meshSide })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = headOnRotate({ opposite })
     const degree = mesh.degree

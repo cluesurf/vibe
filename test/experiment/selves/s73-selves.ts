@@ -49,10 +49,9 @@ export default experiment({
   paper: false,
   run() {
     const r = s73Selves()
-    const ok =
-      r.solitonsExist &&
-      Math.abs(r.kinkCharge) === 1 &&
-      !r.hasExchangeStatistics
+    // AUDIT 2026-08-31: hasExchangeStatistics = false is a typed statement about 1D (no braiding), not a
+    // measurement made here, so it is reported and no longer feeds ok.
+    const ok = r.solitonsExist && Math.abs(r.kinkCharge) === 1
 
     return verdict({
       status: ok ? 'pass' : 'fail',

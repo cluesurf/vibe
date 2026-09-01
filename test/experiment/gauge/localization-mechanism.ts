@@ -36,6 +36,7 @@ import {
   growthRatioFromShellCounts,
   shellCountsFromGraph,
 } from '@/code/measure/shell-growth'
+import { scaled, scaledSide } from '@/test/scaffold/scale'
 
 export default experiment({
   id: 'gauge/localization-mechanism',
@@ -46,9 +47,11 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     // the hyperbolic {3,4,3,4} honeycomb and its growth rate
-    const addressing = buildAddressing({ maxCells: 40000 })
+    const addressing = buildAddressing({ maxCells: scaled(40000, scale) })
     const hyperbolicNeighbors = addressing.graph.neighbors
     const hyperbolicCells = addressing.graph.cellCount
     const lambda = growthRatioFromShellCounts(
@@ -93,7 +96,7 @@ export default experiment({
     const hyperbolicStrongDecay = shallowRatio < 0.5
 
     // the control, the flat D4 lattice (Euclidean torus, the 24 directions but no hyperbolic growth)
-    const side = 14
+    const side = scaledSide(14, scale)
     const mesh = d4Mesh({ side })
     const flatNeighbors: number[][] = []
 

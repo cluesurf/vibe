@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is the shell spectrum of a 2D square-grid tight-binding well, with a spin factor of two put in by hand and the former boson control a typed constant, now removed, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base.
 // CM3, ATOMS, fermions bound to a central attractor FILL DISCRETE SHELLS in order, set by exclusion, a measured
 // spectrum with periodic closures. Once CM2 gives a composite, a central attractive well (the radiation-pressure
 // shadow well of chunk 1's self, or the CM2 nucleus's field) holds light bound fermions in a discrete LADDER of
@@ -70,8 +71,8 @@ export default experiment({
   title:
     'fermions bound to a central well fill discrete shells in order with periodic magic numbers, where bosons all collapse to the lowest level',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     const potential = centralWell()
@@ -147,17 +148,13 @@ export default experiment({
     const fermionFillTouches = shellsTouchedByFermions(12) // 12 fermions fill shells 0,1,2 (2+4+6)
     const fermionsFillSuccessive = fermionFillTouches >= 3 // exclusion spreads them across successive shells
 
-    // (4) CONTROL, BOSONS / no exclusion, all N occupy the single lowest level, one shell touched, no filling order
-    const bosonShellsTouched = 1 // every boson condenses into the lowest level
-    const bosonsCollapse =
-      bosonShellsTouched === 1 &&
-      fermionFillTouches > bosonShellsTouched
-
-    const ok =
-      ladderDiscrete &&
-      degeneraciesAscend &&
-      fermionsFillSuccessive &&
-      bosonsCollapse
+    // AUDIT 2026-08-31. The former "boson control" was the typed constant bosonShellsTouched = 1. That bosons
+    // without exclusion all sit in the lowest level is the DEFINITION of no exclusion, not a measurement, so it
+    // is not a control that could have failed and it no longer feeds ok. What IS measured here: the spectrum of
+    // a 2D square-grid tight-binding well clusters into shells with degeneracies 1, 2, 3 and the cumulative
+    // capacities 2, 6, 12 under a spin factor of two that is itself an input (SPIN = 2). That is known 2D
+    // harmonic-well physics on a square grid, not a consequence of the {3,4,3,4} rule.
+    const ok = ladderDiscrete && degeneraciesAscend && fermionsFillSuccessive
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -172,10 +169,9 @@ export default experiment({
         magicNumber2: firstThreeMagic[1] ?? 0,
         magicNumber3: firstThreeMagic[2] ?? 0,
         fermionShellsTouched: fermionFillTouches,
-        bosonShellsTouched,
       },
-      control: { bosonShellsTouched },
       notes:
+        'AUDIT 2026-08-31: this experiment is the shell spectrum of a 2D square-grid tight-binding well, with a spin factor of two put in by hand and the former boson control a typed constant, now removed, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base. ' +
         "L3, a measured discrete shell spectrum with magic numbers and a measured filling order, with the bosonic-collapse control. The bound spectrum is computed with the committed tight-binding eigensolver on the open-boundary grid well (the gridPotentialApply added alongside openChainPotentialApply, the same solver as quantum/bound-composite and CM2). The shells and their degeneracies come from the well's rotational symmetry, and the periodic closures (magic numbers) are the cumulative shell capacities under the Pauli doubling. The filling order and the entire periodic structure are the CM1 exclusion acting on the bound ladder, bosons collapse to the lowest level. This completes nuclei (CM2) to atoms.",
     })
   },

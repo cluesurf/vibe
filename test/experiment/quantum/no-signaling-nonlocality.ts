@@ -41,7 +41,7 @@ export default experiment({
   title:
     'the emergent singlet statistics violate CHSH at the full Tsirelson bound while Alice marginal is exactly independent of Bob setting (delta zero, no signaling), so the nonlocality carries no action at a distance, with a signaling toy detected by the same test',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

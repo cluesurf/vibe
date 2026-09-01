@@ -51,7 +51,7 @@ export default experiment({
   title:
     'a k-pair wormhole carries exactly k qubits (each teleported at fidelity one) and no more, so the throat bandwidth is the entanglement quantized in whole qubits, while a qubit with no pair cannot cross (fidelity one half)',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

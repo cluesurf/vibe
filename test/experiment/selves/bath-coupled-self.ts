@@ -28,7 +28,7 @@ export default experiment({
   title:
     'coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

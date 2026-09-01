@@ -104,6 +104,7 @@ export default experiment({
       // CONTROL: the temporal chain (temporal correlation, no spatial co-presence) fails.
       control: { temporalPhi: Number(temporalPhi.toExponential(2)) },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'The McFadden cemi spatial-binding discriminator. Spatial co-presence integrates, a feed-forward temporal chain does not. A structural integration proxy (algebraic connectivity), consistent with IIT (feed-forward gives no integration) and Tononi.',
     })
   },

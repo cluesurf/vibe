@@ -1,0 +1,84 @@
+\subsection{The audit in numbers}
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & before & after \\
+\midrule
+experiments in the catalog & 820 & 832 \\
+never imported by the suite & 4 & 0 \\
+graded L3 & 92 & 45 \\
+L3 marked for publication & 80 & 39 \\
+graded L2 & 526 & 564 \\
+graded L1 & 188 & 209 \\
+graded L0 & 14 & 14 \\
+$\{3,4,3,4\}$ labels with no evidence & 166 & 0, 20 held \\
+typed constants reaching a verdict & 24 & 0 \\
+type-checker errors & 11 & 0 \\
+emergent results perturbed in size & 0 & 44 of 45 \\
+copies of the coined walk & 6 & 1 \\
+inline copies of one mesh helper & 70 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Coverage by arena}
+
+Depth by arena after the audit, with the count marked for publication. The zeros in the L3 column are the arenas
+with no emergent result, and quantum and spin are zero because every former L3 there ran a hand-written walk or a
+textbook calculation.
+
+\begin{center}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+arena & L0 & L1 & L2 & L3 & paper \\
+\midrule
+selves & 3 & 14 & 144 & 14 & 109 \\
+gauge & 3 & 29 & 34 & 6 & 43 \\
+foundations & 0 & 37 & 53 & 0 & 56 \\
+quantum & 1 & 19 & 74 & 0 & 67 \\
+gravity & 4 & 11 & 37 & 1 & 23 \\
+cosmology & 1 & 11 & 32 & 7 & 37 \\
+spin & 1 & 17 & 25 & 0 & 30 \\
+relativity & 1 & 4 & 35 & 3 & 34 \\
+geometry & 0 & 13 & 23 & 2 & 20 \\
+holography & 0 & 8 & 24 & 4 & 18 \\
+substrate survey & 0 & 17 & 12 & 1 & 13 \\
+data structure & 0 & 16 & 12 & 0 & 28 \\
+associative & 0 & 2 & 9 & 5 & 16 \\
+renormalization & 0 & 3 & 12 & 2 & 8 \\
+computation & 0 & 2 & 12 & 0 & 10 \\
+fluids & 0 & 0 & 13 & 0 & 11 \\
+addressing & 0 & 5 & 8 & 0 & 3 \\
+method & 0 & 1 & 5 & 0 & 3 \\
+\midrule
+total & 14 & 209 & 564 & 45 & 528 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{The perturbation results}
+
+Every emergent result was rerun at half, default and one and a half times its size. The table lists the ones whose
+verdict or headline number moved. The others held every verdict boolean at all three sizes.
+
+\begin{center}
+\begin{tabular}{@{}lp{9.6cm}@{}}
+\toprule
+experiment & what moved \\
+\midrule
+propagating mode & speed squared read as exactly 1 at the default size and failed at $1.5\times$: a frequency read in whole beats, exact only for integer half-periods. With an interpolated transform, 0.959, 0.980, 0.985 at sides 12, 24, 36 \\
+capacity versus curvature & fails at 600 cells, where the control's coverage radius ties, holds at 1200 and 1800 \\
+selves at scale & fails at 30000 cells (one patch over fifty), holds at 60000 and 90000 \\
+self-emergence & the largest adaptive-fill patch grows 10 to 15 cells against a strict $1.5\times$ threshold. Fails at 709 and 1316 cells, passes at 1792. Threshold not moved \\
+global-workspace ignition & broadcast exactly 0.5 on the split even-sided mesh, sub-threshold seed 0.02. On connected meshes broadcast 1.0, sub-threshold 0.26. Now fails \\
+recordability ceiling & plateau flatness 0.013 on the split mesh, 0.173 at sides 9, 11, 13 and 15. Now fails \\
+anesthetic collapse & passes at side 6, fails at 5 (the core fills the torus) and at 7 (awake margin 0.13). Noted, not tuned \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Five of the fourteen experiments converted in the last slice built their mesh with a depth that capped the size
+before the chamber cap did, so their first scaled run held on an unchanged mesh. The audit's own check had a hole,
+and the fix (a cap that reproduces the default mesh exactly, verified cell for cell, then scaled) is the reason the
+table above can be trusted.

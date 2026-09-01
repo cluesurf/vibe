@@ -20,7 +20,7 @@
 // the erasing collision injects a per-cell sink, so its residual is nonzero for every one of the same
 // partitions, which is what makes the exactness a property of conservation rather than of bookkeeping.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill } from '@/code/tone/will'
@@ -60,11 +60,7 @@ export default experiment({
     const meshSide = 6 // 6^4 = 1296 cells, divisible by block sides 1, 2, 3
     const mesh = d4Mesh({ side: meshSide })
     const degree = mesh.degree
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const knit = pairCollision({ opposite })
 

@@ -43,7 +43,7 @@ export default experiment({
   title:
     'the emergent quantum forbids cloning of non-orthogonal states while allowing distinguishable ones (emergent superinformation), the no-cloning theorem from the reversible rule',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

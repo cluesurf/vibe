@@ -24,6 +24,7 @@ import {
   euclideanL1ShellRatio,
 } from '@/code/measure/shell-growth'
 import { scrambleNeighbors } from '@/code/control/scramble'
+import { scaled } from '@/test/scaffold/scale'
 
 // the warp-factor band, the shell-3 ratio 8376/456 = 18.368 sits well inside it
 const WARP_LOW = 18
@@ -38,9 +39,11 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     // build the bulk far enough that shells 0..3 are complete (1 + 24 + 456 + 8376 = 8857 cells)
-    const addressing = buildAddressing({ maxCells: 30000 })
+    const addressing = buildAddressing({ maxCells: scaled(30000, scale) })
     const neighbors = addressing.graph.neighbors
     const cellCount = addressing.graph.cellCount
 

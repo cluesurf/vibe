@@ -30,17 +30,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { koideRatio } from '@/code/measure/koide'
 
 const DM21 = 7.53e-5 // eV^2, solar mass-squared splitting
 const DM31_NO = 2.453e-3 // eV^2, atmospheric splitting, normal ordering
 const DM31_IO = 2.536e-3 // eV^2, atmospheric splitting magnitude, inverted ordering
-
-function koideQ(masses: number[]): number {
-  const sum = masses.reduce((s, m) => s + m, 0)
-  const rootSum = masses.reduce((s, m) => s + Math.sqrt(m), 0)
-
-  return sum / (rootSum * rootSum)
-}
 
 // scan the Koide Q over the lightest neutrino mass, return the maximum over the physical range
 function maxQ(masses: (light: number) => number[]): number {
@@ -49,7 +43,7 @@ function maxQ(masses: (light: number) => number[]): number {
   for (let i = 0; i <= 4000; i++) {
     const light = (i / 4000) * 0.3 // lightest mass 0 to 0.3 eV (well past cosmological bounds)
 
-    mx = Math.max(mx, koideQ(masses(light)))
+    mx = Math.max(mx, koideRatio(masses(light)))
   }
 
   return mx
@@ -61,7 +55,7 @@ export default experiment({
   title:
     'the charged-lepton Koide relation does not extend to the neutrinos: with the measured mass-squared splittings the neutrino Koide Q maxes at 0.584 (normal) and 0.500 (inverted), both below 2/3 and unreachable with positive roots, so the mechanism is charged-lepton specific and the neutrino sector needs different structure, completing the scope audit begun for the quarks',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {
@@ -81,7 +75,7 @@ export default experiment({
     })
 
     // the charged leptons DO reach 2/3 (the control that 2/3 is attainable for a lepton triple)
-    const qChargedLeptons = koideQ([0.51099895, 105.6583755, 1776.86])
+    const qChargedLeptons = koideRatio([0.51099895, 105.6583755, 1776.86])
 
     // 1. normal-ordering neutrino Q cannot reach 2/3.
     const normalExcluded = maxNormal < 2 / 3 - 0.05

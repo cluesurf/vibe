@@ -49,7 +49,7 @@ export default experiment({
   title:
     'the absolute lepton Yukawas do not sit on a clean geometric ladder: the warped-cusp lambda^(1/2) suppression depths (electron 8.77, muon 5.10, tau 3.16) are non-integer with non-uniform spacings, so the exact absolute masses are free inputs, the Standard Model Yukawa problem, with the average generation spacing within a factor 3.2 of lambda as a loose order-of-magnitude control on the scale',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

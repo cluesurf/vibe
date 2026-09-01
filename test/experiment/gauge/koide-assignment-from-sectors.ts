@@ -145,7 +145,7 @@ export default experiment({
   title:
     'the Koide assignment is grounded in the triality-sector geometry: within a sector the nearest-neighbour scale is the long root sqrt(2) and between sectors it is the short root 1, so the mass-operator ratio |c|/a = 1/sqrt(2) hence Q = 2/3 is selected by the nearest-neighbour scale reading, with the alternative pairings as controls giving wrong Q (max-based gives 5/6), resting on the sector-to-generation identification (Boyle) and the load-bearing nearest-neighbour choice',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

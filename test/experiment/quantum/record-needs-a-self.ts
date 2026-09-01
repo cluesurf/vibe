@@ -41,8 +41,9 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
 import {
   conservingEdgeSweepHashed,
-  hashRand,
+  hashedTone,
 } from '@/code/dynamics/conserving-sweep'
+import { blockSums } from '@/code/measure/statistics'
 import {
   flatGraph,
   emergeSelfHashed,
@@ -66,17 +67,6 @@ function activity(tone: Int8Array): number {
   return n / tone.length
 }
 
-function blockSignature(tone: Int8Array): number[] {
-  const sig = new Array<number>(BLOCKS).fill(0)
-  const per = Math.ceil(tone.length / BLOCKS)
-
-  for (let i = 0; i < tone.length; i++) {
-    sig[Math.min(BLOCKS - 1, Math.floor(i / per))]! += tone[i]!
-  }
-
-  return sig
-}
-
 function signatureDrift(a: number[], b: number[]): number {
   let diff = 0
   let norm = 0
@@ -87,18 +77,6 @@ function signatureDrift(a: number[], b: number[]): number {
   }
 
   return norm > 0 ? diff / norm : 0
-}
-
-function genericTone(size: number, salt: number): Int8Array {
-  const tone = new Int8Array(size)
-
-  for (let i = 0; i < size; i++) {
-    const r = hashRand(i, 0, salt)
-
-    tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
-  }
-
-  return tone
 }
 
 function clusterOverlap(a: number[], b: number[]): number {
@@ -131,7 +109,7 @@ export default experiment({
     const { eu, ev } = edgesFromCsr(g.offsets, g.adj, size)
 
     // ARROW ON: run and snapshot the coarse record late, measure how much it keeps changing.
-    const arrowOnTone = genericTone(size, 5)
+    const arrowOnTone = hashedTone(size, 5)
     const movedOn = new Uint8Array(size)
 
     let snapEarly: number[] = []
@@ -148,11 +126,11 @@ export default experiment({
       })
 
       if (t === 250) {
-        snapEarly = blockSignature(arrowOnTone)
+        snapEarly = blockSums(arrowOnTone, BLOCKS)
       }
 
       if (t === 300) {
-        snapLate = blockSignature(arrowOnTone)
+        snapLate = blockSums(arrowOnTone, BLOCKS)
       }
     }
 
@@ -160,7 +138,7 @@ export default experiment({
     const arrowOnDrift = signatureDrift(snapEarly, snapLate)
 
     // ARROW OFF + DRAIN: run at dead peace with a drain, measure the surviving activity.
-    const arrowOffTone = genericTone(size, 5)
+    const arrowOffTone = hashedTone(size, 5)
     const movedOff = new Uint8Array(size)
     const drain = Math.floor(size * 0.1)
 

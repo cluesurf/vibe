@@ -36,7 +36,7 @@ export default experiment({
   title:
     'the wormhole cross-section is the mutual information: it rises from exactly zero at a product boundary (pinched off) to exactly two at maximal entanglement (throat open), so entanglement builds the ER=EPR bridge and removing it disconnects the boundary',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

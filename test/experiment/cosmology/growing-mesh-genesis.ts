@@ -12,6 +12,7 @@ import {
   growingMeshGenesis,
   chargeTrajectory,
 } from '@/code/dynamics/genesis'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -24,11 +25,15 @@ export default experiment({
   substrates: ['73'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const mesh = buildCoxeterMesh({
       symbol: [7, 3],
-      depth: 30,
-      maxChambers: 40000,
+      // AUDIT 2026-08-31: depth 60 so the chamber cap is what binds. 6000 chambers is exactly the
+      // depth-30 mesh (714 cells, verified identical neighbour by neighbour), and it scales.
+      depth: 60,
+      maxChambers: scaled(6000, scale),
     })
 
     const n = mesh.cellCount

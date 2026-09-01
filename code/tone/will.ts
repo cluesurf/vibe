@@ -28,6 +28,26 @@ export function fillWillPattern(will: Will, phase = 0): void {
   }
 }
 
+// Fill every slot of a periodic 4D mesh of the given side with a deterministic texture that
+// depends on all four cell coordinates and the slot: phase = (x + 2y + 3z + 5w + d) mod 7,
+// tone = (phase mod 3) - 1. Two gravity experiments each carried this.
+export function fillCoordinateTexture(will: Will, side: number): void {
+  const { mesh, data } = will
+
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    const x = cell % side
+    const y = Math.floor(cell / side) % side
+    const z = Math.floor(cell / (side * side)) % side
+    const w = Math.floor(cell / (side * side * side)) % side
+
+    for (let d = 0; d < mesh.degree; d++) {
+      const phase = (x + 2 * y + 3 * z + 5 * w + d) % 7
+
+      data[cell * mesh.degree + d] = (phase % 3) - 1
+    }
+  }
+}
+
 // Fill one slot of every cell with a PERIODIC function of one coordinate, and the remaining slots
 // with a fixed flux-carrying pattern. `pattern` is the repeating run of tone values written into the
 // target slot, indexed by the cell's coordinate along `axis` modulo the pattern length.

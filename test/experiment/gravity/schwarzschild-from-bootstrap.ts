@@ -34,7 +34,7 @@ export default experiment({
   title:
     'the Schwarzschild metric derived by the gravity-gravitates bootstrap, the resummed spatial metric giving the factor-two light bending',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

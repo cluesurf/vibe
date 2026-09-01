@@ -1,4 +1,5 @@
-// Zitterbewegung emerges from the coin's own Dirac walk, at exactly twice the mass. A massive
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Strauch 2006.
+// Zitterbewegung emerges from the coined Dirac walk model, at exactly twice the mass. A massive
 // relativistic particle trembles: the interference of its positive- and negative-energy parts makes
 // its velocity oscillate at the mass-gap frequency, 2 * mass, with no classical or nonrelativistic
 // analogue. This is measured here NOT from a Dirac Hamiltonian written down by hand, but from the
@@ -17,7 +18,7 @@
 // - CONTROL: the massless walk has zero trembling amplitude, no oscillation, so the effect is the
 //   mass gap and not an artifact of the walk.
 //
-// Depth L3. Zitterbewegung is a MEASURED consequence of the {3,4,3,4} coin's own Dirac walk (not a
+// Depth L3. Zitterbewegung is a MEASURED consequence of the coined Dirac walk model (not a
 // built state or an imported Hamiltonian), with the exact 2 * mass frequency as a quantitative
 // prediction and the massless walk as the control. Emergent on the committed substrate's sector.
 
@@ -36,10 +37,10 @@ export default experiment({
   id: 'quantum/zitterbewegung',
   code: 'E-QTM-0072',
   title:
-    "zitterbewegung from the coin's own Dirac walk: a massive walk's chirality trembles at exactly twice the mass (the frequency measured off the walk is within three percent of 2 mass at every mass and doubles when the mass doubles), while a massless walk does not tremble at all",
+    "zitterbewegung from the coined Dirac walk model: a massive walk's chirality trembles at exactly twice the mass (the frequency measured off the walk is within three percent of 2 mass at every mass and doubles when the mass doubles), while a massless walk does not tremble at all",
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     // the trembling frequency is 2 * mass across the masses
@@ -110,7 +111,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the chirality of the coined Dirac walk seeded as a right-mover oscillates in time, and the dominant frequency measured off the walk equals twice the mass to within three percent at masses 0.15, 0.3 and 0.6, doubling when the mass doubles, while a massless walk shows zero trembling amplitude, so zitterbewegung at exactly 2 mass is an emergent consequence of the discrete rule',
+        'the chirality of the coined Dirac walk seeded as a right-mover oscillates in time, and the dominant frequency measured off the walk equals twice the mass to within three percent at masses 0.15, 0.3 and 0.6, doubling when the mass doubles, while a massless walk shows zero trembling amplitude, so zitterbewegung at exactly 2 mass is a consequence of the coined walk model',
       metrics: {
         worstRatioError: Number(worstRatioError.toExponential(2)),
         frequencyAtMassPoint15: Number(frequencies[0]!.toFixed(4)),
@@ -123,7 +124,8 @@ export default experiment({
         masslessFrequency: Number(masslessFrequency.toFixed(4)),
       },
       notes:
-        "Zitterbewegung measured on the {3,4,3,4} coin's own Dirac walk (code/measure/zitterbewegung -> diracQuantumWalk): trembling frequency = 2 * mass to ~1 percent, massless control shows none. L3, emergent on the committed substrate sector, a quantitative could-be-wrong prediction.",
+        'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Strauch 2006. ' +
+        "Zitterbewegung measured on the coined Dirac walk model (code/measure/zitterbewegung -> diracQuantumWalk): trembling frequency = 2 * mass to ~1 percent, massless control shows none. L3, on the coined walk model, not the rule, a quantitative could-be-wrong prediction.",
     })
   },
 })

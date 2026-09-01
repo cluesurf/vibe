@@ -38,7 +38,7 @@ export default experiment({
   title:
     'two straight bulk walks on nearly the same heading separate as sinh(arc length) (exponential rate one, the curvature) so a bearing cannot be held, while on the flat cusp they separate linearly',
   category: 'geometry',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

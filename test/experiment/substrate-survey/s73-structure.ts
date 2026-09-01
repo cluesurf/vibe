@@ -45,11 +45,10 @@ export default experiment({
   paper: false,
   run() {
     const r = s73Structure()
-    const ok =
-      r.degree === 7 &&
-      r.specDim > 0 &&
-      !r.crystallographic &&
-      !r.hasSpinor
+    // AUDIT 2026-08-31: hasSpinor = false is a typed statement about the D7 permutation representation, not a
+    // measurement made here, so it is reported and no longer feeds ok. The measured facts are the degree, the
+    // spectral dimension, and the crystallographic test.
+    const ok = r.degree === 7 && r.specDim > 0 && !r.crystallographic
 
     return verdict({
       status: ok ? 'pass' : 'fail',

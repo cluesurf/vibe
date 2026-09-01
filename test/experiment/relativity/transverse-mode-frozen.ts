@@ -14,7 +14,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
 import {
@@ -79,11 +79,7 @@ export default experiment({
   paper: false,
   run() {
     const mesh = d4Mesh({ side: SIDE })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = headOnRotate({ opposite })
 
@@ -121,6 +117,7 @@ export default experiment({
         ),
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the longitudinal mode is the positive control, it reaches amplitude minus one (crosses zero, propagates), proving the apparatus detects propagation, so the transverse mode staying near plus one (never crossing zero) is a real frozen shear, not a measurement gap. headOnRotate only reshapes head-on (longitudinal) pairs, leaving transverse momentum exactly conserved, which is why the transverse channel does not propagate. This corrects the earlier loose statement that the graviton is simply the spin-2 sector of the propagating mode, the spin-0 mode is exact on the bare knit but the propagating spin-2 graviton is emergent (Lorentz restoration in the infrared), consistent with the program where continuity and full Lorentz invariance are emergent, not base.',
     })
   },

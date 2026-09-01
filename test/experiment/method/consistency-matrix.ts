@@ -13,7 +13,7 @@
 // the isotropy cluster, so no off-assignment closes the matrix. CONTROL: the two perturbed columns are the
 // negative controls, each failing exactly the cluster its single changed lever governs.
 
-import { d4Mesh, cubicMesh, Mesh } from '@/code/tool/mesh'
+import { d4Mesh, cubicMesh, Mesh, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate, Collision } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import {
@@ -59,16 +59,6 @@ function cubicRoots(): number[][] {
     [0, 0, 1],
     [0, 0, -1],
   ]
-}
-
-function oppositeOf(mesh: Mesh): number[] {
-  const out: number[] = []
-
-  for (let d = 0; d < mesh.degree; d++) {
-    out.push(mesh.opposite(d))
-  }
-
-  return out
 }
 
 // ARENA 1: charge is conserved exactly under one beat.
@@ -137,8 +127,8 @@ export default experiment({
 
     const d4 = d4Mesh({ side: d4Side })
     const cubic = cubicMesh({ side: cubicSide })
-    const knitD4 = headOnRotate({ opposite: oppositeOf(d4) })
-    const knitCubic = headOnRotate({ opposite: oppositeOf(cubic) })
+    const knitD4 = headOnRotate({ opposite: meshOpposites(d4) })
+    const knitCubic = headOnRotate({ opposite: meshOpposites(cubic) })
 
     // a structured deterministic will on d4 for the continuity arena.
     const continuityResidual = (collision: Collision): number => {

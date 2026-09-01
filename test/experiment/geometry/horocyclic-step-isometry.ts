@@ -47,7 +47,7 @@ export default experiment({
   title:
     'a physical horospheric step is an exact bulk isometry (every hyperbolic distance preserved to machine precision) that composes as a group (step t then s equals step t+s, inverse returns home), so walking 3D applies a symmetry of the 4D bulk, while a naive shear breaks the metric',
   category: 'geometry',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

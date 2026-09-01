@@ -43,7 +43,7 @@ export default experiment({
   title:
     'pacing a bulk triangle and summing the turns gives an angle deficit equal to its area (Gauss-Bonnet), matched to machine precision by two independent measurements and growing with loop size, while the same legs interpreted flatly give zero deficit',
   category: 'geometry',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

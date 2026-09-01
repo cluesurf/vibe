@@ -32,7 +32,7 @@
 // about biology or about Orch-OR being wrong, only that vibe's route to a definite
 // outcome carries no coherence bill.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -43,6 +43,7 @@ import {
 } from '@/code/dynamics/measurement'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { windowMean } from '@/code/measure/statistics'
 
 const SIDES = [4, 5, 6, 7, 8]
 const BEATS = 300
@@ -50,20 +51,6 @@ const ECHO_BEATS = 60
 const FRONTIER_X = 0
 
 // the mean of a window of a trajectory, the settled record over that window
-function windowMean(
-  trajectory: number[],
-  lo: number,
-  hi: number,
-): number {
-  let sum = 0
-
-  for (let t = lo; t < hi; t++) {
-    sum += trajectory[t] ?? 0
-  }
-
-  return sum / Math.max(1, hi - lo)
-}
-
 export default experiment({
   id: 'quantum/decoherence-immunity',
   code: 'E-QTM-0049',
@@ -83,10 +70,7 @@ export default experiment({
 
     for (const side of SIDES) {
       const mesh = d4Mesh({ side })
-      const opposite = Array.from(
-        { length: mesh.degree },
-        (unused, d) => mesh.opposite(d),
-      )
+      const opposite = meshOpposites(mesh)
 
       const forward: Collision = pairCollision({
         opposite,
@@ -134,8 +118,8 @@ export default experiment({
         frontierX: FRONTIER_X,
       })
 
-      const early = windowMean(trajectory, 50, 100)
-      const late = windowMean(trajectory, 250, 300)
+      const early = windowMean({ series: trajectory, lo: 50, hi: 100 })
+      const late = windowMean({ series: trajectory, lo: 250, hi: 300 })
       const record = tailMean(trajectory)
       const drift = Math.abs(late - early)
 

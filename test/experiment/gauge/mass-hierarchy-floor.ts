@@ -34,6 +34,7 @@ import {
   growthRatioFromShellCounts,
   shellCountsFromGraph,
 } from '@/code/measure/shell-growth'
+import { scaled } from '@/test/scaffold/scale'
 
 // the observed inter-generation mass ratios (same sector, adjacent generations), the direct localization masses
 const INTER_GENERATION: { name: string; ratio: number }[] = [
@@ -64,9 +65,11 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     // the derived geometric growth rate lambda and the marginal floor lambda^(1/2)
-    const addressing = buildAddressing({ maxCells: 40000 })
+    const addressing = buildAddressing({ maxCells: scaled(40000, scale) })
     const lambda = growthRatioFromShellCounts(
       shellCountsFromGraph({
         neighbors: addressing.graph.neighbors,

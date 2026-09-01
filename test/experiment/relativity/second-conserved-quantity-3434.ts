@@ -19,7 +19,7 @@ import {
   gliderLine,
   charge,
 } from '@/code/tone/will'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
 import {
@@ -40,11 +40,7 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: 6 })
     const directions = rootsD4()
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const beats = 50
 
@@ -147,6 +143,7 @@ export default experiment({
         pairRuleConservesMomentum: pairConservesMomentum ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'deterministic replacement for the stochastic relativity/second-conservation-search (which used random initial conditions, against the methodology, and never tested the committed momentum collision). Honest open, whether this second conservation yields a z=1 relativistic massless mode (vs the diffusive z=2 of the charge-only rule) is the named remaining gap = ST1.',
     })
   },

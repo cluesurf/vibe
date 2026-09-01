@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a genetic algorithm with hashRand shuffles, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.
 // P152: evolution, heredity plus variation plus selection, from the base. (P120, 04-life.md, open question 4.)
 //
 // Heredity is shown (P120, a daughter inherits a parent's balanced pattern, conservingly, via the arrow).
@@ -9,7 +10,7 @@
 // fitness RISES to the optimum with selection, stays flat without it (drift), and that offspring are
 // HERITABLE. Run: npx tsx code/experiment/p152-evolution.ts
 
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { makeHashRng } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -17,14 +18,6 @@ type Rng = { next: () => number }
 
 // a balanced +/- pattern (information, net charge zero, so copying it is conserving, P120)
 // a DETERMINISTIC counter-indexed hash stream (no seed, no randomness): a drop-in for the RNG stream
-function detStream(): Rng {
-  let c = 0
-
-  return {
-    next: () => hashRand(c++, 0, 0),
-  }
-}
-
 function randomBalanced(M: number, rng: Rng): Int8Array {
   const p = new Int8Array(M)
   const half = Math.floor(M / 2)
@@ -146,10 +139,10 @@ export function evolution(input?: { M?: number }): {
   const P = 60
   const G = 50
   const mu = 0.06
-  const rng = detStream()
+  const rng = makeHashRng({ salt: 0 })
   const target = randomBalanced(M, rng)
-  const sel = evolve(true, M, P, G, mu, target, detStream())
-  const drift = evolve(false, M, P, G, mu, target, detStream())
+  const sel = evolve(true, M, P, G, mu, target, makeHashRng({ salt: 0 }))
+  const drift = evolve(false, M, P, G, mu, target, makeHashRng({ salt: 0 }))
 
   const startMean = sel.meanByGen[0]!
   const selectedFinal = sel.meanByGen[sel.meanByGen.length - 1]!
@@ -181,7 +174,7 @@ export default experiment({
     'heredity plus variation plus selection drives mean fitness up, beating drift',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = evolution({ M: 40 })
@@ -189,6 +182,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a genetic algorithm with hashRand shuffles, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.',
       claim:
         'a population reproducing with mutation under selection raises mean fitness to the optimum on heritable variation, the Darwinian loop from the base',
       metrics: {

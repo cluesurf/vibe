@@ -74,10 +74,11 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
   // positivity. The Hankel-of-C(r) numerical check is a derived consistency test, its small negative
   // eigenvalues (about 1% of C(0)) are the lattice (UV) cutoff, the same UV violation seen for boosts
   // (P154), not a real IR violation.
-  const spectralWeightPositive = true // 1/(2 omega) > 0 for all modes, the manifest Kallen-Lehmann condition
+  // AUDIT 2026-08-31: spectralWeightPositive was a typed `true` conjoined into the verdict. That 1 / (2 omega)
+  // is positive follows from omega > 0 and is not measured by this file, so it is out of the conjunction. The
+  // Hankel check below is the measured part, and its tolerance (-0.02) is the lattice-UV floor stated above.
   const hankelConsistent = results.every(r => r.hankelMinEig > -0.02) // PSD within the lattice-UV floor
-  const reflectionPositive =
-    spectralWeightPositive && hankelConsistent && longRangeForSmallMass
+  const reflectionPositive = hankelConsistent && longRangeForSmallMass
 
   const solved = reflectionPositive
 

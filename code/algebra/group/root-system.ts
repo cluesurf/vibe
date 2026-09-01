@@ -362,6 +362,14 @@ export function vectorKey(vector: number[]): string {
   return vector.map(value => Math.round(value * 1e6) / 1e6).join(',')
 }
 
+// Whether two vector lists hold the same set of vectors under `vectorKey`, ignoring order and repeats.
+export function sameVectorSet(left: number[][], right: number[][]): boolean {
+  const a = new Set(left.map(vectorKey))
+  const b = new Set(right.map(vectorKey))
+
+  return a.size === b.size && [...a].every(key => b.has(key))
+}
+
 // The closure of a set of roots under reflection in its own members, the smallest reflection-closed set
 // containing the seed. Reflecting the four simple roots of a Coxeter diagram rebuilds the whole root system
 // (the F4 diagram rebuilds the 24-cell and its dual).

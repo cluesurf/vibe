@@ -18,6 +18,7 @@ import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { scaled } from '@/test/scaffold/scale'
 
 // cohesive perception rule, one beat (conserving)
 const beat = (
@@ -192,8 +193,10 @@ export default experiment({
   substrates: ['534'],
   depth: 'L3',
   paper: true,
-  run() {
-    const r = selvesAtScale({ n: 60000 })
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = selvesAtScale({ n: scaled(60000, scale) })
     const ok =
       r.solved &&
       r.conserved &&
@@ -212,6 +215,8 @@ export default experiment({
       },
       control: { largestRandom: r.largestRandom },
       notes:
+        'AUDIT 2026-08-31 (perturbation): at half size (30000 cells) the verdict fails with one patch over fifty against five at 60000 and six at 90000, so the claim has a measured size floor between 30000 and 60000 cells; it holds at 60000 and 90000. ' +
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'uses a cohesion maintenance term that is not one of the five base things, a mid-layer result not pure substrate emergence',
     })
   },

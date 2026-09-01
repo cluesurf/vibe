@@ -4,7 +4,20 @@ Forty-three experiments on where spin comes from.
 
 Vibe theory does not put spin in by hand. It grows spinors, fermions, and spin-1/2 out of the discrete substrate geometry. The 24 directions of the committed `{3,4,3,4}` coin are the binary tetrahedral group 2T, the double cover of the rotation group, so a spinor picks up a minus sign after a 2pi turn and returns only at 4pi. The 24-cell splits into 8v + 8s + 8c (a vector and two spinors) under SO(8) triality. The hyperbolic `{5,3,4}` bulk carries spin a different way, through its projective double cover 2I, its spin connection, and topological defects. This arena tests all of it: the spin-1/2 double cover, fermion statistics and the Pauli principle, the Dirac equation, chiral fermions, triality and the generations problem, anyons from the ternary tone, and the emergent matter (atoms, nuclei, molecules) that exclusion makes possible.
 
-The substrate is discrete. Every result is deterministic, with a named control that could have failed.
+The substrate is discrete and every result is deterministic. Not every
+result has a control that could have failed, and the 2026-08-31 audit
+regraded the ones that did not: `fermi-exclusion` (E-SPN-0014) tests an
+identity that holds for any vector, with the exchange signs formerly
+typed in, so it is L1. `atoms-shell-filling` (E-SPN-0002) is a 2D
+square-grid tight-binding well, L2. `helium-ground-state`,
+`molecular-bond`, `nuclear-binding-curve` and `nuclei-binding-saturation`
+(E-SPN-0017, 0023, 0024, 0025) are textbook formulas with no mesh, L1.
+`anyon-deconfinement` (E-SPN-0001) evaluates the toric-code degeneracy
+formula, L1, and had never been imported by the barrel until the audit.
+**This arena has no L3 result.** The double-cover results (2T, the 2 pi
+sign) are honest L1 group arithmetic on the coin, and the defect and
+holonomy results are L2. The audit is
+`../../audit/2026-08-31-experiment-audit.md`.
 
 ## The spinor coin and the spin-1/2 double cover
 
@@ -19,12 +32,12 @@ The core spin result. The 24 coin directions form the binary tetrahedral group 2
 
 ## The Dirac equation, chiral fermions, and discrete symmetries
 
-The emergent relativistic fermion. A discrete-time coined walk on the substrate produces the Dirac equation, its Clifford algebra, and a single chiral mode with no mirror doubler. C, P, T, and CPT are exact.
+The relativistic fermion of the walk model. A discrete-time coined walk (a model, see the audit block above, not the rule) produces the Dirac equation, its Clifford algebra, and a single chiral mode with no mirror doubler. C, P, T, and CPT are exact.
 
 - **[`E-SPN-0009`](../../../test/experiment/spin/dirac-3plus1-3434.ts)** - the full 3+1D Dirac equation, Clifford algebra and relativistic dispersion read out of the operator, not assumed.
 - **[`E-SPN-0011`](../../../test/experiment/spin/directional-rule.ts)** - a charge with a direction streams ballistically while a memoryless scalar diffuses, the collision mixing the Dirac mass.
 - **[`E-SPN-0030`](../../../test/experiment/spin/sp-spinor-field-3434.ts)** - a 2-component Dirac walk streams chirality at light speed, mixes it under a mass, exchange antisymmetry from the double cover.
-- **[`E-SPN-0043`](../../../test/experiment/spin/chiral-fermion-no-doubling.ts)** - the emergent fermion is a single chiral mode (eigenvalue winding one), no doubler, the discrete-time walk evading Nielsen-Ninomiya.
+- **[`E-SPN-0043`](../../../test/experiment/spin/chiral-fermion-no-doubling.ts)** - the walk model's fermion is a single chiral mode (eigenvalue winding one), no doubler, the discrete-time walk evading Nielsen-Ninomiya.
 - **[`E-SPN-0004`](../../../test/experiment/spin/chirality.ts)** - the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry, the naive operator having four doublers.
 - **[`E-SPN-0010`](../../../test/experiment/spin/dirac-lanczos.ts)** - a 3D hedgehog binds near-zero Dirac modes (index equals topological charge) that the uniform vacuum lacks.
 - **[`E-SPN-0037`](../../../test/experiment/spin/sy-discrete-symmetries.ts)** - C, P, T, and CPT are exact on the `{3,4,3,4}` substrate, the reversible rule making T exact and the D4 root set making P exact.
@@ -89,11 +102,16 @@ The payoff. Once fermions and exclusion exist, discrete shells, atoms, nuclei, a
 - **[`E-SPN-0025`](../../../test/experiment/spin/nuclei-binding-saturation.ts)** - several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead.
 - **[`E-SPN-0024`](../../../test/experiment/spin/nuclear-binding-curve.ts)** - the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-SPN-0001`](../../../test/experiment/spin/anyon-deconfinement.ts)** (L1) - the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control
+
 ## What this arena establishes
 
 - **Spin is geometric, not assumed.** The 24 coin directions are the binary tetrahedral double cover 2T, so spin-1/2 (minus sign at 2pi, return at 4pi) is a fact of the substrate, with the vector rep the built-in control.
 - **The Pauli principle and spin-statistics follow.** The antisymmetric two-fermion amplitude vanishes, bosons pile up, and the exchange sign is the same minus one the spinor gets under rotation.
-- **The Dirac equation and a single chiral fermion emerge.** The discrete-time walk reproduces the 3+1D Dirac operator and evades Nielsen-Ninomiya fermion doubling, with exact CPT.
+- **The Dirac equation and a single chiral fermion are reproduced on the walk model.** The discrete-time walk reproduces the 3+1D Dirac operator and evades Nielsen-Ninomiya fermion doubling, with exact CPT.
 - **The hyperbolic `{5,3,4}` bulk carries spin three independent ways.** Through its projective double cover 2I, its spin connection holonomy, and topological disclinations, even though its coin carries no linear spinor.
 - **Exclusion builds real matter.** Shell filling, the hydrogen Rydberg spectrum, helium within 2 percent, the H2+ bond at 2.0 Bohr, and the iron binding peak all follow, each against a control that collapses.
 - **Anyons come free from the ternary tone**, but three fermion generations do not. The triality and Jordan structure is real and forced, yet the identification with three generations stays Boyle's open conjecture, reported as partial.

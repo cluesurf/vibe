@@ -49,7 +49,7 @@ export default experiment({
   title:
     'if the inflaton is the R-squared scalaron of the emergent gravity (a prose argument fixing the alpha-attractor alpha = 1), the known closed forms give n_s = 1 - 2/N about 0.964 matching Planck for the whole pivot window N = 50 to 66 (computed by scan) and r = 12/N^2 about 0.004 inside the CMB-S4 window, arithmetic on the standard Starobinsky formulas at a chosen N, leaving only the amplitude scale free',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

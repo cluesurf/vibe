@@ -95,6 +95,7 @@ export default experiment({
         scramblePersistence,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the measured signal is the ringdown coherence (late-window source energy over the initial pulse), not a discrete echo: the pulse disperses on the periodic torus without a sharp refocus, so the size-scaling recurrence claim is explicitly not made here. What the geometry buys, and the scramble does not, is a long-lived coherent oscillation, which is the honest discrete counterpart of a sustained ringdown. Deterministic pulse, no randomness.',
     })
   },

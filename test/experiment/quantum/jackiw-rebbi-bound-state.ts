@@ -1,4 +1,5 @@
-// The Jackiw-Rebbi bound state emerges from the coin's own Dirac walk: where the mass changes SIGN
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph.
+// The Jackiw-Rebbi bound state emerges from the coined Dirac walk model: where the mass changes SIGN
 // across a wall, a state is trapped at the wall. A massive particle normally disperses and streams
 // away. But if the mass passes through zero at an interface, a zero-energy mode is bound there and
 // cannot escape, the one-dimensional face of the bulk-boundary correspondence (the same mechanism
@@ -18,7 +19,7 @@
 //   inhomogeneity.
 // - CONTROL 2: a uniform mass disperses, retained weight decays with time. The ordinary massive walk.
 //
-// Depth L3. The bound state is a MEASURED consequence of the {3,4,3,4} coin's own Dirac walk (not a
+// Depth L3. The bound state is a MEASURED consequence of the coined Dirac walk model (not a
 // built eigenstate, not an imported index theorem), and the same-sign wall is the control that shows
 // the binding is the topological sign change. Emergent on the committed substrate's single-particle
 // sector.
@@ -54,10 +55,10 @@ export default experiment({
   id: 'quantum/jackiw-rebbi-bound-state',
   code: 'E-QTM-0076',
   title:
-    "Jackiw-Rebbi bound state from the coin's own Dirac walk: a mass wall that changes SIGN binds a state at the wall (retained weight above 0.9 and constant in time), while a same-sign wall with the identical gradient binds nothing (below 0.1) and a uniform mass disperses, so the binding is the topological sign change",
+    "Jackiw-Rebbi bound state from the coined Dirac walk model: a mass wall that changes SIGN binds a state at the wall (retained weight above 0.9 and constant in time), while a same-sign wall with the identical gradient binds nothing (below 0.1) and a uniform mass disperses, so the binding is the topological sign change",
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     // sign-flipping wall: a bound state, retained weight high and time-independent
@@ -89,7 +90,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'a packet launched at a sign-flipping mass wall on the coined Dirac walk stays bound to the wall (retained weight above 0.9, constant from 150 to 500 steps), while a same-sign wall of identical gradient retains below 0.1 and a uniform mass disperses, so a Jackiw-Rebbi zero-mode bound to the mass sign change is an emergent consequence of the discrete rule',
+        'a packet launched at a sign-flipping mass wall on the coined Dirac walk stays bound to the wall (retained weight above 0.9, constant from 150 to 500 steps), while a same-sign wall of identical gradient retains below 0.1 and a uniform mass disperses, so a Jackiw-Rebbi zero-mode bound to the mass sign change is a consequence of the coined walk model',
       metrics: {
         flipRetainedLong: Number(flipLong.toFixed(4)),
         flipStability: Number(flipStable.toFixed(4)),
@@ -102,7 +103,8 @@ export default experiment({
         uniformRetainedLong: Number(uniformLong.toFixed(4)),
       },
       notes:
-        "Jackiw-Rebbi bound state measured on the {3,4,3,4} coin's own Dirac walk (code/dynamics/mass-domain-wall): a sign-flipping mass wall binds a time-independent state (retained ~0.96), a same-sign wall of identical gradient binds nothing (~0.03), a uniform mass disperses. The binding is the topological sign change. L3, emergent on the committed substrate sector.",
+        'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. ' +
+        "Jackiw-Rebbi bound state measured on the coined Dirac walk model (code/dynamics/mass-domain-wall): a sign-flipping mass wall binds a time-independent state (retained ~0.96), a same-sign wall of identical gradient binds nothing (~0.03), a uniform mass disperses. The binding is the topological sign change. L3, on the coined walk model, not the rule.",
     })
   },
 })

@@ -122,6 +122,7 @@ export default experiment({
         knitRoundtripHamming: trip.roundtripHamming,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, the equivalence of reversibility with the seed no-vanishing-difference, reusing code/check/reversibility and the lossy collision. "A difference cannot vanish" (the seed) equals "no two distinct states merge" equals injective equals reversible, so reversibility is the seed read on dynamics, not a fifth premise. The knit is a bijection (roundtrip Hamming zero), the lossy rule merges two distinct states into one (a difference destroyed). This reduces the premise the dimension-eight pinch rests on: with triality forcing the floor (E-FND-0050) and the seed forcing reversibility, the pinch stands on the seed plus triality, not on a separate lose-nothing assumption. Deterministic fill, no random.',
     })
   },

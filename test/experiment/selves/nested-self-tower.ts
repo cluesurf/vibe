@@ -7,6 +7,7 @@
 // higher-order self, the causal structure climbing two levels, while the random tower averages it away. This is
 // the recursion of life, a self of selves, with a control that fails at the higher level.
 
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
@@ -29,11 +30,13 @@ export default experiment({
   substrates: ['flat-horosphere'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const fine = 36
     const traj = selfTrajectory({
-      L: 64,
-      beats: 1200,
+      L: scaled(64, scale),
+      beats: scaled(1200, scale),
       bins: fine,
       seed: 24680,
     })
@@ -116,6 +119,7 @@ export default experiment({
         eiMacroRandom: Number(eiMacroR.toFixed(3)),
       },
       notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'A6 / MS3 spatial, the self of selves at L3, two recursive coarse-grainings with the structured-vs-random control at each level.',
     })
   },

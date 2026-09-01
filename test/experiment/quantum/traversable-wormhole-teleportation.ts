@@ -49,7 +49,7 @@ export default experiment({
   title:
     'a qubit traverses the entanglement wormhole perfectly (teleportation fidelity exactly one) only when the classical channel is used, and arrives maximally mixed (fidelity one half) without it, the traversable-wormhole picture where a coupling opens the throat',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

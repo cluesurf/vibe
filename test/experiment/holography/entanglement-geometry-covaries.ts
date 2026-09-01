@@ -29,7 +29,7 @@ export default experiment({
   title:
     "vibe's emergent entanglement and geometric connectivity across a tunable throat rise and fall together (Van Raamsdonk), while an untouched far bond does not track it",
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

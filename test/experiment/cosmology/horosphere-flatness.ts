@@ -45,7 +45,7 @@ export default experiment({
   title:
     'the physical cubic slice grows with polynomial exponent three and zero exponential rate (flat E^3, a horosphere) while the bulk tree grows with exponential rate exactly log(branching) and unbounded polynomial exponent (hyperbolic), so our flat space is a horosphere of the curved bulk',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

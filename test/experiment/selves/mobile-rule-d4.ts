@@ -16,7 +16,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { loneParticle, type Will } from '@/code/tone/will'
 import {
   pairCollision,
@@ -50,9 +50,7 @@ export default experiment({
     const side = 10
     const beats = 4
     const mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const mobile: Collision = headOnRotate({ opposite })
     const pinning: Collision = pairCollision({

@@ -28,7 +28,7 @@ export default experiment({
   title:
     'bosons never coincide at the balanced splitter (permanent zero, the Hong-Ou-Mandel dip), fermions always do (determinant one), distinguishable particles sit at one half',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

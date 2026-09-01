@@ -32,7 +32,7 @@ export default experiment({
   title:
     'fresh-environment collisions give exact exponential Lindblad decay at the collision-angle rate while a reused environment revives (non-Markov), Markovianity from causal freshness',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -8,23 +8,42 @@ Vibe theory treats the quantum as **emergent, not fundamental**. The base is a d
 
 This arena asks whether those emergent quantum features actually fall out of the five base things, where they only reproduce known quantum math, and where the story is still open. Grades follow the depth rubric. **L1** confirms known mathematics. **L2** reproduces a known physics construction on this substrate. **L3** is a measured, controlled, novel consequence of the base rule. Many results here are L1 and L2, labeled as such.
 
+## Audit, 2026-08-31
+
+Read this before the sub-themes. Every "walk" result below runs the
+hand-written coined Dirac walk in `code/dynamics/coined-dirac-walk`, not
+the lattice-gas rule. The rule is a permutation of ternary slots with no
+amplitude, and `foundations/rule-has-no-amplitudes` (E-FND-0080)
+measures that directly: its vacuum is a period-three flash, a seeded
+tone is a classical defect that neither spreads nor superposes. So the
+thirteen results this readme used to grade L3 (tunneling, zitterbewegung,
+Klein, Bloch, Aubry-Andre, Jackiw-Rebbi, winding, cyclotron, the three
+bulk-boundary results, the Page curve, and the exchange-gate Bell
+result) are L2 or L1: correct reproductions of known quantum-walk and
+Hilbert-space physics, with prior art named in their notes, and
+`substrates: 'any'`. **This arena has no L3 result.** The honest map of
+what is covered, on what object, is `../quantum-coverage.md`, and the
+audit is `../../audit/2026-08-31-experiment-audit.md`. The wording
+below ("emerges from the substrate", "the exchange dynamics") predates
+the audit. On 2026-08-31 every bullet whose experiment has no substrate or rule in its import graph was reworded to name the model it runs on, so a bullet that still says "the rule" or "the substrate" is one whose file imports them.
+
 ## Sub-themes
 
-### 1. Substrate-to-quantum bridge: the walk, dispersion, and single-particle laws
+### 1. The coined walk, dispersion, and single-particle laws
 
-The lattice walk is unitary and ballistic. From it emerge the Dirac and Schrodinger dispersion, an S-matrix, uncertainty, tunneling, and the Aharonov-Bohm phase.
+The coined walk (a model, see the audit block above) is unitary and ballistic. On it the Dirac and Schrodinger dispersion, an S-matrix, uncertainty, tunneling, and the Aharonov-Bohm phase are reproduced.
 
-- **[`E-QTM-0004`](../../../test/experiment/quantum/born-interference.ts)** - the unitary rule interferes and yields a genuine Born probability.
-- **[`E-QTM-0022`](../../../test/experiment/quantum/quantum-formalism.ts)** - unitarity, the Born rule, and interference of amplitudes together on the substrate.
+- **[`E-QTM-0004`](../../../test/experiment/quantum/born-interference.ts)** - the unitary walk model interferes and yields a genuine Born probability.
+- **[`E-QTM-0022`](../../../test/experiment/quantum/quantum-formalism.ts)** - unitarity, the Born rule, and interference of amplitudes together on the walk model, not the rule.
 - **[`E-QTM-0023`](../../../test/experiment/quantum/quantum-walk.ts)** - the quantum walk spreads ballistically while a classical walk only diffuses.
 - **[`E-QTM-0024`](../../../test/experiment/quantum/quantum-walk-field.ts)** - the unitary completion of the walk is relativistic and reflection-positive.
-- **[`E-QTM-0053`](../../../test/experiment/quantum/emergent-s-matrix.ts)** - the emergent Dirac walk gives a unitary two-channel S-matrix (transmission plus reflection sum to one), while a lossy walk leaks probability.
+- **[`E-QTM-0053`](../../../test/experiment/quantum/emergent-s-matrix.ts)** - the coined Dirac walk model gives a unitary two-channel S-matrix (transmission plus reflection sum to one), while a lossy walk leaks probability.
 - **[`E-QTM-0056`](../../../test/experiment/quantum/tunneling-law.ts)** - sub-gap tunneling decays exponentially at the exact discrete walk rate, off the continuum Dirac rate by 17 percent and converging to it, a hardware-testable prediction.
 - **[`E-QTM-0059`](../../../test/experiment/quantum/uncertainty-principle.ts)** - every Gaussian packet saturates sigma_x sigma_p = 1/2 exactly, a flat-top packet sits far above the bound.
 - **[`E-QTM-0060`](../../../test/experiment/quantum/schrodinger-limit.ts)** - the walk recovers the Schrodinger dispersion with exact discrete effective mass tan(mass), the massless walk stays linear.
 - **[`E-QTM-0062`](../../../test/experiment/quantum/flux-period.ts)** - the ring spectrum shifts periodically with threaded flux (one flux quantum), a global phase changes nothing, the Aharonov-Bohm effect on the walk.
 
-### 2. Born-rule statistics and the emergent complex structure
+### 2. Born-rule statistics and the complex structure
 
 Where the |amplitude|^2 weights, the imaginary unit, and the continuous phase come from without being inserted.
 
@@ -37,14 +56,14 @@ Where the |amplitude|^2 weights, the imaginary unit, and the continuous phase co
 
 ### 3. Entanglement, Bell/CHSH, and nonlocality
 
-Genuine two-part correlations no classical theory can match, reached from the exchange dynamics, plus contextuality and the temporal Bell test.
+Genuine two-part correlations no classical theory can match, reached in Hilbert-space models (not from the rule), plus contextuality and the temporal Bell test.
 
 - **[`E-QTM-0001`](../../../test/experiment/quantum/alignment.ts)** - aligned bits, not bare bits, buy a CHSH violation.
 - **[`E-QTM-0002`](../../../test/experiment/quantum/bell.ts)** - an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises.
 - **[`E-QTM-0003`](../../../test/experiment/quantum/bell-nonlocality.ts)** - the local CHSH bound is 2 and the quantum value is 2 sqrt 2, the restated gap.
-- **[`E-QTM-0011`](../../../test/experiment/quantum/entanglement-bell.ts)** - the exchange dynamics produces a maximally entangled state and violates CHSH at the Tsirelson bound, a product-state control gives concurrence 0.
+- **[`E-QTM-0011`](../../../test/experiment/quantum/entanglement-bell.ts)** - the exchange-gate model (a Hilbert-space toy, not the rule) produces a maximally entangled state and violates CHSH at the Tsirelson bound, a product-state control gives concurrence 0.
 - **[`E-QTM-0038`](../../../test/experiment/quantum/tsirelson-forced-by-coin.ts)** - the Tsirelson bound follows from anticommutation in any qubit theory, and the {3,4,3,4} coin quaternion units supply the anticommuting pair, so the quantum maximum is available without tuning.
-- **[`E-QTM-0057`](../../../test/experiment/quantum/no-signaling-nonlocality.ts)** - the emergent singlet violates CHSH at Tsirelson while Alice's marginal is exactly independent of Bob's setting (no signaling), a signaling toy is caught by the same test.
+- **[`E-QTM-0057`](../../../test/experiment/quantum/no-signaling-nonlocality.ts)** - the model singlet violates CHSH at Tsirelson while Alice's marginal is exactly independent of Bob's setting (no signaling), a signaling toy is caught by the same test.
 - **[`E-QTM-0058`](../../../test/experiment/quantum/chsh-monogamy.ts)** - the Bell violation is monogamous: a Tsirelson pair forces the third party to zero, the squared sum stays below 8, a GHZ control holds classical correlation in both pairs.
 - **[`E-QTM-0061`](../../../test/experiment/quantum/ghz-paradox.ts)** - the GHZ state gives the exact all-versus-nothing signs while no local assignment satisfies the four constraints, absent on a product state.
 - **[`E-QTM-0007`](../../../test/experiment/quantum/contextuality-peres-mermin.ts)** - the Peres-Mermin square reaches quantum value 6 against the noncontextual bound 4 on the cell spin algebra.
@@ -90,7 +109,7 @@ The measurement story: a definite record forms by deterministic settling at an o
 - **[`E-QTM-0092`](../../../test/experiment/quantum/lyapunov-recordability-ceiling.ts)** - the UPPER edge of the recordability window: a coherent record survives only below a Lyapunov ceiling. Sweeping the arrow on the flat layer, the record contrast anticorrelates with the fitted Lyapunov exponent (high lambda at small arrow scrambles the seeded excess away, near-zero lambda at large arrow holds it), so with the arrow-supplied amplifier ([`E-QTM-0084`](../../../test/experiment/quantum/no-amplifier-in-reversible-rule.ts)/0085/0088, the lower edge) records live in a Lyapunov window, mirroring the Timeless Dynamics Hyperion threshold where coherent records persist only below the chaos rate. Because the same arrow both forms and erases a record, a persistent record needs the self-holder ([`E-QTM-0086`](../../../test/experiment/quantum/record-needs-a-self.ts)/0090).
 - **[`E-QTM-0049`](../../../test/experiment/quantum/decoherence-immunity.ts)** - the definite outcome persists while coherence is destroyed across a size sweep, so vibe reaches the Orch-OR destination with no coherence bill (Hameroff bridge).
 - **[`E-QTM-0050`](../../../test/experiment/quantum/thermal-record-immunity.ts)** - the definite outcome survives thermal noise, the warm prong of the Tegmark objection (Hameroff bridge).
-- **[`E-QTM-0051`](../../../test/experiment/quantum/energy-time-collapse-law.ts)** - the emergent dephasing (collapse) time is set by the energy gap, t = pi/dE, the deterministic reconstruction of Penrose OR.
+- **[`E-QTM-0051`](../../../test/experiment/quantum/energy-time-collapse-law.ts)** - the walk model's dephasing (collapse) time is set by the energy gap, t = pi/dE, the deterministic reconstruction of Penrose OR.
 - **[`E-QTM-0065`](../../../test/experiment/quantum/lindblad-collisions.ts)** - fresh-environment collisions give exact exponential Lindblad decay while a reused environment revives, Markovianity from causal freshness.
 - **[`E-QTM-0066`](../../../test/experiment/quantum/measurement-chain.ts)** - the copy chain turns a micro superposition into a macroscopic record: coherence decays exponentially, a 20-cell fragment carries the full pointer, ten disjoint fragments each suffice (redundant objectivity).
 
@@ -127,11 +146,18 @@ Bosons, fermions, Pauli exclusion, and bound states from the exchange structure 
 - **[`E-QTM-0063`](../../../test/experiment/quantum/hong-ou-mandel.ts)** - bosons never coincide at the balanced splitter (permanent zero, the Hong-Ou-Mandel dip), fermions always do (determinant one), distinguishable particles sit at one half.
 - **[`E-QTM-0064`](../../../test/experiment/quantum/fock-structure.ts)** - the N-fermion amplitude is the Slater determinant of propagator entries (matched to brute force), exact Pauli exclusion and unit norm at six particles, bosons bunch by the permanent.
 
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-QTM-0093`](../../../test/experiment/quantum/toric-code-from-the-mesh.ts)** (L2) - the toric code built from the {3,4,3,4} mesh complex (qubits on D4 edges, X-checks on cells, Z-checks on root triangles) has exactly four logical qubits per connected component, four at side 3 and eight at side 4 where the even side splits the mesh in two, while an open patch has zero and every X-check commutes with every Z-check
+
+- **[`E-QTM-0094`](../../../test/experiment/quantum/ehrenfest-theorem.ts)** (L2) - the Ehrenfest theorem on the coined Dirac walk model: a packet built from the positive band of cos E = cos m cos k follows the classical trajectory of its own momentum distribution to 9e-14 cells free and 0.002 cells under a slow force over 45 cells, momentum exact to 4e-16, once the packet's Berry-connection offset and the midpoint momentum of the step are in the prediction. A force of 0.8 leaves 26 percent in the band and misses by 14 cells, and the equal-chirality rest seed (21 percent negative-energy) lags by 19 cells
+
 ## What this arena establishes
 
-- **The single-particle quantum laws are reproducible on the substrate.** The unitary ballistic walk yields the Dirac and Schrodinger dispersion, uncertainty, an S-matrix, tunneling, and the Aharonov-Bohm phase, mostly at L1 and L2 with lossy controls.
+- **The single-particle quantum laws are reproducible on the walk model.** The unitary ballistic walk yields the Dirac and Schrodinger dispersion, uncertainty, an S-matrix, tunneling, and the Aharonov-Bohm phase, mostly at L1 and L2 with lossy controls.
 - **The Born rule is reachable three independent ways.** Branch-counting additivity, envariance, and norm concentration all land |amplitude|^2, each with a control that fails, and the imaginary unit and continuous phase emerge from the real coin rather than being inserted.
-- **Nonlocality is real but carries no action at a distance.** The emergent singlet hits Tsirelson while marginals stay setting-independent, the violation is monogamous, and GHZ and contextuality reproduce exactly.
+- **Nonlocality is real but carries no action at a distance.** The model singlet hits Tsirelson while marginals stay setting-independent, the violation is monogamous, and GHZ and contextuality reproduce exactly.
 - **Spacelike Bell correlations come from a shared past, and curvature sets their reach.** The largest cluster shows the {3,4,3,4} bulk shortcut lets the Tsirelson violation reach exponentially larger physical distances, with a falsifiable power-law decay beyond a crossover that quantum mechanics does not predict.
 - **Measurement is deterministic settling plus loss to an open edge.** A definite record forms and holds, coherence leaks to the wake with no collapse law, and the outcome survives decoherence and thermal noise. Selection among symmetric alternatives stays the acknowledged open problem, resolved only in principle by symmetry breaking.
 - **Reversibility underwrites the information-theoretic and code structure.** Purification, the ontological beable basis, and the [[4,2,2]] and [[8,3,2]] quantum codes follow from the exact reversible permutation, with lossy and non-nested controls that fail.

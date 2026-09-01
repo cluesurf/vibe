@@ -20,7 +20,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import {
   Collision,
@@ -70,11 +70,7 @@ function runChannel(input: {
   const { side, beats, bulk, walls } = input
   const mesh = d4Mesh({ side })
   const directions = rootsD4()
-  const opposite: number[] = []
-
-  for (let d = 0; d < mesh.degree; d++) {
-    opposite.push(mesh.opposite(d))
-  }
+  const opposite = meshOpposites(mesh)
 
   const isWall = (cell: number): boolean => {
     if (!walls) {
@@ -231,11 +227,7 @@ export default experiment({
     const beats = 10 * side
     const directions = rootsD4()
     const coin = d4Mesh({ side: 4 }) // any d4 mesh exposes the shared 24-direction coin
-    const opposite: number[] = []
-
-    for (let d = 0; d < coin.degree; d++) {
-      opposite.push(coin.opposite(d))
-    }
+    const opposite = meshOpposites(coin)
 
     const mixing = saturatedViscousRotate({ directions })
 
@@ -423,6 +415,7 @@ export default experiment({
         noWallMaxDeviation: noWallDeviation,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the L2 reproduction of the viscous-versus-ohmic channel-profile dichotomy (Poiseuille flow of electron fluids: Bandurin et al 2016 whirlpools, Sulpizio et al 2019 imaged the parabola-like profile in graphene; the substrate is an HPP-family lattice gas, Hardy-de Pazzis-Pomeau 1976, and the mixing bulk is the FHP collision-saturation lesson, Frisch-Hasslacher-Pomeau 1986). Honest scope: this is a DECAYING plug, not a forced steady state, measured at the data-chosen mid-decay beat over a disclosed three-beat window; the shape is parabola-LIKE (the late-time mode of a decaying channel flow is the fundamental cosine, which the quadratic fits at the measured r2); the coin is anisotropic (4D D4, known HPP-family caveat) and the bulk transport is not certified diffusive (E-FLD-0005 measured ballistic scaling for coherent shear), so the claim is the profile-shape signature controlled by momentum conservation plus mixing, not a graphene simulation or a measured viscosity. headOnRotate (momentum-conserving but inviscid, E-FLD-0004) keeps a frozen plug, so conservation alone is not enough, mixing channels are required. The %3 thermal background is commensurate with a side divisible by 3 (side 12 keeps extra symmetry and a noisier profile, r2 near 0.83), so the two heights used are 14 and 10.',
     })
   },

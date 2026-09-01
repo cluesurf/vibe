@@ -146,6 +146,7 @@ export default experiment({
         lossyNormLoss: lossyStartNorm - lossyEndNorm,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, an honest measurement of the raw directional substrate, resolving the C2 conjecture as a negative at the discrete level with an emergent positive. The occupation L2 norm (the candidate quantum amplitude norm) oscillates under the knit, so the raw directional occupation is not a unitary amplitude; the conserved invariant is the net charge (a classical current), and the knit is a reversible permutation. So TD complexification to a quantum amplitude is a continuum construction, matching vibe view that quantum mechanics is emergent and the base is discrete. The directional structure does carry the spinor (cell-is-forced), the seed of the emergent Dirac quantum walk, but that bridge lives in the continuum limit, not here. The lossy rule dissipates the occupation, the control. Deterministic fill, no random.',
     })
   },

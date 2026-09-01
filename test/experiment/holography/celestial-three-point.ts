@@ -56,7 +56,7 @@ export default experiment({
   title:
     'a boundary three-point of primaries transforms as a celestial three-point under a substrate boost',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

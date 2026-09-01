@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is the toric-code ground-state degeneracy N^(2g) and the Z_3 anyon count evaluated as formulas, in under a millisecond, with no lattice built, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // Anyon deconfinement, whether the gauged ternary tone forms a deconfined topological phase with free anyons. The
 // ternary-anyon experiment (`spin/ternary-anyons`) shows the KINEMATIC fact, the Z_3 tone carries the fractional
 // 2 pi / 3 braiding. The residual is the DYNAMICAL question, are these anyons DECONFINED (free, finite-energy
@@ -46,8 +47,8 @@ export default experiment({
   title:
     'the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: false,
   run() {
     // the ground-state degeneracy on a torus, computed from the lattice Euler characteristic, for several lattice
@@ -145,6 +146,7 @@ export default experiment({
         trivialIsTrivial: trivialIsTrivial ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is the toric-code ground-state degeneracy N^(2g) and the Z_3 anyon count evaluated as formulas, in under a millisecond, with no lattice built, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'the toric-code ground-state degeneracy is N^(2 - chi) with chi = V - E + F the Euler characteristic (the logical-qudit count E - (V-1) - (F-1) = 2 - chi = 2g), so it is N^(2g), a size-independent topological invariant, the defining feature of a deconfined (topologically ordered) phase. For Z_3 the torus gives 9 (verified L-independent across 3-by-3, 6-by-6, 10-by-10), the sphere gives 1, the genus-2 surface gives 81. The deconfined phase has N^2 = 9 anyons with the mutual braiding 2 pi e m / N (elementary 2 pi / 3, matching `spin/ternary-anyons`), the total quantum dimension D = N = 3, and the topological entanglement entropy gamma = log D = log 3. The trivial phase (one tone state) is the control, unique ground state, no anyons, zero entropy. The exact deconfined-phase content is established here, the residual is the dynamical placement of the bare knit rule relative to the confinement transition (the deconfined phase is the generic weak-coupling phase the emergent IR approaches). This is the deconfinement follow-up to the kinematic ternary-anyon braiding.',
     })
   },

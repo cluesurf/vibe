@@ -10,6 +10,7 @@ import {
   growingMeshGenesis,
   chargeTrajectory,
 } from '@/code/dynamics/genesis'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -22,11 +23,13 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const mesh = buildCoxeterMesh({
       symbol: [3, 4, 3, 4],
       depth: 30,
-      maxChambers: 40000,
+      maxChambers: scaled(40000, scale),
     })
 
     const n = mesh.cellCount

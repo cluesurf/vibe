@@ -9,6 +9,7 @@
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { neighborDistances } from '@/code/tool/graph'
 import { growingMeshGenesis } from '@/code/dynamics/genesis'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -21,18 +22,21 @@ export default experiment({
   substrates: ['73'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+
     const lifeOf = (sym: number[]) => {
       const small = buildCoxeterMesh({
         symbol: sym,
         depth: 40,
-        maxChambers: 200,
+        maxChambers: scaled(200, scale),
       })
 
       const large = buildCoxeterMesh({
         symbol: sym,
         depth: 40,
-        maxChambers: 8000,
+        maxChambers: scaled(8000, scale),
       })
 
       const orbitGrows = large.cellCount > small.cellCount * 1.5 // does giving the orbit more room grow it (infinite) or not (closes)

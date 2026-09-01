@@ -12,6 +12,23 @@ The tests cover the emergence of electromagnetism from local charge conservation
 
 Each experiment carries a depth tier. **L1** confirms known math on the substrate. **L2** reproduces a known physics construction. **L3** is the genuine target: a base rule producing the result with a control that could have failed. Negatives are reported as results, not hidden. Many titles below name their own limit or open gate.
 
+## Audit, 2026-08-31
+
+Two results in this arena were regraded. `proton-lifetime` (E-FRC-0043)
+is textbook one-loop running of the measured couplings, its "no
+leptoquark" control was the typed constant `false`, and the
+"substrate MSSM-like content" is an assumption, so it is L2 with the
+computed bare-SM run as its control. `mass-hierarchy` (E-FRC-0031)
+compares two ansatzes both written by hand (an exponential and a power
+law) with the inter-shell distance as the one measured input, so
+"beats a power law" is a comparison between two typed formulas. It
+stays L3 pending the robustness pass because it does measure the
+hyperbolic shell spacing, but the paper should say "consistent with",
+not "derived". Three files here (`reversible-universality-3434` in
+computation aside) had cross-references typed as `true` inside their
+verdicts, now removed. The audit is
+`../../audit/2026-08-31-experiment-audit.md`.
+
 ## Sub-themes
 
 ### 1. Emergent U(1) and the photon
@@ -129,6 +146,11 @@ Whether the rule stabilizes topological solitons, the route to matter as knots i
 - **[`E-FRC-0047`](../../../test/experiment/gauge/soliton-matter.ts)** - two solitons bind in the attractive channel at a finite separation, and the rest mass is additive in topological charge.
 - **[`E-FRC-0029`](../../../test/experiment/gauge/kpm-sea-energy.ts)** - the 3D Dirac sea energy of a texture soliton, probed for an interior minimum, the Skyrme sign.
 - **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** - a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an open gate.
+
+
+## Added or first run by the 2026-08-31 audit
+
+- **[`E-FRC-0072`](../../../test/experiment/gauge/ward-identity-maxwell.ts)** (L2) - the Ward identity of the lattice Maxwell operator measured exactly: a pure-gauge gradient field is annihilated to machine precision and the zero-mode count equals sites plus two (the gradients plus the three torus Wilson lines) at two lattice sizes, while a Proca mass returns the gradient times m squared and empties the zero-mode space, and a transverse field is not annihilated
 
 ## What this arena establishes
 

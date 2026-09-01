@@ -35,7 +35,7 @@ export default experiment({
   title:
     'the numerology menu covers most of the number line at one percent tolerance while the forced structural menu covers almost none, so a fitted match carries no information and a geometric one does',
   category: 'method',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

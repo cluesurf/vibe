@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Asboth and Obuse 2013.
 // The bulk-boundary correspondence, read off the walk operator's OWN spectrum. A bulk topological
 // invariant is not just a label: it FORCES boundary states. Where two regions of a chiral walk carry
 // different winding numbers, the interface between them binds protected edge modes at the gap centre,
@@ -40,8 +41,8 @@ export default experiment({
   title:
     "the bulk-boundary correspondence from the walk operator's own spectrum: an interface between two gapped bulk phases of different winding (W=+2 next to W=-2) binds a nonzero, quantized, size-independent set of in-gap edge modes localized at the interface (8 modes, 4 at quasienergy 0 and 4 at pi, identical at sizes 32, 48, 64), while a uniform gapped phase with no interface binds exactly zero",
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     // PREDICTION: topological interface binds a nonzero, size-independent, quantized edge-mode count
@@ -91,14 +92,17 @@ export default experiment({
         edgeModeTotal: topoTotals[0]!,
         edgeModesAtZeroGap: topoCounts[0]!.zero,
         edgeModesAtPiGap: topoCounts[0]!.pi,
-        countsBySize: topoTotals.join(','),
+        edgeModeTotalAtSize32: topoTotals[0]!,
+        edgeModeTotalAtSize48: topoTotals[1]!,
+        edgeModeTotalAtSize64: topoTotals[2]!,
       },
       // CONTROL: a uniform gapped phase (no interface) binds no edge modes.
       control: {
-        uniformEdgeModes: controlTotals.join(','),
+        uniformEdgeModesMax: Math.max(...controlTotals),
       },
       notes:
-        'Bulk-boundary correspondence measured from the walk operator spectrum (code/measure/topological-edge-modes -> eigHermitian of (U+U^dagger)/2): an interface between gapped W=+2 and W=-2 phases binds 8 in-gap edge modes (4 at each gap), size-independent (32/48/64), a uniform gapped phase binds 0. The capstone linking the bulk winding (E-QTM-0077) and the bound boundary state (E-QTM-0076). L3, a quantized topological invariant of the substrate rule.',
+        'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Asboth and Obuse 2013. ' +
+        'Bulk-boundary correspondence measured from the walk operator spectrum (code/measure/topological-edge-modes -> eigHermitian of (U+U^dagger)/2): an interface between gapped W=+2 and W=-2 phases binds 8 in-gap edge modes (4 at each gap), size-independent (32/48/64), a uniform gapped phase binds 0. The capstone linking the bulk winding (E-QTM-0077) and the bound boundary state (E-QTM-0076). L3, a quantized topological invariant of the walk operator.',
     })
   },
 })

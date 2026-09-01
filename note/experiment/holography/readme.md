@@ -10,6 +10,24 @@ The claims come from real holography. The **area law**: a region's entropy scale
 
 The engine is fixed. Five base things. A growing hyperbolic crystal, a ternary tone, a reversible conserving local rule, reflection and growth, the arrow. Nothing holographic is postulated. Each test asks whether the signature **emerges** from the geometry, and every deep claim carries a **flat control** where the answer must be no.
 
+## Audit, 2026-08-31
+
+Five results here were regraded from L3 to L2 in the second audit
+sitting: `rt-geodesic-3434`, `holographic-3434`, `bulk-to-cusp-rt`,
+`p91-holography` and `ryu-takayanagi-73`. Each builds a real hyperbolic
+tessellation and compares with a flat lattice, but what it measures is
+graph geodesic length and shell fraction, which is hyperbolic geometry
+(known), with no rule, no dynamics and no entanglement entropy. They
+are the geometric preconditions for an area law and a Ryu-Takayanagi
+law, not those laws, and their titles now say so. `area-law` and
+`black-hole` are free-fermion entanglement calculations with no mesh
+(L2), and `page-curve-from-scrambling` tests an identity every pure
+state satisfies (L1). The four L3s that remain (`bulk-nonlocality`,
+`growing-code`, `holographic-memory`, `signaling`) run a tone dynamics
+on the mesh against a computed control. The wording below predates the
+audit where it says "area law" or "Ryu-Takayanagi" for the geometric
+results. The audit is `../../audit/2026-08-31-experiment-audit.md`.
+
 ## Sub-themes
 
 ### 1. Boundary dominance, the area law derived from geometry
@@ -34,11 +52,11 @@ The entanglement of a boundary interval equals its minimal bulk surface. On a hy
 
 The precondition emergent gravity and holography rest on. The vacuum of the emergent free-fermion (Dirac) field has an area-law entropy, a thermal state does not. And the entanglement and the geometric connectivity track each other.
 
-- **[`E-HLG-0001`](../../../test/experiment/holography/area-law.ts)** - the emergent field ground state is area-law while a thermal state is volume-law. Massive saturates, massless grows as (c/3) ln L, thermal grows linearly.
+- **[`E-HLG-0001`](../../../test/experiment/holography/area-law.ts)** - the free-fermion chain ground state is area-law while a thermal state is volume-law. Massive saturates, massless grows as (c/3) ln L, thermal grows linearly.
 - **[`E-HLG-0002`](../../../test/experiment/holography/bethe-gravity.ts)** - the exact Bethe-lattice bulk-mediated boundary correlator is a clean universal power law, the finite-patch artifact removed, validated against a directly-solved finite tree.
 - **[`E-HLG-0003`](../../../test/experiment/holography/black-hole.ts)** - a 3D region's entropy scales with its horizon area (l^2), not its volume (l^3), the Bekenstein-Hawking clue.
 - **[`E-HLG-0006`](../../../test/experiment/holography/entanglement.ts)** - free-fermion entanglement follows a 1D conformal log law and a 2D area law.
-- **[`E-HLG-0021`](../../../test/experiment/holography/entanglement-geometry-covaries.ts)** - emergent entanglement and geometric connectivity across a tunable throat rise and fall together (Van Raamsdonk), while an untouched far bond does not track it. The discriminator is spatial, which cut pinches.
+- **[`E-HLG-0021`](../../../test/experiment/holography/entanglement-geometry-covaries.ts)** - entanglement and geometric connectivity across a tunable throat rise and fall together (Van Raamsdonk), while an untouched far bond does not track it. The discriminator is spatial, which cut pinches.
 
 ### 4. Bulk nonlocality, the hidden channel beneath physical space
 

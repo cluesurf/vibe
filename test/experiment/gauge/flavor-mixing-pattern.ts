@@ -43,7 +43,7 @@ export default experiment({
   title:
     'flavor mixing tracks the mass hierarchy, the Cabibbo angle from sqrt(m_d/m_s) and small hierarchical quark mixing versus large lepton mixing, anarchy the control',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

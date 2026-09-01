@@ -31,7 +31,7 @@ export default experiment({
   title:
     'a confined body becomes a self only when coupled to a PROPAGATING field (the photon), not a local one',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

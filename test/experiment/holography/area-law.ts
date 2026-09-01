@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is the free-fermion chain entanglement entropy (Calabrese-Cardy log with c = 1, massive saturation), now with a computed infinite-temperature volume-law control, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base.
 // P186: the emergent field's entanglement obeys the AREA law (the gravity and holography precondition). (P151, P15, related-works theme 7/8, useful-techniques.)
 //
 // Emergent gravity (Jacobson, Verlinde) and holography (Ryu-Takayanagi) both rest on ONE precondition, the
@@ -87,8 +88,18 @@ export function areaLaw(input?: { L?: number }): {
   const masslessLog =
     conformalR2 > 0.95 && Math.abs(centralCharge - 1) < 0.4 // c about 1, a clean log
 
-  // (3) a maximally-mixed (infinite-temperature) state, C_A = I/2, S = len * ln 2 (volume law)
-  const volumeEntropies = lengths.map(l => l * Math.log(2))
+  // (3) a maximally-mixed (infinite-temperature) state, C = I/2, run through the SAME entropy measure as the
+  // ground states. AUDIT 2026-08-31: this used to be the typed line `l * Math.log(2)`, a control that could not
+  // fail. Now the entropy is computed from the correlation matrix, so it can.
+  const infiniteTemperature = new Float64Array(L * L)
+
+  for (let i = 0; i < L; i++) {
+    infiniteTemperature[i * L + i] = 0.5
+  }
+
+  const volumeEntropies = lengths.map(l =>
+    intervalEntropy(infiniteTemperature, L, l),
+  )
   const { slope: volumeSlope } = linearFit({
     xs: lengths,
     ys: volumeEntropies,
@@ -122,7 +133,7 @@ export default experiment({
     'the emergent field ground state is area-law while a thermal state is volume-law',
   category: 'holography',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const r = areaLaw({ L: 96 })
@@ -131,6 +142,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is the free-fermion chain entanglement entropy (Calabrese-Cardy log with c = 1, massive saturation), now with a computed infinite-temperature volume-law control, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base.',
       claim:
         'the Dirac ground-state entanglement saturates for a massive field and grows as a conformal log with central charge about one while a thermal state grows linearly',
       metrics: {

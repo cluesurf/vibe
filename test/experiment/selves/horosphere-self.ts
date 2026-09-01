@@ -32,6 +32,7 @@ import {
   type Graph,
 } from '@/code/model/self-kit'
 import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -75,6 +76,7 @@ export function horosphereSelf(input?: {
   bulkCells?: number
   flatL?: number
   bigL?: number
+  scale?: number
 }): {
   bulkCells: number
   radii: number[]
@@ -93,9 +95,11 @@ export function horosphereSelf(input?: {
   scaleFactor: number
   solved: boolean
 } {
-  const bulkCells = input?.bulkCells ?? 15000
-  const flatL = input?.flatL ?? 130
-  const bigL = input?.bigL ?? 3900 // ~15.2M cells, about 1000x the affordable bulk
+  // the two flat sides scale by the square root so their CELL counts scale with the bulk's
+  const flatScale = Math.sqrt(input?.scale ?? 1)
+  const bulkCells = input?.bulkCells ?? scaled(15000, input?.scale)
+  const flatL = input?.flatL ?? scaled(130, flatScale)
+  const bigL = input?.bigL ?? scaled(3900, flatScale) // ~15.2M cells, about 1000x the affordable bulk
 
   // (1) geometry, boundary-to-volume of balls of growing radius. Use a large bulk so the balls do not engulf
   // the whole finite graph (a hyperbolic ball needs exponentially more cells per radius, itself the point),
@@ -138,7 +142,7 @@ export function horosphereSelf(input?: {
     beatHashed(toneB, big, movedB, t, 0.01, 0.22)
   }
 
-  const bigBuilt = bigCells > 10_000_000
+  const bigBuilt = bigCells > scaled(10_000_000, input?.scale)
   const bigConserved = totalCharge(toneB) === qb0
   const scaleFactor = Math.round(bigCells / bulkCells)
 
@@ -178,8 +182,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = horosphereSelf()
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = horosphereSelf({ scale })
     const ok =
       r.solved &&
       r.compactPossibleOnFlat &&
@@ -190,6 +196,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'the boundary-to-volume ratio falls on the flat horosphere so selves can be compact, the same self leaks less and persists far better there than in the bulk, and the flat surface is built directly about a thousand times larger',
       metrics: {

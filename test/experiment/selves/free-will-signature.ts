@@ -29,7 +29,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern, cloneWill } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable, beatInto } from '@/code/rule/lattice-gas'
@@ -50,9 +50,7 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (unused, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,
@@ -166,6 +164,7 @@ export default experiment({
       // CONTROL: the exact replay diverges by zero, the determinism made explicit.
       control: { replayDivergence },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'Faggin free-will signature (Faggin, Nirvanic, Stapp). Determined from outside, unpredictable from within, from a deterministic base with no randomness. Distinct from choice-determined-yet-irreducible (E-SLF-0020, the no-shortcut result): this is the coarse-view unpredictability.',
     })
   },

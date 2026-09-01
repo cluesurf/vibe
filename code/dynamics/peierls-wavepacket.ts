@@ -5,16 +5,8 @@
 // amplitudes are kept as [re, im] tuples so the floating-point evolution is bit-for-bit
 // the same as the inline magnetism probe. Returns the transverse drift <y - y0>.
 
-type C = [number, number]
+import { ComplexPair as C, pairAdd as cadd, pairMul as cmul, pairScale as cscale, pairAbs2 as cabs2 } from '@/code/algebra/linear/complex-pair'
 
-const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
-const cmul = (a: C, b: C): C => [
-  a[0] * b[0] - a[1] * b[1],
-  a[0] * b[1] + a[1] * b[0],
-]
-
-const cscale = (a: C, s: number): C => [a[0] * s, a[1] * s]
-const cabs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
 const phase = (t: number): C => [Math.cos(t), Math.sin(t)]
 
 export function peierlsWavepacketDrift(input: {

@@ -36,7 +36,7 @@ export default experiment({
   title:
     'the strong-field Schwarzschild geometry, the photon sphere, the divergent lensing, and the black-hole shadow, with the weak-field factor-two recovered',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

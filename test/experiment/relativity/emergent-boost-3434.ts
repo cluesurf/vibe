@@ -104,7 +104,7 @@ export default experiment({
   title:
     'boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet',
   category: 'relativity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

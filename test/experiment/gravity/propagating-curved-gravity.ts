@@ -11,6 +11,7 @@
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { neighborDistances } from '@/code/tool/graph'
 import { reversibleWaveStepNonlinear } from '@/code/dynamics/reversible-wave'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -23,11 +24,15 @@ export default experiment({
   substrates: ['534'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const mesh = buildCoxeterMesh({
       symbol: [5, 3, 4],
-      depth: 20,
-      maxChambers: 40000,
+      // AUDIT 2026-08-31: depth 60 so the chamber cap is what binds. 30000 chambers is exactly the
+      // depth-20 mesh (1316 cells, verified identical neighbour by neighbour), and it scales.
+      depth: 60,
+      maxChambers: scaled(30000, scale),
     })
 
     const n = mesh.cellCount

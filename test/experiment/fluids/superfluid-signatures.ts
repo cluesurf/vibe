@@ -33,7 +33,7 @@ export default experiment({
   title:
     'the substrate is a superfluid, a finite Landau critical velocity (sound) and quantized circulation, vs the zero-critical-velocity normal fluid',
   category: 'fluids',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

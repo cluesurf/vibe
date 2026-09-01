@@ -13,17 +13,21 @@
 import { growBranchingOrder } from '@/code/substrate/branching-order'
 import { geometricGrowthRatio } from '@/code/measure/shells'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function branchingExpansion(input: { spawnFraction: number }): {
+export function branchingExpansion(input: {
+  spawnFraction: number
+  scale?: number
+}): {
   widthPerGen: number[]
   rate: number
   expands: boolean
   dimension: number
 } {
   const { poset, widthPerGen } = growBranchingOrder({
-    generations: 11,
+    generations: scaled(11, input.scale),
     initialWidth: 5,
     spawnFraction: input.spawnFraction,
     horizon: 0.2,
@@ -50,9 +54,11 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const stat = branchingExpansion({ spawnFraction: 0 })
-    const grow = branchingExpansion({ spawnFraction: 0.3 })
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const stat = branchingExpansion({ spawnFraction: 0, scale })
+    const grow = branchingExpansion({ spawnFraction: 0.3, scale })
     const ok =
       !stat.expands &&
       Math.abs(stat.rate - 1) < 0.05 &&

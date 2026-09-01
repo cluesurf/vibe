@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is the textbook H2+ LCAO energy with closed-form two-center integrals, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // The molecular bond, the hydrogen molecular ion H2+, the simplest molecule and the prototype of the covalent bond.
 // After hydrogen (one electron in one well, `spin/hydrogen-spectrum`) and helium (two electrons in one well,
 // `spin/helium-ground-state`), the next composite is the first MOLECULE, one electron shared between TWO protons. The
@@ -43,8 +44,8 @@ export default experiment({
   title:
     'the H2+ molecular bond, a stable molecule at the observed 2.0-Bohr length from the shared electron, the antibonding and no-resonance cases the controls',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: false,
   run() {
     // the variational bond, the equilibrium separation and dissociation energy with a contracting orbital
@@ -128,6 +129,7 @@ export default experiment({
         noResonanceNoBond: noResonanceNoBond ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is the textbook H2+ LCAO energy with closed-form two-center integrals, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'the bonding energy is E_+(R) = -1/2 + 1/R - (j + k)/(1 + S) with the closed-form two-center integrals (overlap S, Coulomb j, resonance k) for 1s orbitals. A fixed exponent of one gives a minimum at about 2.5 Bohr and a depth of about 1.8 eV, the right order, and letting the exponent vary (the electron contracting to about 1.24) gives the equilibrium separation 2.00 Bohr (the observed value) and the dissociation energy about 2.35 eV (the observed 2.79, the residual being the orbital polarization the single-exponent ansatz omits). The antibonding energy E_-(R) = -1/2 + 1/R - (j - k)/(1 - S) is purely repulsive (the control), and dropping the resonance integral k destroys the bond (the second control), so the bond is the shared, symmetric electron. This is the molecular row of the per-particle verification, the first covalent bond, after hydrogen and helium.',
     })
   },

@@ -138,7 +138,7 @@ export default experiment({
   title:
     'a linear diffusion rule disperses a winding defect while an amplitude-preserving nonlinear rule locks it',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

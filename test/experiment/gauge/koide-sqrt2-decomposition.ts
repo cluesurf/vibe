@@ -83,7 +83,7 @@ export default experiment({
   title:
     'the Koide 45 degrees decomposes exactly into b/a = sqrt(2) (the traceless part of the square-root-mass vector has equal norm to its democratic part, and sqrt(2) is the 24-cell / D4 characteristic ratio) plus a free phase delta = 2/9 radian, isolating the two numbers a geometric derivation must produce',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

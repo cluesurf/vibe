@@ -42,7 +42,7 @@ export default experiment({
   title:
     'the holding strength of a self scales monotonically with the rate of re-imposition, Stapp quantum-Zeno volition as a graded law under conservation',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

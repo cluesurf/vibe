@@ -55,7 +55,7 @@ export default experiment({
   title:
     'the emergent fermion is a single chiral mode (eigenvalue winding one) with no mirror doubler, the discrete-time walk evading Nielsen-Ninomiya',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

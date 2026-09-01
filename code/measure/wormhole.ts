@@ -5,21 +5,9 @@
 // mutual information that measures the wormhole cross-section, the teleportation that traverses it,
 // and the traversal capacity that is its throat width.
 
-type Complex = readonly [number, number]
-
-const add = (a: Complex, b: Complex): Complex => [
-  a[0] + b[0],
-  a[1] + b[1],
-]
-
-const mul = (a: Complex, b: Complex): Complex => [
-  a[0] * b[0] - a[1] * b[1],
-  a[0] * b[1] + a[1] * b[0],
-]
-
-const abs2 = (a: Complex): number => a[0] * a[0] + a[1] * a[1]
-
 // The binary entropy of a probability p.
+import { ComplexPair as Complex, pairAdd as add, pairMul as mul, pairAbs2 as abs2 } from '@/code/algebra/linear/complex-pair'
+
 function binaryEntropy(p: number): number {
   if (p <= 0 || p >= 1) {
     return 0

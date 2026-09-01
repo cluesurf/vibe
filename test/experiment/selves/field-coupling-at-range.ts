@@ -26,7 +26,7 @@
 // (bound selves are not base-emergent, per the standing negatives), so this is a
 // field-transmission result, the selves-layer reading is interpretive.
 
-import { squareMesh, type Mesh } from '@/code/tool/mesh'
+import { squareMesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, charge, type Will } from '@/code/tone/will'
 import { run } from '@/code/rule/lattice-gas'
 import {
@@ -205,7 +205,7 @@ export default experiment({
     const intact = squareMesh({ side: L })
     const severed = severedMesh(intact, seam)
     const oppositeOf = (mesh: Mesh): number[] =>
-      Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+      meshOpposites(mesh)
 
     // the radiating rule candidate carries influence, the sealing rule does not
     const rotate = headOnRotate({ opposite: oppositeOf(intact) })

@@ -13,7 +13,7 @@ export default experiment({
   title:
     'SS2: keys hash to exact cell addresses, lookup is O(1) probes at a reasonable load',
   category: 'data-structure',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

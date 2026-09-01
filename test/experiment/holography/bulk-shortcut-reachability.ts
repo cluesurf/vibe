@@ -43,7 +43,7 @@ export default experiment({
   title:
     'a far cusp signal arrives through the bulk in logarithmic time (break-even separation six, speedup unbounded to sixty-eight-fold at separation 1024) with the bulk route the graph geodesic (no light-cone violation), while the along-cusp route is linear',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

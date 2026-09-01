@@ -16,7 +16,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, gliderLine } from '@/code/tone/will'
 import {
   passThrough,
@@ -62,9 +62,7 @@ export default experiment({
     })
 
     const mobile: Collision = headOnRotate({
-      opposite: Array.from({ length: mesh.degree }, (_, d) =>
-        mesh.opposite(d),
-      ),
+      opposite: meshOpposites(mesh),
     })
 
     const gliderFinal = run(

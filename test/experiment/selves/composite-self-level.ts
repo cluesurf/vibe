@@ -20,7 +20,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, shellDistances, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import {
   pairCollision,
@@ -47,9 +47,7 @@ export default experiment({
     const macroCount = 4
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const half = side / 2
     const center =

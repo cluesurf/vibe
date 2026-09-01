@@ -25,7 +25,7 @@ export default experiment({
   title:
     'the area law from the knit own coined Dirac walk, a massive walk saturates (area law), a gapless walk grows (control)',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

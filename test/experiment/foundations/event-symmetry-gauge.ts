@@ -46,7 +46,7 @@ export default experiment({
   title:
     'a relational observable is invariant under event relabeling (event symmetry as a gauge symmetry) but changes under adjacency rewiring (geometry is physical), Gibbs event symmetry, with the crystallization of locality noted as an input',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

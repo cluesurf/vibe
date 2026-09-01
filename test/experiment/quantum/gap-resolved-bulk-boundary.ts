@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Asboth and Obuse 2013.
 // The gap-resolved bulk-boundary correspondence: a chiral walk carries TWO independent topological
 // invariants, one per quasienergy gap, and each gap's edge-mode count is fixed by ITS OWN winding jump.
 // The bulk-boundary-correspondence experiment showed an interface binds edge modes; this shows the
@@ -61,8 +62,8 @@ export default experiment({
   title:
     'the gap-resolved bulk-boundary correspondence: a chiral walk carries two independent topological invariants (one per quasienergy gap), and an interface binds 2|delta nu0| edge modes at the 0 gap and 2|delta nuPi| at the pi gap, so an interface can bind modes at one gap and none at the other (4,0) or (0,4), matched integer-for-integer to the bulk windings computed from the Bloch Hamiltonian',
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     const names = Object.keys(PHASES)
@@ -127,6 +128,7 @@ export default experiment({
 
     // CONTROL: a phase against itself binds nothing at either gap
     const self = edges(PHASES.a!, PHASES.a!)
+    const bothGaps = edges(PHASES.b!, PHASES.c!) // (4, 4)
     const controlZero = self.zero === 0 && self.pi === 0
 
     const ok =
@@ -141,19 +143,20 @@ export default experiment({
       claim:
         'three gapped phases with bulk invariants (nu0,nuPi) = (1,1),(1,-1),(-1,1) bind edge modes whose gap-resolved counts equal 2|delta nu0| and 2|delta nuPi| at every interface, with the two gaps independent: (1,1)|(-1,1) binds 4 modes at the 0 gap and 0 at pi, (1,1)|(1,-1) binds 0 at the 0 gap and 4 at pi, so the chiral walk carries two independent topological invariants matched to the measured spectrum',
       metrics: {
-        zeroGapOnly: `${zeroGapOnly.zero},${zeroGapOnly.pi}`,
-        piGapOnly: `${piGapOnly.zero},${piGapOnly.pi}`,
-        bothGaps: (() => {
-          const e = edges(PHASES.b!, PHASES.c!)
-
-          return `${e.zero},${e.pi}`
-        })(),
+        zeroGapOnlyAtZero: zeroGapOnly.zero,
+        zeroGapOnlyAtPi: zeroGapOnly.pi,
+        piGapOnlyAtZero: piGapOnly.zero,
+        piGapOnlyAtPi: piGapOnly.pi,
+        bothGapsAtZero: bothGaps.zero,
+        bothGapsAtPi: bothGaps.pi,
       },
       // CONTROL: a phase interfaced with itself (no winding jump) binds nothing.
       control: {
-        selfInterface: `${self.zero},${self.pi}`,
+        selfInterfaceAtZero: self.zero,
+        selfInterfaceAtPi: self.pi,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Asboth and Obuse 2013. ' +
         'Gap-resolved bulk-boundary correspondence: edge counts (code/measure/topological-edge-modes) matched integer-for-integer to two INDEPENDENT bulk windings nu0, nuPi (code/measure/walk-winding, Bloch-Hamiltonian, Asboth-Obuse two-frame). Interfaces realise (4,0), (0,4), (4,4), (0,0) = 2|delta nu_gap| per gap. The precise quantitative bulk-boundary law with two invariants. L3.',
     })
   },

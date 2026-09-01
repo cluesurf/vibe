@@ -67,7 +67,7 @@ export default experiment({
   title:
     "a black hole on a discrete substrate leaves a universal remnant: the cutoff frequency measured from the coined Dirac walk's own dispersion caps the Hawking temperature, so evaporation halts at mass 1/(4 omega_max) regardless of starting mass, and the remnant vanishes in the continuum control, no extra dimensions or torsion needed",
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

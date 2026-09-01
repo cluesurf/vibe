@@ -60,7 +60,7 @@ export default experiment({
   title:
     'attraction plus a bath captures (inspiral and settle), removing either one prevents capture',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

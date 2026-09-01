@@ -39,7 +39,7 @@ export default experiment({
   title:
     'the Kolmogorov turbulent cascade, the energy spectrum E(k) ~ k^(-5/3) in the shell model, the linear no-cascade model the control',
   category: 'fluids',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

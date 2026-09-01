@@ -1,0 +1,60 @@
+\section{What the Rule Produces}
+
+These are the results that survive at L3: a substrate built, a dynamics run on it, a computed control, and a verdict
+that holds across sizes. The numbers are those the experiments print.
+
+\textbf{Genesis is an attractor of the growing mesh.} On a $\{5,3,4\}$ mesh of 1316 cells grown by the reflection
+engine, the charge dynamics reached from the void and from a dense alternating start agree in density (0.322 against
+0.330 of cells charged), in net charge (zero, conserved), and in same-sign neighbour fraction (0.488 against 0.460).
+Four different charge-zero starts, the void, a pair seed, a dense start and a charged block, converge to the same
+living fraction under the arrow and all collapse to the dead attractor with the arrow off. The same holds at 709 and
+1792 cells. On a genuinely growing mesh with no rate parameter, no creation hash and no arrow parameter, the moving
+frontier alone polarises the fresh peace it meets, a living charge-zero universe emerges and sustains after growth
+completes, and a static all-peace mesh stays dead. On the committed $\{3,4,3,4\}$ mesh the same genesis runs on
+purely ternary integer structure with no decimal and no randomness, at 646, 1033 and 1482 cells.
+
+\textbf{Only negative curvature sustains the arrow.} A spherical reflection group ($\{5,3\}$) has a finite orbit
+that closes, its frontier vanishes and its wake cannot sustain creation, while the hyperbolic groups ($\{7,3\}$,
+$\{5,3,4\}$) have orbits that grow geometrically, a perpetual frontier, and life sustained. The permanence of the
+arrow traces to the sign of the curvature.
+
+\textbf{A light cone with a measured speed.} A tone excitation on the momentum rule propagates ballistically on the
+periodic $D_4$ lattice. Its measured speed squared is 0.959, 0.980 and 0.985 at sides 12, 24 and 36, converging on
+one, and the momentum phase speed spread is under 0.01 while the charge rule's is 1.44 (the control). Wavelengths
+under six cells are excluded as the lattice-dispersion regime, where the phase speed falls to 0.73. On the curved
+$\{5,3,4\}$ bulk a second-order integer field propagates with a finite front speed, is exactly reversible (forward
+forty beats then backward forty recovers the start with zero error), stays bounded, and keeps all three properties
+with a nonlinear self-coupling on, while a first-order integrator cannot recover.
+
+\textbf{Rotational isotropy to fourth order, deterministically.} The twenty-four $D_4$ directions satisfy
+$\sum_d d_i^4 = 3\sum_d d_i^2 d_j^2$, so the wave dispersion $\omega^2(k) = \sum_d (1 - \cos k\cdot d)$ is isotropic
+through order four and its axis-versus-diagonal anisotropy scales as $q^6$, measured, against $q^2$ on a cubic
+lattice. Both lattices have even dispersion and a vanishing linear Lorentz-violation coefficient, so the gamma-ray
+bound on that coefficient does not by itself separate them (residuals of order $10^{-109}$ and $10^{-37}$ at a
+Planck-scale cell), and the real difference is the order of isotropy. No random sprinkling enters.
+
+\textbf{The exact Ward identity on the lattice.} The curl-curl operator of the lattice Maxwell field on the
+three-torus annihilates every pure-gauge gradient field to $9\times10^{-16}$ and has exactly $\text{sites} + 2$
+zero modes (66, 127 and 218 at sides 4, 5 and 6): one gauge mode per site, less the constant, plus the three
+constant link fields that are closed but not exact on the torus, its Wilson lines. A Proca mass term shifts every
+mode by exactly $m^2$ and leaves no zero mode. The first draft predicted $\text{sites} - 1$ and the measurement
+corrected it.
+
+\textbf{Associative memory scales logarithmically.} On the $\{3,4,3,4\}$ bulk the content search costs one pass per
+word trit, independent of the store, and the communication radius grows by one when the store grows eightfold, while
+a cubic memory's radius grows polynomially. Attractor recall is not a base capability: a dissipative Hopfield layer
+cleans a corrupted cue to its prototype while the bare reversible rule, on the same cue, stays near chance because
+it conserves charge and has no energy to descend. The negative is the result.
+
+\textbf{Selves on the flat layer.} The boundary-to-volume ratio of a ball falls with radius on the flat horosphere
+and stays near constant in the bulk, so a compact low-leak self is geometrically possible on the flat layer and not
+in the bulk, and the same emergent self leaks less and holds more of itself unmaintained there. The flat layer is
+built directly at fifteen million cells, a thousand times the affordable bulk, with charge exactly conserved. A
+self's causal structure survives two recursive coarse-grainings where a random map loses it, and a cohesive cell is
+a local maximum of tone integration whose value collapses when the fills across its middle are cut while the wiring
+stays fixed, so the measure reads the dynamics and not the graph.
+
+\textbf{What the cell complex carries.} The $D_4$ complex of the periodic mesh, with vertices, root edges and root
+triangles, supports a toric code: qubits on the 972 edges of the side-3 torus, $X$ checks on cells and $Z$ checks on
+triangles, every pair commuting, with exactly four logical qubits by exact rank over $\mathbb{F}_2$, and zero on an
+open patch. At side 4 the count is eight, which is how the two-component fact of the even side was found.

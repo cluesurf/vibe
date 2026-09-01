@@ -106,19 +106,15 @@ export default experiment({
     const degree = mesh.degree
     const geometrySupportsRailway = degree === 24 && degree >= 3
 
-    // (3) the primitives, established on {3,4,3,4} by turing-3434 (routing via addressing, NAND gate, conserving memory).
-    const hasRouting = true // {3,4,3,4} Fibonacci-tree addressing, O(log n) (addressing-3434, turing-3434 leg 1)
-    const hasGates = true // ternary signed-majority = NAND (turing-3434 leg 2)
-    const hasMemory = true // ternary charge in address-defined subtrees, conserved (turing-3434 leg 3)
-
+    // (3) AUDIT 2026-08-31. Routing, gates and memory used to be three typed constants (hasRouting = true and so
+    // on) conjoined into the verdict. They are established by computation/turing-3434 and addressing-3434 and
+    // are NOT re-tested here, so they no longer feed ok. What this file establishes on its own: the rule is a
+    // bijection, the Toffoli is a bijection that computes NAND, and the coin has enough independent directions.
     const reversibleUniversal =
       ruleIsBijection &&
       toffoliIsBijection &&
       toffoliComputesNand &&
-      geometrySupportsRailway &&
-      hasRouting &&
-      hasGates &&
-      hasMemory
+      geometrySupportsRailway
 
     const ok = reversibleUniversal
 
@@ -132,11 +128,9 @@ export default experiment({
         toffoliComputesNand: toffoliComputesNand ? 1 : 0,
         degree,
         geometrySupportsRailway: geometrySupportsRailway ? 1 : 0,
-        hasRouting: hasRouting ? 1 : 0,
-        hasGates: hasGates ? 1 : 0,
-        hasMemory: hasMemory ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'the canonical reversible-universality claim, on the final {3,4,3,4} geometry with the committed knit rule. Consolidates the argument from computation/reversible-universality ({5,3,4}, now comparative). Margenstern supplies the tree-addressing + railway technique, the universality is the model own ternary reversible rule (turing-3434)',
     })
   },

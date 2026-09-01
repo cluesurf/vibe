@@ -17,21 +17,7 @@ import {
   quantileLabels,
 } from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
-
-function shuffled(labels: number[], seed: number): number[] {
-  const rng = makeRng(seed)
-  const out = labels.slice()
-
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
-    const tmp = out[i]!
-
-    out[i] = out[j]!
-    out[j] = tmp
-  }
-
-  return out
-}
+import { shuffled as shuffledItems } from '@/code/tool/shuffle'
 
 export default experiment({
   id: 'selves/coarse-spectral-gap',
@@ -64,7 +50,7 @@ export default experiment({
     const lambdaReal = spectralGap(transitionEigenvalues(real)).lambda2
 
     const control = countMatrix({
-      trajectory: shuffled(labels, 999),
+      trajectory: shuffledItems({ items: labels, rng: makeRng(999) }),
       stateCount: bins,
       lag,
     })

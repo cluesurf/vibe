@@ -35,7 +35,7 @@ export default experiment({
   title:
     'the walk dynamics gives omega = mass + k^2/(2 tan mass) at small k, the Schrodinger dispersion with exact discrete effective mass tan(mass) converging to the continuum mass, while the massless walk stays linear',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

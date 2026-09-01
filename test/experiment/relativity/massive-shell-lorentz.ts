@@ -40,7 +40,7 @@ export default experiment({
   title:
     'the massive walk shell is exactly Lorentz invariant in deformed variables: E^2 - P^2 = sin^2(mass) at every momentum, boosts map dynamical modes to dynamical modes, and the group velocity is P/E',
   category: 'relativity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -145,7 +145,15 @@ These are the ways a test lies, and we hunt for them in our OWN work as hard as 
 - **Self-audit as we write.** Every test is double and triple checked for circularity and surface-level
   cheating AT THE TIME it is written, not only later. We grade our own tests as harshly as a stranger's.
 - **The adversarial audit.** A standing protocol re-runs each test under perturbation, traces every boolean,
-  checks for a control, and assigns the depth level. A test passes only by surviving the attack.
+  checks for a control, and assigns the depth level. A test passes only by surviving the attack. The first full
+  audit (2026-08-31, `audit/2026-08-31-experiment-audit.md`) found 40 of 92 L3 experiments with no substrate,
+  rule or coin in their import graph, 24 typed constants reaching verdicts, and the committed rule to be a
+  classical permutation with no amplitudes (E-FND-0080). Three checks now hold the line: `pnpm check:constants`
+  (no literal reaches a verdict), `pnpm check:labels` (a `substrates` label names a mesh the code builds or runs
+  on, or the coin algebra of that mesh, and every registry row is in the barrel), and `pnpm check:coverage`
+  (the quantum coverage map agrees with the catalog). "L3" means a mesh plus a rule run through `beat`, or a
+  substrate builder plus a dynamics on it, with a computed control. A hand-written model with no rule in it is
+  L2 at most, whatever its control.
 - **The catalog.** Every test is recorded with its purpose, finding, depth, status, and validity. Circular and
   invalid tests are quarantined, they never appear in a results list as evidence.
 - **The honest scoreboard.** Results are reported in tiers, the genuinely emergent, the confirmations of known

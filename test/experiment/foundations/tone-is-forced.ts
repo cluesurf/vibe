@@ -41,7 +41,7 @@ export default experiment({
   title:
     'the ternary tone emerges from integer arithmetic: over EVERY subset of {-3..3} the unique smallest set with a vacuum (a 0) and a mirror (nontrivial negation closure) is {-1,0,+1}, size three, where a vacuum alone forces only size one and a mirror alone only size two, so both requirements together force the three',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

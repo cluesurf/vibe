@@ -163,6 +163,7 @@ export default experiment({
       // CONTROL: a same-size random lesion shatters the region rather than splitting it in two.
       control: { randomComponents: randomComponents.length },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'Split-brain fission (Levin, Faggin, and the fission-flat-layer selves work). Two coherent loci from the commissure cut, incoherent fragmentation from a random cut. A structural (graph-component) proxy for the loci.',
     })
   },

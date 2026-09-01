@@ -41,7 +41,7 @@ export default experiment({
   title:
     'the conserved charge is a stabilizer check: single-site errors are detected at the exact beat they occur with zero false positives, while a leaky rule fires the syndrome with no error, error detection from conservation',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

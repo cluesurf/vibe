@@ -18,7 +18,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import {
   makeWill,
   cloneWill,
@@ -103,9 +103,7 @@ export default experiment({
     const fine = 16
     const macroCount = 4
     const mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const mobile: Collision = headOnRotate({ opposite })
     const pinning: Collision = pairCollision({

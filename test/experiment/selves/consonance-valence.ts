@@ -40,7 +40,7 @@ export default experiment({
   title:
     'consonant intervals (simple ratios) sit in roughness valleys with the fifth a local minimum while dissonant intervals peak, and the valleys vanish for pure tones, the Symmetry Theory of Valence via consonance',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

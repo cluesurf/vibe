@@ -29,6 +29,7 @@ import {
   growthRatioFromShellCounts,
   shellCountsFromGraph,
 } from '@/code/measure/shell-growth'
+import { scaled, scaledSide } from '@/test/scaffold/scale'
 
 export default experiment({
   id: 'gauge/warped-cusp-hierarchy',
@@ -39,9 +40,11 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     // the warped hyperbolic bulk and its growth rate (the warp factor)
-    const addressing = buildAddressing({ maxCells: 40000 })
+    const addressing = buildAddressing({ maxCells: scaled(40000, scale) })
     const warpFactor = growthRatioFromShellCounts(
       shellCountsFromGraph({
         neighbors: addressing.graph.neighbors,
@@ -78,7 +81,7 @@ export default experiment({
       Math.abs(exponent01 - exponent12) < 0.15 && exponent01 > 0.4
 
     // the control, a flat D4 bulk gives a brane Yukawa that flattens with depth (degenerate, no hierarchy)
-    const side = 14
+    const side = scaledSide(14, scale)
     const mesh = d4Mesh({ side })
     const flatNeighbors: number[][] = []
 

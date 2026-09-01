@@ -30,7 +30,7 @@ export default experiment({
   title:
     'one memory-kernel width carries a packet from ballistic (transport exponent near one, the quantum end) to diffusive (near one half, the gravity end), Leizerman one-dial QM-to-gravity map',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

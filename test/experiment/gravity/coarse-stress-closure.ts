@@ -28,8 +28,13 @@
 // committed substrate with a genuinely failing control. The identification
 // with the Chronoflux transport sector is the bridge reading, stated as such.
 
-import { d4Mesh } from '@/code/tool/mesh'
-import { makeWill, charge, type Will } from '@/code/tone/will'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  makeWill,
+  charge,
+  fillCoordinateTexture,
+  type Will,
+} from '@/code/tone/will'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { maxMomentumResidual } from '@/code/measure/momentum-continuity'
@@ -40,23 +45,6 @@ const SIDE = 6 // 6^4 cells, block sides 1, 2, 3 divide it
 const BEATS = 8
 
 // deterministic heterogeneous ternary texture (period 7, coprime to side and blocks)
-function fillTexture(will: Will): void {
-  const { mesh, data } = will
-
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const x = cell % SIDE
-    const y = Math.floor(cell / SIDE) % SIDE
-    const z = Math.floor(cell / (SIDE * SIDE)) % SIDE
-    const w = Math.floor(cell / (SIDE * SIDE * SIDE)) % SIDE
-
-    for (let d = 0; d < mesh.degree; d++) {
-      const phase = (x + 2 * y + 3 * z + 5 * w + d) % 7
-
-      data[cell * mesh.degree + d] = (phase % 3) - 1
-    }
-  }
-}
-
 // the worst residual over all beats and block scales for one collision rule
 function worstResidual(rule: 'rotate' | 'pair'): {
   worst: number
@@ -64,9 +52,7 @@ function worstResidual(rule: 'rotate' | 'pair'): {
 } {
   const mesh = d4Mesh({ side: SIDE })
   const roots = rootsD4()
-  const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-    mesh.opposite(d),
-  )
+  const opposite = meshOpposites(mesh)
 
   const collision =
     rule === 'rotate'
@@ -75,7 +61,7 @@ function worstResidual(rule: 'rotate' | 'pair'): {
 
   let will = makeWill(mesh)
 
-  fillTexture(will)
+  fillCoordinateTexture(will, SIDE)
 
   const chargeBefore = charge(will)
 
@@ -149,6 +135,7 @@ export default experiment({
         rotateWorstResidual: rotate.worst,
       },
       notes:
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh). The seeds and measurements here are local, so the result stands on the component the seed lives in; roadmap item 0017 tracks the switch to an odd side. ' +
         'L2, exact conservation mathematics measured on the committed substrate. The residual is asserted as exact integer equality (zero tolerance) under the momentum-conserving rule, per the exactness methodology, and the control residual is strictly positive. Full covariance (frame invariance under emergent boosts) is the standing relativity-category result (Lorentz-safe first order, E-RLT-0029) and is cited, not re-measured. The bridge reading is that the scalar law (E-GRV-0039), the smooth limit (E-GRV-0046), and this momentum closure together give the Chronoflux transport sector a complete discrete origin, with the fitted continuum constants staying out per the bridge rules.',
     })
   },

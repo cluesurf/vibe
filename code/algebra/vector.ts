@@ -52,3 +52,18 @@ export function innerJ(a: Vec, b: Vec, metric: number[]): number {
 export function normJ(v: Vec, metric: number[]): number {
   return Math.sqrt(Math.abs(innerJ(v, v, metric)))
 }
+
+// Whether a vector appears in a list, component by component within a tolerance (for root-system membership).
+export function containsVector(input: {
+  vectors: readonly (readonly number[])[]
+  vector: readonly number[]
+  tolerance?: number
+}): boolean {
+  const tolerance = input.tolerance ?? 1e-9
+
+  return input.vectors.some(
+    r =>
+      r.length === input.vector.length &&
+      r.every((c, i) => Math.abs(c - input.vector[i]!) < tolerance),
+  )
+}

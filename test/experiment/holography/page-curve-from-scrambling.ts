@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is S(l) = S(N - l) and a peak at N / 2, which hold for every translation-invariant pure state on a ring, measured on the hand-written coined walk, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // The Page curve from the substrate's OWN coined Dirac walk. Unitary evaporation must return
 // information: if a system and its radiation are one pure state, the entanglement entropy of a region
 // rises while the region is small and FALLS back as the region approaches the whole, a tent peaking at
@@ -54,10 +55,10 @@ export default experiment({
   id: 'holography/page-curve-from-scrambling',
   code: 'E-HLG-0036',
   title:
-    "the Page curve from the coin's own Dirac walk: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent",
+    "the Page curve from the coined Dirac walk model: the interval entanglement entropy of the gapless walk rises to a peak at half the ring and falls back symmetrically (information returns, total stays pure), while the gapped walk saturates to the area law with no tent",
   category: 'holography',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: true,
   run() {
     const gapless = entropyCurve(GAPLESS_MASS)
@@ -128,7 +129,8 @@ export default experiment({
         gappedPlateau: Number(gapped[half]!.toFixed(4)),
       },
       notes:
-        "Page curve measured on the {3,4,3,4} coin's own coined Dirac walk (walk-entanglement), not a hand-built state: the gapless walk gives the symmetric Calabrese-Cardy tent (information returns), the gapped walk the area law (control). L3, emergent on the committed substrate sector. Pairs with the discreteness remnant (E-GRV-0051).",
+        'AUDIT 2026-08-31: this experiment is S(l) = S(N - l) and a peak at N / 2, which hold for every translation-invariant pure state on a ring, measured on the hand-written coined walk, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
+        "Page curve measured on the {3,4,3,4} coin's own coined Dirac walk (walk-entanglement), not a hand-built state: the gapless walk gives the symmetric Calabrese-Cardy tent (information returns), the gapped walk the area law (control). L3, on the coined walk model, not the rule. Pairs with the discreteness remnant (E-GRV-0051).",
     })
   },
 })

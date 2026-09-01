@@ -1,0 +1,51 @@
+\section{The Missing Amplitude}
+\label{sec:amplitude}
+
+The program's quantum results all assumed one thing: that the coined Dirac walk on the $D_4$ coin is the
+single-particle sector of the base rule. It is not, and the five experiments below settle it exactly.
+
+\textbf{The rule is a permutation with no amplitude.} The state is an \texttt{Int8} array, the collision is a table
+lookup, the stream is a relabelling. There is no complex number anywhere in a beat. The charge rule's vacuum, the
+all-zero array, is not fixed: the create move fires everywhere and the vacuum flashes with period three, measured on
+a side-8 lattice. A single seeded tone stays a defect of at most two slots and radius two over the run, and two
+seeded defects evolve as the exact set-union of their separate runs. The coined walk, given the same seed, spreads to
+a support of five sites in the same beats with a site-wise cross term of 0.357. Nothing in the rule spreads and
+nothing superposes.
+
+\textbf{The momentum rule's lone tone is a classical particle.} Under the momentum-conserving collision the vacuum
+stays empty, a lone tone occupies exactly one slot and moves exactly one cell per beat in a straight line, reaching
+radius four in four beats. Two tones on parallel or crossing lines are the exact union of their separate runs, and
+opposite-sign head-on tones pass through each other with two slots and charge zero, no annihilation. This is ballistic
+motion with no dispersion, no spreading and no interference, at every size.
+
+\textbf{No phase on configurations can interfere.} Suppose one lifts the rule to the space of complex superpositions
+of configurations, as the Koopman construction does for any deterministic map. The lift of a bijection is a
+permutation matrix. The experiment pushes 49 configurations, each carrying a phase, through four beats of the rule
+and finds 49 distinct images, every weight exactly relabelled, cross term zero, norm 49 before and after. The control
+is a conserving but irreversible sorting collision, which merges the same 49 branches into three images with a cross
+term of 24 and does not conserve the norm. Interference needs the map to send distinct inputs to the same output with
+different phases. A permutation never does. This closes the whole class of proposals that would attach a phase to
+the microstate.
+
+\textbf{No phase on pairs at a cell can interfere either.} The natural coarser object is the pair of tones meeting at
+a cell. The induced map of the momentum rule on the 1104 two-tone states at one cell is again a permutation: 1104
+images, 24 states changed by the head-on rotation, everything else fixed. The sorting control gives three images.
+
+\textbf{The one amplitude the rule supplies.} Take the $\mathbb{Z}_3$ character of the tone, $\omega^{t}$ with
+$\omega = e^{2\pi i/3}$, summed over every slot of the mesh. On the charge rule this coarse amplitude has exact
+properties. The flashing vacuum sums to zero over its three-beat period, to $1.8\times10^{-12}$. A defect keeps
+magnitude $\sqrt3$ ($1.732051$ at every beat) with a phase locked to the vacuum clock, $30^\circ, 30^\circ, 150^\circ$
+with period three. Two defects add exactly (additivity to $2\times10^{-16}$). And the exact negative: two defects have
+relative phase zero at every beat, so their cross term is $6 = 2\times3$, maximal, and their intensities add with no
+interference. Every defect is born in the same beat of the same clock. The momentum rule's vacuum shows neither the
+cancellation nor the clock (magnitude 15000, one phase), the control. This is the sharpest statement of the open
+problem the program can make: the rule does carry a dynamical phase, it is the vacuum clock, and it is the same phase
+everywhere.
+
+Everything with a $\psi$ in it therefore runs on a model. The coined Dirac walk is a hand-written unitary map on
+two complex amplitudes per site, coin then shift, and the program's tunnelling, zitterbewegung, Klein paradox,
+Bloch oscillation, Aubry-Andr\'e localisation, Jackiw-Rebbi mode, winding number and bulk-boundary results are
+correct reproductions of known quantum-walk physics on it \cite{strauch2006, kurzynski2008, regensburger2011,
+kitagawa2010, asboth2013}. The Born-rule, Bell, CHSH, GHZ and contextuality results are exact statements about small
+Hilbert spaces and their symmetries. The area law is a free-fermion chain. Each is now graded L1 or L2, carries its
+prior art, and names the model it runs on. None of them is evidence that the base is quantum.

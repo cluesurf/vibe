@@ -31,7 +31,7 @@
 // recurrence is real and is reported, and persistence is judged on the mean so a momentary reassembly
 // cannot pass as endurance. Both mesh sizes are checked so the conclusion is not a one-size artifact.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { sortingCollision } from '@/code/control/conserving-irreversible-collision'
@@ -67,11 +67,7 @@ export default experiment({
     const perSize = meshSides.map(meshSide => {
       const mesh = d4Mesh({ side: meshSide })
       const degree = mesh.degree
-      const opposite: number[] = []
-
-      for (let d = 0; d < mesh.degree; d++) {
-        opposite.push(mesh.opposite(d))
-      }
+      const opposite = meshOpposites(mesh)
 
       const knit = pairCollision({ opposite })
       const knitInverse = pairCollision({ opposite, forward: false })

@@ -49,7 +49,7 @@ export default experiment({
   title:
     'built and selected structures have a low assembly index while random noise has a high one, Assembly Theory order parameter on the substrate',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -9,6 +9,7 @@
 // tremble at all. So Zitterbewegung is measured as an emergent consequence of the discrete rule.
 
 import { diracQuantumWalk } from '@/code/dynamics/quantum-walk'
+import { dominantAngularFrequency } from '@/code/measure/dominant-frequency'
 
 // The chirality (mean-velocity) time series of the coined Dirac walk seeded as a right-mover.
 export function tremblingTrace(input: {
@@ -45,8 +46,6 @@ export function tremblingFrequency(input: {
   steps: number
 }): number {
   const trace = tremblingTrace(input)
-  const n = trace.length
-  const mean = trace.reduce((a, b) => a + b, 0) / n
 
   // flat (massless) trace: no trembling
   const amplitude = Math.max(...trace) - Math.min(...trace)
@@ -55,39 +54,5 @@ export function tremblingFrequency(input: {
     return 0
   }
 
-  const power = (f: number): number => {
-    let re = 0
-    let im = 0
-
-    for (let t = 0; t < n; t++) {
-      const phase = (2 * Math.PI * f * t) / n
-
-      re += (trace[t]! - mean) * Math.cos(phase)
-      im += (trace[t]! - mean) * Math.sin(phase)
-    }
-
-    return re * re + im * im
-  }
-
-  let peak = 1
-  let peakPower = 0
-
-  for (let f = 1; f < n / 2; f++) {
-    const p = power(f)
-
-    if (p > peakPower) {
-      peakPower = p
-      peak = f
-    }
-  }
-
-  // parabolic interpolation on the log-power around the peak bin
-  const yLeft = Math.log(power(peak - 1) + 1e-30)
-  const yMid = Math.log(peakPower + 1e-30)
-  const yRight = Math.log(power(peak + 1) + 1e-30)
-  const denom = yLeft - 2 * yMid + yRight
-  const delta = denom !== 0 ? (0.5 * (yLeft - yRight)) / denom : 0
-  const refined = peak + delta
-
-  return (2 * Math.PI * refined) / n
+  return dominantAngularFrequency({ trace })
 }

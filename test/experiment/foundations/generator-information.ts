@@ -8,18 +8,11 @@ import { verdict } from '@/test/scaffold/verdict'
 import {
   ternaryShells,
   rootsD4,
-  vectorKey,
+  sameVectorSet as sameSet,
   evenWeightCode,
   constructionAMinimalVectors,
 } from '@/code/algebra/group/root-system'
 import { automorphismGroupOrder } from '@/code/algebra/group/automorphism'
-
-function sameSet(left: number[][], right: number[][]): boolean {
-  const a = new Set(left.map(vectorKey))
-  const b = new Set(right.map(vectorKey))
-
-  return a.size === b.size && [...a].every(key => b.has(key))
-}
 
 // B1, the tone seed: the dock is the norm-2 shell of four ternary tones.
 export default experiment({

@@ -11,6 +11,7 @@ import {
   cubicLatticeCenterBySide,
 } from '@/code/substrate/cubic-lattice'
 import { coverageRadius } from '@/code/measure/associative-recall'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -90,10 +91,12 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const r = associativeSearchLatency({
-      smallCells: 750,
-      largeCells: 3000,
+      smallCells: scaled(750, scale),
+      largeCells: scaled(3000, scale),
     })
 
     return verdict({

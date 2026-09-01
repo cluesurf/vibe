@@ -18,7 +18,7 @@
 // We measure all of this directly. Depth L2.
 
 import { experiment } from '@/test/scaffold/suite'
-import { squareMesh } from '@/code/tool/mesh'
+import { squareMesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
@@ -51,9 +51,7 @@ export default experiment({
     const side = 10
     const beats = 1500
     const mesh = squareMesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const collision = pairCollision({ opposite, forward: true })
 

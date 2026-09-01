@@ -11,13 +11,13 @@ The symmetry-and-linear-algebra layer. It is not a stage the state flows through
 | `binary-tetrahedral.ts` | `binaryTetrahedralGroup`, `quaternionMultiply`, `spinorAction`, `vectorAction`, `isClosedUnderMultiplication` | the 24 unit Hurwitz quaternions (2T), the double cover of the 24-cell rotations |
 | `helicity.ts` | `plusSelfOverlap`, `plusToCrossOverlap`, `rotationZ`, `PLUS_POLARIZATION`, `CROSS_POLARIZATION` | graviton spin-2 verification, cos 2θ and sin 2θ under rotation |
 | `stabilizer.ts` | `stabilizerGroup`, `logicalOperators`, `codeDistance`, `pauliCommute`, `erasureCorrectable` | GF(2) stabilizer quantum codes, the [[5,1,3]] perfect code |
-| `vector.ts` | `dot`, `norm`, `add`, `sub`, `scale`, `normalize`, `innerJ`, `normJ` | Euclidean and Minkowski vector operations on number arrays |
+| `vector.ts` | `dot`, `norm`, `add`, `sub`, `scale`, `normalize`, `innerJ`, `normJ`, `containsVector` | Euclidean and Minkowski vector operations on number arrays |
 
 ## Symmetry algebra (`group/` subdir)
 
 The discrete groups and root systems.
 
-- `root-system.ts` builds the root systems and tests closure, `rootsD4()` (24), `rootsF4()` (48), `rootsE8()` (240), `rootsB4()`, plus `reflectRoot`, `isRootSystem`, `reflectionClosure`, `cartanMatrix`, `spinorWeightsDn`, and `standardModelEmbedsInRootSystem`.
+- `root-system.ts` builds the root systems and tests closure, `rootsD4()` (24), `rootsF4()` (48), `rootsE8()` (240), `rootsB4()`, plus `reflectRoot`, `isRootSystem`, `reflectionClosure`, `vectorKey`, `sameVectorSet`, `cartanMatrix`, `spinorWeightsDn`, and `standardModelEmbedsInRootSystem`.
 - `quaternion.ts` is the object-style quaternion with `multiply`, `conjugate`, `negate`, and the three groups `quaternionGroup()` (Q8), `binaryTetrahedral()` (2T, 24), `binaryIcosahedral()` (2I, 120).
 - `clifford.ts` is the spinor machinery, `pauli()`, `diracGamma()`, `diracGamma5()`, `diracHamiltonian({ px, py, pz, mass })`, the complex-matrix helpers (`cmMultiply`, `cmKron`, `cmCommutator`, `cmAntiCommutator`), and the `minkowski` metric.
 - `so8-triality.ts` cycles the representations, `vectorRep8()` (8v), `spinorRepEven8()` (8s), `spinorRepOdd8()` (8c), and `applyTriality` (the Hadamard map).
@@ -32,6 +32,8 @@ The numerical engine.
 | file | key exports | one-line |
 |:--- |:--- |:--- |
 | `complex.ts` | `Complex`, `cAdd`, `cMul`, `cConj`, `cAbs`, `cFromPhase` | complex-number arithmetic |
+| `complex-pair.ts` | `ComplexPair`, `pairAdd`, `pairSub`, `pairMul`, `pairScale`, `pairConj`, `pairAbs2`, `pairFromPhase`, `PAIR_I` | complex numbers as `[re, im]` tuples for hot loops (the object form above is for operator APIs) |
+| `matrix2.ts` | `Matrix2`, `multiply2` | a real 2 x 2 matrix as a flat tuple and its product |
 | `complex-vector.ts` | `Cx`, `newCx`, `dotR` | complex vectors as split real and imaginary `Float64Array` halves |
 | `dense.ts` | `makeDense`, `denseMatVec`, `matrixProduct`, `determinant`, `solveLinearSystem` | dense matrices and Gaussian elimination |
 | `sparse.ts` | `SparseMatrix`, `sparseFromTriplets`, `sparseMatVec`, `LinearOperator`, `operatorFromSparse`, `sparseWithAubryAndrePotential` | CSR sparse matrices and the large-operator interface |

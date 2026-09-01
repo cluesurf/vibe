@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a selection model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // Deterministic evolution: variation plus persistence-selection, no randomness. A population of variant patterns
 // in a fixed environment adapts toward it: the fitter (more resonant, more persistent) half survives and seeds
 // deterministic variants, and mean fitness rises over generations. Without selection there is no rise. So
@@ -16,7 +17,7 @@ export default experiment({
     'deterministic variation plus persistence-selection adapts a population toward its environment, with no randomness',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const sizes = [80, 120, 160]
@@ -57,6 +58,7 @@ export default experiment({
       },
       control: { noSelectionFinalFitness: last.control.finalFitness },
       notes:
+        'AUDIT 2026-08-31: this experiment is a selection model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 deterministic evolution, fitness is persistence (resonance with the niche), variation is structured site flips, robustness by size not seeds',
     })
   },

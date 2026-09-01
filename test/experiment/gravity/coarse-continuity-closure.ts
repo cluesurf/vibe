@@ -14,7 +14,7 @@
 // conservation and not a generic smoothing. (The lossy residual magnitude falls with block size because the
 // signed erased charges partially cancel inside larger blocks. What matters is that it is never zero.)
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill } from '@/code/tone/will'
@@ -34,11 +34,7 @@ export default experiment({
   run() {
     const meshSide = 8 // 8^4 = 4096 cells, divisible by block sides 1, 2, 4
     const mesh = d4Mesh({ side: meshSide })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = headOnRotate({ opposite })
     const degree = mesh.degree

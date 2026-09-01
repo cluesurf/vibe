@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. a measured geodesic and depth structure of the {7,3} tessellation, which is hyperbolic geometry (known), with no rule or dynamics and no entanglement, so the honest depth is L2.
 // P91: holography on the real crystal. The substrate is hyperbolic, which is exactly the geometry
 // of holography (the spatial slice of Anti-de Sitter space). Three holographic results, all computed
 // on the actual {7,3} engine graph (P85):
@@ -161,10 +162,10 @@ export default experiment({
   id: 'holography/p91-holography',
   code: 'E-HLG-0016',
   title:
-    'Ryu-Takayanagi log law, geodesic shortcut, and depth-as-scale on the {7,3} crystal',
+    'geodesic-shortcut log law, boundary-arc shortcut, and depth-as-scale on the {7,3} crystal',
   category: 'holography',
   substrates: ['534'],
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const r = holography()
@@ -173,6 +174,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: regraded from L3 to L2, a measured geodesic and depth structure of the {7,3} tessellation, which is hyperbolic geometry (known), with no rule or dynamics and no entanglement, so the honest depth is L2.',
       claim:
         'the bulk geodesic length gives the boundary entanglement entropy as a log law, far boundary cells are near through the bulk, and the geodesic depth encodes the boundary separation',
       metrics: {
