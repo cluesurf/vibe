@@ -10,3 +10,5 @@ tmp/
 *.thm
 *.log
 test/site/
+.env
+.env.*

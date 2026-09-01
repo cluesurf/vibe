@@ -16,3 +16,5 @@ tmp/
 test/site/node_modules/
 test/site/build/
 node_modules
+.env
+.env.*
