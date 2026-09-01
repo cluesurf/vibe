@@ -15,7 +15,7 @@ Import from `@/code/operator/<file>`.
 | `screened-greens-function` | `screenedGreensFunction`, `clampedLeakyDiffusion` | a screened (massive) Green's function |
 | `lattice-green-kspace` | `latticeGreenDifferenceX` | the lattice Green's function in momentum space |
 | `maxwell-lattice` | `maxwellLatticeSpectrum`, `maxwellLatticeMatrix`, `applyMaxwell`, `gradientLinkField`, `linkField`, `maxwellLinkIndex` | the lattice Maxwell (photon) spectrum, the dense curl-curl matrix and its action, pure-gauge and explicit link fields |
-| `toric-code` | `d4CellComplex`, `vertexCheckMatrix`, `triangleCheckMatrix`, `toricCodeParameters`, `complexComponents` | the D4 cell complex of `d4Mesh` (vertices, root edges, root triangles), its X and Z checks, and the code parameters by GF(2) rank |
+| `toric-code` | `d4CellComplex`, `vertexCheckMatrix`, `triangleCheckMatrix`, `toricCodeParameters`, `complexComponents`, `ternaryVertexCheckRows`, `ternaryTriangleCheckRows`, `ternaryChecksCommute` | the D4 cell complex of `d4Mesh` (vertices, root edges, root triangles), its X and Z checks, and the code parameters by GF(2) rank |
 | `radial-schrodinger` | `radialSchrodingerLevels` | radial Schrodinger energy levels |
 
 ## Dirac and fermions
