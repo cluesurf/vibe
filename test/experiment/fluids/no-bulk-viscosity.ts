@@ -12,7 +12,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
 import {
@@ -33,11 +33,7 @@ export default experiment({
     const side = 14
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = headOnRotate({ opposite })
     const beats = 40

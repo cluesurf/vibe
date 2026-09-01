@@ -24,7 +24,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import {
   makeWill,
   loneParticle,
@@ -53,9 +53,7 @@ export default experiment({
     const side = 24
     const beats = 10
     const mesh: Mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const dir = 0
     const opp = mesh.opposite(dir)

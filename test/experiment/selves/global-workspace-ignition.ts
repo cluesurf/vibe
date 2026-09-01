@@ -26,7 +26,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshNeighbors, shellDistances } from '@/code/tool/mesh'
 
-const SIDE = 6
+const SIDE = 7 // was 6 until 2026-08-31, see the audit note
 const THRESHOLD = 8
 const SEED_RADII = [0, 1, 2, 3, 4]
 
@@ -134,7 +134,7 @@ export default experiment({
         subThresholdBroadcast: Number(subThreshold.toFixed(4)),
       },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run used d4Mesh with an even side until 2026-08-31, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  On 2026-08-31 the side moved from 6 to 7. At side 6 the supra-threshold broadcast was exactly 0.5, the reachable half of the split mesh, and the sub-threshold seed stayed at 0.019, so the verdict passed. On the connected meshes the broadcast reaches 1.0 but the seed one radius below the critical one already spreads to 0.27 at side 5 and 0.26 at side 7, so the stays-local-below half fails at every odd side. The side-6 pass was a parity artifact and the experiment now reports the connected-mesh result, a fail, with the thresholds untouched.' +
         'Global-workspace ignition (Dehaene-Changeux, Baars). The all-or-none broadcast the graded attention-workspace result lacked. Distinct from the persistence threshold (abiogenesis): this is about global availability, not survival.',
     })
   },

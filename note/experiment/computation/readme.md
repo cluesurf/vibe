@@ -33,7 +33,7 @@ The base rule read as a computational primitive, exactly reversible, sparse, and
 - **[`E-CMP-0003`](../../../test/experiment/computation/discrete-rule-endtoend.ts)** - one discrete directional rule verified end to end, exact charge conservation, exact momentum conservation, exact reversibility, and a smoothly coarse-graining continuum density.
 - **[`E-CMP-0014`](../../../test/experiment/computation/sparse-attention-update.ts)** - the reversible rule is a sparse one-hot local-attention update (one nonzero per row, an O(cells times degree) gather), with exact activity pruning that vanishes on a dense state and on the live-vacuum creating rule.
 - **[`E-CMP-0009`](../../../test/experiment/computation/self-replication.ts)** - deterministic self-replication and heredity, a constructor copies a template each generation so the population grows bit-identical, while a lossy constructor breaks the copy, the control.
-- **[`E-CMP-0013`](../../../test/experiment/computation/walk-complexity.ts)** - the emergent quantum walk profile sits above the Morse-Hedlund complexity line (genuine interference, Ord and Kauffman), while the classical diffusive walk sits below it.
+- **[`E-CMP-0013`](../../../test/experiment/computation/walk-complexity.ts)** - the coined walk model's profile sits above the Morse-Hedlund complexity line (genuine interference, Ord and Kauffman), while the classical diffusive walk sits below it.
 
 ## Goal-directed search
 

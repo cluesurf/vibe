@@ -24,7 +24,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -69,9 +69,7 @@ export default experiment({
       }
     }
 
-    const opposite = Array.from({ length: degree }, (unused, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,

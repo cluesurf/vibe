@@ -9,7 +9,7 @@
 // population ADAPTS when the environment changes (open-ended), (3) variation is necessary (zero mutation
 // stalls). Run: npx tsx code/experiment/p161-evolution.ts
 
-import { hashRand, makeHashRng } from '@/code/dynamics/conserving-sweep'
+import { makeHashRng } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

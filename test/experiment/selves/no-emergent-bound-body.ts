@@ -20,7 +20,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { squareMesh, type Mesh } from '@/code/tool/mesh'
+import { squareMesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
@@ -40,9 +40,7 @@ export default experiment({
     const radius = 6
     const mesh: Mesh = squareMesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const rule: Collision = headOnRotate({ opposite })
     // square coin directions, 0 is +x, 1 is -x, 2 is +y, 3 is -y (verified from the mesh neighbour map).

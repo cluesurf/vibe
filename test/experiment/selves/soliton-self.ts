@@ -20,7 +20,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { cloneWill, gliderLine, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
@@ -40,9 +40,7 @@ export default experiment({
     const beats = 16
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const rule: Collision = headOnRotate({ opposite })
     const half = side / 2

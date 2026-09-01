@@ -15,7 +15,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import { charge, cloneWill } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
@@ -36,11 +36,7 @@ export default experiment({
   run() {
     const side = 14
     const mesh = d4Mesh({ side })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = pairCollision({ opposite, forward: true }) // the committed charge-conserving knit
     const beats = 56

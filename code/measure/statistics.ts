@@ -231,3 +231,17 @@ export function windowMean(input: {
 
   return sum / Math.max(1, input.hi - input.lo)
 }
+
+// The net value of `values` summed over `blocks` contiguous index blocks of equal size (the last
+// block takes the remainder): the coarse signature a block detector reads. Two quantum
+// experiments each carried this.
+export function blockSums(values: ArrayLike<number>, blocks: number): number[] {
+  const sig = new Array<number>(blocks).fill(0)
+  const per = Math.ceil(values.length / blocks)
+
+  for (let i = 0; i < values.length; i++) {
+    sig[Math.min(blocks - 1, Math.floor(i / per))]! += values[i]!
+  }
+
+  return sig
+}

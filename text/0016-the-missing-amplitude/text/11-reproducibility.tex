@@ -1,0 +1,18 @@
+\section{Reproducibility}
+
+Every number in this paper is printed by an experiment in the program's open source repository
+\cite{cluesurf2026repo}, on the branch that carries this audit. Each experiment declares its identifier, its depth,
+its substrate label, its claim, its metrics and its computed control, and the runner reports a status of pass, fail,
+partial or open for each. The appendix indexes the experiments cited here. The suite's own checks (the depth
+labels, the substrate labels, the typed constants, the coverage map, the scale perturbation) run with the suite, and
+the type checker runs before it. The full run before the last edits of the audit reported 804 passes, 3 fails, 9
+partials and 15 open results over 831 registrations with no crashes, the three fails being the bare causal-set
+action's known non-manifold dominance, a causal-set weighting result, and the self-emergence knife edge. The edits
+after that run are covered by before-and-after diffs of every affected experiment, and by the run recorded on the
+branch.
+
+Claude Code, Anthropic's coding agent, was used heavily throughout this program. The earlier experiments and papers
+were written and iterated with the Claude Opus 4 and Opus 5 models, and this audit, its new experiments, its checks
+and this paper were written with Claude Fable 5. The author set the questions, the standards and the verdicts on
+what counts, and read the results. The code and the prose were produced with the models, and the reader should
+weigh the work knowing that.

@@ -176,6 +176,7 @@ export default experiment({
       rotateMomentum.push(
         conservesMomentum(build(), rotate, BEATS, directions) ? 1 : 0,
       )
+
       pairMomentum.push(
         conservesMomentum(build(), knit, BEATS, directions) ? 1 : 0,
       )

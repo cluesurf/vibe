@@ -144,6 +144,7 @@ export default experiment({
           r.flatIsLowestGrowthLargestRadius ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31 (perturbation): at half size (600 ladder cells, cubic side 6) the verdict fails because the cubic control coverage radius (9) ties the least-curved hyperbolic one (9); it holds at 1200 and 1800 cells. The measured floor of the claim is about 1000 cells. ' +
         'L3, a deep cross-tessellation claim with the flat cubic lattice as the null control. The ladder is a representative handful of buildable tessellations ordered by catalog curvature ({5,3,4} least, {5,3,3,5} most), not the full catalog, the full sweep with the associative columns per tessellation is the battery CSV. The associative growth ratio and coverage radius come from the one reusable battery column (code/measure/tessellation-battery), so the ladder and the CSV agree. Build is kept small (maxCells 1200, cubic side 13) for suite cost.',
     })
   },

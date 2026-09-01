@@ -22,7 +22,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import {
   makeWill,
   cloneWill,
@@ -170,9 +170,7 @@ export default experiment({
     const echoBeats = 200
     const profileBeats = 2000
     const mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,

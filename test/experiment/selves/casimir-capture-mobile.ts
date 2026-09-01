@@ -15,7 +15,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { d4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import {
   pairCollision,
@@ -41,9 +41,7 @@ export default experiment({
     const minGap = 2 // plates stop when this close (contact)
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const binOf = (cell: number): number => cell % side
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for both runs

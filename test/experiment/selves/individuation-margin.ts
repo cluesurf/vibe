@@ -82,7 +82,7 @@ export default experiment({
         bestScrambleMargin,
       },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  Rerun at sides 5 and 7 on 2026-08-31: at side 7 the mesh margin is 0.444 against -0.043 for the scramble and the verdict holds, so the even side is not what individuates. At side 5 the radius-3 ball is the whole torus and both margins are 1 (fail), a size floor.' +
         'the discriminating control is the scramble: same 24-regular degree, locality gone, so no compact low-conductance region exists and nothing individuates. On the hyperbolic mesh the boundary of a ball is a constant fraction of its volume (unlike a flat lattice where it vanishes), so a self keeps a real coupling to the world even while individuated, which matches vibe picture of a self as a local gathering that never fully seals. This reads the graph only, a structural proxy, not the tone dynamics.',
     })
   },

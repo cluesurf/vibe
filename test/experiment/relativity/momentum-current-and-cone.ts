@@ -7,7 +7,7 @@
 // invariance (the open wall), it establishes the second conserved current and the exact causal speed the
 // relativity rung needs.
 
-import { d4Mesh, shellDistances } from '@/code/tool/mesh'
+import { d4Mesh, shellDistances, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill, cloneWill, fillWillPattern } from '@/code/tone/will'
@@ -29,11 +29,7 @@ export default experiment({
     const side = 16
     const mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite: number[] = []
-
-    for (let d = 0; d < degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const knit = headOnRotate({ opposite })
     const beats = 8

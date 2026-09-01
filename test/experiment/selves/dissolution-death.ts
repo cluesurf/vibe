@@ -99,7 +99,7 @@ export default experiment({
         deadMargin,
       },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  Rerun at sides 5 and 7 on 2026-08-31: at side 7 (2401 connected cells) the death threshold is the same fraction 0.2 with the dead margin -0.550, so the mechanism does not need the even side. At side 5 the 505-cell core nearly fills the 625-cell torus and cannot dissolve (fail), a size floor.' +
         'the same cells are alive when gathered and dead when scattered, so identity is the gathering. The trajectory is deterministic (evenly spaced scatter pool, fixed fractions, no random draw). This is the death half of the self life-cycle whose birth half is selves/individuation-margin, and it reads the graph only, a structural proxy.',
     })
   },

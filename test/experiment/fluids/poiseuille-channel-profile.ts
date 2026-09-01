@@ -20,7 +20,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import {
   Collision,
@@ -70,11 +70,7 @@ function runChannel(input: {
   const { side, beats, bulk, walls } = input
   const mesh = d4Mesh({ side })
   const directions = rootsD4()
-  const opposite: number[] = []
-
-  for (let d = 0; d < mesh.degree; d++) {
-    opposite.push(mesh.opposite(d))
-  }
+  const opposite = meshOpposites(mesh)
 
   const isWall = (cell: number): boolean => {
     if (!walls) {
@@ -231,11 +227,7 @@ export default experiment({
     const beats = 10 * side
     const directions = rootsD4()
     const coin = d4Mesh({ side: 4 }) // any d4 mesh exposes the shared 24-direction coin
-    const opposite: number[] = []
-
-    for (let d = 0; d < coin.degree; d++) {
-      opposite.push(coin.opposite(d))
-    }
+    const opposite = meshOpposites(coin)
 
     const mixing = saturatedViscousRotate({ directions })
 

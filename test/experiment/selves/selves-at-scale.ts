@@ -215,6 +215,7 @@ export default experiment({
       },
       control: { largestRandom: r.largestRandom },
       notes:
+        'AUDIT 2026-08-31 (perturbation): at half size (30000 cells) the verdict fails with one patch over fifty against five at 60000 and six at 90000, so the claim has a measured size floor between 30000 and 60000 cells; it holds at 60000 and 90000. ' +
         'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'uses a cohesion maintenance term that is not one of the five base things, a mid-layer result not pure substrate emergence',
     })

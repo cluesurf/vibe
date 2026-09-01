@@ -26,7 +26,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { b4Mesh, type Mesh } from '@/code/tool/mesh'
+import { b4Mesh, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, loneParticle, type Will } from '@/code/tone/will'
 import {
   pairCollision,
@@ -63,9 +63,7 @@ export default experiment({
     const beats = 8
     const mesh: Mesh = b4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const half = side / 2
     const center =

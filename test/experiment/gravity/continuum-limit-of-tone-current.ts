@@ -28,8 +28,12 @@
 // scale-free negative control. The identification of the limit field with the
 // Chronoflux current is the bridge reading, stated as such.
 
-import { d4Mesh } from '@/code/tool/mesh'
-import { makeWill, charge, type Will } from '@/code/tone/will'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  makeWill,
+  charge,
+  fillCoordinateTexture,
+} from '@/code/tone/will'
 import { run } from '@/code/rule/lattice-gas'
 import { pairCollision } from '@/code/rule/collision'
 import {
@@ -74,23 +78,6 @@ function convergenceExponent(norms: number[]): number {
 
 // a deterministic heterogeneous ternary texture: a period-7 wave with mixed
 // coordinate coefficients, so cells genuinely differ and block means self-average
-function fillTexture(will: Will): void {
-  const { mesh, data } = will
-
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const x = cell % SIDE
-    const y = Math.floor(cell / SIDE) % SIDE
-    const z = Math.floor(cell / (SIDE * SIDE)) % SIDE
-    const w = Math.floor(cell / (SIDE * SIDE * SIDE)) % SIDE
-
-    for (let d = 0; d < mesh.degree; d++) {
-      const phase = (x + 2 * y + 3 * z + 5 * w + d) % 7
-
-      data[cell * mesh.degree + d] = (phase % 3) - 1
-    }
-  }
-}
-
 // the deterministic Cantor-dust control state: charge on cells whose x
 // coordinate written base 3 avoids the digit 1 (scale structure at every scale)
 function cantorDust(mesh: ReturnType<typeof d4Mesh>): {
@@ -137,9 +124,7 @@ export default experiment({
   paper: true,
   run() {
     const mesh = d4Mesh({ side: SIDE })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const collision = pairCollision({ opposite })
 
@@ -151,7 +136,7 @@ export default experiment({
     // the audit flagged, so the texture must vary cell to cell.
     const start = makeWill(mesh)
 
-    fillTexture(start)
+    fillCoordinateTexture(start, SIDE)
 
     const evolved = run(start, collision, BEATS)
     const conservedExactly = charge(evolved) === charge(start)

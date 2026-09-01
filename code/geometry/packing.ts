@@ -139,6 +139,7 @@ export function greedyKissingGrowth(
 
   for (const candidate of candidates) {
     const direction = unit(candidate)
+
     let fits = true
 
     for (const held of accepted) {

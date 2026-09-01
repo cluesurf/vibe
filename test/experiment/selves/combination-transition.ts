@@ -120,7 +120,7 @@ export default experiment({
       // CONTROL: far apart the gain is exactly zero, two separate selves.
       control: { farGain: Number(farGain.toFixed(4)) },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  Rerun at sides 9 and 11 on 2026-08-31: far gain 0, close gain 0.0593, critical separation 5 at both, so the even side changes nothing here (the maximum jump halves, 0.034 against 0.069).' +
         'The combination problem as a phase transition (Tononi, Faggin, Hoffman, Levin). A sharp integration threshold, not a smooth rise. A structural integration proxy (the binding margin), so it marks where a combined subject sits, it does not touch the felt-inside axiom.',
     })
   },

@@ -8,7 +8,7 @@
 // minimizes energy. The honest negative is part of the result, not a bug.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
@@ -19,6 +19,7 @@ import {
   toneOverlap,
 } from '@/code/operator/hopfield'
 import { makeRng } from '@/code/tool/rng'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -72,9 +73,7 @@ function bareRuleRecall(input: {
   const { cue, side, beats } = input
   const mesh = d4Mesh({ side })
   const collision = pairCollision({
-    opposite: Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    ),
+    opposite: meshOpposites(mesh),
   })
 
   let will = makeWill(mesh)
@@ -191,8 +190,10 @@ export default experiment({
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
-  run() {
-    const r = hopfieldEmergentRecall()
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = hopfieldEmergentRecall({ maxCells: scaled(256, scale) })
 
     return verdict({
       status: r.solved ? 'pass' : 'fail',

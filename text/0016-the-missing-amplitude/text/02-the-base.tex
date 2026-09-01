@@ -1,0 +1,33 @@
+\section{The Base}
+
+\textbf{The mesh.} The committed substrate is $\{3,4,3,4\}$, the honeycomb of hyperbolic 4-space by 24-cells, with
+four cells around each triangle. The twenty-four neighbours of a cell are the roots of $D_4$, the vectors
+$(\pm1, \pm1, 0, 0)$ and their permutations. The flat ideal boundary at a cusp is the cubic honeycomb $\{4,3,4\}$ of
+ordinary space. The experiments build this mesh three ways: the exact reflection-group orbit engine, which grows
+chambers outward from a seed and reports the cell graph, a cell-direct builder with a cell cap, and a periodic
+$D_4$ lattice on a four-torus of side $s$, which is $\mathbb{Z}^4$ with the twenty-four root adjacencies and is the
+flat model of the local structure. Comparison substrates ($\{5,3,4\}$, $\{7,3\}$, $\{5,3\}$, cubic lattices, Bethe
+trees, scrambled graphs of matched degree) appear only as controls.
+
+\textbf{The tone and the will.} Each cell holds one ternary slot per direction, an \texttt{Int8} array of
+$24 \times \text{cells}$ entries in $\{-1, 0, +1\}$. The state of the whole mesh is this array. Charge is its sum.
+
+\textbf{The knit.} One beat is a collision at every cell followed by a stream, each slot's value moving one cell
+along its direction. Two collisions are committed. The charge rule acts on each pair of opposite slots through a
+nine-state table with create, flip and annihilate moves, conserving the pair's charge. The momentum rule rotates a
+head-on pair of equal signs into a perpendicular pair, conserving charge and the $D_4$ momentum. Both are bijections
+on the slot array, so every beat is a permutation of the finite state space, and running the inverse collision after
+the inverse stream recovers the start exactly. This is the property every experiment on reversibility measures, and
+it holds to an integer Hamming distance of zero.
+
+\textbf{The arrow.} The mesh grows one shell per beat at its frontier. Fresh cells are born at peace, all slots zero,
+and creation happens only where the moving frontier meets the older structure. Because the frontier never returns
+to a cell, growth alone desynchronises the update and supplies the direction of time. No rate parameter and no random
+number enter the genesis experiments.
+
+\textbf{A fact about the periodic mesh.} The $D_4$ roots all have even coordinate sum, so on a four-torus of even
+side the cells of even and odd coordinate sum never meet. A periodic $D_4$ lattice of side 4, 6 or 8 is two
+disconnected lattices of 128, 648 and 2048 cells, and a breadth-first search from any cell reaches exactly half of
+the mesh. An odd side wraps the two classes together and the mesh is connected. The audit found this through a
+quantum code (Section~\ref{sec:models}), traced it through the forty even-sided call sites in the suite, and found
+two passing experiments that depended on it (Section~\ref{sec:corrections}).

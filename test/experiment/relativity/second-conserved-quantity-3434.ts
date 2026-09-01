@@ -19,7 +19,7 @@ import {
   gliderLine,
   charge,
 } from '@/code/tone/will'
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
 import {
@@ -40,11 +40,7 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: 6 })
     const directions = rootsD4()
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const beats = 50
 

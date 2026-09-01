@@ -18,7 +18,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { squareMesh } from '@/code/tool/mesh'
+import { squareMesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough } from '@/code/rule/collision'
 import {
@@ -83,9 +83,7 @@ export default experiment({
     const side = 48
     const beats = 18
     const mesh = squareMesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const collision = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })

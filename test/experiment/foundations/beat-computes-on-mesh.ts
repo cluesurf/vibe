@@ -22,7 +22,7 @@
 // the register-two counterpart of the register-one forcing experiments (tone-is-forced,
 // cell-is-forced), with a lossy control that fails both properties.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, charge, type Will } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
@@ -73,9 +73,7 @@ export default experiment({
 
     for (const side of SIDES) {
       const mesh = d4Mesh({ side })
-      const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-        mesh.opposite(d),
-      )
+      const opposite = meshOpposites(mesh)
 
       const knit = pairCollision({ opposite })
       const knitInverse = pairCollision({ opposite, forward: false })

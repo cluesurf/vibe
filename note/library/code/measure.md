@@ -75,7 +75,7 @@ Import from `@/code/measure/<file>`.
 | `redundancy-code` | `recoverByMajority`, `corruptConnectedRegion` | error correction by redundancy |
 | `recoverability` | `recoverabilityTrace` | information recovered after evolution |
 | `shared-past` | `bulkSharedPast`, `seedSharedPast`, `backwardCone` | the common past of two events |
-| `statistics` | `mean`, `pearson`, `mutualInformationBits`, `relativeL2Error` | the shared statistics kit |
+| `statistics` | `mean`, `pearson`, `mutualInformationBits`, `relativeL2Error`, `windowMean`, `blockSums` | the shared statistics kit |
 | `tone-entropy` | `ternaryToneEntropyBits` | Shannon entropy of the tone field |
 | `tone-correlation` | `connectedToneCorrelation`, `meanCorrelationMagnitude` | connected tone correlation |
 | `connected-correlation` | `connectedCorrelationByDistance`, `correlationLengthFromDecay` | correlation length from decay |
@@ -110,6 +110,7 @@ Import from `@/code/measure/<file>`.
 
 | module | key exports | what it returns |
 |:--- |:--- |:--- |
+| `koide` | `koideRatio` | the Koide ratio Q of three masses |
 | `standard-model-charges` | `STANDARD_MODEL_GENERATION`, `weinbergAngleAtUnification`, `hyperchargeTrace` | one generation's charge assignment |
 | `electroweak` | `custodialRho`, `wToZMassRatio` | electroweak mass ratios |
 | `flavor-mixing` | `mixingAngleFromMassRatio`, `wolfensteinHierarchy` | CKM-style mixing from mass ratios |
@@ -166,7 +167,7 @@ Import from `@/code/measure/<file>`.
 | `churn` | `churnCount` | how much the state churns per beat |
 | `avalanche` | `avalancheSizes`, `settledAvalancheSizes`, `toneDensity` | self-organized-criticality avalanche sizes |
 | `action-fluctuation` | `actionFluctuationExponent` | how the action fluctuates with size |
-| `time-spectrum` | `dominantAngularFrequency` | the dominant frequency of a time series |
+| `dominant-frequency` | `dominantAngularFrequency`, `dominantBinAngularFrequency` | the dominant angular frequency of a time series: the DFT peak with parabolic interpolation between bins (shared by `bloch-oscillation`, `zitterbewegung` and `propagating-mode-3434`), and the bin-exact peak it replaced (`energy-time-collapse-law`). `time-spectrum.ts` is the old home of the bin version and is empty of callers |
 | `fringe` | `fringeStatistics` | interference-fringe statistics |
 
 ## Fisher-Rao, coarse-graining, and coherence

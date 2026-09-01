@@ -39,7 +39,7 @@
 // reporting permanent indistinguishability. That is what licenses reading "beat 1" at the other scales
 // as a real finding rather than as an insensitive test.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import { cloneWill, makeWill } from '@/code/tone/will'
 import { blockCount, blockIndexer } from '@/code/tool/block'
@@ -71,11 +71,7 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: MESH_SIDE })
     const degree = mesh.degree
-    const opposite: number[] = []
-
-    for (let d = 0; d < degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const knit = pairCollision({ opposite })
 

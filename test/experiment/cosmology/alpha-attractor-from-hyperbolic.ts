@@ -36,12 +36,15 @@
 // slow-roll integration on the alpha-attractor potential, with the quadratic potential
 // (non-attractor, measured r about 0.14) as the computed foil.
 
+import {
+  type SlowRollPotential as Potential,
+  slowRollEnd as findEnd,
+  slowRollObservables as observables,
+} from '@/code/dynamics/slow-roll'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const N_PIVOT = 55 // e-folds at the observable pivot
-
-type Potential = (phi: number) => { V: number; Vp: number; Vpp: number }
 
 // the alpha-attractor canonical potential V = tanh^2(phi / sqrt(6 alpha)) (V0 = 1, it cancels
 // in the slow-roll observables)
@@ -68,48 +71,7 @@ const quadratic: Potential = phi => ({
 })
 
 // the field value where slow-roll ends (epsilon = 1), searching downward from a plateau guess
-function findEnd(pot: Potential, guess: number): number {
-  let phi = guess
-
-  for (let i = 0; i < 2000000; i++) {
-    const p = pot(phi)
-    const eps = 0.5 * (p.Vp / p.V) ** 2
-
-    if (eps >= 1) {
-      return phi
-    }
-
-    phi -= 1e-4
-  }
-
-  return phi
-}
-
 // integrate targetN e-folds back (to larger phi) from the end, return n_s and r there
-function observables(
-  pot: Potential,
-  phiEnd: number,
-  targetN: number,
-): { ns: number; r: number } {
-  let phi = phiEnd
-  let efolds = 0
-
-  const dphi = 1e-4
-
-  while (efolds < targetN && phi < 200) {
-    const p = pot(phi)
-
-    efolds += Math.abs((p.V / p.Vp) * dphi)
-    phi += dphi
-  }
-
-  const p = pot(phi)
-  const eps = 0.5 * (p.Vp / p.V) ** 2
-  const eta = p.Vpp / p.V
-
-  return { ns: 1 - 6 * eps + 2 * eta, r: 16 * eps }
-}
-
 export default experiment({
   id: 'cosmology/alpha-attractor-from-hyperbolic',
   code: 'E-CSM-0047',

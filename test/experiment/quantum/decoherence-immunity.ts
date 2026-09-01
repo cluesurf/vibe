@@ -32,7 +32,7 @@
 // about biology or about Orch-OR being wrong, only that vibe's route to a definite
 // outcome carries no coherence bill.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -70,10 +70,7 @@ export default experiment({
 
     for (const side of SIDES) {
       const mesh = d4Mesh({ side })
-      const opposite = Array.from(
-        { length: mesh.degree },
-        (unused, d) => mesh.opposite(d),
-      )
+      const opposite = meshOpposites(mesh)
 
       const forward: Collision = pairCollision({
         opposite,

@@ -18,7 +18,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { squareMesh, shellDistances, type Mesh } from '@/code/tool/mesh'
+import { squareMesh, shellDistances, type Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
@@ -106,9 +106,7 @@ function perturbationRadius(input: {
   dirty.data[site * mesh.degree] =
     dirty.data[site * mesh.degree] === 1 ? -1 : 1
 
-  const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-    mesh.opposite(d),
-  )
+  const opposite = meshOpposites(mesh)
 
   const collision = pairCollision({ opposite, forward: true })
 
@@ -164,9 +162,7 @@ export default experiment({
     const side = 64
     const beats = 24
     const { mesh, will } = breather(side)
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const collision = pairCollision({ opposite, forward: true })
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat

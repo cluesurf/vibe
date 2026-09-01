@@ -659,6 +659,20 @@ export function conservingEdgeSweepSteeredHashed(input: {
 // Used by the hashed sweep so that perturbing one cell does NOT shift the random
 // stream seen by distant edges (which would be a spurious instantaneous global
 // difference). Both copies of a damage-spreading run see the same hash per edge.
+// A generic ternary tone from the hash stream: each cell -1 with probability 0.3, +1 with 0.3,
+// else 0, a fixed function of (cell, salt). Two quantum experiments each carried this.
+export function hashedTone(size: number, salt: number): Int8Array {
+  const tone = new Int8Array(size)
+
+  for (let i = 0; i < size; i++) {
+    const r = hashRand(i, 0, salt)
+
+    tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
+  }
+
+  return tone
+}
+
 export function hashRand(
   key: number,
   beat: number,

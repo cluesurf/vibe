@@ -14,7 +14,7 @@
 // numbers are dynamically small rather than zero by the translation symmetry of a
 // homogeneous fill.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -38,9 +38,7 @@ export default experiment({
     const side = 6
     const beats = 300
     const mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,

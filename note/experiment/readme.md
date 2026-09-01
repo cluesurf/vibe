@@ -4,14 +4,14 @@ This tree lets you see the whole experiment corpus at a glance, find any single
 experiment fast, understand what is covered and what is not, and extend the
 suite without reverse-engineering it.
 
-There are **825 experiments** in the registry (2026-08-31, after the
+There are **831 experiments** in the registry (2026-08-31, after the
 audit in `../audit/2026-08-31-experiment-audit.md`). Each is a small,
 deterministic kernel or simulation that states one claim, grades itself
 at a depth tier, and (for the strong ones) compares against a computed
 control that could have failed. Not every experiment runs on the
 discrete substrate: the `substrates` field says which do, and
 `pnpm check:labels` keeps that field honest. No one is going to read
-825 files, so this folder is the way in.
+831 files, so this folder is the way in.
 
 ## The suite in one paragraph
 
@@ -44,9 +44,9 @@ folder). Counts are file counts.
 | arena | files | registered | what it tests |
 |:--- | ---: | ---: |:--- |
 | [selves](selves/readme.md) | 176 | 175 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
-| [gauge](gauge/readme.md) | 71 | 71 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate |
-| [foundations](foundations/readme.md) | 78 | 86 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed, and the rule's own limits (no amplitudes, a period-three vacuum) |
-| [quantum](quantum/readme.md) | 92 | 92 | the quantum on stated models (the coined Dirac walk, tight-binding chains, small Hilbert spaces): Born rule, entanglement, measurement as settling, topological walks. None of it yet runs the base rule, see `../audit/2026-08-31-experiment-audit.md` |
+| [gauge](gauge/readme.md) | 72 | 72 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate |
+| [foundations](foundations/readme.md) | 83 | 90 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed, and the rule's own limits (no amplitudes, a period-three vacuum) |
+| [quantum](quantum/readme.md) | 93 | 93 | the quantum on stated models (the coined Dirac walk, tight-binding chains, small Hilbert spaces): Born rule, entanglement, measurement as settling, topological walks. None of it yet runs the base rule, see `../audit/2026-08-31-experiment-audit.md` |
 | [gravity](gravity/readme.md) | 53 | 53 | gravity as emergent and entropic: curvature from the area law, Einstein as an equation of state, the dark sector, horizons |
 | [cosmology](cosmology/readme.md) | 51 | 51 | the growing wake: self-creation from the void, expansion, dimension selection, inflation, the CMB, dark energy |
 | [spin](spin/readme.md) | 43 | 43 | spinors and fermions from the 24-cell and D4 coin: the double cover, Dirac, triality, anyons, and textbook atomic and nuclear calculations |
@@ -62,7 +62,7 @@ folder). Counts are file counts.
 | [addressing](addressing/readme.md) | 13 | 13 | the addressing scheme and greedy geometric routing on the honeycomb |
 | [method](method/readme.md) | 6 | 6 | meta-experiments about the suite: the rigidity test and the anti-fooling gates |
 | [general](general/readme.md) | 1 | (under renormalization) | the exact renormalization mechanism |
-| **total** | **817** | **825** | a file may register more than one experiment |
+| **total** | **824** | **831** | a file may register more than one experiment |
 
 ## The coverage map
 
@@ -76,9 +76,9 @@ L3 that never ran a substrate (`cut -d, -f3,4,5 test/catalog.csv`).
 | arena | L0 | L1 | L2 | L3 | paper |
 |:--- | ---: | ---: | ---: | ---: | ---: |
 | selves | 3 | 14 | 144 | 14 | 109 |
-| gauge | 3 | 29 | 33 | 6 | 42 |
-| foundations | 0 | 35 | 51 | **0** | 51 |
-| quantum | 1 | 19 | 72 | **0** | 65 |
+| gauge | 3 | 29 | 34 | 6 | 43 |
+| foundations | 0 | 37 | 53 | **0** | 56 |
+| quantum | 1 | 19 | 73 | **0** | 66 |
 | gravity | 4 | 11 | 37 | 1 | 23 |
 | cosmology | 1 | 11 | 32 | 7 | 37 |
 | spin | 1 | 17 | 25 | **0** | 30 |
@@ -93,13 +93,13 @@ L3 that never ran a substrate (`cut -d, -f3,4,5 test/catalog.csv`).
 | fluids | 0 | 0 | 13 | **0** | 11 |
 | addressing | 0 | 5 | 8 | **0** | 3 |
 | method | 0 | 1 | 5 | 0 | 3 |
-| **total** | **14** | **207** | **559** | **45** | **521** |
+| **total** | **14** | **209** | **563** | **45** | **527** |
 
 The bulk of the suite is L2 (known physics reproduced on a stated
 model). 45 experiments reach L3 (one base rule, a measured consequence,
 a computed control), down from 92 before the audit (50 after its first
 sitting, 45 once the five geometry-only holography results were
-regraded), and 521 are paper-grade. The bolded zeros are the arenas with no L3. Quantum and
+regraded), and 527 are paper-grade. The bolded zeros are the arenas with no L3. Quantum and
 spin are zero because every former L3 there ran a hand-written coined
 walk or a textbook calculation, never the rule
 (`foundations/rule-has-no-amplitudes`). That is the clearest place to

@@ -22,7 +22,7 @@
 // the Tegmark objection, with a control. It is a bridge statement about vibe's route to a
 // definite outcome, not a claim about biology.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern, cloneWill } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -66,9 +66,7 @@ export default experiment({
   paper: false,
   run() {
     const mesh = d4Mesh({ side: SIDE })
-    const opposite = Array.from({ length: mesh.degree }, (unused, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,
@@ -140,7 +138,7 @@ export default experiment({
       // CONTROL: closed run from the hottest body, no wake, so a much weaker record.
       control: { closedRecord: Number(closedRecord.toFixed(4)) },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  Rerun at sides 5 and 7 on 2026-08-31: the record holds at every temperature at both (minimum record 1.32 and 1.24 against the closed control 0.03 and 0.02), so the even side changes nothing here.' +
         "Hameroff / Orch-OR bridge (author-bridges/stuart-hameroff.md, point 6), the warm prong. Companion to decoherence-immunity (the wet prong). Together they show vibe's definite outcome carries neither the warm nor the coherence bill.",
     })
   },

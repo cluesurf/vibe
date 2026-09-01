@@ -28,8 +28,13 @@
 // committed substrate with a genuinely failing control. The identification
 // with the Chronoflux transport sector is the bridge reading, stated as such.
 
-import { d4Mesh } from '@/code/tool/mesh'
-import { makeWill, charge, type Will } from '@/code/tone/will'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  makeWill,
+  charge,
+  fillCoordinateTexture,
+  type Will,
+} from '@/code/tone/will'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { maxMomentumResidual } from '@/code/measure/momentum-continuity'
@@ -40,23 +45,6 @@ const SIDE = 6 // 6^4 cells, block sides 1, 2, 3 divide it
 const BEATS = 8
 
 // deterministic heterogeneous ternary texture (period 7, coprime to side and blocks)
-function fillTexture(will: Will): void {
-  const { mesh, data } = will
-
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const x = cell % SIDE
-    const y = Math.floor(cell / SIDE) % SIDE
-    const z = Math.floor(cell / (SIDE * SIDE)) % SIDE
-    const w = Math.floor(cell / (SIDE * SIDE * SIDE)) % SIDE
-
-    for (let d = 0; d < mesh.degree; d++) {
-      const phase = (x + 2 * y + 3 * z + 5 * w + d) % 7
-
-      data[cell * mesh.degree + d] = (phase % 3) - 1
-    }
-  }
-}
-
 // the worst residual over all beats and block scales for one collision rule
 function worstResidual(rule: 'rotate' | 'pair'): {
   worst: number
@@ -64,9 +52,7 @@ function worstResidual(rule: 'rotate' | 'pair'): {
 } {
   const mesh = d4Mesh({ side: SIDE })
   const roots = rootsD4()
-  const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-    mesh.opposite(d),
-  )
+  const opposite = meshOpposites(mesh)
 
   const collision =
     rule === 'rotate'
@@ -75,7 +61,7 @@ function worstResidual(rule: 'rotate' | 'pair'): {
 
   let will = makeWill(mesh)
 
-  fillTexture(will)
+  fillCoordinateTexture(will, SIDE)
 
   const chargeBefore = charge(will)
 

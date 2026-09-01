@@ -19,6 +19,8 @@ The causal-set path integral and its samplers.
 
 | file | key exports | one-line |
 |:--- |:--- |:--- |
+| `coined-dirac-walk.ts` | `makeCoinedWalk`, `coinedWalkStep`, `addGaussianPacket`, `addPointSeed`, `massProfile`, `potentialPhase`, `coinedWalkProbability`, `coinedWalkChirality`, `coinedWalkCentroid`, `coinedWalkSpread`, `coinedWalkSupport`, `coinedWalkInterference` | the one-dimensional coined Dirac walk defined once (per-site mass and potential, periodic or open, optional damping) with its readouts. `quantum-walk`, `dirac-scattering`, `klein-barrier`, `bloch-oscillation`, `quasiperiodic-walk` and `mass-domain-wall` all step through it |
+| `walk-band.ts` | `walkBandEnergy`, `walkGroupVelocity`, `walkPositiveBandSpinor`, `addPositiveBandPacket`, `walkMomentumDistribution`, `walkMeanMomentum`, `walkPositiveBandFraction`, `walkBerryConnection`, `ehrenfestTrajectory` | the band structure of the coined walk (cos E = cos m cos k), a packet built from one band, its momentum distribution and Berry connection, and the Ehrenfest trajectory under a constant force |
 | `quantum-walk.ts` | `coinedWalkMSD`, `continuousQuantumWalkMsd`, `diracQuantumWalk`, `twoParticleQuantumWalk`, `diracTwoModeSurvival` | coined, continuous, and Dirac quantum walks, return probability and two-particle identity |
 | `random-walk.ts` | `classicalWalkMSD`, `graphWalkMsdExponent`, `randomWalkEndpoint`, `persistentWalkMeanDisplacement` | classical diffusion, the MSD exponent on any graph |
 | `coined-walk-distribution.ts` | `coinedWalkQuantumDistribution`, `coinedWalkClassicalDistribution` | the position distribution, quantum interference versus classical |
@@ -75,6 +77,7 @@ The causal-set path integral and its samplers.
 | `skyrmion-field.ts` | `relaxSpins`, `precessSpins`, `skyrmionDegree`, `skyrmionRadius`, `makeSkyrmionField` | Dzyaloshinskii-Moriya spins, the topological skyrmion charge |
 | `higgs-mechanism.ts` | `mexicanHatVacuum`, `higgsBosonMassSquared`, `gaugeBosonMass` | the Mexican-hat vacuum and the mass from symmetry breaking |
 | `inflaton.ts` | `inflatonStep`, `inflatonHubble` | the single-field inflaton slow roll |
+| `slow-roll.ts` | `SlowRollPotential`, `slowRollEnd`, `slowRollObservables` | the potential slow-roll end (epsilon = 1) and n_s and r at N e-folds before it |
 | `shell-model.ts` | `goyShellSpectrum`, `spectrumSlope` | the GOY turbulence cascade, the Kolmogorov exponent |
 
 ## Conserving-charge sweeps
@@ -83,7 +86,7 @@ The tunable non-reversible sweeps the selves and transport studies use. Each mov
 
 | file | key exports | one-line |
 |:--- |:--- |:--- |
-| `conserving-sweep.ts` | `conservingEdgeSweep`, `conservingEdgeSweepTunable`, `conservingRingSweep`, `conservingHopSweep`, `conservingEdgeSweepSteered`, `conservingEdgeSweepHashed` | the baseline annihilate-hop-create matching sweeps, tunable and steerable |
+| `conserving-sweep.ts` | `conservingEdgeSweep`, `conservingEdgeSweepTunable`, `conservingRingSweep`, `conservingHopSweep`, `conservingEdgeSweepSteered`, `conservingEdgeSweepHashed`, `hashRand`, `makeHashRng`, `hashedTone` | the baseline annihilate-hop-create matching sweeps, tunable and steerable, and the counter-indexed hash stream the deterministic fills draw from |
 | `cohesive-sweep.ts` | `cohesiveEdgeSweep`, `agreeCount` | demand-driven hopping, charges cluster with an optional escape |
 | `soc-sweep.ts` | `socEdgeSweep`, `localActivity` | self-organized criticality, creation suppressed in busy regions |
 | `fill-gated-sweep.ts` | `fillGatedSweep` | a per-edge fill gates local moves (polarize, share, insulate) |

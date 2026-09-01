@@ -27,7 +27,7 @@
 // large region, which was measured here: the plain erasing rule reads as balanced at block side 3 on
 // this fill even though it is lossy. A one-signed sink cannot cancel at any scale.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import {
   drainingCollision,
@@ -54,11 +54,7 @@ export default experiment({
     const meshSide = 6 // 6^4 = 1296 cells, divisible by block sides 1, 2, 3
     const mesh = d4Mesh({ side: meshSide })
     const degree = mesh.degree
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const knit = pairCollision({ opposite })
 

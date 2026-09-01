@@ -1,0 +1,41 @@
+\section{What Is Reproduced on Models, Exactly}
+\label{sec:models}
+
+Reproductions are worth having when they are exact and when the model is named. Three added by the audit are of that
+kind, and each taught the program something about its own objects.
+
+\textbf{The toric code from the mesh complex.} The periodic $D_4$ lattice has a natural cell complex: cells as
+vertices, the twenty-four root directions as edges, and the triangles closed by pairs of roots whose sum is a root.
+Qubits on edges, an $X$ check on every vertex star, a $Z$ check on every triangle. On the side-3 torus this is 972
+qubits with every $X$ and $Z$ check overlapping on an even number of edges, and the rank computation over
+$\mathbb{F}_2$ gives exactly four logical qubits, the first Betti number of the four-torus \cite{kitaev2003,
+dennis2002}. An open patch has zero. The prediction was four at every side, and the measurement returned eight at
+side 4. The explanation is the parity fact of Section~2: the even-sided lattice is two four-tori, each with its own
+four. The code counted components before anyone had looked for them. The mesh, then, is a substrate on which
+stabiliser codes live natively, and the hyperbolic versions \cite{breuckmann2016} are the next thing to build on a
+closed quotient.
+
+\textbf{The Ward identity and the Wilson lines.} Section~4 gave the numbers. What the reproduction taught is that the
+zero-mode count of a lattice gauge operator on a torus is not one gauge mode per site less one, but that plus the
+topology, $b_1 = 3$, which the naive prediction missed and the measurement supplied. A second experiment that tested only
+that the zero-mode count was positive now tests it against $\text{sites} + 2$ exactly.
+
+\textbf{The Ehrenfest theorem, with a packet that is a particle.} The walk's dispersion is $\cos E = \cos m \cos k$
+with group velocity $v = \cos m \sin k / \sin E$, and the positive band is the eigenvector of the one-step unitary
+with eigenvalue $e^{-iE}$. A Gaussian packet built from that band alone, at momentum $0.6$ and mass $0.5$ on 400
+sites, is $99.9999\%$ positive-energy. The Ehrenfest prediction is computed from the packet's initial momentum
+distribution, not read off the run: the mean momentum shifts by exactly $-F$ per step under a linear potential, and
+the centroid advances by the distribution-averaged group velocity. Two facts had to be right for the prediction to
+hold. A band packet sits at the Berry connection of its band, $-0.142$ cells here, measured and predicted alike, and
+that offset moves as the force drifts the momentum. And the momentum kick lands between the coin and the shift, so
+each step sees the midpoint momentum $k - F(t + \tfrac12)$: with the start-of-step momentum the residual is 0.19
+cells and grows linearly with the force, with the midpoint it is 0.0024. Free, the centroid matches to
+$9\times10^{-14}$ cells over 57 cells of travel. Under a force of 0.005 per step it matches to 0.0024 cells over 45,
+with the momentum exact to $4\times10^{-16}$ and a Zener leak of $2.4\times10^{-5}$ into the other band. The controls
+are the two ways to break the theorem: a force of 0.8 leaves 26\% of the weight in the band and the centroid 14
+cells off, and the equal-chirality Gaussian ``at rest'', which the first attempt used and which followed no
+classical path, is 21\% negative-energy and lags the classical trajectory by 19 cells. That seed was the reason the
+first probe failed, and it is kept as the control that explains why \cite{ehrenfest1927}.
+
+These are the shapes a good L2 has: an exact number, a control that breaks it, a prediction that was wrong once and
+corrected by the measurement, and the model named in the title.

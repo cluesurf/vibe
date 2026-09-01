@@ -25,7 +25,7 @@
 // positive control showing the instrument works. The result could have come out the
 // other way (a base-level approach bias would have been a major discovery).
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, charge, type Will } from '@/code/tone/will'
 import { run } from '@/code/rule/lattice-gas'
 import { pairCollision } from '@/code/rule/collision'
@@ -84,9 +84,7 @@ function stampResource(will: Will, atX: number): void {
 // drift of the body transport centroid toward the resource, positive = approach
 function driftTowardResource(resourceEast: boolean): number {
   const mesh = d4Mesh({ side: SIDE })
-  const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-    mesh.opposite(d),
-  )
+  const opposite = meshOpposites(mesh)
 
   const collision = pairCollision({ opposite })
   const will = makeWill(mesh)

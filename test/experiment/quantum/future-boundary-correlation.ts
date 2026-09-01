@@ -29,7 +29,7 @@
 // rule (a future apex links spacelike points, a disconnected point does not) with a
 // clean control.
 
-import { squareMesh, meshNeighbors } from '@/code/tool/mesh'
+import { squareMesh, meshNeighbors, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, cellTone, Will } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
 import { pairCollision } from '@/code/rule/collision'
@@ -54,9 +54,7 @@ export default experiment({
 
     meshNeighbors(mesh)
 
-    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const collision = pairCollision({ opposite })
     const centre = SIDE >> 1

@@ -27,7 +27,6 @@ const V0 = 3.0 // the attractive mean-field depth (the A4 binding regime)
 const DENSITY = 0.4 // the saturation density, exclusion caps the packing so the well grows with the count
 const PAD = 6 // free padding on each side of the well
 const COUNTS = [4, 8, 12, 16, 20, 24] // the constituent counts swept
-const G = 0.3 // the short-range two-body attraction strength (per co-located pair)
 
 // the total binding energy of `count` fermions filling the lowest orbitals of a uniform attractive well of
 // `wellWidth` sites (depth `depth`), with free padding. The binding of each filled orbital is its depth BELOW the

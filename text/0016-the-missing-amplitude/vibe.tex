@@ -1,0 +1,37 @@
+% arXiv: force the PDF-producing engine (pdflatex) during AutoTeX processing.
+% Guarded so the same source also builds under lualatex, where \pdfoutput does not exist.
+\ifdefined\pdfoutput\pdfoutput=1\fi
+
+\documentclass{article}
+
+\input{text/package}
+
+\begin{document}
+\maketitle
+\thispagestyle{plain}
+
+\input{text/abstract}
+
+\input{text/01-the-claim}
+\input{text/02-the-base}
+\input{text/02b-the-two-collisions}
+\input{text/03-the-method}
+\input{text/03b-the-numbers}
+\input{text/04-what-the-rule-produces}
+\input{text/05-the-missing-amplitude}
+\input{text/06-reproduced-on-models}
+\input{text/07-corrections}
+\input{text/08-where-it-stands}
+\input{text/09-open-problems}
+\input{text/10-directions}
+\input{text/11-reproducibility}
+
+\appendix
+\input{text/A-index}
+
+\addcontentsline{toc}{section}{References}
+\nocite{*}
+\bibliographystyle{vibefirst}
+\bibliography{vibe}
+
+\end{document}

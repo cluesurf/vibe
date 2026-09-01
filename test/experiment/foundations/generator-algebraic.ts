@@ -24,6 +24,7 @@ import {
   rootsF4,
   rootsD4,
   vectorKey,
+  sameVectorSet as sameSet,
   dotVec,
 } from '@/code/algebra/group/root-system'
 import {
@@ -33,13 +34,6 @@ import {
   applyTriality,
   vectorSetsEqual,
 } from '@/code/algebra/group/so8-triality'
-
-function sameSet(left: number[][], right: number[][]): boolean {
-  const a = new Set(left.map(vectorKey))
-  const b = new Set(right.map(vectorKey))
-
-  return a.size === b.size && [...a].every(key => b.has(key))
-}
 
 // A1, the quaternion seed: the 24 Hurwitz units are the group 2T with a genuine (nonsplit) spinor double cover.
 export default experiment({

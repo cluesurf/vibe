@@ -1,0 +1,34 @@
+\subsection{The two collisions, exactly}
+
+Both committed collisions act on the twelve lines of a cell, a line being a direction paired with its opposite, and
+both are stated here in full so that the permutation claim of Section~\ref{sec:amplitude} can be read off.
+
+\textbf{The charge rule} applies one table to the two tones $(a, b)$ meeting head-on on each line:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+pair & becomes & move \\
+\midrule
+$(-1,-1)$, $(+1,+1)$ & unchanged & like signs are inert \\
+$(-1,0)$, $(0,-1)$, $(+1,0)$, $(0,+1)$ & swapped & a charge hops past a peace \\
+$(0,0)$ & $(+1,-1)$ & peace creates a balanced pair \\
+$(+1,-1)$ & $(-1,+1)$ & the pair flips \\
+$(-1,+1)$ & $(0,0)$ & annihilation closes the cycle \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The table is a bijection on the nine pair states that conserves $a + b$. The create-flip-annihilate moves form a
+3-cycle on the three charge-zero states, and that 3-cycle is the period-three flash of the vacuum: an all-zero
+mesh becomes all $(+1,-1)$, then all $(-1,+1)$, then all zero. The rule is not an involution, so its inverse is the
+inverted table, which the engine runs after the inverse stream to go backward in time.
+
+\textbf{The momentum rule} pairs the twelve lines into six and rotates a head-on pair of equal signs into an empty
+partner line: $(s, s)$ on line $i$ with $(0, 0)$ on line $j$ becomes $(0,0)$ on $i$ and $(s,s)$ on $j$, and the
+reverse, for $s = \pm1$. Everything else is fixed. It is its own inverse, conserves charge, and conserves the $D_4$
+momentum because the two lines of a pair are perpendicular roots. Its vacuum is a fixed point, and a lone tone never
+meets the condition, which is why it streams ballistically forever.
+
+Neither table contains a number outside $\{-1, 0, +1\}$. Composed with the stream, each is a permutation of the
+$3^{24 N}$ states of an $N$-cell mesh. That is the whole of the base dynamics.

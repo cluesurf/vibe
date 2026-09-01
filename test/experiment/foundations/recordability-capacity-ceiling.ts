@@ -46,7 +46,7 @@ type Csr = {
   adj: Int32Array
 }
 
-const SIDE = 12
+const SIDE = 13 // was 12 until 2026-08-31, see the audit note
 const WINDOWS = [8, 32, 128]
 
 // a deterministic input carrying `support` occupied +cells spread evenly across the lattice by a
@@ -232,7 +232,7 @@ export default experiment({
         ),
       },
       notes:
-        'AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. ' +
+        'AUDIT 2026-08-31: this run used d4Mesh with an even side until 2026-08-31, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side.  On 2026-08-31 the side moved from 12 to 13. At side 12 the worst plateau flatness was 0.013 and the verdict passed. At sides 9, 11, 13 and 15 (every connected mesh tried, divisible and prime alike) it is 0.173 and the verdict fails, so the flat plateau depended on the split mesh. The experiment now reports the connected-mesh result, a fail, with the thresholds untouched.' +
         'L2, deterministic, no randomness, on the flat D4 lattice. The plateau VALUE (recorded coarse entropy saturating at ln(B)) is the maximum-entropy bound of a B-bin distribution, known information theory, which is exactly what TD recordability capacity c(q) >= phi(q) + nu asserts, so confirming it on the substrate is the bridge, not a discovery. The L2 substrate content is the measured saturation SHAPE (the recorded distinguishability stays flat, spread under 0.15 nats, while the input fine complexity rises by more than 2 nats toward ln(N)), the ln(B) capacity scaling (a finer window records ln(16) more before saturating, matched to 0.05), and the conserved-versus-lossy spill under the committed rule: injecting one full block, the reversible conserving rule keeps the recorded total exactly the injected charge (the excess spilled out, recoverable) while a lossy rule that destroys charge leaving the block loses it (total below injected), the control that could have failed. Input fine complexity is the occupied-cell entropy ln(support), the Shannon distinguishable content, not Kolmogorov pattern complexity. This is TD section-8 cool-star spectral saturation on the substrate: the window (there the visible band, here the block readout) records at most its Shannon capacity, and the excess distinction appears below it (there other wavelengths, here finer scale), conserved by the base rule.',
     })
   },

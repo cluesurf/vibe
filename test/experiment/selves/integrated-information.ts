@@ -20,6 +20,7 @@ import {
   algebraicConnectivity,
 } from '@/code/measure/integration'
 import { modularMesh } from '@/code/substrate/modular-mesh'
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -51,7 +52,10 @@ function randomSubset(n: number, size: number, rng: Rng): number[] {
   return [...s]
 }
 
-export function integratedInformation(_input: { seed: number }): {
+export function integratedInformation(input: {
+  seed: number
+  scale?: number
+}): {
   phiCell: number
   phiRandom: number
   separation: number
@@ -62,8 +66,8 @@ export function integratedInformation(_input: { seed: number }): {
   readsDynamics: boolean
   solved: boolean
 } {
-  const numCells = 12
-  const cellSize = 20
+  const numCells = scaled(12, input.scale)
+  const cellSize = scaled(20, input.scale)
   const rng = makeHashRng({ salt: 0 })
   const { g, cellOf } = modularMesh({
     numCells,
@@ -188,8 +192,10 @@ export default experiment({
   substrates: 'any',
   depth: 'L3',
   paper: true,
-  run() {
-    const r = integratedInformation({ seed: 1 })
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
+    const r = integratedInformation({ seed: 1, scale })
     const ok =
       r.solved &&
       r.separation > 3 &&

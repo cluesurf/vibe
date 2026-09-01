@@ -32,12 +32,12 @@ The core spin result. The 24 coin directions form the binary tetrahedral group 2
 
 ## The Dirac equation, chiral fermions, and discrete symmetries
 
-The emergent relativistic fermion. A discrete-time coined walk on the substrate produces the Dirac equation, its Clifford algebra, and a single chiral mode with no mirror doubler. C, P, T, and CPT are exact.
+The relativistic fermion of the walk model. A discrete-time coined walk (a model, see the audit block above, not the rule) produces the Dirac equation, its Clifford algebra, and a single chiral mode with no mirror doubler. C, P, T, and CPT are exact.
 
 - **[`E-SPN-0009`](../../../test/experiment/spin/dirac-3plus1-3434.ts)** - the full 3+1D Dirac equation, Clifford algebra and relativistic dispersion read out of the operator, not assumed.
 - **[`E-SPN-0011`](../../../test/experiment/spin/directional-rule.ts)** - a charge with a direction streams ballistically while a memoryless scalar diffuses, the collision mixing the Dirac mass.
 - **[`E-SPN-0030`](../../../test/experiment/spin/sp-spinor-field-3434.ts)** - a 2-component Dirac walk streams chirality at light speed, mixes it under a mass, exchange antisymmetry from the double cover.
-- **[`E-SPN-0043`](../../../test/experiment/spin/chiral-fermion-no-doubling.ts)** - the emergent fermion is a single chiral mode (eigenvalue winding one), no doubler, the discrete-time walk evading Nielsen-Ninomiya.
+- **[`E-SPN-0043`](../../../test/experiment/spin/chiral-fermion-no-doubling.ts)** - the walk model's fermion is a single chiral mode (eigenvalue winding one), no doubler, the discrete-time walk evading Nielsen-Ninomiya.
 - **[`E-SPN-0004`](../../../test/experiment/spin/chirality.ts)** - the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry, the naive operator having four doublers.
 - **[`E-SPN-0010`](../../../test/experiment/spin/dirac-lanczos.ts)** - a 3D hedgehog binds near-zero Dirac modes (index equals topological charge) that the uniform vacuum lacks.
 - **[`E-SPN-0037`](../../../test/experiment/spin/sy-discrete-symmetries.ts)** - C, P, T, and CPT are exact on the `{3,4,3,4}` substrate, the reversible rule making T exact and the D4 root set making P exact.
@@ -111,7 +111,7 @@ The payoff. Once fermions and exclusion exist, discrete shells, atoms, nuclei, a
 
 - **Spin is geometric, not assumed.** The 24 coin directions are the binary tetrahedral double cover 2T, so spin-1/2 (minus sign at 2pi, return at 4pi) is a fact of the substrate, with the vector rep the built-in control.
 - **The Pauli principle and spin-statistics follow.** The antisymmetric two-fermion amplitude vanishes, bosons pile up, and the exchange sign is the same minus one the spinor gets under rotation.
-- **The Dirac equation and a single chiral fermion emerge.** The discrete-time walk reproduces the 3+1D Dirac operator and evades Nielsen-Ninomiya fermion doubling, with exact CPT.
+- **The Dirac equation and a single chiral fermion are reproduced on the walk model.** The discrete-time walk reproduces the 3+1D Dirac operator and evades Nielsen-Ninomiya fermion doubling, with exact CPT.
 - **The hyperbolic `{5,3,4}` bulk carries spin three independent ways.** Through its projective double cover 2I, its spin connection holonomy, and topological disclinations, even though its coin carries no linear spinor.
 - **Exclusion builds real matter.** Shell filling, the hydrogen Rydberg spectrum, helium within 2 percent, the H2+ bond at 2.0 Bohr, and the iron binding peak all follow, each against a control that collapses.
 - **Anyons come free from the ternary tone**, but three fermion generations do not. The triality and Jordan structure is real and forced, yet the identification with three generations stays Boyle's open conjecture, reported as partial.

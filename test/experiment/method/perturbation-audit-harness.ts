@@ -24,20 +24,10 @@
 // Depth L2. It measures the audit gate on two real substrate claims, one durable and one circular,
 // and confirms the gate discriminates them, the perturbation-audit method made concrete.
 
+import { type Matrix2 as Matrix, multiply2 as multiply } from '@/code/algebra/linear/matrix2'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { auditResult } from '@/code/tool/perturbation-audit'
-
-type Matrix = [number, number, number, number]
-
-function multiply(a: Matrix, b: Matrix): Matrix {
-  return [
-    a[0] * b[0] + a[1] * b[2],
-    a[0] * b[1] + a[1] * b[3],
-    a[2] * b[0] + a[3] * b[2],
-    a[2] * b[1] + a[3] * b[3],
-  ]
-}
 
 const SWAP: Matrix = [0, 1, 1, 0]
 const NEGATIVE_IDENTITY: Matrix = [-1, 0, 0, -1]

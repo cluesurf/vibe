@@ -35,7 +35,7 @@
 // fact. The dynamical content is the seed test (a microscopic asymmetry is not
 // amplified) and the one-sided control (the pointer measure does register records).
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern, cloneWill } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -61,9 +61,7 @@ export default experiment({
     const beats = 200
     const mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,

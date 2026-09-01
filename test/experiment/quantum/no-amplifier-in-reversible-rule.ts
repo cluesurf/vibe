@@ -48,7 +48,7 @@
 // graining, which stays the harder open step (E-QTM-0045). The Born WEIGHTS remain separate
 // (E-QTM-0005, envariance E-QTM-0012).
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { streamSourceTable } from '@/code/rule/lattice-gas'
@@ -103,9 +103,7 @@ export default experiment({
     for (const side of sides) {
       const mesh = d4Mesh({ side })
       const degree = mesh.degree
-      const opposite = Array.from({ length: degree }, (_, d) =>
-        mesh.opposite(d),
-      )
+      const opposite = meshOpposites(mesh)
 
       const forward: Collision = pairCollision({
         opposite,
@@ -145,9 +143,7 @@ export default experiment({
     const side = 6
     const mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) =>
-      mesh.opposite(d),
-    )
+    const opposite = meshOpposites(mesh)
 
     const forward: Collision = pairCollision({
       opposite,

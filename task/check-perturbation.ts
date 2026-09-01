@@ -1,6 +1,7 @@
 // Robustness pass: every remaining L3 whose main function takes a size is
 // called at its default, at half, and at one and a half times, and the verdict boolean is printed at each.
 // A verdict that flips with size is a knife edge. Run: pnpm check:perturbation. Sizes are half, default, one and a half.
+// Pass experiment ids (or any substring of one) to run only the matching scale-aware experiments and skip phase 1.
 import { allExperiments } from '@/test/scaffold/suite'
 import '@/test/experiment/all'
 import { bulkNonlocality } from '@/test/experiment/holography/bulk-nonlocality'
@@ -46,12 +47,13 @@ const probes: Probe[] = [
 // Phase 2: every registered experiment that declares `scales: true` is run through its own run() at
 // context.scale 0.5, 1 and 1.5. A verdict status that changes with the scale is a knife edge.
 const SCALES = [0.5, 1, 1.5]
+const only = process.argv.slice(2).filter(a => !a.startsWith('--'))
 
 let scaledExperiments = 0
 let scaledFlips = 0
 
 for (const candidate of allExperiments()) {
-  if (!candidate.scales) {
+  if (!candidate.scales || (only.length > 0 && !only.some(o => candidate.id.includes(o)))) {
     continue
   }
 
@@ -88,7 +90,7 @@ console.log(
   `\ncheck:perturbation phase 2  ${scaledExperiments} scale-aware experiments, ${scaledFlips} with a status that changes across scales 0.5, 1, 1.5\n`,
 )
 
-for (const probe of probes) {
+for (const probe of only.length > 0 ? [] : probes) {
   const verdicts: string[] = []
 
   for (const size of probe.sizes) {

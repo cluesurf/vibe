@@ -12,7 +12,7 @@
 // (lossy) collision must fail all three, it destroys tokens (census changes, count drops) and is not
 // invertible (positive roundtrip Hamming), the Landauer-dissipative case.
 
-import { d4Mesh } from '@/code/tool/mesh'
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { headOnRotate } from '@/code/rule/collision'
 import { erasingCollision } from '@/code/control/lossy-collision'
 import { makeWill, cloneWill } from '@/code/tone/will'
@@ -39,11 +39,7 @@ export default experiment({
   run() {
     const side = 6
     const mesh = d4Mesh({ side })
-    const opposite: number[] = []
-
-    for (let d = 0; d < mesh.degree; d++) {
-      opposite.push(mesh.opposite(d))
-    }
+    const opposite = meshOpposites(mesh)
 
     const collision = headOnRotate({ opposite })
     const degree = mesh.degree

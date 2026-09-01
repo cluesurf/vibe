@@ -7,6 +7,7 @@
 // higher-order self, the causal structure climbing two levels, while the random tower averages it away. This is
 // the recursion of life, a self of selves, with a control that fails at the higher level.
 
+import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
@@ -29,11 +30,13 @@ export default experiment({
   substrates: ['flat-horosphere'],
   depth: 'L3',
   paper: true,
-  run() {
+  scales: true,
+  run(context) {
+    const scale = context.scale ?? 1
     const fine = 36
     const traj = selfTrajectory({
-      L: 64,
-      beats: 1200,
+      L: scaled(64, scale),
+      beats: scaled(1200, scale),
       bins: fine,
       seed: 24680,
     })

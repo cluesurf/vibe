@@ -52,11 +52,11 @@ The entanglement of a boundary interval equals its minimal bulk surface. On a hy
 
 The precondition emergent gravity and holography rest on. The vacuum of the emergent free-fermion (Dirac) field has an area-law entropy, a thermal state does not. And the entanglement and the geometric connectivity track each other.
 
-- **[`E-HLG-0001`](../../../test/experiment/holography/area-law.ts)** - the emergent field ground state is area-law while a thermal state is volume-law. Massive saturates, massless grows as (c/3) ln L, thermal grows linearly.
+- **[`E-HLG-0001`](../../../test/experiment/holography/area-law.ts)** - the free-fermion chain ground state is area-law while a thermal state is volume-law. Massive saturates, massless grows as (c/3) ln L, thermal grows linearly.
 - **[`E-HLG-0002`](../../../test/experiment/holography/bethe-gravity.ts)** - the exact Bethe-lattice bulk-mediated boundary correlator is a clean universal power law, the finite-patch artifact removed, validated against a directly-solved finite tree.
 - **[`E-HLG-0003`](../../../test/experiment/holography/black-hole.ts)** - a 3D region's entropy scales with its horizon area (l^2), not its volume (l^3), the Bekenstein-Hawking clue.
 - **[`E-HLG-0006`](../../../test/experiment/holography/entanglement.ts)** - free-fermion entanglement follows a 1D conformal log law and a 2D area law.
-- **[`E-HLG-0021`](../../../test/experiment/holography/entanglement-geometry-covaries.ts)** - emergent entanglement and geometric connectivity across a tunable throat rise and fall together (Van Raamsdonk), while an untouched far bond does not track it. The discriminator is spatial, which cut pinches.
+- **[`E-HLG-0021`](../../../test/experiment/holography/entanglement-geometry-covaries.ts)** - entanglement and geometric connectivity across a tunable throat rise and fall together (Van Raamsdonk), while an untouched far bond does not track it. The discriminator is spatial, which cut pinches.
 
 ### 4. Bulk nonlocality, the hidden channel beneath physical space
 
