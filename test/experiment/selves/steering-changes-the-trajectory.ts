@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a trajectory model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // The same deterministic life, steered versus unsteered, ends in a different place. That gap is the impact.
 //
 // This makes "you have an impact on your life" blaringly obvious and exact. We run the identical self from the
@@ -83,7 +84,7 @@ export default experiment({
     'the same deterministic life steered versus unsteered ends in a different place, and that gap is the impact',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const sizes = [180, 240, 360]
@@ -125,6 +126,7 @@ export default experiment({
         rockFinal: last.rockFinal,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a trajectory model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model of agency as counterfactual impact. determinism holds (replay exact), the steering is what makes the difference, this is not a base-substrate emergence claim',
     })
   },

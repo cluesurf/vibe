@@ -74,7 +74,7 @@ export default experiment({
   title:
     'the emergent quantum dephasing (collapse) time is set by the energy gap, t = pi / dE, the deterministic reconstruction of Penrose OR t = h-bar / E_G (Hameroff bridge)',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

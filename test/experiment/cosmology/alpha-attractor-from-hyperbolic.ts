@@ -116,7 +116,7 @@ export default experiment({
   title:
     'slow-roll integration on the alpha-attractor potential V = tanh^2(phi/sqrt(6 alpha)) measures the attractor: n_s is the same across alpha from 0.5 to 8 (spread under 5e-4), agrees with 1 - 2/N, and matches Planck, while r roughly doubles per doubling of alpha, so if the inflaton field-space inherits the mesh hyperbolic geometry the spectral index is a robust measured prediction and alpha (bounded near 15 by r < 0.06) is the one remaining input',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

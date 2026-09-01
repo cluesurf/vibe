@@ -37,7 +37,7 @@ export default experiment({
   title:
     'a 3D object (a boundary patch) subtends a bulk cone whose apex depth is the boundary depth minus log(object size), so bigger objects have deeper apexes, nested objects give nested cones, and separation tracks the shared apex depth',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

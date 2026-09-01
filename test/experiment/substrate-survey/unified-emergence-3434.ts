@@ -112,7 +112,7 @@ export default experiment({
   title:
     'one 24-direction substrate splits into 8v+8s+8c, a boson sector and two fermion sectors under one 2pi rotation',
   category: 'substrate-survey',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

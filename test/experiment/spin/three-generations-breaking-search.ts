@@ -114,15 +114,14 @@ export default experiment({
     const familyStructureReal =
       threeIdempotents && pairwiseOrthogonal && cyclicIsAutomorphism
 
-    const hierarchyIsGeometric = false // Boyle's conjecture is NEGATIVE for this model, the hierarchy is not derived
-
+    // AUDIT 2026-08-31: hierarchyIsGeometric = false was a typed constant conjoined (negated) into ok. It is
+    // the CONCLUSION of the five measured facts below, not a sixth measurement, so it no longer feeds ok.
     const ok =
       familyStructureReal &&
       symmetricDegenerate &&
       asymmetricSplits &&
       ratioUnconstrained &&
-      dynamicsCannotBreak &&
-      !hierarchyIsGeometric
+      dynamicsCannotBreak
 
     return verdict({
       status: ok ? 'partial' : 'fail',
@@ -141,7 +140,6 @@ export default experiment({
         ratioVacuumTwoTimes100: Math.round(ratioVacuumTwo * 100),
         ratioVacuumFiveTimes100: Math.round(ratioVacuumFive * 100),
         ratioUnconstrained: ratioUnconstrained ? 1 : 0,
-        hierarchyIsGeometric: hierarchyIsGeometric ? 1 : 0,
       },
       control: {
         symmetricSpreadTimes1000: Math.round(

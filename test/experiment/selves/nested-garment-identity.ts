@@ -38,7 +38,7 @@ export default experiment({
   title:
     'a state coarse-grains into nested garments each exactly the block-sum of the finer, and the self total-charge identity is carried in full through every layer and through time under the conserving rule, while a leak dissolves the identity though the nesting stays exact',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

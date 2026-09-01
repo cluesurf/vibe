@@ -41,7 +41,7 @@ export default experiment({
   title:
     'the base ternary is exactly charge-conjugation symmetric (a configuration and its sign-flip mirror exactly), so the plus and minus poles carry no intrinsic give-versus-restrain asymmetry, while a hand-made asymmetric rule is detected',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

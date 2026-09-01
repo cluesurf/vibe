@@ -15,7 +15,7 @@ export default experiment({
   title:
     'DS10: associative-memory capacity scales with dimension, exponential in the bulk radius',
   category: 'data-structure',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

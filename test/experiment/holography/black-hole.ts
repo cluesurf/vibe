@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is the entanglement entropy of cubic regions of a free-fermion ground state on a 3D torus, an area law with no horizon and no black hole in it, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base.
 // P33: black-hole entropy (the Bekenstein-Hawking area law).
 // A black hole's entropy is proportional to its horizon AREA, not its volume (S = A/4),
 // the founding clue of holography. The entanglement entropy of a spatial region across
@@ -69,7 +70,7 @@ export default experiment({
     'region entropy scales with horizon area not volume (Bekenstein-Hawking)',
   category: 'holography',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const r = blackHoleEntropy({ side: 8 })
@@ -81,6 +82,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is the entanglement entropy of cubic regions of a free-fermion ground state on a 3D torus, an area law with no horizon and no black hole in it, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base.',
       claim:
         'the entanglement entropy of a 3D region scales with its surface area and an area fit beats a volume fit',
       metrics: {

@@ -12,6 +12,23 @@ The tests cover the emergence of electromagnetism from local charge conservation
 
 Each experiment carries a depth tier. **L1** confirms known math on the substrate. **L2** reproduces a known physics construction. **L3** is the genuine target: a base rule producing the result with a control that could have failed. Negatives are reported as results, not hidden. Many titles below name their own limit or open gate.
 
+## Audit, 2026-08-31
+
+Two results in this arena were regraded. `proton-lifetime` (E-FRC-0043)
+is textbook one-loop running of the measured couplings, its "no
+leptoquark" control was the typed constant `false`, and the
+"substrate MSSM-like content" is an assumption, so it is L2 with the
+computed bare-SM run as its control. `mass-hierarchy` (E-FRC-0031)
+compares two ansatzes both written by hand (an exponential and a power
+law) with the inter-shell distance as the one measured input, so
+"beats a power law" is a comparison between two typed formulas. It
+stays L3 pending the robustness pass because it does measure the
+hyperbolic shell spacing, but the paper should say "consistent with",
+not "derived". Three files here (`reversible-universality-3434` in
+computation aside) had cross-references typed as `true` inside their
+verdicts, now removed. The audit is
+`../../audit/2026-08-31-experiment-audit.md`.
+
 ## Sub-themes
 
 ### 1. Emergent U(1) and the photon

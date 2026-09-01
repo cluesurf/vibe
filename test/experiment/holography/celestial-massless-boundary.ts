@@ -67,7 +67,7 @@ export default experiment({
   title:
     'the celestial sphere is the massless asymptotic boundary of the substrate, and the massless-versus-massive split is boost-invariant',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

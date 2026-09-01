@@ -59,7 +59,7 @@ export default experiment({
   title:
     'the derived Koide relation Q = 2/3 predicts the tau mass 1776.97 MeV from the electron and muon alone, matching the measured 1776.86 to about one part in ten thousand, a sharp falsifiable number where the Standard Model leaves the tau mass free',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

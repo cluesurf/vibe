@@ -84,7 +84,7 @@ export default experiment({
   title:
     'objectivity is redundancy not decoherence: a copied pointer is read by every single environment cell (N-fold redundant record) while a globally stored cat-state record decoheres the system just as strongly yet no fragment short of the whole bath can read it, so it is not objective',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

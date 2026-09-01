@@ -38,10 +38,6 @@ export function reversibleUniversality(): {
   ruleIsBijection: boolean
   toffoliIsBijection: boolean
   toffoliComputesNand: boolean
-  geometryMatchesMargenstern: boolean
-  hasRouting: boolean
-  hasGates: boolean
-  hasMemory: boolean
   reversibleUniversal: boolean
   solved: boolean
 } {
@@ -103,20 +99,12 @@ export function reversibleUniversality(): {
 
   const toffoliComputesNand = nandOk
 
-  // (1) and (3), the structural and primitive prerequisites, each established by a passing experiment
-  const geometryMatchesMargenstern = true // twelve neighbors, the exact dodecagrid (P85, P87)
-  const hasRouting = true // greedy and addressed routing deliver signals (P42, P76, P123)
-  const hasGates = true // NAND and a full gate set run on the live dynamics (P44)
-  const hasMemory = true // erasure-protected and maintained memory (P105, P107)
-
+  // (1) and (3) AUDIT 2026-08-31. Four typed constants (geometryMatchesMargenstern, hasRouting, hasGates,
+  // hasMemory, all = true, "each established by a passing experiment") used to be conjoined into the verdict.
+  // They are cross-references to other experiments, not measurements made here, and no longer feed ok. This
+  // file establishes on its own that the rule is a bijection and the Toffoli is a bijection computing NAND.
   const reversibleUniversal =
-    ruleIsBijection &&
-    toffoliIsBijection &&
-    toffoliComputesNand &&
-    geometryMatchesMargenstern &&
-    hasRouting &&
-    hasGates &&
-    hasMemory
+    ruleIsBijection && toffoliIsBijection && toffoliComputesNand
 
   const solved = reversibleUniversal
 
@@ -124,10 +112,6 @@ export function reversibleUniversality(): {
     ruleIsBijection,
     toffoliIsBijection,
     toffoliComputesNand,
-    geometryMatchesMargenstern,
-    hasRouting,
-    hasGates,
-    hasMemory,
     reversibleUniversal,
     solved,
   }
@@ -157,9 +141,6 @@ export default experiment({
       metrics: {
         ruleIsBijection: r.ruleIsBijection ? 1 : 0,
         toffoliComputesNand: r.toffoliComputesNand ? 1 : 0,
-        hasRouting: r.hasRouting ? 1 : 0,
-        hasGates: r.hasGates ? 1 : 0,
-        hasMemory: r.hasMemory ? 1 : 0,
       },
     })
   },

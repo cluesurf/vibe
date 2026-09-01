@@ -42,7 +42,7 @@ export default experiment({
   title:
     'the classical codes under D4 and E8 lift by CSS to the [[4,2,2]] and [[8,3,2]] quantum codes exactly (commuting stabilizers, k and distance reproduced) while a non-nested pair anticommutes, the quantum-code ladder from the geometric ladder',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

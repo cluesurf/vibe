@@ -117,7 +117,7 @@ export default experiment({
   title:
     'the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

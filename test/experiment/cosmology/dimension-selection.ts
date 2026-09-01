@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is Bertrand's theorem, closed orbits only in three dimensions, integrated numerically, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // P68: dimension selection (why three, of the allowed two, three, four).
 // P62 showed the crystal substrate can only exist in spatial dimensions 2, 3, 4. Which of those
 // does the universe pick, and why three? The decisive criterion is Ehrenfest's (1917): only in
@@ -73,7 +74,7 @@ export default experiment({
     'only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
   category: 'cosmology',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = dimensionSelection()
@@ -90,6 +91,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is Bertrand\'s theorem, closed orbits only in three dimensions, integrated numerically, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.',
       claim:
         'integrating gravitational orbits selects only d=3 for stable closed orbits, d=2 precesses and d=4 is unstable',
       metrics: {

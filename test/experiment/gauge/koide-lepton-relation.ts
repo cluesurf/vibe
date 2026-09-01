@@ -52,7 +52,7 @@ export default experiment({
   title:
     'the charged leptons satisfy the Koide relation Q = 2/3 to one part in a hundred thousand, equivalently the square-root-mass vector at 45 degrees to the triality-symmetric axis, a sharp lepton coincidence whose geometric origin is the open target',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

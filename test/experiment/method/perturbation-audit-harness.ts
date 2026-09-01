@@ -69,7 +69,7 @@ export default experiment({
   title:
     'the perturbation-audit gate passes a durable result and fails a circular one, the standing attack self-validated',
   category: 'method',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -44,7 +44,7 @@ export default experiment({
   title:
     'the static Newtonian 1/r force from the measured area law, the Verlinde route, no new field',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

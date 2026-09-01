@@ -36,7 +36,7 @@ export default experiment({
   title:
     'the copy chain turns a micro superposition into a macroscopic record: coherence decays exponentially in the copies, a twenty-cell fragment of two hundred carries the full pointer information, and ten disjoint fragments each suffice (redundant objectivity)',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

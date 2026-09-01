@@ -184,7 +184,7 @@ export default experiment({
   title:
     'a reversible conserving box-ball rule produces persistent solitons that survive collisions',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

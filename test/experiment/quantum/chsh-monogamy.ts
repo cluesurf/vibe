@@ -41,7 +41,7 @@ export default experiment({
   title:
     'the Bell violation is monogamous: the singlet pair at Tsirelson forces the third party to CHSH exactly zero, the squared sum stays below 8 across a swept family (Toner-Verstraete), and the GHZ control holds classical-strength correlation in both pairs at once',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

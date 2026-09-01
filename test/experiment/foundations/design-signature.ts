@@ -62,8 +62,6 @@ export function designSignature(input?: { n?: number }): {
   }[]
   richFraction: number
   deadOnlyAtZeroArrow: boolean
-  geometryForced: boolean
-  selfOrganizes: boolean
   fineTuningSignature: boolean
   designerDispensable: boolean
   solved: boolean
@@ -123,18 +121,15 @@ export function designSignature(input?: { n?: number }): {
   const deadOnlyAtZeroArrow =
     zeroArrowRich === 0 && positiveArrowRich > positiveArrowTotal * 0.6
 
-  // the other two anti-design facts, established elsewhere
-  const geometryForced = true // P86, ternary + minimal eternal closure FORCES {5,3,4}, not a tuned choice
-  const selfOrganizes = true // P135, demand-driven creation self-organizes the operating point (an attractor)
+  // AUDIT 2026-08-31. Two typed constants (geometryForced = true, selfOrganizes = true, "established
+  // elsewhere") used to sit in both conjunctions below, and either one alone made designerDispensable true and
+  // fineTuningSignature false regardless of what THIS file measured. They are gone. This file measures ONE
+  // thing, the width of the rich region of the arrow grid, and the verdict now rests on that alone. The other
+  // two facts are cross-references (foundations/geometry-forced, cosmology/self-organized-point) and are not
+  // re-tested here.
+  const fineTuningSignature = richFraction < 0.15
 
-  // a fine-tuning signature would be a NARROW rich region (richFraction small) with no forcing and no
-  // self-organization. Here the region is broad, the structure is forced, and the point self-organizes.
-  const fineTuningSignature =
-    richFraction < 0.15 && !geometryForced && !selfOrganizes
-
-  const designerDispensable =
-    (richFraction > 0.5 || geometryForced || selfOrganizes) &&
-    deadOnlyAtZeroArrow
+  const designerDispensable = richFraction > 0.5 && deadOnlyAtZeroArrow
 
   const solved = !fineTuningSignature && designerDispensable
 
@@ -143,8 +138,6 @@ export function designSignature(input?: { n?: number }): {
     grid,
     richFraction,
     deadOnlyAtZeroArrow,
-    geometryForced,
-    selfOrganizes,
     fineTuningSignature,
     designerDispensable,
     solved,

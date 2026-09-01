@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is bit-matrix transitive-closure heights, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // P74: the height-changing cluster move for the large-N crossing.
 // P12 measured the free-energy crossing only up to N = 48, because its single-pair move could not
 // change the HEIGHT (the longest chain) of the causal set: toggling one relation almost always
@@ -181,7 +182,7 @@ export default experiment({
   title: 'cluster move traverses heights, single-pair stuck',
   category: 'cosmology',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: false,
   run() {
     const r = largeNCrossing({ sizes: [32, 64] })
@@ -189,6 +190,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is bit-matrix transitive-closure heights, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.',
       claim:
         'the height-changing cluster move sweeps the full height range where the single-pair move stays stuck',
       metrics: {

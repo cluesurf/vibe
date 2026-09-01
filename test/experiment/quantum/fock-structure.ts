@@ -40,7 +40,7 @@ export default experiment({
   title:
     'the N-fermion walk amplitude is the Slater determinant of propagator entries (matched to brute force at machine precision), giving exact Pauli exclusion and unit norm at six particles, while bosons bunch by the permanent',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

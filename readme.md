@@ -19,6 +19,25 @@
 <br/>
 <br/>
 
+## The goal
+
+**Find the discrete base of the universe.** The working answer is the
+four-dimensional hyperbolic honeycomb **{3,4,3,4}**: a crystal of
+24-cells, twenty-four directions at every cell, carrying a ternary tone
+(-1, 0, +1) per direction and updated by one deterministic, reversible,
+conserving local rule. Everything else (space and its dimension, the
+arrow of time, relativity, spin, gauge fields, the quantum, gravity,
+selves) has to EMERGE from that base through one to three middle
+layers, or the base is wrong. This repository is where that is tested,
+one measurable claim at a time, with the negatives kept.
+
+The program is heavily inspired by Maurice Margenstern's work on
+cellular automata in hyperbolic spaces: the {7,3} heptagrid and the
+{5,3,4} dodecagrid, Fibonacci-tree addressing and navigation, and the
+proofs that these grids host universal computation. Those results are
+the reference points the substrate survey and the computation
+experiments are measured against.
+
 ## Basics
 
 This codebase is a finite, discrete, reproducible simulator that turns

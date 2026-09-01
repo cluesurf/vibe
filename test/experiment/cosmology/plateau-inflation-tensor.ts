@@ -99,7 +99,7 @@ export default experiment({
   title:
     'the tensor-ratio tension of the quadratic inflaton (E-CSM-0044, r about 0.14) is resolved by a plateau potential, which the exponential growth of the hyperbolic mesh naturally produces (constant-H de Sitter): the plateau gives n_s about 0.965 matching Planck and r about 0.004 well below the 0.06 bound, so the tensor tension signals a plateau, the mesh-derived shape the remaining step',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

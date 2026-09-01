@@ -49,7 +49,7 @@ export default experiment({
   title:
     'the bulk region diameter grows logarithmically (exponent decaying to zero, global access) while the cusp region diameter grows as N^(1/3) (locality), the one substrate splitting into mind-fast and physics-local navigation regimes',
   category: 'addressing',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

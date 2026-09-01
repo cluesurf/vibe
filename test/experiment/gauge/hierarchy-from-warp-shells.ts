@@ -96,7 +96,7 @@ export default experiment({
   title:
     'the electroweak-Planck hierarchy and the inflation amplitude scale, re-expressed as logarithms base lambda, are modest shell counts (about 13 and 4), a Randall-Sundrum style reformulation that reduces the fine-tuning question to a shell-count question, not a generation of the hierarchy, and the pass gates accept any lambda from about 8 to 2183 so lambda itself does no work here',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

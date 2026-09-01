@@ -38,7 +38,7 @@ export default experiment({
   title:
     'recalling a memory is a coarse-to-fine descent of the bulk hierarchy in log(N) steps (100 percent from a clean cue, robust to noise) while scrambling the coarse patterns collapses recall to chance, the mental walkway',
   category: 'addressing',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -69,7 +69,6 @@ export function planningNoAdditions(input?: { L?: number }): {
   plannerPos: number
   plannerReachedGoal: boolean
   willPushLength: number
-  usesOnlyEmergent: boolean
   plannerBeatsGreedy: boolean
   solved: boolean
 } {
@@ -105,9 +104,8 @@ export function planningNoAdditions(input?: { L?: number }): {
   const plannerPos = bestK > 0 ? greedyRollout(V, stall + bestK) : stall
   const plannerReachedGoal = plannerPos >= goal - 1
 
-  const usesOnlyEmergent = true // value=arrow, rollout=the rule, push=the will, score=the arrow. no heuristic.
   const plannerBeatsGreedy = plannerReachedGoal && !greedyReachedGoal
-  const solved = plannerBeatsGreedy && usesOnlyEmergent
+  const solved = plannerBeatsGreedy
 
   return {
     L,
@@ -117,7 +115,6 @@ export function planningNoAdditions(input?: { L?: number }): {
     plannerPos,
     plannerReachedGoal,
     willPushLength: bestK,
-    usesOnlyEmergent,
     plannerBeatsGreedy,
     solved,
   }
@@ -134,7 +131,7 @@ export default experiment({
   paper: true,
   run() {
     const r = planningNoAdditions({ L: 40 })
-    const ok = r.solved && r.plannerBeatsGreedy && r.usesOnlyEmergent
+    const ok = r.solved && r.plannerBeatsGreedy
 
     return verdict({
       status: ok ? 'pass' : 'fail',

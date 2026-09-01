@@ -59,7 +59,7 @@ export default experiment({
   title:
     'the Freudenthal-Tits magic square from the division-algebra ladder, with D4 and E8 on one grid and the octonion corner E8 = 248',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

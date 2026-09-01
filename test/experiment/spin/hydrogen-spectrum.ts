@@ -56,7 +56,7 @@ export default experiment({
   title:
     'the hydrogen atom, the Rydberg series E_n proportional to -1/n^2 and the accidental l-degeneracy, lifted by a non-Coulomb control',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

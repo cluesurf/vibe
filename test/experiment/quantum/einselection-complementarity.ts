@@ -68,7 +68,7 @@ export default experiment({
   title:
     'einselection is a complementarity: for one copy the system coherence and the classical record obey the exact identity (2 coherence)^2 + record^2 = 1, and a bath collapses the coherence faster still, so a state cannot stay quantum and hand out a readable classical record of the same pointer at once',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

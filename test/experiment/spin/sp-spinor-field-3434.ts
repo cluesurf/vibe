@@ -76,7 +76,7 @@ export default experiment({
   title:
     'a 2-component Dirac walk on {3,4,3,4} streams chirality at the light speed and mixes it under a mass',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

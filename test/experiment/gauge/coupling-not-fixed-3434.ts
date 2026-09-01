@@ -87,7 +87,7 @@ export default experiment({
   title:
     'the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

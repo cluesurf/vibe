@@ -46,7 +46,7 @@ export default experiment({
   title:
     "vibe's emergent quantum walk profile is above the Morse-Hedlund complexity line (genuine interference, Ord and Kauffman), the classical diffusive walk below it",
   category: 'computation',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

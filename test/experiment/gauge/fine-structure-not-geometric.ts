@@ -40,7 +40,7 @@ export default experiment({
   title:
     'the fine-structure constant is not geometric (it runs), the geometry fixes the weak angle 3/8 and the GUT normalization 5/3, leaving exactly one free gauge coupling',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -31,7 +31,7 @@ export default experiment({
   title:
     'every Gaussian packet saturates sigma_x sigma_p = 1/2 exactly across a width sweep while a flat-top packet sits far above the bound, the Heisenberg uncertainty principle on the lattice',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

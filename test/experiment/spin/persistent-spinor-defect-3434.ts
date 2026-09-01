@@ -54,7 +54,7 @@ export default experiment({
   title:
     'a half-integer disclination is a persistent topological defect carrying the spinor minus sign',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

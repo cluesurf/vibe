@@ -27,7 +27,7 @@ export default experiment({
   title:
     "vibe's fixed-lattice dispersion recovers Lorentz at low momentum and deforms to a doubly-special form with a cell-scale maximum frequency (D'Ariano), absent in the continuum",
   category: 'relativity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

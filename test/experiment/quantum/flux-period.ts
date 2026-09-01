@@ -37,7 +37,7 @@ export default experiment({
   title:
     'the ring spectrum shifts with threaded flux (no local force) and is exactly periodic with period one flux quantum, while a global phase changes nothing, the Aharonov-Bohm effect on the walk',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

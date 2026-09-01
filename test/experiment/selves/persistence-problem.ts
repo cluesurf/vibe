@@ -35,7 +35,7 @@ export default experiment({
   title:
     'a pattern lasts only if its identity is topological, the bath makes it last, a closed system only recurs',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

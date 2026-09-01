@@ -39,7 +39,7 @@ export default experiment({
   title:
     'the GHZ state gives XXX = +1 and XYY = YXY = YYX = -1 exactly while no local assignment of all sixty-four satisfies the four constraints, nonlocality with certainty (all-versus-nothing), absent on a product state',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

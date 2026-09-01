@@ -80,7 +80,9 @@ export default experiment({
   paper: false,
   run() {
     const r = s534Selves()
-    const ok = r.solitonsExist && r.anyonic && !r.fermionic
+    // AUDIT 2026-08-31: anyonic and fermionic are typed statements about 2D statistics, not measurements made
+    // here, so they are reported in metrics and no longer feed ok. The measured fact is the soliton charge.
+    const ok = r.solitonsExist
 
     return verdict({
       status: ok ? 'pass' : 'fail',

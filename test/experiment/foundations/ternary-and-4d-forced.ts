@@ -35,7 +35,7 @@ export default experiment({
   title:
     'the ternary tone (minimal with a vacuum and charge conjugation) and the four dimensions (the unique triality D4) are forced',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

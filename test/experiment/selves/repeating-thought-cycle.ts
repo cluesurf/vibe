@@ -41,7 +41,7 @@ export default experiment({
   title:
     'a stored association cycle is an attracting limit cycle of the dynamics (a repeating thought reached from noisy cues on nearly every trial, a wide basin) while scrambling the weights leaves no cycle',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -50,7 +50,7 @@ export default experiment({
   title:
     'the neutrino seesaw, the so(10) 16-spinor right-handed neutrino gives the observed 0.05 eV scale, the su(5) 15 (no singlet) the control',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

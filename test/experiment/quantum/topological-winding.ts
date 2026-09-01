@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Kitagawa 2010. A two-beat split-step walk is introduced here because the single-beat walk cannot wind.
 // The topological winding number emerges quantized from a chiral walk's own dynamics. A chiral (two-
 // beat) coined walk carries a bulk topological invariant, the winding number of its band, an INTEGER
 // that cannot change without closing the energy gap. Here it is not computed from an analytic band: it
@@ -54,8 +55,8 @@ export default experiment({
   title:
     "the topological winding number measured from a chiral walk's own dynamics: the mean chiral displacement of a two-beat coined walk converges to five distinct integers (-2, -1, 0, +1, +2) across five sectors of coin space, each within 0.02 of an integer despite ballistic spreading, while a trivial coin gives exactly zero",
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     const measured = POINTS.map(([t1, t2]) => winding(t1, t2))
@@ -91,13 +92,18 @@ export default experiment({
       metrics: {
         worstIntegerError: Number(worstIntegerError.toExponential(2)),
         distinctSectors: roundedSet.size,
-        windings: measured.map(m => Number(m.toFixed(3))).join(','),
+        windingSectorMinus2: Number(measured[4]!.toFixed(3)),
+        windingSectorMinus1: Number(measured[3]!.toFixed(3)),
+        windingSector0: Number(measured[0]!.toFixed(3)),
+        windingSectorPlus1: Number(measured[1]!.toFixed(3)),
+        windingSectorPlus2: Number(measured[2]!.toFixed(3)),
       },
       // CONTROL: a trivial coin (theta1 = 0) carries no winding.
       control: {
         trivialWinding: Number(trivialWinding.toExponential(2)),
       },
       notes:
+        'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Kitagawa 2010. A two-beat split-step walk is introduced here because the single-beat walk cannot wind. ' +
         'Winding number measured on a two-beat (split-step) coined walk via the mean chiral displacement (code/dynamics/split-step-walk): five sectors give quantized integers -2..+2 to <0.02, trivial coin gives 0. The single-beat Dirac-walk sector cannot wind (Bloch vector planar), so two beats are used. L3, a measured integer-quantized invariant, the bulk partner of the Jackiw-Rebbi bound state.',
     })
   },

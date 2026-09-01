@@ -32,7 +32,7 @@ export default experiment({
   title:
     'Le Sage shadow gravity, isotropic flux gives the inverse-square force, but the measured first-order drag rules it out as fundamental',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

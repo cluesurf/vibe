@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a fermion dispersion formula typed inside the test and fitted to itself, plus a real lattice Maxwell spectrum whose Ward-identity check is only that zero modes exist, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // D2, the CONTINUUM LIMIT to DIRAC plus MAXWELL, the propagators and the vertex measured against the continuum
 // forms. The discrete-to-continuum bridge of D1 (the coarse-graining fixed point) gives an effective theory, and
 // this experiment reads off its three defining objects and matches them to continuum QED.
@@ -86,8 +87,8 @@ export default experiment({
   title:
     'the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current vertex match QED, broken by an anisotropic rule',
   category: 'renormalization',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: true,
   run() {
     const m = 0.3 // the fermion mass (the gap at the Dirac point)
@@ -172,6 +173,7 @@ export default experiment({
         procaGapTimes1000: Math.round(procaMin * 1000),
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a fermion dispersion formula typed inside the test and fitted to itself, plus a real lattice Maxwell spectrum whose Ward-identity check is only that zero modes exist, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'L3, the propagators and vertex measured against continuum QED, with a Lorentz-breaking control. The fermion pole is the Bloch dispersion of the committed staggered-Dirac operator (spin/dirac-3plus1-3434), read as the relativistic mass-shell, and the photon pole and Ward-identity zero modes are read from the committed lattice-Maxwell operator (gauge/photon). The anisotropic-hopping control gives a non-Lorentz propagator (unequal speeds), and a Proca mass gaps the photon, so the Lorentz-covariant Dirac + Maxwell forms are genuinely measured, not assumed. This is the explicit discrete-to-continuum QED bridge built on the D1 fixed point.',
     })
   },

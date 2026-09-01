@@ -73,7 +73,7 @@ export default experiment({
   title:
     'Newton G is the single scale, the bounded area-law bit density fixes G in lattice units, the volume law has no definite G',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

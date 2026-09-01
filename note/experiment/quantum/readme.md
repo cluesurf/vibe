@@ -8,11 +8,30 @@ Vibe theory treats the quantum as **emergent, not fundamental**. The base is a d
 
 This arena asks whether those emergent quantum features actually fall out of the five base things, where they only reproduce known quantum math, and where the story is still open. Grades follow the depth rubric. **L1** confirms known mathematics. **L2** reproduces a known physics construction on this substrate. **L3** is a measured, controlled, novel consequence of the base rule. Many results here are L1 and L2, labeled as such.
 
+## Audit, 2026-08-31
+
+Read this before the sub-themes. Every "walk" result below runs the
+hand-written coined Dirac walk in `code/dynamics/coined-dirac-walk`, not
+the lattice-gas rule. The rule is a permutation of ternary slots with no
+amplitude, and `foundations/rule-has-no-amplitudes` (E-FND-0080)
+measures that directly: its vacuum is a period-three flash, a seeded
+tone is a classical defect that neither spreads nor superposes. So the
+thirteen results this readme used to grade L3 (tunneling, zitterbewegung,
+Klein, Bloch, Aubry-Andre, Jackiw-Rebbi, winding, cyclotron, the three
+bulk-boundary results, the Page curve, and the exchange-gate Bell
+result) are L2 or L1: correct reproductions of known quantum-walk and
+Hilbert-space physics, with prior art named in their notes, and
+`substrates: 'any'`. **This arena has no L3 result.** The honest map of
+what is covered, on what object, is `../quantum-coverage.md`, and the
+audit is `../../audit/2026-08-31-experiment-audit.md`. The wording
+below ("emerges from the substrate", "the exchange dynamics") predates
+the audit and is being corrected bullet by bullet.
+
 ## Sub-themes
 
-### 1. Substrate-to-quantum bridge: the walk, dispersion, and single-particle laws
+### 1. The coined walk, dispersion, and single-particle laws
 
-The lattice walk is unitary and ballistic. From it emerge the Dirac and Schrodinger dispersion, an S-matrix, uncertainty, tunneling, and the Aharonov-Bohm phase.
+The coined walk (a model, see the audit block above) is unitary and ballistic. On it the Dirac and Schrodinger dispersion, an S-matrix, uncertainty, tunneling, and the Aharonov-Bohm phase are reproduced.
 
 - **[`E-QTM-0004`](../../../test/experiment/quantum/born-interference.ts)** - the unitary rule interferes and yields a genuine Born probability.
 - **[`E-QTM-0022`](../../../test/experiment/quantum/quantum-formalism.ts)** - unitarity, the Born rule, and interference of amplitudes together on the substrate.

@@ -64,7 +64,7 @@ export default experiment({
   title:
     'the emergent quantum saturates the Margolus-Levitin and Mandelstam-Tamm speed limits, so the substrate computes at the quantum speed limit set by its energy',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

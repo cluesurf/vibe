@@ -45,7 +45,7 @@ export default experiment({
   title:
     'the Koide phase delta = 2/9, which sets the individual lepton masses, is not geometric: it matches the rational 2/9 to one part in a hundred thousand but no natural root angle or pi-fraction (closest off by more than a thousand times that), an empirical input like the fine-structure constant, while the amplitude b/a = sqrt(2) IS geometric (the control), so the Koide relation is derived and the spectrum is free',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

@@ -65,7 +65,7 @@ export default experiment({
   title:
     'gravity is one emergent metric, the area-law potential gives the matter inverse-square law and the light factor-two bending, no new field',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

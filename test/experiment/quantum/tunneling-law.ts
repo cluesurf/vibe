@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph.
 // The exact tunneling law of the emergent Dirac walk, and its measurable deviation from continuum
 // Dirac. Quantum tunneling through a classically forbidden region is the signature quantum effect,
 // and on the substrate it emerges from the deterministic reversible walk: a packet whose frequency
@@ -54,8 +55,8 @@ export default experiment({
   title:
     'sub-gap transmission decays exponentially with the exact walk rate arccosh(cos omega / cos mass), rejecting the continuum Dirac rate by seventeen percent at the same parameters while converging to it in the continuum limit, the discrete tunneling law as a hardware-testable prediction',
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: false,
   run() {
     const kappaWalk = walkTunnelKappa({ omega: OMEGA, mass: MASS })
@@ -170,6 +171,7 @@ export default experiment({
         aboveGapTransmission: Number(aboveGap[1]!.toFixed(3)),
       },
       notes:
+        'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. ' +
         'The L3 content is the verified exact discrete tunneling law and the discrete-versus-continuum discriminator (seventeen percent at omega 0.5, mass 0.9), testable on photonic or trapped-ion quantum walks. The dispersion relation itself is known discrete-walk math. Companion to the S-matrix (E-QTM-0053).',
     })
   },

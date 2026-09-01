@@ -33,7 +33,7 @@ export default experiment({
   title:
     "Landau-Zener tunneling from the coined Dirac walk's own band structure: sweeping the momentum through the avoided crossing gives a diabatic probability P = exp(-pi mass^2 / F), so the slope of ln P versus 1/F equals -pi mass^2 (matched to within ten percent at masses 0.20, 0.25, 0.30, the gap being the substrate's own 2 mass), while a massless walk has no gap and stays fully diabatic (P = 1)",
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
@@ -84,14 +84,14 @@ export default experiment({
         'sweeping the momentum of the coined Dirac walk through its k = 0 avoided crossing gives a diabatic probability whose ln falls linearly in 1/F with slope -pi mass^2 (to within ten percent at masses 0.20, 0.25, 0.30, the gap being the substrate 2 mass), faster sweeps being more diabatic, while a massless walk stays fully diabatic (P = 1), so Landau-Zener tunneling emerges from the walk band structure with the substrate mass gap',
       metrics: {
         worstRatioError: Number(worstRatioError.toExponential(2)),
-        slopes: JSON.stringify(slopes),
+        slopeAtMass020: slopes['0.20'] ?? 0,
+        slopeAtMass025: slopes['0.25'] ?? 0,
+        slopeAtMass030: slopes['0.30'] ?? 0,
         piMassSquaredAt025: Number((-Math.PI * 0.25 * 0.25).toFixed(4)),
       },
       // CONTROL: a massless walk (no gap) is fully diabatic at every force.
       control: {
-        masslessProbabilities: masslessP
-          .map(p => Number(p.toFixed(4)))
-          .join(','),
+        masslessMinProbability: Number(Math.min(...masslessP).toFixed(4)),
       },
       notes:
         'Landau-Zener from the coined Dirac walk band structure (code/measure/landau-zener): the diabatic probability is exp(-pi mass^2 / F) to ~5 percent at masses 0.2..0.3 (gap = substrate 2 mass), massless control fully diabatic (P = 1). L2, the semiclassical (continuum-force) limit of the walk under a force; the exact discrete stepping deviates at finite F.',

@@ -54,7 +54,7 @@ export default experiment({
   title:
     'the memory corner is held open, the boundary shift equals the integrated flux by continuity, which is not yet an emergent memory',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

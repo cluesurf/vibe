@@ -69,7 +69,7 @@ export default experiment({
   title:
     'a boundary two-point function transforms as a celestial correlator under a substrate boost, the seed of celestial amplitudes',
   category: 'holography',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

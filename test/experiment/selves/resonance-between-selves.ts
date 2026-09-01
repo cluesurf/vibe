@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a coupled-settling model averaged over twenty seeds, which under the methodology is an ensemble claim, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // Two aligned selves lock into resonance. Two anti-aligned selves frustrate each other. This is resonance,
 // measured.
 //
@@ -114,7 +115,7 @@ export default experiment({
     'two aligned selves lock into resonance while two anti-aligned selves frustrate each other',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const sizes = [80, 120]
@@ -141,6 +142,7 @@ export default experiment({
         antiResonance: last.antiResonance,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a coupled-settling model averaged over twenty seeds, which under the methodology is an ensemble claim, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model of resonance between selves, the tone overlap of two coupled settled states. not a base-emergence claim',
     })
   },

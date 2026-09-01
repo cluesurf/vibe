@@ -224,10 +224,19 @@ do not live in the registry. They are the floor the science stands on.
 ## Running things
 
 ```
-pnpm test        the structured suite: registry + conformance (the gate)
-pnpm test:full   the above plus the legacy oracle (test.ts), for cross-checking
-pnpm call <file> run any script, e.g. a render or a compute runner
+pnpm test             typecheck (tsconfig.check.json, code and test), then the suite: registry + conformance (the gate)
+pnpm test:full        the above plus the legacy oracle (test.ts), for cross-checking
+pnpm check:constants  no literal boolean or sign constant reaches a verdict (must print 0)
+pnpm check:labels     every `substrates` label names a mesh the code touches, every registry row is in the barrel
+pnpm check:coverage   every code named in note/experiment/quantum-coverage.md exists at the stated depth
+pnpm check:perturbation  the size-parameterized L3s at half, default and one and a half times their size
+pnpm call <file>      run any script, e.g. a render or a compute runner
 ```
+
+The four checks came out of the 2026-08-31 audit
+(`audit/2026-08-31-experiment-audit.md`). Each reports by default and
+`check:labels` rewrites only on `--commit`. Run all three before calling
+anything PASSED.
 
 **No ad-hoc assertion scripts in `code/`.** A file that checks a claim
 with `console.log('ok'/'FAIL')` and `process.exit(1)` is a test wearing

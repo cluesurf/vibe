@@ -6,12 +6,16 @@
   "type": "module",
   "scripts": {
     "make": "rm -rf host && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "npx tsx --no-warnings=ExperimentalWarning test/run.ts",
+    "test": "npx tsc --noEmit -p tsconfig.check.json && npx tsx --no-warnings=ExperimentalWarning test/run.ts",
+    "check:labels": "npx tsx --no-warnings=ExperimentalWarning task/check-labels.ts",
+    "check:constants": "npx tsx --no-warnings=ExperimentalWarning task/check-constants.ts",
+    "check:coverage": "npx tsx --no-warnings=ExperimentalWarning task/check-coverage.ts",
     "test:full": "npx tsx --no-warnings=ExperimentalWarning test/run.ts && npx tsx --no-warnings=ExperimentalWarning test/test.ts",
     "call": "npx tsx --no-warnings=ExperimentalWarning",
     "host": "pnpm make && npm publish --access=public",
     "lint": "eslint \"code/**/*.ts\" \"test/**/*.ts\"",
-    "format": "bash task/format.sh"
+    "format": "bash task/format.sh",
+    "check:perturbation": "npx tsx --no-warnings=ExperimentalWarning task/check-perturbation.ts"
   },
   "prettier": "@cluesurf/wash/flow.json",
   "devDependencies": {

@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a deliberation model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // An urge is not injected from outside. It is the voice of your parts. And the self, not the urge, resolves it.
 //
 // The worry: my choice comes from an urge, the urge comes from chemistry or signals from elsewhere, so what am I
@@ -112,7 +113,7 @@ export default experiment({
     'the urge is the aggregate of a self parts, the parts are real causes, and the self not the urge resolves the choice',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     // robustness by varying the SIZE (never averaging over a seed): the conditions must hold at each n
@@ -139,6 +140,7 @@ export default experiment({
         mutedNoEffect: last.mutedNoEffect,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a deliberation model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model. urges come from your parts, the parts are causes, and the choosing is the self resolving them, not an inner picker. not a base-emergence claim',
     })
   },

@@ -14,7 +14,7 @@ export default experiment({
   title:
     'SS13: terms hash to boundary cells, retrieval is output-sensitive, not corpus-sized',
   category: 'data-structure',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

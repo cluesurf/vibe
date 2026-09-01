@@ -41,7 +41,7 @@ export default experiment({
   title:
     'the committed D4 (24 directions) and E8 (magic-square corner) are Construction A lifts of the parity code [4,3,2] and the Hamming code [8,4,4], root counts 24 and 240 by enumeration, so the geometric ladder is a classical code ladder',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

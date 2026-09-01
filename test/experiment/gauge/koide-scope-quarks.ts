@@ -57,7 +57,7 @@ export default experiment({
   title:
     'the sector Koide mechanism predicts Q = 2/3 for any three-generation triple, but only charged leptons satisfy it sharply (one part in a hundred thousand) while up quarks give 0.85, down quarks 0.73, and the heavy (c, b, t) triple 0.669 (the known near-Koide triple, mixed-scheme masses), so the mechanism is lepton-specific or incomplete, the honest scope limit of the campaign and a falsifiable handle',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

@@ -144,9 +144,9 @@ export function selfEmergencePerception(): {
   bg /= n
 
   const imprintRetention = (after - bg) / (start - bg || 1)
-  const conservedImp = true // imprint changes Q deliberately, dynamics after conserve it
-
-  const conserved = conservedRun && conservedImp
+  // AUDIT 2026-08-31: conservedImp was a typed `true` conjoined into conserved. The imprint changes Q on
+  // purpose, so the only conservation this file can measure is the run after it, conservedRun.
+  const conserved = conservedRun
   // durable structure if the field stays correlated at long lag OR an imprint survives
   const durableSelvesForm = longLagCorr > 0.3 || imprintRetention > 0.3
   const verdict = durableSelvesForm

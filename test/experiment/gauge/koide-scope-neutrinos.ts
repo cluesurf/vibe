@@ -61,7 +61,7 @@ export default experiment({
   title:
     'the charged-lepton Koide relation does not extend to the neutrinos: with the measured mass-squared splittings the neutrino Koide Q maxes at 0.584 (normal) and 0.500 (inverted), both below 2/3 and unreachable with positive roots, so the mechanism is charged-lepton specific and the neutrino sector needs different structure, completing the scope audit begun for the quarks',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {

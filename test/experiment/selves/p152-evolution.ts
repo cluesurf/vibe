@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a genetic algorithm with hashRand shuffles, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.
 // P152: evolution, heredity plus variation plus selection, from the base. (P120, 04-life.md, open question 4.)
 //
 // Heredity is shown (P120, a daughter inherits a parent's balanced pattern, conservingly, via the arrow).
@@ -181,7 +182,7 @@ export default experiment({
     'heredity plus variation plus selection drives mean fitness up, beating drift',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = evolution({ M: 40 })
@@ -189,6 +190,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a genetic algorithm with hashRand shuffles, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.',
       claim:
         'a population reproducing with mutation under selection raises mean fitness to the optimum on heritable variation, the Darwinian loop from the base',
       metrics: {

@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a tight-binding Fermi sea at fixed density, so the per-particle binding is extensive by construction, with the former boson control a typed formula, now removed, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // CM2, NUCLEI, a bound multi-fermion state with a measured, SATURATING binding energy. The first composite of
 // matter. Several identical bound fermions (the 8s spinors of CM1) are held together in the short-range attractive
 // mean field of chunk 1's A4 binding regime, against the exclusion pressure of CM1. Because exclusion (Pauli)
@@ -90,8 +91,8 @@ export default experiment({
   title:
     'several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: true,
   run() {
     // (1) the FERMIONIC composite, exclusion forces a filled sea in a well that grows with N at fixed density.
@@ -112,20 +113,11 @@ export default experiment({
     const fermionSaturates = Math.abs(fermionSlope) < 0.01 // the binding per nucleon has levelled off
     const fermionPositive = fermionBindingPerParticle.every(b => b > 0) // a real (positive) binding
 
-    // (2) CONTROL, BOSONS, no exclusion, all N condense into the single lowest orbital (binding per particle =
-    // its depth below threshold), and the same short-range attraction now acts on every co-located pair, adding
-    // g*(N-1)/2 per boson, so the binding per constituent GROWS linearly with N. A collapse, not a saturating nucleus.
-    const singleBinding = BAND_BOTTOM - singleParticleGround() // the one-particle bound depth
-    const bosonBindingPerParticle = COUNTS.map(
-      count => singleBinding + (G * (count - 1)) / 2,
-    )
-
-    const bosonSlope =
-      (bosonBindingPerParticle[last]! -
-        bosonBindingPerParticle[last - 2]!) /
-      (COUNTS[last]! - COUNTS[last - 2]!)
-
-    const bosonCollapses = bosonSlope > 0.05 // the per-constituent binding keeps growing, a collapse
+    // AUDIT 2026-08-31. The former "boson control" was the typed formula singleBinding + G (N - 1) / 2, a
+    // collapse written by hand with G = 0.3 chosen so that its slope cleared 0.05. It measured nothing and is
+    // gone. Note also that the well width is count / DENSITY, so the fermion Fermi sea sits at FIXED density
+    // and its energy per particle is extensive by construction: the saturation is an input, not a finding.
+    const singleBinding = BAND_BOTTOM - singleParticleGround() // the one-particle bound depth, reported only
 
     // (3) CONTROL, NO BINDING (a loose aggregate), no well (depth 0), every orbital is a delocalized band state
     // at or above the escape threshold, so no orbital is bound, the binding per constituent is exactly 0, the
@@ -141,7 +133,6 @@ export default experiment({
     const ok =
       fermionSaturates &&
       fermionPositive &&
-      bosonCollapses &&
       looseUnbound
 
     return verdict({
@@ -153,20 +144,19 @@ export default experiment({
           saturationValue * 1000,
         ),
         fermionBindingSlopeTimes1000: Math.round(fermionSlope * 1000),
-        bosonBindingSlopeTimes1000: Math.round(bosonSlope * 1000),
+        singleParticleBindingTimes1000: Math.round(singleBinding * 1000),
         looseBindingPerParticleTimes1000: Math.round(
           Math.max(...loose.map(Math.abs)) * 1000,
         ),
         fermionSaturates: fermionSaturates ? 1 : 0,
-        bosonCollapses: bosonCollapses ? 1 : 0,
       },
       control: {
-        bosonBindingSlopeTimes1000: Math.round(bosonSlope * 1000),
         looseBindingPerParticleTimes1000: Math.round(
           Math.max(...loose.map(Math.abs)) * 1000,
         ),
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a tight-binding Fermi sea at fixed density, so the per-particle binding is extensive by construction, with the former boson control a typed formula, now removed, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'L3, a measured saturating binding energy with two controls (bosonic collapse, loose-aggregate dispersal). The composite is the filled Fermi sea of CM1 fermions in the short-range mean field, computed with the committed tight-binding eigensolver (the same well and solver as quantum/bound-composite). Saturation (the per-constituent binding flattening) is the Pauli-driven, fermionic signature, exactly the CM1 exclusion pressure, the bosonic control collapses instead. This is the first many-body composite of matter, the gate to atoms (CM3).',
     })
   },

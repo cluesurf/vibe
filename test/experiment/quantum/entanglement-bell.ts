@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a two-qubit exchange gate applied to a product state in a four-dimensional Hilbert space, giving a Bell state at the Tsirelson bound, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // P173: genuine entanglement and a Bell-CHSH violation from the substrate's own dynamics. (P131, P151, P158.)
 //
 // We have interference and the Born rule (P158), a Dirac dispersion, and reflection positivity (P151, P169).
@@ -96,7 +97,7 @@ export default experiment({
   title: 'the exchange dynamics violates CHSH at the Tsirelson bound',
   category: 'quantum',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = entanglementBell()
@@ -108,6 +109,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a two-qubit exchange gate applied to a product state in a four-dimensional Hilbert space, giving a Bell state at the Tsirelson bound, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.',
       claim:
         'the exchange dynamics produces a maximally entangled state that violates CHSH at the Tsirelson bound while a product control stays classical',
       metrics: {

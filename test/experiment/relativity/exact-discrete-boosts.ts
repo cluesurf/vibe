@@ -45,7 +45,7 @@ export default experiment({
   title:
     'the light sector carries exact Lorentz structure: omega = k with no correction anywhere in the zone, integer light-cone boosts map solutions to solutions exactly, and their rapidities are dense, while the mass deforms it',
   category: 'relativity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

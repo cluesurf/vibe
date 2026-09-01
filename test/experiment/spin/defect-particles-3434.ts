@@ -88,7 +88,7 @@ export default experiment({
   title:
     'topological defects annihilate in opposite-charge pairs and persist as like charges',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment runs a hand-written 2D square-lattice coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph.
 // Cyclotron confinement emerges from a 2D coined walk in a synthetic magnetic field. A charged particle
 // in a magnetic field does not escape, it orbits: the field bends its velocity into a closed loop of
 // radius the cyclotron radius, which SHRINKS as the field grows. Here the field is a Peierls phase on
@@ -49,8 +50,8 @@ export default experiment({
   title:
     'cyclotron confinement from a 2D coined walk in a synthetic magnetic field: the field traps a momentum packet in a bounded orbit (transverse span time-independent to within five percent) whose radius scales as 1 / B (amplitude times field constant to within twelve percent across fields 0.10 to 0.20, amplitude halving as the field doubles), while a zero field flies straight (ballistic, unbounded)',
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L2',
   paper: true,
   run() {
     // PREDICTION 1: the orbit is bounded (span time-independent) for every field
@@ -117,6 +118,7 @@ export default experiment({
         ),
       },
       notes:
+        'AUDIT 2026-08-31: this experiment runs a hand-written 2D square-lattice coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. ' +
         'Cyclotron confinement measured on a 2D coined walk in a synthetic magnetic field (code/dynamics/magnetic-walk-2d): with a field the transverse span is time-independent (bounded orbit) and the radius scales as 1 / B (amplitude halves as the field doubles), the zero-field control flies straight. The frequency is not claimed (harmonic/band-curvature contaminated). A 2D walk, closer to the real substrate. L3, a quantitative could-be-wrong law with a control that shows the confinement vanish.',
     })
   },

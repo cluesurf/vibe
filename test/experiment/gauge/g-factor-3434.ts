@@ -110,7 +110,7 @@ export default experiment({
   title:
     'the spinor g-factor is measured as 2 from the Dirac Landau spectrum, not assumed',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

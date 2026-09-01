@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a multi-agent trajectory model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // A coherent self steers its world to its goal. A fragmented self of the same parts cannot. So integration
 // amplifies agency, and alignment is the ally of freedom, not its rival ([alignment 02]).
 //
@@ -54,7 +55,7 @@ export default experiment({
     'a coherent self reaches its goal while a fragmented self of the same parts cannot, so integration amplifies agency',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const sizes = [180, 240, 360]
@@ -81,6 +82,7 @@ export default experiment({
         fragmentedFinal: last.fragmentedFinal,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a multi-agent trajectory model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model. alignment is the ally of freedom, an integrated self has more impact than a fragmented one. not a base-emergence claim',
     })
   },

@@ -163,7 +163,7 @@ export default experiment({
   title:
     'the {5,3,4} behaviours port to the {4,3,4} cubic cusp, a z=1 light cone, churn, and self annihilation',
   category: 'substrate-survey',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

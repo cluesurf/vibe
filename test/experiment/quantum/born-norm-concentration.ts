@@ -37,7 +37,7 @@ export default experiment({
   title:
     'the conserved norm concentrates branch weight on the Born frequency (deviant norm falling ten orders across the copy sweep) while branch counting concentrates at one half for every state and breaks under unitary refinement',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

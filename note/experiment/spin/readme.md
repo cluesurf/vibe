@@ -4,7 +4,20 @@ Forty-three experiments on where spin comes from.
 
 Vibe theory does not put spin in by hand. It grows spinors, fermions, and spin-1/2 out of the discrete substrate geometry. The 24 directions of the committed `{3,4,3,4}` coin are the binary tetrahedral group 2T, the double cover of the rotation group, so a spinor picks up a minus sign after a 2pi turn and returns only at 4pi. The 24-cell splits into 8v + 8s + 8c (a vector and two spinors) under SO(8) triality. The hyperbolic `{5,3,4}` bulk carries spin a different way, through its projective double cover 2I, its spin connection, and topological defects. This arena tests all of it: the spin-1/2 double cover, fermion statistics and the Pauli principle, the Dirac equation, chiral fermions, triality and the generations problem, anyons from the ternary tone, and the emergent matter (atoms, nuclei, molecules) that exclusion makes possible.
 
-The substrate is discrete. Every result is deterministic, with a named control that could have failed.
+The substrate is discrete and every result is deterministic. Not every
+result has a control that could have failed, and the 2026-08-31 audit
+regraded the ones that did not: `fermi-exclusion` (E-SPN-0014) tests an
+identity that holds for any vector, with the exchange signs formerly
+typed in, so it is L1. `atoms-shell-filling` (E-SPN-0002) is a 2D
+square-grid tight-binding well, L2. `helium-ground-state`,
+`molecular-bond`, `nuclear-binding-curve` and `nuclei-binding-saturation`
+(E-SPN-0017, 0023, 0024, 0025) are textbook formulas with no mesh, L1.
+`anyon-deconfinement` (E-SPN-0001) evaluates the toric-code degeneracy
+formula, L1, and had never been imported by the barrel until the audit.
+**This arena has no L3 result.** The double-cover results (2T, the 2 pi
+sign) are honest L1 group arithmetic on the coin, and the defect and
+holonomy results are L2. The audit is
+`../../audit/2026-08-31-experiment-audit.md`.
 
 ## The spinor coin and the spin-1/2 double cover
 

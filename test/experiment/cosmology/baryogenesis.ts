@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a toy Boltzmann ODE written in the file, whose three controls each switch off a typed term, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // P80: baryogenesis from genuine out-of-equilibrium dynamics.
 // Why is there more matter than antimatter? Sakharov: any answer needs three ingredients:
 //   1. baryon-number violation (a process that changes the net matter count),
@@ -164,7 +165,7 @@ export default experiment({
     'emergent asymmetry, all three Sakharov conditions necessary, freeze-out peak at intermediate washout',
   category: 'cosmology',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = baryogenesis({ seed: 1 })
@@ -176,6 +177,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a toy Boltzmann ODE written in the file, whose three controls each switch off a typed term, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.',
       claim:
         'integrating the out-of-equilibrium Boltzmann equations makes the asymmetry emerge as epsilon times an efficiency, with each Sakharov condition necessary',
       metrics: {

@@ -44,7 +44,7 @@ export default experiment({
   title:
     'the ternary tone (Z_3) hosts anyons, a fractional 2pi/3 braiding phase, topological and enclosure-gated, vs the binary boson and fermion',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

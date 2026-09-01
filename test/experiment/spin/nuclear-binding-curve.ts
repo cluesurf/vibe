@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is the Bethe-Weizsacker formula with its fitted coefficients, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base.
 // The nuclear binding curve and the iron peak, why iron is the most bound nucleus and why both fusion and fission
 // release energy. The nuclear saturation experiment (`spin/nuclei-binding-saturation`) shows the binding per nucleon
 // FLATTENS as nucleons are added (the Pauli-enforced constant density). This experiment is the next level of detail,
@@ -39,8 +40,8 @@ export default experiment({
   title:
     'the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control',
   category: 'spin',
-  substrates: ['3434'],
-  depth: 'L3',
+  substrates: 'any',
+  depth: 'L1',
   paper: false,
   run() {
     // the iron peak, the mass number that maximizes the binding per nucleon
@@ -107,6 +108,7 @@ export default experiment({
         noCoulombMonotonic: noCoulombMonotonic ? 1 : 0,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is the Bethe-Weizsacker formula with its fitted coefficients, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L1. Not a consequence of the {3,4,3,4} base. ' +
         'the Bethe-Weizsacker formula B = a_V A - a_S A^(2/3) - a_C Z(Z-1)/A^(1/3) - a_A (A-2Z)^2/A + pairing, with the standard coefficients (volume 15.75, surface 17.8, Coulomb 0.711, asymmetry 23.7, pairing 11.18 MeV), maximized over the proton number at each mass (the valley of stability). The peak is at A about 58 (Z = 26, iron) at 8.87 MeV per nucleon, near the observed iron-nickel peak of 8.79. The medium-to-heavy nuclei are accurate (iron-56 about 8.8, uranium-238 about 7.6 MeV per nucleon). HONESTLY, the liquid-drop model is poor for the lightest nuclei (deuterium comes out unbound, helium-4 about 5.7 versus the observed 7.07) where cluster and shell structure dominate, so the quantitative claims are made for the medium-to-heavy range where the model holds. The no-Coulomb control gives a monotonic curve (the peak pushed to the heavy end), so the iron peak is the Coulomb repulsion. This is the binding-curve row of the per-particle verification, the iron peak and the fusion-fission arrow, complementing the saturation of `spin/nuclei-binding-saturation`. TIER B, a consistency check that USES the empirical Bethe-Weizsacker coefficients (fitted to nuclear data), so it shows the emergent picture is compatible with the observed nuclear binding curve, it does NOT derive the coefficients from the {3,4,3,4} base (the nuclear force is residual emergent QCD, far from the base). The geometric content here is only the competition structure (volume versus surface versus Coulomb), not the fitted numbers.',
     })
   },

@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a greedy rollout on a potential typed in the file, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.
 // P153: the integrated metacognitive agent. (P143, P118, P121, P113, open question 5.)
 //
 // P143 showed planning emerges from the base (will + own-rule rollout + arrow) but as a ONE-SHOT plan
@@ -159,7 +160,7 @@ export default experiment({
     'the closed perceive-plan-act loop crosses a sequence of barriers, beating reactive and one-shot',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = integratedAgent({ L: 80, B: 4 })
@@ -171,6 +172,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a greedy rollout on a potential typed in the file, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.',
       claim:
         'an agent of emergent pieces with bounded foresight re-plans at each stall and crosses a sequence of barriers to a distant goal that reactive and one-shot agents cannot',
       metrics: {

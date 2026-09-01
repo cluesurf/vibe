@@ -164,7 +164,7 @@ export default experiment({
   title:
     'the nonlinear Einstein structure, gravity gravitates (the self-coupling breaks superposition), reversibly and boundedly, the linear field the control',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

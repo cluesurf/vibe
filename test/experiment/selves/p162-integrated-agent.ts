@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a gridworld lookahead, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.
 // P162: an integrated metacognitive agent, multi-step lookahead through its own forward model. (P143, P118, P157, open-question 5.)
 //
 // P143 showed planning-from-the-base crosses a single barrier (will + the rule as a one-step forward model
@@ -229,7 +230,7 @@ export default experiment({
     'multi-step lookahead through the forward model solves a detour the reactive agent cannot',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = integratedAgent({ L: 31 })
@@ -237,6 +238,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a gridworld lookahead, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.',
       claim:
         'an agent chaining multi-step lookahead through its own forward model solves a detour where a reactive greedy agent gets stuck',
       metrics: { depthNeeded: r.depthNeeded },

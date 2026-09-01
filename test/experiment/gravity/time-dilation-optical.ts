@@ -27,7 +27,7 @@ export default experiment({
   title:
     'gravity as time dilation, the clock-rate well bends light (the temporal half), the full metric gives the GR factor-two deflection, no new field',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

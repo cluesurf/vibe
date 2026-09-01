@@ -84,7 +84,7 @@ export default experiment({
   title:
     'self persistence rises with conservation exactness (perfect at zero leak, collapsing as conservation breaks), a deterministic rebuttal of the randomness-necessary claim',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

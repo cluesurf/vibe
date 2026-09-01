@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is textbook one-loop running of the measured gauge couplings to unification and the dimension-six proton lifetime estimate, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base.
 // GU7, THE PROTON LIFETIME (a crown jewel, a genuine falsifiable grand-unification prediction). The so(10)
 // unification puts quarks and leptons in one 16-spinor, so the heavy X/Y leptoquark gauge bosons (the modes of the
 // broken so(10), GU5) mediate proton decay by a dimension-six operator. Once the unification scale and the unified
@@ -32,7 +33,7 @@ export default experiment({
     'the proton lifetime is fixed by the GUT scale at about 1e36 years, above the bound and falsifiable',
   category: 'gauge',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const inputs = {
@@ -61,14 +62,12 @@ export default experiment({
     const withinReach = tauMSSM < NEXT_GENERATION_REACH_YEARS * 100 // not absurdly far above, a real target
     // the bare SM content unifies low, giving an already-excluded lifetime (consistent with the SM not unifying)
     const smExcluded = tauSM < EXPERIMENTAL_BOUND_YEARS
-    // the control, no X/Y leptoquarks means no dimension-six operator, so no decay at all (infinite lifetime)
-    const decaysWithoutLeptoquarks = false
-
-    const ok =
-      aboveBound &&
-      withinReach &&
-      smExcluded &&
-      !decaysWithoutLeptoquarks
+    // AUDIT 2026-08-31. The former "control" was the typed constant decaysWithoutLeptoquarks = false, which
+    // measured nothing. The computed comparison that CAN fail is the bare-SM run: same inputs, SM beta
+    // coefficients, an already-excluded lifetime. That is now the control. Nothing here runs the {3,4,3,4}
+    // rule: this is textbook one-loop running of the measured couplings, and the "substrate MSSM-like content"
+    // is an assumption stated in the notes, not a result of this file.
+    const ok = aboveBound && withinReach && smExcluded
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -82,12 +81,12 @@ export default experiment({
         gutInverseCouplingMSSM: Math.round(mssm.unifiedInverseCoupling),
       },
       control: {
-        protonDecaysWithoutLeptoquarks: decaysWithoutLeptoquarks
-          ? 1
-          : 0,
+        log10TauSMYears: log10(tauSM),
+        smExcluded: smExcluded ? 1 : 0,
       },
       notes:
-        'a genuine falsifiable number, fixed once the GUT scale is fixed. The MSSM-content lifetime (about 1e36 years) is above the current bound and a target for next-generation detectors. The bare-SM scale gives an excluded lifetime, consistent with the SM not unifying (gauge/rg-unification). The order-of-magnitude estimate carries an O(1) hadronic matrix-element factor. The no-leptoquark control gives no decay (infinite lifetime).',
+        'AUDIT 2026-08-31: this experiment is textbook one-loop running of the measured gauge couplings to unification and the dimension-six proton lifetime estimate, with no substrate, mesh, rule or coin anywhere in its import graph. Honest depth L2. Not a consequence of the {3,4,3,4} base. ' +
+        'a genuine falsifiable number, fixed once the GUT scale is fixed. The MSSM-content lifetime (about 1e36 years) is above the current bound and a target for next-generation detectors. The bare-SM scale gives an excluded lifetime, consistent with the SM not unifying (gauge/rg-unification). The order-of-magnitude estimate carries an O(1) hadronic matrix-element factor. The former no-leptoquark control was a typed constant and is gone, the computed bare-SM run is the control.',
     })
   },
 })

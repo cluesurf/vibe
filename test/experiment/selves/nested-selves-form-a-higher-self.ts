@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a consensus model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // Many sub-selves bind into one higher self, and the higher self repairs its own parts. This is the upward step
 // on the ladder, the groundwork for higher beings ([questions 06], [alignment 05]).
 //
@@ -84,7 +85,7 @@ export default experiment({
     'coupled sub-selves bind into one higher self that repairs its own parts, the upward step on the ladder',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     const sizes = [80, 120, 160]
@@ -126,6 +127,7 @@ export default experiment({
         uncoupledRepair: lastControl.repairedOverlap,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a consensus model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 model of higher-self emergence by binding, with downward causation (the whole repairs the part). the upward step on the ladder. not a base-emergence claim',
     })
   },

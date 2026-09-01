@@ -39,7 +39,7 @@ export default experiment({
   title:
     'a boundary loop encloses a definite bulk region (the subtree under the common ancestor), disjoint loops enclose disjoint regions, and a wider loop reaches deeper, so a loop is an exact composable anchor for an object',
   category: 'addressing',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

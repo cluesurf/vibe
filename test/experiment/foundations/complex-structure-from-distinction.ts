@@ -62,7 +62,7 @@ export default experiment({
   title:
     'the emergent complex unit i is built from the signed tone distinction and the beat alone (Kauffman iterant), with a tone-alphabet control',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

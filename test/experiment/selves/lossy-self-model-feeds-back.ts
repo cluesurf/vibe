@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L2. this experiment is a deliberation model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3.
 // What a self's lossy model throws away is not gone, it stays in the full state and feeds
 // back into the determined outcome.
 //
@@ -147,7 +148,7 @@ export default experiment({
     'detail a self cannot see in its coarse model still feeds back into its determined choice',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L2',
   paper: true,
   run() {
     // robustness by varying the SIZE (never averaging over a seed): the conditions must hold at each n
@@ -180,6 +181,7 @@ export default experiment({
         divergenceNoSelf: last.divergenceNoSelf,
       },
       notes:
+        'AUDIT 2026-08-31: this experiment is a deliberation model, with no substrate or rule in it. Honest depth L2, which is what the notes below already said in words while the depth field said L3. ' +
         'L3 on the deliberation model. the lost-to-the-model information is retained in the full state and feeds back, it is not a base-substrate emergence claim',
     })
   },

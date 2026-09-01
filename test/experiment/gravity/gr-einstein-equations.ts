@@ -72,17 +72,15 @@ function areaLawPrecondition(): {
 function jacobsonCoefficient(): {
   einsteinCoeff: number
   poissonCoeff: number
-  ok: boolean
 } {
+  // AUDIT 2026-08-31: this used to return an `ok` that checked 2 pi / (1 / 4G) = 8 pi G with G = 1 typed in,
+  // an algebraic identity. It now returns the two coefficients for reporting and decides nothing.
   const G = 1
   const eta = 1 / (4 * G)
   const einsteinCoeff = (2 * Math.PI) / eta
   const poissonCoeff = einsteinCoeff / 2
-  const ok =
-    Math.abs(einsteinCoeff - 8 * Math.PI * G) < 1e-12 &&
-    Math.abs(poissonCoeff - 4 * Math.PI * G) < 1e-12
 
-  return { einsteinCoeff, poissonCoeff, ok }
+  return { einsteinCoeff, poissonCoeff }
 }
 
 // MEASURED, the weak-field potential of a point source on the cubic {4,3,4} cusp falls as 1/r (Newtonian),
@@ -171,7 +169,9 @@ export default experiment({
     const jc = jacobsonCoefficient()
     const pc = poissonOnCusp()
     const lb = lightBending(1, 10)
-    const ok = area.ok && jc.ok && pc.ok && lb.ok
+    // AUDIT 2026-08-31: jc.ok checked that 2 pi / (1 / 4G) equals 8 pi G with G = 1 typed in, an algebraic
+    // identity that cannot fail. It is reported in metrics and no longer feeds the verdict.
+    const ok = area.ok && pc.ok && lb.ok
 
     return verdict({
       status: ok ? 'pass' : 'fail',

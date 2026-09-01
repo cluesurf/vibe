@@ -39,7 +39,7 @@ export default experiment({
   title:
     'a maximal A-B wormhole (singlet corner, CHSH 2 root 2) forces the A-C throat to exactly zero and the swept squared throat strengths obey the monogamy bound, so a wormhole cannot be shared three ways, while a GHZ state shares classical-strength links in both',
   category: 'quantum',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

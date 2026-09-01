@@ -39,7 +39,7 @@ export default experiment({
   title:
     'walking a closed loop in the bulk rotates the parallel-transported frame by exactly the enclosed area (holonomy from turning equals area from integration to a part in a million, growing without bound with loop size), while a flat loop returns the frame unchanged',
   category: 'geometry',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

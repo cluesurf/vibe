@@ -45,7 +45,7 @@ export default experiment({
   title:
     'the bulk depth a route reaches equals the logarithm of the boundary separation (penetration = floor log_b s + 1, route = twice that, incrementing by one per branching factor), the holographic depth-is-RG-scale law, while a flat chain routes linearly',
   category: 'addressing',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

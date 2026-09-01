@@ -123,7 +123,7 @@ export default experiment({
   title:
     'the propagating spin-2 graviton, helicity two (period 180), massless (front speed one), reversible, the gravitational wave',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -56,7 +56,7 @@ export default experiment({
   title:
     'two distant regions on vibe become entangled only through the geometric mediator and the mutual information covaries with the mediator strength (the GIE / BMV witness), while a direct bypass keeps them entangled when the mediator is cut',
   category: 'gravity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

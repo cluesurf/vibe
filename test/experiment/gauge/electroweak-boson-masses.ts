@@ -31,7 +31,7 @@ export default experiment({
   title:
     'the W and Z masses, M_W/M_Z = cos(theta_W) near the observed value and the custodial rho = 1 from the Higgs doublet, a triplet the control',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

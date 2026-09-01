@@ -125,7 +125,7 @@ export default experiment({
   title:
     'a fitness-tuned perception carries more information about fitness than a truth-tuned one when fitness is non-monotonic, Hoffman interface theory measured',
   category: 'selves',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

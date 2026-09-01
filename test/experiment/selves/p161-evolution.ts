@@ -1,3 +1,4 @@
+// AUDIT 2026-08-31: regraded from L3 to L1. this experiment is a genetic algorithm with hashRand mutation, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.
 // P161: evolution, heredity + variation + SELECTION + competition. (P120, open-question 4.)
 //
 // P120 showed heredity (a daughter inherits a parent's pattern, with tunable variation, conservingly). The
@@ -199,7 +200,7 @@ export default experiment({
     'selection raises fitness, drift does not, and the population re-adapts to a new environment',
   category: 'selves',
   substrates: 'any',
-  depth: 'L3',
+  depth: 'L1',
   paper: true,
   run() {
     const r = evolution({ K: 120, m: 200, generations: 60, mu: 0.03 })
@@ -207,6 +208,8 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
+      notes:
+        'AUDIT 2026-08-31: this experiment is a genetic algorithm with hashRand mutation, written inline, with no substrate or rule in it. Honest depth L1, which is what the notes below already said in words while the depth field said L3.',
       claim:
         'a heritable population under selection climbs in fitness where neutral drift does not and re-adapts when the environment changes',
       metrics: {

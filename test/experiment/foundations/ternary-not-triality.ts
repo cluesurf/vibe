@@ -68,28 +68,32 @@ export default experiment({
   title:
     'the ternary three (vacuum + pair, Z2, partition 1+2) is NOT the triality three (symmetric, S3, partition 3), so the tone is the irreducible atom of distinction',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
     // the ternary tone's symmetry (fixing the vacuum, commuting with conjugation) is Z2, order two
     const toneSymmetry = ternaryToneSymmetryOrder()
     const toneIsZ2 = toneSymmetry === 2
-    // the ternary partition under that symmetry is 1 + 2 (the vacuum, and the charged pair)
-    const tonePartitionOnePlusTwo = true // {0} and {+1,-1}
+    // the ternary partition under that symmetry: the orbits of {-1, 0, +1} under negation, computed. AUDIT
+    // 2026-08-31: this used to be the typed constant tonePartitionOnePlusTwo = true.
+    const orbitSizes = [...new Set([-1, 0, 1].map(v => Math.abs(v)))]
+      .map(a => [-1, 0, 1].filter(v => Math.abs(v) === a).length)
+      .sort((a, b) => a - b)
+    const tonePartitionOnePlusTwo =
+      orbitSizes.length === 2 && orbitSizes[0] === 1 && orbitSizes[1] === 2
 
-    // the triality's three reps are permuted by the full S3, order six, one symmetric orbit of size three
-    const trialitySymmetry = 6 // S3
-    const trialityIsS3 = trialitySymmetry === 6
+    // the triality's three reps are permuted by S3. AUDIT 2026-08-31: the order six is a STATED fact of the
+    // triality automorphism group (the symmetric group on three labels), not measured here, so it is not
+    // conjoined into ok. The measured comparison is the tone symmetry order against it.
+    const trialitySymmetry = 6 // |S3|, stated
 
     // the two are structurally different, different symmetry order AND different partition
     const differentSymmetry = toneSymmetry !== trialitySymmetry
-    const notTheSameThree =
-      differentSymmetry && toneIsZ2 && trialityIsS3
+    const notTheSameThree = differentSymmetry && toneIsZ2
 
     const ok =
       toneIsZ2 &&
-      trialityIsS3 &&
       tonePartitionOnePlusTwo &&
       notTheSameThree
 

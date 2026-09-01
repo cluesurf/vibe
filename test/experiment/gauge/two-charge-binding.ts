@@ -80,7 +80,7 @@ export default experiment({
   title:
     'the 1D gauge force confines two opposite charges (bound at any energy), zero coupling lets them escape',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {

@@ -4,11 +4,14 @@ This tree lets you see the whole experiment corpus at a glance, find any single
 experiment fast, understand what is covered and what is not, and extend the
 suite without reverse-engineering it.
 
-There are **771 experiments** in `test/experiment/`. Each is a small,
-deterministic kernel or simulation that states one claim, runs on the discrete
-substrate, grades itself at a depth tier, and (for the strong ones) compares
-against a control that could have failed. No one is going to read 771 files, so
-this folder is the way in.
+There are **825 experiments** in the registry (2026-08-31, after the
+audit in `../audit/2026-08-31-experiment-audit.md`). Each is a small,
+deterministic kernel or simulation that states one claim, grades itself
+at a depth tier, and (for the strong ones) compares against a computed
+control that could have failed. Not every experiment runs on the
+discrete substrate: the `substrates` field says which do, and
+`pnpm check:labels` keeps that field honest. No one is going to read
+825 files, so this folder is the way in.
 
 ## The suite in one paragraph
 
@@ -38,28 +41,28 @@ negatives kept.
 Every experiment lives in exactly one arena (its `test/experiment/<arena>/`
 folder). Counts are file counts.
 
-| arena | n | what it tests |
-|:--- | ---: |:--- |
-| [selves](selves/readme.md) | 176 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
-| [gauge](gauge/readme.md) | 71 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate |
-| [foundations](foundations/readme.md) | 72 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed |
-| [quantum](quantum/readme.md) | 92 | the quantum as emergent from a deterministic reversible base: Born rule, entanglement, the shared-past mechanism, measurement as settling |
-| [gravity](gravity/readme.md) | 50 | gravity as emergent and entropic: curvature from the area law, Einstein as an equation of state, the dark sector, horizons |
-| [cosmology](cosmology/readme.md) | 50 | the growing wake: self-creation from the void, expansion, dimension selection, inflation, the CMB, dark energy |
-| [spin](spin/readme.md) | 43 | spinors and fermions from the 24-cell and D4 coin: the double cover, Dirac, triality, anyons, emergent matter |
-| [relativity](relativity/readme.md) | 43 | Lorentz invariance and the light cone as emergent from a fixed lattice (the hard problem for any discrete theory) |
-| [geometry](geometry/readme.md) | 37 | why {3,4,3,4}: the 24-cell, F4, hyperbolic tessellation, curvature, the exceptional-algebra spine |
-| [holography](holography/readme.md) | 33 | bulk-boundary duality: the area law, Ryu-Takayanagi, celestial holography, error-correcting codes |
-| [substrate-survey](substrate-survey/readme.md) | 30 | why this geometry and not another: the same battery re-run on rival lattices |
-| [data-structure](data-structure/readme.md) | 28 | the substrate as a data plane: capacity, indexes, paths, routing |
-| [associative](associative/readme.md) | 16 | content-addressable memory on the bulk: recall, Hopfield attractors, capacity from curvature |
-| [renormalization](renormalization/readme.md) | 15 | the coarse-graining tower and the renormalization-group flow to the continuum |
-| [computation](computation/readme.md) | 14 | universal computation on the substrate: reversible CA, the railway, goal-directed search |
-| [fluids](fluids/readme.md) | 13 | lattice-gas hydrodynamics: emergent Navier-Stokes, conservation laws, exotic phases |
-| [addressing](addressing/readme.md) | 12 | the addressing scheme and greedy geometric routing on the honeycomb |
-| [method](method/readme.md) | 3 | meta-experiments about the suite: the rigidity test and the anti-fooling gates |
-| [general](general/readme.md) | 1 | the exact renormalization mechanism |
-| **total** | **771** | |
+| arena | files | registered | what it tests |
+|:--- | ---: | ---: |:--- |
+| [selves](selves/readme.md) | 176 | 175 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
+| [gauge](gauge/readme.md) | 71 | 71 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate |
+| [foundations](foundations/readme.md) | 78 | 86 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed, and the rule's own limits (no amplitudes, a period-three vacuum) |
+| [quantum](quantum/readme.md) | 92 | 92 | the quantum on stated models (the coined Dirac walk, tight-binding chains, small Hilbert spaces): Born rule, entanglement, measurement as settling, topological walks. None of it yet runs the base rule, see `../audit/2026-08-31-experiment-audit.md` |
+| [gravity](gravity/readme.md) | 53 | 53 | gravity as emergent and entropic: curvature from the area law, Einstein as an equation of state, the dark sector, horizons |
+| [cosmology](cosmology/readme.md) | 51 | 51 | the growing wake: self-creation from the void, expansion, dimension selection, inflation, the CMB, dark energy |
+| [spin](spin/readme.md) | 43 | 43 | spinors and fermions from the 24-cell and D4 coin: the double cover, Dirac, triality, anyons, and textbook atomic and nuclear calculations |
+| [relativity](relativity/readme.md) | 43 | 43 | Lorentz invariance and the light cone as emergent from a fixed lattice (the hard problem for any discrete theory) |
+| [geometry](geometry/readme.md) | 38 | 38 | why {3,4,3,4}: the 24-cell, F4, hyperbolic tessellation, curvature, the exceptional-algebra spine |
+| [holography](holography/readme.md) | 36 | 36 | bulk-boundary duality: the area law, Ryu-Takayanagi, celestial holography, error-correcting codes |
+| [substrate-survey](substrate-survey/readme.md) | 30 | 30 | why this geometry and not another: the same battery re-run on rival lattices |
+| [data-structure](data-structure/readme.md) | 28 | 28 | the substrate as a data plane: capacity, indexes, paths, routing |
+| [associative](associative/readme.md) | 16 | 16 | content-addressable memory on the bulk: recall, Hopfield attractors, capacity from curvature |
+| [renormalization](renormalization/readme.md) | 15 | 17 | the coarse-graining tower and the renormalization-group flow to the continuum |
+| [computation](computation/readme.md) | 14 | 14 | universal computation on the substrate: reversible CA, the railway, goal-directed search |
+| [fluids](fluids/readme.md) | 13 | 13 | lattice-gas hydrodynamics: emergent Navier-Stokes, conservation laws, exotic phases |
+| [addressing](addressing/readme.md) | 13 | 13 | the addressing scheme and greedy geometric routing on the honeycomb |
+| [method](method/readme.md) | 6 | 6 | meta-experiments about the suite: the rigidity test and the anti-fooling gates |
+| [general](general/readme.md) | 1 | (under renormalization) | the exact renormalization mechanism |
+| **total** | **817** | **825** | a file may register more than one experiment |
 
 ## The coverage map
 
@@ -67,45 +70,64 @@ Depth tier by arena, plus the paper-grade count. This is the scope-and-coverage
 view: where the suite is deep, where it is thin, and where it has no
 control-gated result yet.
 
+Counts by catalog category, 2026-08-31, after the audit regraded every
+L3 that never ran a substrate (`cut -d, -f3,4,5 test/catalog.csv`).
+
 | arena | L0 | L1 | L2 | L3 | paper |
 |:--- | ---: | ---: | ---: | ---: | ---: |
-| selves | 3 | 10 | 135 | 28 | 109 |
-| gauge | 3 | 29 | 32 | 7 | 42 |
-| foundations | 0 | 24 | 45 | **0** | 37 |
-| quantum | 1 | 17 | 61 | 13 | 65 |
-| gravity | 4 | 10 | 35 | 1 | 21 |
-| cosmology | 1 | 8 | 31 | 10 | 36 |
-| spin | 1 | 11 | 24 | 7 | 30 |
-| relativity | 1 | 4 | 34 | 4 | 34 |
-| geometry | 0 | 12 | 23 | 2 | 20 |
-| holography | 0 | 7 | 15 | 11 | 17 |
+| selves | 3 | 14 | 144 | 14 | 109 |
+| gauge | 3 | 29 | 33 | 6 | 42 |
+| foundations | 0 | 35 | 51 | **0** | 51 |
+| quantum | 1 | 19 | 72 | **0** | 65 |
+| gravity | 4 | 11 | 37 | 1 | 23 |
+| cosmology | 1 | 11 | 32 | 7 | 37 |
+| spin | 1 | 17 | 25 | **0** | 30 |
+| relativity | 1 | 4 | 35 | 3 | 34 |
+| geometry | 0 | 13 | 23 | 2 | 20 |
+| holography | 0 | 8 | 19 | 9 | 18 |
 | substrate-survey | 0 | 17 | 12 | 1 | 13 |
 | data-structure | 0 | 16 | 12 | **0** | 28 |
 | associative | 0 | 2 | 9 | 5 | 16 |
-| renormalization | 0 | 1 | 11 | 3 | 8 |
+| renormalization | 0 | 3 | 12 | 2 | 8 |
 | computation | 0 | 2 | 12 | **0** | 10 |
 | fluids | 0 | 0 | 13 | **0** | 11 |
-| addressing | 0 | 4 | 8 | **0** | 3 |
-| method | 0 | 0 | 3 | 0 | 1 |
-| general | 0 | 0 | 1 | 0 | 0 |
-| **total** | **14** | **174** | **500** | **82** | **479** |
+| addressing | 0 | 5 | 8 | **0** | 3 |
+| method | 0 | 1 | 5 | 0 | 3 |
+| **total** | **14** | **207** | **554** | **50** | **521** |
 
-The bulk of the suite is L2 (a real measured quantity). 82 experiments reach L3
-(the strongest, gated by a control that could have failed), and 479 are
-paper-grade. The bolded zeros are the arenas with no L3 yet, the clearest place
-to strengthen (see "where to extend").
+The bulk of the suite is L2 (known physics reproduced on a stated
+model). 50 experiments reach L3 (one base rule, a measured consequence,
+a computed control), down from 92 before the audit, and 521 are
+paper-grade. The bolded zeros are the arenas with no L3. Quantum and
+spin are zero because every former L3 there ran a hand-written coined
+walk or a textbook calculation, never the rule
+(`foundations/rule-has-no-amplitudes`). That is the clearest place to
+strengthen, and the honest statement of where the program stands.
 
 ## The depth tiers
 
 Every experiment declares a `depth`. The tiers are a plain grading scale, not a
 quality ranking.
 
-- **L0** illustrative. A picture or a sanity check, no load-bearing claim.
-- **L1** basic. A real but simple regularity on the substrate.
-- **L2** substantive. A measured quantity with a clear method. Most of the suite.
-- **L3** the strongest. A measured quantity **plus a control that could have
-  failed** (a scramble, a flat lattice, or a lossy rule). If the control does
-  not separate, the experiment downgrades. This is the anti-fooling gate.
+These are the rubric's definitions from `../experimental-methodology.md`,
+which this file used to paraphrase loosely (it called L0 "illustrative").
+The rubric is the authority.
+
+- **L0** circular. The answer was put in by hand, so the experiment
+  proves nothing on its own. Kept only as an honest consistency note.
+- **L1** known math. Correctly confirms an established mathematical fact
+  (the 24 directions form the binary tetrahedral group, the antisymmetric
+  combination of a vector with itself vanishes).
+- **L2** known physics. Reproduces a known construction on a stated model
+  (a coined Dirac walk, lattice gauge theory, a free-fermion chain).
+  Most of the suite, and most of what the papers call "reproduced".
+- **L3** emergent. One base rule (a mesh plus a collision run through
+  `beat`, or a substrate builder plus a dynamics on it) produces the
+  result as a measured consequence, **with a computed control that could
+  have failed** (a scramble, a flat lattice, a lossy rule, the arrow off).
+  A controlless L3 is downgraded to `partial` by the runner. A textbook
+  calculation or a model with no rule in it is never L3, whatever its
+  control.
 - **paper: true** marks an experiment whose result is clean enough to cite.
 
 The controls (`code/control/`) are the discipline: `scrambleNeighbors` (breaks
