@@ -12,10 +12,11 @@ Ordered. Each names its first action and what a win looks like.
    24-beat schedule), the second law on the turning weave, and the
    dressed dispersion (position against beat over a full schedule
    period). Win: three more exact laws or three recorded surprises.
-3. **The breather energy check** (the E-FLD-0019 companion): build an
-   independent energy measure on the model and test E equals one
-   half for the period-six breather. Win: the hbar identification
-   survives its first falsifiable test, or fails informatively.
+3. **The breather energy check**: DONE (E-FND-0121). The hbar
+   identification survived in refined form: the breather's spectrum
+   is exactly the harmonic ladder of the predicted E equals one half
+   fundamental, with the naive eigenstate reading measured false and
+   recorded.
 
 ## This month
 

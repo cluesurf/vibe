@@ -285,3 +285,30 @@ anomalous claims assessed with tests, consciousness, intelligence
 (with the quantum-computing counting-signature prediction and the
 field-sector dictionary), metaphysics (the realm coordinates made
 testable), and the ordered next steps.
+
+## The breather energy ladder (E-FND-0121)
+
+The hbar identification's first falsifiable test, passed in refined
+form. The naive eigenstate reading is measured false (the Z three
+clock amplitude shows a period-three class cycle, the wrong meter for
+a period-six object, recorded as the instrument negative). The
+temporal spectrum decides: power at exactly the harmonic ladder of
+the predicted fundamental (E of zero, one half, one, three halves in
+kick-law hbar units) and machine-zero power at every off-ladder
+frequency. The breather is a bound state carrying the harmonic series
+of E equals one half, which is what E-FLD-0019 staked.
+
+## The second law closes canon part two (E-FND-0122)
+
+Matter ordered into the left quarter climbs from column entropy ln 3
+to 99 percent of the ln 9 ceiling in 48 beats under the adopted rule,
+the 25 fluctuation drops are counted and reported, and the exact
+inverse schedule returns the ordered microstate at Hamming zero, the
+echo serving as the control that the rise is coarse bookkeeping and
+not dissipation. Canon part two now stands: counting and Sakharov
+carried (E-FND-0119), the condensate law became the relic-background
+law (E-FND-0120), the breather energy ladder confirmed the kick-law
+hbar in refined form (E-FND-0121), and the second law holds
+(E-FND-0122). The one remaining canon item is the walk-sector bridge,
+which is the coarse-bridge programme, the program's central open
+derivation.

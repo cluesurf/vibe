@@ -28,11 +28,13 @@ theory that cannot lose is not saying anything.
   geometry with zero adjustable numbers. Already measured in the
   suite. A better derivation should close the four percent, and a
   future re-measurement that WIDENS the gap is evidence against.
-- **The breather carries exactly one half lattice energy unit.** The
-  identification of the model's Planck constant from the unit-kick
-  law (hbar = 3 over 2 pi) predicts this as its consistency
-  companion. An independent energy measure on the model that
-  disagrees breaks the identification (E-FLD-0019).
+- **The breather carries exactly one half lattice energy unit.**
+  TESTED, and it survived in refined form (E-FND-0121): the breather
+  is not a bare eigenstate (that naive reading is measured false and
+  recorded), but its temporal spectrum is exactly the harmonic
+  ladder of the predicted fundamental, power at zero, one half, one,
+  and three halves with off-ladder power at machine zero. The
+  kick-law hbar (E-FLD-0019) stands.
 - **The viscosity floor.** The model's gas sits at about eight times
   the KSS bound in its own kick-law units. If a coarse-grained or
   denser regime of the same rule ever lands BELOW the bound, the

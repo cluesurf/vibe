@@ -155,7 +155,7 @@ export default experiment({
         breatherEnergyPrediction: 0.5,
       },
       notes:
-        'the number is only as strong as its three stated identifications (unit carrier mass, ideal slot entropy, the kick event as the action quantum), each the natural lattice choice and none tuned. Landing in the graphene band rather than the classical band is the content: this gas is a near-perfect fluid by the same measure that distinguishes the Dirac fluid, measured from a rule with no quantum mechanics put in.',
+        'the number is only as strong as its three stated identifications (unit carrier mass, ideal slot entropy, the kick event as the action quantum), each the natural lattice choice and none tuned. Landing in the graphene band rather than the classical band is the content: this gas is a near-perfect fluid by the same measure that distinguishes the Dirac fluid, measured from a rule with no quantum mechanics put in. The companion prediction has since been TESTED (E-FND-0121): the breather is not a bare eigenstate (the class-meter reading of that naive form is measured false there) but its temporal spectrum is exactly the harmonic ladder of the predicted E equals one half fundamental, with exact off-ladder zeros, so the identification survives its first test in refined form.',
     })
   },
 })
