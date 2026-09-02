@@ -115,6 +115,7 @@ function dressingStudy(input: {
   const coordinate = (c: number, a: number): number =>
     Math.floor(c / side ** a) % side
   const mid = Math.floor(side / 2)
+
   let seedCell = 0
 
   for (let c = 0; c < mesh.cellCount; c++) {
@@ -130,6 +131,7 @@ function dressingStudy(input: {
   }
 
   const freePosition: number[] = []
+
   {
     let controlVacuum: Will = makeWill(mesh)
     let controlSeeded: Will = makeWill(mesh)
@@ -167,7 +169,9 @@ function dressingStudy(input: {
 
   let vacuum: Will = makeWill(mesh)
   let seeded: Will = makeWill(mesh)
+
   const supports: number[] = []
+
   let frontHits = 0
   let frontChecks = 0
 
@@ -187,6 +191,7 @@ function dressingStudy(input: {
     }
 
     let support = 0
+
     const cells = new Set<number>()
 
     for (let i = 0; i < seeded.data.length; i++) {
@@ -258,7 +263,7 @@ export default experiment({
         isolatedMaxSupport: isolated9.maxSupport,
       },
       notes:
-        'the plateau sizes (174 and 261 slots) scale close to side squared, the codimension-two signature of a dressing spread over wall sheets, recorded as measured rather than gated. The cosmological reading: growth at incommensurate speed necessarily tiles the vacuum with walls (E-FND-0098), so the dense lattice is the generic vacuum and the isolated wall the exceptional geometry, which applies the window rule to E-FND-0099's own growth claim: at side 9 and seventy-five beats the isolated wake saturates too, so the durable statements are the sub-additivity, the saturation, and the exact ballistic motion, each measured at two sizes.',
+        "the plateau sizes (174 and 261 slots) scale close to side squared, the codimension-two signature of a dressing spread over wall sheets, recorded as measured rather than gated. The cosmological reading: growth at incommensurate speed necessarily tiles the vacuum with walls (E-FND-0098), so the dense lattice is the generic vacuum and the isolated wall the exceptional geometry, which applies the window rule to the growth claim of E-FND-0099: at side 9 and seventy-five beats the isolated wake saturates too, so the durable statements are the sub-additivity, the saturation, and the exact ballistic motion, each measured at two sizes.",
     })
   },
 })
