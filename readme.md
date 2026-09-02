@@ -81,7 +81,14 @@ by hand). The experiment codes resolve in
 
 <!-- sm-scoreboard:start -->
 
-🟢 emergent from the rule (3) · ✅ reproduced on the model (28) · 🟡 structure derived, dynamics open (12) · 📌 free input, not predicted (1) · ❌ open (11) · ⛔ blocked on a base decision (3)
+| mark | meaning | count |
+| --- | --- | --- |
+| 🟢 | emergent from the rule | 3 |
+| ✅ | reproduced on the model | 28 |
+| 🟡 | structure derived, dynamics open | 12 |
+| 📌 | free input, not predicted | 1 |
+| ❌ | open | 11 |
+| ⛔ | blocked on a base decision | 3 |
 
 | observed feature | | note |
 | --- | --- | --- |
