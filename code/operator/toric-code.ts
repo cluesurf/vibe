@@ -23,6 +23,7 @@ export type CellComplex = {
   vertices: number
   edges: [number, number][]
   triangles: [number, number, number][] // edge indices
+  triangleVertices: [number, number, number][] // (cell, cell + r1, cell + r2), the oriented cycle
 }
 
 const ROOTS = rootsD4()
@@ -93,6 +94,7 @@ export function d4CellComplex(input: {
   // norm 2), each unordered vertex triple once
   const triangleSeen = new Set<string>()
   const triangles: [number, number, number][] = []
+  const triangleVertices: [number, number, number][] = []
 
   for (let cell = 0; cell < vertices; cell++) {
     for (let i = 0; i < ROOTS.length; i++) {
@@ -129,11 +131,12 @@ export function d4CellComplex(input: {
         }
 
         triangles.push([e1, e2, e3])
+        triangleVertices.push([cell, a, b])
       }
     }
   }
 
-  return { vertices, edges, triangles }
+  return { vertices, edges, triangles, triangleVertices }
 }
 
 // the X-check matrix: one row per vertex, a one on every edge touching it (the coboundary of 0-cells)
@@ -228,4 +231,55 @@ export function complexComponents(complex: CellComplex): number {
   }
 
   return components
+}
+
+// The Z_3 (qutrit) version of the same code, with the complex's boundary maps taken with orientation
+// over the field of three elements: the edge [a, b] (a < b) has boundary b - a, and the triangle
+// (cell, cell + r1, cell + r2) is the oriented cycle cell -> cell + r1 -> cell + r2 -> cell. The X checks
+// are the rows of the vertex boundary, the Z checks the rows of the triangle boundary, and they commute
+// because d1 d2 = 0. The number of logical qutrits is the first Betti number over Z_3, which for the
+// torsion-free four-torus is again 4 per component. The tone alphabet {-1, 0, +1} IS the qutrit alphabet.
+export function ternaryVertexCheckRows(complex: CellComplex): Int8Array[] {
+  const rows = Array.from({ length: complex.vertices }, () => new Int8Array(complex.edges.length))
+
+  complex.edges.forEach(([a, b], edge) => {
+    rows[a]![edge] = 2 // -1 mod 3
+    rows[b]![edge] = 1
+  })
+
+  return rows
+}
+
+export function ternaryTriangleCheckRows(complex: CellComplex): Int8Array[] {
+  return complex.triangles.map(([e1, e2, e3], triangle) => {
+    const row = new Int8Array(complex.edges.length)
+    const [v0, v1, v2] = complex.triangleVertices[triangle]!
+    // traverse v0 -> v1 -> v2 -> v0, an edge counts +1 if traversed from its lower to its higher vertex
+    const sign = (from: number, to: number): number => (from < to ? 1 : 2)
+
+    row[e1] = sign(v0, v1)
+    row[e2] = sign(v1, v2)
+    row[e3] = sign(v2, v0)
+
+    return row
+  })
+}
+
+// d1 d2 = 0 over Z_3: every triangle row is annihilated by every vertex row
+export function ternaryChecksCommute(vertexRows: Int8Array[], triangleRows: Int8Array[]): boolean {
+  for (const t of triangleRows) {
+    for (const v of vertexRows) {
+      let sum = 0
+
+      for (let e = 0; e < t.length; e++) {
+        sum += t[e]! * v[e]!
+      }
+
+      if (sum % 3 !== 0) {
+        return false
+      }
+    }
+  }
+
+  return true
 }
