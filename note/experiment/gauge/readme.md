@@ -152,6 +152,10 @@ Whether the rule stabilizes topological solitons, the route to matter as knots i
 
 - **[`E-FRC-0072`](../../../test/experiment/gauge/ward-identity-maxwell.ts)** (L2) - the Ward identity of the lattice Maxwell operator measured exactly: a pure-gauge gradient field is annihilated to machine precision and the zero-mode count equals sites plus two (the gradients plus the three torus Wilson lines) at two lattice sizes, while a Proca mass returns the gradient times m squared and empties the zero-mode space, and a transverse field is not annihilated
 
+## Added by the 2026-09-01 amplitude branch
+
+- **[`E-FRC-0073`](../../../test/experiment/gauge/fills-gate-transport.ts)** - (L2, paper) the fills are the magnitude half of a gauge connection: exact per-edge continuity, reach truncated at exactly an insulating fill over every placement, the Hebbian vacuum insulating, and no phase carried
+
 ## What this arena establishes
 
 - **Electromagnetism is emergent.** The bare rule's local charge conservation is a U(1) Gauss law, so a massless gauge-invariant photon, the Lorentz force, and a measured g = 2 come out without being put in.

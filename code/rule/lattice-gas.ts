@@ -161,3 +161,82 @@ export function run(
 
   return a
 }
+
+// one beat with the collision applied only where `born` admits the cell, then a full stream. This is the
+// growing-mesh picture at the lattice-gas level: an unborn cell holds peace and does not collide (so the
+// charge rule's create move does not fire there), while streaming passes through it untouched, which is
+// how the interior's flash reaches a newborn region as a physical contact wave. From its birth beat on, a
+// cell joins the collision and its create-flip-annihilate cycle starts THEN, offset from the interior
+// clock by its birth beat. Reversible from birth: on the active set the map is the committed bijection.
+export function beatWhere(
+  will: Will,
+  collision: Collision,
+  active: (cell: number) => boolean,
+): Will {
+  const degree = will.mesh.degree
+
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    if (active(cell)) {
+      collision(will.data, cell * degree, degree)
+    }
+  }
+
+  return stream(will)
+}
+
+// The stream with a reflecting frontier: cells outside `active` do not exist yet, so a value that would
+// enter one bounces back along its own line instead. The inflow into slot (cell, direction) normally
+// comes from source = neighbour(cell, opposite(direction)); the bounce into that same slot comes from
+// this cell's own opposite slot pointing at that same source, so the two cases are exclusive and the map
+// stays a bijection on the active region's slots:
+//
+//   out(cell, d) = in(source, d)              if source is active
+//                = in(cell, opposite(d))      if source is unborn (the wall)
+//
+export function streamReflecting(
+  will: Will,
+  active: (cell: number) => boolean,
+): Will {
+  const mesh = will.mesh
+  const degree = mesh.degree
+  const input = will.data
+  const output = new Int8Array(input.length)
+
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    if (!active(cell)) {
+      continue
+    }
+
+    const base = cell * degree
+
+    for (let direction = 0; direction < degree; direction++) {
+      const source = mesh.neighbour(cell, mesh.opposite(direction))
+
+      output[base + direction] = active(source)
+        ? (input[source * degree + direction] ?? 0)
+        : (input[base + mesh.opposite(direction)] ?? 0)
+    }
+  }
+
+  return { mesh, data: output }
+}
+
+// one beat of the growing lattice gas: collide on the born cells, then stream with the frontier
+// reflecting. A cell born at beat b holds peace until then (nothing reaches it through the wall), starts
+// its create-flip-annihilate cycle at its first collided beat, and so runs the vacuum clock offset by b.
+// On the born region the map is a bijection, so the growing gas is exactly reversible from birth.
+export function growingBeat(
+  will: Will,
+  collision: Collision,
+  active: (cell: number) => boolean,
+): Will {
+  const degree = will.mesh.degree
+
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    if (active(cell)) {
+      collision(will.data, cell * degree, degree)
+    }
+  }
+
+  return streamReflecting(will, active)
+}

@@ -113,6 +113,10 @@ The bridge from the reversible conserving substrate to smooth conserved geometry
 
 - **[`E-GRV-0028`](../../../test/experiment/gravity/newton-constant-scale.ts)** (L2) - Newton G is the single scale, the bounded area-law bit density fixes G in lattice units, the volume law has no definite G
 
+## Added by the 2026-09-01 amplitude branch
+
+- **[`E-GRV-0054`](../../../test/experiment/gravity/chronoflux-withdrawn-action-redundancies.ts)** - (L1, paper) both structural redundancies of the withdrawn Chronoflux action verified numerically, and neither posable in the rebuilt 2026 action
+
 ## What this arena establishes
 
 - **The static Newtonian force emerges without a new field.** The measured entanglement area law gives the inverse-square force by the Verlinde route, and the flat-cusp lattice Green function is a clean 1/r, both with volume-law and dimensional controls.
