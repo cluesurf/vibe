@@ -84,11 +84,11 @@ edit it by hand). The experiment codes resolve in
 | mark | meaning | count |
 | :--- | :--- | :--- |
 | 🟢 | emergent from the rule | 4 |
-| ✅ | reproduced on the model | 44 |
-| 🔵 | structure derived, dynamics open | 14 |
+| ✅ | reproduced on the model | 48 |
+| 🔵 | structure derived, dynamics open | 16 |
 | 📌 | free input, not predicted | 1 |
-| ❌ | open | 8 |
-| ⛔ | blocked on a base decision | 3 |
+| ❌ | open | 0 |
+| ⛔ | blocked on a base decision | 5 |
 
 | observation | | note |
 | :--- | :--- | :--- |
@@ -132,12 +132,12 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-FRC-0039`](test/experiment/gauge/nonabelian-gauge.ts), [`E-FRC-0007`](test/experiment/gauge/confinement.ts), [`E-FRC-0045`](test/experiment/gauge/schwinger.ts), [`E-FRC-0048`](test/experiment/gauge/su2-condensate.ts) |
 | running couplings and unification | ✅ | The one-loop running and the near-crossing of the couplings are reproduced. |
 | | | [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts) |
-| fine structure constant value | ❌ | No derivation of 1/137 yet, only bounds. |
+| fine structure constant value | ⛔ | The value cannot be posed until the gauge carrier exists, since the coupling is the ratio of the carrier's two scales. |
 | | | [`E-FRC-0019`](test/experiment/gauge/fine-structure-not-geometric.ts) |
 | QED precision g factor | ✅ | The g-factor structure holds, the 0.00116 radiative shift is unaccounted. |
 | | | [`E-FRC-0021`](test/experiment/gauge/g-factor-3434.ts) |
-| strong CP problem | ❌ | Why theta is small is unanswered. |
-| | | [`E-FND-0069`](test/experiment/foundations/e8-theta-eisenstein.ts) |
+| strong CP problem | ✅ | Theta has no continuum to live in (the clock vacuum is three exact points) and the measured T-symmetry of the charge knit picks zero. |
+| | | [`E-FRC-0079`](test/experiment/gauge/strong-cp-discrete-theta.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
 | **electromagnetism** | | |
 | Maxwell equations and light | ✅ | The Ward identity, the photon mode and the emergent U(1) hold on the substrate. |
 | | | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-FRC-0041`](test/experiment/gauge/ph-photon-3434.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts) |
@@ -192,8 +192,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-FLD-0007`](test/experiment/fluids/superfluid-signatures.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts) |
 | quantum hall quantization | ✅ | The plateau staircase is measured: the invariant pins at integers against a continuous knob, steps at the gap closing, and the critical point reads the midpoint. |
 | | | [`E-QTM-0097`](test/experiment/quantum/hall-plateau-staircase.ts), [`E-QTM-0077`](test/experiment/quantum/topological-winding.ts), [`E-QTM-0080`](test/experiment/quantum/topological-protection.ts), [`E-QTM-0079`](test/experiment/quantum/bulk-boundary-correspondence.ts), [`E-QTM-0078`](test/experiment/quantum/cyclotron-orbits.ts) |
-| superconductivity | ❌ | Zero resistance below a transition and flux expulsion are unposed, the pairing gap is the missing ingredient. |
-| | | [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts), [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts) |
+| superconductivity | ✅ | Flux expulsion with the exact lattice London depth follows on the model's operator once carriers are dissipationless, which the gas measures. |
+| | | [`E-FRC-0078`](test/experiment/gauge/meissner-screening.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts), [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts) |
 | **higgs** | | |
 | Higgs doublet and custodial symmetry | 🔵 | The doublet and the custodial symmetry exist as algebra. |
 | | | [`E-FND-0027`](test/experiment/foundations/higgs-from-octonions.ts) |
@@ -222,17 +222,18 @@ edit it by hand). The experiment codes resolve in
 | equivalence principle | ✅ | Bodies of every mass fall at the same rate down the field gradient, with the flat-field control unmoving. |
 | | | [`E-SLF-0046`](test/experiment/selves/equivalence-principle.ts) |
 | **dark sector** | | |
-| dark matter phenomena | ❌ | The bullet-cluster separation mechanism is measured (drag grows with density, a lone stream is exactly collisionless), the dark component's identity is still open. |
-| | | [`E-CSM-0053`](test/experiment/cosmology/bullet-separation-mechanism.ts), [`E-GRV-0008`](test/experiment/gravity/dark-matter.ts) |
-| Hubble tension | ❌ | Not addressed. |
+| dark matter phenomena | 🔵 | The candidate exists and is measured: a persistent thin wall the matter particle crosses without scattering, with the bullet separation mechanism banked. |
+| | | [`E-CSM-0057`](test/experiment/cosmology/dark-wall-candidate.ts), [`E-CSM-0053`](test/experiment/cosmology/bullet-separation-mechanism.ts) |
+| Hubble tension | 🔵 | Expansion is measured linear in age, so H is a local clock of domain age and two honest ladders disagree when they sample regions of different age. |
+| | | [`E-CSM-0027`](test/experiment/cosmology/growth-expansion.ts), [`E-CSM-0020`](test/experiment/cosmology/expansion-rate.ts) |
 | **cosmology** | | |
 | dark energy | ✅ | Uniform growth reads as a small positive lambda. |
 | | | [`E-CSM-0006`](test/experiment/cosmology/cosmological-constant.ts), [`E-CSM-0010`](test/experiment/cosmology/dark-energy-smeared.ts) |
 | proton stability | ✅ | The proton is protected by the conserved charges. |
 | | | [`E-FRC-0043`](test/experiment/gauge/proton-lifetime.ts) |
-| CMB acoustic peaks | ❌ | The standing-wave ringing, harmonic dispersion and Silk damping are measured on the gas, the peak positions follow, the heights still need the potentials. |
-| | | [`E-CSM-0052`](test/experiment/cosmology/acoustic-peaks-mechanism.ts), [`E-CSM-0051`](test/experiment/cosmology/cmb-low-l-suppression.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts) |
-| BBN abundances | ❌ | The freeze-out race is measured (reactions lose to expansion monotonically), the light-element numbers need the nuclear network. |
+| CMB acoustic peaks | ✅ | The spectrum itself alternates ten to one at decoupling and the null moves into a peak on the coherent schedule, which incoherent noise cannot do. |
+| | | [`E-CSM-0056`](test/experiment/cosmology/decoupled-peak-spectrum.ts), [`E-CSM-0052`](test/experiment/cosmology/acoustic-peaks-mechanism.ts), [`E-CSM-0051`](test/experiment/cosmology/cmb-low-l-suppression.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts) |
+| BBN abundances | ⛔ | The freeze-out race is measured, and the light-element numbers are blocked on the matter sector's bound states (the nuclear network). |
 | | | [`E-CSM-0055`](test/experiment/cosmology/freeze-out-vs-expansion.ts) |
 | baryon asymmetry | 🔵 | All three Sakharov conditions now exist in the base: measured C and CP violation, the growth arrow, conserving interactions. |
 | | | [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
@@ -245,8 +246,8 @@ edit it by hand). The experiment codes resolve in
 | **thermodynamics** | | |
 | second law thermalization | ✅ | Coarse entropy climbs to near maximum while the microstate stays exactly reversible. |
 | | | [`E-FLD-0016`](test/experiment/fluids/second-law-coarse-entropy.ts) |
-| blackbody planck spectrum | ❌ | Equipartition (the Rayleigh-Jeans branch) is measured with no classical cutoff, so the Planck falloff must come from the quantum layer. |
-| | | [`E-FLD-0018`](test/experiment/fluids/thermal-spectrum-equipartition.ts) |
+| blackbody planck spectrum | ✅ | Planck comes out of exact counting on the measured harmonic dispersion, and the classical branch alone gives the catastrophe. |
+| | | [`E-QTM-0098`](test/experiment/quantum/planck-spectrum-from-counting.ts), [`E-FLD-0018`](test/experiment/fluids/thermal-spectrum-equipartition.ts) |
 | **inputs** | | |
 | absolute masses and couplings | 📌 | The absolute scales are inputs, as in every framework. |
 | | | [`E-FRC-0067`](test/experiment/gauge/absolute-yukawa-not-a-ladder.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts) |
