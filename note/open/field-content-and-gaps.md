@@ -201,3 +201,42 @@ from three beats to the schedule period, and defect formation radiates a
 one-pass front. Adoption is the user's decision. On adoption, lineWeave
 becomes the previous committed rule exactly as pairCollision did, and
 survives inside the turning weave as its frozen-schedule sector.
+
+## Canon under the turning weave, part one (E-FND-0119)
+
+The counting-weight law carries exactly (slab response 5, 10, 15 to one, two,
+three defects, ratios 2.000 and 3.000) and the Sakharov structure carries
+(total tone sum exactly zero at every beat, per-line charges quantized in
+whole sheets, settled asymmetry of one to five sheets), with the asymmetry now
+spread across lines on the schedule rather than confined to one fixed couple,
+which is the universality of the interaction showing up in the baryogenesis
+channel. Part two (condensate, second law, the walk-sector bridge) stays open
+pending the adoption decision.
+
+## The graphene crossover, scoped (from the chronoflux lead)
+
+The one usable lead in the chronoflux poster is its empirical anchor: the
+Dirac fluid regime of graphene, a lab-real relativistic electron fluid whose
+shear viscosity to entropy density ratio approaches the conjectured quantum
+bound (one over four pi in natural units). The model already holds both
+ingredients:
+
+- `test/experiment/fluids/emergent-shear-viscosity.ts`: a finite shear
+  viscosity with the decay rate scaling as k squared, one nu across
+  wavenumbers and sizes, with a no-shear-mode control.
+- `test/experiment/fluids/second-law-coarse-entropy.ts`: the coarse entropy
+  measurement on the same gas.
+
+The crossover experiment: measure nu and the coarse entropy density s on the
+SAME thermalized state of the momentum-conserving gas, form the dimensionless
+ratio, and compare its size against the graphene measurements and the one
+over four pi bound. The honest open piece is unit identification: the bound
+is stated in units of hbar over Boltzmann's constant, and the model's hbar
+analog must come from its own clock quantum (the unit kick) rather than being
+chosen to fit, or the comparison is numerology. That identification question
+is the experiment's real content and should be posed first as a small note
+deriving the model's natural hbar from the measured unit-kick law. Everything
+else in the chronoflux poster (continuity to consciousness to matter as one
+mechanism) supplies no computable rule and is not actionable. The recovered
+tree of nature poster (the prime spine) has no mechanism at all and is not
+actionable either.
