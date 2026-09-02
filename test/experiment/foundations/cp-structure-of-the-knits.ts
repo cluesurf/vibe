@@ -33,7 +33,7 @@ import {
   meshOpposites,
   meshNeighbors,
 } from '@/code/tool/mesh'
-import { makeWill, Will } from '@/code/tone/will'
+import { makeWill, Tone, Will } from '@/code/tone/will'
 import {
   Collision,
   headOnRotate,
@@ -41,18 +41,16 @@ import {
   pairCollision,
 } from '@/code/rule/collision'
 import { beat, collide, streamInverse } from '@/code/rule/lattice-gas'
-import { Tone } from '@/code/tone/tone'
 
 const SIDE = 6
 
-// combo indices into the 7-row table: mask - 1 with mask bits C=1, P=2, T=4
-const C = 0
-const P = 1
-const CP = 2
-const T = 3
-const CT = 4
-const PT = 5
-const CPT = 6
+// the 7-row table is indexed mask - 1 with mask bits C=1, P=2, T=4
+const COMBOS = ['C', 'P', 'CP', 'T', 'CT', 'PT', 'CPT'] as const
+
+type Combo = (typeof COMBOS)[number]
+
+const rowOf = (table: Row[], combo: Combo): Row =>
+  table[COMBOS.indexOf(combo)]!
 
 type Row = { sym: number; rev: number }
 
@@ -217,28 +215,34 @@ export default experiment({
 
     const momentumTextbook = momentum.every(
       t =>
-        t[C]!.sym === 0 &&
-        t[P]!.sym === 0 &&
-        t[CP]!.sym === 0 &&
-        t[T]!.rev === 0 &&
-        t[CT]!.rev === 0 &&
-        t[PT]!.rev === 0 &&
-        t[CPT]!.rev === 0,
+        rowOf(t, 'C').sym === 0 &&
+        rowOf(t, 'P').sym === 0 &&
+        rowOf(t, 'CP').sym === 0 &&
+        rowOf(t, 'T').rev === 0 &&
+        rowOf(t, 'CT').rev === 0 &&
+        rowOf(t, 'PT').rev === 0 &&
+        rowOf(t, 'CPT').rev === 0,
     )
 
     const chargeShape = charge.every(
       t =>
-        t[T]!.rev === 0 &&
-        t[C]!.sym > 0 &&
-        t[P]!.sym > 0 &&
-        t[CP]!.sym > 0,
+        rowOf(t, 'T').rev === 0 &&
+        rowOf(t, 'C').sym > 0 &&
+        rowOf(t, 'P').sym > 0 &&
+        rowOf(t, 'CP').sym > 0,
     )
     const chargeNoCptFound = charge.some(
-      t => t[CPT]!.rev > 0 && t[CT]!.rev > 0 && t[PT]!.rev > 0,
+      t =>
+        rowOf(t, 'CPT').rev > 0 &&
+        rowOf(t, 'CT').rev > 0 &&
+        rowOf(t, 'PT').rev > 0,
     )
 
     const travellerShape = traveller.every(
-      t => t[PT]!.rev === 0 && t[C]!.sym > 0 && t[CP]!.sym > 0,
+      t =>
+        rowOf(t, 'PT').rev === 0 &&
+        rowOf(t, 'C').sym > 0 &&
+        rowOf(t, 'CP').sym > 0,
     )
 
     const ok =
@@ -253,13 +257,17 @@ export default experiment({
         'on three generic states the momentum knit passes all seven textbook checks exactly, the charge knit is exactly T-reversible while violating C, P and CP on every state, and the traveller knit holds exactly the PT reversal while violating C and CP',
       metrics: {
         chargeCpViolationSlots: Math.max(
-          ...charge.map(t => t[CP]!.sym),
+          ...charge.map(t => rowOf(t, 'CP').sym),
         ),
-        chargeCViolationSlots: Math.max(...charge.map(t => t[C]!.sym)),
+        chargeCViolationSlots: Math.max(
+          ...charge.map(t => rowOf(t, 'C').sym),
+        ),
         travellerCpViolationSlots: Math.max(
-          ...traveller.map(t => t[CP]!.sym),
+          ...traveller.map(t => rowOf(t, 'CP').sym),
         ),
-        chargeCptResidual: Math.min(...charge.map(t => t[CPT]!.rev)),
+        chargeCptResidual: Math.min(
+          ...charge.map(t => rowOf(t, 'CPT').rev),
+        ),
         slotCount: SIDE * SIDE * 4,
       },
       // CONTROL: the momentum knit, where every symmetry that should hold holds at exactly zero on
@@ -267,7 +275,9 @@ export default experiment({
       control: {
         momentumWorstResidual: Math.max(
           ...momentum.flatMap(t =>
-            t.map((row, i) => (i >= T ? row.rev : row.sym)),
+            t.map((row, i) =>
+              COMBOS[i]!.includes('T') ? row.rev : row.sym,
+            ),
           ),
         ),
       },
