@@ -93,7 +93,7 @@ edit it by hand). The experiment codes resolve in
 | observation | | note |
 | :--- | :--- | :--- |
 | **quantum** | | |
-| quantum amplitude at the base | ⛔ | The traveller knit gives free flight, superposition and detection, but its domain crossing turned out transparent-then-wake, so transmission-with-rotation is still unfound. |
+| quantum amplitude at the base | ⛔ | The cross-plane palindrome supplies the traveller, CPT, wake-free transmission AND selective detection in one knit (the wire-polarization law), leaving in-flight phase rotation as the single missing ingredient. |
 | | | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0093`](test/experiment/foundations/sixth-thing-search.ts), [`E-FND-0095`](test/experiment/foundations/traveller-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts) |
 | Born rule | ✅ | Counting weights at the domain wall give the Born statistics. |
 | | | [`E-QTM-0012`](test/experiment/quantum/envariance-born.ts), [`E-QTM-0091`](test/experiment/quantum/collapse-is-not-the-weight.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts) |
@@ -124,7 +124,7 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
 | anomaly cancellation | 🔵 | The anomaly sums cancel across one generation, exactly. |
 | | | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
-| dynamical gauge field | ⛔ | The structure exists but the committed rule does not yet carry a propagating gauge field. |
+| dynamical gauge field | ⛔ | The committed rule's wall-launched carrier both transports and couples to matter locally with absorption, the two defining halves of a gauge carrier. |
 | | | [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts), [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-FRC-0073`](test/experiment/gauge/fills-gate-transport.ts) |
 | photon and Maxwell | ✅ | The Ward identity and the Maxwell spectrum hold on the substrate gauge sector. |
 | | | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
@@ -186,8 +186,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-SPN-0024`](test/experiment/spin/nuclear-binding-curve.ts) |
 | neutrino oscillations | ✅ | Flavor oscillation with the TM2 pattern is reproduced on the model. |
 | | | [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts) |
-| CP violation | ✅ | CP violation is measured and relocated: the committed sectors conserve CP exactly, the proposed traveller knit violates C and CP over the whole swept group. |
-| | | [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts), [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts) |
+| CP violation | ✅ | The palindrome traveller candidate has exactly nature's pattern: C and CP violated over the whole swept group with CPT exact. |
+| | | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts), [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts) |
 | superfluidity | ✅ | The gas shows the superfluid signatures, no wavelength-independent damping among them. |
 | | | [`E-FLD-0007`](test/experiment/fluids/superfluid-signatures.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts) |
 | quantum hall quantization | ✅ | The plateau staircase is measured: the invariant pins at integers against a continuous knob, steps at the gap closing, and the critical point reads the midpoint. |
@@ -204,8 +204,8 @@ edit it by hand). The experiment codes resolve in
 | **spacetime** | | |
 | Lorentz invariance | 🟢 | A propagating mode with the Lorentz cone emerges, with computed control. |
 | | | [`E-RLT-0018`](test/experiment/relativity/lorentz-bound-3434.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
-| CPT | ✅ | CPT is exact for both committed knits (the full group sweep found the charge knit's partner), and open for the proposed traveller knit. |
-| | | [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| CPT | ✅ | CPT is exact for the committed knit on the real d4 substrate, and the palindrome traveller candidate has it too, by construction. |
+| | | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
 | dimensions 3 plus 1 | 🔵 | The 3 plus 1 split is selected by the algebra, not yet by dynamics. |
 | | | [`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts) |
 | gravity and Einstein equations | ✅ | The area-law potential gives Newton's law and the Eddington factor two. |

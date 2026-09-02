@@ -381,3 +381,72 @@ export function lineHop(input: {
     }
   }
 }
+
+// The PROPOSED palindrome traveller knit, the CPT repair of lineHop (2026-09-02). Same one swap
+// clause and the committed 9-state table on wires, but applied as a PALINDROME per beat: swap,
+// clock, swap. The swap is charge-even and an involution, and negating tones conjugates the clock
+// table to its inverse, so negation conjugates the whole collision to its own inverse: combined
+// with full spatial inversion and velocity reversal this gives an EXACT CPT conjugation on the d4
+// substrate (measured, the unique nontrivial exact conjugation among 4,608), while C and CP stay
+// violated (the weak pattern) and the speed-one traveller, exact superposition and exact echo all
+// survive. lineHop's plain swap-then-clock order is what blocked its CPT. The inverse runs the
+// inverse table in the same palindrome shape, since a palindrome inverts by inverting its middle.
+export function linePalindrome(input: {
+  opposite: number[]
+  forward?: boolean
+}): Collision {
+  const forward = input.forward ?? true
+  const lines: [number, number][] = []
+
+  for (let d = 0; d < input.opposite.length; d++) {
+    const o = input.opposite[d]!
+
+    if (d < o) {
+      lines.push([d, o])
+    }
+  }
+
+  const couples: [[number, number], [number, number]][] = []
+
+  for (let k = 0; k + 1 < lines.length; k += 2) {
+    couples.push([lines[k]!, lines[k + 1]!])
+  }
+
+  const table = forward ? PAIR_FORWARD : PAIR_INVERSE
+  const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+  const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
+
+  return (slots, base) => {
+    for (const [line, wire] of couples) {
+      const swap = (): void => {
+        const a0 = (slots[base + line[0]] ?? 0) as Tone
+        const a1 = (slots[base + line[1]] ?? 0) as Tone
+        const w0 = (slots[base + wire[0]] ?? 0) as Tone
+        const w1 = (slots[base + wire[1]] ?? 0) as Tone
+
+        if (
+          (loneAway(a0, a1) && empty(w0, w1)) ||
+          (loneAway(w0, w1) && empty(a0, a1))
+        ) {
+          slots[base + line[0]] = w0
+          slots[base + line[1]] = w1
+          slots[base + wire[0]] = a0
+          slots[base + wire[1]] = a1
+        }
+      }
+
+      const clock = (): void => {
+        const a = (slots[base + wire[0]] ?? 0) as Tone
+        const b = (slots[base + wire[1]] ?? 0) as Tone
+        const image = table[pairKey(a, b)]!
+
+        slots[base + wire[0]] = image[0]
+        slots[base + wire[1]] = image[1]
+      }
+
+      swap()
+      clock()
+      swap()
+    }
+  }
+}
