@@ -218,7 +218,7 @@ export default experiment({
         controlDistinctLinkValues: control.linkValues.size,
       },
       notes:
-        'the argument is conditional on the model structure it cites: the strong-sector phase being the Z_3 clock (the committed base) and the strong dynamics being the charge knit (measured T-reversible). The CKM phase stays free (E-FRC-0066), so an observed neutron EDM at the CKM-predicted level would be consistent, while an EDM at the theta level would falsify this dissolution. The open CPT flag of E-FND-0097 concerns C and P jointly and does not touch the T-only statement used here.',
+        'the argument is conditional on the model structure it cites: the strong-sector phase being the Z_3 clock (the committed base) and the strong dynamics being the charge knit (measured T-reversible). The CKM phase stays free (E-FRC-0066), so an observed neutron EDM at the CKM-predicted level would be consistent, while an EDM at the theta level would falsify this dissolution. The one-time CPT flag of E-FND-0097 was resolved positively by E-FND-0101 (the charge knit has exact CP and CPT with the right group elements), which strengthens this dissolution: the strong-sector knit conserves T, CP and CPT outright.',
     })
   },
 })

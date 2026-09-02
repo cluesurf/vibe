@@ -186,8 +186,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-SPN-0024`](test/experiment/spin/nuclear-binding-curve.ts) |
 | neutrino oscillations | ✅ | Flavor oscillation with the TM2 pattern is reproduced on the model. |
 | | | [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts) |
-| CP violation | ✅ | C and CP violation is measured in both clock-coupled knits while the momentum sector conserves everything. |
-| | | [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts), [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts) |
+| CP violation | ✅ | CP violation is measured and relocated: the committed sectors conserve CP exactly, the proposed traveller knit violates C and CP over the whole swept group. |
+| | | [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts), [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts) |
 | superfluidity | ✅ | The gas shows the superfluid signatures, no wavelength-independent damping among them. |
 | | | [`E-FLD-0007`](test/experiment/fluids/superfluid-signatures.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts) |
 | quantum hall quantization | ✅ | The plateau staircase is measured: the invariant pins at integers against a continuous knob, steps at the gap closing, and the critical point reads the midpoint. |
@@ -204,8 +204,8 @@ edit it by hand). The experiment codes resolve in
 | **spacetime** | | |
 | Lorentz invariance | 🟢 | A propagating mode with the Lorentz cone emerges, with computed control. |
 | | | [`E-RLT-0018`](test/experiment/relativity/lorentz-bound-3434.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
-| CPT | ✅ | CPT is exact for the momentum knit on generic states, and an open hunt for the charge knit. |
-| | | [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| CPT | ✅ | CPT is exact for both committed knits (the full group sweep found the charge knit's partner), and open for the proposed traveller knit. |
+| | | [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
 | dimensions 3 plus 1 | 🔵 | The 3 plus 1 split is selected by the algebra, not yet by dynamics. |
 | | | [`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts) |
 | gravity and Einstein equations | ✅ | The area-law potential gives Newton's law and the Eddington factor two. |
@@ -235,8 +235,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-CSM-0056`](test/experiment/cosmology/decoupled-peak-spectrum.ts), [`E-CSM-0052`](test/experiment/cosmology/acoustic-peaks-mechanism.ts), [`E-CSM-0051`](test/experiment/cosmology/cmb-low-l-suppression.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts) |
 | BBN abundances | ⛔ | The freeze-out race is measured, and the light-element numbers are blocked on the matter sector's bound states (the nuclear network). |
 | | | [`E-CSM-0055`](test/experiment/cosmology/freeze-out-vs-expansion.ts) |
-| baryon asymmetry | 🔵 | All three Sakharov conditions now exist in the base: measured C and CP violation, the growth arrow, conserving interactions. |
-| | | [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| baryon asymmetry | 🔵 | Sakharov's conditions rest on the traveller sector's measured C and CP violation plus the growth arrow, with the committed sectors CP-even. |
+| | | [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
 | inflation and flatness | ✅ | Growth gives flatness and a horizon without a tuned inflaton. |
 | | | [`E-CSM-0028`](test/experiment/cosmology/inflation.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts), [`E-CSM-0046`](test/experiment/cosmology/plateau-inflation-tensor.ts), [`E-CSM-0049`](test/experiment/cosmology/horosphere-flatness.ts) |
 | Hubble expansion and redshift | 🟢 | Growth gives expansion and redshift from the rule with computed control. |
