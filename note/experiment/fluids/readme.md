@@ -46,6 +46,11 @@ The hardest fluid limits, superfluidity and the turbulent cascade.
 - **[`E-FLD-0007`](../../../test/experiment/fluids/superfluid-signatures.ts)** - the substrate is a superfluid, a finite Landau critical velocity (the sound speed) and quantized circulation, against the zero-critical-velocity normal fluid as the control.
 - **[`E-FLD-0008`](../../../test/experiment/fluids/turbulence-cascade.ts)** - the Kolmogorov turbulent cascade, the energy spectrum E(k) proportional to k to the minus five-thirds in the GOY shell model, with the linear no-cascade model as the control.
 
+## Added by the 2026-09-01 amplitude branch
+
+- **[`E-FLD-0014`](../../../test/experiment/fluids/sound-superposition-interference.ts)** - (L2, paper) disjoint pulses superpose exactly, a compression crossing a rarefaction cancels to 0.45 of the separate sum, and the overlap nonlinearity is the measured obstruction to a unitary coarse dynamics
+- **[`E-FLD-0015`](../../../test/experiment/fluids/no-wavelength-independent-damping.ts)** - (L2, paper) the exact echo plus a k -> 0 damping intercept consistent with zero, against the leaky control that shows its imposed intercept: the one measured number separating this gas from the Chronoflux damped fluid limit
+
 ## What it establishes
 
 The discrete rule **coarse-grains to a fluid**, but with a sharp caveat. The reversible bulk is **inviscid**, its conserved modes recur, so all dissipation is **bath-driven** from the boundary. A collision that merely damps is not enough, only the **k squared scaling** certifies a real viscosity, and only the rich 24-direction coin supplies one. Where it does, the **momentum-conserving gas** shows a genuine shear viscosity, a sound speed near 1/sqrt(2), and a parabolic Poiseuille channel profile. The reversible knit keeps an **exact enstrophy-like bound** that the coarse description forgets, matching Herbert's continuity-closure reading of Navier-Stokes, and the substrate reaches the two hardest limits, a **superfluid** signature and the **Kolmogorov cascade**.

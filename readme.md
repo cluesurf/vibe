@@ -38,6 +38,30 @@ proofs that these grids host universal computation. Those results are
 the reference points the substrate survey and the computation
 experiments are measured against.
 
+
+**Where the program stands (2026-09-01).** The base measurably produces
+a classical universe: genesis on the growing mesh, a light cone,
+isotropy to fourth order, exact CPT, conserved charges, an emergent
+metric, and codes on its own cell complex. It also produces the seed of
+the quantum: the vacuum has a three-beat clock, growth (the arrow) is
+the one mechanism that shifts it, defects hosted by domains born in
+different beats interfere in the coarse Z_3 amplitude with the exact
+cross-term law
+([`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts)),
+and the wall between clock domains is a projective measurement of the
+phase class
+([`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts)).
+What the base provably does not produce: the Born weight (the wall
+weighs by count, never by the squared amplitude) and quantum transport
+(phases carry no currents, the Madelung gap,
+[`E-FND-0090`](test/experiment/foundations/madelung-gap.ts)). The open
+frontier is one sentence: a reversible conserving law that moves
+density along clock-phase gradients while preserving the defect's
+magnitude, and the first candidate is built and fails exactly
+([`E-FND-0092`](test/experiment/foundations/clock-coupled-swap-addition.ts)).
+The full status table against the Standard Model is the ledger in the
+monorepo's roadmap notes.
+
 ## Basics
 
 This codebase is a finite, discrete, reproducible simulator that turns
@@ -167,12 +191,13 @@ with the per-theory maps in [note/link/](note/link/).
 | reversibility                 | run the rule forward then backward, the start returns bit for bit                        | [`E-FND-0049`](test/experiment/foundations/record-preserving-paths.ts)            |
 | the arrow of time             | the wake (the growing edge) keeps adding records and never erases one                    | [`E-FND-0051`](test/experiment/foundations/record-accumulating-wake.ts)           |
 | the distinguishability metric | Fisher-Rao is the one distance measure no relabeling of the 24 directions can change     | [`E-FND-0057`](test/experiment/foundations/chentsov-forced-distinguishability.ts) |
-| the Born rule                 | the `\|amplitude\|^2` probability falls out of the conserved total, not from a postulate | [`E-QTM-0067`](test/experiment/quantum/born-norm-concentration.ts)                |
+| the vacuum clock              | the charge rule's vacuum flashes with period three, and its coarse amplitude cancels exactly over the cycle | [`E-FND-0084`](test/experiment/foundations/vacuum-clock-amplitude.ts)             |
 | the light cone                | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz) | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts)                          |
 | gravity                       | entropy scales with a region's boundary area, not its volume (the area law)              | [`E-GRV-0002`](test/experiment/gravity/area-law-from-knit-walk.ts)                |
 | spacetime dimension           | the boundary reads a spatial dimension near 3, so space is 3D plus time                  | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts)                            |
 | the growth ratio              | each new shell is larger than the last by a fixed factor near 18.28                      | [`E-GMT-0028`](test/experiment/geometry/warp-factor-needs-geometry.ts)            |
 | a chaos ceiling on records    | a coherent record holds only while the chaos rate stays below a threshold                | [`E-QTM-0092`](test/experiment/quantum/lyapunov-recordability-ceiling.ts)         |
+| clock-phase interference      | defects hosted by domains born in different beats interfere, cross term exactly 2\|A\|\|B\|cos of the relative phase | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts)            |
 
 Each is a measured consequence of the base rule, not an input. The first
 four are the invariants the rest are built on.

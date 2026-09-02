@@ -98,6 +98,10 @@ Discreteness must leave a signature and must break Lorentz at some order in mome
 
 - **[`E-RLT-0031`](../../../test/experiment/relativity/rf-relativity-3434.ts)** - a ballistic light cone, 24-direction isotropy, the Dirac dispersion, and a rising arrow all on the committed {3,4,3,4} coin, bundling the arena's separate results into one substrate.
 
+## Added by the 2026-09-01 amplitude branch
+
+- **[`E-RLT-0044`](../../../test/experiment/relativity/chronoflux-aether-bound.ts)** - (L1, paper) the Einstein-aether spin-2 bound pins the withdrawn Chronoflux alpha_1 below 6e-15, thirteen orders from the values its flow sector uses
+
 ## What this arena establishes
 
 - **A finite speed limit is real and robust.** The light cone (z = 1, one cell per beat) is measured on the cubic cusp and the 24-direction coin, on the microscopic rule and the full interacting rule, and it is causal.
