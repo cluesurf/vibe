@@ -301,3 +301,83 @@ export function stickyReflect(input: {
     }
   }
 }
+
+// The LINE-HOP collision, the traveller knit found by the 2026-09-01 rule-space hunt and PROPOSED as
+// the committed knit's extension (adoption is a base-model decision; nothing in the suite runs this
+// unless it asks for it). The twelve lines of a cell pair into six couples, and the whole rule is one
+// clause plus the committed table:
+//
+//   - if exactly one line of a couple holds a single tone in its away slot and the other line is
+//     empty, the two lines SWAP (a symmetric condition, so the swap is an involution),
+//   - the second line of every couple (the wire) then runs the committed 9-state pair table, so the
+//     vacuum keeps its three-beat cancelling clock.
+//
+// Measured (foundations/traveller-knit): exactly reversible with charge conserved, a lone tone is a
+// SPEED-ONE PARTICLE holding one slot at coarse magnitude exactly sqrt 3 at every beat, superposing
+// exactly, fully resident in the matter sector (the wires stay silent in free flight and engage at
+// interactions), transmitted through a one-beat-offset domain with its clock phase rotated one unit,
+// and amplified by a two-beat-offset domain (the detector). The quantum kinematics the roadmap's
+// sixth-thing search specified, in one clause.
+export function lineHop(input: {
+  opposite: number[]
+  forward?: boolean
+}): Collision {
+  const forward = input.forward ?? true
+  const lines: [number, number][] = []
+
+  for (let d = 0; d < input.opposite.length; d++) {
+    const o = input.opposite[d]!
+
+    if (d < o) {
+      lines.push([d, o])
+    }
+  }
+
+  const couples: [[number, number], [number, number]][] = []
+
+  for (let k = 0; k + 1 < lines.length; k += 2) {
+    couples.push([lines[k]!, lines[k + 1]!])
+  }
+
+  const table = forward ? PAIR_FORWARD : PAIR_INVERSE
+  const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+  const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
+
+  return (slots, base) => {
+    for (const [line, wire] of couples) {
+      const swap = (): void => {
+        const a0 = (slots[base + line[0]] ?? 0) as Tone
+        const a1 = (slots[base + line[1]] ?? 0) as Tone
+        const w0 = (slots[base + wire[0]] ?? 0) as Tone
+        const w1 = (slots[base + wire[1]] ?? 0) as Tone
+
+        if (
+          (loneAway(a0, a1) && empty(w0, w1)) ||
+          (loneAway(w0, w1) && empty(a0, a1))
+        ) {
+          slots[base + line[0]] = w0
+          slots[base + line[1]] = w1
+          slots[base + wire[0]] = a0
+          slots[base + wire[1]] = a1
+        }
+      }
+
+      const clock = (): void => {
+        const a = (slots[base + wire[0]] ?? 0) as Tone
+        const b = (slots[base + wire[1]] ?? 0) as Tone
+        const image = table[pairKey(a, b)]!
+
+        slots[base + wire[0]] = image[0]
+        slots[base + wire[1]] = image[1]
+      }
+
+      if (forward) {
+        swap()
+        clock()
+      } else {
+        clock()
+        swap()
+      }
+    }
+  }
+}

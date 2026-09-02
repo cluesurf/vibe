@@ -59,8 +59,103 @@ frontier is one sentence: a reversible conserving law that moves
 density along clock-phase gradients while preserving the defect's
 magnitude, and the first candidate is built and fails exactly
 ([`E-FND-0092`](test/experiment/foundations/clock-coupled-swap-addition.ts)).
-The full status table against the Standard Model is the ledger in the
-monorepo's roadmap notes.
+And the frontier moved on 2026-09-01: a one-clause extension of the
+committed table, the PROPOSED traveller knit
+([`lineHop`](code/rule/collision.ts), measured by
+[`E-FND-0095`](test/experiment/foundations/traveller-knit.ts)), yields a
+speed-one single-slot particle at exactly the defect magnitude at every
+beat, superposing exactly, transmitted through clock-offset domains
+with its phase rotated and amplified by the measuring walls, so every
+element of quantum kinematics now exists in the programme pending the
+knit's formal adoption. The map of what the quantum sector covers, at
+which depth and on what object, is
+[note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
+
+## The scoreboard
+
+Every commonly observed feature of nature the model must account for,
+and where it stands. One row per feature, generated from the working
+ledger (`pnpm make:sm-scoreboard --commit` regenerates it, never edit
+by hand). The experiment codes resolve in
+[test/catalog.csv](test/catalog.csv).
+
+<!-- sm-scoreboard:start -->
+
+🟢 emergent from the rule (3) · ✅ reproduced on the model (27) · 🟡 structure derived, dynamics open (12) · 📌 free input, not predicted (1) · ❌ open (12) · ⛔ blocked on a base decision (3)
+
+| observed feature | | note |
+| --- | --- | --- |
+| **quantum** | | |
+| quantum amplitude at the base | ⛔ | The traveller knit supplies motion, phase and detection, adopting it is a pending base decision. (E-FND-0086 E-FND-0091 E-FND-0093 E-FND-0095) |
+| born rule | ✅ | Counting weights at the domain wall give the Born statistics. (E-QTM-0012 E-QTM-0091 E-FND-0091) |
+| entanglement and bell | ✅ | Bell violation is reproduced on the model walk. (E-QTM-0011 E-QTM-0038 E-QTM-0057) |
+| measurement and definite outcome | 🟢 | The domain wall projects and amplifies one outcome, from the rule. (E-QTM-0085 E-QTM-0090 E-FND-0091) |
+| qft vacuum and reflection positivity | ❌ | Reflection positivity for the full model is unproven. (E-QTM-0025 E-QTM-0017) |
+| path integral | ✅ | The sum over walk paths reproduces the propagator. (E-QTM-0018) |
+| quantum error correction | ✅ | The clock code protects the phase and corrects single errors. (E-QTM-0093 E-QTM-0095 E-QTM-0055) |
+| **gauge** | | |
+| gauge group su3 su2 u1 | 🟡 | The group and its embedding fall out of the octonions on the 24-cell, exactly. (E-FND-0021 E-FRC-0022 E-FRC-0025) |
+| weinberg angle 3 8 | 🟡 | The 3/8 tree-level angle is derived, running it down to the measured value is standard. (E-FRC-0055 E-FRC-0054 E-FRC-0044) |
+| hypercharge and fractional charges | 🟡 | The quark and lepton charges come out of one representation, exactly. (E-FRC-0002) |
+| anomaly cancellation | 🟡 | The anomaly sums cancel across one generation, exactly. (E-FRC-0002) |
+| dynamical gauge field | ⛔ | The structure exists but the committed rule does not yet carry a propagating gauge field. (E-FRC-0016 E-QTM-0093 E-FRC-0073) |
+| photon and maxwell | ✅ | The Ward identity and the Maxwell spectrum hold on the substrate gauge sector. (E-FRC-0072 E-RLT-0030) |
+| nonabelian gauge and confinement | ✅ | Wilson loops show the area law and confinement on the mesh. (E-FRC-0039 E-FRC-0007 E-FRC-0045 E-FRC-0048) |
+| running couplings and unification | ✅ | The one-loop running and the near-crossing of the couplings are reproduced. (E-FRC-0044 E-FRC-0009) |
+| fine structure constant value | ❌ | No derivation of 1/137 yet, only bounds. (E-FRC-0019) |
+| qed precision g factor | ✅ | The g-factor structure holds, the 0.00116 radiative shift is unaccounted. (E-FRC-0021) |
+| strong cp problem | ❌ | Why theta is small is unanswered. (E-FND-0069) |
+| **electromagnetism** | | |
+| maxwell equations and light | ✅ | The Ward identity, the photon mode and the emergent U(1) hold on the substrate. (E-FRC-0072 E-FRC-0041 E-FRC-0016) |
+| coulomb law | ✅ | Two charges bind with the inverse-square structure. (E-FRC-0049) |
+| magnetostatics and g factor | ✅ | Magnetism and the Landau g-factor hold on the substrate. (E-FRC-0040 E-FRC-0021) |
+| aharonov bohm flux quantization | ✅ | The flux period quantizes on the walk around a plaquette. (E-QTM-0062) |
+| faraday induction | ❌ | A changing flux driving a loop current is unposed. |
+| ohmic conduction | ✅ | Impurity scattering gives Drude relaxation, resistivity linear in impurity density. (E-FLD-0017) |
+| refraction and dielectrics | ✅ | Snell and total internal reflection hold on the clock-rate step to a hundredth of a degree. (E-FRC-0074) |
+| **matter** | | |
+| spinors and the double cover | 🟡 | The binary tetrahedral double cover lives in the 24 directions, exactly. (E-SPN-0029 E-SPN-0042 E-SPN-0031) |
+| dirac equation | ✅ | The Dirac walk gives the right dispersion and Zitterbewegung on the mesh. (E-SPN-0009 E-SPN-0030 E-QTM-0094) |
+| chiral fermions no doubling | ✅ | The fermion doubling obstruction is dodged on the substrate walk. (E-SPN-0043 E-SPN-0004) |
+| pauli exclusion and spin statistics | 🟡 | Exclusion follows from the spinor sign structure, as algebra. (E-SPN-0014 E-QTM-0064) |
+| one generation representation content | 🟡 | One generation of states matches the derived representation, exactly. (E-FND-0020 E-FRC-0002) |
+| three generations count | 🟡 | Triality gives three, the count is algebra and not yet dynamics. (E-FRC-0017 E-SPN-0016 E-SPN-0015) |
+| distinct generation masses | ⛔ | No mechanism yet splits the generation masses dynamically. (E-SPN-0039) |
+| mass hierarchy mechanism | 🟢 | Warped localization on the mesh produces exponential mass ratios, with controls. (E-FRC-0031 E-FRC-0032 E-FRC-0033 E-FRC-0053) |
+| koide relation | 🟡 | The Koide two-thirds appears from the derived angle structure. (E-FRC-0057 E-FRC-0059 E-FRC-0060) |
+| ckm and pmns mixing | ❌ | The mixing matrices are posed but not derived. (E-FRC-0070 E-FRC-0020 E-FRC-0036) |
+| neutrino masses and seesaw | ✅ | The seesaw structure is reproduced on the model. (E-FRC-0037 E-FRC-0035) |
+| **higgs** | | |
+| higgs doublet and custodial symmetry | 🟡 | The doublet and the custodial symmetry exist as algebra. (E-FND-0027) |
+| electroweak boson masses | ✅ | The W to Z mass ratio is reproduced from the derived angle. (E-FRC-0012) |
+| electroweak symmetry breaking dynamics | ❌ | No dynamical condensate on the rule yet. |
+| **spacetime** | | |
+| lorentz invariance | 🟢 | A propagating mode with the Lorentz cone emerges, with computed control. (E-RLT-0018 E-RLT-0030) |
+| cpt | ✅ | CPT holds exactly on the rule. (E-FND-0011 E-SPN-0037) |
+| dimensions 3 plus 1 | 🟡 | The 3 plus 1 split is selected by the algebra, not yet by dynamics. (E-FND-0038) |
+| gravity and einstein equations | ✅ | The area-law potential gives Newton's law and the Eddington factor two. (E-GRV-0012 E-GRV-0031 E-GRV-0003) |
+| **gravitation** | | |
+| black hole thermodynamics | ✅ | Bekenstein-Hawking entropy, an analog Hawking flux and the shadow, on models. (E-GRV-0014 E-GRV-0026 E-GRV-0004 E-GRV-0001) |
+| classic gr tests | ✅ | Light bending, time dilation and the Schwarzschild form are reproduced on the emergent metric. (E-GRV-0012 E-GRV-0037 E-GRV-0033) |
+| gravitational waves | ✅ | Propagating quadrupole waves at the right speed on the model. (E-GRV-0017 E-GRV-0043 E-GRV-0044 E-GRV-0045) |
+| frame dragging | ❌ | Lense-Thirring is unposed. |
+| equivalence principle | ❌ | Universality of free fall in the emergent potential is unposed. |
+| **dark sector** | | |
+| dark matter phenomena | ❌ | Rotation curves and the bullet cluster have no model yet. (E-GRV-0008) |
+| hubble tension | ❌ | Not addressed. |
+| **cosmology** | | |
+| dark energy | ✅ | Uniform growth reads as a small positive lambda. (E-CSM-0006 E-CSM-0010) |
+| proton stability | ✅ | The proton is protected by the conserved charges. (E-FRC-0043) |
+| cmb acoustic peaks | ❌ | The peak structure is not yet computed from the model. (E-CSM-0051 E-CSM-0044) |
+| bbn abundances | ❌ | The light-element abundances are not posed. |
+| baryon asymmetry | 🟡 | The arrow and the charge structure allow it, no measured asymmetry yet. (E-CSM-0004) |
+| inflation and flatness | ✅ | Growth gives flatness and a horizon without a tuned inflaton. (E-CSM-0028 E-CSM-0044 E-CSM-0046 E-CSM-0049) |
+| **thermodynamics** | | |
+| second law thermalization | ✅ | Coarse entropy climbs to near maximum while the microstate stays exactly reversible. (E-FLD-0016) |
+| **inputs** | | |
+| absolute masses and couplings | 📌 | The absolute scales are inputs, as in every framework. (E-FRC-0067 E-FRC-0009) |
+
+<!-- sm-scoreboard:end -->
 
 ## Basics
 

@@ -63,3 +63,63 @@ export function refractiveDeflection(input: {
 
   return Math.atan2(ty, tx)
 }
+
+// A ray crossing a planar clock-rate boundary. The index profile is a smoothed step along x,
+// n(x) = nearIndex + (farIndex - nearIndex) * (1 + tanh(x / width)) / 2, uniform in y, so the only
+// gradient is along the boundary normal. The ray enters at angle `incidence` (radians from the +x
+// normal) in the near medium and is traced by the same eikonal law as refractiveDeflection. Returned
+// is the outgoing travel angle from the normal, and whether the ray crossed at all (beyond the
+// critical angle, going from slow clock to fast, the gradient turns the ray back, total internal
+// reflection).
+export function boundaryRefraction(input: {
+  nearIndex: number
+  farIndex: number
+  incidence: number
+  width?: number
+  halfWidth?: number
+  step?: number
+}): { crossed: boolean; outgoing: number } {
+  const { nearIndex, farIndex, incidence } = input
+  const width = input.width ?? 2
+  const halfWidth = input.halfWidth ?? 60
+  const ds = input.step ?? 0.005
+
+  const index = (px: number): number =>
+    nearIndex + ((farIndex - nearIndex) * (1 + Math.tanh(px / width))) / 2
+
+  const slope = (px: number): number => {
+    const c = Math.cosh(px / width)
+
+    return (farIndex - nearIndex) / (2 * width * c * c)
+  }
+
+  let x = -halfWidth
+  let y = 0
+  let tx = Math.cos(incidence)
+  let ty = Math.sin(incidence)
+  // near the critical angle the crossing ray grazes nearly parallel to the boundary, so the path
+  // budget must be generous or a slow crosser is miscounted as reflected
+  const maxSteps = Math.ceil((80 * halfWidth) / ds)
+
+  for (let s = 0; s < maxSteps; s++) {
+    const n = index(x)
+    const gx = slope(x)
+    const gdotT = gx * tx
+
+    tx += ((gx - gdotT * tx) / n) * ds
+    ty += ((0 - gdotT * ty) / n) * ds
+
+    const norm = Math.hypot(tx, ty)
+
+    tx /= norm
+    ty /= norm
+    x += tx * ds
+    y += ty * ds
+
+    if (x > halfWidth || x < -3 * halfWidth) {
+      break
+    }
+  }
+
+  return { crossed: x > halfWidth, outgoing: Math.atan2(ty, tx) }
+}
