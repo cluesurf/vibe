@@ -179,3 +179,80 @@ export function linkField(input: {
 
   return field
 }
+
+// the magnetic flux through one plaquette of the link field: orientation 0 is the yz plaquette
+// (B_x), 1 is zx (B_y), 2 is xy (B_z), the lattice curl of A at (x, y, z)
+export function plaquetteFlux(input: {
+  side: number
+  field: Float64Array
+  x: number
+  y: number
+  z: number
+  orientation: number
+}): number {
+  const { side: L, field, x, y, z, orientation } = input
+  const A = (
+    px: number,
+    py: number,
+    pz: number,
+    d: number,
+  ): number =>
+    field[
+      maxwellLinkIndex({ side: L, x: px, y: py, z: pz, direction: d })
+    ]!
+
+  if (orientation === 2) {
+    // xy: A_x(x,y,z) + A_y(x+1,y,z) - A_x(x,y+1,z) - A_y(x,y,z)
+    return (
+      A(x, y, z, 0) + A(x + 1, y, z, 1) - A(x, y + 1, z, 0) - A(x, y, z, 1)
+    )
+  }
+
+  if (orientation === 0) {
+    // yz: A_y(x,y,z) + A_z(x,y+1,z) - A_y(x,y,z+1) - A_z(x,y,z)
+    return (
+      A(x, y, z, 1) + A(x, y + 1, z, 2) - A(x, y, z + 1, 1) - A(x, y, z, 2)
+    )
+  }
+
+  // zx: A_z(x,y,z) + A_x(x,y,z+1) - A_z(x+1,y,z) - A_x(x,y,z)
+  return (
+    A(x, y, z, 2) + A(x, y, z + 1, 0) - A(x + 1, y, z, 2) - A(x, y, z, 0)
+  )
+}
+
+// the net magnetic flux out of the unit cube at (x, y, z): the six face fluxes, outward-signed.
+// For ANY link field this is identically zero (each link appears in two faces with opposite
+// signs), the lattice Bianchi identity, the no-monopole law of the potential formulation.
+export function cubeDivergence(input: {
+  side: number
+  field: Float64Array
+  x: number
+  y: number
+  z: number
+}): number {
+  const { side: L, field, x, y, z } = input
+  const flux = (
+    px: number,
+    py: number,
+    pz: number,
+    orientation: number,
+  ): number =>
+    plaquetteFlux({
+      side: L,
+      field,
+      x: (px + L) % L,
+      y: (py + L) % L,
+      z: (pz + L) % L,
+      orientation,
+    })
+
+  return (
+    flux(x + 1, y, z, 0) -
+    flux(x, y, z, 0) +
+    flux(x, y + 1, z, 1) -
+    flux(x, y, z, 1) +
+    flux(x, y, z + 1, 2) -
+    flux(x, y, z, 2)
+  )
+}
