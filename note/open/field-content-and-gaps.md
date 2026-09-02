@@ -144,3 +144,60 @@ couple-0 particle physics inside the turning schedule. The dark-sector reading
 changes under this candidate (all couples visible, dark matter falls back to
 the wall candidate), and the phase-protected free modes are a new species class
 worth naming only if they survive the full battery.
+
+## RESOLVED (2026-09-02, later the same day): the palindromic turning weave
+
+The cyclic turning weave FAILED CPT: the full 384-element sweep at every phase
+found zero survivors, and the counter-turning schedule is not its partner
+either. The repair is the same principle that fixed lineHop at the collision
+level, applied one level up: make the SCHEDULE a palindrome. The partition
+walks out and back under the element, the swap order runs out and back, and
+the design space (720 swap orders, 8 by 12 mirror phases) contains winners
+that are BOTH connected and CPT-exact. The first winner (order
+0-2-3-1-4-5, both phases zero, element 148, period 24) passes every gate,
+formalized as E-FND-0117 (foundations/palindromic-turning-weave) with the
+cyclic schedule as the built-in negative control:
+
+| gate | result |
+| --- | --- |
+| cyclic schedule CPT (control) | zero survivors, whole group, every phase |
+| winner CPT | EXACT, pure charge conjugation with time reversal at mirror phase 23, IDENTITY spatial parity, zero of 48,000 dense checks |
+| species graph | 12 swap edges covering and connecting all 12 lines |
+| universality | 21 of 24 directions interact |
+| echo and charge | exactly zero drift |
+| vacuum | exactly periodic at the schedule period 24 |
+| separated superposition | exact |
+
+The remaining acceptance gates before this can be proposed for adoption: the
+wall sector (quantization and periodicity), interference re-derivation, unit
+kicks, and the long-window dressed profile (the support at side 21 reads
+2 through 15 over twenty beats with a late sample at 22, bounded so far but
+not yet run past one full schedule period on a window-safe mesh). The search
+scripts are permanent: task/turning-weave-search.ts (the cyclic search),
+task/turning-weave-palindrome-search.ts (the palindromic design sweep),
+task/turning-weave-battery.ts and task/turning-weave-window.ts.
+
+## The battery is CLEARED (2026-09-02, E-FND-0118)
+
+The palindromic turning weave passed the full acceptance battery lineWeave
+earned. E-FND-0118 (foundations/turning-weave-acceptance) closes the four
+remaining gates, each with its control:
+
+| gate | result |
+| --- | --- |
+| vacuum | exactly periodic FROM BIRTH, the empty state recurs at beat 24, zero transient across three periods. The commensurability quantum is 24 beats |
+| unit kick | a three-regime law: blind slabs (offsets 1, 2) leave the protected traveller exactly alone, kicking slabs (7, 11, 13, 17) move its phase by EXACTLY one clock unit at support one, absorbing slabs (3, 5) dress it, stated not hidden |
+| interference | exact: kicked branch at 30 against free branch at 150, additivity 2e-12, eleven aligned beats at twice root three, six crossed beats at exactly root three (root three at 90) |
+| walls | content quantized in whole side-cubed sheets and exactly period 24 (closed-system statements, no window needed). Localization is window-limited: a dominant core at the slab column plus a one-pass birth-radiation front |
+| dressing | past a full schedule period the protected species holds support exactly one, the interacting species is a breathing dressed particle (core max 15, returns to nearly bare) with a slow trail (total 27 after 26 beats, an order of magnitude under the committed rule's radiating band) |
+
+Together with E-FND-0117 (CPT exact under pure charge conjugation with time
+reversal, the cyclic schedule failing everywhere as the control, connected
+universality, echo, superposition), the candidate now holds everything the
+committed rule held, plus what it could not: one connected interaction
+structure over all twelve species. The two known physical differences from
+the committed rule, stated plainly: the Sakharov commensurate null moves
+from three beats to the schedule period, and defect formation radiates a
+one-pass front. Adoption is the user's decision. On adoption, lineWeave
+becomes the previous committed rule exactly as pairCollision did, and
+survives inside the turning weave as its frozen-schedule sector.

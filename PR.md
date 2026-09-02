@@ -72,9 +72,15 @@ From this worktree (node_modules symlinked from the main tree):
 
 ## Follow-ups
 
-- The turning weave acceptance battery (CPT sweep with time-dependent rules,
-  walls, interference), only if the candidate is worth pursuing after
-  discussion.
+- The acceptance battery is COMPLETE and CLEARED. E-FND-0117: CPT exact
+  under pure charge conjugation with time reversal (the cyclic schedule
+  failing everywhere in the whole group as the control), connected
+  universality, echo, superposition, vacuum periodicity. E-FND-0118: the
+  vacuum exactly periodic from birth (quantum 24 beats), the three-regime
+  unit-kick law (blind, exactly-one-unit, absorbing), exact two-path
+  interference (additivity 2e-12, eleven aligned and six crossed beats),
+  wall content sheet-quantized at exact period 24, and bounded dressing past
+  a full schedule period. Adoption is now a decision, not a measurement.
 - The phase-protected free modes under the turning schedule (a possible
   neutrino-flavored species class) need a mechanism statement.
 - The dark-sector reading forks with the candidate choice and is recorded in
