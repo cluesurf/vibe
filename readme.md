@@ -7,7 +7,7 @@
 <br/>
 
 <p align='center'>
-  <a href="https://www.youtube.com/watch?v=IE2uHC0qX1o"><img src='https://github.com/cluesurf/vibe/blob/make/view/vibe-mesh-{7,3}.png?raw=true' height='256'/></a>
+  <a href="https://www.youtube.com/watch?v=IE2uHC0qX1o"><img src='https://github.com/cluesurf/vibe/blob/make/view/vibe-mesh-${7,3}$.png?raw=true' height='256'/></a>
 </p>
 
 <h3 align='center'>Vibe Theory</h3>
@@ -22,7 +22,7 @@
 ## The goal
 
 **Find the discrete base of the universe.** The working answer is the
-four-dimensional hyperbolic honeycomb **{3,4,3,4}**: a crystal of
+four-dimensional hyperbolic honeycomb **${3,4,3,4}$**: a crystal of
 24-cells, twenty-four directions at every cell, carrying a ternary tone
 (-1, 0, +1) per direction and updated by one deterministic, reversible,
 conserving local rule. Everything else (space and its dimension, the
@@ -32,8 +32,8 @@ or the base is wrong. This repository is where that is tested, one
 measurable claim at a time, with the negatives kept.
 
 The program is heavily inspired by Maurice Margenstern's work on
-cellular automata in hyperbolic spaces: the {7,3} heptagrid and the
-{5,3,4} dodecagrid, Fibonacci-tree addressing and navigation, and the
+cellular automata in hyperbolic spaces: the ${7,3}$ heptagrid and the
+${5,3,4}$ dodecagrid, Fibonacci-tree addressing and navigation, and the
 proofs that these grids host universal computation. Those results are
 the reference points the substrate survey and the computation
 experiments are measured against.
@@ -50,8 +50,8 @@ The whole model, in one walk-through you can hold in your mind's eye.
 
 **The stage.** Picture a crystal built from 24-cells, packed so that
 every cell touches exactly 24 neighbours, one along each direction of
-the D4 root system. That crystal is the {3,4,3,4} honeycomb. There is no
-space underneath it. It IS space.
+the D4 root system. That crystal is the ${3,4,3,4}$ honeycomb. There is
+no space underneath it. It IS space.
 
 **The state.** Each of a cell's 24 directions holds one tone: -1, 0, or
 +1. That is the entire state of the universe. No fields, no positions,
@@ -315,19 +315,19 @@ edit it by hand). The experiment codes resolve in
 
 [Vibe Theory](https://doi.org/10.5281/zenodo.20694262) treats reality as
 one thing, a growing crystal of experience, and the image above is its
-simplest face, the hyperbolic {7,3} tessellation, meant literally: each
-tile is a **vibe**, a unit of experience, its ternary tone is a felt
-charge (**red is pain, green is peace, blue is pleasure**), and touching
-tiles **note** (experience) one another. A tile is a quantum of
+simplest face, the hyperbolic ${7,3}$ tessellation, meant literally:
+each tile is a **vibe**, a unit of experience, its ternary tone is a
+felt charge (**red is pain, green is peace, blue is pleasure**), and
+touching tiles **note** (experience) one another. A tile is a quantum of
 experience, a patch of tiles is a thing or a mind, the whole crystal is
 the universe, and its ever-receding growing edge is the present.
 Physical reality is the thin skin at the crystal's cusp, worked from
 within: consciousness is the grid, the physical universe its projection.
 
-The {7,3} is the drawable face of the committed {3,4,3,4}, whose flat
-three-dimensional cusp is the space we live in. The dimension is not a
-free choice: regular hyperbolic honeycombs run out by the fifth
-dimension, and {3,4,3,4} is the one that is at once crystallographic,
+The ${7,3}$ is the drawable face of the committed ${3,4,3,4}$, whose
+flat three-dimensional cusp is the space we live in. The dimension is
+not a free choice: regular hyperbolic honeycombs run out by the fifth
+dimension, and ${3,4,3,4}$ is the one that is at once crystallographic,
 spinor-carrying, and three-dimensional where physics lives.
 
 That the base genuinely IS experience is the model's one **axiom**, and
@@ -336,11 +336,12 @@ felt universe from an identical structural one. It is held as a frame,
 never as a result. Everything under the frame is a concrete discrete
 dynamical system, and that part is highly falsifiable: every deep claim
 carries a control where the answer should be no (the spinor that appears
-on {3,4,3,4} and provably fails on {5,3,4}, the area-law exponent that
-had to land near 2, the isotropy that could have stayed anisotropic),
-negatives are kept, and a test that cannot fail counts for nothing. So
-"vibe theory is unfalsifiable" is half right: the axiom is, the physics
-under it is not, and the experiments confirm structure, never feeling.
+on ${3,4,3,4}$ and provably fails on ${5,3,4}$, the area-law exponent
+that had to land near 2, the isotropy that could have stayed
+anisotropic), negatives are kept, and a test that cannot fail counts for
+nothing. So "vibe theory is unfalsifiable" is half right: the axiom is,
+the physics under it is not, and the experiments confirm structure,
+never feeling.
 
 ## The invariants
 
@@ -448,7 +449,7 @@ Every command in the repo:
 ## What is inside
 
 - **substrate**: regular `{p,q,...}` hyperbolic honeycombs through the
-  Coxeter engine, including the `{3,4,3,4}` cell graph with `O(log n)`
+  Coxeter engine, including the `${3,4,3,4}$` cell graph with `O(log n)`
   addressing, plus hyperbolic random graphs, regular lattices, Minkowski
   and curved sprinklings, and classical sequential growth.
 - **tone**: the ternary alphabet and the directional fill carried on
