@@ -202,3 +202,50 @@ export function makeComplexMatrix(input: {
     im: new Float64Array(n),
   }
 }
+
+// The rank of a dense real matrix by Gaussian elimination with partial pivoting and an absolute pivot
+// floor. Rows are given as arrays; the input is copied.
+export function realMatrixRank(
+  rows: readonly (readonly number[])[],
+  tolerance = 1e-9,
+): number {
+  const work = rows.map(r => [...r])
+  const cols = work[0]?.length ?? 0
+
+  let rank = 0
+
+  for (let col = 0; col < cols && rank < work.length; col++) {
+    let pivot = rank
+
+    for (let r = rank + 1; r < work.length; r++) {
+      if (Math.abs(work[r]![col]!) > Math.abs(work[pivot]![col]!)) {
+        pivot = r
+      }
+    }
+
+    if (Math.abs(work[pivot]![col]!) <= tolerance) {
+      continue
+    }
+
+    const row = work[pivot]!
+
+    work[pivot] = work[rank]!
+    work[rank] = row
+
+    for (let r = 0; r < work.length; r++) {
+      if (r === rank) {
+        continue
+      }
+
+      const factor = work[r]![col]! / row[col]!
+
+      for (let c = col; c < cols; c++) {
+        work[r]![c]! -= factor * row[c]!
+      }
+    }
+
+    rank++
+  }
+
+  return rank
+}

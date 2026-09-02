@@ -27,34 +27,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
-import { makeWill, Will } from '@/code/tone/will'
+import { makeWill } from '@/code/tone/will'
 import { Collision, headOnRotate, pairCollision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { ComplexPair, pairAbs2, pairSub } from '@/code/algebra/linear/complex-pair'
+import {
+  clockAmplitude,
+  phaseDegrees,
+} from '@/code/measure/clock-amplitude'
 
 const SIDE = 5 // odd, one connected lattice
 const BEATS = 12
 const DIRECTION = 0
 const PARALLEL_DIRECTION = 2
-const THIRD = (2 * Math.PI) / 3
 const EXACT = 1e-9
-
-// the coarse Z_3 amplitude of a will, the sum of omega^tone over every slot
-function clockAmplitude(will: Will): ComplexPair {
-  let re = 0
-  let im = 0
-
-  for (const tone of will.data) {
-    re += Math.cos(THIRD * tone)
-    im += Math.sin(THIRD * tone)
-  }
-
-  return [re, im]
-}
-
-function phaseDegrees(a: ComplexPair): number {
-  return Math.round((Math.atan2(a[1], a[0]) * 180) / Math.PI)
-}
 
 function trace(input: {
   mesh: ReturnType<typeof d4Mesh>
