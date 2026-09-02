@@ -582,6 +582,10 @@ Every command in the repo:
 
 All docs live in `note/`. The entry points:
 
+- **[The predictions](note/prediction/readme.md)**: the falsifiable
+  calls, the technologies the mechanisms suggest, the frontier claims
+  people ask about assessed honestly inside the model, and the
+  ordered next steps.
 - **[The library guide](note/library/readme.md)** is how to USE the
   `code/` library. It opens with a
   [features-at-a-glance](note/library/features.md) page (what the

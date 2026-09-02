@@ -258,3 +258,30 @@ Remaining after merge, in the main tree: regenerate the scoreboard from the
 ledger once the ledger rows touched by universality are re-worded, and run
 the full suite at the next natural end. Canon part two under the adopted
 rule (condensate, second law, the walk bridge) is the open research stream.
+
+## Canon part two, first results (E-FND-0120), and the predictions folder
+
+Two findings the committed rule did not have, both passing as
+E-FND-0120 (foundations/turning-weave-relic-and-mass):
+
+- THE RELIC BACKGROUND: no growth quench rate is null under the
+  adopted rule (the static weave's commensurate null is gone), because
+  domain formation permanently scatters radiation into the bulk, the
+  model growing its own relic background. The relic is lawful: whole
+  hypersheets at every settled beat of every rate, floors 174, 110, 48
+  sheets at k of 1, 12, 24 (falling with commensurability at the deep
+  end, not monotone across all rates, reported as measured).
+- MASS FROM DRESSING: the protected species is exactly ballistic
+  (speed root two to the last decimal), the interacting species move
+  at species-dependent fractions of it (1.76 and 3.08 cells per eight
+  beats against 11.31). Interaction generates effective mass, and it
+  differs by species under one rule, the mechanism shape the
+  mass-hierarchy rows need. The dispersion relation proper is the
+  coarse-bridge deliverable.
+
+The predictions folder is note/prediction/: the index, the hard
+predictions (kill shots and staked numbers), technologies, the
+anomalous claims assessed with tests, consciousness, intelligence
+(with the quantum-computing counting-signature prediction and the
+field-sector dictionary), metaphysics (the realm coordinates made
+testable), and the ordered next steps.
