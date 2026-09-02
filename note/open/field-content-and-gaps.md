@@ -240,3 +240,21 @@ else in the chronoflux poster (continuity to consciousness to matter as one
 mechanism) supplies no computable rule and is not actionable. The recovered
 tree of nature poster (the prime spine) has no mechanism at all and is not
 actionable either.
+
+## ADOPTED (2026-09-02): turningWeave is the committed rule
+
+The user adopted the palindromic turning weave after the battery cleared.
+`code/rule/collision.ts` now exports `turningWeave` as THE COMMITTED RULE
+(the hardcoded G_TURN line permutation verified equal to element 148, and
+the exported collisions verified beat-for-beat identical to the battery's
+schedule, forward and inverse, with forward composed with inverse the exact
+identity, tmp/probe-adoption-check.ts). `lineWeave` is the PREVIOUS
+committed rule, kept as the turning weave's frozen-schedule sector, exactly
+as `pairCollision` stepped down before it. The readme reflects the adoption
+(the committed-rule paragraph, the walkthrough, the rule bullet, and four
+new hits: the particle table, universality with CPT kept, the graphene-band
+viscosity ratio E-FLD-0019, and quantized Sakharov matter-from-nothing).
+Remaining after merge, in the main tree: regenerate the scoreboard from the
+ledger once the ledger rows touched by universality are re-worded, and run
+the full suite at the next natural end. Canon part two under the adopted
+rule (condensate, second law, the walk bridge) is the open research stream.

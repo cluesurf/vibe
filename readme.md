@@ -66,6 +66,34 @@ with results you can rerun, and some of them are startling:
 - **Half of electromagnetism costs nothing.** No magnetic monopoles
   and Faraday induction are exact identities of the model's fields,
   and both are measured to one part in a trillion.
+- **A complete particle table, read off the rule.** Every one of the
+  24 directions is measured into exactly one band: massless matter at
+  the light speed, massive particles at rest that tick with an exact
+  internal clock (mass IS oscillation here, and you can watch it), and
+  an interacting band that radiates and scatters. Antiparticles are
+  the negative tone, conjugate to the particle exactly, and two
+  excitations can never share a slot, so exclusion is built into the
+  state itself.
+- **One interaction for every species, with nature's symmetry kept.**
+  The rule's interaction was confined to one sector until the couple
+  pairing was set turning on a palindromic 24-beat schedule, found by
+  exhaustive search: the one construction that connects all twelve
+  species into a single interaction structure while keeping CPT exact,
+  and the matching cyclic schedule fails CPT everywhere, measured as
+  the control. Gauge universality, the fact that one photon talks to
+  every charged particle, stops being a mystery input and becomes a
+  theorem about mirror schedules.
+- **The gas is a near-perfect fluid, in graphene's band.** Deriving
+  the model's Planck constant from its own measured phase-kick law
+  and forming the viscosity-to-entropy ratio lands at eight times the
+  conjectured quantum bound: above it, within one order, exactly the
+  band where the graphene Dirac fluid measures and where water misses
+  by a factor of four hundred. Nothing was tuned to land there.
+- **Matter from nothing, quantized.** A growing edge charges the
+  matter sector out of the exactly symmetric empty state, in whole
+  crystal sheets, with the total exactly conserved, the model's own
+  version of why there is more matter than antimatter, satisfying all
+  three of Sakharov's conditions measurably.
 - **A public scoreboard with nothing hidden.** Seventy-four observed
   features of nature, every one accounted for: zero open, zero
   blocked, and the failures that happened along the way are kept in
@@ -92,12 +120,19 @@ no with corrections published in place, is a working template for how
 to do machine-assisted science without fooling yourself.
 
 Everything above is deterministic and reruns from one command. The
-committed rule is the weave (`lineWeave`), adopted after a public
-acceptance gauntlet
-([`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts)
+committed rule is the palindromic turning weave (`turningWeave`),
+adopted 2026-09-02 after clearing the same public acceptance
+discipline twice: first as the static weave (`lineWeave`, now the
+previous committed rule and the turning weave's frozen-schedule
+sector,
+[`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts)
 through
 [`E-FND-0111`](test/experiment/foundations/dressed-traveller.ts)),
-and what remains is named open research, led by one derivation: the
+then as the turning schedule itself
+([`E-FND-0113`](test/experiment/foundations/weave-species-spectrum.ts)
+through
+[`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts)).
+What remains is named open research, led by one derivation: the
 bridge from the discrete clock to continuum quantum mechanics, whose
 target object (the dressed traveller) is already measured. The method
 that got here is three enforced rules born from corrected claims: a
@@ -121,9 +156,13 @@ honeycomb. There is no space underneath it. It IS space.
 no wavefunctions. Tones on directions.
 
 **The beat.** Time advances in ticks. Each tick, every cell applies the
-one local rule to its own 24 slots (the knit, the weave: the directions
+one local rule to its own 24 slots (the turning weave: the directions
 pair into lines, the lines couple across planes, five couples run a
-fixed 9-state clock table and one carries the particle-making swap), and then every tone slides one cell along its direction.
+fixed 9-state clock table and one carries the particle-making swap,
+and the pairing itself walks out and back under a fixed crystal
+symmetry on a palindromic 24-beat schedule, so every couple takes its
+turn carrying the swap), and then every tone slides one cell along its
+direction.
 The rule is exactly reversible and conserves total charge. Run it
 backward and the past returns bit for bit.
 
@@ -154,7 +193,12 @@ the walls whose axis lies in its wire plane, and it passes through every
 other wall untouched, one slot, no wake. Crossing a wall it does feel
 kicks its phase by exactly one clock unit and sets the wall ringing,
 which is emission. Different wirings feel different walls, so one rule
-carries many species, some blind to what detects another.
+carries many species, some blind to what detects another. And because
+the pairing turns, every species is wired to every other over one
+schedule period: the interaction structure is one connected web, which
+is what gauge universality demands, and a few directions ride through
+protected, their motion never meeting the swap window, a species that
+interacts with almost nothing.
 
 **Measurement.** A wall two beats out of step is a detector: it
 amplifies the phase class it rejects past a hundred cells and stays
@@ -505,10 +549,12 @@ Every command in the repo:
   growth.
 - **tone**: the ternary alphabet and the directional fill carried on
   each cell.
-- **rule**: the knits (`lineWeave`, the committed rule; `pairCollision`,
-  the previous committed table it contains as its clock sector; the
-  superseded candidates `lineHop` and `linePalindrome`; the momentum
-  collision), streaming, growth, and the discrete C, P, T transforms.
+- **rule**: the knits (`turningWeave`, the committed rule;
+  `lineWeave`, the previous committed rule, kept as the turning
+  weave's frozen-schedule sector; `pairCollision`, the earlier
+  committed table both contain as their clock sector; the superseded
+  candidates `lineHop` and `linePalindrome`; the momentum collision),
+  streaming, growth, and the discrete C, P, T transforms.
 - **operator**: graph Laplacian, Kahler-Dirac and overlap fermions, the
   gauge-covariant Dirac, the cellular-automaton Hamiltonian, and the
   gauge index.
