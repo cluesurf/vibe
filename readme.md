@@ -40,47 +40,45 @@ experiments are measured against.
 
 
 **Where the program stands (2026-09-01).** The base measurably produces
-a classical universe: genesis on the growing mesh, a light cone,
-isotropy to fourth order, exact CPT, conserved charges, an emergent
-metric, and codes on its own cell complex. It also produces the seed of
-the quantum: the vacuum has a three-beat clock, growth (the arrow) is
-the one mechanism that shifts it, defects hosted by domains born in
-different beats interfere in the coarse Z_3 amplitude with the exact
-cross-term law
+a classical universe (genesis on the growing mesh, a light cone,
+isotropy, conserved charges, an emergent metric) and the seed of the
+quantum: the vacuum has a three-beat clock, growth is the one mechanism
+that shifts it, offset domains interfere with the exact cross-term law
 ([`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts)),
-and the wall between clock domains is a projective measurement of the
-phase class
+and the wall between domains is a projective measurement
 ([`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts)).
-What the base provably does not produce: the Born weight (the wall
-weighs by count, never by the squared amplitude) and quantum transport
-(phases carry no currents, the Madelung gap,
-[`E-FND-0090`](test/experiment/foundations/madelung-gap.ts)). The open
-frontier is one sentence: a reversible conserving law that moves
-density along clock-phase gradients while preserving the defect's
-magnitude, and the first candidate is built and fails exactly
-([`E-FND-0092`](test/experiment/foundations/clock-coupled-swap-addition.ts)).
-And the frontier moved twice on 2026-09-01: a one-clause extension of
-the committed table, the PROPOSED traveller knit
-([`lineHop`](code/rule/collision.ts), measured by
-[`E-FND-0095`](test/experiment/foundations/traveller-knit.ts)), yields a
-speed-one single-slot particle at exactly the defect magnitude at every
-beat, superposing exactly and amplified by the measuring walls. Then the
-window was widened
+The one unsupplied quantum ingredient is transport: the proposed
+traveller knit ([`lineHop`](code/rule/collision.ts),
+[`E-FND-0095`](test/experiment/foundations/traveller-knit.ts)) gives a
+speed-one particle with exact superposition, but widening the window
 ([`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts))
-and the transmission half was corrected: the offset-domain crossing is
-exactly transparent on the first pass (no phase rotation) and plants a
-delayed wake that erupts at a geometry-dependent beat, so lineHop
-supplies free flight, superposition, the husk split and detection, and
-the wake-free transmitting knit is still unfound. The map of what the quantum sector covers, at
-which depth and on what object, is
+showed its domain crossing is transparent-then-wake rather than
+transmission with rotation, so the wake-free transmitting knit is still
+unfound. The quantum sector map is
 [note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
+
+Three structural insights landed the same day. **The homogeneous
+Maxwell pair costs nothing**: no-monopoles and Faraday induction are
+exactness identities of any potential-derived connection, measured to
+1e-12
+([`E-FRC-0076`](test/experiment/gauge/monopole-absence.ts),
+[`E-FRC-0077`](test/experiment/gauge/faraday-induction.ts)), so only
+the sourced half of electromagnetism needs the still-missing carrier.
+**CP violation is located, not missing**: the momentum knit conserves
+everything, both clock-coupled knits violate C and CP by measured
+amounts
+([`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts)),
+which puts all three Sakharov conditions for baryogenesis in the base.
+And **the window rule**: a support bound is only as good as the beats
+and sizes it was watched for. Two earlier claims fell to it and are
+corrected in place, which is the method working as designed.
 
 ## The scoreboard
 
 Every commonly observed feature of nature the model must account for,
 and where it stands. One row per feature, generated from the working
-ledger (`pnpm make:sm-scoreboard --commit` regenerates it, never edit
-by hand). The experiment codes resolve in
+ledger (see the Development section for the regeneration command, never
+edit it by hand). The experiment codes resolve in
 [test/catalog.csv](test/catalog.csv).
 
 <!-- sm-scoreboard:start -->
@@ -263,10 +261,11 @@ concrete experiment that either works or does not.
 
 ## Keys
 
-The base model of reality is settled here pretty much, next is to
-explore the elaborations/implications.
+The five things of the base (mesh, tone, knit, growth, reflection) are
+committed. What stays open is tracked honestly in the scoreboard above,
+with the amplitude carrier the deepest open item.
 
-Here are the key notes:
+The key companion pieces:
 
 - [Short high-level audio overview of things](https://www.youtube.com/watch?v=9ftVzOO9Y2I)
 - [A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh](https://doi.org/10.5281/zenodo.20768426)
@@ -306,29 +305,14 @@ matter and force and gravity, and everything we call inner, sensation
 and emotion and thought, is a large-scale pattern in this one colored,
 growing mesh of feeling.
 
-The flat `{7,3}` picture is the easy-to-draw two-dimensional face. The
-committed substrate is another member in the same family of regular
-hyperbolic honeycombs, the four-dimensional `{3,4,3,4}`, whose cells are
-24-cells and whose 24 directions form the `D4` root system that carries
-spin. Its flat three-dimensional cusp is the physical space we live in,
-and time is its growth. The three-dimensional `{5,3,4}` and the
-two-dimensional `{7,3}` are the lower faces used to build intuition,
-since `{3,4,3,4}` cannot be drawn directly. The dimension is not a free
-choice. Regular hyperbolic honeycombs run out by the fifth dimension,
-and `{3,4,3,4}` is the one that is at once crystallographic,
+The flat `{7,3}` picture is the easy-to-draw two-dimensional face of
+the committed four-dimensional `{3,4,3,4}` (see the goal above), whose
+flat three-dimensional cusp is the physical space we live in, with time
+its growth. The `{5,3,4}` and `{7,3}` are the lower faces used to build
+intuition, since `{3,4,3,4}` cannot be drawn directly. The dimension is
+not a free choice: regular hyperbolic honeycombs run out by the fifth
+dimension, and `{3,4,3,4}` is the one that is at once crystallographic,
 spinor-carrying, and three-dimensional where physics lives.
-
-The base of the model is settled, the discrete substrate and its single
-local rule. From it the architecture of physics is derived: the
-particles and their charges, the gauge group, the Higgs, the shape of
-the mass hierarchy, and the emergent laws of relativity, gravity, the
-quantum, holography, and cosmology. The absolute masses and couplings
-are free, exactly the parameters the Standard Model leaves free, each
-now identified with a specific geometric origin. The larger aim is to
-derive space, matter, gravity, the quantum, cosmology, and mind from the
-one rule, and to be clear at every step about what is solid, what is
-free, and what is still open. The companion papers are snapshots of that
-work.
 
 ## What is a vibe, and what is falsifiable
 
@@ -388,6 +372,8 @@ with the per-theory maps in [note/link/](note/link/).
 | the growth ratio              | each new shell is larger than the last by a fixed factor near 18.28                      | [`E-GMT-0028`](test/experiment/geometry/warp-factor-needs-geometry.ts)            |
 | a chaos ceiling on records    | a coherent record holds only while the chaos rate stays below a threshold                | [`E-QTM-0092`](test/experiment/quantum/lyapunov-recordability-ceiling.ts)         |
 | clock-phase interference      | defects hosted by domains born in different beats interfere, cross term exactly 2\|A\|\|B\|cos of the relative phase | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts)            |
+| no magnetic monopoles         | the flux out of every cube is exactly zero for every link potential, the lattice Bianchi identity | [`E-FRC-0076`](test/experiment/gauge/monopole-absence.ts)                         |
+| where CP violation lives      | the momentum knit conserves C, P, CP exactly while both clock knits violate them by measured amounts | [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts)          |
 
 Each is a measured consequence of the base rule, not an input. The first
 four are the invariants the rest are built on.
@@ -438,20 +424,18 @@ full rubric and the rules the runner enforces (an L3 claim must carry a
 control, for instance) are in
 [`note/experimental-methodology`](note/experimental-methodology.md).
 
-As of the latest run the catalog holds **810 experiments across 18
-categories**, graded by the depth rubric:
+As of the latest regeneration the catalog holds **863 experiments
+across 18 categories**, graded by the depth rubric:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|   810 |                 92 |              519 |           185 |          14 |                   510 |
+|   863 |                 47 |              589 |           213 |          14 |                   549 |
 
 The largest categories are selves, quantum, foundations, gauge, gravity,
 and cosmology. The standing depth audit regrades overclaimed depths
-down, and new derivations measured straight off the substrate's own
-dynamics and walk-operator spectrum (zitterbewegung, Klein tunneling,
-Bloch oscillations, Aubry-Andre localization, the Jackiw-Rebbi bound
-state, the topological winding number, 2D cyclotron confinement, and the
-bulk-boundary correspondence) raise the L3 count.
+down (the drop from an earlier L3 count of 92 to 47 was that audit doing
+its job), and every correction is recorded in the experiment it
+corrects.
 
 ## The experiment map
 
@@ -471,19 +455,33 @@ idea across arenas, curated **reading paths** for diving in cold, and a
 guide for adding your own experiment. Start there to see the full scope
 and reach any single result without piecing it together from the files.
 
-## Quick start
-
-```
-pnpm install
-pnpm test         # the full experiment registry plus the conformance battery
-```
+## Development
 
 Every experiment lives in `test/experiment/<category>/<name>.ts` as one
-`experiment`, and the suite runner (`test/run.ts`) imports them all and
-runs the registry. The shared library they import is in `code/`, and the
+`experiment`, the suite runner (`test/run.ts`) imports them all through
+`test/experiment/all.ts`, the shared library is in `code/`, and the
 named batteries (conformance, paper) are in `test/suite/`. The build
 fails only on a code crash or a conformance failure, never on a
 scientific negative.
+
+Every command in the repo:
+
+| command | does |
+| :--- | :--- |
+| `pnpm install` | install dependencies |
+| `pnpm test` | typecheck, then the full experiment registry plus the conformance battery (about half an hour) |
+| `pnpm test:full` | the registry run plus the legacy `test/test.ts` battery |
+| `pnpm call <file>` | run one script under tsx (`pnpm call tmp/verdicts.ts <id> [...ids]` runs single experiments by id, the fast loop) |
+| `pnpm call test/catalog.ts` | regenerate [`test/catalog.csv`](test/catalog.csv) from the registry |
+| `pnpm check:labels` | verify every experiment's `substrates` label against its import graph |
+| `pnpm check:constants` | verify no typed constant reaches a verdict |
+| `pnpm check:coverage` | the coverage cross-check |
+| `pnpm check:perturbation` | the perturbation (robustness) checks |
+| `pnpm lint` | eslint over `code/` and `test/` |
+| `pnpm format` | the formatter |
+| `pnpm make` | compile the library to `host/` |
+| `pnpm host` | build and publish the package |
+| `pnpm make:sm-scoreboard --commit` | regenerate the scoreboard above from the observation ledger (run from the parent workspace, reports without `--commit`) |
 
 ## What is inside
 
@@ -493,8 +491,9 @@ scientific negative.
   and curved sprinklings, and classical sequential growth.
 - **tone**: the ternary alphabet and the directional fill carried on
   each cell.
-- **rule**: synchronous, asynchronous, reversible, rewriting, and gauge
-  updates.
+- **rule**: the knits (the committed charge table, the momentum
+  collision, the proposed traveller `lineHop`), streaming, growth, and
+  the discrete C, P, T transforms.
 - **operator**: graph Laplacian, Kahler-Dirac and overlap fermions, the
   gauge-covariant Dirac, the cellular-automaton Hamiltonian, and the
   gauge index.
@@ -512,11 +511,11 @@ scientific negative.
   something (the substrate or rule where the answer must be no).
 - **draw**, **render**, and **viz**: renderers and figures for the bulk,
   the cusp, gliders, gravity, and the nesting tower.
-- **test/experiment**: one `experiment` per question, grouped by
-  category (foundations, geometry, relativity, spin, gauge, gravity,
-  cosmology, holography, quantum, renormalization, selves, computation,
-  addressing, substrate-survey, data-structure), run by the suite runner
-  in `test/`.
+- **test/experiment**: one `experiment` per question, grouped into 18
+  categories (foundations, geometry, relativity, spin, gauge, gravity,
+  cosmology, holography, quantum, fluids, renormalization, selves,
+  associative, computation, addressing, substrate-survey,
+  data-structure, method), run by the suite runner in `test/`.
 
 ## Documentation
 
@@ -553,9 +552,6 @@ All docs live in `note/`. The entry points:
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
   is how to write an experiment that runs against every regular
   hyperbolic tessellation at once.
-- **[Reference data and verification](note/data/reference/readme.md)**
-  is the measuring stick: the real physics numbers the experiments are
-  checked against, and the live cross-check of each.
 
 ## Reference data and verification
 
