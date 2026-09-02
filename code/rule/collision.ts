@@ -456,7 +456,9 @@ export function linePalindrome(input: {
   }
 }
 
-// THE COMMITTED KNIT (adopted 2026-09-02): the weave. The 12 lines pair into 6 couples by the
+// The PREVIOUS committed knit (adopted 2026-09-02, superseded 2026-09-02 by turningWeave): the
+// static weave. Kept as the frozen-schedule sector of the committed turning weave, whose beat
+// zero this collision is. The 12 lines pair into 6 couples by the
 // overlap-balanced table (each of the six planes contributes exactly one wire and one matter
 // line, so every axis lies in exactly three wire planes and no direction is preferred, and every
 // couple's matter and wire planes share an axis, so every potential species is detectable). The
@@ -543,6 +545,129 @@ export function lineWeave(input: {
         swap()
       } else {
         clock()
+      }
+    }
+  }
+}
+
+// THE COMMITTED RULE (adopted 2026-09-02): the palindromic turning weave. The couple partition
+// of the static weave PRECESSES under a fixed symmetry of the 24-cell while the palindromic
+// swap rotates through the six couples, both walks running out and back as mirrors, total
+// schedule period twenty-four beats. G_TURN is that symmetry as a line permutation (element
+// one-forty-eight of the 384-element torus symmetry group, found by the search in
+// task/turning-weave-search.ts), TURN_POSITIONS is its out-and-back walk, and TURN_SWAP_ORDER
+// is the swap's own mirrored visiting order (the unique order class that makes the swap-edge
+// graph connect all twelve species while keeping CPT, task/turning-weave-palindrome-search.ts).
+// Adopted by the user after the candidate cleared the full acceptance battery (E-FND-0117
+// through E-FND-0119, E-FND-0113 through E-FND-0116 for the static sector): CPT exact under
+// pure charge conjugation with time reversal at the mirror phase (the cyclic schedule fails
+// CPT everywhere in the group, measured as the control), a connected interaction structure
+// over all twelve species (twenty-one of twenty-four directions interact, against four under
+// the static weave), the vacuum exactly periodic from birth with the empty state recurring at
+// beat twenty-four, exact echo and charge conservation, exact separated superposition, the
+// three-regime unit-kick law (blind, exactly one clock unit, absorbing), exact two-path
+// interference, wall content quantized in whole side-cubed sheets at exact period twenty-four,
+// bounded dressing past a full schedule period, exact counting weights, and the Sakharov
+// mechanism with the asymmetry spread across lines on the schedule. The caller passes the beat
+// number: `turningWeave({ opposite })(t)` is the collision for beat t, and with
+// `forward: false` it is that beat's inverse (run beats in reverse order to invert time).
+// On meshes with fewer than twelve lines the schedule is undefined and the static fallback of
+// lineWeave is returned for every beat.
+const G_TURN = [4, 5, 8, 9, 11, 10, 0, 1, 3, 2, 7, 6]
+const TURN_POS_MIRROR = [0, 1, 2, 3, 3, 2, 1, 0]
+const TURN_SWAP_ORDER = [0, 2, 3, 1, 4, 5]
+
+export function turningWeave(input: {
+  opposite: number[]
+  forward?: boolean
+}): (beatIndex: number) => Collision {
+  const forward = input.forward ?? true
+  const lines: [number, number][] = []
+
+  for (let d = 0; d < input.opposite.length; d++) {
+    const o = input.opposite[d]!
+
+    if (d < o) {
+      lines.push([d, o])
+    }
+  }
+
+  if (lines.length < 12) {
+    const fallback = lineWeave(input)
+
+    return () => fallback
+  }
+
+  const M0: [number, number][] = [
+    [0, 3],
+    [2, 5],
+    [4, 1],
+    [6, 9],
+    [8, 11],
+    [10, 7],
+  ]
+  const norm = (a: number, b: number): [number, number] =>
+    a < b ? [a, b] : [b, a]
+  const positions: [number, number][][] = []
+  let current = M0.map(([a, b]) => norm(a, b))
+
+  for (let i = 0; i < 4; i++) {
+    positions.push(current)
+    current = current.map(([a, b]) =>
+      norm(G_TURN[a]!, G_TURN[b]!),
+    )
+  }
+
+  const swapMirror = [
+    ...TURN_SWAP_ORDER,
+    ...[...TURN_SWAP_ORDER].reverse(),
+  ]
+  const table = forward ? PAIR_FORWARD : PAIR_INVERSE
+  const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+  const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
+
+  return beatIndex => {
+    const couples =
+      positions[TURN_POS_MIRROR[((beatIndex % 8) + 8) % 8]!]!
+    const swapIdx = swapMirror[((beatIndex % 12) + 12) % 12]!
+
+    return (slots, base) => {
+      for (let k = 0; k < 6; k++) {
+        const line = lines[couples[k]![0]!]!
+        const wire = lines[couples[k]![1]!]!
+
+        const swap = (): void => {
+          const a0 = (slots[base + line[0]] ?? 0) as Tone
+          const a1 = (slots[base + line[1]] ?? 0) as Tone
+          const w0 = (slots[base + wire[0]] ?? 0) as Tone
+          const w1 = (slots[base + wire[1]] ?? 0) as Tone
+
+          if (
+            (loneAway(a0, a1) && empty(w0, w1)) ||
+            (loneAway(w0, w1) && empty(a0, a1))
+          ) {
+            slots[base + line[0]] = w0
+            slots[base + line[1]] = w1
+            slots[base + wire[0]] = a0
+            slots[base + wire[1]] = a1
+          }
+        }
+        const clock = (): void => {
+          const a = (slots[base + wire[0]] ?? 0) as Tone
+          const b = (slots[base + wire[1]] ?? 0) as Tone
+          const image = table[pairKey(a, b)]!
+
+          slots[base + wire[0]] = image[0]
+          slots[base + wire[1]] = image[1]
+        }
+
+        if (k === swapIdx) {
+          swap()
+          clock()
+          swap()
+        } else {
+          clock()
+        }
       }
     }
   }
