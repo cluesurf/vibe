@@ -118,3 +118,30 @@ possible outcomes, each an advance:
   must come from one level further up (packet collisions, growth
   noise, or environmental phase mixing), each of which is itself
   preparable and measurable.
+
+## The session's remaining results (2026-09-02, late)
+
+- E-FND-0127 (born-ensemble): single-particle outcomes deterministic
+  per vacuum phase, distributed over the ensemble, the hidden
+  variable concrete. The side-25 full-period sweep found the charge
+  sums exactly balanced (32 and 32), held as measured-once with the
+  window caveat.
+- E-FND-0128 (charge-signed-kick): the kick generator couples with
+  opposite sign to opposite charges, the abelian gauge coupling
+  measured, with Z three closure honestly open behind three measured
+  obstructions.
+- E-FND-0129 (speed-spectrum): the 24-direction mass hierarchy,
+  three exact massless, four exact at rest, seventeen interior.
+- note/open/counting-signature-search.md and
+  note/open/graphene-registered-prediction.md: the two
+  external-facing shots, one prescription and one registered
+  numerical prediction.
+
+The dispersion relation proper and Z three closure are the two named
+continuations.
+
+- E-FND-0130 (rest-spectra): the breather ladder survives the
+  adopted rule (two of four rest species exact half-unit ladder
+  states, two broadband as the control). The moving-species omega
+  against k sweep and the Z three closure are the two named
+  continuations, next branch.
