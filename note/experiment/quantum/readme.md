@@ -152,6 +152,7 @@ Bosons, fermions, Pauli exclusion, and bound states from the exchange structure 
 - **[`E-QTM-0093`](../../../test/experiment/quantum/toric-code-from-the-mesh.ts)** (L2) - the toric code built from the {3,4,3,4} mesh complex (qubits on D4 edges, X-checks on cells, Z-checks on root triangles) has exactly four logical qubits per connected component, four at side 3 and eight at side 4 where the even side splits the mesh in two, while an open patch has zero and every X-check commutes with every Z-check
 
 - **[`E-QTM-0094`](../../../test/experiment/quantum/ehrenfest-theorem.ts)** (L2) - the Ehrenfest theorem on the coined Dirac walk model: a packet built from the positive band of cos E = cos m cos k follows the classical trajectory of its own momentum distribution to 9e-14 cells free and 0.002 cells under a slow force over 45 cells, momentum exact to 4e-16, once the packet's Berry-connection offset and the midpoint momentum of the step are in the prediction. A force of 0.8 leaves 26 percent in the band and misses by 14 cells, and the equal-chirality rest seed (21 percent negative-energy) lags by 19 cells
+- **[`E-QTM-0095`](../../../test/experiment/quantum/qutrit-toric-code-from-the-mesh.ts)** (L2) - the Z_3 toric code on the mesh complex with the tone as the qutrit: oriented vertex and triangle checks over the field of three elements commute, four logical qutrits per four-torus (four at side 3, eight at the split side 4), zero on an open patch
 
 ## What this arena establishes
 

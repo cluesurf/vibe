@@ -262,3 +262,55 @@ export function popcountAndBetween(input: {
 
   return total
 }
+
+// The rank of a dense matrix over the field of three elements, by Gaussian elimination on Int8 rows
+// with entries in {0, 1, 2}. Used for the Z_3 (qutrit) codes on the mesh complex.
+export function ternaryMatrixRank(rows: Int8Array[]): number {
+  const work = rows.map(r => Int8Array.from(r, v => ((v % 3) + 3) % 3))
+  const cols = work[0]?.length ?? 0
+
+  let rank = 0
+
+  for (let col = 0; col < cols && rank < work.length; col++) {
+    let pivot = -1
+
+    for (let r = rank; r < work.length; r++) {
+      if (work[r]![col] !== 0) {
+        pivot = r
+        break
+      }
+    }
+
+    if (pivot === -1) {
+      continue
+    }
+
+    const tmp = work[pivot]!
+
+    work[pivot] = work[rank]!
+    work[rank] = tmp
+
+    // scale the pivot row so the pivot is one (2 is its own inverse mod 3)
+    const inverse = tmp[col] === 2 ? 2 : 1
+
+    for (let c = 0; c < cols; c++) {
+      tmp[c] = (tmp[c]! * inverse) % 3
+    }
+
+    for (let r = 0; r < work.length; r++) {
+      if (r === rank || work[r]![col] === 0) {
+        continue
+      }
+
+      const factor = work[r]![col]!
+
+      for (let c = 0; c < cols; c++) {
+        work[r]![c] = (((work[r]![c]! - factor * tmp[c]!) % 3) + 3) % 3
+      }
+    }
+
+    rank++
+  }
+
+  return rank
+}
