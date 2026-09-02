@@ -66,6 +66,7 @@ function potentialFrom(input: {
   for (let c = 0; c < side * side; c++) {
     const x = c % side
     const y = Math.floor(c / side)
+
     let p = 0
 
     for (const [bx, by] of bodies) {

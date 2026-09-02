@@ -35,13 +35,15 @@ function faradayRun(side: number): {
   fluxSwing: number
 } {
   const H = maxwellLatticeMatrix({ side, mass: 0 })
+
   let A = linkField({
     side,
     value: (x, y, z, d) =>
       Math.sin((2 * Math.PI * (x + y + d)) / side) +
       0.4 * Math.cos((2 * Math.PI * (y + 2 * z)) / side),
   })
-  let P = new Float64Array(A.length)
+
+  const P = new Float64Array(A.length)
 
   const at = (
     field: Float64Array,
@@ -100,6 +102,7 @@ function faradayRun(side: number): {
   let worstPlaquette = 0
   let worstLoop = 0
   let fluxSwing = 0
+
   const initialFlux = plaquette(A)
 
   for (let t = 0; t < STEPS; t++) {
@@ -119,10 +122,12 @@ function faradayRun(side: number): {
       worstPlaquette,
       Math.abs(circulation(E, false) + (plaquette(next) - plaquette(A)) / DT),
     )
+
     worstLoop = Math.max(
       worstLoop,
       Math.abs(circulation(E, true) + (loopFlux(next) - loopFlux(A)) / DT),
     )
+
     fluxSwing = Math.max(
       fluxSwing,
       Math.abs(plaquette(next) - initialFlux),

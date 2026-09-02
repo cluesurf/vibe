@@ -88,6 +88,7 @@ function ringing(input: { rule: Collision; k: number }): {
   rebound: number
 } {
   let will = perturbedGas(input.k)
+
   const initial = modeAmplitude(will, input.k)
   const series: number[] = []
 

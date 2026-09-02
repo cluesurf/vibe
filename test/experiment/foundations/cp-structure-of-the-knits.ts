@@ -69,6 +69,7 @@ function knitTable(input: {
 
   for (let d = 0; d < mesh.degree; d++) {
     const n = neighbors[0]![d]!
+
     let dx = n % SIDE
     let dy = Math.floor(n / SIDE) % SIDE
 

@@ -56,6 +56,7 @@ function beamSurvival(input: {
   const plus = ex.indexOf(1)
   const minus = ex.indexOf(-1)
   const will = makeWill(mesh)
+
   let launched = 0
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
@@ -79,6 +80,7 @@ function beamSurvival(input: {
   }
 
   const rule = headOnRotate({ opposite })
+
   let w: Will = { mesh, data: Int8Array.from(will.data) }
 
   for (let t = 0; t < BEATS; t++) {

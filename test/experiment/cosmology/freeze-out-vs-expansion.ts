@@ -70,6 +70,7 @@ function reactionHistory(growthK: number): {
   const mesh = squareMesh({ side: SIDE })
   const opposite = meshOpposites(mesh)
   const gas = headOnRotate({ opposite })
+
   let events = 0
 
   const counting: Collision = (slots, base, degree) => {
@@ -86,7 +87,9 @@ function reactionHistory(growthK: number): {
   }
 
   let will: Will = seededCloud()
+
   const windows: number[] = []
+
   let last = 0
 
   for (let t = 0; t < BEATS; t++) {

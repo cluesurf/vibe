@@ -38,6 +38,7 @@ function grownState(input: { k: number; beats: number }): {
 } {
   const mesh = squareMesh({ side: SIDE })
   const rule = pairCollision({ opposite: meshOpposites(mesh) })
+
   let will: Will = makeWill(mesh)
 
   for (let t = 0; t < input.beats; t++) {
@@ -48,6 +49,7 @@ function grownState(input: { k: number; beats: number }): {
   }
 
   const phases: number[] = []
+
   let worst = 1
   let mean = 0
 

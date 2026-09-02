@@ -68,6 +68,7 @@ function averagedSpectrum(input: {
 }): number[] {
   const mesh = input.start.mesh
   const rule = headOnRotate({ opposite: meshOpposites(mesh) })
+
   let will: Will = { mesh, data: Int8Array.from(input.start.data) }
 
   for (let t = 0; t < input.settle; t++) {

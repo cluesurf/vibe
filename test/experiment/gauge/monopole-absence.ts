@@ -48,6 +48,7 @@ function worstDivergence(input: {
   field: Float64Array
 }): number {
   const { side, field } = input
+
   let worst = 0
 
   for (let x = 0; x < side; x++) {

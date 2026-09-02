@@ -92,6 +92,7 @@ function fieldMinEig(input: { snapshots: number[][] }): number {
     ) {
       const a = snapshots[t]!
       const b = snapshots[t + tau]!
+
       let dot = 0
 
       for (let i = 0; i < a.length; i++) {
@@ -124,6 +125,7 @@ function snapshotSeries(input: {
     mesh: input.start.mesh,
     data: Int8Array.from(input.start.data),
   }
+
   const out: number[][] = []
 
   for (let t = 0; t < BEATS; t++) {
@@ -152,6 +154,7 @@ function wakeSupportSeries(): number[] {
   }
 
   const mid = Math.floor(side / 2)
+
   let seedCell = 0
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
@@ -168,6 +171,7 @@ function wakeSupportSeries(): number[] {
 
   let vacuum: Will = makeWill(mesh)
   let seeded: Will = makeWill(mesh)
+
   const series: number[] = []
 
   for (let t = 0; t < 33; t++) {
