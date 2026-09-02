@@ -131,7 +131,11 @@ function tableCollision(
   }
 }
 
-// The committed 9-state pair table on every opposite pair. Pass forward: false for
+// The PREVIOUS committed knit (until 2026-09-02): the 9-state pair table on every opposite
+// pair. Superseded as the committed base rule by lineWeave, which contains this table as its
+// clock sector (five of six couples run exactly this), so every canon result measured on this
+// rule remains a statement about the clock sector of the committed knit. Kept exported as that
+// sector's table and as the machinery of the canon experiments. Pass forward: false for
 // the inverse, which the engine streams through inverseBeat to run time backward.
 export function pairCollision(input: {
   opposite: number[]
@@ -382,7 +386,8 @@ export function lineHop(input: {
   }
 }
 
-// The PROPOSED palindrome traveller knit, the CPT repair of lineHop (2026-09-02). Same one swap
+// A superseded candidate (the CPT repair of lineHop, 2026-09-02), kept for its experiments.
+// The committed form is lineWeave, which keeps the palindromic swap on one couple only. Same one swap
 // clause and the committed 9-state table on wires, but applied as a PALINDROME per beat: swap,
 // clock, swap. The swap is charge-even and an involution, and negating tones conjugates the clock
 // table to its inverse, so negation conjugates the whole collision to its own inverse: combined
@@ -447,6 +452,98 @@ export function linePalindrome(input: {
       swap()
       clock()
       swap()
+    }
+  }
+}
+
+// THE COMMITTED KNIT (adopted 2026-09-02): the weave. The 12 lines pair into 6 couples by the
+// overlap-balanced table (each of the six planes contributes exactly one wire and one matter
+// line, so every axis lies in exactly three wire planes and no direction is preferred, and every
+// couple's matter and wire planes share an axis, so every potential species is detectable). The
+// first couple is palindromic (swap, clock, swap), the matter sector; the other five run the
+// committed clock alone, the medium. Adopted by the user after the acceptance programme
+// (E-FND-0102 through E-FND-0111): the unique setting whose domain walls stay exactly periodic
+// (quantized in whole cross-sectional sheets, quantum six times side cubed, period twelve at two
+// sizes), carrying the speed-one traveller with exact superposition, the wire-polarization law,
+// unit phase kicks, exact CPT with C and CP violated, exact two-path interference, and the
+// dressed-quasiparticle picture in the dense-tiling vacuum. On meshes with fewer than twelve
+// lines the couples fall back to consecutive pairing with the same one-swap structure.
+export function lineWeave(input: {
+  opposite: number[]
+  forward?: boolean
+}): Collision {
+  const forward = input.forward ?? true
+  const lines: [number, number][] = []
+
+  for (let d = 0; d < input.opposite.length; d++) {
+    const o = input.opposite[d]!
+
+    if (d < o) {
+      lines.push([d, o])
+    }
+  }
+
+  const OVERLAP_BALANCED: [number, number][] = [
+    [0, 3],
+    [2, 5],
+    [4, 1],
+    [6, 9],
+    [8, 11],
+    [10, 7],
+  ]
+  const couples: [[number, number], [number, number]][] = []
+
+  if (lines.length >= 12) {
+    for (const [m, w] of OVERLAP_BALANCED) {
+      couples.push([lines[m]!, lines[w]!])
+    }
+  } else {
+    for (let k = 0; k + 1 < lines.length; k += 2) {
+      couples.push([lines[k]!, lines[k + 1]!])
+    }
+  }
+
+  const table = forward ? PAIR_FORWARD : PAIR_INVERSE
+  const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
+  const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
+
+  return (slots, base) => {
+    for (let k = 0; k < couples.length; k++) {
+      const [line, wire] = couples[k]!
+
+      const swap = (): void => {
+        const a0 = (slots[base + line[0]] ?? 0) as Tone
+        const a1 = (slots[base + line[1]] ?? 0) as Tone
+        const w0 = (slots[base + wire[0]] ?? 0) as Tone
+        const w1 = (slots[base + wire[1]] ?? 0) as Tone
+
+        if (
+          (loneAway(a0, a1) && empty(w0, w1)) ||
+          (loneAway(w0, w1) && empty(a0, a1))
+        ) {
+          slots[base + line[0]] = w0
+          slots[base + line[1]] = w1
+          slots[base + wire[0]] = a0
+          slots[base + wire[1]] = a1
+        }
+      }
+
+      const clock = (): void => {
+        const a = (slots[base + wire[0]] ?? 0) as Tone
+        const b = (slots[base + wire[1]] ?? 0) as Tone
+        const image = table[pairKey(a, b)]!
+
+        slots[base + wire[0]] = image[0]
+        slots[base + wire[1]] = image[1]
+      }
+
+      if (k === 0) {
+        swap()
+        clock()
+        swap()
+      } else {
+        clock()
+      }
     }
   }
 }
