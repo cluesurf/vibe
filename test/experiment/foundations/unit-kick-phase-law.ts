@@ -66,6 +66,7 @@ function study(input: {
   const coordinate = (c: number, a: number): number =>
     Math.floor(c / SIDE ** a) % SIDE
   const mid = Math.floor(SIDE / 2)
+
   let seedCell = 0
 
   for (let c = 0; c < mesh.cellCount; c++) {
@@ -90,7 +91,9 @@ function study(input: {
 
   let vacuum: Will = makeWill(mesh)
   let seeded: Will = makeWill(mesh)
+
   const phases = new Set<number>()
+
   let maxSupport = 0
 
   for (let t = 0; t < input.beats; t++) {

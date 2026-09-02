@@ -93,8 +93,8 @@ edit it by hand). The experiment codes resolve in
 | observation | | note |
 | :--- | :--- | :--- |
 | **quantum** | | |
-| quantum amplitude at the base | ⛔ | The cross-plane palindrome supplies the traveller, CPT, wake-free transmission AND selective detection in one knit (the wire-polarization law), leaving in-flight phase rotation as the single missing ingredient. |
-| | | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0093`](test/experiment/foundations/sixth-thing-search.ts), [`E-FND-0095`](test/experiment/foundations/traveller-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts) |
+| quantum amplitude at the base | ⛔ | The discrete kinematics is complete (motion, superposition, intrinsic phase, unit kicks, polarization, CPT, exact two-path interference), the continuum factor is provably coarse, and what remains is the derivation bridge plus the adoption decision. |
+| | | [`E-FND-0107`](test/experiment/foundations/two-path-interference.ts), [`E-FND-0106`](test/experiment/foundations/unit-kick-phase-law.ts), [`E-FND-0105`](test/experiment/foundations/wire-polarization-law.ts), [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0103`](test/experiment/foundations/palindrome-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts) |
 | Born rule | ✅ | Counting weights at the domain wall give the Born statistics. |
 | | | [`E-QTM-0012`](test/experiment/quantum/envariance-born.ts), [`E-QTM-0091`](test/experiment/quantum/collapse-is-not-the-weight.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts) |
 | entanglement and Bell | ✅ | Bell violation is reproduced on the model walk. |
