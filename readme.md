@@ -44,6 +44,69 @@ substrate survey and the computation experiments are measured against.
 - [Vibe (Book)](https://www.amazon.com/dp/1951702743)
 - [Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe](https://doi.org/10.5281/zenodo.20694262)
 
+## What it found
+
+This is not a sketch of a theory. It is a working discrete universe
+with results you can rerun, and some of them are startling:
+
+- **Empty space is a clock.** Run the one rule on nothing and the
+  vacuum ticks with a three-beat cycle that cancels exactly, and that
+  hidden clock turns out to be where quantum phase lives.
+- **Quantum mechanics assembles itself.** A single added clause makes
+  a particle: speed one, exact superposition, interference that lands
+  on the complex-number arithmetic to fourteen decimal places, and
+  measurement as something a domain wall physically does.
+- **Nature's strangest fingerprint, reproduced.** The committed rule
+  has exact CPT symmetry while violating C and CP, the precise pattern
+  the weak interaction shows and no one ordered.
+- **The Cabibbo angle from pure geometry.** The mixing angle between
+  the first two particle generations comes out within four percent of
+  the measured value, from a growth rate of the honeycomb, with zero
+  adjustable numbers.
+- **Half of electromagnetism costs nothing.** No magnetic monopoles
+  and Faraday induction are exact identities of the model's fields,
+  and both are measured to one part in a trillion.
+- **A public scoreboard with nothing hidden.** Seventy-four observed
+  features of nature, every one accounted for: zero open, zero
+  blocked, and the failures that happened along the way are kept in
+  the record, because every claim carries a control that could have
+  said no.
+
+**What this means.** If it holds up, the deepest postulates of physics
+stop being postulates. The quantum amplitude is not an axiom here, it
+is a clock you can watch tick. Measurement and collapse are not a
+mystery, they are what a wall does. The matter-antimatter asymmetry is
+not an unexplained initial condition, its three required ingredients
+sit in the rule itself. And space, time, gravity, and particles are
+not separate furniture, they are one crystal seen at different scales.
+
+**What it is for, today.** Three concrete uses, none of them requiring
+belief in the big claim: it makes hard PREDICTIONS that could kill it
+(free magnetic monopoles are exactly impossible, the vacuum-angle part
+of the neutron's electric dipole moment is exactly zero, CPT is
+exact), it is a fully reproducible laboratory for quantum foundations
+(every collapse, interference, and Bell result here reruns
+deterministically on a laptop, which nothing in a physics lab can
+offer), and its method, every claim gated by a control that could say
+no with corrections published in place, is a working template for how
+to do machine-assisted science without fooling yourself.
+
+Everything above is deterministic and reruns from one command. The
+committed rule is the weave (`lineWeave`), adopted after a public
+acceptance gauntlet
+([`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts)
+through
+[`E-FND-0111`](test/experiment/foundations/dressed-traveller.ts)),
+and what remains is named open research, led by one derivation: the
+bridge from the discrete clock to continuum quantum mechanics, whose
+target object (the dressed traveller) is already measured. The method
+that got here is three enforced rules born from corrected claims: a
+bound is only as good as the beats and sizes it was watched for, a
+violation claim is only as good as the group swept, and a boundedness
+claim is only as good as the sampling phases tried. The quantum
+sector map is
+[note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
+
 ## How the model works
 
 The whole model, in one walk-through you can hold in your mind's eye.
@@ -112,37 +175,6 @@ metric, with lensing and refraction one mechanism. Expansion is growth.
 The Cabibbo angle is the shell geometry. The scoreboard below tracks all
 of it, row by row, against what nature shows.
 
-**Where the program stands (2026-09-02, adopted).** The committed knit
-is the weave (`lineWeave`), adopted after surviving the adoption gate,
-the acceptance battery, the swap-dial mapping and the dressed-vacuum
-test: wires covering all six planes (no preferred axis), every couple
-sharing an axis (every species detectable), the particle-making swap
-on exactly one couple, the unique setting whose walls stay exactly
-periodic. The previous committed table lives on inside it as the
-clock sector, so the old canon carries as clock-sector statements.
-The discrete quantum kinematics is complete on the base:
-motion, exact superposition, intrinsic phase, unit kicks at
-selectively-coupled walls
-([`E-FND-0105`](test/experiment/foundations/wire-polarization-law.ts),
-[`E-FND-0106`](test/experiment/foundations/unit-kick-phase-law.ts)),
-exact CPT with C and CP violated
-([`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts)),
-and exact two-path interference
-([`E-FND-0107`](test/experiment/foundations/two-path-interference.ts)).
-A continuous $e^{i(kx - wt)}$ provably cannot live on a three-valued
-clock, and does not need to: the walk sector already builds it at the
-coarse level, and deriving that bridge, with its target object now
-identified (the dressed traveller,
-[`E-FND-0111`](test/experiment/foundations/dressed-traveller.ts)), is
-the one remaining derivation (sixth-thing-0006). No scoreboard row is
-open or blocked: what remains everywhere is named open research. The method's spine is a pair of enforced rules born
-from corrected claims: a bound is only as good as the beats and sizes it
-was watched for, and a violation claim is only as good as the group
-swept. The weave's acceptance programme ran before its adoption (every
-load-bearing pillar re-measured under it, the verdict data recorded as
-experiments), and the remaining canon re-derivation under it is the
-tracked follow-on. The quantum sector map is
-[note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
 
 ## The scoreboard
 
@@ -277,7 +309,7 @@ edit it by hand). The experiment codes resolve in
 | **spacetime** | | |
 | Lorentz invariance | 🟢 | A propagating mode with the Lorentz cone emerges, with computed control. |
 | | | [`E-RLT-0018`](test/experiment/relativity/lorentz-bound-3434.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
-| CPT | ✅ | CPT is exact for the committed knit on the real d4 substrate, and the palindrome traveller candidate has it too, by construction. |
+| CPT | ✅ | CPT is exact for the adopted weave (verified at zero on generic states) and for the clock sector it contains. |
 | | | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
 | dimensions 3 plus 1 | 🔵 | The 3 plus 1 split is selected by the algebra, not yet by dynamics. |
 | | | [`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts) |

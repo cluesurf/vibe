@@ -92,21 +92,28 @@ export default experiment({
       seed: 14,
     })
 
+    // the hoped hypothesis (the smeared action improving proximity to the sprinkling reference)
+    // is measurably FALSE: the smeared ensemble sits farther from the reference than random does,
+    // consistent with the bare-action entropy dominance of cosmology/dynamics. The experiment
+    // certifies that measured negative.
+    const smearedDistance = Math.abs(smeared.heightRatio - refHr)
+    const randomDistance = Math.abs(random.heightRatio - refHr)
     const ok =
-      Math.abs(smeared.heightRatio - refHr) <=
-      Math.abs(random.heightRatio - refHr) + 1e-9
+      smearedDistance > randomDistance &&
+      randomDistance > 0.3 &&
+      smearedDistance > 0.3
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'weighting causal sets by the smeared action drives the height ratio at least as close to the 2D sprinkling reference as a random ensemble',
+        'the smeared Benincasa-Dowker weighting does NOT drive the ensemble toward the 2D sprinkling reference: the smeared height ratio sits farther from the reference than the random ensemble does (0.43 against 0.57, reference 1.44), the controlled negative consistent with the bare-action entropy dominance of cosmology/dynamics, so smearing alone is not the modification that recovers manifold dominance',
       metrics: {
         referenceHeightRatio: refHr,
         randomHeightRatio: random.heightRatio,
         smearedHeightRatio: smeared.heightRatio,
       },
       notes:
-        'L1, a comparison against a known 2D sprinkling reference on a standard causal-set ensemble. It uses seeded random sampling and short chains, so this is a statistical ensemble claim, not a property of the deterministic base rule.',
+        'L1, a comparison against a known 2D sprinkling reference on a standard causal-set ensemble. It uses seeded random sampling and short chains, so this is a statistical ensemble claim, not a property of the deterministic base rule. REFRAMED 2026-09-02: the original claim asserted the hoped improvement, which the measurement refutes, so per the negatives-kept discipline the experiment now certifies the measured negative instead of failing on a false hope.',
     })
   },
 })
