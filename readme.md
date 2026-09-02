@@ -111,7 +111,7 @@ exact CPT with C and CP violated
 ([`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts)),
 and exact two-path interference
 ([`E-FND-0107`](test/experiment/foundations/two-path-interference.ts)).
-A continuous e^{i(kx - wt)} provably cannot live on a three-valued
+A continuous $e^{i(kx - wt)}$ provably cannot live on a three-valued
 clock, and does not need to: the walk sector already builds it at the
 coarse level, and deriving that bridge is the named next step
 (sixth-thing-0006). The method's spine is a pair of enforced rules born
