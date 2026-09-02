@@ -59,15 +59,19 @@ frontier is one sentence: a reversible conserving law that moves
 density along clock-phase gradients while preserving the defect's
 magnitude, and the first candidate is built and fails exactly
 ([`E-FND-0092`](test/experiment/foundations/clock-coupled-swap-addition.ts)).
-And the frontier moved on 2026-09-01: a one-clause extension of the
-committed table, the PROPOSED traveller knit
+And the frontier moved twice on 2026-09-01: a one-clause extension of
+the committed table, the PROPOSED traveller knit
 ([`lineHop`](code/rule/collision.ts), measured by
 [`E-FND-0095`](test/experiment/foundations/traveller-knit.ts)), yields a
 speed-one single-slot particle at exactly the defect magnitude at every
-beat, superposing exactly, transmitted through clock-offset domains
-with its phase rotated and amplified by the measuring walls, so every
-element of quantum kinematics now exists in the programme pending the
-knit's formal adoption. The map of what the quantum sector covers, at
+beat, superposing exactly and amplified by the measuring walls. Then the
+window was widened
+([`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts))
+and the transmission half was corrected: the offset-domain crossing is
+exactly transparent on the first pass (no phase rotation) and plants a
+delayed wake that erupts at a geometry-dependent beat, so lineHop
+supplies free flight, superposition, the husk split and detection, and
+the wake-free transmitting knit is still unfound. The map of what the quantum sector covers, at
 which depth and on what object, is
 [note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
 
@@ -83,18 +87,18 @@ by hand). The experiment codes resolve in
 
 | mark | meaning | count |
 | :--- | :--- | :--- |
-| 🟢 | emergent from the rule | 3 |
-| ✅ | reproduced on the model | 30 |
-| 🔵 | structure derived, dynamics open | 12 |
+| 🟢 | emergent from the rule | 4 |
+| ✅ | reproduced on the model | 37 |
+| 🔵 | structure derived, dynamics open | 14 |
 | 📌 | free input, not predicted | 1 |
-| ❌ | open | 9 |
+| ❌ | open | 14 |
 | ⛔ | blocked on a base decision | 3 |
 
 | observation | | note |
 | :--- | :--- | :--- |
 | **quantum** | | |
-| quantum amplitude at the base | ⛔ | The traveller knit supplies motion, phase and detection, adopting it is a pending base decision. |
-| | | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0093`](test/experiment/foundations/sixth-thing-search.ts), [`E-FND-0095`](test/experiment/foundations/traveller-knit.ts) |
+| quantum amplitude at the base | ⛔ | The traveller knit gives free flight, superposition and detection, but its domain crossing turned out transparent-then-wake, so transmission-with-rotation is still unfound. |
+| | | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0093`](test/experiment/foundations/sixth-thing-search.ts), [`E-FND-0095`](test/experiment/foundations/traveller-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts) |
 | Born rule | ✅ | Counting weights at the domain wall give the Born statistics. |
 | | | [`E-QTM-0012`](test/experiment/quantum/envariance-born.ts), [`E-QTM-0091`](test/experiment/quantum/collapse-is-not-the-weight.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts) |
 | entanglement and Bell | ✅ | Bell violation is reproduced on the model walk. |
@@ -107,6 +111,14 @@ by hand). The experiment codes resolve in
 | | | [`E-QTM-0018`](test/experiment/quantum/path-integral.ts) |
 | quantum error correction | ✅ | The clock code protects the phase and corrects single errors. |
 | | | [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-QTM-0095`](test/experiment/quantum/qutrit-toric-code-from-the-mesh.ts), [`E-QTM-0055`](test/experiment/quantum/conservation-as-stabilizer.ts) |
+| double slit interference | ✅ | Two-path interference with the cosine cross term holds on the model, in the walk and in the domain clock. |
+| | | [`E-QTM-0018`](test/experiment/quantum/path-integral.ts), [`E-FND-0085`](test/experiment/foundations/birth-beat-interference.ts), [`E-FLD-0014`](test/experiment/fluids/sound-superposition-interference.ts) |
+| quantum tunneling | ✅ | The exponential tunneling law and Klein tunneling hold on the walk. |
+| | | [`E-QTM-0056`](test/experiment/quantum/tunneling-law.ts), [`E-QTM-0073`](test/experiment/quantum/klein-tunneling.ts) |
+| uncertainty principle | 🔵 | The position-momentum bound is confirmed as the Fourier identity on the lattice. |
+| | | [`E-QTM-0059`](test/experiment/quantum/uncertainty-principle.ts) |
+| casimir effect | ✅ | Two boundaries in the model vacuum attract by mode exclusion. |
+| | | [`E-SLF-0018`](test/experiment/selves/casimir-vacuum-attraction.ts), [`E-SLF-0017`](test/experiment/selves/casimir-capture-mobile.ts) |
 | **gauge** | | |
 | gauge group SU(3) SU(2) U(1) | 🔵 | The group and its embedding fall out of the octonions on the 24-cell, exactly. |
 | | | [`E-FND-0021`](test/experiment/foundations/gauge-group-from-octonions.ts), [`E-FRC-0022`](test/experiment/gauge/gauge-embedding.ts), [`E-FRC-0025`](test/experiment/gauge/gauge-from-coin-tone.ts) |
@@ -144,6 +156,7 @@ by hand). The experiment codes resolve in
 | | | [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts) |
 | refraction and dielectrics | ✅ | Snell and total internal reflection hold on the clock-rate step to a hundredth of a degree. |
 | | | [`E-FRC-0074`](test/experiment/gauge/snell-refraction.ts) |
+| magnetic monopole absence | ❌ | No free monopole has ever been seen, and the model has no posed statement either way. |
 | **matter** | | |
 | spinors and the double cover | 🔵 | The binary tetrahedral double cover lives in the 24 directions, exactly. |
 | | | [`E-SPN-0029`](test/experiment/spin/rotation-2pi.ts), [`E-SPN-0042`](test/experiment/spin/spinor-double-cover.ts), [`E-SPN-0031`](test/experiment/spin/sp1-spin-double-cover.ts) |
@@ -167,6 +180,19 @@ by hand). The experiment codes resolve in
 | | | [`E-FRC-0075`](test/experiment/gauge/ckm-from-shell-overlap.ts), [`E-FRC-0070`](test/experiment/gauge/mixing-angles-not-geometric.ts), [`E-FRC-0020`](test/experiment/gauge/flavor-mixing-pattern.ts), [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts) |
 | neutrino masses and seesaw | ✅ | The seesaw structure is reproduced on the model. |
 | | | [`E-FRC-0037`](test/experiment/gauge/neutrino-seesaw.ts), [`E-FRC-0035`](test/experiment/gauge/neutrino-mass-ladder.ts) |
+| hydrogen spectrum and atomic structure | ✅ | The hydrogen level structure comes out on the model Coulomb problem. |
+| | | [`E-SPN-0018`](test/experiment/spin/hydrogen-spectrum.ts) |
+| periodic table shell structure | 🔵 | Exclusion plus the level structure give the shell filling, chemistry itself is unposed. |
+| | | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-SPN-0018`](test/experiment/spin/hydrogen-spectrum.ts) |
+| nuclear binding and stability | ✅ | The binding-energy curve and the valley of stability follow the Bethe-Weizsacker form. |
+| | | [`E-SPN-0024`](test/experiment/spin/nuclear-binding-curve.ts) |
+| neutrino oscillations | ✅ | Flavor oscillation with the TM2 pattern is reproduced on the model. |
+| | | [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts) |
+| CP violation | ❌ | The CP phases stay free, no CP-violating dynamics has been measured on the model. |
+| | | [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts) |
+| superfluidity | ✅ | The gas shows the superfluid signatures, no wavelength-independent damping among them. |
+| | | [`E-FLD-0007`](test/experiment/fluids/superfluid-signatures.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts) |
+| superconductivity and quantum hall | ❌ | Superconductivity and the quantized Hall plateaus are unposed. |
 | **higgs** | | |
 | Higgs doublet and custodial symmetry | 🔵 | The doublet and the custodial symmetry exist as algebra. |
 | | | [`E-FND-0027`](test/experiment/foundations/higgs-from-octonions.ts) |
@@ -209,9 +235,14 @@ by hand). The experiment codes resolve in
 | | | [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts) |
 | inflation and flatness | ✅ | Growth gives flatness and a horizon without a tuned inflaton. |
 | | | [`E-CSM-0028`](test/experiment/cosmology/inflation.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts), [`E-CSM-0046`](test/experiment/cosmology/plateau-inflation-tensor.ts), [`E-CSM-0049`](test/experiment/cosmology/horosphere-flatness.ts) |
+| Hubble expansion and redshift | 🟢 | Growth gives expansion and redshift from the rule with computed control. |
+| | | [`E-CSM-0027`](test/experiment/cosmology/growth-expansion.ts), [`E-CSM-0019`](test/experiment/cosmology/expansion.ts), [`E-CSM-0020`](test/experiment/cosmology/expansion-rate.ts) |
+| large scale structure formation | ❌ | The matter power spectrum and galaxy clustering are not yet computed. |
+| | | [`E-CSM-0002`](test/experiment/cosmology/attractor-signature.ts) |
 | **thermodynamics** | | |
 | second law thermalization | ✅ | Coarse entropy climbs to near maximum while the microstate stays exactly reversible. |
 | | | [`E-FLD-0016`](test/experiment/fluids/second-law-coarse-entropy.ts) |
+| blackbody planck spectrum | ❌ | The Planck spectrum of thermal light is unposed on the model. |
 | **inputs** | | |
 | absolute masses and couplings | 📌 | The absolute scales are inputs, as in every framework. |
 | | | [`E-FRC-0067`](test/experiment/gauge/absolute-yukawa-not-a-ladder.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts) |

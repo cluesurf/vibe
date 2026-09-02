@@ -95,7 +95,7 @@ export default experiment({
       // CONTROL: the flat index field leaves the ray's angle untouched
       control: {
         flatControlBendDegrees: Number(controlBend.toExponential(2)),
-        flatControlCrossed: flat.crossed,
+        flatControlCrossed: flat.crossed ? 1 : 0,
       },
       notes:
         'the index field is the posited clock-rate reading (as in the lensing experiments), and the eikonal integrator knows only the gradient law, so the sine ratio and the critical angle are measured consequences, not inputs. The gas-native version (a sound pulse crossing a density domain) is the L3 follow-up.',

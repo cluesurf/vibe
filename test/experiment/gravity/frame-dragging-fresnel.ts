@@ -95,7 +95,7 @@ export default experiment({
       // CONTROL: the static well, the asymmetry identically zero and the reversal exactly odd
       control: {
         staticAsymmetry: still,
-        reversalOdd: reversed === -once,
+        reversalOdd: reversed === -once ? 1 : 0,
       },
       notes:
         'the Fresnel coefficient 1 - 1/n^2 is the standing moving-medium result (Fizeau), and the flow profile (rigid core, 1/r tail) is the stated model of the rotating source. The base-dynamics version (a rotating defect cluster dragging the traveller knit) is the L3 follow-up once the knit is adopted.',

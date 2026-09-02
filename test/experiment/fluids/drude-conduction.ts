@@ -113,7 +113,9 @@ function drudeGamma(input: { side: number; fraction: number }): {
   }
 
   let w: Will = { mesh, data: Int8Array.from(will.data) }
+
   const initial = currentX(w)
+
   let held = 0
   let atFit = initial
 

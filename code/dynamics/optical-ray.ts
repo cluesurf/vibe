@@ -94,9 +94,9 @@ export function boundaryRefraction(input: {
   }
 
   let x = -halfWidth
-  let y = 0
   let tx = Math.cos(incidence)
   let ty = Math.sin(incidence)
+
   // near the critical angle the crossing ray grazes nearly parallel to the boundary, so the path
   // budget must be generous or a slow crosser is miscounted as reflected
   const maxSteps = Math.ceil((80 * halfWidth) / ds)
@@ -114,7 +114,6 @@ export function boundaryRefraction(input: {
     tx /= norm
     ty /= norm
     x += tx * ds
-    y += ty * ds
 
     if (x > halfWidth || x < -3 * halfWidth) {
       break

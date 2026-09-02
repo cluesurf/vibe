@@ -72,9 +72,12 @@ function entropyRun(input: { side: number; collision: Collision }): {
   // beats scale with the box: the spread is ballistic, so crossing time grows with the side
   const BEATS = Math.round(2.5 * side)
   const start = orderedStart(side)
+
   let will: Will = { mesh: start.mesh, data: Int8Array.from(start.data) }
   let previous = coarseEntropy(will)
+
   const initial = previous
+
   let drops = 0
   let peak = previous
 
@@ -137,6 +140,7 @@ export default experiment({
     // so the rule is exactly reversible but transport-free: each tone oscillates between two adjacent
     // cells forever. If the entropy rise were an artifact of the coarse measure, it would rise here too.
     const controlOpposite = meshOpposites(squareMesh({ side: 48 }))
+
     const bounce: Collision = (slots, base, degree) => {
       for (let d = 0; d < degree; d++) {
         const o = controlOpposite[d]!
@@ -149,6 +153,7 @@ export default experiment({
         }
       }
     }
+
     const control = entropyRun({ side: 48, collision: bounce })
 
     const risesEverywhere = runs.every(
