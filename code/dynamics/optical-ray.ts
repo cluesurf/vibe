@@ -123,3 +123,83 @@ export function boundaryRefraction(input: {
 
   return { crossed: x > halfWidth, outgoing: Math.atan2(ty, tx) }
 }
+
+// The rotating well, the frame-dragging analog. The clock-rate well n(r) now ROTATES: the medium
+// moves azimuthally with speed spin * r inside the core radius and spin * core^2 / r outside (the
+// rigid core with the irrotational tail, the analog of a spinning mass's exterior). A ray in a
+// moving medium is carried by the flow with the Fresnel drag coefficient (1 - 1/n^2), the
+// first-order velocity addition, so a prograde ray and a retrograde ray at the same impact
+// parameter deflect by different amounts, the Lense-Thirring asymmetry. With spin zero this
+// reduces exactly to refractiveDeflection.
+export function draggedDeflection(input: {
+  impactParameter: number
+  strength: number
+  spin: number
+  core?: number
+  soft?: number
+  halfWidth?: number
+  step?: number
+}): number {
+  const soft = input.soft ?? 0.5
+  const core = input.core ?? 4
+  const halfWidth = input.halfWidth ?? 200
+  const ds = input.step ?? 0.01
+  const k = input.strength
+  const spin = input.spin
+
+  let x = -halfWidth
+  let y = input.impactParameter
+  let tx = 1
+  let ty = 0
+
+  const index = (px: number, py: number): number =>
+    1 + k / Math.sqrt(px * px + py * py + soft * soft)
+
+  const gradient = (px: number, py: number): [number, number] => {
+    const r2 = px * px + py * py + soft * soft
+    const f = -k / (r2 * Math.sqrt(r2))
+
+    return [f * px, f * py]
+  }
+
+  // the azimuthal flow, rigid inside the core, falling as 1/r outside
+  const flow = (px: number, py: number): [number, number] => {
+    const r = Math.hypot(px, py)
+    const speed = r <= core ? spin * r : (spin * core * core) / r
+
+    if (r === 0) {
+      return [0, 0]
+    }
+
+    return [(-py / r) * speed, (px / r) * speed]
+  }
+
+  const maxSteps = Math.ceil((4 * halfWidth) / ds)
+
+  for (let s = 0; s < maxSteps; s++) {
+    const n = index(x, y)
+    const [gx, gy] = gradient(x, y)
+    const gdotT = gx * tx + gy * ty
+
+    tx += ((gx - gdotT * tx) / n) * ds
+    ty += ((gy - gdotT * ty) / n) * ds
+
+    const norm = Math.hypot(tx, ty)
+
+    tx /= norm
+    ty /= norm
+
+    // the Fresnel drag: the flow carries the ray with coefficient 1 - 1/n^2
+    const [ux, uy] = flow(x, y)
+    const drag = 1 - 1 / (n * n)
+
+    x += (tx + drag * ux) * ds
+    y += (ty + drag * uy) * ds
+
+    if (x > halfWidth) {
+      break
+    }
+  }
+
+  return Math.atan2(ty, tx)
+}
