@@ -1,77 +1,73 @@
-# The coarse bridge: the Born mechanism measured, and the frontier experiments
+# The dispersion programme: mass from flip counting, and a falsification executed
 
 ## Summary
 
-Eight new experiments and two external-facing documents on the
-adopted rule, opening and substantially closing the coarse-bridge
-programme: the Born mechanism now exists in the model as measured
-machinery (a phase-blind number-operator detector, a phase-to-number
-port, an exactly linear port law), single-particle randomness is
-located (deterministic per vacuum phase, distributed over the
-ensemble), the kick generator is charge-signed, and the 24-species
-speed spectrum is a mass hierarchy.
+Eight experiments (E-FND-0131 through E-FND-0138), all passing,
+telling one complete arc on the adopted rule: the spectral function
+has interacting-field-theory structure, velocity is an exact
+telegraph process (always exactly plus or minus light speed, only
+the direction flips), Kac's theorem turns mass into flip counting
+with the kick-law hbar as the constant, the full mass table shows
+the exact charge-conjugate equality CPT demands, a joint
+Kac-times-warp account of the charged-lepton hierarchy was proposed
+with a pre-committed falsifier, dynamical localization in a
+growth-written warp was measured, and the exact instrument
+(unwrapped integration, wrap artifacts impossible by construction)
+then EXECUTED the falsifier: the converged band (1.29) sits
+decisively below the required 1.756, the lepton account is dead by
+its own number, and what survives is sharper than before
+(masslessness exact at zero flips, CPT equality exact on a third
+instrument, the interacting bare mass near-universal).
 
 ## What changed
 
-- foundations/born-discriminator (E-FND-0123): the detector is
-  exactly phase-blind. PASSES.
-- foundations/number-operator-law (E-FND-0124): detection exactly
-  linear in number at every occupancy. PASSES.
-- foundations/port-conversion (E-FND-0125): the projective wall
-  splits dressed-packet number by prepared phase, charge
-  asymmetrically, null and translation controls exact. PASSES.
-- foundations/linear-port-law (E-FND-0126): every packet composition
-  transmits exactly the per-quantum linear sum. PASSES.
-- foundations/born-ensemble (E-FND-0127): outcomes deterministic per
-  preparation phase, distributed over the schedule ensemble, pinned
-  regression values, determinism rerun exact. PASSES.
-- foundations/charge-signed-kick (E-FND-0128): the same wall kicks
-  particle and antiparticle by opposite units. PASSES.
-- foundations/speed-spectrum (E-FND-0129): three exact massless,
-  four exact at rest, seventeen interior species. PASSES.
-- foundations/rest-spectra (E-FND-0130): the breather ladder
-  survives the adopted rule, two of the four at-rest species exact
-  E equals one half ladder states with machine-zero off-ladder
-  power, two broadband as the control. PASSES.
-- note/open/coarse-bridge.md: the programme note, including the
-  window-artifact correction the port measurement survived.
-- note/open/counting-signature-search.md: the quantum-hardware
-  discriminator, prescription for outside analysts.
-- note/open/graphene-registered-prediction.md: the full thread,
-  registered before comparison, compared against Sulpizio et al.
-  Nature 576, 75 (2019) with directional agreement on their central
-  unexplained excess-curvature observation, then refit
-  like-for-like under their protocol: kappa 1.16, fifteen percent
-  above ideal, stable across resolved widths, with the
-  falsification condition stated.
-- task/: four permanent scripts (born-ensemble-sweep,
-  port-conversion-probe, port-composition-sweep,
-  poiseuille-width-sweep).
+- foundations/spectral-function (E-FND-0131): pole plus continuum. PASSES.
+- foundations/zitterbewegung-mass (E-FND-0132): bare content on the
+  cone, composite slower. PASSES.
+- foundations/zitterbewegung-cycle (E-FND-0133): every front step
+  exactly one light-step, only direction flips. PASSES.
+- foundations/kac-telegraph-mass (E-FND-0134): mass = hbar gamma
+  over c squared, first numerical masses. PASSES.
+- foundations/kac-mass-table (E-FND-0135): the full table, with the
+  precision update recorded in its notes (line degeneracy physical,
+  mirror pairing was statistics). PASSES.
+- foundations/joint-mass-factorization (E-FND-0136): the lepton
+  factorization with its falsifier, now carrying the status update
+  that the falsifier fired. PASSES (as frozen arithmetic).
+- foundations/warp-localization (E-FND-0137): species-specific
+  settling in the growth warp, geometry-scoped. PASSES.
+- foundations/exact-telegraph-table (E-FND-0138): the converged
+  verdicts, including the executed falsification. PASSES.
+- note/open/dispersion.md: the complete arc, including the
+  D-B-C-A-E option chain for the depth question (Koide circularity
+  documented, swap-carry three-octet flavor partition found, the
+  settling physics, the coarse-graining null).
+- readme.md: three new hits (the measurement rule taken apart, mass
+  as a countable flip rate, and the falsification story), and the
+  open-research paragraph updated.
+- task/: fourteen permanent probes.
 
 ## How it was tested
 
-Each experiment run individually via tmp/verdicts.ts, all passing,
+Every experiment run individually via tmp/verdicts.ts, all passing,
 typecheck clean. The full suite was NOT rerun on this branch (the
-fast-iteration rule): the previous branch's suite ran fully green
-(872 pass, 0 fail, 0 crash) on the same adopted rule, and these
-seven experiments are additive.
+fast-iteration rule): these experiments are additive on the adopted
+rule the previous branches verified green at 872.
 
 ## Honest status
 
-- The Z three closure of the gauge algebra is open behind three
-  MEASURED obstructions (mutual domain reshaping, configuration
-  -global kick regimes, self-wake dressing of the Wilson loop),
-  recorded in E-FND-0128's scope.
-- The exact ensemble charge balance (32 equals 32) is measured-once
-  at a marginal window and held open, not claimed.
-- The speed spectrum's values are coarse effective speeds, pinned as
-  regression values, not continuum masses.
-- The graphene prediction is registered and uncompared.
+- The E-FND-0136 lepton account is falsified at converged precision
+  and says so in its own notes. The pinned side-seventeen values in
+  E-FND-0134 and E-FND-0135 are regression values, marked as such,
+  with the converged table in E-FND-0138.
+- The mirror near-degeneracy and the lepton assignment were
+  unconverged statistics, both recorded as such where they appeared.
+- E-FND-0137 is scoped to the settled-gradient configuration.
 
 ## Follow-ups
 
-- The dispersion relation proper (energy against momentum across
-  scales) and the Z three closure, the two named continuations.
-- The literature comparison for the registered graphene prediction.
-- After merge: restore the pending ledger experiment codes,
-  regenerate the scoreboard, run the full suite.
+- Quantitative settled-gradient localization (the surviving
+  hierarchy-origin candidate).
+- The trigger-probability origin of the near-universal gamma.
+- After merge: ledger and scoreboard updates in the main tree, and a
+  full suite run at the next natural end.

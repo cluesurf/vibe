@@ -240,8 +240,14 @@ Standard Model keeps it.
 
 1. Quantitative settled-gradient localization (the surviving
    mechanism with an open quantitative story).
-2. The origin of the near-universal interacting mass value (why
-   gamma near 0.55, posable as schedule counting).
+2. The origin of the near-universal interacting mass value: the
+   first pre-registered candidate is already answered by the
+   converged data. Mean gamma per swap-carry tier is 0.566, 0.552,
+   0.556 (tiers two, four, six), tier-INDEPENDENT, so the flip rate
+   is not set by swap-carry share and the near-universality holds
+   across the flavor partition too. The remaining candidate is the
+   trigger probability per encounter (a vacuum-phase counting
+   question), open.
 2. Make settling depth QUANTITATIVE (steeper or deeper gradients,
    longer settling, larger meshes): if measured settling depths
    reproduce nine, five, three, the depth pattern becomes dynamics
