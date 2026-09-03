@@ -130,6 +130,18 @@ with results you can rerun, and some of them are startling:
   stake: quantum computers, at scale, should hit a number-organized
   error floor in the composite-steering channel if this substrate
   is real.
+- **Who may couple is decided at birth, and symmetry breaks in
+  clock quanta.** The flavor texture turned out to be epochal: a
+  species' ability to couple through its origin depends on the beat
+  it was born, conjugate pairs keep in mutual complement, and the
+  conjugate symmetry of the full birth cycle forms a measured
+  ladder, from a bound-state pair that kept its origin at every
+  epoch at two lattice sizes (with sparse lapses appearing at a
+  third), through one pair exactly mirror-symmetric, down to pairs
+  whose balance breaks by exactly three beats, the clock quantum.
+  Where symmetry fails in this universe, it fails in exact steps,
+  and a pre-registered bet on a cleaner law was falsified and
+  recorded on the way.
 - **A beautiful wrong answer, executed by its own test.** A
   factorization of the electron-muon-tau mass hierarchy fit
   perfectly, matched independent structure, and carried a

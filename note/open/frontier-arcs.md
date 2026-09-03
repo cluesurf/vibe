@@ -177,10 +177,14 @@ shape: the mirror and the delta quanta are FINITE-SIZE (absent and
 different at side eleven), and exactly one rung survives the size
 change: THE SATURATION LAW. The exact-ladder CPT bound-state pair
 (twenty-one, twenty-two) keeps its origin at every birth beat at
-both tested sizes. The model's cleanest quantum objects never forget
-where they were born, at any epoch, at any tested size, while the
-rest of the keeping phenomenology is finite-size and its
-thermodynamic-limit fate is the posed frontier. Formalized as
+both tested sizes. The model's cleanest quantum objects kept their origin at
+every epoch at sides eleven and thirteen, and the third-size check
+(run before the readme could overclaim it) found lapses at side
+seventeen: the pair reads twenty-one and twenty of twenty-four
+(three and four lapses, no evident relation between the lapse
+patterns). So even the crown law is size-textured, its
+lapses quantized, and the thermodynamic-limit fate of the whole
+ladder is the posed frontier. Formalized as
 E-FND-0145 (conjugate-keeping-ladder) with the saturation, the
 side-thirteen mirror spot-checks, and one quantized-violation pair
 gated, and E-FND-0144's intrinsic-classes language scope-corrected

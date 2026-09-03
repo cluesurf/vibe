@@ -146,7 +146,7 @@ export default experiment({
         saturationExact: saturated === 24 ? 1 : 0,
       },
       notes:
-        'the full twelve-direction sweep and the exhaustive shift-mirror relation search are permanent (task/duty-cycle-sweep.ts, task/duty-relation-analysis.ts), the side-eleven replication shows the mirror and the delta quanta are finite-size while the saturation survives, and the registered predictions were judged as written in note/open/frontier-arcs.md before the size check ran. The thermodynamic-limit fate of the ladder, and whether the saturation law extends to all sizes, are the posed continuations.',
+        'the full twelve-direction sweep and the exhaustive shift-mirror relation search are permanent (task/duty-cycle-sweep.ts, task/duty-relation-analysis.ts), the side-eleven replication shows the mirror and the delta quanta are finite-size while the saturation survives there, and the SIDE-SEVENTEEN check then bounded the saturation too (the pair reads twenty-one and twenty of twenty-four, three and four lapses, with no evident relation between the lapse patterns), so the saturation law is exact at sides eleven and thirteen and near-saturated at seventeen, scoped as measured, and the registered predictions were judged as written in note/open/frontier-arcs.md before the size check ran. The thermodynamic-limit fate of the ladder, and whether the saturation law extends to all sizes, are the posed continuations.',
     })
   },
 })
