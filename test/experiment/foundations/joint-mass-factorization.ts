@@ -110,7 +110,7 @@ export default experiment({
         deviationsTested: deviations.length,
       },
       notes:
-        'the assignment of Kac species to lepton and the origin of the depth pattern four then two remain open, and the overall scale is set by hand, all stated. The measured inputs are the warp factor (E-GMT-0003, E-FRC-0052), the Kac band (E-FND-0135), and the PDG lepton masses. A future measurement narrowing the Kac band below one point seven six would falsify the joint account, which is the number to watch.',
+        'the assignment of Kac species to lepton and the origin of the depth pattern four then two remain open, and the overall scale is set by hand, all stated. The measured inputs are the warp factor (E-GMT-0003, E-FRC-0052), the Kac band (E-FND-0135), and the PDG lepton masses. A future measurement narrowing the Kac band below one point seven six would falsify the joint account, which is the number to watch. STATUS UPDATE, same day: the side-twenty-one precision table narrowed the well-measured band to one point seven one, BELOW the line, with flip-count statistics near twenty percent, so the joint account is under direct tension but not yet killed, the masses are still moving with lattice size (convergence undemonstrated), and the third-size run decides. This gate uses the frozen side-seventeen inputs and remains a record of the original arithmetic.',
     })
   },
 })

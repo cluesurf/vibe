@@ -179,12 +179,69 @@ caution).
   scan asked for. The assignment now stands on four independent
   legs, still short of established pending the sharpened Kac band.
 
+## The precision re-judgment (side twenty-one, T ninety-six)
+
+The falsifier machinery fired on the program's own results, which is
+the discipline working:
+
+- the well-measured band narrowed to 1.709, BELOW the 1.756 line,
+  with about twenty percent flip statistics: the joint factorization
+  is under direct tension, not yet killed;
+- the assignment triple's ratio fit collapsed (its new ratios 0.98
+  and 1.20 against the required 1.09 and 1.76), taking the
+  four-legged case with it;
+- the mirror near-degeneracies evaporated (side-seventeen
+  statistics), while the line degeneracy survived EXACTLY
+  (twenty-one and twenty-two at thirty-one flips each), so only the
+  charge-conjugate equality is physics;
+- and the masses still moved with size, so neither table was
+  converged.
+
+All three affected experiments were amended in place. The root cause
+was diagnosed as an instrument flaw: the position-mean tracker
+manufactures a wrap-seam artifact every torus lap. The EXACT
+instrument (integrate per-beat deltas, unambiguous because every
+step is at most one light-step, so wrap artifacts are impossible by
+construction) is running at side thirteen with T four hundred eighty
+and about three hundred flips per species, and its table decides the
+band, the factorization, the assignment, and the degeneracies at
+once.
+
+## THE CONVERGED VERDICTS (E-FND-0138, PASSING)
+
+The exact instrument (unwrapped per-beat integration, wrap artifacts
+impossible by construction, twenty schedule periods, about two
+hundred eighty flips per species) delivered every verdict at once:
+
+- MASSLESSNESS EXACT: zero flips over the full window for both
+  trackable massless species. The old lap dips were the instrument.
+- THE CPT MASS EQUALITY EXACT: twenty-one and twenty-two identical
+  on a third independent instrument.
+- THE INTERACTING MASS NEAR-UNIVERSAL: converged band about 1.29
+  (ratio), clustered near 0.13 lattice units, the interaction
+  universality of the turning weave expressed in the mass sector.
+- THE FALSIFIER FIRED: 1.29 sits decisively below the 1.756 the
+  joint lepton factorization required. E-FND-0136's account of the
+  charged-lepton hierarchy is DEAD by its own pre-committed number,
+  and the assignment scan finds no triple at converged masses (zero
+  within one percent, none within five). The door is closed with
+  data.
+
+What stands after the fire: the zitterbewegung mechanism of inertia,
+the kick-law hbar, the exact CPT equality, the near-universal bare
+mass, and the species-specific settled-gradient localization
+(scoped). Where the hierarchy origin moves: localization dynamics
+and the species-warp coupling, now decoupled from any fitted lepton
+pattern, with the honest possibility that the hierarchy is simply
+not derivable in this model, which would put it exactly where the
+Standard Model keeps it.
+
 ## Named next steps
 
-1. The precision Kac table (running in background) re-judges the
-   band and the 1.76 falsifier; early rows show large size shifts,
-   so the side-seventeen values were not converged, exactly why the
-   program exists.
+1. Quantitative settled-gradient localization (the surviving
+   mechanism with an open quantitative story).
+2. The origin of the near-universal interacting mass value (why
+   gamma near 0.55, posable as schedule counting).
 2. Make settling depth QUANTITATIVE (steeper or deeper gradients,
    longer settling, larger meshes): if measured settling depths
    reproduce nine, five, three, the depth pattern becomes dynamics

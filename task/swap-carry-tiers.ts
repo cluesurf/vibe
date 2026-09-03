@@ -36,7 +36,10 @@ for (let t = 0; t < 24; t++) {
   const couples = positions[POS_MIRROR[t % 8]!]!
   const swap = couples[SWAP_MIRROR[t % 12]!]!
   for (const lineIdx of swap) {
-    for (const end of [0, 1]) carry[lines[lineIdx]![end]!]++
+    for (const end of [0, 1]) {
+      const d = lines[lineIdx]![end]!
+      carry[d] = (carry[d] ?? 0) + 1
+    }
   }
 }
 const tiers = new Map<number, number[]>()
@@ -49,3 +52,5 @@ for (const [c, dirs] of [...tiers.entries()].sort((a, b) => a[0] - b[0])) {
   console.log(`swap-carry ${c}: dirs [${dirs.join(',')}]`)
 }
 console.log('assigned triple carries: dir23 =', carry[23], ' dir10 =', carry[10], ' dir18 =', carry[18])
+
+export {}

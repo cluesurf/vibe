@@ -25,3 +25,5 @@ for (const tol of [0.005, 0.01, 0.02, 0.03]) {
   }
   console.log(`tol ${(tol * 100).toFixed(1)}%: ${count} fitting triples${best ? `  best: tau=dir${best.t} mu=dir${best.m} e=dir${best.e} err=${(best.err * 100).toFixed(2)}%` : ''}`)
 }
+
+export {}

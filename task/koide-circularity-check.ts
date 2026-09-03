@@ -37,3 +37,5 @@ for (const [dt, kt] of kac) for (const [dm, km] of kac) for (const [de, ke] of k
 }
 console.log('fitting triples at 3%:')
 for (const r of rows) console.log(' ', r)
+
+export {}
