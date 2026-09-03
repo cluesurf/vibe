@@ -122,7 +122,7 @@ export default experiment({
           leaverA === 'lll' && keeperA === 'KKK' ? 1 : 0,
       },
       notes:
-        'three consecutive birth beats at one geometry, stated; the full birth-phase period (twenty-four beats) and the ensemble-restoration quantification (does the keeping duty cycle of a conjugate pair balance exactly over the period, as the Born ensemble charge sums did) are the named continuation. The mutual-reversal structure is the flavor-sector sibling of the ensemble charge restoration in E-FND-0127, and its exactness over the full period is the next sharp question.',
+        'SCOPE CORRECTION from the full-period sweep (E-FND-0145): the intrinsic classes named here are three-beat-window classes only, and every direction flickers over the full twenty-four beat period (direction five keeps twelve of twenty-four, direction ten twelve of twenty-four), so intrinsic means stable-within-this-window, not absolute, while the pinned flip patterns and the mutual reversals stand as measured. Three consecutive birth beats at one geometry, stated; the full birth-phase period (twenty-four beats) and the ensemble-restoration quantification (does the keeping duty cycle of a conjugate pair balance exactly over the period, as the Born ensemble charge sums did) are the named continuation. The mutual-reversal structure is the flavor-sector sibling of the ensemble charge restoration in E-FND-0127, and its exactness over the full period is the next sharp question.',
     })
   },
 })
