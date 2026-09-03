@@ -1,12 +1,14 @@
 // The Kac mass table: telegraph statistics for every direction, the model's mass spectrum
 // proper, with three structural findings beyond the numbers:
 //
-//   - EXACT DEGENERACY BY LINE PARTNERSHIP: the two exact-ladder rest species (directions
-//     twenty-one and twenty-two, E-FND-0130) return IDENTICAL telegraph records, the same
-//     step count and the same flip count to the integer, and the well-measured moving
-//     species pair up near-degenerately with their line partners (eight with nine, five
-//     with seven, ten with eleven). Mass organizes by line, a selection-rule structure the
-//     rule was never told to have.
+//   - DEGENERACY BY RESIDUAL SYMMETRY: the two exact-ladder rest species (directions
+//     twenty-one and twenty-two, E-FND-0130) are LINE PARTNERS (exact opposites, the
+//     charge-conjugate pair) and return IDENTICAL telegraph records to the integer, while
+//     the well-measured moving species pair near-degenerately with their MIRROR partners,
+//     the direction with one flipped coordinate (eight with nine across the w axis, five
+//     with seven across x, ten with eleven across w). Mass respects the schedule's
+//     residual reflection symmetry, exactly on lines and approximately on mirrors, a
+//     structure the rule was never told to have.
 //   - THE MASSLESS FLOOR IS EXACT AFTER ARTIFACT ACCOUNTING: the two trackable massless
 //     directions each show exactly three isolated lap dips (six sign transitions), the
 //     wrap seam of a speed-one walker on a side-seventeen torus, and nothing else, so
@@ -34,7 +36,7 @@ export default experiment({
   id: 'foundations/kac-mass-table',
   code: 'E-FND-0135',
   title:
-    'the Kac mass table over every direction shows mass organizing by line partnership (the two exact-ladder rest species return identical telegraph records to the integer, and moving species pair near-degenerately with their line partners), an exact massless floor after lap-dip accounting (exactly three isolated wrap dips each and nothing else), and a genuine hierarchy with the heaviest well-measured species more than twice the lightest, the model mass spectrum from flip counting with one rule and one measured constant',
+    'the Kac mass table over every direction shows mass respecting the schedule residual symmetry (the exact-ladder rest pair, which is a line of charge-conjugate opposites, returns identical telegraph records to the integer, and moving species pair near-degenerately with their mirror partners, the one-flipped-coordinate directions), an exact massless floor after lap-dip accounting (exactly three isolated wrap dips each and nothing else), and a genuine hierarchy with the heaviest well-measured species more than twice the lightest, the model mass spectrum from flip counting with one rule and one measured constant',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -212,7 +214,7 @@ export default experiment({
           masslessFloor && exactDegeneracy ? 1 : 0,
       },
       notes:
-        'the untrackable massless direction (its bare content converts out of the seeded slot immediately) and the four short-lived species (under twenty steps) are reported in scope, not gated. The named continuation is the lattice-scale calibration: identifying the lightest charged dressed species with the electron converts this table into physical masses, and the line-partnership degeneracy suggests the pairing structure of the table is the place generation structure would live.',
+        'the untrackable massless direction (its bare content converts out of the seeded slot immediately) and the four short-lived species (under twenty steps) are reported in scope, not gated. The named continuation is the lattice-scale calibration: identifying the lightest charged dressed species with the electron converts this table into physical masses, and the mirror-pair degeneracy structure suggests the symmetry classes of the table are the place generation structure would live, and the exact line degeneracy doubles as a particle-antiparticle mass equality check, which CPT requires and the table delivers.',
     })
   },
 })
