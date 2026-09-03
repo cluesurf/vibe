@@ -112,6 +112,36 @@ with results you can rerun, and some of them are startling:
   count identically to the integer (the equality CPT demands), and
   every interacting species lands near one universal value, the
   interaction's fairness showing up as a mass.
+- **Two frontier questions, answered by measurement.** Where the
+  mass hierarchy comes from, and whether a single quantum's phase
+  coherence lives on the substrate: both were chased to their ends.
+  The chase found an exact localization law (a species that pins
+  precisely where it is born, at every position tested) and an
+  exact locking law (a dressed particle's phase and number cannot
+  be changed independently), and then closed both questions
+  honestly: the hierarchy's magnitude is a free input here exactly
+  as in the Standard Model (while WHICH flavors may couple at all,
+  the texture, comes out as a derived law: species that keep
+  content at their creation site couple to every other keeper
+  through that shared origin, exactly, and who keeps depends on
+  birth epoch, with conjugate pairs keeping in mutual complement), and interference coherence between paths is exact while a
+  composite's phase can never be steered independently of its
+  number, which converts into the model's sharpest technological
+  stake: quantum computers, at scale, should hit a number-organized
+  error floor in the composite-steering channel if this substrate
+  is real.
+- **Who may couple is decided at birth, and symmetry breaks in
+  clock quanta.** The flavor texture turned out to be epochal: a
+  species' ability to couple through its origin depends on the beat
+  it was born, conjugate pairs keep in mutual complement, and the
+  conjugate symmetry of the full birth cycle forms a measured
+  ladder, from a bound-state pair that kept its origin at every
+  epoch at two lattice sizes (with sparse lapses appearing at a
+  third), through one pair exactly mirror-symmetric, down to pairs
+  whose balance breaks by exactly three beats, the clock quantum.
+  Where symmetry fails in this universe, it fails in exact steps,
+  and a pre-registered bet on a cleaner law was falsified and
+  recorded on the way.
 - **A beautiful wrong answer, executed by its own test.** A
   factorization of the electron-muon-tau mass hierarchy fit
   perfectly, matched independent structure, and carried a
@@ -157,12 +187,16 @@ then as the turning schedule itself
 ([`E-FND-0113`](test/experiment/foundations/weave-species-spectrum.ts)
 through
 [`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts)).
-What remains is named open research, led by one derivation: the
-single-quantum coherence bridge from the discrete clock to continuum
-quantum mechanics, whose measurement half (the counter, the port, the
-linear per-quantum law, E-FND-0123 through E-FND-0126) is complete
-and whose ensemble half (outcomes deterministic per vacuum phase,
-E-FND-0127) is measured. The method
+The two arcs that led the open research are now closed by
+measurement: the Born programme's counter, port, per-quantum law and
+ensemble halves are complete (E-FND-0123 through E-FND-0127), the
+substrate-level coherence question is answered by the phase-number
+locking law (E-FND-0140), and the mass programme ends with the
+mechanisms measured and the hierarchy magnitude honestly free
+(E-FND-0131 through E-FND-0139). What the programme carries forward
+is its planted stakes: the number-organized error floor that quantum
+hardware at scale would show if this substrate is real, and the
+registered graphene channel prediction. The method
 that got here is three enforced rules born from corrected claims: a
 bound is only as good as the beats and sizes it was watched for, a
 violation claim is only as good as the group swept, and a boundedness
