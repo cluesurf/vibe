@@ -120,10 +120,14 @@ with results you can rerun, and some of them are startling:
   exact locking law (a dressed particle's phase and number cannot
   be changed independently), and then closed both questions
   honestly: the hierarchy's magnitude is a free input here exactly
-  as in the Standard Model, and substrate-level single-quantum
-  coherence does not exist, which converts into the model's
-  sharpest technological stake: quantum computers, at scale, should
-  hit a number-organized error floor if this substrate is real.
+  as in the Standard Model (while WHICH flavors may couple at all,
+  the texture, comes out of plane geometry with measured exact
+  zeros), and interference coherence between paths is exact while a
+  composite's phase can never be steered independently of its
+  number, which converts into the model's sharpest technological
+  stake: quantum computers, at scale, should hit a number-organized
+  error floor in the composite-steering channel if this substrate
+  is real.
 - **A beautiful wrong answer, executed by its own test.** A
   factorization of the electron-muon-tau mass hierarchy fit
   perfectly, matched independent structure, and carried a

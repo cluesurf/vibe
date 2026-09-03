@@ -62,6 +62,27 @@ note/prediction/intelligence.md). Formalized as E-FND-0140
 (verification running at this writing). The sweep is permanent at
 task/phase-knob-sweep.ts.
 
+## The push past the negatives (same sitting, user-prompted)
+
+Asked whether the negatives meant failure, the honest re-examination
+found one over-call and one new law:
+
+- COHERENCE, CORRECTLY SCOPED (E-FND-0142, passing): two-path
+  interference of one species is EXACT on the committed rule (twice
+  root three aligned, root three at ninety kicked, all checked
+  beats). The locking law forbids independent phase STEERING of
+  composites, not coherence itself. Both statements now carried by
+  their own experiments, and E-FND-0140's notes corrected in place.
+- THE YUKAWA TEXTURE (E-FND-0141, passing): the overlap observable
+  the centroid measurements missed. The pairwise-overlap matrix of
+  settled species has measured TEXTURE ZEROS (the massless and the
+  heavy species overlap every partner at exactly zero cells) against
+  allowed pairs sharing exactly one or two cells, the mechanism
+  being motion-plane confinement with overlap as plane intersection.
+  Which flavor couplings exist is derivable from geometry; how large
+  they are is not. The flavor puzzle splits exactly along the line
+  the mass programme drew.
+
 ## The arcs, concluded
 
 Both named frontier arcs now have measured conclusions. Arc one: an

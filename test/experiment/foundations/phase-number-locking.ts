@@ -139,7 +139,7 @@ export default experiment({
         blindRegimesExact: blindExact ? 1 : 0,
       },
       notes:
-        'the full sweep (task/phase-knob-sweep.ts) covered twelve offsets: no regime moves phase at fixed number, and the three amplitude levels across the sweep are exactly two root three, root thirty-nine, and two root twenty-one. The locking is measured at one geometry and one species, stated; its structural reading (no independent phase degree of freedom for dressed packets) matches the deterministic substrate having no continuous phase to steer, and the committed observable (a number-organized visibility floor at scale) is recorded in note/prediction/intelligence.md.',
+        'the full sweep (task/phase-knob-sweep.ts) covered twelve offsets: no regime moves phase at fixed number, and the three amplitude levels across the sweep are exactly two root three, root thirty-nine, and two root twenty-one. The locking is measured at one geometry and one species, stated; its structural reading (no independent phase degree of freedom for dressed packets) matches the deterministic substrate having no continuous phase to steer, and the committed observable (a number-organized visibility floor at scale) is recorded in note/prediction/intelligence.md. SCOPE CORRECTION, same day: this law forbids independent phase STEERING of dressed composites, not interference coherence itself, which is exact between spatial paths (E-FND-0142 pins the split with the aligned and kicked joint amplitudes both exact); the visibility-floor prediction applies to the composite-steering channel specifically.',
     })
   },
 })
