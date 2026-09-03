@@ -94,6 +94,31 @@ with results you can rerun, and some of them are startling:
   crystal sheets, with the total exactly conserved, the model's own
   version of why there is more matter than antimatter, satisfying all
   three of Sakharov's conditions measurably.
+- **The measurement rule of quantum mechanics, taken apart.** The
+  model's detector was measured to be exactly a photon counter: it
+  weighs by NUMBER, is exactly blind to phase, and responds exactly
+  linearly per quantum. The wall that converts phase into countable
+  number, the interferometer's job, was measured too, and single
+  outcomes turn out to be deterministic per tick of the vacuum clock
+  and distributed over its ensemble. Where quantum randomness lives,
+  and what a detector actually is, both become mechanisms you can
+  rerun.
+- **Mass is a flip rate, and you can count it.** The bare quantum
+  always moves at exactly light speed, measured beat by beat, and
+  only its DIRECTION flips. A century-old result of Kac says a walk
+  like that obeys the relativistic wave equation with mass equal to
+  the flip rate, so the model's masses come from counting flips: the
+  massless species count exactly zero, particle and antiparticle
+  count identically to the integer (the equality CPT demands), and
+  every interacting species lands near one universal value, the
+  interaction's fairness showing up as a mass.
+- **A beautiful wrong answer, executed by its own test.** A
+  factorization of the electron-muon-tau mass hierarchy fit
+  perfectly, matched independent structure, and carried a
+  pre-committed number that would kill it. Sharper data arrived, the
+  number fired, and the account is dead, recorded in full. That is
+  the point of the method: this model earns its right results by how
+  it treats its wrong ones.
 - **A public scoreboard with nothing hidden.** Seventy-four observed
   features of nature, every one accounted for: zero open, zero
   blocked, and the failures that happened along the way are kept in
@@ -133,8 +158,11 @@ then as the turning schedule itself
 through
 [`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts)).
 What remains is named open research, led by one derivation: the
-bridge from the discrete clock to continuum quantum mechanics, whose
-target object (the dressed traveller) is already measured. The method
+single-quantum coherence bridge from the discrete clock to continuum
+quantum mechanics, whose measurement half (the counter, the port, the
+linear per-quantum law, E-FND-0123 through E-FND-0126) is complete
+and whose ensemble half (outcomes deterministic per vacuum phase,
+E-FND-0127) is measured. The method
 that got here is three enforced rules born from corrected claims: a
 bound is only as good as the beats and sizes it was watched for, a
 violation claim is only as good as the group swept, and a boundedness

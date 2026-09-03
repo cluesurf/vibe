@@ -1,0 +1,66 @@
+// The full Kac mass table: telegraph statistics for all 24 directions, 48 beats, side 17.
+// Per direction: step-sign string summary, zero-step fraction (rest content), flip rate
+// gamma (over nonzero steps), Kac mass. Incremental printing.
+import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
+import { makeWill, Will } from '@/code/tone/will'
+import { beat } from '@/code/rule/lattice-gas'
+import { turningWeave } from '@/code/rule/collision'
+
+const side = 17
+const mesh = d4Mesh({ side })
+const opposite = meshOpposites(mesh)
+const rule = turningWeave({ opposite })
+const coord = (c: number, a: number): number => Math.floor(c / side ** a) % side
+const wrap = (d: number): number => (d > side / 2 ? d - side : d < -side / 2 ? d + side : d)
+const mid = 8
+const center = mid + mid * side + mid * side * side + mid * side ** 3
+const roots: number[][] = []
+for (let d = 0; d < 24; d++) {
+  const to = mesh.neighbour(center, d)
+  roots.push([0, 1, 2, 3].map(a => wrap(coord(to, a) - mid)))
+}
+const T = 48
+const hbar = 3 / (2 * Math.PI)
+
+for (let dir = 0; dir < 24; dir++) {
+  const axis = roots[dir]!.map(v => v / Math.SQRT2)
+  let vacuum: Will = makeWill(mesh)
+  let seeded: Will = makeWill(mesh)
+  seeded.data[center * 24 + dir] = 1
+  let prevPos: number[] | null = null
+  const signs: number[] = []
+  for (let t = 0; t < T; t++) {
+    vacuum = beat(vacuum, rule(t % 24))
+    seeded = beat(seeded, rule(t % 24))
+    const cells: number[] = []
+    for (let cell = 0; cell < mesh.cellCount; cell++) {
+      if (seeded.data[cell * 24 + dir] !== vacuum.data[cell * 24 + dir]) cells.push(cell)
+    }
+    if (cells.length === 0) { prevPos = null; continue }
+    const pos = [0, 1, 2, 3].map(a => {
+      let s = 0
+      for (const c of cells) s += wrap(coord(c, a) - mid)
+      return s / cells.length
+    })
+    if (prevPos) {
+      let step = 0
+      for (let a = 0; a < 4; a++) step += (pos[a]! - prevPos[a]!) * axis[a]!
+      signs.push(Math.sign(Math.round(step * 100) / 100))
+    }
+    prevPos = pos
+  }
+  const nonzero = signs.filter(s => s !== 0)
+  let flips = 0
+  let last = 0
+  for (const s of signs) {
+    if (s !== 0) {
+      if (last !== 0 && s !== last) flips++
+      last = s
+    }
+  }
+  const zeroFrac = 1 - nonzero.length / (signs.length || 1)
+  // subtract expected lap dips for near-massless movers: conservative, report raw gamma
+  const gamma = flips / (nonzero.length || 1)
+  const mass = (hbar * gamma) / 2
+  console.log(`dir ${String(dir).padStart(2)}: steps=${signs.length} zeroFrac=${zeroFrac.toFixed(2)} flips=${flips} gamma=${gamma.toFixed(3)} m=${mass.toFixed(4)}`)
+}
