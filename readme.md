@@ -261,8 +261,8 @@ edit it by hand). The experiment codes resolve in
 | mark | meaning | count |
 | :--- | :--- | :--- |
 | 🟢 | emergent from the rule | 4 |
-| ✅ | reproduced on the model | 48 |
-| 🔵 | structure derived, dynamics open | 21 |
+| ✅ | reproduced on the model | 49 |
+| 🔵 | structure derived, dynamics open | 20 |
 | 📌 | free input, not predicted | 1 |
 | ❌ | open | 0 |
 | ⛔ | blocked on a base decision | 0 |
@@ -271,13 +271,13 @@ edit it by hand). The experiment codes resolve in
 | :--- | :--- | :--- |
 | **quantum** | | |
 | quantum amplitude at the base | 🔵 | The weave is ADOPTED as the committed knit (2026-09-02): the discrete quantum kinematics is complete on the base, and what remains is the coarse bridge derivation. |
-| | | [`E-FND-0107`](test/experiment/foundations/two-path-interference.ts), [`E-FND-0106`](test/experiment/foundations/unit-kick-phase-law.ts), [`E-FND-0105`](test/experiment/foundations/wire-polarization-law.ts), [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0103`](test/experiment/foundations/palindrome-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts) |
+| | | [`E-FND-0107`](test/experiment/foundations/two-path-interference.ts), [`E-FND-0106`](test/experiment/foundations/unit-kick-phase-law.ts), [`E-FND-0105`](test/experiment/foundations/wire-polarization-law.ts), [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0103`](test/experiment/foundations/palindrome-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0123`](test/experiment/foundations/born-discriminator.ts), [`E-FND-0124`](test/experiment/foundations/number-operator-law.ts), [`E-FND-0125`](test/experiment/foundations/port-conversion.ts), [`E-FND-0126`](test/experiment/foundations/linear-port-law.ts), [`E-FND-0127`](test/experiment/foundations/born-ensemble.ts) |
 | Born rule | ✅ | Counting weights at the domain wall give the Born statistics. |
 | | | [`E-QTM-0012`](test/experiment/quantum/envariance-born.ts), [`E-QTM-0091`](test/experiment/quantum/collapse-is-not-the-weight.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts) |
 | entanglement and Bell | ✅ | Bell violation is reproduced on the model walk. |
 | | | [`E-QTM-0011`](test/experiment/quantum/entanglement-bell.ts), [`E-QTM-0038`](test/experiment/quantum/tsirelson-forced-by-coin.ts), [`E-QTM-0057`](test/experiment/quantum/no-signaling-nonlocality.ts) |
 | measurement and definite outcome | 🟢 | The domain wall projects and amplifies one outcome, from the rule. |
-| | | [`E-QTM-0085`](test/experiment/quantum/arrow-is-the-amplifier.ts), [`E-QTM-0090`](test/experiment/quantum/holder-derived-from-the-rule.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts) |
+| | | [`E-QTM-0085`](test/experiment/quantum/arrow-is-the-amplifier.ts), [`E-QTM-0090`](test/experiment/quantum/holder-derived-from-the-rule.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0123`](test/experiment/foundations/born-discriminator.ts), [`E-FND-0124`](test/experiment/foundations/number-operator-law.ts), [`E-FND-0125`](test/experiment/foundations/port-conversion.ts) |
 | QFT vacuum and reflection positivity | ✅ | The free clock field and the thermal gas are positive semidefinite on a non-trivial estimator, and the amplifying wake violates positivity exactly as it must. |
 | | | [`E-QTM-0096`](test/experiment/quantum/clock-field-positivity.ts), [`E-QTM-0025`](test/experiment/quantum/reflection-positivity.ts), [`E-QTM-0017`](test/experiment/quantum/near-critical-rp.ts) |
 | path integral | ✅ | The sum over walk paths reproduces the propagator. |
@@ -301,8 +301,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
 | anomaly cancellation | 🔵 | The anomaly sums cancel across one generation, exactly. |
 | | | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
-| dynamical gauge field | 🔵 | A carrier exists on the committed rule with a measured unit coupling: the remaining work (emission vertex, gauge algebra, the fast photon) is open research, not a base decision. |
-| | | [`E-FND-0100`](test/experiment/foundations/wall-launched-carrier.ts), [`E-FND-0104`](test/experiment/foundations/wall-mode-matter-coupling.ts), [`E-FND-0108`](test/experiment/foundations/unit-coupling-absorption.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts), [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-FRC-0073`](test/experiment/gauge/fills-gate-transport.ts) |
+| dynamical gauge field | 🔵 | A carrier exists with a measured unit coupling, the emission vertex is measured (the interacting band radiates matter-to-wire conversion, E-FND-0113), and under the adopted turning weave the interaction structure connects all twelve species (E-FND-0117). The remaining work (the gauge algebra of the carrier, the fast photon sector) is open research. The kick generator is charge-signed (E-FND-0128), the abelian coupling measured. |
+| | | [`E-FND-0100`](test/experiment/foundations/wall-launched-carrier.ts), [`E-FND-0104`](test/experiment/foundations/wall-mode-matter-coupling.ts), [`E-FND-0108`](test/experiment/foundations/unit-coupling-absorption.ts), [`E-FND-0113`](test/experiment/foundations/weave-species-spectrum.ts), [`E-FND-0117`](test/experiment/foundations/palindromic-turning-weave.ts), [`E-FND-0128`](test/experiment/foundations/charge-signed-kick.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts), [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-FRC-0073`](test/experiment/gauge/fills-gate-transport.ts) |
 | photon and Maxwell | ✅ | The Ward identity and the Maxwell spectrum hold on the substrate gauge sector. |
 | | | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
 | nonabelian gauge and confinement | ✅ | Wilson loops show the area law and confinement on the mesh. |
@@ -339,8 +339,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-SPN-0009`](test/experiment/spin/dirac-3plus1-3434.ts), [`E-SPN-0030`](test/experiment/spin/sp-spinor-field-3434.ts), [`E-QTM-0094`](test/experiment/quantum/ehrenfest-theorem.ts) |
 | chiral fermions no doubling | ✅ | The fermion doubling obstruction is dodged on the substrate walk. |
 | | | [`E-SPN-0043`](test/experiment/spin/chiral-fermion-no-doubling.ts), [`E-SPN-0004`](test/experiment/spin/chirality.ts) |
-| Pauli exclusion and spin statistics | 🔵 | Exclusion follows from the spinor sign structure, as algebra. |
-| | | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-QTM-0064`](test/experiment/quantum/fock-structure.ts) |
+| Pauli exclusion and spin statistics | 🔵 | Exclusion follows from the spinor sign structure as algebra, and the substrate adds a structural half: a slot holds one tone of the ternary alphabet, so two same-mode excitations cannot coexist (E-FND-0115). The spin-statistics THEOREM remains Hilbert-space mathematics. |
+| | | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-QTM-0064`](test/experiment/quantum/fock-structure.ts), [`E-FND-0115`](test/experiment/foundations/weave-antiparticle-conjugation.ts) |
 | one generation representation content | 🔵 | One generation of states matches the derived representation, exactly. |
 | | | [`E-FND-0020`](test/experiment/foundations/fermions-from-octonions.ts), [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
 | three generations count | 🔵 | Triality gives three, the count is algebra and not yet dynamics. |
@@ -412,8 +412,8 @@ edit it by hand). The experiment codes resolve in
 | | | [`E-CSM-0056`](test/experiment/cosmology/decoupled-peak-spectrum.ts), [`E-CSM-0052`](test/experiment/cosmology/acoustic-peaks-mechanism.ts), [`E-CSM-0051`](test/experiment/cosmology/cmb-low-l-suppression.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts) |
 | BBN abundances | 🔵 | The freeze-out race is measured and the matter sector is now settled by the adoption, so the nuclear network is open research rather than a blocked decision. |
 | | | [`E-CSM-0055`](test/experiment/cosmology/freeze-out-vs-expansion.ts) |
-| baryon asymmetry | 🔵 | Sakharov's conditions rest on the traveller sector's measured C and CP violation plus the growth arrow, with the committed sectors CP-even. |
-| | | [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| baryon asymmetry | ✅ | All three Sakharov conditions are measured on the committed rule: a growth quench charges the matter sector from the exactly C-symmetric empty state, quantized in whole hypersheets, with the total tone sum exactly conserved (the B minus L analog) and the commensurate quench an exact null. The observed magnitude (ten to the minus ten) is not derived and needs the coarse dilution story. |
+| | | [`E-FND-0116`](test/experiment/foundations/weave-sakharov-asymmetry.ts), [`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts), [`E-FND-0115`](test/experiment/foundations/weave-antiparticle-conjugation.ts), [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
 | inflation and flatness | ✅ | Growth gives flatness and a horizon without a tuned inflaton. |
 | | | [`E-CSM-0028`](test/experiment/cosmology/inflation.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts), [`E-CSM-0046`](test/experiment/cosmology/plateau-inflation-tensor.ts), [`E-CSM-0049`](test/experiment/cosmology/horosphere-flatness.ts) |
 | Hubble expansion and redshift | 🟢 | Growth gives expansion and redshift from the rule with computed control. |

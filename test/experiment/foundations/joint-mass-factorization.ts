@@ -38,7 +38,7 @@ export default experiment({
   title:
     'the Kac band and the warp ladder jointly account for the charged-lepton hierarchy pattern: with species prefactors required to lie in the measured Kac band, the integer depth assignment nine, five, three fits (required spread one point seven six against the band two point zero seven) and every single-step deviation is excluded (spreads two point six five to seven point five one), so the relative depth pattern of four then two steps is uniquely selected up to the scale-degenerate uniform shift, resolving the E-FRC-0067 negative as the shadow of the missing Kac factor, stated as consistency and uniqueness of pattern rather than derivation',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: true,
   run() {
