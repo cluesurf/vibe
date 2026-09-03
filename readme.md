@@ -121,8 +121,10 @@ with results you can rerun, and some of them are startling:
   be changed independently), and then closed both questions
   honestly: the hierarchy's magnitude is a free input here exactly
   as in the Standard Model (while WHICH flavors may couple at all,
-  the texture, comes out of plane geometry with measured exact
-  zeros), and interference coherence between paths is exact while a
+  the texture, comes out as a derived law: species that keep
+  content at their creation site couple to every other keeper
+  through that shared origin, exactly, and who keeps depends on
+  birth epoch, with conjugate pairs keeping in mutual complement), and interference coherence between paths is exact while a
   composite's phase can never be steered independently of its
   number, which converts into the model's sharpest technological
   stake: quantum computers, at scale, should hit a number-organized

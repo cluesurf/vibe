@@ -77,11 +77,41 @@ found one over-call and one new law:
   the centroid measurements missed. The pairwise-overlap matrix of
   settled species has measured TEXTURE ZEROS (the massless and the
   heavy species overlap every partner at exactly zero cells) against
-  allowed pairs sharing exactly one or two cells, the mechanism
-  being motion-plane confinement with overlap as plane intersection.
-  Which flavor couplings exist is derivable from geometry; how large
-  they are is not. The flavor puzzle splits exactly along the line
-  the mass programme drew.
+  allowed pairs sharing exactly one or two cells. The mechanism went
+  through the full discipline in one sitting: the plane-intersection
+  reading was pre-registered, tested against root geometry, and
+  FALSIFIED (same-plane pairs at zero, no-axis pairs overlapping),
+  and the cell-identity check then found the true law: every shared
+  cell is the SEED itself. The texture is SEED-REMNANT PERSISTENCE:
+  keeper species retain content at their creation site forever and
+  couple pairwise through it, leaver species abandon it and carry
+  exact zeros with everyone. Memory-at-origin, the growth-writes-
+  phase theme surfacing in the flavor sector. Which couplings exist
+  is derivable from the keeper classification; how large they are is
+  not. The full theorem landed as E-FND-0143 (seed-remnant-theorem):
+  fourteen keepers, ten leavers (the massless all leave), ALL
+  ninety-one keeper-keeper pairs share the seed exactly, one hundred
+  seventy-seven of one hundred eighty-five leaver-involving pairs
+  are exactly zero with the eight small off-origin exceptions
+  pinned. Two structural surprises in the classification: the
+  exact-mass-degenerate CPT pair (twenty-one, twenty-two) SPLITS on
+  keeping, so origin-memory is a texture quantum number finer than
+  mass, and the keeper property flickers with the schedule (a
+  window property, not an instant one, caught by an
+  instrument-mismatch during development and recorded). That continuation was run in the same
+  sitting and answered (E-FND-0144, epochal-keeping): KEEPING IS
+  EPOCHAL. The classification is a function of birth beat, with
+  intrinsic leavers (five, six) and intrinsic keepers (ten,
+  fourteen) at the extremes, and the split-line directions flipping
+  deterministically, the split CPT pairs carrying MUTUALLY REVERSED
+  patterns, so exactly one of a conjugate pair keeps at any single
+  birth beat while ensemble charge symmetry restores, the
+  flavor-sector sibling of the Born arc ensemble restoration. The
+  growth-writes-phase principle now governs cosmology (the relic
+  background), measurement (the outcome ensemble), and flavor (who
+  may couple), one theme unbroken. Next sharp question: whether the
+  conjugate keeping duty cycles balance EXACTLY over the full
+  twenty-four beat birth period, as the Born charge sums did.
 
 ## The arcs, concluded
 

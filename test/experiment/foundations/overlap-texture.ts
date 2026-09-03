@@ -28,7 +28,7 @@ export default experiment({
   id: 'foundations/overlap-texture',
   code: 'E-FND-0141',
   title:
-    'the pairwise-overlap matrix of settled species has measured texture zeros: the massless species and the heavy species overlap every partner at exactly zero shared cells while allowed pairs share exactly one or two cells at overlaps near a tenth, the mechanism being motion-plane confinement with the overlap matrix the plane-intersection structure, so the coupling TEXTURE of the flavor sector is derivable from geometry while the magnitudes stay free, splitting the flavor puzzle exactly along the line the programme converged mass verdicts drew',
+    'the pairwise-overlap matrix of settled species has measured texture zeros: the massless species and the heavy species overlap every partner at exactly zero shared cells while allowed pairs share exactly one or two cells at overlaps near a tenth, the mechanism (corrected in the notes after a pre-registered falsification of the plane reading) being seed-remnant persistence, so the coupling TEXTURE of the flavor sector is derivable from species dynamics while the magnitudes stay free, splitting the flavor puzzle exactly along the line the programme converged mass verdicts drew',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -151,7 +151,7 @@ export default experiment({
         exactZeros: zeroRows === 2 ? 1 : 0,
       },
       notes:
-        'one geometry, one seed cell, small supports, stated. The plane-geometry mechanism (clouds confined to motion planes, overlap as plane intersection) is the interpretive reading and matches the shared-cell counts; making it exact (predicting the full matrix from the root system) is the named continuation. As physics: which flavor couplings exist is derivable here, how large they are is not, the same split the mass programme converged to.',
+        'one geometry, one seed cell, small supports, stated. MECHANISM CORRECTED, same day: the plane-intersection reading was put to a pre-registered root-geometry test and FALSIFIED (same-plane pairs with zero overlap, no-axis pairs with overlap), and the cell-identity check found the true law: every shared cell is the SEED itself. The texture is SEED-REMNANT PERSISTENCE: keeper species retain content at their creation site and couple pairwise through it, leaver species abandon it and have exactly zero overlap with everyone. Stating the full keeper-leaver theorem over all species is the continuation (E-FND-0143). As physics: which flavor couplings exist is derivable here, how large they are is not, the same split the mass programme converged to.',
     })
   },
 })
