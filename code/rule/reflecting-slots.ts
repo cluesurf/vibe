@@ -62,8 +62,12 @@ import { G_TURN, TURN_COUPLES_ZERO, TURN_POS_MIRROR } from '@/code/rule/collisio
 export type Steer = false | 'weave' | 'round-robin' | 'folded'
 
 // which slot pairs steering trades: 'slot' where exactly one holds a charge (E-FRC-0146), 'differ' where
-// their vibes differ, 'lone' two lines whole where together they hold exactly one charge
-export type SteerWhen = 'slot' | 'differ' | 'lone'
+// their vibes differ, 'lone' two lines whole where together they hold exactly one charge, 'retract' the
+// same whole-line trade where exactly one of the charge's slot and the matching slot points along a link
+// whose string the charge would shorten by crossing it (E-FRC-0157)
+// 'line' is 'lone' with string counted per line, over both its links, so reversing every direction leaves
+// the condition alone (E-FRC-0156)
+export type SteerWhen = 'slot' | 'differ' | 'lone' | 'retract' | 'line'
 
 export type ReflectingSlots = {
   readonly mesh: Mesh
@@ -393,17 +397,40 @@ function steerTrades(rule: ReflectingSlots, state: ReflectingState, t: number): 
   const couples = steerCouples(rule, t)
   const { vibe, flux } = state
   const string = (x: number, d: number): boolean => mod3(flux[edgeOfSlot(rule, x, d)] ?? 0) !== 0
+  // whether a charge v crossing from dock x along d would shorten a string: its link's flux is not a
+  // multiple of 3 and becomes one
+  const releases = (x: number, d: number, v: number): boolean => {
+    const e = flux[edgeOfSlot(rule, x, d)] ?? 0
+
+    return mod3(e) !== 0 && mod3(e + (d < (rule.opposite[d] ?? d) ? -v : v)) === 0
+  }
 
   for (let x = 0; x < rule.mesh.cellCount; x++) {
     for (const [p, q] of couples) {
       const a = rule.lines[p] ?? [0, 0]
       const b = rule.lines[q] ?? [0, 0]
 
-      if (rule.steerWhen === 'lone') {
+      if (rule.steerWhen === 'retract') {
+        const charged = [a[0], a[1], b[0], b[1]].filter(d => vibe[x * 24 + d] !== 0)
+        const d0 = charged[0] ?? 0
+        const s = d0 === a[0] || d0 === b[0] ? 0 : 1
+        const v = vibe[x * 24 + d0] ?? 0
+
+        if (charged.length === 1 && releases(x, a[s], v) !== releases(x, b[s], v)) {
+          trade(state, x * 24 + a[0], x * 24 + b[0])
+          trade(state, x * 24 + a[1], x * 24 + b[1])
+        }
+
+        continue
+      }
+
+      if (rule.steerWhen === 'lone' || rule.steerWhen === 'line') {
         const charged = [a[0], a[1], b[0], b[1]].filter(d => vibe[x * 24 + d] !== 0)
         const s = charged[0] === a[0] || charged[0] === b[0] ? 0 : 1
+        const count = (l: readonly [number, number]): number => (string(x, l[0]) ? 1 : 0) + (string(x, l[1]) ? 1 : 0)
+        const differ = rule.steerWhen === 'lone' ? string(x, a[s]) !== string(x, b[s]) : count(a) !== count(b)
 
-        if (charged.length === 1 && string(x, a[s]) !== string(x, b[s])) {
+        if (charged.length === 1 && differ) {
           trade(state, x * 24 + a[0], x * 24 + b[0])
           trade(state, x * 24 + a[1], x * 24 + b[1])
         }

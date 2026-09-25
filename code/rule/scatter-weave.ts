@@ -50,6 +50,25 @@ export const MOMENTUM_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
   swapWhen: (line, wire) => LONE_WITH_CLOCK[line * 9 + wire] === 1,
 })
 
+// The head-on turn weave, the base E-FLD-0024 selects: the color turn weave's schedule and the bind table,
+// with the exchange firing only between a like head-on pair (love and love, or fear and fear, on the two
+// slots of one line) and a calm line, the HPP and FHP rotation of a zero-momentum pair. Both lines carry
+// no momentum, so every couple keeps its line momenta, and a lone tone never leaves its line. Found by the
+// search of E-FLD-0024 as the one momentum-keeping member (with its bind-reverse twin) that dresses no more
+// than the committed rule with a periodic vacuum and at most three vacuum line components; its dense
+// background splits into three line components, which the scattering block joins into one.
+export const HEAD_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
+  tables: [BIND_MOVE_FORWARD],
+  turn: COLOR_TURN,
+  swapAt: [...COLOR_TURN_SWAP_ORDER, ...[...COLOR_TURN_SWAP_ORDER].reverse()],
+  swapWhen: (line, wire) => {
+    const a = Math.floor(line / 3) - 1
+    const b = (line % 3) - 1
+
+    return a === b && a !== 0 && wire === 4
+  },
+})
+
 // the momentum weave of E-FLD-0023 in the same form (the committed schedule)
 export const MOMENTUM_WEAVE_COLOR_SPEC: ColorLocalSpec = colorLocalSpec({
   tables: [BIND_MOVE_FORWARD],
@@ -253,7 +272,7 @@ function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
 
 // the scattering set, in place: two tones on u, v with w, x calm move to w, x, and back. With `lone`, only
 // lone tones scatter (the opposite slots of all four calm), so the head-on pairs of the vacuum never do
-function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array, lone: boolean): void {
+function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array, lone: boolean, tally?: ScatterTally): void {
   for (let k = 0; k < set.length; k += 4) {
     const u = base + (set[k] ?? 0)
     const v = base + (set[k + 1] ?? 0)
@@ -275,6 +294,10 @@ function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set
 
     if (!here && !there) {
       continue
+    }
+
+    if (tally) {
+      tally.fired++
     }
 
     for (const [i, j] of [

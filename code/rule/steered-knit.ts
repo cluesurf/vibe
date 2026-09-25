@@ -98,7 +98,10 @@ export type KnitState = {
   readonly flux: Int32Array
 }
 
-export type KnitSteer = false | 'slot' | 'lone'
+// 'line' is 'lone' with the string read per line instead of per slot: the two lines are traded where
+// together they hold one charge and they carry string on different numbers of their links. A reversal of
+// every direction swaps the two links of a line, so this reading is the one that reversal leaves alone
+export type KnitSteer = false | 'slot' | 'lone' | 'line'
 
 export function makeSteeredKnit(input: { side: number; spec: ColorLocalSpec; steer: KnitSteer }): SteeredKnit {
   const mesh = d4BoxMesh({ side: input.side })
@@ -159,24 +162,43 @@ export function makeSteeredKnit(input: { side: number; spec: ColorLocalSpec; ste
 // 'slot' is E-FRC-0146's: each slot pair on its own, where exactly one holds a charge. 'lone' trades the
 // two lines whole, slot for slot, where together they hold exactly one charge, and the charge's slot and
 // the matching slot of the other line differ in string. A line holding a pair never steers under 'lone'
-export function steerDock(input: { knit: SteeredKnit; slots: Int8Array; base: number; string: (d: number) => boolean; t: number }): void {
-  const { knit, slots, base, string, t } = input
+// When `role` is given, role points ride with their vibes. `couples` is the beat's partition, when the
+// caller has it already
+export function steerDock(input: {
+  knit: SteeredKnit
+  slots: Int8Array
+  base: number
+  string: (d: number) => boolean
+  t: number
+  role?: Int8Array
+  couples?: readonly (readonly [number, number])[]
+}): void {
+  const { knit, slots, base, string, t, role } = input
   const swap = (i: number, j: number): void => {
     const v = slots[base + i] ?? 0
 
     slots[base + i] = slots[base + j] ?? 0
     slots[base + j] = v
+
+    if (role) {
+      const r = role[base + i] ?? 0
+
+      role[base + i] = role[base + j] ?? 0
+      role[base + j] = r
+    }
   }
 
-  for (const [p, q] of partitionAt(knit.spec, t)) {
+  for (const [p, q] of input.couples ?? partitionAt(knit.spec, t)) {
     const a = knit.lines[p] ?? [0, 0]
     const b = knit.lines[q] ?? [0, 0]
 
-    if (knit.steer === 'lone') {
+    if (knit.steer === 'lone' || knit.steer === 'line') {
       const charged = [a[0], a[1], b[0], b[1]].filter(d => slots[base + d] !== 0)
       const s = charged[0] === a[0] || charged[0] === b[0] ? 0 : 1
+      const count = (l: readonly [number, number]): number => (string(l[0]) ? 1 : 0) + (string(l[1]) ? 1 : 0)
+      const differ = knit.steer === 'lone' ? string(a[s]) !== string(b[s]) : count(a) !== count(b)
 
-      if (charged.length === 1 && string(a[s]) !== string(b[s])) {
+      if (charged.length === 1 && differ) {
         swap(a[0], b[0])
         swap(a[1], b[1])
       }
@@ -193,67 +215,83 @@ export function steerDock(input: { knit: SteeredKnit; slots: Int8Array; base: nu
 }
 
 // one dock's collision at beat t, forward (S K S) or back (S K^-1 S), given its string directions
-export function knitDock(input: { knit: SteeredKnit; slots: Int8Array; base: number; string: (d: number) => boolean; t: number; forward: boolean }): void {
-  const { knit, slots, base, string, t, forward } = input
+export function knitDock(input: {
+  knit: SteeredKnit
+  slots: Int8Array
+  base: number
+  string: (d: number) => boolean
+  t: number
+  forward: boolean
+  couples?: readonly (readonly [number, number])[]
+}): void {
+  const { knit, slots, base, string, t, forward, couples } = input
 
   if (knit.steer) {
-    steerDock({ knit, slots, base, string, t })
+    steerDock({ knit, slots, base, string, t, couples })
   }
 
   ;(forward ? knit.forward : knit.backward)(t)(slots, base, 24)
 
   if (knit.steer) {
-    steerDock({ knit, slots, base, string, t })
+    steerDock({ knit, slots, base, string, t, couples })
   }
 }
 
-function collideAll(knit: SteeredKnit, state: KnitState, t: number, forward: boolean): void {
+// the collision of every dock at beat t, in place, forward or back
+export function knitCollide(knit: SteeredKnit, state: KnitState, t: number, forward: boolean): void {
+  const couples = partitionAt(knit.spec, t)
+
   for (let x = 0; x < knit.mesh.cellCount; x++) {
     const string = (d: number): boolean => mod3(state.flux[knit.edgeOf[x * 24 + d] ?? 0] ?? 0) !== 0
 
-    knitDock({ knit, slots: state.vibe, base: x * 24, string, t, forward })
+    knitDock({ knit, slots: state.vibe, base: x * 24, string, t, forward, couples })
   }
 }
 
-export function knitBeat(knit: SteeredKnit, state: KnitState, t: number): KnitState {
-  const vibe = Int8Array.from(state.vibe)
-  const flux = Int32Array.from(state.flux)
-  const work = { vibe, flux }
-
-  collideAll(knit, work, t, true)
-
-  knit.edges.forEach(([a, b, d], l) => {
-    flux[l] = (flux[l] ?? 0) + (vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) - (vibe[a * 24 + d] ?? 0)
-  })
-
-  const out = new Int8Array(vibe.length)
-
-  for (let x = 0; x < knit.mesh.cellCount; x++) {
-    for (let d = 0; d < 24; d++) {
-      out[(knit.neighbour[x * 24 + d] ?? 0) * 24 + d] = vibe[x * 24 + d] ?? 0
-    }
-  }
-
-  return { vibe: out, flux }
-}
-
-export function knitBeatBack(knit: SteeredKnit, state: KnitState, t: number): KnitState {
+// the stream, forward or back: every slot moves one link, and each link's flux changes by what crossed it
+export function knitStream(knit: SteeredKnit, state: KnitState, forward: boolean): KnitState {
   const vibe = new Int8Array(state.vibe.length)
   const flux = Int32Array.from(state.flux)
 
+  if (forward) {
+    knit.edges.forEach(([a, b, d], l) => {
+      flux[l] = (flux[l] ?? 0) + (state.vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) - (state.vibe[a * 24 + d] ?? 0)
+    })
+  }
+
   for (let x = 0; x < knit.mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
-      vibe[x * 24 + d] = state.vibe[(knit.neighbour[x * 24 + d] ?? 0) * 24 + d] ?? 0
+      const y = knit.neighbour[x * 24 + d] ?? 0
+
+      if (forward) {
+        vibe[y * 24 + d] = state.vibe[x * 24 + d] ?? 0
+      } else {
+        vibe[x * 24 + d] = state.vibe[y * 24 + d] ?? 0
+      }
     }
   }
 
-  knit.edges.forEach(([a, b, d], l) => {
-    flux[l] = (flux[l] ?? 0) - (vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) + (vibe[a * 24 + d] ?? 0)
-  })
+  if (!forward) {
+    knit.edges.forEach(([a, b, d], l) => {
+      flux[l] = (flux[l] ?? 0) - (vibe[b * 24 + (knit.opposite[d] ?? d)] ?? 0) + (vibe[a * 24 + d] ?? 0)
+    })
+  }
 
-  const work = { vibe, flux }
+  return { vibe, flux }
+}
 
-  collideAll(knit, work, t, false)
+export function knitBeat(knit: SteeredKnit, state: KnitState, t: number): KnitState {
+  const work = { vibe: Int8Array.from(state.vibe), flux: Int32Array.from(state.flux) }
+
+  knitCollide(knit, work, t, true)
+
+  return knitStream(knit, work, true)
+}
+
+export function knitBeatBack(knit: SteeredKnit, state: KnitState, t: number): KnitState {
+  const work = knitStream(knit, state, false)
+
+  knitCollide(knit, work, t, false)
 
   return work
 }

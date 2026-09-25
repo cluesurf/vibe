@@ -145,18 +145,24 @@ export default experiment({
         will = makeWill(mesh)
       }
 
-      // 3 and 4 and 5: the turn
-      const [v, a, b] = starts.map(s => run('fear', s)) as [DockState[], DockState[], DockState[]]
+      // 3 and 4 and 5: the turn, the three states in lockstep, nothing kept but the first beats (for gate 1)
+      // and the current ones, stopped where a joint map passes the cap
+      let v = dockStart(lines, starts[0])
+      let a = dockStart(lines, starts[1])
+      let b = dockStart(lines, starts[2])
+      const early: { v: DockState; a: DockState }[] = []
       let exact = true
       let sectorViolations = 0
+      let vacuumTouched = 0
+      let reached = 0
+      const defect: number[] = []
+      const cross: number[] = []
+      const pairsPerBeat: number[] = []
+      let spreadAtEnd = 0
+      let jointMax = 0
 
-      for (const [states, charge] of [
-        [v, 0],
-        [a, 1],
-        [b, 1],
-      ] as const) {
-        for (const s of states) {
-          exact = exact && dockNorm(s) === 4n ** BigInt(s.halvings)
+      const check = (s: DockState, charge: number): void => {
+        exact = exact && dockNorm(s) === 4n ** BigInt(s.halvings)
 
           for (const key of s.joint.keys()) {
             let q = 0
@@ -170,51 +176,29 @@ export default experiment({
             sectorViolations += q === charge ? 0 : 1
           }
 
-          s.free.forEach((vec, l) => {
-            if (!s.touched.includes(l)) {
-              vec.forEach((z, k) => {
-                const [x, y] = stateOf(k)
+        s.free.forEach((vec, l) => {
+          if (!s.touched.includes(l)) {
+            vec.forEach((z, k) => {
+              const [x, y] = stateOf(k)
 
-                sectorViolations += (z[0] !== 0n || z[1] !== 0n) && x + y !== 0 ? 1 : 0
-              })
-            }
-          })
-        }
+              sectorViolations += (z[0] !== 0n || z[1] !== 0n) && x + y !== 0 ? 1 : 0
+            })
+          }
+        })
       }
 
-      let back = a[BEATS]!
+      const observe = (): void => {
+        const pv = dockProfile(v, lines, 24)
+        const pa = dockProfile(a, lines, 24)
 
-      for (let t = BEATS - 1; t >= 0; t--) {
-        back = dockReducedBeat(back, knit, kind, 'fear', t, false)
-      }
+        defect.push(pa.filter((x, s) => x * 4n ** BigInt(v.halvings) !== (pv[s] ?? 0n) * 4n ** BigInt(a.halvings)).length)
+        cross.push(dockCross(a, b, lines, 24).filter(x => x !== 0n).length)
 
-      const start = a[0]!
-      const reverses =
-        back.halvings === 0 &&
-        back.joint.size === start.joint.size &&
-        [...start.joint].every(([k, z]) => back.joint.get(k)?.[0] === z[0] && back.joint.get(k)?.[1] === z[1]) &&
-        back.free.every((vec, l) => back.touched.includes(l) || vec.every((z, k) => z[0] === (start.free[l]?.[k]?.[0] ?? 0n) && z[1] === (start.free[l]?.[k]?.[1] ?? 0n)))
-
-      const defect: number[] = []
-      const cross: number[] = []
-
-      for (let t = 0; t <= BEATS; t++) {
-        const pv = dockProfile(v[t]!, lines, 24)
-        const pa = dockProfile(a[t]!, lines, 24)
-
-        defect.push(pa.filter((x, s) => x * 4n ** BigInt(v[t]!.halvings) !== (pv[s] ?? 0n) * 4n ** BigInt(a[t]!.halvings)).length)
-        cross.push(dockCross(a[t]!, b[t]!, lines, 24).filter(x => x !== 0n).length)
-      }
-
-      // the vacuum's properties: the chance each line holds a pair, per beat
-      const pairsPerBeat: number[] = []
-      let spreadAtEnd = 0
-
-      v.forEach((s, t) => {
+        // the vacuum: the chance each line holds a pair
         let mean = 0
         let variance = 0
 
-        s.free.forEach(vec => {
+        v.free.forEach(vec => {
           const total = vec.reduce((acc, z) => acc + norm(z), 0n)
           const calm = norm(vec[4] ?? [0n, 0n])
           const p = total > 0n ? Number(((total - calm) * 1000000n) / total) / 1e6 : 0
@@ -224,11 +208,45 @@ export default experiment({
         })
 
         pairsPerBeat.push(mean)
+        spreadAtEnd = variance
+      }
 
-        if (t === BEATS) {
-          spreadAtEnd = variance
+      observe()
+
+      for (let t = 0; t < BEATS; t++) {
+        v = dockReducedBeat(v, knit, kind, 'fear', t, true)
+        a = dockReducedBeat(a, knit, kind, 'fear', t, true)
+        b = dockReducedBeat(b, knit, kind, 'fear', t, true)
+        check(v, 0)
+        check(a, 1)
+        check(b, 1)
+        vacuumTouched = Math.max(vacuumTouched, v.touched.length)
+        jointMax = Math.max(jointMax, a.joint.size, b.joint.size)
+        reached = t + 1
+
+        if (t < CHECK_BEATS) {
+          early.push({ v, a })
         }
-      })
+
+        observe()
+
+        if (a.joint.size > JOINT_CAP || b.joint.size > JOINT_CAP) {
+          break
+        }
+      }
+
+      let back = a
+
+      for (let t = reached - 1; t >= 0; t--) {
+        back = dockReducedBeat(back, knit, kind, 'fear', t, false)
+      }
+
+      const start = dockStart(lines, starts[1])
+      const reverses =
+        back.halvings === 0 &&
+        back.joint.size === start.joint.size &&
+        [...start.joint].every(([k, z]) => back.joint.get(k)?.[0] === z[0] && back.joint.get(k)?.[1] === z[1]) &&
+        back.free.every((vec, l) => back.touched.includes(l) || vec.every((z, k) => z[0] === (start.free[l]?.[k]?.[0] ?? 0n) && z[1] === (start.free[l]?.[k]?.[1] ?? 0n)))
 
       const classicalPairs: number[] = []
 
@@ -246,7 +264,7 @@ export default experiment({
       }
 
       const mean = (xs: number[]): number => xs.slice(1).reduce((s, x) => s + x, 0) / (xs.length - 1)
-      const lineSupports = v[BEATS]!.free.map(vec => vec.filter(z => z[0] !== 0n || z[1] !== 0n).length)
+      const lineSupports = v.free.map(vec => vec.filter(z => z[0] !== 0n || z[1] !== 0n).length)
 
       return {
         seeds: [slotA ?? -1, slotB ?? -1],
@@ -254,10 +272,11 @@ export default experiment({
         exact,
         sectorViolations,
         reverses,
-        vacuumTouched: Math.max(...v.map(s => s.touched.length)),
-        touchedA: a[BEATS]!.touched.length,
-        touchedB: b[BEATS]!.touched.length,
-        jointA: a[BEATS]!.joint.size,
+        reached,
+        vacuumTouched,
+        touchedA: a.touched.length,
+        touchedB: b.touched.length,
+        jointMax,
         defectMax: Math.max(...defect),
         firstSpread: defect.findIndex(d => d > 1),
         crossMax: Math.max(...cross),

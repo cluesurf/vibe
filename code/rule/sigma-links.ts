@@ -38,8 +38,26 @@
 // 5. the demons stream
 // Backward runs the inverse stream, then every move in the reverse order.
 //
+// The conjugate coupling, `couple: 'center'` (E-FRC-0154). In Hamiltonian lattice gauge theory the flux
+// and the center phase generate each other's shifts. Here a flux loop move that shifts E round a triangle by
+// d = +1 or -1 also multiplies each of the triangle's three links, in its direction of travel, by w^d. The
+// center commutes with every element, so h_y (w g) h_x^-1 = w (h_y g h_x^-1): the move is covariant under all
+// 648 frame changes. The triangle's own transport gains w^(3d) = 1 and keeps its energy, while every other
+// triangle through one of its links turns by w or w^2 and is paid for. d flips with the parity of the first
+// link's flux, so a second application undoes the first, flux and phase together. Gauss's law is untouched,
+// since the flux change is a closed loop. A hop does the same on the one link it crosses: the flux there
+// changes by -v, and the link is twisted by w^-v in the direction of travel. So every change of E on a link
+// is a twist of that link by w to the change, and the untwisted part g w^-E of every link changes only when
+// the link reflects. That is the lock the note asked for, the center phase counted by E, made covariant:
+// the phase is E mod 3 relative to g w^-E, which a frame change moves with it, not relative to a fixed
+// section, which is what broke Gauss's law in E-FRC-0150. Off by default, which is the rule of E-FRC-0150 and
+// 0151. `scale` sets the level round(scale (1 - Re Tr / 3)), 6 by default. `reflect: false` stops the link
+// reflections, to isolate the lock.
+//
 // Switches for controls only: `gauss: false` hops without moving the flux, `priceFlux: false` takes flux
-// moves without paying the tension, `transport: false` carries role points without the link.
+// moves without paying the tension, `transport: false` carries role points without the link, `couple:
+// 'fixed'` twists by a fixed element outside the center (the frame change then breaks), `priceField: false`
+// takes coupled loop moves without paying for the triangles they turn (the energy then leaks).
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
@@ -85,6 +103,8 @@ export type SigmaLinks = {
   readonly couple: 'none' | 'center' | 'fixed'
   // whether a coupled loop move pays for the triangles it changes (false only for a control)
   readonly priceField: boolean
+  // whether links reflect (false only to isolate the coupling)
+  readonly reflect: boolean
   readonly scale: number
   // w, the center element with Tr = 3 w, and its inverse
   readonly omega: number
@@ -122,6 +142,7 @@ export function makeSigmaLinks(input: {
   transport?: boolean
   couple?: 'none' | 'center' | 'fixed'
   priceField?: boolean
+  reflect?: boolean
   scale?: number
 }): SigmaLinks {
   const mesh = d4BoxMesh({ side: input.side })
@@ -212,6 +233,7 @@ export function makeSigmaLinks(input: {
     priceFlux: input.priceFlux ?? true,
     couple: input.couple ?? 'none',
     priceField: input.priceField ?? true,
+    reflect: input.reflect ?? true,
     scale: input.scale ?? SCALE,
     omega,
     omegaInverse: group.inverse[omega] ?? group.identity,
@@ -498,8 +520,14 @@ function hop(rule: SigmaLinks, state: SigmaState, x: number, a: number, onHop?: 
 
   const after = cellMatter(rule, state, to)
   const tension = rule.priceFlux ? tensionOf(rule, moved) - tensionOf(rule, e) : 0
+  // the coupling: the crossed link, in the direction of travel, twisted by w to the flux change
+  const shift = mod3(moved - e)
+  const twisted =
+    rule.couple === 'center' && shift !== 0 ? times(rule, shift === 1 ? rule.omega : rule.omegaInverse, via) : via
+  const field =
+    twisted !== via && rule.priceField ? triangleEnergy(rule, state.links, from, d, twisted) - triangleEnergy(rule, state.links, from, d, via) : 0
 
-  if (!pay(rule, state, x * DEGREE + a, after - before + tension)) {
+  if (!pay(rule, state, x * DEGREE + a, after - before + tension + field)) {
     state.vibe[to] = 0
     state.role[to] = 0
     state.vibe[from] = v
@@ -509,6 +537,8 @@ function hop(rule: SigmaLinks, state: SigmaState, x: number, a: number, onHop?: 
   }
 
   addSigmaFlux(rule, state.flux, from, d, moved - e)
+  state.links[from * DEGREE + d] = twisted
+  state.links[to * DEGREE + (rule.opposite[d] ?? d)] = inverse(rule, twisted)
   onHop?.(from, to, d)
 
   return true
@@ -545,7 +575,7 @@ export function sigmaBeat(rule: SigmaLinks, input: SigmaState, t: number, onHop?
   const moved: SigmaMoves = { links: 0, loops: 0, roles: 0, hops: 0 }
 
   rule.firsts.forEach((a, k) => {
-    for (let x = 0; x < rule.cells; x++) {
+    for (let x = 0; x < (rule.reflect ? rule.cells : 0); x++) {
       moved.links += reflectLink(rule, state, x, a, t + k) ? 1 : 0
     }
   })
@@ -613,7 +643,7 @@ export function sigmaBeatBack(rule: SigmaLinks, input: SigmaState, t: number): S
     }
   }
 
-  for (let k = rule.firsts.length - 1; k >= 0; k--) {
+  for (let k = rule.reflect ? rule.firsts.length - 1 : -1; k >= 0; k--) {
     const a = rule.firsts[k] ?? 0
 
     for (let x = rule.cells - 1; x >= 0; x--) {
@@ -700,6 +730,23 @@ export function changeSigmaFrame(rule: SigmaLinks, state: SigmaState, frame: Arr
     demon: Int32Array.from(state.demon),
     flux: Int32Array.from(state.flux),
   }
+}
+
+// the untwisted part g w^-E of every link (x, a), a a first direction: under the coupling it changes only
+// when the link reflects
+export function untwistedLinks(rule: SigmaLinks, state: SigmaState): Int16Array {
+  const out = new Int16Array(rule.cells * DEGREE)
+
+  for (let x = 0; x < rule.cells; x++) {
+    for (const a of rule.firsts) {
+      const k = mod3(state.flux[x * DEGREE + a] ?? 0)
+      const unwind = k === 0 ? rule.identity : k === 1 ? rule.omegaInverse : rule.omega
+
+      out[x * DEGREE + a] = times(rule, unwind, state.links[x * DEGREE + a] ?? 0)
+    }
+  }
+
+  return out
 }
 
 // the elements whose quotient is the identity: the center

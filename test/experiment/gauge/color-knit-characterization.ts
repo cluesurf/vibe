@@ -86,7 +86,8 @@ const SLAB = 4
 const SEED_BEAT = 3
 const KICK_BEATS = 20
 const KICK_SETTLED = 14
-const OFFSETS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+// the offsets E-FND-0118 read: blind at 1 and 2, absorbing at 3 and 5, a kick at 7 and 11
+const OFFSETS = [1, 2, 3, 5, 7, 11]
 const PROTECTED_BEATS = 26
 const PROFILE_SIDE = 21
 const PROFILE_BEATS = 26
@@ -311,7 +312,9 @@ function kickLaw(c: Candidate): {
   const roots = rootsD4()
   const mesh = d4Mesh({ side: KICK_SIDE })
   const opposite = meshOpposites(mesh)
-  const rule = colorLocalCollision({ spec: c.spec, opposite })
+  // the lookup form of the rule (code/measure/generation-copies), the same result, fast where most cells
+  // hold a vacuum state
+  const rule = memoizedRule(colorLocalCollision({ spec: c.spec, opposite }))
   const side = KICK_SIDE
   const coordinate = (cell: number, a: number): number => Math.floor(cell / side ** a) % side
   const cellAt = (v: readonly number[]): number => v.reduce((s, x, a) => s + (((x % side) + side) % side) * side ** a, 0)
@@ -368,8 +371,26 @@ function kickLaw(c: Candidate): {
     return { re, im, support }
   }
   const phaseAt = (r: { re: number[]; im: number[] }, t: number): number => Math.round(phaseDegrees([r.re[t] ?? 0, r.im[t] ?? 0]))
+  const freeRuns = new Map<number, ReturnType<typeof branch>>()
+  const regimeOf = new Map<string, KickRegime>()
   const classify = (d: number, offset: number): KickRegime => {
-    const free = branch(d, 0, [{ cell: seedFor(d), dir: d }])
+    const known = regimeOf.get(`${d}:${offset}`)
+
+    if (known) {
+      return known
+    }
+
+    const regime = classifyOnce(d, offset)
+
+    regimeOf.set(`${d}:${offset}`, regime)
+
+    return regime
+  }
+  const classifyOnce = (d: number, offset: number): KickRegime => {
+    const free = freeRuns.get(d) ?? branch(d, 0, [{ cell: seedFor(d), dir: d }])
+
+    freeRuns.set(d, free)
+
     const slab = branch(d, offset, [{ cell: seedFor(d), dir: d }])
     const beats = Array.from({ length: KICK_BEATS - SEED_BEAT }, (_, k) => k + SEED_BEAT)
 
@@ -720,14 +741,23 @@ type Profile = Record<string, number>
 
 function characterize(c: Candidate): Profile {
   const rule = scheduledOf(c.spec)
-  const cpt = cptAndConnectivity(c)
-  const kick = kickLaw(c)
-  const reaches = travelReaches(rule)
+  const started = Date.now()
+  // progress on stderr, so a long run can be followed
+  const stage = <T>(name: string, f: () => T): T => {
+    const value = f()
+
+    console.error(`${c.name} ${name} ${Math.round((Date.now() - started) / 1000)}s`)
+
+    return value
+  }
+  const cpt = stage('cpt', () => cptAndConnectivity(c))
+  const kick = stage('kick', () => kickLaw(c))
+  const reaches = stage('travel', () => travelReaches(rule))
   const free = Math.SQRT2 * TRAVEL_BEATS
   const vacuumSectors = lineSectors(rule, false)
   const denseSectors = lineSectors(rule, true)
-  const sym = symmetryAndChirality(c)
-  const gen = generationCopies(c)
+  const sym = stage('symmetry', () => symmetryAndChirality(c))
+  const gen = stage('generation', () => generationCopies(c))
   const { reverses, chargeKept } = reversalAndCharge(rule)
   const regimeCode = (r: KickRegime): number => ({ blind: 0, kick: 1, absorbing: 2, other: 3 })[r]
   const sectorSizes = (s: number[][]): number => Number(s.map(x => x.length).sort((a, b) => b - a).join(''))

@@ -10,11 +10,18 @@
 //
 // The bases. The color turn weave (code/rule/color-turn-weave) is the likely new knit, color-local and
 // passing the committed dressing, but its lone-away exchange turns a lone tone between lines, so it does
-// not keep P (E-FLD-0021 on the bind table): no block added to it can make P exact. The measured base is
-// therefore the color turn weave's schedule (its turn and swap order) with the exchange widened to keep
-// momentum (a lone tone against a calm or paired line, E-FLD-0023): the momentum turn weave. The momentum
-// weave (the committed schedule, E-FLD-0023) is run beside it, and the color turn weave itself as the
-// control on which P cannot be exact.
+// not keep P (E-FLD-0021 on the bind table): no block added to it can make P exact, and it is run here as
+// the control on which P drifts. A momentum-keeping base has to change the exchange. The selection:
+// 0. every distinct momentum-keeping member of E-FLD-0022 (1,345, negation-symmetric conditions on the
+//    bind, bind-reverse, flip and identity tables, palindromic or not) under the committed schedule and
+//    under the color turn schedule, staged through the gates: a lone love's dressing no larger than the
+//    committed rule's in any period, CPT, the vacuum period, vacuum line components and dense line
+//    components no more than the committed 3 and 1, travel at least 12 of 24. The members that fail only
+//    the dense line graph are then run again with the block, which couples lines, through the whole
+//    battery. The one that passes is the head-on turn weave (code/rule/scatter-weave HEAD_TURN_SPEC): the
+//    color turn schedule, the bind table, and the exchange of a like head-on pair with a calm line (the
+//    HPP and FHP rotation). The momentum turn weave (the color turn schedule with E-FLD-0023's widened
+//    exchange) keeps P too and passes every gate but dressing; it is run beside it.
 //
 // Measured, on each base with the block on:
 // 1. the census: 216 scatterings, 144 keeping sides, 24 quadruples of six, 6 partitions, 3 disjoint pairs;
@@ -28,7 +35,8 @@
 //    dock, and the ones the scatter weave keeps: at least the same set;
 // 7. the acceptance battery (code/measure/weave-acceptance) against the committed rule: reversal, charge,
 //    CPT, the vacuum period, line components on the vacuum and a dense background, travel,
-//    superposition, walls, gated at least as good; dressing reported.
+//    superposition, walls, and a lone love's dressing, gated at least as good (as E-FRC-0125 gates); a
+//    lone fear's dressing reported beside the committed one.
 // Control: the lone-tone condition switched to "any two tones" makes the vacuum's own pairs scatter, which
 // is reported (its vacuum period and dressing), and the color turn base, on which P drifts.
 //
@@ -36,20 +44,38 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type Collision, turningWeave } from '@/code/rule/collision'
+import { BIND_MOVE_FORWARD, type Collision, turningWeave } from '@/code/rule/collision'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
-import { colorLocalBeat, colorLocalCollision, makeColorLocalWeave, type ColorLocalSpec } from '@/code/rule/color-local-weave'
-import { acceptance, cptMirrorPhase, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import { colorLocalBeat, colorLocalCollision, colorLocalSpec, makeColorLocalWeave, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  acceptance,
+  type Acceptance,
+  cptMirrorPhase,
+  dressing,
+  lineComponents,
+  type ScheduledRule,
+  travel,
+  vacuumPeriod,
+} from '@/code/measure/weave-acceptance'
 import { latticeQuotient } from '@/code/measure/integer-lattice'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { gaussHolds, type VibeState } from '@/code/rule/vibe-weave'
-import { lineMomenta, momentumOf } from '@/code/rule/momentum-weave'
+import {
+  BIND_REVERSE_TABLE,
+  FLIP_TABLE,
+  IDENTITY_TABLE,
+  lineMomenta,
+  momentumOf,
+  momentumWeave,
+  type MomentumWeaveSpec,
+  negationSymmetricMembers,
+} from '@/code/rule/momentum-weave'
 import {
   allScatterings,
   lineOfSlot,
+  HEAD_TURN_SPEC,
   makeScatterWeave,
   MOMENTUM_TURN_SPEC,
-  MOMENTUM_WEAVE_COLOR_SPEC,
   scatterBeat,
   scatterBeatBack,
   scatterCollision,
@@ -239,11 +265,104 @@ function keptSymmetries(rule: (t: number) => Collision): number {
   return kept
 }
 
+// every gate of E-FRC-0125 against the committed rule, a lone love's dressing included
+function passesCommitted(a: Acceptance, committed: Acceptance): boolean {
+  const atLeast = (ok: boolean, reference: boolean): boolean => ok || !reference
+
+  return (
+    atLeast(a.reverses, committed.reverses) &&
+    atLeast(a.chargeKept, committed.chargeKept) &&
+    atLeast(a.cptPhase >= 0, committed.cptPhase >= 0) &&
+    atLeast(a.vacuumPeriod > 0, committed.vacuumPeriod > 0) &&
+    a.vacuumComponents <= committed.vacuumComponents &&
+    a.denseComponents <= committed.denseComponents &&
+    atLeast(a.additivityWorst < 1e-9, committed.additivityWorst < 1e-9) &&
+    atLeast(a.wallQuantized && a.wallMax > 0, committed.wallQuantized && committed.wallMax > 0) &&
+    a.travellers >= committed.travellers &&
+    a.love.periodLargest.every((x, p) => x <= (committed.love.periodLargest[p] ?? 0))
+  )
+}
+
+const STAGES = ['dressing', 'cpt', 'vacuumPeriod', 'vacuumComponents', 'denseComponents', 'travel', 'none'] as const
+
+// The selection: every distinct negation-symmetric momentum-keeping member under two schedules, staged
+// through the gates cheapest-deciding first, then the members that fail only the dense line graph run
+// again with the block through the whole battery
+function select(committed: Acceptance): { metrics: Record<string, number>; passing: string[]; selectedPasses: boolean } {
+  const members = negationSymmetricMembers([
+    ['bind', BIND_MOVE_FORWARD],
+    ['bind-reverse', BIND_REVERSE_TABLE],
+    ['flip', FLIP_TABLE],
+    ['identity', IDENTITY_TABLE],
+  ])
+  const schedules: [string, { turn?: readonly number[]; swapAt?: readonly number[] }][] = [
+    ['committedSchedule', {}],
+    ['colorTurnSchedule', { turn: COLOR_TURN_SPEC.turn, swapAt: COLOR_TURN_SPEC.swapAt }],
+  ]
+  const metrics: Record<string, number> = {}
+  const passing: string[] = []
+
+  let selectedPasses = false
+
+  for (const [name, schedule] of schedules) {
+    const counts: Record<string, number> = Object.fromEntries(STAGES.map(s => [s, 0]))
+    const denseOnly: { id: string; spec: MomentumWeaveSpec }[] = []
+
+    for (const m of members) {
+      const spec: MomentumWeaveSpec = { ...m.spec, ...schedule }
+      const rule: ScheduledRule = (o, f) => momentumWeave({ spec, opposite: o, forward: f })
+      let stage: (typeof STAGES)[number] = 'none'
+
+      if (dressing(rule, { tone: 1, caps: committed.love.periodLargest }).overCapAt >= 0) stage = 'dressing'
+      else if (cptMirrorPhase(rule) < 0) stage = 'cpt'
+      else if (vacuumPeriod(rule) <= 0) stage = 'vacuumPeriod'
+      else if (lineComponents(rule, false) > committed.vacuumComponents) stage = 'vacuumComponents'
+      else if (lineComponents(rule, true) > committed.denseComponents) stage = 'denseComponents'
+      else if (travel(rule).travellers < committed.travellers) stage = 'travel'
+
+      counts[stage] = (counts[stage] ?? 0) + 1
+
+      if (stage === 'denseComponents') {
+        denseOnly.push({ id: m.id, spec })
+      }
+    }
+
+    STAGES.forEach(s => (metrics[`${name}_firstFailure_${s}`] = counts[s] ?? 0))
+    metrics[`${name}_denseOnlyFailures`] = denseOnly.length
+
+    for (const { id, spec } of denseOnly) {
+      const fires = spec.fires
+      const base = colorLocalSpec({
+        tables: [spec.table],
+        turn: spec.turn,
+        swapAt: spec.swapAt,
+        positionAt: spec.positionAt,
+        palindrome: spec.palindrome,
+        swapWhen: (l, w) => fires[l * 9 + w] === 1,
+      })
+      const mirror = cptMirrorPhase(baseRule(base))
+      const withBlock = acceptance(scatterRule({ base, mirror, sets: scatterSchedule() }))
+
+      if (passesCommitted(withBlock, committed)) {
+        passing.push(`${name}:${id}`)
+
+        const headOn = Array.from({ length: 81 }, (_, x) => (HEAD_TURN_SPEC.swapWhen(Math.floor(x / 9), x % 9) || HEAD_TURN_SPEC.swapWhen(x % 9, Math.floor(x / 9)) ? 1 : 0))
+
+        selectedPasses =
+          selectedPasses ||
+          (name === 'colorTurnSchedule' && spec.table === BIND_MOVE_FORWARD && spec.palindrome && headOn.every((f, x) => f === fires[x]))
+      }
+    }
+  }
+
+  return { metrics, passing, selectedPasses }
+}
+
 export default experiment({
   id: 'fluids/scatter-weave',
   code: 'E-FLD-0024',
   title:
-    'a four-line binary scattering block (two lone tones on u and v leave on w and x when e_u + e_v = e_w + e_x, an involution on a fixed 24-beat schedule placed around the CPT mirror phase) on the momentum-keeping color turn weave keeps charge, P, reversal, Gauss, local color, the frame change and CPT at the base phase exactly, and makes the twelve line momenta exchange: the Smith form of its moves leaves P and charge parity as the only momentum invariants, where the base keeps all twelve',
+    'a four-line binary scattering block (two lone tones on u and v leave on w and x when e_u + e_v = e_w + e_x, an involution on a fixed 24-beat schedule placed around the CPT mirror phase) makes the twelve line momenta exchange while charge, P, reversal, Gauss, local color, the frame change and CPT stay exact, the Smith form of its moves leaving P and charge parity as the only momentum invariants; on the head-on turn weave (the color turn schedule with the FHP rotation of a like head-on pair as its exchange), the one momentum-keeping base a search of 2,690 finds that the block carries through every committed acceptance gate, a lone love dressing no more than the committed rule, the block joining the three dense line components the base leaves into one',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -261,11 +380,16 @@ export default experiment({
       quads.every(q => q.scatterings.length === 6 && q.pairs.length === 3) &&
       setsDisjoint
 
+    // 0. the selection, against the committed rule's own numbers
+    const committedRule: ScheduledRule = (o, f) => turningWeave({ opposite: o, forward: f })
+    const committed = acceptance(committedRule)
+    const selection = select(committed)
+
     // 2 to 4, on each base
     const opposite = rootsD4().map((r, _, all4) => all4.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
     const bases: [string, ColorLocalSpec][] = [
+      ['headTurn', HEAD_TURN_SPEC],
       ['momentumTurn', MOMENTUM_TURN_SPEC],
-      ['momentumWeave', MOMENTUM_WEAVE_COLOR_SPEC],
       ['colorTurn', COLOR_TURN_SPEC],
     ]
     const results = bases.map(([name, base]) => {
@@ -296,27 +420,22 @@ export default experiment({
     const blockQuotient = latticeQuotient(rows, 12)
 
     // 6. symmetries, at the dock
-    const knitSymmetries = keptSymmetries(colorLocalCollision({ spec: MOMENTUM_TURN_SPEC, opposite }))
-    const scatterSymmetries = keptSymmetries(scatterCollision({ spec: turn?.spec ?? { base: MOMENTUM_TURN_SPEC, mirror: 23, sets }, opposite }))
+    const mainSpec: ScatterWeaveSpec = turn?.spec ?? { base: HEAD_TURN_SPEC, mirror: 23, sets }
+    const knitSymmetries = keptSymmetries(colorLocalCollision({ spec: COLOR_TURN_SPEC, opposite }))
+    const baseSymmetries = keptSymmetries(colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite }))
+    const scatterSymmetries = keptSymmetries(scatterCollision({ spec: mainSpec, opposite }))
     const committedSymmetries = keptSymmetries(turningWeave({ opposite }))
 
-    // 7. the battery, the scatter weave on the momentum turn base against the committed rule
-    const battery = acceptance(scatterRule(turn?.spec ?? { base: MOMENTUM_TURN_SPEC, mirror: 23, sets }))
-    const committed = acceptance((o, f) => turningWeave({ opposite: o, forward: f }))
-    const atLeast = (ok: boolean, reference: boolean): boolean => ok || !reference
-    const structural =
-      atLeast(battery.reverses, committed.reverses) &&
-      atLeast(battery.chargeKept, committed.chargeKept) &&
-      atLeast(battery.cptPhase >= 0, committed.cptPhase >= 0) &&
-      atLeast(battery.vacuumPeriod > 0, committed.vacuumPeriod > 0) &&
-      battery.vacuumComponents <= committed.vacuumComponents &&
-      battery.denseComponents <= committed.denseComponents &&
-      atLeast(battery.additivityWorst < 1e-9, committed.additivityWorst < 1e-9) &&
-      atLeast(battery.wallQuantized && battery.wallMax > 0, committed.wallQuantized && committed.wallMax > 0) &&
-      battery.travellers >= committed.travellers
+    // 7. the battery, the scatter weave on the head-on turn base against the committed rule
+    const battery = acceptance(scatterRule(mainSpec))
+    const baseBattery = acceptance(baseRule(HEAD_TURN_SPEC))
+    const momentumTurnBattery = acceptance(scatterRule(weave?.spec ?? { base: MOMENTUM_TURN_SPEC, mirror: 23, sets }))
+    const passes = (a: Acceptance): boolean => passesCommitted(a, committed)
+    const structural = passes(battery)
+    const fearNoMore = battery.fear.periodLargest.every((x, p) => x <= (committed.fear.periodLargest[p] ?? 0))
 
     // control: any two tones scatter, the vacuum's pairs included
-    const anyTones = acceptance(scatterRule({ ...(turn?.spec ?? { base: MOMENTUM_TURN_SPEC, mirror: 23, sets }), lone: false }))
+    const anyTones = acceptance(scatterRule({ ...mainSpec, lone: false }))
 
     const exact = (r: (typeof results)[number] | undefined): boolean =>
       r !== undefined && r.off && r.chargeKept && r.gauss && r.leaks === 0 && r.reverses && r.frameFree && r.cpt === r.mirror && r.cpt >= 0
@@ -335,7 +454,12 @@ export default experiment({
       blockQuotient.free === 4 &&
       blockQuotient.torsion.join(',') === '2' &&
       scatterSymmetries >= knitSymmetries &&
-      structural
+      structural &&
+      !passes(baseBattery) &&
+      !passes(momentumTurnBattery) &&
+      selection.selectedPasses &&
+      selection.passing.length > 0 &&
+      selection.passing.every(p => p.includes(':palindrome:'))
 
     const perBase: Record<string, number> = {}
 
@@ -370,7 +494,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the census is as stated; with the block off the rule is its base bit for bit; on both momentum-keeping bases the scatter weave keeps charge, P, Gauss, reversal, local color, the frame change and CPT at the base mirror phase exactly while the line momenta change, on the color turn base P drifts; the block leaves exactly P free with charge parity the only residue; it keeps every dock symmetry the knit keeps; and it is at least as good as the committed rule on reversal, charge, CPT, the vacuum period, both line-graph component counts, superposition, walls and travel',
+        'the census is as stated; with the block off the rule is its base bit for bit; on both momentum-keeping bases the scatter weave keeps charge, P, Gauss, reversal, local color, the frame change and CPT at the base mirror phase exactly while the line momenta change, and on the color turn base P drifts; the block leaves exactly P free with charge parity the only residue; it keeps every dock symmetry the knit keeps; the selection finds members that pass every gate only with the block, all palindromic, the head-on turn weave among them; the scatter weave on it is at least as good as the committed rule on every E-FRC-0125 gate, a lone love\'s dressing included, where the head-on turn weave without the block and the momentum turn weave with it are not',
       metrics: {
         scatterings: all.length,
         sideKeptScatterings: all.filter(s => s.sideKept).length,
@@ -382,16 +506,23 @@ export default experiment({
         blockFree: blockQuotient.free,
         blockTorsionOrder: blockQuotient.torsion.reduce((s, x) => s * x, 1),
         knitDockSymmetries: knitSymmetries,
+        baseDockSymmetries: baseSymmetries,
         scatterDockSymmetries: scatterSymmetries,
         committedDockSymmetries: committedSymmetries,
+        ...selection.metrics,
+        selectedPasses: selection.selectedPasses ? 1 : 0,
+        passingWithBlock: selection.passing.length,
         ...flat('scatter', battery),
+        fearNoMoreThanCommitted: fearNoMore ? 1 : 0,
       },
       control: {
         ...flat('committed', committed),
+        ...flat('headTurnWithoutBlock', baseBattery),
+        ...flat('momentumTurnWithBlock', momentumTurnBattery),
         ...flat('anyTones', anyTones),
       },
       notes:
-        'L2, exact, no random numbers. The block scatters lone tones only (the opposite slots of all four calm): letting any two tones scatter makes the head-on pairs of the vacuum scatter too, which the anyTones control shows costs the vacuum its 24-beat period and spreads a lone tone over two thirds of the side-9 box in the first period. The color turn weave cannot carry exact P under any added block, since its lone-away exchange turns a lone tone between lines (E-FLD-0021); its schedule with the momentum-keeping exchange of E-FLD-0023 is the base here. At the dock the committed rule, the knit and the scatter weave each keep only the identity among the 384 signed axis permutations, even allowing a time map, so "the same symmetries" is the identity plus the 24-beat period and CPT. The side-keeping restriction (144 of 216) is what local color asks: a calm role point is counted by its side, and a scattering moves calm role points from w and x to u and v. The dressing and the transport physics are E-FLD-0025.',
+        'L2, exact, no random numbers. The block scatters lone tones only (the opposite slots of all four calm): letting any two tones scatter makes the head-on pairs of the vacuum scatter too, which the anyTones control shows costs the vacuum its 24-beat period and spreads a lone tone over two thirds of the side-9 box in the first period. The color turn weave cannot carry exact P under any added block, since its lone-away exchange turns a lone tone between lines (E-FLD-0021). Among momentum-keeping bases the dressing and the line graph pull against each other: every member that dresses a lone love no more than the committed rule either never couples lines (12 vacuum components under the committed schedule) or, under the color turn schedule, leaves the dense background in two or three pieces; the block couples lone tones across lines and joins those pieces, and that is what reaches every gate at once. A lone fear on the head-on turn scatter weave dresses 33 slots in the first period against the committed 27 (a love 33 against 33), reported and not gated, as in E-FRC-0125. At the dock the committed rule, the knit and the scatter weave each keep only the identity among the 384 signed axis permutations, even allowing a time map, so "the same symmetries" is the identity plus the 24-beat period and CPT. The side-keeping restriction (144 of 216) is what local color asks: a calm role point is counted by its side, and a scattering moves calm role points from w and x to u and v. The dressing and the transport physics are E-FLD-0025.',
     })
   },
 })
