@@ -171,13 +171,39 @@ function vertex(
 // is the same palindrome) and reversal (X stays an involution).
 export type Firing = 'all' | 'one' | 'none'
 
+// The committed turning weave's conditional swap on two lines: exchange their contents when one holds
+// a lone tone on its trailing slot and the other is empty. An involution that conserves charge and
+// the number of tones.
+function conditionalSwap(slots: Int8Array, base: number, a: readonly [number, number], b: readonly [number, number]): void {
+  const a0 = slots[base + a[0]] ?? 0
+  const a1 = slots[base + a[1]] ?? 0
+  const b0 = slots[base + b[0]] ?? 0
+  const b1 = slots[base + b[1]] ?? 0
+  const loneAway = (x: number, y: number): boolean => x === 0 && y !== 0
+  const empty = (x: number, y: number): boolean => x === 0 && y === 0
+
+  if ((loneAway(a0, a1) && empty(b0, b1)) || (loneAway(b0, b1) && empty(a0, a1))) {
+    slots[base + a[0]] = b0
+    slots[base + a[1]] = b1
+    slots[base + b[0]] = a0
+    slots[base + b[1]] = a1
+  }
+}
+
+//
+// `swaps: true` adds the turning weave's conditional swap in triality-symmetric form: each beat the two
+// colour lines r and r + 1 swap as a couple (a triality fixes both), and the orbits r and r + 1 swap
+// line by line in their triality order (a_k with b_k, a set the triality maps to itself). A swap never
+// adds a tone, so it cannot start an avalanche. The beat is then V S P S V, a palindrome of
+// involutions, so its CPT mirror is its inverse.
 export function trialityWeave(input: {
   layout: TrialityWeaveLayout
   forward?: boolean
   creation?: Firing
   exchange?: Firing
+  swaps?: boolean
 }): (t: number) => Collision {
-  const { layout, forward = true, creation = 'all', exchange = 'all' } = input
+  const { layout, forward = true, creation = 'all', exchange = 'all', swaps = false } = input
   const fires = (mode: Firing, i: number, rotation: number): boolean =>
     mode === 'all' || (mode === 'one' && i === rotation)
   const table = forward ? PAIR_FORWARD : PAIR_INVERSE
@@ -193,11 +219,31 @@ export function trialityWeave(input: {
         exchange: fires(exchange, i, rotation),
       }))
       .filter(block => block.creation || block.exchange)
+    const line = (l: number): readonly [number, number] => layout.lines[l] ?? [0, 0]
+    const pairs: [readonly [number, number], readonly [number, number]][] = swaps
+      ? [
+          [line(layout.colour[rotation] ?? 0), line(layout.colour[(rotation + 1) % 3] ?? 0)],
+          ...[0, 1, 2].map(
+            k =>
+              [
+                line(layout.orbits[rotation]?.[k] ?? 0),
+                line(layout.orbits[(rotation + 1) % 3]?.[k] ?? 0),
+              ] as [readonly [number, number], readonly [number, number]],
+          ),
+        ]
+      : []
+    const swapAll = (slots: Int8Array, base: number): void => {
+      for (const [a, b] of pairs) {
+        conditionalSwap(slots, base, a, b)
+      }
+    }
 
     return (slots, base) => {
       for (const block of blocks) {
         vertex(slots, base, block.f, block.orbit, block.creation, block.exchange)
       }
+
+      swapAll(slots, base)
 
       for (const [leading, trailing] of layout.lines) {
         const out = table[key(slots[base + leading] ?? 0, slots[base + trailing] ?? 0)] ?? [0, 0]
@@ -205,6 +251,8 @@ export function trialityWeave(input: {
         slots[base + leading] = out[0]
         slots[base + trailing] = out[1]
       }
+
+      swapAll(slots, base)
 
       for (const block of blocks) {
         vertex(slots, base, block.f, block.orbit, block.creation, block.exchange)
