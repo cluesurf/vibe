@@ -1,119 +1,131 @@
-// P8 Stage C: non-Abelian confinement.
-// Run 3D SU(2) lattice gauge theory, sweep the coupling, and measure the string
-// tension via the Creutz ratio chi(2,2). Confinement (an area law) shows up as a
-// positive string tension. 3D SU(2) confines at all couplings, with the tension
-// decreasing as beta rises, so the signature is chi(2,2) > 0 and falling with
-// beta, alongside the average plaquette rising from disorder toward order.
-// Run: npx tsx code/experiment/p8-confinement.ts
+// Confinement in three-dimensional SU(2), carried to the continuum. In three dimensions the gauge
+// coupling g^2 has the units of a mass, so the string tension in units of it, sqrt(sigma) / g^2, is
+// one pure number with a continuum value, 0.3353(18) (Teper 1998). On the lattice beta = 4 / (a g^2),
+// so each coupling gives beta sqrt(sigma a^2) / 4, which must approach that number as the lattice
+// spacing goes to zero, linearly in 1 / beta at these couplings. A mapping from lattice numbers to a
+// continuum one, the step a finite lattice result never takes on its own.
+//
+// The string tension at each beta comes from the static potential: loops with APE-smeared spatial
+// links on a 16^3 box, V(R) fit to V0 + sigma R + c ln R over R = 2 to 6: in three dimensions the
+// short-distance force of one gluon is logarithmic, and a 1 / R term in its place leaks the log's
+// curvature into sigma (it read 13 percent high that way).
+//
+// The control is the continuum limit itself: were the tension a lattice artifact rather than
+// confinement, beta sqrt(sigma a^2) would run to zero or diverge as beta grows, not settle.
+//
+// Grade L2: textbook 3D SU(2) confinement and its continuum scaling, reproduced. The ensembles come
+// from the seeded heatbath, the sampling stand-in for the thermal ensemble.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
-import {
-  makeSu2Lattice,
-  metropolisSweep,
-  averagePlaquette,
-  wilsonLoop,
-} from '@/code/dynamics/su2-lattice'
-import { creutzRatioFromLoops } from '@/code/measure/wilson-loop'
+import { makeGaugeLattice, sampleGaugeEnsemble } from '@/code/dynamics/gauge-lattice'
+import { apeSmear } from '@/code/dynamics/gauge-smearing'
+import { staticWilsonLoops } from '@/code/measure/lattice-gauge-observable'
+import { averageSeries, jackknife } from '@/code/measure/jackknife'
+import { potentialAt } from '@/code/measure/static-potential'
+import { weightedLeastSquares, weightedLinearFit } from '@/code/measure/regression'
 
-function study(input: { beta: number; seed: number }): {
-  beta: number
-  plaquette: number
-  stringTension: number
-  acceptance: number
-} {
+const LENGTH = 16
+const MAX_R = 6
+const MAX_T = 5
+const PLATEAU_T = 3
+const BETAS = [5, 7, 9]
+// sqrt(sigma) / g^2 in the continuum, 3D SU(2) (Teper, Phys. Rev. D 59 (1999) 014512)
+const CONTINUUM = 0.3353
+
+function tensionAt(input: { beta: number; seed: number }): { value: number; error: number } {
   const rng = makeRng({ seed: input.seed })
-  const lattice = makeSu2Lattice({ dim: 3, length: 6, hot: false, rng })
-  const eps = 0.5
-
-  // Thermalise.
-  let acceptance = 0
-
-  for (let sweep = 0; sweep < 200; sweep++) {
-    acceptance = metropolisSweep({
-      lattice,
-      beta: input.beta,
-      eps,
-      rng,
-    })
-  }
-
-  // Measure: average the Wilson loops over decorrelated configurations, then form
-  // the Creutz ratio from the averaged loops (averaging loops, not ratios, keeps
-  // the estimator stable).
-  let w11 = 0
-  let w21 = 0
-  let w12 = 0
-  let w22 = 0
-
-  const measurements = 120
-
-  for (let m = 0; m < measurements; m++) {
-    for (let s = 0; s < 3; s++) {
-      metropolisSweep({ lattice, beta: input.beta, eps, rng })
-    }
-
-    w11 += wilsonLoop({ lattice, r: 1, t: 1 })
-    w21 += wilsonLoop({ lattice, r: 2, t: 1 })
-    w12 += wilsonLoop({ lattice, r: 1, t: 2 })
-    w22 += wilsonLoop({ lattice, r: 2, t: 2 })
-  }
-
-  w11 /= measurements
-  w21 /= measurements
-  w12 /= measurements
-  w22 /= measurements
-
-  const stringTension = creutzRatioFromLoops({
-    loop11: w11,
-    loop21: w21,
-    loop12: w12,
-    loop22: w22,
-  })
-
-  return {
+  const lattice = makeGaugeLattice({ group: 'su2', lengths: [LENGTH, LENGTH, LENGTH], start: 'cold', rng })
+  const samples = sampleGaugeEnsemble({
+    lattice,
     beta: input.beta,
-    plaquette: averagePlaquette({ lattice }),
-    stringTension,
-    acceptance,
+    thermalization: 60,
+    measurements: 120,
+    separation: 2,
+    overrelaxation: 2,
+    rng,
+    measure: current =>
+      staticWilsonLoops({
+        spatial: apeSmear({ lattice: current, alpha: 0.5, iterations: 10 }),
+        temporal: current,
+        maxR: MAX_R,
+        maxT: MAX_T + 1,
+      }).flat(),
+  })
+  const width = MAX_T + 2
+  const sigma = (subset: readonly number[][]): number => {
+    const mean = averageSeries({ series: subset })
+    const table = Array.from({ length: MAX_R + 1 }, (_, r) =>
+      Array.from({ length: width }, (__, t) => mean[r * width + t] ?? 1),
+    )
+    const v = potentialAt({ table, t: PLATEAU_T, maxR: MAX_R }).slice(1)
+    // in three dimensions the one-gluon exchange is logarithmic, V ~ c ln R, not c / R
+    const fit = weightedLeastSquares({
+      rows: v.map((_, i) => [1, i + 2, Math.log(i + 2)]),
+      ys: v,
+      errors: v.map(() => 1),
+    })
+
+    return fit.coefficients[1] ?? 0
   }
+
+  return jackknife({ samples, estimator: sigma, binSize: 4 })
 }
 
 export default experiment({
   id: 'gauge/confinement',
   code: 'E-FRC-0007',
   title:
-    '3D SU(2) lattice gauge theory confines, a positive string tension that weakens with the coupling',
+    '3D SU(2) confines with a string tension that, measured in units of the coupling at three lattice spacings, extrapolates to the continuum sqrt(sigma) / g^2 = 0.335',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
-    const betas = [0.5, 1.0, 1.6, 2.2, 3.0]
-    const rows = betas.map((beta, index) =>
-      study({ beta, seed: 50 + index }),
-    )
+    const points = BETAS.map((beta, index) => {
+      const sigma = tensionAt({ beta, seed: 70 + index })
+      const scaled = (beta * Math.sqrt(Math.max(sigma.value, 0))) / 4
+      const error = (beta / 4) * (sigma.error / (2 * Math.sqrt(Math.max(sigma.value, 1e-12))))
 
-    const tensions = rows.map(row => row.stringTension)
-    const allPositive = tensions.every(tension => tension > 0)
-    const decreasing =
-      (tensions[0] ?? 0) > (tensions[tensions.length - 1] ?? 0)
+      return { beta, sigma, scaled, error }
+    })
+    const extrapolation = weightedLinearFit({
+      xs: points.map(p => 1 / p.beta),
+      ys: points.map(p => p.scaled),
+      errors: points.map(p => p.error),
+    })
+    const continuumPull = (extrapolation.intercept - CONTINUUM) / extrapolation.interceptError
 
-    const ok = allPositive && decreasing
+    const confines = points.every(p => p.sigma.value > 5 * p.sigma.error)
+    const shrinks = points.every((p, i) => i === 0 || p.sigma.value < (points[i - 1]?.sigma.value ?? 0))
+    const continuum = Math.abs(continuumPull) < 3 && extrapolation.chi2 < 9
+    const ok = confines && shrinks && continuum
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'in 3D SU(2) lattice gauge theory the Creutz-ratio string tension is positive at every coupling and decreases as the coupling rises, the area-law signature of confinement',
+        'in 3D SU(2) the string tension is resolved at every coupling, shrinks in lattice units as the spacing shrinks, and beta sqrt(sigma a^2) / 4 extrapolated linearly in 1 / beta reaches the continuum sqrt(sigma) / g^2 = 0.3353',
       metrics: {
-        firstStringTension: tensions[0] ?? 0,
-        lastStringTension: tensions[tensions.length - 1] ?? 0,
-        allPositive: allPositive ? 1 : 0,
-        decreasing: decreasing ? 1 : 0,
+        stringTensionAt5: points[0]?.sigma.value ?? 0,
+        stringTensionAt7: points[1]?.sigma.value ?? 0,
+        stringTensionAt9: points[2]?.sigma.value ?? 0,
+        stringTensionErrorAt5: points[0]?.sigma.error ?? 0,
+        stringTensionErrorAt7: points[1]?.sigma.error ?? 0,
+        stringTensionErrorAt9: points[2]?.sigma.error ?? 0,
+        scaledAt5: points[0]?.scaled ?? 0,
+        scaledAt7: points[1]?.scaled ?? 0,
+        scaledAt9: points[2]?.scaled ?? 0,
+        continuumExtrapolation: extrapolation.intercept,
+        continuumExtrapolationError: extrapolation.interceptError,
+        extrapolationChi2: extrapolation.chi2,
+      },
+      control: {
+        publishedContinuum: CONTINUUM,
+        continuumPull,
       },
       notes:
-        'L2, known physics, textbook 3D SU(2) confinement. The Metropolis sweeps use a pseudo-random number generator, so each string tension is a Monte Carlo estimate over an ensemble, not a deterministic-base quantity. The result is a statistical reproduction of a known lattice fact, not an emergent claim about the substrate.',
+        'L2, known physics: 3D SU(2) confinement and its continuum limit. The potential is fit over R = 2 to 6 on a 16^3 box as V0 + sigma R + c ln R, the logarithm being the three-dimensional Coulomb force, and the string correction pi / (24 R) is left to c, so only sigma is used. The published continuum value is the reference, never an input. Rewritten 2026-09-25 from a Metropolis Creutz-ratio test with no control.',
     })
   },
 })

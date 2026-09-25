@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**71 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0071`](../../../test/experiment/gauge/family-symmetry-group.ts)**.
+**99 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0099`](../../../test/experiment/gauge/center-automaton.ts)**.
 
 ## What this arena tests
 
@@ -156,6 +156,29 @@ Whether the rule stabilizes topological solitons, the route to matter as knots i
 
 - **[`E-FRC-0073`](../../../test/experiment/gauge/fills-gate-transport.ts)** - (L2, paper) the fills are the magnitude half of a gauge connection: exact per-edge continuity, reach truncated at exactly an insulating fill over every placement, the Hebbian vacuum insulating, and no phase carried
 
+## The strong force, added 2026-09-25
+
+SU(3) gauge theory and quenched QCD, simulated. The map, the numbers, the caveats and what is still
+open are in [`strong-force.md`](strong-force.md).
+
+- **[`E-FRC-0080`](../../../test/experiment/gauge/su3-area-law.ts)** (L2) - 4D SU(3) confines: the Creutz ratio levels off at beta 5.7 (chi(3,3) / chi(2,2) = 0.76), while the U(1) photon (0.32) and weakly coupled SU(3) in the same box (0.36) fall off like a Coulomb force.
+- **[`E-FRC-0081`](../../../test/experiment/gauge/gluon-count.ts)** (L2) - the dynamics count 8.02 gauge fields for SU(3) (3.02 for SU(2), 1.01 for U(1)), N = 3.00 colours, and the cubic invariant 0.2500 that lets three quarks form a singlet (0 for SU(2) and U(1)).
+- **[`E-FRC-0082`](../../../test/experiment/gauge/su3-deconfinement.ts)** (L2) - SU(3) deconfines on 8^3 x 2 in a bisection bracket [5.100, 5.163] around the published 5.09, with a Polyakov loop that is zero below (1 / sqrt(V) scaling) and three degenerate center sectors above.
+- **[`E-FRC-0083`](../../../test/experiment/gauge/asymptotic-freedom.ts)** (L2) - the coupling grows with distance, with the same anti-screening per unit C_A from SU(2) and SU(3) (0.028 each) on top of the colour-blind U(1) artifact. Excludes a group-blind rise, not a C_F-proportional one.
+- **[`E-FRC-0084`](../../../test/experiment/gauge/quenched-hadrons.ts)** (L2) - the quenched pion is a Goldstone boson: m_pi goes as m_q to the power 0.44, against 0.97 with the gluons off.
+- **[`E-FRC-0085`](../../../test/experiment/gauge/quenched-hadrons.ts)** (L2) - the nucleon mass is made by the gluons: several times three free quarks, stopped falling by t = 7, and heavy at zero quark mass while the pion becomes light.
+- **[`E-FRC-0086`](../../../test/experiment/gauge/chiral-condensate.ts)** (L2) - chiral symmetry is broken below T_c (Sigma(0) = 0.286 +- 0.028) and restored above it at the same coupling (0.00014), with a noise-free estimator exact on free quarks.
+- **[`E-FRC-0087`](../../../test/experiment/gauge/static-quarks.ts)** (L2) - the static potential: sigma a^2 = 0.125 +- 0.021, Coulomb coefficient 0.34 +- 0.05 against pi / 12, and no string tension for the photon.
+- **[`E-FRC-0088`](../../../test/experiment/gauge/static-quarks.ts)** (L2) - r0 / a at beta 5.7 and 5.9 against Necco-Sommer, and two-loop running in the plaquette (E-scheme) coupling reproduces the published spacing ratio to 4 percent where the bare coupling misses by 18.
+- **[`E-FRC-0089`](../../../test/experiment/gauge/static-quarks.ts)** (L2) - the scalar glueball from a variational basis, m r0 = 4.05 +- 0.50 against the continuum 4.21.
+- **[`E-FRC-0090`](../../../test/experiment/gauge/dynamical-quarks.ts)** (L2) - dynamical quarks (HMC) screen the static quark: Re P independent of volume, a center rotation costs ln det = -60, the determinant checked against the hopping expansion.
+- **[`E-FRC-0091`](../../../test/experiment/gauge/quenched-hadrons.ts)** (L2) - the rho in a 2 fm box, and m_N / m_rho and the J parameter against their published values.
+- **[`E-FRC-0092`](../../../test/experiment/gauge/deterministic-thermalization.ts)** (L2) - deterministic reversible SU(3) dynamics with no random numbers reproduces the heatbath ensemble, plaquette and area law, at the coupling its own temperature predicts.
+- **[`E-FRC-0093`](../../../test/experiment/gauge/rule-tone-symmetry.ts)** (L3) to **[`E-FRC-0097`](../../../test/experiment/gauge/rule-triangle-coupling.ts)** - SU(3) is not in the committed rule: 2 of 9 u(3) generators, no order-three coin symmetry, no triangle vertex at one beat or several, and no symmetry restored under coarse-graining. See [`su3-from-the-rule.md`](su3-from-the-rule.md).
+- **[`E-FRC-0098`](../../../test/experiment/gauge/su3-deconfinement.ts)** (L2) - the N_t = 4 transition on two volumes, carried to infinite volume, and T_c r0 against its published value.
+- **[`E-FRC-0099`](../../../test/experiment/gauge/center-automaton.ts)** (L2) - the Z3 center under a deterministic reversible automaton: confinement at high energy, first-order coexistence, and a frozen ordered phase.
+- **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
+
 ## What this arena establishes
 
 - **Electromagnetism is emergent.** The bare rule's local charge conservation is a U(1) Gauss law, so a massless gauge-invariant photon, the Lorentz force, and a measured g = 2 come out without being put in.
@@ -163,6 +186,7 @@ Whether the rule stabilizes topological solitons, the route to matter as knots i
 - **A few numbers are pinned by geometry.** The weak mixing angle 3/8, the quantized charges from anomaly cancellation, and the Koide relation Q = 2/3 are fixed by the discrete content, each with a control that breaks it.
 - **The mass hierarchy is a mechanism, not a fit.** Exponential localization on the hyperbolic crystal turns even spacing into a multi-decade mass spread, verified on the actual bound state, with the flat lattice giving no hierarchy.
 - **Three generations are forced.** A preferred octonion direction selects exactly three quaternionic subalgebras with full S3 family symmetry.
+- **The strong force is reproduced, not derived.** SU(3) confinement, deconfinement, the gluon and colour counts, anti-screening proportional to C_A, chiral symmetry breaking, the Goldstone pion, the gluon-made nucleon mass and string breaking by dynamical quarks all come out of a Wilson action and staggered quarks at L2, each mapped to a published value. Deterministic reversible dynamics reproduces the same ensemble with no randomness. SU(3) itself is measured absent from the committed {3,4,3,4} rule (L3), and what it would take is named.
 - **The limits are stated plainly.** The fine-structure constant runs and is not geometric, the mixing angles and absolute masses are free inputs, the Koide phase is empirical, and the soliton stabilizing sign is an open gate.
 
 ## License
