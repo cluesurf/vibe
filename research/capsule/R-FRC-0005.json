@@ -1,0 +1,312 @@
+{
+  "result": "R-FRC-0005",
+  "challenge": "C-FRC-0005",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "722fe5c65d7ea1f7d4719e67c1d7873ce8d7c030",
+  "dirty": true,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/gauge/vibe-role-tilt.ts",
+      "sha256": "059f7ad12a8410d7ef9a4ae93ef608019229c7ed2d57449a8c8842eb60452e40"
+    },
+    {
+      "file": "test/experiment/gauge/whole-is-a-line.ts",
+      "sha256": "e35e34c6483b47b7616b3717aaeb6512bd3906b2ef4d585692e46f5f76877fc3"
+    },
+    {
+      "file": "test/experiment/gauge/role-survives-a-loop.ts",
+      "sha256": "af14d4cb26a225bcaa6070dac08ac9ef7efc7e7fb59861bd9572f53136d41338"
+    },
+    {
+      "file": "test/experiment/gauge/fear-is-negativity.ts",
+      "sha256": "6dc525d91b8d29d46eb3e8363fe3caa8360f0e9c73ce210c15915bf2d50d9ada"
+    },
+    {
+      "file": "test/experiment/gauge/fear-resolution.ts",
+      "sha256": "2678726955cae9e5892ef68383fdef2272044740ed62ea95ef5321537316dcc2"
+    },
+    {
+      "file": "test/experiment/gauge/vibe-weave.ts",
+      "sha256": "66a86a5ec2b8857aebde07e7ef6246e4e2bbcfc7310fa7883c6a4b32cfb1f948"
+    }
+  ],
+  "expected": {
+    "E-FRC-0117 metrics.gaugeMismatchWithLinks": 0,
+    "E-FRC-0117 control.gaugeMismatchNoLinks": 27749,
+    "E-FRC-0118 metrics.classicalMatchesTriality": 1,
+    "E-FRC-0118 metrics.quantumMatchesTriality": 1,
+    "E-FRC-0118 metrics.distinctZeroSumTriples": 72,
+    "E-FRC-0119 metrics.survivalIsAdjoint": 1,
+    "E-FRC-0120 metrics.singletFears": 18,
+    "E-FRC-0120 metrics.allSameFears": 0,
+    "E-FRC-0122 metrics.units8": 2304,
+    "E-FRC-0123 metrics.gaussEveryCellEveryBeat": 1
+  },
+  "observed": {
+    "E-FRC-0117 metrics.gaugeMismatchWithLinks": 0,
+    "E-FRC-0117 control.gaugeMismatchNoLinks": 27749,
+    "E-FRC-0118 metrics.classicalMatchesTriality": 1,
+    "E-FRC-0118 metrics.quantumMatchesTriality": 1,
+    "E-FRC-0118 metrics.distinctZeroSumTriples": 72,
+    "E-FRC-0119 metrics.survivalIsAdjoint": 1,
+    "E-FRC-0120 metrics.singletFears": 18,
+    "E-FRC-0120 metrics.allSameFears": 0,
+    "E-FRC-0122 metrics.units8": 2304,
+    "E-FRC-0123 metrics.gaussEveryCellEveryBeat": 1
+  },
+  "checks": [
+    {
+      "code": "E-FRC-0117",
+      "metric": "gaugeMismatchWithLinks",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0117",
+      "metric": "gaugeMismatchNoLinks",
+      "from": "control",
+      "expected": 27749,
+      "tolerance": 0,
+      "observed": 27749,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0118",
+      "metric": "classicalMatchesTriality",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0118",
+      "metric": "quantumMatchesTriality",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0118",
+      "metric": "distinctZeroSumTriples",
+      "from": "metrics",
+      "expected": 72,
+      "tolerance": 0,
+      "observed": 72,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0119",
+      "metric": "survivalIsAdjoint",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0120",
+      "metric": "singletFears",
+      "from": "metrics",
+      "expected": 18,
+      "tolerance": 0,
+      "observed": 18,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0120",
+      "metric": "allSameFears",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0122",
+      "metric": "units8",
+      "from": "metrics",
+      "expected": 2304,
+      "tolerance": 0,
+      "observed": 2304,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0123",
+      "metric": "gaussEveryCellEveryBeat",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FRC-0117": {
+      "seconds": 0.182,
+      "status": "pass",
+      "claim": "vibes under the committed rule with role points carried along links and swapped where vibes meet head-on conserve charge exactly, reverse exactly after 24 beats, and are exactly invariant under an independent change of role frame in every cell, while carrying roles without links or turning them by one fixed move per direction is not",
+      "metrics": {
+        "gridMoves": 216,
+        "chargeConserved": 1,
+        "reversesExactly": 1,
+        "gaugeMismatchWithLinks": 0
+      },
+      "control": {
+        "gaugeMismatchNoLinks": 27749,
+        "gaugeMismatchFixedPerDirection": 40015
+      },
+      "notes": "L2, a constructed rule, exact, no random numbers (the frames, links and starts are golden-ratio fills). The links are a fixed background field. What it cannot show is a whole: a color-neutral whole of three roles is a quantum singlet with no classical state (E-FRC-0101), so binding needs the phase on the swap. The mismatch counts are summed over 24 beats, role slots and vibe slots."
+    },
+    "E-FRC-0118": {
+      "seconds": 0.809,
+      "status": "pass",
+      "claim": "for every mix of up to six loves and fears the zero-sum whole is kept by all 216 changes of frame exactly when love minus fear is a multiple of 3, which is exactly when Sigma(648) has invariant states and matches the SU(3) singlet counts measured before, and three loves are whole exactly on the 12 lines of the grid, all obeying the SET rule, with the singlet supported inside the zero-sum set",
+      "metrics": {
+        "gridMoves": 216,
+        "mixesChecked": 27,
+        "classicalMatchesTriality": 1,
+        "quantumMatchesTriality": 1,
+        "matchesSu3Singlets": 1,
+        "distinctZeroSumTriples": 72,
+        "setRule": 1,
+        "singletSupportInZeroSum": 6
+      },
+      "control": {
+        "groupOrder": 648
+      },
+      "notes": "L1, exact. Sigma(648) invariant counts, loves a and fears b: 0/1: 0, 1/0: 0, 0/2: 0, 1/1: 1, 2/0: 0, 0/3: 1, 1/2: 0, 2/1: 0, 3/0: 1, 0/4: 0, 1/3: 0, 2/2: 2, 3/1: 0, 4/0: 0, 0/5: 0, 1/4: 3, 2/3: 0, 3/2: 0, 4/1: 3, 5/0: 0, 0/6: 5, 1/5: 0, 2/4: 0, 3/3: 7, 4/2: 0, 5/1: 0, 6/0: 5. Classical wholes kept: 0/1: no, 1/0: no, 0/2: no, 1/1: yes, 2/0: no, 0/3: yes, 1/2: no, 2/1: no, 3/0: yes, 0/4: no, 1/3: no, 2/2: yes, 3/1: no, 4/0: no, 0/5: no, 1/4: yes, 2/3: no, 3/2: no, 4/1: yes, 5/0: no, 0/6: yes, 1/5: no, 2/4: no, 3/3: yes, 4/2: no, 5/1: no, 6/0: yes."
+    },
+    "E-FRC-0119": {
+      "seconds": 5.637,
+      "status": "pass",
+      "claim": "on all 648 elements the grid points fixed equal |Tr U|^2, so on deterministic Sigma(648) link fields in both phases the chance a role point survives a loop equals the adjoint Wilson loop exactly, and the fundamental loops of the two phases differ",
+      "metrics": {
+        "identityHolds": 1,
+        "survivalIsAdjoint": 1,
+        "hotPlaquette": 0.04946907322706155,
+        "coldPlaquette": 0.9687012278903537,
+        "hotFundamental1x1": 0.049469073227069414,
+        "hotAdjoint1x1": 0.0018229166666666769,
+        "hotFundamental1x2": 0.0024341488381937784,
+        "hotAdjoint1x2": 0.0008626302083333463,
+        "hotFundamental2x2": 0.0019214491020874806,
+        "hotAdjoint2x2": 0.0002441406250000203,
+        "coldFundamental1x1": 0.9687012278903556,
+        "coldAdjoint1x1": 0.9488226996527778,
+        "coldFundamental1x2": 0.9523938685749258,
+        "coldAdjoint1x2": 0.9223904079861112,
+        "coldFundamental2x2": 0.9356470638228185,
+        "coldAdjoint2x2": 0.8952094184027778
+      },
+      "control": {
+        "hotFundamentalPerArea2x2": 1.5636689092363492,
+        "hotAdjointPerArea2x2": 2.0794415416798153,
+        "coldFundamentalPerArea2x2": 0.01662923554453426,
+        "coldAdjointPerArea2x2": 0.027674400258942577,
+        "snapshots": 15
+      },
+      "notes": "L2, deterministic link fields (the kinetic rule, no random number), exact loop products. The survival of a role point is the adjoint loop by an identity, so a classical role alone measures the gluon string. The quark string needs the center phase of the full element, which the grid cannot see and the vibe carries."
+    },
+    "E-FRC-0120": {
+      "seconds": 0.019,
+      "status": "pass",
+      "claim": "the Wigner functions of the three states sum to 1 and give back their role probabilities, the product state and the all-same whole need no fear, and the singlet is written exactly by whole numbers of loves and fears with fears present",
+      "metrics": {
+        "singletUnits": 54,
+        "singletLoves": 72,
+        "singletFears": 18,
+        "singletNegativePoints": 9,
+        "singletMarginalOk": 1,
+        "allSameUnits": 27,
+        "allSameLoves": 27,
+        "allSameFears": 0,
+        "allSameNegativePoints": 0,
+        "allSameMarginalOk": 1,
+        "productUnits": 27,
+        "productLoves": 27,
+        "productFears": 0,
+        "productNegativePoints": 0,
+        "productMarginalOk": 1
+      },
+      "control": {
+        "points": 729,
+        "basisCoordinateIsIdentity": 1
+      },
+      "notes": "L1, exact. Units: the smallest N making N W whole on every point, so a state is N units of weight, loves minus fears = N. Loves and fears count positive and negative units. A state with no fear is a classical mixture on the grid, and color moves only permute its points."
+    },
+    "E-FRC-0122": {
+      "seconds": 0.004,
+      "status": "pass",
+      "claim": "after every round every state has weights summing to 1 and is written exactly by whole loves and fears, the negativity stays at or under 3, and the units after 8 rounds are finer than after 1",
+      "metrics": {
+        "units1": 9,
+        "negativity1": 1.0000000000000002,
+        "fearShare1": 0,
+        "units2": 36,
+        "negativity2": 2.3333333333333335,
+        "fearShare2": 0.2857142857142857,
+        "units3": 36,
+        "negativity3": 2.333333333333335,
+        "fearShare3": 0.2857142857142857,
+        "units4": 144,
+        "negativity4": 2.4722222222222263,
+        "fearShare4": 0.29775280898876405,
+        "units5": 144,
+        "negativity5": 2.5555555555555594,
+        "fearShare5": 0.30434782608695654,
+        "units6": 576,
+        "negativity6": 2.4861111111111156,
+        "fearShare6": 0.2988826815642458,
+        "units7": 576,
+        "negativity7": 2.3680555555555602,
+        "fearShare7": 0.28885630498533726,
+        "units8": 2304,
+        "negativity8": 2.394097222222227,
+        "fearShare8": 0.2911530094271211
+      },
+      "control": {
+        "points": 81,
+        "negativityBound": 3
+      },
+      "notes": "L1, exact up to the unit search, which stops at 200,000. Units: the fewest N making N W whole on every point, loves minus fears = N. Negativity: sum |W|, 1 for a classical state. Fear share: fears over all vibes."
+    },
+    "E-FRC-0123": {
+      "seconds": 0.445,
+      "status": "pass",
+      "claim": "charge is exact, 24 beats forward and back restore vibes, role points and flows exactly, Gauss's law holds at every cell on every beat, and a change of role frame in every cell commutes with the rule, with the color made at pair creation and the lone love's string reported",
+      "metrics": {
+        "chargeConserved": 1,
+        "reversesExactly": 1,
+        "gaussEveryCellEveryBeat": 1,
+        "frameFree": 1,
+        "pairCreations": 3888,
+        "coloredCreations": 3550,
+        "stringLinksBeat6": 5,
+        "stringLinksBeat12": 3,
+        "stringLinksBeat24": 5
+      },
+      "control": {
+        "cells": 81,
+        "bigCells": 625
+      },
+      "notes": "L2, a constructed rule, exact, no random numbers. Colored creations: a fear and a love made from calm with different role points, color charge from nothing, the seam a latent role on each calm line would close. The string: links whose net flow is not a multiple of 3 in the seeded run, beyond the vacuum run. Nothing makes a string cost anything yet, so it binds nothing."
+    }
+  },
+  "passed": true
+}

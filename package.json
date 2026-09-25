@@ -1,6 +1,6 @@
 {
   "name": "@cluesurf/vibe",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "MIT",
   "main": "./host/index.js",
   "type": "module",
@@ -12,6 +12,8 @@
     "check:coverage": "npx tsx --no-warnings=ExperimentalWarning task/check-coverage.ts",
     "test:full": "npx tsx --no-warnings=ExperimentalWarning test/run.ts && npx tsx --no-warnings=ExperimentalWarning test/test.ts",
     "call": "npx tsx --no-warnings=ExperimentalWarning",
+    "rerun": "npx tsx --no-warnings=ExperimentalWarning test/rerun.ts",
+    "result": "npx tsx --no-warnings=ExperimentalWarning test/result.ts",
     "host": "pnpm make && npm publish --access=public",
     "lint": "eslint \"code/**/*.ts\" \"test/**/*.ts\"",
     "format": "bash task/format.sh",

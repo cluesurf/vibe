@@ -4,10 +4,10 @@
 
 import { Graph, edgeList } from '@/code/tool/graph'
 
-export type GaugeGroup =
-  | { readonly form: 'u1'; readonly q: number } // Z_q clock, approximates U(1)
-  | { readonly form: 'su2'; readonly q: number } // discretised SU(2) (placeholder dim)
-  | { readonly form: 'su3'; readonly q: number } // discretised SU(3) (placeholder dim)
+// The group of a graph gauge field: a Z_q clock, the element exp(2 pi i k / q) stored as the integer
+// k, which approximates U(1) as q grows. One integer per link cannot hold a non-abelian element, so
+// SU(N) gauge fields live in code/dynamics/gauge-lattice, as N x N matrices on a hypercubic lattice.
+export type GaugeGroup = { readonly form: 'u1'; readonly q: number }
 
 // Directed edges are indexed; each carries an integer group element. For U(1)
 // the integer k means phase 2*pi*k/q. The forward edge (a->b) is stored; the
@@ -60,10 +60,6 @@ export function linkPhase(
   field: GaugeField,
   input: { from: number; to: number },
 ): number {
-  if (field.group.form !== 'u1') {
-    return 0
-  }
-
   const q = field.group.q
   const forward = field.edgeIndex.get(
     edgeKey({ from: input.from, to: input.to }),

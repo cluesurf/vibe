@@ -1,0 +1,183 @@
+{
+  "result": "R-FND-0002",
+  "challenge": "C-FND-0002",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/foundations/triality-forces-eight.ts",
+      "sha256": "ed5de41176e2f73f596b6314ec8cac1fa303440146d803cf4425efab68705163"
+    },
+    {
+      "file": "test/experiment/foundations/monism-forces-eight.ts",
+      "sha256": "2b6552edeb57c0076ea607ba1320a2cbd91b164f0b65780236a5c929a3bc57c2"
+    },
+    {
+      "file": "test/experiment/foundations/forced-derivation-ladder.ts",
+      "sha256": "961a4d574d2dccead21e9ce4673514c97ffa166842e87b35b73fe5c749576858"
+    }
+  ],
+  "expected": {
+    "E-FND-0050 metrics.d4OuterOrder": 6,
+    "E-FND-0050 metrics.trialityRankCount": 1,
+    "E-FND-0050 control.d5OuterOrder": 2,
+    "E-FND-0033 metrics.selfDualDimensionsFound": 1,
+    "E-FND-0033 metrics.theDimension": 8,
+    "E-FND-0043 metrics.octonionNonassociativeTriples": 28,
+    "E-FND-0043 metrics.lawSurvivors": 1
+  },
+  "observed": {
+    "E-FND-0050 metrics.d4OuterOrder": 6,
+    "E-FND-0050 metrics.trialityRankCount": 1,
+    "E-FND-0050 control.d5OuterOrder": 2,
+    "E-FND-0033 metrics.selfDualDimensionsFound": 1,
+    "E-FND-0033 metrics.theDimension": 8,
+    "E-FND-0043 metrics.octonionNonassociativeTriples": 28,
+    "E-FND-0043 metrics.lawSurvivors": 1
+  },
+  "checks": [
+    {
+      "code": "E-FND-0050",
+      "metric": "d4OuterOrder",
+      "from": "metrics",
+      "expected": 6,
+      "tolerance": 0,
+      "observed": 6,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0050",
+      "metric": "trialityRankCount",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0050",
+      "metric": "d5OuterOrder",
+      "from": "control",
+      "expected": 2,
+      "tolerance": 0,
+      "observed": 2,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0033",
+      "metric": "selfDualDimensionsFound",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0033",
+      "metric": "theDimension",
+      "from": "metrics",
+      "expected": 8,
+      "tolerance": 0,
+      "observed": 8,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0043",
+      "metric": "octonionNonassociativeTriples",
+      "from": "metrics",
+      "expected": 28,
+      "tolerance": 0,
+      "observed": 28,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0043",
+      "metric": "lawSurvivors",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FND-0050": {
+      "seconds": 0.395,
+      "status": "pass",
+      "claim": "triality, the order-three Dynkin symmetry that permutes the three eight-dimensional representations 8v, 8s, 8c (the vector and the two spinors the three generations need), occurs at exactly one dimension. Sweeping the D_n family, only D4 has an order-three diagram symmetry (diagram order six, the S3), and every other D_n (n = 5, 6, 7, 8) and the A-series have only a Z2 of order two. D4 is so(8), whose vector dimension is eight, so the dimension carrying triality is eight and nothing smaller. This floors the dimension at eight WITHOUT the maximal-differentiation premise, and with the reversibility ceiling (zero divisors past eight) it pinches the dimension to eight from both ends by theorems. The root-system outer automorphism (|Aut| over |Weyl|) confirms it independently, six for D4 and two for D5.",
+      "metrics": {
+        "rankCount": 5,
+        "trialityRankCount": 1,
+        "trialityRank": 4,
+        "trialityVectorDimension": 8,
+        "d4DiagramOrder": 6,
+        "d2OuterOrder": 2,
+        "d3OuterOrder": 2,
+        "d4OuterOrder": 6,
+        "d5OuterOrder": 2,
+        "aSeriesOuterOrder": 2
+      },
+      "control": {
+        "otherDnAllOrderTwo": 1,
+        "d5OuterOrder": 2,
+        "aSeriesOuterOrder": 2
+      },
+      "notes": "L1, the known fact Out(D4) = S3 (order six), unique among all simple Lie types, confirmed two ways: the Dynkin-diagram graph automorphism (dynkinAutomorphismOrder) and the rigorous root-system outer automorphism |Aut| over |Weyl| (outerAutomorphismOrder), which agree (six for D4, two for D5). The contribution is turning the floor of the from-nothing pinch into a theorem: dimension eight is the unique dimension carrying triality (the three generations 8v, 8s, 8c), so the floor stops resting on the maximal-differentiation premise. The eight here is the D4 vector dimension, the same eight as the octonion dimension. Reuses code/measure/base-forcing and code/algebra/group/automorphism, no new library."
+    },
+    "E-FND-0033": {
+      "seconds": 0,
+      "status": "pass",
+      "claim": "monism, the requirement that the directions a tone moves (the vector) and the states matter occupies (the spinor) are one substance, hence vector = spinor, forces dimension EIGHT uniquely: the vector dimension n equals the Weyl half-spinor dimension 2^(n/2-1) at exactly n = 8 (8 = 2^3) among all even dimensions. So the pinch-point floor is forced from the base, not from observed families. At dimension eight the vector and the two half-spinors are all 8-dimensional and cycled by triality (8v + 8s + 8c = 24, the dual 24-cell), so the THREE generations emerge as the three faces of the self-duality, an output. A non-self-dual dimension (n = 10, vector 10 vs spinor 16) is the control.",
+      "metrics": {
+        "selfDualDimensionsFound": 1,
+        "theDimension": 8,
+        "vectorDimAt8": 8,
+        "halfSpinorDimAt8": 8,
+        "tripletSum": 24
+      },
+      "control": {
+        "tenVectorDim": 10,
+        "tenSpinorDim": 16,
+        "controlBreaks": 1
+      },
+      "notes": "L1 exact dimensional fact. The vector = spinor self-duality is the geometric expression of monism, the framework foundational principle, stated as a principle (like reversibility), not derived from observed families. The advance over the old floor (\"three families need triality\") is that this is a BASE principle, not empirical input, and it makes the three generations an OUTPUT (the three triality faces). Combined with the Hurwitz reversibility ceiling (dim <= 8), the two base principles squeeze the octonion at dimension eight. See foundations/dynamics-forces-octonions for the ceiling and the pinch-point."
+    },
+    "E-FND-0043": {
+      "seconds": 0.27,
+      "status": "pass",
+      "claim": "the from-nothing derivation runs end to end as one computation, current with the latest results: the ternary three from the exhaustive vacuum-and-mirror enumeration, the ordered line as the one-way arrow with every basis square computed from the real Cayley-Dickson products, dimension eight pinched by two theorems (the reversibility ceiling and the triality floor, no maximal-differentiation premise), the exact 1 + 8 + 24 + 32 + 16 = 81 census, the 24-cell selected by self-duality with corners and faces derived by facet enumeration, the {3,4,3,4} growth in a tight band around the warp factor whose exact value is the largest root of x^3 - 21 x^2 + 51 x - 23, and the 10395 line-pairings collapsing to exactly ONE law under the crystallographic B4, whose unreachable triality is the three generations (the coset index three). The octonion non-associativity is the exact 28 of 35 triples, and dropping the mirror collapses the alphabet to one, the control. The residual premises are stated as a leap map in the file rather than glossed, including the genuine tiling choice between the flat {3,4,3,3} and the hyperbolic {3,4,3,4}, which the older too-wide-for-flat-space claim mis-stated.",
+      "metrics": {
+        "rungsForced": 7,
+        "rungCount": 7,
+        "tone": 3,
+        "arrowSurvivors": 1,
+        "eight": 8,
+        "census81": 81,
+        "cell24": 24,
+        "lawCandidates10395": 10395,
+        "lawSurvivors": 1,
+        "meshGrowthRatio": 18.36842105263158,
+        "octonionNonassociativeTriples": 28,
+        "strictMinimalAlphabet": 3,
+        "shellCountsMatchCanonical": 1
+      },
+      "control": {
+        "relaxedMinimalAlphabet": 1,
+        "strictMinimalAlphabet": 3
+      },
+      "notes": "L1, the executable assembly of the from-nothing derivation, every rung recomputed from its candidate space by the reused library (base-forcing exhaustive alphabets, division-algebra Cayley-Dickson squares and zero divisors, cell-forcing derived facets, collision-family pairings, mesh-unfolding shells). Updated to the latest thinking after the audit: the arrow rung now COMPUTES every basis square instead of restating the answer, the dimension-eight floor is the computed triality uniqueness (E-FND-0050) instead of the vector-equals-spinor coincidence, the law gate is exactly one survivor under B4 with the F4-admits-none and B4-maximality facts in E-FND-0059 and the generation index in E-FND-0054, the wake is forced by recurrence escape (E-FND-0055), and reversibility is the seed restated (E-FND-0060). The header carries the honest residual leap map, most notably the hyperbolic tiling choice: the 24-cell also tiles flat four-space as {3,4,3,3} (the flat d4Mesh control itself), so taking {3,4,3,4} is a premise whose measured differentiators are the holographic bound, the cusp stability, and the spectral gap, not yet a derivation. Rung zero (nothing cannot be) is the one non-computational step, the seed, and is not coded."
+    }
+  },
+  "passed": true
+}

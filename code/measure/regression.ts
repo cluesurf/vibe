@@ -133,6 +133,173 @@ export function linearFit(input: {
   return { slope, intercept, residual, r2 }
 }
 
+// Inverse-variance weighted straight-line fit y = slope * x + intercept, for measurements that carry
+// their own standard errors. Returns the standard errors of both parameters and the chi^2 of the
+// fit, so a caller can tell a line the data follow from a line forced through scattered points
+// (chi^2 near the number of points minus two for a good fit).
+export function weightedLinearFit(input: {
+  xs: readonly number[]
+  ys: readonly number[]
+  errors: readonly number[]
+}): {
+  slope: number
+  intercept: number
+  slopeError: number
+  interceptError: number
+  chi2: number
+} {
+  const { xs, ys, errors } = input
+
+  let s = 0
+  let sx = 0
+  let sy = 0
+  let sxx = 0
+  let sxy = 0
+
+  for (let i = 0; i < xs.length; i++) {
+    const w = 1 / (errors[i] ?? 1) ** 2
+    const x = xs[i] ?? 0
+    const y = ys[i] ?? 0
+
+    s += w
+    sx += w * x
+    sy += w * y
+    sxx += w * x * x
+    sxy += w * x * y
+  }
+
+  const determinant = s * sxx - sx * sx
+  const slope = (s * sxy - sx * sy) / determinant
+  const intercept = (sxx * sy - sx * sxy) / determinant
+
+  let chi2 = 0
+
+  for (let i = 0; i < xs.length; i++) {
+    const residual = (ys[i] ?? 0) - slope * (xs[i] ?? 0) - intercept
+
+    chi2 += (residual / (errors[i] ?? 1)) ** 2
+  }
+
+  return {
+    slope,
+    intercept,
+    slopeError: Math.sqrt(s / determinant),
+    interceptError: Math.sqrt(sxx / determinant),
+    chi2,
+  }
+}
+
+// Inverse-variance weighted least squares for any model linear in its parameters,
+// y_i = sum_k c_k f_k(x_i), given the design rows [f_1(x_i), ..., f_K(x_i)]. Returns the
+// coefficients, their standard errors from the inverse normal matrix, and the chi^2. The Cornell
+// potential V = V0 - e / R + sigma R is one such model, with rows [1, 1 / R, R].
+export function weightedLeastSquares(input: {
+  rows: readonly (readonly number[])[]
+  ys: readonly number[]
+  errors: readonly number[]
+}): { coefficients: number[]; errors: number[]; chi2: number } {
+  const { rows, ys, errors } = input
+  const k = rows[0]?.length ?? 0
+  const normal = Array.from({ length: k }, () =>
+    new Array<number>(k).fill(0),
+  )
+  const right = new Array<number>(k).fill(0)
+
+  rows.forEach((row, i) => {
+    const w = 1 / (errors[i] ?? 1) ** 2
+
+    for (let a = 0; a < k; a++) {
+      right[a] = (right[a] ?? 0) + w * (row[a] ?? 0) * (ys[i] ?? 0)
+
+      for (let b = 0; b < k; b++) {
+        const line = normal[a]
+
+        if (line !== undefined) {
+          line[b] = (line[b] ?? 0) + w * (row[a] ?? 0) * (row[b] ?? 0)
+        }
+      }
+    }
+  })
+
+  const inverse = invertSymmetric(normal)
+  const coefficients = inverse.map(line =>
+    line.reduce((sum, value, b) => sum + value * (right[b] ?? 0), 0),
+  )
+  const chi2 = rows.reduce((sum, row, i) => {
+    const model = row.reduce(
+      (s, f, a) => s + f * (coefficients[a] ?? 0),
+      0,
+    )
+
+    return sum + (((ys[i] ?? 0) - model) / (errors[i] ?? 1)) ** 2
+  }, 0)
+
+  return {
+    coefficients,
+    errors: inverse.map((line, a) =>
+      Math.sqrt(Math.max(0, line[a] ?? 0)),
+    ),
+    chi2,
+  }
+}
+
+// Gauss-Jordan inverse with partial pivoting, for the small normal matrices of a fit.
+function invertSymmetric(
+  matrix: readonly (readonly number[])[],
+): number[][] {
+  const k = matrix.length
+  const work = matrix.map((line, i) => [
+    ...line,
+    ...Array.from({ length: k }, (_, j) => (i === j ? 1 : 0)),
+  ])
+
+  for (let column = 0; column < k; column++) {
+    let pivot = column
+
+    for (let row = column + 1; row < k; row++) {
+      if (
+        Math.abs(work[row]?.[column] ?? 0) >
+        Math.abs(work[pivot]?.[column] ?? 0)
+      ) {
+        pivot = row
+      }
+    }
+
+    const hold = work[column] ?? []
+
+    work[column] = work[pivot] ?? []
+    work[pivot] = hold
+
+    const head = work[column]?.[column] ?? 0
+
+    if (head === 0) {
+      return Array.from({ length: k }, () =>
+        new Array<number>(k).fill(Number.NaN),
+      )
+    }
+
+    for (let row = 0; row < k; row++) {
+      if (row === column) {
+        continue
+      }
+
+      const factor = (work[row]?.[column] ?? 0) / head
+
+      for (let j = 0; j < 2 * k; j++) {
+        const line = work[row]
+
+        if (line !== undefined) {
+          line[j] = (line[j] ?? 0) - factor * (work[column]?.[j] ?? 0)
+        }
+      }
+    }
+  }
+
+  return work.map((line, i) =>
+    line.slice(k).map(v => v / (work[i]?.[i] ?? 1)),
+  )
+}
+
 // Least-squares fit y = slope * x THROUGH THE ORIGIN, no intercept. Returns the slope and the
 // coefficient of determination r2 (residuals against the constrained line, total variance about the
 // mean). The fit for a strictly linear dispersion E = v q out of a band-touching point, where an

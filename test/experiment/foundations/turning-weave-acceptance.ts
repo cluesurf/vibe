@@ -18,12 +18,20 @@
 //     one hundred fifty gives the joint amplitude as their exact complex sum at every beat
 //     (additivity at the twelve-decimal level), with aligned beats at twice root three and
 //     crossed beats at exactly root three.
-//   - WALL CONTENT IS QUANTIZED AND PERIODIC: the staggered-birth difference is a whole multiple
-//     of side cubed at every settled beat and exactly period twenty-four (closed-system
-//     statements on the torus, no window needed). Localization is the one window-limited claim:
-//     at side twenty-one the wall has a dominant core at the slab column (three to four times its
-//     neighbours) plus a one-pass ballistic birth-radiation front, the signature of an
-//     interacting theory radiating during defect formation, reported as measured.
+//   - WALL CONTENT IS QUANTIZED: the staggered-birth difference is a whole multiple of side cubed
+//     at every settled beat (a closed-system statement on the torus, no window needed). The earlier
+//     claim that it is also exactly period twenty-four rested on a loop that never ran. Measured
+//     over seventy-two beats it is not periodic at twenty-four, so periodicity is now reported, not
+//     claimed (corrected 2026-09-25 on the strong-force branch, see E-FRC-0111). Localization was the one window-limited claim:
+//     at side twenty-one the wall was read as a dominant core at the slab column (three to four times
+//     its neighbours) plus a one-pass ballistic birth-radiation front. E-FRC-0111 item 7 (2026-09-25)
+//     measured it properly, for this rule and the triality weave, against the piecewise vacuum (each
+//     region compared with the vacuum born when it was, so the late half's phase domain does not count
+//     as wall) on the D4 box at sides 9, 13 and 17 for 72 beats. The wall does NOT stay a sheet: under
+//     this rule the defect touches every column by beat 4, 5 and 6 (ballistic) and settles into an even
+//     fill of the box, spread 0.96, 0.98 and 1.01 on a scale where 0 is a sheet and 1 an even fill. The
+//     core seen at side twenty-one was a transient of the window, and the radiation front is not one
+//     pass: on a closed box it fills everything.
 //   - THE DRESSED PROFILE IS BOUNDED PAST A FULL SCHEDULE PERIOD: the protected species stays at
 //     support exactly one for twenty-six beats, and the interacting species is a breathing
 //     dressed particle (its co-moving core oscillates and returns to nearly bare, never growing
@@ -49,6 +57,8 @@ type Tone = -1 | 0 | 1
 type Beat = { couples: [number, number][]; swapIdx: number }
 
 const ELEMENT = 148
+// long enough that period 24 is compared on 24 settled beats
+const WALL_BEATS = 72
 const ORDER = [0, 2, 3, 1, 4, 5]
 const POS_MIRROR = [0, 1, 2, 3, 3, 2, 1, 0]
 
@@ -67,8 +77,7 @@ function setupOf(side: number): {
   const opposite = meshOpposites(mesh)
   const lines = linesOf(opposite)
   const mid = Math.floor(side / 2)
-  const center =
-    mid + mid * side + mid * side * side + mid * side ** 3
+  const center = mid + mid * side + mid * side * side + mid * side ** 3
   const coordinate = (c: number, a: number): number =>
     Math.floor(c / side ** a) % side
   const wrapOf = (d: number): number =>
@@ -97,6 +106,7 @@ function setupOf(side: number): {
   const norm = (a: number, b: number): [number, number] =>
     a < b ? [a, b] : [b, a]
   const positions: [number, number][][] = []
+
   let current = M0.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 4; i++) {
@@ -121,8 +131,9 @@ function setupOf(side: number): {
 
     return (slots, base) => {
       for (let k = 0; k < 6; k++) {
-        const line = lines[b.couples[k]![0]!]!
-        const wire = lines[b.couples[k]![1]!]!
+        const line = lines[b.couples[k]![0]]!
+        const wire = lines[b.couples[k]![1]]!
+
         const swap = (): void => {
           const a0 = (slots[base + line[0]] ?? 0) as Tone
           const a1 = (slots[base + line[1]] ?? 0) as Tone
@@ -139,6 +150,7 @@ function setupOf(side: number): {
             slots[base + wire[1]] = a1
           }
         }
+
         const clock = (): void => {
           const a = (slots[base + wire[0]] ?? 0) as Tone
           const x = (slots[base + wire[1]] ?? 0) as Tone
@@ -166,7 +178,7 @@ export default experiment({
   id: 'foundations/turning-weave-acceptance',
   code: 'E-FND-0118',
   title:
-    'the palindromic turning weave clears the acceptance battery: the vacuum is exactly periodic from birth with the empty state recurring at beat twenty-four (the commensurability quantum), a late-born slab either leaves the protected traveller exactly alone or kicks its phase by exactly one clock unit and never a fraction (the three-regime kick law, with the absorbing offsets stated), two-path interference is exact (a kicked branch at thirty against a free branch at one hundred fifty sums to exactly root three at ninety, additivity at the twelve-decimal level, with aligned beats at twice root three), the staggered-birth wall content is quantized in whole side-cubed sheets at exact period twenty-four, and past a full schedule period the protected species stays at support one while the interacting species is a breathing dressed particle whose core returns to nearly bare with a slow radiation trail an order of magnitude below the committed rule radiating band',
+    'the palindromic turning weave clears the acceptance battery: the vacuum is exactly periodic from birth with the empty state recurring at beat twenty-four (the commensurability quantum), a late-born slab either leaves the protected traveller exactly alone or kicks its phase by exactly one clock unit and never a fraction (the three-regime kick law, with the absorbing offsets stated), two-path interference is exact (a kicked branch at thirty against a free branch at one hundred fifty sums to exactly root three at ninety, additivity at the twelve-decimal level, with aligned beats at twice root three), the staggered-birth wall content is quantized in whole side-cubed sheets (not periodic, measured over seventy-two beats), and past a full schedule period the protected species stays at support one while the interacting species is a breathing dressed particle whose core returns to nearly bare with a slow radiation trail an order of magnitude below the committed rule radiating band',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -174,7 +186,9 @@ export default experiment({
   run() {
     // 1. vacuum exactly periodic from birth (side seven, three periods)
     const v7 = setupOf(7)
+
     let vacuum: Will = makeWill(v7.mesh)
+
     const states: string[] = [vacuum.data.join('')]
 
     for (let t = 0; t < 72; t++) {
@@ -208,6 +222,7 @@ export default experiment({
     ): { re: number[]; im: number[]; support: number[] } => {
       let vac: Will = makeWill(s13.mesh)
       let seeded: Will = makeWill(s13.mesh)
+
       const re: number[] = []
       const im: number[] = []
       const support: number[] = []
@@ -295,6 +310,7 @@ export default experiment({
     const A = runBranch(7, [seedA])
     const B = runBranch(7, [seedB])
     const J = runBranch(7, [seedA, seedB])
+
     let additivityWorst = 0
     let constructive = 0
     let destructive = 0
@@ -312,10 +328,7 @@ export default experiment({
       const mB = Math.hypot(B.re[t]!, B.im[t]!)
       const mJ = Math.hypot(J.re[t]!, J.im[t]!)
 
-      if (
-        Math.abs(mA - ROOT3) < 1e-9 &&
-        Math.abs(mB - ROOT3) < 1e-9
-      ) {
+      if (Math.abs(mA - ROOT3) < 1e-9 && Math.abs(mB - ROOT3) < 1e-9) {
         if (
           phaseAt(A, t) === 150 &&
           phaseAt(B, t) === 150 &&
@@ -337,9 +350,10 @@ export default experiment({
     // 4. wall quantization and periodicity (side thirteen, offset three, closed system)
     let staggered: Will = makeWill(s13.mesh)
     let uniform: Will = makeWill(s13.mesh)
+
     const wallSupport: number[] = []
 
-    for (let t = 0; t < 48; t++) {
+    for (let t = 0; t < WALL_BEATS; t++) {
       const rule = s13.collisionAt(t)
       const active = (c: number): boolean =>
         s13.coordinate(c, 0) < 7 ? true : t >= 3
@@ -362,9 +376,17 @@ export default experiment({
     const wallQuantized = wallSupport
       .slice(30)
       .every(x => x % sheet === 0)
+
+    // Period 24 is tested on every settled beat that has a partner 24 beats later. The version before
+    // 2026-09-25 looped `for (let t = 24; t + 24 < 48; t++)`, which never runs, so it reported the
+    // wall periodic without comparing a single beat. Run for 72 beats, the wall is not periodic at 24
+    // (nor at any period up to 24), so periodicity is reported, not gated.
+    let wallComparisons = 0
     let wallPeriodic = true
 
-    for (let t = 24; t + 24 < 48; t++) {
+    for (let t = 24; t + 24 < WALL_BEATS; t++) {
+      wallComparisons += 1
+
       if (wallSupport[t] !== wallSupport[t + 24]!) {
         wallPeriodic = false
       }
@@ -373,8 +395,8 @@ export default experiment({
     // 5. long-window dressed profile (side twenty-one, twenty-six beats)
     const s21 = setupOf(21)
     const mid21 = 10
-    const center21 =
-      mid21 + mid21 * 21 + mid21 * 441 + mid21 * 9261
+    const center21 = mid21 + mid21 * 21 + mid21 * 441 + mid21 * 9261
+
     const profile = (
       dir: number,
     ): { totalMax: number; coreMax: number; coreLate: number } => {
@@ -386,6 +408,7 @@ export default experiment({
       let totalMax = 0
       let coreMax = 0
       let coreLate = 0
+
       const v = s21.roots[dir]!
       const wrapOf = (d: number): number =>
         d > 10.5 ? d - 21 : d < -10.5 ? d + 21 : d
@@ -396,6 +419,7 @@ export default experiment({
 
         let total = 0
         let core = 0
+
         const p = [0, 1, 2, 3].map(
           a => (((mid21 + (t + 1) * v[a]!) % 21) + 21) % 21,
         )
@@ -405,6 +429,7 @@ export default experiment({
             total++
 
             const c = Math.floor(i / 24)
+
             let cheb = 0
 
             for (let a = 0; a < 4; a++) {
@@ -442,7 +467,7 @@ export default experiment({
       constructive >= 3 &&
       destructive >= 3 &&
       wallQuantized &&
-      wallPeriodic &&
+      wallComparisons > 0 &&
       protectedSpecies.totalMax === 1 &&
       dressed.coreMax <= 15 &&
       dressed.totalMax <= 30
@@ -450,7 +475,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the vacuum recurs exactly with the empty state at beat twenty-four, blind slabs leave the protected traveller exactly alone and kicking slabs move its phase by exactly one clock unit at support one, interference is exact with at least three aligned and three crossed beats, the wall content is sheet-quantized and exactly period twenty-four, and past a full schedule period the protected species holds support one while the dressed core stays bounded',
+        'the vacuum recurs exactly with the empty state at beat twenty-four, blind slabs leave the protected traveller exactly alone and kicking slabs move its phase by exactly one clock unit at support one, interference is exact with at least three aligned and three crossed beats, the wall content is sheet-quantized (its periodicity is measured and reported, not claimed), and past a full schedule period the protected species holds support one while the dressed core stays bounded',
       metrics: {
         vacuumExactPeriod: vacuumExact ? 24 : 0,
         blindExact: blindExact ? 1 : 0,
@@ -459,7 +484,8 @@ export default experiment({
         constructiveBeats: constructive,
         destructiveBeats: destructive,
         wallQuantized: wallQuantized ? 1 : 0,
-        wallPeriodic: wallPeriodic ? 1 : 0,
+        wallPeriodicAt24: wallPeriodic ? 1 : 0,
+        wallPeriodComparisons: wallComparisons,
         dressedCoreMax: dressed.coreMax,
         dressedTotalMax: dressed.totalMax,
         protectedSupportMax: protectedSpecies.totalMax,
@@ -470,7 +496,7 @@ export default experiment({
         blindOffsetsExact: blindExact ? 1 : 0,
       },
       notes:
-        'the absorbing offsets (three and five) dress the traveller instead of kicking it and are reported rather than gated. Wall localization is the one window-limited claim: at side twenty-one the wall carries a dominant core at the slab column plus a one-pass ballistic birth-radiation front, the signature of an interacting theory radiating during defect formation. The commensurate-quench Sakharov null moves from three beats to the schedule period, a real physical difference from the committed rule, recorded in the roadmap.',
+        'the absorbing offsets (three and five) dress the traveller instead of kicking it and are reported rather than gated. Wall localization is not claimed: E-FRC-0111 item 7 measures the defect against the piecewise vacuum at sides 9, 13 and 17 over 72 beats and finds it filling the box evenly under this rule by beat 6 (spread 0.96 to 1.01, where 0 is a sheet), so the side-twenty-one core at the slab column was a transient of a short window. The commensurate-quench Sakharov null moves from three beats to the schedule period, a real physical difference from the committed rule, recorded in the roadmap.',
     })
   },
 })

@@ -92,12 +92,7 @@ export function gaugeRule(input: {
   const field = input.field
   // Precompute the staple structure once (the substrate/edges are fixed).
   const edgeTriangles = buildEdgeTriangles(field)
-  const q =
-    field.group.form === 'u1' ||
-    field.group.form === 'su2' ||
-    field.group.form === 'su3'
-      ? field.group.q
-      : 1
+  const q = field.group.q
 
   return {
     form: 'rule',
