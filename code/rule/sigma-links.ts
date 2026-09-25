@@ -79,6 +79,17 @@ export type SigmaLinks = {
   readonly loops: boolean
   readonly gauss: boolean
   readonly priceFlux: boolean
+  // how a flux loop move acts on the links: 'none' leaves them, 'center' multiplies each link of the loop,
+  // in its direction of travel, by w to the power of the flux step (the conjugate coupling), 'fixed' by a
+  // fixed element outside the center (a control)
+  readonly couple: 'none' | 'center' | 'fixed'
+  // whether a coupled loop move pays for the triangles it changes (false only for a control)
+  readonly priceField: boolean
+  readonly scale: number
+  // w, the center element with Tr = 3 w, and its inverse
+  readonly omega: number
+  readonly omegaInverse: number
+  readonly fixedElement: number
   readonly transport: boolean
 }
 
@@ -109,6 +120,9 @@ export function makeSigmaLinks(input: {
   gauss?: boolean
   priceFlux?: boolean
   transport?: boolean
+  couple?: 'none' | 'center' | 'fixed'
+  priceField?: boolean
+  scale?: number
 }): SigmaLinks {
   const mesh = d4BoxMesh({ side: input.side })
   const cells = mesh.cellCount
@@ -161,6 +175,17 @@ export function makeSigmaLinks(input: {
   })
 
   const traceIm = Float64Array.from(group.matrices, m => (m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0))
+  // w: the scalar element with Tr = 3 w = -3/2 + i 3 sqrt(3)/2
+  const omega = Array.from({ length: group.order }, (_, g) => g).find(
+    g => Math.abs((group.trace[g] ?? 0) + 1.5) < 1e-9 && Math.abs((traceIm[g] ?? 0) - 1.5 * Math.sqrt(3)) < 1e-9,
+  )
+
+  if (omega === undefined) {
+    throw new Error('no center element w')
+  }
+
+  // a fixed element with trivial quotient only if central, so any element whose quotient is not the identity
+  const fixedElement = Array.from({ length: group.order }, (_, g) => g).find(g => (quotient[g] ?? 0) !== (quotient[group.identity] ?? 0)) ?? 0
 
   return {
     side: input.side,
@@ -172,7 +197,7 @@ export function makeSigmaLinks(input: {
     group,
     order: group.order,
     identity: group.identity,
-    level: actionLevels({ group, scale: SCALE }),
+    level: actionLevels({ group, scale: input.scale ?? SCALE }),
     traceIm,
     quotient,
     act,
@@ -185,6 +210,12 @@ export function makeSigmaLinks(input: {
     loops: input.loops ?? true,
     gauss: input.gauss ?? true,
     priceFlux: input.priceFlux ?? true,
+    couple: input.couple ?? 'none',
+    priceField: input.priceField ?? true,
+    scale: input.scale ?? SCALE,
+    omega,
+    omegaInverse: group.inverse[omega] ?? group.identity,
+    fixedElement,
     transport: input.transport ?? true,
   }
 }
@@ -363,7 +394,44 @@ function loopMove(rule: SigmaLinks, state: SigmaState, x: number, a: number, typ
     change += tensionOf(rule, e + step) - tensionOf(rule, e)
   }
 
-  if (!pay(rule, state, x * DEGREE + a, rule.priceFlux ? change : 0)) {
+  // the coupling: each link of the loop, in its direction of travel, multiplied by m to the step
+  const factor =
+    rule.couple === 'center'
+      ? step > 0
+        ? rule.omega
+        : rule.omegaInverse
+      : rule.couple === 'fixed'
+        ? step > 0
+          ? rule.fixedElement
+          : inverse(rule, rule.fixedElement)
+        : rule.identity
+  const multiply = (m: number): void => {
+    for (const [from, d] of legs) {
+      const g = times(rule, m, state.links[from * DEGREE + d] ?? 0)
+
+      state.links[from * DEGREE + d] = g
+      state.links[(rule.neighbour[from * DEGREE + d] ?? 0) * DEGREE + (rule.opposite[d] ?? d)] = inverse(rule, g)
+    }
+  }
+  // every triangle through a leg, the loop itself counted once though it holds all three legs
+  const local = (): number =>
+    legs.reduce((sum, [from, d]) => sum + triangleEnergy(rule, state.links, from, d, state.links[from * DEGREE + d] ?? 0), 0) -
+    2 * (rule.level[pathTransport(rule, state.links, x, [a, b, c])] ?? 0)
+
+  let field = 0
+
+  if (factor !== rule.identity) {
+    const before = local()
+
+    multiply(factor)
+    field = local() - before
+  }
+
+  if (!pay(rule, state, x * DEGREE + a, (rule.priceFlux ? change : 0) + (rule.priceField ? field : 0))) {
+    if (factor !== rule.identity) {
+      multiply(inverse(rule, factor))
+    }
+
     return false
   }
 

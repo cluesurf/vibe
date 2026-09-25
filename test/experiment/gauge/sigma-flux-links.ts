@@ -234,6 +234,7 @@ export default experiment({
 
     // the literal identification: docks where a center frame change would break Gauss's law
     const z = Array.from({ length: base.cells }, (_, x) => Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3))
+
     let brokenDocks = 0
 
     for (let x = 0; x < base.cells; x++) {

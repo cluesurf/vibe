@@ -31,6 +31,12 @@
 //   unital and keep the weight
 // Reported: grain (units as 2^a 3^b), meetings like and love-fear, fears, CHSH values, q of each knot.
 //
+// The first run failed its sign-flip control, and the control was ill-posed: the committed table was run on
+// this knit's matter pair (tokens 5 and 6), which happens not to flip there. The control now counts the flips
+// of every dock-0 token on each knit (gated: 0 on the color turn knit, above 0 on the committed table). The
+// same run showed both stored knots were a love and a fear (q = 0), where omega^q is 1, so the storage gate
+// now also runs the grower, a like pair (q = 2 or -2), where the center phase is not trivial.
+//
 // Depth L2: a constructed rule on the adopted knit against stated gates.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -301,11 +307,11 @@ export default experiment({
     const growerCandidates = ranked.slice(0, 12).map(pair => ({ pair, s: study(matter, pair, on, liveLinks, basisWhole(pair, [0, 1])) }))
     const grower = growerCandidates.reduce((best, c) => (c.s.twos + c.s.threes > best.s.twos + best.s.threes ? c : best), growerCandidates[0]!)
     const offStudies = [study(vacuum, vacuumPair, off, liveLinks, basisWhole(vacuumPair, [0, 0])), study(matter, matterPair, off, liveLinks, basisWhole(matterPair, [0, 1]))]
-    const committedFlips = (() => {
-      const committed = makeColorWeave({ side: SIDE, table: 'pair' })
-      const records = recordsOf(matter, committed.links, openOf(matterPair), BEATS, undefined, committed)
+    // sign flips of every dock-0 token that meets another, on a knit
+    const dockFlips = (k: Knit | undefined, w: ReturnType<typeof makeColorWeave>): number => {
+      const records = recordsOf(matter, w.links, dock0, BEATS, k, w)
       let flips = 0
-      const last = new Map<number, number>(matterPair.map(tk => [tk, signOfToken(matter.vibe, tk)]))
+      const last = new Map<number, number>(Array.from({ length: 24 }, (_, tk) => [tk, signOfToken(matter.vibe, tk)]))
 
       for (const r of records) {
         r.meetings.forEach(([ta, tb], k) => {
@@ -318,7 +324,9 @@ export default experiment({
       }
 
       return flips
-    })()
+    }
+    const committedFlips = dockFlips(undefined, makeColorWeave({ side: SIDE, table: 'pair' }))
+    const turnFlips = dockFlips(knit, weave)
 
     // reversal and charge on the matter pair
     let reverses = false
@@ -494,6 +502,7 @@ export default experiment({
     }
     const storedVacuum = storage(vacuum, vacuumPair, basisWhole(vacuumPair, [0, 0]))
     const storedMatter = storage(matter, matterPair, basisWhole(matterPair, [0, 1]))
+    const storedGrower = storage(matter, grower.pair, basisWhole(grower.pair, [0, 1]))
 
     const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-12
     const knots = [vacuumStudy, matterStudy, grower.s]
@@ -502,6 +511,9 @@ export default experiment({
       knitMeetings > 0 &&
       vacuumPair.length === 2 &&
       knots.every(s => s.flips === 0 && s.pure && s.shareMax <= 1 / 3) &&
+      turnFlips === 0 &&
+      storedGrower.q !== 0 &&
+      storedGrower.mismatches === 0 &&
       offStudies.every(s => s.fearsMax === 0) &&
       committedFlips > 0 &&
       reverses &&
@@ -570,6 +582,9 @@ export default experiment({
         storedMatterCharge: storedMatter.q,
         storedMatterMismatches: storedMatter.mismatches,
         storedBeats: storedMatter.beats,
+        storedGrowerCharge: storedGrower.q,
+        storedGrowerMismatches: storedGrower.mismatches,
+        dock0SignFlipsTurnKnit: turnFlips,
       },
       control: {
         committedTableSignFlips: committedFlips,

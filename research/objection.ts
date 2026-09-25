@@ -12,17 +12,25 @@ export const OBJECTIONS: Objection[] = [
     objection:
       'the committed knit is a classical permutation with no amplitudes, so every quantum-walk result is imported',
     measured:
-      'the empty state flashes with period 3, a seeded defect stays within 2 slots over 4 beats, and two defects add with 0 overlap, where a coined walk spreads to 5 sites with cross term 0.357',
+      'under the pair table the empty state flashes with period 3 (the committed turning weave recurs at beat 24, E-FND-0118), a seeded defect stays within 2 slots over 4 beats, and two defects add with 0 overlap, where a coined walk spreads to 5 sites with cross term 0.357. The signed weight on the role grid carries a quantum part (72 loves and 18 fears in the singlet, E-FRC-0120, an exact beat closing to su(9), E-FRC-0127), measured apart from the knit',
     verdict: 'stands',
-    source: 'E-FND-0080, R-FND-0001',
+    source: 'E-FND-0080, R-FND-0001, R-FRC-0005',
   },
   {
     objection:
-      'SU(3) color is absent from the rule, including under coarse-graining',
+      'SU(3) color is absent from the committed knit, including under coarse-graining',
     measured:
       '2 of 9 u(3) generators kept, 1 of 995,328 schedule symmetries, 0 of 32 triangles inside a block, and 84 to 88 percent of the breaking kept at the whole-mesh scale',
     verdict: 'stands',
     source: 'E-FRC-0093 to E-FRC-0097, R-FRC-0003',
+  },
+  {
+    objection:
+      'the classical color group of the adopted three-trit model does not reach the continuum',
+    measured:
+      'with a Re Tr U^2 term Sigma(648) matches SU(3) at the N_t = 4 transition (chi(2, 2) 0.375 against 0.378, chi(3, 3) 0.262 against 0.278), and on the trajectories measured its spacing stops shrinking there',
+    verdict: 'stands',
+    source: 'E-FRC-0103, R-FRC-0006',
   },
   {
     objection:
@@ -31,6 +39,21 @@ export const OBJECTIONS: Objection[] = [
       'the bare rule drifts -0.3748 toward a resource on one side and +0.3749 toward one on the other, no consistent approach, while the added valence layer shows a differential of 24.381',
     verdict: 'stands',
     source: 'E-SLF-0154',
+  },
+  {
+    objection: 'the committed knit does not conserve momentum',
+    measured:
+      'charge is conserved at every beat of every run, while the charge-signed momentum along x drifts by 830 over 48 beats from a hash start',
+    verdict: 'stands',
+    source: 'E-FLD-0020',
+  },
+  {
+    objection:
+      'a knot alone is not bound, and under the committed orientation a lone color cannot come back',
+    measured:
+      'under the committed knit a color-neutral triple reaches as far in 6 beats as one of its members alone, 8.5 against 8.5, so nothing binds it (E-FRC-0111). Color-local moves keep a lone vibe in its sign class, and the committed class is one of the 192 of 4,096 line orientations that form an open half-space (E-FRC-0130). Binding is shown only with a paid string, on a line and on the D4 lattice with matter that waits in docks (E-FRC-0129, E-FRC-0131)',
+    verdict: 'stands',
+    source: 'E-FRC-0111, E-FRC-0130, R-FRC-0006',
   },
   {
     objection: 'willpower is added as a scalar, not derived',
@@ -42,7 +65,7 @@ export const OBJECTIONS: Objection[] = [
   {
     objection: 'attractor memory fails on the bare reversible rule',
     measured:
-      'recall 0 on the bare rule against 1 on a dissipative Hopfield layer, chance 0.167, 6 patterns, 256 cells',
+      'recall 0 on the bare rule against 1 on a dissipative Hopfield layer, chance 0.167, 6 patterns, 256 docks',
     verdict: 'stands',
     source: 'E-MMR-0007',
   },
@@ -56,7 +79,7 @@ export const OBJECTIONS: Objection[] = [
   },
   {
     objection:
-      'the published papers labelled results more strongly than the code supports',
+      'the published papers labeled results more strongly than the code supports',
     measured:
       '9 passages, listed as errata with what each cited experiment does',
     verdict: 'stands',
@@ -64,7 +87,7 @@ export const OBJECTIONS: Objection[] = [
   },
   {
     objection:
-      'the greedy-routing result is labelled {3,4,3,4} but runs on the {5,4} plane tiling',
+      'the greedy-routing result is labeled {3,4,3,4} but runs on the {5,4} plane tiling',
     measured:
       'the experiment builds hyperbolicTiling({ p: 5, q: 4 }), at most 2,500 vertices',
     verdict: 'stands',

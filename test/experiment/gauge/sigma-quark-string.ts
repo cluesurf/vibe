@@ -281,6 +281,7 @@ export default experiment({
         // one Polyakov loop per tau line: the lines through every dock of one tau slice
         const pr = new Float64Array(cells)
         const pi = new Float64Array(cells)
+
         let sr = 0
         let si = 0
 

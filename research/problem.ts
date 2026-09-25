@@ -7,15 +7,14 @@ import type { Problem } from './type'
 export const PROBLEMS: Problem[] = [
   {
     id: 'OP-01',
-    title:
-      'build a layer that carries amplitudes on the committed knit',
+    title: 'carry the signed weight on the knit',
     question:
-      'Is there a coarse-grained quantity over many slots or beats of the committed knit that carries a phase and superposes?',
+      'Can the signed weight on the role grid, the loves and fears that write the singlet, run inside the committed knit, and does it give positions a quantum sector as well as roles?',
     known:
-      'the bare rule has no amplitudes: defects add exactly as sets (R-FND-0001)',
+      'the bare knit has no amplitudes: defects add exactly as sets (R-FND-0001). Apart from the knit, the signed weight on the role grid is the quantum part: the singlet is 72 loves and 18 fears on 54 units (E-FRC-0120), the cube-root swap phase moves the weights by an exact kernel in quarters (E-FRC-0121), 8 rounds stay exact with a fear share near 0.3, under the bound of a third (E-FRC-0122), and the swap phase is an exact reversible beat whose gate set closes to su(9) (E-FRC-0127)',
     unknown:
-      'whether any construction over the rule has a quantum sector',
-    why: 'every quantum result in the program is about an imported walk until this exists',
+      'whether the weights can ride the knit\'s own streaming, and whether the weight on a position can be real loves and fears',
+    why: 'every quantum result about positions in the program is about an imported walk until this exists',
     skills: [
       'cellular automata',
       'quantum foundations',
@@ -25,45 +24,46 @@ export const PROBLEMS: Problem[] = [
       'open-ended research. A first negative or positive construction is a paper',
     starting: [
       'test/experiment/foundations/rule-has-no-amplitudes.ts',
+      'test/experiment/gauge/fear-beat.ts',
       "'t Hooft 2016, The Cellular Automaton Interpretation of Quantum Mechanics",
     ],
-    depends: ['R-FND-0001'],
-    source: 'E-FND-0080',
+    depends: ['R-FND-0001', 'R-FRC-0005'],
+    source: 'E-FND-0080, E-FRC-0120 to E-FRC-0122, E-FRC-0127',
   },
   {
     id: 'OP-02',
     title:
-      'find a coarse variable in which SU(3) appears, or prove none does',
+      'the three-trit knit: which pair table, and color finer than the N_t = 4 spacing',
     question:
-      'Does any coarse variable of the committed knit other than block populations (currents, correlations) show an S3 at long distance?',
+      'Which pair table should the adopted three-trit knit run, given that color is local only on a hop-free table, and can its color group go finer than the N_t = 4 spacing?',
     known:
-      'block populations do not, at $L = 9$ and $15$ (E-FRC-0096). No single collision joins three lines (E-FRC-0094)',
+      'the committed knit carries no SU(3), and coarse-graining brings none back (R-FRC-0003). Color is the role trit, adopted on 2026-09-25. Color is an exact local law only on a hop-free table (E-FRC-0124), and the hop-free color weave spreads a lone disturbance 1.7 to 2.3 times wider (E-FRC-0125). The classical group Sigma(648) matches SU(3) at the N_t = 4 transition, and on the trajectories measured its spacing stops shrinking there (E-FRC-0103)',
     unknown:
-      'every other coarse variable, windows beyond 8 beats, spread three-tone starts',
-    why: 'R-FRC-0003 is exact only for what it tested',
+      'a color-local table that passes the dressing gate, and an exact step finer than the classical group',
+    why: 'R-FRC-0006 names the base change local color needs and its price. The three-trit knit is not committed until the price is settled',
     skills: [
       'representation theory',
-      'coarse-graining',
-      'numerical simulation',
+      'cellular automata',
+      'lattice gauge theory',
     ],
-    scope: 'a small computational investigation per variable',
+    scope: 'a computational search, then the acceptance battery on each candidate',
     starting: [
-      'note/experiment/gauge/su3-from-the-rule.md',
-      'code/coarse/tone-population.ts',
-      'code/measure/three-body-interaction.ts',
+      'note/experiment/gauge/what-the-base-needs.md',
+      'test/experiment/gauge/color-weave-acceptance.ts',
+      'test/experiment/gauge/finite-color-groups.ts',
     ],
-    depends: ['R-FRC-0003'],
-    source: 'E-FRC-0093 to E-FRC-0097',
+    depends: ['R-FRC-0003', 'R-FRC-0006'],
+    source: 'E-FRC-0103, E-FRC-0124, E-FRC-0125',
   },
   {
     id: 'OP-03',
     title: 'a ground state for a vacuum that flashes',
     question:
-      'Can a Z3 phase ride on the period-three vacuum, or does the flash rule out the ground state physics needs?',
+      'Can a Z3 phase ride on the vacuum clock, or does the clock rule out the ground state physics needs?',
     known:
-      'the empty state is a global period-three oscillation (E-FND-0080)',
+      'the empty state is not fixed, because calm and calm make a love and a fear. Under the pair table alone it is a global period-three oscillation (E-FND-0080). Under the committed turning weave, which runs that pair clock inside a 24-beat schedule, it recurs at beat 24 and not before (E-FND-0118)',
     unknown:
-      'whether this is a clock the physics can use or a defect of the rule',
+      'whether this clock is one the physics can use or a defect of the knit',
     why: 'it changes what a single particle means in the program',
     skills: ['statistical mechanics', 'discrete dynamics'],
     scope: 'a small theoretical question, then one experiment',
@@ -72,7 +72,7 @@ export const PROBLEMS: Problem[] = [
       'test/experiment/gauge/center-automaton.ts',
     ],
     depends: ['R-FND-0001', 'R-FRC-0002'],
-    source: 'E-FND-0080',
+    source: 'E-FND-0080, E-FND-0118',
   },
   {
     id: 'OP-04',
@@ -80,7 +80,7 @@ export const PROBLEMS: Problem[] = [
     question:
       'Do greedy routing stretch and search radius stay flat on the {3,4,3,4} honeycomb as it grows?',
     known:
-      'on {5,4}, stretch 1.002 (R-NVG-0001). On {3,4,3,4}, radius 3 at 750 and 3,000 cells (R-MMR-0001)',
+      'on {5,4}, stretch 1.002 (R-NVG-0001). On {3,4,3,4}, radius 3 at 750 and 3,000 docks (R-MMR-0001)',
     unknown:
       'the {3,4,3,4} routing at all, and either quantity at more than two sizes',
     why: 'planned paper 2 needs it, and R-NVG-0001 is on the wrong tiling until it exists',
@@ -98,7 +98,7 @@ export const PROBLEMS: Problem[] = [
     id: 'OP-05',
     title: 'every L3 result at a second lattice size',
     question:
-      'Does each of the 50 L3 verdicts hold at 0.5, 1 and 1.5 times its size?',
+      'Does each of the 52 L3 verdicts in the catalog hold at 0.5, 1 and 1.5 times its size?',
     known:
       'the perturbation check exists (pnpm check:perturbation). E-MMR-0002 fails at half size',
     unknown: 'which of the others hold',

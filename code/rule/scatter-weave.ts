@@ -33,10 +33,28 @@
 // colorLocalBeat with the scattering switched off.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { type Collision } from '@/code/rule/collision'
+import { BIND_MOVE_FORWARD, type Collision } from '@/code/rule/collision'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
-import { type ColorLocalSpec, invertTable, stateKey, type WireTable } from '@/code/rule/color-local-weave'
+import { type ColorLocalSpec, colorLocalSpec, invertTable, stateKey, type WireTable } from '@/code/rule/color-local-weave'
+import { COLOR_TURN, COLOR_TURN_SWAP_ORDER } from '@/code/rule/color-turn-weave'
+import { LONE_WITH_CLOCK } from '@/code/rule/momentum-weave'
 import { makeVibeWeave, type VibeState, type VibeWeave } from '@/code/rule/vibe-weave'
+
+// The momentum turn weave, the base of the scatter weave: the color turn weave's schedule (its turn and its
+// swap order, out and back) with the bind table and the momentum-keeping exchange of E-FLD-0023 (a lone
+// tone on either slot against a calm or paired line), so every couple keeps both of its line momenta
+export const MOMENTUM_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
+  tables: [BIND_MOVE_FORWARD],
+  turn: COLOR_TURN,
+  swapAt: [...COLOR_TURN_SWAP_ORDER, ...[...COLOR_TURN_SWAP_ORDER].reverse()],
+  swapWhen: (line, wire) => LONE_WITH_CLOCK[line * 9 + wire] === 1,
+})
+
+// the momentum weave of E-FLD-0023 in the same form (the committed schedule)
+export const MOMENTUM_WEAVE_COLOR_SPEC: ColorLocalSpec = colorLocalSpec({
+  tables: [BIND_MOVE_FORWARD],
+  swapWhen: (line, wire) => LONE_WITH_CLOCK[line * 9 + wire] === 1,
+})
 
 // u, v, w, x: slot u exchanges with w and v with x
 export type Scattering = readonly [number, number, number, number]

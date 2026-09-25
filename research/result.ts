@@ -537,9 +537,9 @@ export const RESULTS: Result[] = [
     importance:
       'A sampler is a shortcut, not a necessity. The Gauss-law temperature count is what makes the prediction right: the naive count is excluded at $306\\sigma$.',
     limits: [
-      'the dynamics is Hamiltonian SU(3), not the committed knit. The rule carries no SU(3) (R-FRC-0003)',
+      'the dynamics is Hamiltonian SU(3), not the committed knit, which carries no SU(3) (R-FRC-0003). The three-trit model carries the classical color group $\\Sigma(648)$ (R-FRC-0005)',
       'one structured start',
-      'the $\\mathbb{Z}_3$ automaton (E-FRC-0099) freezes at low energy, the known Q2R non-ergodicity, and needs a kinetic variable there',
+      'the $\\mathbb{Z}_3$ automaton (E-FRC-0099) freezes at low energy, the known Q2R non-ergodicity. A streaming, exchanging demon per link is the kinetic variable that reaches the ordered phase: plaquette 0.979 against the heatbath 0.982, and 0.994 against 0.998 (E-FRC-0102). $\\Sigma(648)$ runs the same way (E-FRC-0110)',
     ],
     equations: [
       'Wilson coupling: $\\beta = 2N/g^2$',
@@ -718,9 +718,9 @@ export const RESULTS: Result[] = [
     importance:
       'The program measured the absence of the strong force in its own rule, exactly, and named what would have to be added. Adding a sixth ingredient is not emergence.',
     limits: [
-      'the committed knit only. A different rule, or a sixth ingredient, is not excluded',
-      'coarse variables other than block populations, spread three-tone starts, and windows beyond 8 beats are untested',
-      'time-reversed and cell-dependent symmetries are excluded by design',
+      'the committed knit only. The sixth ingredient now under test is the three-trit model, a role and a tilt per vibe and a grid move per link (R-FRC-0005, R-FRC-0006)',
+      'coarse variables other than block populations, spread three-vibe starts, and windows beyond 8 beats are untested',
+      'time-reversed and dock-dependent symmetries are excluded by design',
     ],
     equations: [
       'the commutant of the rule in $\\mathfrak{u}(3)$, over all 24 beats: $\\dim\\{X \\in \\mathfrak{u}(3) : [X, B_t] = 0,\\ t = 1, \\dots, 24\\} = 2$',
@@ -736,7 +736,7 @@ export const RESULTS: Result[] = [
       },
       {
         quantity:
-          'tone relabellings ($S_3$ on each line end) commuting with the rule, sides 3 and 5',
+          'vibe relabelings ($S_3$ on each line end) commuting with the knit, sides 3 and 5',
         measured: '1 of 36, the identity',
         reference: 'pure streaming keeps 36 (run)',
         code: 'E-FRC-0093',
@@ -744,7 +744,7 @@ export const RESULTS: Result[] = [
       {
         quantity: 'zero-sum triangles inside one interaction block',
         measured: '0 of 32',
-        reference: 'a whole-cell collision puts 32 of 32 inside (run)',
+        reference: 'a collision joining every slot of a dock puts 32 of 32 inside (run)',
         code: 'E-FRC-0094',
       },
       {
@@ -756,17 +756,17 @@ export const RESULTS: Result[] = [
       },
       {
         quantity:
-          'breaking kept at the whole-mesh scale, relabellings that move 0',
+          'breaking kept at the whole-mesh scale, relabelings that move calm',
         measured: '84 to 88 percent',
         reference: 'streaming 0 at every scale (registry)',
         code: 'E-FRC-0096',
       },
       {
         quantity:
-          'third tones closing a triangle that produce a joint effect within 8 beats',
+          'third vibes closing a triangle that produce a joint effect within 8 beats',
         measured: '0 of 32',
         reference:
-          'other third tones 57 of 672. Sticky reflection couples every triple (registry)',
+          'other third vibes 57 of 672. Sticky reflection couples every triple (registry)',
         code: 'E-FRC-0097',
       },
     ],
@@ -775,10 +775,10 @@ export const RESULTS: Result[] = [
       caption:
         'Measurement. What the committed knit keeps, against a control that keeps everything. Each row is scaled to its own control.',
       measured: 'the committed knit',
-      control: 'control: streaming, or a whole-cell collision',
+      control: 'control: streaming, or a collision joining every slot of a dock',
       rows: [
         { label: '𝔲(3) generators kept', measured: 2, control: 9 },
-        { label: 'tone relabellings kept', measured: 1, control: 36 },
+        { label: 'vibe relabelings kept', measured: 1, control: 36 },
         { label: 'triangles inside a block', measured: 0, control: 32 },
         {
           label: 'exact schedule symmetries',
@@ -951,7 +951,7 @@ export const RESULTS: Result[] = [
     paper:
       'the framework paper, as its central negative, and the testbed paper, as the reason its QCD is L2',
     program:
-      'The knit, run on the D4 mesh, does not carry color. It would take a sixth thing: a three-line vertex on the coin triangles, a tone with amplitudes, and a clock compatible with U(3).',
+      'The knit, run on the D4 mesh, does not carry color. The sixth thing it takes is the three-trit model, adopted on 2026-09-25: each vibe carries a role and a tilt, and each link a grid move (R-FRC-0005, R-FRC-0006), measured so far in variant rules (E-FRC-0117, E-FRC-0123, E-FRC-0124, E-FRC-0128), not in the committed knit. The vibe with amplitudes is fear, the signed weight on the role grid (E-FRC-0120, E-FRC-0121, E-FRC-0122, E-FRC-0127). A rule that respects a color triality moves vibes between a color line and its orbit only in threes (E-FRC-0112).',
     outputs: NO_OUTPUTS,
   },
   {
@@ -959,9 +959,9 @@ export const RESULTS: Result[] = [
     title: 'The committed knit has no amplitudes',
     subject: 'quantum foundations',
     sentence:
-      'The same lattice gas has no quantum single-particle sector: a seeded defect never spreads, and two defects add exactly as sets.',
+      'The lattice gas run on its pair table alone, the clock sector of the same knit, has no quantum single-particle sector: a seeded defect never spreads, and two defects add exactly as sets.',
     claim:
-      'The lattice gas has no quantum single-particle sector: its empty state is a global period-three oscillation, a single seeded value is a classical defect of at most two slots that never spreads, and two defects evolve as the exact union of their separate evolutions with zero cross term, while a coined Dirac walk seeded the same way spreads and interferes.',
+      'The lattice gas with the nine-state pair table on every line has no quantum single-particle sector: its empty state is a global period-three oscillation, a single seeded value is a classical defect of at most two slots that never spreads, and two defects evolve as the exact union of their separate evolutions with zero cross term, while a coined Dirac walk seeded the same way spreads and interferes.',
     headline: {
       value: '0',
       label:
@@ -975,12 +975,13 @@ export const RESULTS: Result[] = [
     question:
       'Does the committed knit have a quantum sector of its own?',
     answer:
-      "No. Its values are integers that add as sets. Thirteen quantum results that were cited as the rule's own dynamics ran a hand-written walk instead.",
+      "No. Its values are integers that add as sets. Thirteen quantum results that were cited as the knit's own dynamics ran a hand-written walk instead.",
     importance:
-      'This is the measurement that regraded the quantum arena. Until a layer carrying amplitudes is built on the rule, every walk result is a result about the walk.',
+      'This is the measurement that regraded the quantum arena. Until a layer carrying amplitudes runs on the knit, every walk result is a result about the walk. The candidate layer is the signed weight on the role grid: the singlet is written by 72 loves and 18 fears on 54 units (E-FRC-0120), 8 rounds of the cube-root swap phase stay exact with a fear share near 0.3, under the bound of a third (E-FRC-0122), and the swap phase is an exact reversible beat whose gate set closes to su(9) (E-FRC-0127). None of it runs on the committed knit yet.',
     limits: [
-      'the bare rule only. A middle layer carrying amplitudes is not excluded, only not built',
-      'side 8 is even, so the mesh is two disconnected lattices and the run covers one component of 2,048 cells',
+      'the bare knit only. A middle layer carrying amplitudes is not excluded. The signed weight on the role grid is that layer, measured apart from the knit (R-FRC-0005)',
+      'measured with the pair table on every line (pairCollision), the committed knit until 2026-09-02 and the clock sector of the turning weave since. The period 3 is that pair clock. The committed turning weave\'s vacuum recurs at beat 24, not before (E-FND-0118)',
+      'side 8 is even, so the mesh is two disconnected lattices and the run covers one component of 2,048 docks',
     ],
     equations: [
       'the empty state under the pair table, period 3: $(0,0) \\to (+1,-1) \\to (-1,+1) \\to (0,0)$',
@@ -1123,7 +1124,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'the framework paper, in place of its quantum section',
     program:
-      'A tone is a classical defect riding on a vacuum that flashes with period three. Every walk result is a result about the walk until a layer between the tones and amplitudes is built.',
+      'A vibe is a classical defect riding on a vacuum clock: the pair table flashes with period 3 (E-FND-0080), and the committed turning weave\'s vacuum recurs at beat 24 (E-FND-0118). Every walk result is a result about the walk until a layer between the vibes and amplitudes runs on the knit. Fear, the signed weight on the role grid, is the candidate (R-FRC-0005).',
     outputs: NO_OUTPUTS,
   },
   {
@@ -1134,7 +1135,7 @@ export const RESULTS: Result[] = [
     sentence:
       'On the {3,4,3,4} honeycomb the radius a spreading search needs stays at 3 as the memory quadruples, while on a cubic lattice it grows from 12 to 21.',
     claim:
-      'On the {3,4,3,4} honeycomb the coverage radius of a breadth-first spread stays at 3 from 750 to 3,000 cells, while on a flat cubic lattice it grows from 12 to 21. Across four other hyperbolic tilings, coverage radius falls and growth rises with curvature.',
+      'On the {3,4,3,4} honeycomb the coverage radius of a breadth-first spread stays at 3 from 750 to 3,000 docks, while on a flat cubic lattice it grows from 12 to 21. Across four other hyperbolic tilings, coverage radius falls and growth rises with curvature.',
     headline: {
       value: '0',
       label:
@@ -1154,15 +1155,15 @@ export const RESULTS: Result[] = [
     limits: [
       'two sizes only, so no logarithmic fit is made',
       'the curvature ladder (E-MMR-0002) runs {5,3,4} to {5,3,3,5} and leaves {3,4,3,4} out',
-      'the ladder claim fails at half size: at 600 cells the cubic radius ties the least-curved one. Its measured floor is about 1,000 cells',
+      'the ladder claim fails at half size: at 600 docks the cubic radius ties the least-curved one. Its measured floor is about 1,000 docks',
     ],
     equations: [
-      'coverage radius (D3) at $N$ and $4N$ cells, and its change $\\Delta r = r(4N) - r(N)$',
+      'coverage radius (D3) at $N$ and $4N$ docks, and its change $\\Delta r = r(4N) - r(N)$',
       'with exponential growth $r \\sim \\log_\\lambda N$, so $\\Delta r \\approx \\log_\\lambda 4$. On a cubic lattice $r \\sim N^{1/3}$, so $\\Delta r$ grows with $N$',
     ],
     measurements: [
       {
-        quantity: 'coverage radius, {3,4,3,4}, 750 to 3,000 cells',
+        quantity: 'coverage radius, {3,4,3,4}, 750 to 3,000 docks',
         measured: '3 to 3',
         reference: 'cubic 12 to 21 (run)',
         code: 'E-MMR-0013',
@@ -1182,12 +1183,12 @@ export const RESULTS: Result[] = [
     ],
     figure: {
       form: 'pairs',
-      caption: 'Reproduction. Coverage radius at 750 and 3,000 cells.',
+      caption: 'Reproduction. Coverage radius at 750 and 3,000 docks.',
       measured: '{3,4,3,4}',
       control: 'flat cubic lattice',
       rows: [
-        { label: 'radius at 750 cells', measured: 3, control: 12 },
-        { label: 'radius at 3,000 cells', measured: 3, control: 21 },
+        { label: 'radius at 750 docks', measured: 3, control: 12 },
+        { label: 'radius at 3,000 docks', measured: 3, control: 21 },
       ],
     },
     comparison: {
@@ -1308,14 +1309,14 @@ export const RESULTS: Result[] = [
     answer:
       'On {5,4}, yes, with mean stretch 1.002. On the {3,4,3,4} honeycomb it has not been run.',
     importance:
-      'The program uses greedy routing as the way a self moves. The {3,4,3,4} version is the one that would count.',
+      'The substrate of the program is the {3,4,3,4} honeycomb, so the {3,4,3,4} version is the one that would count.',
     limits: [
       'the experiment builds a two-dimensional {5,4} tiling of at most 2,500 vertices, not the {3,4,3,4} honeycomb. Its catalog substrate label is wrong',
       'one size',
     ],
     equations: [
       'mean stretch over the tested pairs: $\\bar{s} = \\dfrac{1}{|P|} \\sum_{(u,v) \\in P} \\dfrac{\\ell_{\\text{greedy}}(u,v)}{d(u,v)}$',
-      'a greedy step moves to the neighbour closest to the target in hyperbolic distance, using only the current cell, its neighbours and the target',
+      'a greedy step moves to the neighbor closest to the target in hyperbolic distance, using only the current dock, its neighbors and the target',
     ],
     measurements: [
       {
@@ -1429,7 +1430,7 @@ export const RESULTS: Result[] = [
     paper:
       'planned paper 2, once it runs on {3,4,3,4} with finite-size scaling',
     program:
-      'The walkway a self can follow with only local information.',
+      'Routing with only local information, measured on a {5,4} stand-in for the {3,4,3,4} honeycomb.',
     outputs: NO_OUTPUTS,
   },
   {
@@ -1455,7 +1456,7 @@ export const RESULTS: Result[] = [
     importance:
       'The program reads the surface as physical space and the interior as wiring. This is the number behind that picture.',
     limits: [
-      'five shells, 170,000 cells',
+      'five shells, 170,000 docks',
       'a property of the geometry, not of the rule running on it',
     ],
     equations: [
@@ -1588,7 +1589,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'planned paper 2, the hyperbolic substrate',
     program:
-      'Almost all of the mesh sits at the skin. Physical space is the canopy, the bulk is the branches.',
+      'Almost all of the mesh sits at the skin. The skin is the wake, the growing edge where a new shell of docks is born every beat (1, 24, 456, 8,376 on {3,4,3,4}, E-FND-0051). Physical space is the wake, the bulk is the branches.',
     outputs: NO_OUTPUTS,
   },
   {
@@ -1935,16 +1936,16 @@ export const RESULTS: Result[] = [
   {
     code: 'R-FRC-0005',
     title:
-      'Color as a classical phase-space label: a whole without amplitudes, and negativity as the quantum part',
+      'Color as a classical phase-space label: a knot without amplitudes, and negativity as the quantum part',
     subject: 'symmetry',
     sentence:
-      'A color carried as a point of the 3 x 3 qutrit phase space, moved by the 216 affine maps the classical color group induces, is gauge invariant with links, forms frame-free wholes exactly at triality zero, and needs negative weight only for the singlet sign.',
+      'A color carried as a point of the 3 x 3 qutrit phase space, moved by the 216 affine maps the classical color group induces, is gauge invariant with links, forms frame-free knots exactly at triality zero, and needs negative weight only for the singlet sign.',
     claim:
-      'Carry color as a point of $\\mathbb{Z}_3^2$, the phase space of one qutrit, moved by the 216 affine symplectic maps that the classical color group $\\Sigma(648)$ induces. With links holding those maps, an independent change of frame in every cell commutes exactly with a charge-conserving reversible lattice rule. A set of points signed by charge has a frame-free zero sum exactly when its total charge is a multiple of 3, which reproduces the triality selection rule of color singlets in all 27 mixes of up to six charges. A role point carried round a loop survives exactly as often as the adjoint Wilson loop says. The singlet itself is written by whole positive and negative discrete-Wigner weights (72 and 18 on 54 units), where the symmetric whole needs no negative weight, and the swap phase at $2\\pi/3$ moves such weights by an exact kernel in quarters.',
+      'Carry color as a point of $\\mathbb{Z}_3^2$, the phase space of one qutrit, moved by the 216 affine symplectic maps that the classical color group $\\Sigma(648)$ induces. With links holding those maps, an independent change of frame in every dock commutes exactly with a charge-conserving reversible lattice rule. A set of points signed by charge has a frame-free zero sum exactly when its total charge is a multiple of 3, which reproduces the triality selection rule of color singlets in all 27 mixes of up to six charges. A role point carried round a loop survives exactly as often as the adjoint Wilson loop says. The singlet itself is written by whole positive and negative discrete-Wigner weights (72 and 18 on 54 units), where the symmetric knot (three equal roles) needs no negative weight, and the swap phase at $2\\pi/3$ moves such weights by an exact kernel in quarters.',
     headline: {
       value: '27 of 27',
       label:
-        'charge mixes where the classical whole matches the quantum singlet rule',
+        'charge mixes where the classical knot matches the quantum singlet rule',
     },
     category: 'explanation',
     status: ['simulated'],
@@ -1954,24 +1955,24 @@ export const RESULTS: Result[] = [
     question:
       'Can color be carried by a deterministic classical rule, and if not all of it, which part needs amplitudes?',
     answer:
-      'All of the frame freedom and the triality selection rule can. What cannot is the sign of the singlet and the quark string, which need negative weight.',
+      'All of the frame freedom and the triality selection rule can. What cannot is the sign of the singlet, which needs negative weight. The quark string, which a role point cannot see, is carried instead by the triality flux on the links (E-FRC-0123, E-FRC-0129, R-FRC-0006).',
     importance:
       'It splits the strong force into a classical part a deterministic base can carry and one non-classical ingredient, and shows the ingredient is negative weight on the same grid.',
     limits: [
-      'a candidate addition to the base, not the committed knit, which carries none of it (R-FRC-0003)',
+      'adopted for the base on 2026-09-25 as the three-trit model, but measured so far in variant rules, not in the committed knit, which carries none of it (R-FRC-0003)',
       'the links are a fixed background field in the gauge test. Moving links, color kept local and binding are R-FRC-0006',
-      'no rule here binds a whole: flux on the links obeys Gauss exactly and costs nothing. Binding is R-FRC-0006',
+      'no rule here binds a knot: flux on the links obeys Gauss exactly and costs nothing. A knot alone is not bound: under the committed knit a color-neutral triple reaches as far in 6 beats as one of its members alone, 8.5 against 8.5 (E-FRC-0111). Only a paid string binds (E-FRC-0129, E-FRC-0131, R-FRC-0006)',
       'pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases. The neutral creation, and why it needs a table with no hop, is R-FRC-0006',
       'carrying non-classical steps exactly needs a unit count that grows four times per step',
     ],
     equations: [
-      'a whole: $S = \\sum_i v_i p_i = 0$ with $v_i = \\pm 1$ and $p_i \\in \\mathbb{Z}_3^2$, and under $g(p) = A p + u$, $S \\mapsto A S + \\big(\\textstyle\\sum_i v_i\\big) u$, so $S = 0$ is frame-free exactly when $\\sum_i v_i \\equiv 0 \\pmod 3$',
+      'a knot: $S = \\sum_i v_i p_i = 0$ with $v_i = \\pm 1$ and $p_i \\in \\mathbb{Z}_3^2$, and under $g(p) = A p + u$, $S \\mapsto A S + \\big(\\textstyle\\sum_i v_i\\big) u$, so $S = 0$ is frame-free exactly when $\\sum_i v_i \\equiv 0 \\pmod 3$',
       'the points a color element fixes: $\\#\\{p : g_U(p) = p\\} = |\\operatorname{Tr} U|^2$, so survival round a loop is the adjoint Wilson loop',
       'a gate moves discrete Wigner weights by $K(x, y) = \\operatorname{Tr}\\big(A(x)\\,U A(y) U^\\dagger\\big)/3^n$',
     ],
     measurements: [
       {
-        quantity: 'charge mixes, up to six, where the classical whole is frame-free exactly when the quantum singlet exists',
+        quantity: 'charge mixes, up to six, where the classical knot is frame-free exactly when the quantum singlet exists',
         measured: '27 of 27',
         reference: 'the SU(3) singlet counts of E-FRC-0101 and the characters of $\\Sigma(648)$ (run)',
         code: 'E-FRC-0118',
@@ -1983,7 +1984,7 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0118',
       },
       {
-        quantity: 'mismatches under an independent change of frame in every cell, 24 beats',
+        quantity: 'mismatches under an independent change of frame in every dock, 24 beats',
         measured: '0 with links',
         reference: '27,749 without links, 40,015 with a fixed map per direction (run)',
         code: 'E-FRC-0117',
@@ -1995,7 +1996,7 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0119',
       },
       {
-        quantity: 'negative weight in the singlet, positive in the symmetric whole',
+        quantity: 'negative weight in the singlet, positive in the symmetric knot',
         measured: '72 positive and 18 negative on 54 units, against 27 positive and 0 negative',
         reference: 'a product state, 27 positive and 0 negative (run)',
         code: 'E-FRC-0120',
@@ -2010,8 +2011,8 @@ export const RESULTS: Result[] = [
     figure: {
       form: 'pairs',
       caption:
-        'Explanation. Each row against its control, scaled to the control: the gauge test with links against without, and the negative weight of the symmetric whole against the singlet.',
-      measured: 'with links, or the symmetric whole',
+        'Explanation. Each row against its control, scaled to the control: the gauge test with links against without, and the negative weight of the symmetric knot against the singlet.',
+      measured: 'with links, or the symmetric knot',
       control: 'without links, or the singlet',
       rows: [
         { label: 'frame-change mismatches', measured: 0, control: 27749 },
@@ -2021,7 +2022,7 @@ export const RESULTS: Result[] = [
     comparison: {
       standard:
         'color is a quantum SU(3) label, singlets exist only at triality zero, and confinement is read off the fundamental Wilson loop',
-      vibe: 'the frame freedom and the triality rule are classical on a 3 x 3 grid, the singlet sign and the fundamental string need negative weight',
+      vibe: 'the frame freedom and the triality rule are classical on a 3 x 3 grid, the singlet sign needs negative weight, and the fundamental string rides the triality flux on the links (R-FRC-0006)',
       difference:
         'a split of the standard picture into a classical and a non-classical part, not a disagreement with it',
     },
@@ -2050,7 +2051,7 @@ export const RESULTS: Result[] = [
       derived: {
         mark: 'fail',
         reason:
-          'a candidate addition to the base, run on constructed rules, not the committed knit',
+          'adopted for the base, but run on constructed rules, not the committed knit',
       },
       quantitative: { mark: 'pass', reason: 'exact integers and exact kernels' },
       differentiating: {
@@ -2070,7 +2071,7 @@ export const RESULTS: Result[] = [
       },
     },
     failure: [
-      'a charge mix whose classical whole is frame-free where no quantum singlet exists, or the reverse',
+      'a charge mix whose classical knot is frame-free where no quantum singlet exists, or the reverse',
       'a nonzero mismatch under a change of frame with links',
       'a role survival that departs from the adjoint Wilson loop',
     ],
@@ -2192,7 +2193,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'the testbed paper, as what a base would need for color',
     program:
-      'The vibe, role and tilt model: every slot holds a vibe (fear, calm, love), a role (take, hold, free) and a tilt, a whole is three roles on a line of the grid, and fear is the negative weight that the one-third turn at a meeting of different roles creates. Nothing in the committed base has changed.',
+      'The vibe, role and tilt model: every slot holds a vibe (fear, calm, love), a role (take, hold, free) and a tilt, a knot of three loves is three roles on a line of the grid, and fear is the negative weight that the one-third turn at a meeting of different roles creates. Adopted as the three-trit model on 2026-09-25. The committed knit (code/rule/collision.ts) has not changed yet: it moves the vibe alone.',
     outputs: NO_OUTPUTS,
   },
   {
@@ -2201,31 +2202,31 @@ export const RESULTS: Result[] = [
       'Color kept local, links that move, and binding: what the three-trit model needs, and what it costs',
     subject: 'symmetry',
     sentence:
-      'Color is an exact local law in the three-trit model exactly when the line table has no hop, links can move while every frame change stays a symmetry, the classical color group confines under a rule with no random number, and a part is bound while a whole is free once a hop pays for its string, though not in the committed orientation.',
+      'Color is an exact local law in the three-trit model exactly when the line table has no hop, links can move while every frame change stays a symmetry, the classical color group confines under a rule with no random number, and a part is bound while a knot is free once a hop pays for its string, though not in the committed orientation.',
     claim:
-      'Counting a calm slot\'s role point as color signed by its side of the line, color content is conserved cell by cell exactly when the sum-keeping line table has no hop (4 of the 16 tables that make pairs from calm, none with a hop). The color weave built on one leaks no color, keeps charge, Gauss\'s law, reversal and frame change exact, and passes the acceptance battery except that a lone disturbance spreads about twice as wide. Links moved by reflection through a triangle\'s staple keep energy to the unit and frame change exact. The kinetic automaton of $\\Sigma(648)$ gives Creutz ratios matching the heatbath and a vanishing Polyakov loop with no random number. With the triality flux as an energy that a hop must pay, a meson stays bound while it travels and a baryon holds together while moving freely against its antibaryon, on a line and, when cold, on the D4 lattice. Under the committed orientation of the lines a lone vibe\'s directions form an open half-space, so it can never come back, which rules moving binding out for any color-local rule in that orientation.',
+      'Counting a calm slot\'s role point as color signed by its side of the line, color content is conserved dock by dock exactly when the sum-keeping line table has no hop (4 of the 16 tables that make pairs from calm, none with a hop). The color weave built on one leaks no color, keeps charge, Gauss\'s law, reversal and frame change exact, and passes the acceptance battery except that a lone disturbance spreads about twice as wide. Links moved by reflection through a triangle\'s staple keep energy to the unit and frame change exact. The kinetic automaton of $\\Sigma(648)$ gives Creutz ratios matching the heatbath and a vanishing Polyakov loop with no random number. With the triality flux as an energy that a hop must pay, a meson stays bound while it travels and a baryon holds together while moving freely against its antibaryon, on a line and, when cold, on the D4 lattice. Under the committed orientation of the lines a lone vibe\'s directions form an open half-space, so it can never come back, which rules moving binding out for any color-local rule in that orientation.',
     headline: {
       value: '0 of 3,888',
-      label: 'cell-beats where the color weave leaks color, against 3,641 for the committed table',
+      label: 'dock-beats where the color weave leaks color, against 3,641 for the committed table',
     },
     category: 'explanation',
     status: ['simulated'],
     depth: 'L1 and L2',
     audience: 'lattice gauge theory, reversible and cellular automata, anyone building color into a deterministic rule',
-    question: 'Can a deterministic reversible rule keep color local, move its links, and bind a part while leaving a whole free?',
+    question: 'Can a deterministic reversible rule keep color local, move its links, and bind a part while leaving a knot free?',
     answer:
       'Yes, each exactly, with one table change (no hop) for local color and a paid hop for binding. The committed knit\'s own architecture cannot bind a moving part: its orientation makes a lone vibe drift one way, and every slot must stream.',
     importance:
       'It closes the classical side of color: locality, gauge dynamics, confinement and binding are all carried without amplitudes, and it names exactly which base changes they need.',
     limits: [
-      'candidates for the base, not the committed knit',
+      'run on variant rules, not the committed knit. The three-trit model they belong to was adopted for the base on 2026-09-25, and which table its knit runs is still open',
       'dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider (E-FRC-0125 fails its comparative dressing gate)',
-      'moving binding is shown on a line and on the D4 lattice with matter that waits in cells, not in the committed slot architecture, which would need waiting slots, a returning orientation and paid streaming',
+      'moving binding is shown on a line and on the D4 lattice with matter that waits in docks, not in the committed slot architecture, which would need waiting slots, a returning orientation and paid streaming',
       'the moving links do not feel the matter: no matter term enters their energy',
-      'confinement is at one spacing on a 6^3 x 4 lattice',
+      'confinement is at one spacing on a 6^3 x 4 lattice. Under the Wilson action with a Re Tr U^2 term the classical group $\\Sigma(648)$ matches SU(3) at the N_t = 4 transition (chi(2, 2) 0.375 against 0.378, E-FRC-0103), and on the trajectories measured its spacing stops shrinking there',
     ],
     equations: [
-      'color content of a cell: $Q = \\sum_d w_d\\,p_d$, $w_d = v_d$ for a love or fear and $\\sigma_d = \\pm 1$ by side for a calm slot',
+      'color content of a dock: $Q = \\sum_d w_d\\,p_d$, $w_d = v_d$ for a love or fear and $\\sigma_d = \\pm 1$ by side for a calm slot',
       'the link reflection: $U \\mapsto A^{-1} U^{-1} A^{-1}$, sending the triangle transport $T = A U$ to $T^{-1}$',
       'the string energy: $H = m \\cdot \\#\\text{charges} + \\tau \\cdot \\#\\{\\ell : E_\\ell \\not\\equiv 0 \\pmod 3\\} + \\sum \\text{demons}$',
     ],
@@ -2237,7 +2238,7 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0124',
       },
       {
-        quantity: 'cell-beats where color leaks, 48 beats on the side-3 box',
+        quantity: 'dock-beats where color leaks, 48 beats on the side-3 box',
         measured: '0 of 3,888',
         reference: '3,641 for the committed table through the same code (run)',
         code: 'E-FRC-0124',
@@ -2256,8 +2257,8 @@ export const RESULTS: Result[] = [
       },
       {
         quantity: 'a meson\'s mean gap on a line, with tension',
-        measured: '1.9 cells, travelling 486',
-        reference: '64.1 cells with no tension (run)',
+        measured: '1.9 docks, traveling 486',
+        reference: '64.1 docks with no tension (run)',
         code: 'E-FRC-0129',
       },
       {
@@ -2268,7 +2269,7 @@ export const RESULTS: Result[] = [
       },
       {
         quantity: 'a meson\'s mean gap on the D4 lattice, coldest demons',
-        measured: '1.72, travelling 34',
+        measured: '1.72, traveling 34',
         reference: '121.6 with no tension, 89.5 at the hottest (run)',
         code: 'E-FRC-0131',
       },
@@ -2280,7 +2281,7 @@ export const RESULTS: Result[] = [
       measured: 'the rule',
       control: 'its control',
       rows: [
-        { label: 'color leaks, cell-beats', measured: 0, control: 3641 },
+        { label: 'color leaks, dock-beats', measured: 0, control: 3641 },
         { label: 'meson gap on a line', measured: 1.9, control: 64.1 },
         { label: 'meson gap on D4, cold', measured: 1.72, control: 121.6 },
       ],
@@ -2312,7 +2313,7 @@ export const RESULTS: Result[] = [
       },
       derived: {
         mark: 'fail',
-        reason: 'candidates for the base run on constructed rules, not the committed knit',
+        reason: 'variant rules for the adopted three-trit model, not the committed knit',
       },
       quantitative: { mark: 'pass', reason: 'exact integers, exhaustive searches and measured controls' },
       differentiating: {
@@ -2373,7 +2374,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'the testbed paper, as what a base would need for color',
     program:
-      'The path forward of the vibe, role and tilt model, walked: color as a local law, roles on moving links, the signed weight as a beat, and binding. Nothing in the committed base has changed.',
+      'The path forward of the vibe, role and tilt model, walked: color as a local law, roles on moving links, the signed weight as a beat, and binding. Adopted as the three-trit model on 2026-09-25. The committed knit (code/rule/collision.ts) has not changed yet, and which pair table the three-trit knit runs is still open.',
     outputs: NO_OUTPUTS,
   },
   {
@@ -2447,7 +2448,7 @@ export const RESULTS: Result[] = [
     },
     comparison: {
       standard:
-        'correlation without signalling is quantum entanglement, which no classical common cause reproduces at Bell-violating strength',
+        'correlation without signaling is quantum entanglement, which no classical common cause reproduces at Bell-violating strength',
       vibe: 'a common ancestor in the interior',
       difference:
         'unknown until $\\alpha$ is measured and compared with a physical system',
@@ -2562,7 +2563,7 @@ export const RESULTS: Result[] = [
     paper:
       'a prediction paper, if $\\alpha$ is measured and a row passes the gate',
     program:
-      'The bulk shortcut: two tones on the skin share a past through the bulk.',
+      'The bulk shortcut: two vibes on the wake share a past through the bulk.',
     outputs: NO_OUTPUTS,
   },
 ]

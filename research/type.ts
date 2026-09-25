@@ -95,7 +95,7 @@ export const CATEGORY_RULES: {
   },
   {
     category: 'retrodiction',
-    rule: 'a known observation derived quantitatively from the committed knit, known while the rule was being built',
+    rule: 'a known observation derived quantitatively from the committed knit, known while the knit was being built',
     worth:
       'stronger than an explanation, weaker than a prediction, because choices were made knowing the answer',
   },
