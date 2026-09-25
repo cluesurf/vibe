@@ -1,0 +1,611 @@
+{
+  "result": "R-FRC-0001",
+  "challenge": "C-FRC-0001",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "5ccfa18dd26a2048772fcb57ba2a23712812355e",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/gauge/su3-area-law.ts",
+      "sha256": "891f9ef7bd0bd0a312d367ff84adba9abf114f53ca928e7f863a96a098e6e7a8"
+    },
+    {
+      "file": "test/experiment/gauge/gluon-count.ts",
+      "sha256": "f9f5f92de478962ea54cdbb5d3a5e8e8b62eaece137edda88cd44c27d8341ff6"
+    },
+    {
+      "file": "test/experiment/gauge/static-quarks.ts",
+      "sha256": "72b8acfdcbcf42e20bc60e2573cb2371f4d976f219d987e2928a840a2100ce17"
+    },
+    {
+      "file": "test/experiment/gauge/confinement.ts",
+      "sha256": "62e9c52755cee39c98481e671a565027cfa56d01d291a7a51ef86b832b5101db"
+    },
+    {
+      "file": "test/experiment/gauge/su3-deconfinement.ts",
+      "sha256": "2e907ea4907b3d4d3248e91865b6a287e406c826520041963d01a139b64958e5"
+    },
+    {
+      "file": "test/experiment/gauge/chiral-condensate.ts",
+      "sha256": "30619d59b131459fb4141ceabce565eb492fa0236539f2d04dc440d3cb510e8b"
+    },
+    {
+      "file": "test/experiment/gauge/quenched-hadrons.ts",
+      "sha256": "d306e91d365ec0e1ca8d51c768539cfd114869b5af80ad8651c22a5c8f244175"
+    },
+    {
+      "file": "test/experiment/gauge/dynamical-quarks.ts",
+      "sha256": "aab9e1a682df29f148e31dd0df99528d40b20fff270950b0835e0080b84e3067"
+    }
+  ],
+  "expected": {
+    "E-FRC-0080 status.status": "pass",
+    "E-FRC-0081 metrics.su3FieldCount": 8,
+    "E-FRC-0081 metrics.colours": 3,
+    "E-FRC-0081 metrics.su3ThirdCumulant": 0.25,
+    "E-FRC-0081 control.su2FieldCount": 3,
+    "E-FRC-0087 status.status": "pass",
+    "E-FRC-0088 status.status": "pass",
+    "E-FRC-0089 status.status": "pass",
+    "E-FRC-0007 status.status": "pass",
+    "E-FRC-0082 metrics.criticalBetaLow": 5.1,
+    "E-FRC-0082 metrics.criticalBetaHigh": 5.1625,
+    "E-FRC-0098 metrics.criticalBetaInfiniteVolume": 5.6865,
+    "E-FRC-0098 metrics.tcR0": 0.7118,
+    "E-FRC-0098 control.publishedCriticalBeta": 5.6925,
+    "E-FRC-0086 status.status": "pass",
+    "E-FRC-0084 status.status": "pass",
+    "E-FRC-0085 status.status": "pass",
+    "E-FRC-0091 status.status": "pass",
+    "E-FRC-0090 status.status": "pass"
+  },
+  "observed": {
+    "E-FRC-0080 status.status": "pass",
+    "E-FRC-0081 metrics.su3FieldCount": 8.00626983256373,
+    "E-FRC-0081 metrics.colours": 3.010325539128537,
+    "E-FRC-0081 metrics.su3ThirdCumulant": 0.2496986921961843,
+    "E-FRC-0081 control.su2FieldCount": 3.0173382927715053,
+    "E-FRC-0087 status.status": "pass",
+    "E-FRC-0088 status.status": "pass",
+    "E-FRC-0089 status.status": "pass",
+    "E-FRC-0007 status.status": "pass",
+    "E-FRC-0082 metrics.criticalBetaLow": 5.1,
+    "E-FRC-0082 metrics.criticalBetaHigh": 5.1625,
+    "E-FRC-0098 metrics.criticalBetaInfiniteVolume": 5.686513157894734,
+    "E-FRC-0098 metrics.tcR0": 0.7117879194839881,
+    "E-FRC-0098 control.publishedCriticalBeta": 5.6925,
+    "E-FRC-0086 status.status": "pass",
+    "E-FRC-0084 status.status": "pass",
+    "E-FRC-0085 status.status": "pass",
+    "E-FRC-0091 status.status": "pass",
+    "E-FRC-0090 status.status": "pass"
+  },
+  "checks": [
+    {
+      "code": "E-FRC-0080",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0081",
+      "metric": "su3FieldCount",
+      "from": "metrics",
+      "expected": 8,
+      "tolerance": 0.1,
+      "observed": 8.00626983256373,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0081",
+      "metric": "colours",
+      "from": "metrics",
+      "expected": 3,
+      "tolerance": 0.1,
+      "observed": 3.010325539128537,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0081",
+      "metric": "su3ThirdCumulant",
+      "from": "metrics",
+      "expected": 0.25,
+      "tolerance": 0.01,
+      "observed": 0.2496986921961843,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0081",
+      "metric": "su2FieldCount",
+      "from": "control",
+      "expected": 3,
+      "tolerance": 0.1,
+      "observed": 3.0173382927715053,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0087",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0088",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0089",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0007",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0082",
+      "metric": "criticalBetaLow",
+      "from": "metrics",
+      "expected": 5.1,
+      "tolerance": 0.0001,
+      "observed": 5.1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0082",
+      "metric": "criticalBetaHigh",
+      "from": "metrics",
+      "expected": 5.1625,
+      "tolerance": 0.0001,
+      "observed": 5.1625,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0098",
+      "metric": "criticalBetaInfiniteVolume",
+      "from": "metrics",
+      "expected": 5.6865,
+      "tolerance": 0.0001,
+      "observed": 5.686513157894734,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0098",
+      "metric": "tcR0",
+      "from": "metrics",
+      "expected": 0.7118,
+      "tolerance": 0.0001,
+      "observed": 0.7117879194839881,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0098",
+      "metric": "publishedCriticalBeta",
+      "from": "control",
+      "expected": 5.6925,
+      "tolerance": 0,
+      "observed": 5.6925,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0086",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0084",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0085",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0091",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0090",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FRC-0080": {
+      "seconds": 53.8,
+      "status": "pass",
+      "claim": "in 4D SU(3) lattice gauge theory at beta 5.7 the Creutz ratio levels off (chi(3,3) / chi(2,2) near one, an area law and a string tension), while the U(1) photon and SU(3) at weak coupling in the same 8^4 box fall off like a Coulomb force",
+      "metrics": {
+        "su3Chi22": 0.3746288129864526,
+        "su3Chi22Error": 0.002533801557301444,
+        "su3Chi33": 0.2725766079817704,
+        "su3Chi33Error": 0.010813182752847062,
+        "su3Ratio": 0.7275911476451956,
+        "su3RatioError": 0.028264407621288696,
+        "impliedSpacingUpperBoundFermi": 0.23410931818747407
+      },
+      "control": {
+        "photonChi22": 0.060736923087344984,
+        "photonChi33": 0.019636030550347728,
+        "photonRatio": 0.32329643242067774,
+        "photonRatioError": 0.019612510692189555,
+        "weakSu3Chi22": 0.06533819186300913,
+        "weakSu3Chi33": 0.024265824529992916,
+        "weakSu3Ratio": 0.3713880632153043,
+        "weakSu3RatioError": 0.006722599525262745
+      },
+      "notes": "L2, known physics: Wilson-action SU(3) confinement reproduced on the lattice (Wilson 1974, Creutz 1980). chi(3,3) is the string tension in lattice units only up to the Coulomb part still present at R = 3, so it is an upper bound on sigma a^2. The implied spacing uses sqrt(sigma) = 0.44 GeV as an external scale and is printed, not tested. Monte Carlo from a seeded generator, jackknife errors over 40 configurations."
+    },
+    "E-FRC-0081": {
+      "seconds": 66.841,
+      "status": "pass",
+      "claim": "the plaquette of the Monte Carlo counts the gauge fields by equipartition (8 for SU(3), 3 for SU(2), 1 for U(1)) and the colours by the strong-coupling slope (N = 3), and finds the cubic invariant <(Re Tr U)^3> = 1/4 that only SU(3) has, the epsilon tensor that makes three quarks a singlet",
+      "metrics": {
+        "su3FieldCount": 8.00626983256373,
+        "gluons": 8,
+        "su3StrongSlope": 0.05517509354295522,
+        "colours": 3.010325539128537,
+        "su3SecondCumulant": 0.5001608555516632,
+        "su3SecondCumulantFromSlope": 0.496575841886597,
+        "su3ThirdCumulant": 0.2496986921961843,
+        "su3ThirdCumulantPredicted": 0.25
+      },
+      "control": {
+        "su2FieldCount": 3.0173382927715053,
+        "u1FieldCount": 1.0069918759799024,
+        "su2SecondCumulant": 0.9980366818175468,
+        "su2SecondCumulantFromSlope": 0.9951912464438015,
+        "su2SecondCumulantPredicted": 1,
+        "u1SecondCumulant": 0.5007712333127979,
+        "u1SecondCumulantFromSlope": 0.5043954982043414,
+        "u1SecondCumulantPredicted": 0.5,
+        "su2ThirdCumulant": -0.0017621333101152832,
+        "u1ThirdCumulant": -0.0003570959669862862
+      },
+      "notes": "L2, known lattice gauge theory. The field count is a property the Wilson action inherits from the chosen group, so this checks that the simulation really carries N^2 - 1 independent propagating fields with the right weight each, not that nature has eight gluons. The weak-coupling extrapolation is linear in 1 / beta over g^2 = 0.2, 0.1, 0.05. The strong-coupling series is fit as a quadratic in lambda = beta / N over lambda = 0.1 to 0.4 for every group. The cubic invariant is read from moments that at lambda -> 0 approach Haar averages, so that part is group theory confirmed through the sampler (L1 in content), and what the dynamics adds is that the same number is the lambda^2 coefficient of the plaquette."
+    },
+    "E-FRC-0087": {
+      "seconds": 332.942,
+      "status": "pass",
+      "claim": "at beta 5.7 the static potential rises linearly with a string tension resolved at more than five standard errors and a Coulomb coefficient compatible with pi / 12, with the ground state isolated by the smearing, while the U(1) photon has no string tension",
+      "metrics": {
+        "potentialAtR1": 0.499730584207713,
+        "potentialAtR3": 1.0017853785299435,
+        "potentialAtR5": 1.2869985312277366,
+        "stringTension": 0.12520326726611053,
+        "stringTensionError": 0.020601418931425863,
+        "coulombCoefficient": 0.3412409320213996,
+        "coulombCoefficientError": 0.048000233720317316,
+        "luscherValue": 0.2617993877991494,
+        "luscherPull": 1.655024112697696,
+        "largestPlateauPull": 0.534327864116823,
+        "plateauTime": 3
+      },
+      "control": {
+        "photonStringTension": 0.0001707596177384918,
+        "photonStringTensionError": 0.0005542240658438629
+      },
+      "notes": "L2, known physics. The fit runs over R = 1 to 5 with the lattice Coulomb term, uncorrelated, with jackknife errors. At R of 1 to 5 lattice spacings (0.17 to 0.85 fm) the Coulomb coefficient mixes the long-distance string value pi / 12 with the short-distance one-gluon exchange, so compatibility with pi / 12 is a consistency check and not a clean measurement of the Luscher term, which needs R well above 0.5 fm and far larger boxes."
+    },
+    "E-FRC-0088": {
+      "seconds": 387.537,
+      "status": "pass",
+      "claim": "r0 / a from the Cornell fit agrees with the published Necco-Sommer scale at beta 5.7 and 5.9, the spacing shrinks between them by the published ratio, and two-loop running reproduces that ratio once the coupling is read off the measured plaquette (E-scheme) while the bare coupling falls well short",
+      "metrics": {
+        "r0At57": 3.2331214640005874,
+        "r0At57Error": 0.20873895175232723,
+        "r0At59": 4.269700590898489,
+        "r0At59Error": 0.0865352334172279,
+        "spacingRatio": 1.3206124911914887,
+        "spacingRatioError": 0.08936459976757367,
+        "pullAt57": 1.4117988624641586,
+        "pullAt59": -2.3875317898131274,
+        "plateauTimeAt57": 3,
+        "plateauTimeAt59": 3,
+        "plaquetteAt57": 0.5496787692198619,
+        "plaquetteAt59": 0.5818860267231261,
+        "eSchemeTwoLoopRatio": 1.4593556424531273,
+        "eSchemePull": -1.5525515877930687
+      },
+      "control": {
+        "publishedAt57": 2.938424049364691,
+        "publishedAt59": 4.4763062116210195,
+        "publishedRatio": 1.5233697166985922,
+        "bareTwoLoopRatio": 1.2519816816447242,
+        "barePull": 0.7679865374573911
+      },
+      "notes": "L2, known physics: scale setting with the Sommer scale, and the E-scheme remedy for asymptotic scaling. The published values are the reference, never an input. The bare two-loop ratio is known to undershoot at these couplings (the lattice coupling carries large tadpole terms), and its pull is reported, not gated. 10^4 at beta 5.9 is 2.2 r0 across, enough for r0 but not for a long-distance potential."
+    },
+    "E-FRC-0089": {
+      "seconds": 0.008,
+      "status": "pass",
+      "claim": "the 0++ correlator matrix over three smearing levels gives a variational ground-state mass resolved at more than five standard errors, at or below the single-operator effective mass, with m r0 compatible with the continuum scalar glueball 4.21",
+      "metrics": {
+        "glueballMass": 1.2525064046420207,
+        "glueballMassError": 0.13194388876658694,
+        "glueballMassR0": 4.049505340646322,
+        "glueballMassR0Error": 0.5003339124710569,
+        "singleOperatorMass": 1.4205112926816805,
+        "singleOperatorMassError": 0.14357873090705295
+      },
+      "control": {
+        "continuumMassR0": 4.21,
+        "pull": -0.3207750970967064
+      },
+      "notes": "L2, known physics, and the least precise of these results. Only t = 0 to 1 is resolved by 80 configurations, so even the variational mass holds some excited state (the variational method only projects within the three-operator basis), at one coarse lattice spacing where the scalar glueball is known to dip below its continuum value. Compatibility with 4.21 is a consistency check within its errors. The r0 is this ensemble own, from the E-FRC-0087 fit."
+    },
+    "E-FRC-0007": {
+      "seconds": 76.929,
+      "status": "pass",
+      "claim": "in 3D SU(2) the string tension is resolved at every coupling, shrinks in lattice units as the spacing shrinks, and beta sqrt(sigma a^2) / 4 extrapolated linearly in 1 / beta reaches the continuum sqrt(sigma) / g^2 = 0.3353",
+      "metrics": {
+        "stringTensionAt5": 0.08322183274273698,
+        "stringTensionAt7": 0.03762505910937364,
+        "stringTensionAt9": 0.023267652830991636,
+        "stringTensionErrorAt5": 0.013896980617666794,
+        "stringTensionErrorAt7": 0.0032155325868030624,
+        "stringTensionErrorAt9": 0.001800985892004743,
+        "scaledAt5": 0.36060243157877697,
+        "scaledAt7": 0.33945064961265986,
+        "scaledAt9": 0.3432091089363672,
+        "continuumExtrapolation": 0.32520356372766546,
+        "continuumExtrapolationError": 0.04747161146739486,
+        "extrapolationChi2": 0.24918308345209922
+      },
+      "control": {
+        "publishedContinuum": 0.3353,
+        "continuumPull": -0.21268366419937335
+      },
+      "notes": "L2, known physics: 3D SU(2) confinement and its continuum limit. The potential is fit over R = 2 to 6 on a 16^3 box as V0 + sigma R + c ln R, the logarithm being the three-dimensional Coulomb force, and the string correction pi / (24 R) is left to c, so only sigma is used. The published continuum value is the reference, never an input. Rewritten 2026-09-25 from a Metropolis Creutz-ratio test with no control."
+    },
+    "E-FRC-0082": {
+      "seconds": 91.66,
+      "status": "pass",
+      "claim": "SU(3) on 8^3 x 2 deconfines between the measured bracket around beta 5.09: below it the Polyakov loop is zero (its residual falls like 1 / sqrt(V)) and every center-sector start melts into the symmetric phase, above it the loop settles in one of three center sectors with equal magnitude and plaquette",
+      "metrics": {
+        "criticalBetaLow": 5.1,
+        "criticalBetaHigh": 5.1625,
+        "criticalBeta": 5.13125,
+        "publishedCriticalBeta": 5.09,
+        "deconfinedModulus": 0.5521043956349951,
+        "sectorPhaseError": 0.0009295986929505062,
+        "moduliSpread": 0.008392924065467659,
+        "plaquetteSpread": 0.0015540460628025166
+      },
+      "control": {
+        "confinedModulusSector0": 0.021318019631518133,
+        "confinedModulusSector1": 0.03145270081985181,
+        "confinedModulusSector2": 0.020149041643595444,
+        "confinedModulusSmallBox": 0.03557788234836017,
+        "confinedModulusLargeBox": 0.0232010281238313,
+        "volumeRatio": 1.5334614551764536,
+        "volumeRatioPredicted": 1.5396007178390019
+      },
+      "notes": "L2, known physics: the pure-gauge SU(3) deconfinement transition (first order, Z_3 center symmetry breaking), reproduced from the Wilson action. The transition beta on a finite 8^3 box is a pseudo-critical value and a first-order transition can hold a hot start in the confined phase for some sweeps, so the bracket is compared to the published infinite-volume N_t = 2 value only to 0.15 in beta. Pure gauge theory has no dynamical quarks, so the center symmetry is exact and the three sectors are exactly degenerate, which real QCD with light quarks breaks."
+    },
+    "E-FRC-0098": {
+      "seconds": 655.915,
+      "status": "pass",
+      "claim": "the N_t = 4 deconfinement transition, located by bisection on 8^3 and 12^3 boxes and carried to infinite volume by its first-order 1 / V shift, sits at the published beta 5.6925, and converted with the Sommer scale gives the published N_t = 4 value of T_c r0, near 285 MeV for r0 = 0.5 fm",
+      "metrics": {
+        "criticalBetaSmallBox": 5.668750000000001,
+        "criticalBetaLargeBox": 5.681249999999999,
+        "criticalBetaInfiniteVolume": 5.686513157894734,
+        "criticalBetaError": 0.009263242000216398,
+        "tcR0": 0.7117879194839881,
+        "tcMev": 280.90994957603385
+      },
+      "control": {
+        "publishedCriticalBeta": 5.6925,
+        "publishedTcR0AtNt4": 0.7218667706508559,
+        "publishedTcR0Continuum": 0.7498
+      },
+      "notes": "L2, known physics: the pure-gauge deconfinement temperature. The measured quantity is the transition coupling on two volumes. The conversion to T_c r0 uses the published Necco-Sommer r0 / a (E-FRC-0088 measures r0 / a at 5.7 as 3.2 +- 0.2, consistent with it), and to MeV the convention r0 = 0.5 fm. At N_t = 4 the lattice T_c r0 sits about four percent below the continuum 0.7498, a cutoff effect of this coarse thermal lattice, so the gate is against the N_t = 4 value and the continuum one is printed. Pure-gauge T_c is near 300 MeV, higher than the roughly 155 MeV crossover of real QCD with light quarks."
+    },
+    "E-FRC-0086": {
+      "seconds": 250.744,
+      "status": "pass",
+      "claim": "at beta 5.7 the staggered chiral condensate extrapolates to a nonzero value at zero quark mass in the confined box (T below T_c) and to zero in the deconfined box (T above T_c), with the noise-free point-source estimator reproducing the exact free-quark condensate to solver precision",
+      "metrics": {
+        "coldChiralLimit": 0.28592478317243075,
+        "coldChiralLimitError": 0.028293311139417965,
+        "hotChiralLimit": 0.00014331481001540053,
+        "hotChiralLimitError": 0.00000612751170700259,
+        "coldSigmaAt001": 0.3302848929637301,
+        "hotSigmaAt001": 0.025582193972274937,
+        "coldPolyakov": 0.013857819401941782,
+        "hotPolyakov": 0.5572356513077695,
+        "worstSolverResidual": 9.999965889224463e-9
+      },
+      "control": {
+        "freeSigmaAt001": 0.018844821375982805,
+        "freeSigmaExactAt001": 0.01884482137598327,
+        "freeSigmaAt008": 0.1496154954965866,
+        "freeSigmaExactAt008": 0.14961549549659195,
+        "freeWorstRelativeError": 3.574918139293004e-14
+      },
+      "notes": "L2, known physics: quenched chiral symmetry breaking and its restoration in the deconfined phase. Quenched, one small volume per temperature, so the quenched chiral logarithms and the finite-volume turnover of Sigma at m V Sigma of order one (here m V Sigma is near 13 at the lightest mass in the cold box) are not resolved, and the chiral limit is a straight line through m = 0.01 to 0.04. The hot box sits in the real center sector, where quenched chiral restoration happens. The condensate is per staggered field (four tastes) and not converted to a continuum scheme."
+    },
+    "E-FRC-0084": {
+      "seconds": 605.991,
+      "status": "pass",
+      "claim": "with SU(3) gluons the pion mass scales as the quark mass to the power one half (m_pi^2 proportional to m_q, a Goldstone boson), and the same code with the gluons off scales as the power one (free quarks)",
+      "metrics": {
+        "pionAt0025": 0.4513083378666658,
+        "pionAt005": 0.6228275435850177,
+        "pionAt01": 0.842090550576975,
+        "pionAt02": 1.1251392971133258,
+        "pionAt04": 1.5056901500402469,
+        "pionErrorAt0025": 0.008810612316029988,
+        "interactingExponent": 0.43296781256515027,
+        "heavyExponent": 0.42032128971712274,
+        "gmorRatioLightest": 8.147168633118902,
+        "gmorRatioHeaviest": 5.667757069820552,
+        "worstSolverResidual": 9.998340613337085e-9
+      },
+      "control": {
+        "freePionAt02": 0.3978468937990706,
+        "freePionAt04": 0.7808643748082378,
+        "freePionPredictedAt02": 0.39738022069848283,
+        "freePionPredictedAt04": 0.7800706395414305,
+        "freeExponent": 0.9728586590716571
+      },
+      "notes": "L2, known physics: the Goldstone pion of quenched lattice QCD. Quenched, one 12^3 x 16 volume at one lattice spacing, 12 configurations, so no continuum or infinite-volume limit is taken, and the quenched chiral logarithms that bend m_pi^2 / m_q at the lightest mass are not separated out. The exponent is the slope of ln m_pi against ln m_q over m_q = 0.025 to 0.4. Staggered quarks keep an exact remnant chiral symmetry, which is what lets the lattice pion be a true Goldstone boson."
+    },
+    "E-FRC-0085": {
+      "seconds": 0,
+      "status": "pass",
+      "claim": "the nucleon, three quarks contracted with epsilon_abc, weighs several times three free quarks at every quark mass where its effective mass sits on a plateau (t = 3 to 5 against 5 to 7), those masses are the heavy end, and it extrapolates to a large mass at zero quark mass while the pion mass squared extrapolates near zero, and the same code without gluons gives exactly three free quarks",
+      "metrics": {
+        "nucleonAt0025": 1.9412589833231424,
+        "nucleonAt005": 1.987154457103636,
+        "nucleonAt01": 2.1307625798356447,
+        "nucleonAt02": 2.3817889415495017,
+        "nucleonAt04": 2.7692163713481506,
+        "nucleonErrorAt0025": 0.2072448991922848,
+        "nucleonErrorAt005": 0.10988006057489363,
+        "nucleonErrorAt01": 0.07735998280972535,
+        "nucleonErrorAt02": 0.06074434775479393,
+        "nucleonErrorAt04": 0.04672441027335657,
+        "resolvedMassCount": 3,
+        "lightestResolvedMass": 0.1,
+        "smallestLateOverEarlyOnPlateau": 0.9026287110844128,
+        "excludedMassCount": 2,
+        "lateNucleonAt0025": 0.7095397202559738,
+        "lateNucleonErrorAt0025": 0.13782467250207928,
+        "lateNucleonAt005": 1.4564029590349596,
+        "lateNucleonErrorAt005": 0.08102843583637795,
+        "lateNucleonAt01": 1.9232874810639462,
+        "lateNucleonAt02": 2.330005160470384,
+        "lateNucleonAt04": 2.782635881490133,
+        "nucleonChiralLimit": 1.9370488649363202,
+        "pionSquaredChiralLimit": 0.01944428260779807,
+        "enhancementOverThreeFreeQuarks": 7.114346134205539
+      },
+      "control": {
+        "threeFreeQuarksAtLightestResolved": 0.2995022366976227,
+        "freeNucleonAt02": 0.5951321310473394,
+        "freeNucleonAt04": 1.1706132785993237,
+        "freeNucleonPredictedAt02": 0.5960703310477242,
+        "freeNucleonPredictedAt04": 1.1701059593121457,
+        "freeNucleonLateAt04": 1.1700892057939791
+      },
+      "notes": "L2, known physics: quenched lattice nucleon. The mass is a two-step effective mass from t = 3 to t = 5, early enough that excited states and the parity partner still contribute, in one 2 fm box at one lattice spacing, so these masses are not the infinite-volume continuum ground state, and the comparison with nature is made only through the dimensionless ratio of E-FRC-0091. The claim rests on the gap to three free quarks (a factor of five or more) at the masses where the effective mass has stopped falling. At the two lightest quark masses it has not (from t = 5 to 7 it drops to about 0.4 and 0.7 of its t = 3 to 5 value), the quenched distortion of light baryons, so those two are reported with the late values and not used."
+    },
+    "E-FRC-0091": {
+      "seconds": 0.002,
+      "status": "pass",
+      "claim": "the local staggered rho is heavier than the pion at every resolved quark mass and extrapolates to a large mass at zero quark mass, and the same code without gluons gives exactly two free quarks, while m_N / m_rho at the physical point and the J parameter are measured against the published quenched and experimental values",
+      "metrics": {
+        "rhoAt0025": 0.8282197260636445,
+        "rhoAt005": 1.0249070331369567,
+        "rhoAt01": 1.2218608278107728,
+        "rhoAt02": 1.4486783774400234,
+        "rhoAt04": 1.7410895154501345,
+        "rhoErrorAt0025": 0.0897118164288743,
+        "resolvedMassCount": 4,
+        "rhoChiralLimit": 1.0760251324817065,
+        "rhoChiralLimitError": 0.026118773502839386,
+        "nucleonOverRhoAtPhysical": 1.9813926607903134,
+        "nucleonOverRhoError": 0.17434167796745384,
+        "jParameter": 0.39142396916313066,
+        "jParameterError": 0.011902002729443556,
+        "nucleonOverRhoAtHeaviest": 1.5905077520567392
+      },
+      "control": {
+        "freeRhoAt02": 0.39780249781001664,
+        "freeRhoAt04": 0.7804619290741374,
+        "freeRhoPredictedAt02": 0.39738022069848283,
+        "freeRhoPredictedAt04": 0.7800706395414305,
+        "physicalNucleonOverRho": 1.2103225806451612,
+        "nucleonOverRhoPull": 4.422752431516093,
+        "jQuenchedWorld": 0.37,
+        "jQuenchedPull": 1.8000306041042455,
+        "jExperiment": 0.48,
+        "jExperimentPull": -7.442111453877178
+      },
+      "notes": "L2, known physics. The local staggered rho is one taste of the vector meson with an oscillating parity partner, read on even t. m_N / m_rho is carried to the physical point by a straight line in (m_pi / m_rho)^2 through the heavy quark masses the ensemble resolves, a long extrapolation, and quenched QCD is not expected to hit 1.21. J is interpolated at m_V / m_PS = 1.8 from a straight line m_V against m_PS^2. The two comparisons are printed with their pulls against the published quenched world value and experiment, and are not gated, because 12 configurations at one coarse spacing do not pin them tightly enough to decide between the two."
+    },
+    "E-FRC-0090": {
+      "seconds": 247.663,
+      "status": "pass",
+      "claim": "with four staggered tastes of dynamical quarks the Polyakov loop is real and nonzero with the same value on 4^3 x 2 and 6^3 x 2 (a screened, finite-energy static quark), a center rotation lowers the quark determinant by a factor exp(-|shift|) computed exactly, and the quenched loop instead falls like 1 / sqrt(V) with the sectors exactly degenerate",
+      "metrics": {
+        "dynamicalRealPSmall": 0.4124988681358469,
+        "dynamicalRealPSmallError": 0.006469160841819027,
+        "dynamicalRealPLarge": 0.39391941586085544,
+        "dynamicalRealPLargeError": 0.008460540067885483,
+        "dynamicalVolumeRatio": 0.9549587799865847,
+        "meanLogDeterminantShift": -60.34405703668269,
+        "largestLogDeterminantShift": -51.647579605228145,
+        "hoppingAgreement": -0.000557107854408545,
+        "acceptanceSmall": 0.95,
+        "acceptanceLarge": 0.9,
+        "creutzEqualitySmall": 1.0023458205371345,
+        "creutzEqualityLarge": 0.9740280167600185
+      },
+      "control": {
+        "quenchedModulusSmall": 0.05240795537896816,
+        "quenchedModulusLarge": 0.029281896880700233,
+        "quenchedVolumeRatio": 1.7897732374541067,
+        "quenchedVolumeRatioPredicted": 1.8371173070873836,
+        "gaugeActionShiftUnderRotation": 0
+      },
+      "notes": "L2, known physics. Four staggered tastes without rooting (one staggered field), quark mass 0.1 in lattice units, N_t = 2 at beta 4.2. At N_t = 2 the temperature is 1 / (2a), so this is the screening of a static charge at the coarsest thermal lattice, not the zero-temperature string breaking of the static potential, which needs large Wilson loops and was out of reach. The large Re P also means the quarks may have pushed this box into its deconfined phase, which the claim does not need: it is about the volume dependence and the sector weights, both of which hold either way. The hopping check uses one configuration at mass 64, where the next order is below one percent."
+    }
+  },
+  "passed": true
+}

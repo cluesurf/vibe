@@ -127,6 +127,76 @@ rule that works in pairs can never treat them symmetrically and still reach them
 triality colour would need a four-line interaction block, and adopting one is a decision, not a
 measurement.
 
+## The four follow-ups, worked
+
+### A box where triality acts (`E-FRC-0108`)
+
+The integer torus the committed rule was searched on admits only the 384 signed permutations. A box
+whose periods are L D4 instead of L Z^4 admits all 1,152 elements of W(F4), triality included
+(`code/substrate/d4-box`). On it the previous knit evolves in exact step with exactly 2 order-three
+elements for 24 beats from four starts, and both are the colour-selecting trialities. The committed
+turning weave commutes with none.
+
+### A rule that keeps colour and connects every line (`E-FRC-0109`)
+
+The four-line block `E-FRC-0107` named, built (`code/rule/triality-weave`). Each beat pairs every
+colour line with a whole triality orbit, and a four-line vertex swaps
+
+| before | after |
+| --- | --- |
+| a charge s on the colour line, the orbit empty | two anti-charges on the colour line, one charge s on each orbit line |
+| the colour line empty, a charge s on one orbit line | two charges s on the colour line, an anti-charge on that orbit line |
+
+Every pair conserves charge and treats the three orbit lines alike. Sandwiched around the committed
+pair clock as X P X on a palindromic schedule, it measures:
+
+| gate | result |
+| --- | --- |
+| reversal after 24 beats forward and back | exact |
+| charge | conserved at every beat |
+| triality | the evolution commutes with it, beat by beat |
+| CPT | exact at the collision level, mirror phase 5 |
+| vacuum | periodic, period 3 |
+| universality | from every one of the 24 directions a disturbance reaches all 12 lines, on the vacuum and on a dense background |
+| previous knit | keeps the triality, 12 disconnected lines |
+| committed turning weave | no triality. Connected on a dense background, but on the vacuum a lone disturbance stays in one of 3 sectors (lines 0 2 3 4 6 8 10, lines 1 5 7 9, and line 11 alone), at 24, 48 and 96 beats and on both boxes. Line 11 is the adoption's own phase-protected free mode |
+
+So colour selection by triality, universality and CPT can all hold at once. What they need is one
+classical four-line vertex: a charge on a colour line turns into three identical charges, one on each
+line the triality turns into the others. That is the missing "three at once", and it needs no
+amplitude.
+
+### A deterministic sampler for the classical colour group (`E-FRC-0110`)
+
+An integer-valued plaquette action, E(U) = round(6 (1 - Re Tr U / 3)), makes the energy bookkeeping
+exact, so the reversible kinetic demon rule of `E-FRC-0102` runs on Sigma(648)
+(`code/dynamics/finite-kinetic`). It conserves energy to the unit and reverses to the bit. Where a
+heatbath run from an ordered start and one from a disordered start agree, the automaton matches them
+within 0.01. Where they split, inside the first-order partial freezing, the automaton stays within the
+envelope the two branches span, as a fixed-energy dynamics must.
+
+### How far the classical colour group reaches toward the continuum
+
+The Creutz ratios serve as a ruler for the lattice spacing. At N_t = 4 they matched SU(3) at its
+transition, so equal ratios mean equal spacing. SU(3) at its N_t = 6 transition (beta 5.8941) gives
+chi(2,2) = 0.285 and chi(3,3) = 0.159.
+
+| Sigma(648) trajectory | chi(2,2) along it | reading |
+| --- | --- | --- |
+| beta1 = -0.165 beta0 + 0.31, beta0 = 13, 15, 17 | 0.374, 0.415, 0.448 | finest at 13 (the N_t = 4 spacing), then coarser |
+| beta1 = -0.3 beta0 + 0.6, beta0 = 16, 20, 24, 28 | 0.508, 0.436, 0.458, 0.543 | a minimum near 20, then coarser |
+
+On both, the spacing stops shrinking at about the N_t = 4 value (a near 0.17 fm) and then grows. A
+grid over (beta0, beta1) is being mapped. A small chi read on its own misleads: at (14, -1.2) chi(2,2)
+is 0.107, but cold and hot starts sit at 0.999 and 0.894, so that point is frozen, not fine.
+
+Why a floor is expected. Sigma(648) is a maximal finite subgroup of SU(3): no larger finite subgroup
+contains it. And the Clifford group plus any one non-Clifford element generates a dense subgroup of
+SU(3). So there is no middle ground between a finite wheel that eventually clicks and continuous
+colour, and the step between them is exactly one non-classical element. Allowing one such step per
+link (Sigma(648) and Sigma(648) T Sigma(648), 5,832 link values) already holds the Wilson action on the
+SU(3) curve to beta = 5, past both Sigma(648) (3.5) and Sigma(1080) (4).
+
 ## What the base would change
 
 Each item names the base thing it touches, and the experiment that says why.
@@ -137,7 +207,8 @@ Each item names the base thing it touches, and the experiment that says why.
 | links that hold a Sigma(648) element | the crystal | gauge colour lives on links, and this group is a record of three tones and a coin direction (`E-FRC-0104`), classical | 648 states per link |
 | a kinetic counter per link that streams | the rule | without it a deterministic link rule freezes (`E-FRC-0099`), with it the Z3 center has its whole phase diagram (`E-FRC-0102`) | one bounded counter per link |
 | one phase on the pair swap | the rule | the only colour-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's colour | an amplitude, the same missing piece as `E-FND-0080` |
-| possibly one golden-ratio element | the rule | needed only if the classical group cannot reach the continuum, not needed at the N_t = 4 spacing (`E-FRC-0103`) | Wigner negativity, the qutrit form of magic |
+| a four-line vertex | the rule | the only way to keep a colour-selecting triality and still connect every line (`E-FRC-0107`), built and measured (`E-FRC-0109`) | one classical exchange, a charge on a colour line for three on the triality orbit |
+| one non-Clifford element | the rule | not needed down to about the N_t = 4 spacing (`E-FRC-0103`). Finer than that the classical group stops shrinking, and the next step up from a maximal finite subgroup is already dense in SU(3) | Wigner negativity, the qutrit form of magic, the same ingredient as the swap phase |
 
 The gauge side of colour, confinement and deconfinement, needs no amplitudes at the spacing
 measured. The matter side, a quark whose colour turns, needs the phase on the swap. That phase is
@@ -150,6 +221,8 @@ the same ingredient the quantum sector is missing, so colour does not add a seco
 - **Dynamical quarks with a finite colour group.** Everything in `E-FRC-0103` is pure gauge.
 - **That the base does this.** These are measurements of what a base with these changes would do,
   not of the committed rule, which still does none of it (`E-FRC-0093` to `0097`).
-- **A deterministic sampler for Sigma(648).** `E-FRC-0102` does it for Z3. For a 648-element group
-  the demon has to hold real-valued energies, and exact reversibility then needs exact arithmetic on
-  the traces, which is not built.
+- **The deterministic sampler at the couplings of `E-FRC-0103`.** `E-FRC-0110` runs Sigma(648)
+  deterministically with an integer Wilson-like action. The Re Tr U^2 term needs its own integer
+  levels, which are not built.
+- **The rest of the acceptance battery for the triality weave.** Unit kicks, walls, dressing and
+  interference, which the turning weave passed (`E-FND-0118`), are not run on it.

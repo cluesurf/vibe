@@ -143,9 +143,10 @@ published value.
 
 ## Cost
 
-The strong-force experiments add about forty minutes of suite time on one core. The heaviest are
-the hadrons in the 2 fm box, asymptotic freedom over four groups, and the static potential
-ensembles.
+The strong-force experiments add roughly an hour and a half of suite time on one core (about 74
+minutes for the files timed individually, plus six smaller ones). The heaviest are the static-quark
+ensembles (895 s), the hadrons in the 2 fm box (836 s), the N_t = 4 deconfinement on two volumes
+(817 s), the finite colour groups (484 s) and the multi-beat triangle census (439 s).
 
 ## What is still open
 
