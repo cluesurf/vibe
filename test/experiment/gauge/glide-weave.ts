@@ -222,12 +222,19 @@ export default experiment({
       (_, k) => k,
     ).filter(glideHoldsAt)
 
-    // the loophole: a lone tone on a colour line lands on exactly one orbit line in one beat
+    // the loophole: a lone tone on a colour line lands on exactly one orbit line in one beat. Read
+    // against the vacuum cell through the same collision, since the pair clock turns every empty
+    // line into a created pair. A first version counted occupied lines instead, found every line
+    // occupied, and read 0
     const orbitLines = new Set(layout.orbits.flat())
 
     let singleCrossing = 0
 
     for (let t = 0; t < period; t++) {
+      const vacuumCell = new Int8Array(24)
+
+      forward(t)(vacuumCell, 0, 24)
+
       for (const line of layout.colour) {
         for (const end of [0, 1]) {
           for (const tone of [1, -1]) {
@@ -238,7 +245,9 @@ export default experiment({
 
             const occupied = layout.lines
               .map(([a, b], k) =>
-                cell[a] !== 0 || cell[b] !== 0 ? k : -1,
+                cell[a] !== vacuumCell[a] || cell[b] !== vacuumCell[b]
+                  ? k
+                  : -1,
               )
               .filter(k => k >= 0)
 
