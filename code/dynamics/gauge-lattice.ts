@@ -44,7 +44,12 @@ export type GaugeLattice = {
   readonly links: Float64Array
 }
 
-const GROUP_SIZE: Record<GaugeGroup, number> = { u1: 1, su2: 2, su3: 3, su4: 4 }
+const GROUP_SIZE: Record<GaugeGroup, number> = {
+  u1: 1,
+  su2: 2,
+  su3: 3,
+  su4: 4,
+}
 
 // The SU(2) subgroups Cabibbo-Marinari cycles through: every index pair (i, j), i < j. For SU(3)
 // that is (0, 1), (0, 2), (1, 2), for SU(4) six pairs. Any set covering every pair is ergodic.
@@ -60,7 +65,10 @@ function subgroupPairs(n: number): (readonly [number, number])[] {
   return pairs
 }
 
-const SUBGROUPS: Record<number, readonly (readonly [number, number])[]> = {
+const SUBGROUPS: Record<
+  number,
+  readonly (readonly [number, number])[]
+> = {
   2: subgroupPairs(2),
   3: subgroupPairs(3),
   4: subgroupPairs(4),
@@ -97,7 +105,13 @@ export function makeGaugeLattice(input: {
     }
   }
 
-  return { form: 'gauge-lattice', group: input.group, n, geometry, links }
+  return {
+    form: 'gauge-lattice',
+    group: input.group,
+    n,
+    geometry,
+    links,
+  }
 }
 
 export function linkSlot(input: {
@@ -110,7 +124,10 @@ export function linkSlot(input: {
   return {
     data: lattice.links,
     offset:
-      (input.site * lattice.geometry.dim + input.mu) * 2 * lattice.n * lattice.n,
+      (input.site * lattice.geometry.dim + input.mu) *
+      2 *
+      lattice.n *
+      lattice.n,
   }
 }
 
@@ -159,7 +176,10 @@ export function stapleInto(input: {
   const siteMu = up[site * dim + mu] ?? 0
 
   for (let nu = 0; nu < dim; nu++) {
-    if (nu === mu || (input.directions !== undefined && !input.directions.includes(nu))) {
+    if (
+      nu === mu ||
+      (input.directions !== undefined && !input.directions.includes(nu))
+    ) {
       continue
     }
 
@@ -221,7 +241,8 @@ export function sampleSu2HeatbathWeight(input: {
       const r2 = rng.next()
       const r3 = 1 - rng.next()
       const c = Math.cos(2 * Math.PI * r2)
-      const lambdaSquared = -(Math.log(r1) + c * c * Math.log(r3)) / (2 * alpha)
+      const lambdaSquared =
+        -(Math.log(r1) + c * c * Math.log(r3)) / (2 * alpha)
       const r4 = rng.next()
 
       if (r4 * r4 <= 1 - lambdaSquared) {
@@ -246,7 +267,10 @@ export function sampleSu2HeatbathWeight(input: {
 }
 
 // One draw of an angle from the von Mises density exp(kappa cos theta), by Best and Fisher (1979).
-export function sampleVonMises(input: { kappa: number; rng: Rng }): number {
+export function sampleVonMises(input: {
+  kappa: number
+  rng: Rng
+}): number {
   const { kappa, rng } = input
 
   if (kappa < 1e-8) {
@@ -291,10 +315,29 @@ function rotateRows(input: {
     const yr = d[kj] ?? 0
     const yi = d[kj + 1] ?? 0
 
-    d[ki] = (g[0] ?? 0) * xr - (g[1] ?? 0) * xi + (g[2] ?? 0) * yr - (g[3] ?? 0) * yi
-    d[ki + 1] = (g[0] ?? 0) * xi + (g[1] ?? 0) * xr + (g[2] ?? 0) * yi + (g[3] ?? 0) * yr
-    d[kj] = (g[4] ?? 0) * xr - (g[5] ?? 0) * xi + (g[6] ?? 0) * yr - (g[7] ?? 0) * yi
-    d[kj + 1] = (g[4] ?? 0) * xi + (g[5] ?? 0) * xr + (g[6] ?? 0) * yi + (g[7] ?? 0) * yr
+    d[ki] =
+      (g[0] ?? 0) * xr -
+      (g[1] ?? 0) * xi +
+      (g[2] ?? 0) * yr -
+      (g[3] ?? 0) * yi
+
+    d[ki + 1] =
+      (g[0] ?? 0) * xi +
+      (g[1] ?? 0) * xr +
+      (g[2] ?? 0) * yi +
+      (g[3] ?? 0) * yr
+
+    d[kj] =
+      (g[4] ?? 0) * xr -
+      (g[5] ?? 0) * xi +
+      (g[6] ?? 0) * yr -
+      (g[7] ?? 0) * yi
+
+    d[kj + 1] =
+      (g[4] ?? 0) * xi +
+      (g[5] ?? 0) * xr +
+      (g[6] ?? 0) * yi +
+      (g[7] ?? 0) * yr
   }
 }
 
@@ -319,7 +362,11 @@ function quaternionMatrix(input: {
 }
 
 // 2 x 2 complex product, flat 8-vectors, out = a b^dag.
-function multiplyTwoDagger(a: Float64Array, b: Float64Array, out: Float64Array): void {
+function multiplyTwoDagger(
+  a: Float64Array,
+  b: Float64Array,
+  out: Float64Array,
+): void {
   // b^dag entries: (0,0) = conj b00, (0,1) = conj b10, (1,0) = conj b01, (1,1) = conj b11
   const entry = (
     ar: number,
@@ -405,7 +452,13 @@ function updateLink(input: {
       continue
     }
 
-    quaternionMatrix({ a0: a0 / k, a1: a1 / k, a2: a2 / k, a3: a3 / k, out: heatbathV })
+    quaternionMatrix({
+      a0: a0 / k,
+      a1: a1 / k,
+      a2: a2 / k,
+      a3: a3 / k,
+      out: heatbathV,
+    })
 
     if (mode === 'heatbath') {
       // the subgroup weight is exp((beta / N) Re Tr(g W)) = exp((2 beta k / N) h0), h = g V
@@ -453,7 +506,13 @@ function sweep(input: {
       const link = linkSlot({ lattice, site, mu })
 
       stapleInto({ lattice, site, mu, out: scratch.staple, scratch })
-      multiplyInto({ n, a: link, b: scratch.staple, out: scratch.product })
+      multiplyInto({
+        n,
+        a: link,
+        b: scratch.staple,
+        out: scratch.product,
+      })
+
       updateLink({
         lattice,
         link,
@@ -476,10 +535,20 @@ export function gaugeUpdate(input: {
   overrelaxation: number
   rng: Rng
 }): void {
-  sweep({ lattice: input.lattice, beta: input.beta, mode: 'heatbath', rng: input.rng })
+  sweep({
+    lattice: input.lattice,
+    beta: input.beta,
+    mode: 'heatbath',
+    rng: input.rng,
+  })
 
   for (let k = 0; k < input.overrelaxation; k++) {
-    sweep({ lattice: input.lattice, beta: input.beta, mode: 'overrelax', rng: input.rng })
+    sweep({
+      lattice: input.lattice,
+      beta: input.beta,
+      mode: 'overrelax',
+      rng: input.rng,
+    })
   }
 }
 
@@ -526,7 +595,8 @@ export function centerTransformTimeSlice(input: {
   const { lattice } = input
   const { geometry } = lattice
   const timeAxis = geometry.dim - 1
-  const spatialVolume = geometry.sites / (geometry.lengths[timeAxis] ?? 1)
+  const spatialVolume =
+    geometry.sites / (geometry.lengths[timeAxis] ?? 1)
 
   for (let s = 0; s < spatialVolume; s++) {
     const site = input.slice * spatialVolume + s
@@ -540,8 +610,13 @@ export function centerTransformTimeSlice(input: {
 }
 
 // A copy of a lattice, so one thermalized configuration can seed several runs.
-export function cloneGaugeLattice(input: { lattice: GaugeLattice }): GaugeLattice {
-  return { ...input.lattice, links: new Float64Array(input.lattice.links) }
+export function cloneGaugeLattice(input: {
+  lattice: GaugeLattice
+}): GaugeLattice {
+  return {
+    ...input.lattice,
+    links: new Float64Array(input.lattice.links),
+  }
 }
 
 // Copy one link into a caller buffer, a convenience for the measures.
@@ -553,7 +628,11 @@ export function readLink(input: {
 }): void {
   copyMatrix({
     n: input.lattice.n,
-    from: linkSlot({ lattice: input.lattice, site: input.site, mu: input.mu }),
+    from: linkSlot({
+      lattice: input.lattice,
+      site: input.site,
+      mu: input.mu,
+    }),
     out: input.out,
   })
 }

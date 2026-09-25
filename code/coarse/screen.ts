@@ -30,7 +30,11 @@ import {
 
 // The slot indices of every block, in a fixed order: cells of the block by (x, y, z, w) lexicographic
 // within the block, and within a cell its directions in order. blocks[b] lists block b's slots.
-export function blockSlots(input: { side: number; block: number; degree: number }): Int32Array[] {
+export function blockSlots(input: {
+  side: number
+  block: number
+  degree: number
+}): Int32Array[] {
   const { side, block, degree } = input
   const per = side / block
   const out: Int32Array[] = []
@@ -48,7 +52,13 @@ export function blockSlots(input: { side: number; block: number; degree: number 
               for (let y = 0; y < block; y++) {
                 for (let x = 0; x < block; x++) {
                   const cell =
-                    bx * block + x + side * (by * block + y + side * (bz * block + z + side * (bw * block + w)))
+                    bx * block +
+                    x +
+                    side *
+                      (by * block +
+                        y +
+                        side *
+                          (bz * block + z + side * (bw * block + w)))
 
                   for (let d = 0; d < degree; d++) {
                     slots[k++] = cell * degree + d
@@ -69,7 +79,10 @@ export function blockSlots(input: { side: number; block: number; degree: number 
 
 // The shift used inside a block of M slots: the nearest integer to M times the golden section, nudged
 // off every multiple of the coin degree so that it always moves tones between directions.
-export function goldenShift(input: { slots: number; degree: number }): number {
+export function goldenShift(input: {
+  slots: number
+  degree: number
+}): number {
   const { slots, degree } = input
 
   let shift = Math.round((slots * (Math.sqrt(5) - 1)) / 2)
@@ -83,7 +96,11 @@ export function goldenShift(input: { slots: number; degree: number }): number {
 
 // S' from S: every block's slot contents cycled by the golden shift. Block populations are unchanged
 // exactly, and so is every coarser screen whose blocks are unions of these.
-export function permuteWithinBlocks(input: { will: Will; side: number; block: number }): Will {
+export function permuteWithinBlocks(input: {
+  will: Will
+  side: number
+  block: number
+}): Will {
   const { will, side, block } = input
   const degree = will.mesh.degree
   const out = cloneWill(will)
@@ -93,7 +110,8 @@ export function permuteWithinBlocks(input: { will: Will; side: number; block: nu
     const m = slots.length
 
     for (let k = 0; k < m; k++) {
-      out.data[slots[(k + shift) % m] ?? 0] = will.data[slots[k] ?? 0] ?? 0
+      out.data[slots[(k + shift) % m] ?? 0] =
+        will.data[slots[k] ?? 0] ?? 0
     }
   }
 
@@ -122,7 +140,11 @@ export type ScreenCount = {
 }
 
 // The exact many-to-one count of the screen of `will` at block size `block`.
-export function screenCount(input: { will: Will; side: number; block: number }): ScreenCount {
+export function screenCount(input: {
+  will: Will
+  side: number
+  block: number
+}): ScreenCount {
   const { will, side, block } = input
   const degree = will.mesh.degree
   const m = block ** 4 * degree
@@ -135,10 +157,18 @@ export function screenCount(input: { will: Will; side: number; block: number }):
   let entropy = 0
 
   for (let b = 0; b < blocks; b++) {
-    const n = [0, 1, 2].map(v => Math.round((fractions[3 * b + v] ?? 0) * m))
+    const n = [0, 1, 2].map(v =>
+      Math.round((fractions[3 * b + v] ?? 0) * m),
+    )
 
-    hidden += (table[m] ?? 0) - n.reduce((s, x) => s + (table[x] ?? 0), 0)
-    entropy -= n.reduce((s, x) => (x > 0 ? s + (x / m) * Math.log2(x / m) : s), 0) * m
+    hidden +=
+      (table[m] ?? 0) - n.reduce((s, x) => s + (table[x] ?? 0), 0)
+
+    entropy -=
+      n.reduce(
+        (s, x) => (x > 0 ? s + (x / m) * Math.log2(x / m) : s),
+        0,
+      ) * m
   }
 
   return {
@@ -177,7 +207,8 @@ export function profiledStart(input: {
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const x = cell % side
-    const active = mean + contrast * Math.cos((2 * Math.PI * x) / side + phase)
+    const active =
+      mean + contrast * Math.cos((2 * Math.PI * x) / side + phase)
 
     for (let d = 0; d < degree; d++) {
       const i = cell * degree + d
@@ -195,7 +226,10 @@ export function profiledStart(input: {
           will.data[i] = sign
           will.data[cell * degree + other] = -sign
         }
-      } else if (d !== input.emptySlot && hashRand(i, 0, salt) < active) {
+      } else if (
+        d !== input.emptySlot &&
+        hashRand(i, 0, salt) < active
+      ) {
         will.data[i] = hashRand(i, 1, salt) < 0.5 ? 1 : -1
       }
     }
@@ -281,7 +315,12 @@ export function countDisagreement(input: {
   return a.map((c, t) =>
     meanBlockDistance({
       a: blockToneFractions({ counts: c, side, block, degree }),
-      b: blockToneFractions({ counts: b[t] ?? new Int32Array(0), side, block, degree }),
+      b: blockToneFractions({
+        counts: b[t] ?? new Int32Array(0),
+        side,
+        block,
+        degree,
+      }),
     }),
   )
 }
@@ -307,6 +346,11 @@ export function sameScreenDisagreement(input: {
       schedule,
     })
 
-    return { block, mean: series.reduce((s, v) => s + v, 0) / Math.max(1, series.length), series }
+    return {
+      block,
+      mean:
+        series.reduce((s, v) => s + v, 0) / Math.max(1, series.length),
+      series,
+    }
   })
 }

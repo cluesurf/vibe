@@ -20,7 +20,11 @@ import { Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { Operator } from '@/code/measure/colour-symmetry'
 
-export type Seed = { readonly tone: -1 | 1; readonly direction: number; readonly cell: number }
+export type Seed = {
+  readonly tone: -1 | 1
+  readonly direction: number
+  readonly cell: number
+}
 
 function runSeeds(input: {
   mesh: Mesh
@@ -72,9 +76,19 @@ export function supportOneSpecies(input: {
 
   for (const tone of [1, -1] as const) {
     for (let direction = 0; direction < mesh.degree; direction++) {
-      const run = runSeeds({ mesh, schedule, seeds: [{ tone, direction, cell: 0 }], beats })
+      const run = runSeeds({
+        mesh,
+        schedule,
+        seeds: [{ tone, direction, cell: 0 }],
+        beats,
+      })
 
-      if (run.every((will, t) => differences(will, vacuum[t] ?? will).length === 1)) {
+      if (
+        run.every(
+          (will, t) =>
+            differences(will, vacuum[t] ?? will).length === 1,
+        )
+      ) {
         found.push({ tone, direction, cell: 0 })
       }
     }
@@ -104,7 +118,9 @@ export function excitationWorldLines(input: {
 }): WorldLines {
   const { mesh, schedule, seeds, beats } = input
   const vacuum = runSeeds({ mesh, schedule, seeds: [], beats })
-  const singles = seeds.map(seed => runSeeds({ mesh, schedule, seeds: [seed], beats }))
+  const singles = seeds.map(seed =>
+    runSeeds({ mesh, schedule, seeds: [seed], beats }),
+  )
   const joint = runSeeds({ mesh, schedule, seeds, beats })
   const slots = seeds.map(() => [] as number[])
   const events: { beat: number; first: number; second: number }[] = []
@@ -145,20 +161,36 @@ export function excitationWorldLines(input: {
         const sa = slots[a]?.[t] ?? -1
         const sb = slots[b]?.[t] ?? -1
 
-        if (sa >= 0 && sb >= 0 && Math.floor(sa / mesh.degree) === Math.floor(sb / mesh.degree)) {
+        if (
+          sa >= 0 &&
+          sb >= 0 &&
+          Math.floor(sa / mesh.degree) === Math.floor(sb / mesh.degree)
+        ) {
           events.push({ beat: t, first: a, second: b })
         }
       }
     }
   }
 
-  return { slots, supportOne, superposes: superpositionDefects === 0, superpositionDefects, events }
+  return {
+    slots,
+    supportOne,
+    superposes: superpositionDefects === 0,
+    superpositionDefects,
+    events,
+  }
 }
 
-export type ColourState = { readonly re: Float64Array; readonly im: Float64Array }
+export type ColourState = {
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
 // A product basis state of k qutrits, slot 0 the least significant digit.
-export function colourBasisState(input: { colours: readonly number[]; d: number }): ColourState {
+export function colourBasisState(input: {
+  colours: readonly number[]
+  d: number
+}): ColourState {
   const { colours, d } = input
   const size = d ** colours.length
   const re = new Float64Array(size)
@@ -238,7 +270,11 @@ export function colourProbability(input: {
 }
 
 // The purity Tr rho^2 of one qutrit's reduced density matrix, 1 for a product state, 1 / d at most mixed.
-export function reducedPurity(input: { state: ColourState; d: number; slot: number }): number {
+export function reducedPurity(input: {
+  state: ColourState
+  d: number
+  slot: number
+}): number {
   const { state, d, slot } = input
   const place = d ** slot
   const rhoRe = new Float64Array(d * d)
@@ -271,7 +307,10 @@ export function reducedPurity(input: { state: ColourState; d: number; slot: numb
 }
 
 // <state| operator |state>, real part.
-export function expectation(input: { state: ColourState; operator: Operator }): number {
+export function expectation(input: {
+  state: ColourState
+  operator: Operator
+}): number {
   const { state, operator } = input
   const n = operator.size
 
@@ -325,7 +364,10 @@ export function classicalColourProbability(input: {
       const keep = assignment.join(',')
       const swap = swapped.join(',')
 
-      next.set(keep, (next.get(keep) ?? 0) + weight * (1 - swapProbability))
+      next.set(
+        keep,
+        (next.get(keep) ?? 0) + weight * (1 - swapProbability),
+      )
       next.set(swap, (next.get(swap) ?? 0) + weight * swapProbability)
     }
 

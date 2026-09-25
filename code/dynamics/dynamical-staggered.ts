@@ -62,7 +62,10 @@ export function solveEven(input: {
     maxIterations: 10000,
   })
 
-  return { x: solved.solutions[0] ?? new Float64Array(length), iterations: solved.iterations }
+  return {
+    x: solved.solutions[0] ?? new Float64Array(length),
+    iterations: solved.iterations,
+  }
 }
 
 // S_f = Re phi^dag K^-1 phi.
@@ -137,7 +140,13 @@ export function fermionForce(input: {
   applyStaggeredHopping({ operator, from: x, out: y })
 
   // outer = a(p) b(q)^dag, colour vectors at sites p and q
-  const outerProduct = (a: Float64Array, p: number, b: Float64Array, q: number, sign: number): void => {
+  const outerProduct = (
+    a: Float64Array,
+    p: number,
+    b: Float64Array,
+    q: number,
+    sign: number,
+  ): void => {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         const ar = a[p * 2 * n + 2 * i] ?? 0
@@ -197,7 +206,8 @@ export function fermionForce(input: {
       for (let a = 0; a < n; a++) {
         for (let b = 0; b < n; b++) {
           // W_ab = Z_ab - conj(Z_ba)
-          const wr = (z[2 * (a * n + b)] ?? 0) - (z[2 * (b * n + a)] ?? 0)
+          const wr =
+            (z[2 * (a * n + b)] ?? 0) - (z[2 * (b * n + a)] ?? 0)
           const wi =
             (z[2 * (a * n + b) + 1] ?? 0) +
             (z[2 * (b * n + a) + 1] ?? 0) -
@@ -218,11 +228,16 @@ export function fermionForce(input: {
 // configuration is det K, so the difference of this number between two configurations is the log
 // of their relative weight in the dynamical theory. Only for small boxes: the matrix is
 // (V / 2) N on a side.
-export function evenLogDeterminant(input: { operator: StaggeredOperator; mass: number }): number {
+export function evenLogDeterminant(input: {
+  operator: StaggeredOperator
+  mass: number
+}): number {
   const { operator, mass } = input
   const n = operator.lattice.n
   const sites = operator.lattice.geometry.sites
-  const even = Array.from({ length: sites }, (_, s) => s).filter(s => (operator.parity[s] ?? 0) === 1)
+  const even = Array.from({ length: sites }, (_, s) => s).filter(
+    s => (operator.parity[s] ?? 0) === 1,
+  )
   const length = sites * 2 * n
   const unit = new Float64Array(length)
   const once = new Float64Array(length)
@@ -258,7 +273,9 @@ export function evenLogDeterminant(input: { operator: StaggeredOperator; mass: n
 // carries the antiperiodic sign. So m^2 times the change of ln det under a rotation must approach
 // the change of (1/2) sum over even x of Re Tr P(x), P the Polyakov loop matrix at x, as m grows.
 // The check an exact determinant is held to.
-export function hoppingWindingTerm(input: { lattice: GaugeLattice }): number {
+export function hoppingWindingTerm(input: {
+  lattice: GaugeLattice
+}): number {
   const { lattice } = input
   const { n, geometry } = lattice
   const { dim, sites, up, lengths } = geometry
@@ -340,13 +357,25 @@ export function hmcTrajectory(input: {
   }
 
   const saved = new Float64Array(lattice.links)
-  const operator = mass === null ? null : makeStaggeredOperator({ lattice })
-  const phi = operator === null || mass === null ? null : refreshPseudofermion({ operator, mass, rng })
+  const operator =
+    mass === null ? null : makeStaggeredOperator({ lattice })
+  const phi =
+    operator === null || mass === null
+      ? null
+      : refreshPseudofermion({ operator, mass, rng })
   const fermion = (): number =>
     operator === null || phi === null || mass === null
       ? 0
-      : fermionAction({ operator, phi, mass, tolerance: input.tolerance })
-  const h0 = kineticEnergy({ momenta }) + wilsonAction({ lattice, beta }) + fermion()
+      : fermionAction({
+          operator,
+          phi,
+          mass,
+          tolerance: input.tolerance,
+        })
+  const h0 =
+    kineticEnergy({ momenta }) +
+    wilsonAction({ lattice, beta }) +
+    fermion()
 
   let force: Float64Array | null = null
   let iterations = 0
@@ -362,7 +391,12 @@ export function hmcTrajectory(input: {
         return
       }
 
-      const solved = solveEven({ operator, phi, mass, tolerance: input.tolerance })
+      const solved = solveEven({
+        operator,
+        phi,
+        mass,
+        tolerance: input.tolerance,
+      })
 
       iterations += solved.iterations
       force = fermionForce({ operator, x: solved.x })
@@ -375,12 +409,17 @@ export function hmcTrajectory(input: {
       const size = 2 * lattice.n * lattice.n
 
       for (let k = 0; k < size; k++) {
-        out.data[out.offset + k] = (out.data[out.offset + k] ?? 0) + (force[link * size + k] ?? 0)
+        out.data[out.offset + k] =
+          (out.data[out.offset + k] ?? 0) +
+          (force[link * size + k] ?? 0)
       }
     },
   })
 
-  const h1 = kineticEnergy({ momenta }) + wilsonAction({ lattice, beta }) + fermion()
+  const h1 =
+    kineticEnergy({ momenta }) +
+    wilsonAction({ lattice, beta }) +
+    fermion()
   const deltaH = h1 - h0
   const accepted = deltaH <= 0 || rng.next() < Math.exp(-deltaH)
 

@@ -19,7 +19,8 @@ export const ASSUMPTIONS: Node[] = [
   {
     id: 'A2',
     kind: 'assumption',
-    statement: 'each direction of each cell holds one value from {-1, 0, +1}, and nothing else is stored',
+    statement:
+      'each direction of each cell holds one value from {-1, 0, +1}, and nothing else is stored',
     standing: 'holds',
     depends: [],
   },
@@ -34,7 +35,8 @@ export const ASSUMPTIONS: Node[] = [
   {
     id: 'A4',
     kind: 'assumption',
-    statement: 'the update is a bijection of the state (reversible) and conserves the sum of the values (charge)',
+    statement:
+      'the update is a bijection of the state (reversible) and conserves the sum of the values (charge)',
     standing: 'holds',
     depends: [],
   },
@@ -51,7 +53,8 @@ export const DEFINITIONS: Node[] = [
   {
     id: 'D1',
     kind: 'definition',
-    statement: 'pull: (measured - published) / sigma, with sigma the combined error',
+    statement:
+      'pull: (measured - published) / sigma, with sigma the combined error',
     standing: 'holds',
     depends: [],
   },
@@ -85,14 +88,16 @@ export const LEMMAS: Node[] = [
   {
     id: 'L2',
     kind: 'lemma',
-    statement: 'Hurwitz: normed division algebras exist only in dimensions 1, 2, 4 and 8',
+    statement:
+      'Hurwitz: normed division algebras exist only in dimensions 1, 2, 4 and 8',
     standing: 'holds',
     depends: ['I7'],
   },
   {
     id: 'L3',
     kind: 'lemma',
-    statement: 'among the simple Lie algebras only D4 has an outer automorphism group of order six (triality)',
+    statement:
+      'among the simple Lie algebras only D4 has an outer automorphism group of order six (triality)',
     standing: 'holds',
     depends: ['I7'],
   },
@@ -110,28 +115,32 @@ export const IMPORTS: Node[] = [
   {
     id: 'I1',
     kind: 'import',
-    statement: 'the Wilson lattice gauge action for U(1), SU(2), SU(3) and SU(4) on a hypercubic lattice',
+    statement:
+      'the Wilson lattice gauge action for U(1), SU(2), SU(3) and SU(4) on a hypercubic lattice',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'I2',
     kind: 'import',
-    statement: 'a seeded heatbath and overrelaxation Monte Carlo sampler',
+    statement:
+      'a seeded heatbath and overrelaxation Monte Carlo sampler',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'I3',
     kind: 'import',
-    statement: 'Kogut-Susskind staggered quarks, and hybrid Monte Carlo for dynamical ones',
+    statement:
+      'Kogut-Susskind staggered quarks, and hybrid Monte Carlo for dynamical ones',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'I4',
     kind: 'import',
-    statement: 'a fourth-order symmetric integrator for Hamiltonian gauge dynamics',
+    statement:
+      'a fourth-order symmetric integrator for Hamiltonian gauge dynamics',
     standing: 'holds',
     depends: [],
   },
@@ -146,21 +155,24 @@ export const IMPORTS: Node[] = [
   {
     id: 'I6',
     kind: 'import',
-    statement: 'a coined Dirac quantum walk: complex amplitudes, a rotation coin, a shift',
+    statement:
+      'a coined Dirac quantum walk: complex amplitudes, a rotation coin, a shift',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'I7',
     kind: 'import',
-    statement: 'standard mathematics: composition algebras, Lie theory, representation theory',
+    statement:
+      'standard mathematics: composition algebras, Lie theory, representation theory',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'I8',
     kind: 'import',
-    statement: 'an analytic travel-time formula for a branching tree: 2 ceil(log_3 s) + 1 steps against s',
+    statement:
+      'an analytic travel-time formula for a branching tree: 2 ceil(log_3 s) + 1 steps against s',
     standing: 'holds',
     depends: [],
   },

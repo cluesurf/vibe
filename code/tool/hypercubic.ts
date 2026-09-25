@@ -14,7 +14,9 @@ export type Hypercubic = {
   readonly down: Int32Array
 }
 
-export function makeHypercubic(input: { lengths: readonly number[] }): Hypercubic {
+export function makeHypercubic(input: {
+  lengths: readonly number[]
+}): Hypercubic {
   const lengths = input.lengths
   const dim = lengths.length
   const stride: number[] = []
@@ -36,7 +38,9 @@ export function makeHypercubic(input: { lengths: readonly number[] }): Hypercubi
       const coordinate = Math.floor(site / step) % length
 
       up[site * dim + mu] =
-        coordinate === length - 1 ? site - (length - 1) * step : site + step
+        coordinate === length - 1
+          ? site - (length - 1) * step
+          : site + step
 
       down[site * dim + mu] =
         coordinate === 0 ? site + (length - 1) * step : site - step
@@ -72,7 +76,8 @@ export function siteAt(input: {
   let step = 1
 
   input.lattice.lengths.forEach((length, mu) => {
-    const c = (((input.coordinates[mu] ?? 0) % length) + length) % length
+    const c =
+      (((input.coordinates[mu] ?? 0) % length) + length) % length
 
     site += c * step
     step *= length

@@ -223,7 +223,10 @@ import {
 } from '@/code/operator/staggered-fermion'
 import { bisectThreshold } from '@/code/tool/bisect'
 import { jackknife } from '@/code/measure/jackknife'
-import { weightedLeastSquares, weightedLinearFit } from '@/code/measure/regression'
+import {
+  weightedLeastSquares,
+  weightedLinearFit,
+} from '@/code/measure/regression'
 import { treeLevelCreutz } from '@/code/measure/wilson-loop-perturbation'
 import { generalizedEigenvalues } from '@/code/algebra/linear/generalized-eigen'
 import { hermitianLogDeterminant } from '@/code/algebra/linear/complex-cholesky'
@@ -273,10 +276,26 @@ import {
   finitePolyakovLoop,
   finiteWilsonLoops,
 } from '@/code/dynamics/finite-gauge'
-import { phaseSpaceAction, affineOf, wignerFunction } from '@/code/measure/qutrit-phase-space'
-import { coinGroup, countIsomorphisms, specialLinear23 } from '@/code/algebra/group/coin-group'
-import { SU3_SUBGROUPS, GOLDEN, QUTRIT_T } from '@/code/algebra/group/su3-subgroups'
-import { doubleCosetSet, makeLinkSetLattice, linkSetPlaquette } from '@/code/dynamics/link-set-gauge'
+import {
+  phaseSpaceAction,
+  affineOf,
+  wignerFunction,
+} from '@/code/measure/qutrit-phase-space'
+import {
+  coinGroup,
+  countIsomorphisms,
+  specialLinear23,
+} from '@/code/algebra/group/coin-group'
+import {
+  SU3_SUBGROUPS,
+  GOLDEN,
+  QUTRIT_T,
+} from '@/code/algebra/group/su3-subgroups'
+import {
+  doubleCosetSet,
+  makeLinkSetLattice,
+  linkSetPlaquette,
+} from '@/code/dynamics/link-set-gauge'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { passThrough } from '@/code/rule/collision'
 import {
@@ -286,14 +305,23 @@ import {
   probeConfigurations,
   zeroSumTriangles,
 } from '@/code/measure/collision-anatomy'
-import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
 import {
   covariantPairSpace,
   toneSymmetryAlgebra,
   unitaryAlgebraBasis,
 } from '@/code/measure/tone-symmetry'
-import { TONE_PERMUTATIONS, lineRelabellings } from '@/code/check/tone-permutation-symmetry'
-import { meanBlockDistance, relabelFractions } from '@/code/coarse/tone-population'
+import {
+  TONE_PERMUTATIONS,
+  lineRelabellings,
+} from '@/code/check/tone-permutation-symmetry'
+import {
+  meanBlockDistance,
+  relabelFractions,
+} from '@/code/coarse/tone-population'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -2372,7 +2400,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     for (const group of groups) {
       const rng = makeRng({ seed: 91 })
-      const gauge = makeGaugeLattice({ group, lengths: [4, 4, 4, 4], start: 'hot', rng })
+      const gauge = makeGaugeLattice({
+        group,
+        lengths: [4, 4, 4, 4],
+        start: 'hot',
+        rng,
+      })
 
       gaugeUpdate({ lattice: gauge, beta: 1, overrelaxation: 1, rng })
 
@@ -2384,11 +2417,17 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           const slot = linkSlot({ lattice: gauge, site, mu })
           const [re, im] = determinant({ n: gauge.n, a: slot })
 
-          worstUnitarity = Math.max(worstUnitarity, unitarityDefect({ n: gauge.n, a: slot }))
+          worstUnitarity = Math.max(
+            worstUnitarity,
+            unitarityDefect({ n: gauge.n, a: slot }),
+          )
+
           worstDeterminant = Math.max(
             worstDeterminant,
             // U(1) has any unit phase as determinant, SU(N) exactly one
-            group === 'u1' ? Math.abs(Math.hypot(re, im) - 1) : Math.hypot(re - 1, im),
+            group === 'u1'
+              ? Math.abs(Math.hypot(re, im) - 1)
+              : Math.hypot(re - 1, im),
           )
         }
       }
@@ -2401,12 +2440,16 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       const staplePlaquette = plaquetteFromStaples({
         lattice: gauge,
-        staple: (site, mu, out) => stapleInto({ lattice: gauge, site, mu, out }),
+        staple: (site, mu, out) =>
+          stapleInto({ lattice: gauge, site, mu, out }),
       })
 
       check({
         name: `gauge-lattice ${group}: the staples reproduce the plaquette`,
-        ok: Math.abs(staplePlaquette - averageGaugePlaquette({ lattice: gauge })) < 1e-12,
+        ok:
+          Math.abs(
+            staplePlaquette - averageGaugePlaquette({ lattice: gauge }),
+          ) < 1e-12,
       })
     }
 
@@ -2425,9 +2468,15 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       return total / draws
     }
 
-    const kennedyPendleton = sampleMean(() => sampleSu2HeatbathWeight({ alpha: 3, rng }))
-    const creutzInversion = sampleMean(() => sampleSu2HeatbathWeight({ alpha: 0.5, rng }))
-    const vonMises = sampleMean(() => Math.cos(sampleVonMises({ kappa: 2, rng })))
+    const kennedyPendleton = sampleMean(() =>
+      sampleSu2HeatbathWeight({ alpha: 3, rng }),
+    )
+    const creutzInversion = sampleMean(() =>
+      sampleSu2HeatbathWeight({ alpha: 0.5, rng }),
+    )
+    const vonMises = sampleMean(() =>
+      Math.cos(sampleVonMises({ kappa: 2, rng })),
+    )
 
     check({
       name: 'su2 heatbath (Kennedy-Pendleton, alpha 3): mean h0 is I2 / I1 = 0.56792',
@@ -2449,7 +2498,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     // a center transformation of one time slice is a symmetry of the action, and it turns the
     // Polyakov loop by exactly exp(2 pi i / 3)
-    const thermal = makeGaugeLattice({ group: 'su3', lengths: [4, 4, 4, 2], start: 'hot', rng })
+    const thermal = makeGaugeLattice({
+      group: 'su3',
+      lengths: [4, 4, 4, 2],
+      start: 'hot',
+      rng,
+    })
     const plaquetteBefore = averageGaugePlaquette({ lattice: thermal })
     const [reBefore, imBefore] = polyakovLoop({ lattice: thermal })
 
@@ -2457,18 +2511,27 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     const [reAfter, imAfter] = polyakovLoop({ lattice: thermal })
     const turn = (2 * Math.PI) / 3
-    const expectedRe = reBefore * Math.cos(turn) - imBefore * Math.sin(turn)
-    const expectedIm = reBefore * Math.sin(turn) + imBefore * Math.cos(turn)
+    const expectedRe =
+      reBefore * Math.cos(turn) - imBefore * Math.sin(turn)
+    const expectedIm =
+      reBefore * Math.sin(turn) + imBefore * Math.cos(turn)
 
     check({
       name: 'center transformation: action unchanged, Polyakov loop turned by 2 pi / 3',
       ok:
-        Math.abs(averageGaugePlaquette({ lattice: thermal }) - plaquetteBefore) < 1e-12 &&
+        Math.abs(
+          averageGaugePlaquette({ lattice: thermal }) - plaquetteBefore,
+        ) < 1e-12 &&
         Math.hypot(reAfter - expectedRe, imAfter - expectedIm) < 1e-12,
     })
 
     // the staggered hopping term is anti-Hermitian: <a, D b> = -<D a, b>
-    const quarks = makeGaugeLattice({ group: 'su3', lengths: [4, 4, 4, 4], start: 'hot', rng })
+    const quarks = makeGaugeLattice({
+      group: 'su3',
+      lengths: [4, 4, 4, 4],
+      start: 'hot',
+      rng,
+    })
     const operator = makeStaggeredOperator({ lattice: quarks })
     const length = quarks.geometry.sites * 6
     const a = new Float64Array(length).map(() => rng.nextGaussian())
@@ -2480,7 +2543,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     applyStaggeredHopping({ operator, from: b, out: db })
 
     // complex inner product <x, y> = sum conj(x) y, both parts
-    const inner = (x: Float64Array, y: Float64Array): [number, number] => {
+    const inner = (
+      x: Float64Array,
+      y: Float64Array,
+    ): [number, number] => {
       let re = 0
       let im = 0
 
@@ -2502,7 +2568,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     check({
       name: 'staggered hopping is anti-Hermitian',
-      ok: Math.hypot(left[0] + right[0], left[1] + right[1]) < 1e-9 * Math.hypot(...left),
+      ok:
+        Math.hypot(left[0] + right[0], left[1] + right[1]) <
+        1e-9 * Math.hypot(...left),
     })
 
     // multi-shift conjugate gradient: every shifted solution is a true solution, and the propagator
@@ -2529,7 +2597,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         (mass, index) =>
           staggeredResidual({
             operator,
-            propagator: solved.propagators[index] ?? new Float64Array(0),
+            propagator:
+              solved.propagators[index] ?? new Float64Array(0),
             mass,
             site: 0,
             colour: 1,
@@ -2538,8 +2607,18 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     })
 
     // bisection brackets a threshold and refuses a predicate that never switches
-    const bracket = bisectThreshold({ low: 0, high: 1, steps: 10, isAbove: x => x > 0.3 })
-    const flat = bisectThreshold({ low: 0, high: 1, steps: 10, isAbove: () => true })
+    const bracket = bisectThreshold({
+      low: 0,
+      high: 1,
+      steps: 10,
+      isAbove: x => x > 0.3,
+    })
+    const flat = bisectThreshold({
+      low: 0,
+      high: 1,
+      steps: 10,
+      isAbove: () => true,
+    })
 
     check({
       name: 'bisectThreshold brackets 0.3 to 1 / 1024 and reports a flat predicate',
@@ -2558,15 +2637,23 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       estimator: s => s.reduce((x, y) => x + y, 0) / s.length,
     }).error
     const sampleVariance =
-      values.reduce((sum, v) => sum + (v - 5.5) ** 2, 0) / (values.length - 1)
+      values.reduce((sum, v) => sum + (v - 5.5) ** 2, 0) /
+      (values.length - 1)
 
     check({
       name: 'jackknife error of a mean equals the standard error',
-      ok: Math.abs(errorOfMean - Math.sqrt(sampleVariance / values.length)) < 1e-12,
+      ok:
+        Math.abs(
+          errorOfMean - Math.sqrt(sampleVariance / values.length),
+        ) < 1e-12,
     })
 
     // the weighted fit recovers an exact line and its chi^2 is zero
-    const line = weightedLinearFit({ xs: [0, 1, 2], ys: [1, 3, 5], errors: [0.1, 0.2, 0.1] })
+    const line = weightedLinearFit({
+      xs: [0, 1, 2],
+      ys: [1, 3, 5],
+      errors: [0.1, 0.2, 0.1],
+    })
 
     check({
       name: 'weightedLinearFit recovers y = 2x + 1 exactly',
@@ -2594,7 +2681,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     // SU(4): the general Gram-Schmidt and determinant-phase projection keeps links in the group
     {
-      const four = makeGaugeLattice({ group: 'su4', lengths: [3, 3, 3, 3], start: 'hot', rng })
+      const four = makeGaugeLattice({
+        group: 'su4',
+        lengths: [3, 3, 3, 3],
+        start: 'hot',
+        rng,
+      })
 
       gaugeUpdate({ lattice: four, beta: 4, overrelaxation: 1, rng })
 
@@ -2604,16 +2696,27 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         const slot = { data: four.links, offset: link * 32 }
         const [re, im] = determinant({ n: 4, a: slot })
 
-        worst = Math.max(worst, unitarityDefect({ n: 4, a: slot }), Math.hypot(re - 1, im))
+        worst = Math.max(
+          worst,
+          unitarityDefect({ n: 4, a: slot }),
+          Math.hypot(re - 1, im),
+        )
       }
 
-      check({ name: 'SU(4) links stay unitary with determinant one', ok: worst < 1e-12, detail: `${worst}` })
+      check({
+        name: 'SU(4) links stay unitary with determinant one',
+        ok: worst < 1e-12,
+        detail: `${worst}`,
+      })
     }
 
     // the tree-level plaquette on a periodic box is exactly C g^2 (1 - 1 / V) / 4
     check({
       name: 'tree-level Creutz ratio chi(1,1) = (1 - 1/V) / 4 on a 4^4 box',
-      ok: Math.abs(treeLevelCreutz({ r: 1, box: 4 }) - 0.25 * (1 - 1 / 256)) < 1e-12,
+      ok:
+        Math.abs(
+          treeLevelCreutz({ r: 1, box: 4 }) - 0.25 * (1 - 1 / 256),
+        ) < 1e-12,
     })
 
     // the generalized eigenvalues of A v = lambda B v for diagonal B are A / B
@@ -2630,13 +2733,24 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     check({
       name: 'generalizedEigenvalues solves a diagonal pencil',
-      ok: Math.abs((generalized[0] ?? 0) - 2) < 1e-12 && Math.abs((generalized[1] ?? 0) - 3) < 1e-12,
+      ok:
+        Math.abs((generalized[0] ?? 0) - 2) < 1e-12 &&
+        Math.abs((generalized[1] ?? 0) - 3) < 1e-12,
     })
 
     // APE smearing keeps every link in the group and never touches time
     {
-      const field = makeGaugeLattice({ group: 'su3', lengths: [4, 4, 4, 4], start: 'hot', rng })
-      const smeared = apeSmear({ lattice: field, alpha: 0.5, iterations: 3 })
+      const field = makeGaugeLattice({
+        group: 'su3',
+        lengths: [4, 4, 4, 4],
+        start: 'hot',
+        rng,
+      })
+      const smeared = apeSmear({
+        lattice: field,
+        alpha: 0.5,
+        iterations: 3,
+      })
 
       let worst = 0
       let timeChanged = 0
@@ -2651,27 +2765,48 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
             for (let k = 0; k < 18; k++) {
               timeChanged = Math.max(
                 timeChanged,
-                Math.abs((slot.data[slot.offset + k] ?? 0) - (field.links[slot.offset + k] ?? 0)),
+                Math.abs(
+                  (slot.data[slot.offset + k] ?? 0) -
+                    (field.links[slot.offset + k] ?? 0),
+                ),
               )
             }
           }
         }
       }
 
-      check({ name: 'APE smearing stays in SU(3) and leaves the time links alone', ok: worst < 1e-12 && timeChanged === 0 })
+      check({
+        name: 'APE smearing stays in SU(3) and leaves the time links alone',
+        ok: worst < 1e-12 && timeChanged === 0,
+      })
     }
 
     // the gauge integrator: exactly reversible, and the energy error falls as step^2 and step^4
     {
       const generators = suGenerators({ n: 3 })
 
-      const trial = (order: 2 | 4, step: number): { error: number; reversal: number } => {
-        const lattice = makeGaugeLattice({ group: 'su3', lengths: [3, 3, 3, 3], start: 'cold', rng: makeRng({ seed: 1 }) })
+      const trial = (
+        order: 2 | 4,
+        step: number,
+      ): { error: number; reversal: number } => {
+        const lattice = makeGaugeLattice({
+          group: 'su3',
+          lengths: [3, 3, 3, 3],
+          start: 'cold',
+          rng: makeRng({ seed: 1 }),
+        })
         const momenta = makeMomenta({ lattice })
 
-        structuredMomenta({ lattice, momenta, generators, amplitude: 1.5 })
+        structuredMomenta({
+          lattice,
+          momenta,
+          generators,
+          amplitude: 1.5,
+        })
 
-        const energy = (): number => kineticEnergy({ momenta }) + wilsonAction({ lattice, beta: 5.7 })
+        const energy = (): number =>
+          kineticEnergy({ momenta }) +
+          wilsonAction({ lattice, beta: 5.7 })
         const start = new Float64Array(lattice.links)
         const h0 = energy()
         const steps = Math.round(1 / step)
@@ -2694,25 +2829,38 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       const second = [trial(2, 0.1), trial(2, 0.05)]
       const fourth = [trial(4, 0.2), trial(4, 0.1)]
-      const secondRatio = (second[0]?.error ?? 0) / (second[1]?.error ?? 1)
-      const fourthRatio = (fourth[0]?.error ?? 0) / (fourth[1]?.error ?? 1)
+      const secondRatio =
+        (second[0]?.error ?? 0) / (second[1]?.error ?? 1)
+      const fourthRatio =
+        (fourth[0]?.error ?? 0) / (fourth[1]?.error ?? 1)
 
       check({
         name: 'leapfrog: reversible to rounding, energy error falls 4x when the step halves',
-        ok: second.every(t => t.reversal < 1e-11) && secondRatio > 3 && secondRatio < 5,
+        ok:
+          second.every(t => t.reversal < 1e-11) &&
+          secondRatio > 3 &&
+          secondRatio < 5,
         detail: `${secondRatio}`,
       })
 
       check({
         name: 'fourth-order composition: reversible, energy error falls 16x when the step halves',
-        ok: fourth.every(t => t.reversal < 1e-11) && fourthRatio > 10 && fourthRatio < 24,
+        ok:
+          fourth.every(t => t.reversal < 1e-11) &&
+          fourthRatio > 10 &&
+          fourthRatio < 24,
         detail: `${fourthRatio}`,
       })
     }
 
     // the quark force is the derivative of the quark action
     {
-      const lattice = makeGaugeLattice({ group: 'su3', lengths: [2, 2, 2, 2], start: 'hot', rng })
+      const lattice = makeGaugeLattice({
+        group: 'su3',
+        lengths: [2, 2, 2, 2],
+        start: 'hot',
+        rng,
+      })
       const mass = 0.3
       const operator = makeStaggeredOperator({ lattice })
       const phi = refreshPseudofermion({ operator, mass, rng })
@@ -2728,13 +2876,18 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           traceTF +=
-            (t[2 * (i * 3 + j)] ?? 0) * (force[link * 18 + 2 * (j * 3 + i)] ?? 0) -
-            (t[2 * (i * 3 + j) + 1] ?? 0) * (force[link * 18 + 2 * (j * 3 + i) + 1] ?? 0)
+            (t[2 * (i * 3 + j)] ?? 0) *
+              (force[link * 18 + 2 * (j * 3 + i)] ?? 0) -
+            (t[2 * (i * 3 + j) + 1] ?? 0) *
+              (force[link * 18 + 2 * (j * 3 + i) + 1] ?? 0)
         }
       }
 
       const shifted = (sign: number): number => {
-        const copy = { ...lattice, links: new Float64Array(lattice.links) }
+        const copy = {
+          ...lattice,
+          links: new Float64Array(lattice.links),
+        }
         const momenta = makeMomenta({ lattice: copy })
         const components = new Array<number>(8).fill(0)
 
@@ -2742,14 +2895,21 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         setMomentum({ momenta, link, generators, components })
         drift({ lattice: copy, momenta, step: sign * 1e-5 })
 
-        return fermionAction({ operator: makeStaggeredOperator({ lattice: copy }), phi, mass, tolerance: 1e-14 })
+        return fermionAction({
+          operator: makeStaggeredOperator({ lattice: copy }),
+          phi,
+          mass,
+          tolerance: 1e-14,
+        })
       }
 
       const numeric = (shifted(1) - shifted(-1)) / 2e-5
 
       check({
         name: 'the staggered quark force matches a finite difference of the quark action',
-        ok: Math.abs(-2 * traceTF - numeric) < 1e-6 * Math.max(1, Math.abs(numeric)),
+        ok:
+          Math.abs(-2 * traceTF - numeric) <
+          1e-6 * Math.max(1, Math.abs(numeric)),
         detail: `${-2 * traceTF} ${numeric}`,
       })
     }
@@ -2772,7 +2932,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         },
       })
 
-      check({ name: 'hermitianLogDeterminant of [[2, i], [-i, 2]] is ln 3', ok: Math.abs(logDet - Math.log(3)) < 1e-14 })
+      check({
+        name: 'hermitianLogDeterminant of [[2, i], [-i, 2]] is ln 3',
+        ok: Math.abs(logDet - Math.log(3)) < 1e-14,
+      })
     }
 
     // the noise-free condensate estimator on the free field is exact
@@ -2780,7 +2943,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       const lengths = [4, 4, 4, 4]
       const free = pointSourceCondensate({
         operator: makeStaggeredOperator({
-          lattice: makeGaugeLattice({ group: 'su3', lengths, start: 'cold', rng }),
+          lattice: makeGaugeLattice({
+            group: 'su3',
+            lengths,
+            start: 'cold',
+            rng,
+          }),
         }),
         masses: [0.1, 0.3],
         sites: [0],
@@ -2792,7 +2960,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         name: 'point-source condensate reproduces the free momentum sum',
         ok: [0.1, 0.3].every(
           (mass, i) =>
-            Math.abs((free.values[i] ?? 0) - freeStaggeredCondensate({ lengths, colours: 3, mass })) < 1e-10,
+            Math.abs(
+              (free.values[i] ?? 0) -
+                freeStaggeredCondensate({ lengths, colours: 3, mass }),
+            ) < 1e-10,
         ),
       })
     }
@@ -2805,13 +2976,17 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       // D4), so the zero-sum triples number 24 * 8 / 6 = 32
       check({
         name: 'zeroSumTriangles finds the 32 zero-sum triples of the D4 roots',
-        ok: zeroSumTriangles({ directions: roots }).length === (24 * (2 * 6 - 4)) / 6,
+        ok:
+          zeroSumTriangles({ directions: roots }).length ===
+          (24 * (2 * 6 - 4)) / 6,
       })
 
       // the Weyl group of F4 has order 1152, and each element permutes the 24 directions
       const weyl = weylF4DirectionPermutations({ directions: roots })
       const distinct = new Set(weyl.map(p => p.join(','))).size
-      const permutations = weyl.every(p => new Set(p).size === 24 && p.length === 24)
+      const permutations = weyl.every(
+        p => new Set(p).size === 24 && p.length === 24,
+      )
 
       check({
         name: 'weylF4DirectionPermutations gives 1152 distinct permutations of the 24 directions',
@@ -2825,11 +3000,19 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       })
 
       // block encoding round-trips for every state of a three-slot block
-      const roundTrips = Array.from({ length: 27 }, (_, index) => index).every(
-        index => blockIndex({ tones: blockTones({ index, size: 3 }) }) === index,
+      const roundTrips = Array.from(
+        { length: 27 },
+        (_, index) => index,
+      ).every(
+        index =>
+          blockIndex({ tones: blockTones({ index, size: 3 }) }) ===
+          index,
       )
 
-      check({ name: 'blockIndex and blockTones are inverse on all 27 three-slot states', ok: roundTrips })
+      check({
+        name: 'blockIndex and blockTones are inverse on all 27 three-slot states',
+        ok: roundTrips,
+      })
 
       // pure streaming couples nothing, so every slot is its own interaction block
       const blocks = interactionBlocks({
@@ -2846,7 +3029,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       // Schur-Weyl: the identity and the swap of two tones commute with all 9 generators of u(3),
       // and the U(3)-covariant maps of a pair are exactly their two-dimensional span
       const identity = Array.from({ length: 9 }, (_, i) => i)
-      const swap = Array.from({ length: 9 }, (_, i) => (i % 3) * 3 + Math.floor(i / 3))
+      const swap = Array.from(
+        { length: 9 },
+        (_, i) => (i % 3) * 3 + Math.floor(i / 3),
+      )
 
       check({
         name: 'toneSymmetryAlgebra: identity and swap keep all 9 u(3) generators',
@@ -2860,7 +3046,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       check({
         name: 'covariantPairSpace: two complex dimensions, the swap inside them',
-        ok: covariant.complexDimension === 2 && covariant.distance < 1e-9,
+        ok:
+          covariant.complexDimension === 2 && covariant.distance < 1e-9,
       })
 
       // the six tone relabellings are S3, and the line relabellings are its square, 36
@@ -2873,9 +3060,14 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       // a relabelling names the tone (-1, 0, +1) each tone goes to. The identity changes nothing,
       // charge conjugation swaps the -1 and +1 fractions, and the distance is a metric
-      const fractions = new Float64Array([0.5, 0.25, 0.25, 0.1, 0.8, 0.1])
+      const fractions = new Float64Array([
+        0.5, 0.25, 0.25, 0.1, 0.8, 0.1,
+      ])
       const same = relabelFractions({ fractions, relabel: [-1, 0, 1] })
-      const conjugate = relabelFractions({ fractions, relabel: [1, 0, -1] })
+      const conjugate = relabelFractions({
+        fractions,
+        relabel: [1, 0, -1],
+      })
 
       check({
         name: 'relabelFractions: the identity changes nothing, conjugation swaps the charges',
@@ -2884,7 +3076,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           meanBlockDistance({ a: fractions, b: same }) === 0 &&
           conjugate[0] === 0.25 &&
           conjugate[2] === 0.5 &&
-          Math.abs(meanBlockDistance({ a: fractions, b: conjugate }) - 0.125) < 1e-12,
+          Math.abs(
+            meanBlockDistance({ a: fractions, b: conjugate }) - 0.125,
+          ) < 1e-12,
       })
     }
 
@@ -2893,7 +3087,11 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       const center = makeCenterLattice({
         order: 3,
         lengths: [4, 4, 4, 4],
-        pattern: (x, mu) => (((x[0] ?? 0) + 2 * (x[1] ?? 0) + 3 * (x[2] ?? 0) + mu) % 3 === 0 ? 1 : 0),
+        pattern: (x, mu) =>
+          ((x[0] ?? 0) + 2 * (x[1] ?? 0) + 3 * (x[2] ?? 0) + mu) % 3 ===
+          0
+            ? 1
+            : 0,
       })
       const start = new Int8Array(center.links)
       const e0 = centerPlaquette({ lattice: center }).energy
@@ -2911,18 +3109,27 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       check({
         name: 'reversible Z3 automaton: energy conserved exactly, moves, and the reverse sweeps restore the start',
-        ok: e0 === e1 && moved && center.links.every((v, k) => v === start[k]),
+        ok:
+          e0 === e1 &&
+          moved &&
+          center.links.every((v, k) => v === start[k]),
       })
     }
 
     // the kinetic Z3 automaton conserves plaquettes plus demons exactly and reverses exactly
     {
-      const center = makeCenterLattice({ order: 3, lengths: [4, 4, 4, 4] })
-      const demons = new Int8Array(center.links.length).map((_, k) => (k % 5 === 0 ? 6 : 0))
+      const center = makeCenterLattice({
+        order: 3,
+        lengths: [4, 4, 4, 4],
+      })
+      const demons = new Int8Array(center.links.length).map((_, k) =>
+        k % 5 === 0 ? 6 : 0,
+      )
       const startLinks = new Int8Array(center.links)
       const startDemons = new Int8Array(demons)
       const total = (): number =>
-        centerPlaquette({ lattice: center }).energy / 1.5 + demons.reduce((a, b) => a + b, 0)
+        centerPlaquette({ lattice: center }).energy / 1.5 +
+        demons.reduce((a, b) => a + b, 0)
       const e0 = total()
 
       for (let k = 0; k < 6; k++) {
@@ -2933,7 +3140,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       const moved = center.links.some((v, k) => v !== startLinks[k])
 
       for (let k = 0; k < 6; k++) {
-        kineticSweep({ lattice: center, demons, capacity: 6, reverse: true })
+        kineticSweep({
+          lattice: center,
+          demons,
+          capacity: 6,
+          reverse: true,
+        })
       }
 
       check({
@@ -2950,7 +3162,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         name: 'demonBeta: a flat demon reads beta 0, a larger mean reads a smaller beta',
         ok:
           Math.abs(demonBeta({ meanDemon: 3, capacity: 6 })) < 1e-9 &&
-          demonBeta({ meanDemon: 0.2, capacity: 6 }) > demonBeta({ meanDemon: 1, capacity: 6 }),
+          demonBeta({ meanDemon: 0.2, capacity: 6 }) >
+            demonBeta({ meanDemon: 1, capacity: 6 }),
       })
     }
 
@@ -2959,31 +3172,61 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       check({
         name: 'colourPermutations: 2 for a pair of triplets, 1 with an antitriplet, 6 for three, brute force agrees',
         ok:
-          colourPermutations({ d: 3, slots: ['plain', 'plain'] }).length === 2 &&
-          colourPermutations({ d: 3, slots: ['plain', 'conjugate'] }).length === 1 &&
-          colourPermutations({ d: 3, slots: ['plain', 'plain', 'plain'] }).length === 6 &&
-          bruteForceColourPermutations({ d: 3, slots: ['plain', 'plain'] }) === 2 &&
-          colourPermutations({ d: 3, slots: ['plain', 'plain'], diagonal: true }).length === 8,
+          colourPermutations({ d: 3, slots: ['plain', 'plain'] })
+            .length === 2 &&
+          colourPermutations({ d: 3, slots: ['plain', 'conjugate'] })
+            .length === 1 &&
+          colourPermutations({
+            d: 3,
+            slots: ['plain', 'plain', 'plain'],
+          }).length === 6 &&
+          bruteForceColourPermutations({
+            d: 3,
+            slots: ['plain', 'plain'],
+          }) === 2 &&
+          colourPermutations({
+            d: 3,
+            slots: ['plain', 'plain'],
+            diagonal: true,
+          }).length === 8,
       })
 
-      const rootSwap = pairExchangeUnitary({ d: 2, kind: 'plain', phase: Math.PI / 2 })
-      const swap = pairExchangeUnitary({ d: 3, kind: 'plain', phase: Math.PI })
+      const rootSwap = pairExchangeUnitary({
+        d: 2,
+        kind: 'plain',
+        phase: Math.PI / 2,
+      })
+      const swap = pairExchangeUnitary({
+        d: 3,
+        kind: 'plain',
+        phase: Math.PI,
+      })
 
       check({
         name: 'entanglingPower: 1/6 for the qubit root swap (Zanardi), 0 for the swap',
         ok:
-          Math.abs(entanglingPower({ operator: rootSwap, d: 2 }) - 1 / 6) < 1e-12 &&
+          Math.abs(
+            entanglingPower({ operator: rootSwap, d: 2 }) - 1 / 6,
+          ) < 1e-12 &&
           Math.abs(entanglingPower({ operator: swap, d: 3 })) < 1e-12,
       })
 
       check({
         name: 'singlets: epsilon is annihilated by su(3), counts 0 1 1 0 for qq, q qbar, qqq, qqq qbar',
         ok:
-          singletResidual({ d: 3, slots: ['plain', 'plain', 'plain'], ...epsilonState() }) < 1e-12 &&
+          singletResidual({
+            d: 3,
+            slots: ['plain', 'plain', 'plain'],
+            ...epsilonState(),
+          }) < 1e-12 &&
           singletCount({ d: 3, slots: ['plain', 'plain'] }) === 0 &&
           singletCount({ d: 3, slots: ['plain', 'conjugate'] }) === 1 &&
-          singletCount({ d: 3, slots: ['plain', 'plain', 'plain'] }) === 1 &&
-          singletCount({ d: 3, slots: ['plain', 'plain', 'conjugate'] }) === 0,
+          singletCount({ d: 3, slots: ['plain', 'plain', 'plain'] }) ===
+            1 &&
+          singletCount({
+            d: 3,
+            slots: ['plain', 'plain', 'conjugate'],
+          }) === 0,
       })
     }
 
@@ -2991,29 +3234,51 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     {
       const o: [number, number] = [0, 0]
       const one: [number, number] = [1, 0]
-      const w = (k: number): [number, number] => [Math.cos((2 * Math.PI * k) / 3), Math.sin((2 * Math.PI * k) / 3)]
-      const clock = matrix3([[one, o, o], [o, w(1), o], [o, o, w(2)]])
-      const shift = matrix3([[o, one, o], [o, o, one], [one, o, o]])
+      const w = (k: number): [number, number] => [
+        Math.cos((2 * Math.PI * k) / 3),
+        Math.sin((2 * Math.PI * k) / 3),
+      ]
+      const clock = matrix3([
+        [one, o, o],
+        [o, w(1), o],
+        [o, o, w(2)],
+      ])
+      const shift = matrix3([
+        [o, one, o],
+        [o, o, one],
+        [one, o, o],
+      ])
       const fourier = matrix3(
         [0, 1, 2].map(j =>
           [0, 1, 2].map(k => {
             const [re, im] = w(j * k)
 
-            return [im / Math.sqrt(3), -re / Math.sqrt(3)] as [number, number]
+            return [im / Math.sqrt(3), -re / Math.sqrt(3)] as [
+              number,
+              number,
+            ]
           }),
         ),
       )
       const heisenberg = generateGroup({ generators: [clock, shift] })
-      const hessian = generateGroup({ generators: [clock, shift, fourier] })
-      const meanSquareTrace = hessian.matrices.reduce(
-        (sum, m) =>
-          sum + ((m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0)) ** 2 + ((m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0)) ** 2,
-        0,
-      ) / hessian.order
+      const hessian = generateGroup({
+        generators: [clock, shift, fourier],
+      })
+      const meanSquareTrace =
+        hessian.matrices.reduce(
+          (sum, m) =>
+            sum +
+            ((m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0)) ** 2 +
+            ((m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0)) ** 2,
+          0,
+        ) / hessian.order
 
       check({
         name: 'generateGroup: clock and shift close on 27 elements, with the Fourier matrix on 108, triplet irreducible',
-        ok: heisenberg.order === 27 && hessian.order === 108 && Math.abs(meanSquareTrace - 1) < 1e-9,
+        ok:
+          heisenberg.order === 27 &&
+          hessian.order === 108 &&
+          Math.abs(meanSquareTrace - 1) < 1e-9,
       })
 
       // the Clifford elements permute phase space affinely, the golden one does not, and the Wigner
@@ -3038,18 +3303,29 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       // the 24 D4 directions form SL(2, 3) under x o y = x q y
       const coin = coinGroup({ directions: rootsD4() })
       const special = specialLinear23()
-      const at = (m: number[]): number => special.matrices.findIndex(x => x.join() === m.join())
+      const at = (m: number[]): number =>
+        special.matrices.findIndex(x => x.join() === m.join())
 
       check({
         name: 'coin group: the D4 directions close under x q y, 24 isomorphisms from SL(2, 3)',
         ok:
           coin.closed &&
           coin.hurwitz &&
-          countIsomorphisms({ first: special, second: coin, order: 24, generators: [at([1, 1, 0, 1]), at([0, 2, 1, 0])] }) === 24,
+          countIsomorphisms({
+            first: special,
+            second: coin,
+            order: 24,
+            generators: [at([1, 1, 0, 1]), at([0, 2, 1, 0])],
+          }) === 24,
       })
 
       // a cold finite-group lattice: plaquette, Polyakov loop and every Wilson loop exactly 1
-      const cold = makeFiniteGaugeLattice({ group: hessian, lengths: [3, 3, 3, 3], start: 'cold', rng: makeRng({ seed: 1 }) })
+      const cold = makeFiniteGaugeLattice({
+        group: hessian,
+        lengths: [3, 3, 3, 3],
+        start: 'cold',
+        rng: makeRng({ seed: 1 }),
+      })
       const polyakov = finitePolyakovLoop({ lattice: cold })
       const loops = finiteWilsonLoops({ lattice: cold, max: 2 })
 
@@ -3063,9 +3339,19 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       })
 
       // the one-magic-step link set: group first (identity at 0), magic elements marked, cold plaquette 1
-      const delta = generateGroup({ generators: [...SU3_SUBGROUPS.delta27.generators] })
-      const set = doubleCosetSet({ group: delta.matrices, extras: [QUTRIT_T] })
-      const setLattice = makeLinkSetLattice({ set, lengths: [3, 3, 3, 3], start: 'cold', rng: makeRng({ seed: 1 }) })
+      const delta = generateGroup({
+        generators: [...SU3_SUBGROUPS.delta27.generators],
+      })
+      const set = doubleCosetSet({
+        group: delta.matrices,
+        extras: [QUTRIT_T],
+      })
+      const setLattice = makeLinkSetLattice({
+        set,
+        lengths: [3, 3, 3, 3],
+        start: 'cold',
+        rng: makeRng({ seed: 1 }),
+      })
 
       check({
         name: 'link set: the group comes first and is not magic, the double coset is, a cold start has plaquette 1',
@@ -3074,7 +3360,8 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           set.magic.slice(0, delta.order).every(m => m === 0) &&
           set.magic.slice(delta.order).every(m => m === 1) &&
           set.matrices.length > delta.order &&
-          Math.abs(linkSetPlaquette({ lattice: setLattice }) - 1) < 1e-12,
+          Math.abs(linkSetPlaquette({ lattice: setLattice }) - 1) <
+            1e-12,
       })
     }
   }

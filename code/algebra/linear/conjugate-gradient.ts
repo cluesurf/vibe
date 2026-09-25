@@ -7,7 +7,10 @@
 // Vectors are complex, interleaved (re, im) in a Float64Array. A must be Hermitian, so every inner
 // product the iteration needs is real.
 
-export type LinearMap = (input: { from: Float64Array; out: Float64Array }) => void
+export type LinearMap = (input: {
+  from: Float64Array
+  out: Float64Array
+}) => void
 
 function realDot(a: Float64Array, b: Float64Array): number {
   let total = 0
@@ -88,7 +91,8 @@ export function multiShiftConjugateGradient(input: {
       const zp = zetaPrevious[s] ?? 1
       const zNext =
         (z * zp * alphaPrevious) /
-        (alpha * betaPrevious * (zp - z) + zp * alphaPrevious * (1 + delta * alpha))
+        (alpha * betaPrevious * (zp - z) +
+          zp * alphaPrevious * (1 + delta * alpha))
       const alphaShift = (alpha * zNext) / z
       const betaShift = beta * (zNext / z) ** 2
       const xs = x[s] ?? new Float64Array(0)
@@ -103,7 +107,10 @@ export function multiShiftConjugateGradient(input: {
       zeta[s] = zNext
 
       // a shifted residual is zeta times the base residual, so a converged shift stops early
-      if ((Math.abs(zNext) * Math.sqrt(rrNext)) / sourceNorm < tolerance) {
+      if (
+        (Math.abs(zNext) * Math.sqrt(rrNext)) / sourceNorm <
+        tolerance
+      ) {
         active[s] = false
       }
     })
@@ -125,7 +132,8 @@ export function multiShiftConjugateGradient(input: {
     let norm = 0
 
     for (let k = 0; k < length; k++) {
-      const difference = (source[k] ?? 0) - (q[k] ?? 0) - shift * (xs[k] ?? 0)
+      const difference =
+        (source[k] ?? 0) - (q[k] ?? 0) - shift * (xs[k] ?? 0)
 
       norm += difference * difference
     }

@@ -29,7 +29,9 @@ export function hermitianLogDeterminant(input: {
     let diagonal = a[2 * (j * size + j)] ?? 0
 
     for (let k = 0; k < j; k++) {
-      diagonal -= (a[2 * (j * size + k)] ?? 0) ** 2 + (a[2 * (j * size + k) + 1] ?? 0) ** 2
+      diagonal -=
+        (a[2 * (j * size + k)] ?? 0) ** 2 +
+        (a[2 * (j * size + k) + 1] ?? 0) ** 2
     }
 
     if (!(diagonal > 0)) {

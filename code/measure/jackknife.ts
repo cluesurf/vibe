@@ -26,13 +26,16 @@ export function jackknife<Sample>(input: {
   const estimates = Array.from({ length: bins }, (_, drop) =>
     estimator(
       samples.filter(
-        (__, index) => Math.floor(index / binSize) !== drop && index < bins * binSize,
+        (__, index) =>
+          Math.floor(index / binSize) !== drop &&
+          index < bins * binSize,
       ),
     ),
   )
   const center = estimates.reduce((sum, x) => sum + x, 0) / n
   const variance =
-    ((n - 1) / n) * estimates.reduce((sum, x) => sum + (x - center) ** 2, 0)
+    ((n - 1) / n) *
+    estimates.reduce((sum, x) => sum + (x - center) ** 2, 0)
 
   return { value, error: Math.sqrt(variance) }
 }

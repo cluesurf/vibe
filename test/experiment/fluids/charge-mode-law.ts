@@ -26,11 +26,20 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { makeWill } from '@/code/tone/will'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { chargeModeRun, modeLaw, modulatedChargeStart, slopeError } from '@/code/measure/charge-mode'
+import {
+  chargeModeRun,
+  modeLaw,
+  modulatedChargeStart,
+  slopeError,
+} from '@/code/measure/charge-mode'
 import { linearFit } from '@/code/measure/regression'
 
 const BEATS = 216
@@ -38,7 +47,11 @@ const CONTRAST = 0.3
 const THIRD = 1 / 3
 const SALT = 11
 
-function measure(input: { side: number; mode: number; schedule: (beatIndex: number) => Collision }) {
+function measure(input: {
+  side: number
+  mode: number
+  schedule: (beatIndex: number) => Collision
+}) {
   const { side, mode, schedule } = input
   const run = chargeModeRun({
     mesh: d4Mesh({ side }),
@@ -57,13 +70,24 @@ function measure(input: { side: number; mode: number; schedule: (beatIndex: numb
 }
 
 // the largest drift of the tone count and of the x momentum over two schedule periods
-function candidateDrifts(side: number): { toneCount: number; momentumX: number } {
+function candidateDrifts(side: number): {
+  toneCount: number
+  momentumX: number
+} {
   const mesh = d4Mesh({ side })
   const rule = turningWeave({ opposite: meshOpposites(mesh) })
   const table = streamSourceTable(mesh)
   const roots = rootsD4()
 
-  let current = modulatedChargeStart({ mesh, side, axis: 0, mode: 1, contrast: CONTRAST, zeroFraction: THIRD, salt: SALT })
+  let current = modulatedChargeStart({
+    mesh,
+    side,
+    axis: 0,
+    mode: 1,
+    contrast: CONTRAST,
+    zeroFraction: THIRD,
+    salt: SALT,
+  })
   let next = makeWill(mesh)
 
   const tally = (): [number, number] => {
@@ -108,13 +132,21 @@ export default experiment({
   depth: 'L3',
   paper: false,
   run() {
-    const rule9 = turningWeave({ opposite: meshOpposites(d4Mesh({ side: 9 })) })
-    const rule11 = turningWeave({ opposite: meshOpposites(d4Mesh({ side: 11 })) })
+    const rule9 = turningWeave({
+      opposite: meshOpposites(d4Mesh({ side: 9 })),
+    })
+    const rule11 = turningWeave({
+      opposite: meshOpposites(d4Mesh({ side: 11 })),
+    })
     const committed = [
-      ...[1, 2, 3, 4].map(mode => measure({ side: 9, mode, schedule: rule9 })),
+      ...[1, 2, 3, 4].map(mode =>
+        measure({ side: 9, mode, schedule: rule9 }),
+      ),
       measure({ side: 11, mode: 1, schedule: rule11 }),
     ]
-    const streaming = [1, 2].map(mode => measure({ side: 9, mode, schedule: () => passThrough }))
+    const streaming = [1, 2].map(mode =>
+      measure({ side: 9, mode, schedule: () => passThrough }),
+    )
     const drifts = candidateDrifts(9)
 
     const xs = committed.map(m => Math.log(m.k))
@@ -123,10 +155,17 @@ export default experiment({
     const exponentError = slopeError(xs, ys, fit.slope, fit.intercept)
     const rates = committed.map(m => m.law.slowRate)
     const rateMean = rates.reduce((s, v) => s + v, 0) / rates.length
-    const rateSpread = Math.sqrt(rates.reduce((s, v) => s + (v - rateMean) ** 2, 0) / (rates.length - 1))
-    const speedError = Math.max(...committed.map(m => Math.abs(m.law.fastFrequency / m.k - 1)))
+    const rateSpread = Math.sqrt(
+      rates.reduce((s, v) => s + (v - rateMean) ** 2, 0) /
+        (rates.length - 1),
+    )
+    const speedError = Math.max(
+      ...committed.map(m => Math.abs(m.law.fastFrequency / m.k - 1)),
+    )
     const fastRates = committed.map(m => m.law.fastRate)
-    const chargeExact = [...committed, ...streaming].every(m => m.run.chargeDrift === 0)
+    const chargeExact = [...committed, ...streaming].every(
+      m => m.run.chargeDrift === 0,
+    )
 
     const streamingSilent = streaming.every(
       m =>
@@ -134,7 +173,9 @@ export default experiment({
         Math.abs(m.law.fastRate) < 1e-6 &&
         Math.abs(m.law.fastFrequency / m.k - 1) < 0.005,
     )
-    const relaxes = committed.every(m => m.law.slowRate > 1e-4 && m.law.slowR2 > 0.95)
+    const relaxes = committed.every(
+      m => m.law.slowRate > 1e-4 && m.law.slowR2 > 0.95,
+    )
     const flat = Math.abs(fit.slope) < 0.5
     const notDiffusive = 2 - fit.slope > 5 * exponentError
     const notBallistic = 1 - fit.slope > 5 * exponentError
@@ -174,10 +215,18 @@ export default experiment({
         momentumXDrift: drifts.momentumX,
       },
       control: {
-        streamingSlowRateLargest: Math.max(...streaming.map(m => Math.abs(m.law.slowRate))),
-        streamingFastRateLargest: Math.max(...streaming.map(m => Math.abs(m.law.fastRate))),
+        streamingSlowRateLargest: Math.max(
+          ...streaming.map(m => Math.abs(m.law.slowRate)),
+        ),
+        streamingFastRateLargest: Math.max(
+          ...streaming.map(m => Math.abs(m.law.fastRate)),
+        ),
         streamingSlowLevel: streaming[0]?.law.slowLevel ?? 0,
-        streamingSpeedError: Math.max(...streaming.map(m => Math.abs(m.law.fastFrequency / m.k - 1))),
+        streamingSpeedError: Math.max(
+          ...streaming.map(m =>
+            Math.abs(m.law.fastFrequency / m.k - 1),
+          ),
+        ),
       },
       notes:
         'L3: the committed rule runs through beat, and the law is read off the runs by a split (running mean over L beats, spectral peak of the rest) that assumes no form, with pure streaming as the control that relaxes nothing. The measured law is kinetic, not hydrodynamic: about half the mode (0.48 of it, against 0.50 under streaming) oscillates at omega = k, the speed of light to the resolution of the frequency scan (a grid step of 0.0016), and the mode relaxes at the same rate at every wavenumber, which is what a gas does when its mean free path is longer than the wavelength. A two-state reading (static charge released at rate Gamma into movers at speed one) puts the diffusive regime at k well below Gamma, wavelengths of thousands of cells, beyond any mesh run here, so this does not show diffusion and does not rule it out at scales not reached. The rate spread across the five wavenumbers (about ten percent) is systematic, not noise, and the exponent error is from that scatter. This fills the dispersion relation E-FND-0129 names for the conserved density only, not species by species. Under the previous committed pair table the charge wave recurred instead (E-FLD-0002). One background density (a third of each tone) is gated here: the design runs at 0.6 zeros gave the same k-independent picture at rates about 0.002, and at 0.85 zeros the fits were noisier.',

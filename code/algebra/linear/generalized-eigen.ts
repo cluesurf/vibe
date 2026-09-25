@@ -13,7 +13,9 @@ export function generalizedEigenvalues(input: {
 }): number[] {
   const { a, b } = input
   const n = b.length
-  const lower = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const lower = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
 
   for (let j = 0; j < n; j++) {
     let diagonal = b[j]?.[j] ?? 0
@@ -49,7 +51,9 @@ export function generalizedEigenvalues(input: {
   }
 
   // inverse of the lower-triangular factor, by forward substitution
-  const inverse = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const inverse = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
 
   for (let column = 0; column < n; column++) {
     for (let i = 0; i < n; i++) {
@@ -74,14 +78,19 @@ export function generalizedEigenvalues(input: {
 
       for (let p = 0; p < n; p++) {
         for (let q = 0; q < n; q++) {
-          total += (inverse[i]?.[p] ?? 0) * (a[p]?.[q] ?? 0) * (inverse[j]?.[q] ?? 0)
+          total +=
+            (inverse[i]?.[p] ?? 0) *
+            (a[p]?.[q] ?? 0) *
+            (inverse[j]?.[q] ?? 0)
         }
       }
 
       return total
     }),
   )
-  const symmetric = reduced.map((row, i) => row.map((v, j) => (v + (reduced[j]?.[i] ?? 0)) / 2))
+  const symmetric = reduced.map((row, i) =>
+    row.map((v, j) => (v + (reduced[j]?.[i] ?? 0)) / 2),
+  )
 
   return jacobiEigenvalues(symmetric, 100, 1e-24)
 }

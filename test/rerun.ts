@@ -16,7 +16,9 @@ import '@/test/experiment/all'
 const requested = process.argv.slice(2)
 
 if (requested.length === 0) {
-  console.error('name at least one experiment, by code (E-FRC-0092) or id (gauge/gluon-count)')
+  console.error(
+    'name at least one experiment, by code (E-FRC-0092) or id (gauge/gluon-count)',
+  )
   process.exit(1)
 }
 
@@ -26,12 +28,16 @@ const missing = requested.filter(
 )
 
 if (missing.length > 0) {
-  console.error(`no experiment with the code or id: ${missing.join(', ')}`)
+  console.error(
+    `no experiment with the code or id: ${missing.join(', ')}`,
+  )
   process.exit(1)
 }
 
 const chosen = experiments.filter(
-  e => requested.includes(e.id) || (e.code !== undefined && requested.includes(e.code)),
+  e =>
+    requested.includes(e.id) ||
+    (e.code !== undefined && requested.includes(e.code)),
 )
 
 for (const experiment of chosen) {
@@ -40,7 +46,9 @@ for (const experiment of chosen) {
   const seconds = ((Date.now() - started) / 1000).toFixed(1)
   const { verdict } = result!
 
-  console.log(`\n${experiment.code ?? ''} ${experiment.id}  ${experiment.depth}  ${seconds}s`)
+  console.log(
+    `\n${experiment.code ?? ''} ${experiment.id}  ${experiment.depth}  ${seconds}s`,
+  )
   console.log(`status   ${verdict.status}`)
   console.log(`claim    ${verdict.claim}`)
   console.log('metrics')

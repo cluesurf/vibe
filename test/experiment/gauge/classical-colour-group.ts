@@ -31,8 +31,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { generateGroup, centerOrder } from '@/code/dynamics/finite-gauge'
-import { GOLDEN, SU3_SUBGROUPS, type Su3SubgroupName } from '@/code/algebra/group/su3-subgroups'
+import {
+  generateGroup,
+  centerOrder,
+} from '@/code/dynamics/finite-gauge'
+import {
+  GOLDEN,
+  SU3_SUBGROUPS,
+  type Su3SubgroupName,
+} from '@/code/algebra/group/su3-subgroups'
 import {
   affineOf,
   applyUnitary,
@@ -41,7 +48,12 @@ import {
   wignerNegativity,
 } from '@/code/measure/qutrit-phase-space'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { coinGroup, countIsomorphisms, quaternionProduct, specialLinear23 } from '@/code/algebra/group/coin-group'
+import {
+  coinGroup,
+  countIsomorphisms,
+  quaternionProduct,
+  specialLinear23,
+} from '@/code/algebra/group/coin-group'
 
 type Census = {
   order: number
@@ -55,7 +67,9 @@ type Census = {
 }
 
 function census(name: Su3SubgroupName): Census {
-  const group = generateGroup({ generators: [...SU3_SUBGROUPS[name].generators] })
+  const group = generateGroup({
+    generators: [...SU3_SUBGROUPS[name].generators],
+  })
   const fibres = new Map<string, number>()
   const linear = new Set<string>()
 
@@ -75,9 +89,16 @@ function census(name: Su3SubgroupName): Census {
       linear.add(affine.matrix.join())
     }
 
-    const image = applyUnitary({ unitary: element, re: [1, 0, 0], im: [0, 0, 0] })
+    const image = applyUnitary({
+      unitary: element,
+      re: [1, 0, 0],
+      im: [0, 0, 0],
+    })
 
-    largestNegativity = Math.max(largestNegativity, wignerNegativity(wignerFunction(image)))
+    largestNegativity = Math.max(
+      largestNegativity,
+      wignerNegativity(wignerFunction(image)),
+    )
   }
 
   const sizes = [...fibres.values()]
@@ -104,14 +125,23 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const names: Su3SubgroupName[] = ['delta27', 'sigma108', 'sigma648', 'sigma60', 'sigma1080']
-    const results = Object.fromEntries(names.map(name => [name, census(name)])) as Record<Su3SubgroupName, Census>
+    const names: Su3SubgroupName[] = [
+      'delta27',
+      'sigma108',
+      'sigma648',
+      'sigma60',
+      'sigma1080',
+    ]
+    const results = Object.fromEntries(
+      names.map(name => [name, census(name)]),
+    ) as Record<Su3SubgroupName, Census>
     const hessian = results.sigma648
     const valentiner = results.sigma1080
 
     const coin = coinGroup({ directions: rootsD4() })
     const special = specialLinear23()
-    const indexOf = (m: number[]): number => special.matrices.findIndex(x => x.join() === m.join())
+    const indexOf = (m: number[]): number =>
+      special.matrices.findIndex(x => x.join() === m.join())
     const isomorphisms = countIsomorphisms({
       first: special,
       second: coin,
@@ -120,22 +150,42 @@ export default experiment({
     })
 
     // control: the plain quaternion product of two scaled roots lands among the roots how often
-    const scaled = rootsD4().map(r => r.map(x => x / Math.sqrt(2)) as unknown as [number, number, number, number])
-    const keys = new Set(scaled.map(q => q.map(x => Math.round(x * 1e6) || 0).join()))
+    const scaled = rootsD4().map(
+      r =>
+        r.map(x => x / Math.sqrt(2)) as unknown as [
+          number,
+          number,
+          number,
+          number,
+        ],
+    )
+    const keys = new Set(
+      scaled.map(q => q.map(x => Math.round(x * 1e6) || 0).join()),
+    )
 
     let plainClosed = 0
 
     for (const a of scaled) {
       for (const b of scaled) {
-        plainClosed += keys.has(quaternionProduct(a, b).map(x => Math.round(x * 1e6) || 0).join()) ? 1 : 0
+        plainClosed += keys.has(
+          quaternionProduct(a, b)
+            .map(x => Math.round(x * 1e6) || 0)
+            .join(),
+        )
+          ? 1
+          : 0
       }
     }
 
     const goldenNegativity = wignerNegativity(
-      wignerFunction(applyUnitary({ unitary: GOLDEN, re: [1, 0, 0], im: [0, 0, 0] })),
+      wignerFunction(
+        applyUnitary({ unitary: GOLDEN, re: [1, 0, 0], im: [0, 0, 0] }),
+      ),
     )
 
-    const ordersRight = names.every(name => results[name].order === SU3_SUBGROUPS[name].order)
+    const ordersRight = names.every(
+      name => results[name].order === SU3_SUBGROUPS[name].order,
+    )
     const cliffordClassical =
       results.delta27.classical === 27 &&
       results.sigma108.classical === 108 &&
@@ -146,17 +196,30 @@ export default experiment({
       hessian.smallestFibre === 3 &&
       hessian.center === 3 &&
       hessian.largestNegativity < 1e-12
-    const goldenNotClassical = valentiner.classical < valentiner.order / 10 && goldenNegativity > 0.1
-    const coinIsSpecialLinear = coin.closed && coin.hurwitz && isomorphisms === 24
+    const goldenNotClassical =
+      valentiner.classical < valentiner.order / 10 &&
+      goldenNegativity > 0.1
+    const coinIsSpecialLinear =
+      coin.closed && coin.hurwitz && isomorphisms === 24
     const controlOpen = plainClosed < scaled.length * scaled.length
-    const ok = ordersRight && cliffordClassical && goldenNotClassical && coinIsSpecialLinear && controlOpen
+    const ok =
+      ordersRight &&
+      cliffordClassical &&
+      goldenNotClassical &&
+      coinIsSpecialLinear &&
+      controlOpen
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'every element of Delta(27), Sigma(108) and the Hessian group Sigma(648) permutes the nine phase-space points of a qutrit, Sigma(648) through 216 affine maps (9 translations x all 24 of SL(2, 3)) each hit by exactly its 3 central elements, and never makes Wigner negativity from |0>, while only a few of the 1080 elements of Sigma(360 x 3) act classically, its golden-ratio generator makes Wigner negativity 0.29 from |0> and the group as a whole up to 1/3. The 24 D4 coin directions close under x o y = x q y into a group with exactly 24 isomorphisms from SL(2, 3), so the classical colour group is labelled by a center tone, a tone pair and a coin direction, 3 x 9 x 24 = 648',
       metrics: {
-        ...Object.fromEntries(names.map(name => [`${name}Classical`, results[name].classical])),
+        ...Object.fromEntries(
+          names.map(name => [
+            `${name}Classical`,
+            results[name].classical,
+          ]),
+        ),
         sigma648AffineMaps: hessian.affineMaps,
         sigma648LinearParts: hessian.linearParts,
         sigma648FibreSize: hessian.largestFibre,
@@ -168,7 +231,9 @@ export default experiment({
         isomorphismsFromSL23: isomorphisms,
       },
       control: {
-        ...Object.fromEntries(names.map(name => [`${name}Order`, results[name].order])),
+        ...Object.fromEntries(
+          names.map(name => [`${name}Order`, results[name].order]),
+        ),
         plainProductLandsInDirections: plainClosed,
         plainProductPairs: scaled.length * scaled.length,
         automorphismsOfSL23: 24,

@@ -7,14 +7,22 @@ import type { Problem } from './type'
 export const PROBLEMS: Problem[] = [
   {
     id: 'OP-01',
-    title: 'build a layer that carries amplitudes on the committed rule',
+    title:
+      'build a layer that carries amplitudes on the committed rule',
     question:
       'Is there a coarse-grained quantity over many slots or beats of the committed rule that carries a phase and superposes?',
-    known: 'the bare rule has no amplitudes: defects add exactly as sets (R-FND-0001)',
-    unknown: 'whether any construction over the rule has a quantum sector',
+    known:
+      'the bare rule has no amplitudes: defects add exactly as sets (R-FND-0001)',
+    unknown:
+      'whether any construction over the rule has a quantum sector',
     why: 'every quantum result in the program is about an imported walk until this exists',
-    skills: ['cellular automata', 'quantum foundations', 'numerical simulation'],
-    scope: 'open-ended research. A first negative or positive construction is a paper',
+    skills: [
+      'cellular automata',
+      'quantum foundations',
+      'numerical simulation',
+    ],
+    scope:
+      'open-ended research. A first negative or positive construction is a paper',
     starting: [
       'test/experiment/foundations/rule-has-no-amplitudes.ts',
       "'t Hooft 2016, The Cellular Automaton Interpretation of Quantum Mechanics",
@@ -24,13 +32,20 @@ export const PROBLEMS: Problem[] = [
   },
   {
     id: 'OP-02',
-    title: 'find a coarse variable in which SU(3) appears, or prove none does',
+    title:
+      'find a coarse variable in which SU(3) appears, or prove none does',
     question:
       'Does any coarse variable of the committed rule other than block populations (currents, correlations) show an S3 at long distance?',
-    known: 'block populations do not, at $L = 9$ and $15$ (E-FRC-0096). No single collision joins three lines (E-FRC-0094)',
-    unknown: 'every other coarse variable, windows beyond 8 beats, spread three-tone starts',
+    known:
+      'block populations do not, at $L = 9$ and $15$ (E-FRC-0096). No single collision joins three lines (E-FRC-0094)',
+    unknown:
+      'every other coarse variable, windows beyond 8 beats, spread three-tone starts',
     why: 'R-FRC-0003 is exact only for what it tested',
-    skills: ['representation theory', 'coarse-graining', 'numerical simulation'],
+    skills: [
+      'representation theory',
+      'coarse-graining',
+      'numerical simulation',
+    ],
     scope: 'a small computational investigation per variable',
     starting: [
       'note/experiment/gauge/su3-from-the-rule.md',
@@ -43,22 +58,31 @@ export const PROBLEMS: Problem[] = [
   {
     id: 'OP-03',
     title: 'a ground state for a vacuum that flashes',
-    question: 'Can a Z3 phase ride on the period-three vacuum, or does the flash rule out the ground state physics needs?',
-    known: 'the empty state is a global period-three oscillation (E-FND-0080)',
-    unknown: 'whether this is a clock the physics can use or a defect of the rule',
+    question:
+      'Can a Z3 phase ride on the period-three vacuum, or does the flash rule out the ground state physics needs?',
+    known:
+      'the empty state is a global period-three oscillation (E-FND-0080)',
+    unknown:
+      'whether this is a clock the physics can use or a defect of the rule',
     why: 'it changes what a single particle means in the program',
     skills: ['statistical mechanics', 'discrete dynamics'],
     scope: 'a small theoretical question, then one experiment',
-    starting: ['test/experiment/foundations/rule-has-no-amplitudes.ts', 'test/experiment/gauge/center-automaton.ts'],
+    starting: [
+      'test/experiment/foundations/rule-has-no-amplitudes.ts',
+      'test/experiment/gauge/center-automaton.ts',
+    ],
     depends: ['R-FND-0001', 'R-FRC-0002'],
     source: 'E-FND-0080',
   },
   {
     id: 'OP-04',
     title: 'routing and search on {3,4,3,4} with finite-size scaling',
-    question: 'Do greedy routing stretch and search radius stay flat on the {3,4,3,4} honeycomb as it grows?',
-    known: 'on {5,4}, stretch 1.002 (R-NVG-0001). On {3,4,3,4}, radius 3 at 750 and 3,000 cells (R-MMR-0001)',
-    unknown: 'the {3,4,3,4} routing at all, and either quantity at more than two sizes',
+    question:
+      'Do greedy routing stretch and search radius stay flat on the {3,4,3,4} honeycomb as it grows?',
+    known:
+      'on {5,4}, stretch 1.002 (R-NVG-0001). On {3,4,3,4}, radius 3 at 750 and 3,000 cells (R-MMR-0001)',
+    unknown:
+      'the {3,4,3,4} routing at all, and either quantity at more than two sizes',
     why: 'planned paper 2 needs it, and R-NVG-0001 is on the wrong tiling until it exists',
     skills: ['network science', 'hyperbolic geometry', 'TypeScript'],
     scope: 'a small computational investigation',
@@ -73,8 +97,10 @@ export const PROBLEMS: Problem[] = [
   {
     id: 'OP-05',
     title: 'every L3 result at a second lattice size',
-    question: 'Does each of the 50 L3 verdicts hold at 0.5, 1 and 1.5 times its size?',
-    known: 'the perturbation check exists (pnpm check:perturbation). E-MMR-0002 fails at half size',
+    question:
+      'Does each of the 50 L3 verdicts hold at 0.5, 1 and 1.5 times its size?',
+    known:
+      'the perturbation check exists (pnpm check:perturbation). E-MMR-0002 fails at half size',
     unknown: 'which of the others hold',
     why: 'no L3 result should be cited as robust until it does',
     skills: ['TypeScript', 'patience'],
@@ -85,9 +111,12 @@ export const PROBLEMS: Problem[] = [
   },
   {
     id: 'OP-06',
-    title: 'a control that separates {3,4,3,4} from generic hyperbolic growth',
-    question: 'Which holography result, if any, a generic hyperbolic graph fails and {3,4,3,4} passes?',
-    known: 'the Ryu-Takayanagi experiments measure geodesics against boundary arcs, true of any hyperbolic graph',
+    title:
+      'a control that separates {3,4,3,4} from generic hyperbolic growth',
+    question:
+      'Which holography result, if any, a generic hyperbolic graph fails and {3,4,3,4} passes?',
+    known:
+      'the Ryu-Takayanagi experiments measure geodesics against boundary arcs, true of any hyperbolic graph',
     unknown: 'a property specific to this honeycomb',
     why: 'without it the holography set is regraded to L1',
     skills: ['hyperbolic geometry', 'holography'],
@@ -99,7 +128,8 @@ export const PROBLEMS: Problem[] = [
   {
     id: 'OP-07',
     title: 'rerun the even-sided mesh results on odd sides',
-    question: 'Which whole-mesh figures change when d4Mesh has an odd side and is one connected lattice?',
+    question:
+      'Which whole-mesh figures change when d4Mesh has an odd side and is one connected lattice?',
     known: 'an even-sided d4Mesh is two disconnected lattices',
     unknown: 'which reported figures depend on it',
     why: 'a whole-mesh count on two components is a two-component figure',
@@ -112,8 +142,10 @@ export const PROBLEMS: Problem[] = [
   {
     id: 'OP-08',
     title: 'spin-statistics through the rule',
-    question: 'Does a spinor carry the minus sign under exchange through the committed rule, rather than as an input?',
-    known: 'E-SPN-0014 computes an identity true of every vector, and the exchange signs were typed',
+    question:
+      'Does a spinor carry the minus sign under exchange through the committed rule, rather than as an input?',
+    known:
+      'E-SPN-0014 computes an identity true of every vector, and the exchange signs were typed',
     unknown: 'the dynamical result',
     why: 'the published paper claimed it',
     skills: ['representation theory', 'quantum foundations'],
@@ -125,37 +157,55 @@ export const PROBLEMS: Problem[] = [
   {
     id: 'OP-09',
     title: 'a machine-checked proof of the dimension-eight pinch',
-    question: 'Can the pinch be proved from definitions in the formal kernel, rather than checked on integers?',
-    known: 'the kernel proves the norm multiplicative for the complex numbers, quaternions and octonions',
+    question:
+      'Can the pinch be proved from definitions in the formal kernel, rather than checked on integers?',
+    known:
+      'the kernel proves the norm multiplicative for the complex numbers, quaternions and octonions',
     unknown: 'the converse of Hurwitz, and the pinch as a theorem',
     why: 'R-FND-0002 claims less than "proof-checked" until it exists',
     skills: ['formal proof', 'algebra'],
-    scope: 'a formalization project, with the Hurwitz converse as the known hard part',
-    starting: ['Baez 2002, The Octonions', 'Conway and Smith 2003, On Quaternions and Octonions'],
+    scope:
+      'a formalization project, with the Hurwitz converse as the known hard part',
+    starting: [
+      'Baez 2002, The Octonions',
+      'Conway and Smith 2003, On Quaternions and Octonions',
+    ],
     depends: ['R-FND-0002'],
     source: 'from-nothing hardening plan, tier 3',
   },
   {
     id: 'OP-10',
     title: 'the strong-force results toward the continuum',
-    question: 'Do the 4D SU(3) results hold at three or more couplings, extrapolated, with the Luscher term and zero-temperature string breaking?',
+    question:
+      'Do the 4D SU(3) results hold at three or more couplings, extrapolated, with the Luscher term and zero-temperature string breaking?',
     known: 'one or two couplings each. Only 3D SU(2) is extrapolated',
-    unknown: 'the continuum limits in 4D, the Luscher term, the potential flattening near 1.2 fm',
+    unknown:
+      'the continuum limits in 4D, the Luscher term, the potential flattening near 1.2 fm',
     why: 'planned paper 1 is stronger with continuum limits',
     skills: ['lattice gauge theory', 'compute'],
     scope: 'boxes of $16^4$ and more, days of compute',
-    starting: ['note/experiment/gauge/strong-force.md', 'code/dynamics/gauge-lattice.ts'],
+    starting: [
+      'note/experiment/gauge/strong-force.md',
+      'code/dynamics/gauge-lattice.ts',
+    ],
     depends: ['R-FRC-0001', 'R-FRC-0004'],
     source: 'strong-force map, what is still open',
   },
   {
     id: 'OP-11',
     title: 'measure the correlation exponent',
-    question: 'Does the shared-ancestor mechanism imply $C(r) \\sim r^{-\\alpha}$, and what is $\\alpha$ on the committed rule?',
-    known: 'interior distance grows like the logarithm of boundary distance (R-HLG-0002)',
-    unknown: '$\\alpha$, and whether any correlation is measured at all',
+    question:
+      'Does the shared-ancestor mechanism imply $C(r) \\sim r^{-\\alpha}$, and what is $\\alpha$ on the committed rule?',
+    known:
+      'interior distance grows like the logarithm of boundary distance (R-HLG-0002)',
+    unknown:
+      '$\\alpha$, and whether any correlation is measured at all',
     why: 'turns candidate PC-01 into a quantitative prediction, the first route to a row',
-    skills: ['hyperbolic geometry', 'statistical mechanics', 'numerical simulation'],
+    skills: [
+      'hyperbolic geometry',
+      'statistical mechanics',
+      'numerical simulation',
+    ],
     scope: 'a small computational investigation',
     starting: [
       'test/experiment/holography/bulk-shortcut-reachability.ts',

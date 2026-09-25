@@ -57,7 +57,9 @@ export function makeCenterLattice(input: {
       }
 
       for (let mu = 0; mu < geometry.dim; mu++) {
-        links[site * geometry.dim + mu] = ((input.pattern(x, mu) % input.order) + input.order) % input.order
+        links[site * geometry.dim + mu] =
+          ((input.pattern(x, mu) % input.order) + input.order) %
+          input.order
       }
     }
   }
@@ -74,7 +76,8 @@ function plaquetteCharge(input: {
   const { lattice, site, mu, nu } = input
   const { dim, up } = lattice.geometry
   const n = lattice.order
-  const link = (s: number, d: number): number => lattice.links[s * dim + d] ?? 0
+  const link = (s: number, d: number): number =>
+    lattice.links[s * dim + d] ?? 0
   const q =
     link(site, mu) +
     link(up[site * dim + mu] ?? 0, nu) -
@@ -85,12 +88,24 @@ function plaquetteCharge(input: {
 }
 
 // The plaquette action 1 - cos(2 pi q / N), rounded to 1e-12 so equal energies compare equal.
-function plaquetteEnergy(input: { order: number; charge: number }): number {
-  return Math.round((1 - Math.cos((2 * Math.PI * input.charge) / input.order)) * 1e12) / 1e12
+function plaquetteEnergy(input: {
+  order: number
+  charge: number
+}): number {
+  return (
+    Math.round(
+      (1 - Math.cos((2 * Math.PI * input.charge) / input.order)) * 1e12,
+    ) / 1e12
+  )
 }
 
 // The energy of every plaquette that contains link (site, mu), with the link set to `value`.
-function localEnergy(input: { lattice: CenterLattice; site: number; mu: number; value: number }): number {
+function localEnergy(input: {
+  lattice: CenterLattice
+  site: number
+  mu: number
+  value: number
+}): number {
   const { lattice, site, mu, value } = input
   const { dim, down } = lattice.geometry
   const index = site * dim + mu
@@ -105,10 +120,19 @@ function localEnergy(input: { lattice: CenterLattice; site: number; mu: number; 
       continue
     }
 
-    total += plaquetteEnergy({ order: lattice.order, charge: plaquetteCharge({ lattice, site, mu, nu }) })
     total += plaquetteEnergy({
       order: lattice.order,
-      charge: plaquetteCharge({ lattice, site: down[site * dim + nu] ?? 0, mu, nu }),
+      charge: plaquetteCharge({ lattice, site, mu, nu }),
+    })
+
+    total += plaquetteEnergy({
+      order: lattice.order,
+      charge: plaquetteCharge({
+        lattice,
+        site: down[site * dim + nu] ?? 0,
+        mu,
+        nu,
+      }),
     })
   }
 
@@ -119,7 +143,10 @@ function localEnergy(input: { lattice: CenterLattice; site: number; mu: number; 
 
 // One sweep of the reversible automaton: the eight classes in a fixed order (or the reverse order,
 // with `reverse`, which together with the inverse step undoes a sweep). Returns the moves made.
-export function reversibleSweep(input: { lattice: CenterLattice; reverse?: boolean }): number {
+export function reversibleSweep(input: {
+  lattice: CenterLattice
+  reverse?: boolean
+}): number {
   const { lattice } = input
   const { dim, sites, lengths } = lattice.geometry
   const n = lattice.order
@@ -164,9 +191,15 @@ export function reversibleSweep(input: { lattice: CenterLattice; reverse?: boole
 
       // the next value, cyclically forward (or backward when reversing), with the same energy
       for (let shift = 1; shift < n; shift++) {
-        const candidate = input.reverse === true ? (current - shift + n) % n : (current + shift) % n
+        const candidate =
+          input.reverse === true
+            ? (current - shift + n) % n
+            : (current + shift) % n
 
-        if (localEnergy({ lattice, site, mu, value: candidate }) === energy) {
+        if (
+          localEnergy({ lattice, site, mu, value: candidate }) ===
+          energy
+        ) {
           updates.push([index, candidate])
           break
         }
@@ -184,7 +217,12 @@ export function reversibleSweep(input: { lattice: CenterLattice; reverse?: boole
 
 // The number of excited plaquettes (q != 0) that contain link (site, mu), with the link set to value.
 // For Z3 every excited plaquette costs the same 3/2, so this count is the local energy in whole units.
-function excitedAround(input: { lattice: CenterLattice; site: number; mu: number; value: number }): number {
+function excitedAround(input: {
+  lattice: CenterLattice
+  site: number
+  mu: number
+  value: number
+}): number {
   const { lattice, site, mu, value } = input
   const { dim, down } = lattice.geometry
   const index = site * dim + mu
@@ -200,7 +238,15 @@ function excitedAround(input: { lattice: CenterLattice; site: number; mu: number
     }
 
     count += plaquetteCharge({ lattice, site, mu, nu }) === 0 ? 0 : 1
-    count += plaquetteCharge({ lattice, site: down[site * dim + nu] ?? 0, mu, nu }) === 0 ? 0 : 1
+    count +=
+      plaquetteCharge({
+        lattice,
+        site: down[site * dim + nu] ?? 0,
+        mu,
+        nu,
+      }) === 0
+        ? 0
+        : 1
   }
 
   lattice.links[index] = saved
@@ -226,7 +272,9 @@ export function kineticSweep(input: {
   const { dim, sites, lengths } = lattice.geometry
 
   if (lattice.order !== 3) {
-    throw new Error('kineticSweep counts energy in excited plaquettes, which is exact for Z3 only')
+    throw new Error(
+      'kineticSweep counts energy in excited plaquettes, which is exact for Z3 only',
+    )
   }
 
   const classes: [number, number][] = []
@@ -266,11 +314,17 @@ export function kineticSweep(input: {
 
       const index = site * dim + mu
       const current = lattice.links[index] ?? 0
-      const total = excitedAround({ lattice, site, mu, value: current }) + (demons[index] ?? 0)
+      const total =
+        excitedAround({ lattice, site, mu, value: current }) +
+        (demons[index] ?? 0)
 
       for (let shift = 1; shift < 3; shift++) {
-        const candidate = input.reverse === true ? (current - shift + 3) % 3 : (current + shift) % 3
-        const demon = total - excitedAround({ lattice, site, mu, value: candidate })
+        const candidate =
+          input.reverse === true
+            ? (current - shift + 3) % 3
+            : (current + shift) % 3
+        const demon =
+          total - excitedAround({ lattice, site, mu, value: candidate })
 
         if (demon >= 0 && demon <= capacity) {
           updates.push([index, candidate, demon])
@@ -357,7 +411,10 @@ export function exchangeDemons(input: {
 // The inverse coupling a bounded demon's mean reads: the demon of a large system at inverse coupling
 // beta holds d = 0 .. capacity with weight exp(-(3/2) beta d), so its mean is a known decreasing
 // function of beta, inverted here by bisection.
-export function demonBeta(input: { meanDemon: number; capacity: number }): number {
+export function demonBeta(input: {
+  meanDemon: number
+  capacity: number
+}): number {
   const { meanDemon, capacity } = input
 
   const meanAt = (beta: number): number => {
@@ -391,7 +448,11 @@ export function demonBeta(input: { meanDemon: number; capacity: number }): numbe
 }
 
 // One heatbath sweep at inverse coupling beta, the seeded reference.
-export function centerHeatbathSweep(input: { lattice: CenterLattice; beta: number; rng: Rng }): void {
+export function centerHeatbathSweep(input: {
+  lattice: CenterLattice
+  beta: number
+  rng: Rng
+}): void {
   const { lattice, beta, rng } = input
   const { dim, sites } = lattice.geometry
   const n = lattice.order
@@ -402,7 +463,9 @@ export function centerHeatbathSweep(input: { lattice: CenterLattice; beta: numbe
       let total = 0
 
       for (let value = 0; value < n; value++) {
-        const w = Math.exp(-beta * localEnergy({ lattice, site, mu, value }))
+        const w = Math.exp(
+          -beta * localEnergy({ lattice, site, mu, value }),
+        )
 
         weights[value] = w
         total += w
@@ -422,7 +485,10 @@ export function centerHeatbathSweep(input: { lattice: CenterLattice; beta: numbe
 }
 
 // The total plaquette energy, and the mean plaquette <cos(2 pi q / N)>.
-export function centerPlaquette(input: { lattice: CenterLattice }): { energy: number; plaquette: number } {
+export function centerPlaquette(input: { lattice: CenterLattice }): {
+  energy: number
+  plaquette: number
+} {
   const { lattice } = input
   const { dim, sites } = lattice.geometry
 
@@ -432,7 +498,10 @@ export function centerPlaquette(input: { lattice: CenterLattice }): { energy: nu
   for (let site = 0; site < sites; site++) {
     for (let mu = 0; mu < dim; mu++) {
       for (let nu = mu + 1; nu < dim; nu++) {
-        energy += plaquetteEnergy({ order: lattice.order, charge: plaquetteCharge({ lattice, site, mu, nu }) })
+        energy += plaquetteEnergy({
+          order: lattice.order,
+          charge: plaquetteCharge({ lattice, site, mu, nu }),
+        })
         count += 1
       }
     }
@@ -443,13 +512,22 @@ export function centerPlaquette(input: { lattice: CenterLattice }): { energy: nu
 
 // Rectangular Wilson loops W(R, T) = <cos(2 pi (sum of the loop's links) / N)>, averaged over every
 // site and ordered pair of directions, for 0 <= R, T <= max.
-export function centerWilsonLoops(input: { lattice: CenterLattice; max: number }): number[][] {
+export function centerWilsonLoops(input: {
+  lattice: CenterLattice
+  max: number
+}): number[][] {
   const { lattice, max } = input
   const { dim, sites, up } = lattice.geometry
   const n = lattice.order
-  const table = Array.from({ length: max + 1 }, () => new Array<number>(max + 1).fill(1))
+  const table = Array.from({ length: max + 1 }, () =>
+    new Array<number>(max + 1).fill(1),
+  )
 
-  const walk = (site: number, mu: number, steps: number): { end: number; sum: number } => {
+  const walk = (
+    site: number,
+    mu: number,
+    steps: number,
+  ): { end: number; sum: number } => {
     let current = site
     let sum = 0
 
@@ -478,7 +556,12 @@ export function centerWilsonLoops(input: { lattice: CenterLattice; max: number }
             const left = walk(site, nu, t)
             const top = walk(left.end, mu, r)
 
-            total += Math.cos((2 * Math.PI * (bottom.sum + right.sum - top.sum - left.sum)) / n)
+            total += Math.cos(
+              (2 *
+                Math.PI *
+                (bottom.sum + right.sum - top.sum - left.sum)) /
+                n,
+            )
             count += 1
           }
         }

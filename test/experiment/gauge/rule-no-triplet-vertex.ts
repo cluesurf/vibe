@@ -22,7 +22,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { passThrough, stickyReflect, turningWeave } from '@/code/rule/collision'
+import {
+  passThrough,
+  stickyReflect,
+  turningWeave,
+} from '@/code/rule/collision'
 import {
   blocksReproduceCollision,
   interactionBlocks,
@@ -48,7 +52,11 @@ export default experiment({
     const directions = rootsD4()
     const triangles = zeroSumTriangles({ directions })
     const committed = turningWeave({ opposite })
-    const anatomy = scheduleAnatomy({ schedule: committed, period: PERIOD, degree: 24 })
+    const anatomy = scheduleAnatomy({
+      schedule: committed,
+      period: PERIOD,
+      degree: 24,
+    })
     const probes = probeConfigurations({ degree: 24 })
     const decompositionExact = anatomy.every((beatAnatomy, t) =>
       blocksReproduceCollision({
@@ -59,31 +67,59 @@ export default experiment({
         probes,
       }),
     )
-    const lineOf = (slot: number): number => Math.min(slot, opposite[slot] ?? slot)
+    const lineOf = (slot: number): number =>
+      Math.min(slot, opposite[slot] ?? slot)
     const trianglesInside = anatomy.reduce(
-      (sum, beatAnatomy) => sum + trianglesInsideBlocks({ triangles, blocks: beatAnatomy.blocks }),
+      (sum, beatAnatomy) =>
+        sum +
+        trianglesInsideBlocks({
+          triangles,
+          blocks: beatAnatomy.blocks,
+        }),
       0,
     )
-    const largestBlock = Math.max(...anatomy.flatMap(a => a.blocks.map(block => block.length)))
+    const largestBlock = Math.max(
+      ...anatomy.flatMap(a => a.blocks.map(block => block.length)),
+    )
     const mostLinesInABlock = Math.max(
-      ...anatomy.flatMap(a => a.blocks.map(block => new Set(block.map(lineOf)).size)),
+      ...anatomy.flatMap(a =>
+        a.blocks.map(block => new Set(block.map(lineOf)).size),
+      ),
     )
     // how many distinct lines ever interact with some other line, over the schedule
     const interactingLines = new Set(
       anatomy.flatMap(a =>
-        a.blocks.filter(block => new Set(block.map(lineOf)).size > 1).flatMap(block => block.map(lineOf)),
+        a.blocks
+          .filter(block => new Set(block.map(lineOf)).size > 1)
+          .flatMap(block => block.map(lineOf)),
       ),
     ).size
 
-    const stickyBlocks = interactionBlocks({ collision: stickyReflect({ opposite }), degree: 24, probes })
-    const stickyInside = trianglesInsideBlocks({ triangles, blocks: stickyBlocks })
-    const streamingBlocks = interactionBlocks({ collision: passThrough, degree: 24, probes })
-    const streamingInside = trianglesInsideBlocks({ triangles, blocks: streamingBlocks })
+    const stickyBlocks = interactionBlocks({
+      collision: stickyReflect({ opposite }),
+      degree: 24,
+      probes,
+    })
+    const stickyInside = trianglesInsideBlocks({
+      triangles,
+      blocks: stickyBlocks,
+    })
+    const streamingBlocks = interactionBlocks({
+      collision: passThrough,
+      degree: 24,
+      probes,
+    })
+    const streamingInside = trianglesInsideBlocks({
+      triangles,
+      blocks: streamingBlocks,
+    })
 
     const roomExists = triangles.length === 32
     const noVertex = trianglesInside === 0 && mostLinesInABlock <= 2
-    const detectorWorks = stickyInside === triangles.length && streamingInside === 0
-    const ok = decompositionExact && roomExists && noVertex && detectorWorks
+    const detectorWorks =
+      stickyInside === triangles.length && streamingInside === 0
+    const ok =
+      decompositionExact && roomExists && noVertex && detectorWorks
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -22,7 +22,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
-import { gaugeUpdate, makeGaugeLattice } from '@/code/dynamics/gauge-lattice'
+import {
+  gaugeUpdate,
+  makeGaugeLattice,
+} from '@/code/dynamics/gauge-lattice'
 import { makeStaggeredOperator } from '@/code/operator/staggered-fermion'
 import { siteAt } from '@/code/tool/hypercubic'
 import {
@@ -51,7 +54,12 @@ function condensateRun(input: {
   seed: number
 }): Condensate {
   const rng = makeRng({ seed: input.seed })
-  const lattice = makeGaugeLattice({ group: 'su3', lengths: input.lengths, start: 'cold', rng })
+  const lattice = makeGaugeLattice({
+    group: 'su3',
+    lengths: input.lengths,
+    start: 'cold',
+    rng,
+  })
   const samples: number[][] = []
   const [lx = 1, ly = 1, lz = 1, lt = 1] = input.lengths
   // four fixed sources, spread over the box
@@ -61,7 +69,9 @@ function condensateRun(input: {
     [half(lx), half(ly), half(lz), half(lt)],
     [half(lx), 0, half(lz), 0],
     [0, half(ly), 0, half(lt)],
-  ].map(coordinates => siteAt({ lattice: lattice.geometry, coordinates }))
+  ].map(coordinates =>
+    siteAt({ lattice: lattice.geometry, coordinates }),
+  )
 
   let polyakov = 0
   let worstResidual = 0
@@ -84,7 +94,8 @@ function condensateRun(input: {
     })
 
     samples.push(result.values)
-    polyakov += Math.hypot(...polyakovLoop({ lattice })) / input.configurations
+    polyakov +=
+      Math.hypot(...polyakovLoop({ lattice })) / input.configurations
     worstResidual = Math.max(worstResidual, result.worstResidual)
   }
 
@@ -93,7 +104,8 @@ function condensateRun(input: {
 
 function chiralLimit(samples: readonly number[][]): number {
   const mean = MASSES.map(
-    (_, i) => samples.reduce((sum, s) => sum + (s[i] ?? 0), 0) / samples.length,
+    (_, i) =>
+      samples.reduce((sum, s) => sum + (s[i] ?? 0), 0) / samples.length,
   )
 
   return linearFit({
@@ -112,10 +124,24 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const cold = condensateRun({ lengths: [8, 8, 8, 8], configurations: 8, seed: 860 })
-    const hot = condensateRun({ lengths: [8, 8, 8, 2], configurations: 8, seed: 861 })
-    const coldLimit = jackknife({ samples: cold.samples, estimator: chiralLimit })
-    const hotLimit = jackknife({ samples: hot.samples, estimator: chiralLimit })
+    const cold = condensateRun({
+      lengths: [8, 8, 8, 8],
+      configurations: 8,
+      seed: 860,
+    })
+    const hot = condensateRun({
+      lengths: [8, 8, 8, 2],
+      configurations: 8,
+      seed: 861,
+    })
+    const coldLimit = jackknife({
+      samples: cold.samples,
+      estimator: chiralLimit,
+    })
+    const hotLimit = jackknife({
+      samples: hot.samples,
+      estimator: chiralLimit,
+    })
 
     // the estimator on the free field, against the exact momentum sum at every mass. The free field
     // is exactly translation invariant, so one source site must reproduce the sum to solver precision
@@ -136,17 +162,24 @@ export default experiment({
     })
     const freeMeasured = free.values
     const freeExact = MASSES.map(mass =>
-      freeStaggeredCondensate({ lengths: freeLengths, colours: 3, mass }),
+      freeStaggeredCondensate({
+        lengths: freeLengths,
+        colours: 3,
+        mass,
+      }),
     )
     const freeWorst = Math.max(
-      ...freeMeasured.map((value, i) => Math.abs(value / (freeExact[i] ?? 1) - 1)),
+      ...freeMeasured.map((value, i) =>
+        Math.abs(value / (freeExact[i] ?? 1) - 1),
+      ),
     )
 
     const estimatorExact = freeWorst < 1e-6
     const phases = cold.polyakov < 0.1 && hot.polyakov > 0.3
     const broken = coldLimit.value > 5 * coldLimit.error
     const restored =
-      Math.abs(hotLimit.value) < 3 * hotLimit.error + 0.02 * coldLimit.value
+      Math.abs(hotLimit.value) <
+      3 * hotLimit.error + 0.02 * coldLimit.value
     const ok = estimatorExact && phases && broken && restored
 
     return verdict({
@@ -158,11 +191,18 @@ export default experiment({
         coldChiralLimitError: coldLimit.error,
         hotChiralLimit: hotLimit.value,
         hotChiralLimitError: hotLimit.error,
-        coldSigmaAt001: cold.samples.reduce((s, x) => s + (x[0] ?? 0), 0) / cold.samples.length,
-        hotSigmaAt001: hot.samples.reduce((s, x) => s + (x[0] ?? 0), 0) / hot.samples.length,
+        coldSigmaAt001:
+          cold.samples.reduce((s, x) => s + (x[0] ?? 0), 0) /
+          cold.samples.length,
+        hotSigmaAt001:
+          hot.samples.reduce((s, x) => s + (x[0] ?? 0), 0) /
+          hot.samples.length,
         coldPolyakov: cold.polyakov,
         hotPolyakov: hot.polyakov,
-        worstSolverResidual: Math.max(cold.worstResidual, hot.worstResidual),
+        worstSolverResidual: Math.max(
+          cold.worstResidual,
+          hot.worstResidual,
+        ),
       },
       control: {
         freeSigmaAt001: freeMeasured[0] ?? 0,

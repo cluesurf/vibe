@@ -59,19 +59,26 @@ type Spectrum = {
 }
 
 function pionMass(correlator: readonly number[]): number {
-  const values = PION_TIMES.map(t => coshEffectiveMass({ correlator, t, step: 2 }))
+  const values = PION_TIMES.map(t =>
+    coshEffectiveMass({ correlator, t, step: 2 }),
+  )
 
   return values.reduce((a, b) => a + b, 0) / values.length
 }
 
-function spectrumOf(samples: readonly HadronCorrelators[], masses: readonly number[]): Spectrum {
+function spectrumOf(
+  samples: readonly HadronCorrelators[],
+  masses: readonly number[],
+): Spectrum {
   const nucleonAt = (t: number): { value: number; error: number }[] =>
     masses.map((_, index) =>
       jackknife({
         samples,
         estimator: subset =>
           logEffectiveMass({
-            correlator: averageSeries({ series: subset.map(s => s.nucleon[index] ?? []) }),
+            correlator: averageSeries({
+              series: subset.map(s => s.nucleon[index] ?? []),
+            }),
             t,
             step: 2,
           }),
@@ -83,7 +90,11 @@ function spectrumOf(samples: readonly HadronCorrelators[], masses: readonly numb
       jackknife({
         samples,
         estimator: subset =>
-          pionMass(averageSeries({ series: subset.map(s => s.pion[index] ?? []) })),
+          pionMass(
+            averageSeries({
+              series: subset.map(s => s.pion[index] ?? []),
+            }),
+          ),
       }),
     ),
     // the rho plateau on even t, the same two-step cosh as the pion
@@ -91,7 +102,11 @@ function spectrumOf(samples: readonly HadronCorrelators[], masses: readonly numb
       jackknife({
         samples,
         estimator: subset =>
-          pionMass(averageSeries({ series: subset.map(s => s.rho[index] ?? []) })),
+          pionMass(
+            averageSeries({
+              series: subset.map(s => s.rho[index] ?? []),
+            }),
+          ),
       }),
     ),
     nucleon: nucleonAt(NUCLEON_TIME),
@@ -108,7 +123,12 @@ let free: Spectrum | undefined
 function hadronSamples(): HadronCorrelators[] {
   if (interactingSamples === undefined) {
     const rng = makeRng({ seed: 840 })
-    const lattice = makeGaugeLattice({ group: 'su3', lengths: [12, 12, 12, 16], start: 'cold', rng })
+    const lattice = makeGaugeLattice({
+      group: 'su3',
+      lengths: [12, 12, 12, 16],
+      start: 'cold',
+      rng,
+    })
 
     interactingSamples = sampleQuenchedHadrons({
       lattice,
@@ -148,18 +168,33 @@ function freeSpectrum(): Spectrum {
       maxIterations: 5000,
     })
     // one configuration, the identity, so the plateau is read at large t where it is exact
-    const read = (series: number[][], mass: (c: number[]) => number): { value: number; error: number }[] =>
+    const read = (
+      series: number[][],
+      mass: (c: number[]) => number,
+    ): { value: number; error: number }[] =>
       series.map(c => ({ value: mass(c), error: 0 }))
 
     free = {
-      pion: read(correlators.pion, c =>
-        [12, 16].map(t => coshEffectiveMass({ correlator: c, t, step: 2 })).reduce((a, b) => a + b) / 2,
+      pion: read(
+        correlators.pion,
+        c =>
+          [12, 16]
+            .map(t => coshEffectiveMass({ correlator: c, t, step: 2 }))
+            .reduce((a, b) => a + b) / 2,
       ),
-      rho: read(correlators.rho, c =>
-        [12, 16].map(t => coshEffectiveMass({ correlator: c, t, step: 2 })).reduce((a, b) => a + b) / 2,
+      rho: read(
+        correlators.rho,
+        c =>
+          [12, 16]
+            .map(t => coshEffectiveMass({ correlator: c, t, step: 2 }))
+            .reduce((a, b) => a + b) / 2,
       ),
-      nucleon: read(correlators.nucleon, c => logEffectiveMass({ correlator: c, t: 13, step: 2 })),
-      nucleonLate: read(correlators.nucleon, c => logEffectiveMass({ correlator: c, t: 17, step: 2 })),
+      nucleon: read(correlators.nucleon, c =>
+        logEffectiveMass({ correlator: c, t: 13, step: 2 }),
+      ),
+      nucleonLate: read(correlators.nucleon, c =>
+        logEffectiveMass({ correlator: c, t: 17, step: 2 }),
+      ),
       worstResidual: correlators.worstResidual,
     }
   }
@@ -185,12 +220,16 @@ function nucleonPlateau(spectrum: Spectrum): number[] {
     return (
       early.value > 5 * early.error &&
       late.value > 3 * late.error &&
-      Math.abs(early.value - late.value) < 3 * Math.hypot(early.error, late.error)
+      Math.abs(early.value - late.value) <
+        3 * Math.hypot(early.error, late.error)
     )
   })
 }
 
-function exponent(input: { masses: readonly number[]; values: readonly number[] }): number {
+function exponent(input: {
+  masses: readonly number[]
+  values: readonly number[]
+}): number {
   return linearFit({
     xs: input.masses.map(Math.log),
     ys: input.values.map(Math.log),
@@ -212,21 +251,35 @@ export default experiment({
     const pion = spectrum.pion.map(p => p.value)
     const freePion = control.pion.map(p => p.value)
     // the exponent over the whole range, and over the two masses the control resolves
-    const interactingExponent = exponent({ masses: MASSES, values: pion })
-    const heavyExponent = exponent({ masses: FREE_MASSES, values: pion.slice(-2) })
-    const freeExponent = exponent({ masses: FREE_MASSES, values: freePion })
+    const interactingExponent = exponent({
+      masses: MASSES,
+      values: pion,
+    })
+    const heavyExponent = exponent({
+      masses: FREE_MASSES,
+      values: pion.slice(-2),
+    })
+    const freeExponent = exponent({
+      masses: FREE_MASSES,
+      values: freePion,
+    })
     // the control must reproduce free quarks, 2 asinh(m), to one percent
     const freeExact = FREE_MASSES.every(
-      (mass, i) => Math.abs((freePion[i] ?? 0) / (2 * Math.asinh(mass)) - 1) < 0.01,
+      (mass, i) =>
+        Math.abs((freePion[i] ?? 0) / (2 * Math.asinh(mass)) - 1) <
+        0.01,
     )
     // m_pi^2 / m_q at the lightest and heaviest quark mass, near constant for a Goldstone boson
     const gmorLight = (pion[0] ?? 0) ** 2 / (MASSES[0] ?? 1)
-    const gmorHeavy = (pion[pion.length - 1] ?? 0) ** 2 / (MASSES[MASSES.length - 1] ?? 1)
+    const gmorHeavy =
+      (pion[pion.length - 1] ?? 0) ** 2 /
+      (MASSES[MASSES.length - 1] ?? 1)
     const resolved = spectrum.pion.every(p => p.value > 10 * p.error)
     const goldstone = Math.abs(interactingExponent - 0.5) < 0.1
     const freeLinear = Math.abs(freeExponent - 1) < 0.05
     const separated = freeExponent - heavyExponent > 0.3
-    const ok = freeExact && resolved && goldstone && freeLinear && separated
+    const ok =
+      freeExact && resolved && goldstone && freeLinear && separated
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -274,11 +327,15 @@ experiment({
     const pion = spectrum.pion.map(p => p.value)
     const freeNucleon = control.nucleon.map(p => p.value)
     const freeExact = FREE_MASSES.every(
-      (mass, i) => Math.abs((freeNucleon[i] ?? 0) / (3 * Math.asinh(mass)) - 1) < 0.01,
+      (mass, i) =>
+        Math.abs((freeNucleon[i] ?? 0) / (3 * Math.asinh(mass)) - 1) <
+        0.01,
     )
     // only the masses on a plateau are read (nucleonPlateau), the others are reported
     const resolvedIndices = nucleonPlateau(spectrum)
-    const excluded = MASSES.map((_, i) => i).filter(i => !resolvedIndices.includes(i))
+    const excluded = MASSES.map((_, i) => i).filter(
+      i => !resolvedIndices.includes(i),
+    )
     const resolvedMasses = resolvedIndices.map(i => MASSES[i] ?? 0)
     const resolvedNucleon = resolvedIndices.map(i => nucleon[i] ?? 0)
     const enoughResolved = resolvedIndices.length >= 3
@@ -286,21 +343,33 @@ experiment({
     const threeFreeQuarks = 3 * Math.asinh(lightest)
     const enhancement = (resolvedNucleon[0] ?? 0) / threeFreeQuarks
     // the chiral limit, linear in m_q through the resolved masses
-    const chiral = linearFit({ xs: resolvedMasses, ys: resolvedNucleon }).intercept
+    const chiral = linearFit({
+      xs: resolvedMasses,
+      ys: resolvedNucleon,
+    }).intercept
     const pionChiral = linearFit({
       xs: MASSES.slice(0, 2),
       ys: pion.slice(0, 2).map(m => m * m),
     }).intercept
     // three quarks outweigh a quark and an antiquark (the ratio tends to 3 / 2 only for very heavy
     // quarks, so 1 is the bound that is not a knife edge)
-    const heavierThanPion = resolvedIndices.every(i => (nucleon[i] ?? 0) > (pion[i] ?? 0))
+    const heavierThanPion = resolvedIndices.every(
+      i => (nucleon[i] ?? 0) > (pion[i] ?? 0),
+    )
     const lateRatios = resolvedIndices.map(
       i => (spectrum.nucleonLate[i]?.value ?? 0) / (nucleon[i] ?? 1),
     )
     // the plateau is a property of the heavy end: the masses that fail it are the lightest ones
-    const excludedAreLightest = excluded.every(i => resolvedIndices.every(j => j > i))
+    const excludedAreLightest = excluded.every(i =>
+      resolvedIndices.every(j => j > i),
+    )
     const generated = enhancement > 5 && chiral > 1 && pionChiral < 0.05
-    const ok = freeExact && enoughResolved && heavierThanPion && excludedAreLightest && generated
+    const ok =
+      freeExact &&
+      enoughResolved &&
+      heavierThanPion &&
+      excludedAreLightest &&
+      generated
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -319,7 +388,8 @@ experiment({
         nucleonErrorAt04: spectrum.nucleon[4]?.error ?? 0,
         resolvedMassCount: resolvedIndices.length,
         lightestResolvedMass: lightest,
-        smallestLateOverEarlyOnPlateau: lateRatios.length > 0 ? Math.min(...lateRatios) : 0,
+        smallestLateOverEarlyOnPlateau:
+          lateRatios.length > 0 ? Math.min(...lateRatios) : 0,
         excludedMassCount: excluded.length,
         lateNucleonAt0025: spectrum.nucleonLate[0]?.value ?? 0,
         lateNucleonErrorAt0025: spectrum.nucleonLate[0]?.error ?? 0,
@@ -354,13 +424,27 @@ const J_QUENCHED = 0.37
 const J_EXPERIMENT = 0.48
 
 // masses from a subset of configurations, every quark mass at once
-function massesOf(subset: readonly HadronCorrelators[]): { pion: number[]; rho: number[]; nucleon: number[] } {
+function massesOf(subset: readonly HadronCorrelators[]): {
+  pion: number[]
+  rho: number[]
+  nucleon: number[]
+} {
   return {
-    pion: MASSES.map((_, i) => pionMass(averageSeries({ series: subset.map(s => s.pion[i] ?? []) }))),
-    rho: MASSES.map((_, i) => pionMass(averageSeries({ series: subset.map(s => s.rho[i] ?? []) }))),
+    pion: MASSES.map((_, i) =>
+      pionMass(
+        averageSeries({ series: subset.map(s => s.pion[i] ?? []) }),
+      ),
+    ),
+    rho: MASSES.map((_, i) =>
+      pionMass(
+        averageSeries({ series: subset.map(s => s.rho[i] ?? []) }),
+      ),
+    ),
     nucleon: MASSES.map((_, i) =>
       logEffectiveMass({
-        correlator: averageSeries({ series: subset.map(s => s.nucleon[i] ?? []) }),
+        correlator: averageSeries({
+          series: subset.map(s => s.nucleon[i] ?? []),
+        }),
         t: NUCLEON_TIME,
         step: 2,
       }),
@@ -370,7 +454,11 @@ function massesOf(subset: readonly HadronCorrelators[]): { pion: number[]; rho: 
 
 // J = m_V dm_V / dm_PS^2 at m_V / m_PS = 1.8, from a straight line m_V = a + s m_PS^2 through the
 // given quark masses: solve (a + s x) / sqrt(x) = 1.8 for x = m_PS^2, then J = 1.8 sqrt(x) s
-function jParameter(input: { pion: number[]; rho: number[]; use: number[] }): number {
+function jParameter(input: {
+  pion: number[]
+  rho: number[]
+  use: number[]
+}): number {
   const fit = linearFit({
     xs: input.use.map(i => (input.pion[i] ?? 0) ** 2),
     ys: input.use.map(i => input.rho[i] ?? 0),
@@ -390,10 +478,19 @@ function jParameter(input: { pion: number[]; rho: number[]; use: number[] }): nu
 }
 
 // m_N / m_rho carried along the Edinburgh plot to the physical (m_pi / m_rho)^2
-function nucleonOverRhoAtPhysical(input: { pion: number[]; rho: number[]; nucleon: number[]; use: number[] }): number {
+function nucleonOverRhoAtPhysical(input: {
+  pion: number[]
+  rho: number[]
+  nucleon: number[]
+  use: number[]
+}): number {
   const fit = linearFit({
-    xs: input.use.map(i => ((input.pion[i] ?? 0) / (input.rho[i] ?? 1)) ** 2),
-    ys: input.use.map(i => (input.nucleon[i] ?? 0) / (input.rho[i] ?? 1)),
+    xs: input.use.map(
+      i => ((input.pion[i] ?? 0) / (input.rho[i] ?? 1)) ** 2,
+    ),
+    ys: input.use.map(
+      i => (input.nucleon[i] ?? 0) / (input.rho[i] ?? 1),
+    ),
   })
 
   return fit.intercept + fit.slope * PHYSICAL_PION_OVER_RHO_SQUARED
@@ -418,30 +515,44 @@ experiment({
     // the rho and J read every mass where the rho is resolved, and m_N / m_rho only the masses where
     // the nucleon also sits on its plateau
     const use = MASSES.map((_, i) => i).filter(
-      i => (spectrum.rho[i]?.value ?? 0) > 10 * (spectrum.rho[i]?.error ?? 1),
+      i =>
+        (spectrum.rho[i]?.value ?? 0) >
+        10 * (spectrum.rho[i]?.error ?? 1),
     )
-    const nucleonUse = use.filter(i => nucleonPlateau(spectrum).includes(i))
+    const nucleonUse = use.filter(i =>
+      nucleonPlateau(spectrum).includes(i),
+    )
     const freeRho = control.rho.map(p => p.value)
     const freeExact = FREE_MASSES.every(
-      (mass, i) => Math.abs((freeRho[i] ?? 0) / (2 * Math.asinh(mass)) - 1) < 0.01,
+      (mass, i) =>
+        Math.abs((freeRho[i] ?? 0) / (2 * Math.asinh(mass)) - 1) < 0.01,
     )
     const rhoChiral = weightedLinearFit({
       xs: use.map(i => MASSES[i] ?? 0),
       ys: use.map(i => rho[i] ?? 0),
       errors: use.map(i => spectrum.rho[i]?.error ?? 1),
     })
-    const j = jackknife({ samples, estimator: subset => jParameter({ ...massesOf(subset), use }) })
+    const j = jackknife({
+      samples,
+      estimator: subset => jParameter({ ...massesOf(subset), use }),
+    })
     const ratio = jackknife({
       samples,
-      estimator: subset => nucleonOverRhoAtPhysical({ ...massesOf(subset), use: nucleonUse }),
+      estimator: subset =>
+        nucleonOverRhoAtPhysical({
+          ...massesOf(subset),
+          use: nucleonUse,
+        }),
     })
 
     const enough = use.length >= 3
     const vectorHeavy =
       rhoChiral.intercept > 5 * rhoChiral.interceptError &&
       use.every(i => (rho[i] ?? 0) > (pion[i] ?? 0))
-    const heavierThanPionAtLightest = rhoChiral.intercept > 1.5 * (pion[0] ?? 0)
-    const ok = freeExact && enough && vectorHeavy && heavierThanPionAtLightest
+    const heavierThanPionAtLightest =
+      rhoChiral.intercept > 1.5 * (pion[0] ?? 0)
+    const ok =
+      freeExact && enough && vectorHeavy && heavierThanPionAtLightest
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -469,7 +580,8 @@ experiment({
         freeRhoPredictedAt02: 2 * Math.asinh(0.2),
         freeRhoPredictedAt04: 2 * Math.asinh(0.4),
         physicalNucleonOverRho: PHYSICAL_NUCLEON_OVER_RHO,
-        nucleonOverRhoPull: (ratio.value - PHYSICAL_NUCLEON_OVER_RHO) / ratio.error,
+        nucleonOverRhoPull:
+          (ratio.value - PHYSICAL_NUCLEON_OVER_RHO) / ratio.error,
         jQuenchedWorld: J_QUENCHED,
         jQuenchedPull: (j.value - J_QUENCHED) / j.error,
         jExperiment: J_EXPERIMENT,

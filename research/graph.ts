@@ -11,7 +11,13 @@
 // does not pass every criterion in PREDICTION, and the projection refuses to write while the
 // list is not empty.
 
-import { ASSUMPTIONS, DEFINITIONS, IMPORTS, LEMMAS, OBSERVATIONS } from './node'
+import {
+  ASSUMPTIONS,
+  DEFINITIONS,
+  IMPORTS,
+  LEMMAS,
+  OBSERVATIONS,
+} from './node'
 import { RESULTS } from './result'
 import { PREDICTIONS } from './prediction'
 import { SUBMISSIONS } from './challenge'
@@ -46,7 +52,13 @@ function standingOf(code: string): Standing {
 function buildNodes(): Map<string, Node> {
   const nodes = new Map<string, Node>()
 
-  for (const node of [...ASSUMPTIONS, ...DEFINITIONS, ...LEMMAS, ...IMPORTS, ...OBSERVATIONS]) {
+  for (const node of [
+    ...ASSUMPTIONS,
+    ...DEFINITIONS,
+    ...LEMMAS,
+    ...IMPORTS,
+    ...OBSERVATIONS,
+  ]) {
     nodes.set(node.id, node)
   }
 
@@ -55,7 +67,10 @@ function buildNodes(): Map<string, Node> {
   for (const result of RESULTS) {
     for (const experiment of result.experiments) {
       const existing = nodes.get(experiment.code)
-      const depends = new Set([...(existing?.depends ?? []), ...experiment.depends])
+      const depends = new Set([
+        ...(existing?.depends ?? []),
+        ...experiment.depends,
+      ])
 
       nodes.set(experiment.code, {
         id: experiment.code,
@@ -73,7 +88,10 @@ function buildNodes(): Map<string, Node> {
       kind: 'result',
       statement: result.title,
       standing: standingOf(result.code),
-      depends: [...result.depends, ...result.experiments.map(e => e.code)],
+      depends: [
+        ...result.depends,
+        ...result.experiments.map(e => e.code),
+      ],
     })
   }
 
@@ -108,7 +126,10 @@ export function shown(id: string, seen = new Set<string>()): Shown {
   return RANK[node.standing] >= RANK[beneath] ? node.standing : beneath
 }
 
-export function assumptions(id: string, seen = new Set<string>()): string[] {
+export function assumptions(
+  id: string,
+  seen = new Set<string>(),
+): string[] {
   const found = new Set<string>()
   const node = NODES.get(id)
 
@@ -150,14 +171,19 @@ export function dependents(id: string): string[] {
 }
 
 // Every prediction row whose result fails a criterion the prediction gate requires.
-export function refusals(): { prediction: string; unmet: Criterion[] }[] {
+export function refusals(): {
+  prediction: string
+  unmet: Criterion[]
+}[] {
   return PREDICTIONS.flatMap(prediction => {
     const result = RESULTS.find(r => r.code === prediction.result)
     const unmet = result
       ? PREDICTION.filter(c => result.gate[c].mark !== 'pass')
       : [...PREDICTION]
 
-    return unmet.length > 0 ? [{ prediction: prediction.id, unmet }] : []
+    return unmet.length > 0
+      ? [{ prediction: prediction.id, unmet }]
+      : []
   })
 }
 

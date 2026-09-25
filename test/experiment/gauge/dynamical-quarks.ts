@@ -54,7 +54,12 @@ type Run = {
   configurations: GaugeLattice[]
 }
 
-function run(input: { spatial: number; dynamical: boolean; trajectories: number; seed: number }): Run {
+function run(input: {
+  spatial: number
+  dynamical: boolean
+  trajectories: number
+  seed: number
+}): Run {
   const rng = makeRng({ seed: input.seed })
   const lattice = makeGaugeLattice({
     group: 'su3',
@@ -99,29 +104,47 @@ function run(input: { spatial: number; dynamical: boolean; trajectories: number;
   }
 
   const count = loops.length
-  const mean = (list: readonly number[]): number => list.reduce((a, b) => a + b, 0) / list.length
+  const mean = (list: readonly number[]): number =>
+    list.reduce((a, b) => a + b, 0) / list.length
 
   return {
-    realPart: jackknife({ samples: loops, estimator: s => mean(s.map(p => p[0])), binSize: BIN }),
+    realPart: jackknife({
+      samples: loops,
+      estimator: s => mean(s.map(p => p[0])),
+      binSize: BIN,
+    }),
     modulus: jackknife({
       samples: loops,
       estimator: s => mean(s.map(p => Math.hypot(p[0], p[1]))),
       binSize: BIN,
     }),
     acceptance: accepted / count,
-    creutz: jackknife({ samples: boltzmann, estimator: mean, binSize: BIN }),
+    creutz: jackknife({
+      samples: boltzmann,
+      estimator: mean,
+      binSize: BIN,
+    }),
     configurations,
   }
 }
 
-function logDeterminantShift(input: { lattice: GaugeLattice; mass: number }): number {
+function logDeterminantShift(input: {
+  lattice: GaugeLattice
+  mass: number
+}): number {
   const rotated = cloneGaugeLattice({ lattice: input.lattice })
 
   centerTransformTimeSlice({ lattice: rotated, slice: 0, k: 1 })
 
   return (
-    evenLogDeterminant({ operator: makeStaggeredOperator({ lattice: rotated }), mass: input.mass }) -
-    evenLogDeterminant({ operator: makeStaggeredOperator({ lattice: input.lattice }), mass: input.mass })
+    evenLogDeterminant({
+      operator: makeStaggeredOperator({ lattice: rotated }),
+      mass: input.mass,
+    }) -
+    evenLogDeterminant({
+      operator: makeStaggeredOperator({ lattice: input.lattice }),
+      mass: input.mass,
+    })
   )
 }
 
@@ -135,13 +158,35 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const dynamicalSmall = run({ spatial: 4, dynamical: true, trajectories: 100, seed: 900 })
-    const dynamicalLarge = run({ spatial: 6, dynamical: true, trajectories: 80, seed: 901 })
-    const quenchedSmall = run({ spatial: 4, dynamical: false, trajectories: 160, seed: 902 })
-    const quenchedLarge = run({ spatial: 6, dynamical: false, trajectories: 160, seed: 903 })
+    const dynamicalSmall = run({
+      spatial: 4,
+      dynamical: true,
+      trajectories: 100,
+      seed: 900,
+    })
+    const dynamicalLarge = run({
+      spatial: 6,
+      dynamical: true,
+      trajectories: 80,
+      seed: 901,
+    })
+    const quenchedSmall = run({
+      spatial: 4,
+      dynamical: false,
+      trajectories: 160,
+      seed: 902,
+    })
+    const quenchedLarge = run({
+      spatial: 6,
+      dynamical: false,
+      trajectories: 160,
+      seed: 903,
+    })
 
     // the exact sector weight on the thermalized dynamical configurations of the small box
-    const shifts = dynamicalSmall.configurations.map(lattice => logDeterminantShift({ lattice, mass: MASS }))
+    const shifts = dynamicalSmall.configurations.map(lattice =>
+      logDeterminantShift({ lattice, mass: MASS }),
+    )
     const meanShift = shifts.reduce((a, b) => a + b, 0) / shifts.length
     const gaugeShift = Math.max(
       ...dynamicalSmall.configurations.map(lattice => {
@@ -149,36 +194,63 @@ export default experiment({
 
         centerTransformTimeSlice({ lattice: rotated, slice: 0, k: 1 })
 
-        return Math.abs(wilsonAction({ lattice: rotated, beta: BETA }) - wilsonAction({ lattice, beta: BETA }))
+        return Math.abs(
+          wilsonAction({ lattice: rotated, beta: BETA }) -
+            wilsonAction({ lattice, beta: BETA }),
+        )
       }),
     )
 
     // the determinant against the hopping expansion, at a mass large enough for the leading term
-    const probe = dynamicalSmall.configurations[0] ?? makeGaugeLattice({ group: 'su3', lengths: [4, 4, 4, 2], start: 'cold', rng: makeRng({ seed: 1 }) })
+    const probe =
+      dynamicalSmall.configurations[0] ??
+      makeGaugeLattice({
+        group: 'su3',
+        lengths: [4, 4, 4, 2],
+        start: 'cold',
+        rng: makeRng({ seed: 1 }),
+      })
     const heavy = 64
     const rotatedProbe = cloneGaugeLattice({ lattice: probe })
 
     centerTransformTimeSlice({ lattice: rotatedProbe, slice: 0, k: 1 })
 
-    const hoppingPrediction = hoppingWindingTerm({ lattice: rotatedProbe }) - hoppingWindingTerm({ lattice: probe })
-    const hoppingMeasured = heavy * heavy * logDeterminantShift({ lattice: probe, mass: heavy })
+    const hoppingPrediction =
+      hoppingWindingTerm({ lattice: rotatedProbe }) -
+      hoppingWindingTerm({ lattice: probe })
+    const hoppingMeasured =
+      heavy *
+      heavy *
+      logDeterminantShift({ lattice: probe, mass: heavy })
     const hoppingAgreement = hoppingMeasured / hoppingPrediction - 1
 
-    const volumeRatio = dynamicalLarge.realPart.value / dynamicalSmall.realPart.value
-    const quenchedRatio = quenchedSmall.modulus.value / quenchedLarge.modulus.value
+    const volumeRatio =
+      dynamicalLarge.realPart.value / dynamicalSmall.realPart.value
+    const quenchedRatio =
+      quenchedSmall.modulus.value / quenchedLarge.modulus.value
 
     const screened =
-      dynamicalSmall.realPart.value > 10 * dynamicalSmall.realPart.error &&
-      dynamicalLarge.realPart.value > 10 * dynamicalLarge.realPart.error &&
+      dynamicalSmall.realPart.value >
+        10 * dynamicalSmall.realPart.error &&
+      dynamicalLarge.realPart.value >
+        10 * dynamicalLarge.realPart.error &&
       Math.abs(volumeRatio - 1) < 0.15
     const quenchedVanishes = quenchedRatio > 1.4 && quenchedRatio < 2.4
-    const sectorsSplit = meanShift < -5 && shifts.every(s => s < 0) && gaugeShift < 1e-9
+    const sectorsSplit =
+      meanShift < -5 && shifts.every(s => s < 0) && gaugeShift < 1e-9
     const determinantExact = Math.abs(hoppingAgreement) < 0.05
     const hmcExact =
-      [dynamicalSmall, dynamicalLarge].every(r => Math.abs(r.creutz.value - 1) < 3 * r.creutz.error + 0.02) &&
+      [dynamicalSmall, dynamicalLarge].every(
+        r => Math.abs(r.creutz.value - 1) < 3 * r.creutz.error + 0.02,
+      ) &&
       dynamicalSmall.acceptance > 0.7 &&
       dynamicalLarge.acceptance > 0.7
-    const ok = screened && quenchedVanishes && sectorsSplit && determinantExact && hmcExact
+    const ok =
+      screened &&
+      quenchedVanishes &&
+      sectorsSplit &&
+      determinantExact &&
+      hmcExact
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -37,8 +37,14 @@ import {
   type SlotKind,
 } from '@/code/measure/colour-symmetry'
 
-function diagonalize(operator: Operator): { values: number[]; ground: { re: Float64Array; im: Float64Array } } {
-  const matrix = makeComplexMatrix({ rows: operator.size, cols: operator.size })
+function diagonalize(operator: Operator): {
+  values: number[]
+  ground: { re: Float64Array; im: Float64Array }
+} {
+  const matrix = makeComplexMatrix({
+    rows: operator.size,
+    cols: operator.size,
+  })
 
   matrix.re.set(operator.re)
   matrix.im.set(operator.im)
@@ -58,18 +64,29 @@ function diagonalize(operator: Operator): { values: number[]; ground: { re: Floa
 
 function exchange(bonds: readonly [number, number][]): Operator {
   return combineOperators(
-    bonds.map(([i, j]) => ({ operator: permutationOperator({ map: slotSwapMap({ d: 3, k: 3, i, j }) }), re: 1 })),
+    bonds.map(([i, j]) => ({
+      operator: permutationOperator({
+        map: slotSwapMap({ d: 3, k: 3, i, j }),
+      }),
+      re: 1,
+    })),
   )
 }
 
 // |<a|b>|^2 for normalized states
-function overlap(a: { re: Float64Array; im: Float64Array }, b: { re: Float64Array; im: Float64Array }): number {
+function overlap(
+  a: { re: Float64Array; im: Float64Array },
+  b: { re: Float64Array; im: Float64Array },
+): number {
   let re = 0
   let im = 0
 
   for (let s = 0; s < a.re.length; s++) {
-    re += (a.re[s] ?? 0) * (b.re[s] ?? 0) + (a.im[s] ?? 0) * (b.im[s] ?? 0)
-    im += (a.re[s] ?? 0) * (b.im[s] ?? 0) - (a.im[s] ?? 0) * (b.re[s] ?? 0)
+    re +=
+      (a.re[s] ?? 0) * (b.re[s] ?? 0) + (a.im[s] ?? 0) * (b.im[s] ?? 0)
+
+    im +=
+      (a.re[s] ?? 0) * (b.im[s] ?? 0) - (a.im[s] ?? 0) * (b.re[s] ?? 0)
   }
 
   return re * re + im * im
@@ -78,7 +95,9 @@ function overlap(a: { re: Float64Array; im: Float64Array }, b: { re: Float64Arra
 function gapOf(values: readonly number[]): number {
   const ground = values[0] ?? 0
 
-  return (values.find(value => value > ground + 1e-8) ?? ground) - ground
+  return (
+    (values.find(value => value > ground + 1e-8) ?? ground) - ground
+  )
 }
 
 function degeneracyOf(values: readonly number[]): number {
@@ -100,21 +119,44 @@ export default experiment({
     const epsilon = epsilonState()
     const triplets: SlotKind[] = ['plain', 'plain', 'plain']
 
-    const chain = diagonalize(exchange([[0, 1], [1, 2]]))
-    const ring = diagonalize(exchange([[0, 1], [1, 2], [0, 2]]))
+    const chain = diagonalize(
+      exchange([
+        [0, 1],
+        [1, 2],
+      ]),
+    )
+    const ring = diagonalize(
+      exchange([
+        [0, 1],
+        [1, 2],
+        [0, 2],
+      ]),
+    )
     const chainOverlap = overlap(chain.ground, epsilon)
     const ringOverlap = overlap(ring.ground, epsilon)
-    const chainResidual = singletResidual({ d: 3, slots: triplets, ...chain.ground })
+    const chainResidual = singletResidual({
+      d: 3,
+      slots: triplets,
+      ...chain.ground,
+    })
 
     // the meson: exchange for a triplet and antitriplet is minus the singlet projector times d,
     // read off the colour-symmetric circle at phase pi: U(pi) = 1 - 2 J / 3, so J = 3 (1 - U) / 2
-    const circle = pairExchangeUnitary({ d: 3, kind: 'conjugate', phase: Math.PI })
+    const circle = pairExchangeUnitary({
+      d: 3,
+      kind: 'conjugate',
+      phase: Math.PI,
+    })
     const mesonHamiltonian = combineOperators([
       { operator: identityOperator({ size: 9 }), re: -1.5 },
       { operator: circle, re: 1.5 },
     ])
     const meson = diagonalize(mesonHamiltonian)
-    const mesonResidual = singletResidual({ d: 3, slots: ['plain', 'conjugate'], ...meson.ground })
+    const mesonResidual = singletResidual({
+      d: 3,
+      slots: ['plain', 'conjugate'],
+      ...meson.ground,
+    })
 
     const blocks: [string, SlotKind[]][] = [
       ['qq', ['plain', 'plain']],
@@ -124,17 +166,30 @@ export default experiment({
       ['qqqq', ['plain', 'plain', 'plain', 'plain']],
       ['qqqbarqbar', ['plain', 'plain', 'conjugate', 'conjugate']],
     ]
-    const singlets = Object.fromEntries(blocks.map(([name, slots]) => [name, singletCount({ d: 3, slots })]))
+    const singlets = Object.fromEntries(
+      blocks.map(([name, slots]) => [
+        name,
+        singletCount({ d: 3, slots }),
+      ]),
+    )
     const trialityHolds = blocks.every(([name, slots]) => {
-      const triality = slots.filter(kind => kind === 'plain').length - slots.filter(kind => kind === 'conjugate').length
+      const triality =
+        slots.filter(kind => kind === 'plain').length -
+        slots.filter(kind => kind === 'conjugate').length
 
-      return ((triality % 3) + 3) % 3 === 0 ? (singlets[name] ?? 0) > 0 : singlets[name] === 0
+      return ((triality % 3) + 3) % 3 === 0
+        ? (singlets[name] ?? 0) > 0
+        : singlets[name] === 0
     })
 
     // the classical control: the best basis state
-    const bestClassical = Math.max(...Array.from(epsilon.re, amplitude => amplitude * amplitude))
+    const bestClassical = Math.max(
+      ...Array.from(epsilon.re, amplitude => amplitude * amplitude),
+    )
     const ternaryPattern = Array.from(epsilon.re).every(
-      amplitude => Math.abs(amplitude) < 1e-12 || Math.abs(Math.abs(amplitude) * Math.sqrt(6) - 1) < 1e-12,
+      amplitude =>
+        Math.abs(amplitude) < 1e-12 ||
+        Math.abs(Math.abs(amplitude) * Math.sqrt(6) - 1) < 1e-12,
     )
 
     const baryonBinds =
@@ -145,8 +200,16 @@ export default experiment({
       degeneracyOf(ring.values) === 1 &&
       Math.abs(ringOverlap - 1) < 1e-9 &&
       Math.abs(gapOf(ring.values) - 3) < 1e-8
-    const mesonBinds = degeneracyOf(meson.values) === 1 && mesonResidual < 1e-9 && Math.abs(gapOf(meson.values) - 3) < 1e-8
-    const ok = baryonBinds && mesonBinds && trialityHolds && Math.abs(bestClassical - 1 / 6) < 1e-12 && ternaryPattern
+    const mesonBinds =
+      degeneracyOf(meson.values) === 1 &&
+      mesonResidual < 1e-9 &&
+      Math.abs(gapOf(meson.values) - 3) < 1e-8
+    const ok =
+      baryonBinds &&
+      mesonBinds &&
+      trialityHolds &&
+      Math.abs(bestClassical - 1 / 6) < 1e-12 &&
+      ternaryPattern
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -162,7 +225,12 @@ export default experiment({
         mesonGroundDegeneracy: degeneracyOf(meson.values),
         mesonGap: gapOf(meson.values),
         mesonSingletResidual: mesonResidual,
-        ...Object.fromEntries(Object.entries(singlets).map(([name, count]) => [`singlets_${name}`, count])),
+        ...Object.fromEntries(
+          Object.entries(singlets).map(([name, count]) => [
+            `singlets_${name}`,
+            count,
+          ]),
+        ),
       },
       control: {
         bestClassicalOverlap: bestClassical,

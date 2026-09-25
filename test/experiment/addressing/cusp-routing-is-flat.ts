@@ -32,7 +32,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites, shellDistances } from '@/code/tool/mesh'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import { beat, growingBeat } from '@/code/rule/lattice-gas'
 import { Will, makeWill } from '@/code/tone/will'
 import { hashRand } from '@/code/dynamics/conserving-sweep'
@@ -44,7 +48,10 @@ import {
 } from '@/code/substrate/coxeter/label-transport'
 import { CANONICAL_SHELLS } from '@/code/substrate/mesh-unfolding'
 import { innerJ, matVec } from '@/code/substrate/coxeter/minkowski'
-import { arrivalRegression, firstArrival } from '@/code/measure/signal-arrival'
+import {
+  arrivalRegression,
+  firstArrival,
+} from '@/code/measure/signal-arrival'
 import { linearFit } from '@/code/measure/regression'
 
 const RADIUS = 4
@@ -74,10 +81,24 @@ function perturbCell(will: Will, cell: number): Will {
   return out
 }
 
-type Shell = { reached: number; exact: number; early: number; total: number }
+type Shell = {
+  reached: number
+  exact: number
+  early: number
+  total: number
+}
 
-function byShell(arrival: Int32Array, distance: ArrayLike<number>, radius: number): Shell[] {
-  const shells: Shell[] = Array.from({ length: radius + 1 }, () => ({ reached: 0, exact: 0, early: 0, total: 0 }))
+function byShell(
+  arrival: Int32Array,
+  distance: ArrayLike<number>,
+  radius: number,
+): Shell[] {
+  const shells: Shell[] = Array.from({ length: radius + 1 }, () => ({
+    reached: 0,
+    exact: 0,
+    early: 0,
+    total: 0,
+  }))
 
   for (let c = 0; c < arrival.length; c++) {
     const r = distance[c] ?? -1
@@ -114,18 +135,27 @@ export default experiment({
     const coin = labelledCoin()
     const ball = buildHyperbolicBall({ coin, radius: RADIUS })
     const small = buildHyperbolicBall({ coin, radius: RADIUS - 1 })
-    const translated = buildHyperbolicBall({ coin, radius: RADIUS - 1, kind: 'translation' })
+    const translated = buildHyperbolicBall({
+      coin,
+      radius: RADIUS - 1,
+      kind: 'translation',
+    })
     const shellCounts = new Array<number>(RADIUS + 1).fill(0)
 
     for (const d of ball.distance) {
       shellCounts[d] = (shellCounts[d] ?? 0) + 1
     }
 
-    const canonical = shellCounts.every((n, r) => n === CANONICAL_SHELLS[r])
+    const canonical = shellCounts.every(
+      (n, r) => n === CANONICAL_SHELLS[r],
+    )
 
     // the skin: the cusp layer of one ideal vertex, and bulk against skin distance on it
     const layer = cuspLayer({ coin, skinRadius: SKIN })
-    const cubic = [1, ...Array.from({ length: SKIN }, (_, r) => 4 * (r + 1) ** 2 + 2)]
+    const cubic = [
+      1,
+      ...Array.from({ length: SKIN }, (_, r) => 4 * (r + 1) ** 2 + 2),
+    ]
     const layerShells = new Array<number>(SKIN + 1).fill(0)
 
     for (const s of layer.skin.values()) {
@@ -133,19 +163,35 @@ export default experiment({
     }
 
     const layerIsCubic =
-      layer.layerDegree.every(d => d === 6) && layerShells.every((n, s) => n === cubic[s]) && layer.levelSpread < 1e-9
+      layer.layerDegree.every(d => d === 6) &&
+      layerShells.every((n, s) => n === cubic[s]) &&
+      layer.levelSpread < 1e-9
     const { center, metric } = coin.frame
-    const samples: { skin: number; bulk: number; hyperbolic: number }[] = []
+    const samples: {
+      skin: number
+      bulk: number
+      hyperbolic: number
+    }[] = []
 
     for (let s = 1; s <= SKIN; s++) {
-      for (const member of layer.members.filter(m => m.skin === s).slice(0, PER_SKIN)) {
+      for (const member of layer.members
+        .filter(m => m.skin === s)
+        .slice(0, PER_SKIN)) {
         // the two balls meet at distance at most 2 RADIUS - 1, and not meeting proves the distance exceeds it
-        const bulk = bulkDistance({ near: ball, far: small, target: member.frame, coin }) ?? 2 * RADIUS
+        const bulk =
+          bulkDistance({
+            near: ball,
+            far: small,
+            target: member.frame,
+            coin,
+          }) ?? 2 * RADIUS
 
         samples.push({
           skin: s,
           bulk,
-          hyperbolic: Math.acosh(-innerJ(matVec(member.frame, center), center, metric)),
+          hyperbolic: Math.acosh(
+            -innerJ(matVec(member.frame, center), center, metric),
+          ),
         })
       }
     }
@@ -158,9 +204,13 @@ export default experiment({
     })
 
     const hyperbolicAt = (s: number): number => {
-      const values = samples.filter(x => x.skin === s).map(x => x.hyperbolic)
+      const values = samples
+        .filter(x => x.skin === s)
+        .map(x => x.hyperbolic)
 
-      return values.reduce((a, b) => a + b, 0) / Math.max(1, values.length)
+      return (
+        values.reduce((a, b) => a + b, 0) / Math.max(1, values.length)
+      )
     }
 
     // the engine on the ball, and pure streaming, from the same background and perturbation
@@ -194,7 +244,9 @@ export default experiment({
     }
 
     const cuspReached = cuspTargets.filter(t => t.arrival >= 0)
-    const cuspBeatsSkin = cuspReached.filter(t => t.arrival < t.skin).length
+    const cuspBeatsSkin = cuspReached.filter(
+      t => t.arrival < t.skin,
+    ).length
     const reachedRegression = arrivalRegression({
       arrival: Array.from(committed),
       distance: Array.from(ball.distance),
@@ -217,7 +269,11 @@ export default experiment({
       cells: flat.cellCount,
       step: (will, t) => beat(will, flatRule(t)),
     })
-    const flatShells = byShell(flatArrival, shellDistances(flat, source), RADIUS)
+    const flatShells = byShell(
+      flatArrival,
+      shellDistances(flat, source),
+      RADIUS,
+    )
 
     const substrateBuilt =
       coin.gramError < 1e-9 &&
@@ -227,10 +283,14 @@ export default experiment({
       ball.inconsistentSteps === 0 &&
       ball.returnsExactly &&
       canonical
-    const translationFails = translated.inconsistentSteps > 0 && !translated.returnsExactly
-    const noEarlyArrival = committedShells.every(s => s.early === 0) && flatShells.every(s => s.early === 0)
+    const translationFails =
+      translated.inconsistentSteps > 0 && !translated.returnsExactly
+    const noEarlyArrival =
+      committedShells.every(s => s.early === 0) &&
+      flatShells.every(s => s.early === 0)
     const streamingIsRays = streamingShells.every(
-      (s, r) => s.reached === (r === 0 ? 1 : 24) && s.exact === s.reached,
+      (s, r) =>
+        s.reached === (r === 0 ? 1 : 24) && s.exact === s.reached,
     )
     const cuspIsFlatInBulk = bulkEqualsSkin === samples.length
     // the continuum distance grows by far less than the skin distance does, and ever more slowly (at

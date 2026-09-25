@@ -44,7 +44,10 @@ function keyOf(a: Matrix3): string {
 
 // The group's own elements (in their order, so the identity stays at index 0), then every element of
 // the double cosets G x G for each extra x that is not already present, marked magic.
-export function doubleCosetSet(input: { group: readonly Matrix3[]; extras: readonly Matrix3[] }): LinkSet {
+export function doubleCosetSet(input: {
+  group: readonly Matrix3[]
+  extras: readonly Matrix3[]
+}): LinkSet {
   const matrices: Matrix3[] = [...input.group]
   const seen = new Set(matrices.map(keyOf))
 
@@ -84,7 +87,9 @@ export function makeLinkSetLattice(input: {
 
   if (input.start === 'hot') {
     for (let k = 0; k < links.length; k++) {
-      links[k] = Math.floor(input.rng.next() * input.set.matrices.length)
+      links[k] = Math.floor(
+        input.rng.next() * input.set.matrices.length,
+      )
     }
   }
 
@@ -102,7 +107,8 @@ export function linkSetHeatbathSweep(input: {
   const { set, geometry, links } = lattice
   const { dim, sites, up, down } = geometry
   const n = set.matrices.length
-  const matrixOf = (s: number, d: number): Matrix3 => set.matrices[links[s * dim + d] ?? 0] ?? new Float64Array(18)
+  const matrixOf = (s: number, d: number): Matrix3 =>
+    set.matrices[links[s * dim + d] ?? 0] ?? new Float64Array(18)
   const staple = new Float64Array(18)
   const action = new Float64Array(n)
   const weights = new Float64Array(n)
@@ -119,17 +125,24 @@ export function linkSetHeatbathSweep(input: {
         }
 
         const forward = multiply3(
-          multiply3(matrixOf(siteUp, nu), dagger(matrixOf(up[site * dim + nu] ?? 0, mu))),
+          multiply3(
+            matrixOf(siteUp, nu),
+            dagger(matrixOf(up[site * dim + nu] ?? 0, mu)),
+          ),
           dagger(matrixOf(site, nu)),
         )
         const below = down[site * dim + nu] ?? 0
         const backward = multiply3(
-          multiply3(dagger(matrixOf(down[siteUp * dim + nu] ?? 0, nu)), dagger(matrixOf(below, mu))),
+          multiply3(
+            dagger(matrixOf(down[siteUp * dim + nu] ?? 0, nu)),
+            dagger(matrixOf(below, mu)),
+          ),
           matrixOf(below, nu),
         )
 
         for (let k = 0; k < 18; k++) {
-          staple[k] = (staple[k] ?? 0) + (forward[k] ?? 0) + (backward[k] ?? 0)
+          staple[k] =
+            (staple[k] ?? 0) + (forward[k] ?? 0) + (backward[k] ?? 0)
         }
       }
 
@@ -137,18 +150,22 @@ export function linkSetHeatbathSweep(input: {
 
       for (let g = 0; g < n; g++) {
         const m = set.matrices[g]
+
         let sum = 0
 
         // Re Tr(U A) = sum_ij Re(U_ij A_ji)
         for (let i = 0; i < 3; i++) {
           for (let j = 0; j < 3; j++) {
             sum +=
-              (m?.[2 * (3 * i + j)] ?? 0) * (staple[2 * (3 * j + i)] ?? 0) -
-              (m?.[2 * (3 * i + j) + 1] ?? 0) * (staple[2 * (3 * j + i) + 1] ?? 0)
+              (m?.[2 * (3 * i + j)] ?? 0) *
+                (staple[2 * (3 * j + i)] ?? 0) -
+              (m?.[2 * (3 * i + j) + 1] ?? 0) *
+                (staple[2 * (3 * j + i) + 1] ?? 0)
           }
         }
 
-        action[g] = (beta / 3) * sum - (set.magic[g] === 1 ? magicCost : 0)
+        action[g] =
+          (beta / 3) * sum - (set.magic[g] === 1 ? magicCost : 0)
         largest = Math.max(largest, action[g] ?? 0)
       }
 
@@ -175,10 +192,14 @@ export function linkSetHeatbathSweep(input: {
 }
 
 // The mean plaquette Re Tr U_p / 3.
-export function linkSetPlaquette(input: { lattice: LinkSetLattice }): number {
+export function linkSetPlaquette(input: {
+  lattice: LinkSetLattice
+}): number {
   const { set, geometry, links } = input.lattice
   const { dim, sites, up } = geometry
-  const matrixOf = (s: number, d: number): Matrix3 => set.matrices[links[s * dim + d] ?? 0] ?? new Float64Array(18)
+  const matrixOf = (s: number, d: number): Matrix3 =>
+    set.matrices[links[s * dim + d] ?? 0] ?? new Float64Array(18)
+
   let sum = 0
   let count = 0
 
@@ -186,7 +207,13 @@ export function linkSetPlaquette(input: { lattice: LinkSetLattice }): number {
     for (let mu = 0; mu < dim; mu++) {
       for (let nu = mu + 1; nu < dim; nu++) {
         const p = multiply3(
-          multiply3(multiply3(matrixOf(site, mu), matrixOf(up[site * dim + mu] ?? 0, nu)), dagger(matrixOf(up[site * dim + nu] ?? 0, mu))),
+          multiply3(
+            multiply3(
+              matrixOf(site, mu),
+              matrixOf(up[site * dim + mu] ?? 0, nu),
+            ),
+            dagger(matrixOf(up[site * dim + nu] ?? 0, mu)),
+          ),
           dagger(matrixOf(site, nu)),
         )
 
@@ -200,8 +227,11 @@ export function linkSetPlaquette(input: { lattice: LinkSetLattice }): number {
 }
 
 // The share of links holding a magic element.
-export function magicFraction(input: { lattice: LinkSetLattice }): number {
+export function magicFraction(input: {
+  lattice: LinkSetLattice
+}): number {
   const { set, links } = input.lattice
+
   let count = 0
 
   for (const link of links) {

@@ -15,7 +15,10 @@
 
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { blockTones, blockIndex } from '@/code/measure/collision-anatomy'
+import {
+  blockTones,
+  blockIndex,
+} from '@/code/measure/collision-anatomy'
 
 type Complex3 = { re: number[][]; im: number[][] }
 
@@ -63,7 +66,10 @@ export type SlotRepresentation = {
   readonly conjugate: boolean
 }
 
-const PLAIN: SlotRepresentation = { relabel: [0, 1, 2], conjugate: false }
+const PLAIN: SlotRepresentation = {
+  relabel: [0, 1, 2],
+  conjugate: false,
+}
 
 // All twelve ways one slot can carry a triplet relative to another: six basis relabellings, each
 // plain or conjugate.
@@ -77,7 +83,9 @@ export function slotRepresentations(): SlotRepresentation[] {
     [2, 0, 1],
   ]
 
-  return [false, true].flatMap(conjugate => relabels.map(relabel => ({ relabel, conjugate })))
+  return [false, true].flatMap(conjugate =>
+    relabels.map(relabel => ({ relabel, conjugate })),
+  )
 }
 
 function generatorEntry(input: {
@@ -152,16 +160,22 @@ function commutatorEntries(input: {
   for (let s = 0; s < states; s++) {
     // column s of D P: D applied to P|s> = |map[s]>
     for (const [target, [re, im]] of act(map[s] ?? 0)) {
-      entries[(target * states + s) * 2] = (entries[(target * states + s) * 2] ?? 0) + re
-      entries[(target * states + s) * 2 + 1] = (entries[(target * states + s) * 2 + 1] ?? 0) + im
+      entries[(target * states + s) * 2] =
+        (entries[(target * states + s) * 2] ?? 0) + re
+
+      entries[(target * states + s) * 2 + 1] =
+        (entries[(target * states + s) * 2 + 1] ?? 0) + im
     }
 
     // column s of P D: P applied to D|s>, P|t> = |map[t]>
     for (const [target, [re, im]] of act(s)) {
       const row = map[target] ?? 0
 
-      entries[(row * states + s) * 2] = (entries[(row * states + s) * 2] ?? 0) - re
-      entries[(row * states + s) * 2 + 1] = (entries[(row * states + s) * 2 + 1] ?? 0) - im
+      entries[(row * states + s) * 2] =
+        (entries[(row * states + s) * 2] ?? 0) - re
+
+      entries[(row * states + s) * 2 + 1] =
+        (entries[(row * states + s) * 2 + 1] ?? 0) - im
     }
   }
 
@@ -215,7 +229,9 @@ export function toneSymmetryAlgebra(input: {
     const value = values[j] ?? 0
 
     if (value < 1e-9 * scale) {
-      basis.push(Array.from({ length: 9 }, (_, i) => vectors[i * 9 + j] ?? 0))
+      basis.push(
+        Array.from({ length: 9 }, (_, i) => vectors[i * 9 + j] ?? 0),
+      )
     } else {
       smallestNonzero = Math.min(smallestNonzero, value)
     }
@@ -228,7 +244,9 @@ export function toneSymmetryAlgebra(input: {
 // triplet relative to its first (twelve representations). An upper bound on the continuous tone
 // symmetry of any rule that runs this map on a line, whatever representation each slot is given,
 // because relabelling the first slot too is only a change of generator basis.
-export function largestLineSymmetry(input: { map: readonly number[] }): {
+export function largestLineSymmetry(input: {
+  map: readonly number[]
+}): {
   dimension: number
   representation: SlotRepresentation
 } {
@@ -250,13 +268,17 @@ export function largestLineSymmetry(input: { map: readonly number[] }): {
 
 // A pair table (the 9-state map of one line) as a block map over its two slots, local state
 // index = (left + 1) + 3 (right + 1).
-export function pairTableMap(input: { table: readonly (readonly [number, number])[] }): number[] {
+export function pairTableMap(input: {
+  table: readonly (readonly [number, number])[]
+}): number[] {
   const map: number[] = []
 
   for (let x = 0; x < 9; x++) {
     const [left, right] = blockTones({ index: x, size: 2 })
     // the collision module keys its tables as (left + 1) * 3 + (right + 1)
-    const image = input.table[((left ?? 0) + 1) * 3 + ((right ?? 0) + 1)] ?? [0, 0]
+    const image = input.table[
+      ((left ?? 0) + 1) * 3 + ((right ?? 0) + 1)
+    ] ?? [0, 0]
 
     map.push(blockIndex({ tones: [image[0], image[1]] }))
   }
@@ -271,9 +293,10 @@ export function pairTableMap(input: { table: readonly (readonly [number, number]
 // duality says the space is spanned by the identity and the swap, so the dimension is 2 and every
 // U(3)-covariant pair interaction is a combination of doing nothing and exchanging the two tones.
 // The SU(3) answer is the same, since the overall phase commutes with everything.
-export function covariantPairSpace(input: {
-  map: readonly number[]
-}): { complexDimension: number; distance: number } {
+export function covariantPairSpace(input: { map: readonly number[] }): {
+  complexDimension: number
+  distance: number
+} {
   const n = 9
   const unknowns = 2 * n * n
   const gram = makeDense({ rows: unknowns, cols: unknowns })
@@ -285,9 +308,13 @@ export function covariantPairSpace(input: {
       const [r1, r2] = [row % 3, Math.floor(row / 3)]
       const [c1, c2] = [col % 3, Math.floor(col / 3)]
       const first: [number, number] =
-        r2 === c2 ? [generator.re[r1]?.[c1] ?? 0, generator.im[r1]?.[c1] ?? 0] : [0, 0]
+        r2 === c2
+          ? [generator.re[r1]?.[c1] ?? 0, generator.im[r1]?.[c1] ?? 0]
+          : [0, 0]
       const second: [number, number] =
-        r1 === c1 ? [generator.re[r2]?.[c2] ?? 0, generator.im[r2]?.[c2] ?? 0] : [0, 0]
+        r1 === c1
+          ? [generator.re[r2]?.[c2] ?? 0, generator.im[r2]?.[c2] ?? 0]
+          : [0, 0]
 
       return [first[0] + second[0], first[1] + second[1]]
     }
@@ -298,7 +325,12 @@ export function covariantPairSpace(input: {
         const realRow = new Array<number>(unknowns).fill(0)
         const imagRow = new Array<number>(unknowns).fill(0)
 
-        const add = (k: number, l: number, cr: number, ci: number): void => {
+        const add = (
+          k: number,
+          l: number,
+          cr: number,
+          ci: number,
+        ): void => {
           // (cr + i ci)(u_re + i u_im)
           const p = 2 * (k * n + l)
 
@@ -332,7 +364,8 @@ export function covariantPairSpace(input: {
       }
 
       for (let b = 0; b < unknowns; b++) {
-        gram.data[a * unknowns + b] = (gram.data[a * unknowns + b] ?? 0) + ra * (row[b] ?? 0)
+        gram.data[a * unknowns + b] =
+          (gram.data[a * unknowns + b] ?? 0) + ra * (row[b] ?? 0)
       }
     }
   }
@@ -343,7 +376,12 @@ export function covariantPairSpace(input: {
 
   for (let j = 0; j < unknowns; j++) {
     if ((values[j] ?? 0) < 1e-8 * scale) {
-      nullVectors.push(Array.from({ length: unknowns }, (_, i) => vectors[i * unknowns + j] ?? 0))
+      nullVectors.push(
+        Array.from(
+          { length: unknowns },
+          (_, i) => vectors[i * unknowns + j] ?? 0,
+        ),
+      )
     }
   }
 

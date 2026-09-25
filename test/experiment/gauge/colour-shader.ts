@@ -119,7 +119,12 @@ export default experiment({
     const mesh = d4Mesh({ side: SIDE })
     const schedule = turningWeave({ opposite: meshOpposites(mesh) })
     const species = supportOneSpecies({ mesh, schedule, beats: BEATS })
-    const lines = excitationWorldLines({ mesh, schedule, seeds: SEEDS, beats: BEATS })
+    const lines = excitationWorldLines({
+      mesh,
+      schedule,
+      seeds: SEEDS,
+      beats: BEATS,
+    })
     const C = casimir()
     const initial = colourBasisState({ colours: COLOURS, d: 3 })
     const casimirStart = expectation({ state: initial, operator: C })
@@ -130,23 +135,50 @@ export default experiment({
     let contentDrift = 0
 
     const results = PHASES.map(phase => {
-      const operator = pairExchangeUnitary({ d: 3, kind: 'plain', phase })
+      const operator = pairExchangeUnitary({
+        d: 3,
+        kind: 'plain',
+        phase,
+      })
 
       let state = initial
 
       for (const event of lines.events) {
-        state = applyPairOperator({ state, operator, d: 3, i: event.first, j: event.second })
-        casimirDrift = Math.max(casimirDrift, Math.abs(expectation({ state, operator: C }) - casimirStart))
-        singletDrift = Math.max(singletDrift, Math.abs(singletWeight(state) - singletStart))
+        state = applyPairOperator({
+          state,
+          operator,
+          d: 3,
+          i: event.first,
+          j: event.second,
+        })
+
+        casimirDrift = Math.max(
+          casimirDrift,
+          Math.abs(expectation({ state, operator: C }) - casimirStart),
+        )
+
+        singletDrift = Math.max(
+          singletDrift,
+          Math.abs(singletWeight(state) - singletStart),
+        )
 
         for (const colour of COLOURS) {
-          const held = [0, 1, 2].reduce((s, slot) => s + colourProbability({ state, d: 3, slot, colour }), 0)
+          const held = [0, 1, 2].reduce(
+            (s, slot) =>
+              s + colourProbability({ state, d: 3, slot, colour }),
+            0,
+          )
 
           contentDrift = Math.max(contentDrift, Math.abs(held - 1))
         }
       }
 
-      const quantum = colourProbability({ state, d: 3, slot: 0, colour: 0 })
+      const quantum = colourProbability({
+        state,
+        d: 3,
+        slot: 0,
+        colour: 0,
+      })
       const classical = classicalColourProbability({
         events: lines.events,
         swapProbability: Math.sin(phase / 2) ** 2,
@@ -155,20 +187,37 @@ export default experiment({
         colour: 0,
       })
 
-      return { phase, quantum, classical, purity: reducedPurity({ state, d: 3, slot: 0 }) }
+      return {
+        phase,
+        quantum,
+        classical,
+        purity: reducedPurity({ state, d: 3, slot: 0 }),
+      }
     })
 
     const at = (fraction: number) =>
-      results.find(r => Math.abs(r.phase - fraction * Math.PI) < 1e-12) ?? results[0]!
+      results.find(
+        r => Math.abs(r.phase - fraction * Math.PI) < 1e-12,
+      ) ?? results[0]!
     const classicalPoints = [at(0), at(1)]
-    const interior = results.filter(r => r.phase > 0 && r.phase < Math.PI)
-    const pointsArePermutations = classicalPoints.every(
-      r => Math.min(Math.abs(r.quantum), Math.abs(r.quantum - 1)) < 1e-12 && Math.abs(r.purity - 1) < 1e-12,
+    const interior = results.filter(
+      r => r.phase > 0 && r.phase < Math.PI,
     )
-    const pointsMatchClassical = classicalPoints.every(r => Math.abs(r.quantum - r.classical) < 1e-12)
-    const interiorFractional = interior.every(r => r.quantum > 0.01 && r.quantum < 0.99)
+    const pointsArePermutations = classicalPoints.every(
+      r =>
+        Math.min(Math.abs(r.quantum), Math.abs(r.quantum - 1)) <
+          1e-12 && Math.abs(r.purity - 1) < 1e-12,
+    )
+    const pointsMatchClassical = classicalPoints.every(
+      r => Math.abs(r.quantum - r.classical) < 1e-12,
+    )
+    const interiorFractional = interior.every(
+      r => r.quantum > 0.01 && r.quantum < 0.99,
+    )
     const interiorEntangled = interior.every(r => r.purity < 1 - 1e-6)
-    const largestGap = Math.max(...interior.map(r => Math.abs(r.quantum - r.classical)))
+    const largestGap = Math.max(
+      ...interior.map(r => Math.abs(r.quantum - r.classical)),
+    )
     const firstEvent = lines.events[0]
     const firstEventOnly = PHASES.every(phase => {
       if (firstEvent === undefined) {
@@ -182,11 +231,19 @@ export default experiment({
         i: firstEvent.first,
         j: firstEvent.second,
       })
-      const quantum = colourProbability({ state, d: 3, slot: firstEvent.first, colour: COLOURS[firstEvent.first] ?? 0 })
+      const quantum = colourProbability({
+        state,
+        d: 3,
+        slot: firstEvent.first,
+        colour: COLOURS[firstEvent.first] ?? 0,
+      })
 
       return Math.abs(quantum - Math.cos(phase / 2) ** 2) < 1e-12
     })
-    const invariantsHold = casimirDrift < 1e-9 && singletDrift < 1e-12 && contentDrift < 1e-12
+    const invariantsHold =
+      casimirDrift < 1e-9 &&
+      singletDrift < 1e-12 &&
+      contentDrift < 1e-12
     const ok =
       species.length === 6 &&
       lines.supportOne &&

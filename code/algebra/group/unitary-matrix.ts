@@ -15,7 +15,10 @@ export function matrixSize(input: { n: number }): number {
   return 2 * input.n * input.n
 }
 
-export function setIdentity(input: { n: number; out: MatrixSlot }): void {
+export function setIdentity(input: {
+  n: number
+  out: MatrixSlot
+}): void {
   const { n, out } = input
 
   for (let i = 0; i < n; i++) {
@@ -41,7 +44,10 @@ export function copyMatrix(input: {
   }
 }
 
-export function zeroMatrix(input: { n: number; out: MatrixSlot }): void {
+export function zeroMatrix(input: {
+  n: number
+  out: MatrixSlot
+}): void {
   const size = 2 * input.n * input.n
 
   for (let k = 0; k < size; k++) {
@@ -119,11 +125,15 @@ export function realTrace(input: { n: number; a: MatrixSlot }): number {
 }
 
 // Im Tr a
-export function imaginaryTrace(input: { n: number; a: MatrixSlot }): number {
+export function imaginaryTrace(input: {
+  n: number
+  a: MatrixSlot
+}): number {
   let total = 0
 
   for (let i = 0; i < input.n; i++) {
-    total += input.a.data[input.a.offset + 2 * (i * input.n + i) + 1] ?? 0
+    total +=
+      input.a.data[input.a.offset + 2 * (i * input.n + i) + 1] ?? 0
   }
 
   return total
@@ -159,7 +169,10 @@ export function realTraceOfProduct(input: {
 // the cross product of the first two, which fixes the determinant to exactly one. SU(2) fixes it by
 // rebuilding the second row as (-conj b, conj a) from the first row (a, b). SU(N) for N >= 4
 // orthonormalizes every row and turns the last by the conjugate of the determinant's phase.
-export function reunitarize(input: { n: number; out: MatrixSlot }): void {
+export function reunitarize(input: {
+  n: number
+  out: MatrixSlot
+}): void {
   const { n } = input
   const d = input.out.data
   const o = input.out.offset
@@ -221,7 +234,13 @@ export function reunitarize(input: { n: number; out: MatrixSlot }): void {
     // the last row by the conjugate of the determinant's phase (a determinant is linear in a row)
     for (let row = 2; row < n; row++) {
       for (let previous = 0; previous < row; previous++) {
-        subtractProjection({ n, data: d, offset: o, row, onto: previous })
+        subtractProjection({
+          n,
+          data: d,
+          offset: o,
+          row,
+          onto: previous,
+        })
       }
 
       normalizeRow({ n, data: d, offset: o, row })
@@ -245,12 +264,18 @@ export function reunitarize(input: { n: number; out: MatrixSlot }): void {
   }
 
   // row 2 = conj(row0 x row1)
-  const u = (j: number, part: number): number => d[o + 2 * j + part] ?? 0
-  const v = (j: number, part: number): number => d[o + 2 * (3 + j) + part] ?? 0
+  const u = (j: number, part: number): number =>
+    d[o + 2 * j + part] ?? 0
+  const v = (j: number, part: number): number =>
+    d[o + 2 * (3 + j) + part] ?? 0
   const crossRe = (j: number, k: number): number =>
-    u(j, 0) * v(k, 0) - u(j, 1) * v(k, 1) - (u(k, 0) * v(j, 0) - u(k, 1) * v(j, 1))
+    u(j, 0) * v(k, 0) -
+    u(j, 1) * v(k, 1) -
+    (u(k, 0) * v(j, 0) - u(k, 1) * v(j, 1))
   const crossIm = (j: number, k: number): number =>
-    u(j, 0) * v(k, 1) + u(j, 1) * v(k, 0) - (u(k, 0) * v(j, 1) + u(k, 1) * v(j, 0))
+    u(j, 0) * v(k, 1) +
+    u(j, 1) * v(k, 0) -
+    (u(k, 0) * v(j, 1) + u(k, 1) * v(j, 0))
 
   const c0r = crossRe(1, 2)
   const c0i = crossIm(1, 2)
@@ -343,13 +368,21 @@ export function determinant(input: {
 
   const d = input.a.data
   const o = input.a.offset
-  const re = (i: number, j: number): number => d[o + 2 * (i * n + j)] ?? 0
-  const im = (i: number, j: number): number => d[o + 2 * (i * n + j) + 1] ?? 0
+  const re = (i: number, j: number): number =>
+    d[o + 2 * (i * n + j)] ?? 0
+  const im = (i: number, j: number): number =>
+    d[o + 2 * (i * n + j) + 1] ?? 0
   const mul = (
     a: [number, number],
     b: [number, number],
-  ): [number, number] => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
-  const at = (i: number, j: number): [number, number] => [re(i, j), im(i, j)]
+  ): [number, number] => [
+    a[0] * b[0] - a[1] * b[1],
+    a[0] * b[1] + a[1] * b[0],
+  ]
+  const at = (i: number, j: number): [number, number] => [
+    re(i, j),
+    im(i, j),
+  ]
 
   if (n === 1) {
     return at(0, 0)
@@ -362,7 +395,12 @@ export function determinant(input: {
     return [p[0] - q[0], p[1] - q[1]]
   }
 
-  const minor = (a: number, b: number, c: number, e: number): [number, number] => {
+  const minor = (
+    a: number,
+    b: number,
+    c: number,
+    e: number,
+  ): [number, number] => {
     const p = mul(at(1, a), at(2, b))
     const q = mul(at(1, c), at(2, e))
 
@@ -376,7 +414,10 @@ export function determinant(input: {
   return [t0[0] - t1[0] + t2[0], t0[1] - t1[1] + t2[1]]
 }
 
-function eliminationDeterminant(input: { n: number; a: MatrixSlot }): [number, number] {
+function eliminationDeterminant(input: {
+  n: number
+  a: MatrixSlot
+}): [number, number] {
   const { n } = input
   const m = new Float64Array(2 * n * n)
 
@@ -392,7 +433,10 @@ function eliminationDeterminant(input: { n: number; a: MatrixSlot }): [number, n
     let best = 0
 
     for (let row = column; row < n; row++) {
-      const size = Math.hypot(m[2 * (row * n + column)] ?? 0, m[2 * (row * n + column) + 1] ?? 0)
+      const size = Math.hypot(
+        m[2 * (row * n + column)] ?? 0,
+        m[2 * (row * n + column) + 1] ?? 0,
+      )
 
       if (size > best) {
         best = size
@@ -452,7 +496,10 @@ function eliminationDeterminant(input: { n: number; a: MatrixSlot }): [number, n
 }
 
 // The largest entry of |a a^dag - 1|, the distance from unitarity.
-export function unitarityDefect(input: { n: number; a: MatrixSlot }): number {
+export function unitarityDefect(input: {
+  n: number
+  a: MatrixSlot
+}): number {
   const { n } = input
   const scratch = new Float64Array(2 * n * n)
 

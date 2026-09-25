@@ -55,7 +55,9 @@ export function multiply3(a: Matrix3, b: Matrix3): Matrix3 {
 }
 
 // A matrix from rows of [re, im] pairs.
-export function matrix3(rows: readonly (readonly (readonly [number, number])[])[]): Matrix3 {
+export function matrix3(
+  rows: readonly (readonly (readonly [number, number])[])[],
+): Matrix3 {
   const out = new Float64Array(18)
 
   rows.forEach((row, i) =>
@@ -69,11 +71,18 @@ export function matrix3(rows: readonly (readonly (readonly [number, number])[])[
 }
 
 export function determinant3(a: Matrix3): [number, number] {
-  const at = (i: number, j: number): [number, number] => [a[2 * (3 * i + j)] ?? 0, a[2 * (3 * i + j) + 1] ?? 0]
-  const mul = (x: [number, number], y: [number, number]): [number, number] => [
+  const at = (i: number, j: number): [number, number] => [
+    a[2 * (3 * i + j)] ?? 0,
+    a[2 * (3 * i + j) + 1] ?? 0,
+  ]
+  const mul = (
+    x: [number, number],
+    y: [number, number],
+  ): [number, number] => [
     x[0] * y[0] - x[1] * y[1],
     x[0] * y[1] + x[1] * y[0],
   ]
+
   let re = 0
   let im = 0
 
@@ -124,19 +133,33 @@ function keyOf(a: Matrix3): string {
 
 // The closure of the generators under multiplication. Throws past limit elements, so an infinite
 // group (a generator of irrational angle) is refused rather than run forever.
-export function generateGroup(input: { generators: readonly Matrix3[]; limit?: number }): FiniteGroup {
+export function generateGroup(input: {
+  generators: readonly Matrix3[]
+  limit?: number
+}): FiniteGroup {
   const { generators, limit = 4000 } = input
   const identity = matrix3([
-    [[1, 0], [0, 0], [0, 0]],
-    [[0, 0], [1, 0], [0, 0]],
-    [[0, 0], [0, 0], [1, 0]],
+    [
+      [1, 0],
+      [0, 0],
+      [0, 0],
+    ],
+    [
+      [0, 0],
+      [1, 0],
+      [0, 0],
+    ],
+    [
+      [0, 0],
+      [0, 0],
+      [1, 0],
+    ],
   ])
   const matrices: Matrix3[] = [identity]
   const index = new Map<string, number>([[keyOf(identity), 0]])
 
-  for (let next = 0; next < matrices.length; next++) {
-    const element = matrices[next] ?? identity
-
+  // breadth first: the array iterator reads the length live, so it also visits elements pushed below
+  for (const element of matrices) {
     for (const generator of generators) {
       const candidate = multiply3(element, generator)
       const key = keyOf(candidate)
@@ -158,10 +181,16 @@ export function generateGroup(input: { generators: readonly Matrix3[]; limit?: n
 
   for (let a = 0; a < order; a++) {
     for (let b = 0; b < order; b++) {
-      const found = index.get(keyOf(multiply3(matrices[a] ?? identity, matrices[b] ?? identity)))
+      const found = index.get(
+        keyOf(
+          multiply3(matrices[a] ?? identity, matrices[b] ?? identity),
+        ),
+      )
 
       if (found === undefined) {
-        throw new Error('a product left the group, so the closure is not a group')
+        throw new Error(
+          'a product left the group, so the closure is not a group',
+        )
       }
 
       product[a * order + b] = found
@@ -172,9 +201,20 @@ export function generateGroup(input: { generators: readonly Matrix3[]; limit?: n
     }
   }
 
-  const trace = Float64Array.from(matrices, m => (m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0))
+  const trace = Float64Array.from(
+    matrices,
+    m => (m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0),
+  )
 
-  return { form: 'finite-group', order, matrices, product, inverse, identity: 0, trace }
+  return {
+    form: 'finite-group',
+    order,
+    matrices,
+    product,
+    inverse,
+    identity: 0,
+    trace,
+  }
 }
 
 // The size of the center: elements commuting with every generator's image, i.e. with every element.
@@ -185,7 +225,9 @@ export function centerOrder(group: FiniteGroup): number {
     let central = true
 
     for (let g = 0; g < group.order && central; g++) {
-      central = group.product[z * group.order + g] === group.product[g * group.order + z]
+      central =
+        group.product[z * group.order + g] ===
+        group.product[g * group.order + z]
     }
 
     count += central ? 1 : 0
@@ -215,14 +257,22 @@ export function makeFiniteGaugeLattice(input: {
 
   for (let k = 0; k < links.length; k++) {
     const site = Math.floor(k / geometry.dim)
-    const hot = input.start === 'hot' || (input.start === 'mixed' && site % (geometry.lengths[0] ?? 1) < half)
+    const hot =
+      input.start === 'hot' ||
+      (input.start === 'mixed' &&
+        site % (geometry.lengths[0] ?? 1) < half)
 
     if (hot) {
       links[k] = Math.floor(input.rng.next() * input.group.order)
     }
   }
 
-  return { form: 'finite-gauge-lattice', group: input.group, geometry, links }
+  return {
+    form: 'finite-gauge-lattice',
+    group: input.group,
+    geometry,
+    links,
+  }
 }
 
 // One heatbath sweep: each link drawn over the whole group from exp(-S_local), where each of the six
@@ -244,11 +294,13 @@ export function finiteHeatbathSweep(input: {
   const { group, geometry, links } = lattice
   const { dim, sites, up, down } = geometry
   const { order, product, inverse, trace } = group
-  const mul = (a: number, b: number): number => product[a * order + b] ?? 0
+  const mul = (a: number, b: number): number =>
+    product[a * order + b] ?? 0
   // the plaquette weight of each element, (beta / 3) Re Tr g + beta1 Re Tr g^2
   const weightOf = Float64Array.from(
     { length: order },
-    (_, g) => (beta / 3) * (trace[g] ?? 0) + beta1 * (trace[mul(g, g)] ?? 0),
+    (_, g) =>
+      (beta / 3) * (trace[g] ?? 0) + beta1 * (trace[mul(g, g)] ?? 0),
   )
   const staples = new Int32Array(2 * (dim - 1))
   const weights = new Float64Array(order)
@@ -257,8 +309,10 @@ export function finiteHeatbathSweep(input: {
   for (let site = 0; site < sites; site++) {
     for (let mu = 0; mu < dim; mu++) {
       const siteUp = up[site * dim + mu] ?? 0
-      const link = (s: number, d: number): number => links[s * dim + d] ?? 0
+      const link = (s: number, d: number): number =>
+        links[s * dim + d] ?? 0
       const inv = (g: number): number => inverse[g] ?? 0
+
       let count = 0
 
       for (let nu = 0; nu < dim; nu++) {
@@ -267,12 +321,24 @@ export function finiteHeatbathSweep(input: {
         }
 
         // forward: U_nu(x + mu) U_mu(x + nu)^-1 U_nu(x)^-1
-        staples[count++] = mul(mul(link(siteUp, nu), inv(link(up[site * dim + nu] ?? 0, mu))), inv(link(site, nu)))
+        staples[count++] = mul(
+          mul(
+            link(siteUp, nu),
+            inv(link(up[site * dim + nu] ?? 0, mu)),
+          ),
+          inv(link(site, nu)),
+        )
 
         // backward: U_nu(x + mu - nu)^-1 U_mu(x - nu)^-1 U_nu(x - nu)
         const below = down[site * dim + nu] ?? 0
 
-        staples[count++] = mul(mul(inv(link(down[siteUp * dim + nu] ?? 0, nu)), inv(link(below, mu))), link(below, nu))
+        staples[count++] = mul(
+          mul(
+            inv(link(down[siteUp * dim + nu] ?? 0, nu)),
+            inv(link(below, mu)),
+          ),
+          link(below, nu),
+        )
       }
 
       let largest = Number.NEGATIVE_INFINITY
@@ -281,7 +347,8 @@ export function finiteHeatbathSweep(input: {
         let sum = 0
 
         for (let k = 0; k < count; k++) {
-          sum += weightOf[product[g * order + (staples[k] ?? 0)] ?? 0] ?? 0
+          sum +=
+            weightOf[product[g * order + (staples[k] ?? 0)] ?? 0] ?? 0
         }
 
         action[g] = sum
@@ -311,11 +378,15 @@ export function finiteHeatbathSweep(input: {
 }
 
 // The mean plaquette Re Tr U_p / 3.
-export function finitePlaquette(input: { lattice: FiniteGaugeLattice }): number {
+export function finitePlaquette(input: {
+  lattice: FiniteGaugeLattice
+}): number {
   const { group, geometry, links } = input.lattice
   const { dim, sites, up } = geometry
   const { order, product, inverse, trace } = group
-  const mul = (a: number, b: number): number => product[a * order + b] ?? 0
+  const mul = (a: number, b: number): number =>
+    product[a * order + b] ?? 0
+
   let sum = 0
   let count = 0
 
@@ -324,7 +395,9 @@ export function finitePlaquette(input: { lattice: FiniteGaugeLattice }): number 
       for (let nu = mu + 1; nu < dim; nu++) {
         const a = links[site * dim + mu] ?? 0
         const b = links[(up[site * dim + mu] ?? 0) * dim + nu] ?? 0
-        const c = inverse[links[(up[site * dim + nu] ?? 0) * dim + mu] ?? 0] ?? 0
+        const c =
+          inverse[links[(up[site * dim + nu] ?? 0) * dim + mu] ?? 0] ??
+          0
         const d = inverse[links[site * dim + nu] ?? 0] ?? 0
 
         sum += (trace[mul(mul(mul(a, b), c), d)] ?? 0) / 3
@@ -340,17 +413,23 @@ export function finitePlaquette(input: { lattice: FiniteGaugeLattice }): number 
 function traceOf(group: FiniteGroup, g: number): [number, number] {
   const m = group.matrices[g]
 
-  return [(m?.[0] ?? 0) + (m?.[8] ?? 0) + (m?.[16] ?? 0), (m?.[1] ?? 0) + (m?.[9] ?? 0) + (m?.[17] ?? 0)]
+  return [
+    (m?.[0] ?? 0) + (m?.[8] ?? 0) + (m?.[16] ?? 0),
+    (m?.[1] ?? 0) + (m?.[9] ?? 0) + (m?.[17] ?? 0),
+  ]
 }
 
 // The spatially averaged Polyakov loop (1/3) Tr of the product of the time-direction links (the last
 // axis) along each spatial site's time line, as a complex number.
-export function finitePolyakovLoop(input: { lattice: FiniteGaugeLattice }): { re: number; im: number } {
+export function finitePolyakovLoop(input: {
+  lattice: FiniteGaugeLattice
+}): { re: number; im: number } {
   const { group, geometry, links } = input.lattice
   const { dim, sites, up, lengths } = geometry
   const time = dim - 1
   const nt = lengths[time] ?? 1
   const spatial = sites / nt
+
   let re = 0
   let im = 0
 
@@ -360,7 +439,10 @@ export function finitePolyakovLoop(input: { lattice: FiniteGaugeLattice }): { re
     let product = group.identity
 
     for (let t = 0; t < nt; t++) {
-      product = group.product[product * group.order + (links[current * dim + time] ?? 0)] ?? 0
+      product =
+        group.product[
+          product * group.order + (links[current * dim + time] ?? 0)
+        ] ?? 0
       current = up[current * dim + time] ?? 0
     }
 
@@ -375,15 +457,25 @@ export function finitePolyakovLoop(input: { lattice: FiniteGaugeLattice }): { re
 
 // Rectangular Wilson loops W(R, T) = <Re Tr / 3> of the R x T loop, averaged over every site and
 // ordered pair of distinct directions, for 1 <= R, T <= max, as table[R][T].
-export function finiteWilsonLoops(input: { lattice: FiniteGaugeLattice; max: number }): number[][] {
+export function finiteWilsonLoops(input: {
+  lattice: FiniteGaugeLattice
+  max: number
+}): number[][] {
   const { lattice, max } = input
   const { group, geometry, links } = lattice
   const { dim, sites, up } = geometry
   const { order, product, inverse, trace } = group
-  const mul = (a: number, b: number): number => product[a * order + b] ?? 0
-  const table = Array.from({ length: max + 1 }, () => new Array<number>(max + 1).fill(1))
+  const mul = (a: number, b: number): number =>
+    product[a * order + b] ?? 0
+  const table = Array.from({ length: max + 1 }, () =>
+    new Array<number>(max + 1).fill(1),
+  )
 
-  const walk = (site: number, mu: number, steps: number): { end: number; element: number } => {
+  const walk = (
+    site: number,
+    mu: number,
+    steps: number,
+  ): { end: number; element: number } => {
     let current = site
     let element = group.identity
 
@@ -412,7 +504,13 @@ export function finiteWilsonLoops(input: { lattice: FiniteGaugeLattice; max: num
             const left = walk(site, nu, t)
             const top = walk(left.end, mu, r)
             // bottom right top^-1 left^-1
-            const loop = mul(mul(mul(bottom.element, right.element), inverse[top.element] ?? 0), inverse[left.element] ?? 0)
+            const loop = mul(
+              mul(
+                mul(bottom.element, right.element),
+                inverse[top.element] ?? 0,
+              ),
+              inverse[left.element] ?? 0,
+            )
 
             total += (trace[loop] ?? 0) / 3
             count += 1

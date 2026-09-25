@@ -14,7 +14,11 @@ import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { Will, cloneWill } from '@/code/tone/will'
 
-export type TonePlacement = { readonly cell: number; readonly direction: number; readonly tone: number }
+export type TonePlacement = {
+  readonly cell: number
+  readonly direction: number
+  readonly tone: number
+}
 
 // The support (number of slots where the highest-order inclusion-exclusion sum is nonzero) after
 // each of the given beat counts, for placements written onto the background before beat `phase`.
@@ -31,7 +35,9 @@ export function jointDifferenceSupport(input: {
   const degree = background.mesh.degree
   const table = streamSourceTable(background.mesh)
   const last = Math.max(...checkpoints)
-  const snapshots = checkpoints.map(() => new Int32Array(background.data.length))
+  const snapshots = checkpoints.map(
+    () => new Int32Array(background.data.length),
+  )
 
   for (let subset = 0; subset < subsets; subset++) {
     let bits = 0
@@ -47,12 +53,18 @@ export function jointDifferenceSupport(input: {
 
     placements.forEach((placement, index) => {
       if ((subset >> index) & 1) {
-        a.data[placement.cell * degree + placement.direction] = placement.tone
+        a.data[placement.cell * degree + placement.direction] =
+          placement.tone
       }
     })
 
     for (let t = 1; t <= last; t++) {
-      beatInto({ src: a, dst: b, table, collision: schedule(phase + t - 1) })
+      beatInto({
+        src: a,
+        dst: b,
+        table,
+        collision: schedule(phase + t - 1),
+      })
       ;[a, b] = [b, a]
 
       checkpoints.forEach((checkpoint, i) => {
@@ -69,5 +81,7 @@ export function jointDifferenceSupport(input: {
     }
   }
 
-  return snapshots.map(snapshot => snapshot.reduce((n, v) => n + (v !== 0 ? 1 : 0), 0))
+  return snapshots.map(snapshot =>
+    snapshot.reduce((n, v) => n + (v !== 0 ? 1 : 0), 0),
+  )
 }

@@ -21,7 +21,10 @@
 import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { Will, cloneWill } from '@/code/tone/will'
-import { LineRelabelling, relabelWill } from '@/code/check/tone-permutation-symmetry'
+import {
+  LineRelabelling,
+  relabelWill,
+} from '@/code/check/tone-permutation-symmetry'
 
 export type ToneRelabel = readonly [number, number, number]
 
@@ -64,10 +67,13 @@ export function blockToneFractions(input: {
     const w = Math.floor(cell / (side * side * side)) % side
     const b =
       Math.floor(x / block) +
-      per * (Math.floor(y / block) + per * (Math.floor(z / block) + per * Math.floor(w / block)))
+      per *
+        (Math.floor(y / block) +
+          per * (Math.floor(z / block) + per * Math.floor(w / block)))
 
     for (let v = 0; v < 3; v++) {
-      out[3 * b + v] = (out[3 * b + v] ?? 0) + (counts[3 * cell + v] ?? 0)
+      out[3 * b + v] =
+        (out[3 * b + v] ?? 0) + (counts[3 * cell + v] ?? 0)
     }
   }
 
@@ -96,7 +102,10 @@ export function relabelFractions(input: {
 }
 
 // Mean over blocks of the total-variation distance between two population fields.
-export function meanBlockDistance(input: { a: Float64Array; b: Float64Array }): number {
+export function meanBlockDistance(input: {
+  a: Float64Array
+  b: Float64Array
+}): number {
   const blocks = input.a.length / 3
 
   let total = 0
@@ -134,7 +143,10 @@ export function coarseRelabellingBreaking(input: {
     const runs = [
       start,
       ...relabels.map(relabel => {
-        const relabelling: LineRelabelling = { leading: relabel, trailing: relabel }
+        const relabelling: LineRelabelling = {
+          leading: relabel,
+          trailing: relabel,
+        }
 
         return relabelWill({ will: start, relabelling })
       }),
@@ -142,17 +154,32 @@ export function coarseRelabellingBreaking(input: {
 
     for (let t = 0; t < beats; t++) {
       for (const pair of runs) {
-        beatInto({ src: pair.current, dst: pair.next, table, collision: schedule(t) })
+        beatInto({
+          src: pair.current,
+          dst: pair.next,
+          table,
+          collision: schedule(t),
+        })
         ;[pair.current, pair.next] = [pair.next, pair.current]
       }
 
-      const counts = runs.map(pair => cellToneCounts({ will: pair.current }))
+      const counts = runs.map(pair =>
+        cellToneCounts({ will: pair.current }),
+      )
 
       blocks.forEach((block, i) => {
-        const plain = blockToneFractions({ counts: counts[0] ?? new Int32Array(0), side, block, degree })
+        const plain = blockToneFractions({
+          counts: counts[0] ?? new Int32Array(0),
+          side,
+          block,
+          degree,
+        })
 
         relabels.forEach((relabel, r) => {
-          const expected = relabelFractions({ fractions: plain, relabel })
+          const expected = relabelFractions({
+            fractions: plain,
+            relabel,
+          })
           const actual = blockToneFractions({
             counts: counts[r + 1] ?? new Int32Array(0),
             side,
@@ -162,7 +189,9 @@ export function coarseRelabellingBreaking(input: {
           const row = totals[r]
 
           if (row !== undefined) {
-            row[i] = (row[i] ?? 0) + meanBlockDistance({ a: actual, b: expected })
+            row[i] =
+              (row[i] ?? 0) +
+              meanBlockDistance({ a: actual, b: expected })
           }
         })
       })
@@ -171,7 +200,9 @@ export function coarseRelabellingBreaking(input: {
 
   return relabels.map((relabel, r) => ({
     relabel,
-    mean: (totals[r] ?? []).map(total => total / (starts.length * beats)),
+    mean: (totals[r] ?? []).map(
+      total => total / (starts.length * beats),
+    ),
   }))
 }
 
@@ -196,7 +227,9 @@ export const cycleTones: Collision = (slots, base, degree) => {
 // them to neighbours. The whole-mesh populations are therefore constant in time, and every
 // relabelling commutes with them exactly: the calibration of a breaking that is real at the finest
 // scale and gone at the coarsest.
-export function reversePositive(input: { opposite: readonly number[] }): Collision {
+export function reversePositive(input: {
+  opposite: readonly number[]
+}): Collision {
   const lines: [number, number][] = []
 
   input.opposite.forEach((other, direction) => {

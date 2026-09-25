@@ -41,8 +41,15 @@ import {
   makeFiniteGaugeLattice,
 } from '@/code/dynamics/finite-gauge'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
-import { makeGaugeLattice, sampleGaugeEnsemble } from '@/code/dynamics/gauge-lattice'
-import { averagePlaquette, creutzRatioFromTable, wilsonLoopTable } from '@/code/measure/lattice-gauge-observable'
+import {
+  makeGaugeLattice,
+  sampleGaugeEnsemble,
+} from '@/code/dynamics/gauge-lattice'
+import {
+  averagePlaquette,
+  creutzRatioFromTable,
+  wilsonLoopTable,
+} from '@/code/measure/lattice-gauge-observable'
 import { jackknife } from '@/code/measure/jackknife'
 
 const SU3_TRANSITION = 5.6925
@@ -50,12 +57,17 @@ const PUBLISHED_FREEZING_1080 = 3.935
 const PUBLISHED_POINT: [number, number] = [9.154, -0.9061]
 const TRAJECTORY_648 = (beta0: number): number => -0.165 * beta0 + 0.31
 // the published Sigma(1080) trajectory, Alexandru et al. (2019) equation 3
-const TRAJECTORY_1080 = (beta0: number): number => -0.1267 * beta0 + 0.253
+const TRAJECTORY_1080 = (beta0: number): number =>
+  -0.1267 * beta0 + 0.253
 const TRANSITION_648 = 13
 const WILSON_BETAS = [2, 3, 3.5, 4, 4.5]
 const LOOP_MAX = 4
 
-type Groups = { sigma108: FiniteGroup; sigma648: FiniteGroup; sigma1080: FiniteGroup }
+type Groups = {
+  sigma108: FiniteGroup
+  sigma648: FiniteGroup
+  sigma1080: FiniteGroup
+}
 
 function plaquette(input: {
   group: FiniteGroup
@@ -66,13 +78,23 @@ function plaquette(input: {
   seed: number
 }): number {
   const rng = makeRng({ seed: input.seed })
-  const lattice = makeFiniteGaugeLattice({ group: input.group, lengths: [4, 4, 4, 4], start: input.start, rng })
+  const lattice = makeFiniteGaugeLattice({
+    group: input.group,
+    lengths: [4, 4, 4, 4],
+    start: input.start,
+    rng,
+  })
 
   let sum = 0
   let count = 0
 
   for (let sweep = 0; sweep < input.sweeps; sweep++) {
-    finiteHeatbathSweep({ lattice, beta: input.beta, beta1: input.beta1, rng })
+    finiteHeatbathSweep({
+      lattice,
+      beta: input.beta,
+      beta1: input.beta1,
+      rng,
+    })
 
     if (sweep >= input.sweeps / 2) {
       sum += finitePlaquette({ lattice })
@@ -85,7 +107,12 @@ function plaquette(input: {
 
 function su3Plaquette(beta: number): number {
   const rng = makeRng({ seed: 3 })
-  const lattice = makeGaugeLattice({ group: 'su3', lengths: [4, 4, 4, 4], start: 'hot', rng })
+  const lattice = makeGaugeLattice({
+    group: 'su3',
+    lengths: [4, 4, 4, 4],
+    start: 'hot',
+    rng,
+  })
   const samples = sampleGaugeEnsemble({
     lattice,
     beta,
@@ -107,19 +134,41 @@ function freezingBracket(
   seed: number,
   su3: readonly number[],
 ): { low: number; high: number; plaquettes: number[] } {
-  const plaquettes = WILSON_BETAS.map(beta => plaquette({ group, beta, beta1: 0, start: 'mixed', sweeps: 240, seed }))
+  const plaquettes = WILSON_BETAS.map(beta =>
+    plaquette({
+      group,
+      beta,
+      beta1: 0,
+      start: 'mixed',
+      sweeps: 240,
+      seed,
+    }),
+  )
   const first = plaquettes.findIndex((p, k) => p - (su3[k] ?? 0) > 0.1)
 
   return {
-    low: first <= 0 ? Number.NaN : (WILSON_BETAS[first - 1] ?? Number.NaN),
-    high: first < 0 ? Number.POSITIVE_INFINITY : (WILSON_BETAS[first] ?? Number.NaN),
+    low:
+      first <= 0 ? Number.NaN : (WILSON_BETAS[first - 1] ?? Number.NaN),
+    high:
+      first < 0
+        ? Number.POSITIVE_INFINITY
+        : (WILSON_BETAS[first] ?? Number.NaN),
     plaquettes,
   }
 }
 
-function polyakov(group: FiniteGroup, beta: number, beta1: number): number {
+function polyakov(
+  group: FiniteGroup,
+  beta: number,
+  beta1: number,
+): number {
   const rng = makeRng({ seed: 23 })
-  const lattice = makeFiniteGaugeLattice({ group, lengths: [8, 8, 8, 4], start: 'mixed', rng })
+  const lattice = makeFiniteGaugeLattice({
+    group,
+    lengths: [8, 8, 8, 4],
+    start: 'mixed',
+    rng,
+  })
 
   let sum = 0
   let count = 0
@@ -138,26 +187,53 @@ function polyakov(group: FiniteGroup, beta: number, beta1: number): number {
   return sum / count
 }
 
-type Creutz = { chi22: { value: number; error: number }; chi33: { value: number; error: number } }
+type Creutz = {
+  chi22: { value: number; error: number }
+  chi33: { value: number; error: number }
+}
 
 function creutzFrom(tables: readonly number[][][]): Creutz {
-  const ratio = (r: number) => (samples: readonly number[][][]): number => {
-    const mean = Array.from({ length: LOOP_MAX + 1 }, (_, i) =>
-      Array.from({ length: LOOP_MAX + 1 }, (_, j) => samples.reduce((s, t) => s + (t[i]?.[j] ?? 0), 0) / samples.length),
-    )
+  const ratio =
+    (r: number) =>
+    (samples: readonly number[][][]): number => {
+      const mean = Array.from({ length: LOOP_MAX + 1 }, (_, i) =>
+        Array.from(
+          { length: LOOP_MAX + 1 },
+          (_, j) =>
+            samples.reduce((s, t) => s + (t[i]?.[j] ?? 0), 0) /
+            samples.length,
+        ),
+      )
 
-    return creutzRatioFromTable({ table: mean, r, t: r })
-  }
+      return creutzRatioFromTable({ table: mean, r, t: r })
+    }
 
   return {
-    chi22: jackknife({ samples: tables, estimator: ratio(2), binSize: 5 }),
-    chi33: jackknife({ samples: tables, estimator: ratio(3), binSize: 5 }),
+    chi22: jackknife({
+      samples: tables,
+      estimator: ratio(2),
+      binSize: 5,
+    }),
+    chi33: jackknife({
+      samples: tables,
+      estimator: ratio(3),
+      binSize: 5,
+    }),
   }
 }
 
-function finiteCreutz(group: FiniteGroup, beta: number, beta1: number): Creutz {
+function finiteCreutz(
+  group: FiniteGroup,
+  beta: number,
+  beta1: number,
+): Creutz {
   const rng = makeRng({ seed: 29 })
-  const lattice = makeFiniteGaugeLattice({ group, lengths: [8, 8, 8, 8], start: 'hot', rng })
+  const lattice = makeFiniteGaugeLattice({
+    group,
+    lengths: [8, 8, 8, 8],
+    start: 'hot',
+    rng,
+  })
   const tables: number[][][] = []
 
   for (let sweep = 0; sweep < 100; sweep++) {
@@ -177,7 +253,12 @@ function finiteCreutz(group: FiniteGroup, beta: number, beta1: number): Creutz {
 
 function su3Creutz(): Creutz {
   const rng = makeRng({ seed: 29 })
-  const lattice = makeGaugeLattice({ group: 'su3', lengths: [8, 8, 8, 8], start: 'hot', rng })
+  const lattice = makeGaugeLattice({
+    group: 'su3',
+    lengths: [8, 8, 8, 8],
+    start: 'hot',
+    rng,
+  })
 
   return creutzFrom(
     sampleGaugeEnsemble({
@@ -193,8 +274,10 @@ function su3Creutz(): Creutz {
   )
 }
 
-const pull = (a: { value: number; error: number }, b: { value: number; error: number }): number =>
-  (a.value - b.value) / Math.hypot(a.error, b.error)
+const pull = (
+  a: { value: number; error: number },
+  b: { value: number; error: number },
+): number => (a.value - b.value) / Math.hypot(a.error, b.error)
 
 export default experiment({
   id: 'gauge/finite-colour-groups',
@@ -207,9 +290,15 @@ export default experiment({
   paper: false,
   run() {
     const groups: Groups = {
-      sigma108: generateGroup({ generators: [...SU3_SUBGROUPS.sigma108.generators] }),
-      sigma648: generateGroup({ generators: [...SU3_SUBGROUPS.sigma648.generators] }),
-      sigma1080: generateGroup({ generators: [...SU3_SUBGROUPS.sigma1080.generators] }),
+      sigma108: generateGroup({
+        generators: [...SU3_SUBGROUPS.sigma108.generators],
+      }),
+      sigma648: generateGroup({
+        generators: [...SU3_SUBGROUPS.sigma648.generators],
+      }),
+      sigma1080: generateGroup({
+        generators: [...SU3_SUBGROUPS.sigma1080.generators],
+      }),
     }
 
     // A. Wilson action
@@ -231,37 +320,96 @@ export default experiment({
       freezing.sigma648.high <= freezing.sigma1080.high &&
       freezing.sigma1080.high < SU3_TRANSITION
     const publishedInBracket =
-      freezing.sigma1080.low <= PUBLISHED_FREEZING_1080 && PUBLISHED_FREEZING_1080 <= freezing.sigma1080.high
+      freezing.sigma1080.low <= PUBLISHED_FREEZING_1080 &&
+      PUBLISHED_FREEZING_1080 <= freezing.sigma1080.high
 
     // B. the modified action: which starts agree
-    const hysteresis = (group: FiniteGroup, beta: number, beta1: number): number =>
+    const hysteresis = (
+      group: FiniteGroup,
+      beta: number,
+      beta1: number,
+    ): number =>
       Math.abs(
-        plaquette({ group, beta, beta1, start: 'cold', sweeps: 400, seed: 17 }) -
-          plaquette({ group, beta, beta1, start: 'hot', sweeps: 400, seed: 17 }),
+        plaquette({
+          group,
+          beta,
+          beta1,
+          start: 'cold',
+          sweeps: 400,
+          seed: 17,
+        }) -
+          plaquette({
+            group,
+            beta,
+            beta1,
+            start: 'hot',
+            sweeps: 400,
+            seed: 17,
+          }),
       )
     const golden = hysteresis(groups.sigma1080, ...PUBLISHED_POINT)
-    const classicalOnGolden = hysteresis(groups.sigma648, ...PUBLISHED_POINT)
-    const classicalOnOwn = hysteresis(groups.sigma648, TRANSITION_648, TRAJECTORY_648(TRANSITION_648))
-    const unfrozen = golden < 0.01 && classicalOnOwn < 0.01 && classicalOnGolden > 0.05
+    const classicalOnGolden = hysteresis(
+      groups.sigma648,
+      ...PUBLISHED_POINT,
+    )
+    const classicalOnOwn = hysteresis(
+      groups.sigma648,
+      TRANSITION_648,
+      TRAJECTORY_648(TRANSITION_648),
+    )
+    const unfrozen =
+      golden < 0.01 && classicalOnOwn < 0.01 && classicalOnGolden > 0.05
 
     // C. N_t = 4 deconfinement brackets
-    const goldenConfined = polyakov(groups.sigma1080, 8, TRAJECTORY_1080(8))
-    const goldenDeconfined = polyakov(groups.sigma1080, 10, TRAJECTORY_1080(10))
-    const classicalConfined = polyakov(groups.sigma648, 11, TRAJECTORY_648(11))
-    const classicalDeconfined = polyakov(groups.sigma648, 14, TRAJECTORY_648(14))
+    const goldenConfined = polyakov(
+      groups.sigma1080,
+      8,
+      TRAJECTORY_1080(8),
+    )
+    const goldenDeconfined = polyakov(
+      groups.sigma1080,
+      10,
+      TRAJECTORY_1080(10),
+    )
+    const classicalConfined = polyakov(
+      groups.sigma648,
+      11,
+      TRAJECTORY_648(11),
+    )
+    const classicalDeconfined = polyakov(
+      groups.sigma648,
+      14,
+      TRAJECTORY_648(14),
+    )
     const brackets =
-      goldenConfined < 0.05 && goldenDeconfined > 0.1 && classicalConfined < 0.05 && classicalDeconfined > 0.1
+      goldenConfined < 0.05 &&
+      goldenDeconfined > 0.1 &&
+      classicalConfined < 0.05 &&
+      classicalDeconfined > 0.1
 
     // D. Creutz ratios at each theory's own N_t = 4 transition
     const su3 = su3Creutz()
-    const classical = finiteCreutz(groups.sigma648, TRANSITION_648, TRAJECTORY_648(TRANSITION_648))
-    const goldenCreutz = finiteCreutz(groups.sigma1080, ...PUBLISHED_POINT)
+    const classical = finiteCreutz(
+      groups.sigma648,
+      TRANSITION_648,
+      TRAJECTORY_648(TRANSITION_648),
+    )
+    const goldenCreutz = finiteCreutz(
+      groups.sigma1080,
+      ...PUBLISHED_POINT,
+    )
     const sameString =
       Math.abs(pull(classical.chi22, su3.chi22)) < 3 &&
       Math.abs(pull(classical.chi33, su3.chi33)) < 3 &&
       Math.abs(classical.chi33.value / su3.chi33.value - 1) < 0.1
 
-    const ok = strongMatch && freezingOrdered && publishedInBracket && unfrozen && brackets && sameString
+    const ok =
+      strongMatch &&
+      freezingOrdered &&
+      publishedInBracket &&
+      unfrozen &&
+      brackets &&
+      sameString
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -274,8 +422,14 @@ export default experiment({
         sigma1080FreezingHigh: freezing.sigma1080.high,
         ...Object.fromEntries(
           WILSON_BETAS.flatMap((beta, k) => [
-            [`sigma648WilsonPlaquetteAt${beta}`, freezing.sigma648.plaquettes[k] ?? Number.NaN],
-            [`sigma1080WilsonPlaquetteAt${beta}`, freezing.sigma1080.plaquettes[k] ?? Number.NaN],
+            [
+              `sigma648WilsonPlaquetteAt${beta}`,
+              freezing.sigma648.plaquettes[k] ?? Number.NaN,
+            ],
+            [
+              `sigma1080WilsonPlaquetteAt${beta}`,
+              freezing.sigma1080.plaquettes[k] ?? Number.NaN,
+            ],
           ]),
         ),
         goldenHysteresisAtPublishedPoint: golden,
@@ -291,10 +445,16 @@ export default experiment({
         classicalChi33Error: classical.chi33.error,
         goldenChi22: goldenCreutz.chi22.value,
         goldenChi33: goldenCreutz.chi33.value,
-        chi33RatioClassicalOverSu3: classical.chi33.value / su3.chi33.value,
+        chi33RatioClassicalOverSu3:
+          classical.chi33.value / su3.chi33.value,
       },
       control: {
-        ...Object.fromEntries(WILSON_BETAS.map((beta, k) => [`su3WilsonPlaquetteAt${beta}`, su3Branch[k] ?? Number.NaN])),
+        ...Object.fromEntries(
+          WILSON_BETAS.map((beta, k) => [
+            `su3WilsonPlaquetteAt${beta}`,
+            su3Branch[k] ?? Number.NaN,
+          ]),
+        ),
         su3Chi22: su3.chi22.value,
         su3Chi22Error: su3.chi22.error,
         su3Chi33: su3.chi33.value,

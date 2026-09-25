@@ -63,7 +63,13 @@ export function makeStaggeredOperator(input: {
     parity[site] = sum % 2 === 0 ? 1 : -1
   }
 
-  return { form: 'staggered-operator', lattice, forwardSign, backwardSign, parity }
+  return {
+    form: 'staggered-operator',
+    lattice,
+    forwardSign,
+    backwardSign,
+    parity,
+  }
 }
 
 // out = D from, the hopping term alone (no mass). Colour vectors are 2 * N doubles per site.
@@ -138,7 +144,11 @@ export function staggeredPropagator(input: {
   masses: readonly number[]
   tolerance: number
   maxIterations: number
-}): { propagators: Float64Array[]; iterations: number; residuals: number[] } {
+}): {
+  propagators: Float64Array[]
+  iterations: number
+  residuals: number[]
+} {
   const { operator, masses } = input
   const { lattice } = operator
   const vector = 2 * lattice.n
@@ -179,7 +189,11 @@ export function staggeredPropagator(input: {
     return g
   })
 
-  return { propagators, iterations: solved.iterations, residuals: solved.residuals }
+  return {
+    propagators,
+    iterations: solved.iterations,
+    residuals: solved.residuals,
+  }
 }
 
 // |M G - source| / |source| for a propagator, the independent check that G really inverts M.
@@ -200,7 +214,8 @@ export function staggeredResidual(input: {
 
   for (let k = 0; k < out.length; k++) {
     const source = k === input.site * vector + 2 * input.colour ? 1 : 0
-    const difference = mass * (propagator[k] ?? 0) + (out[k] ?? 0) - source
+    const difference =
+      mass * (propagator[k] ?? 0) + (out[k] ?? 0) - source
 
     norm += difference * difference
   }

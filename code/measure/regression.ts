@@ -200,7 +200,9 @@ export function weightedLeastSquares(input: {
 }): { coefficients: number[]; errors: number[]; chi2: number } {
   const { rows, ys, errors } = input
   const k = rows[0]?.length ?? 0
-  const normal = Array.from({ length: k }, () => new Array<number>(k).fill(0))
+  const normal = Array.from({ length: k }, () =>
+    new Array<number>(k).fill(0),
+  )
   const right = new Array<number>(k).fill(0)
 
   rows.forEach((row, i) => {
@@ -224,20 +226,27 @@ export function weightedLeastSquares(input: {
     line.reduce((sum, value, b) => sum + value * (right[b] ?? 0), 0),
   )
   const chi2 = rows.reduce((sum, row, i) => {
-    const model = row.reduce((s, f, a) => s + f * (coefficients[a] ?? 0), 0)
+    const model = row.reduce(
+      (s, f, a) => s + f * (coefficients[a] ?? 0),
+      0,
+    )
 
     return sum + (((ys[i] ?? 0) - model) / (errors[i] ?? 1)) ** 2
   }, 0)
 
   return {
     coefficients,
-    errors: inverse.map((line, a) => Math.sqrt(Math.max(0, line[a] ?? 0))),
+    errors: inverse.map((line, a) =>
+      Math.sqrt(Math.max(0, line[a] ?? 0)),
+    ),
     chi2,
   }
 }
 
 // Gauss-Jordan inverse with partial pivoting, for the small normal matrices of a fit.
-function invertSymmetric(matrix: readonly (readonly number[])[]): number[][] {
+function invertSymmetric(
+  matrix: readonly (readonly number[])[],
+): number[][] {
   const k = matrix.length
   const work = matrix.map((line, i) => [
     ...line,
@@ -248,7 +257,10 @@ function invertSymmetric(matrix: readonly (readonly number[])[]): number[][] {
     let pivot = column
 
     for (let row = column + 1; row < k; row++) {
-      if (Math.abs(work[row]?.[column] ?? 0) > Math.abs(work[pivot]?.[column] ?? 0)) {
+      if (
+        Math.abs(work[row]?.[column] ?? 0) >
+        Math.abs(work[pivot]?.[column] ?? 0)
+      ) {
         pivot = row
       }
     }
@@ -261,7 +273,9 @@ function invertSymmetric(matrix: readonly (readonly number[])[]): number[][] {
     const head = work[column]?.[column] ?? 0
 
     if (head === 0) {
-      return Array.from({ length: k }, () => new Array<number>(k).fill(Number.NaN))
+      return Array.from({ length: k }, () =>
+        new Array<number>(k).fill(Number.NaN),
+      )
     }
 
     for (let row = 0; row < k; row++) {
@@ -281,7 +295,9 @@ function invertSymmetric(matrix: readonly (readonly number[])[]): number[][] {
     }
   }
 
-  return work.map((line, i) => line.slice(k).map(v => v / (work[i]?.[i] ?? 1)))
+  return work.map((line, i) =>
+    line.slice(k).map(v => v / (work[i]?.[i] ?? 1)),
+  )
 }
 
 // Least-squares fit y = slope * x THROUGH THE ORIGIN, no intercept. Returns the slope and the

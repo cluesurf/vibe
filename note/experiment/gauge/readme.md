@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**106 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0106`](../../../test/experiment/gauge/colour-plane-selection.ts)**.
+**107 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0107`](../../../test/experiment/gauge/triality-against-universality.ts)**.
 
 ## What this arena tests
 
@@ -180,6 +180,7 @@ open are in [`strong-force.md`](strong-force.md).
 - **[`E-FRC-0100`](../../../test/experiment/gauge/colour-needs-amplitudes.ts)** (L1) to **[`E-FRC-0104`](../../../test/experiment/gauge/classical-colour-group.ts)** - what the base would need for colour: a phase on the pair swap to turn colour (0100), pairwise exchange binds the baryon with no three-body vertex (0101), a streaming kinetic demon unfreezes the Z3 center (0102), the classical colour group Sigma(648) matches SU(3) Creutz ratios at the N_t = 4 spacing (0103), and its links are three tones and a coin direction, the coin directions forming SL(2, 3) (0104). See [`what-the-base-needs.md`](what-the-base-needs.md).
 - **[`E-FRC-0105`](../../../test/experiment/gauge/colour-shader.ts)** (L2) - the shader: a phase on the colour swap at each encounter of three preserved excitations of the committed rule makes which one ends red a continuous, interfering function of the phase, while no tone observable changes.
 - **[`E-FRC-0106`](../../../test/experiment/gauge/colour-plane-selection.ts)** (L2) - what selects a colour plane in the coin: the 32 triality rotations of W(F4) each fix exactly one A2 and cycle the three triplet copies, and the previous knit keeps one such rotation where the committed turning weave keeps none.
+- **[`E-FRC-0107`](../../../test/experiment/gauge/triality-against-universality.ts)** (L2) - that selection cannot live in the committed rule's design family: triality fixes the three colour-plane lines, no coupling of all twelve lines is invariant (0 of 10,395), CPT then forces invariance beat by beat, and universality fails. Joining them symmetrically needs a four-line block.
 - **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
 
 ## What this arena establishes

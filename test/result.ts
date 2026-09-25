@@ -22,7 +22,13 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { allExperiments, runSuite } from '@/test/scaffold/suite'
 import type { Verdict } from '@/test/scaffold/verdict'
-import { RESULTS, dangling, refusals, NODES, challengeId } from '@/research/index'
+import {
+  RESULTS,
+  dangling,
+  refusals,
+  NODES,
+  challengeId,
+} from '@/research/index'
 import type { Check, Result } from '@/research/index'
 import '@/test/experiment/all'
 
@@ -43,7 +49,9 @@ function findResult(code: string | undefined): Result {
   const result = RESULTS.find(r => r.code === wanted)
 
   if (!result) {
-    console.error(`no result with the code ${code ?? '(none given)'}. Run pnpm result list`)
+    console.error(
+      `no result with the code ${code ?? '(none given)'}. Run pnpm result list`,
+    )
     process.exit(1)
   }
 
@@ -51,13 +59,18 @@ function findResult(code: string | undefined): Result {
 }
 
 // Run each distinct experiment of a result once, and return its verdict by code.
-function runExperiments(result: Result): Map<string, { verdict: Verdict; seconds: number }> {
+function runExperiments(
+  result: Result,
+): Map<string, { verdict: Verdict; seconds: number }> {
   const byCode = new Map(
     allExperiments()
       .filter(e => e.code !== undefined)
       .map(e => [e.code!, e]),
   )
-  const verdicts = new Map<string, { verdict: Verdict; seconds: number }>()
+  const verdicts = new Map<
+    string,
+    { verdict: Verdict; seconds: number }
+  >()
 
   for (const { code } of result.experiments) {
     if (verdicts.has(code)) {
@@ -74,8 +87,14 @@ function runExperiments(result: Result): Map<string, { verdict: Verdict; seconds
     const started = Date.now()
     const [run] = runSuite([experiment], { seed: SEED })
 
-    verdicts.set(code, { verdict: run!.verdict, seconds: (Date.now() - started) / 1000 })
-    console.log(`  ran ${code}  ${((Date.now() - started) / 1000).toFixed(1)}s`)
+    verdicts.set(code, {
+      verdict: run!.verdict,
+      seconds: (Date.now() - started) / 1000,
+    })
+
+    console.log(
+      `  ran ${code}  ${((Date.now() - started) / 1000).toFixed(1)}s`,
+    )
   }
 
   return verdicts
@@ -83,10 +102,16 @@ function runExperiments(result: Result): Map<string, { verdict: Verdict; seconds
 
 function hold(check: Check, verdict: Verdict): Observed {
   if (check.from === 'status') {
-    return { check, observed: verdict.status, passed: verdict.status === check.expected }
+    return {
+      check,
+      observed: verdict.status,
+      passed: verdict.status === check.expected,
+    }
   }
 
-  const value = (check.from === 'metrics' ? verdict.metrics : verdict.control)?.[check.metric]
+  const value = (
+    check.from === 'metrics' ? verdict.metrics : verdict.control
+  )?.[check.metric]
 
   if (value === undefined) {
     return { check, observed: null, passed: false }
@@ -102,28 +127,50 @@ function hold(check: Check, verdict: Verdict): Observed {
 
 function reproduce(result: Result) {
   console.log(`\n${result.code}  ${result.title}`)
-  console.log(`${challengeId(result.code)}  version ${result.version}\n`)
+  console.log(
+    `${challengeId(result.code)}  version ${result.version}\n`,
+  )
 
   const verdicts = runExperiments(result)
-  const observed = result.checks.map(check => hold(check, verdicts.get(check.code)!.verdict))
+  const observed = result.checks.map(check =>
+    hold(check, verdicts.get(check.code)!.verdict),
+  )
 
   console.log('')
 
   for (const { check, observed: value, passed } of observed) {
-    const name = check.from === 'status' ? `${check.code} status` : `${check.code} ${check.from}.${check.metric}`
-    const tolerance = typeof check.expected === 'number' ? `  tolerance ${check.tolerance}` : ''
+    const name =
+      check.from === 'status'
+        ? `${check.code} status`
+        : `${check.code} ${check.from}.${check.metric}`
+    const tolerance =
+      typeof check.expected === 'number'
+        ? `  tolerance ${check.tolerance}`
+        : ''
 
-    console.log(`${passed ? 'PASS' : 'FAIL'}  ${name}  expected ${check.expected}  observed ${value ?? 'missing'}${tolerance}`)
+    console.log(
+      `${passed ? 'PASS' : 'FAIL'}  ${name}  expected ${check.expected}  observed ${value ?? 'missing'}${tolerance}`,
+    )
   }
 
   const failed = observed.filter(o => !o.passed).length
 
-  console.log(`\n${observed.length - failed} of ${observed.length} checks pass`)
+  console.log(
+    `\n${observed.length - failed} of ${observed.length} checks pass`,
+  )
 
   return { verdicts, observed, failed }
 }
 
-function audit({ result, out, commit }: { result: Result; out: string | undefined; commit: boolean }) {
+function audit({
+  result,
+  out,
+  commit,
+}: {
+  result: Result
+  out: string | undefined
+  commit: boolean
+}) {
   const { verdicts, observed, failed } = reproduce(result)
 
   const git = (args: string[]) => {
@@ -142,7 +189,8 @@ function audit({ result, out, commit }: { result: Result; out: string | undefine
     version: result.version,
     audited: new Date().toISOString().slice(0, 10),
     commit: git(['rev-parse', 'HEAD']),
-    dirty: (git(['status', '--porcelain', '--', ...files]) ?? '') !== '',
+    dirty:
+      (git(['status', '--porcelain', '--', ...files]) ?? '') !== '',
     environment: {
       node: process.version,
       platform: process.platform,
@@ -151,17 +199,32 @@ function audit({ result, out, commit }: { result: Result; out: string | undefine
     inputs: { seed: SEED, scale: 1 },
     files: files.map(file => ({
       file,
-      sha256: createHash('sha256').update(readFileSync(file)).digest('hex'),
+      sha256: createHash('sha256')
+        .update(readFileSync(file))
+        .digest('hex'),
     })),
     expected: Object.fromEntries(
-      observed.map(o => [`${o.check.code} ${o.check.from}.${o.check.metric}`, o.check.expected]),
+      observed.map(o => [
+        `${o.check.code} ${o.check.from}.${o.check.metric}`,
+        o.check.expected,
+      ]),
     ),
     observed: Object.fromEntries(
-      observed.map(o => [`${o.check.code} ${o.check.from}.${o.check.metric}`, o.observed]),
+      observed.map(o => [
+        `${o.check.code} ${o.check.from}.${o.check.metric}`,
+        o.observed,
+      ]),
     ),
-    checks: observed.map(o => ({ ...o.check, observed: o.observed, passed: o.passed })),
+    checks: observed.map(o => ({
+      ...o.check,
+      observed: o.observed,
+      passed: o.passed,
+    })),
     verdicts: Object.fromEntries(
-      [...verdicts].map(([code, { verdict, seconds }]) => [code, { seconds, ...verdict }]),
+      [...verdicts].map(([code, { verdict, seconds }]) => [
+        code,
+        { seconds, ...verdict },
+      ]),
     ),
     passed: failed === 0,
   }
@@ -189,13 +252,18 @@ function audit({ result, out, commit }: { result: Result; out: string | undefine
 }
 
 // Every string inside a record, at any depth, with the path that reaches it.
-function strings(value: unknown, path = ''): { path: string; text: string }[] {
+function strings(
+  value: unknown,
+  path = '',
+): { path: string; text: string }[] {
   if (typeof value === 'string') {
     return [{ path, text: value }]
   }
 
   if (value && typeof value === 'object') {
-    return Object.entries(value).flatMap(([key, inner]) => strings(inner, path ? `${path}.${key}` : key))
+    return Object.entries(value).flatMap(([key, inner]) =>
+      strings(inner, path ? `${path}.${key}` : key),
+    )
   }
 
   return []
@@ -211,7 +279,9 @@ function check(): number {
   }
 
   for (const { prediction, unmet } of refusals()) {
-    problems.push(`${prediction} is a prediction row whose result fails ${unmet.join(', ')}`)
+    problems.push(
+      `${prediction} is a prediction row whose result fails ${unmet.join(', ')}`,
+    )
   }
 
   for (const result of RESULTS) {
@@ -219,19 +289,25 @@ function check(): number {
 
     for (const { code, file } of result.experiments) {
       if (!codes.has(code)) {
-        problems.push(`${result.code} names ${code}, which is not registered`)
+        problems.push(
+          `${result.code} names ${code}, which is not registered`,
+        )
       }
 
       try {
         readFileSync(file)
       } catch {
-        problems.push(`${result.code} names ${file}, which does not exist`)
+        problems.push(
+          `${result.code} names ${file}, which does not exist`,
+        )
       }
     }
 
     for (const c of result.checks) {
       if (!own.has(c.code)) {
-        problems.push(`${result.code} checks ${c.code}, which is not one of its experiments`)
+        problems.push(
+          `${result.code} checks ${c.code}, which is not one of its experiments`,
+        )
       }
     }
 
@@ -261,14 +337,18 @@ function check(): number {
     console.log(line)
   }
 
-  console.log(`${NODES.size} nodes, ${RESULTS.length} results, ${problems.length} problems`)
+  console.log(
+    `${NODES.size} nodes, ${RESULTS.length} results, ${problems.length} problems`,
+  )
 
   return problems.length
 }
 
 if (command === 'list') {
   for (const r of RESULTS) {
-    console.log(`${r.code}  ${r.category.padEnd(12)}  ${r.status.join(', ').padEnd(22)}  ${r.title}`)
+    console.log(
+      `${r.code}  ${r.category.padEnd(12)}  ${r.status.join(', ').padEnd(22)}  ${r.title}`,
+    )
   }
 } else if (command === 'check') {
   process.exit(check() > 0 ? 1 : 0)
@@ -284,6 +364,8 @@ if (command === 'list') {
 
   process.exit(failed > 0 ? 1 : 0)
 } else {
-  console.error('pnpm result list | check | reproduce <code> | audit <code> [--out <file>] [--commit]')
+  console.error(
+    'pnpm result list | check | reproduce <code> | audit <code> [--out <file>] [--commit]',
+  )
   process.exit(1)
 }

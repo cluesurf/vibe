@@ -35,7 +35,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
 import {
   countDisagreement,
@@ -51,14 +55,21 @@ import { slopeError } from '@/code/measure/charge-mode'
 const BEATS = 48
 const ACTIVE = 0.5
 
-const mean = (xs: readonly number[]): number => xs.reduce((s, v) => s + v, 0) / Math.max(1, xs.length)
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((s, v) => s + v, 0) / Math.max(1, xs.length)
 
-function exponent(blocks: readonly number[], values: readonly number[]): { slope: number; error: number } {
+function exponent(
+  blocks: readonly number[],
+  values: readonly number[],
+): { slope: number; error: number } {
   const xs = blocks.map(b => Math.log(b))
   const ys = values.map(v => Math.log(v))
   const fit = linearFit({ xs, ys })
 
-  return { slope: fit.slope, error: slopeError(xs, ys, fit.slope, fit.intercept) }
+  return {
+    slope: fit.slope,
+    error: slopeError(xs, ys, fit.slope, fit.intercept),
+  }
 }
 
 function autonomy(input: {
@@ -82,23 +93,60 @@ function autonomy(input: {
       emptySlot: kind === 'gated' ? 0 : undefined,
     })
   const start = make(5, ACTIVE)
-  const same = sameScreenDisagreement({ start, side, blocks, beats: BEATS, schedule })
+  const same = sameScreenDisagreement({
+    start,
+    side,
+    blocks,
+    beats: BEATS,
+    schedule,
+  })
 
   if (input.references !== true) {
-    return { start, same, independent: [] as number[], macro: [] as number[] }
+    return {
+      start,
+      same,
+      independent: [] as number[],
+      macro: [] as number[],
+    }
   }
 
   const reference = countSeries({ start, beats: BEATS, schedule })
-  const independent = countSeries({ start: make(6, ACTIVE), beats: BEATS, schedule })
-  const other = countSeries({ start: make(6, ACTIVE + 0.1), beats: BEATS, schedule })
+  const independent = countSeries({
+    start: make(6, ACTIVE),
+    beats: BEATS,
+    schedule,
+  })
+  const other = countSeries({
+    start: make(6, ACTIVE + 0.1),
+    beats: BEATS,
+    schedule,
+  })
 
   return {
     start,
     same,
     independent: blocks.map(block =>
-      mean(countDisagreement({ a: independent, b: reference, side, block, degree: mesh.degree })),
+      mean(
+        countDisagreement({
+          a: independent,
+          b: reference,
+          side,
+          block,
+          degree: mesh.degree,
+        }),
+      ),
     ),
-    macro: blocks.map(block => mean(countDisagreement({ a: other, b: reference, side, block, degree: mesh.degree }))),
+    macro: blocks.map(block =>
+      mean(
+        countDisagreement({
+          a: other,
+          b: reference,
+          side,
+          block,
+          degree: mesh.degree,
+        }),
+      ),
+    ),
   }
 }
 
@@ -120,8 +168,18 @@ export default experiment({
     const rule9 = turningWeave({ opposite: meshOpposites(mesh9) })
 
     // (b) the committed rule at two sizes
-    const main = autonomy({ side: 15, blocks: blocks15, schedule: rule15, references: true })
-    const small = autonomy({ side: 9, blocks: blocks9, schedule: rule9, references: true })
+    const main = autonomy({
+      side: 15,
+      blocks: blocks15,
+      schedule: rule15,
+      references: true,
+    })
+    const small = autonomy({
+      side: 9,
+      blocks: blocks9,
+      schedule: rule9,
+      references: true,
+    })
     const fit15 = exponent(
       blocks15,
       main.same.map(s => s.mean),
@@ -138,22 +196,41 @@ export default experiment({
       later = run(later, rule15(t), 1)
     }
 
-    const countStart = blocks15.map(block => screenCount({ will: main.start, side: 15, block }))
-    const countLater = blocks15.map(block => screenCount({ will: later, side: 15, block }))
+    const countStart = blocks15.map(block =>
+      screenCount({ will: main.start, side: 15, block }),
+    )
+    const countLater = blocks15.map(block =>
+      screenCount({ will: later, side: 15, block }),
+    )
     const whole = countLater[countLater.length - 1]!
     const single = countLater[0]!
 
     // calibrations on L = 9
-    const streaming = autonomy({ side: 9, blocks: blocks9, schedule: () => passThrough })
+    const streaming = autonomy({
+      side: 9,
+      blocks: blocks9,
+      schedule: () => passThrough,
+    })
     const gated = gatedCycle({ gate: 0 })
-    const gatedRun = autonomy({ side: 9, blocks: blocks9, schedule: () => gated, kind: 'gated' })
+    const gatedRun = autonomy({
+      side: 9,
+      blocks: blocks9,
+      schedule: () => gated,
+      kind: 'gated',
+    })
     const gatedFit = exponent(
       blocks9,
       gatedRun.same.map(s => s.mean),
     )
-    const paired = autonomy({ side: 9, blocks: [9], schedule: rule9, kind: 'paired' })
+    const paired = autonomy({
+      side: 9,
+      blocks: [9],
+      schedule: rule9,
+      kind: 'paired',
+    })
     const pairedSeries = paired.same[0]?.series ?? []
-    const uniformWholeSeries = small.same[small.same.length - 1]?.series ?? []
+    const uniformWholeSeries =
+      small.same[small.same.length - 1]?.series ?? []
     const pairedFirst = pairedSeries[0] ?? 0
     const pairedLast = pairedSeries[pairedSeries.length - 1] ?? 0
     const uniformFirst = uniformWholeSeries[0] ?? 0
@@ -163,20 +240,33 @@ export default experiment({
     const lawOfLargeNumbers =
       Math.abs(fit15.slope + 2) < 0.4 && Math.abs(fit9.slope + 2) < 0.4
     const noWorseThanIndependent = [main, small].every(r =>
-      r.same.every((s, i) => s.block === 1 || s.mean <= 1.5 * (r.independent[i] ?? 0)),
+      r.same.every(
+        (s, i) =>
+          s.block === 1 || s.mean <= 1.5 * (r.independent[i] ?? 0),
+      ),
     )
     const wholeIndex = blocks15.length - 1
     const screenSeparates =
-      (main.macro[wholeIndex] ?? 0) > 5 * (main.same[wholeIndex]?.mean ?? 1)
+      (main.macro[wholeIndex] ?? 0) >
+      5 * (main.same[wholeIndex]?.mean ?? 1)
     // many-to-one: hidden bits rise toward the entropy bound, visible bits fall
     const countsSensible =
-      countLater.every((c, i) => i === 0 || c.hiddenBitsPerSlot > (countLater[i - 1]?.hiddenBitsPerSlot ?? 0)) &&
-      Math.abs(whole.hiddenBitsPerSlot - whole.entropyBoundPerSlot) < 1e-3 &&
+      countLater.every(
+        (c, i) =>
+          i === 0 ||
+          c.hiddenBitsPerSlot >
+            (countLater[i - 1]?.hiddenBitsPerSlot ?? 0),
+      ) &&
+      Math.abs(whole.hiddenBitsPerSlot - whole.entropyBoundPerSlot) <
+        1e-3 &&
       whole.visibleBitsPerSlot < 1e-4
     // calibrations
-    const streamingExact = (streaming.same[streaming.same.length - 1]?.series ?? [1]).every(v => v === 0)
+    const streamingExact = (
+      streaming.same[streaming.same.length - 1]?.series ?? [1]
+    ).every(v => v === 0)
     const gatedFlat = gatedFit.slope > -0.5
-    const hiddenCorrelationBreaks = pairedFirst > 5 * uniformFirst && pairedLast < pairedFirst / 4
+    const hiddenCorrelationBreaks =
+      pairedFirst > 5 * uniformFirst && pairedLast < pairedFirst / 4
     const ok =
       lawOfLargeNumbers &&
       noWorseThanIndependent &&
@@ -208,13 +298,16 @@ export default experiment({
         hiddenBitsPerSlotB3: countLater[1]?.hiddenBitsPerSlot ?? 0,
         hiddenBitsPerSlotB5: countLater[2]?.hiddenBitsPerSlot ?? 0,
         hiddenBitsPerSlotB15: whole.hiddenBitsPerSlot,
-        hiddenBitsPerSlotB15AtStart: countStart[wholeIndex]?.hiddenBitsPerSlot ?? 0,
+        hiddenBitsPerSlotB15AtStart:
+          countStart[wholeIndex]?.hiddenBitsPerSlot ?? 0,
         visibleBitsPerSlotB1: single.visibleBitsPerSlot,
         visibleBitsPerSlotB15: whole.visibleBitsPerSlot,
         entropyBoundB15: whole.entropyBoundPerSlot,
       },
       control: {
-        streamingWholeMeshLargestD: Math.max(...(streaming.same[streaming.same.length - 1]?.series ?? [1])),
+        streamingWholeMeshLargestD: Math.max(
+          ...(streaming.same[streaming.same.length - 1]?.series ?? [1]),
+        ),
         gatedExponent: gatedFit.slope,
         gatedD9: gatedRun.same[gatedRun.same.length - 1]?.mean ?? 0,
         pairedWholeMeshFirstBeat: pairedFirst,

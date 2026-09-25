@@ -16,7 +16,9 @@ import { Collision } from '@/code/rule/collision'
 // pair of nonzero slots (all four sign combinations), and a family of dense structured fills. The
 // sparse probes catch conditional moves (a swap that fires only beside an empty line), the dense ones
 // catch moves that need crowding.
-export function probeConfigurations(input: { degree: number }): Int8Array[] {
+export function probeConfigurations(input: {
+  degree: number
+}): Int8Array[] {
   const { degree } = input
   const probes: Int8Array[] = [new Int8Array(degree)]
 
@@ -105,7 +107,7 @@ export function interactionBlocks(input: {
       for (const shift of [1, 2]) {
         const changed = probe.slice()
 
-        changed[i] = ((((changed[i] ?? 0) + 1 + shift) % 3) - 1)
+        changed[i] = (((changed[i] ?? 0) + 1 + shift) % 3) - 1
 
         const out = applyCollision({ collision, state: changed })
 
@@ -134,7 +136,9 @@ export function interactionBlocks(input: {
 }
 
 // Encode the tones on a block (in the block's slot order) as a base-three index, tone t as digit t + 1.
-export function blockIndex(input: { tones: ArrayLike<number> }): number {
+export function blockIndex(input: {
+  tones: ArrayLike<number>
+}): number {
   let index = 0
 
   for (let k = input.tones.length - 1; k >= 0; k--) {
@@ -144,7 +148,10 @@ export function blockIndex(input: { tones: ArrayLike<number> }): number {
   return index
 }
 
-export function blockTones(input: { index: number; size: number }): number[] {
+export function blockTones(input: {
+  index: number
+  size: number
+}): number[] {
   const out: number[] = []
 
   let rest = input.index
@@ -196,12 +203,20 @@ export function blocksReproduceCollision(input: {
   probes: readonly Int8Array[]
 }): boolean {
   for (const probe of input.probes) {
-    const direct = applyCollision({ collision: input.collision, state: probe })
+    const direct = applyCollision({
+      collision: input.collision,
+      state: probe,
+    })
     const assembled = new Int8Array(input.degree)
 
     input.blocks.forEach((block, b) => {
-      const local = blockIndex({ tones: block.map(slot => probe[slot] ?? 0) })
-      const image = blockTones({ index: input.maps[b]?.[local] ?? 0, size: block.length })
+      const local = blockIndex({
+        tones: block.map(slot => probe[slot] ?? 0),
+      })
+      const image = blockTones({
+        index: input.maps[b]?.[local] ?? 0,
+        size: block.length,
+      })
 
       block.forEach((slot, k) => {
         assembled[slot] = image[k] ?? 0
@@ -220,7 +235,9 @@ export function blocksReproduceCollision(input: {
 
 // Every unordered triple of directions that sums to the zero vector, a closed triangle of the coin.
 // For the D4 roots each is a pair of roots and minus their sum, and each A2 subsystem holds two.
-export function zeroSumTriangles(input: { directions: readonly number[][] }): number[][] {
+export function zeroSumTriangles(input: {
+  directions: readonly number[][]
+}): number[][] {
   const { directions } = input
   const out: number[][] = []
 

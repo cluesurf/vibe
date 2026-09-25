@@ -42,10 +42,22 @@ import {
 
 const STEPS = 360
 
-type Scan = { permutationPhases: number[]; smallestSymmetry: number; largestPower: number; phaseOfLargest: number; weakestInterior: number }
+type Scan = {
+  permutationPhases: number[]
+  smallestSymmetry: number
+  largestPower: number
+  phaseOfLargest: number
+  weakestInterior: number
+}
 
 function scanFamily(kind: SlotKind): Scan {
-  const scan: Scan = { permutationPhases: [], smallestSymmetry: 9, largestPower: 0, phaseOfLargest: 0, weakestInterior: 1 }
+  const scan: Scan = {
+    permutationPhases: [],
+    smallestSymmetry: 9,
+    largestPower: 0,
+    phaseOfLargest: 0,
+    weakestInterior: 1,
+  }
 
   for (let step = 0; step < STEPS; step++) {
     const phase = (2 * Math.PI * step) / STEPS
@@ -53,7 +65,10 @@ function scanFamily(kind: SlotKind): Scan {
     const power = entanglingPower({ operator, d: 3 })
     const classical = asPermutation({ operator }) !== undefined
 
-    scan.smallestSymmetry = Math.min(scan.smallestSymmetry, symmetryDimension({ operator, d: 3, slots: ['plain', kind] }))
+    scan.smallestSymmetry = Math.min(
+      scan.smallestSymmetry,
+      symmetryDimension({ operator, d: 3, slots: ['plain', kind] }),
+    )
 
     if (classical) {
       scan.permutationPhases.push(step / STEPS)
@@ -80,43 +95,88 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const pairPlain = colourPermutations({ d: 3, slots: ['plain', 'plain'] }).length
-    const pairMixed = colourPermutations({ d: 3, slots: ['plain', 'conjugate'] }).length
-    const triple = colourPermutations({ d: 3, slots: ['plain', 'plain', 'plain'] }).length
-    const bruteForcePlain = bruteForceColourPermutations({ d: 3, slots: ['plain', 'plain'] })
-    const bruteForceMixed = bruteForceColourPermutations({ d: 3, slots: ['plain', 'conjugate'] })
+    const pairPlain = colourPermutations({
+      d: 3,
+      slots: ['plain', 'plain'],
+    }).length
+    const pairMixed = colourPermutations({
+      d: 3,
+      slots: ['plain', 'conjugate'],
+    }).length
+    const triple = colourPermutations({
+      d: 3,
+      slots: ['plain', 'plain', 'plain'],
+    }).length
+    const bruteForcePlain = bruteForceColourPermutations({
+      d: 3,
+      slots: ['plain', 'plain'],
+    })
+    const bruteForceMixed = bruteForceColourPermutations({
+      d: 3,
+      slots: ['plain', 'conjugate'],
+    })
 
     const plain = scanFamily('plain')
     const mixed = scanFamily('conjugate')
 
     // the rule's vacuum clock, the tone cycle t -> t + 1, as colour, then as a separate factor
     const clock = permutationOperator({ map: [1, 2, 0] })
-    const clockAsColour = symmetryDimension({ operator: clock, d: 3, slots: ['plain'] })
+    const clockAsColour = symmetryDimension({
+      operator: clock,
+      d: 3,
+      slots: ['plain'],
+    })
     const colourIdentity = identityOperator({ size: 3 })
     const clockBesideColour = symmetryDimension({
       operator: kroneckerOperator(clock, colourIdentity),
       d: 3,
       slots: ['plain'],
-      lift: (generator: Operator) => kroneckerOperator(colourIdentity, generator),
+      lift: (generator: Operator) =>
+        kroneckerOperator(colourIdentity, generator),
     })
 
-    const cartanPairs = colourPermutations({ d: 3, slots: ['plain', 'plain'], diagonal: true }).length
-    const qubitRootSwap = entanglingPower({ operator: pairExchangeUnitary({ d: 2, kind: 'plain', phase: Math.PI / 2 }), d: 2 })
+    const cartanPairs = colourPermutations({
+      d: 3,
+      slots: ['plain', 'plain'],
+      diagonal: true,
+    }).length
+    const qubitRootSwap = entanglingPower({
+      operator: pairExchangeUnitary({
+        d: 2,
+        kind: 'plain',
+        phase: Math.PI / 2,
+      }),
+      d: 2,
+    })
 
     const classicalIsRelabelling =
-      pairPlain === 2 && pairMixed === 1 && triple === 6 && bruteForcePlain === 2 && bruteForceMixed === 1
-    const circleIsSymmetric = plain.smallestSymmetry === 9 && mixed.smallestSymmetry === 9
+      pairPlain === 2 &&
+      pairMixed === 1 &&
+      triple === 6 &&
+      bruteForcePlain === 2 &&
+      bruteForceMixed === 1
+    const circleIsSymmetric =
+      plain.smallestSymmetry === 9 && mixed.smallestSymmetry === 9
     const onlyEndpointsClassical =
-      plain.permutationPhases.join() === '0,0.5' && mixed.permutationPhases.join() === '0'
-    const interiorEntangles = plain.weakestInterior > 1e-6 && mixed.weakestInterior > 1e-6
+      plain.permutationPhases.join() === '0,0.5' &&
+      mixed.permutationPhases.join() === '0'
+    const interiorEntangles =
+      plain.weakestInterior > 1e-6 && mixed.weakestInterior > 1e-6
     const clockSplits = clockAsColour === 3 && clockBesideColour === 9
-    const controlsWork = cartanPairs === 8 && Math.abs(qubitRootSwap - 1 / 6) < 1e-12
-    const ok = classicalIsRelabelling && circleIsSymmetric && onlyEndpointsClassical && interiorEntangles && clockSplits && controlsWork
+    const controlsWork =
+      cartanPairs === 8 && Math.abs(qubitRootSwap - 1 / 6) < 1e-12
+    const ok =
+      classicalIsRelabelling &&
+      circleIsSymmetric &&
+      onlyEndpointsClassical &&
+      interiorEntangles &&
+      clockSplits &&
+      controlsWork
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'of the 9! = 362,880 reversible maps of a pair of three-state slots, exactly 2 (identity and swap) commute with SU(3), 1 does for a triplet and an antitriplet, and 6 of the 27! for three triplets, so a colour-symmetric classical rule can only move colour around and never mix it. The colour-symmetric pair unitaries form a circle, every point of it keeps all 9 u(3) generators, and its only classical points are identity and swap: every other point entangles colour, with entangling power up to 1/4. A tone that is also the rule\'s clock keeps 3 of the 9 generators, a separate colour factor beside the clock keeps all 9',
+        "of the 9! = 362,880 reversible maps of a pair of three-state slots, exactly 2 (identity and swap) commute with SU(3), 1 does for a triplet and an antitriplet, and 6 of the 27! for three triplets, so a colour-symmetric classical rule can only move colour around and never mix it. The colour-symmetric pair unitaries form a circle, every point of it keeps all 9 u(3) generators, and its only classical points are identity and swap: every other point entangles colour, with entangling power up to 1/4. A tone that is also the rule's clock keeps 3 of the 9 generators, a separate colour factor beside the clock keeps all 9",
       metrics: {
         pairPermutationsTriplets: pairPlain,
         pairPermutationsTripletAntitriplet: pairMixed,
@@ -124,12 +184,16 @@ export default experiment({
         bruteForcePairTriplets: bruteForcePlain,
         bruteForcePairTripletAntitriplet: bruteForceMixed,
         classicalPhasesTriplets: plain.permutationPhases.length,
-        classicalPhasesTripletAntitriplet: mixed.permutationPhases.length,
+        classicalPhasesTripletAntitriplet:
+          mixed.permutationPhases.length,
         largestEntanglingPowerTriplets: plain.largestPower,
         phaseOfLargestTriplets: plain.phaseOfLargest,
         largestEntanglingPowerTripletAntitriplet: mixed.largestPower,
         phaseOfLargestTripletAntitriplet: mixed.phaseOfLargest,
-        smallestSymmetryOnTheCircle: Math.min(plain.smallestSymmetry, mixed.smallestSymmetry),
+        smallestSymmetryOnTheCircle: Math.min(
+          plain.smallestSymmetry,
+          mixed.smallestSymmetry,
+        ),
         clockAsColourSymmetry: clockAsColour,
         clockBesideColourSymmetry: clockBesideColour,
       },

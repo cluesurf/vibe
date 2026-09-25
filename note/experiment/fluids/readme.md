@@ -50,6 +50,7 @@ The hardest fluid limits, superfluidity and the turbulent cascade.
 
 - **[`E-FLD-0014`](../../../test/experiment/fluids/sound-superposition-interference.ts)** - (L2, paper) disjoint pulses superpose exactly, a compression crossing a rarefaction cancels to 0.45 of the separate sum, and the overlap nonlinearity is the measured obstruction to a unitary coarse dynamics
 - **[`E-FLD-0015`](../../../test/experiment/fluids/no-wavelength-independent-damping.ts)** - (L2, paper) the exact echo plus a k -> 0 damping intercept consistent with zero, against the leaky control that shows its imposed intercept: the one measured number separating this gas from the Chronoflux damped fluid limit
+- **[`E-FLD-0020`](../../../test/experiment/fluids/charge-mode-law.ts)** - (L3) the committed rule's long charge modes: charge conserved exactly, half the mode moves at exactly one cell per beat (omega = k), and the rest relaxes at a wavelength-independent rate near 0.0015 per beat (exponent -0.08 +- 0.03, neither 2 for diffusion nor 1 for a damped front), a nearly collisionless gas at every scale reached, while pure streaming relaxes nothing. See [`../scale/engine-and-screen.md`](../scale/engine-and-screen.md)
 
 ## What it establishes
 

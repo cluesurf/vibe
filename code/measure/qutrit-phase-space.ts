@@ -22,7 +22,10 @@ const OMEGA_IM = Math.sin((2 * Math.PI) / 3)
 function omegaPower(k: number): [number, number] {
   const r = ((k % 3) + 3) % 3
 
-  return [Math.cos((2 * Math.PI * r) / 3), Math.sin((2 * Math.PI * r) / 3)]
+  return [
+    Math.cos((2 * Math.PI * r) / 3),
+    Math.sin((2 * Math.PI * r) / 3),
+  ]
 }
 
 function zero3(): Matrix3 {
@@ -72,9 +75,9 @@ export function phasePoint(a: number, b: number): Matrix3 {
   return multiply3(multiply3(d, parity), dagger3(d))
 }
 
-export const PHASE_POINTS: readonly [number, number][] = [0, 1, 2].flatMap(a =>
-  [0, 1, 2].map(b => [a, b] as [number, number]),
-)
+export const PHASE_POINTS: readonly [number, number][] = [
+  0, 1, 2,
+].flatMap(a => [0, 1, 2].map(b => [a, b] as [number, number]))
 
 function distance(a: Matrix3, b: Matrix3): number {
   let sum = 0
@@ -88,7 +91,10 @@ function distance(a: Matrix3, b: Matrix3): number {
 
 // The permutation of the nine phase points a unitary induces by conjugation, or undefined when some
 // A(p) is not carried to another A(q), i.e. the unitary is not classical on phase space.
-export function phaseSpaceAction(input: { unitary: Matrix3; tolerance?: number }): number[] | undefined {
+export function phaseSpaceAction(input: {
+  unitary: Matrix3
+  tolerance?: number
+}): number[] | undefined {
   const { unitary, tolerance = 1e-8 } = input
   const adjoint = dagger3(unitary)
   const points = PHASE_POINTS.map(([a, b]) => phasePoint(a, b))
@@ -96,7 +102,9 @@ export function phaseSpaceAction(input: { unitary: Matrix3; tolerance?: number }
 
   for (const point of points) {
     const image = multiply3(multiply3(unitary, point), adjoint)
-    const found = points.findIndex(candidate => distance(candidate, image) < tolerance)
+    const found = points.findIndex(
+      candidate => distance(candidate, image) < tolerance,
+    )
 
     if (found < 0) {
       return undefined
@@ -110,10 +118,17 @@ export function phaseSpaceAction(input: { unitary: Matrix3; tolerance?: number }
 
 // The affine map p -> M p + t that a phase-space permutation is, read from the images of the origin
 // and the two unit vectors, or undefined when the permutation is not affine.
-export function affineOf(input: { map: readonly number[] }): { matrix: [number, number, number, number]; shift: [number, number] } | undefined {
+export function affineOf(input: { map: readonly number[] }):
+  | {
+      matrix: [number, number, number, number]
+      shift: [number, number]
+    }
+  | undefined {
   const { map } = input
-  const at = (index: number): [number, number] => PHASE_POINTS[map[index] ?? 0] ?? [0, 0]
-  const indexOf = (a: number, b: number): number => 3 * (((a % 3) + 3) % 3) + (((b % 3) + 3) % 3)
+  const at = (index: number): [number, number] =>
+    PHASE_POINTS[map[index] ?? 0] ?? [0, 0]
+  const indexOf = (a: number, b: number): number =>
+    3 * (((a % 3) + 3) % 3) + (((b % 3) + 3) % 3)
   const shift = at(indexOf(0, 0))
   const e1 = at(indexOf(1, 0))
   const e2 = at(indexOf(0, 1))
@@ -140,11 +155,15 @@ export function affineOf(input: { map: readonly number[] }): { matrix: [number, 
 }
 
 // The Wigner function of a pure state |psi>, W(a, b) = <psi|A(a, b)|psi> / 3.
-export function wignerFunction(input: { re: readonly number[]; im: readonly number[] }): number[] {
+export function wignerFunction(input: {
+  re: readonly number[]
+  im: readonly number[]
+}): number[] {
   const { re, im } = input
 
   return PHASE_POINTS.map(([a, b]) => {
     const point = phasePoint(a, b)
+
     let sum = 0
 
     for (let i = 0; i < 3; i++) {
@@ -152,8 +171,10 @@ export function wignerFunction(input: { re: readonly number[]; im: readonly numb
         const ar = point[2 * (3 * i + j)] ?? 0
         const ai = point[2 * (3 * i + j) + 1] ?? 0
         // conj(psi_i) A_ij psi_j, real part
-        const xr = (re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0)
-        const xi = (re[i] ?? 0) * (im[j] ?? 0) - (im[i] ?? 0) * (re[j] ?? 0)
+        const xr =
+          (re[i] ?? 0) * (re[j] ?? 0) + (im[i] ?? 0) * (im[j] ?? 0)
+        const xi =
+          (re[i] ?? 0) * (im[j] ?? 0) - (im[i] ?? 0) * (re[j] ?? 0)
 
         sum += ar * xr - ai * xi
       }
@@ -164,7 +185,11 @@ export function wignerFunction(input: { re: readonly number[]; im: readonly numb
 }
 
 // Apply a 3 x 3 unitary to a state.
-export function applyUnitary(input: { unitary: Matrix3; re: readonly number[]; im: readonly number[] }): {
+export function applyUnitary(input: {
+  unitary: Matrix3
+  re: readonly number[]
+  im: readonly number[]
+}): {
   re: number[]
   im: number[]
 } {
@@ -187,7 +212,10 @@ export function applyUnitary(input: { unitary: Matrix3; re: readonly number[]; i
 
 // The Wigner negativity, the sum of |W| over the points where W < 0: zero for a classical state.
 export function wignerNegativity(wigner: readonly number[]): number {
-  return wigner.reduce((sum, value) => sum + (value < 0 ? -value : 0), 0)
+  return wigner.reduce(
+    (sum, value) => sum + (value < 0 ? -value : 0),
+    0,
+  )
 }
 
 export const OMEGA: readonly [number, number] = [OMEGA_RE, OMEGA_IM]

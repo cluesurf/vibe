@@ -31,9 +31,13 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
-import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
 
-const keyOf = (list: readonly number[]): string => [...list].sort((a, b) => a - b).join(',')
+const keyOf = (list: readonly number[]): string =>
+  [...list].sort((a, b) => a - b).join(',')
 
 // the 12 lines, each a pair of opposite directions, and the permutation of lines a direction
 // permutation induces
@@ -49,8 +53,16 @@ function linesOf(opposite: readonly number[]): number[][] {
   return lines
 }
 
-function linePermutation(permutation: readonly number[], lines: readonly number[][]): number[] {
-  return lines.map(line => lines.findIndex(other => keyOf(other) === keyOf(line.map(d => permutation[d] ?? d))))
+function linePermutation(
+  permutation: readonly number[],
+  lines: readonly number[][],
+): number[] {
+  return lines.map(line =>
+    lines.findIndex(
+      other =>
+        keyOf(other) === keyOf(line.map(d => permutation[d] ?? d)),
+    ),
+  )
 }
 
 // every perfect matching of 12 items into 6 unordered pairs (10,395 of them)
@@ -73,24 +85,35 @@ function perfectMatchings(items: readonly number[]): number[][][] {
   return out
 }
 
-function invariantMatchings(matchings: readonly number[][][], lineMap: readonly number[]): number {
+function invariantMatchings(
+  matchings: readonly number[][][],
+  lineMap: readonly number[],
+): number {
   return matchings.filter(matching => {
     const keys = new Set(matching.map(pair => keyOf(pair)))
 
-    return matching.every(pair => keys.has(keyOf(pair.map(l => lineMap[l] ?? l))))
+    return matching.every(pair =>
+      keys.has(keyOf(pair.map(l => lineMap[l] ?? l))),
+    )
   }).length
 }
 
 // the size of the smallest sigma-invariant set of lines holding a fixed line and a moved one
 function smallestJoiningBlock(lineMap: readonly number[]): number {
-  const fixed = lineMap.map((image, l) => (image === l ? l : -1)).filter(l => l >= 0)
-  const moved = lineMap.map((image, l) => (image === l ? -1 : l)).filter(l => l >= 0)
+  const fixed = lineMap
+    .map((image, l) => (image === l ? l : -1))
+    .filter(l => l >= 0)
+  const moved = lineMap
+    .map((image, l) => (image === l ? -1 : l))
+    .filter(l => l >= 0)
+
   let best = Number.POSITIVE_INFINITY
 
   for (const f of fixed) {
     for (const m of moved) {
       // the invariant closure of {f, m}
       const block = new Set([f, m])
+
       let grew = true
 
       while (grew) {
@@ -126,13 +149,26 @@ export default experiment({
     const roots = rootsD4()
     const opposite = meshOpposites(d4Mesh({ side: 3 }))
     const lines = linesOf(opposite)
-    const permutations = weylF4DirectionPermutations({ directions: roots })
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
     const triangles = zeroSumTriangles({ directions: roots })
-    const planes = new Set(triangles.map(t => keyOf([...t, ...t.map(d => opposite[d] ?? d)])))
-    const orderThree = permutations.filter(p => permutationOrder({ permutation: p }) === 3)
-    const fixedOf = (p: readonly number[]): number[] => p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0)
-    const selectors = orderThree.filter(p => fixedOf(p).length === 6 && planes.has(keyOf(fixedOf(p))))
-    const fixedPointFree = orderThree.filter(p => fixedOf(p).length === 0)
+    const planes = new Set(
+      triangles.map(t =>
+        keyOf([...t, ...t.map(d => opposite[d] ?? d)]),
+      ),
+    )
+    const orderThree = permutations.filter(
+      p => permutationOrder({ permutation: p }) === 3,
+    )
+    const fixedOf = (p: readonly number[]): number[] =>
+      p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0)
+    const selectors = orderThree.filter(
+      p => fixedOf(p).length === 6 && planes.has(keyOf(fixedOf(p))),
+    )
+    const fixedPointFree = orderThree.filter(
+      p => fixedOf(p).length === 0,
+    )
     const matchings = perfectMatchings(lines.map((_, l) => l))
 
     // 1 and 2, over every selector
@@ -142,22 +178,40 @@ export default experiment({
 
       return fixedLines === 3
     })
-    const invariantPerfect = lineMaps.reduce((sum, map) => sum + invariantMatchings(matchings, map), 0)
+    const invariantPerfect = lineMaps.reduce(
+      (sum, map) => sum + invariantMatchings(matchings, map),
+      0,
+    )
     const joiningBlock = Math.min(...lineMaps.map(smallestJoiningBlock))
 
     // the control: fixed-point-free order-three elements admit invariant perfect matchings
-    const controlInvariant = linePermutation(fixedPointFree[0] ?? [], lines)
+    const controlInvariant = linePermutation(
+      fixedPointFree[0] ?? [],
+      lines,
+    )
     const controlCount = invariantMatchings(matchings, controlInvariant)
 
     // 3. which spatial parities commute with a selector, and which invert it
     const identity = roots.map((_, d) => d)
-    const inversion = roots.map(root => roots.findIndex(other => other.every((x, k) => x === -(root[k] ?? 0))))
-    const compose = (a: readonly number[], b: readonly number[]): number[] => b.map(d => a[d] ?? d)
+    const inversion = roots.map(root =>
+      roots.findIndex(other =>
+        other.every((x, k) => x === -(root[k] ?? 0)),
+      ),
+    )
+    const compose = (
+      a: readonly number[],
+      b: readonly number[],
+    ): number[] => b.map(d => a[d] ?? d)
     const sigma = selectors[0] ?? identity
     const sigmaInverse = compose(sigma, sigma)
-    const commutes = (pi: readonly number[]): boolean => keyOf(compose(pi, sigma).map((v, k) => v * 100 + k)) === keyOf(compose(sigma, pi).map((v, k) => v * 100 + k))
+    const commutes = (pi: readonly number[]): boolean =>
+      keyOf(compose(pi, sigma).map((v, k) => v * 100 + k)) ===
+      keyOf(compose(sigma, pi).map((v, k) => v * 100 + k))
     const inverts = (pi: readonly number[]): boolean =>
-      compose(compose(pi, sigma), pi.map((_, d) => pi.indexOf(d))).every((v, k) => v === sigmaInverse[k])
+      compose(
+        compose(pi, sigma),
+        pi.map((_, d) => pi.indexOf(d)),
+      ).every((v, k) => v === sigmaInverse[k])
     const identityCommutes = commutes(identity)
     const inversionCommutes = commutes(inversion)
     const inverting = permutations.filter(inverts).length

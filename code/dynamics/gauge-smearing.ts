@@ -38,7 +38,13 @@ export function apeSmear(input: {
 
     for (let site = 0; site < geometry.sites; site++) {
       for (const mu of spatial) {
-        stapleInto({ lattice: current, site, mu, out: staple, directions: spatial })
+        stapleInto({
+          lattice: current,
+          site,
+          mu,
+          out: staple,
+          directions: spatial,
+        })
 
         const from = linkSlot({ lattice: current, site, mu })
         const to = linkSlot({ lattice: next, site, mu })
@@ -50,10 +56,12 @@ export function apeSmear(input: {
             const kt = 2 * (j * n + i)
 
             to.data[to.offset + k] =
-              (1 - alpha) * (from.data[from.offset + k] ?? 0) + weight * (staple.data[kt] ?? 0)
+              (1 - alpha) * (from.data[from.offset + k] ?? 0) +
+              weight * (staple.data[kt] ?? 0)
 
             to.data[to.offset + k + 1] =
-              (1 - alpha) * (from.data[from.offset + k + 1] ?? 0) - weight * (staple.data[kt + 1] ?? 0)
+              (1 - alpha) * (from.data[from.offset + k + 1] ?? 0) -
+              weight * (staple.data[kt + 1] ?? 0)
           }
         }
 

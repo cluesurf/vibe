@@ -19,12 +19,18 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
-import { makeGaugeLattice, sampleGaugeEnsemble } from '@/code/dynamics/gauge-lattice'
+import {
+  makeGaugeLattice,
+  sampleGaugeEnsemble,
+} from '@/code/dynamics/gauge-lattice'
 import { apeSmear } from '@/code/dynamics/gauge-smearing'
 import { staticWilsonLoops } from '@/code/measure/lattice-gauge-observable'
 import { averageSeries, jackknife } from '@/code/measure/jackknife'
 import { potentialAt } from '@/code/measure/static-potential'
-import { weightedLeastSquares, weightedLinearFit } from '@/code/measure/regression'
+import {
+  weightedLeastSquares,
+  weightedLinearFit,
+} from '@/code/measure/regression'
 
 const LENGTH = 16
 const MAX_R = 6
@@ -34,9 +40,17 @@ const BETAS = [5, 7, 9]
 // sqrt(sigma) / g^2 in the continuum, 3D SU(2) (Teper, Phys. Rev. D 59 (1999) 014512)
 const CONTINUUM = 0.3353
 
-function tensionAt(input: { beta: number; seed: number }): { value: number; error: number } {
+function tensionAt(input: { beta: number; seed: number }): {
+  value: number
+  error: number
+} {
   const rng = makeRng({ seed: input.seed })
-  const lattice = makeGaugeLattice({ group: 'su2', lengths: [LENGTH, LENGTH, LENGTH], start: 'cold', rng })
+  const lattice = makeGaugeLattice({
+    group: 'su2',
+    lengths: [LENGTH, LENGTH, LENGTH],
+    start: 'cold',
+    rng,
+  })
   const samples = sampleGaugeEnsemble({
     lattice,
     beta: input.beta,
@@ -47,7 +61,11 @@ function tensionAt(input: { beta: number; seed: number }): { value: number; erro
     rng,
     measure: current =>
       staticWilsonLoops({
-        spatial: apeSmear({ lattice: current, alpha: 0.5, iterations: 10 }),
+        spatial: apeSmear({
+          lattice: current,
+          alpha: 0.5,
+          iterations: 10,
+        }),
         temporal: current,
         maxR: MAX_R,
         maxT: MAX_T + 1,
@@ -58,7 +76,10 @@ function tensionAt(input: { beta: number; seed: number }): { value: number; erro
   const sigma = (subset: readonly number[][]): number => {
     const mean = averageSeries({ series: subset })
     const table = Array.from({ length: MAX_R + 1 }, (_, r) =>
-      Array.from({ length: width }, (__, t) => mean[r * width + t] ?? 1),
+      Array.from(
+        { length: width },
+        (__, t) => mean[r * width + t] ?? 1,
+      ),
     )
     const v = potentialAt({ table, t: PLATEAU_T, maxR: MAX_R }).slice(1)
     // in three dimensions the one-gluon exchange is logarithmic, V ~ c ln R, not c / R
@@ -87,7 +108,9 @@ export default experiment({
     const points = BETAS.map((beta, index) => {
       const sigma = tensionAt({ beta, seed: 70 + index })
       const scaled = (beta * Math.sqrt(Math.max(sigma.value, 0))) / 4
-      const error = (beta / 4) * (sigma.error / (2 * Math.sqrt(Math.max(sigma.value, 1e-12))))
+      const error =
+        (beta / 4) *
+        (sigma.error / (2 * Math.sqrt(Math.max(sigma.value, 1e-12))))
 
       return { beta, sigma, scaled, error }
     })
@@ -96,11 +119,19 @@ export default experiment({
       ys: points.map(p => p.scaled),
       errors: points.map(p => p.error),
     })
-    const continuumPull = (extrapolation.intercept - CONTINUUM) / extrapolation.interceptError
+    const continuumPull =
+      (extrapolation.intercept - CONTINUUM) /
+      extrapolation.interceptError
 
-    const confines = points.every(p => p.sigma.value > 5 * p.sigma.error)
-    const shrinks = points.every((p, i) => i === 0 || p.sigma.value < (points[i - 1]?.sigma.value ?? 0))
-    const continuum = Math.abs(continuumPull) < 3 && extrapolation.chi2 < 9
+    const confines = points.every(
+      p => p.sigma.value > 5 * p.sigma.error,
+    )
+    const shrinks = points.every(
+      (p, i) =>
+        i === 0 || p.sigma.value < (points[i - 1]?.sigma.value ?? 0),
+    )
+    const continuum =
+      Math.abs(continuumPull) < 3 && extrapolation.chi2 < 9
     const ok = confines && shrinks && continuum
 
     return verdict({

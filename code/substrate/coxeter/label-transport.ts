@@ -30,7 +30,10 @@
 // minus the mirror in the step direction, orientation reversing, so neighbouring cells see the coin
 // with opposite handedness. Stated wherever it is used.
 
-import { coxeterCellFrame, type CoxeterCellFrame } from '@/code/substrate/coxeter/frame'
+import {
+  coxeterCellFrame,
+  type CoxeterCellFrame,
+} from '@/code/substrate/coxeter/frame'
 import {
   type Mat,
   type Vec,
@@ -66,7 +69,10 @@ export type LabelledCoin = {
   readonly directions: Vec[]
 }
 
-function reflectionThroughCentre(input: { direction: Vec; metric: number[] }): Mat {
+function reflectionThroughCentre(input: {
+  direction: Vec
+  metric: number[]
+}): Mat {
   const { direction, metric } = input
   const norm = Math.sqrt(innerJ(direction, direction, metric))
 
@@ -81,7 +87,10 @@ function maxAbsDifference(a: Mat, b: Mat): number {
 
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < a.length; j++) {
-      worst = Math.max(worst, Math.abs((a[i]?.[j] ?? 0) - (b[i]?.[j] ?? 0)))
+      worst = Math.max(
+        worst,
+        Math.abs((a[i]?.[j] ?? 0) - (b[i]?.[j] ?? 0)),
+      )
     }
   }
 
@@ -97,17 +106,26 @@ export function labelledCoin(): LabelledCoin {
 
   // the facet directions: the step to each neighbour's center, projected off c0
   const directions = faces.map(face => {
-    const step = matVec(face, center).map((v, a) => v - (center[a] ?? 0))
+    const step = matVec(face, center).map(
+      (v, a) => v - (center[a] ?? 0),
+    )
     const along = innerJ(step, center, metric) / c0c0
 
     return step.map((v, a) => v - along * (center[a] ?? 0))
   })
   const scale = 2 / innerJ(directions[0]!, directions[0]!, metric)
-  const gram = directions.map(a => directions.map(b => scale * innerJ(a, b, metric)))
+  const gram = directions.map(a =>
+    directions.map(b => scale * innerJ(a, b, metric)),
+  )
 
   const roots = rootsD4()
-  const dot = (a: number[], b: number[]): number => a.reduce((s, v, i) => s + v * (b[i] ?? 0), 0)
-  const opposite = roots.map(root => roots.findIndex(other => other.every((v, i) => v === -(root[i] ?? 0))))
+  const dot = (a: number[], b: number[]): number =>
+    a.reduce((s, v, i) => s + v * (b[i] ?? 0), 0)
+  const opposite = roots.map(root =>
+    roots.findIndex(other =>
+      other.every((v, i) => v === -(root[i] ?? 0)),
+    ),
+  )
   // four independent roots, (1,1,0,0), (1,-1,0,0), (0,0,1,1), (0,0,1,-1)
   const basisRoots = [
     [1, 1, 0, 0],
@@ -115,9 +133,13 @@ export function labelledCoin(): LabelledCoin {
     [0, 0, 1, 1],
     [0, 0, 1, -1],
   ]
-  const basis = basisRoots.map(b => roots.findIndex(r => r.every((v, i) => v === b[i])))
+  const basis = basisRoots.map(b =>
+    roots.findIndex(r => r.every((v, i) => v === b[i])),
+  )
   // every root in that basis: r = sum_i c_i b_i, the basis is orthogonal with norm 2
-  const coefficients = roots.map(r => basisRoots.map(b => dot(r, b) / 2))
+  const coefficients = roots.map(r =>
+    basisRoots.map(b => dot(r, b) / 2),
+  )
 
   let faceOfLabel: number[] = []
   let gramError = Number.POSITIVE_INFINITY
@@ -130,10 +152,16 @@ export function labelledCoin(): LabelledCoin {
     for (let k = 0; k < roots.length; k++) {
       const c = coefficients[k]!
       const target = directions[0]!.map((_, a) =>
-        chosen.reduce((s, face, i) => s + (c[i] ?? 0) * (directions[face]?.[a] ?? 0), 0),
+        chosen.reduce(
+          (s, face, i) =>
+            s + (c[i] ?? 0) * (directions[face]?.[a] ?? 0),
+          0,
+        ),
       )
       const match = directions.findIndex(
-        d => d.reduce((s, v, a) => s + Math.abs(v - (target[a] ?? 0)), 0) < 1e-6,
+        d =>
+          d.reduce((s, v, a) => s + Math.abs(v - (target[a] ?? 0)), 0) <
+          1e-6,
       )
 
       if (match < 0 || map.includes(match)) {
@@ -160,7 +188,10 @@ export function labelledCoin(): LabelledCoin {
 
       const fits = chosen.every(
         (other, i) =>
-          Math.abs((gram[face]?.[other] ?? 0) - dot(roots[basis[depth]!]!, roots[basis[i]!]!)) < 1e-6,
+          Math.abs(
+            (gram[face]?.[other] ?? 0) -
+              dot(roots[basis[depth]!]!, roots[basis[i]!]!),
+          ) < 1e-6,
       )
 
       if (!fits || Math.abs((gram[face]?.[face] ?? 0) - 2) > 1e-6) {
@@ -186,13 +217,18 @@ export function labelledCoin(): LabelledCoin {
       for (let l = 0; l < roots.length; l++) {
         const g = gram[faceOfLabel[k]!]?.[faceOfLabel[l]!] ?? 0
 
-        gramError = Math.max(gramError, Math.abs(g - dot(roots[k]!, roots[l]!)))
+        gramError = Math.max(
+          gramError,
+          Math.abs(g - dot(roots[k]!, roots[l]!)),
+        )
       }
     }
   }
 
   // the cell stabilizer, by BFS over the four cell mirrors, keyed by the rounded matrix
-  const mirrors = normals.slice(0, 4).map(normal => reflectionMatrix(normal, metric))
+  const mirrors = normals
+    .slice(0, 4)
+    .map(normal => reflectionMatrix(normal, metric))
   const stabilizer: Mat[] = [identity(dim)]
   const seen = new Set<string>([pointKey(stabilizer[0]!.flat())])
 
@@ -213,13 +249,19 @@ export function labelledCoin(): LabelledCoin {
   const inversion: Mat = Array.from({ length: dim }, (_, a) =>
     Array.from(
       { length: dim },
-      (_, b) => (a === b ? -1 : 0) + (2 * (center[a] ?? 0) * (metric[b] ?? 1) * (center[b] ?? 0)) / c0c0,
+      (_, b) =>
+        (a === b ? -1 : 0) +
+        (2 * (center[a] ?? 0) * (metric[b] ?? 1) * (center[b] ?? 0)) /
+          c0c0,
     ),
   )
   const inversionExchangesAntipodes = faceOfLabel.every((face, k) => {
     const conjugate = matMul(matMul(inversion, faces[face]!), inversion)
 
-    return maxAbsDifference(conjugate, faces[faceOfLabel[opposite[k]!]!]!) < 1e-9
+    return (
+      maxAbsDifference(conjugate, faces[faceOfLabel[opposite[k]!]!]!) <
+      1e-9
+    )
   })
 
   return {
@@ -236,7 +278,10 @@ export function labelledCoin(): LabelledCoin {
 }
 
 // The frame step across the facet labelled k, tau_k = F_k X_k.
-export function labelTransports(input: { coin: LabelledCoin; kind: TransportKind }): Mat[] {
+export function labelTransports(input: {
+  coin: LabelledCoin
+  kind: TransportKind
+}): Mat[] {
   const { coin, kind } = input
   const { faces, metric } = coin.frame
 
@@ -244,7 +289,10 @@ export function labelTransports(input: { coin: LabelledCoin; kind: TransportKind
     const second =
       kind === 'antipodal'
         ? coin.inversion
-        : reflectionThroughCentre({ direction: coin.directions[k]!, metric })
+        : reflectionThroughCentre({
+            direction: coin.directions[k]!,
+            metric,
+          })
 
     return matMul(faces[face]!, second)
   })
@@ -293,7 +341,8 @@ export function buildHyperbolicBall(input: {
   const transports = labelTransports({ coin, kind })
   const { center, timeAxis } = coin.frame
   const degree = transports.length
-  const keyOf = (g: Mat): string => pointKey(toPoincare(matVec(g, center), timeAxis))
+  const keyOf = (g: Mat): string =>
+    pointKey(toPoincare(matVec(g, center), timeAxis))
   const frames: Mat[] = [identity(coin.frame.dim)]
   const keys: string[] = [keyOf(frames[0]!)]
   const index = new Map<string, number>([[keys[0]!, 0]])
@@ -357,7 +406,10 @@ export function buildHyperbolicBall(input: {
     for (let k = 0; k < degree; k++) {
       const n = table[c * degree + k] ?? phantom
 
-      if (n !== phantom && table[n * degree + (coin.opposite[k] ?? 0)] !== c) {
+      if (
+        n !== phantom &&
+        table[n * degree + (coin.opposite[k] ?? 0)] !== c
+      ) {
         returnsExactly = false
       }
     }
@@ -404,7 +456,10 @@ export type CuspLayer = {
   readonly layerDegree: number[]
 }
 
-export function cuspLayer(input: { coin: LabelledCoin; skinRadius: number }): CuspLayer {
+export function cuspLayer(input: {
+  coin: LabelledCoin
+  skinRadius: number
+}): CuspLayer {
   const { coin, skinRadius } = input
   const { normals, metric, center, timeAxis, dim } = coin.frame
   const transports = labelTransports({ coin, kind: 'antipodal' })
@@ -418,11 +473,17 @@ export function cuspLayer(input: { coin: LabelledCoin; skinRadius: number }): Cu
 
   const inverse = (g: Mat): Mat =>
     Array.from({ length: dim }, (_, a) =>
-      Array.from({ length: dim }, (_, b) => (metric[a] ?? 1) * (g[b]?.[a] ?? 0) * (metric[b] ?? 1)),
+      Array.from(
+        { length: dim },
+        (_, b) =>
+          (metric[a] ?? 1) * (g[b]?.[a] ?? 0) * (metric[b] ?? 1),
+      ),
     )
   // the 24 vertices of the base cell, the orbit of the vertex under its four cell mirrors. A cell with
   // frame g touches the vertex exactly when g^-1 v is one of them.
-  const mirrors = normals.slice(0, 4).map(normal => reflectionMatrix(normal, metric))
+  const mirrors = normals
+    .slice(0, 4)
+    .map(normal => reflectionMatrix(normal, metric))
   const baseVertices = new Set<string>([pointKey(unit(vertex))])
   const queue: Vec[] = [unit(vertex)]
 
@@ -438,8 +499,10 @@ export function cuspLayer(input: { coin: LabelledCoin; skinRadius: number }): Cu
     }
   }
 
-  const touches = (g: Mat): boolean => baseVertices.has(pointKey(unit(matVec(inverse(g), vertex))))
-  const keyOf = (g: Mat): string => pointKey(toPoincare(matVec(g, center), timeAxis))
+  const touches = (g: Mat): boolean =>
+    baseVertices.has(pointKey(unit(matVec(inverse(g), vertex))))
+  const keyOf = (g: Mat): string =>
+    pointKey(toPoincare(matVec(g, center), timeAxis))
   const frames: Mat[] = [identity(dim)]
   const skin = new Map<string, number>([[keyOf(frames[0]!), 0]])
   const layerDegree: number[] = []
@@ -502,7 +565,9 @@ export function bulkDistance(input: {
   let best: number | undefined
 
   far.frames.forEach((frame, i) => {
-    const key = pointKey(toPoincare(matVec(matMul(target, frame), center), timeAxis))
+    const key = pointKey(
+      toPoincare(matVec(matMul(target, frame), center), timeAxis),
+    )
     const hit = index.get(key)
 
     if (hit !== undefined) {

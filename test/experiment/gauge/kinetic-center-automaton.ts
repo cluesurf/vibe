@@ -56,7 +56,10 @@ const GAP_HIGH_BETA = 0.65
 
 type Step = { lattice: CenterLattice; demons: Int8Array; sweep: number }
 
-function forward({ lattice, demons, sweep }: Step, kinetic: boolean): void {
+function forward(
+  { lattice, demons, sweep }: Step,
+  kinetic: boolean,
+): void {
   kineticSweep({ lattice, demons, capacity: CAPACITY })
 
   if (kinetic) {
@@ -70,14 +73,23 @@ function forward({ lattice, demons, sweep }: Step, kinetic: boolean): void {
 
 function backward({ lattice, demons, sweep }: Step): void {
   for (let k = EXCHANGES - 1; k >= 0; k--) {
-    exchangeDemons({ lattice, demons, capacity: CAPACITY, step: k, reverse: true })
+    exchangeDemons({
+      lattice,
+      demons,
+      capacity: CAPACITY,
+      step: k,
+      reverse: true,
+    })
   }
 
   streamDemons({ lattice, demons, step: sweep, reverse: true })
   kineticSweep({ lattice, demons, capacity: CAPACITY, reverse: true })
 }
 
-function start(energy: number): { lattice: CenterLattice; demons: Int8Array } {
+function start(energy: number): {
+  lattice: CenterLattice
+  demons: Int8Array
+} {
   const lattice = makeCenterLattice({ order: 3, lengths: LENGTHS })
   const demons = new Int8Array(lattice.links.length)
 
@@ -88,8 +100,14 @@ function start(energy: number): { lattice: CenterLattice; demons: Int8Array } {
   return { lattice, demons }
 }
 
-function totalEnergy(lattice: CenterLattice, demons: Int8Array): number {
-  return centerPlaquette({ lattice }).energy / 1.5 + demons.reduce((a, b) => a + b, 0)
+function totalEnergy(
+  lattice: CenterLattice,
+  demons: Int8Array,
+): number {
+  return (
+    centerPlaquette({ lattice }).energy / 1.5 +
+    demons.reduce((a, b) => a + b, 0)
+  )
 }
 
 type Run = {
@@ -117,7 +135,10 @@ function run(energy: number, kinetic: boolean): Run {
     if (sweep >= SKIP) {
       plaquettes.push(centerPlaquette({ lattice }).plaquette)
       demonSum += demons.reduce((a, b) => a + b, 0) / demons.length
-      moves += lattice.links.reduce((count, value, k) => count + (value === before[k] ? 0 : 1), 0)
+      moves += lattice.links.reduce(
+        (count, value, k) => count + (value === before[k] ? 0 : 1),
+        0,
+      )
 
       for (const d of demons) {
         histogram[d] = (histogram[d] ?? 0) + 1
@@ -128,15 +149,27 @@ function run(energy: number, kinetic: boolean): Run {
   const measured = SWEEPS - SKIP
 
   return {
-    plaquette: jackknife({ samples: plaquettes, estimator: s => s.reduce((a, b) => a + b, 0) / s.length, binSize: BIN }),
-    beta: demonBeta({ meanDemon: demonSum / measured, capacity: CAPACITY }),
+    plaquette: jackknife({
+      samples: plaquettes,
+      estimator: s => s.reduce((a, b) => a + b, 0) / s.length,
+      binSize: BIN,
+    }),
+    beta: demonBeta({
+      meanDemon: demonSum / measured,
+      capacity: CAPACITY,
+    }),
     drift: Math.abs(totalEnergy(lattice, demons) - e0),
     movesPerSweep: moves / measured,
-    demonLogRatios: histogram.slice(1, 4).map((h, d) => Math.log((histogram[d] ?? 1) / h) / 1.5),
+    demonLogRatios: histogram
+      .slice(1, 4)
+      .map((h, d) => Math.log((histogram[d] ?? 1) / h) / 1.5),
   }
 }
 
-function heatbath(beta: number, seed: number): { value: number; error: number } {
+function heatbath(
+  beta: number,
+  seed: number,
+): { value: number; error: number } {
   const rng = makeRng({ seed })
   const lattice = makeCenterLattice({ order: 3, lengths: LENGTHS })
   const samples: number[] = []
@@ -149,7 +182,11 @@ function heatbath(beta: number, seed: number): { value: number; error: number } 
     }
   }
 
-  return jackknife({ samples, estimator: s => s.reduce((a, b) => a + b, 0) / s.length, binSize: BIN })
+  return jackknife({
+    samples,
+    estimator: s => s.reduce((a, b) => a + b, 0) / s.length,
+    binSize: BIN,
+  })
 }
 
 function reversesExactly(): boolean {
@@ -167,7 +204,11 @@ function reversesExactly(): boolean {
     backward({ lattice, demons, sweep })
   }
 
-  return moved && lattice.links.every((v, k) => v === links0[k]) && demons.every((v, k) => v === demons0[k])
+  return (
+    moved &&
+    lattice.links.every((v, k) => v === links0[k]) &&
+    demons.every((v, k) => v === demons0[k])
+  )
 }
 
 export default experiment({
@@ -185,26 +226,41 @@ export default experiment({
     const warm = run(0.5, true)
     const cold = run(0.3, true)
     const stranded = run(0.3, false)
-    const references = [hot, warm, cold].map((r, k) => heatbath(r.beta, 1020 + k))
+    const references = [hot, warm, cold].map((r, k) =>
+      heatbath(r.beta, 1020 + k),
+    )
     const [hotReference, warmReference, coldReference] = references
     const gapLow = heatbath(GAP_LOW_BETA, 1030).value
     const gapHigh = heatbath(GAP_HIGH_BETA, 1031).value
-    const deviation = (r: Run, reference: { value: number; error: number } | undefined): number =>
-      Math.abs(r.plaquette.value - (reference?.value ?? 0))
+    const deviation = (
+      r: Run,
+      reference: { value: number; error: number } | undefined,
+    ): number => Math.abs(r.plaquette.value - (reference?.value ?? 0))
 
-    const exact = [hot, gap, warm, cold, stranded].every(r => r.drift === 0) && reversesExactly()
-    const confinedMatches = deviation(hot, hotReference) < 0.01 && hot.beta < GAP_LOW_BETA
+    const exact =
+      [hot, gap, warm, cold, stranded].every(r => r.drift === 0) &&
+      reversesExactly()
+    const confinedMatches =
+      deviation(hot, hotReference) < 0.01 && hot.beta < GAP_LOW_BETA
     // the plaquette of the gap run is one no canonical ensemble holds: strictly between the two branch
     // ends. Its demon beta is reported, not gated (see the notes)
-    const coexists = gap.plaquette.value > gapLow + 0.05 && gap.plaquette.value < gapHigh - 0.05
+    const coexists =
+      gap.plaquette.value > gapLow + 0.05 &&
+      gap.plaquette.value < gapHigh - 0.05
     const orderedMatches =
       deviation(warm, warmReference) < 0.01 &&
       deviation(cold, coldReference) < 0.01 &&
       warm.beta > GAP_HIGH_BETA &&
       cold.beta > GAP_HIGH_BETA &&
       cold.movesPerSweep > 0
-    const controlStalls = cold.plaquette.value - stranded.plaquette.value > 0.05
-    const ok = exact && confinedMatches && coexists && orderedMatches && controlStalls
+    const controlStalls =
+      cold.plaquette.value - stranded.plaquette.value > 0.05
+    const ok =
+      exact &&
+      confinedMatches &&
+      coexists &&
+      orderedMatches &&
+      controlStalls
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -233,7 +289,13 @@ export default experiment({
         strandedMovesPerSweep: stranded.movesPerSweep,
         canonicalGapLow: gapLow,
         canonicalGapHigh: gapHigh,
-        energyDrift: Math.max(hot.drift, gap.drift, warm.drift, cold.drift, stranded.drift),
+        energyDrift: Math.max(
+          hot.drift,
+          gap.drift,
+          warm.drift,
+          cold.drift,
+          stranded.drift,
+        ),
         reversesExactly: exact ? 1 : 0,
       },
       notes:

@@ -34,7 +34,9 @@ export type GaugeMomenta = {
   readonly data: Float64Array
 }
 
-export function makeMomenta(input: { lattice: GaugeLattice }): GaugeMomenta {
+export function makeMomenta(input: {
+  lattice: GaugeLattice
+}): GaugeMomenta {
   return {
     form: 'gauge-momenta',
     n: input.lattice.n,
@@ -126,13 +128,16 @@ export function setMomentum(input: {
     const p = components[a] ?? 0
 
     for (let k = 0; k < size; k++) {
-      momenta.data[offset + k] = (momenta.data[offset + k] ?? 0) + p * (t[k] ?? 0)
+      momenta.data[offset + k] =
+        (momenta.data[offset + k] ?? 0) + p * (t[k] ?? 0)
     }
   })
 }
 
 // sum over links of Tr(P^2) = (1/2) sum over links and colours of p_a^2
-export function kineticEnergy(input: { momenta: GaugeMomenta }): number {
+export function kineticEnergy(input: {
+  momenta: GaugeMomenta
+}): number {
   // Tr(P^2) = sum_ij |P_ij|^2 for Hermitian P
   let total = 0
 
@@ -144,7 +149,10 @@ export function kineticEnergy(input: { momenta: GaugeMomenta }): number {
 }
 
 // The Wilson action S = beta sum_p (1 - (1/N) Re Tr U_p).
-export function wilsonAction(input: { lattice: GaugeLattice; beta: number }): number {
+export function wilsonAction(input: {
+  lattice: GaugeLattice
+  beta: number
+}): number {
   const { lattice, beta } = input
   const { dim, sites } = lattice.geometry
   const plaquettes = (sites * dim * (dim - 1)) / 2
@@ -174,7 +182,12 @@ export function kick(input: {
       const link = site * geometry.dim + mu
 
       stapleInto({ lattice, site, mu, out: staple })
-      multiplyInto({ n, a: linkSlot({ lattice, site, mu }), b: staple, out: product })
+      multiplyInto({
+        n,
+        a: linkSlot({ lattice, site, mu }),
+        b: staple,
+        out: product,
+      })
 
       // Y = (W - W^dag) / (2i), W = U A. Y_ij = (W_ij - conj(W_ji)) / (2i)
       let traceY = 0
@@ -209,7 +222,9 @@ export function kick(input: {
       const offset = link * size
 
       for (let k = 0; k < size; k++) {
-        momenta.data[offset + k] = (momenta.data[offset + k] ?? 0) + step * (force.data[force.offset + k] ?? 0)
+        momenta.data[offset + k] =
+          (momenta.data[offset + k] ?? 0) +
+          step * (force.data[force.offset + k] ?? 0)
       }
     }
   }
@@ -218,7 +233,11 @@ export function kick(input: {
 // U <- exp(i step P) U for every link. The exponential is a Taylor series carried until the next
 // term is below 1e-17 (a handful of terms at these steps), then a reunitarization removes the last
 // rounding. exp of i times a Hermitian matrix is unitary, and exp(-i step P) exactly undoes it.
-export function drift(input: { lattice: GaugeLattice; momenta: GaugeMomenta; step: number }): void {
+export function drift(input: {
+  lattice: GaugeLattice
+  momenta: GaugeMomenta
+  step: number
+}): void {
   const { lattice, momenta, step } = input
   const { n } = lattice
   const size = 2 * n * n
@@ -271,7 +290,12 @@ export function drift(input: { lattice: GaugeLattice; momenta: GaugeMomenta; ste
     // U <- exp U
     const target = { data: lattice.links, offset }
 
-    multiplyInto({ n, a: sum, b: target, out: { data: scratch, offset: 0 } })
+    multiplyInto({
+      n,
+      a: sum,
+      b: target,
+      out: { data: scratch, offset: 0 },
+    })
     lattice.links.set(scratch, offset)
     reunitarize({ n, out: target })
   }
@@ -312,7 +336,13 @@ export function leapfrog(input: {
 
   const kickBy = (size: number): void => {
     input.beforeKick?.()
-    kick({ lattice, momenta, beta, step: size, addForce: input.addForce })
+    kick({
+      lattice,
+      momenta,
+      beta,
+      step: size,
+      addForce: input.addForce,
+    })
   }
 
   kickBy((drifts[0] ?? 0) / 2)
@@ -359,17 +389,25 @@ export function structuredMomenta(input: {
 
       for (let nu = 0; nu < dim; nu++) {
         if (nu !== mu) {
-          phase += (2 * Math.PI * (weights[nu] ?? 1) * (x[nu] ?? 0)) / (lengths[nu] ?? 1)
+          phase +=
+            (2 * Math.PI * (weights[nu] ?? 1) * (x[nu] ?? 0)) /
+            (lengths[nu] ?? 1)
         }
       }
 
       const components = generators.map((_, a) =>
         colours.includes(a)
-          ? amplitude * Math.cos(phase + (2 * Math.PI * (3 * a + 5 * mu)) / 16)
+          ? amplitude *
+            Math.cos(phase + (2 * Math.PI * (3 * a + 5 * mu)) / 16)
           : 0,
       )
 
-      setMomentum({ momenta, link: site * dim + mu, generators, components })
+      setMomentum({
+        momenta,
+        link: site * dim + mu,
+        generators,
+        components,
+      })
     }
   }
 }
@@ -389,7 +427,8 @@ export function kineticTemperature(input: {
   const { dim, sites } = lattice.geometry
   const colours = lattice.n * lattice.n - 1
   const links = sites * dim
-  const components = colours * (input.count === 'gauss' ? links - sites : links)
+  const components =
+    colours * (input.count === 'gauss' ? links - sites : links)
 
   return (2 * kineticEnergy({ momenta })) / components
 }
@@ -405,9 +444,11 @@ export function colourFractions(input: {
   const totals = generators.map(() => 0)
 
   for (let link = 0; link < links; link++) {
-    momentumComponents({ momenta, link, generators }).forEach((p, a) => {
-      totals[a] = (totals[a] ?? 0) + p * p
-    })
+    momentumComponents({ momenta, link, generators }).forEach(
+      (p, a) => {
+        totals[a] = (totals[a] ?? 0) + p * p
+      },
+    )
   }
 
   const sum = totals.reduce((a, b) => a + b, 0)
@@ -432,13 +473,15 @@ export function momentumKurtosis(input: {
   let count = 0
 
   for (let link = 0; link < links; link++) {
-    momentumComponents({ momenta, link, generators }).forEach((p, a) => {
-      if (colours.includes(a)) {
-        second += p * p
-        fourth += p ** 4
-        count += 1
-      }
-    })
+    momentumComponents({ momenta, link, generators }).forEach(
+      (p, a) => {
+        if (colours.includes(a)) {
+          second += p * p
+          fourth += p ** 4
+          count += 1
+        }
+      },
+    )
   }
 
   return fourth / count / (second / count) ** 2

@@ -30,9 +30,17 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { Collision, passThrough, stickyReflect, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  stickyReflect,
+  turningWeave,
+} from '@/code/rule/collision'
 import { Will, makeWill } from '@/code/tone/will'
-import { TonePlacement, jointDifferenceSupport } from '@/code/measure/three-body-interaction'
+import {
+  TonePlacement,
+  jointDifferenceSupport,
+} from '@/code/measure/three-body-interaction'
 
 const SIDE = 5
 const HALF_PHASES = Array.from({ length: 12 }, (_, i) => 2 * i)
@@ -66,7 +74,13 @@ export default experiment({
     const committed = turningWeave({ opposite })
     const lineOf = (d: number): number => Math.min(d, opposite[d] ?? d)
     const closes = (directions: readonly number[]): boolean =>
-      [0, 1, 2, 3].every(k => directions.reduce((sum, d) => sum + (roots[d]?.[k] ?? 0), 0) === 0)
+      [0, 1, 2, 3].every(
+        k =>
+          directions.reduce(
+            (sum, d) => sum + (roots[d]?.[k] ?? 0),
+            0,
+          ) === 0,
+      )
     const triangles: number[][] = []
     const others: number[][] = []
 
@@ -81,12 +95,23 @@ export default experiment({
     }
 
     const stride = Math.floor(others.length / triangles.length)
-    const matched = others.filter((_, i) => i % stride === 0).slice(0, triangles.length)
-    const place = (directions: readonly number[], tones: readonly number[]): TonePlacement[] =>
-      directions.map((direction, i) => ({ cell: CENTRE, direction, tone: tones[i] ?? 1 }))
+    const matched = others
+      .filter((_, i) => i % stride === 0)
+      .slice(0, triangles.length)
+    const place = (
+      directions: readonly number[],
+      tones: readonly number[],
+    ): TonePlacement[] =>
+      directions.map((direction, i) => ({
+        cell: CENTRE,
+        direction,
+        tone: tones[i] ?? 1,
+      }))
 
     // the census
-    const census = (sets: readonly number[][]): { within4: number; within8: number; tests: number } => {
+    const census = (
+      sets: readonly number[][],
+    ): { within4: number; within8: number; tests: number } => {
       let within4 = 0
       let within8 = 0
       let tests = 0
@@ -119,10 +144,19 @@ export default experiment({
     for (const triangle of triangles) {
       const [a = 0, b = 0, c = 0] = triangle
 
-      closablePairs.push({ pair: [a, b], closing: c }, { pair: [a, c], closing: b }, { pair: [b, c], closing: a })
+      closablePairs.push(
+        { pair: [a, b], closing: c },
+        { pair: [a, c], closing: b },
+        { pair: [b, c], closing: a },
+      )
     }
 
-    const interacting: { pair: number[]; closing: number; phase: number; tones: number[] }[] = []
+    const interacting: {
+      pair: number[]
+      closing: number
+      phase: number
+      tones: number[]
+    }[] = []
 
     for (const { pair, closing } of closablePairs) {
       for (const phase of HALF_PHASES) {
@@ -163,7 +197,10 @@ export default experiment({
         for (const tone of [1, -1]) {
           const [by8] = joint({
             background,
-            placements: [...place(found.pair, found.tones), { cell: CENTRE, direction: third, tone }],
+            placements: [
+              ...place(found.pair, found.tones),
+              { cell: CENTRE, direction: third, tone },
+            ],
             schedule: committed,
             phase: found.phase,
             checkpoints: [8],
@@ -182,22 +219,35 @@ export default experiment({
 
     // the calibrations
     const sticky = stickyReflect({ opposite })
-    const calibration = (schedule: (beatIndex: number) => Collision): number =>
-      triangles
-        .slice(0, 8)
-        .filter(
-          directions =>
-            joint({ background, placements: place(directions, [1, 1, 1]), schedule, phase: 0, checkpoints: [2] })[0],
-        ).length / 8
+    const calibration = (
+      schedule: (beatIndex: number) => Collision,
+    ): number =>
+      triangles.slice(0, 8).filter(
+        directions =>
+          joint({
+            background,
+            placements: place(directions, [1, 1, 1]),
+            schedule,
+            phase: 0,
+            checkpoints: [2],
+          })[0],
+      ).length / 8
     const stickyRate = calibration(() => sticky)
     const streamingRate = calibration(() => passThrough)
 
-    const closingRate = closingTests === 0 ? Number.NaN : closingHits / closingTests
-    const otherRate = otherTests === 0 ? Number.NaN : otherHits / otherTests
+    const closingRate =
+      closingTests === 0 ? Number.NaN : closingHits / closingTests
+    const otherRate =
+      otherTests === 0 ? Number.NaN : otherHits / otherTests
     const threeBodyExists = otherHits > 0
     // the closing third is not singled out: its rate at most 1.5 times the others', plus one test
-    const notSingledOut = closingTests > 0 && closingRate <= 1.5 * otherRate + 1 / closingTests
-    const calibrated = stickyRate === 1 && streamingRate === 0 && interacting.length === TARGETED_PAIRS
+    const notSingledOut =
+      closingTests > 0 &&
+      closingRate <= 1.5 * otherRate + 1 / closingTests
+    const calibrated =
+      stickyRate === 1 &&
+      streamingRate === 0 &&
+      interacting.length === TARGETED_PAIRS
     const ok = threeBodyExists && notSingledOut && calibrated
 
     return verdict({

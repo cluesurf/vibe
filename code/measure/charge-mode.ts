@@ -43,7 +43,11 @@ export function modulatedChargeStart(input: {
   const charged = (1 - zeroFraction) / 2
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const tilt = contrast * Math.cos((2 * Math.PI * mode * coordAlong(cell, axis, side)) / side)
+    const tilt =
+      contrast *
+      Math.cos(
+        (2 * Math.PI * mode * coordAlong(cell, axis, side)) / side,
+      )
     const plus = charged * (1 + tilt)
     const minus = charged * (1 - tilt)
 
@@ -119,10 +123,14 @@ export function chargeModeRun(input: {
   const { mesh, side, axis, mode, beats, schedule } = input
   const table = streamSourceTable(mesh)
   const runs = [1, -1].map(sign => ({
-    current: modulatedChargeStart({ ...input, contrast: sign * input.contrast }),
+    current: modulatedChargeStart({
+      ...input,
+      contrast: sign * input.contrast,
+    }),
     next: makeWill(mesh),
   }))
-  const total = (will: Will): number => will.data.reduce((s, v) => s + v, 0)
+  const total = (will: Will): number =>
+    will.data.reduce((s, v) => s + v, 0)
   const charges = runs.map(run => total(run.current))
   const re: number[] = []
   const im: number[] = []
@@ -131,7 +139,9 @@ export function chargeModeRun(input: {
   let initial = 0
 
   for (let t = 0; t <= beats; t++) {
-    const [a, b] = runs.map(run => chargeModeAmplitude({ will: run.current, side, axis, mode }))
+    const [a, b] = runs.map(run =>
+      chargeModeAmplitude({ will: run.current, side, axis, mode }),
+    )
     const r = ((a?.re ?? 0) - (b?.re ?? 0)) / 2
     const i = ((a?.im ?? 0) - (b?.im ?? 0)) / 2
 
@@ -147,12 +157,20 @@ export function chargeModeRun(input: {
     }
 
     runs.forEach((run, k) => {
-      beatInto({ src: run.current, dst: run.next, table, collision: schedule(t) })
+      beatInto({
+        src: run.current,
+        dst: run.next,
+        table,
+        collision: schedule(t),
+      })
       ;[run.current, run.next] = [run.next, run.current]
 
       const q = total(run.current)
 
-      chargeDrift = Math.max(chargeDrift, Math.abs(q - (charges[k] ?? 0)))
+      chargeDrift = Math.max(
+        chargeDrift,
+        Math.abs(q - (charges[k] ?? 0)),
+      )
       charges[k] = q
     })
   }
@@ -179,17 +197,31 @@ export type ModeLaw = {
 }
 
 // The standard error of a least-squares slope, from the residual scatter about the fitted line.
-export function slopeError(xs: readonly number[], ys: readonly number[], slope: number, intercept: number): number {
+export function slopeError(
+  xs: readonly number[],
+  ys: readonly number[],
+  slope: number,
+  intercept: number,
+): number {
   const n = xs.length
   const mx = xs.reduce((a, b) => a + b, 0) / n
   const sxx = xs.reduce((s, x) => s + (x - mx) ** 2, 0)
-  const residual = xs.reduce((s, x, i) => s + ((ys[i] ?? 0) - (slope * x + intercept)) ** 2, 0)
+  const residual = xs.reduce(
+    (s, x, i) => s + ((ys[i] ?? 0) - (slope * x + intercept)) ** 2,
+    0,
+  )
 
-  return n > 2 && sxx > 0 ? Math.sqrt(residual / (n - 2) / sxx) : Number.POSITIVE_INFINITY
+  return n > 2 && sxx > 0
+    ? Math.sqrt(residual / (n - 2) / sxx)
+    : Number.POSITIVE_INFINITY
 }
 
 // Split a normalized mode series into its slow and fast parts and fit both, over beats from `from` on.
-export function modeLaw(input: { series: readonly number[]; window: number; from?: number }): ModeLaw {
+export function modeLaw(input: {
+  series: readonly number[]
+  window: number
+  from?: number
+}): ModeLaw {
   const { series, window } = input
   const from = input.from ?? window
   const slow: number[] = []

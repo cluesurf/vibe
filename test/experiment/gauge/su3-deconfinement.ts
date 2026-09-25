@@ -57,7 +57,12 @@ function thermalRun(input: {
   const rng = makeRng({ seed: input.seed })
   const lattice = makeGaugeLattice({
     group: 'su3',
-    lengths: [input.spatial, input.spatial, input.spatial, input.time ?? 2],
+    lengths: [
+      input.spatial,
+      input.spatial,
+      input.spatial,
+      input.time ?? 2,
+    ],
     start: input.start === 'mixed' ? 'hot' : input.start,
     rng,
   })
@@ -66,7 +71,10 @@ function thermalRun(input: {
     for (let site = 0; site < lattice.geometry.sites; site++) {
       if (site % input.spatial < input.spatial / 2) {
         for (let mu = 0; mu < lattice.geometry.dim; mu++) {
-          setIdentity({ n: lattice.n, out: linkSlot({ lattice, site, mu }) })
+          setIdentity({
+            n: lattice.n,
+            out: linkSlot({ lattice, site, mu }),
+          })
         }
       }
     }
@@ -93,8 +101,10 @@ function thermalRun(input: {
 
   return {
     modulus:
-      samples.reduce((sum, s) => sum + Math.hypot(s.loop[0], s.loop[1]), 0) /
-      count,
+      samples.reduce(
+        (sum, s) => sum + Math.hypot(s.loop[0], s.loop[1]),
+        0,
+      ) / count,
     sectorPhase: Math.atan2(im, re) / ((2 * Math.PI) / 3),
     plaquette: samples.reduce((sum, s) => sum + s.plaquette, 0) / count,
   }
@@ -102,7 +112,7 @@ function thermalRun(input: {
 
 // the distance of a phase (in units of 2 pi / 3) from the center element k, wrapped onto the circle
 function sectorDistance(input: { phase: number; k: number }): number {
-  const difference = (((input.phase - input.k) % 3) + 4.5) % 3 - 1.5
+  const difference = ((((input.phase - input.k) % 3) + 4.5) % 3) - 1.5
 
   return Math.abs(difference)
 }
@@ -127,15 +137,32 @@ export default experiment({
       high: 5.6,
       steps: 4,
       isAbove: beta =>
-        thermalRun({ beta, spatial: 8, start: 'hot', sector: 0, seed: seed++ })
-          .modulus > DECONFINED_MODULUS,
+        thermalRun({
+          beta,
+          spatial: 8,
+          start: 'hot',
+          sector: 0,
+          seed: seed++,
+        }).modulus > DECONFINED_MODULUS,
     })
     const criticalBeta = (bracket.low + bracket.high) / 2
     const sectors = [0, 1, 2].map(k =>
-      thermalRun({ beta: 5.6, spatial: 8, start: 'cold', sector: k, seed: 840 + k }),
+      thermalRun({
+        beta: 5.6,
+        spatial: 8,
+        start: 'cold',
+        sector: k,
+        seed: 840 + k,
+      }),
     )
     const melted = [0, 1, 2].map(k =>
-      thermalRun({ beta: 4.6, spatial: 8, start: 'cold', sector: k, seed: 850 + k }),
+      thermalRun({
+        beta: 4.6,
+        spatial: 8,
+        start: 'cold',
+        sector: k,
+        seed: 850 + k,
+      }),
     )
     // the residual |P| of a confined box is noise, so its volume scaling gets three times the samples
     const small = thermalRun({
@@ -160,20 +187,30 @@ export default experiment({
       bracket.switched &&
       Math.abs(criticalBeta - PUBLISHED_CRITICAL_BETA) < 0.15
     const sectorPhaseError = Math.max(
-      ...sectors.map((s, k) => sectorDistance({ phase: s.sectorPhase, k })),
+      ...sectors.map((s, k) =>
+        sectorDistance({ phase: s.sectorPhase, k }),
+      ),
     )
     const moduli = sectors.map(s => s.modulus)
     const plaquettes = sectors.map(s => s.plaquette)
-    const moduliSpread = (Math.max(...moduli) - Math.min(...moduli)) / Math.max(...moduli)
-    const plaquetteSpread = Math.max(...plaquettes) - Math.min(...plaquettes)
+    const moduliSpread =
+      (Math.max(...moduli) - Math.min(...moduli)) / Math.max(...moduli)
+    const plaquetteSpread =
+      Math.max(...plaquettes) - Math.min(...plaquettes)
     const threeVacua =
       sectorPhaseError < 0.05 &&
       moduli.every(m => m > DECONFINED_MODULUS) &&
       moduliSpread < 0.05 &&
       plaquetteSpread < 0.005
-    const confinedEverywhere = melted.every(m => m.modulus < DECONFINED_MODULUS / 2)
+    const confinedEverywhere = melted.every(
+      m => m.modulus < DECONFINED_MODULUS / 2,
+    )
     const vanishesWithVolume = volumeRatio > 1.2 && volumeRatio < 1.9
-    const ok = transitionFound && threeVacua && confinedEverywhere && vanishesWithVolume
+    const ok =
+      transitionFound &&
+      threeVacua &&
+      confinedEverywhere &&
+      vanishesWithVolume
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -226,34 +263,54 @@ experiment({
     // |P| halfway between the confined (about 0.03) and deconfined (about 0.15 and up) values on
     // N_t = 4, where the loop is smaller than on N_t = 2 because the static quark is heavier in T units
     const threshold = 0.09
-    const transition = (spatial: number, low: number, high: number, steps: number) =>
+    const transition = (
+      spatial: number,
+      low: number,
+      high: number,
+      steps: number,
+    ) =>
       bisectThreshold({
         low,
         high,
         steps,
         isAbove: beta =>
-          thermalRun({ beta, spatial, time: 4, start: 'mixed', sector: 0, seed: seed++, measurements: 60 })
-            .modulus > threshold,
+          thermalRun({
+            beta,
+            spatial,
+            time: 4,
+            start: 'mixed',
+            sector: 0,
+            seed: seed++,
+            measurements: 60,
+          }).modulus > threshold,
       })
     const small = transition(8, 5.5, 5.9, 5)
     const large = transition(12, 5.6, 5.8, 4)
-    const middle = (b: { low: number; high: number }): number => (b.low + b.high) / 2
-    const halfWidth = (b: { low: number; high: number }): number => (b.high - b.low) / 2
+    const middle = (b: { low: number; high: number }): number =>
+      (b.low + b.high) / 2
+    const halfWidth = (b: { low: number; high: number }): number =>
+      (b.high - b.low) / 2
     // a first-order transition shifts as 1 / V on a finite box, beta_c(L) = beta_c - h / L^3, so two
     // volumes carry it to infinite volume
     const v8 = 8 ** 3
     const v12 = 12 ** 3
-    const criticalBeta = (v12 * middle(large) - v8 * middle(small)) / (v12 - v8)
+    const criticalBeta =
+      (v12 * middle(large) - v8 * middle(small)) / (v12 - v8)
     const criticalError = Math.hypot(
       (v12 / (v12 - v8)) * halfWidth(large),
       (v8 / (v12 - v8)) * halfWidth(small),
     )
     // T = 1 / (N_t a), so T_c r0 = (r0 / a at beta_c) / N_t, with r0 / a from the published scale
     const tcR0 = neccoSommerScale({ beta: criticalBeta }) / 4
-    const publishedNt4 = neccoSommerScale({ beta: PUBLISHED_BETA_NT4 }) / 4
+    const publishedNt4 =
+      neccoSommerScale({ beta: PUBLISHED_BETA_NT4 }) / 4
     const tcMev = (tcR0 * HBAR_C_MEV_FM) / R0_FM
 
-    const found = small.switched && large.switched && Math.abs(criticalBeta - PUBLISHED_BETA_NT4) < 3 * criticalError + 0.005
+    const found =
+      small.switched &&
+      large.switched &&
+      Math.abs(criticalBeta - PUBLISHED_BETA_NT4) <
+        3 * criticalError + 0.005
     const shiftsUp = middle(large) >= middle(small)
     const physical = Math.abs(tcR0 - publishedNt4) < 0.03
     const ok = found && shiftsUp && physical

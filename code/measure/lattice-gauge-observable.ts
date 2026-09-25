@@ -2,10 +2,7 @@
 // Wilson loops, Creutz ratios and the Polyakov loop. Every one is a trace of a closed product of
 // links, so a gauge transformation cannot change it.
 
-import {
-  GaugeLattice,
-  linkSlot,
-} from '@/code/dynamics/gauge-lattice'
+import { GaugeLattice, linkSlot } from '@/code/dynamics/gauge-lattice'
 import {
   MatrixSlot,
   copyMatrix,
@@ -18,7 +15,9 @@ import {
 
 // The mean of (1 / N) Re Tr U_plaquette over every plaquette. One at the ordered vacuum, zero for a
 // fully disordered field.
-export function averagePlaquette(input: { lattice: GaugeLattice }): number {
+export function averagePlaquette(input: {
+  lattice: GaugeLattice
+}): number {
   const moments = plaquetteMoments({ lattice: input.lattice })
 
   return (moments[0] ?? 0) / input.lattice.n
@@ -28,7 +27,9 @@ export function averagePlaquette(input: { lattice: GaugeLattice }): number {
 // plaquette. At beta = 0 the links are Haar distributed and these are the Haar moments of the group,
 // so <X^3> is the cubic invariant: 1/4 for SU(3), whose epsilon tensor contracts three fundamental
 // indices into a singlet, and zero for SU(2) and U(1), which have no such tensor.
-export function plaquetteMoments(input: { lattice: GaugeLattice }): number[] {
+export function plaquetteMoments(input: {
+  lattice: GaugeLattice
+}): number[] {
   const { lattice } = input
   const { n, geometry } = lattice
   const { dim, up, sites } = geometry
@@ -75,7 +76,9 @@ export function plaquetteMoments(input: { lattice: GaugeLattice }): number[] {
     }
   }
 
-  return count === 0 ? [0, 0, 0] : [first / count, second / count, third / count]
+  return count === 0
+    ? [0, 0, 0]
+    : [first / count, second / count, third / count]
 }
 
 // Re Tr (a b^dag) = sum over i, j of Re (a_ij conj(b_ij)).
@@ -132,9 +135,15 @@ function lineProducts(input: {
 
       multiplyInto({
         n,
-        a: { data: lines, offset: ((length - 2) * sites + site) * size },
+        a: {
+          data: lines,
+          offset: ((length - 2) * sites + site) * size,
+        },
         b: linkSlot({ lattice, site: end, mu }),
-        out: { data: lines, offset: ((length - 1) * sites + site) * size },
+        out: {
+          data: lines,
+          offset: ((length - 1) * sites + site) * size,
+        },
       })
     }
   }
@@ -258,7 +267,11 @@ export function wilsonLoopTable(input: {
               im:
                 representation === 'fundamental'
                   ? 0
-                  : imaginaryTraceOfDaggerProduct({ n, a: first, b: second }),
+                  : imaginaryTraceOfDaggerProduct({
+                      n,
+                      a: first,
+                      b: second,
+                    }),
             })
             count += 1
           }
@@ -295,18 +308,28 @@ export function staticWilsonLoops(input: {
   const { dim, sites } = geometry
   const timeAxis = dim - 1
   const size = 2 * n * n
-  const timeLines = lineProducts({ lattice: temporal, mu: timeAxis, maxLength: maxT })
+  const timeLines = lineProducts({
+    lattice: temporal,
+    mu: timeAxis,
+    maxLength: maxT,
+  })
   const spaceLines = Array.from({ length: timeAxis }, (_, mu) =>
     lineProducts({ lattice: spatial, mu, maxLength: maxR }),
   )
   const buffer = new Float64Array(2 * size)
   const first: MatrixSlot = { data: buffer, offset: 0 }
   const second: MatrixSlot = { data: buffer, offset: size }
-  const line = (from: Float64Array, length: number, at: number): MatrixSlot => ({
+  const line = (
+    from: Float64Array,
+    length: number,
+    at: number,
+  ): MatrixSlot => ({
     data: from,
     offset: ((length - 1) * sites + at) * size,
   })
-  const table = Array.from({ length: maxR + 1 }, () => new Array<number>(maxT + 1).fill(1))
+  const table = Array.from({ length: maxR + 1 }, () =>
+    new Array<number>(maxT + 1).fill(1),
+  )
 
   for (let r = 1; r <= maxR; r++) {
     for (let t = 1; t <= maxT; t++) {
@@ -318,11 +341,27 @@ export function staticWilsonLoops(input: {
 
         for (let site = 0; site < sites; site++) {
           const siteR = walk({ lattice: temporal, site, mu, count: r })
-          const siteT = walk({ lattice: temporal, site, mu: timeAxis, count: t })
+          const siteT = walk({
+            lattice: temporal,
+            site,
+            mu: timeAxis,
+            count: t,
+          })
 
           // L_mu(x, R) L_t(x + R mu, T), against L_t(x, T) L_mu(x + T t, R)
-          multiplyInto({ n, a: line(lines, r, site), b: line(timeLines, t, siteR), out: first })
-          multiplyInto({ n, a: line(timeLines, t, site), b: line(lines, r, siteT), out: second })
+          multiplyInto({
+            n,
+            a: line(lines, r, site),
+            b: line(timeLines, t, siteR),
+            out: first,
+          })
+
+          multiplyInto({
+            n,
+            a: line(timeLines, t, site),
+            b: line(lines, r, siteT),
+            out: second,
+          })
           total += realTraceOfDaggerProduct({ n, a: first, b: second })
           count += 1
         }
@@ -343,7 +382,9 @@ export function staticWilsonLoops(input: {
 // spatial plaquette, the lightest gauge-invariant combination with the quantum numbers J^PC = 0++.
 // Built from smeared links it overlaps with the glueball far better than with the ultraviolet noise.
 // Returns one value per time slice (time is the last axis).
-export function spatialPlaquetteSlices(input: { lattice: GaugeLattice }): number[] {
+export function spatialPlaquetteSlices(input: {
+  lattice: GaugeLattice
+}): number[] {
   const { lattice } = input
   const { n, geometry } = lattice
   const { dim, up, sites, lengths } = geometry
@@ -364,7 +405,11 @@ export function spatialPlaquetteSlices(input: { lattice: GaugeLattice }): number
         multiplyInto({
           n,
           a: linkSlot({ lattice, site, mu }),
-          b: linkSlot({ lattice, site: up[site * dim + mu] ?? 0, mu: nu }),
+          b: linkSlot({
+            lattice,
+            site: up[site * dim + mu] ?? 0,
+            mu: nu,
+          }),
           out: lower,
         })
 
@@ -374,7 +419,10 @@ export function spatialPlaquetteSlices(input: { lattice: GaugeLattice }): number
           b: linkSlot({ lattice, site: up[site * dim + nu] ?? 0, mu }),
           out: upper,
         })
-        slices[t] = (slices[t] ?? 0) + realTraceOfDaggerProduct({ n, a: lower, b: upper }) / n
+
+        slices[t] =
+          (slices[t] ?? 0) +
+          realTraceOfDaggerProduct({ n, a: lower, b: upper }) / n
       }
     }
   }
@@ -390,7 +438,8 @@ export function connectedSliceCorrelator(input: {
   const { slices } = input
   const timeLength = slices[0]?.length ?? 0
   const mean =
-    slices.reduce((sum, s) => sum + s.reduce((a, b) => a + b, 0), 0) / (slices.length * timeLength)
+    slices.reduce((sum, s) => sum + s.reduce((a, b) => a + b, 0), 0) /
+    (slices.length * timeLength)
 
   return Array.from({ length: timeLength }, (_, t) => {
     let total = 0
@@ -418,7 +467,11 @@ export function connectedCorrelatorMatrix(input: {
   const count = slices.length * timeLength
   const means = Array.from(
     { length: operators },
-    (_, i) => slices.reduce((sum, s) => sum + (s[i] ?? []).reduce((a, b) => a + b, 0), 0) / count,
+    (_, i) =>
+      slices.reduce(
+        (sum, s) => sum + (s[i] ?? []).reduce((a, b) => a + b, 0),
+        0,
+      ) / count,
   )
   const raw = Array.from({ length: operators }, (_, i) =>
     Array.from({ length: operators }, (__, j) => {
@@ -426,7 +479,8 @@ export function connectedCorrelatorMatrix(input: {
 
       for (const s of slices) {
         for (let t0 = 0; t0 < timeLength; t0++) {
-          total += (s[i]?.[t0] ?? 0) * (s[j]?.[(t0 + t) % timeLength] ?? 0)
+          total +=
+            (s[i]?.[t0] ?? 0) * (s[j]?.[(t0 + t) % timeLength] ?? 0)
         }
       }
 
@@ -434,7 +488,9 @@ export function connectedCorrelatorMatrix(input: {
     }),
   )
 
-  return raw.map((row, i) => row.map((value, j) => (value + (raw[j]?.[i] ?? 0)) / 2))
+  return raw.map((row, i) =>
+    row.map((value, j) => (value + (raw[j]?.[i] ?? 0)) / 2),
+  )
 }
 
 function walk(input: {
@@ -463,7 +519,8 @@ export function creutzRatioFromTable(input: {
   r: number
   t: number
 }): number {
-  const w = (r: number, t: number): number => input.table[r]?.[t] ?? Number.NaN
+  const w = (r: number, t: number): number =>
+    input.table[r]?.[t] ?? Number.NaN
   const numerator = w(input.r, input.t) * w(input.r - 1, input.t - 1)
   const denominator = w(input.r - 1, input.t) * w(input.r, input.t - 1)
 
@@ -478,7 +535,9 @@ export function creutzRatioFromTable(input: {
 // time axis (the last axis), averaged over every spatial site, as [re, im]. It is the propagator of
 // an infinitely heavy static quark, so its magnitude is exp(-F_q / T), F_q the free energy of one
 // isolated quark. Zero means an isolated quark costs infinite energy (confinement).
-export function polyakovLoop(input: { lattice: GaugeLattice }): [number, number] {
+export function polyakovLoop(input: {
+  lattice: GaugeLattice
+}): [number, number] {
   const { lattice } = input
   const { n, geometry } = lattice
   const timeAxis = geometry.dim - 1
@@ -532,11 +591,16 @@ export function plaquetteFromStaples(input: {
   for (let site = 0; site < geometry.sites; site++) {
     for (let mu = 0; mu < geometry.dim; mu++) {
       input.staple(site, mu, staple)
-      total += realTraceOfProduct({ n, a: linkSlot({ lattice, site, mu }), b: staple })
+      total += realTraceOfProduct({
+        n,
+        a: linkSlot({ lattice, site, mu }),
+        b: staple,
+      })
     }
   }
 
-  const plaquettes = (geometry.sites * geometry.dim * (geometry.dim - 1)) / 2
+  const plaquettes =
+    (geometry.sites * geometry.dim * (geometry.dim - 1)) / 2
 
   return total / (4 * plaquettes * n)
 }

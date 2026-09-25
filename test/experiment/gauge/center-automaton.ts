@@ -56,7 +56,10 @@ function sample(lattice: CenterLattice): Sample {
   const w11 = table[1]?.[1] ?? 1
   const w12 = table[1]?.[2] ?? 1
 
-  return { plaquette: centerPlaquette({ lattice }).plaquette, exponent: Math.log(w12) / Math.log(w11) }
+  return {
+    plaquette: centerPlaquette({ lattice }).plaquette,
+    exponent: Math.log(w12) / Math.log(w11),
+  }
 }
 
 // the plaquette and the area exponent from a list of samples, the exponent from the mean loops
@@ -87,7 +90,15 @@ function automaton(period: number): {
     order: 3,
     lengths: LENGTHS,
     pattern: (x, mu) =>
-      ((x[0] ?? 0) + 2 * (x[1] ?? 0) + 3 * (x[2] ?? 0) + 5 * (x[3] ?? 0) + 7 * mu) % period === 0 ? 1 : 0,
+      ((x[0] ?? 0) +
+        2 * (x[1] ?? 0) +
+        3 * (x[2] ?? 0) +
+        5 * (x[3] ?? 0) +
+        7 * mu) %
+        period ===
+      0
+        ? 1
+        : 0,
   })
   const e0 = centerPlaquette({ lattice }).energy
   const samples: Sample[] = []
@@ -197,25 +208,41 @@ export default experiment({
       isAbove: beta => {
         const s = heatbath(beta, seed++)
 
-        return s.reduce((a, b) => a + b.plaquette, 0) / s.length > hotSummary.plaquette.value
+        return (
+          s.reduce((a, b) => a + b.plaquette, 0) / s.length >
+          hotSummary.plaquette.value
+        )
       },
     })
     const effectiveBeta = (bracket.low + bracket.high) / 2
     const reference = summarize(heatbath(effectiveBeta, 998))
-    const gapLow = summarize(heatbath(GAP_LOW_BETA, 999)).plaquette.value
-    const gapHigh = summarize(heatbath(GAP_HIGH_BETA, 1000)).plaquette.value
-    const pull = (a: { value: number; error: number }, b: { value: number; error: number }): number =>
-      (a.value - b.value) / Math.hypot(a.error, b.error)
+    const gapLow = summarize(heatbath(GAP_LOW_BETA, 999)).plaquette
+      .value
+    const gapHigh = summarize(heatbath(GAP_HIGH_BETA, 1000)).plaquette
+      .value
+    const pull = (
+      a: { value: number; error: number },
+      b: { value: number; error: number },
+    ): number => (a.value - b.value) / Math.hypot(a.error, b.error)
     const exponentPull = pull(hotSummary.exponent, reference.exponent)
 
     const exact = [hot, middle, cold].every(r => r.energyDrift === 0)
     const confinedMatch = bracket.switched && Math.abs(exponentPull) < 3
-    const areaLaw = Math.abs(hotSummary.exponent.value - 2) < Math.abs(hotSummary.exponent.value - 1.5)
+    const areaLaw =
+      Math.abs(hotSummary.exponent.value - 2) <
+      Math.abs(hotSummary.exponent.value - 1.5)
     const coexists =
-      middleSummary.plaquette.value > gapLow + 0.05 && middleSummary.plaquette.value < gapHigh - 0.05
+      middleSummary.plaquette.value > gapLow + 0.05 &&
+      middleSummary.plaquette.value < gapHigh - 0.05
     const hotMixes = hot.excitedOverlap < 0.8
     const coldFrozen = cold.excitedOverlap > 0.99
-    const ok = exact && confinedMatch && areaLaw && coexists && hotMixes && coldFrozen
+    const ok =
+      exact &&
+      confinedMatch &&
+      areaLaw &&
+      coexists &&
+      hotMixes &&
+      coldFrozen
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -238,7 +265,11 @@ export default experiment({
         canonicalGapHigh: gapHigh,
         areaLawExponent: 2,
         perimeterLawExponent: 1.5,
-        energyDrift: Math.max(hot.energyDrift, middle.energyDrift, cold.energyDrift),
+        energyDrift: Math.max(
+          hot.energyDrift,
+          middle.energyDrift,
+          cold.energyDrift,
+        ),
       },
       notes:
         'L2, known constructions, measured for where a deterministic ternary rule reproduces the ensemble. No random number enters the automaton, and the heatbath is the seeded reference. One 6^4 box. The area exponent is read from 1 x 1 and 1 x 2 loops, the only ones resolved deep in the confined phase. The freezing is the known low-energy non-ergodicity of Q2R-type automata, reported here as the measured limit of the rule, and it says what a three-valued base would need: a kinetic variable per link, as the momenta of E-FRC-0092 provide. The committed vibe rule carries no Z3 at all (E-FRC-0095), so this is what a cyclic tone would buy, not a property of the committed rule.',

@@ -26,7 +26,10 @@ export const TONE_PERMUTATIONS: readonly Relabel[] = [
   [1, -1, 0],
 ]
 
-export type LineRelabelling = { readonly leading: Relabel; readonly trailing: Relabel }
+export type LineRelabelling = {
+  readonly leading: Relabel
+  readonly trailing: Relabel
+}
 
 // All 36 line relabellings, every pair (leading, trailing).
 export function lineRelabellings(): LineRelabelling[] {
@@ -35,7 +38,10 @@ export function lineRelabellings(): LineRelabelling[] {
   )
 }
 
-export function relabelWill(input: { will: Will; relabelling: LineRelabelling }): Will {
+export function relabelWill(input: {
+  will: Will
+  relabelling: LineRelabelling
+}): Will {
   const out = cloneWill(input.will)
   const { mesh } = out
   const degree = mesh.degree
@@ -43,7 +49,9 @@ export function relabelWill(input: { will: Will; relabelling: LineRelabelling })
   for (let k = 0; k < out.data.length; k++) {
     const direction = k % degree
     const map =
-      direction < mesh.opposite(direction) ? input.relabelling.leading : input.relabelling.trailing
+      direction < mesh.opposite(direction)
+        ? input.relabelling.leading
+        : input.relabelling.trailing
 
     out.data[k] = map[(out.data[k] ?? 0) + 1] ?? 0
   }
@@ -60,7 +68,10 @@ export function firstRelabellingFailure(input: {
   beats: number
 }): number {
   let plain = cloneWill(input.start)
-  let relabelled = relabelWill({ will: input.start, relabelling: input.relabelling })
+  let relabelled = relabelWill({
+    will: input.start,
+    relabelling: input.relabelling,
+  })
 
   for (let t = 0; t < input.beats; t++) {
     const collision = input.schedule(t)
@@ -68,7 +79,10 @@ export function firstRelabellingFailure(input: {
     plain = beat(plain, collision)
     relabelled = beat(relabelled, collision)
 
-    const expected = relabelWill({ will: plain, relabelling: input.relabelling })
+    const expected = relabelWill({
+      will: plain,
+      relabelling: input.relabelling,
+    })
 
     for (let k = 0; k < expected.data.length; k++) {
       if (expected.data[k] !== relabelled.data[k]) {

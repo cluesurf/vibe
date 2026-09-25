@@ -43,12 +43,18 @@ import { lineRelabellings } from '@/code/check/tone-permutation-symmetry'
 const SPEED_SIDE = 17
 const SPEED_BEATS = 8
 
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
-const keyOf = (list: readonly number[]): string => [...list].sort((a, b) => a - b).join(',')
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const keyOf = (list: readonly number[]): string =>
+  [...list].sort((a, b) => a - b).join(',')
 
 // a W(D4) element acts as a signed coordinate permutation with an even number of sign flips
-function inWeylD4(permutation: readonly number[], roots: readonly (readonly number[])[]): boolean {
+function inWeylD4(
+  permutation: readonly number[],
+  roots: readonly (readonly number[])[],
+): boolean {
   const orders: number[][] = []
+
   const build = (prefix: number[]): void => {
     if (prefix.length === 4) {
       orders.push(prefix)
@@ -71,7 +77,10 @@ function inWeylD4(permutation: readonly number[], roots: readonly (readonly numb
       const matches = roots.every((root, d) => {
         const target = roots[permutation[d] ?? 0] ?? []
 
-        return [0, 1, 2, 3].every(k => (sign[k] ?? 1) * (root[order[k] ?? 0] ?? 0) === target[k])
+        return [0, 1, 2, 3].every(
+          k =>
+            (sign[k] ?? 1) * (root[order[k] ?? 0] ?? 0) === target[k],
+        )
       })
 
       if (matches) {
@@ -84,7 +93,11 @@ function inWeylD4(permutation: readonly number[], roots: readonly (readonly numb
 }
 
 // the shadows of the 18 non-A2 directions on the plane orthogonal to an A2, as counts per point
-function complementShadows(roots: readonly (readonly number[])[], a: readonly number[], b: readonly number[]): number[] {
+function complementShadows(
+  roots: readonly (readonly number[])[],
+  a: readonly number[],
+  b: readonly number[],
+): number[] {
   const counts = new Map<string, number>()
 
   for (const root of roots) {
@@ -95,7 +108,9 @@ function complementShadows(roots: readonly (readonly number[])[], a: readonly nu
     const det = gaa * gbb - gab * gab
     const x = (gbb * dot(root, a) - gab * dot(root, b)) / det
     const y = (gaa * dot(root, b) - gab * dot(root, a)) / det
-    const rest = root.map((value, k) => value - x * (a[k] ?? 0) - y * (b[k] ?? 0))
+    const rest = root.map(
+      (value, k) => value - x * (a[k] ?? 0) - y * (b[k] ?? 0),
+    )
 
     if (Math.hypot(...rest) < 1e-9) {
       continue
@@ -113,9 +128,16 @@ function directionSpeeds(opposite: number[]): number[] {
   const mesh = d4Mesh({ side: SPEED_SIDE })
   const rule = turningWeave({ opposite })
   const mid = (SPEED_SIDE - 1) / 2
-  const center = mid * (1 + SPEED_SIDE + SPEED_SIDE ** 2 + SPEED_SIDE ** 3)
-  const coordinate = (cell: number, axis: number): number => Math.floor(cell / SPEED_SIDE ** axis) % SPEED_SIDE
-  const wrap = (d: number): number => (d > SPEED_SIDE / 2 ? d - SPEED_SIDE : d < -SPEED_SIDE / 2 ? d + SPEED_SIDE : d)
+  const center =
+    mid * (1 + SPEED_SIDE + SPEED_SIDE ** 2 + SPEED_SIDE ** 3)
+  const coordinate = (cell: number, axis: number): number =>
+    Math.floor(cell / SPEED_SIDE ** axis) % SPEED_SIDE
+  const wrap = (d: number): number =>
+    d > SPEED_SIDE / 2
+      ? d - SPEED_SIDE
+      : d < -SPEED_SIDE / 2
+        ? d + SPEED_SIDE
+        : d
 
   return Array.from({ length: 24 }, (_, direction) => {
     let vacuum: Will = makeWill(mesh)
@@ -140,7 +162,8 @@ function directionSpeeds(opposite: number[]): number[] {
 
     for (const cell of cells) {
       for (let axis = 0; axis < 4; axis++) {
-        sum[axis] = (sum[axis] ?? 0) + wrap(coordinate(cell, axis) - mid)
+        sum[axis] =
+          (sum[axis] ?? 0) + wrap(coordinate(cell, axis) - mid)
       }
     }
 
@@ -170,7 +193,11 @@ export default experiment({
     // 1. the geometry, over every A2
     const shadowsRegular = triangles.every(triangle => {
       const [i, j] = triangle
-      const shadows = complementShadows(roots, roots[i ?? 0] ?? [], roots[j ?? 0] ?? [])
+      const shadows = complementShadows(
+        roots,
+        roots[i ?? 0] ?? [],
+        roots[j ?? 0] ?? [],
+      )
 
       return shadows.length === 6 && shadows.every(count => count === 3)
     })
@@ -178,51 +205,108 @@ export default experiment({
       const [i, j] = triangle
 
       return roots.every(
-        root => !(Math.abs(dot(root, roots[i ?? 0] ?? [])) < 1e-9 && Math.abs(dot(root, roots[j ?? 0] ?? [])) < 1e-9),
+        root =>
+          !(
+            Math.abs(dot(root, roots[i ?? 0] ?? [])) < 1e-9 &&
+            Math.abs(dot(root, roots[j ?? 0] ?? [])) < 1e-9
+          ),
       )
     })
 
     // 2. the selector
-    const permutations = weylF4DirectionPermutations({ directions: roots })
-    const orderThree = permutations.filter(p => permutationOrder({ permutation: p }) === 3)
-    const fixedSets = orderThree.map(p => p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0))
-    const selectors = orderThree.filter((_, k) => (fixedSets[k] ?? []).length === 6 && planes.has(keyOf(fixedSets[k] ?? [])))
-    const fixedPointFree = fixedSets.filter(set => set.length === 0).length
-    const selectorsOutsideD4 = selectors.filter(p => !inWeylD4(p, roots)).length
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
+    const orderThree = permutations.filter(
+      p => permutationOrder({ permutation: p }) === 3,
+    )
+    const fixedSets = orderThree.map(p =>
+      p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0),
+    )
+    const selectors = orderThree.filter(
+      (_, k) =>
+        (fixedSets[k] ?? []).length === 6 &&
+        planes.has(keyOf(fixedSets[k] ?? [])),
+    )
+    const fixedPointFree = fixedSets.filter(
+      set => set.length === 0,
+    ).length
+    const selectorsOutsideD4 = selectors.filter(
+      p => !inWeylD4(p, roots),
+    ).length
     const planesSelected = new Set(
-      selectors.map(p => keyOf(p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0))),
+      selectors.map(p =>
+        keyOf(
+          p
+            .map((image, d) => (image === d ? d : -1))
+            .filter(d => d >= 0),
+        ),
+      ),
     ).size
 
     // 3. which rules keep one
-    const selectorsOf = (collision: ReturnType<typeof pairCollision>): number =>
+    const selectorsOf = (
+      collision: ReturnType<typeof pairCollision>,
+    ): number =>
       scheduleSymmetries({
-        anatomy: scheduleAnatomy({ schedule: () => collision, period: 1, degree: 24 }),
+        anatomy: scheduleAnatomy({
+          schedule: () => collision,
+          period: 1,
+          degree: 24,
+        }),
         permutations,
         opposite,
         relabellings: lineRelabellings(),
       }).filter(symmetry => {
-        const fixed = symmetry.permutation.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0)
+        const fixed = symmetry.permutation
+          .map((image, d) => (image === d ? d : -1))
+          .filter(d => d >= 0)
 
-        return permutationOrder({ permutation: symmetry.permutation }) === 3 && planes.has(keyOf(fixed))
+        return (
+          permutationOrder({ permutation: symmetry.permutation }) ===
+            3 && planes.has(keyOf(fixed))
+        )
       }).length
-    const previousKnitSelectors = selectorsOf(pairCollision({ opposite }))
-    const speeds = directionSpeeds(meshOpposites(d4Mesh({ side: SPEED_SIDE })))
-    const rest = speeds.map((s, d) => (s < 1e-9 ? d : -1)).filter(d => d >= 0)
-    const massless = speeds.map((s, d) => (Math.abs(s - 1) < 1e-9 ? d : -1)).filter(d => d >= 0)
+    const previousKnitSelectors = selectorsOf(
+      pairCollision({ opposite }),
+    )
+    const speeds = directionSpeeds(
+      meshOpposites(d4Mesh({ side: SPEED_SIDE })),
+    )
+    const rest = speeds
+      .map((s, d) => (s < 1e-9 ? d : -1))
+      .filter(d => d >= 0)
+    const massless = speeds
+      .map((s, d) => (Math.abs(s - 1) < 1e-9 ? d : -1))
+      .filter(d => d >= 0)
     const restIsCoordinatePlane =
-      rest.length === 4 && rest.every(d => (roots[d] ?? []).filter(x => x !== 0).length === 2) &&
-      new Set(rest.map(d => (roots[d] ?? []).map(x => (x === 0 ? 0 : 1)).join())).size === 1
+      rest.length === 4 &&
+      rest.every(
+        d => (roots[d] ?? []).filter(x => x !== 0).length === 2,
+      ) &&
+      new Set(
+        rest.map(d =>
+          (roots[d] ?? []).map(x => (x === 0 ? 0 : 1)).join(),
+        ),
+      ).size === 1
     const restIsA2 = planes.has(keyOf(rest))
-    const masslessClose = triangles.some(t => keyOf(t) === keyOf(massless))
+    const masslessClose = triangles.some(
+      t => keyOf(t) === keyOf(massless),
+    )
 
-    const geometry = shadowsRegular && emptyComplement && planes.size === 16
+    const geometry =
+      shadowsRegular && emptyComplement && planes.size === 16
     const selector =
       orderThree.length === 80 &&
       selectors.length === 32 &&
       fixedPointFree === 48 &&
       selectorsOutsideD4 === 32 &&
       planesSelected === 16
-    const rules = previousKnitSelectors === 2 && restIsCoordinatePlane && !restIsA2 && !masslessClose
+    const rules =
+      previousKnitSelectors === 2 &&
+      restIsCoordinatePlane &&
+      !restIsA2 &&
+      !masslessClose
     const ok = geometry && selector && rules
 
     return verdict({

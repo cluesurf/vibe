@@ -44,7 +44,7 @@ folder). Counts are file counts.
 | arena | files | registered | what it tests |
 |:--- | ---: | ---: |:--- |
 | [selves](selves/readme.md) | 176 | 175 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
-| [gauge](gauge/readme.md) | 100 | 105 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate, and the strong force simulated and mapped to published values, with SU(3) measured absent from the rule ([strong-force](gauge/strong-force.md)) and what a base would need to carry it ([what-the-base-needs](gauge/what-the-base-needs.md)) |
+| [gauge](gauge/readme.md) | 102 | 107 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate, and the strong force simulated and mapped to published values, with SU(3) measured absent from the rule ([strong-force](gauge/strong-force.md)) and what a base would need to carry it ([what-the-base-needs](gauge/what-the-base-needs.md)) |
 | [foundations](foundations/readme.md) | 143 | 151 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed, and the rule's own limits (no amplitudes, a period-three vacuum) |
 | [quantum](quantum/readme.md) | 98 | 98 | the quantum on stated models (the coined Dirac walk, tight-binding chains, small Hilbert spaces): Born rule, entanglement, measurement as settling, topological walks. None of it yet runs the base rule, see `../audit/2026-08-31-experiment-audit.md` |
 | [gravity](gravity/readme.md) | 55 | 55 | gravity as emergent and entropic: curvature from the area law, Einstein as an equation of state, the dark sector, horizons |
@@ -62,7 +62,7 @@ folder). Counts are file counts.
 | [addressing](addressing/readme.md) | 14 | 14 | the addressing scheme and greedy geometric routing on the honeycomb |
 | [method](method/readme.md) | 6 | 6 | meta-experiments about the suite: the rigidity test and the anti-fooling gates |
 | [general](general/readme.md) | 1 | (under renormalization) | the exact renormalization mechanism |
-| **total** | **935** | **948** | a file may register more than one experiment |
+| **total** | **937** | **950** | a file may register more than one experiment |
 
 ## The coverage map
 
@@ -71,14 +71,14 @@ view: where the suite is deep, where it is thin, and where it has no
 control-gated result yet.
 
 Counts by catalog category, regenerated 2026-09-25 from
-`test/catalog.csv` (948 experiments), after the 2026-08-31 audit
+`test/catalog.csv` (950 experiments), after the 2026-08-31 audit
 regraded every L3 that never ran a substrate.
 
 | arena | L0 | L1 | L2 | L3 | paper |
 |:--- | ---: | ---: | ---: | ---: | ---: |
 | selves | 3 | 14 | 144 | 14 | 109 |
 | foundations | 0 | 40 | 109 | 2 | 115 |
-| gauge | 3 | 32 | 61 | 9 | 46 |
+| gauge | 3 | 32 | 63 | 9 | 46 |
 | quantum | 1 | 19 | 78 | **0** | 68 |
 | cosmology | 1 | 11 | 38 | 7 | 37 |
 | gravity | 4 | 12 | 38 | 1 | 24 |
@@ -94,7 +94,7 @@ regraded every L3 that never ran a substrate.
 | computation | 0 | 2 | 12 | **0** | 10 |
 | addressing | 0 | 5 | 9 | **0** | 3 |
 | method | 0 | 1 | 5 | 0 | 3 |
-| **total** | **14** | **217** | **665** | **52** | **598** |
+| **total** | **14** | **217** | **667** | **52** | **598** |
 
 The bulk of the suite is L2 (known physics reproduced on a stated
 model). 52 experiments reach L3 (one base rule, a measured consequence,

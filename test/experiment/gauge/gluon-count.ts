@@ -75,10 +75,15 @@ function meanMoments(input: {
 }
 
 // beta for a given bare coupling g^2
-function betaFor(input: { group: GaugeGroup; gSquared: number }): number {
+function betaFor(input: {
+  group: GaugeGroup
+  gSquared: number
+}): number {
   const n = groupSize({ group: input.group })
 
-  return input.group === 'u1' ? 1 / input.gSquared : (2 * n) / input.gSquared
+  return input.group === 'u1'
+    ? 1 / input.gSquared
+    : (2 * n) / input.gSquared
 }
 
 const WEAK_COUPLINGS = [0.2, 0.1, 0.05]
@@ -128,10 +133,19 @@ function countGroup(input: { group: GaugeGroup; seed: number }): {
   })
   const lambdas = strong.map(point => point.lambda)
   // P / lambda = a + b lambda + c lambda^2, with a = K2 / N
-  const series = quadraticFit({ xs: lambdas, ys: strong.map(point => point.ratio) })
+  const series = quadraticFit({
+    xs: lambdas,
+    ys: strong.map(point => point.ratio),
+  })
   // the moments at lambda, carried to lambda = 0 by the same quadratic
-  const second = quadraticFit({ xs: lambdas, ys: strong.map(point => point.second) })
-  const third = quadraticFit({ xs: lambdas, ys: strong.map(point => point.third) })
+  const second = quadraticFit({
+    xs: lambdas,
+    ys: strong.map(point => point.second),
+  })
+  const third = quadraticFit({
+    xs: lambdas,
+    ys: strong.map(point => point.third),
+  })
 
   return {
     fieldCount: extrapolated.intercept,
@@ -168,13 +182,21 @@ export default experiment({
     // error near 0.002 at these sample sizes)
     const invariant = 1 / 4
     const su3Invariant = Math.abs(su3.thirdCumulant - invariant) < 0.01
-    const othersNone = Math.abs(su2.thirdCumulant) < 0.01 && Math.abs(u1.thirdCumulant) < 0.01
+    const othersNone =
+      Math.abs(su2.thirdCumulant) < 0.01 &&
+      Math.abs(u1.thirdCumulant) < 0.01
     // the two readings of K2 agree to three percent in every group
     const responseMatchesSpread = [su3, su2, u1].every(
-      g => Math.abs(g.secondCumulantFromSlope / g.secondCumulant - 1) < 0.03,
+      g =>
+        Math.abs(g.secondCumulantFromSlope / g.secondCumulant - 1) <
+        0.03,
     )
     const ok =
-      countsExact && coloursExact && su3Invariant && othersNone && responseMatchesSpread
+      countsExact &&
+      coloursExact &&
+      su3Invariant &&
+      othersNone &&
+      responseMatchesSpread
 
     return verdict({
       status: ok ? 'pass' : 'fail',

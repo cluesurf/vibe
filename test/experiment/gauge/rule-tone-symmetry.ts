@@ -47,7 +47,12 @@ import {
   unitaryAlgebraBasis,
 } from '@/code/measure/tone-symmetry'
 import { commutingLineRelabellings } from '@/code/check/tone-permutation-symmetry'
-import { Will, fillCoordinateTexture, fillWillPattern, makeWill } from '@/code/tone/will'
+import {
+  Will,
+  fillCoordinateTexture,
+  fillWillPattern,
+  makeWill,
+} from '@/code/tone/will'
 
 const PERIOD = 24
 
@@ -71,11 +76,17 @@ function starts(side: number): Will[] {
 
 // how far a generator (coefficients over unitaryAlgebraBasis) lies outside a subspace spanned by an
 // orthonormal basis, as the norm of what the projection leaves over
-function outside(input: { vector: readonly number[]; basis: readonly (readonly number[])[] }): number {
+function outside(input: {
+  vector: readonly number[]
+  basis: readonly (readonly number[])[]
+}): number {
   const left = [...input.vector]
 
   for (const b of input.basis) {
-    const dot = b.reduce((sum, x, i) => sum + x * (input.vector[i] ?? 0), 0)
+    const dot = b.reduce(
+      (sum, x, i) => sum + x * (input.vector[i] ?? 0),
+      0,
+    )
 
     b.forEach((x, i) => {
       left[i] = (left[i] ?? 0) - dot * x
@@ -98,7 +109,11 @@ export default experiment({
     const mesh = d4Mesh({ side: 3 })
     const opposite = meshOpposites(mesh)
     const committed = turningWeave({ opposite })
-    const anatomy = scheduleAnatomy({ schedule: committed, period: PERIOD, degree: 24 })
+    const anatomy = scheduleAnatomy({
+      schedule: committed,
+      period: PERIOD,
+      degree: 24,
+    })
     const probes = probeConfigurations({ degree: 24 })
     const decompositionExact = anatomy.every((beatAnatomy, t) =>
       blocksReproduceCollision({
@@ -111,13 +126,20 @@ export default experiment({
     )
 
     // the continuous tone symmetry of the whole 24-beat rule, every slot carrying the plain triplet
-    const whole = toneSymmetryAlgebra({ maps: anatomy.flatMap(a => a.maps) })
+    const whole = toneSymmetryAlgebra({
+      maps: anatomy.flatMap(a => a.maps),
+    })
     // which generators survive: the overall phase i (1, 1, 1) and the charge i (-1, 0, +1)
     const basis = unitaryAlgebraBasis()
     const phase = basis.map((_, j) => (j < 3 ? 1 : 0))
-    const chargeGenerator = basis.map((_, j) => (j === 0 ? -1 : j === 2 ? 1 : 0))
+    const chargeGenerator = basis.map((_, j) =>
+      j === 0 ? -1 : j === 2 ? 1 : 0,
+    )
     const phaseOutside = outside({ vector: phase, basis: whole.basis })
-    const chargeOutside = outside({ vector: chargeGenerator, basis: whole.basis })
+    const chargeOutside = outside({
+      vector: chargeGenerator,
+      basis: whole.basis,
+    })
 
     // the upper bound over every relative representation of a line's two ends
     const pairMap = pairTableMap({ table: PAIR_FORWARD })
@@ -126,12 +148,23 @@ export default experiment({
 
     // the detector on maps that do commute with U(3), and two neighbouring tables for scale
     const identityMap = Array.from({ length: 9 }, (_, i) => i)
-    const swapMap = Array.from({ length: 9 }, (_, i) => (i % 3) * 3 + Math.floor(i / 3))
-    const identityAlgebra = toneSymmetryAlgebra({ maps: [identityMap] }).dimension
-    const swapAlgebra = toneSymmetryAlgebra({ maps: [swapMap] }).dimension
+    const swapMap = Array.from(
+      { length: 9 },
+      (_, i) => (i % 3) * 3 + Math.floor(i / 3),
+    )
+    const identityAlgebra = toneSymmetryAlgebra({
+      maps: [identityMap],
+    }).dimension
+    const swapAlgebra = toneSymmetryAlgebra({
+      maps: [swapMap],
+    }).dimension
     const swapCovariance = covariantPairSpace({ map: swapMap })
-    const bindBound = largestLineSymmetry({ map: pairTableMap({ table: BIND_MOVE_FORWARD }) })
-    const leakyBound = largestLineSymmetry({ map: pairTableMap({ table: LEAKY_CONFINE }) })
+    const bindBound = largestLineSymmetry({
+      map: pairTableMap({ table: BIND_MOVE_FORWARD }),
+    })
+    const leakyBound = largestLineSymmetry({
+      map: pairTableMap({ table: LEAKY_CONFINE }),
+    })
 
     // the discrete relabellings, run through beat, at two sizes, two schedule periods
     const relabellingsAt = (
@@ -143,12 +176,22 @@ export default experiment({
         schedule: build(meshOpposites(d4Mesh({ side }))),
         beats: 2 * PERIOD,
       }).length
-    const committedRelabellings3 = relabellingsAt(3, sized => turningWeave({ opposite: sized }))
-    const committedRelabellings5 = relabellingsAt(5, sized => turningWeave({ opposite: sized }))
-    const streamingRelabellings = relabellingsAt(3, () => () => passThrough)
+    const committedRelabellings3 = relabellingsAt(3, sized =>
+      turningWeave({ opposite: sized }),
+    )
+    const committedRelabellings5 = relabellingsAt(5, sized =>
+      turningWeave({ opposite: sized }),
+    )
+    const streamingRelabellings = relabellingsAt(
+      3,
+      () => () => passThrough,
+    )
 
     const noSu3 =
-      whole.dimension === 2 && lineBound.dimension < 8 && committedRelabellings3 === 1 && committedRelabellings5 === 1
+      whole.dimension === 2 &&
+      lineBound.dimension < 8 &&
+      committedRelabellings3 === 1 &&
+      committedRelabellings5 === 1
     const whatIsKept = phaseOutside < 1e-9 && chargeOutside < 1e-9
     const detectorWorks =
       identityAlgebra === 9 &&
@@ -156,7 +199,8 @@ export default experiment({
       swapCovariance.distance < 1e-9 &&
       covariance.complexDimension === 2 &&
       streamingRelabellings === 36
-    const ok = decompositionExact && noSu3 && whatIsKept && detectorWorks
+    const ok =
+      decompositionExact && noSu3 && whatIsKept && detectorWorks
 
     return verdict({
       status: ok ? 'pass' : 'fail',

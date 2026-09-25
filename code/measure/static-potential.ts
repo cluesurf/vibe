@@ -14,7 +14,10 @@
 // 4 pi times the lattice Coulomb Green function at on-axis distance R, from the momentum sum over a
 // periodic L^3 box with the zero mode dropped. Dropping the zero mode shifts every G(R) by the same
 // constant, which the V0 of a fit absorbs, so only the R dependence is used.
-export function latticeCoulomb(input: { r: number; box?: number }): number {
+export function latticeCoulomb(input: {
+  r: number
+  box?: number
+}): number {
   const box = input.box ?? 48
   const step = (2 * Math.PI) / box
 
@@ -57,7 +60,10 @@ export function potentialAt(input: {
 }
 
 // r0 in lattice units from Cornell parameters.
-export function sommerScale(input: { coulomb: number; tension: number }): number {
+export function sommerScale(input: {
+  coulomb: number
+  tension: number
+}): number {
   return Math.sqrt((1.65 - input.coulomb) / input.tension)
 }
 
@@ -67,5 +73,7 @@ export function sommerScale(input: { coulomb: number; tension: number }): number
 export function neccoSommerScale(input: { beta: number }): number {
   const x = input.beta - 6
 
-  return Math.exp(1.6804 + 1.7331 * x - 0.7849 * x * x + 0.4428 * x * x * x)
+  return Math.exp(
+    1.6804 + 1.7331 * x - 0.7849 * x * x + 0.4428 * x * x * x,
+  )
 }

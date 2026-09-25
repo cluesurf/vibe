@@ -44,12 +44,16 @@ export function pointSourceCondensate(input: {
       worstResidual = Math.max(worstResidual, ...solved.residuals)
 
       solved.propagators.forEach((g, index) => {
-        totals[index] = (totals[index] ?? 0) + (g[site * 2 * n + 2 * colour] ?? 0)
+        totals[index] =
+          (totals[index] ?? 0) + (g[site * 2 * n + 2 * colour] ?? 0)
       })
     }
   }
 
-  return { values: totals.map(total => total / sites.length), worstResidual }
+  return {
+    values: totals.map(total => total / sites.length),
+    worstResidual,
+  }
 }
 
 // The exact condensate of free staggered quarks (every link the identity) on a periodic box with
@@ -78,7 +82,9 @@ export function freeStaggeredCondensate(input: {
       rest = Math.floor(rest / length)
 
       const p =
-        mu === dim - 1 ? ((2 * k + 1) * Math.PI) / length : (2 * k * Math.PI) / length
+        mu === dim - 1
+          ? ((2 * k + 1) * Math.PI) / length
+          : (2 * k * Math.PI) / length
 
       sinSquared += Math.sin(p) ** 2
     }

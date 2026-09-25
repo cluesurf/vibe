@@ -77,7 +77,12 @@ function ensemble(input: {
   }
 
   const rng = makeRng({ seed: input.seed })
-  const lattice = makeGaugeLattice({ group: input.group, lengths: [10, 10, 10, 10], start: 'cold', rng })
+  const lattice = makeGaugeLattice({
+    group: input.group,
+    lengths: [10, 10, 10, 10],
+    start: 'cold',
+    rng,
+  })
   const samples = sampleGaugeEnsemble({
     lattice,
     beta: input.beta,
@@ -88,13 +93,32 @@ function ensemble(input: {
     rng,
     measure: current => {
       // one smearing sequence, read at three depths along the way
-      const light = apeSmear({ lattice: current, alpha: 0.5, iterations: 4 })
-      const medium = apeSmear({ lattice: light, alpha: 0.5, iterations: 8 })
-      const heavy = apeSmear({ lattice: medium, alpha: 0.5, iterations: 12 })
+      const light = apeSmear({
+        lattice: current,
+        alpha: 0.5,
+        iterations: 4,
+      })
+      const medium = apeSmear({
+        lattice: light,
+        alpha: 0.5,
+        iterations: 8,
+      })
+      const heavy = apeSmear({
+        lattice: medium,
+        alpha: 0.5,
+        iterations: 12,
+      })
 
       return {
-        loops: staticWilsonLoops({ spatial: medium, temporal: current, maxR: MAX_R, maxT: MAX_T + 1 }).flat(),
-        glue: [light, medium, heavy].map(level => spatialPlaquetteSlices({ lattice: level })),
+        loops: staticWilsonLoops({
+          spatial: medium,
+          temporal: current,
+          maxR: MAX_R,
+          maxT: MAX_T + 1,
+        }).flat(),
+        glue: [light, medium, heavy].map(level =>
+          spatialPlaquetteSlices({ lattice: level }),
+        ),
         plaquette: averagePlaquette({ lattice: current }),
       }
     },
@@ -105,7 +129,9 @@ function ensemble(input: {
   return samples
 }
 
-const COULOMB = Array.from({ length: MAX_R }, (_, i) => latticeCoulomb({ r: i + 1 }))
+const COULOMB = Array.from({ length: MAX_R }, (_, i) =>
+  latticeCoulomb({ r: i + 1 }),
+)
 
 function table(samples: readonly Sample[]): number[][] {
   const mean = averageSeries({ series: samples.map(s => s.loops) })
@@ -132,14 +158,30 @@ function plateauOf(samples: readonly Sample[]): number {
   let chosen = MAX_T - 1
 
   for (let t = PLATEAU_T; t < MAX_T; t++) {
-    const settled = Array.from({ length: MAX_R }, (_, i) => i).every(i => {
-      const at = (time: number) => (s: readonly Sample[]): number =>
-        potentialAt({ table: table(s), t: time, maxR: MAX_R })[i] ?? 0
-      const early = jackknife({ samples, estimator: at(t), binSize: BIN })
-      const late = jackknife({ samples, estimator: at(t + 1), binSize: BIN })
+    const settled = Array.from({ length: MAX_R }, (_, i) => i).every(
+      i => {
+        const at =
+          (time: number) =>
+          (s: readonly Sample[]): number =>
+            potentialAt({ table: table(s), t: time, maxR: MAX_R })[i] ??
+            0
+        const early = jackknife({
+          samples,
+          estimator: at(t),
+          binSize: BIN,
+        })
+        const late = jackknife({
+          samples,
+          estimator: at(t + 1),
+          binSize: BIN,
+        })
 
-      return Math.abs(early.value - late.value) < 2 * Math.hypot(early.error, late.error)
-    })
+        return (
+          Math.abs(early.value - late.value) <
+          2 * Math.hypot(early.error, late.error)
+        )
+      },
+    )
 
     if (settled) {
       chosen = t
@@ -154,8 +196,15 @@ function plateauOf(samples: readonly Sample[]): number {
 
 // Cornell parameters [V0, e, sigma] from the potential on the plateau of `full`, the whole ensemble,
 // so every jackknife subset reads the same T
-function cornell(samples: readonly Sample[], full: readonly Sample[] = samples): number[] {
-  const v = potentialAt({ table: table(samples), t: plateauOf(full), maxR: MAX_R })
+function cornell(
+  samples: readonly Sample[],
+  full: readonly Sample[] = samples,
+): number[] {
+  const v = potentialAt({
+    table: table(samples),
+    t: plateauOf(full),
+    maxR: MAX_R,
+  })
   const fit = weightedLeastSquares({
     rows: v.map((_, i) => [1, -(COULOMB[i] ?? 0), i + 1]),
     ys: v,
@@ -177,7 +226,8 @@ function pull(a: { value: number; error: number }, b: number): number {
   return (a.value - b) / a.error
 }
 
-const strong = (): Sample[] => ensemble({ group: 'su3', beta: 5.7, measurements: 80, seed: 870 })
+const strong = (): Sample[] =>
+  ensemble({ group: 'su3', beta: 5.7, measurements: 80, seed: 870 })
 // the second coupling for the scale, far enough from 5.7 that the ratio of spacings is resolved
 const HIGH_BETA = 5.9
 
@@ -192,28 +242,65 @@ export default experiment({
   paper: false,
   run() {
     const samples = strong()
-    const photon = ensemble({ group: 'u1', beta: 1.5, measurements: 60, seed: 871 })
-    const coefficient = (index: number, full: readonly Sample[]) => (s: readonly Sample[]): number =>
-      cornell(s, full)[index] ?? 0
-    const e = jackknife({ samples, estimator: coefficient(1, samples), binSize: BIN })
-    const sigma = jackknife({ samples, estimator: coefficient(2, samples), binSize: BIN })
-    const photonSigma = jackknife({ samples: photon, estimator: coefficient(2, photon), binSize: BIN })
+    const photon = ensemble({
+      group: 'u1',
+      beta: 1.5,
+      measurements: 60,
+      seed: 871,
+    })
+    const coefficient =
+      (index: number, full: readonly Sample[]) =>
+      (s: readonly Sample[]): number =>
+        cornell(s, full)[index] ?? 0
+    const e = jackknife({
+      samples,
+      estimator: coefficient(1, samples),
+      binSize: BIN,
+    })
+    const sigma = jackknife({
+      samples,
+      estimator: coefficient(2, samples),
+      binSize: BIN,
+    })
+    const photonSigma = jackknife({
+      samples: photon,
+      estimator: coefficient(2, photon),
+      binSize: BIN,
+    })
     const plateau = plateauOf(samples)
     // the ground state is isolated: V from T = 2 to 3 and from T = 3 to 4 agree at every R <= 3
     const plateauPulls = [1, 2, 3].map(r => {
-      const at = (t: number) => (s: readonly Sample[]): number =>
-        potentialAt({ table: table(s), t, maxR: MAX_R })[r - 1] ?? 0
-      const early = jackknife({ samples, estimator: at(plateau), binSize: BIN })
-      const late = jackknife({ samples, estimator: at(plateau + 1), binSize: BIN })
+      const at =
+        (t: number) =>
+        (s: readonly Sample[]): number =>
+          potentialAt({ table: table(s), t, maxR: MAX_R })[r - 1] ?? 0
+      const early = jackknife({
+        samples,
+        estimator: at(plateau),
+        binSize: BIN,
+      })
+      const late = jackknife({
+        samples,
+        estimator: at(plateau + 1),
+        binSize: BIN,
+      })
 
-      return (early.value - late.value) / Math.hypot(early.error, late.error)
+      return (
+        (early.value - late.value) / Math.hypot(early.error, late.error)
+      )
     })
-    const potential = potentialAt({ table: table(samples), t: plateau, maxR: MAX_R })
+    const potential = potentialAt({
+      table: table(samples),
+      t: plateau,
+      maxR: MAX_R,
+    })
 
     const confines = sigma.value > 5 * sigma.error
     const luscher = Math.abs(pull(e, LUSCHER)) < 3 && e.value > 0
     const isolated = plateauPulls.every(p => Math.abs(p) < 3)
-    const photonFree = Math.abs(photonSigma.value) < 3 * photonSigma.error + 0.1 * sigma.value
+    const photonFree =
+      Math.abs(photonSigma.value) <
+      3 * photonSigma.error + 0.1 * sigma.value
     const ok = confines && luscher && isolated && photonFree
 
     return verdict({
@@ -254,14 +341,29 @@ experiment({
   paper: false,
   run() {
     const lowSamples = strong()
-    const highSamples = ensemble({ group: 'su3', beta: HIGH_BETA, measurements: 80, seed: 872 })
-    const low = jackknife({ samples: lowSamples, estimator: scaleOn(lowSamples), binSize: BIN })
-    const high = jackknife({ samples: highSamples, estimator: scaleOn(highSamples), binSize: BIN })
+    const highSamples = ensemble({
+      group: 'su3',
+      beta: HIGH_BETA,
+      measurements: 80,
+      seed: 872,
+    })
+    const low = jackknife({
+      samples: lowSamples,
+      estimator: scaleOn(lowSamples),
+      binSize: BIN,
+    })
+    const high = jackknife({
+      samples: highSamples,
+      estimator: scaleOn(highSamples),
+      binSize: BIN,
+    })
     const publishedLow = neccoSommerScale({ beta: 5.7 })
     const publishedHigh = neccoSommerScale({ beta: HIGH_BETA })
     const ratio = {
       value: high.value / low.value,
-      error: (high.value / low.value) * Math.hypot(high.error / high.value, low.error / low.value),
+      error:
+        (high.value / low.value) *
+        Math.hypot(high.error / high.value, low.error / low.value),
     }
     const publishedRatio = publishedHigh / publishedLow
     // two-loop running, a Lambda = (b0 g^2)^(-b1 / 2 b0^2) exp(-1 / (2 b0 g^2)), in two couplings:
@@ -275,7 +377,9 @@ experiment({
     const bareRatio = spacing(6 / 5.7) / spacing(6 / HIGH_BETA)
     const plaquetteOf = (s: readonly Sample[]): number =>
       s.reduce((sum, x) => sum + x.plaquette, 0) / s.length
-    const schemeRatio = spacing(3 * (1 - plaquetteOf(lowSamples))) / spacing(3 * (1 - plaquetteOf(highSamples)))
+    const schemeRatio =
+      spacing(3 * (1 - plaquetteOf(lowSamples))) /
+      spacing(3 * (1 - plaquetteOf(highSamples)))
 
     const matchesLow = Math.abs(pull(low, publishedLow)) < 3
     const matchesHigh = Math.abs(pull(high, publishedHigh)) < 3
@@ -283,7 +387,9 @@ experiment({
     // the E-scheme two-loop prediction agrees with the measured ratio, the bare one is further off
     const schemePull = pull(ratio, schemeRatio)
     const barePull = pull(ratio, bareRatio)
-    const schemeWorks = Math.abs(schemePull) < 3 && Math.abs(schemeRatio / publishedRatio - 1) < 0.08
+    const schemeWorks =
+      Math.abs(schemePull) < 3 &&
+      Math.abs(schemeRatio / publishedRatio - 1) < 0.08
     const ok = matchesLow && matchesHigh && shrinks && schemeWorks
 
     return verdict({
@@ -345,23 +451,41 @@ experiment({
 
     // the single-operator effective mass at the middle smearing level, for comparison
     const single = (s: readonly Sample[]): number => {
-      const c = connectedSliceCorrelator({ slices: s.map(x => x.glue[1] ?? []) })
+      const c = connectedSliceCorrelator({
+        slices: s.map(x => x.glue[1] ?? []),
+      })
 
       return Math.log((c[0] ?? 0) / (c[1] ?? 1))
     }
 
-    const mass = jackknife({ samples, estimator: variational, binSize: BIN })
-    const singleMass = jackknife({ samples, estimator: single, binSize: BIN })
-    const r0 = jackknife({ samples, estimator: scaleOn(samples), binSize: BIN })
+    const mass = jackknife({
+      samples,
+      estimator: variational,
+      binSize: BIN,
+    })
+    const singleMass = jackknife({
+      samples,
+      estimator: single,
+      binSize: BIN,
+    })
+    const r0 = jackknife({
+      samples,
+      estimator: scaleOn(samples),
+      binSize: BIN,
+    })
     const massR0 = {
       value: mass.value * r0.value,
-      error: mass.value * r0.value * Math.hypot(mass.error / mass.value, r0.error / r0.value),
+      error:
+        mass.value *
+        r0.value *
+        Math.hypot(mass.error / mass.value, r0.error / r0.value),
     }
 
     const gapped = mass.value > 5 * mass.error
     const matches = Math.abs(pull(massR0, GLUEBALL_R0)) < 3
     // a variational bound lies at or below any single operator effective mass
-    const bounded = mass.value <= singleMass.value + 2 * singleMass.error
+    const bounded =
+      mass.value <= singleMass.value + 2 * singleMass.error
     const ok = gapped && matches && bounded
 
     return verdict({

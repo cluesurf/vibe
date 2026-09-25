@@ -31,13 +31,15 @@ export type Erratum = {
 
 export const PUBLISHED: Published[] = [
   {
-    title: 'A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh',
+    title:
+      'A Discrete Universe: The Standard Model from the octonions on a hyperbolic 24-cell mesh',
     source: 'text/0012-discrete-universe',
     doi: '10.5281/zenodo.20768426',
     form: 'preprint, Zenodo',
   },
   {
-    title: 'Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe',
+    title:
+      'Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe',
     source: null,
     doi: '10.5281/zenodo.20694262',
     form: 'preprint, Zenodo',
@@ -47,20 +49,26 @@ export const PUBLISHED: Published[] = [
 export const PLANNED: Planned[] = [
   {
     order: 1,
-    title: 'A reproducible testbed for discrete-spacetime and lattice physics',
+    title:
+      'A reproducible testbed for discrete-spacetime and lattice physics',
     audience: 'computational physics',
     contents:
       'the SU(3) lattice results rebuilt from scratch against published values, each with a control, and deterministic reversible dynamics reproducing the thermal ensemble. Methods, not new physics, and it says so',
     results: ['R-FRC-0001', 'R-FRC-0002', 'R-FRC-0004'],
-    needs: 'a reproducibility appendix (seeds, commands, versions), figures, and a pinned code release with a DOI',
+    needs:
+      'a reproducibility appendix (seeds, commands, versions), figures, and a pinned code release with a DOI',
   },
   {
     order: 2,
-    title: 'The hyperbolic substrate: navigation, memory and the boundary',
-    audience: 'network science (hyperbolic random graphs, greedy routing), associative memory',
-    contents: 'routing, search radius and the boundary share on {3,4,3,4}, grounded in the hyperbolic random graph literature',
+    title:
+      'The hyperbolic substrate: navigation, memory and the boundary',
+    audience:
+      'network science (hyperbolic random graphs, greedy routing), associative memory',
+    contents:
+      'routing, search radius and the boundary share on {3,4,3,4}, grounded in the hyperbolic random graph literature',
     results: ['R-MMR-0001', 'R-NVG-0001', 'R-HLG-0001'],
-    needs: 'routing run on {3,4,3,4} (OP-04), finite-size scaling, and a precise statement of what is new against that literature',
+    needs:
+      'routing run on {3,4,3,4} (OP-04), finite-size scaling, and a precise statement of what is new against that literature',
   },
   {
     order: 3,
@@ -68,13 +76,15 @@ export const PLANNED: Planned[] = [
     audience: 'the community that could measure it',
     contents: 'one row of the prediction table',
     results: [],
-    needs: 'a row whose result passes the prediction gate. There is none',
+    needs:
+      'a row whose result passes the prediction gate. There is none',
   },
   {
     order: 4,
     title: 'The framework',
     audience: 'general physics, as a preprint',
-    contents: 'the whole picture and the full scoreboard, negatives included, citing papers 1 to 3',
+    contents:
+      'the whole picture and the full scoreboard, negatives included, citing papers 1 to 3',
     results: ['R-FRC-0003', 'R-FND-0001', 'R-FND-0002'],
     needs: 'papers 1 to 3',
   },
@@ -83,7 +93,8 @@ export const PLANNED: Planned[] = [
 export const ERRATA: Erratum[] = [
   {
     paper: '0012',
-    claim: 'the Born rule and the Tsirelson bound, saturated by the exchange dynamics. Derived',
+    claim:
+      'the Born rule and the Tsirelson bound, saturated by the exchange dynamics. Derived',
     code: 'E-QTM-0011 applies the exchange unitary to $|01\\rangle$ in a four-dimensional Hilbert space, with no mesh, rule or tone. E-QTM-0012 puts $|a|^2$ in by fine-graining',
     label: 'reproduced, L1',
   },
@@ -91,7 +102,8 @@ export const ERRATA: Erratum[] = [
     paper: '0012',
     claim: 'spin-statistics holds on the same footing',
     code: 'E-SPN-0014 computes $2(1 - \\langle v | v \\rangle^2)$ for a unit vector with itself, zero for every vector, and the exchange signs were typed constants',
-    label: 'L1, with the exchange sign an input. The dynamical result is open (OP-08)',
+    label:
+      'L1, with the exchange sign an input. The dynamical result is open (OP-08)',
   },
   {
     paper: '0012',
@@ -101,7 +113,8 @@ export const ERRATA: Erratum[] = [
   },
   {
     paper: '0012',
-    claim: 'the Dirac dispersion and a finite light cone, and every walk result',
+    claim:
+      'the Dirac dispersion and a finite light cone, and every walk result',
     code: 'thirteen experiments run a hand-written coined Dirac walk, not the committed rule (E-FND-0080)',
     label:
       'reproduced, L2, with prior art: Strauch 2006, Kurzynski 2008, Regensburger 2011, Kitagawa 2010, Asboth and Obuse 2013',
@@ -114,7 +127,8 @@ export const ERRATA: Erratum[] = [
   },
   {
     paper: '0012',
-    claim: 'the mass hierarchy: the geometric spacing beats a power law',
+    claim:
+      'the mass hierarchy: the geometric spacing beats a power law',
     code: 'E-FRC-0031 compares two hand-written ansatzes, with the shell spacing the one measured number, inside a ± three decade window',
     label: 'a consistency check, not a derivation',
   },

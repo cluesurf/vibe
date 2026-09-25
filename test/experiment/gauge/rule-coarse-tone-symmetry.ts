@@ -25,7 +25,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import { Will, fillCoordinateTexture, makeWill } from '@/code/tone/will'
 import { TONE_PERMUTATIONS } from '@/code/check/tone-permutation-symmetry'
 import {
@@ -64,11 +68,15 @@ function starts(side: number): Will[] {
       Math.floor(cell / (side * side)) % side,
       Math.floor(cell / (side * side * side)) % side,
     ]
-    const radiusSquared = coordinates.reduce((sum, c) => sum + (c - centre) ** 2, 0)
+    const radiusSquared = coordinates.reduce(
+      (sum, c) => sum + (c - centre) ** 2,
+      0,
+    )
 
     if (radiusSquared <= (side / 3) ** 2) {
       for (let d = 0; d < mesh.degree; d++) {
-        ball.data[cell * mesh.degree + d] = texture.data[cell * mesh.degree + d] ?? 0
+        ball.data[cell * mesh.degree + d] =
+          texture.data[cell * mesh.degree + d] ?? 0
       }
     }
   }
@@ -93,7 +101,8 @@ function breaking(input: {
 }
 
 const finest = (b: CoarseBreaking): number => b.mean[0] ?? 0
-const coarsest = (b: CoarseBreaking): number => b.mean[b.mean.length - 1] ?? 0
+const coarsest = (b: CoarseBreaking): number =>
+  b.mean[b.mean.length - 1] ?? 0
 
 export default experiment({
   id: 'gauge/rule-coarse-tone-symmetry',
@@ -123,44 +132,82 @@ export default experiment({
       schedule: turningWeave({ opposite: opposite15 }),
       relabels: [CONJUGATION, MOVES_VACUUM[0] ?? CONJUGATION],
     })
-    const streaming = breaking({ side: 9, blocks: [1, 3, 9], schedule: () => passThrough, relabels: allRelabels })
-    const cycle = breaking({ side: 9, blocks: [1, 3, 9], schedule: () => cycleTones, relabels: allRelabels })
+    const streaming = breaking({
+      side: 9,
+      blocks: [1, 3, 9],
+      schedule: () => passThrough,
+      relabels: allRelabels,
+    })
+    const cycle = breaking({
+      side: 9,
+      blocks: [1, 3, 9],
+      schedule: () => cycleTones,
+      relabels: allRelabels,
+    })
     const reversing = reversePositive({ opposite: opposite9 })
-    const local = breaking({ side: 9, blocks: [1, 3, 9], schedule: () => reversing, relabels: allRelabels })
+    const local = breaking({
+      side: 9,
+      blocks: [1, 3, 9],
+      schedule: () => reversing,
+      relabels: allRelabels,
+    })
 
-    const find = (list: readonly CoarseBreaking[], relabel: ToneRelabel): CoarseBreaking | undefined =>
+    const find = (
+      list: readonly CoarseBreaking[],
+      relabel: ToneRelabel,
+    ): CoarseBreaking | undefined =>
       list.find(b => b.relabel.join(',') === relabel.join(','))
-    const vacuumMoving9 = MOVES_VACUUM.map(r => find(committed9, r)).filter(
-      (b): b is CoarseBreaking => b !== undefined,
-    )
+    const vacuumMoving9 = MOVES_VACUUM.map(r =>
+      find(committed9, r),
+    ).filter((b): b is CoarseBreaking => b !== undefined)
     const conjugation9 = find(committed9, CONJUGATION)
     const conjugation15 = find(committed15, CONJUGATION)
-    const vacuumMoving15 = find(committed15, MOVES_VACUUM[0] ?? CONJUGATION)
+    const vacuumMoving15 = find(
+      committed15,
+      MOVES_VACUUM[0] ?? CONJUGATION,
+    )
     const survival = (b: CoarseBreaking | undefined): number =>
       b === undefined ? Number.NaN : coarsest(b) / finest(b)
 
-    const vacuumSurvivals = [...vacuumMoving9.map(survival), survival(vacuumMoving15)]
-    const conjugationFloor9 = conjugation9 === undefined ? Number.NaN : coarsest(conjugation9)
-    const conjugationFloor15 = conjugation15 === undefined ? Number.NaN : coarsest(conjugation15)
+    const vacuumSurvivals = [
+      ...vacuumMoving9.map(survival),
+      survival(vacuumMoving15),
+    ]
+    const conjugationFloor9 =
+      conjugation9 === undefined ? Number.NaN : coarsest(conjugation9)
+    const conjugationFloor15 =
+      conjugation15 === undefined ? Number.NaN : coarsest(conjugation15)
     // incoherent cancellation would shrink the floor by sqrt of the cell-count ratio from L = 9 to 15
     const incoherentShrink = Math.sqrt((15 / 9) ** 4)
     const floorRatio = conjugationFloor15 / conjugationFloor9
 
     // the committed rule: vacuum-moving breaking survives, conjugation keeps a floor
     const vacuumStays = vacuumSurvivals.every(s => s > 0.5)
-    const conjugationShrinks = survival(conjugation9) < 0.5 && survival(conjugation15) < 0.5
-    const conjugationFloorStays = conjugationFloor9 > 0 && Math.abs(floorRatio - 1) < 0.25
+    const conjugationShrinks =
+      survival(conjugation9) < 0.5 && survival(conjugation15) < 0.5
+    const conjugationFloorStays =
+      conjugationFloor9 > 0 && Math.abs(floorRatio - 1) < 0.25
     // the calibrations
-    const streamingZero = streaming.every(b => b.mean.every(v => v === 0))
+    const streamingZero = streaming.every(b =>
+      b.mean.every(v => v === 0),
+    )
     const cycleCalibrated =
-      THREE_CYCLES.every(r => (find(cycle, r)?.mean ?? [1]).every(v => v === 0)) &&
+      THREE_CYCLES.every(r =>
+        (find(cycle, r)?.mean ?? [1]).every(v => v === 0),
+      ) &&
       cycle
-        .filter(b => !THREE_CYCLES.some(r => r.join(',') === b.relabel.join(',')))
+        .filter(
+          b =>
+            !THREE_CYCLES.some(
+              r => r.join(',') === b.relabel.join(','),
+            ),
+        )
         .every(b => survival(b) > 0.5)
     // reversing a lone +1 commutes exactly with exchanging 0 and +1 (it maps the reversal condition to
     // itself), so it breaks the other four at the cell scale, and all five commute at the mesh scale
     const localBrokenAtCell = local.filter(b => finest(b) > 0).length
-    const localCalibrated = localBrokenAtCell === 4 && local.every(b => coarsest(b) < 1e-12)
+    const localCalibrated =
+      localBrokenAtCell === 4 && local.every(b => coarsest(b) < 1e-12)
     const ok =
       vacuumStays &&
       conjugationShrinks &&
@@ -176,9 +223,12 @@ export default experiment({
       metrics: {
         vacuumMovingSurvivalSmallest: Math.min(...vacuumSurvivals),
         vacuumMovingSurvivalLargest: Math.max(...vacuumSurvivals),
-        vacuumMovingSingleCellL9: vacuumMoving9[0] === undefined ? 0 : finest(vacuumMoving9[0]),
-        vacuumMovingWholeMeshL15: vacuumMoving15 === undefined ? 0 : coarsest(vacuumMoving15),
-        conjugationSingleCellL9: conjugation9 === undefined ? 0 : finest(conjugation9),
+        vacuumMovingSingleCellL9:
+          vacuumMoving9[0] === undefined ? 0 : finest(vacuumMoving9[0]),
+        vacuumMovingWholeMeshL15:
+          vacuumMoving15 === undefined ? 0 : coarsest(vacuumMoving15),
+        conjugationSingleCellL9:
+          conjugation9 === undefined ? 0 : finest(conjugation9),
         conjugationWholeMeshL9: conjugationFloor9,
         conjugationWholeMeshL15: conjugationFloor15,
         conjugationSurvivalL9: survival(conjugation9),
@@ -190,14 +240,23 @@ export default experiment({
         streamingLargestD: Math.max(...streaming.flatMap(b => b.mean)),
         cycleTranspositionSurvivalSmallest: Math.min(
           ...cycle
-            .filter(b => !THREE_CYCLES.some(r => r.join(',') === b.relabel.join(',')))
+            .filter(
+              b =>
+                !THREE_CYCLES.some(
+                  r => r.join(',') === b.relabel.join(','),
+                ),
+            )
             .map(survival),
         ),
         cycleThreeCycleLargestD: Math.max(
-          ...THREE_CYCLES.flatMap(r => find(cycle, r)?.mean ?? [Number.NaN]),
+          ...THREE_CYCLES.flatMap(
+            r => find(cycle, r)?.mean ?? [Number.NaN],
+          ),
         ),
         localBrokenAtCellScale: localBrokenAtCell,
-        localSingleCellSmallestBroken: Math.min(...local.map(finest).filter(v => v > 0)),
+        localSingleCellSmallestBroken: Math.min(
+          ...local.map(finest).filter(v => v > 0),
+        ),
         localWholeMeshLargest: Math.max(...local.map(coarsest)),
       },
       notes:

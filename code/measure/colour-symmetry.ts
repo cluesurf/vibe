@@ -21,7 +21,11 @@ export type Operator = {
 export function makeOperator(input: { size: number }): Operator {
   const cells = input.size * input.size
 
-  return { size: input.size, re: new Float64Array(cells), im: new Float64Array(cells) }
+  return {
+    size: input.size,
+    re: new Float64Array(cells),
+    im: new Float64Array(cells),
+  }
 }
 
 export function identityOperator(input: { size: number }): Operator {
@@ -35,7 +39,9 @@ export function identityOperator(input: { size: number }): Operator {
 }
 
 // The permutation matrix sending basis state s to map[s].
-export function permutationOperator(input: { map: readonly number[] }): Operator {
+export function permutationOperator(input: {
+  map: readonly number[]
+}): Operator {
   const out = makeOperator({ size: input.map.length })
 
   input.map.forEach((image, s) => {
@@ -122,14 +128,19 @@ export function operatorDistance(a: Operator, b: Operator): number {
   let sum = 0
 
   for (let c = 0; c < a.size * a.size; c++) {
-    sum += ((a.re[c] ?? 0) - (b.re[c] ?? 0)) ** 2 + ((a.im[c] ?? 0) - (b.im[c] ?? 0)) ** 2
+    sum +=
+      ((a.re[c] ?? 0) - (b.re[c] ?? 0)) ** 2 +
+      ((a.im[c] ?? 0) - (b.im[c] ?? 0)) ** 2
   }
 
   return Math.sqrt(sum)
 }
 
 // The permutation a matrix is, when every column holds one entry equal to 1 and the rest 0.
-export function asPermutation(input: { operator: Operator; tolerance?: number }): number[] | undefined {
+export function asPermutation(input: {
+  operator: Operator
+  tolerance?: number
+}): number[] | undefined {
   const { operator, tolerance = 1e-9 } = input
   const n = operator.size
   const map: number[] = []
@@ -164,7 +175,10 @@ export function asPermutation(input: { operator: Operator; tolerance?: number })
 
 // A real basis of u(d), anti-Hermitian: i E_jj, then E_jk - E_kj and i (E_jk + E_kj) for j < k.
 // With special, the traceless su(d) instead: the diagonal ones become i (E_jj - E_{j+1,j+1}).
-export function unitaryAlgebra(input: { d: number; special?: boolean }): Operator[] {
+export function unitaryAlgebra(input: {
+  d: number
+  special?: boolean
+}): Operator[] {
   const { d, special = false } = input
   const basis: Operator[] = []
   const at = (i: number, j: number): number => i * d + j
@@ -214,7 +228,8 @@ export function liftGenerator(input: {
 
       for (let image = 0; image < d; image++) {
         // plain: <image|X|digit>. conjugate: <image|-X^T|digit> = -<digit|X|image>.
-        const cell = kind === 'plain' ? image * d + digit : digit * d + image
+        const cell =
+          kind === 'plain' ? image * d + digit : digit * d + image
         const sign = kind === 'plain' ? 1 : -1
         const re = sign * (generator.re[cell] ?? 0)
         const im = sign * (generator.im[cell] ?? 0)
@@ -248,7 +263,8 @@ export function symmetryDimension(input: {
   const { operator, d, slots, tolerance = 1e-9 } = input
   const basis = input.basis ?? unitaryAlgebra({ d })
   const commutators = basis.map(generator => {
-    const lifted = input.lift?.(generator) ?? liftGenerator({ generator, d, slots })
+    const lifted =
+      input.lift?.(generator) ?? liftGenerator({ generator, d, slots })
 
     return combineOperators([
       { operator: multiplyOperators(operator, lifted), re: 1 },
@@ -260,14 +276,18 @@ export function symmetryDimension(input: {
       let sum = 0
 
       for (let c = 0; c < a.size * a.size; c++) {
-        sum += (a.re[c] ?? 0) * (b.re[c] ?? 0) + (a.im[c] ?? 0) * (b.im[c] ?? 0)
+        sum +=
+          (a.re[c] ?? 0) * (b.re[c] ?? 0) +
+          (a.im[c] ?? 0) * (b.im[c] ?? 0)
       }
 
       return sum
     }),
   )
 
-  return jacobiEigenvalues(gram, 200, 1e-24).filter(value => Math.abs(value) < tolerance).length
+  return jacobiEigenvalues(gram, 200, 1e-24).filter(
+    value => Math.abs(value) < tolerance,
+  ).length
 }
 
 // The lifted E_jk (j != k), or E_jj when diagonal, as integer matrices: the complexified algebra, so
@@ -278,7 +298,6 @@ function liftedUnits(input: {
   diagonal: boolean
 }): Int8Array[] {
   const { d, slots, diagonal } = input
-  const size = d ** slots.length
   const units: Int8Array[] = []
 
   for (let j = 0; j < d; j++) {
@@ -310,7 +329,12 @@ export function colourPermutations(input: {
   diagonal?: boolean
   limit?: number
 }): number[][] {
-  const { d, slots, diagonal = false, limit = Number.POSITIVE_INFINITY } = input
+  const {
+    d,
+    slots,
+    diagonal = false,
+    limit = Number.POSITIVE_INFINITY,
+  } = input
   const size = d ** slots.length
   const units = liftedUnits({ d, slots, diagonal })
   const map = new Array<number>(size).fill(-1)
@@ -372,7 +396,10 @@ export function colourPermutations(input: {
 }
 
 // The same count by brute force over all (d^k)! permutations (Heap's algorithm), for small blocks.
-export function bruteForceColourPermutations(input: { d: number; slots: readonly SlotKind[] }): number {
+export function bruteForceColourPermutations(input: {
+  d: number
+  slots: readonly SlotKind[]
+}): number {
   const { d, slots } = input
   const size = d ** slots.length
   const units = liftedUnits({ d, slots, diagonal: false })
@@ -383,7 +410,10 @@ export function bruteForceColourPermutations(input: { d: number; slots: readonly
     units.every(unit => {
       for (let a = 0; a < size; a++) {
         for (let b = 0; b < size; b++) {
-          if (unit[(map[a] ?? 0) * size + (map[b] ?? 0)] !== unit[a * size + b]) {
+          if (
+            unit[(map[a] ?? 0) * size + (map[b] ?? 0)] !==
+            unit[a * size + b]
+          ) {
             return false
           }
         }
@@ -419,17 +449,28 @@ export function bruteForceColourPermutations(input: { d: number; slots: readonly
 }
 
 // The permutation of basis states that exchanges two slots.
-export function slotSwapMap(input: { d: number; k: number; i: number; j: number }): number[] {
+export function slotSwapMap(input: {
+  d: number
+  k: number
+  i: number
+  j: number
+}): number[] {
   const { d, k, i, j } = input
 
   return Array.from({ length: d ** k }, (_, state) => {
-    const digits = Array.from({ length: k }, (_, slot) => Math.floor(state / d ** slot) % d)
+    const digits = Array.from(
+      { length: k },
+      (_, slot) => Math.floor(state / d ** slot) % d,
+    )
     const held = digits[i] ?? 0
 
     digits[i] = digits[j] ?? 0
     digits[j] = held
 
-    return digits.reduce((sum, digit, slot) => sum + digit * d ** slot, 0)
+    return digits.reduce(
+      (sum, digit, slot) => sum + digit * d ** slot,
+      0,
+    )
   })
 }
 
@@ -437,7 +478,11 @@ export function slotSwapMap(input: { d: number; k: number; i: number; j: number 
 // is spanned by the identity and the swap S, so U = P_sym + e^{i phase} P_anti. For a plain and a
 // conjugate slot it is spanned by the identity and J = sum_{a,b} |a a><b b|, the singlet being J / d,
 // so U = (1 - J / d) + e^{i phase} J / d.
-export function pairExchangeUnitary(input: { d: number; kind: SlotKind; phase: number }): Operator {
+export function pairExchangeUnitary(input: {
+  d: number
+  kind: SlotKind
+  phase: number
+}): Operator {
   const { d, kind, phase } = input
   const size = d * d
   const identity = identityOperator({ size })
@@ -445,7 +490,9 @@ export function pairExchangeUnitary(input: { d: number; kind: SlotKind; phase: n
   const s = Math.sin(phase)
 
   if (kind === 'plain') {
-    const swap = permutationOperator({ map: slotSwapMap({ d, k: 2, i: 0, j: 1 }) })
+    const swap = permutationOperator({
+      map: slotSwapMap({ d, k: 2, i: 0, j: 1 }),
+    })
 
     return combineOperators([
       { operator: identity, re: (1 + c) / 2, im: s / 2 },
@@ -469,7 +516,10 @@ export function pairExchangeUnitary(input: { d: number; kind: SlotKind; phase: n
 
 // The operator linear entropy of a two-slot operator across the slot cut: U read as a vector in
 // (in 0, out 0) x (in 1, out 1), normalized, and E = 1 - Tr rho^2 of its first half.
-function operatorEntropy(input: { operator: Operator; d: number }): number {
+function operatorEntropy(input: {
+  operator: Operator
+  d: number
+}): number {
   const { operator, d } = input
   const size = d * d
   const dim = d * d
@@ -519,22 +569,34 @@ function operatorEntropy(input: { operator: Operator; d: number }): number {
 // Zanardi's entangling power of a two-slot unitary, the mean linear entropy it makes from product
 // states: e_p = (d / (d + 1))^2 (E(U) + E(U S) - E(S)). Zero for every product of local unitaries and
 // for the swap, 2 / 9 at most for qubits (CNOT), 1 / 6 for the square root of the qubit swap.
-export function entanglingPower(input: { operator: Operator; d: number }): number {
+export function entanglingPower(input: {
+  operator: Operator
+  d: number
+}): number {
   const { operator, d } = input
-  const swap = permutationOperator({ map: slotSwapMap({ d, k: 2, i: 0, j: 1 }) })
+  const swap = permutationOperator({
+    map: slotSwapMap({ d, k: 2, i: 0, j: 1 }),
+  })
   const scale = (d / (d + 1)) ** 2
 
   return (
     scale *
     (operatorEntropy({ operator, d }) +
-      operatorEntropy({ operator: multiplyOperators(operator, swap), d }) -
+      operatorEntropy({
+        operator: multiplyOperators(operator, swap),
+        d,
+      }) -
       operatorEntropy({ operator: swap, d }))
   )
 }
 
 // The number of independent colour singlets in a block: states every su(d) generator annihilates, as
 // the zero eigenvalues of the Casimir-like sum over the basis of lift(X)^dagger lift(X).
-export function singletCount(input: { d: number; slots: readonly SlotKind[]; tolerance?: number }): number {
+export function singletCount(input: {
+  d: number
+  slots: readonly SlotKind[]
+  tolerance?: number
+}): number {
   const { d, slots, tolerance = 1e-8 } = input
   const lifts = unitaryAlgebra({ d, special: true }).map(generator =>
     liftGenerator({ generator, d, slots }),
@@ -558,7 +620,9 @@ export function singletCount(input: { d: number; slots: readonly SlotKind[]; tol
   matrix.re.set(casimir.re)
   matrix.im.set(casimir.im)
 
-  return Array.from(eigHermitian({ matrix }).values).filter(value => Math.abs(value) < tolerance).length
+  return Array.from(eigHermitian({ matrix }).values).filter(
+    value => Math.abs(value) < tolerance,
+  ).length
 }
 
 // The largest norm any su(d) generator leaves on a state: zero exactly for a singlet.
@@ -570,10 +634,12 @@ export function singletResidual(input: {
 }): number {
   const { d, slots, re, im } = input
   const size = d ** slots.length
+
   let worst = 0
 
   for (const generator of unitaryAlgebra({ d, special: true })) {
     const lifted = liftGenerator({ generator, d, slots })
+
     let norm = 0
 
     for (let r = 0; r < size; r++) {

@@ -91,8 +91,14 @@ export function arrivalRegression(input: {
 
   const slope = sxx > 0 ? sxy / sxx : 0
   const intercept = my - slope * mx
-  const residual = xs.reduce((s, x, i) => s + ((ys[i] ?? 0) - slope * x - intercept) ** 2, 0)
-  const absolute = xs.reduce((s, x, i) => s + Math.abs((ys[i] ?? 0) - slope * x - intercept), 0)
+  const residual = xs.reduce(
+    (s, x, i) => s + ((ys[i] ?? 0) - slope * x - intercept) ** 2,
+    0,
+  )
+  const absolute = xs.reduce(
+    (s, x, i) => s + Math.abs((ys[i] ?? 0) - slope * x - intercept),
+    0,
+  )
 
   return {
     targets: input.arrival.length,

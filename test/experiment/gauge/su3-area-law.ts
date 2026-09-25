@@ -72,14 +72,22 @@ function creutzStudy(input: {
     [0, 1, 2, 3].map(r =>
       [0, 1, 2, 3].map(
         t =>
-          samples.reduce((sum, table) => sum + (table[r]?.[t] ?? 0), 0) /
-          samples.length,
+          samples.reduce(
+            (sum, table) => sum + (table[r]?.[t] ?? 0),
+            0,
+          ) / samples.length,
       ),
     )
   const chi = (samples: readonly number[][][], r: number): number =>
     creutzRatioFromTable({ table: meanTable(samples), r, t: r })
-  const chi22 = jackknife({ samples: tables, estimator: s => chi(s, 2) })
-  const chi33 = jackknife({ samples: tables, estimator: s => chi(s, 3) })
+  const chi22 = jackknife({
+    samples: tables,
+    estimator: s => chi(s, 2),
+  })
+  const chi33 = jackknife({
+    samples: tables,
+    estimator: s => chi(s, 3),
+  })
   const ratio = jackknife({
     samples: tables,
     estimator: s => chi(s, 3) / chi(s, 2),
@@ -113,12 +121,15 @@ export default experiment({
     const tensionResolved = strong.chi33 > 5 * strong.chi33Error
     // an area law: chi levels off, the ratio three standard errors above the Coulomb ceiling
     const COULOMB_CEILING = 0.5
-    const levelsOff = strong.ratio - 3 * strong.ratioError > COULOMB_CEILING
+    const levelsOff =
+      strong.ratio - 3 * strong.ratioError > COULOMB_CEILING
     // both controls fall off: their ratio three standard errors below the same ceiling
-    const photonFalls = photon.ratio + 3 * photon.ratioError < COULOMB_CEILING
+    const photonFalls =
+      photon.ratio + 3 * photon.ratioError < COULOMB_CEILING
     const weakFalls = weak.ratio + 3 * weak.ratioError < COULOMB_CEILING
     const ok = tensionResolved && levelsOff && photonFalls && weakFalls
-    const spacing = (HBAR_C * Math.sqrt(strong.chi33)) / SQRT_STRING_TENSION
+    const spacing =
+      (HBAR_C * Math.sqrt(strong.chi33)) / SQRT_STRING_TENSION
 
     return verdict({
       status: ok ? 'pass' : 'fail',

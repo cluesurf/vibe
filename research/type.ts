@@ -17,7 +17,11 @@ export type Status =
   | 'negative'
   | 'unresolved'
 
-export const STATUS_RULES: { status: Status; rule: string; grade: string }[] = [
+export const STATUS_RULES: {
+  status: Status
+  rule: string
+  grade: string
+}[] = [
   {
     status: 'derived',
     rule: 'follows from the committed rule by exact argument or exhaustive computation',
@@ -51,7 +55,10 @@ export const STATUS_RULES: { status: Status; rule: string; grade: string }[] = [
 ]
 
 export const DEPTH_RULES: { depth: string; rule: string }[] = [
-  { depth: 'L0', rule: 'circular: the answer reaches the verdict as a typed constant' },
+  {
+    depth: 'L0',
+    rule: 'circular: the answer reaches the verdict as a typed constant',
+  },
   { depth: 'L1', rule: 'known mathematics, correctly confirmed' },
   { depth: 'L2', rule: 'known physics reproduced on a stated model' },
   {
@@ -70,11 +77,16 @@ export type Category =
   | 'prediction'
   | 'measurement'
 
-export const CATEGORY_RULES: { category: Category; rule: string; worth: string }[] = [
+export const CATEGORY_RULES: {
+  category: Category
+  rule: string
+  worth: string
+}[] = [
   {
     category: 'reproduction',
     rule: 'an established result recovered, by a method brought in from outside',
-    worth: 'evidence the machinery works. Not evidence that nature uses it',
+    worth:
+      'evidence the machinery works. Not evidence that nature uses it',
   },
   {
     category: 'explanation',
@@ -84,7 +96,8 @@ export const CATEGORY_RULES: { category: Category; rule: string; worth: string }
   {
     category: 'retrodiction',
     rule: 'a known observation derived quantitatively from the committed rule, known while the rule was being built',
-    worth: 'stronger than an explanation, weaker than a prediction, because choices were made knowing the answer',
+    worth:
+      'stronger than an explanation, weaker than a prediction, because choices were made knowing the answer',
   },
   {
     category: 'prediction',
@@ -124,7 +137,8 @@ export const CRITERIA: { criterion: Criterion; question: string }[] = [
   },
   {
     criterion: 'derived',
-    question: 'does it come from the committed assumptions, not fitted or imported',
+    question:
+      'does it come from the committed assumptions, not fitted or imported',
   },
   {
     criterion: 'quantitative',
@@ -132,7 +146,8 @@ export const CRITERIA: { criterion: Criterion; question: string }[] = [
   },
   {
     criterion: 'differentiating',
-    question: 'does standard physics give a meaningfully different answer',
+    question:
+      'does standard physics give a meaningfully different answer',
   },
   {
     criterion: 'falsifiable',
@@ -140,11 +155,13 @@ export const CRITERIA: { criterion: Criterion; question: string }[] = [
   },
   {
     criterion: 'auditable',
-    question: 'are the derivation, code and data public, with a rerun command',
+    question:
+      'are the derivation, code and data public, with a rerun command',
   },
   {
     criterion: 'skeptic_reviewed',
-    question: 'has a competent skeptic, outside the program, reviewed the derivation',
+    question:
+      'has a competent skeptic, outside the program, reviewed the derivation',
   },
   {
     criterion: 'independently_reproduced',
@@ -152,7 +169,8 @@ export const CRITERIA: { criterion: Criterion; question: string }[] = [
   },
   {
     criterion: 'interesting',
-    question: 'would someone in the relevant field care about the difference',
+    question:
+      'would someone in the relevant field care about the difference',
   },
 ]
 
@@ -194,19 +212,47 @@ export type NodeKind =
   | 'prediction'
   | 'observation'
 
-export const NODE_KINDS: { kind: NodeKind; prefix: string; rule: string }[] = [
-  { kind: 'assumption', prefix: 'A', rule: 'a committed choice of the program' },
-  { kind: 'definition', prefix: 'D', rule: 'a defined quantity, so a number means one thing' },
-  { kind: 'lemma', prefix: 'L', rule: 'a mathematical step, proved or cited' },
+export const NODE_KINDS: {
+  kind: NodeKind
+  prefix: string
+  rule: string
+}[] = [
+  {
+    kind: 'assumption',
+    prefix: 'A',
+    rule: 'a committed choice of the program',
+  },
+  {
+    kind: 'definition',
+    prefix: 'D',
+    rule: 'a defined quantity, so a number means one thing',
+  },
+  {
+    kind: 'lemma',
+    prefix: 'L',
+    rule: 'a mathematical step, proved or cited',
+  },
   {
     kind: 'import',
     prefix: 'I',
     rule: 'a standard model or method brought in from outside. A result resting only on imports is a reproduction',
   },
-  { kind: 'simulation', prefix: 'S', rule: 'one experiment in the suite, by its code' },
-  { kind: 'result', prefix: 'R', rule: 'a result, by its code, R-<arena>-<NNNN>' },
+  {
+    kind: 'simulation',
+    prefix: 'S',
+    rule: 'one experiment in the suite, by its code',
+  },
+  {
+    kind: 'result',
+    prefix: 'R',
+    rule: 'a result, by its code, R-<arena>-<NNNN>',
+  },
   { kind: 'prediction', prefix: 'P', rule: 'a frozen prediction row' },
-  { kind: 'observation', prefix: 'O', rule: 'a measurement of nature a prediction is held against' },
+  {
+    kind: 'observation',
+    prefix: 'O',
+    rule: 'a measurement of nature a prediction is held against',
+  },
 ]
 
 export type Standing = 'holds' | 'challenged' | 'broken'
@@ -220,13 +266,32 @@ export type Node = {
 }
 
 // A challenge: a numbered attempt to break a claim.
-export type ChallengeStatus = 'open' | 'broken' | 'corrected' | 'survived'
+export type ChallengeStatus =
+  | 'open'
+  | 'broken'
+  | 'corrected'
+  | 'survived'
 
-export const CHALLENGE_RULES: { status: ChallengeStatus; rule: string }[] = [
-  { status: 'open', rule: 'offered for breaking, no submission has decided it' },
-  { status: 'broken', rule: 'a submission refuted it, and the result is withdrawn or regraded' },
-  { status: 'corrected', rule: 'a submission found an error that was fixed, and the result stands in its corrected form' },
-  { status: 'survived', rule: 'a submission was made in full and failed' },
+export const CHALLENGE_RULES: {
+  status: ChallengeStatus
+  rule: string
+}[] = [
+  {
+    status: 'open',
+    rule: 'offered for breaking, no submission has decided it',
+  },
+  {
+    status: 'broken',
+    rule: 'a submission refuted it, and the result is withdrawn or regraded',
+  },
+  {
+    status: 'corrected',
+    rule: 'a submission found an error that was fixed, and the result stands in its corrected form',
+  },
+  {
+    status: 'survived',
+    rule: 'a submission was made in full and failed',
+  },
 ]
 
 // The ways a result can be broken, each a structured submission.
@@ -239,8 +304,16 @@ export type Route =
   | 'implementation'
 
 export const ROUTES: { route: Route; label: string; rule: string }[] = [
-  { route: 'counterexample', label: 'Submit counterexample', rule: 'a case where a stated step or equation fails' },
-  { route: 'prior_work', label: 'Submit prior work', rule: 'literature that derives the same thing' },
+  {
+    route: 'counterexample',
+    label: 'Submit counterexample',
+    rule: 'a case where a stated step or equation fails',
+  },
+  {
+    route: 'prior_work',
+    label: 'Submit prior work',
+    rule: 'literature that derives the same thing',
+  },
   {
     route: 'reproduction_failure',
     label: 'Report reproduction failure',
@@ -304,7 +377,12 @@ export type Figure =
       caption: string
       measured: string
       control: string
-      rows: { label: string; measured: number; control: number; unit?: string }[]
+      rows: {
+        label: string
+        measured: number
+        control: number
+        unit?: string
+      }[]
     }
 
 export type Novelty = 'known' | 'apparently_new' | 'uncertain'
@@ -411,12 +489,44 @@ export type Objection = {
   source: string
 }
 
-export const LADDER: { level: number; contribution: string; where: string }[] = [
-  { level: 0, contribution: 'send a citation', where: 'Submit prior work, on any result' },
-  { level: 1, contribution: 'report an error', where: 'Submit counterexample, on any result' },
-  { level: 2, contribution: 'reproduce one result', where: 'pnpm result reproduce <code>' },
-  { level: 3, contribution: 'attack an open problem', where: 'the open problems' },
-  { level: 4, contribution: 'contribute code or a derivation', where: 'a pull request against the experiment' },
-  { level: 5, contribution: 'an independent analysis', where: 'your own code, reported as a reproduction' },
-  { level: 6, contribution: 'collaborate on a paper', where: 'the planned papers' },
+export const LADDER: {
+  level: number
+  contribution: string
+  where: string
+}[] = [
+  {
+    level: 0,
+    contribution: 'send a citation',
+    where: 'Submit prior work, on any result',
+  },
+  {
+    level: 1,
+    contribution: 'report an error',
+    where: 'Submit counterexample, on any result',
+  },
+  {
+    level: 2,
+    contribution: 'reproduce one result',
+    where: 'pnpm result reproduce <code>',
+  },
+  {
+    level: 3,
+    contribution: 'attack an open problem',
+    where: 'the open problems',
+  },
+  {
+    level: 4,
+    contribution: 'contribute code or a derivation',
+    where: 'a pull request against the experiment',
+  },
+  {
+    level: 5,
+    contribution: 'an independent analysis',
+    where: 'your own code, reported as a reproduction',
+  },
+  {
+    level: 6,
+    contribution: 'collaborate on a paper',
+    where: 'the planned papers',
+  },
 ]

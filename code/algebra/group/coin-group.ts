@@ -10,7 +10,10 @@
 
 export type Quaternion = readonly [number, number, number, number]
 
-export function quaternionProduct(a: Quaternion, b: Quaternion): Quaternion {
+export function quaternionProduct(
+  a: Quaternion,
+  b: Quaternion,
+): Quaternion {
   const [a0, a1, a2, a3] = a
   const [b0, b1, b2, b3] = b
 
@@ -27,7 +30,9 @@ function keyOf(q: Quaternion): string {
 }
 
 // The coin's group: each direction's index, and the product table of x o y = x q y.
-export function coinGroup(input: { directions: readonly (readonly number[])[] }): {
+export function coinGroup(input: {
+  directions: readonly (readonly number[])[]
+}): {
   identity: number
   product: Int8Array
   closed: boolean
@@ -35,15 +40,28 @@ export function coinGroup(input: { directions: readonly (readonly number[])[] })
 } {
   const n = input.directions.length
   const s = 1 / Math.sqrt(2)
-  const units: Quaternion[] = input.directions.map(d => [(d[0] ?? 0) * s, (d[1] ?? 0) * s, (d[2] ?? 0) * s, (d[3] ?? 0) * s])
+  const units: Quaternion[] = input.directions.map(d => [
+    (d[0] ?? 0) * s,
+    (d[1] ?? 0) * s,
+    (d[2] ?? 0) * s,
+    (d[3] ?? 0) * s,
+  ])
   const q: Quaternion = [s, -s, 0, 0]
   const index = new Map(units.map((u, k) => [keyOf(u), k]))
   const product = new Int8Array(n * n)
+
   let closed = true
 
   for (let a = 0; a < n; a++) {
     for (let b = 0; b < n; b++) {
-      const found = index.get(keyOf(quaternionProduct(quaternionProduct(units[a] ?? q, q), units[b] ?? q)))
+      const found = index.get(
+        keyOf(
+          quaternionProduct(
+            quaternionProduct(units[a] ?? q, q),
+            units[b] ?? q,
+          ),
+        ),
+      )
 
       if (found === undefined) {
         closed = false
@@ -57,7 +75,10 @@ export function coinGroup(input: { directions: readonly (readonly number[])[] })
   const hurwitz = units.every(u => {
     const r = quaternionProduct(q, u).map(x => Math.round(x * 2) / 2)
 
-    return r.every(x => x === 0 || Math.abs(x) === 1) || r.every(x => Math.abs(x) === 0.5)
+    return (
+      r.every(x => x === 0 || Math.abs(x) === 1) ||
+      r.every(x => Math.abs(x) === 0.5)
+    )
   })
   const identity = index.get(keyOf([s, s, 0, 0])) ?? -1
 
@@ -69,7 +90,11 @@ type Matrix22 = [number, number, number, number]
 
 const IDENTITY_22: Matrix22 = [1, 0, 0, 1]
 
-export function specialLinear23(): { matrices: Matrix22[]; product: Int8Array; identity: number } {
+export function specialLinear23(): {
+  matrices: Matrix22[]
+  product: Int8Array
+  identity: number
+} {
   const matrices: Matrix22[] = []
 
   for (let a = 0; a < 3; a++) {
@@ -93,7 +118,12 @@ export function specialLinear23(): { matrices: Matrix22[]; product: Int8Array; i
     for (let y = 0; y < n; y++) {
       const [a, b, c, d] = matrices[x] ?? IDENTITY_22
       const [e, f, g, h] = matrices[y] ?? IDENTITY_22
-      const m = [(a * e + b * g) % 3, (a * f + b * h) % 3, (c * e + d * g) % 3, (c * f + d * h) % 3]
+      const m = [
+        (a * e + b * g) % 3,
+        (a * f + b * h) % 3,
+        (c * e + d * g) % 3,
+        (c * f + d * h) % 3,
+      ]
 
       product[x * n + y] = index.get(key(m)) ?? -1
     }
@@ -112,8 +142,11 @@ export function countIsomorphisms(input: {
   generators: readonly [number, number]
 }): number {
   const { first, second, order, generators } = input
-  const mul1 = (a: number, b: number): number => first.product[a * order + b] ?? -1
-  const mul2 = (a: number, b: number): number => second.product[a * order + b] ?? -1
+  const mul1 = (a: number, b: number): number =>
+    first.product[a * order + b] ?? -1
+  const mul2 = (a: number, b: number): number =>
+    second.product[a * order + b] ?? -1
+
   let count = 0
 
   for (let x = 0; x < order; x++) {
@@ -123,6 +156,7 @@ export function countIsomorphisms(input: {
       map[first.identity] = second.identity
 
       const queue = [first.identity]
+
       let consistent = true
 
       while (queue.length > 0 && consistent) {
@@ -144,7 +178,11 @@ export function countIsomorphisms(input: {
         }
       }
 
-      if (!consistent || map.includes(-1) || new Set(map).size !== order) {
+      if (
+        !consistent ||
+        map.includes(-1) ||
+        new Set(map).size !== order
+      ) {
         continue
       }
 
@@ -152,7 +190,8 @@ export function countIsomorphisms(input: {
 
       for (let a = 0; a < order && multiplicative; a++) {
         for (let b = 0; b < order && multiplicative; b++) {
-          multiplicative = map[mul1(a, b)] === mul2(map[a] ?? 0, map[b] ?? 0)
+          multiplicative =
+            map[mul1(a, b)] === mul2(map[a] ?? 0, map[b] ?? 0)
         }
       }
 

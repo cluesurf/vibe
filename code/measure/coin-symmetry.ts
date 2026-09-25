@@ -26,7 +26,8 @@ export function weylF4DirectionPermutations(input: {
   directions: readonly number[][]
 }): number[][] {
   const { directions } = input
-  const key = (v: readonly number[]): string => v.map(x => Math.round(x)).join(',')
+  const key = (v: readonly number[]): string =>
+    v.map(x => Math.round(x)).join(',')
   const index = new Map(directions.map((v, i) => [key(v), i]))
   const generators = rootsF4().map(root =>
     directions.map(v => {
@@ -40,7 +41,9 @@ export function weylF4DirectionPermutations(input: {
     }),
   )
   const identity = directions.map((_, i) => i)
-  const seen = new Map<string, number[]>([[identity.join(','), identity]])
+  const seen = new Map<string, number[]>([
+    [identity.join(','), identity],
+  ])
   const queue = [identity]
 
   while (queue.length > 0) {
@@ -60,7 +63,9 @@ export function weylF4DirectionPermutations(input: {
   return [...seen.values()]
 }
 
-export function permutationOrder(input: { permutation: readonly number[] }): number {
+export function permutationOrder(input: {
+  permutation: readonly number[]
+}): number {
   const { permutation } = input
 
   let order = 1
@@ -74,7 +79,11 @@ export function permutationOrder(input: { permutation: readonly number[] }): num
   return order
 }
 
-type Anatomy = { blocks: number[][]; maps: number[][]; blockOfSlot: number[] }
+type Anatomy = {
+  blocks: number[][]
+  maps: number[][]
+  blockOfSlot: number[]
+}
 
 // The block anatomy of every beat of a schedule.
 export function scheduleAnatomy(input: {
@@ -86,8 +95,14 @@ export function scheduleAnatomy(input: {
 
   return Array.from({ length: input.period }, (_, t) => {
     const collision = input.schedule(t)
-    const blocks = interactionBlocks({ collision, degree: input.degree, probes })
-    const maps = blocks.map(block => blockMap({ collision, degree: input.degree, block }))
+    const blocks = interactionBlocks({
+      collision,
+      degree: input.degree,
+      probes,
+    })
+    const maps = blocks.map(block =>
+      blockMap({ collision, degree: input.degree, block }),
+    )
     const blockOfSlot = new Array<number>(input.degree).fill(-1)
 
     blocks.forEach((block, b) => {
@@ -123,7 +138,10 @@ function conjugates(input: {
 
   // the tone relabelling as it lands on a destination slot
   const relabel = (slot: number, tone: number): number => {
-    const map = slot < (opposite[slot] ?? slot) ? relabelling.leading : relabelling.trailing
+    const map =
+      slot < (opposite[slot] ?? slot)
+        ? relabelling.leading
+        : relabelling.trailing
 
     return map[tone + 1] ?? tone
   }
@@ -134,7 +152,10 @@ function conjugates(input: {
     const target = to.blockOfSlot[image[0] ?? 0] ?? -1
     const targetBlock = to.blocks[target] ?? []
 
-    if (targetBlock.length !== block.length || !image.every(slot => to.blockOfSlot[slot] === target)) {
+    if (
+      targetBlock.length !== block.length ||
+      !image.every(slot => to.blockOfSlot[slot] === target)
+    ) {
       return false
     }
 
@@ -160,7 +181,9 @@ function conjugates(input: {
       const moved = blockIndex({ tones: carry(tones) })
       const imageOfMoved = targetMap[moved] ?? -1
       const movedImage = blockIndex({
-        tones: carry(blockTones({ index: sourceMap[x] ?? 0, size: block.length })),
+        tones: carry(
+          blockTones({ index: sourceMap[x] ?? 0, size: block.length }),
+        ),
       })
 
       if (imageOfMoved !== movedImage) {
@@ -243,9 +266,15 @@ export function symmetryOrder(input: {
     directions = directions.map(d => sigma[d] ?? d)
 
     const directionsBack = directions.every((d, i) => d === i)
-    const tonesBack = toneMaps.every(map => map[0] === -1 && map[1] === 0 && map[2] === 1)
+    const tonesBack = toneMaps.every(
+      map => map[0] === -1 && map[1] === 0 && map[2] === 1,
+    )
 
-    if (directionsBack && tonesBack && (k * symmetry.twist) % period === 0) {
+    if (
+      directionsBack &&
+      tonesBack &&
+      (k * symmetry.twist) % period === 0
+    ) {
       return k
     }
   }

@@ -66,17 +66,29 @@ const STEP = 0.1
 const AMPLITUDE = 1.85
 const CARTAN = [6, 7]
 
-type Sample = { plaquette: number; table: number[][]; temperature: number; naive: number }
+type Sample = {
+  plaquette: number
+  table: number[][]
+  temperature: number
+  naive: number
+}
 
 function chi22(samples: readonly Sample[]): number {
   const table = [0, 1, 2].map(r =>
-    [0, 1, 2].map(t => samples.reduce((s, x) => s + (x.table[r]?.[t] ?? 0), 0) / samples.length),
+    [0, 1, 2].map(
+      t =>
+        samples.reduce((s, x) => s + (x.table[r]?.[t] ?? 0), 0) /
+        samples.length,
+    ),
   )
 
   return creutzRatioFromTable({ table, r: 2, t: 2 })
 }
 
-function meanOf(samples: readonly Sample[], read: (s: Sample) => number): number {
+function meanOf(
+  samples: readonly Sample[],
+  read: (s: Sample) => number,
+): number {
   return samples.reduce((sum, s) => sum + read(s), 0) / samples.length
 }
 
@@ -93,35 +105,69 @@ export default experiment({
     const generators = suGenerators({ n: 3 })
 
     const start = (colours?: number[]) => {
-      const lattice = makeGaugeLattice({ group: 'su3', lengths: LENGTHS, start: 'cold', rng: makeRng({ seed: 1 }) })
+      const lattice = makeGaugeLattice({
+        group: 'su3',
+        lengths: LENGTHS,
+        start: 'cold',
+        rng: makeRng({ seed: 1 }),
+      })
       const momenta = makeMomenta({ lattice })
 
-      structuredMomenta({ lattice, momenta, generators, amplitude: AMPLITUDE, colours })
+      structuredMomenta({
+        lattice,
+        momenta,
+        generators,
+        amplitude: AMPLITUDE,
+        colours,
+      })
 
       return { lattice, momenta }
     }
 
     const energy = (s: ReturnType<typeof start>): number =>
-      kineticEnergy({ momenta: s.momenta }) + wilsonAction({ lattice: s.lattice, beta: BETA })
+      kineticEnergy({ momenta: s.momenta }) +
+      wilsonAction({ lattice: s.lattice, beta: BETA })
 
     // reversibility: forward 40 steps, flip, forward 40 steps, flip
     const reversal = start()
-    const initialLinks = cloneGaugeLattice({ lattice: reversal.lattice }).links
+    const initialLinks = cloneGaugeLattice({
+      lattice: reversal.lattice,
+    }).links
     const initialMomenta = new Float64Array(reversal.momenta.data)
 
-    leapfrog({ lattice: reversal.lattice, momenta: reversal.momenta, beta: BETA, order: 4, step: STEP, steps: 40 })
+    leapfrog({
+      lattice: reversal.lattice,
+      momenta: reversal.momenta,
+      beta: BETA,
+      order: 4,
+      step: STEP,
+      steps: 40,
+    })
     negateMomenta({ momenta: reversal.momenta })
-    leapfrog({ lattice: reversal.lattice, momenta: reversal.momenta, beta: BETA, order: 4, step: STEP, steps: 40 })
+    leapfrog({
+      lattice: reversal.lattice,
+      momenta: reversal.momenta,
+      beta: BETA,
+      order: 4,
+      step: STEP,
+      steps: 40,
+    })
     negateMomenta({ momenta: reversal.momenta })
 
     let reversalError = 0
 
     reversal.lattice.links.forEach((v, k) => {
-      reversalError = Math.max(reversalError, Math.abs(v - (initialLinks[k] ?? 0)))
+      reversalError = Math.max(
+        reversalError,
+        Math.abs(v - (initialLinks[k] ?? 0)),
+      )
     })
 
     reversal.momenta.data.forEach((v, k) => {
-      reversalError = Math.max(reversalError, Math.abs(v - (initialMomenta[k] ?? 0)))
+      reversalError = Math.max(
+        reversalError,
+        Math.abs(v - (initialMomenta[k] ?? 0)),
+      )
     })
 
     // conservation at two step sizes over the same time: the error must fall as epsilon^2
@@ -129,7 +175,14 @@ export default experiment({
       const s = start()
       const h0 = energy(s)
 
-      leapfrog({ lattice: s.lattice, momenta: s.momenta, beta: BETA, order: 4, step, steps: Math.round(2 / step) })
+      leapfrog({
+        lattice: s.lattice,
+        momenta: s.momenta,
+        beta: BETA,
+        order: 4,
+        step,
+        steps: Math.round(2 / step),
+      })
 
       return Math.abs(energy(s) - h0)
     }
@@ -146,37 +199,76 @@ export default experiment({
     let worstEnergy = 0
 
     for (let block = 0; block < 80; block++) {
-      leapfrog({ lattice: run.lattice, momenta: run.momenta, beta: BETA, order: 4, step: STEP, steps: 10 })
-      worstEnergy = Math.max(worstEnergy, Math.abs(energy(run) - h0) / h0)
+      leapfrog({
+        lattice: run.lattice,
+        momenta: run.momenta,
+        beta: BETA,
+        order: 4,
+        step: STEP,
+        steps: 10,
+      })
+
+      worstEnergy = Math.max(
+        worstEnergy,
+        Math.abs(energy(run) - h0) / h0,
+      )
 
       // the first 15 time units are the approach to equilibrium, the last 65 the measurement
       if (block >= 15) {
         samples.push({
           plaquette: averagePlaquette({ lattice: run.lattice }),
           table: wilsonLoopTable({ lattice: run.lattice, max: 2 }),
-          temperature: kineticTemperature({ lattice: run.lattice, momenta: run.momenta, count: 'gauss' }),
-          naive: kineticTemperature({ lattice: run.lattice, momenta: run.momenta, count: 'naive' }),
+          temperature: kineticTemperature({
+            lattice: run.lattice,
+            momenta: run.momenta,
+            count: 'gauss',
+          }),
+          naive: kineticTemperature({
+            lattice: run.lattice,
+            momenta: run.momenta,
+            count: 'naive',
+          }),
         })
-        kurtoses.push(momentumKurtosis({ momenta: run.momenta, generators }))
-        fractions.push(colourFractions({ momenta: run.momenta, generators }))
+
+        kurtoses.push(
+          momentumKurtosis({ momenta: run.momenta, generators }),
+        )
+
+        fractions.push(
+          colourFractions({ momenta: run.momenta, generators }),
+        )
       }
     }
 
     const binSize = 8
-    const plaquette = jackknife({ samples, estimator: s => meanOf(s, x => x.plaquette), binSize })
+    const plaquette = jackknife({
+      samples,
+      estimator: s => meanOf(s, x => x.plaquette),
+      binSize,
+    })
     const creutz = jackknife({ samples, estimator: chi22, binSize })
     const temperature = meanOf(samples, x => x.temperature)
     const naiveTemperature = meanOf(samples, x => x.naive)
-    const kurtosis = kurtoses.reduce((a, b) => a + b, 0) / kurtoses.length
+    const kurtosis =
+      kurtoses.reduce((a, b) => a + b, 0) / kurtoses.length
     const meanFractions = generators.map(
-      (_, a) => fractions.reduce((s, f) => s + (f[a] ?? 0), 0) / fractions.length,
+      (_, a) =>
+        fractions.reduce((s, f) => s + (f[a] ?? 0), 0) /
+        fractions.length,
     )
-    const fractionSpread = Math.max(...meanFractions.map(f => Math.abs(f - 1 / 8)))
+    const fractionSpread = Math.max(
+      ...meanFractions.map(f => Math.abs(f - 1 / 8)),
+    )
 
     // the canonical reference at the predicted coupling, and at the naive one
     const reference = (beta: number, seed: number) => {
       const rng = makeRng({ seed })
-      const lattice = makeGaugeLattice({ group: 'su3', lengths: LENGTHS, start: 'cold', rng })
+      const lattice = makeGaugeLattice({
+        group: 'su3',
+        lengths: LENGTHS,
+        start: 'cold',
+        rng,
+      })
       const list = sampleGaugeEnsemble({
         lattice,
         beta,
@@ -194,7 +286,11 @@ export default experiment({
       })
 
       return {
-        plaquette: jackknife({ samples: list, estimator: s => meanOf(s, x => x.plaquette), binSize }),
+        plaquette: jackknife({
+          samples: list,
+          estimator: s => meanOf(s, x => x.plaquette),
+          binSize,
+        }),
         creutz: jackknife({ samples: list, estimator: chi22, binSize }),
       }
     }
@@ -203,8 +299,10 @@ export default experiment({
     const naiveBeta = BETA / naiveTemperature
     const canonical = reference(predictedBeta, 920)
     const naive = reference(naiveBeta, 921)
-    const pull = (a: { value: number; error: number }, b: { value: number; error: number }): number =>
-      (a.value - b.value) / Math.hypot(a.error, b.error)
+    const pull = (
+      a: { value: number; error: number },
+      b: { value: number; error: number },
+    ): number => (a.value - b.value) / Math.hypot(a.error, b.error)
     const plaquettePull = pull(plaquette, canonical.plaquette)
     const creutzPull = pull(creutz, canonical.creutz)
     const naivePull = pull(plaquette, naive.plaquette)
@@ -212,19 +310,43 @@ export default experiment({
     // the abelian control
     const abelian = start(CARTAN)
 
-    leapfrog({ lattice: abelian.lattice, momenta: abelian.momenta, beta: BETA, order: 4, step: STEP, steps: 500 })
+    leapfrog({
+      lattice: abelian.lattice,
+      momenta: abelian.momenta,
+      beta: BETA,
+      order: 4,
+      step: STEP,
+      steps: 500,
+    })
 
-    const abelianFractions = colourFractions({ momenta: abelian.momenta, generators })
-    const chargedShare = abelianFractions.reduce((s, f, a) => (CARTAN.includes(a) ? s : s + f), 0)
+    const abelianFractions = colourFractions({
+      momenta: abelian.momenta,
+      generators,
+    })
+    const chargedShare = abelianFractions.reduce(
+      (s, f, a) => (CARTAN.includes(a) ? s : s + f),
+      0,
+    )
 
     const reversible = reversalError < 1e-10
     // a fourth-order integrator: halving the step cuts the energy error sixteen-fold
-    const conserving = worstEnergy < 1e-2 && conservationRatio > 10 && conservationRatio < 24
-    const thermal = Math.abs(kurtosis - 3) < 0.1 && fractionSpread < 0.01
-    const canonicalMatch = Math.abs(plaquettePull) < 3 && Math.abs(creutzPull) < 3
+    const conserving =
+      worstEnergy < 1e-2 &&
+      conservationRatio > 10 &&
+      conservationRatio < 24
+    const thermal =
+      Math.abs(kurtosis - 3) < 0.1 && fractionSpread < 0.01
+    const canonicalMatch =
+      Math.abs(plaquettePull) < 3 && Math.abs(creutzPull) < 3
     const naiveExcluded = Math.abs(naivePull) > 10
     const abelianStays = chargedShare < 1e-12
-    const ok = reversible && conserving && thermal && canonicalMatch && naiveExcluded && abelianStays
+    const ok =
+      reversible &&
+      conserving &&
+      thermal &&
+      canonicalMatch &&
+      naiveExcluded &&
+      abelianStays
 
     return verdict({
       status: ok ? 'pass' : 'fail',

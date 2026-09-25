@@ -14,7 +14,10 @@
 
 import { Hypercubic, siteCoordinates } from '@/code/tool/hypercubic'
 import { Rng } from '@/code/tool/rng'
-import { GaugeLattice, gaugeUpdate } from '@/code/dynamics/gauge-lattice'
+import {
+  GaugeLattice,
+  gaugeUpdate,
+} from '@/code/dynamics/gauge-lattice'
 import {
   makeStaggeredOperator,
   staggeredPropagator,
@@ -55,10 +58,18 @@ export function measureHadronCorrelators(input: {
 
   return {
     pion: perMass.map(propagators =>
-      pionCorrelator({ geometry: lattice.geometry, n: lattice.n, propagators }),
+      pionCorrelator({
+        geometry: lattice.geometry,
+        n: lattice.n,
+        propagators,
+      }),
     ),
     rho: perMass.map(propagators =>
-      rhoCorrelator({ geometry: lattice.geometry, n: lattice.n, propagators }),
+      rhoCorrelator({
+        geometry: lattice.geometry,
+        n: lattice.n,
+        propagators,
+      }),
     ),
     nucleon: perMass.map(propagators =>
       nucleonCorrelator({ geometry: lattice.geometry, propagators }),
@@ -194,13 +205,22 @@ export function rhoCorrelator(input: {
 }
 
 function determinantThree(m: [number, number][][]): [number, number] {
-  const mul = (a: [number, number], b: [number, number]): [number, number] => [
+  const mul = (
+    a: [number, number],
+    b: [number, number],
+  ): [number, number] => [
     a[0] * b[0] - a[1] * b[1],
     a[0] * b[1] + a[1] * b[0],
   ]
-  const at = (i: number, j: number): [number, number] => m[i]?.[j] ?? [0, 0]
+  const at = (i: number, j: number): [number, number] =>
+    m[i]?.[j] ?? [0, 0]
 
-  const minor = (a: number, b: number, c: number, d: number): [number, number] => {
+  const minor = (
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+  ): [number, number] => {
     const p = mul(at(1, a), at(2, b))
     const q = mul(at(1, c), at(2, d))
 
