@@ -633,7 +633,9 @@ lacks too (`E-FND-0080`), so it is one decision for both, not a second one for c
    share of fear is at most one in three. Round 8 is 3,910 loves and 1,606 fears on a unit of
    1/2,304: love − fear = 2,304 units = 1 whole, love + fear = 5,516 units = 2.39 wholes, and the
    share of fear is 1,606 of 5,516 = 0.29. The steps add loves and fears in equal numbers, which is
-   the grain, and the total creeps toward the ceiling of 3 without passing it.
+   the grain. The total jumps from 1 to 2.33 at the first round with fear and then moves between 2.33
+   and 2.56, up and down, never near the ceiling of 3. The sum of squared weights is exactly 1/9 on
+   every round, so every round is pure and the bound applies exactly.
 
    A first version kept both roles symmetric, where the swap phase does nothing, and measured no
    fear at all. It is recorded in the experiment.
