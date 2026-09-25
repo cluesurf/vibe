@@ -253,7 +253,19 @@ import {
   centerPlaquette,
   makeCenterLattice,
   reversibleSweep,
+  kineticSweep,
+  demonBeta,
 } from '@/code/dynamics/center-gauge'
+import {
+  colourPermutations,
+  bruteForceColourPermutations,
+  entanglingPower,
+  epsilonState,
+  pairExchangeUnitary,
+  singletCount,
+  singletResidual,
+} from '@/code/measure/colour-symmetry'
+import { generateGroup, matrix3 } from '@/code/dynamics/finite-gauge'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { passThrough } from '@/code/rule/collision'
 import {
@@ -2889,6 +2901,108 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       check({
         name: 'reversible Z3 automaton: energy conserved exactly, moves, and the reverse sweeps restore the start',
         ok: e0 === e1 && moved && center.links.every((v, k) => v === start[k]),
+      })
+    }
+
+    // the kinetic Z3 automaton conserves plaquettes plus demons exactly and reverses exactly
+    {
+      const center = makeCenterLattice({ order: 3, lengths: [4, 4, 4, 4] })
+      const demons = new Int8Array(center.links.length).map((_, k) => (k % 5 === 0 ? 6 : 0))
+      const startLinks = new Int8Array(center.links)
+      const startDemons = new Int8Array(demons)
+      const total = (): number =>
+        centerPlaquette({ lattice: center }).energy / 1.5 + demons.reduce((a, b) => a + b, 0)
+      const e0 = total()
+
+      for (let k = 0; k < 6; k++) {
+        kineticSweep({ lattice: center, demons, capacity: 6 })
+      }
+
+      const e1 = total()
+      const moved = center.links.some((v, k) => v !== startLinks[k])
+
+      for (let k = 0; k < 6; k++) {
+        kineticSweep({ lattice: center, demons, capacity: 6, reverse: true })
+      }
+
+      check({
+        name: 'kinetic Z3 automaton: plaquette plus demon energy conserved, moves, reverse restores links and demons',
+        ok:
+          Math.abs(e0 - e1) < 1e-9 &&
+          moved &&
+          center.links.every((v, k) => v === startLinks[k]) &&
+          demons.every((v, k) => v === startDemons[k]),
+      })
+
+      // demonBeta inverts the bounded exponential mean: beta 0 gives the flat mean capacity / 2
+      check({
+        name: 'demonBeta: a flat demon reads beta 0, a larger mean reads a smaller beta',
+        ok:
+          Math.abs(demonBeta({ meanDemon: 3, capacity: 6 })) < 1e-9 &&
+          demonBeta({ meanDemon: 0.2, capacity: 6 }) > demonBeta({ meanDemon: 1, capacity: 6 }),
+      })
+    }
+
+    // colour symmetry: Schur-Weyl counts, entangling power, singlets
+    {
+      check({
+        name: 'colourPermutations: 2 for a pair of triplets, 1 with an antitriplet, 6 for three, brute force agrees',
+        ok:
+          colourPermutations({ d: 3, slots: ['plain', 'plain'] }).length === 2 &&
+          colourPermutations({ d: 3, slots: ['plain', 'conjugate'] }).length === 1 &&
+          colourPermutations({ d: 3, slots: ['plain', 'plain', 'plain'] }).length === 6 &&
+          bruteForceColourPermutations({ d: 3, slots: ['plain', 'plain'] }) === 2 &&
+          colourPermutations({ d: 3, slots: ['plain', 'plain'], diagonal: true }).length === 8,
+      })
+
+      const rootSwap = pairExchangeUnitary({ d: 2, kind: 'plain', phase: Math.PI / 2 })
+      const swap = pairExchangeUnitary({ d: 3, kind: 'plain', phase: Math.PI })
+
+      check({
+        name: 'entanglingPower: 1/6 for the qubit root swap (Zanardi), 0 for the swap',
+        ok:
+          Math.abs(entanglingPower({ operator: rootSwap, d: 2 }) - 1 / 6) < 1e-12 &&
+          Math.abs(entanglingPower({ operator: swap, d: 3 })) < 1e-12,
+      })
+
+      check({
+        name: 'singlets: epsilon is annihilated by su(3), counts 0 1 1 0 for qq, q qbar, qqq, qqq qbar',
+        ok:
+          singletResidual({ d: 3, slots: ['plain', 'plain', 'plain'], ...epsilonState() }) < 1e-12 &&
+          singletCount({ d: 3, slots: ['plain', 'plain'] }) === 0 &&
+          singletCount({ d: 3, slots: ['plain', 'conjugate'] }) === 1 &&
+          singletCount({ d: 3, slots: ['plain', 'plain', 'plain'] }) === 1 &&
+          singletCount({ d: 3, slots: ['plain', 'plain', 'conjugate'] }) === 0,
+      })
+    }
+
+    // finite subgroups of SU(3) by closure: orders, and the triplet is irreducible (mean |Tr g|^2 = 1)
+    {
+      const o: [number, number] = [0, 0]
+      const one: [number, number] = [1, 0]
+      const w = (k: number): [number, number] => [Math.cos((2 * Math.PI * k) / 3), Math.sin((2 * Math.PI * k) / 3)]
+      const clock = matrix3([[one, o, o], [o, w(1), o], [o, o, w(2)]])
+      const shift = matrix3([[o, one, o], [o, o, one], [one, o, o]])
+      const fourier = matrix3(
+        [0, 1, 2].map(j =>
+          [0, 1, 2].map(k => {
+            const [re, im] = w(j * k)
+
+            return [im / Math.sqrt(3), -re / Math.sqrt(3)] as [number, number]
+          }),
+        ),
+      )
+      const heisenberg = generateGroup({ generators: [clock, shift] })
+      const hessian = generateGroup({ generators: [clock, shift, fourier] })
+      const meanSquareTrace = hessian.matrices.reduce(
+        (sum, m) =>
+          sum + ((m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0)) ** 2 + ((m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0)) ** 2,
+        0,
+      ) / hessian.order
+
+      check({
+        name: 'generateGroup: clock and shift close on 27 elements, with the Fourier matrix on 108, triplet irreducible',
+        ok: heisenberg.order === 27 && hessian.order === 108 && Math.abs(meanSquareTrace - 1) < 1e-9,
       })
     }
   }
