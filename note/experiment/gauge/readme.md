@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**111 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0111`](../../../test/experiment/gauge/triality-weave-acceptance.ts)**.
+**115 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0115`](../../../test/experiment/gauge/colour-frame.ts)**.
 
 ## What this arena tests
 
@@ -184,7 +184,11 @@ open are in [`strong-force.md`](strong-force.md).
 - **[`E-FRC-0108`](../../../test/experiment/gauge/d4-box-triality.ts)** (L2) - a periodic box with D4-shaped periods admits all 1,152 elements of W(F4), against 384 on the integer torus. On it the previous knit commutes with exactly the 2 colour-selecting trialities and the committed turning weave with none.
 - **[`E-FRC-0109`](../../../test/experiment/gauge/triality-weave.ts)** (L2) - the four-line block built: one charge on a colour line exchanged for three across a triality orbit, with triality-symmetric swaps. It reverses exactly, conserves charge, commutes with the triality, is CPT exact, and connects all 12 lines on the vacuum and on a dense background. The committed turning weave splits into 3 sectors on the vacuum.
 - **[`E-FRC-0110`](../../../test/experiment/gauge/finite-colour-automaton.ts)** (L2) - Sigma(648) under a deterministic reversible rule: an integer plaquette action makes the kinetic demon bookkeeping exact, the run reverses to the bit, and it matches the heatbath where ordered and disordered starts agree and stays inside their envelope where they split.
-- **[`E-FRC-0111`](../../../test/experiment/gauge/triality-weave-acceptance.ts)** (L2) - the triality weave on the rest of the acceptance battery: vacuum period 3 from birth, exact superposition, sheet-quantized walls, and dressing growth 4.6 against the committed rule's 13. Neither rule's wall is periodic.
+- **[`E-FRC-0111`](../../../test/experiment/gauge/triality-weave-acceptance.ts)** (L2) - the triality weave on the rest of the acceptance battery: vacuum period 3 from birth, exact superposition, sheet-quantized walls, and dressing growth 4.6 against the committed rule's 13. Neither rule's wall is periodic. Its lone tones do not travel (0 of 24 directions at half the free speed, against 12 in the committed rule).
+- **[`E-FRC-0112`](../../../test/experiment/gauge/one-for-three-is-forced.ts)** (L1) - any reversible rule that respects a colour triality on every beat can move tones between a colour line and its orbit only in threes, whatever it reads: all 531,441 triality-fixed cell states checked through every beat of the triality weave. Also closes two guesses: the orbits do not sum to zero, and the pair clock is no affine map of a qutrit phase space.
+- **[`E-FRC-0113`](../../../test/experiment/gauge/hidden-rule-symmetries.ts)** (L2) - every coin symmetry times every tone relabelling times every time shift: the committed rule keeps only the identity, the triality weave only its two trialities.
+- **[`E-FRC-0114`](../../../test/experiment/gauge/glide-weave.ts)** (L2) - the glide weave: a pair rule that keeps the triality as a glide in time, moves single tones across, and connects every line, with no CPT and no free traveller.
+- **[`E-FRC-0115`](../../../test/experiment/gauge/colour-frame.ts)** (L2) - rotating the colour of half the box is invisible in the triality and glide vacua and a wall in the committed one, and visible for every rule on a dense background: colour read from the coin has one global frame.
 - **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
 
 ## What this arena establishes

@@ -208,8 +208,10 @@ species:
 | --- | --- | --- |
 | vacuum recurs exactly from birth | period **3** | period **24** |
 | lone tones that stay at support one for a whole period | **0** of 24 directions | 8 |
-| lone tones that stay compact, support never above 2 over four periods | **21** of 24 | 7 |
-| colour-neutral triples (one tone on each line of an orbit) that hold together | **12** of 12 | **0** of 12 |
+| lone tones that do not multiply, support never above 2 over four periods | 21 of 24 | 7 |
+| lone tones that travel, at least half the free speed over 6 beats | **0** of 24 | **12** of 24 |
+| mean distance a lone tone gets in 6 beats (free motion: 8.5) | **1.1** | **4.3** |
+| a colour-neutral triple's reach, against one of its members alone | 1.4 against 1.4 | 8.5 against 8.5 |
 | two separated disturbances superpose in the clock amplitude | exact, worst **2e-15** | exact, worst 2e-12 |
 | a half born late makes a wall that is a whole number of sheets | yes, up to **110,808** slots, all multiples of 729 | yes |
 | wall periodic | **no**, over 72 beats | **no**, over 72 beats |
@@ -222,15 +224,23 @@ periodic-wall gate in `E-FND-0118` was a loop that never ran (`t` from 24 while 
 passed with nothing compared. Run for 72 beats, that rule's wall is quantized and not periodic. The
 gate now requires comparisons and the periodicity is reported.
 
-**A correction to the first reading of this table.** "Support one at every beat" reads 0 on the
-triality weave, and that was first summarised as "it has no free particle". It does. A lone tone on
-21 of the 24 directions travels compactly with a periodic dressing of two slots, which that criterion
-cannot see. In a probe the tones that spread were on colour lines, and an orbit-line tone stayed at
-one or two slots. And the new last row is the sharpest difference between the two rules: a colour-neutral triple
-holds together in the triality weave in all 12 cases and falls apart in the committed rule in all 12
-(its support grows to 13 to 45 slots in 24 beats). The committed rule has more tones that stay
-exactly at support one, and the triality weave has more that stay compact and the only bound triples.
-The kick law of `E-FND-0118` is a statement about support-one species and is not run here.
+**The triality weave has no free travelling particle, and nothing in it is bound.** This took two
+wrong readings to reach, both recorded in the experiment:
+
+1. Support counts slots, not distance. A first pass read "21 of 24 lone tones stay compact" as 21
+   free particles, and "a colour-neutral triple never exceeds 6 slots" as 12 of 12 bound baryons,
+   against 0 of 12 in the committed rule.
+2. Distance tells the story instead. In the triality weave a lone tone hardly travels. The pair
+   clock sends a lone tone from one end of its line to the other ((1, 0) to (0, 1) and back), which
+   reverses its direction on every beat it spends alone on its line. The committed rule has the same
+   clock and 12 of its directions still travel, so what carries them there is its schedule of
+   swaps, and that mechanism is not isolated here. A triple stays together
+   only because none of its members goes anywhere: the triple and its member reach exactly the same
+   distance, in both rules. In the committed rule 12 of 24 directions carry a tone at full speed.
+
+So the real price of the triality weave is its free particles: the committed rule has twelve kinds
+of lone tone that fly, and this rule has none. The kick law of `E-FND-0118` is a statement about
+support-one species and is not run here.
 
 ### A deterministic sampler for the classical colour group (`E-FRC-0110`)
 
@@ -325,11 +335,11 @@ of them out of the set.
 
 | # | the idea | measured | verdict |
 | --- | --- | --- | --- |
-| 1 | the baryon is the free particle | the triality weave holds all 12 colour-neutral triples together (support at most 6 forever) and the committed rule none. But lone orbit tones also travel freely, so single colour charges are not confined (`E-FRC-0111`) | **half right**: bound baryons yes, confinement no |
+| 1 | the baryon is the free particle | a colour-neutral triple reaches exactly as far as one of its members alone, in every rule measured: 1.4 in six beats in the triality weave, 8.5 in the committed rule. Nothing binds it, and in the triality weave nothing travels (`E-FRC-0111`) | **no**. An earlier count of "12 of 12 bound" measured slots, not distance, and was withdrawn |
 | 2 | the triality groups are momentum-conserving three-body vertices | none of the 6 direction groups sums to zero. Each sums to 3 times one colour weight, length sqrt 6 (`E-FRC-0112`) | **no** |
 | 3 | pair lines by reading the data | covered by the fact above: choosing pairs from the data is still a reversible rule that respects sigma, so a single tone still cannot leave a colour line (`E-FRC-0112`) | **no** |
 | 4 | a coin symmetry together with a tone relabelling | all 1,152 coin symmetries times 6 tone relabellings: the committed rule keeps only the identity, the triality weave only its own two trialities (`E-FRC-0113`) | **no** |
-| 5 | the triality as a symmetry shifted in time | the committed rule has none at any of its 24 shifts (`E-FRC-0113`). Built as a new rule, the glide weave (`E-FRC-0114`), see below | **built, see below** |
+| 5 | the triality as a symmetry shifted in time | the committed rule has none at any of its 24 shifts (`E-FRC-0113`). Built as a new rule, the glide weave (`E-FRC-0114`): single tones cross, every line connects, CPT is lost | **works, at the price of CPT**, see below |
 | 6 | colour as a twist in the box | rotating the colour of half the box is invisible in the vacuum of both triality rules at all 24 moments, and a wall of up to 5,750 slots in the committed rule's at 22 of 24. On a dense background every rule sees it (4,232 to 7,488 slots), because in the coin reading a tone's colour is its direction, and rotating colour rotates motion (`E-FRC-0115`) | **a global twist only.** Geometric colour has one frame for all of space, never one per place |
 | 7 | keep the triality only on the cells it fixes | those cells are a 2D sheet, side^2 of side^4 (25, 49, 81 cells on sides 5, 7, 9). But a rule that is the same everywhere and symmetric about one point is symmetric about every point, which brings back the fact above (`E-FRC-0115`) | **only by giving up a rule that is the same in every cell** |
 
@@ -339,7 +349,32 @@ affine maps of that space under any of the 6 ways to label the tones (`E-FRC-011
 
 ### The glide weave (`E-FRC-0114`)
 
-GLIDE_RESULTS
+The loophole the fact above leaves: a rule that respects the triality only together with a shift in
+time, sigma U_t = U_(t+2) sigma, does not have to keep sigma-fixed states fixed on a single beat. Built
+as a pair rule with no four-line vertex (`code/rule/glide-weave`): each beat the committed pair clock
+between two passes of conditional swaps, on a matching of the 12 lines that the triality turns every
+second beat, so each colour line meets the lines of two orbits one at a time.
+
+| gate | glide weave | triality weave | committed |
+| --- | --- | --- | --- |
+| reversal, charge | exact | exact | exact |
+| symmetry | sigma with a shift of **2** beats, not 0 | sigma, no shift | none (`E-FRC-0113`) |
+| a lone colour-line tone moves onto one orbit line | **yes**, 36 of the cases tried | impossible (`E-FRC-0112`) | not a colour question |
+| all 12 lines connected, vacuum / dense | **1 / 1** | 1 / 1 | 3 / 1 |
+| CPT | **none found**, with charge conjugation alone or times sigma or sigma^2, any mirror phase | exact | exact |
+| vacuum period | 3 | 3 | 24 |
+| lone tones that travel at half the free speed | 0 of 24 | 0 of 24 | 12 of 24 |
+| mean reach of a lone tone in 6 beats (free: 8.5) | 1.9 | 1.1 | 4.3 |
+| worst dressing growth, 24 beats | **1** (no tone ever multiplies) | 4.6 | 100 |
+
+(The committed rule's growth reads 100 here, over 96 of its beats, against 13 over 24 in
+`E-FRC-0111`: the same instrument over a longer window.)
+
+**So the loophole is real and it costs CPT.** The glide weave does what no rule symmetric on every
+beat can do, with plain pairs, and it connects every line. It gives up the exact CPT both other rules
+have, and like the triality weave it has no free traveller. A glide is a symmetry of the dynamics
+together with time, not a symmetry at each instant, so whether it yields a conserved colour charge is
+a separate question, not measured.
 
 ### What the seven add up to
 

@@ -15,7 +15,8 @@
 // Reported, with the committed turning weave and the triality weave beside it on the same side-9
 // instruments as E-FRC-0111: CPT (charge conjugation with time reversal at a mirror phase, alone or
 // combined with a power of sigma), the vacuum period, the bounded species (a lone tone whose support
-// never exceeds 2), the bound colour-neutral triples, and the dressing growth.
+// never exceeds 2), travel (how far a lone tone gets in six beats, and how many directions reach
+// half the free speed), and the dressing growth.
 //
 // Depth L2: a constructed rule against stated gates.
 
@@ -27,7 +28,6 @@ import {
   colourTriality,
   trialityWeave,
   trialityWeaveLayout,
-  type TrialityWeaveLayout,
 } from '@/code/rule/triality-weave'
 import { GLIDE_WEAVE_PERIOD, glideWeave } from '@/code/rule/glide-weave'
 import { beat, inverseBeat } from '@/code/rule/lattice-gas'
@@ -35,6 +35,7 @@ import { makeWill, type Will } from '@/code/tone/will'
 import {
   boxCellMap,
   d4BoxCell,
+  d4BoxDistance,
   d4BoxMesh,
   linearMapOf,
   transformState,
@@ -69,15 +70,15 @@ function dense(
   return will
 }
 
-// bounded species, bound colour-neutral triples and dressing growth on a side-9 box, the E-FRC-0111
+// bounded species and dressing growth on a side-9 box, and travel on a side-13 box, the E-FRC-0111
 // instruments
 function particleContent(
   rule: (t: number) => Collision,
-  layout: TrialityWeaveLayout,
   period: number,
 ): {
   boundedSpecies: number
-  boundTriples: number
+  travellers: number
+  meanReach: number
   worstGrowth: number
 } {
   const mesh = d4BoxMesh({ side: 9 })
@@ -118,20 +119,44 @@ function particleContent(
     )
   }
 
-  const triples = layout.orbits.flatMap(orbit =>
-    [1, -1].flatMap(tone =>
-      [0, 1].map(end =>
-        orbit.map(
-          line => [layout.lines[line]?.[end] ?? 0, tone] as const,
-        ),
-      ),
-    ),
-  )
-  const boundTriples = triples.filter(
-    seed => Math.max(...supportOf(seed)) <= 6,
-  ).length
+  // travel, as in E-FRC-0111: the largest true distance a lone tone's difference gets from its cell
+  // in six beats on a side-13 box, and the directions that reach half the free sqrt 2 per beat
+  const big = d4BoxMesh({ side: 13 })
+  const bigCenter = d4BoxCell({ coordinates: [6, 6, 6, 6], side: 13 })
+  const reaches = Array.from({ length: 24 }, (_, direction) => {
+    let vac: Will = makeWill(big)
+    let seeded: Will = makeWill(big)
 
-  return { boundedSpecies, boundTriples, worstGrowth }
+    seeded.data[bigCenter * 24 + direction] = 1
+
+    for (let t = 0; t < 6; t++) {
+      vac = beat(vac, rule(t))
+      seeded = beat(seeded, rule(t))
+    }
+
+    let farthest = 0
+
+    for (let i = 0; i < seeded.data.length; i += 24) {
+      for (let d = 0; d < 24; d++) {
+        if (seeded.data[i + d] !== vac.data[i + d]) {
+          farthest = Math.max(
+            farthest,
+            d4BoxDistance({ a: i / 24, b: bigCenter, side: 13 }),
+          )
+          break
+        }
+      }
+    }
+
+    return farthest
+  })
+
+  return {
+    boundedSpecies,
+    travellers: reaches.filter(r => r >= (Math.SQRT2 * 6) / 2).length,
+    meanReach: reaches.reduce((a, b) => a + b, 0) / reaches.length,
+    worstGrowth,
+  }
 }
 
 export default experiment({
@@ -385,13 +410,12 @@ export default experiment({
     const denseComponents = components(true)
 
     // particle content beside the two other rules
-    const glide = particleContent(forward, layout, period)
+    const glide = particleContent(forward, period)
     const committed = particleContent(
       turningWeave({ opposite: meshOpposites(d4BoxMesh({ side: 9 })) }),
-      layout,
       24,
     )
-    const weave = particleContent(trialityWeave({ layout }), layout, 6)
+    const weave = particleContent(trialityWeave({ layout }), 6)
 
     const ok =
       reverses &&
@@ -418,16 +442,20 @@ export default experiment({
         cptFound: cpt === '' ? 0 : 1,
         vacuumPeriod,
         boundedSpecies: glide.boundedSpecies,
-        boundTriples: glide.boundTriples,
+        travellers: glide.travellers,
+        meanReach: glide.meanReach,
         worstSupportGrowth: glide.worstGrowth,
       },
       control: {
         committedBoundedSpecies: committed.boundedSpecies,
-        committedBoundTriples: committed.boundTriples,
+        committedTravellers: committed.travellers,
+        committedMeanReach: committed.meanReach,
         committedWorstGrowth: committed.worstGrowth,
         weaveBoundedSpecies: weave.boundedSpecies,
-        weaveBoundTriples: weave.boundTriples,
+        weaveTravellers: weave.travellers,
+        weaveMeanReach: weave.meanReach,
         weaveWorstGrowth: weave.worstGrowth,
+        freeReach: Math.SQRT2 * 6,
       },
       notes: `L2, a constructed rule, exact, no random numbers. Glide shifts found: ${glideShifts.join(' ') || 'none'}. CPT: ${cpt || 'none, under charge conjugation alone or combined with sigma or sigma^2, at any mirror phase'}. A glide is a symmetry of the dynamics combined with time, not an internal symmetry at each instant, so whether it gives a conserved colour charge is a separate question this does not answer.`,
     })

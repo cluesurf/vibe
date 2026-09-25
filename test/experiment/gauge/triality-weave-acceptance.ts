@@ -12,10 +12,9 @@
 // 2. Protected species: how many of the 24 directions carry a lone tone at support one for a whole
 //    schedule period. The turning weave has one such line. The unit-kick law is a statement about a
 //    protected species, so it is tested only if one exists. This count reads 0 on the triality
-//    weave, and an early summary took that to mean it has no free particle. That was wrong: its
-//    lone tones on the orbit lines travel compactly with a periodic dressing of two slots, which
-//    "support one at every beat" cannot see. So a second count is reported beside it, bounded
-//    species, the directions whose support never exceeds 2 over four periods.
+//    weave. A second count is reported beside it, bounded species, the directions whose support
+//    never exceeds 2 over four periods: a tone that does not multiply. It is not a free particle,
+//    because support says nothing about distance. Item 6 measures distance.
 // 3. Interference: two tones far apart, run alone and together. The joint clock-amplitude difference
 //    must equal the sum of the two separate ones exactly while their light cones have not met.
 // 4. Walls: half the box born one beat late (see LATE_BY). The number of slots where the staggered
@@ -29,9 +28,15 @@
 //    of 2, which the committed rule itself does not meet (it measures 13 here), so the gate is now
 //    comparative. That first run also found the first triality weave avalanching (a ratio of 726),
 //    which is what led to its final form (see code/rule/triality-weave).
-// 6. The baryon: a colour-neutral triple, one tone on each line of a triality orbit, same sign and
-//    same end, 12 in all. Bound when its support never exceeds 6. Reported for both rules, not
-//    gated, because it was first seen in a probe before this count was written.
+// 6. Travel: how far a lone tone on each direction gets in six beats, the largest true distance
+//    from its cell to any cell that differs from the vacuum, and how many directions travel at half
+//    the free speed or more. Beside it, a colour-neutral triple (one tone on each line of an orbit)
+//    and its own member alone. Reported for both rules, not gated. How this item came to be: an
+//    earlier version counted a triple as bound when its support stayed at or below 6, and read 12
+//    of 12 bound here and 0 of 12 in the committed rule. Support counts slots, not distance, and a
+//    probe then showed this rule's lone tones hardly travel (the pair clock reverses a lone tone's
+//    direction nearly every beat), so a triple stays together because none of its members goes
+//    anywhere, not because anything binds it. The bound-triple count was withdrawn.
 //
 // Depth L2: a constructed rule measured against stated gates.
 
@@ -56,6 +61,7 @@ import { clockAmplitude } from '@/code/measure/clock-amplitude'
 import {
   d4BoxCell,
   d4BoxCoordinates,
+  d4BoxDistance,
   d4BoxMesh,
 } from '@/code/substrate/d4-box'
 
@@ -239,24 +245,84 @@ export default experiment({
       largestSupport,
     } = weave
 
-    // 6. the baryon: a colour-neutral triple, the same tone on the same end of each line of one
-    // triality orbit (3 orbits x 2 signs x 2 ends). Bound when its support never exceeds 6, two
-    // slots per tone, over four periods
-    const triples = side9.layout.orbits.flatMap(orbit =>
-      [1, -1].flatMap(tone =>
-        [0, 1].map(end =>
-          orbit.map(
-            line =>
-              [side9.layout.lines[line]?.[end] ?? 0, tone] as const,
-          ),
-        ),
-      ),
+    // 6. travel: how far a lone tone gets from its cell in TRAVEL_BEATS beats, the largest true
+    // distance (code/substrate/d4-box, d4BoxDistance) from the seed cell to any cell that differs
+    // from the vacuum, on a side-13 box where TRAVEL_BEATS beats cannot wrap. A free tone moving one
+    // root per beat gets sqrt 2 per beat. A traveller is a direction that gets at least half that.
+    // The triple of a colour-neutral seed (one tone on each line of an orbit) is measured the same
+    // way beside its own member, since a triple that stays together says nothing when its members
+    // do not travel either (the lesson recorded in the header)
+    const TRAVEL_BEATS = 6
+    const side13 = ruleFor(13)
+    const center13 = d4BoxCell({ coordinates: [6, 6, 6, 6], side: 13 })
+
+    const reach = (
+      rule: (t: number) => Collision,
+      seed: readonly (readonly [number, number])[],
+    ): number => {
+      let vac: Will = makeWill(side13.mesh)
+      let seeded: Will = makeWill(side13.mesh)
+
+      for (const [slot, tone] of seed) {
+        seeded.data[center13 * 24 + slot] = tone
+      }
+
+      for (let t = 0; t < TRAVEL_BEATS; t++) {
+        vac = beat(vac, rule(t))
+        seeded = beat(seeded, rule(t))
+      }
+
+      let farthest = 0
+
+      for (let i = 0; i < seeded.data.length; i += 24) {
+        for (let d = 0; d < 24; d++) {
+          if (seeded.data[i + d] !== vac.data[i + d]) {
+            farthest = Math.max(
+              farthest,
+              d4BoxDistance({ a: i / 24, b: center13, side: 13 }),
+            )
+            break
+          }
+        }
+      }
+
+      return farthest
+    }
+
+    const committedRule13 = turningWeave({
+      opposite: meshOpposites(side13.mesh),
+    })
+    const free = Math.SQRT2 * TRAVEL_BEATS
+
+    const travel = (
+      rule: (t: number) => Collision,
+    ): {
+      travellers: number
+      meanReach: number
+    } => {
+      const reaches = Array.from({ length: 24 }, (_, d) =>
+        reach(rule, [[d, 1]]),
+      )
+
+      return {
+        travellers: reaches.filter(r => r >= free / 2).length,
+        meanReach: reaches.reduce((a, b) => a + b, 0) / reaches.length,
+      }
+    }
+
+    const weaveTravel = travel(side13.rule)
+    const committedTravel = travel(committedRule13)
+    const orbit0 = side13.layout.orbits[0] ?? []
+    const tripleSeed = orbit0.map(
+      line => [side13.layout.lines[line]?.[0] ?? 0, 1] as const,
     )
-    const boundTriples = (rule: (t: number) => Collision): number =>
-      triples.filter(seed => Math.max(...supportOf(rule, seed)) <= 6)
-        .length
-    const weaveBoundTriples = boundTriples(side9.rule)
-    const committedBoundTriples = boundTriples(committedRule)
+    const memberSeed = [
+      [side13.layout.lines[orbit0[0] ?? 0]?.[0] ?? 0, 1],
+    ] as const
+    const weaveTripleReach = reach(side13.rule, tripleSeed)
+    const weaveMemberReach = reach(side13.rule, memberSeed)
+    const committedTripleReach = reach(committedRule13, tripleSeed)
+    const committedMemberReach = reach(committedRule13, memberSeed)
 
     // 3. interference, side 11, two tones at opposite corners of the box
     const side11 = ruleFor(11)
@@ -348,7 +414,10 @@ export default experiment({
         vacuumPeriod,
         protectedSpecies,
         boundedSpecies,
-        boundTriples: weaveBoundTriples,
+        travellers: weaveTravel.travellers,
+        meanReach: weaveTravel.meanReach,
+        tripleReach: weaveTripleReach,
+        memberReach: weaveMemberReach,
         additivityWorst,
         wallQuantized: wallQuantized ? 1 : 0,
         wallPeriod,
@@ -360,8 +429,11 @@ export default experiment({
         committedLargestSupport: committed.largestSupport,
         committedProtectedSpecies: committed.protectedSpecies,
         committedBoundedSpecies: committed.boundedSpecies,
-        committedBoundTriples,
-        triplesTried: triples.length,
+        committedTravellers: committedTravel.travellers,
+        committedMeanReach: committedTravel.meanReach,
+        committedTripleReach,
+        committedMemberReach,
+        freeReach: free,
         schedulePeriod: period,
         sheet,
         wallSettledMax: Math.max(...settled),

@@ -104,7 +104,9 @@ export function d4BoxDistance(input: {
   let best = Number.POSITIVE_INFINITY
 
   for (let shift = 0; shift < 81; shift++) {
-    const s = [0, 1, 2, 3].map(k => (Math.floor(shift / 3 ** k) % 3) - 1)
+    const s = [0, 1, 2, 3].map(
+      k => (Math.floor(shift / 3 ** k) % 3) - 1,
+    )
     const vector = d4Vector(raw.map((x, k) => x + side * (s[k] ?? 0)))
 
     best = Math.min(best, Math.hypot(...vector))
