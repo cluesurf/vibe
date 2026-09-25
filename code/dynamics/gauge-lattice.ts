@@ -173,6 +173,7 @@ export function stapleInto(input: {
       out: scratch.first,
       daggerB: true,
     })
+
     multiplyInto({
       n,
       a: scratch.first,
@@ -194,6 +195,7 @@ export function stapleInto(input: {
       daggerA: true,
       daggerB: true,
     })
+
     multiplyInto({
       n,
       a: scratch.first,

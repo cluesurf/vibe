@@ -254,6 +254,23 @@ import {
   makeCenterLattice,
   reversibleSweep,
 } from '@/code/dynamics/center-gauge'
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import { passThrough } from '@/code/rule/collision'
+import {
+  blockIndex,
+  blockTones,
+  interactionBlocks,
+  probeConfigurations,
+  zeroSumTriangles,
+} from '@/code/measure/collision-anatomy'
+import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
+import {
+  covariantPairSpace,
+  toneSymmetryAlgebra,
+  unitaryAlgebraBasis,
+} from '@/code/measure/tone-symmetry'
+import { TONE_PERMUTATIONS, lineRelabellings } from '@/code/check/tone-permutation-symmetry'
+import { meanBlockDistance, relabelFractions } from '@/code/coarse/tone-population'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -2374,6 +2391,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // sampling branches, and the von Mises density exp(kappa cos) has mean cosine I1 / I0
     const draws = 40000
     const rng = makeRng({ seed: 92 })
+
     const sampleMean = (draw: () => number): number => {
       let total = 0
 
@@ -2383,6 +2401,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       return total / draws
     }
+
     const kennedyPendleton = sampleMean(() => sampleSu2HeatbathWeight({ alpha: 3, rng }))
     const creutzInversion = sampleMean(() => sampleSu2HeatbathWeight({ alpha: 0.5, rng }))
     const vonMises = sampleMean(() => Math.cos(sampleVonMises({ kappa: 2, rng })))
@@ -2392,11 +2411,13 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       ok: Math.abs(kennedyPendleton - 0.567923) < 0.01,
       detail: `${kennedyPendleton}`,
     })
+
     check({
       name: 'su2 heatbath (Creutz inversion, alpha 0.5): mean h0 is I2 / I1 = 0.12372',
       ok: Math.abs(creutzInversion - 0.12372) < 0.01,
       detail: `${creutzInversion}`,
     })
+
     check({
       name: 'von Mises (kappa 2): mean cosine is I1 / I0 = 0.69777',
       ok: Math.abs(vonMises - 0.697775) < 0.01,
@@ -2452,6 +2473,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       return [re, im]
     }
+
     const left = inner(a, db)
     const right = inner(da, b)
 
@@ -2477,6 +2499,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       ok: solved.residuals.every(r => r < 1e-9),
       detail: solved.residuals.join(', '),
     })
+
     check({
       name: 'staggered propagator inverts m + D at every mass',
       ok: masses.every(
@@ -2618,6 +2641,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the gauge integrator: exactly reversible, and the energy error falls as step^2 and step^4
     {
       const generators = suGenerators({ n: 3 })
+
       const trial = (order: 2 | 4, step: number): { error: number; reversal: number } => {
         const lattice = makeGaugeLattice({ group: 'su3', lengths: [3, 3, 3, 3], start: 'cold', rng: makeRng({ seed: 1 }) })
         const momenta = makeMomenta({ lattice })
@@ -2644,6 +2668,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
         return { error, reversal }
       }
+
       const second = [trial(2, 0.1), trial(2, 0.05)]
       const fourth = [trial(4, 0.2), trial(4, 0.1)]
       const secondRatio = (second[0]?.error ?? 0) / (second[1]?.error ?? 1)
@@ -2654,6 +2679,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         ok: second.every(t => t.reversal < 1e-11) && secondRatio > 3 && secondRatio < 5,
         detail: `${secondRatio}`,
       })
+
       check({
         name: 'fourth-order composition: reversible, energy error falls 16x when the step halves',
         ok: fourth.every(t => t.reversal < 1e-11) && fourthRatio > 10 && fourthRatio < 24,
@@ -2695,6 +2721,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
         return fermionAction({ operator: makeStaggeredOperator({ lattice: copy }), phi, mass, tolerance: 1e-14 })
       }
+
       const numeric = (shifted(1) - shifted(-1)) / 2e-5
 
       check({
@@ -2744,6 +2771,97 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           (mass, i) =>
             Math.abs((free.values[i] ?? 0) - freeStaggeredCondensate({ lengths, colours: 3, mass })) < 1e-10,
         ),
+      })
+    }
+
+    // the rule-anatomy library behind E-FRC-0093 to 0097, each against a fact derived without it
+    {
+      const roots = rootsD4()
+
+      // in a simply-laced root system every root has 2h - 4 partners whose sum is a root (h = 6 for
+      // D4), so the zero-sum triples number 24 * 8 / 6 = 32
+      check({
+        name: 'zeroSumTriangles finds the 32 zero-sum triples of the D4 roots',
+        ok: zeroSumTriangles({ directions: roots }).length === (24 * (2 * 6 - 4)) / 6,
+      })
+
+      // the Weyl group of F4 has order 1152, and each element permutes the 24 directions
+      const weyl = weylF4DirectionPermutations({ directions: roots })
+      const distinct = new Set(weyl.map(p => p.join(','))).size
+      const permutations = weyl.every(p => new Set(p).size === 24 && p.length === 24)
+
+      check({
+        name: 'weylF4DirectionPermutations gives 1152 distinct permutations of the 24 directions',
+        ok: weyl.length === 1152 && distinct === 1152 && permutations,
+      })
+
+      // a 3-cycle times a disjoint 2-cycle has order 6
+      check({
+        name: 'permutationOrder of a 3-cycle and a 2-cycle is 6',
+        ok: permutationOrder({ permutation: [1, 2, 0, 4, 3, 5] }) === 6,
+      })
+
+      // block encoding round-trips for every state of a three-slot block
+      const roundTrips = Array.from({ length: 27 }, (_, index) => index).every(
+        index => blockIndex({ tones: blockTones({ index, size: 3 }) }) === index,
+      )
+
+      check({ name: 'blockIndex and blockTones are inverse on all 27 three-slot states', ok: roundTrips })
+
+      // pure streaming couples nothing, so every slot is its own interaction block
+      const blocks = interactionBlocks({
+        collision: passThrough,
+        degree: 24,
+        probes: probeConfigurations({ degree: 24 }),
+      })
+
+      check({
+        name: 'interactionBlocks of pure streaming is 24 singleton blocks',
+        ok: blocks.length === 24 && blocks.every(b => b.length === 1),
+      })
+
+      // Schur-Weyl: the identity and the swap of two tones commute with all 9 generators of u(3),
+      // and the U(3)-covariant maps of a pair are exactly their two-dimensional span
+      const identity = Array.from({ length: 9 }, (_, i) => i)
+      const swap = Array.from({ length: 9 }, (_, i) => (i % 3) * 3 + Math.floor(i / 3))
+
+      check({
+        name: 'toneSymmetryAlgebra: identity and swap keep all 9 u(3) generators',
+        ok:
+          toneSymmetryAlgebra({ maps: [identity] }).dimension === 9 &&
+          toneSymmetryAlgebra({ maps: [swap] }).dimension === 9 &&
+          unitaryAlgebraBasis().length === 9,
+      })
+
+      const covariant = covariantPairSpace({ map: swap })
+
+      check({
+        name: 'covariantPairSpace: two complex dimensions, the swap inside them',
+        ok: covariant.complexDimension === 2 && covariant.distance < 1e-9,
+      })
+
+      // the six tone relabellings are S3, and the line relabellings are its square, 36
+      check({
+        name: 'tone relabellings: 6 distinct, 36 on a line',
+        ok:
+          new Set(TONE_PERMUTATIONS.map(p => p.join(','))).size === 6 &&
+          lineRelabellings().length === 36,
+      })
+
+      // a relabelling names the tone (-1, 0, +1) each tone goes to. The identity changes nothing,
+      // charge conjugation swaps the -1 and +1 fractions, and the distance is a metric
+      const fractions = new Float64Array([0.5, 0.25, 0.25, 0.1, 0.8, 0.1])
+      const same = relabelFractions({ fractions, relabel: [-1, 0, 1] })
+      const conjugate = relabelFractions({ fractions, relabel: [1, 0, -1] })
+
+      check({
+        name: 'relabelFractions: the identity changes nothing, conjugation swaps the charges',
+        ok:
+          same.every((v, k) => v === fractions[k]) &&
+          meanBlockDistance({ a: fractions, b: same }) === 0 &&
+          conjugate[0] === 0.25 &&
+          conjugate[2] === 0.5 &&
+          Math.abs(meanBlockDistance({ a: fractions, b: conjugate }) - 0.125) < 1e-12,
       })
     }
 

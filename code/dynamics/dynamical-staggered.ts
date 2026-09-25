@@ -202,6 +202,7 @@ export function fermionForce(input: {
             (z[2 * (a * n + b) + 1] ?? 0) +
             (z[2 * (b * n + a) + 1] ?? 0) -
             (a === b ? traceImaginary / n : 0)
+
           // -(i s / 4)(wr + i wi) = (s / 4)(wi - i wr)
           force[offset + 2 * (a * n + b)] = (s / 4) * wi
           force[offset + 2 * (a * n + b) + 1] = -(s / 4) * wr

@@ -54,6 +54,7 @@ function tensionAt(input: { beta: number; seed: number }): { value: number; erro
       }).flat(),
   })
   const width = MAX_T + 2
+
   const sigma = (subset: readonly number[][]): number => {
     const mean = averageSeries({ series: subset })
     const table = Array.from({ length: MAX_R + 1 }, (_, r) =>

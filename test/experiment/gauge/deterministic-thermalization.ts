@@ -91,6 +91,7 @@ export default experiment({
   paper: false,
   run() {
     const generators = suGenerators({ n: 3 })
+
     const start = (colours?: number[]) => {
       const lattice = makeGaugeLattice({ group: 'su3', lengths: LENGTHS, start: 'cold', rng: makeRng({ seed: 1 }) })
       const momenta = makeMomenta({ lattice })
@@ -99,6 +100,7 @@ export default experiment({
 
       return { lattice, momenta }
     }
+
     const energy = (s: ReturnType<typeof start>): number =>
       kineticEnergy({ momenta: s.momenta }) + wilsonAction({ lattice: s.lattice, beta: BETA })
 
@@ -117,6 +119,7 @@ export default experiment({
     reversal.lattice.links.forEach((v, k) => {
       reversalError = Math.max(reversalError, Math.abs(v - (initialLinks[k] ?? 0)))
     })
+
     reversal.momenta.data.forEach((v, k) => {
       reversalError = Math.max(reversalError, Math.abs(v - (initialMomenta[k] ?? 0)))
     })
@@ -130,6 +133,7 @@ export default experiment({
 
       return Math.abs(energy(s) - h0)
     }
+
     const conservationRatio = drift(STEP) / drift(STEP / 2)
 
     // the long run
@@ -194,6 +198,7 @@ export default experiment({
         creutz: jackknife({ samples: list, estimator: chi22, binSize }),
       }
     }
+
     const predictedBeta = BETA / temperature
     const naiveBeta = BETA / naiveTemperature
     const canonical = reference(predictedBeta, 920)

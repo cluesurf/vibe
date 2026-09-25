@@ -109,6 +109,7 @@ export default experiment({
 
       return { within4, within8, tests }
     }
+
     const triangleCensus = census(triangles)
     const otherCensus = census(matched)
 

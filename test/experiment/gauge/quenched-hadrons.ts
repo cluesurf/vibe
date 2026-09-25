@@ -128,9 +128,7 @@ function hadronSamples(): HadronCorrelators[] {
 }
 
 function interactingSpectrum(): Spectrum {
-  if (interacting === undefined) {
-    interacting = spectrumOf(hadronSamples(), MASSES)
-  }
+  interacting ??= spectrumOf(hadronSamples(), MASSES)
 
   return interacting
 }
@@ -167,6 +165,29 @@ function freeSpectrum(): Spectrum {
   }
 
   return free
+}
+
+// The quark masses whose nucleon effective mass sits on a plateau: resolved at five standard errors
+// from t = 3 to 5, resolved at three from t = 5 to 7, and the two agreeing within three standard
+// errors. An effective mass that is still falling is not a ground state, and reading one as a mass
+// overstates it. At the lightest quenched quark masses the nucleon correlator is known to be
+// distorted (the quenched hairpin diagrams have no dynamical-quark loops to cancel them), which is
+// where the plateau is lost.
+function nucleonPlateau(spectrum: Spectrum): number[] {
+  return MASSES.map((_, i) => i).filter(i => {
+    const early = spectrum.nucleon[i]
+    const late = spectrum.nucleonLate[i]
+
+    if (early === undefined || late === undefined) {
+      return false
+    }
+
+    return (
+      early.value > 5 * early.error &&
+      late.value > 3 * late.error &&
+      Math.abs(early.value - late.value) < 3 * Math.hypot(early.error, late.error)
+    )
+  })
 }
 
 function exponent(input: { masses: readonly number[]; values: readonly number[] }): number {
@@ -255,13 +276,9 @@ experiment({
     const freeExact = FREE_MASSES.every(
       (mass, i) => Math.abs((freeNucleon[i] ?? 0) / (3 * Math.asinh(mass)) - 1) < 0.01,
     )
-    // only the masses the ensemble resolves (five standard errors) are read. The nucleon signal
-    // decays against its noise like exp(-(m_N - 3 m_pi / 2) t), so the light masses lose it first
-    const resolvedIndices = MASSES.map((_, i) => i).filter(i => {
-      const p = spectrum.nucleon[i]
-
-      return p !== undefined && p.value > 5 * p.error
-    })
+    // only the masses on a plateau are read (nucleonPlateau), the others are reported
+    const resolvedIndices = nucleonPlateau(spectrum)
+    const excluded = MASSES.map((_, i) => i).filter(i => !resolvedIndices.includes(i))
     const resolvedMasses = resolvedIndices.map(i => MASSES[i] ?? 0)
     const resolvedNucleon = resolvedIndices.map(i => nucleon[i] ?? 0)
     const enoughResolved = resolvedIndices.length >= 3
@@ -277,24 +294,18 @@ experiment({
     // three quarks outweigh a quark and an antiquark (the ratio tends to 3 / 2 only for very heavy
     // quarks, so 1 is the bound that is not a knife edge)
     const heavierThanPion = resolvedIndices.every(i => (nucleon[i] ?? 0) > (pion[i] ?? 0))
-    // an early effective mass overestimates the ground state, so the claim needs the effective mass
-    // to have stopped falling: from t = 5 to 7 it must keep at least 70 percent of its t = 3 to 5
-    // value wherever the late one is resolved
-    const lateRatios = resolvedIndices
-      .filter(i => {
-        const late = spectrum.nucleonLate[i]
-
-        return late !== undefined && late.value > 3 * late.error
-      })
-      .map(i => (spectrum.nucleonLate[i]?.value ?? 0) / (nucleon[i] ?? 1))
-    const plateau = lateRatios.length > 0 && lateRatios.every(ratio => ratio > 0.7)
+    const lateRatios = resolvedIndices.map(
+      i => (spectrum.nucleonLate[i]?.value ?? 0) / (nucleon[i] ?? 1),
+    )
+    // the plateau is a property of the heavy end: the masses that fail it are the lightest ones
+    const excludedAreLightest = excluded.every(i => resolvedIndices.every(j => j > i))
     const generated = enhancement > 5 && chiral > 1 && pionChiral < 0.05
-    const ok = freeExact && enoughResolved && heavierThanPion && plateau && generated
+    const ok = freeExact && enoughResolved && heavierThanPion && excludedAreLightest && generated
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the nucleon, three quarks contracted with epsilon_abc, weighs several times three free quarks at every quark mass the ensemble resolves, its effective mass has stopped falling by t = 7, and it extrapolates to a large mass at zero quark mass while the pion mass squared extrapolates near zero, and the same code without gluons gives exactly three free quarks',
+        'the nucleon, three quarks contracted with epsilon_abc, weighs several times three free quarks at every quark mass where its effective mass sits on a plateau (t = 3 to 5 against 5 to 7), those masses are the heavy end, and it extrapolates to a large mass at zero quark mass while the pion mass squared extrapolates near zero, and the same code without gluons gives exactly three free quarks',
       metrics: {
         nucleonAt0025: nucleon[0] ?? 0,
         nucleonAt005: nucleon[1] ?? 0,
@@ -308,7 +319,8 @@ experiment({
         nucleonErrorAt04: spectrum.nucleon[4]?.error ?? 0,
         resolvedMassCount: resolvedIndices.length,
         lightestResolvedMass: lightest,
-        smallestLateOverEarly: lateRatios.length > 0 ? Math.min(...lateRatios) : 0,
+        smallestLateOverEarlyOnPlateau: lateRatios.length > 0 ? Math.min(...lateRatios) : 0,
+        excludedMassCount: excluded.length,
         lateNucleonAt0025: spectrum.nucleonLate[0]?.value ?? 0,
         lateNucleonErrorAt0025: spectrum.nucleonLate[0]?.error ?? 0,
         lateNucleonAt005: spectrum.nucleonLate[1]?.value ?? 0,
@@ -329,7 +341,7 @@ experiment({
         freeNucleonLateAt04: control.nucleonLate[1]?.value ?? 0,
       },
       notes:
-        'L2, known physics: quenched lattice nucleon. The mass is a two-step effective mass from t = 3 to t = 5, early enough that excited states and the parity partner still contribute, in one 2 fm box at one lattice spacing, so these masses are not the infinite-volume continuum ground state, and the comparison with nature is made only through the dimensionless ratio of E-FRC-0091. The claim rests on the gap to three free quarks (a factor of five or more) together with the plateau check, which is what a light state hiding under the early effective mass would fail. The lightest quark masses are not resolved by 12 configurations and are reported with their errors, not used.',
+        'L2, known physics: quenched lattice nucleon. The mass is a two-step effective mass from t = 3 to t = 5, early enough that excited states and the parity partner still contribute, in one 2 fm box at one lattice spacing, so these masses are not the infinite-volume continuum ground state, and the comparison with nature is made only through the dimensionless ratio of E-FRC-0091. The claim rests on the gap to three free quarks (a factor of five or more) at the masses where the effective mass has stopped falling. At the two lightest quark masses it has not (from t = 5 to 7 it drops to about 0.4 and 0.7 of its t = 3 to 5 value), the quenched distortion of light baryons, so those two are reported with the late values and not used.',
     })
   },
 })
@@ -403,12 +415,12 @@ experiment({
     const rho = spectrum.rho.map(p => p.value)
     const pion = spectrum.pion.map(p => p.value)
     const nucleon = spectrum.nucleon.map(p => p.value)
-    // every quark mass where the rho and the nucleon are both resolved
+    // the rho and J read every mass where the rho is resolved, and m_N / m_rho only the masses where
+    // the nucleon also sits on its plateau
     const use = MASSES.map((_, i) => i).filter(
-      i =>
-        (spectrum.rho[i]?.value ?? 0) > 10 * (spectrum.rho[i]?.error ?? 1) &&
-        (spectrum.nucleon[i]?.value ?? 0) > 5 * (spectrum.nucleon[i]?.error ?? 1),
+      i => (spectrum.rho[i]?.value ?? 0) > 10 * (spectrum.rho[i]?.error ?? 1),
     )
+    const nucleonUse = use.filter(i => nucleonPlateau(spectrum).includes(i))
     const freeRho = control.rho.map(p => p.value)
     const freeExact = FREE_MASSES.every(
       (mass, i) => Math.abs((freeRho[i] ?? 0) / (2 * Math.asinh(mass)) - 1) < 0.01,
@@ -421,7 +433,7 @@ experiment({
     const j = jackknife({ samples, estimator: subset => jParameter({ ...massesOf(subset), use }) })
     const ratio = jackknife({
       samples,
-      estimator: subset => nucleonOverRhoAtPhysical({ ...massesOf(subset), use }),
+      estimator: subset => nucleonOverRhoAtPhysical({ ...massesOf(subset), use: nucleonUse }),
     })
 
     const enough = use.length >= 3

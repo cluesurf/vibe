@@ -51,6 +51,7 @@ export function apeSmear(input: {
 
             to.data[to.offset + k] =
               (1 - alpha) * (from.data[from.offset + k] ?? 0) + weight * (staple.data[kt] ?? 0)
+
             to.data[to.offset + k + 1] =
               (1 - alpha) * (from.data[from.offset + k + 1] ?? 0) - weight * (staple.data[kt + 1] ?? 0)
           }

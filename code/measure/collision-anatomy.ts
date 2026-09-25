@@ -78,6 +78,7 @@ export function interactionBlocks(input: {
 }): number[][] {
   const { collision, degree, probes } = input
   const parent = Array.from({ length: degree }, (_, i) => i)
+
   const find = (i: number): number => {
     let root = i
 
@@ -87,6 +88,7 @@ export function interactionBlocks(input: {
 
     return root
   }
+
   const join = (a: number, b: number): void => {
     const ra = find(a)
     const rb = find(b)
@@ -103,7 +105,8 @@ export function interactionBlocks(input: {
       for (const shift of [1, 2]) {
         const changed = probe.slice()
 
-        changed[i] = ((((changed[i] ?? 0) + 1 + shift) % 3) - 1) as number
+        changed[i] = ((((changed[i] ?? 0) + 1 + shift) % 3) - 1)
+
         const out = applyCollision({ collision, state: changed })
 
         for (let j = 0; j < degree; j++) {

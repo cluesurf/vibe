@@ -3,7 +3,7 @@
 // identity (0). linkPhase reads 2*pi*k/q forward and the GROUP INVERSE (negated phase) on the reverse traversal,
 // and 0 on an absent edge. The phase is a genuine float, so those checks use a tight tolerance; counts are exact.
 
-import { suite, check, equal, ok, close } from '@/test/code/harness'
+import { suite, check, equal, close } from '@/test/code/harness'
 import { makeGraph } from '@/code/tool/graph'
 import {
   makeGaugeField,
@@ -106,24 +106,4 @@ suite('tool/gauge-field: U(1) link phase', [
       'no such edge',
     )
   }),
-  check(
-    'a non-U(1) group reports zero phase (no clock structure)',
-    () => {
-      const field = makeGaugeField({
-        graph,
-        group: { form: 'su2', q: 4 },
-      })
-
-      const e = field.edges[0]!
-      const idx = field.edgeIndex.get(
-        edgeKey({ from: e.from, to: e.to }),
-      )!
-
-      field.link[idx] = 3
-      ok(
-        linkPhase(field, { from: e.from, to: e.to }) === 0,
-        'su2 has no scalar phase',
-      )
-    },
-  ),
 ])

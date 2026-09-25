@@ -55,6 +55,7 @@ export function plaquetteMoments(input: { lattice: GaugeLattice }): number[] {
           b: linkSlot({ lattice, site: siteMu, mu: nu }),
           out: lower,
         })
+
         // U_nu(x) U_mu(x + nu)
         multiplyInto({
           n,
@@ -241,6 +242,7 @@ export function wilsonLoopTable(input: {
               b: line(linesNu, t, siteR),
               out: first,
             })
+
             // upper-left path: L_nu(x, T) L_mu(x + T nu, R)
             multiplyInto({
               n,
@@ -248,6 +250,7 @@ export function wilsonLoopTable(input: {
               b: line(linesMu, r, siteT),
               out: second,
             })
+
             total += character({
               n,
               representation,
@@ -364,6 +367,7 @@ export function spatialPlaquetteSlices(input: { lattice: GaugeLattice }): number
           b: linkSlot({ lattice, site: up[site * dim + mu] ?? 0, mu: nu }),
           out: lower,
         })
+
         multiplyInto({
           n,
           a: linkSlot({ lattice, site, mu: nu }),

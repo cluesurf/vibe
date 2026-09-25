@@ -37,6 +37,7 @@ export function makeHypercubic(input: { lengths: readonly number[] }): Hypercubi
 
       up[site * dim + mu] =
         coordinate === length - 1 ? site - (length - 1) * step : site + step
+
       down[site * dim + mu] =
         coordinate === 0 ? site + (length - 1) * step : site - step
     }

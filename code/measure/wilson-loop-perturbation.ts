@@ -23,6 +23,7 @@ export function treeLevelLoop(input: { r: number; t: number; box: number }): num
 
   const momenta = Array.from({ length: box }, (_, j) => (2 * Math.PI * j) / box)
   const sinSquared = momenta.map(q => 4 * Math.sin(q / 2) ** 2)
+
   // |S_L(q)|^2 = sin^2(L q / 2) / sin^2(q / 2), L^2 at q = 0
   const sumSquared = (length: number, q: number): number => {
     const s = Math.sin(q / 2)

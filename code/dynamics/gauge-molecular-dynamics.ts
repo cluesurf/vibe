@@ -136,8 +136,8 @@ export function kineticEnergy(input: { momenta: GaugeMomenta }): number {
   // Tr(P^2) = sum_ij |P_ij|^2 for Hermitian P
   let total = 0
 
-  for (let k = 0; k < input.momenta.data.length; k++) {
-    total += (input.momenta.data[k] ?? 0) ** 2
+  for (const value of input.momenta.data) {
+    total += value ** 2
   }
 
   return total
@@ -346,6 +346,7 @@ export function structuredMomenta(input: {
 
   for (let site = 0; site < sites; site++) {
     let rest = site
+
     const x: number[] = []
 
     for (const length of lengths) {

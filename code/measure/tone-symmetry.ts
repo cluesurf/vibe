@@ -112,6 +112,7 @@ function commutatorEntries(input: {
   const representations = input.representations ?? []
   const states = map.length
   const size = Math.round(Math.log(states) / Math.log(3))
+
   // D(X) applied to basis state s, as a sparse list of (target, re, im)
   const act = (s: number): Map<number, [number, number]> => {
     const tones = blockTones({ index: s, size })
@@ -135,6 +136,7 @@ function commutatorEntries(input: {
         const moved = tones.slice()
 
         moved[slot] = to - 1
+
         const target = blockIndex({ tones: moved })
         const current = out.get(target) ?? [0, 0]
 
@@ -295,6 +297,7 @@ export function covariantPairSpace(input: {
       for (let j = 0; j < n; j++) {
         const realRow = new Array<number>(unknowns).fill(0)
         const imagRow = new Array<number>(unknowns).fill(0)
+
         const add = (k: number, l: number, cr: number, ci: number): void => {
           // (cr + i ci)(u_re + i u_im)
           const p = 2 * (k * n + l)

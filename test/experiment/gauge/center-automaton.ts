@@ -189,6 +189,7 @@ export default experiment({
     // the effective beta: where the heatbath plaquette meets the automaton's, by bisection on the
     // confined branch
     let seed = 990
+
     const bracket = bisectThreshold({
       low: 0.3,
       high: GAP_LOW_BETA,

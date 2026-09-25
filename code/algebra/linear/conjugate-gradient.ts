@@ -38,6 +38,7 @@ export function multiShiftConjugateGradient(input: {
   const length = source.length
   const base = Math.min(...shifts)
   const deltas = shifts.map(shift => shift - base)
+
   const baseApply = (from: Float64Array, out: Float64Array): void => {
     apply({ from, out })
 

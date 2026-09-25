@@ -48,6 +48,7 @@ export function makeCenterLattice(input: {
   if (input.pattern !== undefined) {
     for (let site = 0; site < geometry.sites; site++) {
       let rest = site
+
       const x: number[] = []
 
       for (const length of geometry.lengths) {
@@ -239,6 +240,7 @@ export function centerWilsonLoops(input: { lattice: CenterLattice; max: number }
   const { dim, sites, up } = lattice.geometry
   const n = lattice.order
   const table = Array.from({ length: max + 1 }, () => new Array<number>(max + 1).fill(1))
+
   const walk = (site: number, mu: number, steps: number): { end: number; sum: number } => {
     let current = site
     let sum = 0

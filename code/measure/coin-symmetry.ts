@@ -120,6 +120,7 @@ function conjugates(input: {
   to: Anatomy
 }): boolean {
   const { permutation, relabelling, opposite, from, to } = input
+
   // the tone relabelling as it lands on a destination slot
   const relabel = (slot: number, tone: number): number => {
     const map = slot < (opposite[slot] ?? slot) ? relabelling.leading : relabelling.trailing
@@ -140,6 +141,7 @@ function conjugates(input: {
     // position of each source slot's image inside the target block's own slot order, and the tone
     // relabelled as it arrives there
     const position = image.map(slot => targetBlock.indexOf(slot))
+
     const carry = (tones: readonly number[]): number[] => {
       const out = new Array<number>(block.length).fill(0)
 
@@ -149,6 +151,7 @@ function conjugates(input: {
 
       return out
     }
+
     const sourceMap = from.maps[b] ?? []
     const targetMap = to.maps[target] ?? []
 

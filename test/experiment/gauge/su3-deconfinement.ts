@@ -22,9 +22,11 @@ import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import {
   centerTransformTimeSlice,
+  linkSlot,
   makeGaugeLattice,
   sampleGaugeEnsemble,
 } from '@/code/dynamics/gauge-lattice'
+import { setIdentity } from '@/code/algebra/group/unitary-matrix'
 import {
   averagePlaquette,
   polyakovLoop,
@@ -39,10 +41,14 @@ type Thermal = {
   plaquette: number
 }
 
+// 'mixed' is the two-phase start of a first-order transition: the half of the box with x < L / 2
+// ordered (every link the identity), the other half disordered. Above the transition the ordered
+// half takes over, below it the disordered one, so neither phase is favoured by where the run
+// began, and the hysteresis of a hot or cold start (which grows with the volume) is gone.
 function thermalRun(input: {
   beta: number
   spatial: number
-  start: 'cold' | 'hot'
+  start: 'cold' | 'hot' | 'mixed'
   sector: number
   seed: number
   measurements?: number
@@ -52,16 +58,26 @@ function thermalRun(input: {
   const lattice = makeGaugeLattice({
     group: 'su3',
     lengths: [input.spatial, input.spatial, input.spatial, input.time ?? 2],
-    start: input.start,
+    start: input.start === 'mixed' ? 'hot' : input.start,
     rng,
   })
+
+  if (input.start === 'mixed') {
+    for (let site = 0; site < lattice.geometry.sites; site++) {
+      if (site % input.spatial < input.spatial / 2) {
+        for (let mu = 0; mu < lattice.geometry.dim; mu++) {
+          setIdentity({ n: lattice.n, out: linkSlot({ lattice, site, mu }) })
+        }
+      }
+    }
+  }
 
   centerTransformTimeSlice({ lattice, slice: 0, k: input.sector })
 
   const samples = sampleGaugeEnsemble({
     lattice,
     beta: input.beta,
-    thermalization: input.time === undefined ? 30 : 60,
+    thermalization: input.time === undefined ? 30 : 100,
     measurements: input.measurements ?? 50,
     separation: 1,
     overrelaxation: 2,
@@ -105,6 +121,7 @@ export default experiment({
   paper: false,
   run() {
     let seed = 820
+
     const bracket = bisectThreshold({
       low: 4.6,
       high: 5.6,
@@ -205,6 +222,7 @@ experiment({
   paper: false,
   run() {
     let seed = 980
+
     // |P| halfway between the confined (about 0.03) and deconfined (about 0.15 and up) values on
     // N_t = 4, where the loop is smaller than on N_t = 2 because the static quark is heavier in T units
     const threshold = 0.09
@@ -214,11 +232,11 @@ experiment({
         high,
         steps,
         isAbove: beta =>
-          thermalRun({ beta, spatial, time: 4, start: 'hot', sector: 0, seed: seed++, measurements: 60 })
+          thermalRun({ beta, spatial, time: 4, start: 'mixed', sector: 0, seed: seed++, measurements: 60 })
             .modulus > threshold,
       })
     const small = transition(8, 5.5, 5.9, 5)
-    const large = transition(12, 5.6, 5.75, 4)
+    const large = transition(12, 5.6, 5.8, 4)
     const middle = (b: { low: number; high: number }): number => (b.low + b.high) / 2
     const halfWidth = (b: { low: number; high: number }): number => (b.high - b.low) / 2
     // a first-order transition shifts as 1 / V on a finite box, beta_c(L) = beta_c - h / L^3, so two
