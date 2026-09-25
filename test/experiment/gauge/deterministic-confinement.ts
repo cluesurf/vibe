@@ -8,19 +8,24 @@
 //
 // - the string tension: the Creutz ratio chi(2, 2) = -ln(W(2,2) W(1,1) / W(1,2)^2) from rectangular
 //   Wilson loops. Positive means a static color pair pays energy in proportion to its separation.
-// - a part: the fundamental Polyakov loop, |<Tr P / 3>| averaged per configuration over the spatial
-//   volume. Its value is exp(-F / T) for one static color charge. Near zero means a lone color cannot
-//   exist (infinite free energy), which is the vibe's triality, the center Z3, unbroken.
-// - a whole: the adjoint Polyakov loop (|Tr P|^2 - 1) / 8, a static source of triality zero, what the grid
-//   of the three-trit model carries. It stays finite where the fundamental one vanishes, because gluons
-//   screen it: a whole has finite energy where a part has none.
+// - a part: the fundamental Polyakov loop <Tr P / 3>, its signed spatial mean averaged over
+//   configurations, exp(-F / T) for one static color charge. The center Z3 (the vibe's phase) multiplies it
+//   by a cube root of unity, so where that symmetry is unbroken it is zero: a lone color has infinite free
+//   energy. A source of triality zero, a whole, is center-neutral, so the symmetry does not forbid it. The
+//   adjoint loop (|Tr P|^2 - 1) / 8 is reported beside it.
 //
-// Energies: a high one (a confining coupling) and a low one (past the N_t = 4 transition, deconfined),
-// each against the seeded heatbath of the same quantized action at the coupling the demons read, on the
-// same lattice, by the same instruments. Gates, fixed before the run: energy conserved exactly, at the
-// high energy chi(2, 2) above zero by three standard errors and within 0.1 of the heatbath's, the
-// fundamental Polyakov loop at the high energy under half its value at the low energy, and the adjoint
-// loop at the high energy above the fundamental one.
+// Energies, chosen from a scan of the demon fill (tmp/probe-confinement-window): two in the melted phase
+// below Sigma(648)'s freezing (Wilson couplings about 3.3 and 4.3), and one on the ordered branch, each
+// against the seeded heatbath of the same quantized action at the coupling the demons read, on the same
+// lattice, by the same instruments. Gates: energy conserved exactly, at both melted energies chi(2, 2) above
+// zero by three standard errors and within 0.1 of the heatbath's, and |<P>| under 0.01, and on the ordered
+// branch |<P>| above 0.1.
+//
+// A first version used a fill of 0.9 and one of 0.08. The first put the demons at infinite temperature
+// (beta 0.01), where every loop past W(1,1) is noise and chi(2, 2) meant nothing. The second froze the
+// automaton into the ordered branch at a coupling where the heatbath melts (E-FRC-0110's superheated branch).
+// It also gated the adjoint loop above the magnitude of the fundamental one, which compared a signed mean
+// with a magnitude carrying a noise floor of 1 / sqrt(216). The scan, not those guesses, picked the fills.
 //
 // Depth L2: lattice gauge theory of a finite group, measured deterministically.
 
@@ -53,13 +58,13 @@ const GOLDEN = (Math.sqrt(5) - 1) / 2
 const SWEEPS = 500
 const SKIP = 150
 const EXCHANGES = 4
-const HIGH_FILL = 0.9
-const LOW_FILL = 0.08
+const MELTED_FILLS = [0.35, 0.3]
+const ORDERED_FILL = 0.25
 
-type Sample = { w11: number; w12: number; w22: number; fundamental: number; adjoint: number; plaquette: number }
+type Sample = { w11: number; w12: number; w22: number; re: number; im: number; adjoint: number; plaquette: number }
 
 // fundamental and adjoint Polyakov loops along the last axis, averaged over the spatial volume
-function polyakov(lattice: FiniteGaugeLattice): { fundamental: number; adjoint: number } {
+function polyakov(lattice: FiniteGaugeLattice): { re: number; im: number; adjoint: number } {
   const { group, geometry, links } = lattice
   const { dim, sites, up, lengths } = geometry
   const time = dim - 1
@@ -94,7 +99,7 @@ function polyakov(lattice: FiniteGaugeLattice): { fundamental: number; adjoint: 
     adjoint += (tr * tr + ti * ti - 1) / 8
   }
 
-  return { fundamental: Math.hypot(re, im) / spatial, adjoint: adjoint / spatial }
+  return { re: re / spatial, im: im / spatial, adjoint: adjoint / spatial }
 }
 
 function measure(lattice: FiniteGaugeLattice): Sample {
@@ -105,7 +110,8 @@ function measure(lattice: FiniteGaugeLattice): Sample {
     w11: w[1]?.[1] ?? 1,
     w12: w[1]?.[2] ?? 1,
     w22: w[2]?.[2] ?? 1,
-    fundamental: p.fundamental,
+    re: p.re,
+    im: p.im,
     adjoint: p.adjoint,
     plaquette: finitePlaquette({ lattice }),
   }
@@ -135,7 +141,7 @@ function summarize(samples: Sample[]): Summary {
 
   return {
     chi,
-    fundamental: mean(samples.map(s => s.fundamental)),
+    fundamental: Math.hypot(mean(samples.map(s => s.re)), mean(samples.map(s => s.im))),
     adjoint: mean(samples.map(s => s.adjoint)),
     plaquette: mean(samples.map(s => s.plaquette)),
   }
@@ -196,7 +202,7 @@ export default experiment({
   id: 'gauge/deterministic-confinement',
   code: 'E-FRC-0126',
   title:
-    'the classical color group confines under a rule with no random number: on the kinetic demon automaton of Sigma(648) a static color pair pays a string tension (Creutz ratio above zero, matching the heatbath), a lone color has a vanishing Polyakov loop where a triality-zero whole does not, and past the transition the lone color is freed',
+    'the classical color group confines under a rule with no random number: on the kinetic demon automaton of Sigma(648), at two energies in the melted phase a static color pair pays a string tension (Creutz ratio chi(2, 2) above zero, matching the heatbath) and the fundamental Polyakov loop vanishes (the center, the vibe phase, unbroken, so a lone color has infinite free energy), while on the ordered branch the loop is nonzero and a lone color is freed',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -207,49 +213,57 @@ export default experiment({
     const lowest = Math.min(...Array.from(levels).filter(level => level > 0))
     const capacity = 6 * lowest + 6
 
-    const high = automaton(group, levels, capacity, HIGH_FILL)
-    const low = automaton(group, levels, capacity, LOW_FILL)
-    const highReference = heatbath(group, levels, high.beta, 91)
-    const lowReference = heatbath(group, levels, low.beta, 93)
+    const melted = MELTED_FILLS.map((fill, k) => {
+      const run = automaton(group, levels, capacity, fill)
+
+      return { fill, run, reference: heatbath(group, levels, run.beta, 91 + k) }
+    })
+    const ordered = automaton(group, levels, capacity, ORDERED_FILL)
+    const orderedReference = heatbath(group, levels, ordered.beta, 99)
 
     const ok =
-      high.drift === 0 &&
-      low.drift === 0 &&
-      high.chi.value > 3 * high.chi.error &&
-      Math.abs(high.chi.value - highReference.chi.value) < 0.1 &&
-      high.fundamental < 0.5 * low.fundamental &&
-      high.adjoint > high.fundamental
+      melted.every(({ run }) => run.drift === 0) &&
+      ordered.drift === 0 &&
+      melted.every(({ run, reference }) => run.chi.value > 3 * run.chi.error && Math.abs(run.chi.value - reference.chi.value) < 0.1) &&
+      melted.every(({ run }) => run.fundamental < 0.01) &&
+      ordered.fundamental > 0.1
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'with energy conserved exactly and no random number, at a confining energy the Creutz ratio chi(2, 2) is above zero by three standard errors and within 0.1 of the heatbath at the same coupling, the fundamental Polyakov loop is under half its value past the transition, and the adjoint loop of a triality-zero source exceeds the fundamental one',
+        'with energy conserved exactly and no random number, at two melted energies chi(2, 2) is above zero by three standard errors and within 0.1 of the heatbath at the coupling the demons read, and |<P>| is under 0.01, while on the ordered branch |<P>| is above 0.1',
       metrics: {
-        highBeta: high.beta,
-        highPlaquette: high.plaquette,
-        highCreutz22: high.chi.value,
-        highCreutz22Error: high.chi.error,
-        highFundamentalPolyakov: high.fundamental,
-        highAdjointPolyakov: high.adjoint,
-        lowBeta: low.beta,
-        lowPlaquette: low.plaquette,
-        lowCreutz22: low.chi.value,
-        lowCreutz22Error: low.chi.error,
-        lowFundamentalPolyakov: low.fundamental,
-        lowAdjointPolyakov: low.adjoint,
-        energyDrift: high.drift + low.drift,
+        ...Object.fromEntries(
+          melted.flatMap(({ run }, k) => [
+            [`meltedBeta${k + 1}`, run.beta],
+            [`meltedWilsonCoupling${k + 1}`, SCALE * run.beta],
+            [`meltedPlaquette${k + 1}`, run.plaquette],
+            [`meltedCreutz22_${k + 1}`, run.chi.value],
+            [`meltedCreutz22Error${k + 1}`, run.chi.error],
+            [`meltedPolyakov${k + 1}`, run.fundamental],
+            [`meltedAdjointPolyakov${k + 1}`, run.adjoint],
+          ]),
+        ),
+        orderedBeta: ordered.beta,
+        orderedPlaquette: ordered.plaquette,
+        orderedPolyakov: ordered.fundamental,
+        orderedAdjointPolyakov: ordered.adjoint,
+        energyDrift: melted.reduce((a, { run }) => a + run.drift, 0) + ordered.drift,
       },
       control: {
-        heatbathHighCreutz22: highReference.chi.value,
-        heatbathHighCreutz22Error: highReference.chi.error,
-        heatbathHighFundamentalPolyakov: highReference.fundamental,
-        heatbathHighPlaquette: highReference.plaquette,
-        heatbathLowCreutz22: lowReference.chi.value,
-        heatbathLowFundamentalPolyakov: lowReference.fundamental,
-        heatbathLowPlaquette: lowReference.plaquette,
+        ...Object.fromEntries(
+          melted.flatMap(({ reference }, k) => [
+            [`heatbathCreutz22_${k + 1}`, reference.chi.value],
+            [`heatbathCreutz22Error${k + 1}`, reference.chi.error],
+            [`heatbathPolyakov${k + 1}`, reference.fundamental],
+            [`heatbathPlaquette${k + 1}`, reference.plaquette],
+          ]),
+        ),
+        heatbathAtOrderedBetaPlaquette: orderedReference.plaquette,
+        heatbathAtOrderedBetaPolyakov: orderedReference.fundamental,
       },
       notes:
-        'L2, a 6^3 x 4 lattice, the integer Wilson-like action of E-FRC-0110 at scale 6. The fundamental Polyakov loop is the magnitude of its spatial average per configuration, so it reads about 1 / sqrt(216) for a vanishing loop on this volume, not 0. The adjoint loop is the grid-carrying, triality-zero representation. A two-energy comparison on one box is evidence of confinement at this spacing, not a continuum statement.',
+        'L2, a 6^3 x 4 lattice, the integer Wilson-like action of E-FRC-0110 at scale 6, 350 measured sweeps per run. |<P>| is the magnitude of the configuration average of the signed spatial mean. The ordered branch is the frozen phase of a finite group at a demon coupling where the canonical heatbath melts (E-FRC-0110), so it shows the center broken and a lone color freed, not a thermal deconfinement of the continuum theory. Confinement at this spacing, not a continuum statement.',
     })
   },
 })

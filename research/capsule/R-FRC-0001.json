@@ -3,8 +3,8 @@
   "challenge": "C-FRC-0001",
   "version": "1.0.0",
   "audited": "2026-09-25",
-  "commit": "5ccfa18dd26a2048772fcb57ba2a23712812355e",
-  "dirty": false,
+  "commit": "61bb4878dbe86456c351396e66747fa0ac276fe7",
+  "dirty": true,
   "environment": {
     "node": "v24.13.1",
     "platform": "darwin",
@@ -17,15 +17,15 @@
   "files": [
     {
       "file": "test/experiment/gauge/su3-area-law.ts",
-      "sha256": "891f9ef7bd0bd0a312d367ff84adba9abf114f53ca928e7f863a96a098e6e7a8"
+      "sha256": "5228e5fe95066fc79dd20e762542c2c459ade473d504e880c58b4a3f3cb8324d"
     },
     {
       "file": "test/experiment/gauge/gluon-count.ts",
-      "sha256": "f9f5f92de478962ea54cdbb5d3a5e8e8b62eaece137edda88cd44c27d8341ff6"
+      "sha256": "2280e5577aaf9acbc75b17435be91b0d1579b0921eb8e68cd27b417d9972754b"
     },
     {
       "file": "test/experiment/gauge/static-quarks.ts",
-      "sha256": "72b8acfdcbcf42e20bc60e2573cb2371f4d976f219d987e2928a840a2100ce17"
+      "sha256": "86d76988d7d27f33d4b7bb5fe2d37026dc08b9f007bc4db1ae9c9b4239f420e7"
     },
     {
       "file": "test/experiment/gauge/confinement.ts",
@@ -33,15 +33,15 @@
     },
     {
       "file": "test/experiment/gauge/su3-deconfinement.ts",
-      "sha256": "2e907ea4907b3d4d3248e91865b6a287e406c826520041963d01a139b64958e5"
+      "sha256": "9e98cbfe96d52c073da74307467019d83b447aa0c1d55bfd53ca120af0d585c9"
     },
     {
       "file": "test/experiment/gauge/chiral-condensate.ts",
-      "sha256": "30619d59b131459fb4141ceabce565eb492fa0236539f2d04dc440d3cb510e8b"
+      "sha256": "628c5e8ec68f1175eb003808fbef2bd21610d3e5adc07f016878a61c261944c7"
     },
     {
       "file": "test/experiment/gauge/quenched-hadrons.ts",
-      "sha256": "d306e91d365ec0e1ca8d51c768539cfd114869b5af80ad8651c22a5c8f244175"
+      "sha256": "59857a4080cd4a47285f4e942fc230452caf1507bdffdad70499860bad4c8986"
     },
     {
       "file": "test/experiment/gauge/dynamical-quarks.ts",
@@ -265,7 +265,7 @@
   ],
   "verdicts": {
     "E-FRC-0080": {
-      "seconds": 53.8,
+      "seconds": 40.144,
       "status": "pass",
       "claim": "in 4D SU(3) lattice gauge theory at beta 5.7 the Creutz ratio levels off (chi(3,3) / chi(2,2) near one, an area law and a string tension), while the U(1) photon and SU(3) at weak coupling in the same 8^4 box fall off like a Coulomb force",
       "metrics": {
@@ -290,7 +290,7 @@
       "notes": "L2, known physics: Wilson-action SU(3) confinement reproduced on the lattice (Wilson 1974, Creutz 1980). chi(3,3) is the string tension in lattice units only up to the Coulomb part still present at R = 3, so it is an upper bound on sigma a^2. The implied spacing uses sqrt(sigma) = 0.44 GeV as an external scale and is printed, not tested. Monte Carlo from a seeded generator, jackknife errors over 40 configurations."
     },
     "E-FRC-0081": {
-      "seconds": 66.841,
+      "seconds": 43.498,
       "status": "pass",
       "claim": "the plaquette of the Monte Carlo counts the gauge fields by equipartition (8 for SU(3), 3 for SU(2), 1 for U(1)) and the colors by the strong-coupling slope (N = 3), and finds the cubic invariant <(Re Tr U)^3> = 1/4 that only SU(3) has, the epsilon tensor that makes three quarks a singlet",
       "metrics": {
@@ -318,7 +318,7 @@
       "notes": "L2, known lattice gauge theory. The field count is a property the Wilson action inherits from the chosen group, so this checks that the simulation really carries N^2 - 1 independent propagating fields with the right weight each, not that nature has eight gluons. The weak-coupling extrapolation is linear in 1 / beta over g^2 = 0.2, 0.1, 0.05. The strong-coupling series is fit as a quadratic in lambda = beta / N over lambda = 0.1 to 0.4 for every group. The cubic invariant is read from moments that at lambda -> 0 approach Haar averages, so that part is group theory confirmed through the sampler (L1 in content), and what the dynamics adds is that the same number is the lambda^2 coefficient of the plaquette."
     },
     "E-FRC-0087": {
-      "seconds": 332.942,
+      "seconds": 359.168,
       "status": "pass",
       "claim": "at beta 5.7 the static potential rises linearly with a string tension resolved at more than five standard errors and a Coulomb coefficient compatible with pi / 12, with the ground state isolated by the smearing, while the U(1) photon has no string tension",
       "metrics": {
@@ -341,7 +341,7 @@
       "notes": "L2, known physics. The fit runs over R = 1 to 5 with the lattice Coulomb term, uncorrelated, with jackknife errors. At R of 1 to 5 lattice spacings (0.17 to 0.85 fm) the Coulomb coefficient mixes the long-distance string value pi / 12 with the short-distance one-gluon exchange, so compatibility with pi / 12 is a consistency check and not a clean measurement of the Luscher term, which needs R well above 0.5 fm and far larger boxes."
     },
     "E-FRC-0088": {
-      "seconds": 387.537,
+      "seconds": 309.746,
       "status": "pass",
       "claim": "r0 / a from the Cornell fit agrees with the published Necco-Sommer scale at beta 5.7 and 5.9, the spacing shrinks between them by the published ratio, and two-loop running reproduces that ratio once the coupling is read off the measured plaquette (E-scheme) while the bare coupling falls well short",
       "metrics": {
@@ -370,25 +370,42 @@
       "notes": "L2, known physics: scale setting with the Sommer scale, and the E-scheme remedy for asymptotic scaling. The published values are the reference, never an input. The bare two-loop ratio is known to undershoot at these couplings (the lattice coupling carries large tadpole terms), and its pull is reported, not gated. 10^4 at beta 5.9 is 2.2 r0 across, enough for r0 but not for a long-distance potential."
     },
     "E-FRC-0089": {
-      "seconds": 0.008,
+      "seconds": 546.169,
       "status": "pass",
-      "claim": "the 0++ correlator matrix over three smearing levels gives a variational ground-state mass resolved at more than five standard errors, at or below the single-operator effective mass, with m r0 compatible with the continuum scalar glueball 4.21",
+      "claim": "the 0++ correlator matrix over twelve operators (four smearing depths, three loop shapes) gives a variational ground-state mass resolved at more than five standard errors, on a plateau (t = 1 to 2 resolved at three standard errors and agreeing with t = 0 to 1 within two), at or below the best single operator, and compatible with the published Wilson-action lattice mass a m = 0.974 +- 0.029 at beta 5.7, with m r0 against the continuum 4.21 reported and not gated",
       "metrics": {
-        "glueballMass": 1.2525064046420207,
-        "glueballMassError": 0.13194388876658694,
-        "glueballMassR0": 4.049505340646322,
-        "glueballMassR0Error": 0.5003339124710569,
-        "singleOperatorMass": 1.4205112926816805,
-        "singleOperatorMassError": 0.14357873090705295
+        "glueballMass": 1.0567379232615353,
+        "glueballMassError": 0.03826564833347366,
+        "glueballMassR0": 3.4165620615202754,
+        "glueballMassR0Error": 0.2529082786939502,
+        "plateauMassT1To2": 1.3401107865639732,
+        "plateauMassT1To2Error": 0.17566400533851298,
+        "plateauMassR0": 4.332740948178691,
+        "plateauMassR0Error": 0.6330956145177572,
+        "plateauPull": -1.5761895945346662,
+        "lateMassT2To3": 2.0727059138558435,
+        "lateMassT2To3Error": 1.5450603999821422,
+        "singleOperatorMass": 1.1262611529056492,
+        "singleOperatorMassError": 0.04426689945075292,
+        "r0": 3.2331214640005874,
+        "r0Error": 0.20873895175232723,
+        "configurations": 400
       },
       "control": {
+        "publishedLatticeMassAt57": 0.974,
+        "publishedLatticeMassAt57Error": 0.029,
+        "latticePull": 1.723235660696257,
         "continuumMassR0": 4.21,
-        "pull": -0.3207750970967064
+        "continuumPull": -3.137255698299544,
+        "firstBasisMass": 1.2525064046420207,
+        "firstBasisMassError": 0.13194388876658694,
+        "firstBasisMassR0": 4.049505340646322,
+        "firstBasisMassR0Error": 0.5003339124710569
       },
-      "notes": "L2, known physics, and the least precise of these results. Only t = 0 to 1 is resolved by 80 configurations, so even the variational mass holds some excited state (the variational method only projects within the three-operator basis), at one coarse lattice spacing where the scalar glueball is known to dip below its continuum value. Compatibility with 4.21 is a consistency check within its errors. The r0 is this ensemble own, from the E-FRC-0087 fit."
+      "notes": "L2, known physics. 400 configurations of 10^4 at beta 5.7, one update apart, binned by 40. The mass is the t = 0 to 1 effective mass of the correlator projected on the variational ground state, and the t = 1 to 2 mass is the plateau check (t = 2 to 3 is reported, and is noise at this statistics). Quoting the t = 1 to 2 mass itself to the same precision as the t = 0 to 1 one would take roughly ten times the configurations, several hours here. The first version of this experiment read a basis smeared to 4, 12 and 24 steps from t = 0 to 1 and gave m a = 1.25 +- 0.13, m r0 = 4.05 +- 0.50: the heavy smearing lost overlap and left excited states in, and that version, recomputed here, is the firstBasis control. At a = 0.17 fm the Wilson action puts the scalar glueball far below its continuum value (the scalar dip, about 40 percent, Hasenbusch and Necco 2004), so the comparison that tests this code is the published lattice mass at the same coupling, in lattice units with no scale needed, and the continuum pull measures the dip, not an error. The r0 is the E-FRC-0087 ensemble own."
     },
     "E-FRC-0007": {
-      "seconds": 76.929,
+      "seconds": 52.713,
       "status": "pass",
       "claim": "in 3D SU(2) the string tension is resolved at every coupling, shrinks in lattice units as the spacing shrinks, and beta sqrt(sigma a^2) / 4 extrapolated linearly in 1 / beta reaches the continuum sqrt(sigma) / g^2 = 0.3353",
       "metrics": {
@@ -412,7 +429,7 @@
       "notes": "L2, known physics: 3D SU(2) confinement and its continuum limit. The potential is fit over R = 2 to 6 on a 16^3 box as V0 + sigma R + c ln R, the logarithm being the three-dimensional Coulomb force, and the string correction pi / (24 R) is left to c, so only sigma is used. The published continuum value is the reference, never an input. Rewritten 2026-09-25 from a Metropolis Creutz-ratio test with no control."
     },
     "E-FRC-0082": {
-      "seconds": 91.66,
+      "seconds": 53.219,
       "status": "pass",
       "claim": "SU(3) on 8^3 x 2 deconfines between the measured bracket around beta 5.09: below it the Polyakov loop is zero (its residual falls like 1 / sqrt(V)) and every center-sector start melts into the symmetric phase, above it the loop settles in one of three center sectors with equal magnitude and plaquette",
       "metrics": {
@@ -437,7 +454,7 @@
       "notes": "L2, known physics: the pure-gauge SU(3) deconfinement transition (first order, Z_3 center symmetry breaking), reproduced from the Wilson action. The transition beta on a finite 8^3 box is a pseudo-critical value and a first-order transition can hold a hot start in the confined phase for some sweeps, so the bracket is compared to the published infinite-volume N_t = 2 value only to 0.15 in beta. Pure gauge theory has no dynamical quarks, so the center symmetry is exact and the three sectors are exactly degenerate, which real QCD with light quarks breaks."
     },
     "E-FRC-0098": {
-      "seconds": 655.915,
+      "seconds": 491.003,
       "status": "pass",
       "claim": "the N_t = 4 deconfinement transition, located by bisection on 8^3 and 12^3 boxes and carried to infinite volume by its first-order 1 / V shift, sits at the published beta 5.6925, and converted with the Sommer scale gives the published N_t = 4 value of T_c r0, near 285 MeV for r0 = 0.5 fm",
       "metrics": {
@@ -456,7 +473,7 @@
       "notes": "L2, known physics: the pure-gauge deconfinement temperature. The measured quantity is the transition coupling on two volumes. The conversion to T_c r0 uses the published Necco-Sommer r0 / a (E-FRC-0088 measures r0 / a at 5.7 as 3.2 +- 0.2, consistent with it), and to MeV the convention r0 = 0.5 fm. At N_t = 4 the lattice T_c r0 sits about four percent below the continuum 0.7498, a cutoff effect of this coarse thermal lattice, so the gate is against the N_t = 4 value and the continuum one is printed. Pure-gauge T_c is near 300 MeV, higher than the roughly 155 MeV crossover of real QCD with light quarks."
     },
     "E-FRC-0086": {
-      "seconds": 250.744,
+      "seconds": 214.901,
       "status": "pass",
       "claim": "at beta 5.7 the staggered chiral condensate extrapolates to a nonzero value at zero quark mass in the confined box (T below T_c) and to zero in the deconfined box (T above T_c), with the noise-free point-source estimator reproducing the exact free-quark condensate to solver precision",
       "metrics": {
@@ -480,7 +497,7 @@
       "notes": "L2, known physics: quenched chiral symmetry breaking and its restoration in the deconfined phase. Quenched, one small volume per temperature, so the quenched chiral logarithms and the finite-volume turnover of Sigma at m V Sigma of order one (here m V Sigma is near 13 at the lightest mass in the cold box) are not resolved, and the chiral limit is a straight line through m = 0.01 to 0.04. The hot box sits in the real center sector, where quenched chiral restoration happens. The condensate is per staggered field (four tastes) and not converted to a continuum scheme."
     },
     "E-FRC-0084": {
-      "seconds": 605.991,
+      "seconds": 430.343,
       "status": "pass",
       "claim": "with SU(3) gluons the pion mass scales as the quark mass to the power one half (m_pi^2 proportional to m_q, a Goldstone boson), and the same code with the gluons off scales as the power one (free quarks)",
       "metrics": {
@@ -506,7 +523,7 @@
       "notes": "L2, known physics: the Goldstone pion of quenched lattice QCD. Quenched, one 12^3 x 16 volume at one lattice spacing, 12 configurations, so no continuum or infinite-volume limit is taken, and the quenched chiral logarithms that bend m_pi^2 / m_q at the lightest mass are not separated out. The exponent is the slope of ln m_pi against ln m_q over m_q = 0.025 to 0.4. Staggered quarks keep an exact remnant chiral symmetry, which is what lets the lattice pion be a true Goldstone boson."
     },
     "E-FRC-0085": {
-      "seconds": 0,
+      "seconds": 0.001,
       "status": "pass",
       "claim": "the nucleon, three quarks contracted with epsilon_abc, weighs several times three free quarks at every quark mass where its effective mass sits on a plateau (t = 3 to 5 against 5 to 7), those masses are the heavy end, and it extrapolates to a large mass at zero quark mass while the pion mass squared extrapolates near zero, and the same code without gluons gives exactly three free quarks",
       "metrics": {
@@ -546,9 +563,9 @@
       "notes": "L2, known physics: quenched lattice nucleon. The mass is a two-step effective mass from t = 3 to t = 5, early enough that excited states and the parity partner still contribute, in one 2 fm box at one lattice spacing, so these masses are not the infinite-volume continuum ground state, and the comparison with nature is made only through the dimensionless ratio of E-FRC-0091. The claim rests on the gap to three free quarks (a factor of five or more) at the masses where the effective mass has stopped falling. At the two lightest quark masses it has not (from t = 5 to 7 it drops to about 0.4 and 0.7 of its t = 3 to 5 value), the quenched distortion of light baryons, so those two are reported with the late values and not used."
     },
     "E-FRC-0091": {
-      "seconds": 0.002,
+      "seconds": 0.02,
       "status": "pass",
-      "claim": "the local staggered rho is heavier than the pion at every resolved quark mass and extrapolates to a large mass at zero quark mass, and the same code without gluons gives exactly two free quarks, while m_N / m_rho at the physical point and the J parameter are measured against the published quenched and experimental values",
+      "claim": "the local staggered rho is heavier than the pion at every resolved quark mass and extrapolates to a large mass at zero quark mass, and the same code without gluons gives exactly two free quarks, while m_N / m_rho at the physical point (from an Edinburgh plot over eight quark masses, with a statistical and a fit-range error) and the J parameter are measured against the published quenched and experimental values and not gated",
       "metrics": {
         "rhoAt0025": 0.8282197260636445,
         "rhoAt005": 1.0249070331369567,
@@ -563,7 +580,53 @@
         "nucleonOverRhoError": 0.17434167796745384,
         "jParameter": 0.39142396916313066,
         "jParameterError": 0.011902002729443556,
-        "nucleonOverRhoAtHeaviest": 1.5905077520567392
+        "nucleonOverRhoAtHeaviest": 1.5905077520567392,
+        "edinburghPointCount": 8,
+        "edinburghPlateauCount": 6,
+        "edinburghXAt0025": 0.2969310227214396,
+        "edinburghYAt0025": 2.343893682114457,
+        "edinburghYErrorAt0025": 0.1876005548682443,
+        "edinburghYLateAt0025": 0.8567046858787921,
+        "edinburghXAt005": 0.369289257125245,
+        "edinburghYAt005": 1.9388631289040004,
+        "edinburghYErrorAt005": 0.11668443636543509,
+        "edinburghYLateAt005": 1.4210098203515233,
+        "edinburghXAt0075": 0.42797445817569063,
+        "edinburghYAt0075": 1.808508374038044,
+        "edinburghYErrorAt0075": 0.08584206999122584,
+        "edinburghYLateAt0075": 1.541454037821845,
+        "edinburghXAt01": 0.47497866709184955,
+        "edinburghYAt01": 1.743866839281005,
+        "edinburghYErrorAt01": 0.06791394290172155,
+        "edinburghYLateAt01": 1.5740642774430624,
+        "edinburghXAt015": 0.5474375652248887,
+        "edinburghYAt015": 1.6778461593545344,
+        "edinburghYErrorAt015": 0.05159952240999534,
+        "edinburghYLateAt015": 1.5997884972700542,
+        "edinburghXAt02": 0.6032101360523532,
+        "edinburghYAt02": 1.6441116114112153,
+        "edinburghYErrorAt02": 0.04344582360966964,
+        "edinburghYLateAt02": 1.6083660781820763,
+        "edinburghXAt03": 0.687121048994613,
+        "edinburghYAt03": 1.6096743433446712,
+        "edinburghYErrorAt03": 0.03378562276588866,
+        "edinburghYLateAt03": 1.6072288371773145,
+        "edinburghXAt04": 0.7478750038957853,
+        "edinburghYAt04": 1.5905077520567392,
+        "edinburghYErrorAt04": 0.028041175948917408,
+        "edinburghYLateAt04": 1.5982152880696205,
+        "edinburghAtPhysical": 2.0404592953287986,
+        "edinburghAtPhysicalError": 0.19825094663485487,
+        "edinburghFitRangeSpread": 0.19005317400758504,
+        "edinburghAtPhysicalTotalError": 0.27463365924804894,
+        "edinburghSlope": -0.6573703136643895,
+        "edinburghSlopeError": 0.29044986055231514,
+        "edinburghLightestThree": 2.2305124693363836,
+        "edinburghLightestThreeError": 0.3229242664867037,
+        "edinburghLateNucleon": 1.4977500630559528,
+        "edinburghLateNucleonError": 0.24554765921828234,
+        "edinburghLateNucleonSlope": 0.16451128812093838,
+        "edinburghLateNucleonSlopeError": 0.31218639507825974
       },
       "control": {
         "freeRhoAt02": 0.39780249781001664,
@@ -575,12 +638,20 @@
         "jQuenchedWorld": 0.37,
         "jQuenchedPull": 1.8000306041042455,
         "jExperiment": 0.48,
-        "jExperimentPull": -7.442111453877178
+        "jExperimentPull": -7.442111453877178,
+        "physicalPionOverRhoSquared": 0.03170697190426639,
+        "cpPacsQuenchedContinuum": 1.1426340447683498,
+        "cpPacsQuenchedContinuumError": 0.0325351379489849,
+        "cpPacsPull": 3.246472142328641,
+        "milcStaggeredQuenchedContinuum": 1.254554919312858,
+        "milcStaggeredQuenchedContinuumError": 0.045549193128578865,
+        "milcPull": 2.8230814390193,
+        "edinburghPhysicalPull": 3.022705654349012
       },
-      "notes": "L2, known physics. The local staggered rho is one taste of the vector meson with an oscillating parity partner, read on even t. m_N / m_rho is carried to the physical point by a straight line in (m_pi / m_rho)^2 through the heavy quark masses the ensemble resolves, a long extrapolation, and quenched QCD is not expected to hit 1.21. J is interpolated at m_V / m_PS = 1.8 from a straight line m_V against m_PS^2. The two comparisons are printed with their pulls against the published quenched world value and experiment, and are not gated, because 12 configurations at one coarse spacing do not pin them tightly enough to decide between the two."
+      "notes": "L2, known physics. The local staggered rho is one taste of the vector meson with an oscillating parity partner, read on even t. m_N / m_rho is carried to the physical point by a straight line in (m_pi / m_rho)^2 through the heavy quark masses the ensemble resolves, a long extrapolation, and quenched QCD is not expected to hit 1.21. J is interpolated at m_V / m_PS = 1.8 from a straight line m_V against m_PS^2. The two comparisons are printed with their pulls against the published quenched world value and experiment, and are not gated, because 12 configurations at one coarse spacing do not pin them tightly enough to decide between the two. The Edinburgh plot adds three quark masses (0.075, 0.15, 0.3) to the same multi-shift solve, eight points from (m_pi / m_rho)^2 = 0.75 down to about 0.3, and fits a line through every point whose nucleon is on its plateau. Its error adds the jackknife error to the spread over the choice of points (the lightest three alone, and the three original heavy masses). Nature is 1.21, and the quenched continuum is 1.143 +- 0.033 with Wilson quarks (CP-PACS 2003) and 1.255 +- 0.046 with staggered quarks (MILC, 964 +- 35 MeV over 768.4). What the plot shows is that the trend does NOT move toward the physical point here: with the nucleon read at t = 3 to 5 the ratio rises as the quarks get lighter (the slope in x is negative). The nucleon read at t = 5 to 7 lies lower at every light mass and flattens or reverses that slope, so the rise is the t = 3 to 5 nucleon still holding excited states, most at the lightest quarks, in one box at one coarse spacing. A larger version was measured outside the suite: the same ensemble to 36 configurations (2,660 s under load, against about 836 s for 12) puts every mass on the plateau and gives 1.95 +- 0.21 with slope -0.42 +- 0.37 from the early nucleon, and 1.46 +- 0.35 with slope +0.35 +- 0.60 from the late one, so more configurations sharpen the points but do not by themselves turn the early trend."
     },
     "E-FRC-0090": {
-      "seconds": 247.663,
+      "seconds": 138.409,
       "status": "pass",
       "claim": "with four staggered tastes of dynamical quarks the Polyakov loop is real and nonzero with the same value on 4^3 x 2 and 6^3 x 2 (a screened, finite-energy static quark), a center rotation lowers the quark determinant by a factor exp(-|shift|) computed exactly, and the quenched loop instead falls like 1 / sqrt(V) with the sectors exactly degenerate",
       "metrics": {

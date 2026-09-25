@@ -134,7 +134,7 @@ export const RESULTS: Result[] = [
       'nothing about the committed rule. It rests on none of the five assumptions',
       'one or two couplings in 4D. Only 3D SU(2) is extrapolated to the continuum',
       '$T_c r_0$ uses the published $r_0/a$ at the measured $\\beta_c$, not an independently measured $r_0$',
-      'the $J$ parameter and $m_N/m_\\rho$ (E-FRC-0091) are printed but not gated. 12 configurations cannot decide them',
+      'the $J$ parameter and $m_N/m_\\rho$ (E-FRC-0091) are printed but not gated. Eight quark masses on the Edinburgh plot extrapolate to 2.04 ± 0.20 ± 0.19 against the quenched continuum 1.14, with the trend running the wrong way, which a later nucleon window traces to excited states in the early nucleon',
     ],
     equations: [
       'Wilson action: $S = \\beta \\sum_P \\left(1 - \\tfrac{1}{N}\\operatorname{Re}\\operatorname{Tr} U_P\\right)$',
@@ -174,10 +174,10 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0088',
       },
       {
-        quantity: 'scalar glueball $m r_0$',
-        measured: '4.05 ± 0.50',
+        quantity: 'scalar glueball mass, $\\beta = 5.7$',
+        measured: '$a m$ = 1.057 ± 0.038, $m r_0$ = 3.42 ± 0.25',
         reference:
-          'continuum 4.21 ± 0.11, Morningstar and Peardon (package gauge readme)',
+          'the published Wilson-action value at the same coupling, $a m$ = 0.974 ± 0.029 (Teper 1998, Table 18), pull 1.7. The continuum 4.21 ± 0.11 (Morningstar and Peardon) lies above by the known scalar dip of the Wilson action at this spacing. An earlier, too heavily smeared basis read 4.05 ± 0.50',
         code: 'E-FRC-0089',
       },
       {
@@ -248,8 +248,8 @@ export const RESULTS: Result[] = [
           source: 'E-FRC-0088',
         },
         {
-          label: 'scalar glueball m r₀',
-          pull: -0.32,
+          label: 'scalar glueball a m, β = 5.7',
+          pull: 1.74,
           source: 'E-FRC-0089',
         },
         {
@@ -1959,9 +1959,9 @@ export const RESULTS: Result[] = [
       'It splits the strong force into a classical part a deterministic base can carry and one non-classical ingredient, and shows the ingredient is negative weight on the same grid.',
     limits: [
       'a candidate addition to the base, not the committed rule, which carries none of it (R-FRC-0003)',
-      'the links are a fixed background field in the gauge test. Their dynamics (E-FRC-0110) has not been run with color on them',
-      'no rule here binds a whole: flux on the links obeys Gauss exactly and costs nothing yet',
-      'pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases, until a neutral creation is built',
+      'the links are a fixed background field in the gauge test. Moving links, color kept local and binding are R-FRC-0006',
+      'no rule here binds a whole: flux on the links obeys Gauss exactly and costs nothing. Binding is R-FRC-0006',
+      'pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases. The neutral creation, and why it needs a table with no hop, is R-FRC-0006',
       'carrying non-classical steps exactly needs a unit count that grows four times per step',
     ],
     equations: [
@@ -2193,6 +2193,187 @@ export const RESULTS: Result[] = [
     paper: 'the testbed paper, as what a base would need for color',
     program:
       'The vibe, role and tilt model: every slot holds a vibe (fear, calm, love), a role (take, hold, free) and a tilt, a whole is three roles on a line of the grid, and fear is the negative weight that the one-third turn at a meeting of different roles creates. Nothing in the committed base has changed.',
+    outputs: NO_OUTPUTS,
+  },
+  {
+    code: 'R-FRC-0006',
+    title:
+      'Color kept local, links that move, and binding: what the three-trit model needs, and what it costs',
+    subject: 'symmetry',
+    sentence:
+      'Color is an exact local law in the three-trit model exactly when the line table has no hop, links can move while every frame change stays a symmetry, the classical color group confines under a rule with no random number, and a part is bound while a whole is free once a hop pays for its string, though not in the committed orientation.',
+    claim:
+      'Counting a calm slot\'s role point as color signed by its side of the line, color content is conserved cell by cell exactly when the sum-keeping line table has no hop (4 of the 16 tables that make pairs from calm, none with a hop). The color weave built on one leaks no color, keeps charge, Gauss\'s law, reversal and frame change exact, and passes the acceptance battery except that a lone disturbance spreads about twice as wide. Links moved by reflection through a triangle\'s staple keep energy to the unit and frame change exact. The kinetic automaton of $\\Sigma(648)$ gives Creutz ratios matching the heatbath and a vanishing Polyakov loop with no random number. With the triality flux as an energy that a hop must pay, a meson stays bound while it travels and a baryon holds together while moving freely against its antibaryon, on a line and, when cold, on the D4 lattice. Under the committed orientation of the lines a lone vibe\'s directions form an open half-space, so it can never come back, which rules moving binding out for any color-local rule in that orientation.',
+    headline: {
+      value: '0 of 3,888',
+      label: 'cell-beats where the color weave leaks color, against 3,641 for the committed table',
+    },
+    category: 'explanation',
+    status: ['simulated'],
+    depth: 'L1 and L2',
+    audience: 'lattice gauge theory, reversible and cellular automata, anyone building color into a deterministic rule',
+    question: 'Can a deterministic reversible rule keep color local, move its links, and bind a part while leaving a whole free?',
+    answer:
+      'Yes, each exactly, with one table change (no hop) for local color and a paid hop for binding. The committed rule\'s own architecture cannot bind a moving part: its orientation makes a lone vibe drift one way, and every slot must stream.',
+    importance:
+      'It closes the classical side of color: locality, gauge dynamics, confinement and binding are all carried without amplitudes, and it names exactly which base changes they need.',
+    limits: [
+      'candidates for the base, not the committed rule',
+      'dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider (E-FRC-0125 fails its comparative dressing gate)',
+      'moving binding is shown on a line and on the D4 lattice with matter that waits in cells, not in the committed slot architecture, which would need waiting slots, a returning orientation and paid streaming',
+      'the moving links do not feel the matter: no matter term enters their energy',
+      'confinement is at one spacing on a 6^3 x 4 lattice',
+    ],
+    equations: [
+      'color content of a cell: $Q = \\sum_d w_d\\,p_d$, $w_d = v_d$ for a love or fear and $\\sigma_d = \\pm 1$ by side for a calm slot',
+      'the link reflection: $U \\mapsto A^{-1} U^{-1} A^{-1}$, sending the triangle transport $T = A U$ to $T^{-1}$',
+      'the string energy: $H = m \\cdot \\#\\text{charges} + \\tau \\cdot \\#\\{\\ell : E_\\ell \\not\\equiv 0 \\pmod 3\\} + \\sum \\text{demons}$',
+    ],
+    measurements: [
+      {
+        quantity: 'pair-making line tables that admit local color, and how many have a hop',
+        measured: '4 of 16, none with a hop',
+        reference: 'the committed table admits none (run)',
+        code: 'E-FRC-0124',
+      },
+      {
+        quantity: 'cell-beats where color leaks, 48 beats on the side-3 box',
+        measured: '0 of 3,888',
+        reference: '3,641 for the committed table through the same code (run)',
+        code: 'E-FRC-0124',
+      },
+      {
+        quantity: 'Creutz ratio chi(2, 2) at a Wilson coupling of 4.30, no random number',
+        measured: '1.153 +- 0.018',
+        reference: 'the heatbath at the same coupling, 1.172 +- 0.017 (run)',
+        code: 'E-FRC-0126',
+      },
+      {
+        quantity: 'links moved in 24 beats, with energy and frame change exact',
+        measured: '1,814 of 1,944',
+        reference: 'the index-order step breaks the frame change on 11,370 link values (run)',
+        code: 'E-FRC-0128',
+      },
+      {
+        quantity: 'a meson\'s mean gap on a line, with tension',
+        measured: '1.9 cells, travelling 486',
+        reference: '64.1 cells with no tension (run)',
+        code: 'E-FRC-0129',
+      },
+      {
+        quantity: 'line orientations whose sign class is an open half-space',
+        measured: '192 of 4,096, the committed one among them',
+        reference: 'the 3,904 others hold a zero-sum triangle (run)',
+        code: 'E-FRC-0130',
+      },
+      {
+        quantity: 'a meson\'s mean gap on the D4 lattice, coldest demons',
+        measured: '1.72, travelling 34',
+        reference: '121.6 with no tension, 89.5 at the hottest (run)',
+        code: 'E-FRC-0131',
+      },
+    ],
+    figure: {
+      form: 'pairs',
+      caption:
+        'Explanation. Each row against its control: color leaks with the hop-free table against the committed one, and a meson\'s mean gap with tension against without, on a line and on the D4 lattice.',
+      measured: 'the rule',
+      control: 'its control',
+      rows: [
+        { label: 'color leaks, cell-beats', measured: 0, control: 3641 },
+        { label: 'meson gap on a line', measured: 1.9, control: 64.1 },
+        { label: 'meson gap on D4, cold', measured: 1.72, control: 121.6 },
+      ],
+    },
+    comparison: {
+      standard:
+        'color charge is locally conserved with Gauss\'s law, lattice gauge theory confines at strong coupling, and a string with many ways to turn deconfines when hot',
+      vibe: 'the same, carried by a deterministic reversible rule on whole numbers, with the table change and the paid hop it takes',
+      difference: 'a construction of the standard picture without dice, and the exact base changes it requires, not a disagreement',
+    },
+    closest: [
+      {
+        work: 'Creutz 1983, microcanonical Monte Carlo simulation',
+        established: 'demons sample the gauge ensemble at fixed energy',
+        difference: 'here the demon rules are reversible and frame-covariant, and the matter pays the demons for its string',
+      },
+      {
+        work: 'Kogut and Susskind 1975, Hamiltonian lattice gauge theory',
+        established: 'at strong coupling electric flux strings bind charges, with energy proportional to length',
+        difference: 'realized as a deterministic cellular automaton with an exact integer energy',
+      },
+    ],
+    literature: null,
+    gate: {
+      prior_art_reviewed: { mark: 'fail', reason: NOT_RUN },
+      novel: {
+        mark: 'unknown',
+        reason: 'reversible gauge automata exist, and whether this combination is known has not been checked. The literature pass has not been run',
+      },
+      derived: {
+        mark: 'fail',
+        reason: 'candidates for the base run on constructed rules, not the committed rule',
+      },
+      quantitative: { mark: 'pass', reason: 'exact integers, exhaustive searches and measured controls' },
+      differentiating: {
+        mark: 'fail',
+        reason: 'it agrees with standard color physics wherever they overlap',
+      },
+      falsifiable: {
+        mark: 'fail',
+        reason: 'decided by computation, not by observation',
+      },
+      auditable: { mark: 'pass', reason: PUBLIC },
+      skeptic_reviewed: { mark: 'fail', reason: NO_SKEPTIC },
+      independently_reproduced: { mark: 'fail', reason: NOT_REPRODUCED },
+      interesting: {
+        mark: 'unknown',
+        reason: 'not yet asked of anyone in the field',
+      },
+    },
+    failure: [
+      'a color leak from the hop-free color weave, or a hop table that admits local color',
+      'a frame change that fails to commute with the moving links',
+      'a bound meson with no tension, or an unbound one with tension at the coldest energy',
+    ],
+    novelty: 'uncertain',
+    free_parameters: 0,
+    fitted: false,
+    known_before: false,
+    falsified_by: 'a counterexample in any of the exhaustive checks, or a failed gate on rerun',
+    version: '1.0.0',
+    audited: '2026-09-25',
+    history: [FIRST],
+    depends: ['R-FRC-0005'],
+    experiments: [
+      { code: 'E-FRC-0124', file: 'test/experiment/gauge/color-is-local.ts', depends: ['A1', 'A2', 'A3', 'A4'] },
+      { code: 'E-FRC-0125', file: 'test/experiment/gauge/color-weave-acceptance.ts', depends: ['A1', 'A2', 'A3', 'A4'] },
+      { code: 'E-FRC-0126', file: 'test/experiment/gauge/deterministic-confinement.ts', depends: [] },
+      { code: 'E-FRC-0127', file: 'test/experiment/gauge/fear-beat.ts', depends: [] },
+      { code: 'E-FRC-0128', file: 'test/experiment/gauge/roles-on-moving-links.ts', depends: ['A1', 'A2', 'A3', 'A4'] },
+      { code: 'E-FRC-0129', file: 'test/experiment/gauge/string-binds.ts', depends: [] },
+      { code: 'E-FRC-0130', file: 'test/experiment/gauge/sign-class-drift.ts', depends: ['A1'] },
+      { code: 'E-FRC-0131', file: 'test/experiment/gauge/d4-string-binds.ts', depends: ['A1'] },
+    ],
+    checks: [
+      { code: 'E-FRC-0124', metric: 'creatingWithLocalColor', from: 'metrics', expected: 4, tolerance: 0 },
+      { code: 'E-FRC-0124', metric: 'localColorWithHop', from: 'metrics', expected: 0, tolerance: 0 },
+      { code: 'E-FRC-0124', metric: 'colorLeaks', from: 'metrics', expected: 0, tolerance: 0 },
+      { code: 'E-FRC-0124', metric: 'committedTableColorLeaks', from: 'control', expected: 3641, tolerance: 0 },
+      { code: 'E-FRC-0126', metric: 'energyDrift', from: 'metrics', expected: 0, tolerance: 0 },
+      { code: 'E-FRC-0127', metric: 'liealgebraDimension', from: 'metrics', expected: 80, tolerance: 0 },
+      { code: 'E-FRC-0128', metric: 'frameFree', from: 'metrics', expected: 1, tolerance: 0 },
+      { code: 'E-FRC-0128', metric: 'linkEnergyConserved', from: 'metrics', expected: 1, tolerance: 0 },
+      { code: 'E-FRC-0129', metric: 'exactAndReversible', from: 'metrics', expected: 1, tolerance: 0 },
+      { code: 'E-FRC-0130', metric: 'halfSpaceOrientations', from: 'metrics', expected: 192, tolerance: 0 },
+      { code: 'E-FRC-0131', metric: 'exactAndReversible', from: 'metrics', expected: 1, tolerance: 0 },
+    ],
+    notes: ['note/experiment/gauge/what-the-base-needs.md'],
+    problem: 'OP-02',
+    candidate: null,
+    paper: 'the testbed paper, as what a base would need for color',
+    program:
+      'The path forward of the vibe, role and tilt model, walked: color as a local law, roles on moving links, the signed weight as a beat, and binding. Nothing in the committed base has changed.',
     outputs: NO_OUTPUTS,
   },
   {

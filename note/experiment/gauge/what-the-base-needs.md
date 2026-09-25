@@ -657,6 +657,33 @@ Steps 1 and 2 need no new kind of ingredient. Step 3 may not either: the sign is
 non-classical step is the swap phase at the cube-root angle, and it is the one place the vibe depends
 on the roles.
 
+## The path, walked (`E-FRC-0124` to `E-FRC-0129`)
+
+Each step above was built and measured. What each one found, and what it changed about the plan:
+
+| step | result | experiment |
+| --- | --- | --- |
+| 1. color as a local law | exact, but only without the hop. Of the 16 line tables that make pairs from calm, color is conserved cell by cell exactly for the hop-free ones, with a calm slot's role point counted as color signed by its side of the line. The committed table has the hop and admits none | `E-FRC-0124` |
+| 1, what it costs | one thing. The hop-free table matches the committed one on reversal, charge, CPT at the same mirror phase, the vacuum's period, the line graph, exact superposition and sheet-quantized walls, and travels farther (15 of 24 directions against 12, mean reach 5.67 against 4.32). But a lone tone's disturbance spreads wider: its largest support over every direction reads 51, 331, 1,319, 2,587 slots in the first four periods, against 33, 160, 565, 1,508. Both grow smoothly, with no runaway. The experiment fails its comparative gate on this, and the failure stands | `E-FRC-0125` |
+| 2. roles on moving links | exact. Links move by reflection through a triangle's staple, taken where the local energy is kept: exact reversal, energy to the unit, a frame change in every cell commuting with the whole rule, and 1,814 of 1,944 links moved in 24 beats. The index-order step of `E-FRC-0110` on the same links breaks the frame change | `E-FRC-0128` |
+| 3. the signed weight as a beat | exact. The cube-root swap phase runs as an integer beat on loves and fears whose fears come from calm as pairs, reversible and charge-conserving, exact for as many steps as the whole has grain and refusing past it. The gate set is universal, checked: its Lie algebra is all 80 dimensions of su(9) | `E-FRC-0127` |
+| binding, static | measured with no random number. The Sigma(648) automaton gives Creutz ratios 1.41 and 1.15 at two couplings, matching the heatbath, with the fundamental Polyakov loop at zero: the center (the vibe's phase) is unbroken, so a lone color has infinite free energy | `E-FRC-0126` |
+| binding, moving | the mechanism, on a line. A hop pays the change in string energy (the triality flux, E mod 3) to a demon, or reflects. A love and a fear keep a mean gap of 1.9 cells while travelling 486, against 64 with no tension. A baryon holds together (spread 4.0 against 61) and moves freely relative to its antibaryon | `E-FRC-0129` |
+| can a lone color return? | not under the committed orientation. Color-local moves keep a lone vibe in its sign class, and the committed class of 12 directions lies in an open half-space (witness c = (4, 3, 2, -1)): a lone part drifts one way forever. Exactly 192 of the 4,096 orientations of the lines do this, the positive systems of D4. The other 3,904 hold a zero-sum triangle, so a part could come back | `E-FRC-0130` |
+| binding, moving, on D4 | bound when cold, melted when warm. With matter that waits in cells and a paid hop, at the coldest demon energy a meson keeps a mean gap of 1.72 while travelling 34, against 122 with no tension, and a baryon holds together (spread 2.7 against 228) while it moves. Warmer, the string melts (mean gap 89.5 at the hottest), the deconfinement of a string with 23 ways to turn, between the fills 0.05 and 0.1 | `E-FRC-0131` |
+
+**Two things the plan said that the measurements corrected.** A calm line does not hold one shared
+role: every calm slot keeps its own, and its sign is set by its side of the line, which is what makes
+the pair made from calm neutral and every later step conserve it. And the flux alone does not bind:
+it is exact from `E-FRC-0123` on, and a part still drags it for free. Binding needs the move to pay
+for the string, which the committed rule's unconditional stream does not do. That paid hop is the one
+thing the base would add for moving binding, and on the D4 lattice it is not yet built.
+
+**The three-trit link is the confining group.** A link's grid move lives in the Hessian group of 216
+elements, which is Sigma(648) with its center divided out, and the link's flow mod 3 is that center.
+So the link of the three-trit model carries exactly the Sigma(648) element whose confinement
+`E-FRC-0126` measures.
+
 ## What the base would change
 
 Each item names the base thing it touches, and the experiment that says why.
@@ -687,5 +714,35 @@ the same ingredient the quantum sector is missing, so color does not add a secon
 - **That no Sigma(648) trajectory reaches finer spacings.** Two trajectories and six grid points
   were measured on small boxes. The floor is what they show, and the maximality argument is why it
   is expected, but it is not a proof over the whole (beta0, beta1) plane.
-- **Wall localization for the triality weave**, the one window-limited claim of `E-FND-0118`, is not
-  measured. Neither is whether its wall, unlike its vacuum, ever recurs past 72 beats.
+- **Wall localization is now measured, and it fails for both rules** (`E-FRC-0111` item 7). Against
+  the piecewise vacuum (each half compared with the vacuum born when it was), on the D4 box at sides
+  9, 13 and 17 over 72 beats, the defect spreads to an even fill of the box: spread **1.11, 1.10,
+  1.00** for the triality weave and **0.96, 0.98, 1.01** for the committed rule, where 0 is a sheet and
+  1 an even fill. The committed rule's defect reaches every column by beat **4, 5, 6** (ballistic),
+  the triality weave's by beat **9, 15, 57**. So the dominant core `E-FND-0118` saw at side 21 was a
+  transient of its window. Whether the triality wall ever recurs past 72 beats is still not measured.
+- **The paid hop on the D4 lattice.** `E-FRC-0129` shows the binding mechanism on a line, where a charge
+  that cannot pay stays in its cell. In the slot architecture every vibe streams, so a charge that
+  cannot pay must reflect, onto the other slot of its line, and that is a hop, which `E-FRC-0124`
+  shows breaks local color. The algebra says why: a calm slot's color carries the sign of its side, so
+  moving a charge between slots of opposite sign cannot conserve it, while moving it between slots of
+  the same sign (a full swap of the two slots' contents) can. So on the D4 lattice the paid move has
+  two routes. Matter that waits in cells is built and binds (`E-FRC-0131`). A charge that cannot pay
+  turning to another direction of the same sign is not built, and under the committed orientation it
+  could not bind anyway, since a lone vibe's class is a half-space (`E-FRC-0130`). It needs one of the
+  3,904 returning orientations, and a clock whose three-step cycle is taken only when paid, written as
+  two conditional involutions so it stays reversible.
+
+  Worked through, turning does not rescue the slot architecture on its own. Every slot streams every
+  beat, so a charge that cannot pay has three alternatives to crossing, and each fails. Bouncing back
+  into its own cell reverses the charge and every calm slot's color with it, which breaks local color.
+  Turning into another slot of its cell collides with that slot's own arrival, which breaks the
+  bijection. Waiting needs a slot that does not stream. And local color allows a charge to move between
+  a waiting slot and a moving one only when the two share a sign, so it needs one waiting slot per sign
+  class, two per cell. A charge that waits still leaves only along its class's directions, so it also
+  needs a returning orientation to come back. **Moving binding in the committed rule's own architecture
+  therefore needs two changes to the base: two waiting slots per cell, and a returning orientation of
+  the lines.** Both are decisions. `E-FRC-0131` measures what the result does once matter can wait,
+  and it binds. The derivation here is argued, not yet run as a rule.
+- **Links that feel the matter.** In `E-FRC-0128` the links move and the roles ride them, but no
+  matter term enters the links' energy.

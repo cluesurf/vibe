@@ -17,7 +17,15 @@
 // 5. Interference: two tones far apart, run alone and together, the joint clock-amplitude difference
 //    equal to the sum of the two while their light cones have not met (side 11).
 // 6. Walls: half the box born one beat late, the content a nonzero whole number of sheets (side 9).
-// 7. Dressing: a lone tone on every direction for four periods, the worst growth of its support (side 9).
+// 7. Dressing: a lone tone on every direction for four periods (side 9). Gated on the largest support in
+//    each period, over every direction, which must be no larger than the committed table's in every
+//    period. A first version gated the worst ratio of last-period to first-period support, and failed
+//    (158 against 100). A probe over 8 periods (tmp/probe-dressing) followed only the one direction with
+//    the worst ratio in each table, found the hop-free one smaller there, and read that as the ratio's
+//    fault. This gate, fixed before its run, takes the largest support over all 24 directions in each
+//    period instead, and it fails too: 51, 331, 1,319, 2,587 against the committed 33, 160, 565, 1,508.
+//    So the hop-free table's lone disturbance does spread wider, about 1.7 to 2.3 times, while both grow
+//    smoothly with no runaway. It is the measured cost of local color, and the gate is left as it is.
 // 8. Travel and protected species, reported (side 13 and side 9).
 //
 // Depth L2: a constructed rule measured against stated gates.
@@ -74,6 +82,7 @@ function battery(table: Table): {
   wallQuantized: boolean
   wallMax: number
   worstGrowth: number
+  periodLargest: number[]
   protectedSpecies: number
   travellers: number
   meanReach: number
@@ -267,6 +276,7 @@ function battery(table: Table): {
 
   let worstGrowth = 0
   let protectedSpecies = 0
+  const periodLargest = [0, 0, 0, 0]
 
   for (let direction = 0; direction < 24; direction++) {
     let vac: Will = makeWill(nine.mesh)
@@ -282,6 +292,11 @@ function battery(table: Table): {
     }
 
     protectedSpecies += support.slice(0, PERIOD).every(x => x === 1) ? 1 : 0
+
+    for (let p = 0; p < 4; p++) {
+      periodLargest[p] = Math.max(periodLargest[p] ?? 0, ...support.slice(p * PERIOD, (p + 1) * PERIOD))
+    }
+
     worstGrowth = Math.max(worstGrowth, Math.max(...support.slice(-PERIOD)) / Math.max(1, Math.max(...support.slice(0, PERIOD))))
   }
 
@@ -325,6 +340,7 @@ function battery(table: Table): {
     wallQuantized,
     wallMax,
     worstGrowth,
+    periodLargest,
     protectedSpecies,
     travellers: reaches.filter(r => r >= free / 2).length,
     meanReach: reaches.reduce((x, y) => x + y, 0) / reaches.length,
@@ -354,12 +370,12 @@ export default experiment({
       bind.denseComponents <= pair.denseComponents &&
       atLeast(bind.additivityWorst < 1e-9, pair.additivityWorst < 1e-9) &&
       atLeast(bind.wallQuantized && bind.wallMax > 0, pair.wallQuantized && pair.wallMax > 0) &&
-      bind.worstGrowth <= pair.worstGrowth
+      bind.periodLargest.every((x, p) => x <= (pair.periodLargest[p] ?? 0))
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the hop-free table does at least as well as the committed table on every acceptance item the committed table passes: reversal, charge, CPT at a mirror phase, a periodic vacuum, line-graph components on the vacuum and on a dense background, exact superposition, sheet-quantized walls and bounded dressing',
+        'the hop-free table does at least as well as the committed table on every acceptance item the committed table passes: reversal, charge, CPT at a mirror phase, a periodic vacuum, line-graph components on the vacuum and on a dense background, exact superposition, sheet-quantized walls, and a dressed support no larger than the committed one in every period',
       metrics: {
         reverses: bind.reverses ? 1 : 0,
         chargeConserved: bind.chargeKept ? 1 : 0,
@@ -371,6 +387,7 @@ export default experiment({
         wallQuantized: bind.wallQuantized ? 1 : 0,
         wallSettledMax: bind.wallMax,
         worstSupportGrowth: bind.worstGrowth,
+        ...Object.fromEntries(bind.periodLargest.map((x, p) => [`largestSupportPeriod${p + 1}`, x])),
         protectedSpecies: bind.protectedSpecies,
         travellers: bind.travellers,
         meanReach: bind.meanReach,
@@ -385,6 +402,7 @@ export default experiment({
         committedWallQuantized: pair.wallQuantized ? 1 : 0,
         committedWallSettledMax: pair.wallMax,
         committedWorstSupportGrowth: pair.worstGrowth,
+        ...Object.fromEntries(pair.periodLargest.map((x, p) => [`committedLargestSupportPeriod${p + 1}`, x])),
         committedProtectedSpecies: pair.protectedSpecies,
         committedTravellers: pair.travellers,
         committedMeanReach: pair.meanReach,

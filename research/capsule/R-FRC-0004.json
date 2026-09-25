@@ -3,7 +3,7 @@
   "challenge": "C-FRC-0004",
   "version": "1.0.0",
   "audited": "2026-09-25",
-  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "commit": "61bb4878dbe86456c351396e66747fa0ac276fe7",
   "dirty": false,
   "environment": {
     "node": "v24.13.1",
@@ -17,7 +17,7 @@
   "files": [
     {
       "file": "test/experiment/gauge/asymptotic-freedom.ts",
-      "sha256": "a4ac5b585b6f33c89e1a4ca66517e9735345d699da21482e4965cb758f6bbd39"
+      "sha256": "9a388f1c40dd978d28cdd9284f4b477a001e7f48d063dc77fd1561e7ba5c52e4"
     }
   ],
   "expected": {
@@ -83,7 +83,7 @@
   ],
   "verdicts": {
     "E-FRC-0083": {
-      "seconds": 716.782,
+      "seconds": 345.645,
       "status": "pass",
       "claim": "the force ratio chi(2,2) / chi(1,1) starts from its exactly computed tree-level value and rises with g^2 at alpha + kappa C_A with the same positive kappa from SU(2), SU(3) and SU(4), and at the same rate for adjoint and fundamental sources, so the coupling grows with distance in proportion to the gluon color charge and not the source charge, the anti-screening behind asymptotic freedom",
       "metrics": {

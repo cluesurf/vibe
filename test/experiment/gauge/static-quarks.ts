@@ -13,10 +13,22 @@
 //   fast the lattice spacing shrinks as beta rises. Two-loop running in the bare coupling predicts a
 //   much slower shrink (the known failure of asymptotic scaling here), and two-loop running in the
 //   coupling read off the measured plaquette (the E-scheme) must reproduce it.
-// - E-FRC-0089, the glueball. The 0++ operator (smeared spatial plaquettes per time slice) at three
-//   smearing depths, and the variational ground state of its correlator matrix: a mass gap in a
-//   theory of massless gluons, in units of r0, against the continuum value m r0 = 4.21 (Morningstar
-//   and Peardon 1999).
+// - E-FRC-0089, the glueball. A mass gap in a theory of massless gluons. The first version read the
+//   variational ground state of smeared spatial plaquettes at 4, 12 and 24 APE steps on the 80
+//   configurations above, from t = 0 to 1 only, and gave m a = 1.25 +- 0.13, m r0 = 4.05 +- 0.50,
+//   compatible with the continuum 4.21. That basis was smeared too far: the overlap C(1) / C(0) falls
+//   as the smearing deepens past four steps, so its t = 0 to 1 mass still held excited states. It is
+//   now read from a dedicated ensemble of 400 configurations on the same 10^4 box, one update apart,
+//   with a twelve-operator basis (APE depth 1, 2, 4 and 7, times 1 x 1, 1 x 2 and 2 x 2 spatial
+//   loops, all 0++). The generalized eigenproblem at t = 0, 1 fixes the ground-state vector once,
+//   and the projected correlator is read at t = 0 to 1 and again at t = 1 to 2, where it must agree:
+//   the plateau. The precise mass lands where the published Wilson-action lattice mass at beta 5.7
+//   sits (a m = 0.974 +- 0.029, Teper 1998, Table 18), which is m r0 near 2.85 with the published
+//   r0, well below the continuum 4.21 (Morningstar and Peardon 1999). That is the known scalar dip of
+//   the Wilson action at a = 0.17 fm (Hasenbusch and Necco 2004 put the lattice artifact there near
+//   40 percent). So the claim is now the one the data supports: the gap matches the lattice value at
+//   this coupling, and the continuum value is reported with its pull and not gated, because one
+//   coarse spacing cannot reach it.
 //
 // Grade L2: textbook lattice results reproduced. The ensembles come from the seeded heatbath, the
 // sampling stand-in for the thermal ensemble (E-FRC-0092 shows the deterministic dynamics reaches the
@@ -47,6 +59,10 @@ import {
   sommerScale,
 } from '@/code/measure/static-potential'
 import { weightedLeastSquares } from '@/code/measure/regression'
+import {
+  projectedCorrelator,
+  spatialLoopSlices,
+} from '@/code/measure/glueball-basis'
 
 const MAX_R = 5
 const MAX_T = 5
@@ -56,6 +72,23 @@ const BIN = 4
 const LUSCHER = Math.PI / 12
 // the continuum scalar glueball, m r0 = 4.21 +- 0.11 (Morningstar and Peardon 1999)
 const GLUEBALL_R0 = 4.21
+// the Wilson-action scalar glueball at beta 5.7 in lattice units, a m = 0.974 +- 0.029 (the
+// compilation of Teper 1998, hep-th/9812187, Table 18, the first of its two beta 5.7 rows; the other
+// is 0.90 +- 0.04, from a different source)
+const GLUEBALL_LATTICE_57 = 0.974
+const GLUEBALL_LATTICE_57_ERROR = 0.029
+// the glueball basis: APE depths times spatial loop shapes, twelve 0++ operators
+const GLUE_DEPTHS = [1, 2, 4, 7]
+const GLUE_SHAPES = [
+  [1, 1],
+  [1, 2],
+  [2, 2],
+]
+const GLUE_CONFIGURATIONS = 400
+// measurements one update apart are correlated: in a trial ensemble the t = 1 to 2 error grew from
+// 0.22 at bins of 20 to 0.27 at bins of 40, so the bins are 40 long (10 bins, which leaves the error
+// itself uncertain by about a quarter)
+const GLUE_BIN = 40
 
 // loops from 12 smearing steps, the glueball operator at 4, 12 and 24 steps (the variational basis),
 // and the unsmeared plaquette, which defines the E-scheme coupling
@@ -230,6 +263,70 @@ const strong = (): Sample[] =>
   ensemble({ group: 'su3', beta: 5.7, measurements: 80, seed: 870 })
 // the second coupling for the scale, far enough from 5.7 that the ratio of spacings is resolved
 const HIGH_BETA = 5.9
+
+// The dedicated glueball ensemble at beta 5.7 on the same 10^4 box: per configuration, the twelve
+// operators [depth x shape][t]. Built once per process.
+let glueSamples: number[][][] | undefined
+
+function glueballEnsemble(): number[][][] {
+  if (glueSamples === undefined) {
+    const rng = makeRng({ seed: 873 })
+    const lattice = makeGaugeLattice({
+      group: 'su3',
+      lengths: [10, 10, 10, 10],
+      start: 'cold',
+      rng,
+    })
+
+    glueSamples = sampleGaugeEnsemble({
+      lattice,
+      beta: 5.7,
+      thermalization: 40,
+      measurements: GLUE_CONFIGURATIONS,
+      separation: 1,
+      overrelaxation: 2,
+      rng,
+      measure: current => {
+        const operators: number[][] = []
+        let smeared = current
+        let done = 0
+
+        for (const depth of GLUE_DEPTHS) {
+          smeared = apeSmear({
+            lattice: smeared,
+            alpha: 0.5,
+            iterations: depth - done,
+          })
+          done = depth
+
+          for (const [width = 1, height = 1] of GLUE_SHAPES) {
+            operators.push(
+              spatialLoopSlices({ lattice: smeared, width, height }),
+            )
+          }
+        }
+
+        return operators
+      },
+    })
+  }
+
+  return glueSamples
+}
+
+// the effective mass ln(c(t) / c(t + 1)) of the basis projected on its variational ground state
+function projectedMass(t: number) {
+  return (s: readonly number[][][]): number => {
+    const c = projectedCorrelator({
+      slices: s,
+      t0: 0,
+      t1: 1,
+      maxT: t + 1,
+    })
+
+    return Math.log((c[t] ?? 0) / (c[t + 1] ?? 1))
+  }
+}
 
 export default experiment({
   id: 'gauge/static-potential',
@@ -429,18 +526,64 @@ experiment({
   id: 'gauge/scalar-glueball',
   code: 'E-FRC-0089',
   title:
-    'pure SU(3) gauge theory has a mass gap: the 0++ glueball correlator decays exponentially with a mass m r0 compatible with the continuum 4.21',
+    'pure SU(3) gauge theory has a mass gap: the variational 0++ glueball mass, on a plateau from t = 0 to 2, matches the published Wilson-action lattice mass at beta 5.7, and sits below the continuum m r0 = 4.21 by the known scalar dip of a coarse lattice',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
     const samples = strong()
+    const glue = glueballEnsemble()
 
-    // the variational mass: the largest generalized eigenvalue of C(1) against C(0) over the three
-    // smearing levels is exp(-m) for the ground state, with the excited states projected out
-    const variational = (s: readonly Sample[]): number => {
+    // the twelve-operator basis, projected once on its ground state at t = 0, 1
+    const mass = jackknife({
+      samples: glue,
+      estimator: projectedMass(0),
+      binSize: GLUE_BIN,
+    })
+    const plateauMass = jackknife({
+      samples: glue,
+      estimator: projectedMass(1),
+      binSize: GLUE_BIN,
+    })
+    const lateMass = jackknife({
+      samples: glue,
+      estimator: projectedMass(2),
+      binSize: GLUE_BIN,
+    })
+    // the best single operator of the basis (depth 4, 2 x 2), which a variational mass may not exceed
+    const bestSingle = GLUE_SHAPES.length * 2 + 2
+    const singleMass = jackknife({
+      samples: glue,
+      estimator: s => {
+        const c = connectedSliceCorrelator({
+          slices: s.map(x => x[bestSingle] ?? []),
+        })
+
+        return Math.log((c[0] ?? 0) / (c[1] ?? 1))
+      },
+      binSize: GLUE_BIN,
+    })
+    const r0 = jackknife({
+      samples,
+      estimator: scaleOn(samples),
+      binSize: BIN,
+    })
+    const inR0 = (m: { value: number; error: number }) => ({
+      value: m.value * r0.value,
+      error:
+        m.value *
+        r0.value *
+        Math.hypot(m.error / m.value, r0.error / r0.value),
+    })
+    const massR0 = inR0(mass)
+    const plateauMassR0 = inR0(plateauMass)
+
+    // the first version, kept as a control: three plaquette operators at 4, 12 and 24 APE steps on
+    // the 80 configurations of E-FRC-0087, t = 0 to 1
+    const firstBasis = (s: readonly Sample[]): number => {
       const slices = s.map(x => x.glue)
+      // the largest generalized eigenvalue of C(1) against C(0) is exp(-m) for the ground state
       const lambda = generalizedEigenvalues({
         a: connectedCorrelatorMatrix({ slices, t: 1 }),
         b: connectedCorrelatorMatrix({ slices, t: 0 }),
@@ -448,64 +591,67 @@ experiment({
 
       return -Math.log(Math.max(...lambda))
     }
-
-    // the single-operator effective mass at the middle smearing level, for comparison
-    const single = (s: readonly Sample[]): number => {
-      const c = connectedSliceCorrelator({
-        slices: s.map(x => x.glue[1] ?? []),
-      })
-
-      return Math.log((c[0] ?? 0) / (c[1] ?? 1))
+    const firstMass = jackknife({
+      samples,
+      estimator: firstBasis,
+      binSize: BIN,
+    })
+    const firstMassR0 = inR0(firstMass)
+    const lattice = {
+      value: GLUEBALL_LATTICE_57,
+      error: GLUEBALL_LATTICE_57_ERROR,
     }
-
-    const mass = jackknife({
-      samples,
-      estimator: variational,
-      binSize: BIN,
-    })
-    const singleMass = jackknife({
-      samples,
-      estimator: single,
-      binSize: BIN,
-    })
-    const r0 = jackknife({
-      samples,
-      estimator: scaleOn(samples),
-      binSize: BIN,
-    })
-    const massR0 = {
-      value: mass.value * r0.value,
-      error:
-        mass.value *
-        r0.value *
-        Math.hypot(mass.error / mass.value, r0.error / r0.value),
-    }
+    const latticePull =
+      (mass.value - lattice.value) / Math.hypot(mass.error, lattice.error)
+    const plateauPull =
+      (mass.value - plateauMass.value) /
+      Math.hypot(mass.error, plateauMass.error)
 
     const gapped = mass.value > 5 * mass.error
-    const matches = Math.abs(pull(massR0, GLUEBALL_R0)) < 3
+    // the plateau: the projected correlator is resolved from t = 1 to 2 and agrees with t = 0 to 1
+    const plateau =
+      plateauMass.value > 3 * plateauMass.error && Math.abs(plateauPull) < 2
     // a variational bound lies at or below any single operator effective mass
     const bounded =
       mass.value <= singleMass.value + 2 * singleMass.error
-    const ok = gapped && matches && bounded
+    const matches = Math.abs(latticePull) < 3
+    const ok = gapped && plateau && bounded && matches
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the 0++ correlator matrix over three smearing levels gives a variational ground-state mass resolved at more than five standard errors, at or below the single-operator effective mass, with m r0 compatible with the continuum scalar glueball 4.21',
+        'the 0++ correlator matrix over twelve operators (four smearing depths, three loop shapes) gives a variational ground-state mass resolved at more than five standard errors, on a plateau (t = 1 to 2 resolved at three standard errors and agreeing with t = 0 to 1 within two), at or below the best single operator, and compatible with the published Wilson-action lattice mass a m = 0.974 +- 0.029 at beta 5.7, with m r0 against the continuum 4.21 reported and not gated',
       metrics: {
         glueballMass: mass.value,
         glueballMassError: mass.error,
         glueballMassR0: massR0.value,
         glueballMassR0Error: massR0.error,
+        plateauMassT1To2: plateauMass.value,
+        plateauMassT1To2Error: plateauMass.error,
+        plateauMassR0: plateauMassR0.value,
+        plateauMassR0Error: plateauMassR0.error,
+        plateauPull,
+        lateMassT2To3: lateMass.value,
+        lateMassT2To3Error: lateMass.error,
         singleOperatorMass: singleMass.value,
         singleOperatorMassError: singleMass.error,
+        r0: r0.value,
+        r0Error: r0.error,
+        configurations: glue.length,
       },
       control: {
+        publishedLatticeMassAt57: GLUEBALL_LATTICE_57,
+        publishedLatticeMassAt57Error: GLUEBALL_LATTICE_57_ERROR,
+        latticePull,
         continuumMassR0: GLUEBALL_R0,
-        pull: pull(massR0, GLUEBALL_R0),
+        continuumPull: pull(massR0, GLUEBALL_R0),
+        firstBasisMass: firstMass.value,
+        firstBasisMassError: firstMass.error,
+        firstBasisMassR0: firstMassR0.value,
+        firstBasisMassR0Error: firstMassR0.error,
       },
       notes:
-        'L2, known physics, and the least precise of these results. Only t = 0 to 1 is resolved by 80 configurations, so even the variational mass holds some excited state (the variational method only projects within the three-operator basis), at one coarse lattice spacing where the scalar glueball is known to dip below its continuum value. Compatibility with 4.21 is a consistency check within its errors. The r0 is this ensemble own, from the E-FRC-0087 fit.',
+        'L2, known physics. 400 configurations of 10^4 at beta 5.7, one update apart, binned by 40. The mass is the t = 0 to 1 effective mass of the correlator projected on the variational ground state, and the t = 1 to 2 mass is the plateau check (t = 2 to 3 is reported, and is noise at this statistics). Quoting the t = 1 to 2 mass itself to the same precision as the t = 0 to 1 one would take roughly ten times the configurations, several hours here. The first version of this experiment read a basis smeared to 4, 12 and 24 steps from t = 0 to 1 and gave m a = 1.25 +- 0.13, m r0 = 4.05 +- 0.50: the heavy smearing lost overlap and left excited states in, and that version, recomputed here, is the firstBasis control. At a = 0.17 fm the Wilson action puts the scalar glueball far below its continuum value (the scalar dip, about 40 percent, Hasenbusch and Necco 2004), so the comparison that tests this code is the published lattice mass at the same coupling, in lattice units with no scale needed, and the continuum pull measures the dip, not an error. The r0 is the E-FRC-0087 ensemble own.',
     })
   },
 })

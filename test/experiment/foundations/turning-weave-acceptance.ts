@@ -22,10 +22,16 @@
 //     at every settled beat (a closed-system statement on the torus, no window needed). The earlier
 //     claim that it is also exactly period twenty-four rested on a loop that never ran. Measured
 //     over seventy-two beats it is not periodic at twenty-four, so periodicity is now reported, not
-//     claimed (corrected 2026-09-25 on the strong-force branch, see E-FRC-0111). Localization is the one window-limited claim:
-//     at side twenty-one the wall has a dominant core at the slab column (three to four times its
-//     neighbours) plus a one-pass ballistic birth-radiation front, the signature of an
-//     interacting theory radiating during defect formation, reported as measured.
+//     claimed (corrected 2026-09-25 on the strong-force branch, see E-FRC-0111). Localization was the one window-limited claim:
+//     at side twenty-one the wall was read as a dominant core at the slab column (three to four times
+//     its neighbours) plus a one-pass ballistic birth-radiation front. E-FRC-0111 item 7 (2026-09-25)
+//     measured it properly, for this rule and the triality weave, against the piecewise vacuum (each
+//     region compared with the vacuum born when it was, so the late half's phase domain does not count
+//     as wall) on the D4 box at sides 9, 13 and 17 for 72 beats. The wall does NOT stay a sheet: under
+//     this rule the defect touches every column by beat 4, 5 and 6 (ballistic) and settles into an even
+//     fill of the box, spread 0.96, 0.98 and 1.01 on a scale where 0 is a sheet and 1 an even fill. The
+//     core seen at side twenty-one was a transient of the window, and the radiation front is not one
+//     pass: on a closed box it fills everything.
 //   - THE DRESSED PROFILE IS BOUNDED PAST A FULL SCHEDULE PERIOD: the protected species stays at
 //     support exactly one for twenty-six beats, and the interacting species is a breathing
 //     dressed particle (its co-moving core oscillates and returns to nearly bare, never growing
@@ -490,7 +496,7 @@ export default experiment({
         blindOffsetsExact: blindExact ? 1 : 0,
       },
       notes:
-        'the absorbing offsets (three and five) dress the traveller instead of kicking it and are reported rather than gated. Wall localization is the one window-limited claim: at side twenty-one the wall carries a dominant core at the slab column plus a one-pass ballistic birth-radiation front, the signature of an interacting theory radiating during defect formation. The commensurate-quench Sakharov null moves from three beats to the schedule period, a real physical difference from the committed rule, recorded in the roadmap.',
+        'the absorbing offsets (three and five) dress the traveller instead of kicking it and are reported rather than gated. Wall localization is not claimed: E-FRC-0111 item 7 measures the defect against the piecewise vacuum at sides 9, 13 and 17 over 72 beats and finds it filling the box evenly under this rule by beat 6 (spread 0.96 to 1.01, where 0 is a sheet), so the side-twenty-one core at the slab column was a transient of a short window. The commensurate-quench Sakharov null moves from three beats to the schedule period, a real physical difference from the committed rule, recorded in the roadmap.',
     })
   },
 })

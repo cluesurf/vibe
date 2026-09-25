@@ -55,7 +55,7 @@ input. All L2: the group and the action are chosen, then everything follows.
 | [`E-FRC-0081`](../../../test/experiment/gauge/gluon-count.ts) | how many gluons and colors | **8.02** fields, **N = 3.004**, the three-quark invariant **0.2500** | SU(2) 3.02, U(1) 1.01, invariant 0 for both. Predicted 8, 3, 1/4 |
 | [`E-FRC-0087`](../../../test/experiment/gauge/static-quarks.ts) | the static potential | sigma a^2 = **0.125 +- 0.021**, e = **0.34 +- 0.05** | e against pi / 12 = 0.262, pull 1.7. The photon has sigma = 0.0002 +- 0.0006 |
 | [`E-FRC-0088`](../../../test/experiment/gauge/static-quarks.ts) | the scale, and how it runs | r0 / a = **3.23 +- 0.21** at 5.7 and **4.27 +- 0.09** at 5.9, spacing ratio **1.32** | Necco-Sommer 2.94 and 4.48, pulls 1.4 and -2.4. The spacing ratio against the E-scheme two-loop prediction, pull -1.6 |
-| [`E-FRC-0089`](../../../test/experiment/gauge/static-quarks.ts) | the glueball | variational m r0 = **4.05 +- 0.50** (m a = 1.25 +- 0.13) | continuum 4.21 (Morningstar and Peardon), compatible, the least precise result here |
+| [`E-FRC-0089`](../../../test/experiment/gauge/static-quarks.ts) | the glueball | m a = **1.057 +- 0.038**, m r0 = **3.42 +- 0.25**, from twelve operators on 400 configurations. The t = 1 to 2 plateau reads 1.34 +- 0.18, pull -1.6 against t = 0 to 1. First version: m r0 = 4.05 +- 0.50 (m a = 1.25 +- 0.13) | Wilson action at beta 5.7, a m = 0.974 +- 0.029 (Teper 1998), pull 1.7. Continuum 4.21 (Morningstar and Peardon), pull -3.1, which is the known scalar dip of a coarse Wilson lattice, reported and not gated |
 | [`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts) | 3D SU(2) to the continuum | sqrt(sigma) / g^2 extrapolates to **0.332 +- 0.06** | continuum 0.3353 (Teper), pull -0.06 |
 
 ### Temperature
@@ -78,7 +78,7 @@ input. All L2: the group and the action are chosen, then everything follows.
 | --- | --- | --- | --- |
 | [`E-FRC-0084`](../../../test/experiment/gauge/quenched-hadrons.ts) | is the pion a Goldstone boson | d ln m_pi / d ln m_q near **0.44** | gluons off: 0.97, and 2 asinh(m) to 0.1 percent |
 | [`E-FRC-0085`](../../../test/experiment/gauge/quenched-hadrons.ts) | do gluons make the nucleon mass | many times three free quarks at every resolved mass, still heavy at m_q = 0 | gluons off: 3 asinh(m) to 0.1 percent |
-| [`E-FRC-0091`](../../../test/experiment/gauge/quenched-hadrons.ts) | the rho, and the ratios nature fixes | J = **0.391 +- 0.012**. m_N / m_rho at the physical point **1.98 +- 0.17**, reported, not gated | J: quenched lattice values near 0.37 to 0.39, experiment 0.48. m_N / m_rho: nature 1.21, pull 4.4, the size of a quenched, single-box, coarse-lattice estimate far from the light quarks |
+| [`E-FRC-0091`](../../../test/experiment/gauge/quenched-hadrons.ts) | the rho, and the ratios nature fixes | J = **0.391 +- 0.012**. m_N / m_rho at the physical point, first version through three heavy masses **1.98 +- 0.17**. Now an Edinburgh plot over eight quark masses, (m_pi / m_rho)^2 from 0.75 down to 0.30, a line through the six on the nucleon plateau: **2.04 +- 0.20 (stat) +- 0.19 (choice of points)**, slope in (m_pi / m_rho)^2 **-0.66 +- 0.29**. With the nucleon read at t = 5 to 7 instead of 3 to 5: **1.50 +- 0.25**, slope **+0.16 +- 0.31**. All reported, not gated | J: quenched lattice values near 0.37 to 0.39, experiment 0.48. m_N / m_rho: nature 1.21 (pull 3.0), quenched continuum 1.143 +- 0.033 with Wilson quarks (CP-PACS 2003, pull 3.2) and 1.255 +- 0.046 with staggered quarks (MILC, pull 2.8). The trend runs the wrong way: the t = 3 to 5 ratio rises as the quarks lighten, because the early nucleon holds more excited state the lighter the quark, and the later read flattens it. Measured outside the suite at 36 configurations: 1.95 +- 0.21 (slope -0.42 +- 0.37) early, 1.46 +- 0.35 (slope +0.35 +- 0.60) late |
 | [`E-FRC-0090`](../../../test/experiment/gauge/dynamical-quarks.ts) | do dynamical quarks break the string | Re P = **0.412 / 0.394** on 4^3 and 6^3 (volume independent). A center rotation costs **ln det = -60** | quenched falls 1.79 against 1.84 for zero, gauge action shifts by exactly 0. The determinant agrees with the hopping expansion to 0.06 percent, and HMC gives <exp(-dH)> = 1.00 |
 
 ## Part three: no randomness at the base
@@ -117,6 +117,8 @@ The ideas that turned raw lattice numbers into comparisons with published ones:
 | the E-scheme coupling from the plaquette | `E-FRC-0088` | bare two-loop running undershoots the published scale. The plaquette coupling is the standard remedy |
 | dimensionless ratios in r0 units | `E-FRC-0088`, `0089`, `0098` | r0 / a, m r0, T_c r0 compare to continuum values directly |
 | a variational basis over smearing levels | `E-FRC-0089` | the glueball mass from a correlator matrix, not one effective mass |
+| light smearing and loop shapes, projected once | `E-FRC-0089` | the first basis (4, 12, 24 APE steps) lost overlap as it deepened and read m a = 1.25. Depths 1 to 7 times 1 x 1, 1 x 2 and 2 x 2 loops, with the ground-state vector fixed at t = 0, 1 and the projected correlator read to t = 2, read 1.06, where the published beta 5.7 lattice mass is |
+| compare at the same coupling, not the continuum | `E-FRC-0089` | a precise glueball at a = 0.17 fm sits 20 to 30 percent under the continuum m r0 (20 with this ensemble's r0, 26 with the published one) (the Wilson scalar dip), so the check on the code is the published lattice mass at beta 5.7 in lattice units |
 | the right Coulomb term for the dimension | `E-FRC-0007` | a 1 / R term in 3D read the tension 13 percent high, ln R brought it to 0.332 against 0.3353 |
 | a representation test for the running | `E-FRC-0083` | adjoint and fundamental loops separate C_A from C_F, which groups alone could not |
 | a fourth-order symmetric integrator | `E-FRC-0092` | removed the step-size bias that made deterministic dynamics look 0.9 percent off |
@@ -133,6 +135,7 @@ The ideas that turned raw lattice numbers into comparisons with published ones:
 | `code/dynamics/dynamical-staggered` | HMC with staggered quarks, the quark force, exact log det, the hopping term |
 | `code/dynamics/center-gauge` | Z_N gauge theory, the reversible automaton and the heatbath |
 | `code/measure/lattice-gauge-observable` | plaquette and moments, fundamental and adjoint loops, static loops, Creutz ratios, Polyakov loop, glueball operators and correlator matrices |
+| `code/measure/glueball-basis` | 0++ operators from w x h spatial loops per time slice, and the variational ground-state projection with a fixed eigenvector. No conformance block yet: the 1 x 1 loop was checked by hand to reproduce `spatialPlaquetteSlices` exactly (difference 0) |
 | `code/measure/static-potential` | lattice Coulomb term, Sommer scale, the Necco-Sommer reference |
 | `code/measure/wilson-loop-perturbation` | tree-level Wilson loops, exactly, on a finite box |
 | `code/measure/hadron-correlator` | pion, rho, nucleon, effective masses, the quenched ensemble |
@@ -152,6 +155,14 @@ The strong-force experiments add roughly an hour and a half of suite time on one
 minutes for the files timed individually, plus six smaller ones). The heaviest are the static-quark
 ensembles (895 s), the hadrons in the 2 fm box (836 s), the N_t = 4 deconfinement on two volumes
 (817 s), the finite color groups (484 s) and the multi-beat triangle census (439 s).
+
+The dedicated glueball ensemble (400 configurations of 10^4) added about 475 s to the static-quark
+file: 1,369 s on 2026-09-25 against 895 s before, with other jobs sharing the machine, so both
+figures are loose. The three Edinburgh masses ride in the existing multi-shift solve and added no
+measurable time (the hadron file ran in 541 s and 625 s that day, under the same load). Taking the
+glueball plateau at t = 1 to 2 to the precision of the t = 0 to 1 mass would need roughly ten
+times the configurations, several hours, and 36 hadron configurations took 2,660 s, so both were
+measured once outside the suite rather than added to it.
 
 ## What is still open
 

@@ -18,8 +18,12 @@
 //   through the same code as the control, which must leak
 // - charge exact, Gauss's law at every cell on every beat, 48 beats back restore everything
 // - a change of role frame in every cell commutes with the rule
-// Reported, the cost of dropping the hop: the empty vacuum's return beat, and how many of 24 directions a
-// lone love's disturbance reaches half the free speed in, both beside the committed table's.
+// Reported beside the committed table's: the empty vacuum's return beat, and how many of 24 directions a
+// lone love's disturbance reaches distance 3 in within 6 beats on a side-5 box. That box wraps at distance
+// 2.5 to 4 depending on direction, so the count is a crude one. It read 3 against the committed 5, which a
+// first version called the cost of dropping the hop. E-FRC-0125 measures travel properly (true distance,
+// side 13, where 6 beats cannot wrap) and finds the reverse: 15 directions against 12, mean reach 5.67
+// against 4.32. So dropping the hop costs no travel.
 //
 // Depth L1 for the search (exact, exhaustive), L2 for the rule (constructed against stated gates).
 
@@ -302,7 +306,7 @@ export default experiment({
         committedTravellingDirections: pair.travelling,
       },
       notes:
-        'Exhaustive over 24 tables, 9 calm weightings and the 9 frame-free role updates per transition. The color weave is a candidate for the base, not the committed rule: dropping the hop is a change to the wire table, and the travelling count is its cost on this measure (the disturbance of a lone love reaching distance 3 on a side-5 box within 6 beats, beside the committed table on the same code). The acceptance battery on this table is E-FRC-0125.',
+        'Exhaustive over 24 tables, 9 calm weightings and the 9 frame-free role updates per transition. The color weave is a candidate for the base, not the committed rule: dropping the hop is a change to the wire table. The travelling count here is a crude small-box one, kept for comparison only. The proper travel measure and the rest of the acceptance battery on this table are E-FRC-0125.',
     })
   },
 })
