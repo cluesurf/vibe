@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**115 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0115`](../../../test/experiment/gauge/colour-frame.ts)**.
+**119 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0119`](../../../test/experiment/gauge/role-survives-a-loop.ts)**.
 
 ## What this arena tests
 
@@ -189,6 +189,10 @@ open are in [`strong-force.md`](strong-force.md).
 - **[`E-FRC-0113`](../../../test/experiment/gauge/hidden-rule-symmetries.ts)** (L2) - every coin symmetry times every tone relabelling times every time shift: the committed rule keeps only the identity, the triality weave only its two trialities.
 - **[`E-FRC-0114`](../../../test/experiment/gauge/glide-weave.ts)** (L2) - the glide weave: a pair rule that keeps the triality as a glide in time, moves single tones across, and connects every line, with no CPT and no free traveller.
 - **[`E-FRC-0115`](../../../test/experiment/gauge/colour-frame.ts)** (L2) - rotating the colour of half the box is invisible in the triality and glide vacua and a wall in the committed one, and visible for every rule on a dense background: colour read from the coin has one global frame.
+- **[`E-FRC-0116`](../../../test/experiment/gauge/vibe-and-flow.ts)** (L1) - the vibe cannot be an axis of the colour grid: a line cannot hold (vibe, flow), a charge-conserving rule can respect only 18 of the 216 colour maps and none of the 24 turns, and a flow obeying flow <- flow + vibe adds only its own 3 shifts. Vibe and flow are a conjugate pair, and colour is a second one.
+- **[`E-FRC-0117`](../../../test/experiment/gauge/vibe-role-tilt.ts)** (L2) - the three-trit slot (vibe, role, tilt) as one rule: roles carried along links holding grid moves and swapped where vibes meet. Charge exact, reversal exact, and exactly invariant under an independent change of role frame in every cell, which roles without links or turned by a fixed move per direction are not.
+- **[`E-FRC-0118`](../../../test/experiment/gauge/whole-is-a-line.ts)** (L1) - a whole without amplitudes: role points whose vibe-signed sum is zero stay whole under every change of frame exactly when love minus fear is a multiple of 3, the pattern of the quantum singlets of SU(3) and Sigma(648) in all 27 mixes up to six. Three loves are whole exactly on a line of the role grid, the rule of SET.
+- **[`E-FRC-0119`](../../../test/experiment/gauge/role-survives-a-loop.ts)** (L2) - a role point carried round a loop survives exactly as often as the adjoint Wilson loop says (grid points fixed = |Tr U|^2 on all 648 elements), on deterministic fields in both phases: a classical role sees the gluon string, and the quark string needs a signed weight.
 - **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
 
 ## What this arena establishes

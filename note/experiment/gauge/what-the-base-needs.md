@@ -3,9 +3,46 @@
 **The committed rule carries no SU(3)** (`E-FRC-0093` to `0097`, in
 [su3-from-the-rule.md](su3-from-the-rule.md)). This note asks the next question: **what is the
 smallest change to the base that would carry it, and which parts of SU(3) need anything new at
-all?** Twelve experiments, `E-FRC-0100` to `0111`, answer it with measurements, not arguments. No
-random number enters any rule measured here. The seeded heatbaths are reference samplers, and
+all?** Eighteen experiments, `E-FRC-0100` to `0117`, answer it with measurements, not arguments.
+No random number enters any rule measured here. The seeded heatbaths are reference samplers, and
 `E-FRC-0102` and `E-FRC-0110` show the deterministic route to the same ensembles.
+
+## Names
+
+The physics words stay in the tables, because they are what ties each number to a published value.
+The prose of the base uses experiential names for the same things.
+
+| name | physics | what it is |
+| --- | --- | --- |
+| **vibe** | the tone, whose sum is charge, and whose sum mod 3 is triality, colour's centre | the one thing felt: **fear, calm or love** (-1, 0, +1) |
+| **role** | colour | which of three roles a vibe plays in a whole. Never felt alone |
+| **tilt** | colour phase, colour's conjugate | which way the role leans, toward the next role around its cycle |
+| **turn** | the 24 rotations of the grid, which are the 24 coin directions (`E-FRC-0104`) | a turn of motion. The 24 turns rotate role into tilt and back |
+
+Why fear and love: the rule treats -1 and +1 as exact mirror images, so the names are true
+opposites of one kind and one strength (moving away and drawn toward), with calm as neither. What
+the committed rule already says about fear, calm and love, all measured in its pair table
+(`code/rule/collision.ts`, which calls 0 peace): calm gives rise to a fear and a love together, they
+swap, and they fall back into calm, which is the rule's arrow from the vacuum. Swapping fear and love
+is the same as running time backwards, since charge conjugation turns the pair clock into its inverse
+(C P C = P^-1), so the rule tells them apart only by the direction of time. Love minus fear never
+changes, since they are made and unmade only in pairs. A reading rather than a measurement: that
+difference, taken mod 3, is colour's centre charge, which would decide whether roles can close into a
+whole (wholes exist only at triality zero, `E-FRC-0101`).
+
+The structure is measured and the names are a choice. What is fixed: three roles, none first, each
+defined only against the other two. One of each completes a whole, and so do three of the same whose
+tilts are all different: a whole is a line of the role grid (`E-FRC-0118`). A role's opposite is the other
+two together, since a + b + c = 0 means -a = b + c, which is why a vibe with its reverse cancels. And
+a whole can form only where the vibes sum to a multiple of 3 (`E-FRC-0101`, singlets only at triality
+zero). So the roles are three phases of one cycle, and a whole is one full turn of it. Which cycle is
+not measured. The names are **take, hold, free** (taking in, keeping, letting go), three
+movements of the one vibe rather than three kinds of feeling. Free tilts back into take, so the cycle
+closes, and a whole is one full cycle of taking in and letting go. None is the opposite of another:
+a role's opposite is the other two together, so take meets hold-and-free and the cycle completes. Earlier candidates for role were
+dropped for stated reasons: link names the lattice edges and bond is too close to it, strand and cord
+are material rather than felt, and seat implied the vibe is felt in three places, when there is one
+feeling. The third was first called turn, and became tilt so that turn names only the 24 rotations.
 
 ## The answer in five lines
 
@@ -376,6 +413,113 @@ have, and like the triality weave it has no free traveller. A glide is a symmetr
 together with time, not a symmetry at each instant, so whether it yields a conserved colour charge is
 a separate question, not measured.
 
+### Vibe and flow: is the second tone the tone's conjugate? (`E-FRC-0116`)
+
+The colour group Sigma(648) is the set of rigid moves of a 3 x 3 grid, the phase space of one trit:
+9 shifts times 24 turns, and the turns are the 24 coin directions (`E-FRC-0104`). The proposal was
+that one axis of that grid is the tone (the vibe) and the other its conjugate, a flow obeying
+flow <- flow + vibe every beat: the vibe as the turning, the flow as where the turning has got to.
+
+| question | measured |
+| --- | --- |
+| can a line's own two slots be (vibe, flow)? | **no**, under any of the 9! labellings: the pair clock fixes 2 of a line's 9 states, and a grid move fixes 0, 1, 3 or 9 |
+| which grid moves can a charge-conserving rule respect? | only those that keep each vibe or flip its sign: **18 of 216**, and **none of the 24 turns**. (Predicted abelian. The 9 that keep the vibe commute, and with the sign flip the 18 do not.) |
+| with a flow trit in every slot obeying flow <- flow + vibe, how many of the 216 does the rule respect? | **3**, for the committed rule and for the triality weave: the flow's own shifts f -> f + k. The vibe alone: 1, the identity |
+
+So vibe and flow are a genuine conjugate pair, and the flow law is itself a grid move (a shear). But
+**the vibe cannot be an axis of colour's grid.** The vibe is charge, and charge is conserved, so no
+symmetry of the rule can turn it into anything, and turning is what colour's group is made of. The
+consistent picture is two pairs: the vibe with its flow, and a separate colour trit with its own
+conjugate, turned by motion through the 24 coin directions. The colour trit is the same one
+`E-FRC-0100` found must sit beside the tone and not be the tone's clock.
+
+### Vibe, role and tilt as one rule (`E-FRC-0117`)
+
+The pieces above were measured one at a time. Run together: each slot holds a vibe, moved by the
+committed rule untouched, and a point of the role grid (role and tilt). Each link holds one of the
+216 grid moves, and a slot streaming along a link has its role point moved by it. Where two vibes meet
+head-on on a line, their role points swap, the pairwise exchange of `E-FRC-0101`.
+
+| gate | result |
+| --- | --- |
+| charge | exact at every beat |
+| reversal, vibes and role points, 24 beats | exact |
+| an independent change of role frame in every cell, links changed to match | **0** mismatches over 24 beats |
+| control: roles carried without links | 27,749 mismatches |
+| control: roles turned by one fixed move per direction, the coin reading | 40,015 mismatches |
+
+So the three-trit slot fits together: charge exact, reversible, and the role frame can be chosen
+freely in every cell, which is what a gauge theory of the roles needs. It needs the links. Carrying
+roles without them, or turning them by the coin's directions as the rule rather than as a field,
+makes the frame physical.
+
+What it cannot show is a whole. A whole of three roles, one of each, is a quantum singlet, and no
+classical state is one (best classical overlap 1/6, `E-FRC-0101`). So binding needs the phase on the
+swap, the amplitude the base lacks everywhere else too. The links here are a fixed background.
+Letting them move is `E-FRC-0110`.
+
+### A whole without amplitudes (`E-FRC-0118`)
+
+`E-FRC-0117` left one thing out of reach: a whole, three roles bound into one, which as a quantum
+singlet has no classical state. Define it classically instead. Each vibe carries a role point p on
+the grid and a sign v, +1 for love and -1 for fear, and a set is **whole** when the signed sum
+S = sum v p is zero. A change of frame, one grid move g(p) = A p + u for all of them, sends S to
+A S + (sum v) u. So a whole stays whole under every change of frame exactly when love minus fear is a
+multiple of 3.
+
+| check | result |
+| --- | --- |
+| every mix of a loves and b fears, a + b up to 6 (27 mixes) | the whole is kept by all 216 moves exactly when a - b is a multiple of 3 |
+| the quantum count, Sigma(648)-invariant states in 3^a x 3bar^b from the group's characters | nonzero in exactly the same 27 cases, and equal to the SU(3) singlet counts measured before (qq 0, q qbar 1, qqq 1, qqq qbar 0, qq qbar qbar 2) |
+| three loves, distinct points | whole exactly on the grid's 12 lines, 72 ordered triples, every one obeying the rule of SET: on each axis, role and tilt, all the same or all different |
+| the quantum singlet's support, role triples all different | all 6 inside the zero-sum set |
+
+So **the triality rule has a classical form**: wholes only when love minus fear is a multiple of 3,
+because a whole is a sum that a change of frame shifts by (love - fear) times the shift. And **a whole
+of three loves is a line of the role grid.** "One of each makes a whole" was half of it: on each axis
+the three are all different or all the same, so three takes whose tilts are all different are a whole
+too.
+
+The amplitude is needed for one thing only: the singlet's sign, which tells all-different
+(antisymmetric) from all-the-same. Wholeness itself is a relation a classical rule can carry.
+
+One difference from continuous colour, reported: at three loves and three fears Sigma(648) has 7
+invariant states where SU(3) has 6. The classical colour group sees one whole that SU(3) does not.
+
+### What a whole feels going round a loop (`E-FRC-0119`)
+
+Carried round a closed loop of links, a role point comes back moved by the loop's grid move, and a
+whole survives the round trip when that move fixes the point. An identity decides what this
+measures: a colour element permutes the 9 phase-point operators, which are a basis of the 3 x 3
+matrices, so the points it fixes number |Tr U|^2, checked on all 648 elements. The chance a role point
+survives a loop is therefore exactly the **adjoint** Wilson loop, the string of a colour octet (a
+gluon), and not the fundamental loop Re Tr U / 3, the string of a quark.
+
+On link fields made by the deterministic kinetic rule of `E-FRC-0110` on 4^4:
+
+| loop | hot field, plaquette 0.05 | cold field, plaquette 0.97 |
+| --- | --- | --- |
+| quark loop 1 x 1 / 1 x 2 / 2 x 2 | 0.049 / 0.0024 / 0.0019 | 0.969 / 0.952 / 0.936 |
+| gluon loop 1 x 1 / 1 x 2 / 2 x 2 | 0.0018 / 0.0009 / 0.0002 | 0.949 / 0.922 / 0.895 |
+| a role point survives | equal to the gluon loop, to 1e-12 | equal to the gluon loop, to 1e-12 |
+
+The hot field's larger loops are at the noise of this box, so no string tension is read from them.
+
+**So the missing ingredient shows up three times, as a weight a classical count cannot hold.** Each
+time it is a signed or complex weight, where a classical rule counts only with nonnegative ones:
+- the singlet's sign, which tells all different from all the same (`E-FRC-0118`), is the sign of a
+  permutation, +1 or -1
+- the quark string against the gluon string (here) is colour's centre phase, a cube root of unity.
+  The grid cannot see it (216 = 648 / 3), and the vibe carries it only as a label, its sum mod 3
+- the phase on the swap (`E-FRC-0100`) is the continuous version, whose only classical points are
+  leave and swap
+They are two different phases, a sign and a cube root, not one. What they share is that they must
+interfere, add with cancellation, and a classical role gives only the gluon loop's |Tr U|^2, never
+the quark loop's signed Re Tr U.
+
+Not shown: a rule that keeps a whole together as it moves, colour charge conservation as a local
+law with the links carrying the flux.
+
 ### What the seven add up to
 
 Idea 6 names the price of every geometric route. When colour is read off the coin, it is tied to
@@ -384,6 +528,51 @@ that can differ from place to place, and that needs colour carried apart from di
 trit of `E-FRC-0100`, with the Sigma(648) links of `E-FRC-0103`. A reading, not a measurement: the
 two need not be rivals. The coin could select which plane is colour and cycle the three generations,
 while a separate trit carries the colour that can be gauged. Nothing here tests that combination.
+
+## The path forward
+
+Everything classical now fits, and what is left is one kind of thing.
+
+**What works without amplitudes, measured:**
+
+| piece | what it gives | experiment |
+| --- | --- | --- |
+| vibe (fear, calm, love), the committed rule untouched | charge, and colour's centre as its sum mod 3 | the committed rule |
+| role and tilt, a point of the 3 x 3 grid per slot | colour, classically, with the 648-element group acting as 216 grid moves | `E-FRC-0104`, `0116` |
+| links holding grid moves | a role frame chosen freely in every cell: a gauge theory, charge exact, reversible | `E-FRC-0117` |
+| a whole as a zero sum | wholes only when love minus fear is a multiple of 3, in the same 27 mixes as the quantum singlets. Three loves are whole on a line of the grid | `E-FRC-0118` |
+| a role carried round a loop | the gluon string, exactly | `E-FRC-0119` |
+| a counter per link that streams | links that move without dice, through both phases | `E-FRC-0102`, `0110` |
+
+**What needs a signed weight, and nothing else does:** the singlet's sign (+1 or -1, which tells a
+whole of all-different roles from one of all-the-same), and the quark string (colour's centre phase,
+a cube root of unity, which the grid cannot see). Both are weights that must add with cancellation,
+where a classical rule counts only with nonnegative ones. This is the ingredient the quantum sector
+lacks too (`E-FND-0080`), so it is one decision for both, not a second one for colour.
+
+**The order to go in:**
+1. Colour charge as a local law. Give each link a flux, the link's own conjugate as tilt is the
+   role's, with Gauss's law at every cell: the charge in a cell equals the flux leaving it. A whole
+   then moves with no flux behind it, and a part pulled from a whole drags a line of flux whose
+   energy grows with its length. That is binding, classically, and it is the next measurement.
+   Two things are already fixed by working it through:
+   - **the flux is flow, on the link.** Gauss's law needs each link to record what has crossed it,
+     flux <- flux + what crosses, which is the law flow <- flow + vibe of `E-FRC-0116`. As a slot
+     trit, flow added nothing. As the link's conjugate it is what makes colour charge local. The
+     triality part of the flux is the vibe's own crossing count mod 3, so a whole (love minus fear a
+     multiple of 3) crossing leaves none and a lone part leaves one, link after link: the string
+   - **created pairs must be neutral, so a calm line carries one latent role.** In the rule of
+     `E-FRC-0117`, calm gives rise to a fear and a love whose role points generally differ, which
+     would make colour charge from nothing. Conservation needs the new pair to share one point, and
+     reversibility needs that point to exist before the pair does. So a calm line holds one role
+     that splits into the pair at creation and rejoins at annihilation
+2. Roles on moving links: run the transport of `E-FRC-0117` on the link fields of `E-FRC-0110` as they
+   evolve, which needs the two geometries (the D4 box and the hypercubic lattice) brought together.
+3. The signed weight, as small as it can be made: a sign bit or a cube-root phase per slot, advanced
+   deterministically, entering only at encounters (the phase on the swap). Pass it if the quark loop
+   and the singlet both appear and nothing classical above breaks.
+
+Steps 1 and 2 need no new kind of ingredient. Step 3 is the one decision the base cannot avoid.
 
 ## What the base would change
 
