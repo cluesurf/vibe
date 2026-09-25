@@ -1,31 +1,31 @@
-// Why the colour lines trade charge in threes, for every rule and not only the pair rules of
-// E-FRC-0107. A triality sigma fixes the three colour lines and cycles the other nine in three
+// Why the color lines trade charge in threes, for every rule and not only the pair rules of
+// E-FRC-0107. A triality sigma fixes the three color lines and cycles the other nine in three
 // orbits. Take any rule that is reversible and carried to itself by sigma, whatever it reads,
 // including a rule that chooses its pairs from the data. It maps a state sigma leaves alone to a
 // state sigma leaves alone, since f(s) = f(sigma s) = sigma f(s). In such a state each orbit's three
 // lines hold the same thing, so an orbit always holds a multiple of three tones. A lone tone on a
-// colour line with its orbit empty is such a state, and so is whatever it becomes. So no single
-// tone can ever cross from a colour line to its orbit. The orbit gains nothing, or three identical
+// color line with its orbit empty is such a state, and so is whatever it becomes. So no single
+// tone can ever cross from a color line to its orbit. The orbit gains nothing, or three identical
 // charges, or three identical neutral pairs. That is the one-for-three move, forced.
 //
 // The argument is short and this checks it on the real rule, exhaustively. Every cell state sigma
-// leaves alone (the three colour lines free, one state per orbit copied round it: 9^3 x 9^3 =
+// leaves alone (the three color lines free, one state per orbit copied round it: 9^3 x 9^3 =
 // 531,441) goes through every beat of the triality weave's schedule. Gates: every image is again
 // left alone by sigma, and every image holds a multiple of three tones on each orbit. And from each
-// of the four lone colour-line tones (two signs, two ends), the charge-conserving images the
+// of the four lone color-line tones (two signs, two ends), the charge-conserving images the
 // argument allows are listed exhaustively on the four-line block: stay, one for three, or three
 // neutral pairs, nothing else.
 //
 // Controls. The committed turning weave on the same cells: it does not respect sigma, so it maps
 // some of them out of the set. Two ideas this closes, recorded rather than left open:
-// - Data-dependent pairing, a rule that pairs a colour line with whichever orbit line is occupied,
+// - Data-dependent pairing, a rule that pairs a color line with whichever orbit line is occupied,
 //   is one of the rules the argument covers. It can move a single tone from an orbit line onto a
-//   colour line only if some reversible sigma-covariant map sends a non-fixed state to a fixed one,
+//   color line only if some reversible sigma-covariant map sends a non-fixed state to a fixed one,
 //   and a bijection cannot, since the inverse would then send a fixed state out of the set.
 // - The one-for-three move as a momentum-conserving three-body collision: the three directions of
-//   each orbit would have to sum to zero. They sum to three times one colour weight instead,
+//   each orbit would have to sum to zero. They sum to three times one color weight instead,
 //   printed as orbitSumNorm, so the forced move conserves charge and not momentum.
-// And one more, a guess that the colour group is what the committed pair clock generates: read a
+// And one more, a guess that the color group is what the committed pair clock generates: read a
 // line's nine states as the nine points of a qutrit phase space (tones as Z3, every relabelling of
 // the three tones tried), and ask whether the pair clock is one of the 432 affine maps of Z3^2. It
 // is not, under any relabelling (affineMatches).
@@ -37,7 +37,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import {
-  colourTriality,
+  colorTriality,
   trialityWeave,
   trialityWeaveLayout,
   TRIALITY_WEAVE_PERIOD,
@@ -53,7 +53,7 @@ export default experiment({
   id: 'gauge/one-for-three-is-forced',
   code: 'E-FRC-0112',
   title:
-    'any reversible rule that respects a colour triality, pairs chosen from the data included, can move tones between a colour line and its orbit only in threes: checked on all 531,441 triality-fixed cell states through every beat of the triality weave, with the lone-tone images listed exhaustively',
+    'any reversible rule that respects a color triality, pairs chosen from the data included, can move tones between a color line and its orbit only in threes: checked on all 531,441 triality-fixed cell states through every beat of the triality weave, with the lone-tone images listed exhaustively',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
@@ -61,7 +61,7 @@ export default experiment({
   run() {
     const mesh = d4BoxMesh({ side: 3 })
     const opposite = meshOpposites(mesh)
-    const sigma = colourTriality({ opposite })
+    const sigma = colorTriality({ opposite })
     const layout = trialityWeaveLayout({ opposite, triality: sigma })
     const weave = trialityWeave({ layout })
     const committed = turningWeave({ opposite: [...opposite] })
@@ -81,12 +81,12 @@ export default experiment({
         }, 0),
       )
 
-    // write a triality-fixed state: colour line states c0 c1 c2, one state per orbit copied round it
-    const write = (colour: number[], orbit: number[]): void => {
+    // write a triality-fixed state: color line states c0 c1 c2, one state per orbit copied round it
+    const write = (color: number[], orbit: number[]): void => {
       cell.fill(0)
-      layout.colour.forEach((line, k) => {
+      layout.color.forEach((line, k) => {
         const [a, b] = layout.lines[line] ?? [0, 0]
-        const [x, y] = PAIR_STATES[colour[k] ?? 0] ?? [0, 0]
+        const [x, y] = PAIR_STATES[color[k] ?? 0] ?? [0, 0]
 
         cell[a] = x
         cell[b] = y
@@ -149,7 +149,7 @@ export default experiment({
       committedLeaves += committedFixed ? 0 : 1
     }
 
-    // the four-line block: a lone tone s on colour line R (either end), orbit empty. Every block
+    // the four-line block: a lone tone s on color line R (either end), orbit empty. Every block
     // state sigma leaves alone that has the same charge: R any of 9 states, the orbit one state x3
     const allowed: string[] = []
 
@@ -176,7 +176,7 @@ export default experiment({
       }),
     )
 
-    // the orbit sums of the colour-selecting triality
+    // the orbit sums of the color-selecting triality
     const roots = rootsD4()
     const seen = new Set<number>()
 
@@ -253,7 +253,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'all 531,441 cell states the colour triality leaves alone stay in that set through every beat of the triality weave, with a multiple of three tones on every orbit, and from a lone colour-line tone the only charge-conserving triality-fixed images give the orbit 0, 3 or 6 tones, never one, while the committed turning weave takes some of those states out of the set',
+        'all 531,441 cell states the color triality leaves alone stay in that set through every beat of the triality weave, with a multiple of three tones on every orbit, and from a lone color-line tone the only charge-conserving triality-fixed images give the orbit 0, 3 or 6 tones, never one, while the committed turning weave takes some of those states out of the set',
       metrics: {
         fixedStates: states,
         staysFixed,
@@ -270,7 +270,7 @@ export default experiment({
         orbitSumNorm,
         affineMatches,
       },
-      notes: `L1, exact and exhaustive, no random numbers. The allowed images of a lone colour-line tone: ${allowed.join('; ')}. orbitGains is 1 when the gains are exactly 0, 3 and 6. Closed by the same argument: pairs chosen from the data (angle three of the alternatives in note/experiment/gauge/what-the-base-needs.md). Not a hit: the orbits do not sum to zero (zeroSumOrbits 0, smallest sum norm ${orbitSumNorm.toFixed(3)}, which is three times a colour weight), and the pair clock is not an affine map of a qutrit phase space under any tone relabelling (affineMatches 0). What escapes the argument is a rule that respects the triality only together with a shift in time, which does not have to keep fixed states fixed on each beat.`,
+      notes: `L1, exact and exhaustive, no random numbers. The allowed images of a lone color-line tone: ${allowed.join('; ')}. orbitGains is 1 when the gains are exactly 0, 3 and 6. Closed by the same argument: pairs chosen from the data (angle three of the alternatives in note/experiment/gauge/what-the-base-needs.md). Not a hit: the orbits do not sum to zero (zeroSumOrbits 0, smallest sum norm ${orbitSumNorm.toFixed(3)}, which is three times a color weight), and the pair clock is not an affine map of a qutrit phase space under any tone relabelling (affineMatches 0). What escapes the argument is a rule that respects the triality only together with a shift in time, which does not have to keep fixed states fixed on each beat.`,
     })
   },
 })

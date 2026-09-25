@@ -139,7 +139,7 @@ export function fermionForce(input: {
 
   applyStaggeredHopping({ operator, from: x, out: y })
 
-  // outer = a(p) b(q)^dag, colour vectors at sites p and q
+  // outer = a(p) b(q)^dag, color vectors at sites p and q
   const outerProduct = (
     a: Float64Array,
     p: number,
@@ -247,10 +247,10 @@ export function evenLogDeterminant(input: {
     size: even.length * n,
     column: (j, out) => {
       const site = even[Math.floor(j / n)] ?? 0
-      const colour = j % n
+      const color = j % n
 
       unit.fill(0)
-      unit[site * 2 * n + 2 * colour] = 1
+      unit[site * 2 * n + 2 * color] = 1
       applyStaggeredHopping({ operator, from: unit, out: once })
       applyStaggeredHopping({ operator, from: once, out: twice })
 

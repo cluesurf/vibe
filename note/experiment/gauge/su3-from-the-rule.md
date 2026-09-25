@@ -1,6 +1,6 @@
 # SU(3) From the Rule
 
-**Does the committed rule carry SU(3) colour by itself?** Three experiments, `E-FRC-0093` to
+**Does the committed rule carry SU(3) color by itself?** Three experiments, `E-FRC-0093` to
 `E-FRC-0095`, measure it from the committed turning weave and not from a Wilson action typed in by
 hand. **The answer is no, at every level tested, and each no is exact.** What the rule does carry is
 stated beside it. No random numbers are used anywhere: every probe, start and candidate is a fixed
@@ -8,8 +8,8 @@ construction, enumerated in full.
 
 ## Where SU(3) could live
 
-Colour needs three things, a triplet for the group to act on, a group that acts on it, and a vertex
-where three colour lines meet (the epsilon tensor of a baryon, the three-gluon coupling). In the five
+Color needs three things, a triplet for the group to act on, a group that acts on it, and a vertex
+where three color lines meet (the epsilon tensor of a baryon, the three-gluon coupling). In the five
 base things there are exactly three places to look.
 
 | place | why it is a candidate | experiment |
@@ -32,7 +32,7 @@ base things there are exactly three places to look.
   It is also one of the two Cartan directions of su(3), so the rule keeps one diagonal direction of
   SU(3) and breaks all six root generators and the other Cartan direction. The U(1) is the one
   `E-FRC-0014` already gauges.
-- **A Z3 in time, not in colour.** The vacuum clock runs `(0,0) -> (1,-1) -> (-1,1) -> (0,0)`, a
+- **A Z3 in time, not in color.** The vacuum clock runs `(0,0) -> (1,-1) -> (-1,1) -> (0,0)`, a
   3-cycle, and that orbit alone is invariant under a relabelling that turns one end of a line by a
   3-cycle and the other end by its inverse, the way a triplet and an antitriplet would. The full clock
   table breaks it (the inert like-signed states `(1,1)` and `(-1,-1)` do not follow), which is why
@@ -56,7 +56,7 @@ Stated as measured obstructions, each of which names the ingredient:
    previous knit, and the turning schedule with its single swapped couple removes the rest, including
    every element of order three.
 
-So the honest statement is: **SU(3) colour is not in the committed rule.** It would take adding a
+So the honest statement is: **SU(3) color is not in the committed rule.** It would take adding a
 sixth thing (a three-line vertex on the triangles, on a tone that carries amplitudes, with a clock
 compatible with U(3)), which the methodology forbids calling emergence. The 8v = 8 gluons match of
 `E-FRC-0038` stays what it is, a dimension count.
@@ -126,8 +126,8 @@ spread three-tone starts and windows longer than 8 beats.
 [`what-the-base-needs.md`](what-the-base-needs.md) takes the four obstructions above and measures the
 smallest change behind each (`E-FRC-0100` to `0104`). Two of them move.
 
-- **The clock does not have to go.** It has to stand beside the colour, not be it: the clock kept as
-  colour keeps 3 of the 9 generators, a colour factor beside it keeps all 9.
+- **The clock does not have to go.** It has to stand beside the color, not be it: the clock kept as
+  color keeps 3 of the 9 generators, a color factor beside it keeps all 9.
 - **No three-line vertex is needed.** Pairwise exchange with a phase binds the epsilon singlet as the
   unique ground state, so the missing ingredient is the phase, not a third line.
 

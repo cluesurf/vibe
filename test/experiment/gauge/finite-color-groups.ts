@@ -1,4 +1,4 @@
-// Can a finite colour group stand in for SU(3) where the hadron experiments live? E-FRC-0104 shows the
+// Can a finite color group stand in for SU(3) where the hadron experiments live? E-FRC-0104 shows the
 // Hessian group Sigma(648) acts classically (its links are three tones and a coin direction), and
 // that the only larger crystal subgroup, Sigma(1080), needs a golden-ratio element that makes Wigner
 // negativity. A finite gauge group matches SU(3) at strong coupling and freezes at weak coupling, so
@@ -280,10 +280,10 @@ const pull = (
 ): number => (a.value - b.value) / Math.hypot(a.error, b.error)
 
 export default experiment({
-  id: 'gauge/finite-colour-groups',
+  id: 'gauge/finite-color-groups',
   code: 'E-FRC-0103',
   title:
-    'the classical colour group Sigma(648), whose links are three tones and a coin direction, freezes under the Wilson action long before the couplings where hadrons are measured, but with a Re Tr U^2 term it stays unfrozen, deconfines at N_t = 4, and there gives the same Creutz ratios as SU(3) at its N_t = 4 transition, so at that spacing SU(3) needs no golden-ratio element',
+    'the classical color group Sigma(648), whose links are three tones and a coin direction, freezes under the Wilson action long before the couplings where hadrons are measured, but with a Re Tr U^2 term it stays unfrozen, deconfines at N_t = 4, and there gives the same Creutz ratios as SU(3) at its N_t = 4 transition, so at that spacing SU(3) needs no golden-ratio element',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -464,7 +464,7 @@ export default experiment({
         publishedTransition1080: PUBLISHED_POINT[0],
       },
       notes:
-        'L2, finite-group gauge theory reproduced and one new measurement. Small boxes (4^4 for freezing, 8^3 x 4 for deconfinement, 8^4 for loops) and one lattice spacing, the N_t = 4 one, about 0.17 fm with r0 = 0.5 fm. The Sigma(648) trajectory was chosen from a scan of which beta1 keeps cold and hot starts together, and its transition was located to about 0.5 in beta0. Creutz ratios at 2 and 3 carry short-distance parts and are compared like for like at the same physical spacing, not converted to a string tension. What it says for the base: colour links that are classical records (three tones and a coin direction, E-FRC-0104) reproduce SU(3) confinement and deconfinement at this spacing, so the golden-ratio element is not needed here. Whether that holds toward the continuum (N_t = 6 and beyond, where the freezing boundary of this trajectory approaches) is measured separately and stated in note/experiment/gauge/what-the-base-needs.md.',
+        'L2, finite-group gauge theory reproduced and one new measurement. Small boxes (4^4 for freezing, 8^3 x 4 for deconfinement, 8^4 for loops) and one lattice spacing, the N_t = 4 one, about 0.17 fm with r0 = 0.5 fm. The Sigma(648) trajectory was chosen from a scan of which beta1 keeps cold and hot starts together, and its transition was located to about 0.5 in beta0. Creutz ratios at 2 and 3 carry short-distance parts and are compared like for like at the same physical spacing, not converted to a string tension. What it says for the base: color links that are classical records (three tones and a coin direction, E-FRC-0104) reproduce SU(3) confinement and deconfinement at this spacing, so the golden-ratio element is not needed here. Whether that holds toward the continuum (N_t = 6 and beyond, where the freezing boundary of this trajectory approaches) is measured separately and stated in note/experiment/gauge/what-the-base-needs.md.',
     })
   },
 })

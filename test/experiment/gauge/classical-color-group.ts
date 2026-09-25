@@ -1,4 +1,4 @@
-// How much of SU(3) can a classical rule carry? E-FRC-0100 shows a permutation of colour states that
+// How much of SU(3) can a classical rule carry? E-FRC-0100 shows a permutation of color states that
 // commutes with all of SU(3) can only leave or swap. This asks the other question: which FINITE
 // subgroups of SU(3) act on something classical by permutation, so that a deterministic rule can carry
 // them exactly, and what that something is in the base's own terms.
@@ -17,7 +17,7 @@
 // Then the base's own terms. SL(2, 3) is the binary tetrahedral group 2T, and the 24 D4 coin
 // directions form exactly that group under x o y = x q y with q = (1 - i) / sqrt 2 (code/algebra/group/
 // coin-group): the product closes on the 24 directions, and an explicit search finds all 24
-// isomorphisms from SL(2, 3), the size of its automorphism group. So the Hessian colour group is
+// isomorphisms from SL(2, 3), the size of its automorphism group. So the Hessian color group is
 // labelled by three tones and one coin direction: 3 (center) x 9 (a tone pair, the translation) x 24
 // (a direction) = 648.
 //
@@ -116,10 +116,10 @@ function census(name: Su3SubgroupName): Census {
 }
 
 export default experiment({
-  id: 'gauge/classical-colour-group',
+  id: 'gauge/classical-color-group',
   code: 'E-FRC-0104',
   title:
-    'the largest crystal subgroup of SU(3) that acts classically is the Hessian group Sigma(648): all 648 elements permute the nine points of the qutrit phase space, through 9 translations times the 24 elements of SL(2, 3), and the 24 D4 coin directions form exactly SL(2, 3), so this colour group is labelled by three tones and one direction, while the golden-ratio groups act classically on almost nothing',
+    'the largest crystal subgroup of SU(3) that acts classically is the Hessian group Sigma(648): all 648 elements permute the nine points of the qutrit phase space, through 9 translations times the 24 elements of SL(2, 3), and the 24 D4 coin directions form exactly SL(2, 3), so this color group is labelled by three tones and one direction, while the golden-ratio groups act classically on almost nothing',
   category: 'gauge',
   substrates: 'any',
   depth: 'L1',
@@ -212,7 +212,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'every element of Delta(27), Sigma(108) and the Hessian group Sigma(648) permutes the nine phase-space points of a qutrit, Sigma(648) through 216 affine maps (9 translations x all 24 of SL(2, 3)) each hit by exactly its 3 central elements, and never makes Wigner negativity from |0>, while only a few of the 1080 elements of Sigma(360 x 3) act classically, its golden-ratio generator makes Wigner negativity 0.29 from |0> and the group as a whole up to 1/3. The 24 D4 coin directions close under x o y = x q y into a group with exactly 24 isomorphisms from SL(2, 3), so the classical colour group is labelled by a center tone, a tone pair and a coin direction, 3 x 9 x 24 = 648',
+        'every element of Delta(27), Sigma(108) and the Hessian group Sigma(648) permutes the nine phase-space points of a qutrit, Sigma(648) through 216 affine maps (9 translations x all 24 of SL(2, 3)) each hit by exactly its 3 central elements, and never makes Wigner negativity from |0>, while only a few of the 1080 elements of Sigma(360 x 3) act classically, its golden-ratio generator makes Wigner negativity 0.29 from |0> and the group as a whole up to 1/3. The 24 D4 coin directions close under x o y = x q y into a group with exactly 24 isomorphisms from SL(2, 3), so the classical color group is labelled by a center tone, a tone pair and a coin direction, 3 x 9 x 24 = 648',
       metrics: {
         ...Object.fromEntries(
           names.map(name => [
@@ -239,7 +239,7 @@ export default experiment({
         automorphismsOfSL23: 24,
       },
       notes:
-        'L1, known mathematics computed exactly with no random numbers: the qutrit Clifford group is the Hessian group (up to phases), Gross (2006) shows its action on the discrete Wigner function is a permutation for odd dimension, and the binary tetrahedral group is SL(2, 3). What the base gets from it: a colour gauge link valued in Sigma(648) is a classical object, a record of three tones and one coin direction, and moving along it permutes a nine-point classical phase space, so a deterministic permutation rule can carry this much of SU(3) exactly. What it cannot carry is the golden-ratio element of Sigma(1080), the one that creates Wigner negativity, the qutrit form of magic. Whether the classical colour group is enough for the physics depends on its gauge theory reaching the couplings where hadrons are measured, which E-FRC-0103 measures. The labelling 3 x 9 x 24 is a bijection of sets, not a direct product of groups: the translations and the center are a Heisenberg extension, and SL(2, 3) acts on them.',
+        'L1, known mathematics computed exactly with no random numbers: the qutrit Clifford group is the Hessian group (up to phases), Gross (2006) shows its action on the discrete Wigner function is a permutation for odd dimension, and the binary tetrahedral group is SL(2, 3). What the base gets from it: a color gauge link valued in Sigma(648) is a classical object, a record of three tones and one coin direction, and moving along it permutes a nine-point classical phase space, so a deterministic permutation rule can carry this much of SU(3) exactly. What it cannot carry is the golden-ratio element of Sigma(1080), the one that creates Wigner negativity, the qutrit form of magic. Whether the classical color group is enough for the physics depends on its gauge theory reaching the couplings where hadrons are measured, which E-FRC-0103 measures. The labelling 3 x 9 x 24 is a bijection of sets, not a direct product of groups: the translations and the center are a Heisenberg extension, and SL(2, 3) acts on them.',
     })
   },
 })

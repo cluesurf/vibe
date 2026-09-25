@@ -19,7 +19,7 @@ start: every start is a fixed hash of the slot index, and every run is exact.
    cell-graph distance between cells of one cusp equals their flat skin distance at **90 of 90**
    sampled cells out to skin 8, while the continuum distance grows only from 1.76 to 5.18
    (`E-NVG-0014`).
-4. **A phase on the colour swap changes who holds which colour, and nothing else.** On three
+4. **A phase on the color swap changes who holds which color, and nothing else.** On three
    excitations the rule preserves exactly, U(phi) at their 15 encounters makes "A ends red" run
    1, 0.11, 0.86, 0.22, 0 at phi = 0, pi/4, pi/2, 3pi/4, pi, where the matched classical swap gives
    1, 0.46, 0.33, 0.30, 0 (`E-FRC-0105`).
@@ -31,7 +31,7 @@ start: every start is a fixed hash of the slot index, and every run is exact.
 | [`E-SCL-0016`](../../../test/experiment/renormalization/screen-renderer.ts) | hidden bits per slot two schedule periods in: **1.32** (b = 1), **1.575** (3), **1.580** (5), **1.581** (15), against visible **0.348** and **0.00003**. Same-screen disagreement D_b: **0.159, 0.0173, 0.0063, 0.00052** at b = 1, 3, 5, 15, independent draws **0.159, 0.0177, 0.0066, 0.0013**, another macrostate **0.017** at b = 15. Exponent **-2.11 +- 0.06** (L = 15), **-2.03 +- 0.01** (L = 9). Streaming: D_L = **0** exactly. A gated rule that reads a hidden slot: exponent **-0.13**, D **0.157** at b = 9. Hidden line correlations under the committed rule: D_L **0.032** at the first beat against **0.0019** for a typical start, erased to **0.0026** in 48 beats | L3 |
 | [`E-FLD-0020`](../../../test/experiment/fluids/charge-mode-law.ts) | total charge conserved at every beat of every run, tone count and x momentum not (drifts **878** and **830**). Relaxation rate **0.00165, 0.00160, 0.00141, 0.00151, 0.00145** per beat at k = 0.57, 0.70, 1.40, 2.09, 2.79 (sides 11 and 9), mean **0.00152 +- 0.00010**, mean free time about **656** beats. The oscillating half moves at omega = k within **0.13 percent**. Streaming relaxes nothing: rate **4e-20** | L3 |
 | [`E-NVG-0014`](../../../test/experiment/addressing/cusp-routing-is-flat.ts) | the antipodal labels close on all **162,049** cells of the radius-4 ball, frame mismatch **4e-13**, shells **1, 24, 456, 8376, 153192**. The translation-like labels fail on **4,224** steps of the radius-3 ball. The cusp layer is the cubic lattice (degree **6**, shells 1, 6, 18, 38, 66, ...). Bulk distance equals skin distance at **90 of 90** samples. The committed rule reaches **24, 23, 19, 19** cells of shells 1 to 4 (of 153,192 at shell 4), never early. Streaming: the **24** rays exactly. Flat D4: **14** of 1,056 at shell 4, never early | L2 |
-| [`E-FRC-0105`](../../../test/experiment/gauge/colour-shader.ts) | **6** of 48 lone starts are preserved exactly (one slot away from the vacuum at every beat), three superpose with **0** defects through **15** encounters. P(A ends red) is **1** and **0** at the classical points, fractional between, A's purity **0.745** at pi/2, largest gap to the classical swap **0.52**. Casimir drift **2e-14**, singlet weight **1/6** throughout | L2 |
+| [`E-FRC-0105`](../../../test/experiment/gauge/color-shader.ts) | **6** of 48 lone starts are preserved exactly (one slot away from the vacuum at every beat), three superpose with **0** defects through **15** encounters. P(A ends red) is **1** and **0** at the classical points, fractional between, A's purity **0.745** at pi/2, largest gap to the classical swap **0.52**. Casimir drift **2e-14**, singlet weight **1/6** throughout | L2 |
 
 ## What each one means for the picture
 
@@ -83,13 +83,13 @@ mesh alike. Its routing is ray tracing on the cell graph.
 
 ### The missing amplitude acts on who, not on how much
 
-The base has no amplitudes (`E-FND-0080`), and a colour-symmetric rule can only leave or swap
+The base has no amplitudes (`E-FND-0080`), and a color-symmetric rule can only leave or swap
 (`E-FRC-0100`). Put the phase on the swap, on world lines the rule does preserve, and a screen
-observable becomes continuous in phi: which excitation ends holding which colour. It is 0 or 1 at the
+observable becomes continuous in phi: which excitation ends holding which color. It is 0 or 1 at the
 classical points and fractional between, and it differs from a classical random swap with the same
 one-encounter probability by up to 0.52, because amplitudes for different orders of encounters
-interfere. What the phase cannot touch is equally sharp: no tone observable, no colour content, no
-su(3) invariant. A shader changes the colours on the screen and not the geometry.
+interfere. What the phase cannot touch is equally sharp: no tone observable, no color content, no
+su(3) invariant. A shader changes the colors on the screen and not the geometry.
 
 ## Caveats
 

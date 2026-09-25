@@ -1,11 +1,11 @@
 // The chiral condensate <psi-bar psi> of staggered quarks on a gauge configuration, the order
 // parameter of chiral symmetry breaking. Here it is Sigma(m) = (1 / V) Re Tr M^-1, the trace over
-// sites and colours, for the staggered operator M = m + D of one staggered field (four tastes).
+// sites and colors, for the staggered operator M = m + D of one staggered field (four tastes).
 //
 // No noise is used. The ensemble is translation invariant, so the expected diagonal of the quark
-// propagator is the same at every site, and Sigma is the colour trace of G(x, x) = M^-1(x, x) at any
+// propagator is the same at every site, and Sigma is the color trace of G(x, x) = M^-1(x, x) at any
 // site, averaged over a fixed, deterministic set of source sites and over configurations. One point
-// source per colour per site, and one multi-shift solve serves every mass. On the free field, which
+// source per color per site, and one multi-shift solve serves every mass. On the free field, which
 // is exactly translation invariant, a single site gives the exact answer.
 //
 // The diagonal needs only the solution of (m^2 - D^2) y = delta_x, since G = (m - D) y and (D y)(x)
@@ -16,7 +16,7 @@ import {
   staggeredPropagator,
 } from '@/code/operator/staggered-fermion'
 
-// Sigma(m) per mass, the colour-traced propagator diagonal averaged over `sites`.
+// Sigma(m) per mass, the color-traced propagator diagonal averaged over `sites`.
 export function pointSourceCondensate(input: {
   operator: StaggeredOperator
   masses: readonly number[]
@@ -31,11 +31,11 @@ export function pointSourceCondensate(input: {
   let worstResidual = 0
 
   for (const site of sites) {
-    for (let colour = 0; colour < n; colour++) {
+    for (let color = 0; color < n; color++) {
       const solved = staggeredPropagator({
         operator,
         site,
-        colour,
+        color,
         masses,
         tolerance: input.tolerance,
         maxIterations: input.maxIterations,
@@ -45,7 +45,7 @@ export function pointSourceCondensate(input: {
 
       solved.propagators.forEach((g, index) => {
         totals[index] =
-          (totals[index] ?? 0) + (g[site * 2 * n + 2 * colour] ?? 0)
+          (totals[index] ?? 0) + (g[site * 2 * n + 2 * color] ?? 0)
       })
     }
   }
@@ -62,10 +62,10 @@ export function pointSourceCondensate(input: {
 // eigenvalue -sum_mu sin^2 p_mu. Spatial momenta 2 pi k / L, temporal (2k + 1) pi / T.
 export function freeStaggeredCondensate(input: {
   lengths: readonly number[]
-  colours: number
+  colors: number
   mass: number
 }): number {
-  const { lengths, colours, mass } = input
+  const { lengths, colors, mass } = input
   const dim = lengths.length
   const volume = lengths.reduce((a, b) => a * b, 1)
 
@@ -92,5 +92,5 @@ export function freeStaggeredCondensate(input: {
     total += mass / (mass * mass + sinSquared)
   }
 
-  return (colours * total) / volume
+  return (colors * total) / volume
 }

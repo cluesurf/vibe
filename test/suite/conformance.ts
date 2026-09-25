@@ -260,14 +260,14 @@ import {
   demonBeta,
 } from '@/code/dynamics/center-gauge'
 import {
-  colourPermutations,
-  bruteForceColourPermutations,
+  colorPermutations,
+  bruteForceColorPermutations,
   entanglingPower,
   epsilonState,
   pairExchangeUnitary,
   singletCount,
   singletResidual,
-} from '@/code/measure/colour-symmetry'
+} from '@/code/measure/color-symmetry'
 import {
   generateGroup,
   matrix3,
@@ -2584,7 +2584,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const solved = staggeredPropagator({
       operator,
       site: 0,
-      colour: 1,
+      color: 1,
       masses,
       tolerance: 1e-10,
       maxIterations: 2000,
@@ -2606,7 +2606,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
               solved.propagators[index] ?? new Float64Array(0),
             mass,
             site: 0,
-            colour: 1,
+            color: 1,
           }) < 1e-8,
       ),
     })
@@ -2967,7 +2967,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           (mass, i) =>
             Math.abs(
               (free.values[i] ?? 0) -
-                freeStaggeredCondensate({ lengths, colours: 3, mass }),
+                freeStaggeredCondensate({ lengths, colors: 3, mass }),
             ) < 1e-10,
         ),
       })
@@ -3172,24 +3172,24 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       })
     }
 
-    // colour symmetry: Schur-Weyl counts, entangling power, singlets
+    // color symmetry: Schur-Weyl counts, entangling power, singlets
     {
       check({
-        name: 'colourPermutations: 2 for a pair of triplets, 1 with an antitriplet, 6 for three, brute force agrees',
+        name: 'colorPermutations: 2 for a pair of triplets, 1 with an antitriplet, 6 for three, brute force agrees',
         ok:
-          colourPermutations({ d: 3, slots: ['plain', 'plain'] })
+          colorPermutations({ d: 3, slots: ['plain', 'plain'] })
             .length === 2 &&
-          colourPermutations({ d: 3, slots: ['plain', 'conjugate'] })
+          colorPermutations({ d: 3, slots: ['plain', 'conjugate'] })
             .length === 1 &&
-          colourPermutations({
+          colorPermutations({
             d: 3,
             slots: ['plain', 'plain', 'plain'],
           }).length === 6 &&
-          bruteForceColourPermutations({
+          bruteForceColorPermutations({
             d: 3,
             slots: ['plain', 'plain'],
           }) === 2 &&
-          colourPermutations({
+          colorPermutations({
             d: 3,
             slots: ['plain', 'plain'],
             diagonal: true,

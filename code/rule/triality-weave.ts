@@ -1,27 +1,27 @@
-// The triality weave: a candidate rule that keeps a colour-selecting triality and still connects
-// every line, by giving the colour lines a four-line interaction block.
+// The triality weave: a candidate rule that keeps a color-selecting triality and still connects
+// every line, by giving the color lines a four-line interaction block.
 //
-// Blocks here pair colour line f_i with orbit O_{(i + r_t) mod 3}. With the default one-block firing
+// Blocks here pair color line f_i with orbit O_{(i + r_t) mod 3}. With the default one-block firing
 // the firing block is i = r_t, so the orbit is O_{2 r_t mod 3}.
 //
 // E-FRC-0107 shows why a rule that couples lines in pairs cannot do both: a triality sigma that fixes
-// a colour plane fixes its three lines, and no sigma-invariant pairing reaches them. The smallest
-// sigma-invariant block that joins a colour line to the rest has four lines, the colour line f and a
+// a color plane fixes its three lines, and no sigma-invariant pairing reaches them. The smallest
+// sigma-invariant block that joins a color line to the rest has four lines, the color line f and a
 // whole sigma-orbit of three, a1, sigma a1, sigma^2 a1. This builds a rule on such blocks.
 //
 // Each beat t, with r = 0, 1, 2, 2, 1, 0 (a palindrome, period 6), the collision is V S P S V:
 //
 //   P  the committed pair clock (the create, flip, annihilate cycle of the 9-state pair table) on
 //      every line
-//   V  the four-line vertex on the block of colour line f_r and orbit O_{2r mod 3}, an involution
+//   V  the four-line vertex on the block of color line f_r and orbit O_{2r mod 3}, an involution
 //      that swaps these states and fixes all others, for s = +1 and -1:
 //        f (s, 0) and the orbit empty  <->  f (-s, -s) and every orbit line (s, 0)
 //        f (0, s) and the orbit empty  <->  f (-s, -s) and every orbit line (0, s)
-//      one charge on the colour line exchanged for three identical charges across the orbit
-//   S  the committed turning weave's conditional swap in triality-symmetric form: colour lines r and
+//      one charge on the color line exchanged for three identical charges across the orbit
+//   S  the committed turning weave's conditional swap in triality-symmetric form: color lines r and
 //      r + 1 as a couple, and orbits r and r + 1 line by line in their triality order
 //
-// V moves tones between a colour line and its orbit only in threes, which a triality-symmetric move
+// V moves tones between a color line and its orbit only in threes, which a triality-symmetric move
 // has to (an orbit state the triality fixes holds a multiple of three tones, a line at most two). S
 // never adds a tone. Every piece conserves charge, is carried to itself by sigma and by charge
 // conjugation, and because the pair table satisfies C P C = P^-1, each beat obeys
@@ -33,7 +33,7 @@
 // everywhere with the exchange on connects every line but lets one tone avalanche across the box.
 //
 // The orientation of a line is its leading slot (the lower direction index). The triality used must
-// carry leading slots to leading slots, which the two colour-selecting trialities of the previous knit
+// carry leading slots to leading slots, which the two color-selecting trialities of the previous knit
 // do. The constructor refuses one that does not.
 
 import {
@@ -48,10 +48,10 @@ import {
 } from '@/code/measure/coin-symmetry'
 import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
 
-// The first colour-selecting triality of the D4 coin that the layout accepts: an order-three
+// The first color-selecting triality of the D4 coin that the layout accepts: an order-three
 // element of W(F4), as a permutation of the 24 directions, whose fixed directions are exactly one
 // zero-sum plane (an A2 with its opposites) and which carries leading slots to leading slots.
-export function colourTriality(input: {
+export function colorTriality(input: {
   opposite: readonly number[]
 }): number[] {
   const { opposite } = input
@@ -85,9 +85,7 @@ export function colourTriality(input: {
   )
 
   if (found === undefined) {
-    throw new Error(
-      'no colour-selecting triality carries leading slots',
-    )
+    throw new Error('no color-selecting triality carries leading slots')
   }
 
   return found
@@ -102,8 +100,8 @@ export const TRIALITY_WEAVE_PERIOD = SCHEDULE.length
 export type TrialityWeaveLayout = {
   // the 12 lines as [leading, trailing] slot pairs
   readonly lines: readonly (readonly [number, number])[]
-  // indices into lines: the three colour lines, and three orbits of three in triality order
-  readonly colour: readonly number[]
+  // indices into lines: the three color lines, and three orbits of three in triality order
+  readonly color: readonly number[]
   readonly orbits: readonly (readonly number[])[]
 }
 
@@ -138,10 +136,10 @@ export function trialityWeaveLayout(input: {
 
     return target
   })
-  const colour = image
+  const color = image
     .map((target, k) => (target === k ? k : -1))
     .filter(k => k >= 0)
-  const seen = new Set(colour)
+  const seen = new Set(color)
   const orbits: number[][] = []
 
   for (let k = 0; k < lines.length; k++) {
@@ -156,16 +154,14 @@ export function trialityWeaveLayout(input: {
   }
 
   if (
-    colour.length !== 3 ||
+    color.length !== 3 ||
     orbits.length !== 3 ||
     orbits.some(o => new Set(o).size !== 3)
   ) {
-    throw new Error(
-      'the permutation is not a colour-selecting triality',
-    )
+    throw new Error('the permutation is not a color-selecting triality')
   }
 
-  return { lines, colour, orbits }
+  return { lines, color, orbits }
 }
 
 type Pair = readonly [Tone, Tone]
@@ -260,7 +256,7 @@ function vertex(
 //
 // Two options tame how often each half of the vertex fires, the way the turning weave swaps only one
 // couple per beat: `creation` and `exchange` are each 'all' (every block, every beat), 'one' (only
-// the block of colour line SCHEDULE[t], so each colour line takes its turn on the same palindrome) or
+// the block of color line SCHEDULE[t], so each color line takes its turn on the same palindrome) or
 // 'none'. Every choice keeps the triality (each firing block is invariant), CPT (the firing sequence
 // is the same palindrome) and reversal (X stays an involution).
 export type Firing = 'all' | 'one' | 'none'
@@ -294,7 +290,7 @@ export function conditionalSwap(
 
 //
 // `swaps: true` adds the turning weave's conditional swap in triality-symmetric form: each beat the two
-// colour lines r and r + 1 swap as a couple (a triality fixes both), and the orbits r and r + 1 swap
+// color lines r and r + 1 swap as a couple (a triality fixes both), and the orbits r and r + 1 swap
 // line by line in their triality order (a_k with b_k, a set the triality maps to itself). A swap never
 // adds a tone, so it cannot start an avalanche. The beat is then V S P S V, a palindrome of
 // involutions, so its CPT mirror is its inverse.
@@ -322,7 +318,7 @@ export function trialityWeave(input: {
       SCHEDULE[
         ((t % SCHEDULE.length) + SCHEDULE.length) % SCHEDULE.length
       ] ?? 0
-    const blocks = layout.colour
+    const blocks = layout.color
       .map((f, i) => ({
         f: layout.lines[f] ?? NO_LINE,
         orbit: (layout.orbits[(i + rotation) % 3] ?? []).map(
@@ -340,8 +336,8 @@ export function trialityWeave(input: {
     ][] = swaps
       ? [
           [
-            line(layout.colour[rotation] ?? 0),
-            line(layout.colour[(rotation + 1) % 3] ?? 0),
+            line(layout.color[rotation] ?? 0),
+            line(layout.color[(rotation + 1) % 3] ?? 0),
           ],
           ...[0, 1, 2].map(
             k =>

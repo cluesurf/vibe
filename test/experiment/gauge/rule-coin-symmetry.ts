@@ -1,7 +1,7 @@
-// Does the committed rule keep any discrete piece of SU(3) colour on the coin? An exact SU(3) is
+// Does the committed rule keep any discrete piece of SU(3) color on the coin? An exact SU(3) is
 // continuous, but a lattice rule could still keep a finite skeleton of it: a Z3 (the center of SU(3),
 // which turns a triplet by a cube root of unity) or an S3 (its Weyl group, which permutes the three
-// colours). Either needs an exact symmetry of order three.
+// colors). Either needs an exact symmetry of order three.
 //
 // The measurement is exhaustive and exact. Every element of the 24-cell symmetry group W(F4) (order
 // 1152, built as the closure of the 48 F4 root reflections acting on the 24 coin directions), combined
@@ -174,7 +174,7 @@ export default experiment({
           divisibleByThree(previousOrders),
       },
       notes:
-        "L2, an exact exhaustive structural measurement with no random numbers. Symmetries that also reverse time (the CPT of the committed rule is one) and symmetries that act differently on different cells are outside it, since neither can be the internal colour group of a single cell. The symmetry breaking has two sources that the controls separate: the oriented clock (the pair table is not symmetric under swapping a line's two ends, which already cuts W(F4) down for the previous knit) and the turning schedule with its single swapped couple, which removes the rest. Within these symmetries, no finite subgroup of SU(3) with an element of order three can act on the coin.",
+        "L2, an exact exhaustive structural measurement with no random numbers. Symmetries that also reverse time (the CPT of the committed rule is one) and symmetries that act differently on different cells are outside it, since neither can be the internal color group of a single cell. The symmetry breaking has two sources that the controls separate: the oriented clock (the pair table is not symmetric under swapping a line's two ends, which already cuts W(F4) down for the previous knit) and the turning schedule with its single swapped couple, which removes the rest. Within these symmetries, no finite subgroup of SU(3) with an element of order three can act on the coin.",
     })
   },
 })

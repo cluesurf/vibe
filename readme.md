@@ -209,7 +209,7 @@ sector map is
 The whole model, in one walk-through you can hold in your mind's eye.
 
 **The stage.** Picture a crystal built from 24-cells, packed so that
-every cell touches exactly 24 neighbours, one along each direction of
+every cell touches exactly 24 neighbors, one along each direction of
 the D4 root system. That crystal is the $\lbrace3,4,3,4\rbrace$
 honeycomb. There is no space underneath it. It IS space.
 
@@ -555,12 +555,12 @@ enforces (an L3 claim must carry a control) are in
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per registered experiment, generated from the registry itself so the
 code and the catalog are one source of truth, sorted strongest first. As
-of the latest regeneration it holds **964 experiments across 18
+of the latest regeneration it holds **966 experiments across 18
 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|   964 |                 52 |              676 |           222 |          14 |                   598 |
+|   966 |                 52 |              677 |           223 |          14 |                   598 |
 
 The largest categories are selves, quantum, foundations, gauge, gravity,
 and cosmology. The standing depth audit regrades overclaimed depths down

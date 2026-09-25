@@ -1,5 +1,5 @@
-// Does the committed rule have the three-body vertex colour needs? In SU(3) three quarks make a
-// singlet through the epsilon tensor, and three gluon lines meet at a vertex, so a colour structure on
+// Does the committed rule have the three-body vertex color needs? In SU(3) three quarks make a
+// singlet through the epsilon tensor, and three gluon lines meet at a vertex, so a color structure on
 // the coin needs interactions among three directions at once, and the natural triples of the D4 coin
 // are its closed triangles, three root directions summing to zero (each A2 subsystem, the root system
 // of SU(3) itself, holds two). The coin has the room: the 24 D4 roots hold 32 such triangles, 16 A2
@@ -42,7 +42,7 @@ export default experiment({
   id: 'gauge/rule-no-triplet-vertex',
   code: 'E-FRC-0094',
   title:
-    'the D4 coin holds 32 zero-sum triangles (16 A2 subsystems, the room for colour) but no beat of the committed rule lets any of them interact inside one collision block, the blocks being at most two lines, so the rule has no single-collision three-body vertex of the epsilon kind',
+    'the D4 coin holds 32 zero-sum triangles (16 A2 subsystems, the room for color) but no beat of the committed rule lets any of them interact inside one collision block, the blocks being at most two lines, so the rule has no single-collision three-body vertex of the epsilon kind',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -124,7 +124,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the 24 D4 coin directions hold 32 zero-sum triangles, and over all 24 beats of the committed turning weave none of them falls inside one interaction block (the largest block spans two lines), so no single collision couples three directions of a triangle, the vertex an epsilon-tensor colour singlet or a three-gluon coupling would need, while a whole-cell collision puts all 32 inside',
+        'the 24 D4 coin directions hold 32 zero-sum triangles, and over all 24 beats of the committed turning weave none of them falls inside one interaction block (the largest block spans two lines), so no single collision couples three directions of a triangle, the vertex an epsilon-tensor color singlet or a three-gluon coupling would need, while a whole-cell collision puts all 32 inside',
       metrics: {
         triangles: triangles.length,
         a2Subsystems: triangles.length / 2,
@@ -141,7 +141,7 @@ export default experiment({
         streamingBlocks: streamingBlocks.length,
       },
       notes:
-        'L2, a structural measurement of the committed collision, with no random numbers (the probe set is a fixed enumeration of sparse and structured cell states). An honest negative for colour at the level of one collision. It does not exclude an effective three-body coupling assembled over several beats as tones stream between cells, which a separate dynamical measurement would have to test. What the rule would need: a collision whose blocks join three lines whose directions close a triangle, which the per-line clock and the two-line swap never do.',
+        'L2, a structural measurement of the committed collision, with no random numbers (the probe set is a fixed enumeration of sparse and structured cell states). An honest negative for color at the level of one collision. It does not exclude an effective three-body coupling assembled over several beats as tones stream between cells, which a separate dynamical measurement would have to test. What the rule would need: a collision whose blocks join three lines whose directions close a triangle, which the per-line clock and the two-line swap never do.',
     })
   },
 })

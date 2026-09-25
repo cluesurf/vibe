@@ -1,4 +1,4 @@
-// A deterministic sampler for the classical colour group. E-FRC-0103 measured Sigma(648) gauge theory
+// A deterministic sampler for the classical color group. E-FRC-0103 measured Sigma(648) gauge theory
 // with a seeded heatbath, and the notes left the deterministic version open because the Wilson action
 // of a 648-element group takes irrational values, which a reversible energy bookkeeping cannot hold
 // exactly in floating point.
@@ -38,7 +38,7 @@
 // never fit a small demon and did not equilibrate, and it is now a heatbath on the energy shell.
 //
 // Depth L2: the microcanonical demon method made reversible for a finite gauge group, the part a
-// base with classical colour links would need to run without dice.
+// base with classical color links would need to run without dice.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -399,10 +399,10 @@ function reversesExactly(
 }
 
 export default experiment({
-  id: 'gauge/finite-colour-automaton',
+  id: 'gauge/finite-color-automaton',
   code: 'E-FRC-0110',
   title:
-    'the classical colour group Sigma(648) runs under a deterministic reversible rule with no random number: with an integer-valued plaquette action the kinetic demon rule conserves energy to the unit, reverses to the bit, and reproduces the heatbath plaquette of the same action at the coupling its demons read',
+    'the classical color group Sigma(648) runs under a deterministic reversible rule with no random number: with an integer-valued plaquette action the kinetic demon rule conserves energy to the unit, reverses to the bit, and reproduces the heatbath plaquette of the same action at the coupling its demons read',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',

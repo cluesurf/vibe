@@ -8,7 +8,7 @@ thirty-three experiments, and every claim in them has a control that could have 
 | `E-FRC-0080` to `E-FRC-0092`, `E-FRC-0098`, and a rebuilt `E-FRC-0007` | SU(3) gauge theory and QCD simulated, each number mapped to a published value | L2 |
 | `E-FRC-0093` to `E-FRC-0097` | does SU(3) come out of the committed {3,4,3,4} rule | L3 and L2 |
 | `E-FRC-0099` | a three-valued cyclic link under a deterministic reversible rule, the center of SU(3) on its own | L2 |
-| `E-FRC-0100` to `E-FRC-0111` | what the base would need to carry colour, what could select it, a rule that keeps it, and a deterministic sampler for it, in [what-the-base-needs.md](what-the-base-needs.md) | L1 and L2 |
+| `E-FRC-0100` to `E-FRC-0111` | what the base would need to carry color, what could select it, a rule that keeps it, and a deterministic sampler for it, in [what-the-base-needs.md](what-the-base-needs.md) | L1 and L2 |
 
 ## Why this exists
 
@@ -18,7 +18,7 @@ Before this branch the arena touched the strong force only from a distance.
 | --- | --- | --- |
 | [`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts) | confinement | in 3D SU(2), with no control (now rebuilt, see below) |
 | [`E-FRC-0038`](../../../test/experiment/gauge/non-abelian-3434.ts) | a non-abelian vertex on {3,4,3,4} | its "8 components = 8 gluons" is a dimension count |
-| [`E-FND-0020`](../../../test/experiment/foundations/fermions-from-octonions.ts), [`E-FND-0021`](../../../test/experiment/foundations/gauge-group-from-octonions.ts) | colour and SU(3) from the octonions | algebra, no dynamics |
+| [`E-FND-0020`](../../../test/experiment/foundations/fermions-from-octonions.ts), [`E-FND-0021`](../../../test/experiment/foundations/gauge-group-from-octonions.ts) | color and SU(3) from the octonions | algebra, no dynamics |
 | [`E-FRC-0044`](../../../test/experiment/gauge/rg-unification.ts) | the strong coupling runs | a one-loop formula |
 | [`E-SPN-0024`](../../../test/experiment/spin/nuclear-binding-curve.ts) | the nuclear binding curve | the semi-empirical mass formula |
 
@@ -35,7 +35,7 @@ Before this branch the arena touched the strong force only from a distance.
 | [`E-FRC-0095`](../../../test/experiment/gauge/rule-coin-symmetry.ts) | of 995,328 candidate coin symmetries only the identity holds, so there is no order-three symmetry, no Z3 and no S3 | streaming keeps 1152, the previous knit 12 |
 
 What SU(3) would need: by Schur-Weyl the only U(3)-symmetric line rules are do-nothing and
-exchange, so the create, flip and annihilate clock (the arrow) is exactly what breaks U(3). Colour
+exchange, so the create, flip and annihilate clock (the arrow) is exactly what breaks U(3). Color
 would need that clock gone, amplitudes on the tone, and a new three-line vertex. That is a sixth
 ingredient, not emergence.
 
@@ -52,7 +52,7 @@ input. All L2: the group and the action are chosen, then everything follows.
 | code | question | measured | published or control |
 | --- | --- | --- | --- |
 | [`E-FRC-0080`](../../../test/experiment/gauge/su3-area-law.ts) | do SU(3) gluons confine | chi(3,3) / chi(2,2) = **0.76 +- 0.03**, an area law | U(1) photon 0.32, weak-coupling SU(3) 0.36, both Coulombic |
-| [`E-FRC-0081`](../../../test/experiment/gauge/gluon-count.ts) | how many gluons and colours | **8.02** fields, **N = 3.004**, the three-quark invariant **0.2500** | SU(2) 3.02, U(1) 1.01, invariant 0 for both. Predicted 8, 3, 1/4 |
+| [`E-FRC-0081`](../../../test/experiment/gauge/gluon-count.ts) | how many gluons and colors | **8.02** fields, **N = 3.004**, the three-quark invariant **0.2500** | SU(2) 3.02, U(1) 1.01, invariant 0 for both. Predicted 8, 3, 1/4 |
 | [`E-FRC-0087`](../../../test/experiment/gauge/static-quarks.ts) | the static potential | sigma a^2 = **0.125 +- 0.021**, e = **0.34 +- 0.05** | e against pi / 12 = 0.262, pull 1.7. The photon has sigma = 0.0002 +- 0.0006 |
 | [`E-FRC-0088`](../../../test/experiment/gauge/static-quarks.ts) | the scale, and how it runs | r0 / a = **3.23 +- 0.21** at 5.7 and **4.27 +- 0.09** at 5.9, spacing ratio **1.32** | Necco-Sommer 2.94 and 4.48, pulls 1.4 and -2.4. The spacing ratio against the E-scheme two-loop prediction, pull -1.6 |
 | [`E-FRC-0089`](../../../test/experiment/gauge/static-quarks.ts) | the glueball | variational m r0 = **4.05 +- 0.50** (m a = 1.25 +- 0.13) | continuum 4.21 (Morningstar and Peardon), compatible, the least precise result here |
@@ -62,7 +62,7 @@ input. All L2: the group and the action are chosen, then everything follows.
 
 | code | question | measured | published or control |
 | --- | --- | --- | --- |
-| [`E-FRC-0082`](../../../test/experiment/gauge/su3-deconfinement.ts) | does colour deconfine | beta_c in **[5.100, 5.163]** on N_t = 2 | published 5.09. Three center sectors at phase 0, 1, 2 x 2 pi / 3 to 0.0006. The confined loop scales 1.51 against 1.54 for zero |
+| [`E-FRC-0082`](../../../test/experiment/gauge/su3-deconfinement.ts) | does color deconfine | beta_c in **[5.100, 5.163]** on N_t = 2 | published 5.09. Three center sectors at phase 0, 1, 2 x 2 pi / 3 to 0.0006. The confined loop scales 1.51 against 1.54 for zero |
 | [`E-FRC-0098`](../../../test/experiment/gauge/su3-deconfinement.ts) | at what temperature | beta_c on N_t = 4 carried to infinite volume **5.6865 +- 0.0093**, T_c r0 = **0.712**, about **281 MeV** | published 5.6925, and T_c r0 = 0.722 at N_t = 4 (0.7498 in the continuum) |
 | [`E-FRC-0086`](../../../test/experiment/gauge/chiral-condensate.ts) | is chiral symmetry broken, and restored when hot | Sigma(0) = **0.286 +- 0.028** below T_c, **0.00014** above | the estimator reproduces the free condensate to 3.6e-14, with no noise vectors |
 
@@ -89,18 +89,18 @@ but it samples an ensemble all the same. Two experiments put that on a determini
 - [`E-FRC-0092`](../../../test/experiment/gauge/deterministic-thermalization.ts): **deterministic,
   reversible SU(3) dynamics** (a Hamiltonian flow, fourth-order symmetric integrator) from a fixed
   plane-wave pattern, with no random number drawn. It thermalizes on its own: the momentum kurtosis
-  goes from 1.5 to **2.997** and the eight colours hold **1/8 each to 0.0005**. Its own kinetic
+  goes from 1.5 to **2.997** and the eight colors hold **1/8 each to 0.0005**. Its own kinetic
   temperature, counted over the degrees of freedom the Gauss law leaves free, predicts beta' =
   **5.699**, and the heatbath at that beta agrees on the plaquette (**0.5504 against 0.5497**) and on
   the area law (**chi(2,2) 0.369 against 0.371**). The naive temperature is excluded at 306 sigma. An
-  abelian start never moves energy into the charged colours. Leapfrog at step 0.05 left the
+  abelian start never moves energy into the charged colors. Leapfrog at step 0.05 left the
   plaquette 0.9 percent low, which is its shadow-Hamiltonian bias, and the fourth order removed it.
 - `E-FRC-0099`: the **Z3 center on its own**, three cyclic values per link, under a reversible
   cellular automaton (the Z3 form of the Q2R rule), deterministic and exactly energy-conserving,
   against the heatbath. See its verdict.
 - `E-FRC-0102` and `E-FRC-0110`: the same with a **kinetic demon per link** that streams and trades
   units, which is what keeps a deterministic link rule from freezing. On the Z3 center it covers the
-  whole phase diagram. On the 648-element classical colour group, with an integer-valued plaquette
+  whole phase diagram. On the 648-element classical color group, with an integer-valued plaquette
   action, it conserves energy to the unit, reverses to the bit, and matches the heatbath.
 
 The trace estimators went deterministic too. The chiral condensate reads the quark propagator
@@ -141,7 +141,7 @@ The ideas that turned raw lattice numbers into comparisons with published ones:
 | `code/algebra/linear/{conjugate-gradient,complex-cholesky,generalized-eigen}` | multi-shift CG, exact log det, the variational eigenproblem |
 | `code/measure/jackknife`, `code/tool/bisect`, `weightedLinearFit`, `weightedLeastSquares` | binned errors, transitions, fits with errors |
 
-Every module has a conformance block (157 checks pass, with the colour modules of
+Every module has a conformance block (157 checks pass, with the color modules of
 [what-the-base-needs.md](what-the-base-needs.md)). Each was checked against a published number
 before the first experiment used it: the SU(3) plaquette at beta 6.0 on 6^4 is 0.5937, the
 published value.
@@ -151,17 +151,17 @@ published value.
 The strong-force experiments add roughly an hour and a half of suite time on one core (about 74
 minutes for the files timed individually, plus six smaller ones). The heaviest are the static-quark
 ensembles (895 s), the hadrons in the 2 fm box (836 s), the N_t = 4 deconfinement on two volumes
-(817 s), the finite colour groups (484 s) and the multi-beat triangle census (439 s).
+(817 s), the finite color groups (484 s) and the multi-beat triangle census (439 s).
 
 ## What is still open
 
 1. **SU(3) in the rule.** Measured absent from the committed rule. What a base would need, measured
-   piece by piece, and the triality rotation that would select a colour plane from the coin itself,
+   piece by piece, and the triality rotation that would select a color plane from the coin itself,
    are in [what-the-base-needs.md](what-the-base-needs.md).
 2. **The Luscher term cleanly.** Needs R well above 0.5 fm, so boxes of 16^4 and more.
 3. **Zero-temperature string breaking.** The thermal form is shown (`E-FRC-0090`). The potential
    flattening at 1.2 fm needs dynamical quarks in large boxes.
 4. **Continuum limits in 4D.** Everything here is at one or two couplings, apart from 3D SU(2). For
-   the classical colour group the measured answer is a floor near the N_t = 4 spacing, which is why
+   the classical color group the measured answer is a floor near the N_t = 4 spacing, which is why
    the base table in [what-the-base-needs.md](what-the-base-needs.md) carries one non-Clifford
    element.

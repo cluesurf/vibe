@@ -57,7 +57,7 @@ function starts(side: number): Will[] {
   const mesh = d4Mesh({ side })
   const texture = makeWill(mesh)
   const ball = makeWill(mesh)
-  const centre = (side - 1) / 2
+  const center = (side - 1) / 2
 
   fillCoordinateTexture(texture, side)
 
@@ -69,7 +69,7 @@ function starts(side: number): Will[] {
       Math.floor(cell / (side * side * side)) % side,
     ]
     const radiusSquared = coordinates.reduce(
-      (sum, c) => sum + (c - centre) ** 2,
+      (sum, c) => sum + (c - center) ** 2,
       0,
     )
 

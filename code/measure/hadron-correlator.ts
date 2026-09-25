@@ -1,5 +1,5 @@
 // Hadron correlators built from staggered quark propagators, and the masses read off them. A
-// hadron is a colour singlet, so the correlator contracts the colour indices of its quarks into an
+// hadron is a color singlet, so the correlator contracts the color indices of its quarks into an
 // invariant:
 //
 // - the Goldstone pion, a quark and an antiquark, delta_ab: C(t) = sum over x in slice t of
@@ -9,7 +9,7 @@
 //   epsilon_abc epsilon_a'b'c' G_aa' G_bb' G_cc' = 6 det G(x). A baryon exists only because SU(3)
 //   has an invariant epsilon tensor with three indices.
 //
-// `propagators[c]` is the propagator from a point source of colour c at the origin, one colour
+// `propagators[c]` is the propagator from a point source of color c at the origin, one color
 // vector per site. The origin is the source, and time is the last axis.
 
 import { Hypercubic, siteCoordinates } from '@/code/tool/hypercubic'
@@ -28,12 +28,12 @@ export type HadronCorrelators = {
   readonly pion: number[][]
   readonly rho: number[][]
   readonly nucleon: number[][]
-  // the worst |M G - source| / |source| over the colour sources, recomputed from the propagators
+  // the worst |M G - source| / |source| over the color sources, recomputed from the propagators
   readonly worstResidual: number
 }
 
 // Pion and nucleon correlators on one gauge configuration, for several quark masses at once, from a
-// point source at the origin in each of the three colours.
+// point source at the origin in each of the three colors.
 export function measureHadronCorrelators(input: {
   lattice: GaugeLattice
   masses: readonly number[]
@@ -42,11 +42,11 @@ export function measureHadronCorrelators(input: {
 }): HadronCorrelators {
   const { lattice, masses } = input
   const operator = makeStaggeredOperator({ lattice })
-  const solved = [0, 1, 2].map(colour =>
+  const solved = [0, 1, 2].map(color =>
     staggeredPropagator({
       operator,
       site: 0,
-      colour,
+      color,
       masses,
       tolerance: input.tolerance,
       maxIterations: input.maxIterations,

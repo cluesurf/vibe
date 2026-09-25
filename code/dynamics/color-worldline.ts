@@ -1,24 +1,24 @@
-// A colour qutrit carried on the committed rule's own excitations, the smallest place a phase could enter.
+// A color qutrit carried on the committed rule's own excitations, the smallest place a phase could enter.
 //
 // The committed collision creates and annihilates tones (the vacuum clock (0,0) -> (1,-1) -> (-1,1) ->
-// (0,0) on every line), so a colour label glued to a tone has no well-defined carrier: at a flip or an
+// (0,0) on every line), so a color label glued to a tone has no well-defined carrier: at a flip or an
 // annihilation there is no fact about which tone went where. What the rule does preserve exactly is an
 // EXCITATION: a start that differs from the vacuum in one slot, whose run differs from the vacuum's run
 // in exactly one slot at every beat. That slot is a world line the rule defines, with nothing added.
 // When several excitations superpose exactly (the joint run equals the vacuum run with each single
-// excitation's one slot written in), their world lines survive every encounter, and a colour qutrit
+// excitation's one slot written in), their world lines survive every encounter, and a color qutrit
 // riding each one is well defined for as long as that holds. Both conditions are checked beat by beat.
 //
 // A collision event is a beat at which two excitations sit in the same cell when the collision acts.
-// At each event the colour pair gets the colour-symmetric unitary U(phi) = P_sym + e^{i phi} P_anti of
-// E-FRC-0100 (code/measure/colour-symmetry), applied to the two carriers' qutrits. Nothing feeds back:
-// the tones never read the colour.
+// At each event the color pair gets the color-symmetric unitary U(phi) = P_sym + e^{i phi} P_anti of
+// E-FRC-0100 (code/measure/color-symmetry), applied to the two carriers' qutrits. Nothing feeds back:
+// the tones never read the color.
 
 import { Will, makeWill } from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
 import { Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-import { Operator } from '@/code/measure/colour-symmetry'
+import { Operator } from '@/code/measure/color-symmetry'
 
 export type Seed = {
   readonly tone: -1 | 1
@@ -181,21 +181,21 @@ export function excitationWorldLines(input: {
   }
 }
 
-export type ColourState = {
+export type ColorState = {
   readonly re: Float64Array
   readonly im: Float64Array
 }
 
 // A product basis state of k qutrits, slot 0 the least significant digit.
-export function colourBasisState(input: {
-  colours: readonly number[]
+export function colorBasisState(input: {
+  colors: readonly number[]
   d: number
-}): ColourState {
-  const { colours, d } = input
-  const size = d ** colours.length
+}): ColorState {
+  const { colors, d } = input
+  const size = d ** colors.length
   const re = new Float64Array(size)
 
-  re[colours.reduce((sum, c, slot) => sum + c * d ** slot, 0)] = 1
+  re[colors.reduce((sum, c, slot) => sum + c * d ** slot, 0)] = 1
 
   return { re, im: new Float64Array(size) }
 }
@@ -203,12 +203,12 @@ export function colourBasisState(input: {
 // Apply a two-slot operator (d^2 by d^2, slot i the less significant digit) to slots i and j of a
 // k-slot state.
 export function applyPairOperator(input: {
-  state: ColourState
+  state: ColorState
   operator: Operator
   d: number
   i: number
   j: number
-}): ColourState {
+}): ColorState {
   const { state, operator, d, i, j } = input
   const size = state.re.length
   const re = new Float64Array(size)
@@ -248,20 +248,20 @@ export function applyPairOperator(input: {
   return { re, im }
 }
 
-// The probability that qutrit `slot` holds colour `colour`.
-export function colourProbability(input: {
-  state: ColourState
+// The probability that qutrit `slot` holds color `color`.
+export function colorProbability(input: {
+  state: ColorState
   d: number
   slot: number
-  colour: number
+  color: number
 }): number {
-  const { state, d, slot, colour } = input
+  const { state, d, slot, color } = input
   const place = d ** slot
 
   let total = 0
 
   for (let s = 0; s < state.re.length; s++) {
-    if (Math.floor(s / place) % d === colour) {
+    if (Math.floor(s / place) % d === color) {
       total += (state.re[s] ?? 0) ** 2 + (state.im[s] ?? 0) ** 2
     }
   }
@@ -271,7 +271,7 @@ export function colourProbability(input: {
 
 // The purity Tr rho^2 of one qutrit's reduced density matrix, 1 for a product state, 1 / d at most mixed.
 export function reducedPurity(input: {
-  state: ColourState
+  state: ColorState
   d: number
   slot: number
 }): number {
@@ -308,7 +308,7 @@ export function reducedPurity(input: {
 
 // <state| operator |state>, real part.
 export function expectation(input: {
-  state: ColourState
+  state: ColorState
   operator: Operator
 }): number {
   const { state, operator } = input
@@ -336,20 +336,20 @@ export function expectation(input: {
   return total
 }
 
-// The classical control: at each event the two carriers exchange colours with probability
+// The classical control: at each event the two carriers exchange colors with probability
 // sin^2(phi / 2), the stochastic mixture of the two classical points with U(phi)'s one-event swap
-// probability. Returns the probability that `slot` ends holding its colour `colour`, exactly, over the
-// k! colour assignments.
-export function classicalColourProbability(input: {
+// probability. Returns the probability that `slot` ends holding its color `color`, exactly, over the
+// k! color assignments.
+export function classicalColorProbability(input: {
   events: readonly { first: number; second: number }[]
   swapProbability: number
-  colours: readonly number[]
+  colors: readonly number[]
   slot: number
-  colour: number
+  color: number
 }): number {
-  const { events, swapProbability, colours, slot, colour } = input
+  const { events, swapProbability, colors, slot, color } = input
 
-  let distribution = new Map<string, number>([[colours.join(','), 1]])
+  let distribution = new Map<string, number>([[colors.join(','), 1]])
 
   for (const { first, second } of events) {
     const next = new Map<string, number>()
@@ -377,7 +377,7 @@ export function classicalColourProbability(input: {
   let total = 0
 
   for (const [key, weight] of distribution) {
-    if (Number(key.split(',')[slot]) === colour) {
+    if (Number(key.split(',')[slot]) === color) {
       total += weight
     }
   }

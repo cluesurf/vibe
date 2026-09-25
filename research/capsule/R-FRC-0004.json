@@ -85,7 +85,7 @@
     "E-FRC-0083": {
       "seconds": 716.782,
       "status": "pass",
-      "claim": "the force ratio chi(2,2) / chi(1,1) starts from its exactly computed tree-level value and rises with g^2 at alpha + kappa C_A with the same positive kappa from SU(2), SU(3) and SU(4), and at the same rate for adjoint and fundamental sources, so the coupling grows with distance in proportion to the gluon colour charge and not the source charge, the anti-screening behind asymptotic freedom",
+      "claim": "the force ratio chi(2,2) / chi(1,1) starts from its exactly computed tree-level value and rises with g^2 at alpha + kappa C_A with the same positive kappa from SU(2), SU(3) and SU(4), and at the same rate for adjoint and fundamental sources, so the coupling grows with distance in proportion to the gluon color charge and not the source charge, the anti-screening behind asymptotic freedom",
       "metrics": {
         "kappaSu2": 0.024454486403641406,
         "kappaSu2Error": 0.003623029538532202,
@@ -113,7 +113,7 @@
         "sourceChargeRatioSu3": 2.25,
         "sourceChargeRatioSu4": 2.1333333333333333
       },
-      "notes": "L2, known physics: the colour-charge scaling of the one-loop Yang-Mills running in Wilson loops at weak coupling on an 8^4 periodic box, at C_A g^2 = 0.6, 0.9, 1.2 for every non-abelian group, with the next order carried by the slope of each line so the leading rate is not biased by it. The rise of compact U(1) (C_A = 0) is not running, pure U(1) has nothing charged to run with. It is the self-coupling of the compact cos action, the alpha the non-abelian rates are measured against. kappa also holds C_A-proportional lattice constants that are not a logarithm, so the implied ratio of the two distances mixes running with those constants and is printed, not tested. Errors are binned jackknife, bins of 5 consecutive measurements."
+      "notes": "L2, known physics: the color-charge scaling of the one-loop Yang-Mills running in Wilson loops at weak coupling on an 8^4 periodic box, at C_A g^2 = 0.6, 0.9, 1.2 for every non-abelian group, with the next order carried by the slope of each line so the leading rate is not biased by it. The rise of compact U(1) (C_A = 0) is not running, pure U(1) has nothing charged to run with. It is the self-coupling of the compact cos action, the alpha the non-abelian rates are measured against. kappa also holds C_A-proportional lattice constants that are not a logarithm, so the implied ratio of the two distances mixes running with those constants and is printed, not tested. Errors are binned jackknife, bins of 5 consecutive measurements."
     }
   },
   "passed": true

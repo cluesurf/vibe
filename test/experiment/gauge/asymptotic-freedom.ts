@@ -1,5 +1,5 @@
 // Asymptotic freedom: the non-abelian coupling grows with distance, because the gluons themselves
-// carry colour and anti-screen it. How fast it grows is set by the gluon's own colour charge C_A (N
+// carry color and anti-screen it. How fast it grows is set by the gluon's own color charge C_A (N
 // for SU(N), zero for the photon of U(1)), and NOT by the charge of whatever probes it.
 //
 // The observable is rho = chi(2, 2) / chi(1, 1), a ratio of Creutz ratios, each the force between
@@ -12,7 +12,7 @@
 //
 // because Wilson loops exponentiate: the abelian C_R^2 terms of ln W cancel, and the first term that
 // survives is C_R C_A, whose C_R cancels in the ratio. alpha is a lattice artifact of the compact
-// action that does not care about colour, measured by U(1) (C_A = 0), and kappa is the anti-screening.
+// action that does not care about color, measured by U(1) (C_A = 0), and kappa is the anti-screening.
 //
 // Three predictions, each of which could fail:
 //
@@ -183,7 +183,7 @@ export default experiment({
   id: 'gauge/asymptotic-freedom',
   code: 'E-FRC-0083',
   title:
-    'the coupling grows with distance at a rate proportional to the gluon colour charge C_A, the same per unit C_A in SU(2), SU(3) and SU(4), and the same for adjoint and fundamental sources, on top of the colour-blind U(1) lattice artifact',
+    'the coupling grows with distance at a rate proportional to the gluon color charge C_A, the same per unit C_A in SU(2), SU(3) and SU(4), and the same for adjoint and fundamental sources, on top of the color-blind U(1) lattice artifact',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -288,7 +288,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the force ratio chi(2,2) / chi(1,1) starts from its exactly computed tree-level value and rises with g^2 at alpha + kappa C_A with the same positive kappa from SU(2), SU(3) and SU(4), and at the same rate for adjoint and fundamental sources, so the coupling grows with distance in proportion to the gluon colour charge and not the source charge, the anti-screening behind asymptotic freedom',
+        'the force ratio chi(2,2) / chi(1,1) starts from its exactly computed tree-level value and rises with g^2 at alpha + kappa C_A with the same positive kappa from SU(2), SU(3) and SU(4), and at the same rate for adjoint and fundamental sources, so the coupling grows with distance in proportion to the gluon color charge and not the source charge, the anti-screening behind asymptotic freedom',
       metrics: {
         kappaSu2: kappas[0]?.value ?? 0,
         kappaSu2Error: kappas[0]?.error ?? 0,
@@ -321,7 +321,7 @@ export default experiment({
         sourceChargeRatioSu4: 32 / 15,
       },
       notes:
-        'L2, known physics: the colour-charge scaling of the one-loop Yang-Mills running in Wilson loops at weak coupling on an 8^4 periodic box, at C_A g^2 = 0.6, 0.9, 1.2 for every non-abelian group, with the next order carried by the slope of each line so the leading rate is not biased by it. The rise of compact U(1) (C_A = 0) is not running, pure U(1) has nothing charged to run with. It is the self-coupling of the compact cos action, the alpha the non-abelian rates are measured against. kappa also holds C_A-proportional lattice constants that are not a logarithm, so the implied ratio of the two distances mixes running with those constants and is printed, not tested. Errors are binned jackknife, bins of 5 consecutive measurements.',
+        'L2, known physics: the color-charge scaling of the one-loop Yang-Mills running in Wilson loops at weak coupling on an 8^4 periodic box, at C_A g^2 = 0.6, 0.9, 1.2 for every non-abelian group, with the next order carried by the slope of each line so the leading rate is not biased by it. The rise of compact U(1) (C_A = 0) is not running, pure U(1) has nothing charged to run with. It is the self-coupling of the compact cos action, the alpha the non-abelian rates are measured against. kappa also holds C_A-proportional lattice constants that are not a logarithm, so the implied ratio of the two distances mixes running with those constants and is printed, not tested. Errors are binned jackknife, bins of 5 consecutive measurements.',
     })
   },
 })

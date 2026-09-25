@@ -69,7 +69,7 @@ export type LabelledCoin = {
   readonly directions: Vec[]
 }
 
-function reflectionThroughCentre(input: {
+function reflectionThroughCenter(input: {
   direction: Vec
   metric: number[]
 }): Mat {
@@ -289,7 +289,7 @@ export function labelTransports(input: {
     const second =
       kind === 'antipodal'
         ? coin.inversion
-        : reflectionThroughCentre({
+        : reflectionThroughCenter({
             direction: coin.directions[k]!,
             metric,
           })

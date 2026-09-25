@@ -1,5 +1,5 @@
 // Does the committed rule build a three-direction coupling over several beats, and is it the
-// triangle kind colour would need? E-FRC-0094 shows no single collision block ever holds three lines,
+// triangle kind color would need? E-FRC-0094 shows no single collision block ever holds three lines,
 // so no one beat couples a zero-sum triangle of directions (an A2 subsystem, the root system of
 // SU(3)). Tones stream between cells, so a joint effect of three could still be assembled over
 // several beats. This measures it.
@@ -273,7 +273,7 @@ export default experiment({
         streamingJointRate: streamingRate,
       },
       notes:
-        'L3 format: the committed rule runs through beat on the D4 mesh with a whole-cell and a free calibration. A nonzero inclusion-exclusion difference says the outcome depends on all three tones jointly, which any nonlinear classical composition produces (tone A deflects B, which then meets C), so a joint effect alone is not an epsilon vertex. What would single out colour is a coupling specific to the triangle geometry, which is what the closing third is compared for. Windows of 8 beats on a side-5 mesh, tones starting in one cell, the first 16 interacting closable pairs in a fixed order; spread starts and longer windows are not tested. No random numbers.',
+        'L3 format: the committed rule runs through beat on the D4 mesh with a whole-cell and a free calibration. A nonzero inclusion-exclusion difference says the outcome depends on all three tones jointly, which any nonlinear classical composition produces (tone A deflects B, which then meets C), so a joint effect alone is not an epsilon vertex. What would single out color is a coupling specific to the triangle geometry, which is what the closing third is compared for. Windows of 8 beats on a side-5 mesh, tones starting in one cell, the first 16 interacting closable pairs in a fixed order; spread starts and longer windows are not tested. No random numbers.',
     })
   },
 })

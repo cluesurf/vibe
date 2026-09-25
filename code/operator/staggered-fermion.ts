@@ -1,4 +1,4 @@
-// Kogut-Susskind staggered quarks on a lattice gauge field. One colour vector per site, the Dirac
+// Kogut-Susskind staggered quarks on a lattice gauge field. One color vector per site, the Dirac
 // structure spread across the corners of each 2^d hypercube by the phases
 //
 //   eta_mu(x) = (-1)^(x_0 + ... + x_{mu - 1})
@@ -72,7 +72,7 @@ export function makeStaggeredOperator(input: {
   }
 }
 
-// out = D from, the hopping term alone (no mass). Colour vectors are 2 * N doubles per site.
+// out = D from, the hopping term alone (no mass). Color vectors are 2 * N doubles per site.
 export function applyStaggeredHopping(input: {
   operator: StaggeredOperator
   from: Float64Array
@@ -134,13 +134,13 @@ export function applyStaggeredHopping(input: {
   }
 }
 
-// The quark propagator G = M^-1 from one point source (site, colour) for several bare masses at
+// The quark propagator G = M^-1 from one point source (site, color) for several bare masses at
 // once. Solves (m^2 - D^2) y = source by multi-shift conjugate gradient, then G = (m - D) y, which is
-// M^-1 because M (m - D) = m^2 - D^2. Returns one full-lattice colour field per mass.
+// M^-1 because M (m - D) = m^2 - D^2. Returns one full-lattice color field per mass.
 export function staggeredPropagator(input: {
   operator: StaggeredOperator
   site: number
-  colour: number
+  color: number
   masses: readonly number[]
   tolerance: number
   maxIterations: number
@@ -156,7 +156,7 @@ export function staggeredPropagator(input: {
   const scratch = new Float64Array(length)
   const source = new Float64Array(length)
 
-  source[input.site * vector + 2 * input.colour] = 1
+  source[input.site * vector + 2 * input.color] = 1
 
   // -D^2, Hermitian and positive
   const minusHoppingSquared: LinearMap = ({ from, out }) => {
@@ -202,7 +202,7 @@ export function staggeredResidual(input: {
   propagator: Float64Array
   mass: number
   site: number
-  colour: number
+  color: number
 }): number {
   const { operator, propagator, mass } = input
   const vector = 2 * operator.lattice.n
@@ -213,7 +213,7 @@ export function staggeredResidual(input: {
   let norm = 0
 
   for (let k = 0; k < out.length; k++) {
-    const source = k === input.site * vector + 2 * input.colour ? 1 : 0
+    const source = k === input.site * vector + 2 * input.color ? 1 : 0
     const difference =
       mass * (propagator[k] ?? 0) + (out[k] ?? 0) - source
 

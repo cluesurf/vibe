@@ -1,4 +1,4 @@
-// A deterministic, reversible sampler for lattice gauge theory with a finite colour group, the
+// A deterministic, reversible sampler for lattice gauge theory with a finite color group, the
 // finite-group form of the kinetic Z3 automaton (E-FRC-0102).
 //
 // The obstacle was arithmetic. A reversible microcanonical rule must conserve the energy exactly, and
@@ -41,7 +41,7 @@ export function actionLevels(input: {
 // -S = sum_p ((beta0 / 3) Re Tr U_p + beta1 Re Tr U_p^2), written as beta0 times the class function
 // (1 - Re Tr U / 3) + (beta1 / beta0) (3 - Re Tr U^2), which is 0 at the identity, and quantized as
 // round(scale times that). The canonical weight is then exp(-(beta0 / scale) sum_p E), so the demon
-// temperature reads beta0 / scale. A level can be negative when beta1 < 0 favours an element over the
+// temperature reads beta0 / scale. A level can be negative when beta1 < 0 favors an element over the
 // identity, and the bookkeeping holds all the same, since only differences of levels move energy.
 export function mixedActionLevels(input: {
   group: FiniteGroup

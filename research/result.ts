@@ -115,7 +115,7 @@ export const RESULTS: Result[] = [
     sentence:
       'An independent lattice code reproduces the standard quenched and dynamical SU(3) results, each against a published value or a computed control, with every pull within $2\\sigma$.',
     claim:
-      'A lattice gauge theory code written from scratch reproduces, at $\\beta = 5.7$ to $5.9$, confinement, the gluon and colour count, the static potential and the Sommer scale, the scalar glueball, the deconfinement transition, chiral symmetry breaking, the pion as a Goldstone boson, and string breaking by dynamical quarks.',
+      'A lattice gauge theory code written from scratch reproduces, at $\\beta = 5.7$ to $5.9$, confinement, the gluon and color count, the static potential and the Sommer scale, the scalar glueball, the deconfinement transition, chiral symmetry breaking, the pion as a Goldstone boson, and string breaking by dynamical quarks.',
     headline: {
       value: '5 of 5',
       label: 'quantities with a published error within 2σ',
@@ -153,7 +153,7 @@ export const RESULTS: Result[] = [
       },
       {
         quantity:
-          'gauge fields by equipartition, colours, cubic invariant',
+          'gauge fields by equipartition, colors, cubic invariant',
         measured: '8.006 fields, N = 3.010, 0.2497',
         reference:
           'predicted 8, 3, 1/4. SU(2) 3.017 and U(1) 1.007 fields (run)',
@@ -192,7 +192,7 @@ export const RESULTS: Result[] = [
         quantity: 'deconfinement $\\beta_c$, $N_t = 2$, $8^3$ box',
         measured: 'bracket [5.1000, 5.1625]',
         reference:
-          'published 5.09. Centre-sector phase error 0.0009. Confined loop volume ratio 1.533 against 1.540 (run)',
+          'published 5.09. Center-sector phase error 0.0009. Confined loop volume ratio 1.533 against 1.540 (run)',
         code: 'E-FRC-0082',
       },
       {
@@ -221,7 +221,7 @@ export const RESULTS: Result[] = [
       {
         quantity: 'Polyakov loop with dynamical quarks, 4^3 and 6^3',
         measured:
-          '$\\operatorname{Re} P$ = 0.412 and 0.394, $\\ln\\det$ = −60 under a centre rotation',
+          '$\\operatorname{Re} P$ = 0.412 and 0.394, $\\ln\\det$ = −60 under a center rotation',
         reference:
           'quenched falls 1.79 against 1.84 for zero. Hopping expansion agrees to 0.06 percent (strong-force note)',
         code: 'E-FRC-0090',
@@ -385,7 +385,7 @@ export const RESULTS: Result[] = [
       },
       {
         code: 'E-FRC-0081',
-        metric: 'colours',
+        metric: 'colors',
         from: 'metrics',
         expected: 3,
         tolerance: 0.1,
@@ -533,7 +533,7 @@ export const RESULTS: Result[] = [
     question:
       'Does thermal lattice physics need random numbers, or does deterministic reversible dynamics reach the same ensemble?',
     answer:
-      "It reaches the same ensemble. The kurtosis goes from 1.5 to 2.997, the eight colours equipartition to 0.0005, and the plaquette and Creutz ratio match the heatbath at the predicted $\\beta' = 5.699$.",
+      "It reaches the same ensemble. The kurtosis goes from 1.5 to 2.997, the eight colors equipartition to 0.0005, and the plaquette and Creutz ratio match the heatbath at the predicted $\\beta' = 5.699$.",
     importance:
       'A sampler is a shortcut, not a necessity. The Gauss-law temperature count is what makes the prediction right: the naive count is excluded at $306\\sigma$.',
     limits: [
@@ -553,10 +553,10 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0092',
       },
       {
-        quantity: 'share of kinetic energy per colour',
+        quantity: 'share of kinetic energy per color',
         measured: '1/8 each, to 0.0005',
         reference:
-          'equipartition. An abelian start never reaches the charged colours (strong-force note)',
+          'equipartition. An abelian start never reaches the charged colors (strong-force note)',
         code: 'E-FRC-0092',
       },
       {
@@ -696,7 +696,7 @@ export const RESULTS: Result[] = [
   },
   {
     code: 'R-FRC-0003',
-    title: 'The committed rule does not carry SU(3) colour',
+    title: 'The committed rule does not carry SU(3) color',
     subject: 'symmetry',
     sentence:
       'A deterministic reversible lattice gas on the {3,4,3,4} honeycomb keeps 2 of the 9 generators of U(3), and no symmetry of order three, at any scale tested.',
@@ -789,7 +789,7 @@ export const RESULTS: Result[] = [
     },
     comparison: {
       standard:
-        'QCD has an exact SU(3) colour symmetry with a three-line vertex',
+        'QCD has an exact SU(3) color symmetry with a three-line vertex',
       vibe: 'the rule keeps U(1) charge and the phase, and nothing of SU(3)',
       difference:
         'a difference against the program: the rule does not produce what nature has',
@@ -803,7 +803,7 @@ export const RESULTS: Result[] = [
       },
       {
         work: 'Dixon. Furey',
-        established: 'colour from the octonions, algebraically',
+        established: 'color from the octonions, algebraically',
         difference:
           'those are algebraic. This asks whether a dynamics carries it, and finds that it does not',
       },
@@ -951,7 +951,7 @@ export const RESULTS: Result[] = [
     paper:
       'the framework paper, as its central negative, and the testbed paper, as the reason its QCD is L2',
     program:
-      'The knit, run on the D4 mesh, does not carry colour. It would take a sixth thing: a three-line vertex on the coin triangles, a tone with amplitudes, and a clock compatible with U(3).',
+      'The knit, run on the D4 mesh, does not carry color. It would take a sixth thing: a three-line vertex on the coin triangles, a tone with amplitudes, and a clock compatible with U(3).',
     outputs: NO_OUTPUTS,
   },
   {
@@ -1784,7 +1784,7 @@ export const RESULTS: Result[] = [
   {
     code: 'R-FRC-0004',
     title:
-      'The running of the coupling scales with the gluon colour charge',
+      'The running of the coupling scales with the gluon color charge',
     subject: 'lattice gauge theory',
     sentence:
       'Adjoint and fundamental sources feel the coupling run at the same rate in SU(2), SU(3) and SU(4), which excludes running set by the source charge.',
@@ -1810,7 +1810,7 @@ export const RESULTS: Result[] = [
       'one coupling per group',
     ],
     equations: [
-      'the force ratio $\\chi(2,2)/\\chi(1,1)$ rises with $g^2$ at $\\alpha + \\kappa C_A$, with $\\alpha$ the colour-blind lattice artifact of the compact action',
+      'the force ratio $\\chi(2,2)/\\chi(1,1)$ rises with $g^2$ at $\\alpha + \\kappa C_A$, with $\\alpha$ the color-blind lattice artifact of the compact action',
       'the Casimirs: $C_A = N$ for the adjoint, $C_F = \\dfrac{N^2 - 1}{2N}$ for the fundamental, so a source-charge running would give an adjoint over fundamental ratio of $C_A/C_F = \\dfrac{2N^2}{N^2 - 1}$, which is $8/3$, $9/4$ and $32/15$ for $N = 2, 3, 4$',
       'the tree level computed exactly, not fitted: $\\rho_0 = 0.28713$',
     ],
@@ -1930,6 +1930,269 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'planned paper 1, the testbed paper',
     program: 'Part of the strong-force arc, beside R-FRC-0001.',
+    outputs: NO_OUTPUTS,
+  },
+  {
+    code: 'R-FRC-0005',
+    title:
+      'Color as a classical phase-space label: a whole without amplitudes, and negativity as the quantum part',
+    subject: 'symmetry',
+    sentence:
+      'A color carried as a point of the 3 x 3 qutrit phase space, moved by the 216 affine maps the classical color group induces, is gauge invariant with links, forms frame-free wholes exactly at triality zero, and needs negative weight only for the singlet sign.',
+    claim:
+      'Carry color as a point of $\\mathbb{Z}_3^2$, the phase space of one qutrit, moved by the 216 affine symplectic maps that the classical color group $\\Sigma(648)$ induces. With links holding those maps, an independent change of frame in every cell commutes exactly with a charge-conserving reversible lattice rule. A set of points signed by charge has a frame-free zero sum exactly when its total charge is a multiple of 3, which reproduces the triality selection rule of color singlets in all 27 mixes of up to six charges. A role point carried round a loop survives exactly as often as the adjoint Wilson loop says. The singlet itself is written by whole positive and negative discrete-Wigner weights (72 and 18 on 54 units), where the symmetric whole needs no negative weight, and the swap phase at $2\\pi/3$ moves such weights by an exact kernel in quarters.',
+    headline: {
+      value: '27 of 27',
+      label:
+        'charge mixes where the classical whole matches the quantum singlet rule',
+    },
+    category: 'explanation',
+    status: ['simulated'],
+    depth: 'L1 and L2',
+    audience:
+      'lattice gauge theory, quantum foundations (discrete Wigner functions), anyone building color into a classical rule',
+    question:
+      'Can color be carried by a deterministic classical rule, and if not all of it, which part needs amplitudes?',
+    answer:
+      'All of the frame freedom and the triality selection rule can. What cannot is the sign of the singlet and the quark string, which need negative weight.',
+    importance:
+      'It splits the strong force into a classical part a deterministic base can carry and one non-classical ingredient, and shows the ingredient is negative weight on the same grid.',
+    limits: [
+      'a candidate addition to the base, not the committed rule, which carries none of it (R-FRC-0003)',
+      'the links are a fixed background field in the gauge test. Their dynamics (E-FRC-0110) has not been run with color on them',
+      'no rule here binds a whole: flux on the links obeys Gauss exactly and costs nothing yet',
+      'pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases, until a neutral creation is built',
+      'carrying non-classical steps exactly needs a unit count that grows four times per step',
+    ],
+    equations: [
+      'a whole: $S = \\sum_i v_i p_i = 0$ with $v_i = \\pm 1$ and $p_i \\in \\mathbb{Z}_3^2$, and under $g(p) = A p + u$, $S \\mapsto A S + \\big(\\textstyle\\sum_i v_i\\big) u$, so $S = 0$ is frame-free exactly when $\\sum_i v_i \\equiv 0 \\pmod 3$',
+      'the points a color element fixes: $\\#\\{p : g_U(p) = p\\} = |\\operatorname{Tr} U|^2$, so survival round a loop is the adjoint Wilson loop',
+      'a gate moves discrete Wigner weights by $K(x, y) = \\operatorname{Tr}\\big(A(x)\\,U A(y) U^\\dagger\\big)/3^n$',
+    ],
+    measurements: [
+      {
+        quantity: 'charge mixes, up to six, where the classical whole is frame-free exactly when the quantum singlet exists',
+        measured: '27 of 27',
+        reference: 'the SU(3) singlet counts of E-FRC-0101 and the characters of $\\Sigma(648)$ (run)',
+        code: 'E-FRC-0118',
+      },
+      {
+        quantity: 'three equal-sign points of $\\mathbb{Z}_3^2$ with zero sum, distinct',
+        measured: '72, the 12 lines in 6 orders',
+        reference: 'the affine plane of order 3 (run)',
+        code: 'E-FRC-0118',
+      },
+      {
+        quantity: 'mismatches under an independent change of frame in every cell, 24 beats',
+        measured: '0 with links',
+        reference: '27,749 without links, 40,015 with a fixed map per direction (run)',
+        code: 'E-FRC-0117',
+      },
+      {
+        quantity: 'survival of a point round a loop against the adjoint Wilson loop',
+        measured: 'equal to $10^{-12}$ in both phases',
+        reference: 'fixed points $= |\\operatorname{Tr} U|^2$ on all 648 elements (run)',
+        code: 'E-FRC-0119',
+      },
+      {
+        quantity: 'negative weight in the singlet, positive in the symmetric whole',
+        measured: '72 positive and 18 negative on 54 units, against 27 positive and 0 negative',
+        reference: 'a product state, 27 positive and 0 negative (run)',
+        code: 'E-FRC-0120',
+      },
+      {
+        quantity: 'units needed after 8 rounds of the $2\\pi/3$ swap phase and a Clifford move',
+        measured: '2,304, negative share near 0.29',
+        reference: '9 at the start, weight exactly 1 every round (run)',
+        code: 'E-FRC-0122',
+      },
+    ],
+    figure: {
+      form: 'pairs',
+      caption:
+        'Explanation. Each row against its control, scaled to the control: the gauge test with links against without, and the negative weight of the symmetric whole against the singlet.',
+      measured: 'with links, or the symmetric whole',
+      control: 'without links, or the singlet',
+      rows: [
+        { label: 'frame-change mismatches', measured: 0, control: 27749 },
+        { label: 'negative weight units', measured: 0, control: 18 },
+      ],
+    },
+    comparison: {
+      standard:
+        'color is a quantum SU(3) label, singlets exist only at triality zero, and confinement is read off the fundamental Wilson loop',
+      vibe: 'the frame freedom and the triality rule are classical on a 3 x 3 grid, the singlet sign and the fundamental string need negative weight',
+      difference:
+        'a split of the standard picture into a classical and a non-classical part, not a disagreement with it',
+    },
+    closest: [
+      {
+        work: 'Gross 2006, Hudson theorem for finite-dimensional quantum systems',
+        established:
+          'for odd dimension, the states with nonnegative discrete Wigner function are the stabilizer states',
+        difference:
+          'the singlet is not one, and this counts its negative weight in whole units on the grid a color rule would carry',
+      },
+      {
+        work: 'Veitch, Ferrie, Gross and Emerson 2012, negative quasi-probability as a resource',
+        established: 'negativity is what a Clifford circuit lacks',
+        difference: 'applied here to color singlets and the swap phase of a lattice rule',
+      },
+    ],
+    literature: null,
+    gate: {
+      prior_art_reviewed: { mark: 'fail', reason: NOT_RUN },
+      novel: {
+        mark: 'unknown',
+        reason:
+          'the classical form of the triality rule and the count of singlet negativity may be known. The literature pass has not been run',
+      },
+      derived: {
+        mark: 'fail',
+        reason:
+          'a candidate addition to the base, run on constructed rules, not the committed rule',
+      },
+      quantitative: { mark: 'pass', reason: 'exact integers and exact kernels' },
+      differentiating: {
+        mark: 'fail',
+        reason: 'it agrees with standard color physics wherever they overlap',
+      },
+      falsifiable: {
+        mark: 'fail',
+        reason: 'decided by computation, not by observation',
+      },
+      auditable: { mark: 'pass', reason: PUBLIC },
+      skeptic_reviewed: { mark: 'fail', reason: NO_SKEPTIC },
+      independently_reproduced: { mark: 'fail', reason: NOT_REPRODUCED },
+      interesting: {
+        mark: 'unknown',
+        reason: 'not yet asked of anyone in the field',
+      },
+    },
+    failure: [
+      'a charge mix whose classical whole is frame-free where no quantum singlet exists, or the reverse',
+      'a nonzero mismatch under a change of frame with links',
+      'a role survival that departs from the adjoint Wilson loop',
+    ],
+    novelty: 'uncertain',
+    free_parameters: 0,
+    fitted: false,
+    known_before: false,
+    falsified_by: 'a counterexample in any of the exhaustive checks',
+    version: '1.0.0',
+    audited: '2026-09-25',
+    history: [FIRST],
+    depends: ['R-FRC-0003'],
+    experiments: [
+      {
+        code: 'E-FRC-0117',
+        file: 'test/experiment/gauge/vibe-role-tilt.ts',
+        depends: ['A1', 'A2', 'A3', 'A4'],
+      },
+      {
+        code: 'E-FRC-0118',
+        file: 'test/experiment/gauge/whole-is-a-line.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0119',
+        file: 'test/experiment/gauge/role-survives-a-loop.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0120',
+        file: 'test/experiment/gauge/fear-is-negativity.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0122',
+        file: 'test/experiment/gauge/fear-resolution.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0123',
+        file: 'test/experiment/gauge/vibe-weave.ts',
+        depends: ['A1', 'A2', 'A3', 'A4'],
+      },
+    ],
+    checks: [
+      {
+        code: 'E-FRC-0117',
+        metric: 'gaugeMismatchWithLinks',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0117',
+        metric: 'gaugeMismatchNoLinks',
+        from: 'control',
+        expected: 27749,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0118',
+        metric: 'classicalMatchesTriality',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0118',
+        metric: 'quantumMatchesTriality',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0118',
+        metric: 'distinctZeroSumTriples',
+        from: 'metrics',
+        expected: 72,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0119',
+        metric: 'survivalIsAdjoint',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0120',
+        metric: 'singletFears',
+        from: 'metrics',
+        expected: 18,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0120',
+        metric: 'allSameFears',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0122',
+        metric: 'units8',
+        from: 'metrics',
+        expected: 2304,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0123',
+        metric: 'gaussEveryCellEveryBeat',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+    ],
+    notes: ['note/experiment/gauge/what-the-base-needs.md'],
+    problem: 'OP-02',
+    candidate: null,
+    paper: 'the testbed paper, as what a base would need for color',
+    program:
+      'The vibe, role and tilt model: every slot holds a vibe (fear, calm, love), a role (take, hold, free) and a tilt, a whole is three roles on a line of the grid, and fear is the negative weight that the one-third turn at a meeting of different roles creates. Nothing in the committed base has changed.',
     outputs: NO_OUTPUTS,
   },
   {

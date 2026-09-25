@@ -189,7 +189,7 @@
     "E-FRC-0093": {
       "seconds": 11.941,
       "status": "pass",
-      "claim": "the committed turning weave keeps exactly two continuous tone symmetries, the charge U(1) and the overall phase, out of the nine of U(3), at most two under any way a line can carry a triplet or antitriplet, and none of the 35 nontrivial line relabellings of the tone (the SU(3) Weyl group S3 on each end), so SU(3) colour is not a symmetry of the tone under the rule, while the same detectors find all of U(3) on the identity and swap maps and all 36 relabellings under pure streaming",
+      "claim": "the committed turning weave keeps exactly two continuous tone symmetries, the charge U(1) and the overall phase, out of the nine of U(3), at most two under any way a line can carry a triplet or antitriplet, and none of the 35 nontrivial line relabellings of the tone (the SU(3) Weyl group S3 on each end), so SU(3) color is not a symmetry of the tone under the rule, while the same detectors find all of U(3) on the identity and swap maps and all 36 relabellings under pure streaming",
       "metrics": {
         "wholeRuleAlgebraDimension": 2,
         "smallestBrokenGeneratorWeight": 2688,
@@ -216,7 +216,7 @@
     "E-FRC-0094": {
       "seconds": 7.462,
       "status": "pass",
-      "claim": "the 24 D4 coin directions hold 32 zero-sum triangles, and over all 24 beats of the committed turning weave none of them falls inside one interaction block (the largest block spans two lines), so no single collision couples three directions of a triangle, the vertex an epsilon-tensor colour singlet or a three-gluon coupling would need, while a whole-cell collision puts all 32 inside",
+      "claim": "the 24 D4 coin directions hold 32 zero-sum triangles, and over all 24 beats of the committed turning weave none of them falls inside one interaction block (the largest block spans two lines), so no single collision couples three directions of a triangle, the vertex an epsilon-tensor color singlet or a three-gluon coupling would need, while a whole-cell collision puts all 32 inside",
       "metrics": {
         "triangles": 32,
         "a2Subsystems": 16,
@@ -232,7 +232,7 @@
         "streamingTrianglesInside": 0,
         "streamingBlocks": 24
       },
-      "notes": "L2, a structural measurement of the committed collision, with no random numbers (the probe set is a fixed enumeration of sparse and structured cell states). An honest negative for colour at the level of one collision. It does not exclude an effective three-body coupling assembled over several beats as tones stream between cells, which a separate dynamical measurement would have to test. What the rule would need: a collision whose blocks join three lines whose directions close a triangle, which the per-line clock and the two-line swap never do."
+      "notes": "L2, a structural measurement of the committed collision, with no random numbers (the probe set is a fixed enumeration of sparse and structured cell states). An honest negative for color at the level of one collision. It does not exclude an effective three-body coupling assembled over several beats as tones stream between cells, which a separate dynamical measurement would have to test. What the rule would need: a collision whose blocks join three lines whose directions close a triangle, which the per-line clock and the two-line swap never do."
     },
     "E-FRC-0095": {
       "seconds": 9.483,
@@ -251,7 +251,7 @@
         "previousKnitSymmetries": 12,
         "previousKnitOrderThreeOrMultiple": 4
       },
-      "notes": "L2, an exact exhaustive structural measurement with no random numbers. Symmetries that also reverse time (the CPT of the committed rule is one) and symmetries that act differently on different cells are outside it, since neither can be the internal colour group of a single cell. The symmetry breaking has two sources that the controls separate: the oriented clock (the pair table is not symmetric under swapping a line's two ends, which already cuts W(F4) down for the previous knit) and the turning schedule with its single swapped couple, which removes the rest. Within these symmetries, no finite subgroup of SU(3) with an element of order three can act on the coin."
+      "notes": "L2, an exact exhaustive structural measurement with no random numbers. Symmetries that also reverse time (the CPT of the committed rule is one) and symmetries that act differently on different cells are outside it, since neither can be the internal color group of a single cell. The symmetry breaking has two sources that the controls separate: the oriented clock (the pair table is not symmetric under swapping a line's two ends, which already cuts W(F4) down for the previous knit) and the turning schedule with its single swapped couple, which removes the rest. Within these symmetries, no finite subgroup of SU(3) with an element of order three can act on the coin."
     },
     "E-FRC-0096": {
       "seconds": 86.634,
@@ -302,7 +302,7 @@
         "stickyJointRate": 1,
         "streamingJointRate": 0
       },
-      "notes": "L3 format: the committed rule runs through beat on the D4 mesh with a whole-cell and a free calibration. A nonzero inclusion-exclusion difference says the outcome depends on all three tones jointly, which any nonlinear classical composition produces (tone A deflects B, which then meets C), so a joint effect alone is not an epsilon vertex. What would single out colour is a coupling specific to the triangle geometry, which is what the closing third is compared for. Windows of 8 beats on a side-5 mesh, tones starting in one cell, the first 16 interacting closable pairs in a fixed order; spread starts and longer windows are not tested. No random numbers."
+      "notes": "L3 format: the committed rule runs through beat on the D4 mesh with a whole-cell and a free calibration. A nonzero inclusion-exclusion difference says the outcome depends on all three tones jointly, which any nonlinear classical composition produces (tone A deflects B, which then meets C), so a joint effect alone is not an epsilon vertex. What would single out color is a coupling specific to the triangle geometry, which is what the closing third is compared for. Windows of 8 beats on a side-5 mesh, tones starting in one cell, the first 16 interacting closable pairs in a fixed order; spread starts and longer windows are not tested. No random numbers."
     }
   },
   "passed": true

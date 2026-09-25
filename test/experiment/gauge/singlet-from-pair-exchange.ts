@@ -1,6 +1,6 @@
-// Does colour confinement's bookkeeping need a three-body vertex? E-FRC-0094 found the committed rule
+// Does color confinement's bookkeeping need a three-body vertex? E-FRC-0094 found the committed rule
 // has no collision that couples three directions, the vertex an epsilon-tensor baryon seems to ask
-// for. This measures whether pairwise exchange alone, the one colour-symmetric two-slot interaction
+// for. This measures whether pairwise exchange alone, the one color-symmetric two-slot interaction
 // E-FRC-0100 allows, already binds the baryon and the meson.
 //
 // Exact diagonalization:
@@ -10,7 +10,7 @@
 //   is 1 (the two exchanges square to 1 on the mixed-symmetry states, so those sit at -1 against the singlet at -2). With all three bonds the gap is 3.
 // - a triplet and an antitriplet with their exchange (the singlet projector, E-FRC-0100): the ground
 //   state is the singlet, gap 3.
-// - two triplets: no singlet exists at all, so exchange of either sign leaves a coloured ground state.
+// - two triplets: no singlet exists at all, so exchange of either sign leaves a colored ground state.
 // - singlets exist exactly when (triplets - antitriplets) is a multiple of 3: triality, counted on
 //   blocks of two to four slots.
 //
@@ -35,7 +35,7 @@ import {
   slotSwapMap,
   type Operator,
   type SlotKind,
-} from '@/code/measure/colour-symmetry'
+} from '@/code/measure/color-symmetry'
 
 function diagonalize(operator: Operator): {
   values: number[]
@@ -110,7 +110,7 @@ export default experiment({
   id: 'gauge/singlet-from-pair-exchange',
   code: 'E-FRC-0101',
   title:
-    'pairwise colour exchange with no three-body term binds the baryon: on an open chain of three triplets the unique ground state is the epsilon singlet (gap 1), a triplet and antitriplet bind into the meson singlet (gap 3), two triplets have no singlet at all, and singlets exist only at triality zero, while no classical state holds more than 1/6 of the baryon',
+    'pairwise color exchange with no three-body term binds the baryon: on an open chain of three triplets the unique ground state is the epsilon singlet (gap 1), a triplet and antitriplet bind into the meson singlet (gap 3), two triplets have no singlet at all, and singlets exist only at triality zero, while no classical state holds more than 1/6 of the baryon',
   category: 'gauge',
   substrates: 'any',
   depth: 'L1',
@@ -141,7 +141,7 @@ export default experiment({
     })
 
     // the meson: exchange for a triplet and antitriplet is minus the singlet projector times d,
-    // read off the colour-symmetric circle at phase pi: U(pi) = 1 - 2 J / 3, so J = 3 (1 - U) / 2
+    // read off the color-symmetric circle at phase pi: U(pi) = 1 - 2 J / 3, so J = 3 (1 - U) / 2
     const circle = pairExchangeUnitary({
       d: 3,
       kind: 'conjugate',
@@ -214,7 +214,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'nearest-neighbour colour exchange on an open chain of three triplets, with no three-body term, has the epsilon singlet as its unique ground state (overlap 1, gap 1, gap 3 with the closing bond), the triplet-antitriplet exchange has the meson singlet as its unique ground state (gap 3), and singlets exist exactly at triality zero (none for qq, qqq-bar or qqqq), while any basis state, all a permutation rule can visit, overlaps the baryon by at most 1/6',
+        'nearest-neighbour color exchange on an open chain of three triplets, with no three-body term, has the epsilon singlet as its unique ground state (overlap 1, gap 1, gap 3 with the closing bond), the triplet-antitriplet exchange has the meson singlet as its unique ground state (gap 3), and singlets exist exactly at triality zero (none for qq, qqq-bar or qqqq), while any basis state, all a permutation rule can visit, overlaps the baryon by at most 1/6',
       metrics: {
         chainGroundDegeneracy: degeneracyOf(chain.values),
         chainOverlapWithEpsilon: chainOverlap,
@@ -238,7 +238,7 @@ export default experiment({
         expectedChainGap: 1,
       },
       notes:
-        'L1, the SU(3) Heisenberg model on two and three sites, exact, with no random numbers. It removes the worry E-FRC-0094 raised: a baryon does not need a three-body vertex, pairwise exchange binds it, provided the exchange carries amplitudes (E-FRC-0100). What binds is the energy of the exchange, so a rule that produced these states would have to lower that energy, by cooling or by a ground-state preparation, since a colour-symmetric unitary keeps the singlet weight of any start fixed. The epsilon singlet written in the colour basis is a ternary pattern of 0, +1 and -1 over the 27 states times one scale, so the static baryon is expressible in the tone values themselves once they are read as signed amplitudes rather than labels.',
+        'L1, the SU(3) Heisenberg model on two and three sites, exact, with no random numbers. It removes the worry E-FRC-0094 raised: a baryon does not need a three-body vertex, pairwise exchange binds it, provided the exchange carries amplitudes (E-FRC-0100). What binds is the energy of the exchange, so a rule that produced these states would have to lower that energy, by cooling or by a ground-state preparation, since a color-symmetric unitary keeps the singlet weight of any start fixed. The epsilon singlet written in the color basis is a ternary pattern of 0, +1 and -1 over the 27 states times one scale, so the static baryon is expressible in the tone values themselves once they are read as signed amplitudes rather than labels.',
     })
   },
 })

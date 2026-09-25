@@ -4,7 +4,7 @@
 // arena stands on a deterministic footing.
 //
 // The run: an SU(3) field on an 8^4 lattice, every link starting at the identity, every momentum set
-// by a fixed plane-wave pattern (all eight colour components, Gauss law exact), evolved by leapfrog
+// by a fixed plane-wave pattern (all eight color components, Gauss law exact), evolved by leapfrog
 // under H = sum Tr(P^2) + S_Wilson(beta = 5.7), the confining regime of E-FRC-0080. No random number
 // is drawn. Four things are measured.
 //
@@ -12,14 +12,14 @@
 //   O(epsilon^2).
 // - Thermalization: the momentum components start with the arcsine distribution of a cosine
 //   (kurtosis 1.5) all in phase, and must reach Maxwell-Boltzmann (kurtosis 3) with the energy shared
-//   equally among the eight colours.
+//   equally among the eight colors.
 // - The canonical ensemble, predicted without tuning: the kinetic temperature T = <p_a^2>, counted
 //   over the (N^2 - 1)(links - sites) degrees of freedom the Gauss law leaves free, fixes an effective
 //   coupling beta' = beta / T. A heatbath run at beta' must reproduce the time-averaged plaquette and
 //   the Creutz ratio chi(2,2) of the deterministic run. The naive count over every link must not.
-// - The control: the same dynamics started in the two commuting (Cartan) colours alone never moves
+// - The control: the same dynamics started in the two commuting (Cartan) colors alone never moves
 //   energy into the six charged directions, because commuting fields exert no force on the others.
-//   Thermalization into colour needs the gluons' self-interaction.
+//   Thermalization into color needs the gluons' self-interaction.
 //
 // Grade L2: microcanonical lattice gauge theory (Callaway and Rahman 1982) reproduced, with the
 // ergodic equivalence to the canonical ensemble measured rather than assumed. It is a deterministic
@@ -35,7 +35,7 @@ import {
   sampleGaugeEnsemble,
 } from '@/code/dynamics/gauge-lattice'
 import {
-  colourFractions,
+  colorFractions,
   kineticEnergy,
   kineticTemperature,
   leapfrog,
@@ -96,7 +96,7 @@ export default experiment({
   id: 'gauge/deterministic-thermalization',
   code: 'E-FRC-0092',
   title:
-    'deterministic reversible SU(3) gauge dynamics from a fixed pattern, with no random number anywhere, thermalizes to the canonical ensemble at the coupling its own kinetic temperature predicts, while an abelian start never spreads into colour',
+    'deterministic reversible SU(3) gauge dynamics from a fixed pattern, with no random number anywhere, thermalizes to the canonical ensemble at the coupling its own kinetic temperature predicts, while an abelian start never spreads into color',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -104,7 +104,7 @@ export default experiment({
   run() {
     const generators = suGenerators({ n: 3 })
 
-    const start = (colours?: number[]) => {
+    const start = (colors?: number[]) => {
       const lattice = makeGaugeLattice({
         group: 'su3',
         lengths: LENGTHS,
@@ -118,7 +118,7 @@ export default experiment({
         momenta,
         generators,
         amplitude: AMPLITUDE,
-        colours,
+        colors,
       })
 
       return { lattice, momenta }
@@ -235,7 +235,7 @@ export default experiment({
         )
 
         fractions.push(
-          colourFractions({ momenta: run.momenta, generators }),
+          colorFractions({ momenta: run.momenta, generators }),
         )
       }
     }
@@ -319,7 +319,7 @@ export default experiment({
       steps: 500,
     })
 
-    const abelianFractions = colourFractions({
+    const abelianFractions = colorFractions({
       momenta: abelian.momenta,
       generators,
     })
@@ -351,13 +351,13 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'SU(3) gauge dynamics that is deterministic and reversible, started from a fixed plane-wave pattern with no random numbers, thermalizes (momentum kurtosis 1.5 to 3, energy shared equally by the eight colours) and reproduces the heatbath plaquette and Creutz ratio at the coupling beta / T its own kinetic temperature predicts with the Gauss-law count of freedoms, while the naive count fails and an abelian start never reaches the charged colours',
+        'SU(3) gauge dynamics that is deterministic and reversible, started from a fixed plane-wave pattern with no random numbers, thermalizes (momentum kurtosis 1.5 to 3, energy shared equally by the eight colors) and reproduces the heatbath plaquette and Creutz ratio at the coupling beta / T its own kinetic temperature predicts with the Gauss-law count of freedoms, while the naive count fails and an abelian start never reaches the charged colors',
       metrics: {
         reversalError,
         worstRelativeEnergyDrift: worstEnergy,
         conservationRatioHalfStep: conservationRatio,
         kurtosis,
-        colourFractionSpread: fractionSpread,
+        colorFractionSpread: fractionSpread,
         kineticTemperature: temperature,
         predictedBeta,
         deterministicPlaquette: plaquette.value,

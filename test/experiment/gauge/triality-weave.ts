@@ -1,30 +1,30 @@
-// A rule that keeps colour and connects every line. E-FRC-0107 shows that no rule coupling lines in
-// pairs can keep a colour-selecting triality and still connect all twelve lines, and names the way
-// out: a four-line block, one colour line with a whole triality orbit of three. This builds that rule,
+// A rule that keeps color and connects every line. E-FRC-0107 shows that no rule coupling lines in
+// pairs can keep a color-selecting triality and still connect all twelve lines, and names the way
+// out: a four-line block, one color line with a whole triality orbit of three. This builds that rule,
 // the triality weave (code/rule/triality-weave), on the D4-shaped box where triality acts
 // (E-FRC-0108), and measures it against the structural gates the committed turning weave was adopted
 // for (E-FND-0117).
 //
 // The rule, each beat V S P S V on the palindrome r = 0, 1, 2, 2, 1, 0: P the committed pair clock on
-// every line, V a four-line vertex on the block of colour line f_r and one triality orbit, swapping
+// every line, V a four-line vertex on the block of color line f_r and one triality orbit, swapping
 //   f (s, 0) with the orbit empty  <->  f (-s, -s) with every orbit line (s, 0)   (triple creation)
 // and its (0, s) form, s = +1 and -1, and S the committed turning weave's conditional swap in
-// triality-symmetric form (colour lines r and r + 1 as a couple, and two orbits line by line in their
+// triality-symmetric form (color lines r and r + 1 as a couple, and two orbits line by line in their
 // triality order). The triple creation is the classical three-at-once vertex the committed rule lacks
-// (E-FRC-0094): one charge on the colour line turns into three identical charges, one on each line of
+// (E-FRC-0094): one charge on the color line turns into three identical charges, one on each line of
 // the orbit, which a triality treats alike.
 //
 // How it got here, all measured on this box: a first version fired the vertex on all three blocks
 // every beat and added an orbit exchange (f empty with one orbit line s <-> f (s, s) with that line
 // -s). It was connected, and a single tone avalanched over 40,000 slots, because a triality-symmetric
-// move between a colour line and its orbit must change the number of tones by a multiple of three. The
+// move between a color line and its orbit must change the number of tones by a multiple of three. The
 // orbit exchange drove the avalanche. Creation alone was bounded but disconnected on a dense
 // background. Firing the creation on one block per beat and adding the symmetric swaps, which never add
 // a tone, keeps both: connected on the vacuum and on a dense background, with dressing that grows more
 // slowly than the committed rule's (E-FRC-0111).
 //
 // Gates, each measured, on the side-5 D4 box:
-// - the triality is orientation preserving (the two colour-selecting trialities of the previous knit)
+// - the triality is orientation preserving (the two color-selecting trialities of the previous knit)
 // - exact reversal after 24 beats forward and back, from three starts
 // - charge conserved at every beat
 // - the evolution commutes with the triality, beat by beat
@@ -44,7 +44,7 @@
 // edges in the schedule (E-FND-0117), a different quantity. The triality weave is connected on both.
 //
 // Depth L2: a constructed rule measured against stated gates, not the committed rule. It shows the
-// design space is not empty: colour selection by triality, universality and CPT can coexist once the
+// design space is not empty: color selection by triality, universality and CPT can coexist once the
 // rule has one four-line vertex. Adopting it is a decision about the base.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -84,7 +84,7 @@ export default experiment({
   id: 'gauge/triality-weave',
   code: 'E-FRC-0109',
   title:
-    'a rule with one four-line vertex, a charge on a colour line turning into three identical charges on a triality orbit, plus the committed swap made triality-symmetric, keeps the colour-selecting triality, reverses exactly, conserves charge, is CPT exact and connects all twelve lines on the vacuum and on a dense background, which E-FRC-0107 showed no pairwise rule can do',
+    'a rule with one four-line vertex, a charge on a color line turning into three identical charges on a triality orbit, plus the committed swap made triality-symmetric, keeps the color-selecting triality, reverses exactly, conserves charge, is CPT exact and connects all twelve lines on the vacuum and on a dense background, which E-FRC-0107 showed no pairwise rule can do',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -344,7 +344,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'on the D4 box the triality weave, built on one of the 2 orientation-preserving colour-selecting trialities, reverses exactly after 24 beats, conserves charge at every beat, commutes with its triality beat by beat, is CPT exact at the collision level, has a periodic vacuum, and sends a lone tone from every one of the 24 directions to all 12 lines, one connected line graph, on the vacuum and on a dense background, where the previous knit keeps the triality with 12 disconnected lines, and the committed turning weave keeps no triality and is connected on a dense background but splits into 3 sectors on the vacuum',
+        'on the D4 box the triality weave, built on one of the 2 orientation-preserving color-selecting trialities, reverses exactly after 24 beats, conserves charge at every beat, commutes with its triality beat by beat, is CPT exact at the collision level, has a periodic vacuum, and sends a lone tone from every one of the 24 directions to all 12 lines, one connected line graph, on the vacuum and on a dense background, where the previous knit keeps the triality with 12 disconnected lines, and the committed turning weave keeps no triality and is connected on a dense background but splits into 3 sectors on the vacuum',
       metrics: {
         usableTrialities: usable.length,
         reversesExactly: reverses ? 1 : 0,
@@ -360,10 +360,10 @@ export default experiment({
         previousKnitLineComponents: knit.components,
         turningWeaveLineComponentsVacuum: turning.components,
         turningWeaveLineComponentsDense: turningDense.components,
-        colourSelectingTrialities: selectors.length,
+        colorSelectingTrialities: selectors.length,
       },
       notes:
-        'L2, a constructed rule, exact, no random numbers. It is the positive half of E-FRC-0107: colour selected by triality, universality and CPT coexist once the rule has a four-line vertex, and the vertex it needs is a classical one, one charge on the colour line exchanged for three identical charges across the triality orbit. The rest of the acceptance battery is E-FRC-0111. Not measured: the particle content, and whether the orbit-momentum shadows are conserved colour charges, which the pair clock (it reverses a lone tone) makes unlikely. Adopting the rule would be a change to the base and a decision.',
+        'L2, a constructed rule, exact, no random numbers. It is the positive half of E-FRC-0107: color selected by triality, universality and CPT coexist once the rule has a four-line vertex, and the vertex it needs is a classical one, one charge on the color line exchanged for three identical charges across the triality orbit. The rest of the acceptance battery is E-FRC-0111. Not measured: the particle content, and whether the orbit-momentum shadows are conserved color charges, which the pair clock (it reverses a lone tone) makes unlikely. Adopting the rule would be a change to the base and a decision.',
     })
   },
 })

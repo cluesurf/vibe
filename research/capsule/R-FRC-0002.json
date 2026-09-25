@@ -56,13 +56,13 @@
     "E-FRC-0092": {
       "seconds": 419.951,
       "status": "pass",
-      "claim": "SU(3) gauge dynamics that is deterministic and reversible, started from a fixed plane-wave pattern with no random numbers, thermalizes (momentum kurtosis 1.5 to 3, energy shared equally by the eight colours) and reproduces the heatbath plaquette and Creutz ratio at the coupling beta / T its own kinetic temperature predicts with the Gauss-law count of freedoms, while the naive count fails and an abelian start never reaches the charged colours",
+      "claim": "SU(3) gauge dynamics that is deterministic and reversible, started from a fixed plane-wave pattern with no random numbers, thermalizes (momentum kurtosis 1.5 to 3, energy shared equally by the eight colors) and reproduces the heatbath plaquette and Creutz ratio at the coupling beta / T its own kinetic temperature predicts with the Gauss-law count of freedoms, while the naive count fails and an abelian start never reaches the charged colors",
       "metrics": {
         "reversalError": 1.4765966227514582e-14,
         "worstRelativeEnergyDrift": 0.00014349077798692073,
         "conservationRatioHalfStep": 14.762671137553708,
         "kurtosis": 2.997360361596592,
-        "colourFractionSpread": 0.0004719956139355441,
+        "colorFractionSpread": 0.0004719956139355441,
         "kineticTemperature": 1.0001843567631972,
         "predictedBeta": 5.69894936014234,
         "deterministicPlaquette": 0.5504381460605744,

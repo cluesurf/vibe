@@ -2,10 +2,10 @@
 // the committed rule keeps beat by beat and found only the identity, and E-FRC-0093 asked the same
 // of the six relabellings of the three tones and found none. Two looser questions were never asked:
 //
-// - a coin symmetry and a tone relabelling applied together (the colour lines stay in place while
+// - a coin symmetry and a tone relabelling applied together (the color lines stay in place while
 //   their content is relabelled), and
 // - a symmetry that holds only up to a shift in time: rotating the state and running beat t gives
-//   the same as running beat t + k and then rotating. A colour triality that holds this way does not
+//   the same as running beat t + k and then rotating. A color triality that holds this way does not
 //   have to keep fixed states fixed on each beat, so the argument of E-FRC-0112 does not reach it.
 //
 // So: every coin symmetry p (1152), every tone relabelling tau (6), every shift k in the schedule,
@@ -17,8 +17,8 @@
 // then checked on 4096 more dense states.
 //
 // Gates: the identity with k = 0 is found for both rules (the instrument works), and the triality
-// weave's own colour triality is found with tau the identity and k = 0 (it is built to have it).
-// Everything else is reported, and the headline number is the count of colour-selecting trialities
+// weave's own color triality is found with tau the identity and k = 0 (it is built to have it).
+// Everything else is reported, and the headline number is the count of color-selecting trialities
 // the committed rule keeps under any tau and any k.
 //
 // Depth L2: an exhaustive symmetry search of two constructed rules.
@@ -33,7 +33,7 @@ import {
 } from '@/code/measure/coin-symmetry'
 import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
 import {
-  colourTriality,
+  colorTriality,
   trialityWeave,
   trialityWeaveLayout,
   TRIALITY_WEAVE_PERIOD,
@@ -148,7 +148,7 @@ export default experiment({
   id: 'gauge/hidden-rule-symmetries',
   code: 'E-FRC-0113',
   title:
-    'a search nobody ran: every coin symmetry, combined with every tone relabelling and every shift in time, against the committed turning weave and the triality weave, for a colour triality hidden as a combined or time-shifted symmetry',
+    'a search nobody ran: every coin symmetry, combined with every tone relabelling and every shift in time, against the committed turning weave and the triality weave, for a color triality hidden as a combined or time-shifted symmetry',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -163,7 +163,7 @@ export default experiment({
     const identityIndex = permutations.findIndex(p =>
       p.every((image, d) => image === d),
     )
-    const sigma = colourTriality({ opposite })
+    const sigma = colorTriality({ opposite })
     const sigmaIndex = permutations.findIndex(p =>
       p.every((image, d) => image === sigma[d]),
     )
@@ -175,7 +175,7 @@ export default experiment({
       ),
     )
 
-    const colourSelecting = (pi: number): boolean => {
+    const colorSelecting = (pi: number): boolean => {
       const p = permutations[pi] ?? []
 
       return (
@@ -207,14 +207,14 @@ export default experiment({
       found
         .map(
           f =>
-            `p${f.p}${f.p === identityIndex ? '(identity)' : ''}${colourSelecting(f.p) ? '(colour triality)' : ''} order ${permutationOrder({ permutation: permutations[f.p] ?? [] })} tau ${TONE_RELABELLINGS[f.tau]?.join('/')} k ${f.k}`,
+            `p${f.p}${f.p === identityIndex ? '(identity)' : ''}${colorSelecting(f.p) ? '(color triality)' : ''} order ${permutationOrder({ permutation: permutations[f.p] ?? [] })} tau ${TONE_RELABELLINGS[f.tau]?.join('/')} k ${f.k}`,
         )
         .join('; ')
 
-    const committedColour = committed.filter(f =>
-      colourSelecting(f.p),
+    const committedColor = committed.filter(f =>
+      colorSelecting(f.p),
     ).length
-    const weaveColour = weave.filter(f => colourSelecting(f.p)).length
+    const weaveColor = weave.filter(f => colorSelecting(f.p)).length
     const instrument =
       committed.some(
         f => f.p === identityIndex && f.tau === 0 && f.k === 0,
@@ -225,15 +225,15 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the search finds the identity for both rules and the triality weave its own colour triality, and it reports every combined or time-shifted symmetry of each rule, with the number of colour-selecting trialities the committed rule keeps in any such form',
+        'the search finds the identity for both rules and the triality weave its own color triality, and it reports every combined or time-shifted symmetry of each rule, with the number of color-selecting trialities the committed rule keeps in any such form',
       metrics: {
         committedSymmetries: committed.length,
-        committedColourTrialities: committedColour,
+        committedColorTrialities: committedColor,
         committedTimeShifted: committed.filter(f => f.k !== 0).length,
         committedToneRelabelled: committed.filter(f => f.tau !== 0)
           .length,
         weaveSymmetries: weave.length,
-        weaveColourTrialities: weaveColour,
+        weaveColorTrialities: weaveColor,
         weaveTimeShifted: weave.filter(f => f.k !== 0).length,
         weaveToneRelabelled: weave.filter(f => f.tau !== 0).length,
       },

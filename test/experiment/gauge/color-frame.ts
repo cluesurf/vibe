@@ -1,10 +1,10 @@
-// Can the colour frame be chosen place by place, and how thin is the set a triality fixes. Two of
-// the alternatives for colour in note/experiment/gauge/what-the-base-needs.md.
+// Can the color frame be chosen place by place, and how thin is the set a triality fixes. Two of
+// the alternatives for color in note/experiment/gauge/what-the-base-needs.md.
 //
-// A twisted box: glue space with a triality twist, so a coloured tone returns rotated after going
-// round, and colour flux is a twist. The twist is a seam nobody can see only if a triality rotation
-// applied to part of space is invisible. In the coin reading a tone's colour is its direction, so
-// rotating colour in a region also rotates where its tones move, and streaming can tell. So the
+// A twisted box: glue space with a triality twist, so a colored tone returns rotated after going
+// round, and color flux is a twist. The twist is a seam nobody can see only if a triality rotation
+// applied to part of space is invisible. In the coin reading a tone's color is its direction, so
+// rotating color in a region also rotates where its tones move, and streaming can tell. So the
 // measurable question is: rotate each cell's 24 slots by sigma on half the box, keep the cells where
 // they are, and ask whether the evolution notices.
 // - On the vacuum it cannot notice when every cell's vacuum state is left alone by sigma. Predicted
@@ -14,12 +14,12 @@
 //   beat 24". A first version rotated only at beat 12 and read no wall for the committed rule:
 //   its vacuum is left alone by sigma on 2 of its 24 beats, and beat 12 is one of them.
 // - On a dense background it notices for every rule, since rotating slots is not a symmetry of
-//   streaming. Reported as the same difference. That is the finding: geometric colour has a global
-//   frame and no local one, so a local colour gauge freedom needs colour carried apart from
-//   direction (a colour trit, E-FRC-0100).
+//   streaming. Reported as the same difference. That is the finding: geometric color has a global
+//   frame and no local one, so a local color gauge freedom needs color carried apart from
+//   direction (a color trit, E-FRC-0100).
 //
 // The fixed set: a rule that is the same in every cell and symmetric about one point is symmetric
-// about every point, since moving the centre is a translation. So escaping E-FRC-0112 by keeping the
+// about every point, since moving the center is a translation. So escaping E-FRC-0112 by keeping the
 // triality only where it fixes cells means a rule that differs from place to place. How thin that
 // place is: the cells the triality fixes, on boxes of side 5, 7 and 9.
 //
@@ -32,7 +32,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { meshOpposites } from '@/code/tool/mesh'
 import { turningWeave, type Collision } from '@/code/rule/collision'
 import {
-  colourTriality,
+  colorTriality,
   trialityWeave,
   trialityWeaveLayout,
 } from '@/code/rule/triality-weave'
@@ -50,10 +50,10 @@ const SIDE = 5
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
 export default experiment({
-  id: 'gauge/colour-frame',
+  id: 'gauge/color-frame',
   code: 'E-FRC-0115',
   title:
-    'geometric colour has one global frame and no local one: rotating the colour of half the box is invisible on the triality weave vacuum and a visible wall on the committed rule vacuum, and visible for every rule on a dense background, and the cells a colour triality fixes are a thin sheet',
+    'geometric color has one global frame and no local one: rotating the color of half the box is invisible on the triality weave vacuum and a visible wall on the committed rule vacuum, and visible for every rule on a dense background, and the cells a color triality fixes are a thin sheet',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -61,7 +61,7 @@ export default experiment({
   run() {
     const box = d4BoxMesh({ side: SIDE })
     const opposite = meshOpposites(box)
-    const sigma = colourTriality({ opposite })
+    const sigma = colorTriality({ opposite })
     const layout = trialityWeaveLayout({ opposite, triality: sigma })
     const rules: [string, (t: number) => Collision][] = [
       ['committed', turningWeave({ opposite: [...opposite] })],
@@ -202,7 +202,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'rotating the slots of half the box by the colour triality leaves the triality weave vacuum unchanged and makes a wall in the committed rule vacuum, is visible on a dense background for every rule measured, and the triality fixes a thin set of cells',
+        'rotating the slots of half the box by the color triality leaves the triality weave vacuum unchanged and makes a wall in the committed rule vacuum, is visible on a dense background for every rule measured, and the triality fixes a thin set of cells',
       metrics: {
         ...Object.fromEntries(
           seam.flatMap(s => [

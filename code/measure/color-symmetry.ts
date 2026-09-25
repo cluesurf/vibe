@@ -1,4 +1,4 @@
-// What a colour triplet asks of a local rule, measured on small tensor products of d-state slots.
+// What a color triplet asks of a local rule, measured on small tensor products of d-state slots.
 // A slot carries the fundamental of U(d) (plain) or its conjugate. A group element g acts on a block
 // of slots as g or g* on each, so an algebra element X acts as the sum over slots of X (plain) or
 // -X^T (conjugate, the complex-linear form of X* for anti-Hermitian X). Everything here is exact
@@ -323,7 +323,7 @@ function liftedUnits(input: {
 // exhaustive depth-first search that abandons a partial assignment only once it already violates
 // P G P^T = G on the states assigned so far. With diagonal, only the Cartan (weight) generators are
 // imposed, which is the symmetry a clock phase alone would ask for.
-export function colourPermutations(input: {
+export function colorPermutations(input: {
   d: number
   slots: readonly SlotKind[]
   diagonal?: boolean
@@ -396,7 +396,7 @@ export function colourPermutations(input: {
 }
 
 // The same count by brute force over all (d^k)! permutations (Heap's algorithm), for small blocks.
-export function bruteForceColourPermutations(input: {
+export function bruteForceColorPermutations(input: {
   d: number
   slots: readonly SlotKind[]
 }): number {
@@ -474,7 +474,7 @@ export function slotSwapMap(input: {
   })
 }
 
-// The colour-symmetric two-slot unitaries, up to an overall phase. For two plain slots the commutant
+// The color-symmetric two-slot unitaries, up to an overall phase. For two plain slots the commutant
 // is spanned by the identity and the swap S, so U = P_sym + e^{i phase} P_anti. For a plain and a
 // conjugate slot it is spanned by the identity and J = sum_{a,b} |a a><b b|, the singlet being J / d,
 // so U = (1 - J / d) + e^{i phase} J / d.
@@ -590,7 +590,7 @@ export function entanglingPower(input: {
   )
 }
 
-// The number of independent colour singlets in a block: states every su(d) generator annihilates, as
+// The number of independent color singlets in a block: states every su(d) generator annihilates, as
 // the zero eigenvalues of the Casimir-like sum over the basis of lift(X)^dagger lift(X).
 export function singletCount(input: {
   d: number
@@ -663,7 +663,7 @@ export function singletResidual(input: {
   return worst
 }
 
-// The totally antisymmetric epsilon state of three d = 3 slots, the baryon's colour wave function.
+// The totally antisymmetric epsilon state of three d = 3 slots, the baryon's color wave function.
 export function epsilonState(): { re: Float64Array; im: Float64Array } {
   const re = new Float64Array(27)
   const orders: [number, number, number, number][] = [

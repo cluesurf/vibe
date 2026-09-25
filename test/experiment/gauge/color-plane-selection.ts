@@ -1,7 +1,7 @@
-// What could make the coin choose a colour plane by itself? Read as SU(3) weights, the 24 D4 coin
+// What could make the coin choose a color plane by itself? Read as SU(3) weights, the 24 D4 coin
 // directions split around any zero-sum triangle (an A2, the root system of SU(3)) into the 6 roots of
 // that A2 (the charged gluons) and 18 directions whose shadows on the A2 plane are the weights of a
-// triplet and an antitriplet, three times over. There are 16 such A2s, so colour read this way needs
+// triplet and an antitriplet, three times over. There are 16 such A2s, so color read this way needs
 // something to pick one. This measures what does.
 //
 // 1. The geometry. For every A2 the 18 other directions project onto the plane orthogonal to it as six
@@ -10,10 +10,10 @@
 // 2. The selector. Of the 80 elements of order three in W(F4), the coin's symmetry group, exactly 32
 //    fix six directions, and those six are always an A2. The other 48 fix none. All 32 lie outside
 //    W(D4), so they are triality rotations. They pair off one A2 each (g and g^-1), so choosing a
-//    triality rotation chooses the colour plane, and the same rotation cycles the three copies.
+//    triality rotation chooses the color plane, and the same rotation cycles the three copies.
 // 3. Which rules carry one. The previous committed knit (one 9-state table on every line) keeps
 //    exactly two order-three symmetries, with no tone relabelling, and their fixed set is one A2: the
-//    orientation of its lines (which end leads) selects a colour plane and keeps the triality that
+//    orientation of its lines (which end leads) selects a color plane and keeps the triality that
 //    cycles the copies. The committed turning weave keeps neither (E-FRC-0095), and its own special
 //    directions are a coordinate split instead: the four directions at rest are the four roots of one
 //    coordinate plane, and the three massless directions do not close a triangle.
@@ -174,10 +174,10 @@ function directionSpeeds(opposite: number[]): number[] {
 }
 
 export default experiment({
-  id: 'gauge/colour-plane-selection',
+  id: 'gauge/color-plane-selection',
   code: 'E-FRC-0106',
   title:
-    'each of the 16 A2 planes of the coin splits the other 18 directions into three triplet and antitriplet copies 120 degrees apart, exactly 32 of the 80 order-three coin symmetries fix exactly one A2 (all triality rotations, one pair per plane), and the previous knit keeps one such pair, so an orientation of the lines selects a colour plane and a triality that cycles the copies, which the committed turning weave does not keep',
+    'each of the 16 A2 planes of the coin splits the other 18 directions into three triplet and antitriplet copies 120 degrees apart, exactly 32 of the 80 order-three coin symmetries fix exactly one A2 (all triality rotations, one pair per plane), and the previous knit keeps one such pair, so an orientation of the lines selects a color plane and a triality that cycles the copies, which the committed turning weave does not keep',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -312,7 +312,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'for all 16 A2 planes of the coin the 18 other directions cast six shadows of three on the orthogonal plane, which holds no direction, so they are three triplet and three antitriplet copies. Of the 80 order-three elements of W(F4), 32 fix exactly an A2 and 48 fix nothing, all 32 are triality rotations outside W(D4), and they select each of the 16 planes once as a pair. The previous knit keeps 2 of them with no tone relabelling, one colour plane and its triality, while the committed turning weave keeps none and singles out a coordinate plane (4 directions at rest) instead of an A2',
+        'for all 16 A2 planes of the coin the 18 other directions cast six shadows of three on the orthogonal plane, which holds no direction, so they are three triplet and three antitriplet copies. Of the 80 order-three elements of W(F4), 32 fix exactly an A2 and 48 fix nothing, all 32 are triality rotations outside W(D4), and they select each of the 16 planes once as a pair. The previous knit keeps 2 of them with no tone relabelling, one color plane and its triality, while the committed turning weave keeps none and singles out a coordinate plane (4 directions at rest) instead of an A2',
       metrics: {
         a2Planes: planes.size,
         orderThreeElements: orderThree.length,
@@ -330,7 +330,7 @@ export default experiment({
         committedRuleSelectors: 0,
       },
       notes:
-        'L2, exact. The reading of a direction as a colour weight is its shadow on an A2 plane, and it needs a choice of plane. The measured answer to what makes the choice: an order-three triality rotation of the coin, whose fixed directions are the colour plane (the long roots of the G2 that triality fixes, G2 containing SU(3)) and which cycles the three copies, the shape three generations would have. An orientation of every line, which end leads, is what the previous knit carries, and it keeps exactly one such rotation, so an arrow on the lines is enough to select colour. The committed turning weave, adopted for other reasons, breaks it. The committed rule counted in the control keeps no selector by E-FRC-0095, which tested every order-three candidate. This does not show the committed rule conserves colour: it conserves charge and not momentum (E-FLD-0020), so the shadow of motion on the colour plane is not a conserved colour charge under it.',
+        'L2, exact. The reading of a direction as a color weight is its shadow on an A2 plane, and it needs a choice of plane. The measured answer to what makes the choice: an order-three triality rotation of the coin, whose fixed directions are the color plane (the long roots of the G2 that triality fixes, G2 containing SU(3)) and which cycles the three copies, the shape three generations would have. An orientation of every line, which end leads, is what the previous knit carries, and it keeps exactly one such rotation, so an arrow on the lines is enough to select color. The committed turning weave, adopted for other reasons, breaks it. The committed rule counted in the control keeps no selector by E-FRC-0095, which tested every order-three candidate. This does not show the committed rule conserves color: it conserves charge and not momentum (E-FLD-0020), so the shadow of motion on the color plane is not a conserved color charge under it.',
     })
   },
 })

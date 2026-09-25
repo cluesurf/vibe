@@ -1,4 +1,4 @@
-// Is the second tone the conjugate of the first? The classical colour group Sigma(648) acts on the nine
+// Is the second tone the conjugate of the first? The classical color group Sigma(648) acts on the nine
 // points of a qutrit phase space, a 3 x 3 grid, by the 216 affine maps with determinant one: 9 shifts
 // times the 24 turns of SL(2, 3), which are the 24 coin directions (E-FRC-0104). The proposal: one
 // axis of that grid is the tone (the vibe), the other is its conjugate, a flow, with the law
@@ -10,7 +10,7 @@
 //    3 or 9 points (its fixed points are a coset of a subspace), and the pair clock fixes exactly 2,
 //    the like-signed pairs. Fixed-point counts do not change under relabelling, so this covers all
 //    9! labellings at once, where E-FRC-0112 tried 6.
-// B. Can the vibe be an axis of the colour grid at all? The vibe is charge, and the rule conserves
+// B. Can the vibe be an axis of the color grid at all? The vibe is charge, and the rule conserves
 //    charge exactly, so a symmetry of the rule may only keep each vibe or flip its sign. Counted: how
 //    many of the 216 maps do that, and whether those form a commuting set. Predicted before the run:
 //    18, all of the form (v, f) -> (+-v, +-f + c v + k), and abelian. The count was right and
@@ -33,7 +33,7 @@ import {
   type Collision,
 } from '@/code/rule/collision'
 import {
-  colourTriality,
+  colorTriality,
   trialityWeave,
   trialityWeaveLayout,
 } from '@/code/rule/triality-weave'
@@ -91,7 +91,7 @@ export default experiment({
   id: 'gauge/vibe-and-flow',
   code: 'E-FRC-0116',
   title:
-    'the vibe cannot be an axis of the colour grid: a line cannot hold (vibe, flow) because the pair clock fixes 2 states where a grid map fixes 0, 1, 3 or 9, charge conservation leaves 18 of the 216 colour maps and none of the 24 turns, and a flow obeying flow <- flow + vibe adds only its own 3 shifts as symmetries of the committed or triality rule',
+    'the vibe cannot be an axis of the color grid: a line cannot hold (vibe, flow) because the pair clock fixes 2 states where a grid map fixes 0, 1, 3 or 9, charge conservation leaves 18 of the 216 color maps and none of the 24 turns, and a flow obeying flow <- flow + vibe adds only its own 3 shifts as symmetries of the committed or triality rule',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
@@ -141,7 +141,7 @@ export default experiment({
     // C. the flow beside the rules, on a side-3 box
     const box = d4BoxMesh({ side: 3 })
     const opposite = meshOpposites(box)
-    const sigma = colourTriality({ opposite })
+    const sigma = colorTriality({ opposite })
     const rules: [string, (t: number) => Collision, number][] = [
       ['committed', turningWeave({ opposite: [...opposite] }), 24],
       [
@@ -298,17 +298,17 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        "the pair clock fixes 2 of a line's 9 states and no affine map of the grid fixes 2, so no labelling of a line makes the clock a colour move, and the counts of B and C are reported: how many colour maps keep or flip the vibe and whether they commute, and how many commute with each rule once a flow obeys flow <- flow + vibe",
+        "the pair clock fixes 2 of a line's 9 states and no affine map of the grid fixes 2, so no labelling of a line makes the clock a color move, and the counts of B and C are reported: how many color maps keep or flip the vibe and whether they commute, and how many commute with each rule once a flow obeys flow <- flow + vibe",
       metrics: {
         clockFixedStates: clockFixed,
         gridFixedSizes:
           [...fixedSizes].sort((x, y) => x - y).join(' ') === '0 1 3 9'
             ? 1
             : 0,
-        colourMaps: special.length,
+        colorMaps: special.length,
         keepOrFlipVibe: keepsOrFlips.length,
         keepOrFlipAbelian: abelian ? 1 : 0,
-        colourGroupAbelian: specialAbelian ? 1 : 0,
+        colorGroupAbelian: specialAbelian ? 1 : 0,
         ...Object.fromEntries(
           withFlow.map(r => [
             `${r.name}CommutingWithFlow`,

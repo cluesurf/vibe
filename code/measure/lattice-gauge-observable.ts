@@ -176,7 +176,7 @@ function imaginaryTraceOfDaggerProduct(input: {
 // A Wilson loop in a representation, from the fundamental trace t = Tr W of the loop.
 // - fundamental: (1 / N) Re t
 // - adjoint: (|t|^2 - 1) / (N^2 - 1), the character of the adjoint of SU(N), the representation the
-//   gluon itself carries. A static source in it has colour charge C_A = N instead of the quark's
+//   gluon itself carries. A static source in it has color charge C_A = N instead of the quark's
 //   C_F = (N^2 - 1) / (2N).
 export type LoopRepresentation = 'fundamental' | 'adjoint'
 

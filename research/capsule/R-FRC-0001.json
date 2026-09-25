@@ -51,7 +51,7 @@
   "expected": {
     "E-FRC-0080 status.status": "pass",
     "E-FRC-0081 metrics.su3FieldCount": 8,
-    "E-FRC-0081 metrics.colours": 3,
+    "E-FRC-0081 metrics.colors": 3,
     "E-FRC-0081 metrics.su3ThirdCumulant": 0.25,
     "E-FRC-0081 control.su2FieldCount": 3,
     "E-FRC-0087 status.status": "pass",
@@ -72,7 +72,7 @@
   "observed": {
     "E-FRC-0080 status.status": "pass",
     "E-FRC-0081 metrics.su3FieldCount": 8.00626983256373,
-    "E-FRC-0081 metrics.colours": 3.010325539128537,
+    "E-FRC-0081 metrics.colors": 3.010325539128537,
     "E-FRC-0081 metrics.su3ThirdCumulant": 0.2496986921961843,
     "E-FRC-0081 control.su2FieldCount": 3.0173382927715053,
     "E-FRC-0087 status.status": "pass",
@@ -111,7 +111,7 @@
     },
     {
       "code": "E-FRC-0081",
-      "metric": "colours",
+      "metric": "colors",
       "from": "metrics",
       "expected": 3,
       "tolerance": 0.1,
@@ -292,12 +292,12 @@
     "E-FRC-0081": {
       "seconds": 66.841,
       "status": "pass",
-      "claim": "the plaquette of the Monte Carlo counts the gauge fields by equipartition (8 for SU(3), 3 for SU(2), 1 for U(1)) and the colours by the strong-coupling slope (N = 3), and finds the cubic invariant <(Re Tr U)^3> = 1/4 that only SU(3) has, the epsilon tensor that makes three quarks a singlet",
+      "claim": "the plaquette of the Monte Carlo counts the gauge fields by equipartition (8 for SU(3), 3 for SU(2), 1 for U(1)) and the colors by the strong-coupling slope (N = 3), and finds the cubic invariant <(Re Tr U)^3> = 1/4 that only SU(3) has, the epsilon tensor that makes three quarks a singlet",
       "metrics": {
         "su3FieldCount": 8.00626983256373,
         "gluons": 8,
         "su3StrongSlope": 0.05517509354295522,
-        "colours": 3.010325539128537,
+        "colors": 3.010325539128537,
         "su3SecondCumulant": 0.5001608555516632,
         "su3SecondCumulantFromSlope": 0.496575841886597,
         "su3ThirdCumulant": 0.2496986921961843,

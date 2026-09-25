@@ -18,7 +18,7 @@ export const OBJECTIONS: Objection[] = [
   },
   {
     objection:
-      'SU(3) colour is absent from the rule, including under coarse-graining',
+      'SU(3) color is absent from the rule, including under coarse-graining',
     measured:
       '2 of 9 u(3) generators kept, 1 of 995,328 schedule symmetries, 0 of 32 triangles inside a block, and 84 to 88 percent of the breaking kept at the whole-mesh scale',
     verdict: 'stands',

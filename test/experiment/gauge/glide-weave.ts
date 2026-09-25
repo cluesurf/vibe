@@ -1,16 +1,16 @@
-// A colour triality kept as a glide in time, with no four-line vertex. E-FRC-0112 proves that a rule
-// carried to itself by a colour triality on every beat can only trade tones between a colour line
+// A color triality kept as a glide in time, with no four-line vertex. E-FRC-0112 proves that a rule
+// carried to itself by a color triality on every beat can only trade tones between a color line
 // and its orbit in threes. The loophole it names: a rule with sigma U_t sigma^-1 = U_(t+2), which
 // must commute with sigma only over two beats. The glide weave (code/rule/glide-weave) is a pair rule
 // built that way: the committed pair clock between two passes of conditional swaps on a matching of
-// the 12 lines, the matching turned by sigma every second beat, so each colour line meets the lines
+// the 12 lines, the matching turned by sigma every second beat, so each color line meets the lines
 // of two orbits one at a time.
 //
 // Gates, fixed before the run, on the side-5 D4 box:
 // - exact reversal after 24 beats, charge conserved at every beat
 // - the glide: sigma U_t = U_(t+2) sigma on the whole box for every beat, and NOT with a shift of 0
 //   (it is not the triality weave's symmetry in disguise)
-// - the loophole used: a lone tone on a colour line moves to a single orbit line within one beat
+// - the loophole used: a lone tone on a color line moves to a single orbit line within one beat
 // - universality: the line graph connected on the vacuum and on a dense background
 // Reported, with the committed turning weave and the triality weave beside it on the same side-9
 // instruments as E-FRC-0111: CPT (charge conjugation with time reversal at a mirror phase, alone or
@@ -25,7 +25,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { meshOpposites } from '@/code/tool/mesh'
 import { turningWeave, type Collision } from '@/code/rule/collision'
 import {
-  colourTriality,
+  colorTriality,
   trialityWeave,
   trialityWeaveLayout,
 } from '@/code/rule/triality-weave'
@@ -163,7 +163,7 @@ export default experiment({
   id: 'gauge/glide-weave',
   code: 'E-FRC-0114',
   title:
-    'a pair rule that keeps a colour triality as a glide in time, sigma U_t = U_(t+2) sigma, with no four-line vertex: it reverses exactly, conserves charge, moves a single tone from a colour line onto one orbit line, which no rule symmetric beat by beat can do, and connects all twelve lines',
+    'a pair rule that keeps a color triality as a glide in time, sigma U_t = U_(t+2) sigma, with no four-line vertex: it reverses exactly, conserves charge, moves a single tone from a color line onto one orbit line, which no rule symmetric beat by beat can do, and connects all twelve lines',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -172,7 +172,7 @@ export default experiment({
     const SIDE = 5
     const box = d4BoxMesh({ side: SIDE })
     const opposite = meshOpposites(box)
-    const sigma = colourTriality({ opposite })
+    const sigma = colorTriality({ opposite })
     const layout = trialityWeaveLayout({ opposite, triality: sigma })
     const forward = glideWeave({ layout })
     const backward = glideWeave({ layout, forward: false })
@@ -247,7 +247,7 @@ export default experiment({
       (_, k) => k,
     ).filter(glideHoldsAt)
 
-    // the loophole: a lone tone on a colour line lands on exactly one orbit line in one beat. Read
+    // the loophole: a lone tone on a color line lands on exactly one orbit line in one beat. Read
     // against the vacuum cell through the same collision, since the pair clock turns every empty
     // line into a created pair. A first version counted occupied lines instead, found every line
     // occupied, and read 0
@@ -260,7 +260,7 @@ export default experiment({
 
       forward(t)(vacuumCell, 0, 24)
 
-      for (const line of layout.colour) {
+      for (const line of layout.color) {
         for (const end of [0, 1]) {
           for (const tone of [1, -1]) {
             const cell = new Int8Array(24)
@@ -429,7 +429,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the glide weave reverses exactly, conserves charge, satisfies sigma U_t = U_(t+2) sigma and not sigma U_t = U_t sigma, moves a lone colour-line tone onto a single orbit line, and connects all twelve lines on the vacuum and on a dense background, with its CPT, vacuum and particle content reported beside the committed and triality weaves',
+        'the glide weave reverses exactly, conserves charge, satisfies sigma U_t = U_(t+2) sigma and not sigma U_t = U_t sigma, moves a lone color-line tone onto a single orbit line, and connects all twelve lines on the vacuum and on a dense background, with its CPT, vacuum and particle content reported beside the committed and triality weaves',
       metrics: {
         reversesExactly: reverses ? 1 : 0,
         chargeConserved: chargeKept ? 1 : 0,
@@ -457,7 +457,7 @@ export default experiment({
         weaveWorstGrowth: weave.worstGrowth,
         freeReach: Math.SQRT2 * 6,
       },
-      notes: `L2, a constructed rule, exact, no random numbers. Glide shifts found: ${glideShifts.join(' ') || 'none'}. CPT: ${cpt || 'none, under charge conjugation alone or combined with sigma or sigma^2, at any mirror phase'}. A glide is a symmetry of the dynamics combined with time, not an internal symmetry at each instant, so whether it gives a conserved colour charge is a separate question this does not answer.`,
+      notes: `L2, a constructed rule, exact, no random numbers. Glide shifts found: ${glideShifts.join(' ') || 'none'}. CPT: ${cpt || 'none, under charge conjugation alone or combined with sigma or sigma^2, at any mirror phase'}. A glide is a symmetry of the dynamics combined with time, not an internal symmetry at each instant, so whether it gives a conserved color charge is a separate question this does not answer.`,
     })
   },
 })

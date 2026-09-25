@@ -102,18 +102,19 @@ export default experiment({
           ...Array.from({ length: b }, () => -1),
         ] as number[]
         const free = Math.min(n, 4)
+        const origin: [number, number] = [0, 0]
         const fixed = Array.from(
           { length: n - free },
-          (_, k) => points[(k * 4 + 1) % 9] ?? [0, 0],
+          (_, k) => points[(k * 4 + 1) % 9] ?? origin,
         )
 
         let kept = true
 
         for (let code = 0; code < 9 ** free && kept; code++) {
-          const config = [
+          const config: [number, number][] = [
             ...Array.from(
               { length: free },
-              (_, k) => points[Math.floor(code / 9 ** k) % 9] ?? [0, 0],
+              (_, k) => points[Math.floor(code / 9 ** k) % 9] ?? origin,
             ),
             ...fixed,
           ]

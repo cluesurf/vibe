@@ -1,5 +1,5 @@
 // Does the committed rule carry SU(3) on its tone? The tone has exactly three values, so the one place
-// a colour triplet could live in the five base things without adding anything is the tone read as a
+// a color triplet could live in the five base things without adding anything is the tone read as a
 // vector in C^3, with SU(3) turning it. This measures, from the committed collision itself, every
 // continuous and every discrete tone symmetry the rule keeps.
 //
@@ -100,7 +100,7 @@ export default experiment({
   id: 'gauge/rule-tone-symmetry',
   code: 'E-FRC-0093',
   title:
-    'the committed rule keeps only the charge U(1) and the overall phase of the three-valued tone, 2 of the 9 generators of U(3), under every way a line can carry a triplet, and no tone relabelling of the SU(3) Weyl group, so it carries no SU(3) colour on the tone',
+    'the committed rule keeps only the charge U(1) and the overall phase of the three-valued tone, 2 of the 9 generators of U(3), under every way a line can carry a triplet, and no tone relabelling of the SU(3) Weyl group, so it carries no SU(3) color on the tone',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L3',
@@ -205,7 +205,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the committed turning weave keeps exactly two continuous tone symmetries, the charge U(1) and the overall phase, out of the nine of U(3), at most two under any way a line can carry a triplet or antitriplet, and none of the 35 nontrivial line relabellings of the tone (the SU(3) Weyl group S3 on each end), so SU(3) colour is not a symmetry of the tone under the rule, while the same detectors find all of U(3) on the identity and swap maps and all 36 relabellings under pure streaming',
+        'the committed turning weave keeps exactly two continuous tone symmetries, the charge U(1) and the overall phase, out of the nine of U(3), at most two under any way a line can carry a triplet or antitriplet, and none of the 35 nontrivial line relabellings of the tone (the SU(3) Weyl group S3 on each end), so SU(3) color is not a symmetry of the tone under the rule, while the same detectors find all of U(3) on the identity and swap maps and all 36 relabellings under pure streaming',
       metrics: {
         wholeRuleAlgebraDimension: whole.dimension,
         // the smallest constraint eigenvalue that is NOT counted as a symmetry, against a cut at

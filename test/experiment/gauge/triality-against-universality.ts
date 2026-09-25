@@ -1,4 +1,4 @@
-// Can the committed rule's design space carry the triality rotation that would select a colour plane
+// Can the committed rule's design space carry the triality rotation that would select a color plane
 // (E-FRC-0106)? The turning weave was adopted for two properties the earlier rules lacked: universality
 // (over its schedule the swaps connect all 12 lines into one species graph) and CPT (a palindromic
 // schedule, charge conjugation with time reversal and identity spatial parity, E-FND-0117). Each of
@@ -6,22 +6,22 @@
 //
 // The measurement is combinatorial and exact.
 //
-// 1. A colour-selecting triality sigma (an order-three element of W(F4) fixing exactly an A2) acts on
-//    the 12 lines with 3 fixed lines, the colour plane, and the other 9 in three 3-cycles.
+// 1. A color-selecting triality sigma (an order-three element of W(F4) fixing exactly an A2) acts on
+//    the 12 lines with 3 fixed lines, the color plane, and the other 9 in three 3-cycles.
 // 2. Invariant beats. No perfect matching of the 12 lines into couples is sigma-invariant (a fixed line
 //    must be coupled to a fixed line, and there are 3). A beat that leaves lines uncoupled can be
 //    invariant, but then no couple joins a fixed line to a moved one, so in an invariant schedule the
-//    swap graph never connects the colour plane to the other nine lines.
+//    swap graph never connects the color plane to the other nine lines.
 // 3. Why every beat must be invariant. If the schedule is sigma-covariant with a beat shift s
 //    (C_{t+s} = sigma C_t sigma^-1) and palindromic with a spatial parity pi that commutes with sigma
 //    (the adopted identity parity, or the full inversion -I), the two relations compose to
 //    sigma^2 C_t sigma^-2 = C_t, and since sigma has order three, sigma C_t sigma^-1 = C_t at every
 //    beat. The commuting parities are counted here, and only a parity that turns sigma into its inverse
 //    escapes, which is neither the adopted CPT nor full inversion.
-// 4. What would reconcile them. The smallest sigma-invariant block of lines that contains a colour
-//    line and a moved line has four lines: the colour line and a whole sigma-orbit of three.
+// 4. What would reconcile them. The smallest sigma-invariant block of lines that contains a color
+//    line and a moved line has four lines: the color line and a whole sigma-orbit of three.
 //
-// Controls: a fixed-point-free order-three element of W(F4) (48 of them, none of them selects a colour
+// Controls: a fixed-point-free order-three element of W(F4) (48 of them, none of them selects a color
 // plane) does admit invariant perfect matchings, so the matching count can come out nonzero.
 //
 // Depth L2: an exact structural measurement of the design space the committed rule was drawn from.
@@ -140,7 +140,7 @@ export default experiment({
   id: 'gauge/triality-against-universality',
   code: 'E-FRC-0107',
   title:
-    'no schedule of line couples can keep the triality that selects a colour plane and also connect all twelve lines, under the CPT the committed rule was adopted with: triality fixes the three colour-plane lines, none of the 10,395 ways to couple all twelve lines is invariant, CPT with a parity that commutes with triality forces every beat to be invariant, and an invariant beat never couples a colour line to another, so joining them symmetrically needs a four-line block',
+    'no schedule of line couples can keep the triality that selects a color plane and also connect all twelve lines, under the CPT the committed rule was adopted with: triality fixes the three color-plane lines, none of the 10,395 ways to couple all twelve lines is invariant, CPT with a parity that commutes with triality forces every beat to be invariant, and an invariant beat never couples a color line to another, so joining them symmetrically needs a four-line block',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -230,9 +230,9 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'each of the 32 colour-selecting trialities fixes exactly the 3 colour-plane lines and cycles the other 9, none of the 10,395 perfect couplings of the 12 lines is invariant under any of them, the adopted identity parity and the full inversion both commute with them so a covariant palindromic schedule must be invariant beat by beat, an invariant beat never couples a colour line to a moved one, and the smallest invariant block that joins them holds 4 lines, while a fixed-point-free order-three element admits invariant couplings',
+        'each of the 32 color-selecting trialities fixes exactly the 3 color-plane lines and cycles the other 9, none of the 10,395 perfect couplings of the 12 lines is invariant under any of them, the adopted identity parity and the full inversion both commute with them so a covariant palindromic schedule must be invariant beat by beat, an invariant beat never couples a color line to a moved one, and the smallest invariant block that joins them holds 4 lines, while a fixed-point-free order-three element admits invariant couplings',
       metrics: {
-        colourSelectingTrialities: selectors.length,
+        colorSelectingTrialities: selectors.length,
         fixedLinesPerTriality: 3,
         perfectCouplings: matchings.length,
         invariantPerfectCouplings: invariantPerfect,
@@ -246,7 +246,7 @@ export default experiment({
         controlInvariantPerfectCouplings: controlCount,
       },
       notes:
-        'L2, exact and combinatorial, no random numbers. It decides the design question E-FRC-0106 left: within the family the committed rule was drawn from (every beat couples lines in pairs, CPT palindromic with identity spatial parity), colour cannot be selected by triality, because the colour plane holds three lines, an odd number, so a symmetric coupling can never reach them, and the property the turning weave was adopted for, one connected species graph, then fails. The escape routes are named, not taken: a CPT whose parity inverts the triality (the count is printed, none is the identity or the full inversion), or an interaction block of four lines, one colour line with a whole triality orbit of three. The second is the same kind of object as the three-line vertex E-FRC-0094 found absent, so the pairs-against-threes obstruction returns at the level of the schedule. Adopting either would be a change to the base and a decision, not a measurement.',
+        'L2, exact and combinatorial, no random numbers. It decides the design question E-FRC-0106 left: within the family the committed rule was drawn from (every beat couples lines in pairs, CPT palindromic with identity spatial parity), color cannot be selected by triality, because the color plane holds three lines, an odd number, so a symmetric coupling can never reach them, and the property the turning weave was adopted for, one connected species graph, then fails. The escape routes are named, not taken: a CPT whose parity inverts the triality (the count is printed, none is the identity or the full inversion), or an interaction block of four lines, one color line with a whole triality orbit of three. The second is the same kind of object as the three-line vertex E-FRC-0094 found absent, so the pairs-against-threes obstruction returns at the level of the schedule. Adopting either would be a change to the base and a decision, not a measurement.',
     })
   },
 })

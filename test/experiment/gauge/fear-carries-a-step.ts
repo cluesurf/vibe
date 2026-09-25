@@ -2,7 +2,7 @@
 // numbers of loves and fears on the role grid. A state is only half of it: a step must move the
 // weights. Any gate U moves the grid weights W of n qutrits by an exact real kernel,
 // W'(x) = sum_y K(x, y) W(y), K(x, y) = Tr(A(x) U A(y) U^dagger) / 3^n, with A the phase-point
-// operators. A classical gate (a colour move) makes K a permutation: loves and fears just move. A
+// operators. A classical gate (a color move) makes K a permutation: loves and fears just move. A
 // non-classical gate spreads one point's weight over several with signs: a love at y becomes loves at
 // some points and fears at others, which is what pair creation from calm does, and a love and a fear
 // landing on one point cancel back to calm.
@@ -11,9 +11,9 @@
 // denominator of K (so whole loves and fears stay whole with that many units per unit), and the
 // growth, the largest sum of |K| over a column: how many vibes one step can turn one vibe into. A
 // growth of 1 is classical. Gates:
-// - the plain swap of two roles and a colour move (Clifford controls): permutations, growth 1
+// - the plain swap of two roles and a color move (Clifford controls): permutations, growth 1
 // - the swap phase U(phi) = P_sym + e^(i phi) P_anti at phi = 2 pi / 3 and pi / 2, the continuous
-//   colour move of E-FRC-0100, the step a quark's role turns by
+//   color move of E-FRC-0100, the step a quark's role turns by
 // - T = diag(1, e^(2 pi i / 9), e^(-2 pi i / 9)) on one role, the non-classical element the
 //   continuum floor needed (E-FRC-0103)
 // And one run: the swap phase at 2 pi / 3 applied to the first two roles of the singlet's weights,
@@ -143,6 +143,7 @@ function summary(k: number[][]): {
   denominator: number
 } {
   const size = k.length
+
   let conserved = true
   let growth = 0
 
@@ -166,7 +167,11 @@ function summary(k: number[][]): {
   let denominator = -1
 
   for (let n = 1; n <= 729 && denominator < 0; n++) {
-    if (k.every(row => row.every(v => Math.abs(n * v - Math.round(n * v)) < 1e-7))) {
+    if (
+      k.every(row =>
+        row.every(v => Math.abs(n * v - Math.round(n * v)) < 1e-7),
+      )
+    ) {
       denominator = n
     }
   }
@@ -187,7 +192,8 @@ function swapPhase(phi: number): M {
 
       u.re[row * 9 + row] = (u.re[row * 9 + row] ?? 0) + (1 + c) / 2
       u.im[row * 9 + row] = (u.im[row * 9 + row] ?? 0) + s / 2
-      u.re[row * 9 + swapped] = (u.re[row * 9 + swapped] ?? 0) + (1 - c) / 2
+      u.re[row * 9 + swapped] =
+        (u.re[row * 9 + swapped] ?? 0) + (1 - c) / 2
       u.im[row * 9 + swapped] = (u.im[row * 9 + swapped] ?? 0) - s / 2
     }
   }
@@ -205,7 +211,7 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    // a colour move on one role: the Fourier matrix, a Clifford element
+    // a color move on one role: the Fourier matrix, a Clifford element
     const fourier = make(3)
 
     for (let j = 0; j < 3; j++) {
@@ -219,7 +225,7 @@ export default experiment({
 
     const gates: [string, M, readonly M[]][] = [
       ['swap', swapPhase(Math.PI), twoPoint],
-      ['colourMove', fourier, onePoint],
+      ['colorMove', fourier, onePoint],
       ['swapPhaseThird', swapPhase((2 * Math.PI) / 3), twoPoint],
       ['swapPhaseQuarter', swapPhase(Math.PI / 2), twoPoint],
       ['t', fromMatrix3(QUTRIT_T), onePoint],
@@ -230,7 +236,6 @@ export default experiment({
     }))
 
     // the singlet's weights under the swap phase at 2 pi / 3 on its first two roles, as whole vibes
-    const singlet = make(27)
     const s6 = 1 / Math.sqrt(6)
     const perms: [number, number, number, number][] = [
       [0, 1, 2, s6],
@@ -247,16 +252,21 @@ export default experiment({
     }
 
     // the swap phase on roles 1 and 2 of three: U x I
-    const step = kron(swapPhase((2 * Math.PI) / 3), (() => {
-      const id = make(3)
+    const step = kron(
+      swapPhase((2 * Math.PI) / 3),
+      (() => {
+        const id = make(3)
 
-      for (let i = 0; i < 3; i++) {
-        id.re[i * 3 + i] = 1
-      }
+        for (let i = 0; i < 3; i++) {
+          id.re[i * 3 + i] = 1
+        }
 
-      return id
-    })())
-    const threePoints = twoPoint.flatMap(x => onePoint.map(y => kron(x, y)))
+        return id
+      })(),
+    )
+    const threePoints = twoPoint.flatMap(x =>
+      onePoint.map(y => kron(x, y)),
+    )
     const weights = (re: Float64Array, im: Float64Array): number[] =>
       threePoints.map(a => {
         let value = 0
@@ -278,28 +288,39 @@ export default experiment({
 
         return value / 27
       })
-    const vibes = (w: readonly number[]): { loves: number; fears: number } => {
+
+    const vibes = (
+      w: readonly number[],
+    ): { loves: number; fears: number } => {
       for (let n = 1; n <= 2000; n++) {
         if (w.every(x => Math.abs(n * x - Math.round(n * x)) < 1e-7)) {
           const counts = w.map(x => Math.round(n * x))
 
           return {
             loves: counts.filter(c => c > 0).reduce((a, b) => a + b, 0),
-            fears: -counts.filter(c => c < 0).reduce((a, b) => a + b, 0),
+            fears: -counts
+              .filter(c => c < 0)
+              .reduce((a, b) => a + b, 0),
           }
         }
       }
 
       return { loves: -1, fears: -1 }
     }
+
     const before = vibes(weights(amplitude, new Float64Array(27)))
     const movedRe = new Float64Array(27)
     const movedIm = new Float64Array(27)
 
     for (let i = 0; i < 27; i++) {
       for (let j = 0; j < 27; j++) {
-        movedRe[i] = (movedRe[i] ?? 0) + (step.re[i * 27 + j] ?? 0) * (amplitude[j] ?? 0)
-        movedIm[i] = (movedIm[i] ?? 0) + (step.im[i * 27 + j] ?? 0) * (amplitude[j] ?? 0)
+        movedRe[i] =
+          (movedRe[i] ?? 0) +
+          (step.re[i * 27 + j] ?? 0) * (amplitude[j] ?? 0)
+
+        movedIm[i] =
+          (movedIm[i] ?? 0) +
+          (step.im[i * 27 + j] ?? 0) * (amplitude[j] ?? 0)
       }
     }
 
@@ -310,13 +331,13 @@ export default experiment({
     const ok =
       results.every(r => r.conserved) &&
       by('swap')?.permutation === true &&
-      by('colourMove')?.permutation === true &&
+      by('colorMove')?.permutation === true &&
       nonClassical.every(name => (by(name)?.growth ?? 0) > 1 + 1e-9)
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'every kernel conserves weight, the plain swap and a colour move only permute grid points, and the swap phase at 2 pi / 3 and pi / 2 and T each spread one vibe over several with signs, with their denominators and growth reported',
+        'every kernel conserves weight, the plain swap and a color move only permute grid points, and the swap phase at 2 pi / 3 and pi / 2 and T each spread one vibe over several with signs, with their denominators and growth reported',
       metrics: {
         ...Object.fromEntries(
           results.flatMap(r => [

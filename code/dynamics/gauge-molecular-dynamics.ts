@@ -6,7 +6,7 @@
 //   dU / dt = i P U,     dP / dt = -(beta / (2N)) (Y - (Tr Y / N) 1),   Y = (U A - (U A)^dag) / (2i)
 //
 // with A the staple sum of the link. With P = sum_a p_a T_a and Tr(T_a T_b) = delta_ab / 2 the
-// kinetic term is (1/2) sum_a p_a^2, one unit of equipartition per colour component.
+// kinetic term is (1/2) sum_a p_a^2, one unit of equipartition per color component.
 //
 // The integrator is leapfrog (half kick, drift, half kick), which is exactly time-reversible and
 // symplectic: flip every momentum and integrate again and the start comes back, to rounding. It
@@ -134,7 +134,7 @@ export function setMomentum(input: {
   })
 }
 
-// sum over links of Tr(P^2) = (1/2) sum over links and colours of p_a^2
+// sum over links of Tr(P^2) = (1/2) sum over links and colors of p_a^2
 export function kineticEnergy(input: {
   momenta: GaugeMomenta
 }): number {
@@ -353,26 +353,26 @@ export function leapfrog(input: {
   })
 }
 
-// A fixed, structured initial momentum field with no random number in it: every colour component of
+// A fixed, structured initial momentum field with no random number in it: every color component of
 // every link is a plane wave,
 //
 //   p_a(x, mu) = amplitude cos(2 pi sum_{nu != mu} w_nu x_nu / L_nu + 2 pi (3 a + 5 mu) / 16)
 //
 // with fixed integer weights w = 1, 2, 3, 5. The momentum of a mu-link does not depend on x_mu, so
 // on the cold vacuum (every link the identity) its lattice divergence is exactly zero at every site:
-// the Gauss law holds and the start carries no colour charge. `colours` limits the excitation to
-// the listed colour components (all of them by default), the rest start at zero.
+// the Gauss law holds and the start carries no color charge. `colors` limits the excitation to
+// the listed color components (all of them by default), the rest start at zero.
 export function structuredMomenta(input: {
   lattice: GaugeLattice
   momenta: GaugeMomenta
   generators: readonly Float64Array[]
   amplitude: number
-  colours?: readonly number[]
+  colors?: readonly number[]
 }): void {
   const { lattice, momenta, generators, amplitude } = input
   const { dim, lengths, sites } = lattice.geometry
   const weights = [1, 2, 3, 5]
-  const colours = input.colours ?? generators.map((_, a) => a)
+  const colors = input.colors ?? generators.map((_, a) => a)
 
   for (let site = 0; site < sites; site++) {
     let rest = site
@@ -396,7 +396,7 @@ export function structuredMomenta(input: {
       }
 
       const components = generators.map((_, a) =>
-        colours.includes(a)
+        colors.includes(a)
           ? amplitude *
             Math.cos(phase + (2 * Math.PI * (3 * a + 5 * mu)) / 16)
           : 0,
@@ -413,7 +413,7 @@ export function structuredMomenta(input: {
 }
 
 // The kinetic temperature T = <p_a^2>, the mean square momentum component per physical degree of
-// freedom. With the Gauss law holding exactly (the dynamics conserves the colour charge at every
+// freedom. With the Gauss law holding exactly (the dynamics conserves the color charge at every
 // site, and a structured start sets it to zero), N^2 - 1 combinations of momenta per site are pinned
 // at zero, so the kinetic energy spreads over (N^2 - 1)(links - sites) components, not
 // (N^2 - 1) links. `count: 'naive'` uses every link component, the alternative a measurement can
@@ -425,17 +425,17 @@ export function kineticTemperature(input: {
 }): number {
   const { lattice, momenta } = input
   const { dim, sites } = lattice.geometry
-  const colours = lattice.n * lattice.n - 1
+  const colors = lattice.n * lattice.n - 1
   const links = sites * dim
   const components =
-    colours * (input.count === 'gauss' ? links - sites : links)
+    colors * (input.count === 'gauss' ? links - sites : links)
 
   return (2 * kineticEnergy({ momenta })) / components
 }
 
-// The share of the kinetic energy in each colour component, summed over every link. 1 / (N^2 - 1)
+// The share of the kinetic energy in each color component, summed over every link. 1 / (N^2 - 1)
 // each at equipartition.
-export function colourFractions(input: {
+export function colorFractions(input: {
   momenta: GaugeMomenta
   generators: readonly Float64Array[]
 }): number[] {
@@ -456,17 +456,17 @@ export function colourFractions(input: {
   return totals.map(total => (sum === 0 ? 0 : total / sum))
 }
 
-// The kurtosis <p^4> / <p^2>^2 of the momentum components over every link, pooled over the colour
+// The kurtosis <p^4> / <p^2>^2 of the momentum components over every link, pooled over the color
 // components listed (all by default). 3 for a Gaussian (Maxwell-Boltzmann) distribution, 1.5 for the cosine
 // profile of a single plane wave. The approach from 1.5 to 3 is thermalization read off the momenta.
 export function momentumKurtosis(input: {
   momenta: GaugeMomenta
   generators: readonly Float64Array[]
-  colours?: readonly number[]
+  colors?: readonly number[]
 }): number {
   const { momenta, generators } = input
   const links = momenta.data.length / (2 * momenta.n * momenta.n)
-  const colours = input.colours ?? generators.map((_, a) => a)
+  const colors = input.colors ?? generators.map((_, a) => a)
 
   let second = 0
   let fourth = 0
@@ -475,7 +475,7 @@ export function momentumKurtosis(input: {
   for (let link = 0; link < links; link++) {
     momentumComponents({ momenta, link, generators }).forEach(
       (p, a) => {
-        if (colours.includes(a)) {
+        if (colors.includes(a)) {
           second += p * p
           fourth += p ** 4
           count += 1

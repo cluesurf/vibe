@@ -13,7 +13,7 @@
 // - W(F4) elements acting as automorphisms: all 1152 on the D4 box, 384 (the signed permutations) on
 //   the integer torus.
 // - The previous knit's 24-beat evolution commutes with exactly 2 of the 80 order-three elements, and
-//   both fix an A2: its colour-selecting triality is a symmetry of the full dynamics, not only of the
+//   both fix an A2: its color-selecting triality is a symmetry of the full dynamics, not only of the
 //   collision table.
 // - The committed turning weave commutes with none.
 //
@@ -181,7 +181,7 @@ export default experiment({
   id: 'gauge/d4-box-triality',
   code: 'E-FRC-0108',
   title:
-    'on a box with D4-shaped periods all 1152 coin symmetries act, against 384 on the integer torus the committed rule was searched on, and there the previous knit evolves in exact step with its two colour-selecting trialities while the committed turning weave commutes with none',
+    'on a box with D4-shaped periods all 1152 coin symmetries act, against 384 on the integer torus the committed rule was searched on, and there the previous knit evolves in exact step with its two color-selecting trialities while the committed turning weave commutes with none',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -255,7 +255,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'all 1152 elements of W(F4) are automorphisms of the D4-shaped box against 384 on the integer torus, and on the D4 box the previous knit evolves in exact step for 24 beats with exactly 2 of the 80 order-three elements, both colour-selecting trialities, while the committed turning weave commutes with none',
+        'all 1152 elements of W(F4) are automorphisms of the D4-shaped box against 384 on the integer torus, and on the D4 box the previous knit evolves in exact step for 24 beats with exactly 2 of the 80 order-three elements, both color-selecting trialities, while the committed turning weave commutes with none',
       metrics: {
         automorphismsD4Box: onBox,
         automorphismsIntegerTorus: onTorus,
@@ -268,7 +268,7 @@ export default experiment({
         orderThreeElements: orderThree.length,
       },
       notes:
-        "L2, exact. It answers the box half of why triality was never in the committed rule's design space: the search ran on a box triality cannot act on. On the D4 box it can, and the previous knit, which keeps a colour-selecting triality in its table (E-FRC-0106), keeps it in its full evolution too. The count uses four starts, since a coarse single start can let an element pass by coincidence. E-FRC-0107 is about the schedule and holds on any box. E-FRC-0109 builds a rule on this box that keeps the triality and is also universal.",
+        "L2, exact. It answers the box half of why triality was never in the committed rule's design space: the search ran on a box triality cannot act on. On the D4 box it can, and the previous knit, which keeps a color-selecting triality in its table (E-FRC-0106), keeps it in its full evolution too. The count uses four starts, since a coarse single start can let an element pass by coincidence. E-FRC-0107 is about the schedule and holds on any box. E-FRC-0109 builds a rule on this box that keeps the triality and is also universal.",
     })
   },
 })

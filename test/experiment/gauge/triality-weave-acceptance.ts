@@ -30,7 +30,7 @@
 //    which is what led to its final form (see code/rule/triality-weave).
 // 6. Travel: how far a lone tone on each direction gets in six beats, the largest true distance
 //    from its cell to any cell that differs from the vacuum, and how many directions travel at half
-//    the free speed or more. Beside it, a colour-neutral triple (one tone on each line of an orbit)
+//    the free speed or more. Beside it, a color-neutral triple (one tone on each line of an orbit)
 //    and its own member alone. Reported for both rules, not gated. How this item came to be: an
 //    earlier version counted a triple as bound when its support stayed at or below 6, and read 12
 //    of 12 bound here and 0 of 12 in the committed rule. Support counts slots, not distance, and a
@@ -249,7 +249,7 @@ export default experiment({
     // distance (code/substrate/d4-box, d4BoxDistance) from the seed cell to any cell that differs
     // from the vacuum, on a side-13 box where TRAVEL_BEATS beats cannot wrap. A free tone moving one
     // root per beat gets sqrt 2 per beat. A traveller is a direction that gets at least half that.
-    // The triple of a colour-neutral seed (one tone on each line of an orbit) is measured the same
+    // The triple of a color-neutral seed (one tone on each line of an orbit) is measured the same
     // way beside its own member, since a triple that stays together says nothing when its members
     // do not travel either (the lesson recorded in the header)
     const TRAVEL_BEATS = 6

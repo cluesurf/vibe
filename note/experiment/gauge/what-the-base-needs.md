@@ -1,4 +1,4 @@
-# What the Base Needs for Colour
+# What the Base Needs for Color
 
 **The committed rule carries no SU(3)** (`E-FRC-0093` to `0097`, in
 [su3-from-the-rule.md](su3-from-the-rule.md)). This note asks the next question: **what is the
@@ -14,9 +14,9 @@ The prose of the base uses experiential names for the same things.
 
 | name | physics | what it is |
 | --- | --- | --- |
-| **vibe** | the tone, whose sum is charge, and whose sum mod 3 is triality, colour's centre | the one thing felt: **fear, calm or love** (-1, 0, +1) |
-| **role** | colour | which of three roles a vibe plays in a whole. Never felt alone |
-| **tilt** | colour phase, colour's conjugate | which way the role leans, toward the next role around its cycle |
+| **vibe** | the tone, whose sum is charge, and whose sum mod 3 is triality, color's center | the one thing felt: **fear, calm or love** (-1, 0, +1) |
+| **role** | color | which of three roles a vibe plays in a whole. Never felt alone |
+| **tilt** | color phase, color's conjugate | which way the role leans, toward the next role around its cycle |
 | **turn** | the 24 rotations of the grid, which are the 24 coin directions (`E-FRC-0104`) | a turn of motion. The 24 turns rotate role into tilt and back |
 
 Why fear and love: the rule treats -1 and +1 as exact mirror images, so the names are true
@@ -27,7 +27,7 @@ swap, and they fall back into calm, which is the rule's arrow from the vacuum. S
 is the same as running time backwards, since charge conjugation turns the pair clock into its inverse
 (C P C = P^-1), so the rule tells them apart only by the direction of time. Love minus fear never
 changes, since they are made and unmade only in pairs. A reading rather than a measurement: that
-difference, taken mod 3, is colour's centre charge, which would decide whether roles can close into a
+difference, taken mod 3, is color's center charge, which would decide whether roles can close into a
 whole (wholes exist only at triality zero, `E-FRC-0101`).
 
 The structure is measured and the names are a choice. What is fixed: three roles, none first, each
@@ -46,33 +46,33 @@ feeling. The third was first called turn, and became tilt so that turn names onl
 
 ## The answer in five lines
 
-1. **Threes are built from twos.** A baryon needs no three-way vertex. Pairwise colour exchange
+1. **Threes are built from twos.** A baryon needs no three-way vertex. Pairwise color exchange
    binds the epsilon singlet as the unique ground state (`E-FRC-0101`).
-2. **Turning colour needs a phase on the swap.** A colour-respecting permutation can only leave or
+2. **Turning color needs a phase on the swap.** A color-respecting permutation can only leave or
    swap (2 of 9! = 362,880 maps), and every other member of the circle
    U(phi) = P_sym + e^(i phi) P_anti entangles (`E-FRC-0100`).
-3. **Gauge colour can be classical.** The Hessian group Sigma(648) inside SU(3) acts on the nine
+3. **Gauge color can be classical.** The Hessian group Sigma(648) inside SU(3) acts on the nine
    points of a qutrit phase space by permutations, and its elements are labelled by three tones and
    one of the 24 coin directions, because those directions form SL(2, 3) (`E-FRC-0104`).
 4. **At the spacing where our hadrons live, that classical group is SU(3).** With a Re Tr U^2 term
    in the action it does not freeze, it deconfines at N_t = 4, and its Creutz ratios there match
    SU(3) at beta = 5.6925 (`E-FRC-0103`). It runs without dice (`E-FRC-0110`). Finer than that it
    stops, and the next step is one non-classical element.
-5. **Selecting colour takes a four-line vertex.** A triality of the coin picks the colour plane, no
-   pairwise rule can keep it and stay connected (`E-FRC-0107`), and one charge on a colour line
+5. **Selecting color takes a four-line vertex.** A triality of the coin picks the color plane, no
+   pairwise rule can keep it and stay connected (`E-FRC-0107`), and one charge on a color line
    traded for three across a triality orbit does both (`E-FRC-0109`, `0111`).
 
 ## The measurements
 
 | experiment | measured | grade |
 | --- | --- | --- |
-| [`E-FRC-0100`](../../../test/experiment/gauge/colour-needs-amplitudes.ts) | colour-symmetric permutations: **2** for 3 x 3, **1** for 3 x 3-bar, **6** for 3 x 3 x 3, brute force agrees. The circle U(phi) keeps all **9** u(3) generators, its classical points are exactly phi = 0 and pi, entangling power up to 1/4. The rule's clock read as colour keeps **3** of 9, a colour factor beside the clock keeps **9** | L1 |
+| [`E-FRC-0100`](../../../test/experiment/gauge/color-needs-amplitudes.ts) | color-symmetric permutations: **2** for 3 x 3, **1** for 3 x 3-bar, **6** for 3 x 3 x 3, brute force agrees. The circle U(phi) keeps all **9** u(3) generators, its classical points are exactly phi = 0 and pi, entangling power up to 1/4. The rule's clock read as color keeps **3** of 9, a color factor beside the clock keeps **9** | L1 |
 | [`E-FRC-0101`](../../../test/experiment/gauge/singlet-from-pair-exchange.ts) | open chain of three triplets, H = S_01 + S_12: unique ground state, overlap with epsilon exactly **1**, gap **1** (gap **3** with the closing bond). Meson: gap **3**. Singlets only at triality zero: qq 0, q qbar 1, qqq 1, qq qbar 0, qqqq 0, qq qbar qbar 2. Best classical overlap with the baryon 1/6 | L1 |
 | [`E-FRC-0102`](../../../test/experiment/gauge/kinetic-center-automaton.ts) | the Z3 center with a streaming, exchanging demon per link, fully reversible: plaquette **0.1992** against the heatbath's **0.1992** (confined), **0.979** against **0.982** and **0.994** against **0.998** (ordered, the phase `E-FRC-0099` froze out of), **0.512** mid-gap. Demons that do not stream stall at **0.889** | L2 |
-| [`E-FRC-0103`](../../../test/experiment/gauge/finite-colour-groups.ts) | see the table below | L2 |
-| [`E-FRC-0104`](../../../test/experiment/gauge/classical-colour-group.ts) | classical on phase space: Delta(27) **27/27**, Sigma(108) **108/108**, Sigma(648) **648/648** through **216** affine maps (9 translations x all **24** of SL(2, 3), fibre **3** = the center), Sigma(1080) **18/1080**, its golden-ratio generator makes Wigner negativity **0.29**. The coin directions close under x o y = x q y, q = (1 - i) / sqrt 2, with **24 of 24** isomorphisms from SL(2, 3) | L1 |
+| [`E-FRC-0103`](../../../test/experiment/gauge/finite-color-groups.ts) | see the table below | L2 |
+| [`E-FRC-0104`](../../../test/experiment/gauge/classical-color-group.ts) | classical on phase space: Delta(27) **27/27**, Sigma(108) **108/108**, Sigma(648) **648/648** through **216** affine maps (9 translations x all **24** of SL(2, 3), fibre **3** = the center), Sigma(1080) **18/1080**, its golden-ratio generator makes Wigner negativity **0.29**. The coin directions close under x o y = x q y, q = (1 - i) / sqrt 2, with **24 of 24** isomorphisms from SL(2, 3) | L1 |
 
-### Finite colour groups against SU(3)
+### Finite color groups against SU(3)
 
 The Wilson action S = beta sum_p (1 - Re Tr U_p / 3), and the modified action
 S = -sum_p ((beta0 / 3) Re Tr U_p + beta1 Re Tr U_p^2) of Alexandru et al. (2019).
@@ -109,9 +109,9 @@ N_t = 6 transition on this trajectory is not cleanly separated from the onset of
 trajectory the classical group reaches the N_t = 4 spacing cleanly and not the N_t = 6 one.** A
 steeper trajectory and a grid off both do no better, measured with a ruler below.
 
-## Colour already in the coin, and what would select it
+## Color already in the coin, and what would select it
 
-A way to have colour without adding a trit: read a direction's colour as its **shadow on an A2
+A way to have color without adding a trit: read a direction's color as its **shadow on an A2
 plane**. Around any of the 16 zero-sum triangles of the coin (an A2, the root system of SU(3)) the
 24 directions split exactly (`E-FRC-0106`):
 
@@ -127,7 +127,7 @@ three per point, and the three triplet copies sit **120 degrees apart**.
 **What picks one plane out of 16: a triality rotation.** Of the 80 order-three elements of W(F4), 32
 fix exactly six directions, and those six are always an A2. The other 48 fix nothing. All 32 are
 triality rotations (outside W(D4)), and they select each of the 16 planes once, as a pair g and
-g^-1. So choosing an order-three triality of the coin **forces** the colour plane (its fixed
+g^-1. So choosing an order-three triality of the coin **forces** the color plane (its fixed
 directions, the long roots of the G2 that triality fixes, and G2 contains SU(3)). The same rotation
 **cycles the three copies**, the shape three generations would take.
 
@@ -138,7 +138,7 @@ instead: the 4 directions at rest are the roots of one coordinate plane, and the
 not close a triangle.
 
 Two limits. The committed rule conserves charge and **not momentum** (`E-FLD-0020`, and a direct
-check), so the shadow of motion is not a conserved colour charge under it. And the reading needs a
+check), so the shadow of motion is not a conserved color charge under it. And the reading needs a
 rule that keeps one triality rotation, which the previous knit did and the committed weave does not.
 So the concrete design question becomes: **is there a turning schedule that does everything the
 turning weave was adopted for and still commutes with one triality rotation?**
@@ -149,11 +149,11 @@ CPT (a palindrome with identity spatial parity, `E-FND-0117`).
 
 | step | measured |
 | --- | --- |
-| a colour-selecting triality on lines | fixes exactly the **3** colour-plane lines, cycles the other 9 in three 3-cycles (all 32) |
+| a color-selecting triality on lines | fixes exactly the **3** color-plane lines, cycles the other 9 in three 3-cycles (all 32) |
 | invariant couplings of all 12 lines | **0 of 10,395**. A fixed line must couple to a fixed line, and there are three. A fixed-point-free order-three control admits 27 |
 | CPT and covariance together | the adopted parity and full inversion both commute with triality, so a covariant palindrome has to be invariant beat by beat |
-| universality | an invariant beat never couples a colour line to one of the other nine, so the species graph cannot connect |
-| what would reconcile them | an invariant block of **4** lines (one colour line with a whole triality orbit), or a CPT whose parity inverts the triality (36 such elements, none of them the identity or the inversion) |
+| universality | an invariant beat never couples a color line to one of the other nine, so the species graph cannot connect |
+| what would reconcile them | an invariant block of **4** lines (one color line with a whole triality orbit), or a CPT whose parity inverts the triality (36 such elements, none of them the identity or the inversion) |
 
 The earlier triality search was also shut for a second reason. The adoption note records that the
 triality cosets "do not act on the integer torus": triality has entries of one half, so it preserves
@@ -161,10 +161,10 @@ the D4 lattice but not a periodic box of shape L Z^4. That is a property of the 
 D4-shaped periods would admit it. `E-FRC-0107` needs no box at all, and it shows the obstruction is in
 the schedule, not the box.
 
-So colour cannot emerge from the committed rule's design family. The obstruction is the same
-pairs-against-threes one as `E-FRC-0094`, one level up: **the colour plane holds three lines, and a
+So color cannot emerge from the committed rule's design family. The obstruction is the same
+pairs-against-threes one as `E-FRC-0094`, one level up: **the color plane holds three lines, and a
 rule that works in pairs can never treat them symmetrically and still reach them.** A base that wanted
-triality colour would need a four-line interaction block, and adopting one is a decision, not a
+triality color would need a four-line interaction block, and adopting one is a decision, not a
 measurement.
 
 ## The four follow-ups, worked
@@ -174,28 +174,28 @@ measurement.
 The integer torus the committed rule was searched on admits only the 384 signed permutations. A box
 whose periods are L D4 instead of L Z^4 admits all 1,152 elements of W(F4), triality included
 (`code/substrate/d4-box`). On it the previous knit evolves in exact step with exactly 2 order-three
-elements for 24 beats from four starts, and both are the colour-selecting trialities. The committed
+elements for 24 beats from four starts, and both are the color-selecting trialities. The committed
 turning weave commutes with none.
 
-### A rule that keeps colour and connects every line (`E-FRC-0109`)
+### A rule that keeps color and connects every line (`E-FRC-0109`)
 
-The four-line block `E-FRC-0107` named, built (`code/rule/triality-weave`). Each beat pairs colour
+The four-line block `E-FRC-0107` named, built (`code/rule/triality-weave`). Each beat pairs color
 line f_r with a whole triality orbit, and a four-line vertex V swaps, for s = +1 and -1:
 
 | before | after |
 | --- | --- |
-| a charge s leading on the colour line, the orbit empty | two anti-charges on the colour line, a charge s leading on each orbit line |
-| a charge s trailing on the colour line, the orbit empty | two anti-charges on the colour line, a charge s trailing on each orbit line |
+| a charge s leading on the color line, the orbit empty | two anti-charges on the color line, a charge s leading on each orbit line |
+| a charge s trailing on the color line, the orbit empty | two anti-charges on the color line, a charge s trailing on each orbit line |
 
-Every swap conserves charge and treats the three orbit lines alike. It moves tones between a colour
+Every swap conserves charge and treats the three orbit lines alike. It moves tones between a color
 line and its orbit only in threes, and that is forced: an orbit state the triality fixes holds a
 multiple of three tones, and a line holds at most two. One beat is V S P S V, where P is the committed
 pair clock and S is the committed turning weave's conditional swap written so the triality carries it
-to itself (colour lines r and r + 1 as a couple, orbits r and r + 1 line by line). The block index r
+to itself (color lines r and r + 1 as a couple, orbits r and r + 1 line by line). The block index r
 runs 0 1 2 2 1 0, a palindrome of period 6.
 
 **How it got there.** The first version fired the vertex on all three blocks every beat and added a
-second swap (an empty colour line and a charge on one orbit line against two charges on the colour
+second swap (an empty color line and a charge on one orbit line against two charges on the color
 line). It passed every structural gate below and then failed the dressing test of `E-FRC-0111`: one
 tone grew into 40,591 changed slots, a support ratio of 726. Eight variants were measured on the same
 instruments:
@@ -214,7 +214,7 @@ instruments:
 The second swap is what avalanches: it turns one charge into three with no delay, and firing it on
 every block lets each of the three spawn three more on the next beat. The vertex alone cannot connect
 the dense background, because it fires only on an empty orbit. The swaps S connect it without adding
-any tone. So the adopted rule keeps the one move that colour needs (one charge for three), fires it
+any tone. So the adopted rule keeps the one move that color needs (one charge for three), fires it
 on one block per beat, and lets the triality-symmetric swaps do the mixing.
 
 The adopted rule measures:
@@ -230,8 +230,8 @@ The adopted rule measures:
 | previous knit | keeps the triality, 12 disconnected lines |
 | committed turning weave | no triality. Connected on a dense background, but on the vacuum a lone disturbance stays in one of 3 sectors (lines 0 2 3 4 6 8 10, lines 1 5 7 9, and line 11 alone), at 24, 48 and 96 beats and on both boxes. Line 11 is the adoption's own phase-protected free mode |
 
-So colour selection by triality, universality and CPT can all hold at once. What they need is one
-classical four-line vertex: a charge on a colour line turns into three identical charges, one on each
+So color selection by triality, universality and CPT can all hold at once. What they need is one
+classical four-line vertex: a charge on a color line turns into three identical charges, one on each
 line the triality turns into the others. That is the missing "three at once", and it needs no
 amplitude.
 
@@ -248,7 +248,7 @@ species:
 | lone tones that do not multiply, support never above 2 over four periods | 21 of 24 | 7 |
 | lone tones that travel, at least half the free speed over 6 beats | **0** of 24 | **12** of 24 |
 | mean distance a lone tone gets in 6 beats (free motion: 8.5) | **1.1** | **4.3** |
-| a colour-neutral triple's reach, against one of its members alone | 1.4 against 1.4 | 8.5 against 8.5 |
+| a color-neutral triple's reach, against one of its members alone | 1.4 against 1.4 | 8.5 against 8.5 |
 | two separated disturbances superpose in the clock amplitude | exact, worst **2e-15** | exact, worst 2e-12 |
 | a half born late makes a wall that is a whole number of sheets | yes, up to **110,808** slots, all multiples of 729 | yes |
 | wall periodic | **no**, over 72 beats | **no**, over 72 beats |
@@ -265,7 +265,7 @@ gate now requires comparisons and the periodicity is reported.
 wrong readings to reach, both recorded in the experiment:
 
 1. Support counts slots, not distance. A first pass read "21 of 24 lone tones stay compact" as 21
-   free particles, and "a colour-neutral triple never exceeds 6 slots" as 12 of 12 bound baryons,
+   free particles, and "a color-neutral triple never exceeds 6 slots" as 12 of 12 bound baryons,
    against 0 of 12 in the committed rule.
 2. Distance tells the story instead. In the triality weave a lone tone hardly travels. The pair
    clock sends a lone tone from one end of its line to the other ((1, 0) to (0, 1) and back), which
@@ -279,7 +279,7 @@ So the real price of the triality weave is its free particles: the committed rul
 of lone tone that fly, and this rule has none. The kick law of `E-FND-0118` is a statement about
 support-one species and is not run here.
 
-### A deterministic sampler for the classical colour group (`E-FRC-0110`)
+### A deterministic sampler for the classical color group (`E-FRC-0110`)
 
 An integer-valued plaquette action, E(U) = round(6 (1 - Re Tr U / 3)), makes the energy bookkeeping
 exact, so the reversible kinetic demon rule of `E-FRC-0102` runs on Sigma(648)
@@ -321,7 +321,7 @@ The started-from-the-ground-state heatbath also settles a doubt about `E-FRC-010
 melts to the same plaquette as the identity and random starts, so the "not frozen at the transition"
 claim holds against the true ground state too.
 
-### How far the classical colour group reaches toward the continuum
+### How far the classical color group reaches toward the continuum
 
 The Creutz ratios serve as a ruler for the lattice spacing. At N_t = 4 they matched SU(3) at its
 transition, so equal ratios mean equal spacing. SU(3) at its N_t = 6 transition (beta 5.8941) gives
@@ -345,22 +345,22 @@ classical group, not to the method.**
 Why a floor is expected. Sigma(648) is a maximal finite subgroup of SU(3): no larger finite subgroup
 contains it. And the Clifford group plus any one non-Clifford element generates a dense subgroup of
 SU(3). So there is no middle ground between a finite wheel that eventually clicks and continuous
-colour, and the step between them is exactly one non-classical element. Allowing one such step per
+color, and the step between them is exactly one non-classical element. Allowing one such step per
 link (Sigma(648) and Sigma(648) T Sigma(648), 5,832 link values) already holds the Wilson action on the
 SU(3) curve to beta = 5, past both Sigma(648) (3.5) and Sigma(1080) (4).
 
-## Seven other ways colour could arise, each measured
+## Seven other ways color could arise, each measured
 
-The triality weave was the first way found to keep a colour triality and connect every line. Seven
+The triality weave was the first way found to keep a color triality and connect every line. Seven
 other routes were proposed and each one was tested, recorded here whether it worked or not.
 
 ### The one fact that decides most of them (`E-FRC-0112`)
 
-A rule that can run backwards and is carried to itself by a colour triality sigma on every beat
+A rule that can run backwards and is carried to itself by a color triality sigma on every beat
 sends a state sigma leaves alone to another state sigma leaves alone, because
 f(s) = f(sigma s) = sigma f(s). In such a state the three lines of an orbit hold the same thing, so an
-orbit always holds a multiple of three tones. A lone tone on a colour line with its orbit empty is
-such a state. **So no single tone can ever cross from a colour line to its orbit, in any rule of this
+orbit always holds a multiple of three tones. A lone tone on a color line with its orbit empty is
+such a state. **So no single tone can ever cross from a color line to its orbit, in any rule of this
 kind, not only the pair rules of `E-FRC-0107`.** The orbit gains nothing, three identical charges, or
 three identical neutral pairs: 16 possible outcomes in all, listed in the experiment.
 
@@ -372,15 +372,15 @@ of them out of the set.
 
 | # | the idea | measured | verdict |
 | --- | --- | --- | --- |
-| 1 | the baryon is the free particle | a colour-neutral triple reaches exactly as far as one of its members alone, in every rule measured: 1.4 in six beats in the triality weave, 8.5 in the committed rule. Nothing binds it, and in the triality weave nothing travels (`E-FRC-0111`) | **no**. An earlier count of "12 of 12 bound" measured slots, not distance, and was withdrawn |
-| 2 | the triality groups are momentum-conserving three-body vertices | none of the 6 direction groups sums to zero. Each sums to 3 times one colour weight, length sqrt 6 (`E-FRC-0112`) | **no** |
-| 3 | pair lines by reading the data | covered by the fact above: choosing pairs from the data is still a reversible rule that respects sigma, so a single tone still cannot leave a colour line (`E-FRC-0112`) | **no** |
+| 1 | the baryon is the free particle | a color-neutral triple reaches exactly as far as one of its members alone, in every rule measured: 1.4 in six beats in the triality weave, 8.5 in the committed rule. Nothing binds it, and in the triality weave nothing travels (`E-FRC-0111`) | **no**. An earlier count of "12 of 12 bound" measured slots, not distance, and was withdrawn |
+| 2 | the triality groups are momentum-conserving three-body vertices | none of the 6 direction groups sums to zero. Each sums to 3 times one color weight, length sqrt 6 (`E-FRC-0112`) | **no** |
+| 3 | pair lines by reading the data | covered by the fact above: choosing pairs from the data is still a reversible rule that respects sigma, so a single tone still cannot leave a color line (`E-FRC-0112`) | **no** |
 | 4 | a coin symmetry together with a tone relabelling | all 1,152 coin symmetries times 6 tone relabellings: the committed rule keeps only the identity, the triality weave only its own two trialities (`E-FRC-0113`) | **no** |
 | 5 | the triality as a symmetry shifted in time | the committed rule has none at any of its 24 shifts (`E-FRC-0113`). Built as a new rule, the glide weave (`E-FRC-0114`): single tones cross, every line connects, CPT is lost | **works, at the price of CPT**, see below |
-| 6 | colour as a twist in the box | rotating the colour of half the box is invisible in the vacuum of both triality rules at all 24 moments, and a wall of up to 5,750 slots in the committed rule's at 22 of 24. On a dense background every rule sees it (4,232 to 7,488 slots), because in the coin reading a tone's colour is its direction, and rotating colour rotates motion (`E-FRC-0115`) | **a global twist only.** Geometric colour has one frame for all of space, never one per place |
+| 6 | color as a twist in the box | rotating the color of half the box is invisible in the vacuum of both triality rules at all 24 moments, and a wall of up to 5,750 slots in the committed rule's at 22 of 24. On a dense background every rule sees it (4,232 to 7,488 slots), because in the coin reading a tone's color is its direction, and rotating color rotates motion (`E-FRC-0115`) | **a global twist only.** Geometric color has one frame for all of space, never one per place |
 | 7 | keep the triality only on the cells it fixes | those cells are a 2D sheet, side^2 of side^4 (25, 49, 81 cells on sides 5, 7, 9). But a rule that is the same everywhere and symmetric about one point is symmetric about every point, which brings back the fact above (`E-FRC-0115`) | **only by giving up a rule that is the same in every cell** |
 
-And one guess that failed: that the colour group is what the committed pair clock generates, reading
+And one guess that failed: that the color group is what the committed pair clock generates, reading
 a line's nine states as the nine points of a qutrit phase space. The pair clock is none of the 432
 affine maps of that space under any of the 6 ways to label the tones (`E-FRC-0112`).
 
@@ -390,13 +390,13 @@ The loophole the fact above leaves: a rule that respects the triality only toget
 time, sigma U_t = U_(t+2) sigma, does not have to keep sigma-fixed states fixed on a single beat. Built
 as a pair rule with no four-line vertex (`code/rule/glide-weave`): each beat the committed pair clock
 between two passes of conditional swaps, on a matching of the 12 lines that the triality turns every
-second beat, so each colour line meets the lines of two orbits one at a time.
+second beat, so each color line meets the lines of two orbits one at a time.
 
 | gate | glide weave | triality weave | committed |
 | --- | --- | --- | --- |
 | reversal, charge | exact | exact | exact |
 | symmetry | sigma with a shift of **2** beats, not 0 | sigma, no shift | none (`E-FRC-0113`) |
-| a lone colour-line tone moves onto one orbit line | **yes**, 36 of the cases tried | impossible (`E-FRC-0112`) | not a colour question |
+| a lone color-line tone moves onto one orbit line | **yes**, 36 of the cases tried | impossible (`E-FRC-0112`) | not a color question |
 | all 12 lines connected, vacuum / dense | **1 / 1** | 1 / 1 | 3 / 1 |
 | CPT | **none found**, with charge conjugation alone or times sigma or sigma^2, any mirror phase | exact | exact |
 | vacuum period | 3 | 3 | 24 |
@@ -410,12 +410,12 @@ second beat, so each colour line meets the lines of two orbits one at a time.
 **So the loophole is real and it costs CPT.** The glide weave does what no rule symmetric on every
 beat can do, with plain pairs, and it connects every line. It gives up the exact CPT both other rules
 have, and like the triality weave it has no free traveller. A glide is a symmetry of the dynamics
-together with time, not a symmetry at each instant, so whether it yields a conserved colour charge is
+together with time, not a symmetry at each instant, so whether it yields a conserved color charge is
 a separate question, not measured.
 
 ### Vibe and flow: is the second tone the tone's conjugate? (`E-FRC-0116`)
 
-The colour group Sigma(648) is the set of rigid moves of a 3 x 3 grid, the phase space of one trit:
+The color group Sigma(648) is the set of rigid moves of a 3 x 3 grid, the phase space of one trit:
 9 shifts times 24 turns, and the turns are the 24 coin directions (`E-FRC-0104`). The proposal was
 that one axis of that grid is the tone (the vibe) and the other its conjugate, a flow obeying
 flow <- flow + vibe every beat: the vibe as the turning, the flow as where the turning has got to.
@@ -427,10 +427,10 @@ flow <- flow + vibe every beat: the vibe as the turning, the flow as where the t
 | with a flow trit in every slot obeying flow <- flow + vibe, how many of the 216 does the rule respect? | **3**, for the committed rule and for the triality weave: the flow's own shifts f -> f + k. The vibe alone: 1, the identity |
 
 So vibe and flow are a genuine conjugate pair, and the flow law is itself a grid move (a shear). But
-**the vibe cannot be an axis of colour's grid.** The vibe is charge, and charge is conserved, so no
-symmetry of the rule can turn it into anything, and turning is what colour's group is made of. The
-consistent picture is two pairs: the vibe with its flow, and a separate colour trit with its own
-conjugate, turned by motion through the 24 coin directions. The colour trit is the same one
+**the vibe cannot be an axis of color's grid.** The vibe is charge, and charge is conserved, so no
+symmetry of the rule can turn it into anything, and turning is what color's group is made of. The
+consistent picture is two pairs: the vibe with its flow, and a separate color trit with its own
+conjugate, turned by motion through the 24 coin directions. The color trit is the same one
 `E-FRC-0100` found must sit beside the tone and not be the tone's clock.
 
 ### Vibe, role and tilt as one rule (`E-FRC-0117`)
@@ -483,16 +483,16 @@ too.
 The amplitude is needed for one thing only: the singlet's sign, which tells all-different
 (antisymmetric) from all-the-same. Wholeness itself is a relation a classical rule can carry.
 
-One difference from continuous colour, reported: at three loves and three fears Sigma(648) has 7
-invariant states where SU(3) has 6. The classical colour group sees one whole that SU(3) does not.
+One difference from continuous color, reported: at three loves and three fears Sigma(648) has 7
+invariant states where SU(3) has 6. The classical color group sees one whole that SU(3) does not.
 
 ### What a whole feels going round a loop (`E-FRC-0119`)
 
 Carried round a closed loop of links, a role point comes back moved by the loop's grid move, and a
 whole survives the round trip when that move fixes the point. An identity decides what this
-measures: a colour element permutes the 9 phase-point operators, which are a basis of the 3 x 3
+measures: a color element permutes the 9 phase-point operators, which are a basis of the 3 x 3
 matrices, so the points it fixes number |Tr U|^2, checked on all 648 elements. The chance a role point
-survives a loop is therefore exactly the **adjoint** Wilson loop, the string of a colour octet (a
+survives a loop is therefore exactly the **adjoint** Wilson loop, the string of a color octet (a
 gluon), and not the fundamental loop Re Tr U / 3, the string of a quark.
 
 On link fields made by the deterministic kinetic rule of `E-FRC-0110` on 4^4:
@@ -509,7 +509,7 @@ The hot field's larger loops are at the noise of this box, so no string tension 
 time it is a signed or complex weight, where a classical rule counts only with nonnegative ones:
 - the singlet's sign, which tells all different from all the same (`E-FRC-0118`), is the sign of a
   permutation, +1 or -1
-- the quark string against the gluon string (here) is colour's centre phase, a cube root of unity.
+- the quark string against the gluon string (here) is color's center phase, a cube root of unity.
   The grid cannot see it (216 = 648 / 3), and the vibe carries it only as a label, its sum mod 3
 - the phase on the swap (`E-FRC-0100`) is the continuous version, whose only classical points are
   leave and swap
@@ -517,17 +517,17 @@ They are two different phases, a sign and a cube root, not one. What they share 
 interfere, add with cancellation, and a classical role gives only the gluon loop's |Tr U|^2, never
 the quark loop's signed Re Tr U.
 
-Not shown: a rule that keeps a whole together as it moves, colour charge conservation as a local
+Not shown: a rule that keeps a whole together as it moves, color charge conservation as a local
 law with the links carrying the flux.
 
 ### What the seven add up to
 
-Idea 6 names the price of every geometric route. When colour is read off the coin, it is tied to
-direction, and so it has one frame for the whole of space. A gauge theory of colour needs a frame
-that can differ from place to place, and that needs colour carried apart from direction: the colour
+Idea 6 names the price of every geometric route. When color is read off the coin, it is tied to
+direction, and so it has one frame for the whole of space. A gauge theory of color needs a frame
+that can differ from place to place, and that needs color carried apart from direction: the color
 trit of `E-FRC-0100`, with the Sigma(648) links of `E-FRC-0103`. A reading, not a measurement: the
-two need not be rivals. The coin could select which plane is colour and cycle the three generations,
-while a separate trit carries the colour that can be gauged. Nothing here tests that combination.
+two need not be rivals. The coin could select which plane is color and cycle the three generations,
+while a separate trit carries the color that can be gauged. Nothing here tests that combination.
 
 ## The path forward
 
@@ -537,40 +537,40 @@ Everything classical now fits, and what is left is one kind of thing.
 
 | piece | what it gives | experiment |
 | --- | --- | --- |
-| vibe (fear, calm, love), the committed rule untouched | charge, and colour's centre as its sum mod 3 | the committed rule |
-| role and tilt, a point of the 3 x 3 grid per slot | colour, classically, with the 648-element group acting as 216 grid moves | `E-FRC-0104`, `0116` |
+| vibe (fear, calm, love), the committed rule untouched | charge, and color's center as its sum mod 3 | the committed rule |
+| role and tilt, a point of the 3 x 3 grid per slot | color, classically, with the 648-element group acting as 216 grid moves | `E-FRC-0104`, `0116` |
 | links holding grid moves | a role frame chosen freely in every cell: a gauge theory, charge exact, reversible | `E-FRC-0117` |
 | a whole as a zero sum | wholes only when love minus fear is a multiple of 3, in the same 27 mixes as the quantum singlets. Three loves are whole on a line of the grid | `E-FRC-0118` |
 | a role carried round a loop | the gluon string, exactly | `E-FRC-0119` |
 | a counter per link that streams | links that move without dice, through both phases | `E-FRC-0102`, `0110` |
 
 **What needs a signed weight, and nothing else does:** the singlet's sign (+1 or -1, which tells a
-whole of all-different roles from one of all-the-same), and the quark string (colour's centre phase,
+whole of all-different roles from one of all-the-same), and the quark string (color's center phase,
 a cube root of unity, which the grid cannot see). Both are weights that must add with cancellation,
 where a classical rule counts only with nonnegative ones. This is the ingredient the quantum sector
-lacks too (`E-FND-0080`), so it is one decision for both, not a second one for colour.
+lacks too (`E-FND-0080`), so it is one decision for both, not a second one for color.
 
 **The order to go in:**
-1. Colour charge as a local law. Give each link a flux, the link's own conjugate as tilt is the
+1. Color charge as a local law. Give each link a flux, the link's own conjugate as tilt is the
    role's, with Gauss's law at every cell: the charge in a cell equals the flux leaving it. A whole
    then moves with no flux behind it, and a part pulled from a whole drags a line of flux whose
    energy grows with its length. That is binding, classically, and it is the next measurement.
    Two things are already fixed by working it through:
    - **the flux is flow, on the link.** Gauss's law needs each link to record what has crossed it,
      flux <- flux + what crosses, which is the law flow <- flow + vibe of `E-FRC-0116`. As a slot
-     trit, flow added nothing. As the link's conjugate it is what makes colour charge local. The
+     trit, flow added nothing. As the link's conjugate it is what makes color charge local. The
      triality part of the flux is the vibe's own crossing count mod 3, so a whole (love minus fear a
      multiple of 3) crossing leaves none and a lone part leaves one, link after link: the string
    - **created pairs must be neutral, so a calm line carries one latent role.** In the rule of
      `E-FRC-0117`, calm gives rise to a fear and a love whose role points generally differ, which
-     would make colour charge from nothing. Conservation needs the new pair to share one point, and
+     would make color charge from nothing. Conservation needs the new pair to share one point, and
      reversibility needs that point to exist before the pair does. So a calm line holds one role
      that splits into the pair at creation and rejoins at annihilation
 2. Roles on moving links: run the transport of `E-FRC-0117` on the link fields of `E-FRC-0110` as they
    evolve, which needs the two geometries (the D4 box and the hypercubic lattice) brought together.
 3. The signed weight. **It may already be in the base, as the vibe** (`E-FRC-0120`). A quantum
    state of roles is exactly a weighting of the role grid, its discrete Wigner function, and it is
-   classical where every weight is at least 0: the colour group then only permutes points. A set of
+   classical where every weight is at least 0: the color group then only permutes points. A set of
    vibes on grid points is already a signed weighting, love +1 and fear -1. Measured on the 729
    points of three roles:
 
@@ -597,7 +597,7 @@ lacks too (`E-FND-0080`), so it is one decision for both, not a second one for c
    | step | classical? | weight kept | kernel in whole fractions | vibes from one, per step |
    | --- | --- | --- | --- | --- |
    | the plain swap | yes | yes | yes, a permutation | 1 |
-   | a colour move | yes | yes | yes, a permutation | 1 |
+   | a color move | yes | yes | yes, a permutation | 1 |
    | **swap phase at 2 pi / 3** | **no** | yes | **yes, quarters** | 2.5 |
    | swap phase at pi / 2 | no | yes | no, it needs sqrt 3 | 2.7 |
    | T, the continuum floor's element | no | yes | no, it needs cos(2 pi / 9) | 1.6 |
@@ -608,11 +608,52 @@ lacks too (`E-FND-0080`), so it is one decision for both, not a second one for c
    here). If that holds for this pair, loves, fears and calm can carry the quantum side exactly with
    no irrational amplitude, using the cube-root swap alone.
    The price is the known price of anything non-classical: each such step can turn one vibe into up
-   to 2.5 before loves and fears on one point cancel back to calm. Not measured: how much that
-   cancellation saves over many steps, which decides whether the cost stays bounded.
+   to 2.5 before loves and fears on one point cancel back to calm.
 
-Steps 1 and 2 need no new kind of ingredient. Step 3 may not either: the sign is fear, and the one
-exact non-classical step is the swap phase at the cube-root angle.
+   **Where the cost goes (`E-FRC-0122`): into grain, not fear.** Two roles, eight rounds of the
+   cube-root swap phase and a classical entangling move, every state written exactly in loves and
+   fears:
+
+   | round | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+   | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+   | units | 9 | 36 | 36 | 144 | 144 | 576 | 576 | 2,304 |
+   | negativity, bound 3 | 1.00 | 2.33 | 2.33 | 2.47 | 2.56 | 2.49 | 2.37 | 2.39 |
+   | share of fear | 0 | 0.29 | 0.29 | 0.30 | 0.30 | 0.30 | 0.29 | 0.29 |
+
+   Each exact non-classical step can make the units four times finer, while the share of fear settles
+   near three tenths and the negativity well under its bound. So a finite number of vibes carries
+   quantum steps at a finite resolution: the grain of the quantum side is set by how many vibes there
+   are.
+
+   **Why fear stays under a third, never a half.** Two facts fix it. Love minus fear is exactly one
+   whole on every round, because the weights always sum to 1, and that is the charge conserved. So a
+   half-fear state would have love minus fear at 0, a whole weighing nothing. And for a pure state on
+   the 81 points the squared weights sum to exactly 1/9, so by Cauchy-Schwarz love plus fear is at
+   most sqrt(81 × 1/9) = 3 wholes, the bound in the table. Together, love ≤ 2 and fear ≤ 1, so the
+   share of fear is at most one in three. Round 8 is 3,910 loves and 1,606 fears on a unit of
+   1/2,304: love − fear = 2,304 units = 1 whole, love + fear = 5,516 units = 2.39 wholes, and the
+   share of fear is 1,606 of 5,516 = 0.29. The steps add loves and fears in equal numbers, which is
+   the grain, and the total creeps toward the ceiling of 3 without passing it.
+
+   A first version kept both roles symmetric, where the swap phase does nothing, and measured no
+   fear at all. It is recorded in the experiment.
+
+   **So vibe and role are woven together, at one place.** The vibe is not a second coordinate beside
+   the role, which is why it cannot be an axis of the role grid (`E-FRC-0116`). It is the weight on a
+   role point: the role says where, the vibe says how much and with which sign. Classical steps move
+   role points and carry their vibes unchanged, which is why every classical test found the two
+   independent. The one-third turn at a meeting is where they interweave: it changes the vibe
+   according to the roles, acting on the part where the two meeting roles differ and leaving the part
+   where they are alike untouched. Both halves are measured. A first run of `E-FRC-0122` kept the two
+   roles alike, symmetric, for eight rounds and made no fear at all, and the corrected run let them
+   differ and fear appeared at once and settled near three tenths. The singlet agrees: three
+   different roles need 18 fears, three alike need none. And the charge law is the weight law: love
+   minus fear, conserved by the committed rule, is the total weight on the grid, and calm giving rise
+   to a pair adds none.
+
+Steps 1 and 2 need no new kind of ingredient. Step 3 may not either: the sign is fear, the one exact
+non-classical step is the swap phase at the cube-root angle, and it is the one place the vibe depends
+on the roles.
 
 ## What the base would change
 
@@ -620,22 +661,22 @@ Each item names the base thing it touches, and the experiment that says why.
 
 | change | touches | why | cost |
 | --- | --- | --- | --- |
-| a colour trit beside the tone | the tone | the rule's tone is its period-three clock, and a clock kept as colour breaks SU(3) to its 3-dimensional Cartan part (`E-FRC-0100`) | one more trit per slot |
-| links that hold a Sigma(648) element | the crystal | gauge colour lives on links, and this group is a record of three tones and a coin direction (`E-FRC-0104`), classical | 648 states per link |
+| a color trit beside the tone | the tone | the rule's tone is its period-three clock, and a clock kept as color breaks SU(3) to its 3-dimensional Cartan part (`E-FRC-0100`) | one more trit per slot |
+| links that hold a Sigma(648) element | the crystal | gauge color lives on links, and this group is a record of three tones and a coin direction (`E-FRC-0104`), classical | 648 states per link |
 | a kinetic counter per link that streams | the rule | without it a deterministic link rule freezes (`E-FRC-0099`), with it the Z3 center has its whole phase diagram (`E-FRC-0102`) | one bounded counter per link |
-| one phase on the pair swap | the rule | the only colour-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's colour | an amplitude, the same missing piece as `E-FND-0080` |
-| a four-line vertex | the rule | the only way to keep a colour-selecting triality and still connect every line (`E-FRC-0107`), built and measured (`E-FRC-0109`) | one classical exchange, a charge on a colour line for three on the triality orbit |
+| one phase on the pair swap | the rule | the only color-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's color | an amplitude, the same missing piece as `E-FND-0080` |
+| a four-line vertex | the rule | the only way to keep a color-selecting triality and still connect every line (`E-FRC-0107`), built and measured (`E-FRC-0109`) | one classical exchange, a charge on a color line for three on the triality orbit |
 | one non-Clifford element | the rule | not needed down to about the N_t = 4 spacing (`E-FRC-0103`). Finer than that the classical group stops shrinking, and the next step up from a maximal finite subgroup is already dense in SU(3) | Wigner negativity, the qutrit form of magic, the same ingredient as the swap phase |
 
-The gauge side of colour, confinement and deconfinement, needs no amplitudes at the spacing
-measured. The matter side, a quark whose colour turns, needs the phase on the swap. That phase is
-the same ingredient the quantum sector is missing, so colour does not add a second requirement.
+The gauge side of color, confinement and deconfinement, needs no amplitudes at the spacing
+measured. The matter side, a quark whose color turns, needs the phase on the swap. That phase is
+the same ingredient the quantum sector is missing, so color does not add a second requirement.
 
 ## What this does not show
 
 - **The continuum limit.** One spacing, small boxes. The N_t = 6 and N_t = 8 transitions of
   Sigma(648) on some unfrozen trajectory are the next measurement.
-- **Dynamical quarks with a finite colour group.** Everything in `E-FRC-0103` is pure gauge.
+- **Dynamical quarks with a finite color group.** Everything in `E-FRC-0103` is pure gauge.
 - **That the base does this.** These are measurements of what a base with these changes would do,
   not of the committed rule, which still does none of it (`E-FRC-0093` to `0097`).
 - **The deterministic sampler on larger boxes and at N_t = 4 geometry.** `E-FRC-0110` runs both

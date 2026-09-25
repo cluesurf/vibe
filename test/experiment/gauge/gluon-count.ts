@@ -1,4 +1,4 @@
-// How many gauge bosons does a lattice gauge theory carry, and how many colours, read off the
+// How many gauge bosons does a lattice gauge theory carry, and how many colors, read off the
 // dynamics rather than off the group's definition. Run for U(1), SU(2) and SU(3) with the same code.
 //
 // Weak coupling (large beta): the field is a set of free waves, and by equipartition each
@@ -18,7 +18,7 @@
 // to resolve, so it is read from the moments.
 //
 // - K2 = <X^2> is 1 / 2 for U(1) and SU(3) and 1 for SU(2) (a real trace). It gives the slope
-//   P / beta -> K2 / N^2, which for SU(3) is 1 / 18 and counts the colours, N = 3.
+//   P / beta -> K2 / N^2, which for SU(3) is 1 / 18 and counts the colors, N = 3.
 // - K3 = <X^3> is nonzero only for SU(3), where it is 1 / 4. It vanishes unless three fundamental
 //   indices can be contracted into a singlet by an invariant tensor. SU(3) has one, epsilon_abc, the
 //   same tensor that binds three quarks into a baryon. SU(2) and U(1) do not, so their K3 must come
@@ -160,7 +160,7 @@ export default experiment({
   id: 'gauge/gluon-count',
   code: 'E-FRC-0081',
   title:
-    'the lattice dynamics count 8 gluons, 3 colours and the three-quark invariant of SU(3), against 3 and 1 fields and no invariant for SU(2) and U(1)',
+    'the lattice dynamics count 8 gluons, 3 colors and the three-quark invariant of SU(3), against 3 and 1 fields and no invariant for SU(2) and U(1)',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -170,14 +170,14 @@ export default experiment({
     const su2 = countGroup({ group: 'su2', seed: 830 })
     const u1 = countGroup({ group: 'u1', seed: 850 })
 
-    // the colour count from the strong-coupling slope 1 / (2 N^2)
-    const colours = Math.sqrt(1 / (2 * su3.strongSlope))
+    // the color count from the strong-coupling slope 1 / (2 N^2)
+    const colors = Math.sqrt(1 / (2 * su3.strongSlope))
     const gluons = Math.round(su3.fieldCount)
     const countsExact =
       Math.abs(su3.fieldCount - 8) < 0.1 &&
       Math.abs(su2.fieldCount - 3) < 0.1 &&
       Math.abs(u1.fieldCount - 1) < 0.1
-    const coloursExact = Math.abs(colours - 3) < 0.05
+    const colorsExact = Math.abs(colors - 3) < 0.05
     // K3 = 1/4 for SU(3) and zero for SU(2) and U(1), each to 0.01 (the moments carry a statistical
     // error near 0.002 at these sample sizes)
     const invariant = 1 / 4
@@ -193,7 +193,7 @@ export default experiment({
     )
     const ok =
       countsExact &&
-      coloursExact &&
+      colorsExact &&
       su3Invariant &&
       othersNone &&
       responseMatchesSpread
@@ -201,12 +201,12 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the plaquette of the Monte Carlo counts the gauge fields by equipartition (8 for SU(3), 3 for SU(2), 1 for U(1)) and the colours by the strong-coupling slope (N = 3), and finds the cubic invariant <(Re Tr U)^3> = 1/4 that only SU(3) has, the epsilon tensor that makes three quarks a singlet',
+        'the plaquette of the Monte Carlo counts the gauge fields by equipartition (8 for SU(3), 3 for SU(2), 1 for U(1)) and the colors by the strong-coupling slope (N = 3), and finds the cubic invariant <(Re Tr U)^3> = 1/4 that only SU(3) has, the epsilon tensor that makes three quarks a singlet',
       metrics: {
         su3FieldCount: su3.fieldCount,
         gluons,
         su3StrongSlope: su3.strongSlope,
-        colours,
+        colors,
         su3SecondCumulant: su3.secondCumulant,
         su3SecondCumulantFromSlope: su3.secondCumulantFromSlope,
         su3ThirdCumulant: su3.thirdCumulant,

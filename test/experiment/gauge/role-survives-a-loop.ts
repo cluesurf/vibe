@@ -3,13 +3,13 @@
 // moved by the loop's grid move, and the whole survives the trip when that move fixes the point. The
 // fraction of the 9 grid points a loop fixes is the classical Wilson loop of the role.
 //
-// An identity decides what it measures. A colour element U permutes the 9 phase-point operators by
+// An identity decides what it measures. A color element U permutes the 9 phase-point operators by
 // conjugation, and they are a basis of the 3 x 3 matrices, so the number of points it fixes is the
 // trace of the adjoint action, |Tr U|^2. So the classical survival (fixed - 1) / 8 is exactly the
-// ADJOINT Wilson loop (|Tr U|^2 - 1) / 8, the string of a colour octet, which gluons can screen, and
+// ADJOINT Wilson loop (|Tr U|^2 - 1) / 8, the string of a color octet, which gluons can screen, and
 // not the fundamental loop Re Tr U / 3, the string of a quark. The grid sees Sigma(648) with its
-// centre divided out (216 = 648 / 3, E-FRC-0104), and the centre is what tells a quark's string from a
-// gluon's, which is the part the vibe carries (the vibe's sum mod 3 is the centre charge).
+// center divided out (216 = 648 / 3, E-FRC-0104), and the center is what tells a quark's string from a
+// gluon's, which is the part the vibe carries (the vibe's sum mod 3 is the center charge).
 //
 // Measured on Sigma(648) link fields made by the deterministic kinetic rule of E-FRC-0110 (integer
 // action, no random number in the rule) on 4^4, at a high energy (the disordered, confining phase)
@@ -52,7 +52,7 @@ export default experiment({
   id: 'gauge/role-survives-a-loop',
   code: 'E-FRC-0119',
   title:
-    'a role point carried round a loop of links survives exactly as often as the adjoint Wilson loop says, since the points a colour element fixes number |Tr U|^2, so the classical role sees the gluon string and not the quark string, whose centre phase the vibe carries',
+    'a role point carried round a loop of links survives exactly as often as the adjoint Wilson loop says, since the points a color element fixes number |Tr U|^2, so the classical role sees the gluon string and not the quark string, whose center phase the vibe carries',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -249,7 +249,7 @@ export default experiment({
         snapshots: hot.length,
       },
       notes:
-        'L2, deterministic link fields (the kinetic rule, no random number), exact loop products. The survival of a role point is the adjoint loop by an identity, so a classical role alone measures the gluon string. The quark string needs the centre phase of the full element, which the grid cannot see and the vibe carries.',
+        'L2, deterministic link fields (the kinetic rule, no random number), exact loop products. The survival of a role point is the adjoint loop by an identity, so a classical role alone measures the gluon string. The quark string needs the center phase of the full element, which the grid cannot see and the vibe carries.',
     })
   },
 })

@@ -24,7 +24,7 @@
 // - roles turned by one fixed move per direction, as the coin reading would have it (E-FRC-0115):
 //   the rule, not a field, fixes the move, so a cell-by-cell change of frame is visible
 //
-// What this cannot show: a whole. A colour-neutral whole of three roles is a quantum singlet with no
+// What this cannot show: a whole. A color-neutral whole of three roles is a quantum singlet with no
 // classical state (best classical overlap 1/6, E-FRC-0101), so binding needs the phase on the swap,
 // the amplitude the base lacks everywhere else too.
 //
@@ -363,7 +363,7 @@ export default experiment({
         gaugeMismatchFixedPerDirection: fixedPerDirection,
       },
       notes:
-        'L2, a constructed rule, exact, no random numbers (the frames, links and starts are golden-ratio fills). The links are a fixed background field. What it cannot show is a whole: a colour-neutral whole of three roles is a quantum singlet with no classical state (E-FRC-0101), so binding needs the phase on the swap. The mismatch counts are summed over 24 beats, role slots and vibe slots.',
+        'L2, a constructed rule, exact, no random numbers (the frames, links and starts are golden-ratio fills). The links are a fixed background field. What it cannot show is a whole: a color-neutral whole of three roles is a quantum singlet with no classical state (E-FRC-0101), so binding needs the phase on the swap. The mismatch counts are summed over 24 beats, role slots and vibe slots.',
     })
   },
 })

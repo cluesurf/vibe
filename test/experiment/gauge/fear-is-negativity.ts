@@ -1,9 +1,9 @@
 // Is the signed weight the base lacks already in it, as the vibe? A qutrit's quantum state can be
 // written exactly as real weights on the 9 points of the role grid, its discrete Wigner function,
-// summing to 1. When every weight is at least 0 the state is classical, and the colour group moves it
+// summing to 1. When every weight is at least 0 the state is classical, and the color group moves it
 // by permuting points (E-FRC-0104). Negative weights are what makes a state non-classical, its magic.
 // A set of vibes on grid points is already a signed weighting: love +1, fear -1. So the question is
-// whether the states colour needs can be written as whole numbers of loves and fears on the grid,
+// whether the states color needs can be written as whole numbers of loves and fears on the grid,
 // with fear doing the work the missing amplitude was supposed to do.
 //
 // Three states of three qutrits, on the 9^3 = 729 points of their grid:
@@ -66,11 +66,27 @@ function wigner(state: State): number[] {
   const out: number[] = []
 
   for (let x = 0; x < 729; x++) {
-    const [p1, p2, p3] = [0, 1, 2].map(k => Math.floor(x / 81 ** 0 / 9 ** (2 - k)) % 9)
-    let moved = applyOn(operators[p3 ?? 0] ?? new Float64Array(18), 2, state)
+    const [p1, p2, p3] = [0, 1, 2].map(
+      k => Math.floor(x / 81 ** 0 / 9 ** (2 - k)) % 9,
+    )
 
-    moved = applyOn(operators[p2 ?? 0] ?? new Float64Array(18), 1, moved)
-    moved = applyOn(operators[p1 ?? 0] ?? new Float64Array(18), 0, moved)
+    let moved = applyOn(
+      operators[p3 ?? 0] ?? new Float64Array(18),
+      2,
+      state,
+    )
+
+    moved = applyOn(
+      operators[p2 ?? 0] ?? new Float64Array(18),
+      1,
+      moved,
+    )
+
+    moved = applyOn(
+      operators[p1 ?? 0] ?? new Float64Array(18),
+      0,
+      moved,
+    )
 
     let value = 0
 
@@ -86,7 +102,9 @@ function wigner(state: State): number[] {
   return out
 }
 
-function stateOf(amplitudes: [number, number, number, number][]): State {
+function stateOf(
+  amplitudes: [number, number, number, number][],
+): State {
   const re = new Float64Array(27)
   const im = new Float64Array(27)
 
@@ -98,7 +116,11 @@ function stateOf(amplitudes: [number, number, number, number][]): State {
 }
 
 // the smallest N up to a limit making every N W a whole number, and the love and fear units
-function units(w: readonly number[]): { n: number; loves: number; fears: number } {
+function units(w: readonly number[]): {
+  n: number
+  loves: number
+  fears: number
+} {
   for (let n = 1; n <= 5000; n++) {
     if (w.every(x => Math.abs(n * x - Math.round(n * x)) < 1e-7)) {
       const counts = w.map(x => Math.round(n * x))
@@ -118,7 +140,7 @@ export default experiment({
   id: 'gauge/fear-is-negativity',
   code: 'E-FRC-0120',
   title:
-    'the singlet can be written exactly as whole numbers of loves and fears on the grid of three roles, and needs fears, while the whole of three equal roles and a plain classical state need none: the signed weight colour lacks is the vibe, with fear as the negativity',
+    'the singlet can be written exactly as whole numbers of loves and fears on the grid of three roles, and needs fears, while the whole of three equal roles and a plain classical state need none: the signed weight color lacks is the vibe, with fear as the negativity',
   category: 'gauge',
   substrates: 'any',
   depth: 'L1',
@@ -171,33 +193,50 @@ export default experiment({
     const results = states.map(([name, state]) => {
       const w = wigner(state)
       const total = w.reduce((a, b) => a + b, 0)
+
       // role probabilities from the marginal over the tilts
       let marginalOk = true
 
       for (let r = 0; r < 27; r++) {
         const roles = [Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3]
+
         let p = 0
 
         for (let x = 0; x < 729; x++) {
           const ps = [Math.floor(x / 81), Math.floor(x / 9) % 9, x % 9]
 
-          if (ps.every((q, k) => basisOf[roles[k] ?? 0] === Math.floor(q / 3))) {
+          if (
+            ps.every(
+              (q, k) => basisOf[roles[k] ?? 0] === Math.floor(q / 3),
+            )
+          ) {
             p += w[x] ?? 0
           }
         }
 
-        const amplitude = state.re[9 * (roles[0] ?? 0) + 3 * (roles[1] ?? 0) + (roles[2] ?? 0)] ?? 0
+        const amplitude =
+          state.re[
+            9 * (roles[0] ?? 0) + 3 * (roles[1] ?? 0) + (roles[2] ?? 0)
+          ] ?? 0
 
         marginalOk = marginalOk && Math.abs(p - amplitude ** 2) < 1e-9
       }
 
-      return { name, total, marginalOk, ...units(w), negative: w.filter(x => x < -1e-12).length }
+      return {
+        name,
+        total,
+        marginalOk,
+        ...units(w),
+        negative: w.filter(x => x < -1e-12).length,
+      }
     })
 
     const by = (name: string): (typeof results)[number] | undefined =>
       results.find(r => r.name === name)
     const ok =
-      results.every(r => Math.abs(r.total - 1) < 1e-9 && r.marginalOk) &&
+      results.every(
+        r => Math.abs(r.total - 1) < 1e-9 && r.marginalOk,
+      ) &&
       by('product')?.fears === 0 &&
       by('allSame')?.fears === 0 &&
       (by('singlet')?.fears ?? 0) > 0 &&
@@ -220,10 +259,12 @@ export default experiment({
       },
       control: {
         points: 729,
-        basisCoordinate: basisOf.join(' '),
+        basisCoordinateIsIdentity: basisOf.every((a, j) => a === j)
+          ? 1
+          : 0,
       },
       notes:
-        'L1, exact. Units: the smallest N making N W whole on every point, so a state is N units of weight, loves minus fears = N. Loves and fears count positive and negative units. A state with no fear is a classical mixture on the grid, and colour moves only permute its points.',
+        'L1, exact. Units: the smallest N making N W whole on every point, so a state is N units of weight, loves minus fears = N. Loves and fears count positive and negative units. A state with no fear is a classical mixture on the grid, and color moves only permute its points.',
     })
   },
 })

@@ -11,7 +11,7 @@
 //   proportional to m_q, while free quarks give m_pi proportional to m_q. The exponent
 //   d ln m_pi / d ln m_q is the discriminator, one half against one.
 // - E-FRC-0085, the nucleon mass is made by the gluons. Three quarks bound by epsilon_abc into a
-//   colour singlet weigh far more than three free quarks, and the mass stays large as the quark mass
+//   color singlet weigh far more than three free quarks, and the mass stays large as the quark mass
 //   is taken to zero, while the pion becomes light. Most of the mass of ordinary matter is this.
 // - E-FRC-0091, the rho and the ratios that map to the real world. The vector meson stays heavy as
 //   the pion becomes light, and two dimensionless numbers are compared with nature: m_N / m_rho,

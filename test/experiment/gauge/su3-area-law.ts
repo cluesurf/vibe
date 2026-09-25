@@ -1,4 +1,4 @@
-// Colour confinement in four-dimensional SU(3), the gauge theory of the strong force with no quarks.
+// Color confinement in four-dimensional SU(3), the gauge theory of the strong force with no quarks.
 // A Wilson loop W(R, T) is the amplitude for a static quark and antiquark created R apart, held for
 // time T and annihilated. If the energy between them grows linearly with R (a string), the loop
 // falls as exp(-sigma R T), an AREA law, and the Creutz ratio chi(R, R), which cancels the perimeter

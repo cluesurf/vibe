@@ -1,5 +1,5 @@
 // The continuous symmetry of a collision acting on the ternary tone. A tone has three values, so a
-// colour triplet would be the tone read as a vector in C^3 with SU(3) turning it. Such a symmetry
+// color triplet would be the tone read as a vector in C^3 with SU(3) turning it. Such a symmetry
 // acts the same way on every slot: g in U(3) acts on a block of k slots as g x g x ... x g, and it is
 // a symmetry when it commutes with the block map P (a permutation of the 3^k tone states, read as a
 // permutation matrix). The infinitesimal version is a Lie algebra,

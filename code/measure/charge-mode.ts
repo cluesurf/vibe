@@ -236,7 +236,7 @@ export function modeLaw(input: {
     slow.push(sum / window)
   }
 
-  // slow rate: log of the running mean against the window's centre, from `from` on
+  // slow rate: log of the running mean against the window's center, from `from` on
   const xs: number[] = []
   const ys: number[] = []
 
@@ -251,7 +251,7 @@ export function modeLaw(input: {
 
   const slowFit = linearFit({ xs, ys })
 
-  // fast part: series minus the running mean centred on each beat
+  // fast part: series minus the running mean centered on each beat
   const half = Math.floor(window / 2)
   const fast: number[] = []
 

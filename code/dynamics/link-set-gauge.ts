@@ -1,5 +1,5 @@
 // Lattice gauge theory whose links take values in a finite SET of SU(3) matrices rather than a group.
-// It measures how much non-classical ("magic") colour a base would need. The set is a union of double
+// It measures how much non-classical ("magic") color a base would need. The set is a union of double
 // cosets of a gauge group G, for example Sigma(648) and Sigma(648) T Sigma(648), with T a single
 // non-Clifford element. Left and right multiplication by G maps the set to itself, so the theory is
 // gauge invariant under G at every site even though the set is not closed under products.

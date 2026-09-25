@@ -164,7 +164,7 @@ export default experiment({
     const freeExact = MASSES.map(mass =>
       freeStaggeredCondensate({
         lengths: freeLengths,
-        colours: 3,
+        colors: 3,
         mass,
       }),
     )

@@ -1,4 +1,4 @@
-// Quarks are confined at low temperature and freed above a critical one, and the three colours show
+// Quarks are confined at low temperature and freed above a critical one, and the three colors show
 // up as three equivalent hot vacua. SU(3) gauge theory on an L^3 x 2 lattice, whose short periodic
 // time axis sets a temperature T = 1 / (2a), so raising beta shrinks a and heats the system.
 //
@@ -43,7 +43,7 @@ type Thermal = {
 
 // 'mixed' is the two-phase start of a first-order transition: the half of the box with x < L / 2
 // ordered (every link the identity), the other half disordered. Above the transition the ordered
-// half takes over, below it the disordered one, so neither phase is favoured by where the run
+// half takes over, below it the disordered one, so neither phase is favored by where the run
 // began, and the hysteresis of a hot or cold start (which grows with the volume) is gone.
 function thermalRun(input: {
   beta: number
