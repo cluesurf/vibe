@@ -1,18 +1,18 @@
 # Addressing arena
 
-How cells are **addressed and located** in the hyperbolic honeycomb. This arena builds the addressing scheme. Every cell gets a unique tree address, neighbours come from the address by formula, and a walker navigates with only local information. It is the basis of **self-localization and routing** on the substrate.
+How cells are **addressed and located** in the hyperbolic honeycomb. This arena builds the addressing scheme. Every cell gets a unique tree address, neighbors come from the address by formula, and a walker navigates with only local information. It is the basis of **self-localization and routing** on the substrate.
 
 The core result is that a cell's **name encodes its position**. Addresses are short (logarithmic), the tree has no cousin edges, and greedy descent in the coordinates reaches any target. From there the arena reads the address structure as meaning for a self. Depth is renormalization scale, a boundary loop anchors an object, and the one substrate splits into a global-access bulk and a local cusp.
 
 ## The {3,4,3,4} addressing scheme
 
-The base scheme. Each cell carries a unique tree address of logarithmic length, the numeration is a clean bijection, and exact integer word-arithmetic reconstructs neighbours and cell counts.
+The base scheme. Each cell carries a unique tree address of logarithmic length, the numeration is a clean bijection, and exact integer word-arithmetic reconstructs neighbors and cell counts.
 
-- **[`E-NVG-0001`](../../../test/experiment/addressing/addressing-3434.ts)** - the cells carry unique O(log n) tree addresses with no cousin edges and exact neighbour reconstruction.
+- **[`E-NVG-0001`](../../../test/experiment/addressing/addressing-3434.ts)** - the cells carry unique O(log n) tree addresses with no cousin edges and exact neighbor reconstruction.
 - **[`E-NVG-0002`](../../../test/experiment/addressing/addressing-3434-scale.ts)** - the addressing invariants survive growth, clean at two build sizes.
 - **[`E-NVG-0007`](../../../test/experiment/addressing/word-engine.ts)** - ShortLex normal forms give exact finite group orders and exact cell facet counts, integer-only.
 
-## Neighbours from the address
+## Neighbors from the address
 
 Structure computed on demand. Both branches confirm the graph is recoverable from names alone, with no stored adjacency, so addresses route signals directly.
 
@@ -35,7 +35,8 @@ What addresses buy for a self. The route depth is a coarse-graining scale, a bou
 - **[`E-NVG-0009`](../../../test/experiment/addressing/bulk-cusp-navigation-split.ts)** - the bulk diameter grows logarithmically (global access) while the cusp grows as N^(1/3) (locality), one substrate splitting into mind-fast and physics-local regimes.
 - **[`E-NVG-0011`](../../../test/experiment/addressing/hierarchical-recall.ts)** - recalling a memory is a coarse-to-fine descent of the bulk hierarchy in log(N) steps, and scrambling the coarse patterns collapses recall to chance.
 - **[`E-NVG-0012`](../../../test/experiment/addressing/loop-encloses-region.ts)** - a boundary loop encloses a definite bulk region, disjoint loops enclose disjoint regions, and a wider loop reaches deeper, an exact composable anchor for an object.
+- **[`E-NVG-0014`](../../../test/experiment/addressing/cusp-routing-is-flat.ts)** - (L2, negative) the committed rule on a label-consistent {3,4,3,4} ball (the antipodal transport closes with zero holonomy on 162,049 cells) routes a disturbance along rays at one cell per beat, and between cells of one cusp the bulk gives no shortcut: the cell-graph distance equals the flat skin distance at every sampled cell (832 of 832 to skin 8, every separation by a step certificate). It survives three sources to all 24 cusps, an absorbing frontier, and the forced orientation flips. The shortcut belongs to addressing and recall, not to the rule's own signals along a cusp. See [`../scale/engine-and-screen.md`](../scale/engine-and-screen.md).
 
 ## What it establishes
 
-A cell's **address encodes where it is**. Names are short, unique, and cousin-free, neighbours follow from the name by exact arithmetic, and greedy descent in the coordinates is a **near-perfect walkway** a self can follow with only local information. Read as structure for a mind, the addressing gives **depth as renormalization scale**, **loops as object anchors**, and **hierarchical coarse-to-fine recall**. The same substrate carries two regimes at once. A **logarithmic-access bulk** for global reach and a **local cusp** for physics-scale locality.
+A cell's **address encodes where it is**. Names are short, unique, and cousin-free, neighbors follow from the name by exact arithmetic, and greedy descent in the coordinates is a **near-perfect walkway** a self can follow with only local information. Read as structure for a mind, the addressing gives **depth as renormalization scale**, **loops as object anchors**, and **hierarchical coarse-to-fine recall**. The same substrate carries two regimes at once. A **logarithmic-access bulk** for global reach and a **local cusp** for physics-scale locality.

@@ -573,13 +573,26 @@ export function lineWeave(input: {
 // `forward: false` it is that beat's inverse (run beats in reverse order to invert time).
 // On meshes with fewer than twelve lines the schedule is undefined and the static fallback of
 // lineWeave is returned for every beat.
-const G_TURN = [4, 5, 8, 9, 11, 10, 0, 1, 3, 2, 7, 6]
-const TURN_POS_MIRROR = [0, 1, 2, 3, 3, 2, 1, 0]
-const TURN_SWAP_ORDER = [0, 2, 3, 1, 4, 5]
+export const G_TURN = [4, 5, 8, 9, 11, 10, 0, 1, 3, 2, 7, 6]
+export const TURN_POS_MIRROR = [0, 1, 2, 3, 3, 2, 1, 0]
+export const TURN_SWAP_ORDER = [0, 2, 3, 1, 4, 5]
+
+// the turning weave's couples at beat zero, the static weave's overlap-balanced partition
+export const TURN_COUPLES_ZERO: readonly (readonly [number, number])[] = [
+  [0, 3],
+  [2, 5],
+  [4, 1],
+  [6, 9],
+  [8, 11],
+  [10, 7],
+]
 
 export function turningWeave(input: {
   opposite: number[]
   forward?: boolean
+  // the wire table: 'pair', the committed one, by default, or 'bind', the same cycle with the hop removed,
+  // which the color weave (code/rule/color-weave) needs for color to be a local law (E-FRC-0124)
+  table?: 'pair' | 'bind'
 }): (beatIndex: number) => Collision {
   const forward = input.forward ?? true
   const lines: [number, number][] = []
@@ -598,14 +611,7 @@ export function turningWeave(input: {
     return () => fallback
   }
 
-  const M0: [number, number][] = [
-    [0, 3],
-    [2, 5],
-    [4, 1],
-    [6, 9],
-    [8, 11],
-    [10, 7],
-  ]
+  const M0 = TURN_COUPLES_ZERO
   const norm = (a: number, b: number): [number, number] =>
     a < b ? [a, b] : [b, a]
   const positions: [number, number][][] = []
@@ -622,7 +628,14 @@ export function turningWeave(input: {
     ...TURN_SWAP_ORDER,
     ...[...TURN_SWAP_ORDER].reverse(),
   ]
-  const table = forward ? PAIR_FORWARD : PAIR_INVERSE
+  const table =
+    input.table === 'bind'
+      ? forward
+        ? BIND_MOVE_FORWARD
+        : BIND_MOVE_INVERSE
+      : forward
+        ? PAIR_FORWARD
+        : PAIR_INVERSE
   const loneAway = (a: Tone, b: Tone): boolean => a === 0 && b !== 0
   const empty = (a: Tone, b: Tone): boolean => a === 0 && b === 0
 

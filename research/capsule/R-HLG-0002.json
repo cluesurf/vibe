@@ -1,0 +1,109 @@
+{
+  "result": "R-HLG-0002",
+  "challenge": "C-HLG-0002",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/holography/bulk-nonlocality.ts",
+      "sha256": "8f0c88045f7b3f729fcc4f2fabd4a75cbd629780c35d8e0c8dc9471036409e85"
+    },
+    {
+      "file": "test/experiment/holography/bulk-shortcut-reachability.ts",
+      "sha256": "5325792a3b67059e595bc414d7ab9b3ed065ab6fe0a1de729a84b6f7a23247b2"
+    }
+  ],
+  "expected": {
+    "E-HLG-0004 metrics.unreachableFraction": 1,
+    "E-HLG-0004 metrics.meanBulkDistance": 2,
+    "E-HLG-0033 metrics.breakEvenSeparation": 6,
+    "E-HLG-0033 metrics.bulkBeatsAt1024": 15
+  },
+  "observed": {
+    "E-HLG-0004 metrics.unreachableFraction": 1,
+    "E-HLG-0004 metrics.meanBulkDistance": 2,
+    "E-HLG-0033 metrics.breakEvenSeparation": 6,
+    "E-HLG-0033 metrics.bulkBeatsAt1024": 15
+  },
+  "checks": [
+    {
+      "code": "E-HLG-0004",
+      "metric": "unreachableFraction",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-HLG-0004",
+      "metric": "meanBulkDistance",
+      "from": "metrics",
+      "expected": 2,
+      "tolerance": 0,
+      "observed": 2,
+      "passed": true
+    },
+    {
+      "code": "E-HLG-0033",
+      "metric": "breakEvenSeparation",
+      "from": "metrics",
+      "expected": 6,
+      "tolerance": 0,
+      "observed": 6,
+      "passed": true
+    },
+    {
+      "code": "E-HLG-0033",
+      "metric": "bulkBeatsAt1024",
+      "from": "metrics",
+      "expected": 15,
+      "tolerance": 0,
+      "observed": 15,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-HLG-0004": {
+      "seconds": 0.618,
+      "status": "pass",
+      "claim": "the physical surface is internally disconnected so distant surface points are joined only by a short path through the tree-like hyperbolic bulk",
+      "metrics": {
+        "unreachableFraction": 1,
+        "meanBulkDistance": 2,
+        "meanSurfaceDistance": null
+      },
+      "control": {
+        "meanSurfaceDistance": null
+      }
+    },
+    "E-HLG-0033": {
+      "seconds": 0.001,
+      "status": "pass",
+      "claim": "a signal between two cusp cells at cusp separation s arrives in s beats along the flat cusp but in only about two log of s beats through the bulk (diving to the logarithmic merge depth and back), so beyond a break-even separation of six the bulk route wins by a margin that grows without bound (about twenty-fold at separation two hundred fifty six and sixty-eight-fold at a thousand and twenty four, scaling as s over two log s) while the bulk beat count itself stays logarithmic, and the bulk route is the graph geodesic (its beat count is the true shortest-path length) so the signal never outruns the actual light cone, the apparent nonlocality being only that the flat cusp distance is not the geodesic distance, while the along-cusp route grows linearly and offers no shortcut",
+      "metrics": {
+        "breakEvenSeparation": 6,
+        "speedupAt256": 19.7,
+        "speedupAt1024": 68.3,
+        "bulkBeatsAt1024": 15,
+        "cuspBeatsAt1024": 1024
+      },
+      "control": {
+        "cuspBeatsAt1024": 1024
+      },
+      "notes": "The bulk shortcut as a physical reachability law: logarithmic through-bulk travel, unbounded speedup, the route geodesic hence causal. Sharpens the cross-universe signal (E-HLG-0020) and the Bell reach (E-QTM-0035). Nonlocality is cusp-chauvinism, not action at a distance."
+    }
+  },
+  "passed": true
+}

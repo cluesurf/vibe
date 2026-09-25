@@ -1,0 +1,422 @@
+{
+  "result": "R-FRC-0006",
+  "challenge": "C-FRC-0006",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "61bb4878dbe86456c351396e66747fa0ac276fe7",
+  "dirty": true,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/gauge/color-is-local.ts",
+      "sha256": "bda47f62fdbe3f7ab442912851fb4690b8af7741d8c428eed44a6dba285479bf"
+    },
+    {
+      "file": "test/experiment/gauge/color-weave-acceptance.ts",
+      "sha256": "462b745cc1859819bcf09e04d8d6da5d670e3b14729aa5daeeede113f054cffd"
+    },
+    {
+      "file": "test/experiment/gauge/deterministic-confinement.ts",
+      "sha256": "10a056bd26be67ab0f29b963002e00d4555a16202d5b30fc353b6bae6ae042d9"
+    },
+    {
+      "file": "test/experiment/gauge/fear-beat.ts",
+      "sha256": "c5b0277f900b4e54b4925362791ccd500fe2eb7b64e8eaafc33dfe8dabab9fb2"
+    },
+    {
+      "file": "test/experiment/gauge/roles-on-moving-links.ts",
+      "sha256": "0c6c8068271322a31d1d7df1122b19208a4e062cb4b634bfaef9269d989f9420"
+    },
+    {
+      "file": "test/experiment/gauge/string-binds.ts",
+      "sha256": "07d19ba1ea1a9b2373b2a2855454a9d805b828d90d01c15913d88742e31fca29"
+    },
+    {
+      "file": "test/experiment/gauge/sign-class-drift.ts",
+      "sha256": "8bfba31087f1c504854d4e6a1ae9577fe136dc20ba6117bf5e3b632da60dcca4"
+    },
+    {
+      "file": "test/experiment/gauge/d4-string-binds.ts",
+      "sha256": "65434cad24e920bfee8ad25ff512a6b43531fec18bd281f174bf178b0437241f"
+    }
+  ],
+  "expected": {
+    "E-FRC-0124 metrics.creatingWithLocalColor": 4,
+    "E-FRC-0124 metrics.localColorWithHop": 0,
+    "E-FRC-0124 metrics.colorLeaks": 0,
+    "E-FRC-0124 control.committedTableColorLeaks": 3641,
+    "E-FRC-0126 metrics.energyDrift": 0,
+    "E-FRC-0127 metrics.liealgebraDimension": 80,
+    "E-FRC-0128 metrics.frameFree": 1,
+    "E-FRC-0128 metrics.linkEnergyConserved": 1,
+    "E-FRC-0129 metrics.exactAndReversible": 1,
+    "E-FRC-0130 metrics.halfSpaceOrientations": 192,
+    "E-FRC-0131 metrics.exactAndReversible": 1
+  },
+  "observed": {
+    "E-FRC-0124 metrics.creatingWithLocalColor": 4,
+    "E-FRC-0124 metrics.localColorWithHop": 0,
+    "E-FRC-0124 metrics.colorLeaks": 0,
+    "E-FRC-0124 control.committedTableColorLeaks": 3641,
+    "E-FRC-0126 metrics.energyDrift": 0,
+    "E-FRC-0127 metrics.liealgebraDimension": 80,
+    "E-FRC-0128 metrics.frameFree": 1,
+    "E-FRC-0128 metrics.linkEnergyConserved": 1,
+    "E-FRC-0129 metrics.exactAndReversible": 1,
+    "E-FRC-0130 metrics.halfSpaceOrientations": 192,
+    "E-FRC-0131 metrics.exactAndReversible": 1
+  },
+  "checks": [
+    {
+      "code": "E-FRC-0124",
+      "metric": "creatingWithLocalColor",
+      "from": "metrics",
+      "expected": 4,
+      "tolerance": 0,
+      "observed": 4,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0124",
+      "metric": "localColorWithHop",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0124",
+      "metric": "colorLeaks",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0124",
+      "metric": "committedTableColorLeaks",
+      "from": "control",
+      "expected": 3641,
+      "tolerance": 0,
+      "observed": 3641,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0126",
+      "metric": "energyDrift",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0127",
+      "metric": "liealgebraDimension",
+      "from": "metrics",
+      "expected": 80,
+      "tolerance": 0,
+      "observed": 80,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0128",
+      "metric": "frameFree",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0128",
+      "metric": "linkEnergyConserved",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0129",
+      "metric": "exactAndReversible",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0130",
+      "metric": "halfSpaceOrientations",
+      "from": "metrics",
+      "expected": 192,
+      "tolerance": 0,
+      "observed": 192,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0131",
+      "metric": "exactAndReversible",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FRC-0124": {
+      "seconds": 4.237,
+      "status": "pass",
+      "claim": "among sum-keeping line tables that create pairs from calm, local color exists exactly for the hop-free ones, with calm color signed by side, the committed table admits none, and the color weave on the hop-free table leaks no color from any cell on any beat while keeping charge, Gauss, reversal and frame change exact",
+      "metrics": {
+        "sumKeepingTables": 24,
+        "creatingTables": 16,
+        "creatingWithLocalColor": 4,
+        "localColorWithHop": 0,
+        "calmWeightsSignedBySide": 1,
+        "committedAdmitsLocalColor": 0,
+        "colorLeaks": 0,
+        "cellBeats": 3888,
+        "chargeConserved": 1,
+        "gaussEveryCellEveryBeat": 1,
+        "reversesExactly": 1,
+        "frameFree": 1,
+        "vacuumReturnBeat": 12,
+        "travellingDirections": 3
+      },
+      "control": {
+        "committedTableColorLeaks": 3641,
+        "committedVacuumReturnBeat": 12,
+        "committedTravellingDirections": 5
+      },
+      "notes": "Exhaustive over 24 tables, 9 calm weightings and the 9 frame-free role updates per transition. The color weave is a candidate for the base, not the committed rule: dropping the hop is a change to the wire table. The travelling count here is a crude small-box one, kept for comparison only. The proper travel measure and the rest of the acceptance battery on this table are E-FRC-0125."
+    },
+    "E-FRC-0125": {
+      "seconds": 375.443,
+      "status": "fail",
+      "claim": "the hop-free table does at least as well as the committed table on every acceptance item the committed table passes: reversal, charge, CPT at a mirror phase, a periodic vacuum, line-graph components on the vacuum and on a dense background, exact superposition, sheet-quantized walls, and a dressed support no larger than the committed one in every period",
+      "metrics": {
+        "reverses": 1,
+        "chargeConserved": 1,
+        "cptMirrorPhase": 23,
+        "vacuumPeriod": 24,
+        "vacuumLineComponents": 3,
+        "denseLineComponents": 1,
+        "additivityWorst": 1.0520917472900966e-11,
+        "wallQuantized": 1,
+        "wallSettledMax": 74358,
+        "worstSupportGrowth": 158.4,
+        "largestSupportPeriod1": 51,
+        "largestSupportPeriod2": 331,
+        "largestSupportPeriod3": 1319,
+        "largestSupportPeriod4": 2587,
+        "protectedSpecies": 3,
+        "travellers": 15,
+        "meanReach": 5.669435781234086
+      },
+      "control": {
+        "committedReverses": 1,
+        "committedCptMirrorPhase": 23,
+        "committedVacuumPeriod": 24,
+        "committedVacuumLineComponents": 3,
+        "committedDenseLineComponents": 1,
+        "committedAdditivityWorst": 1.0520917472900966e-11,
+        "committedWallQuantized": 1,
+        "committedWallSettledMax": 63423,
+        "committedWorstSupportGrowth": 100.15384615384616,
+        "committedLargestSupportPeriod1": 33,
+        "committedLargestSupportPeriod2": 160,
+        "committedLargestSupportPeriod3": 565,
+        "committedLargestSupportPeriod4": 1508,
+        "committedProtectedSpecies": 3,
+        "committedTravellers": 12,
+        "committedMeanReach": 4.31637439914017,
+        "freeReach": 8.485281374238571
+      },
+      "notes": "L2, exact, no random numbers. Roles never change a vibe in the color weave, so its vibe dynamics is turningWeave with the bind table exactly, and this battery is that rule. Gates are comparative: at least as good as the committed table wherever the committed table passes. Travel and protected species are the price of dropping the hop and are reported, not gated."
+    },
+    "E-FRC-0126": {
+      "seconds": 69.131,
+      "status": "pass",
+      "claim": "with energy conserved exactly and no random number, at two melted energies chi(2, 2) is above zero by three standard errors and within 0.1 of the heatbath at the coupling the demons read, and |<P>| is under 0.01, while on the ordered branch |<P>| is above 0.1",
+      "metrics": {
+        "meltedBeta1": 0.5499825398113143,
+        "meltedWilsonCoupling1": 3.2998952388678857,
+        "meltedPlaquette1": 0.21929622094648604,
+        "meltedCreutz22_1": 1.4122599317660172,
+        "meltedCreutz22Error1": 0.06712394794555027,
+        "meltedPolyakov1": 0.0003695471576754669,
+        "meltedAdjointPolyakov1": 0.00035383597883602644,
+        "meltedBeta2": 0.717122270277297,
+        "meltedWilsonCoupling2": 4.302733621663782,
+        "meltedPlaquette2": 0.3106337254373322,
+        "meltedCreutz22_2": 1.1533769538724516,
+        "meltedCreutz22Error2": 0.018366390216127324,
+        "meltedPolyakov2": 0.0007023943455346275,
+        "meltedAdjointPolyakov2": 0.00047949735449740106,
+        "orderedBeta": 0.6460640273979896,
+        "orderedPlaquette": 0.4572099004759999,
+        "orderedPolyakov": 0.342281259868476,
+        "orderedAdjointPolyakov": 0.3328472222222222,
+        "energyDrift": 0
+      },
+      "control": {
+        "heatbathCreutz22_1": 1.4573630628131966,
+        "heatbathCreutz22Error1": 0.053808981830554874,
+        "heatbathPolyakov1": 0.0012179529575985584,
+        "heatbathPlaquette1": 0.21956624030811867,
+        "heatbathCreutz22_2": 1.171766043071936,
+        "heatbathCreutz22Error2": 0.01707947030221336,
+        "heatbathPolyakov2": 0.001726195592358474,
+        "heatbathPlaquette2": 0.3109170085392099,
+        "heatbathAtOrderedBetaPlaquette": 0.2677160254340756,
+        "heatbathAtOrderedBetaPolyakov": 0.0011944572669579574
+      },
+      "notes": "L2, a 6^3 x 4 lattice, the integer Wilson-like action of E-FRC-0110 at scale 6, 350 measured sweeps per run. |<P>| is the magnitude of the configuration average of the signed spatial mean. The ordered branch is the frozen phase of a finite group at a demon coupling where the canonical heatbath melts (E-FRC-0110), so it shows the center broken and a lone color freed, not a thermal deconfinement of the continuum theory. Confinement at this spacing, not a continuum statement."
+    },
+    "E-FRC-0127": {
+      "seconds": 0.041,
+      "status": "pass",
+      "claim": "a round of the cube-root swap phase and classical moves has a kernel in quarters, so with a whole of 2,304 units every one of 8 beats is exact on integers, keeps love minus fear, reverses exactly, and matches the state vector, a whole of 576 refuses first at round 8 and of 9 at round 2, the swap phase at pi / 2 is not dyadic at any power to 2^20, and the gate set is universal: the swap phase is not Clifford, a product with Clifford gates has infinite order, and its generator spans all of su(9) under Clifford conjugation and brackets",
+      "metrics": {
+        "kernelDenominatorPowerOfTwo": 2,
+        "exactBeats": 8,
+        "chargeConserved": 1,
+        "matchesStateVector": 1,
+        "reversesExactly": 1,
+        "pairCreations": 1822,
+        "pairAnnihilations": 216,
+        "fearsAfterRound8": 1606,
+        "firstRefusedRoundWhole576": 8,
+        "firstRefusedRoundWhole9": 2,
+        "controlDyadicPower": -1,
+        "swapPhaseIsClifford": 0,
+        "wordFiniteOrderUpTo20000": 0,
+        "eigenphasesRational": 0,
+        "liealgebraDimension": 80
+      },
+      "control": {
+        "wholeUnits": 2304,
+        "cliffordWords": 216
+      },
+      "notes": "L1, exact integers for the beat, floating point for the universality check (a power is scalar within 1e-7, a phase rational within 1e-6). The beat acts on the 81 points of two roles at one place: it is the step a local rule would perform where two roles meet, not yet a rule on the D4 lattice. The fears it needs come from calm as love-fear pairs, counted here. The span check uses the principal generator of one infinite-order product, and a closed Lie algebra of dimension 80 inside u(9) with trace removed is su(9)."
+    },
+    "E-FRC-0128": {
+      "seconds": 1.412,
+      "status": "pass",
+      "claim": "with links moving by reflection through a triangle's staple, 24 beats forward and back restore vibes, roles, flows and links exactly, the links' energy is conserved to the unit on every beat, more than half the links move, a change of role frame in every cell commutes with the whole rule, and charge, Gauss's law and every cell's color stay exact, while the index-order step on the same links conserves the energy but does not commute with the frame change",
+      "metrics": {
+        "reversesExactly": 1,
+        "linkEnergyConserved": 1,
+        "linkEnergy": 124482,
+        "reflections": 2973,
+        "linksChanged": 1814,
+        "slots": 1944,
+        "frameFree": 1,
+        "chargeConserved": 1,
+        "gaussEveryCellEveryBeat": 1,
+        "colorLeaks": 0
+      },
+      "control": {
+        "indexOrderEnergyConserved": 1,
+        "indexOrderFrameMismatches": 11370
+      },
+      "notes": "L2, exact, no random numbers. The links do not read the matter: the roles ride on moving links, but matter does not yet pull on them, so this is step 2 of the path and not binding. Binding of static color is measured on the Sigma(648) sampler in E-FRC-0126. A cold start (every link the identity) has zero energy and no reflection moves it, so the run starts from the color weave's own hashed links."
+    },
+    "E-FRC-0129": {
+      "seconds": 0.393,
+      "status": "pass",
+      "claim": "with Gauss's law and the energy exact and every run reversing to the bit, a meson's mean gap stays under 8 cells and under a quarter of the tensionless control's while it travels more than 10 cells, a baryon and an antibaryon travel more than 10 cells and their gap moves over a range of more than 10 (free), and a baryon's three loves spread less than half as much as without tension",
+      "metrics": {
+        "exactAndReversible": 1,
+        "mesonMeanGap": 1.8958333333333333,
+        "mesonTravel": 486,
+        "mesonCharges": 2,
+        "baryonTravel": 210.83333333333331,
+        "baryonAntibaryonMeanGap": 27.843388888888853,
+        "baryonAntibaryonGapRange": 125,
+        "baryonMeanSpread": 4.015,
+        "baryonCharges": 6,
+        "mesonMeanGapAtTwiceTheEnergy": 9.0215
+      },
+      "control": {
+        "tensionlessMesonMeanGap": 64.088,
+        "tensionlessMesonTravel": 12032,
+        "tensionlessBaryonTravel": 12021.333333333334,
+        "tensionlessBaryonAntibaryonMeanGap": 44.971000000000856,
+        "tensionlessBaryonMeanSpread": 60.569
+      },
+      "notes": "L2, exact integers, no random numbers. A ring of 256 cells, so the tensionless meson can wander at most 128 cells apart. The rule is a line, not the D4 lattice: it shows the mechanism (the flux of the vibe weave, charged as an energy, binds a part and leaves a whole free) and what a base rule would need to carry it, a hop that is paid for, which the committed rule does not have. Charges max counts pairs made from calm, which cost 8 and so stay rare at this temperature."
+    },
+    "E-FRC-0130": {
+      "seconds": 0.345,
+      "status": "pass",
+      "claim": "the committed orientation puts the 12 directions of a sign class in an open half-space (a witness c exists), so under any color-local rule a lone vibe drifts one way and never returns, while of the 4,096 orientations of the lines some hold a closed walk inside the class and would let a part return",
+      "metrics": {
+        "committedClassIsHalfSpace": 1,
+        "orientations": 4096,
+        "halfSpaceOrientations": 192,
+        "returningOrientations": 3904,
+        "returningWithTriangle": 3904
+      },
+      "control": {
+        "witnessC1": 4,
+        "witnessC2": 3,
+        "witnessC3": 2,
+        "witnessC4": -1,
+        "searchedVectors": 6561
+      },
+      "notes": "L1, exact. The sign class of a lone vibe is kept by every color-local move (E-FRC-0124): changing it needs a charge moved onto a calm slot of the other sign, which changes the cell's color, or an opposite charge on the same line (the flip, annihilation). So in the committed orientation a lone part can only come back by meeting and flipping with an opposite charge, and moving binding needs either a returning orientation, which changes the collision table on some lines and would need the acceptance battery again, or a slot where matter can wait (E-FRC-0129)."
+    },
+    "E-FRC-0131": {
+      "seconds": 5.418,
+      "status": "pass",
+      "claim": "every run keeps Gauss's law and the energy exact and reverses to the bit, at the coldest demon energy the meson's mean gap stays under 4 and under a tenth of the tensionless control's while it travels more than 10, the baryon holds together (spread under a tenth of the control's) while travelling more than 5 and moving against its antibaryon, and at the hottest the meson's mean gap exceeds ten times the coldest",
+      "metrics": {
+        "exactAndReversible": 1,
+        "mesonMeanGapFill0_02": 1.7187368098786913,
+        "mesonTravelFill0_02": 33.85262175962151,
+        "baryonSpreadFill0_02": 2.7025000634293472,
+        "baryonTravelFill0_02": 14.959203781544582,
+        "baryonAntibaryonGapRangeFill0_02": 16.989754813493185,
+        "mesonMeanGapFill0_05": 7.294967631760951,
+        "mesonTravelFill0_05": 32.526911934581186,
+        "baryonSpreadFill0_05": 23.96986788874032,
+        "baryonTravelFill0_05": 11.860297916438132,
+        "baryonAntibaryonGapRangeFill0_05": 13.582577463375722,
+        "mesonMeanGapFill0_1": 38.1678185613312,
+        "mesonTravelFill0_1": 49.558046773455466,
+        "baryonSpreadFill0_1": 55.36373961071851,
+        "baryonTravelFill0_1": 27.104735133674826,
+        "baryonAntibaryonGapRangeFill0_1": 36.728792203938625,
+        "mesonMeanGapFill0_2": 89.53166948519613,
+        "mesonTravelFill0_2": 62.273589907761064,
+        "baryonSpreadFill0_2": 94.03640050558839,
+        "baryonTravelFill0_2": 44.123563873387305,
+        "baryonAntibaryonGapRangeFill0_2": 89.51794273149135
+      },
+      "control": {
+        "tensionlessMesonMeanGap": 121.59828239503345,
+        "tensionlessMesonTravel": 145.09996554100212,
+        "tensionlessBaryonSpread": 227.50682219260295,
+        "cells": 2401,
+        "links": 28812,
+        "matchings": 30
+      },
+      "notes": "L2, exact integers, no random numbers. Distances are in the D4 lattice's own units (a root has length sqrt 2), unwrapped hop by hop, so a free charge's distance can exceed the box. The coldest fill binds and the hottest has melted, the deconfining transition of a string with 23 ways to turn, between fills 0.05 and 0.1. The matter waits in cells, which the committed rule's slots do not allow (E-FRC-0130)."
+    }
+  },
+  "passed": true
+}

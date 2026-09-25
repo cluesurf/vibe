@@ -1,0 +1,111 @@
+{
+  "result": "R-FRC-0002",
+  "challenge": "C-FRC-0002",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "61bb4878dbe86456c351396e66747fa0ac276fe7",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/gauge/deterministic-thermalization.ts",
+      "sha256": "a7d88d45e134640d64a303153f41ac137396318e867ada3662265ba3fbe07170"
+    },
+    {
+      "file": "test/experiment/gauge/center-automaton.ts",
+      "sha256": "2ddaa6289bf0298c7df1409adfee07362d9a03423b7c1dbdb30aeba532462e28"
+    }
+  ],
+  "expected": {
+    "E-FRC-0092 status.status": "pass",
+    "E-FRC-0099 status.status": "pass"
+  },
+  "observed": {
+    "E-FRC-0092 status.status": "pass",
+    "E-FRC-0099 status.status": "pass"
+  },
+  "checks": [
+    {
+      "code": "E-FRC-0092",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0099",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FRC-0092": {
+      "seconds": 399.477,
+      "status": "pass",
+      "claim": "SU(3) gauge dynamics that is deterministic and reversible, started from a fixed plane-wave pattern with no random numbers, thermalizes (momentum kurtosis 1.5 to 3, energy shared equally by the eight colors) and reproduces the heatbath plaquette and Creutz ratio at the coupling beta / T its own kinetic temperature predicts with the Gauss-law count of freedoms, while the naive count fails and an abelian start never reaches the charged colors",
+      "metrics": {
+        "reversalError": 1.4765966227514582e-14,
+        "worstRelativeEnergyDrift": 0.00014349077798692073,
+        "conservationRatioHalfStep": 14.762671137553708,
+        "kurtosis": 2.997360361596592,
+        "colorFractionSpread": 0.0004719956139355441,
+        "kineticTemperature": 1.0001843567631972,
+        "predictedBeta": 5.69894936014234,
+        "deterministicPlaquette": 0.5504381460605744,
+        "deterministicPlaquetteError": 0.0004777719586605782,
+        "heatbathPlaquette": 0.5497014235588676,
+        "plaquettePull": 0.9932074473454018,
+        "deterministicCreutz22": 0.36881721703089027,
+        "heatbathCreutz22": 0.37105811417341394,
+        "creutzPull": -0.2871586990770057
+      },
+      "control": {
+        "naiveBeta": 7.5985991468564515,
+        "naiveHeatbathPlaquette": 0.7032135235036567,
+        "naivePull": -306.28482668756277,
+        "abelianChargedShare": 0
+      },
+      "notes": "L2: microcanonical (Hamiltonian) lattice gauge theory, a known construction, with the equivalence of its time averages to the canonical ensemble measured, not assumed. The deterministic run uses no random numbers. The comparison runs use the seeded heatbath as the reference. One 8^4 volume, one energy. The microcanonical and canonical ensembles differ by corrections of order 1 / V, which at 16384 links sit inside these errors. The integrator is the fourth-order symmetric composition of leapfrog, exactly reversible in exact arithmetic, and the reversal error measures the rounding over 80 steps. Any integrator conserves a shadow Hamiltonian that differs from H at its order, which biases the ensemble it samples. Leapfrog at step 0.05 left the plaquette 0.9 percent low for exactly that reason, and the fourth order is what makes the comparison fair."
+    },
+    "E-FRC-0099": {
+      "seconds": 139.65,
+      "status": "pass",
+      "claim": "the reversible Z3 automaton conserves energy exactly, reproduces the canonical area exponent at the beta its own plaquette picks in the confined phase, holds a plaquette inside the canonical first-order gap at middle energy (coexistence), and freezes at low energy with its excited plaquettes fixed in place",
+      "metrics": {
+        "hotPlaquette": 0.31944444444444436,
+        "hotExponent": 2.001427616861148,
+        "hotExponentError": 0.008991057477468409,
+        "effectiveBeta": 0.56015625,
+        "heatbathExponent": 2.0014778710858088,
+        "exponentPull": -0.0052596418006220025,
+        "middlePlaquette": 0.5439814814814811,
+        "coldPlaquette": 0.9988425925925934,
+        "hotExcitedOverlap": 0.3088480801335559,
+        "coldExcitedOverlap": 1
+      },
+      "control": {
+        "canonicalGapLow": 0.3489911265432098,
+        "canonicalGapHigh": 0.9360493827160498,
+        "areaLawExponent": 2,
+        "perimeterLawExponent": 1.5,
+        "energyDrift": 0
+      },
+      "notes": "L2, known constructions, measured for where a deterministic ternary rule reproduces the ensemble. No random number enters the automaton, and the heatbath is the seeded reference. One 6^4 box. The area exponent is read from 1 x 1 and 1 x 2 loops, the only ones resolved deep in the confined phase. The freezing is the known low-energy non-ergodicity of Q2R-type automata, reported here as the measured limit of the rule, and it says what a three-valued base would need: a kinetic variable per link, as the momenta of E-FRC-0092 provide. The committed vibe rule carries no Z3 at all (E-FRC-0095), so this is what a cyclic tone would buy, not a property of the committed rule."
+    }
+  },
+  "passed": true
+}

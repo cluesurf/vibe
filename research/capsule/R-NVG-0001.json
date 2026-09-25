@@ -1,0 +1,91 @@
+{
+  "result": "R-NVG-0001",
+  "challenge": "C-NVG-0001",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/addressing/greedy-walkway.ts",
+      "sha256": "5a153c7e9d47e2b71261a1932b34b91435cc539c2676a1e331a53d396d595eee"
+    }
+  ],
+  "expected": {
+    "E-NVG-0010 metrics.pairsTested": 2541,
+    "E-NVG-0010 metrics.hyperbolicSuccessPercent": 100,
+    "E-NVG-0010 metrics.meanStretch": 1.002,
+    "E-NVG-0010 control.scrambledSuccessPercent": 3.4
+  },
+  "observed": {
+    "E-NVG-0010 metrics.pairsTested": 2541,
+    "E-NVG-0010 metrics.hyperbolicSuccessPercent": 100,
+    "E-NVG-0010 metrics.meanStretch": 1.002,
+    "E-NVG-0010 control.scrambledSuccessPercent": 3.4
+  },
+  "checks": [
+    {
+      "code": "E-NVG-0010",
+      "metric": "pairsTested",
+      "from": "metrics",
+      "expected": 2541,
+      "tolerance": 0,
+      "observed": 2541,
+      "passed": true
+    },
+    {
+      "code": "E-NVG-0010",
+      "metric": "hyperbolicSuccessPercent",
+      "from": "metrics",
+      "expected": 100,
+      "tolerance": 0,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "code": "E-NVG-0010",
+      "metric": "meanStretch",
+      "from": "metrics",
+      "expected": 1.002,
+      "tolerance": 0.001,
+      "observed": 1.002,
+      "passed": true
+    },
+    {
+      "code": "E-NVG-0010",
+      "metric": "scrambledSuccessPercent",
+      "from": "control",
+      "expected": 3.4,
+      "tolerance": 0.05,
+      "observed": 3.4,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-NVG-0010": {
+      "seconds": 4.981,
+      "status": "pass",
+      "claim": "greedy descent in the hyperbolic embedding, where a walker with only its own coordinate, its neighbors coordinates, and the target coordinate always steps to the neighbor closest to the target, arrives at every one of thousands of targets (a hundred percent success) with mean stretch one point zero zero (the greedy path is the shortest path, a near-perfect local walkway through the bulk), while the same greedy rule on a scrambled coordinate map (each cell given some other cell coordinate) stalls in a local minimum on all but a few percent of pairs, so the navigability of the bulk is carried by the hyperbolic coordinates and a self can follow the walkway with only local information",
+      "metrics": {
+        "pairsTested": 2541,
+        "hyperbolicSuccessPercent": 100,
+        "scrambledSuccessPercent": 3.4,
+        "meanStretch": 1.002
+      },
+      "control": {
+        "scrambledSuccessPercent": 3.4
+      },
+      "notes": "Greedy geometric routing (Kleinberg) as the exact local walkway. Complements the addressed-tree routing (E-NVG-0004) and the depth-is-scale law (E-NVG-0008). The scrambled control shows coordinates, not the graph, carry navigability."
+    }
+  },
+  "passed": true
+}

@@ -196,6 +196,137 @@ import {
   makeBinaryCounter,
   makeSelfExtendingCounter,
 } from '@/code/compute/railway-ca'
+import {
+  GaugeGroup,
+  centerTransformTimeSlice,
+  gaugeUpdate,
+  linkSlot,
+  makeGaugeLattice,
+  sampleSu2HeatbathWeight,
+  sampleVonMises,
+  stapleInto,
+} from '@/code/dynamics/gauge-lattice'
+import {
+  determinant,
+  unitarityDefect,
+} from '@/code/algebra/group/unitary-matrix'
+import {
+  averagePlaquette as averageGaugePlaquette,
+  plaquetteFromStaples,
+  polyakovLoop,
+} from '@/code/measure/lattice-gauge-observable'
+import {
+  applyStaggeredHopping,
+  makeStaggeredOperator,
+  staggeredPropagator,
+  staggeredResidual,
+} from '@/code/operator/staggered-fermion'
+import { bisectThreshold } from '@/code/tool/bisect'
+import { jackknife } from '@/code/measure/jackknife'
+import {
+  weightedLeastSquares,
+  weightedLinearFit,
+} from '@/code/measure/regression'
+import { treeLevelCreutz } from '@/code/measure/wilson-loop-perturbation'
+import { generalizedEigenvalues } from '@/code/algebra/linear/generalized-eigen'
+import { hermitianLogDeterminant } from '@/code/algebra/linear/complex-cholesky'
+import { apeSmear } from '@/code/dynamics/gauge-smearing'
+import {
+  drift,
+  kineticEnergy,
+  leapfrog,
+  makeMomenta,
+  negateMomenta,
+  setMomentum,
+  structuredMomenta,
+  suGenerators,
+  wilsonAction,
+} from '@/code/dynamics/gauge-molecular-dynamics'
+import {
+  fermionAction,
+  fermionForce,
+  refreshPseudofermion,
+  solveEven,
+} from '@/code/dynamics/dynamical-staggered'
+import {
+  freeStaggeredCondensate,
+  pointSourceCondensate,
+} from '@/code/measure/chiral-condensate'
+import {
+  centerPlaquette,
+  makeCenterLattice,
+  reversibleSweep,
+  kineticSweep,
+  demonBeta,
+} from '@/code/dynamics/center-gauge'
+import {
+  colorPermutations,
+  bruteForceColorPermutations,
+  entanglingPower,
+  epsilonState,
+  pairExchangeUnitary,
+  singletCount,
+  singletResidual,
+} from '@/code/measure/color-symmetry'
+import {
+  generateGroup,
+  matrix3,
+  makeFiniteGaugeLattice,
+  finitePlaquette,
+  finitePolyakovLoop,
+  finiteWilsonLoops,
+} from '@/code/dynamics/finite-gauge'
+import {
+  phaseSpaceAction,
+  affineOf,
+  wignerFunction,
+} from '@/code/measure/qutrit-phase-space'
+import {
+  coinGroup,
+  countIsomorphisms,
+  specialLinear23,
+} from '@/code/algebra/group/coin-group'
+import {
+  SU3_SUBGROUPS,
+  GOLDEN,
+  QUTRIT_T,
+} from '@/code/algebra/group/su3-subgroups'
+import {
+  doubleCosetSet,
+  makeLinkSetLattice,
+  linkSetPlaquette,
+} from '@/code/dynamics/link-set-gauge'
+import {
+  actionLevels,
+  microcanonicalSweep,
+  quantizedEnergy,
+} from '@/code/dynamics/finite-kinetic'
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import { passThrough } from '@/code/rule/collision'
+import {
+  blockIndex,
+  blockTones,
+  interactionBlocks,
+  probeConfigurations,
+  zeroSumTriangles,
+} from '@/code/measure/collision-anatomy'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
+import {
+  covariantPairSpace,
+  toneSymmetryAlgebra,
+  unitaryAlgebraBasis,
+} from '@/code/measure/tone-symmetry'
+import {
+  TONE_PERMUTATIONS,
+  lineRelabellings,
+} from '@/code/check/tone-permutation-symmetry'
+import {
+  meanBlockDistance,
+  relabelFractions,
+} from '@/code/coarse/tone-population'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -2266,6 +2397,1014 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         reach.bulkReach === 4 &&
         Math.abs(reach.amplification - 2) < 1e-12,
     })
+  }
+
+  // lattice gauge theory: the group, the heatbath samplers, the staples, the center, the quarks
+  {
+    const groups: GaugeGroup[] = ['u1', 'su2', 'su3']
+
+    for (const group of groups) {
+      const rng = makeRng({ seed: 91 })
+      const gauge = makeGaugeLattice({
+        group,
+        lengths: [4, 4, 4, 4],
+        start: 'hot',
+        rng,
+      })
+
+      gaugeUpdate({ lattice: gauge, beta: 1, overrelaxation: 1, rng })
+
+      let worstUnitarity = 0
+      let worstDeterminant = 0
+
+      for (let site = 0; site < gauge.geometry.sites; site++) {
+        for (let mu = 0; mu < 4; mu++) {
+          const slot = linkSlot({ lattice: gauge, site, mu })
+          const [re, im] = determinant({ n: gauge.n, a: slot })
+
+          worstUnitarity = Math.max(
+            worstUnitarity,
+            unitarityDefect({ n: gauge.n, a: slot }),
+          )
+
+          worstDeterminant = Math.max(
+            worstDeterminant,
+            // U(1) has any unit phase as determinant, SU(N) exactly one
+            group === 'u1'
+              ? Math.abs(Math.hypot(re, im) - 1)
+              : Math.hypot(re - 1, im),
+          )
+        }
+      }
+
+      check({
+        name: `gauge-lattice ${group}: every link stays in the group after heatbath and overrelaxation`,
+        ok: worstUnitarity < 1e-12 && worstDeterminant < 1e-12,
+        detail: `unitarity ${worstUnitarity}, determinant ${worstDeterminant}`,
+      })
+
+      const staplePlaquette = plaquetteFromStaples({
+        lattice: gauge,
+        staple: (site, mu, out) =>
+          stapleInto({ lattice: gauge, site, mu, out }),
+      })
+
+      check({
+        name: `gauge-lattice ${group}: the staples reproduce the plaquette`,
+        ok:
+          Math.abs(
+            staplePlaquette - averageGaugePlaquette({ lattice: gauge }),
+          ) < 1e-12,
+      })
+    }
+
+    // the SU(2) heatbath weight sqrt(1 - h^2) exp(alpha h) has mean I2(alpha) / I1(alpha), on both
+    // sampling branches, and the von Mises density exp(kappa cos) has mean cosine I1 / I0
+    const draws = 40000
+    const rng = makeRng({ seed: 92 })
+
+    const sampleMean = (draw: () => number): number => {
+      let total = 0
+
+      for (let k = 0; k < draws; k++) {
+        total += draw()
+      }
+
+      return total / draws
+    }
+
+    const kennedyPendleton = sampleMean(() =>
+      sampleSu2HeatbathWeight({ alpha: 3, rng }),
+    )
+    const creutzInversion = sampleMean(() =>
+      sampleSu2HeatbathWeight({ alpha: 0.5, rng }),
+    )
+    const vonMises = sampleMean(() =>
+      Math.cos(sampleVonMises({ kappa: 2, rng })),
+    )
+
+    check({
+      name: 'su2 heatbath (Kennedy-Pendleton, alpha 3): mean h0 is I2 / I1 = 0.56792',
+      ok: Math.abs(kennedyPendleton - 0.567923) < 0.01,
+      detail: `${kennedyPendleton}`,
+    })
+
+    check({
+      name: 'su2 heatbath (Creutz inversion, alpha 0.5): mean h0 is I2 / I1 = 0.12372',
+      ok: Math.abs(creutzInversion - 0.12372) < 0.01,
+      detail: `${creutzInversion}`,
+    })
+
+    check({
+      name: 'von Mises (kappa 2): mean cosine is I1 / I0 = 0.69777',
+      ok: Math.abs(vonMises - 0.697775) < 0.01,
+      detail: `${vonMises}`,
+    })
+
+    // a center transformation of one time slice is a symmetry of the action, and it turns the
+    // Polyakov loop by exactly exp(2 pi i / 3)
+    const thermal = makeGaugeLattice({
+      group: 'su3',
+      lengths: [4, 4, 4, 2],
+      start: 'hot',
+      rng,
+    })
+    const plaquetteBefore = averageGaugePlaquette({ lattice: thermal })
+    const [reBefore, imBefore] = polyakovLoop({ lattice: thermal })
+
+    centerTransformTimeSlice({ lattice: thermal, slice: 1, k: 1 })
+
+    const [reAfter, imAfter] = polyakovLoop({ lattice: thermal })
+    const turn = (2 * Math.PI) / 3
+    const expectedRe =
+      reBefore * Math.cos(turn) - imBefore * Math.sin(turn)
+    const expectedIm =
+      reBefore * Math.sin(turn) + imBefore * Math.cos(turn)
+
+    check({
+      name: 'center transformation: action unchanged, Polyakov loop turned by 2 pi / 3',
+      ok:
+        Math.abs(
+          averageGaugePlaquette({ lattice: thermal }) - plaquetteBefore,
+        ) < 1e-12 &&
+        Math.hypot(reAfter - expectedRe, imAfter - expectedIm) < 1e-12,
+    })
+
+    // the staggered hopping term is anti-Hermitian: <a, D b> = -<D a, b>
+    const quarks = makeGaugeLattice({
+      group: 'su3',
+      lengths: [4, 4, 4, 4],
+      start: 'hot',
+      rng,
+    })
+    const operator = makeStaggeredOperator({ lattice: quarks })
+    const length = quarks.geometry.sites * 6
+    const a = new Float64Array(length).map(() => rng.nextGaussian())
+    const b = new Float64Array(length).map(() => rng.nextGaussian())
+    const da = new Float64Array(length)
+    const db = new Float64Array(length)
+
+    applyStaggeredHopping({ operator, from: a, out: da })
+    applyStaggeredHopping({ operator, from: b, out: db })
+
+    // complex inner product <x, y> = sum conj(x) y, both parts
+    const inner = (
+      x: Float64Array,
+      y: Float64Array,
+    ): [number, number] => {
+      let re = 0
+      let im = 0
+
+      for (let k = 0; k < x.length; k += 2) {
+        const xr = x[k] ?? 0
+        const xi = x[k + 1] ?? 0
+        const yr = y[k] ?? 0
+        const yi = y[k + 1] ?? 0
+
+        re += xr * yr + xi * yi
+        im += xr * yi - xi * yr
+      }
+
+      return [re, im]
+    }
+
+    const left = inner(a, db)
+    const right = inner(da, b)
+
+    check({
+      name: 'staggered hopping is anti-Hermitian',
+      ok:
+        Math.hypot(left[0] + right[0], left[1] + right[1]) <
+        1e-9 * Math.hypot(...left),
+    })
+
+    // multi-shift conjugate gradient: every shifted solution is a true solution, and the propagator
+    // inverts M = m + D
+    const masses = [0.1, 0.3]
+    const solved = staggeredPropagator({
+      operator,
+      site: 0,
+      color: 1,
+      masses,
+      tolerance: 1e-10,
+      maxIterations: 2000,
+    })
+
+    check({
+      name: 'multi-shift CG: every shift converges, checked against the operator',
+      ok: solved.residuals.every(r => r < 1e-9),
+      detail: solved.residuals.join(', '),
+    })
+
+    check({
+      name: 'staggered propagator inverts m + D at every mass',
+      ok: masses.every(
+        (mass, index) =>
+          staggeredResidual({
+            operator,
+            propagator:
+              solved.propagators[index] ?? new Float64Array(0),
+            mass,
+            site: 0,
+            color: 1,
+          }) < 1e-8,
+      ),
+    })
+
+    // bisection brackets a threshold and refuses a predicate that never switches
+    const bracket = bisectThreshold({
+      low: 0,
+      high: 1,
+      steps: 10,
+      isAbove: x => x > 0.3,
+    })
+    const flat = bisectThreshold({
+      low: 0,
+      high: 1,
+      steps: 10,
+      isAbove: () => true,
+    })
+
+    check({
+      name: 'bisectThreshold brackets 0.3 to 1 / 1024 and reports a flat predicate',
+      ok:
+        bracket.switched &&
+        bracket.low <= 0.3 &&
+        bracket.high > 0.3 &&
+        bracket.high - bracket.low === 1 / 1024 &&
+        !flat.switched,
+    })
+
+    // the jackknife error of a mean is the standard error of the mean
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    const errorOfMean = jackknife({
+      samples: values,
+      estimator: s => s.reduce((x, y) => x + y, 0) / s.length,
+    }).error
+    const sampleVariance =
+      values.reduce((sum, v) => sum + (v - 5.5) ** 2, 0) /
+      (values.length - 1)
+
+    check({
+      name: 'jackknife error of a mean equals the standard error',
+      ok:
+        Math.abs(
+          errorOfMean - Math.sqrt(sampleVariance / values.length),
+        ) < 1e-12,
+    })
+
+    // the weighted fit recovers an exact line and its chi^2 is zero
+    const line = weightedLinearFit({
+      xs: [0, 1, 2],
+      ys: [1, 3, 5],
+      errors: [0.1, 0.2, 0.1],
+    })
+
+    check({
+      name: 'weightedLinearFit recovers y = 2x + 1 exactly',
+      ok:
+        Math.abs(line.slope - 2) < 1e-12 &&
+        Math.abs(line.intercept - 1) < 1e-12 &&
+        line.chi2 < 1e-20,
+    })
+
+    // the general linear least squares recovers an exact quadratic with parameter errors
+    const quadratic = weightedLeastSquares({
+      rows: [0, 1, 2, 3].map(x => [1, x, x * x]),
+      ys: [0, 1, 2, 3].map(x => 2 - x + 0.5 * x * x),
+      errors: [1, 1, 1, 1],
+    })
+
+    check({
+      name: 'weightedLeastSquares recovers 2 - x + x^2 / 2 exactly',
+      ok:
+        Math.abs((quadratic.coefficients[0] ?? 0) - 2) < 1e-10 &&
+        Math.abs((quadratic.coefficients[1] ?? 0) + 1) < 1e-10 &&
+        Math.abs((quadratic.coefficients[2] ?? 0) - 0.5) < 1e-10 &&
+        quadratic.chi2 < 1e-18,
+    })
+
+    // SU(4): the general Gram-Schmidt and determinant-phase projection keeps links in the group
+    {
+      const four = makeGaugeLattice({
+        group: 'su4',
+        lengths: [3, 3, 3, 3],
+        start: 'hot',
+        rng,
+      })
+
+      gaugeUpdate({ lattice: four, beta: 4, overrelaxation: 1, rng })
+
+      let worst = 0
+
+      for (let link = 0; link < four.geometry.sites * 4; link++) {
+        const slot = { data: four.links, offset: link * 32 }
+        const [re, im] = determinant({ n: 4, a: slot })
+
+        worst = Math.max(
+          worst,
+          unitarityDefect({ n: 4, a: slot }),
+          Math.hypot(re - 1, im),
+        )
+      }
+
+      check({
+        name: 'SU(4) links stay unitary with determinant one',
+        ok: worst < 1e-12,
+        detail: `${worst}`,
+      })
+    }
+
+    // the tree-level plaquette on a periodic box is exactly C g^2 (1 - 1 / V) / 4
+    check({
+      name: 'tree-level Creutz ratio chi(1,1) = (1 - 1/V) / 4 on a 4^4 box',
+      ok:
+        Math.abs(
+          treeLevelCreutz({ r: 1, box: 4 }) - 0.25 * (1 - 1 / 256),
+        ) < 1e-12,
+    })
+
+    // the generalized eigenvalues of A v = lambda B v for diagonal B are A / B
+    const generalized = generalizedEigenvalues({
+      a: [
+        [2, 0],
+        [0, 6],
+      ],
+      b: [
+        [1, 0],
+        [0, 2],
+      ],
+    })
+
+    check({
+      name: 'generalizedEigenvalues solves a diagonal pencil',
+      ok:
+        Math.abs((generalized[0] ?? 0) - 2) < 1e-12 &&
+        Math.abs((generalized[1] ?? 0) - 3) < 1e-12,
+    })
+
+    // APE smearing keeps every link in the group and never touches time
+    {
+      const field = makeGaugeLattice({
+        group: 'su3',
+        lengths: [4, 4, 4, 4],
+        start: 'hot',
+        rng,
+      })
+      const smeared = apeSmear({
+        lattice: field,
+        alpha: 0.5,
+        iterations: 3,
+      })
+
+      let worst = 0
+      let timeChanged = 0
+
+      for (let site = 0; site < field.geometry.sites; site++) {
+        for (let mu = 0; mu < 4; mu++) {
+          const slot = linkSlot({ lattice: smeared, site, mu })
+
+          worst = Math.max(worst, unitarityDefect({ n: 3, a: slot }))
+
+          if (mu === 3) {
+            for (let k = 0; k < 18; k++) {
+              timeChanged = Math.max(
+                timeChanged,
+                Math.abs(
+                  (slot.data[slot.offset + k] ?? 0) -
+                    (field.links[slot.offset + k] ?? 0),
+                ),
+              )
+            }
+          }
+        }
+      }
+
+      check({
+        name: 'APE smearing stays in SU(3) and leaves the time links alone',
+        ok: worst < 1e-12 && timeChanged === 0,
+      })
+    }
+
+    // the gauge integrator: exactly reversible, and the energy error falls as step^2 and step^4
+    {
+      const generators = suGenerators({ n: 3 })
+
+      const trial = (
+        order: 2 | 4,
+        step: number,
+      ): { error: number; reversal: number } => {
+        const lattice = makeGaugeLattice({
+          group: 'su3',
+          lengths: [3, 3, 3, 3],
+          start: 'cold',
+          rng: makeRng({ seed: 1 }),
+        })
+        const momenta = makeMomenta({ lattice })
+
+        structuredMomenta({
+          lattice,
+          momenta,
+          generators,
+          amplitude: 1.5,
+        })
+
+        const energy = (): number =>
+          kineticEnergy({ momenta }) +
+          wilsonAction({ lattice, beta: 5.7 })
+        const start = new Float64Array(lattice.links)
+        const h0 = energy()
+        const steps = Math.round(1 / step)
+
+        leapfrog({ lattice, momenta, beta: 5.7, step, steps, order })
+
+        const error = Math.abs(energy() - h0)
+
+        negateMomenta({ momenta })
+        leapfrog({ lattice, momenta, beta: 5.7, step, steps, order })
+
+        let reversal = 0
+
+        lattice.links.forEach((v, k) => {
+          reversal = Math.max(reversal, Math.abs(v - (start[k] ?? 0)))
+        })
+
+        return { error, reversal }
+      }
+
+      const second = [trial(2, 0.1), trial(2, 0.05)]
+      const fourth = [trial(4, 0.2), trial(4, 0.1)]
+      const secondRatio =
+        (second[0]?.error ?? 0) / (second[1]?.error ?? 1)
+      const fourthRatio =
+        (fourth[0]?.error ?? 0) / (fourth[1]?.error ?? 1)
+
+      check({
+        name: 'leapfrog: reversible to rounding, energy error falls 4x when the step halves',
+        ok:
+          second.every(t => t.reversal < 1e-11) &&
+          secondRatio > 3 &&
+          secondRatio < 5,
+        detail: `${secondRatio}`,
+      })
+
+      check({
+        name: 'fourth-order composition: reversible, energy error falls 16x when the step halves',
+        ok:
+          fourth.every(t => t.reversal < 1e-11) &&
+          fourthRatio > 10 &&
+          fourthRatio < 24,
+        detail: `${fourthRatio}`,
+      })
+    }
+
+    // the quark force is the derivative of the quark action
+    {
+      const lattice = makeGaugeLattice({
+        group: 'su3',
+        lengths: [2, 2, 2, 2],
+        start: 'hot',
+        rng,
+      })
+      const mass = 0.3
+      const operator = makeStaggeredOperator({ lattice })
+      const phi = refreshPseudofermion({ operator, mass, rng })
+      const { x } = solveEven({ operator, phi, mass, tolerance: 1e-13 })
+      const force = fermionForce({ operator, x })
+      const generators = suGenerators({ n: 3 })
+      const link = 5
+      const a = 3
+      const t = generators[a] ?? new Float64Array(0)
+
+      let traceTF = 0
+
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          traceTF +=
+            (t[2 * (i * 3 + j)] ?? 0) *
+              (force[link * 18 + 2 * (j * 3 + i)] ?? 0) -
+            (t[2 * (i * 3 + j) + 1] ?? 0) *
+              (force[link * 18 + 2 * (j * 3 + i) + 1] ?? 0)
+        }
+      }
+
+      const shifted = (sign: number): number => {
+        const copy = {
+          ...lattice,
+          links: new Float64Array(lattice.links),
+        }
+        const momenta = makeMomenta({ lattice: copy })
+        const components = new Array<number>(8).fill(0)
+
+        components[a] = 1
+        setMomentum({ momenta, link, generators, components })
+        drift({ lattice: copy, momenta, step: sign * 1e-5 })
+
+        return fermionAction({
+          operator: makeStaggeredOperator({ lattice: copy }),
+          phi,
+          mass,
+          tolerance: 1e-14,
+        })
+      }
+
+      const numeric = (shifted(1) - shifted(-1)) / 2e-5
+
+      check({
+        name: 'the staggered quark force matches a finite difference of the quark action',
+        ok:
+          Math.abs(-2 * traceTF - numeric) <
+          1e-6 * Math.max(1, Math.abs(numeric)),
+        detail: `${-2 * traceTF} ${numeric}`,
+      })
+    }
+
+    // the dense Cholesky log determinant of a known Hermitian positive matrix
+    {
+      // [[2, i], [-i, 2]] has determinant 3
+      const logDet = hermitianLogDeterminant({
+        size: 2,
+        column: (j, out) => {
+          out.fill(0)
+
+          if (j === 0) {
+            out[0] = 2
+            out[3] = -1
+          } else {
+            out[1] = 1
+            out[2] = 2
+          }
+        },
+      })
+
+      check({
+        name: 'hermitianLogDeterminant of [[2, i], [-i, 2]] is ln 3',
+        ok: Math.abs(logDet - Math.log(3)) < 1e-14,
+      })
+    }
+
+    // the noise-free condensate estimator on the free field is exact
+    {
+      const lengths = [4, 4, 4, 4]
+      const free = pointSourceCondensate({
+        operator: makeStaggeredOperator({
+          lattice: makeGaugeLattice({
+            group: 'su3',
+            lengths,
+            start: 'cold',
+            rng,
+          }),
+        }),
+        masses: [0.1, 0.3],
+        sites: [0],
+        tolerance: 1e-13,
+        maxIterations: 2000,
+      })
+
+      check({
+        name: 'point-source condensate reproduces the free momentum sum',
+        ok: [0.1, 0.3].every(
+          (mass, i) =>
+            Math.abs(
+              (free.values[i] ?? 0) -
+                freeStaggeredCondensate({ lengths, colors: 3, mass }),
+            ) < 1e-10,
+        ),
+      })
+    }
+
+    // the rule-anatomy library behind E-FRC-0093 to 0097, each against a fact derived without it
+    {
+      const roots = rootsD4()
+
+      // in a simply-laced root system every root has 2h - 4 partners whose sum is a root (h = 6 for
+      // D4), so the zero-sum triples number 24 * 8 / 6 = 32
+      check({
+        name: 'zeroSumTriangles finds the 32 zero-sum triples of the D4 roots',
+        ok:
+          zeroSumTriangles({ directions: roots }).length ===
+          (24 * (2 * 6 - 4)) / 6,
+      })
+
+      // the Weyl group of F4 has order 1152, and each element permutes the 24 directions
+      const weyl = weylF4DirectionPermutations({ directions: roots })
+      const distinct = new Set(weyl.map(p => p.join(','))).size
+      const permutations = weyl.every(
+        p => new Set(p).size === 24 && p.length === 24,
+      )
+
+      check({
+        name: 'weylF4DirectionPermutations gives 1152 distinct permutations of the 24 directions',
+        ok: weyl.length === 1152 && distinct === 1152 && permutations,
+      })
+
+      // a 3-cycle times a disjoint 2-cycle has order 6
+      check({
+        name: 'permutationOrder of a 3-cycle and a 2-cycle is 6',
+        ok: permutationOrder({ permutation: [1, 2, 0, 4, 3, 5] }) === 6,
+      })
+
+      // block encoding round-trips for every state of a three-slot block
+      const roundTrips = Array.from(
+        { length: 27 },
+        (_, index) => index,
+      ).every(
+        index =>
+          blockIndex({ tones: blockTones({ index, size: 3 }) }) ===
+          index,
+      )
+
+      check({
+        name: 'blockIndex and blockTones are inverse on all 27 three-slot states',
+        ok: roundTrips,
+      })
+
+      // pure streaming couples nothing, so every slot is its own interaction block
+      const blocks = interactionBlocks({
+        collision: passThrough,
+        degree: 24,
+        probes: probeConfigurations({ degree: 24 }),
+      })
+
+      check({
+        name: 'interactionBlocks of pure streaming is 24 singleton blocks',
+        ok: blocks.length === 24 && blocks.every(b => b.length === 1),
+      })
+
+      // Schur-Weyl: the identity and the swap of two tones commute with all 9 generators of u(3),
+      // and the U(3)-covariant maps of a pair are exactly their two-dimensional span
+      const identity = Array.from({ length: 9 }, (_, i) => i)
+      const swap = Array.from(
+        { length: 9 },
+        (_, i) => (i % 3) * 3 + Math.floor(i / 3),
+      )
+
+      check({
+        name: 'toneSymmetryAlgebra: identity and swap keep all 9 u(3) generators',
+        ok:
+          toneSymmetryAlgebra({ maps: [identity] }).dimension === 9 &&
+          toneSymmetryAlgebra({ maps: [swap] }).dimension === 9 &&
+          unitaryAlgebraBasis().length === 9,
+      })
+
+      const covariant = covariantPairSpace({ map: swap })
+
+      check({
+        name: 'covariantPairSpace: two complex dimensions, the swap inside them',
+        ok:
+          covariant.complexDimension === 2 && covariant.distance < 1e-9,
+      })
+
+      // the six tone relabellings are S3, and the line relabellings are its square, 36
+      check({
+        name: 'tone relabellings: 6 distinct, 36 on a line',
+        ok:
+          new Set(TONE_PERMUTATIONS.map(p => p.join(','))).size === 6 &&
+          lineRelabellings().length === 36,
+      })
+
+      // a relabelling names the tone (-1, 0, +1) each tone goes to. The identity changes nothing,
+      // charge conjugation swaps the -1 and +1 fractions, and the distance is a metric
+      const fractions = new Float64Array([
+        0.5, 0.25, 0.25, 0.1, 0.8, 0.1,
+      ])
+      const same = relabelFractions({ fractions, relabel: [-1, 0, 1] })
+      const conjugate = relabelFractions({
+        fractions,
+        relabel: [1, 0, -1],
+      })
+
+      check({
+        name: 'relabelFractions: the identity changes nothing, conjugation swaps the charges',
+        ok:
+          same.every((v, k) => v === fractions[k]) &&
+          meanBlockDistance({ a: fractions, b: same }) === 0 &&
+          conjugate[0] === 0.25 &&
+          conjugate[2] === 0.5 &&
+          Math.abs(
+            meanBlockDistance({ a: fractions, b: conjugate }) - 0.125,
+          ) < 1e-12,
+      })
+    }
+
+    // the reversible Z3 automaton conserves energy exactly and its reverse sweep undoes it
+    {
+      const center = makeCenterLattice({
+        order: 3,
+        lengths: [4, 4, 4, 4],
+        pattern: (x, mu) =>
+          ((x[0] ?? 0) + 2 * (x[1] ?? 0) + 3 * (x[2] ?? 0) + mu) % 3 ===
+          0
+            ? 1
+            : 0,
+      })
+      const start = new Int8Array(center.links)
+      const e0 = centerPlaquette({ lattice: center }).energy
+
+      for (let k = 0; k < 5; k++) {
+        reversibleSweep({ lattice: center })
+      }
+
+      const e1 = centerPlaquette({ lattice: center }).energy
+      const moved = center.links.some((v, k) => v !== start[k])
+
+      for (let k = 0; k < 5; k++) {
+        reversibleSweep({ lattice: center, reverse: true })
+      }
+
+      check({
+        name: 'reversible Z3 automaton: energy conserved exactly, moves, and the reverse sweeps restore the start',
+        ok:
+          e0 === e1 &&
+          moved &&
+          center.links.every((v, k) => v === start[k]),
+      })
+    }
+
+    // the kinetic Z3 automaton conserves plaquettes plus demons exactly and reverses exactly
+    {
+      const center = makeCenterLattice({
+        order: 3,
+        lengths: [4, 4, 4, 4],
+      })
+      const demons = new Int8Array(center.links.length).map((_, k) =>
+        k % 5 === 0 ? 6 : 0,
+      )
+      const startLinks = new Int8Array(center.links)
+      const startDemons = new Int8Array(demons)
+      const total = (): number =>
+        centerPlaquette({ lattice: center }).energy / 1.5 +
+        demons.reduce((a, b) => a + b, 0)
+      const e0 = total()
+
+      for (let k = 0; k < 6; k++) {
+        kineticSweep({ lattice: center, demons, capacity: 6 })
+      }
+
+      const e1 = total()
+      const moved = center.links.some((v, k) => v !== startLinks[k])
+
+      for (let k = 0; k < 6; k++) {
+        kineticSweep({
+          lattice: center,
+          demons,
+          capacity: 6,
+          reverse: true,
+        })
+      }
+
+      check({
+        name: 'kinetic Z3 automaton: plaquette plus demon energy conserved, moves, reverse restores links and demons',
+        ok:
+          Math.abs(e0 - e1) < 1e-9 &&
+          moved &&
+          center.links.every((v, k) => v === startLinks[k]) &&
+          demons.every((v, k) => v === startDemons[k]),
+      })
+
+      // demonBeta inverts the bounded exponential mean: beta 0 gives the flat mean capacity / 2
+      check({
+        name: 'demonBeta: a flat demon reads beta 0, a larger mean reads a smaller beta',
+        ok:
+          Math.abs(demonBeta({ meanDemon: 3, capacity: 6 })) < 1e-9 &&
+          demonBeta({ meanDemon: 0.2, capacity: 6 }) >
+            demonBeta({ meanDemon: 1, capacity: 6 }),
+      })
+    }
+
+    // color symmetry: Schur-Weyl counts, entangling power, singlets
+    {
+      check({
+        name: 'colorPermutations: 2 for a pair of triplets, 1 with an antitriplet, 6 for three, brute force agrees',
+        ok:
+          colorPermutations({ d: 3, slots: ['plain', 'plain'] })
+            .length === 2 &&
+          colorPermutations({ d: 3, slots: ['plain', 'conjugate'] })
+            .length === 1 &&
+          colorPermutations({
+            d: 3,
+            slots: ['plain', 'plain', 'plain'],
+          }).length === 6 &&
+          bruteForceColorPermutations({
+            d: 3,
+            slots: ['plain', 'plain'],
+          }) === 2 &&
+          colorPermutations({
+            d: 3,
+            slots: ['plain', 'plain'],
+            diagonal: true,
+          }).length === 8,
+      })
+
+      const rootSwap = pairExchangeUnitary({
+        d: 2,
+        kind: 'plain',
+        phase: Math.PI / 2,
+      })
+      const swap = pairExchangeUnitary({
+        d: 3,
+        kind: 'plain',
+        phase: Math.PI,
+      })
+
+      check({
+        name: 'entanglingPower: 1/6 for the qubit root swap (Zanardi), 0 for the swap',
+        ok:
+          Math.abs(
+            entanglingPower({ operator: rootSwap, d: 2 }) - 1 / 6,
+          ) < 1e-12 &&
+          Math.abs(entanglingPower({ operator: swap, d: 3 })) < 1e-12,
+      })
+
+      check({
+        name: 'singlets: epsilon is annihilated by su(3), counts 0 1 1 0 for qq, q qbar, qqq, qqq qbar',
+        ok:
+          singletResidual({
+            d: 3,
+            slots: ['plain', 'plain', 'plain'],
+            ...epsilonState(),
+          }) < 1e-12 &&
+          singletCount({ d: 3, slots: ['plain', 'plain'] }) === 0 &&
+          singletCount({ d: 3, slots: ['plain', 'conjugate'] }) === 1 &&
+          singletCount({ d: 3, slots: ['plain', 'plain', 'plain'] }) ===
+            1 &&
+          singletCount({
+            d: 3,
+            slots: ['plain', 'plain', 'conjugate'],
+          }) === 0,
+      })
+    }
+
+    // finite subgroups of SU(3) by closure: orders, and the triplet is irreducible (mean |Tr g|^2 = 1)
+    {
+      const o: [number, number] = [0, 0]
+      const one: [number, number] = [1, 0]
+      const w = (k: number): [number, number] => [
+        Math.cos((2 * Math.PI * k) / 3),
+        Math.sin((2 * Math.PI * k) / 3),
+      ]
+      const clock = matrix3([
+        [one, o, o],
+        [o, w(1), o],
+        [o, o, w(2)],
+      ])
+      const shift = matrix3([
+        [o, one, o],
+        [o, o, one],
+        [one, o, o],
+      ])
+      const fourier = matrix3(
+        [0, 1, 2].map(j =>
+          [0, 1, 2].map(k => {
+            const [re, im] = w(j * k)
+
+            return [im / Math.sqrt(3), -re / Math.sqrt(3)] as [
+              number,
+              number,
+            ]
+          }),
+        ),
+      )
+      const heisenberg = generateGroup({ generators: [clock, shift] })
+      const hessian = generateGroup({
+        generators: [clock, shift, fourier],
+      })
+      const meanSquareTrace =
+        hessian.matrices.reduce(
+          (sum, m) =>
+            sum +
+            ((m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0)) ** 2 +
+            ((m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0)) ** 2,
+          0,
+        ) / hessian.order
+
+      check({
+        name: 'generateGroup: clock and shift close on 27 elements, with the Fourier matrix on 108, triplet irreducible',
+        ok:
+          heisenberg.order === 27 &&
+          hessian.order === 108 &&
+          Math.abs(meanSquareTrace - 1) < 1e-9,
+      })
+
+      // the Clifford elements permute phase space affinely, the golden one does not, and the Wigner
+      // function of |0> sums to one and is nonnegative
+      const cliffordAffine = hessian.matrices.every(m => {
+        const map = phaseSpaceAction({ unitary: m })
+
+        return map !== undefined && affineOf({ map }) !== undefined
+      })
+      const zero = wignerFunction({ re: [1, 0, 0], im: [0, 0, 0] })
+
+      check({
+        name: 'qutrit phase space: Sigma(108) acts affinely, the golden element and T do not, W(|0>) sums to 1 and is nonnegative',
+        ok:
+          cliffordAffine &&
+          phaseSpaceAction({ unitary: GOLDEN }) === undefined &&
+          phaseSpaceAction({ unitary: QUTRIT_T }) === undefined &&
+          Math.abs(zero.reduce((a, b) => a + b, 0) - 1) < 1e-12 &&
+          zero.every(w => w > -1e-12),
+      })
+
+      // the 24 D4 directions form SL(2, 3) under x o y = x q y
+      const coin = coinGroup({ directions: rootsD4() })
+      const special = specialLinear23()
+      const at = (m: number[]): number =>
+        special.matrices.findIndex(x => x.join() === m.join())
+
+      check({
+        name: 'coin group: the D4 directions close under x q y, 24 isomorphisms from SL(2, 3)',
+        ok:
+          coin.closed &&
+          coin.hurwitz &&
+          countIsomorphisms({
+            first: special,
+            second: coin,
+            order: 24,
+            generators: [at([1, 1, 0, 1]), at([0, 2, 1, 0])],
+          }) === 24,
+      })
+
+      // a cold finite-group lattice: plaquette, Polyakov loop and every Wilson loop exactly 1
+      const cold = makeFiniteGaugeLattice({
+        group: hessian,
+        lengths: [3, 3, 3, 3],
+        start: 'cold',
+        rng: makeRng({ seed: 1 }),
+      })
+      const polyakov = finitePolyakovLoop({ lattice: cold })
+      const loops = finiteWilsonLoops({ lattice: cold, max: 2 })
+
+      check({
+        name: 'finite gauge lattice: a cold start has plaquette, Polyakov loop and Wilson loops exactly 1',
+        ok:
+          Math.abs(finitePlaquette({ lattice: cold }) - 1) < 1e-12 &&
+          Math.abs(polyakov.re - 1) < 1e-12 &&
+          Math.abs(polyakov.im) < 1e-12 &&
+          Math.abs((loops[2]?.[2] ?? 0) - 1) < 1e-12,
+      })
+
+      // the one-magic-step link set: group first (identity at 0), magic elements marked, cold plaquette 1
+      const delta = generateGroup({
+        generators: [...SU3_SUBGROUPS.delta27.generators],
+      })
+      const set = doubleCosetSet({
+        group: delta.matrices,
+        extras: [QUTRIT_T],
+      })
+      const setLattice = makeLinkSetLattice({
+        set,
+        lengths: [3, 3, 3, 3],
+        start: 'cold',
+        rng: makeRng({ seed: 1 }),
+      })
+
+      check({
+        name: 'link set: the group comes first and is not magic, the double coset is, a cold start has plaquette 1',
+        ok:
+          set.magic[0] === 0 &&
+          set.magic.slice(0, delta.order).every(m => m === 0) &&
+          set.magic.slice(delta.order).every(m => m === 1) &&
+          set.matrices.length > delta.order &&
+          Math.abs(linkSetPlaquette({ lattice: setLattice }) - 1) <
+            1e-12,
+      })
+
+      // the seeded microcanonical reference conserves lattice plus demon energy exactly, keeps every
+      // demon in its bounds, and moves the lattice. From a random start: on Delta(27) every move
+      // off the identity costs at least 36, which a small demon cannot pay, so a cold start is frozen
+      const microLevels = actionLevels({ group: delta, scale: 6 })
+      const micro = makeFiniteGaugeLattice({
+        group: delta,
+        lengths: [3, 3, 3, 3],
+        start: 'hot',
+        rng: makeRng({ seed: 1 }),
+      })
+      const microStartLinks = Int16Array.from(micro.links)
+      const microDemons = new Int32Array(micro.links.length).fill(4)
+      const microRng = makeRng({ seed: 2 })
+      const microEnergy = (): number =>
+        quantizedEnergy({ lattice: micro, levels: microLevels }) +
+        microDemons.reduce((a, b) => a + b, 0)
+      const microStart = microEnergy()
+
+      for (let sweep = 0; sweep < 5; sweep++) {
+        microcanonicalSweep({
+          lattice: micro,
+          levels: microLevels,
+          demons: microDemons,
+          capacity: 12,
+          rng: microRng,
+        })
+      }
+
+      check({
+        name: 'microcanonical sweep: exact energy, demons in bounds, the lattice moves',
+        ok:
+          microEnergy() === microStart &&
+          microDemons.every(d => d >= 0 && d <= 12) &&
+          micro.links.some((v, k) => v !== microStartLinks[k]),
+      })
+    }
   }
 
   return { passed, failed }
