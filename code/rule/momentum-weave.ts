@@ -214,6 +214,29 @@ function positionsOf(spec: MomentumWeaveSpec): (readonly [number, number])[][] {
 
 const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
 
+function clockAt(slots: Int8Array, w0: number, w1: number, first: Int8Array, second: Int8Array): void {
+  const from = ((slots[w0] ?? 0) + 1) * 3 + ((slots[w1] ?? 0) + 1)
+
+  slots[w0] = first[from] ?? 0
+  slots[w1] = second[from] ?? 0
+}
+
+function exchangeAt(slots: Int8Array, l0: number, l1: number, w0: number, w1: number, fires: Uint8Array): void {
+  const a0 = slots[l0] ?? 0
+  const a1 = slots[l1] ?? 0
+  const b0 = slots[w0] ?? 0
+  const b1 = slots[w1] ?? 0
+
+  if (fires[((a0 + 1) * 3 + (a1 + 1)) * 9 + (b0 + 1) * 3 + (b1 + 1)] !== 1) {
+    return
+  }
+
+  slots[l0] = b0
+  slots[l1] = b1
+  slots[w0] = a0
+  slots[w1] = a1
+}
+
 // the member's collision on beat t, forward or inverse. With a ledger, every exchange and every wire
 // transition is booked under its piece, prefixed 'bare:' on the plain couples and 'swap:' on the couple
 // that swaps (whose exchanges are 'swap:out' and 'swap:back')
@@ -238,17 +261,54 @@ export function momentumWeave(input: {
   const positions = positionsOf(spec)
   const table = forward ? spec.table : invertLineTable(spec.table)
   const directions = rootsD4()
+  const firstImage = Int8Array.from(table, x => x[0])
+  const secondImage = Int8Array.from(table, x => x[1])
+  const fires = spec.fires
+  // the four slots of every couple of every position, line first then wire
+  const slotsOf = positions.map(couples =>
+    Int32Array.from(
+      couples.flatMap(([m, w]) => [lines[m]?.[0] ?? 0, lines[m]?.[1] ?? 0, lines[w]?.[0] ?? 0, lines[w]?.[1] ?? 0]),
+    ),
+  )
 
   return t => {
     const couples = positions[at(spec.positionAt, t)] ?? []
     const swapIndex = at(spec.swapAt, t)
+    const four = slotsOf[at(spec.positionAt, t)] ?? new Int32Array(0)
+
+    if (!ledger) {
+      const palindrome = spec.palindrome
+
+      return (slots, base) => {
+        for (let k = 0; k < couples.length; k++) {
+          const l0 = base + (four[4 * k] ?? 0)
+          const l1 = base + (four[4 * k + 1] ?? 0)
+          const w0 = base + (four[4 * k + 2] ?? 0)
+          const w1 = base + (four[4 * k + 3] ?? 0)
+
+          if (k !== swapIndex) {
+            clockAt(slots, w0, w1, firstImage, secondImage)
+          } else if (palindrome) {
+            exchangeAt(slots, l0, l1, w0, w1, fires)
+            clockAt(slots, w0, w1, firstImage, secondImage)
+            exchangeAt(slots, l0, l1, w0, w1, fires)
+          } else if (forward) {
+            exchangeAt(slots, l0, l1, w0, w1, fires)
+            clockAt(slots, w0, w1, firstImage, secondImage)
+          } else {
+            clockAt(slots, w0, w1, firstImage, secondImage)
+            exchangeAt(slots, l0, l1, w0, w1, fires)
+          }
+        }
+      }
+    }
 
     return (slots, base) => {
       for (let k = 0; k < couples.length; k++) {
         const line = lines[couples[k]?.[0] ?? 0] ?? [0, 0]
         const wire = lines[couples[k]?.[1] ?? 0] ?? [0, 0]
-        const four = [line[0], line[1], wire[0], wire[1]]
-        const read = (): number[] => four.map(d => slots[base + d] ?? 0)
+        const quad = [line[0], line[1], wire[0], wire[1]]
+        const read = (): number[] => quad.map(d => slots[base + d] ?? 0)
 
         const exchange = (piece: string): void => {
           const l = lineKey(slots[base + line[0]] ?? 0, slots[base + line[1]] ?? 0)
@@ -258,7 +318,7 @@ export function momentumWeave(input: {
             return
           }
 
-          const before = ledger ? read() : []
+          const before = read()
 
           for (let s = 0; s < 2; s++) {
             const i = base + (line[s] ?? 0)
@@ -269,9 +329,7 @@ export function momentumWeave(input: {
             slots[j] = v
           }
 
-          if (ledger) {
-            book({ ledger, piece, directions, before, after: read(), slots: four })
-          }
+          book({ ledger, piece, directions, before, after: read(), slots: quad })
         }
 
         const clock = (prefix: string): void => {
@@ -282,17 +340,14 @@ export function momentumWeave(input: {
 
           slots[base + wire[0]] = image[0]
           slots[base + wire[1]] = image[1]
-
-          if (ledger) {
-            book({
-              ledger,
-              piece: `${prefix}${clockPiece(from, lineKey(image[0], image[1]))}`,
-              directions,
-              before: [0, 0, a, b],
-              after: [0, 0, image[0], image[1]],
-              slots: four,
-            })
-          }
+          book({
+            ledger,
+            piece: `${prefix}${clockPiece(from, lineKey(image[0], image[1]))}`,
+            directions,
+            before: [0, 0, a, b],
+            after: [0, 0, image[0], image[1]],
+            slots: quad,
+          })
         }
 
         if (k !== swapIndex) {
@@ -335,6 +390,187 @@ export function momentumOf(data: Int8Array): { p: number[]; j: number[] } {
   }
 
   return { p, j }
+}
+
+// The line momenta N_L of a whole state: per line, the tones on its first slot minus those on its second
+// (each counted by |tone|), so P = sum over lines of N_L times the line's first root
+export function lineMomenta(data: Int8Array, opposite: readonly number[]): number[] {
+  const lineOf = new Int32Array(24)
+  const sign = new Int8Array(24)
+  let count = 0
+
+  for (let d = 0; d < 24; d++) {
+    const o = opposite[d] ?? d
+
+    if (d < o) {
+      lineOf[d] = count
+      lineOf[o] = count
+      sign[d] = 1
+      sign[o] = -1
+      count++
+    }
+  }
+
+  const out = new Array<number>(count).fill(0)
+
+  for (let i = 0; i < data.length; i++) {
+    const d = i % 24
+    const L = lineOf[d] ?? 0
+
+    out[L] = (out[L] ?? 0) + Math.abs(data[i] ?? 0) * (sign[d] ?? 0)
+  }
+
+  return out
+}
+
+// Every change of the line shares one collision piece can make on one couple, over the 81 couple states,
+// every couple and every beat of one period: rows of Z^12, one per (beat, couple, state). `share` is
+// lineMomentum for P or lineCurrent for J. With an inert state on every couple (there is always one),
+// each row is realizable alone, so an integer quantity is conserved exactly when it vanishes on all rows.
+export function coupleChanges(spec: MomentumWeaveSpec, share: (k: number) => number, beats = 24): number[][] {
+  const positions = positionsOf(spec)
+  const composite = coupleComposite(spec)
+  const rows: number[][] = []
+
+  for (let t = 0; t < beats; t++) {
+    const couples = positions[at(spec.positionAt, t)] ?? []
+    const swapIndex = at(spec.swapAt, t)
+
+    couples.forEach(([line, wire], k) => {
+      for (let x = 0; x < 81; x++) {
+        const l = Math.floor(x / 9)
+        const w = x % 9
+        const image = spec.table[w] ?? keyTones(w)
+        const y = k === swapIndex ? (composite[x] ?? x) : l * 9 + lineKey(image[0], image[1])
+        const row = new Array<number>(12).fill(0)
+
+        row[line] = share(Math.floor(y / 9)) - share(l)
+        row[wire] = share(y % 9) - share(w)
+        rows.push(row)
+      }
+    })
+  }
+
+  return rows
+}
+
+// The 24 sum-keeping 9-state tables: every permutation of the calm class {calm, (1, -1), (-1, 1)} with
+// the lone-love pair {(1, 0), (0, 1)} and the lone-fear pair {(-1, 0), (0, -1)} each fixed or hopped
+export function sumKeepingTables(): LineTable[] {
+  const neutral = [lineKey(0, 0), lineKey(1, -1), lineKey(-1, 1)]
+  const orders = [
+    [0, 1, 2],
+    [0, 2, 1],
+    [1, 0, 2],
+    [1, 2, 0],
+    [2, 0, 1],
+    [2, 1, 0],
+  ]
+  const out: LineTable[] = []
+
+  for (const order of orders) {
+    for (const hopLove of [false, true]) {
+      for (const hopFear of [false, true]) {
+        const table = Array.from({ length: 9 }, (_, k) => keyTones(k))
+
+        neutral.forEach((k, i) => (table[k] = keyTones(neutral[order[i] ?? 0] ?? 4)))
+
+        if (hopLove) {
+          table[lineKey(1, 0)] = [0, 1]
+          table[lineKey(0, 1)] = [1, 0]
+        }
+
+        if (hopFear) {
+          table[lineKey(-1, 0)] = [0, -1]
+          table[lineKey(0, -1)] = [-1, 0]
+        }
+
+        out.push(table)
+      }
+    }
+  }
+
+  return out
+}
+
+export const IDENTITY_TABLE: LineTable = Array.from({ length: 9 }, (_, k) => keyTones(k))
+export const FLIP_TABLE: LineTable = IDENTITY_TABLE.map((x, k) =>
+  k === lineKey(1, -1) ? [-1, 1] : k === lineKey(-1, 1) ? [1, -1] : x,
+)
+export const BIND_REVERSE_TABLE: LineTable = invertLineTable(BIND_MOVE_FORWARD)
+
+// the swap couple keeps both line momenta on every one of its 81 states
+const LINE_MOMENTUM = Array.from({ length: 9 }, (_, k) => lineMomentum(k))
+
+export function keepsLineMomenta(spec: MomentumWeaveSpec, composite = coupleComposite(spec)): boolean {
+  for (let x = 0; x < 81; x++) {
+    const y = composite[x] ?? x
+
+    if (LINE_MOMENTUM[Math.floor(y / 9)] !== LINE_MOMENTUM[Math.floor(x / 9)] || LINE_MOMENTUM[y % 9] !== LINE_MOMENTUM[x % 9]) {
+      return false
+    }
+  }
+
+  return true
+}
+
+// Every distinct momentum-keeping member with a negation-symmetric swap condition, on the given tables,
+// palindromic and not, under the committed schedule. A condition is a set of the 36 exchange orbits (an
+// unordered pair of distinct line states); negation pairs them into 20 groups, and a negation-symmetric
+// condition is a union of groups (2^20 of them). Members are deduplicated by the swap couple's composite,
+// since two conditions with one composite are one rule.
+export function negationSymmetricMembers(tables: readonly (readonly [string, LineTable])[]): { id: string; spec: MomentumWeaveSpec }[] {
+  const exchange = (x: number): number => (x % 9) * 9 + Math.floor(x / 9)
+  const orbitOf = (x: number): number => Math.min(x, exchange(x))
+  const negate = (x: number): number => (8 - Math.floor(x / 9)) * 9 + (8 - (x % 9))
+  const groups: number[][] = []
+  const seen = new Set<number>()
+
+  for (let x = 0; x < 81; x++) {
+    if (exchange(x) !== x && orbitOf(x) === x && !seen.has(x)) {
+      const group = [...new Set([x, orbitOf(negate(x))])]
+
+      group.forEach(o => seen.add(o))
+      groups.push(group)
+    }
+  }
+
+  const members: { id: string; spec: MomentumWeaveSpec }[] = []
+
+  for (const [name, table] of tables) {
+    for (const palindrome of [true, false]) {
+      const composites = new Set<string>()
+
+      for (let mask = 0; mask < 1 << groups.length; mask++) {
+        const fires = new Uint8Array(81)
+
+        groups.forEach((group, i) => {
+          if ((mask >> i) & 1) {
+            group.forEach(o => {
+              fires[o] = 1
+              fires[exchange(o)] = 1
+            })
+          }
+        })
+
+        const spec = weaveSpec({ table, fires, palindrome })
+        const composite = coupleComposite(spec)
+
+        if (!keepsLineMomenta(spec, composite)) {
+          continue
+        }
+
+        const key = composite.join(',')
+
+        if (!composites.has(key)) {
+          composites.add(key)
+          members.push({ id: `${name}:${palindrome ? 'palindrome' : 'once'}:${mask}`, spec })
+        }
+      }
+    }
+  }
+
+  return members
 }
 
 // The swap couple's whole action on its 81 states (line key * 9 + wire key), as a map. Two specs whose

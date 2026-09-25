@@ -50,6 +50,102 @@ export function vacuumCells(input: { forward: (t: number) => Collision; beats: n
   return out
 }
 
+// A background run kept beat by beat: before[t] is the whole state entering beat t (before[0] the
+// start), after[t] the state once beat t's collision has acted, before streaming.
+export type Background = { readonly before: readonly Int8Array[]; readonly after: readonly Int8Array[] }
+
+export function backgroundRun(input: {
+  neighbours: Int32Array
+  forward: (t: number) => Collision
+  start: Int8Array
+  beats: number
+}): Background {
+  const { neighbours, forward, start, beats } = input
+  const degree = 24
+  const cells = start.length / degree
+  const before: Int8Array[] = [Int8Array.from(start)]
+  const after: Int8Array[] = []
+
+  for (let t = 0; t < beats; t++) {
+    const collided = Int8Array.from(before[t] ?? start)
+    const collision = forward(t)
+
+    for (let x = 0; x < cells; x++) {
+      collision(collided, x * degree, degree)
+    }
+
+    const streamed = new Int8Array(collided.length)
+
+    for (let x = 0; x < cells; x++) {
+      for (let d = 0; d < degree; d++) {
+        streamed[(neighbours[x * degree + d] ?? 0) * degree + d] = collided[x * degree + d] ?? 0
+      }
+    }
+
+    after.push(collided)
+    before.push(streamed)
+  }
+
+  return { before, after }
+}
+
+// One slot of a background run changed at beat 0, followed on the cells where the changed run differs
+// from the background. The same result as running both states densely and comparing, at the cost of
+// the difference. `watch` gets, after each beat, the differing cells' states and the background entering
+// the next beat.
+export function perturbationOn(input: {
+  neighbours: Int32Array
+  forward: (t: number) => Collision
+  background: Background
+  cell: number
+  direction: number
+  // the value the slot is set to
+  value: number
+  beats: number
+  watch?: (t: number, live: ReadonlyMap<number, Int8Array>, background: Int8Array) => void
+}): void {
+  const { neighbours, forward, background, cell, direction, value, beats } = input
+  const degree = 24
+  const first = (background.before[0] ?? new Int8Array(0)).slice(cell * degree, (cell + 1) * degree)
+
+  first[direction] = value
+
+  let live = new Map<number, Int8Array>([[cell, first]])
+
+  for (let t = 0; t < beats; t++) {
+    const collision = forward(t)
+    const collided = background.after[t] ?? new Int8Array(0)
+    const entering = background.before[t + 1] ?? new Int8Array(0)
+    const next = new Map<number, Int8Array>()
+
+    for (const [x, state] of live) {
+      collision(state, 0, degree)
+
+      for (let d = 0; d < degree; d++) {
+        const v = state[d] ?? 0
+
+        if (v === collided[x * degree + d]) {
+          continue
+        }
+
+        const y = neighbours[x * degree + d] ?? 0
+
+        let target = next.get(y)
+
+        if (!target) {
+          target = entering.slice(y * degree, (y + 1) * degree)
+          next.set(y, target)
+        }
+
+        target[d] = v
+      }
+    }
+
+    live = next
+    input.watch?.(t, live, entering)
+  }
+}
+
 export function loneDressing(input: {
   neighbours: Int32Array
   forward: (t: number) => Collision

@@ -45,7 +45,9 @@ import {
   FiniteGaugeLattice,
   FiniteGroup,
   Matrix3,
+  finitePlaquette,
 } from '@/code/dynamics/finite-gauge'
+import { makeHypercubic } from '@/code/tool/hypercubic'
 import {
   exchangeFiniteDemons,
   quantizedEnergy,
@@ -843,6 +845,137 @@ export function centerRotateSlice(input: {
 
     links[index] = group.product[z * group.order + (links[index] ?? 0)] ?? 0
   }
+}
+
+const GOLDEN = (Math.sqrt(5) - 1) / 2
+
+// A deterministic starting state: cold links, every site calm with a latent color spread by the golden
+// ratio over the orbit, link demons at capacity on the golden-ratio share `fill` of links, site demons empty.
+export function makeMatterState(input: {
+  model: MatterModel
+  lengths: readonly number[]
+}): MatterState {
+  const { model, lengths } = input
+  const geometry = makeHypercubic({ lengths })
+  const lattice: FiniteGaugeLattice = {
+    form: 'finite-gauge-lattice',
+    group: model.group,
+    geometry,
+    links: new Int16Array(geometry.sites * geometry.dim),
+  }
+  const n = model.triplet.size
+
+  return {
+    lattice,
+    vibe: new Int8Array(geometry.sites),
+    color: Int16Array.from({ length: geometry.sites }, (_, x) =>
+      Math.floor(((x * GOLDEN) % 1) * n),
+    ),
+    linkDemons: new Int32Array(lattice.links.length),
+    siteDemons: new Int32Array(geometry.sites),
+  }
+}
+
+export function fillDemons(input: {
+  model: MatterModel
+  state: MatterState
+  fill: number
+}): void {
+  const { model, state, fill } = input
+
+  for (let i = 0; i < state.linkDemons.length; i++) {
+    state.linkDemons[i] = (i * GOLDEN) % 1 < fill ? model.capacity : 0
+  }
+}
+
+export type MatterSample = {
+  readonly re: number
+  readonly im: number
+  readonly correlator: readonly number[]
+  readonly plaquette: number
+  readonly density: number
+  readonly meanDemon: number
+  readonly matter: number
+}
+
+// Run the automaton and sample every beat after `skip`. Energy and love minus fear are checked on every
+// beat and any change is returned, never absorbed.
+export function matterEnsemble(input: {
+  model: MatterModel
+  state: MatterState
+  sweeps: number
+  skip: number
+  matter: boolean
+  correlatorMax: number
+  // the beat index of the first sweep, so a run continued in chunks keeps its schedule
+  firstStep?: number
+}): {
+  samples: MatterSample[]
+  energyDrift: number
+  chargeDrift: number
+  created: number
+  annihilated: number
+  hops: number
+} {
+  const { model, state, sweeps, skip, matter, correlatorMax } = input
+  const e0 = matterEnergy({ model, state }).total
+  const q0 = state.vibe.reduce((a, b) => a + b, 0)
+  const samples: MatterSample[] = []
+
+  let energyDrift = 0
+  let chargeDrift = 0
+  let created = 0
+  let annihilated = 0
+  let hops = 0
+
+  for (let t = 0; t < sweeps; t++) {
+    const count = matterBeat({
+      model,
+      state,
+      step: t + (input.firstStep ?? 0),
+      matter,
+    })
+    const energy = matterEnergy({ model, state })
+
+    created += count.created
+    annihilated += count.annihilated
+    hops += count.hops
+    energyDrift = Math.max(energyDrift, Math.abs(energy.total - e0))
+    chargeDrift = Math.max(
+      chargeDrift,
+      Math.abs(state.vibe.reduce((a, b) => a + b, 0) - q0),
+    )
+
+    if (t < skip) {
+      continue
+    }
+
+    const p = polyakovCorrelator({ lattice: state.lattice, max: correlatorMax })
+
+    let occupied = 0
+
+    for (const v of state.vibe) {
+      occupied += v !== 0 ? 1 : 0
+    }
+
+    let demons = 0
+
+    for (const d of state.linkDemons) {
+      demons += d
+    }
+
+    samples.push({
+      re: p.re,
+      im: p.im,
+      correlator: p.correlator,
+      plaquette: finitePlaquette({ lattice: state.lattice }),
+      density: occupied / state.vibe.length,
+      meanDemon: demons / state.linkDemons.length,
+      matter: energy.matter,
+    })
+  }
+
+  return { samples, energyDrift, chargeDrift, created, annihilated, hops }
 }
 
 // A change of frame g_x in every cell, in place: links U -> g_x U g_y^-1, colors phi -> g_x phi.

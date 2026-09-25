@@ -18,6 +18,10 @@
 //   H = mass * (slots holding a vibe) + tension * (links with E mod 3 not 0) + sum of demons
 //
 // conserved to the unit. A beat:
+// 0. when the rule turns: on each of the six couples of lines the committed turning weave pairs at this
+//    beat, the two lines trade contents slot for slot where one holds exactly one charge and the other
+//    none. It turns a lone charge from one line to another, and it is its own inverse. Without it a charge
+//    only ever moves along its own line
 // 1. across every link, the two slots that point along it (one in each cell) trade contents, which is
 //    what streaming does, each role point moved by the link's grid move as in code/rule/color-weave. The
 //    trade changes the flux by what crosses and is taken only where the link's demon can pay the change
@@ -27,7 +31,11 @@
 //    together are exactly the committed stream. Where it was not, the contents come back into their own
 //    cell on the opposite slot: a bounce
 // 3. the demons move one link along their direction, as in string-graph
-// Every step is a bijection, and the beat runs backward as 3 back, then 2, then 1.
+// Every step is a bijection, and the beat runs backward as 3 back, then 2, then 1, then 0.
+//
+// There is no clock: calm never makes a pair here. In code/rule/string-graph a pair costs twice the mass
+// and the demons are capped below that, so it never makes one either. A clock on a moving line would make
+// a love and a fear that stream apart at once, and would have to pay for both strings.
 //
 // Why the sign has to ride with what the slot holds: a bounce moves a calm slot's contents to the other
 // side of its line. With the sign fixed by the slot, its color would change sign, and a bounce would make
@@ -320,6 +328,31 @@ export function reflectGaussHolds(rule: ReflectingSlots, start: ReflectingState,
   }
 
   return true
+}
+
+// how many cell steps change a cell's color over one beat at t: the turning step and the line trades, the
+// two steps that stay inside a cell. The link trades move whole contents between cells, the stream. With
+// `fixed`, a calm slot's color is read from the slot's side instead of from what it holds
+export function reflectColorLeaks(input: { rule: ReflectingSlots; state: ReflectingState; t: number; fixed?: Int8Array }): number {
+  const { rule, t, fixed } = input
+  const work = copyReflectingState(input.state)
+  const colors = (): string[] => Array.from({ length: rule.mesh.cellCount }, (_, x) => reflectCellColor({ rule, state: work, x, fixed }).join(','))
+  const count = (a: string[], b: string[]): number => a.filter((c, x) => c !== b[x]).length
+
+  let leaks = 0
+  let before = colors()
+
+  if (rule.turn) {
+    turnTrades(rule, work, t)
+  }
+
+  leaks += count(before, colors())
+  linkTrades(rule, work)
+  before = colors()
+  lineTrades(rule, work)
+  leaks += count(before, colors())
+
+  return leaks
 }
 
 // a cell's color content [weight, x, y] mod 3. `fixed` reads a calm slot's sign from the slot's side

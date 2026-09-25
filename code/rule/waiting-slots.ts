@@ -26,14 +26,15 @@
 // 1. the clock on the waiting line (plus slot, minus slot), paid. The create, flip, annihilate cycle of the
 //    bind table is written as two conditional involutions, (calm, calm) with (love, fear) keeping the role
 //    points in place, then (calm, calm) with (fear, love) swapping them, each taken only where the demon on
-//    the cell's link along direction 0 can pay the change in mass. Every cell writes only its own link, so
-//    the order of cells does not matter
+//    the cell's link along direction 0 can pay the change in mass, staying at least zero before and after.
+//    Every cell writes only its own link, so the order of cells does not matter
 // 2. the decisions, per side. For each direction of that side, in index order rotated by the beat, the
 //    waiting slot of that side and the moving slot trade contents when one holds a charge and the other is
 //    calm, first where the charge can pay to cross that direction's link (a waiting charge leaves), then
 //    where it cannot (a charge that cannot pay waits). The condition reads only the links, so each swap is
 //    an involution and the two passes undo in reverse order. Every swap is between two slots of one side,
-//    so the color of the cell is kept exactly
+//    so the color of the cell is kept exactly. The passes can also run wait first, and a control pairs each
+//    waiting slot with the other side's moving slots, which must leak color
 // 3. the stream. Every moving slot moves one link, its role point moved by that link's grid move, as in
 //    code/rule/color-weave. Each link's flux changes by what crossed it, and its demon pays the change in
 //    string energy. Where it cannot, it pays anyway and goes below zero: that is a debt, counted, never

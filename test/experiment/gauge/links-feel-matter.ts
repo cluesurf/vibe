@@ -221,6 +221,7 @@ export default experiment({
         matterEnergyAfter: main.matter,
         side5ReversesExactly: larger.reverses ? 1 : 0,
         side5EnergyConserved: larger.energyExact ? 1 : 0,
+        side5LoveAndFearConserved: larger.loveFearExact ? 1 : 0,
         side5FrameMismatches: larger.frameMismatches,
         side5LinksChanged: larger.linksChanged,
         side5Links: larger.links,

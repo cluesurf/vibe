@@ -16,7 +16,7 @@
 
 import { type Collision } from '@/code/rule/collision'
 import { collide, growingBeat, inverseBeat, streamSourceTable } from '@/code/rule/lattice-gas'
-import { loneDressing, neighbourTable, vacuumCells } from '@/code/measure/lone-dressing'
+import { backgroundRun, loneDressing, neighbourTable, perturbationOn, vacuumCells } from '@/code/measure/lone-dressing'
 import { clockAmplitude } from '@/code/measure/clock-amplitude'
 import { makeWill, type Will } from '@/code/tone/will'
 import { d4BoxCell, d4BoxCoordinates, d4BoxDistance, d4BoxMesh } from '@/code/substrate/d4-box'
@@ -184,7 +184,14 @@ export function vacuumPeriod(rule: ScheduledRule): number {
   return 0
 }
 
-export function lineComponents(rule: ScheduledRule, withDense: boolean): number {
+// Line-graph components. The background runs once and each direction's flip is followed only where it
+// differs from it (code/measure/lone-dressing, perturbationOn), which gives the dense count exactly;
+// `dense: true` runs both states in full for every direction, as E-FRC-0125 does, for checking that
+export function lineComponents(rule: ScheduledRule, withDense: boolean, input: { dense?: boolean } = {}): number {
+  if (!input.dense) {
+    return sparseComponents(rule, withDense)
+  }
+
   const five = build(rule, 5)
   const opposite5 = meshOpposites(five.mesh)
   const lines: [number, number][] = []
@@ -221,6 +228,59 @@ export function lineComponents(rule: ScheduledRule, withDense: boolean): number 
 
     for (const line of touched) {
       parent[find(line)] = find(lineOf(direction))
+    }
+  }
+
+  return new Set(Array.from({ length: 12 }, (_, i) => find(i))).size
+}
+
+function sparseComponents(rule: ScheduledRule, withDense: boolean): number {
+  const five = build(rule, 5)
+  const opposite5 = meshOpposites(five.mesh)
+  const lineOf: number[] = []
+  const lines: [number, number][] = []
+
+  for (let d = 0; d < 24; d++) {
+    if (d < (opposite5[d] ?? d)) {
+      lines.push([d, opposite5[d] ?? d])
+    }
+  }
+
+  for (let d = 0; d < 24; d++) {
+    lineOf.push(lines.findIndex(([a, b]) => a === d || b === d))
+  }
+
+  const center5 = 2 * (1 + 5 + 25 + 125)
+  const start = withDense ? dense(five.mesh).data : new Int8Array(five.mesh.cellCount * 24)
+  const background = backgroundRun({ neighbours: neighboursOf(5), forward: five.forward, start, beats: ACCEPTANCE_PERIOD })
+  const parent = Array.from({ length: 12 }, (_, i) => i)
+  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
+
+  for (let direction = 0; direction < 24; direction++) {
+    const touched = new Set<number>()
+    const slot = center5 * 24 + direction
+
+    perturbationOn({
+      neighbours: neighboursOf(5),
+      forward: five.forward,
+      background,
+      cell: center5,
+      direction,
+      value: start[slot] === 1 ? -1 : 1,
+      beats: ACCEPTANCE_PERIOD,
+      watch: (_, live, entering) => {
+        for (const [y, state] of live) {
+          for (let d = 0; d < 24; d++) {
+            if (state[d] !== entering[y * 24 + d]) {
+              touched.add(lineOf[d] ?? 0)
+            }
+          }
+        }
+      },
+    })
+
+    for (const line of touched) {
+      parent[find(line)] = find(lineOf[direction] ?? 0)
     }
   }
 
@@ -295,14 +355,19 @@ export type Dressing = {
   readonly overCapAt: number
 }
 
-// A lone tone on every direction at the center of the side-9 box. `caps`, when given, stops as soon as
+// A lone tone on every direction at the center of the side-9 box (or of `side`, for robustness). `caps`, when given, stops as soon as
 // the support in period p exceeds caps[p], so a search can reject a rule after the period it fails in.
-export function dressing(rule: ScheduledRule, input: { tone?: number; periods?: number; caps?: readonly number[] } = {}): Dressing {
+export function dressing(
+  rule: ScheduledRule,
+  input: { tone?: number; periods?: number; caps?: readonly number[]; side?: number } = {},
+): Dressing {
   const periods = input.periods ?? 4
-  const nine = build(rule, 9)
-  const neighbours = neighboursOf(9)
+  const side = input.side ?? 9
+  const middle = Math.floor(side / 2)
+  const nine = build(rule, side)
+  const neighbours = neighboursOf(side)
   const vacuum = vacuumCells({ forward: nine.forward, beats: periods * ACCEPTANCE_PERIOD })
-  const center9 = d4BoxCell({ coordinates: [4, 4, 4, 4], side: 9 })
+  const center9 = d4BoxCell({ coordinates: [middle, middle, middle, middle], side })
   const periodLargest = Array.from({ length: periods }, () => 0)
   const perDirection: number[] = []
 
@@ -503,17 +568,21 @@ export function stagedAcceptance(rule: ScheduledRule, reference: Acceptance): St
   return done(undefined)
 }
 
+// how far past the reference's dressing a structural search follows a member before stopping
+export const FRONTIER = 1.5
+
 export type Structural = {
   // the first structural gate failed, or undefined when all of them pass
   readonly failed: StagedGate | undefined
   readonly values: Readonly<Record<string, number>>
-  // the love's and the fear's dressing in full, measured only when every structural gate passes
+  // the love's dressing when the structural gates pass (stopped at FRONTIER times the reference), and
+  // the fear's in full when the love's passes
   readonly love: Dressing | undefined
   readonly fear: Dressing | undefined
 }
 
-// The other order: CPT, the vacuum's period and both line graphs first, then the full dressing of a love
-// and a fear on every member that passes those, then superposition, reversal and charge, and walls on
+// The other order: CPT, the vacuum's period and both line graphs first, then the dressing of a love on
+// every member that passes those (and of a fear where the love's passes), then superposition, reversal and charge, and walls on
 // the members whose love dresses no more than the reference. It answers what the smallest dressing is
 // among the rules whose interaction structure is acceptable, and pays for the costly wall item only
 // where it could decide the outcome.
@@ -549,12 +618,15 @@ export function structuralAcceptance(rule: ScheduledRule, reference: Acceptance)
     return done('denseComponents')
   }
 
-  love = dressing(rule, { tone: 1 })
-  fear = dressing(rule, { tone: -1 })
+  // followed in full up to FRONTIER times the reference in every period, so the members near the gate
+  // are measured exactly and a member far past it stops early (overCapAt says where)
+  love = dressing(rule, { tone: 1, caps: reference.love.periodLargest.map(x => x * FRONTIER) })
 
-  if (!love.periodLargest.every((x, p) => x <= (reference.love.periodLargest[p] ?? 0))) {
+  if (love.overCapAt >= 0 || !love.periodLargest.every((x, p) => x <= (reference.love.periodLargest[p] ?? 0))) {
     return done('dressing')
   }
+
+  fear = dressing(rule, { tone: -1 })
 
   values.additivityWorst = additivityWorst(rule)
 

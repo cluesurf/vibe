@@ -112,6 +112,7 @@ export default experiment({
     const plain = make({ kappa: KAPPA, hop: false, roles: true })
     const { cells } = plain
     const triangles = (cells * 12 * 8) / 3
+
     const walk = (x: number, d: number, n: number): number => {
       let c = x
 
@@ -121,7 +122,9 @@ export default experiment({
 
       return c
     }
+
     const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+
     const demonMean = (s: MatterState): number => {
       let sum = 0
 
@@ -160,7 +163,13 @@ export default experiment({
 
     // the transport round a rectangle r along s by h along tau, from x
     const rectangle = (links: Int16Array, x: number, r: number, h: number): number => {
-      const dirs = [...Array(r).fill(along), ...Array(h).fill(tau), ...Array(r).fill(plain.opposite[along]), ...Array(h).fill(plain.opposite[tau])] as number[]
+      const back = (d: number): number => plain.opposite[d] ?? d
+      const dirs = [
+        ...new Array<number>(r).fill(along),
+        ...new Array<number>(h).fill(tau),
+        ...new Array<number>(r).fill(back(along)),
+        ...new Array<number>(h).fill(back(tau)),
+      ]
 
       let g = plain.identity
       let c = x
@@ -178,7 +187,8 @@ export default experiment({
       let level = 0
       let demon = 0
       let bulkN = 0
-      const correlator = new Array(SIDE).fill(0)
+
+      const correlator = new Array<number>(SIDE).fill(0)
       const loops = { w11: 0, w12: 0, w22: 0 }
 
       for (let t = 0; t < BEATS; t++) {
@@ -201,7 +211,7 @@ export default experiment({
             sum += n[x]! * n[walk(x, along, r)]!
           }
 
-          correlator[r] += sum / cells / BEATS
+          correlator[r] = (correlator[r] ?? 0) + sum / cells / BEATS
         }
 
         level += fieldEnergy(plain, s.links) / triangles / BEATS
@@ -230,6 +240,7 @@ export default experiment({
       )
 
       let s: MatterState = { vibe, role, links: Int16Array.from(b.base.links), demon: Int32Array.from(b.base.demon) }
+
       const e0 = totalEnergy(rule, s)
       const perLine = starts.map(() => 0)
 
@@ -266,6 +277,7 @@ export default experiment({
       role[y0] = rule.act[(b.base.links[x0 * 24 + along] ?? 0) * 9 + 4] ?? 0
 
       let s: MatterState = { vibe, role, links: Int16Array.from(b.base.links), demon: Int32Array.from(b.base.demon) }
+
       const e0 = totalEnergy(rule, s)
 
       let exact = true

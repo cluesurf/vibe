@@ -12,6 +12,7 @@
 // - condition: a constant table with each of seven swap conditions, palindromic or not
 // - couple: a different table on each of the six couples of a partition, 4^6 ways
 // - none: a constant table with no swap at all, on each walk
+// - turn-schedule: turn and swap order together, for the turns a search names (turnScheduleSweep)
 // Ids are stable strings, so a result can be traced back to its spec.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
@@ -177,3 +178,77 @@ export function familySweep(sweep: string): FamilyMember[] {
 }
 
 export const SWEEPS = ['tables', 'schedule', 'turn', 'condition', 'couple', 'none'] as const
+
+// The CPT partner of each table under negation with time reversal: the bind table and its reverse are
+// each their own (N T N is T's inverse), the two transpositions are each other's (N T N is the other
+// one, and a transposition is its own inverse)
+export const CPT_PARTNER = [0, 1, 3, 2]
+
+// every table sequence of period 8 or 12 that pairs beat t with beat 23 - t by CPT_PARTNER, which is what
+// CPT at the committed mirror phase (23) needs of the tables once the walk and the swap order are the
+// committed mirrors: 4^4 of period 8 and 4^6 of period 12, each fixed by its first half, 4,336 distinct
+export function cptTableSequences(): number[][] {
+  const seen = new Set<string>()
+  const out: number[][] = []
+
+  for (const period of [8, 12]) {
+    for (const half of sequences(period / 2)) {
+      const seq = Array.from({ length: period }, (_, t) =>
+        t < period / 2 ? (half[t] ?? 0) : (CPT_PARTNER[half[period - 1 - t] ?? 0] ?? 0),
+      )
+      const expanded = Array.from({ length: 24 }, (_, t) => seq[t % period] ?? 0).join('')
+
+      if (!seen.has(expanded)) {
+        seen.add(expanded)
+        out.push(seq)
+      }
+    }
+  }
+
+  return out
+}
+
+export function cptTableSweep(): FamilyMember[] {
+  return cptTableSequences().map(seq => ({
+    id: `tables-cpt:${seq.join('')}`,
+    spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: seq }),
+  }))
+}
+
+// for each given swap order (the digits of a schedule id), every CPT-paired table sequence
+export function scheduleTableSweep(orders: readonly string[]): FamilyMember[] {
+  return orders.flatMap(text =>
+    cptTableSequences().map(seq => ({
+      id: `schedule-tables:${text}:${seq.join('')}`,
+      spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: seq, swapAt: mirrored(text.split('').map(Number)) }),
+    })),
+  )
+}
+
+// for each given table sequence (the digits of a tables id), every visiting order of the palindromic
+// swap on the out-and-back walk
+export function tableScheduleSweep(sequencesGiven: readonly string[]): FamilyMember[] {
+  return sequencesGiven.flatMap(text =>
+    permutations(TURN_SWAP_ORDER).map(order => ({
+      id: `table-schedule:${text}:${order.join('')}`,
+      spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: text.split('').map(Number), swapAt: mirrored(order) }),
+    })),
+  )
+}
+
+// the second stage: for each given turn element (an index into turnElements), every visiting order of
+// the palindromic swap on the out-and-back walk, with the bind table and its reverse. A search passes
+// the turns whose single-freedom member cleared the interaction gates, so the two freedoms that matter
+// most are varied together there
+export function turnScheduleSweep(turnIndices: readonly number[]): FamilyMember[] {
+  const turns = turnElements()
+
+  return turnIndices.flatMap(gi =>
+    [0, 1].flatMap(ti =>
+      permutations(TURN_SWAP_ORDER).map(order => ({
+        id: `turn-schedule:${name(ti)}:${gi}:${order.join('')}`,
+        spec: colorLocalSpec({ tables: FAMILY_TABLES, tableAt: [ti], turn: turns[gi] ?? [], swapAt: mirrored(order) }),
+      })),
+    ),
+  )
+}

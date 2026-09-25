@@ -234,7 +234,7 @@ function linkMatter(rule: MatterLinks, state: MatterState, x: number, d: number,
 }
 
 // the matter term on every link at cell x
-function cellMatter(rule: MatterLinks, state: MatterState, x: number): number {
+export function cellMatter(rule: MatterLinks, state: MatterState, x: number): number {
   if (state.vibe[x] === 0) {
     return 0
   }
@@ -256,7 +256,7 @@ function demonSlot(rule: MatterLinks, x: number, d: number): number {
 }
 
 // pay `cost` from a demon, or refuse
-function pay(rule: MatterLinks, state: MatterState, slot: number, cost: number): boolean {
+export function pay(rule: MatterLinks, state: MatterState, slot: number, cost: number): boolean {
   const next = (state.demon[slot] ?? 0) - cost
 
   if (next < 0 || next > rule.capacity) {
@@ -270,7 +270,7 @@ function pay(rule: MatterLinks, state: MatterState, slot: number, cost: number):
 
 // reflect the link (x, a) through the staple of triangle `type`: an involution. Returns 0 when it does not
 // move, 1 when it moves, 2 when it moves and the matter term on it changes
-function reflectLink(rule: MatterLinks, state: MatterState, x: number, a: number, type: number): number {
+export function reflectLink(rule: MatterLinks, state: MatterState, x: number, a: number, type: number): number {
   const { neighbour, compose, inverse, order } = rule
   const links = state.links
   const pairs = rule.staples[a] ?? []
@@ -299,7 +299,7 @@ function reflectLink(rule: MatterLinks, state: MatterState, x: number, a: number
 }
 
 // reflect the role point at x through its neighbor across d: p' = 2 q - p, q the neighbor's point brought over
-function reflectRole(rule: MatterLinks, state: MatterState, x: number, d: number): boolean {
+export function reflectRole(rule: MatterLinks, state: MatterState, x: number, d: number): boolean {
   const y = rule.neighbour[x * DEGREE + d] ?? 0
 
   if (state.vibe[x] === 0 || state.vibe[y] === 0 || x === y) {
@@ -373,7 +373,7 @@ function copy(state: MatterState): MatterState {
   }
 }
 
-function streamDemons(rule: MatterLinks, demon: Int32Array, forward: boolean): void {
+export function streamDemons(rule: MatterLinks, demon: Int32Array, forward: boolean): void {
   const old = Int32Array.from(demon)
 
   for (let x = 0; x < rule.cells; x++) {
