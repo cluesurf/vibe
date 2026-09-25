@@ -118,8 +118,101 @@ export function makeLattice(input: {
   }
 }
 
+// A knit: the dock's collision schedule, apart from the turn. Which couples act on beat t, which couple
+// swaps, the wire table, when the palindromic swap fires, and how tokens (role points) move at a wire:
+// 'meeting' exchanges them wherever both slots held a vibe (the color weave), 'first-sign' wherever the
+// first slot's weight changes sign, a calm first slot counting +1 (code/rule/color-local-weave, whose
+// knits keep like pairs in place).
+export type Knit = {
+  readonly lines: readonly (readonly [number, number])[]
+  readonly positions: readonly (readonly (readonly [number, number])[])[]
+  readonly positionAt: readonly number[]
+  readonly swapAt: readonly number[]
+  readonly forward: readonly (readonly [number, number])[]
+  readonly inverse: readonly (readonly [number, number])[]
+  // fires[lineKey * 9 + wireKey], symmetrized, on the state keys of the two lines
+  readonly fires: Uint8Array
+  readonly exchange: 'meeting' | 'first-sign'
+}
+
+const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+
+// the color weave's knit: the committed turning schedule, the weave's table, exchange at meetings
+export function colorWeaveKnit(weave: ColorWeave): Knit {
+  const fires = new Uint8Array(81)
+  const lone = (k: number): boolean => Math.floor(k / 3) === 1 && k % 3 !== 1
+  const empty = (k: number): boolean => k === 4
+
+  for (let l = 0; l < 9; l++) {
+    for (let w = 0; w < 9; w++) {
+      fires[l * 9 + w] = (lone(l) && empty(w)) || (lone(w) && empty(l)) ? 1 : 0
+    }
+  }
+
+  return {
+    lines: weave.lines,
+    positions: weave.positions,
+    positionAt: TURN_POS_MIRROR,
+    swapAt: SWAP_MIRROR,
+    forward: weave.table === 'bind' ? BIND_MOVE_FORWARD : PAIR_FORWARD,
+    inverse: weave.table === 'bind' ? BIND_MOVE_INVERSE : PAIR_INVERSE,
+    fires,
+    exchange: 'meeting',
+  }
+}
+
+// a knit from a color-local spec with one wire table (code/rule/color-local-weave): its couples turned
+// by its turn, its schedule, its swap condition, and its 'first-sign' exchange. The positions are built
+// as that module builds them, the couples sorted after every turn
+export function colorLocalKnit(input: {
+  opposite: readonly number[]
+  couplesZero: readonly (readonly [number, number])[]
+  turn: readonly number[]
+  positionAt: readonly number[]
+  swapAt: readonly number[]
+  table: readonly (readonly [number, number])[]
+  swapWhen: (line: number, wire: number) => boolean
+}): Knit {
+  const lines: [number, number][] = []
+
+  for (let d = 0; d < input.opposite.length; d++) {
+    const o = input.opposite[d] ?? d
+
+    if (d < o) {
+      lines.push([d, o])
+    }
+  }
+
+  const norm = (a: number, b: number): readonly [number, number] => (a < b ? [a, b] : [b, a])
+  const positions: (readonly [number, number])[][] = []
+  let current = input.couplesZero.map(([a, b]) => norm(a, b))
+
+  for (let i = 0; i < 12; i++) {
+    positions.push(current)
+    current = current.map(([a, b]) => norm(input.turn[a] ?? a, input.turn[b] ?? b))
+  }
+
+  const inverse = new Array<[number, number]>(9)
+
+  for (let k = 0; k < 9; k++) {
+    const out = input.table[k] ?? [0, 0]
+
+    inverse[TABLE_KEY(out[0], out[1])] = [Math.floor(k / 3) - 1, (k % 3) - 1]
+  }
+
+  const fires = new Uint8Array(81)
+
+  for (let l = 0; l < 9; l++) {
+    for (let w = 0; w < 9; w++) {
+      fires[l * 9 + w] = input.swapWhen(l, w) || input.swapWhen(w, l) ? 1 : 0
+    }
+  }
+
+  return { lines, positions, positionAt: input.positionAt, swapAt: input.swapAt, forward: input.table, inverse, fires, exchange: 'first-sign' }
+}
+
 function collideCell(input: {
-  weave: ColorWeave
+  knit: Knit
   vibe: Int8Array
   token: Int32Array
   open: Uint8Array
@@ -129,32 +222,23 @@ function collideCell(input: {
   meetings: [number, number][]
   signs: [number, number][]
 }): void {
-  const { weave, vibe, token, open, base, t, forward, meetings, signs } = input
-  const table =
-    weave.table === 'bind'
-      ? forward
-        ? BIND_MOVE_FORWARD
-        : BIND_MOVE_INVERSE
-      : forward
-        ? PAIR_FORWARD
-        : PAIR_INVERSE
-  const preimage = weave.table === 'bind' ? BIND_MOVE_INVERSE : PAIR_INVERSE
-  const couples = weave.positions[TURN_POS_MIRROR[((t % 8) + 8) % 8] ?? 0] ?? []
-  const swapIndex = SWAP_MIRROR[((t % 12) + 12) % 12] ?? 0
+  const { knit, vibe, token, open, base, t, forward, meetings, signs } = input
+  const table = forward ? knit.forward : knit.inverse
+  const preimage = knit.inverse
+  const couples = knit.positions[at(knit.positionAt, t)] ?? []
+  const swapIndex = at(knit.swapAt, t)
 
-  for (let k = 0; k < 6; k++) {
-    const line = weave.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
-    const wire = weave.lines[couples[k]?.[1] ?? 0] ?? [0, 0]
+  for (let k = 0; k < couples.length; k++) {
+    const line = knit.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
+    const wire = knit.lines[couples[k]?.[1] ?? 0] ?? [0, 0]
 
     const swap = (): void => {
       const a0 = vibe[base + line[0]] ?? 0
       const a1 = vibe[base + line[1]] ?? 0
       const w0 = vibe[base + wire[0]] ?? 0
       const w1 = vibe[base + wire[1]] ?? 0
-      const loneAway = (a: number, b: number): boolean => a === 0 && b !== 0
-      const empty = (a: number, b: number): boolean => a === 0 && b === 0
 
-      if ((loneAway(a0, a1) && empty(w0, w1)) || (loneAway(w0, w1) && empty(a0, a1))) {
+      if (knit.fires[TABLE_KEY(a0, a1) * 9 + TABLE_KEY(w0, w1)] === 1) {
         for (const s of [0, 1] as const) {
           const i = base + line[s]
           const j = base + wire[s]
@@ -180,17 +264,21 @@ function collideCell(input: {
       vibe[i] = image[0]
       vibe[j] = image[1]
 
-      if (before[0] !== 0 && before[1] !== 0) {
-        const ti = token[i] ?? 0
-        const tj = token[j] ?? 0
+      // the first slot's vibe after the forward step
+      const after0 = forward ? (image[0] ?? 0) : a
+      const weight = (v: number): number => (v !== 0 ? v : 1)
+      const exchanged =
+        knit.exchange === 'meeting' ? before[0] !== 0 && before[1] !== 0 : weight(before[0] ?? 0) !== weight(after0)
+      const ti = token[i] ?? 0
+      const tj = token[j] ?? 0
 
-        if (open[ti] === 1 && open[tj] === 1) {
-          meetings.push([ti, tj])
-          // going back, the tokens on the wire are the ones the forward step exchanged, so ti held the
-          // second slot's vibe before it
-          signs.push(forward ? [before[0] ?? 0, before[1] ?? 0] : [before[1] ?? 0, before[0] ?? 0])
-        }
+      if (before[0] !== 0 && before[1] !== 0 && open[ti] === 1 && open[tj] === 1) {
+        meetings.push([ti, tj])
+        // going back, when the forward step exchanged the tokens, ti held the second slot's vibe before it
+        signs.push(forward || !exchanged ? [before[0] ?? 0, before[1] ?? 0] : [before[1] ?? 0, before[0] ?? 0])
+      }
 
+      if (exchanged) {
         token[i] = tj
         token[j] = ti
       }
@@ -206,15 +294,32 @@ function collideCell(input: {
   }
 }
 
-// one beat forward of the classical layer, and what it did to the open tokens
+const KNITS = new WeakMap<ColorWeave, Knit>()
+
+function knitOf(weave: ColorWeave, knit: Knit | undefined): Knit {
+  if (knit) {
+    return knit
+  }
+
+  const known = KNITS.get(weave) ?? colorWeaveKnit(weave)
+
+  KNITS.set(weave, known)
+
+  return known
+}
+
+// one beat forward of the classical layer, and what it did to the open tokens. The knit defaults to the
+// weave's own (the committed schedule with the weave's table)
 export function fearBeat(input: {
   weave: ColorWeave
   links: Int16Array
   lattice: Lattice
   open: Uint8Array
   t: number
+  knit?: Knit
 }): { lattice: Lattice; record: BeatRecord } {
   const { weave, links, lattice, open, t } = input
+  const knit = knitOf(weave, input.knit)
   const { mesh, moves } = weave
   const vibe = Int8Array.from(lattice.vibe)
   const token = Int32Array.from(lattice.token)
@@ -223,7 +328,7 @@ export function fearBeat(input: {
   const signs: [number, number][] = []
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collideCell({ weave, vibe, token, open, base: x * 24, t, forward: true, meetings, signs })
+    collideCell({ knit, vibe, token, open, base: x * 24, t, forward: true, meetings, signs })
   }
 
   const moved = new Int32Array(token.length)
@@ -261,8 +366,10 @@ export function fearBeatBack(input: {
   lattice: Lattice
   open: Uint8Array
   t: number
+  knit?: Knit
 }): { lattice: Lattice; record: BeatRecord } {
   const { weave, links, lattice, open, t } = input
+  const knit = knitOf(weave, input.knit)
   const { mesh, moves } = weave
   const vibe = new Int8Array(lattice.vibe.length)
   const token = new Int32Array(lattice.token.length)
@@ -292,7 +399,7 @@ export function fearBeatBack(input: {
   const signs: [number, number][] = []
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collideCell({ weave, vibe, token, open, base: x * 24, t, forward: false, meetings, signs })
+    collideCell({ knit, vibe, token, open, base: x * 24, t, forward: false, meetings, signs })
   }
 
   return { lattice: { vibe, token, point }, record: { meetings, crossings, signs } }
@@ -526,8 +633,12 @@ export type FearKernels = {
 
 // the color mode at angles like and unlike: the fear beat is (2 pi / 3, 2 pi / 3), the color weave with the
 // fear beat off is (pi, 0), and the backward beat of (x, y) is (-x, -y)
-export function fearKernels(input: { like: number; unlike: number }): FearKernels | null {
-  const like = wholeKernel(multiplyOperators(exchangeOperator(), swapPhase(input.like)), 1000)
+// likeExchanged: whether the knit exchanges the tokens of a like meeting (the color weave does, a
+// 'first-sign' knit does not); the turn acts on the slots, so the tokens see SWAP U or U. On a knit that
+// does not exchange them the fear beat off is like = 0, not pi
+export function fearKernels(input: { like: number; unlike: number; likeExchanged?: boolean }): FearKernels | null {
+  const u = swapPhase(input.like)
+  const like = wholeKernel((input.likeExchanged ?? true) ? multiplyOperators(exchangeOperator(), u) : u, 1000)
   const unlike = wholeKernel(singletPhase(input.unlike), 1000)
 
   return like && unlike

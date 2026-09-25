@@ -44,6 +44,20 @@
 // - on the melted branch the center is unbroken, |<P>| under 0.01, and chi(2,2) is above zero by 3 standard
 //   errors
 //
+// The run, recorded as it came out. Energy and Gauss's law exact in every run.
+// - melted (beta 0.374, tension x beta 4.48): the string is taut, excess 0.12, 0.35, 0.45, 0.60 at R = 1
+//   to 4, V rising 13.4, 28.2, 41.4, 55.2, and with no tension the flux spreads over 4,228 links. The meson
+//   keeps a gap of 1.43 against 65.6 free and travels 5.10, just over the gate of 5. |<P>| is 0.0001, the
+//   center unbroken. The Creutz gate fails: W(1,2) and W(2,2) come out negative (-0.00045, -0.00015),
+//   below their noise, so chi(2,2) cannot be read at all. The field is too strongly coupled for loops past
+//   1 x 1 on this box, as E-FRC-0135's melted branch was
+// - cold: pricing the center changed this branch. Its demons settle at beta 0.598, not the 0.28 of E-FRC-0145,
+//   and the vacuum holds no flux loops at all. The string is taut to the hundredth (excess 0.003 to 0.012),
+//   but the meson is frozen: gap 1.414 and travel 1.414, one root, since at tension x beta 7.2 no hop can
+//   pay to stretch the string. The travel gate fails. chi(2,2) reads 0.07 +- 0.60, noise
+// So the instrument chosen above was not stress-tested: with 1.7 and 0 vacuum loop links it reads the same
+// as the paired count on both branches, and the loop gas that defeated E-FRC-0145 did not form here.
+//
 // Depth L2: a constructed rule, measured.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -150,7 +164,7 @@ export default experiment({
   id: 'gauge/sigma-quark-string',
   code: 'E-FRC-0151',
   title:
-    'the quark string with one Sigma(648) element per link: the string between a static love line and a fear line read from the flux connected to the sources, a moving meson, and the fundamental Polyakov loop and Creutz ratios of the full element, on a melted and a cold field',
+    'the quark string with one Sigma(648) element per link: the string between a static love line and a fear line stays taut on both branches (excess under 0.61 melted, under 0.012 cold), the melted meson binds while it moves (gap 1.43 against 65.6), and the full element keeps its center unbroken (|<P>| 0.0001), but no Creutz ratio can be read (loops past 1 x 1 at the noise) and the cold meson is frozen, so two gates fail',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
