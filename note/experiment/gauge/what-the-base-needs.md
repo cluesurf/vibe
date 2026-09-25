@@ -3,11 +3,11 @@
 **The committed rule carries no SU(3)** (`E-FRC-0093` to `0097`, in
 [su3-from-the-rule.md](su3-from-the-rule.md)). This note asks the next question: **what is the
 smallest change to the base that would carry it, and which parts of SU(3) need anything new at
-all?** Five experiments, `E-FRC-0100` to `0104`, answer it with measurements, not arguments. No
+all?** Twelve experiments, `E-FRC-0100` to `0111`, answer it with measurements, not arguments. No
 random number enters any rule measured here. The seeded heatbaths are reference samplers, and
-`E-FRC-0102` shows the deterministic route to the same ensembles.
+`E-FRC-0102` and `E-FRC-0110` show the deterministic route to the same ensembles.
 
-## The answer in four lines
+## The answer in five lines
 
 1. **Threes are built from twos.** A baryon needs no three-way vertex. Pairwise colour exchange
    binds the epsilon singlet as the unique ground state (`E-FRC-0101`).
@@ -19,7 +19,11 @@ random number enters any rule measured here. The seeded heatbaths are reference 
    one of the 24 coin directions, because those directions form SL(2, 3) (`E-FRC-0104`).
 4. **At the spacing where our hadrons live, that classical group is SU(3).** With a Re Tr U^2 term
    in the action it does not freeze, it deconfines at N_t = 4, and its Creutz ratios there match
-   SU(3) at beta = 5.6925 (`E-FRC-0103`).
+   SU(3) at beta = 5.6925 (`E-FRC-0103`). It runs without dice (`E-FRC-0110`). Finer than that it
+   stops, and the next step is one non-classical element.
+5. **Selecting colour takes a four-line vertex.** A triality of the coin picks the colour plane, no
+   pairwise rule can keep it and stay connected (`E-FRC-0107`), and one charge on a colour line
+   traded for three across a triality orbit does both (`E-FRC-0109`, `0111`).
 
 ## The measurements
 
@@ -66,8 +70,7 @@ The two starts separate from about beta0 = 16, just above the N_t = 4 transition
 0.114) with no clear jump, in the region where the starts already differ by 0.01 to 0.02, so the
 N_t = 6 transition on this trajectory is not cleanly separated from the onset of freezing. **On this
 trajectory the classical group reaches the N_t = 4 spacing cleanly and not the N_t = 6 one.** A
-steeper trajectory may reach further, and whether any trajectory reaches the continuum is the open
-question that decides whether the base needs the golden-ratio element at all.
+steeper trajectory and a grid off both do no better, measured with a ruler below.
 
 ## Colour already in the coin, and what would select it
 
@@ -139,16 +142,45 @@ turning weave commutes with none.
 
 ### A rule that keeps colour and connects every line (`E-FRC-0109`)
 
-The four-line block `E-FRC-0107` named, built (`code/rule/triality-weave`). Each beat pairs every
-colour line with a whole triality orbit, and a four-line vertex swaps
+The four-line block `E-FRC-0107` named, built (`code/rule/triality-weave`). Each beat pairs colour
+line f_r with a whole triality orbit, and a four-line vertex V swaps, for s = +1 and -1:
 
 | before | after |
 | --- | --- |
-| a charge s on the colour line, the orbit empty | two anti-charges on the colour line, one charge s on each orbit line |
-| the colour line empty, a charge s on one orbit line | two charges s on the colour line, an anti-charge on that orbit line |
+| a charge s leading on the colour line, the orbit empty | two anti-charges on the colour line, a charge s leading on each orbit line |
+| a charge s trailing on the colour line, the orbit empty | two anti-charges on the colour line, a charge s trailing on each orbit line |
 
-Every pair conserves charge and treats the three orbit lines alike. Sandwiched around the committed
-pair clock as X P X on a palindromic schedule, it measures:
+Every swap conserves charge and treats the three orbit lines alike. It moves tones between a colour
+line and its orbit only in threes, and that is forced: an orbit state the triality fixes holds a
+multiple of three tones, and a line holds at most two. One beat is V S P S V, where P is the committed
+pair clock and S is the committed turning weave's conditional swap written so the triality carries it
+to itself (colour lines r and r + 1 as a couple, orbits r and r + 1 line by line). The block index r
+runs 0 1 2 2 1 0, a palindrome of period 6.
+
+**How it got there.** The first version fired the vertex on all three blocks every beat and added a
+second swap (an empty colour line and a charge on one orbit line against two charges on the colour
+line). It passed every structural gate below and then failed the dressing test of `E-FRC-0111`: one
+tone grew into 40,591 changed slots, a support ratio of 726. Eight variants were measured on the same
+instruments:
+
+| variant | largest support | growth | line graph, vacuum / dense |
+| --- | --- | --- | --- |
+| vertex on all blocks, with the second swap | 40,591 | 726 | 1 / 1 |
+| vertex on one block, with the second swap | 1,117 | 76 | 6 / 5 |
+| vertex on all blocks, no second swap | 457 | 12.4 | 1 / 5 |
+| vertex on one block, no second swap | 122 | 6.8 | 6 / 12 |
+| the swaps S, vertex on all blocks | 465 | 22.1 | 1 / 1 |
+| **the swaps S, vertex on one block (adopted)** | **96** | **4.6** | **1 / 1** |
+| the swaps S, vertex on all blocks, second swap on one | 15,787 | 597 | 1 / 1 |
+| committed turning weave | 33 | 13 | 3 / 1 |
+
+The second swap is what avalanches: it turns one charge into three with no delay, and firing it on
+every block lets each of the three spawn three more on the next beat. The vertex alone cannot connect
+the dense background, because it fires only on an empty orbit. The swaps S connect it without adding
+any tone. So the adopted rule keeps the one move that colour needs (one charge for three), fires it
+on one block per beat, and lets the triality-symmetric swaps do the mixing.
+
+The adopted rule measures:
 
 | gate | result |
 | --- | --- |
@@ -166,6 +198,40 @@ classical four-line vertex: a charge on a colour line turns into three identical
 line the triality turns into the others. That is the missing "three at once", and it needs no
 amplitude.
 
+### The rest of the acceptance battery (`E-FRC-0111`)
+
+The committed turning weave was also adopted on a second battery (`E-FND-0118`). The same physical
+questions, asked of the triality weave on the D4 box in a form that does not assume a protected
+species:
+
+| test | triality weave | committed turning weave |
+| --- | --- | --- |
+| vacuum recurs exactly from birth | period **3** | period **24** |
+| lone tones that stay at support one for a whole period | **0** of 24 directions | 8 |
+| lone tones that stay compact, support never above 2 over four periods | **21** of 24 | 7 |
+| colour-neutral triples (one tone on each line of an orbit) that hold together | **12** of 12 | **0** of 12 |
+| two separated disturbances superpose in the clock amplitude | exact, worst **2e-15** | exact, worst 2e-12 |
+| a half born late makes a wall that is a whole number of sheets | yes, up to **110,808** slots, all multiples of 729 | yes |
+| wall periodic | **no**, over 72 beats | **no**, over 72 beats |
+| dressing: last-period support over first-period support, worst direction | **4.6** | 13 |
+
+Three corrections came out of this, all recorded in the experiments. A late offset of 3 beats equals
+the triality weave's vacuum period and made no wall at all, so the offset is 1. A dressing gate of 2
+was stricter than the committed rule meets, so the gate is comparative. And the committed rule's own
+periodic-wall gate in `E-FND-0118` was a loop that never ran (`t` from 24 while `t + 24 < 48`), so it
+passed with nothing compared. Run for 72 beats, that rule's wall is quantized and not periodic. The
+gate now requires comparisons and the periodicity is reported.
+
+**A correction to the first reading of this table.** "Support one at every beat" reads 0 on the
+triality weave, and that was first summarised as "it has no free particle". It does. A lone tone on
+21 of the 24 directions travels compactly with a periodic dressing of two slots, which that criterion
+cannot see. In a probe the tones that spread were on colour lines, and an orbit-line tone stayed at
+one or two slots. And the new last row is the sharpest difference between the two rules: a colour-neutral triple
+holds together in the triality weave in all 12 cases and falls apart in the committed rule in all 12
+(its support grows to 13 to 45 slots in 24 beats). The committed rule has more tones that stay
+exactly at support one, and the triality weave has more that stay compact and the only bound triples.
+The kick law of `E-FND-0118` is a statement about support-one species and is not run here.
+
 ### A deterministic sampler for the classical colour group (`E-FRC-0110`)
 
 An integer-valued plaquette action, E(U) = round(6 (1 - Re Tr U / 3)), makes the energy bookkeeping
@@ -174,6 +240,39 @@ exact, so the reversible kinetic demon rule of `E-FRC-0102` runs on Sigma(648)
 heatbath run from an ordered start and one from a disordered start agree, the automaton matches them
 within 0.01. Where they split, inside the first-order partial freezing, the automaton stays within the
 envelope the two branches span, as a fixed-energy dynamics must.
+
+The same rule runs the action `E-FRC-0103` actually uses, with its Re Tr U^2 term, quantized at scale
+12 (levels -1 to 16). Two things had to be found first.
+
+- **The identity is not the ground state.** The lowest level is -1, so a cold start releases energy
+  into the demons, and even with empty demons a run reads beta0 = 11.4 and cannot get colder. A drain
+  fixes it: sweep, empty every demon, repeat. After 100 rounds every one of the 1,536 plaquettes of
+  4^4 is at -1. Then the demons are filled. Only the starting state changes, not the dynamics.
+- **A fixed energy is not a temperature.** Checked against a seeded sampler of the same ensemble (the
+  lattice and a bounded demon per link, same total energy, random dynamics), not only against the
+  canonical heatbath:
+
+| demon fill | automaton plaquette, beta0 | fixed-energy reference | canonical heatbath at that beta0, from ground / identity / random |
+| --- | --- | --- | --- |
+| 0.04 | 0.4782, 10.30 | 0.4780, 10.33 | 0.4784 / 0.4789 / 0.4773 |
+| 0.02 | 0.5327, 14.65 | 0.5332, 14.71 | 0.5331 / 0.5334 / 0.5324 |
+| 0.01 | **0.5660, 14.27** | **0.5641, 14.77** | 0.529 / 0.530 / 0.530 |
+
+The top two rows are ordinary: every reference agrees, and the second is past the N_t = 4 transition
+at beta0 = 13. The last row is the finding. With that little energy the melted phase cannot exist, so
+the run stays on the ordered branch and reads a **hotter** temperature than the run with twice the
+energy. That is the back-bent caloric curve of a first-order transition in a finite box, the same
+thing `E-FRC-0102` saw on the Z3 center. The canonical heatbath melts at that coupling because it can
+borrow energy from its reservoir. The fixed-energy reference cannot, and it lands on the automaton's
+plaquette, 0.035 above the canonical value and within 0.002 of the automaton. Held for 4,000 sweeps
+the automaton does not drift. So the deterministic rule is right, and the canonical comparison was the
+wrong question for that point. The gate is the plaquette. The demon temperature is reported, and at
+the lowest energy it is the weakest number here: each demon holds under 0.15 units on average, and
+two seeds of the reference read beta0 = 14.25 and 14.77 around the automaton's 14.27.
+
+The started-from-the-ground-state heatbath also settles a doubt about `E-FRC-0103`: at beta0 = 14.3 it
+melts to the same plaquette as the identity and random starts, so the "not frozen at the transition"
+claim holds against the true ground state too.
 
 ### How far the classical colour group reaches toward the continuum
 
@@ -187,8 +286,14 @@ chi(2,2) = 0.285 and chi(3,3) = 0.159.
 | beta1 = -0.3 beta0 + 0.6, beta0 = 16, 20, 24, 28 | 0.508, 0.436, 0.458, 0.543 | a minimum near 20, then coarser |
 
 On both, the spacing stops shrinking at about the N_t = 4 value (a near 0.17 fm) and then grows. A
-grid over (beta0, beta1) is being mapped. A small chi read on its own misleads: at (14, -1.2) chi(2,2)
-is 0.107, but cold and hot starts sit at 0.999 and 0.894, so that point is frozen, not fine.
+grid off both trajectories, at (14, -1.2), (14, -1.5), (18, -1.5), (18, -2), (22, -2) and (22, -2.5),
+is frozen or hysteretic at every point. A small chi read on its own misleads there: at (14, -1.2)
+chi(2,2) is 0.107, but cold and hot starts sit at 0.999 and 0.894, so that point is frozen, not fine.
+
+The control is Sigma(1080) on its published trajectory, the group with the golden-ratio element. It
+keeps getting finer: chi(2,2) = 0.385, 0.306, 0.283 at beta0 = 9.154, 12.795, 19.61, unfrozen at all
+three, and 0.283 is already at the SU(3) N_t = 6 value of 0.285. **So the floor belongs to the
+classical group, not to the method.**
 
 Why a floor is expected. Sigma(648) is a maximal finite subgroup of SU(3): no larger finite subgroup
 contains it. And the Clifford group plus any one non-Clifford element generates a dense subgroup of
@@ -196,6 +301,54 @@ SU(3). So there is no middle ground between a finite wheel that eventually click
 colour, and the step between them is exactly one non-classical element. Allowing one such step per
 link (Sigma(648) and Sigma(648) T Sigma(648), 5,832 link values) already holds the Wilson action on the
 SU(3) curve to beta = 5, past both Sigma(648) (3.5) and Sigma(1080) (4).
+
+## Seven other ways colour could arise, each measured
+
+The triality weave was the first way found to keep a colour triality and connect every line. Seven
+other routes were proposed and each one was tested, recorded here whether it worked or not.
+
+### The one fact that decides most of them (`E-FRC-0112`)
+
+A rule that can run backwards and is carried to itself by a colour triality sigma on every beat
+sends a state sigma leaves alone to another state sigma leaves alone, because
+f(s) = f(sigma s) = sigma f(s). In such a state the three lines of an orbit hold the same thing, so an
+orbit always holds a multiple of three tones. A lone tone on a colour line with its orbit empty is
+such a state. **So no single tone can ever cross from a colour line to its orbit, in any rule of this
+kind, not only the pair rules of `E-FRC-0107`.** The orbit gains nothing, three identical charges, or
+three identical neutral pairs: 16 possible outcomes in all, listed in the experiment.
+
+Checked exhaustively: all 531,441 cell states sigma leaves alone stay in that set through every beat
+of the triality weave, with a multiple of three tones on every orbit. The committed rule moves 525,609
+of them out of the set.
+
+### The seven
+
+| # | the idea | measured | verdict |
+| --- | --- | --- | --- |
+| 1 | the baryon is the free particle | the triality weave holds all 12 colour-neutral triples together (support at most 6 forever) and the committed rule none. But lone orbit tones also travel freely, so single colour charges are not confined (`E-FRC-0111`) | **half right**: bound baryons yes, confinement no |
+| 2 | the triality groups are momentum-conserving three-body vertices | none of the 6 direction groups sums to zero. Each sums to 3 times one colour weight, length sqrt 6 (`E-FRC-0112`) | **no** |
+| 3 | pair lines by reading the data | covered by the fact above: choosing pairs from the data is still a reversible rule that respects sigma, so a single tone still cannot leave a colour line (`E-FRC-0112`) | **no** |
+| 4 | a coin symmetry together with a tone relabelling | all 1,152 coin symmetries times 6 tone relabellings: the committed rule keeps only the identity, the triality weave only its own two trialities (`E-FRC-0113`) | **no** |
+| 5 | the triality as a symmetry shifted in time | the committed rule has none at any of its 24 shifts (`E-FRC-0113`). Built as a new rule, the glide weave (`E-FRC-0114`), see below | **built, see below** |
+| 6 | colour as a twist in the box | rotating the colour of half the box is invisible in the vacuum of both triality rules at all 24 moments, and a wall of up to 5,750 slots in the committed rule's at 22 of 24. On a dense background every rule sees it (4,232 to 7,488 slots), because in the coin reading a tone's colour is its direction, and rotating colour rotates motion (`E-FRC-0115`) | **a global twist only.** Geometric colour has one frame for all of space, never one per place |
+| 7 | keep the triality only on the cells it fixes | those cells are a 2D sheet, side^2 of side^4 (25, 49, 81 cells on sides 5, 7, 9). But a rule that is the same everywhere and symmetric about one point is symmetric about every point, which brings back the fact above (`E-FRC-0115`) | **only by giving up a rule that is the same in every cell** |
+
+And one guess that failed: that the colour group is what the committed pair clock generates, reading
+a line's nine states as the nine points of a qutrit phase space. The pair clock is none of the 432
+affine maps of that space under any of the 6 ways to label the tones (`E-FRC-0112`).
+
+### The glide weave (`E-FRC-0114`)
+
+GLIDE_RESULTS
+
+### What the seven add up to
+
+Idea 6 names the price of every geometric route. When colour is read off the coin, it is tied to
+direction, and so it has one frame for the whole of space. A gauge theory of colour needs a frame
+that can differ from place to place, and that needs colour carried apart from direction: the colour
+trit of `E-FRC-0100`, with the Sigma(648) links of `E-FRC-0103`. A reading, not a measurement: the
+two need not be rivals. The coin could select which plane is colour and cycle the three generations,
+while a separate trit carries the colour that can be gauged. Nothing here tests that combination.
 
 ## What the base would change
 
@@ -221,8 +374,11 @@ the same ingredient the quantum sector is missing, so colour does not add a seco
 - **Dynamical quarks with a finite colour group.** Everything in `E-FRC-0103` is pure gauge.
 - **That the base does this.** These are measurements of what a base with these changes would do,
   not of the committed rule, which still does none of it (`E-FRC-0093` to `0097`).
-- **The deterministic sampler at the couplings of `E-FRC-0103`.** `E-FRC-0110` runs Sigma(648)
-  deterministically with an integer Wilson-like action. The Re Tr U^2 term needs its own integer
-  levels, which are not built.
-- **The rest of the acceptance battery for the triality weave.** Unit kicks, walls, dressing and
-  interference, which the turning weave passed (`E-FND-0118`), are not run on it.
+- **The deterministic sampler on larger boxes and at N_t = 4 geometry.** `E-FRC-0110` runs both
+  actions on 4^4. The quantization at scale 12 rounds the action, so it is a nearby action, not the
+  exact one, and its plaquettes sit 0.009 to 0.015 below the unquantized heatbath's.
+- **That no Sigma(648) trajectory reaches finer spacings.** Two trajectories and six grid points
+  were measured on small boxes. The floor is what they show, and the maximality argument is why it
+  is expected, but it is not a proof over the whole (beta0, beta1) plane.
+- **Wall localization for the triality weave**, the one window-limited claim of `E-FND-0118`, is not
+  measured. Neither is whether its wall, unlike its vacuum, ever recurs past 72 beats.

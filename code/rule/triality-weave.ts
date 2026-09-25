@@ -1,31 +1,97 @@
 // The triality weave: a candidate rule that keeps a colour-selecting triality and still connects
 // every line, by giving the colour lines a four-line interaction block.
 //
+// Blocks here pair colour line f_i with orbit O_{(i + r_t) mod 3}. With the default one-block firing
+// the firing block is i = r_t, so the orbit is O_{2 r_t mod 3}.
+//
 // E-FRC-0107 shows why a rule that couples lines in pairs cannot do both: a triality sigma that fixes
 // a colour plane fixes its three lines, and no sigma-invariant pairing reaches them. The smallest
 // sigma-invariant block that joins a colour line to the rest has four lines, the colour line f and a
 // whole sigma-orbit of three, a1, sigma a1, sigma^2 a1. This builds a rule on such blocks.
 //
-// Each beat t, the 12 lines split into three blocks: colour line f_i with orbit O_{(i + r_t) mod 3},
-// r = 0, 1, 2, 2, 1, 0 (a palindrome, period 6). On each block the collision is X P X, where P is the
-// committed pair clock (the create, flip, annihilate cycle of the 9-state pair table) on every line,
-// and X is the four-line vertex, an involution that swaps these states and fixes all others:
+// Each beat t, with r = 0, 1, 2, 2, 1, 0 (a palindrome, period 6), the collision is V S P S V:
 //
-//   triple creation   f (s, 0) and the orbit empty  <->  f (-s, -s) and every orbit line (s, 0)
-//                     f (0, s) and the orbit empty  <->  f (-s, -s) and every orbit line (0, s)
-//   orbit exchange    f empty, a_k (s, 0), the others empty  <->  f (s, s), a_k (-s, 0)
-//                     f empty, a_k (0, s), the others empty  <->  f (s, s), a_k (0, -s)
+//   P  the committed pair clock (the create, flip, annihilate cycle of the 9-state pair table) on
+//      every line
+//   V  the four-line vertex on the block of colour line f_r and orbit O_{2r mod 3}, an involution
+//      that swaps these states and fixes all others, for s = +1 and -1:
+//        f (s, 0) and the orbit empty  <->  f (-s, -s) and every orbit line (s, 0)
+//        f (0, s) and the orbit empty  <->  f (-s, -s) and every orbit line (0, s)
+//      one charge on the colour line exchanged for three identical charges across the orbit
+//   S  the committed turning weave's conditional swap in triality-symmetric form: colour lines r and
+//      r + 1 as a couple, and orbits r and r + 1 line by line in their triality order
 //
-// for s = +1 and -1 and k = 1, 2, 3. Every pair conserves charge, every pair is carried to a pair by
-// sigma (it treats the three orbit lines alike) and by charge conjugation (s to -s). So X commutes with
-// sigma and with C, and because the pair table satisfies C P C = P^-1, each beat obeys
-// C (X P X) C = (X P X)^-1, and the palindromic schedule makes the period CPT exact.
+// V moves tones between a colour line and its orbit only in threes, which a triality-symmetric move
+// has to (an orbit state the triality fixes holds a multiple of three tones, a line at most two). S
+// never adds a tone. Every piece conserves charge, is carried to itself by sigma and by charge
+// conjugation, and because the pair table satisfies C P C = P^-1, each beat obeys
+// C (V S P S V) C = (V S P S V)^-1, and the palindromic schedule makes the period CPT exact.
+//
+// This is the configuration E-FRC-0109 measured best, and the default. The options reach the earlier
+// variants: firing the vertex on every block, adding an orbit exchange (f empty with one orbit line
+// holding s <-> f (s, s) with that line holding -s), or dropping the swaps. Firing the vertex
+// everywhere with the exchange on connects every line but lets one tone avalanche across the box.
 //
 // The orientation of a line is its leading slot (the lower direction index). The triality used must
 // carry leading slots to leading slots, which the two colour-selecting trialities of the previous knit
 // do. The constructor refuses one that does not.
 
-import { Collision, PAIR_FORWARD, PAIR_INVERSE } from '@/code/rule/collision'
+import {
+  Collision,
+  PAIR_FORWARD,
+  PAIR_INVERSE,
+} from '@/code/rule/collision'
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
+import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
+
+// The first colour-selecting triality of the D4 coin that the layout accepts: an order-three
+// element of W(F4), as a permutation of the 24 directions, whose fixed directions are exactly one
+// zero-sum plane (an A2 with its opposites) and which carries leading slots to leading slots.
+export function colourTriality(input: {
+  opposite: readonly number[]
+}): number[] {
+  const { opposite } = input
+  const roots = rootsD4()
+  const keyOf = (list: readonly number[]): string =>
+    [...list].sort((a, b) => a - b).join(',')
+  const planes = new Set(
+    zeroSumTriangles({ directions: roots }).map(t =>
+      keyOf([...t, ...t.map(d => opposite[d] ?? d)]),
+    ),
+  )
+  const found = weylF4DirectionPermutations({ directions: roots }).find(
+    p => {
+      const fixed = p.map((image, d) => (image === d ? d : -1))
+
+      if (
+        permutationOrder({ permutation: p }) !== 3 ||
+        !planes.has(keyOf(fixed.filter(d => d >= 0)))
+      ) {
+        return false
+      }
+
+      try {
+        trialityWeaveLayout({ opposite, triality: p })
+
+        return true
+      } catch {
+        return false
+      }
+    },
+  )
+
+  if (found === undefined) {
+    throw new Error(
+      'no colour-selecting triality carries leading slots',
+    )
+  }
+
+  return found
+}
 
 type Tone = -1 | 0 | 1
 
@@ -55,17 +121,26 @@ export function trialityWeaveLayout(input: {
     }
   }
 
-  const lineOfLeading = new Map(lines.map(([leading], k) => [leading, k]))
+  const lineOfLeading = new Map(
+    lines.map(([leading], k) => [leading, k]),
+  )
   const image = lines.map(([leading, trailing]) => {
     const target = lineOfLeading.get(triality[leading] ?? -1)
 
-    if (target === undefined || lines[target]?.[1] !== triality[trailing]) {
-      throw new Error('the triality does not carry leading slots to leading slots')
+    if (
+      target === undefined ||
+      lines[target]?.[1] !== triality[trailing]
+    ) {
+      throw new Error(
+        'the triality does not carry leading slots to leading slots',
+      )
     }
 
     return target
   })
-  const colour = image.map((target, k) => (target === k ? k : -1)).filter(k => k >= 0)
+  const colour = image
+    .map((target, k) => (target === k ? k : -1))
+    .filter(k => k >= 0)
   const seen = new Set(colour)
   const orbits: number[][] = []
 
@@ -80,8 +155,14 @@ export function trialityWeaveLayout(input: {
     orbits.push(orbit)
   }
 
-  if (colour.length !== 3 || orbits.length !== 3 || orbits.some(o => new Set(o).size !== 3)) {
-    throw new Error('the permutation is not a colour-selecting triality')
+  if (
+    colour.length !== 3 ||
+    orbits.length !== 3 ||
+    orbits.some(o => new Set(o).size !== 3)
+  ) {
+    throw new Error(
+      'the permutation is not a colour-selecting triality',
+    )
   }
 
   return { lines, colour, orbits }
@@ -89,7 +170,11 @@ export function trialityWeaveLayout(input: {
 
 type Pair = readonly [Tone, Tone]
 
-const same = (a: Pair, b: readonly number[]): boolean => a[0] === b[0] && a[1] === b[1]
+// the fallback for a line index out of range, typed as a line so a block keeps its shape
+const NO_LINE: readonly [number, number] = [0, 0]
+
+const same = (a: Pair, b: readonly number[]): boolean =>
+  a[0] === b[0] && a[1] === b[1]
 
 // The four-line vertex X on one block, in place. Reads the four lines, swaps a matched state for its
 // partner, leaves everything else.
@@ -105,19 +190,28 @@ function vertex(
     (slots[base + line[0]] ?? 0) as Tone,
     (slots[base + line[1]] ?? 0) as Tone,
   ]
-  const write = (line: readonly [number, number], value: Pair): void => {
+
+  const write = (
+    line: readonly [number, number],
+    value: Pair,
+  ): void => {
     slots[base + line[0]] = value[0]
     slots[base + line[1]] = value[1]
   }
+
   const fv = read(f)
   const ov = orbit.map(read)
   const empty: Pair = [0, 0]
-  const allOrbit = (value: Pair): boolean => ov.every(v => same(value, v))
+  const allOrbit = (value: Pair): boolean =>
+    ov.every(v => same(value, v))
 
   for (const s of [1, -1] as const) {
-    const n = (-s) as Tone
+    const n = -s as Tone
 
-    for (const lone of [[s, 0], [0, s]] as const) {
+    for (const lone of [
+      [s, 0],
+      [0, s],
+    ] as const) {
       // triple creation, forward and back
       if (creation && same(lone, fv) && allOrbit(empty)) {
         write(f, [n, n])
@@ -174,7 +268,12 @@ export type Firing = 'all' | 'one' | 'none'
 // The committed turning weave's conditional swap on two lines: exchange their contents when one holds
 // a lone tone on its trailing slot and the other is empty. An involution that conserves charge and
 // the number of tones.
-function conditionalSwap(slots: Int8Array, base: number, a: readonly [number, number], b: readonly [number, number]): void {
+export function conditionalSwap(
+  slots: Int8Array,
+  base: number,
+  a: readonly [number, number],
+  b: readonly [number, number],
+): void {
   const a0 = slots[base + a[0]] ?? 0
   const a1 = slots[base + a[1]] ?? 0
   const b0 = slots[base + b[0]] ?? 0
@@ -182,7 +281,10 @@ function conditionalSwap(slots: Int8Array, base: number, a: readonly [number, nu
   const loneAway = (x: number, y: number): boolean => x === 0 && y !== 0
   const empty = (x: number, y: number): boolean => x === 0 && y === 0
 
-  if ((loneAway(a0, a1) && empty(b0, b1)) || (loneAway(b0, b1) && empty(a0, a1))) {
+  if (
+    (loneAway(a0, a1) && empty(b0, b1)) ||
+    (loneAway(b0, b1) && empty(a0, a1))
+  ) {
     slots[base + a[0]] = b0
     slots[base + a[1]] = b1
     slots[base + b[0]] = a0
@@ -203,35 +305,57 @@ export function trialityWeave(input: {
   exchange?: Firing
   swaps?: boolean
 }): (t: number) => Collision {
-  const { layout, forward = true, creation = 'all', exchange = 'all', swaps = false } = input
+  const {
+    layout,
+    forward = true,
+    creation = 'one',
+    exchange = 'none',
+    swaps = true,
+  } = input
   const fires = (mode: Firing, i: number, rotation: number): boolean =>
     mode === 'all' || (mode === 'one' && i === rotation)
   const table = forward ? PAIR_FORWARD : PAIR_INVERSE
   const key = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
 
   return (t: number): Collision => {
-    const rotation = SCHEDULE[((t % SCHEDULE.length) + SCHEDULE.length) % SCHEDULE.length] ?? 0
+    const rotation =
+      SCHEDULE[
+        ((t % SCHEDULE.length) + SCHEDULE.length) % SCHEDULE.length
+      ] ?? 0
     const blocks = layout.colour
       .map((f, i) => ({
-        f: layout.lines[f] ?? [0, 0],
-        orbit: (layout.orbits[(i + rotation) % 3] ?? []).map(l => layout.lines[l] ?? [0, 0]),
+        f: layout.lines[f] ?? NO_LINE,
+        orbit: (layout.orbits[(i + rotation) % 3] ?? []).map(
+          l => layout.lines[l] ?? NO_LINE,
+        ),
         creation: fires(creation, i, rotation),
         exchange: fires(exchange, i, rotation),
       }))
       .filter(block => block.creation || block.exchange)
-    const line = (l: number): readonly [number, number] => layout.lines[l] ?? [0, 0]
-    const pairs: [readonly [number, number], readonly [number, number]][] = swaps
+    const line = (l: number): readonly [number, number] =>
+      layout.lines[l] ?? NO_LINE
+    const pairs: [
+      readonly [number, number],
+      readonly [number, number],
+    ][] = swaps
       ? [
-          [line(layout.colour[rotation] ?? 0), line(layout.colour[(rotation + 1) % 3] ?? 0)],
+          [
+            line(layout.colour[rotation] ?? 0),
+            line(layout.colour[(rotation + 1) % 3] ?? 0),
+          ],
           ...[0, 1, 2].map(
             k =>
               [
                 line(layout.orbits[rotation]?.[k] ?? 0),
                 line(layout.orbits[(rotation + 1) % 3]?.[k] ?? 0),
-              ] as [readonly [number, number], readonly [number, number]],
+              ] as [
+                readonly [number, number],
+                readonly [number, number],
+              ],
           ),
         ]
       : []
+
     const swapAll = (slots: Int8Array, base: number): void => {
       for (const [a, b] of pairs) {
         conditionalSwap(slots, base, a, b)
@@ -240,13 +364,22 @@ export function trialityWeave(input: {
 
     return (slots, base) => {
       for (const block of blocks) {
-        vertex(slots, base, block.f, block.orbit, block.creation, block.exchange)
+        vertex(
+          slots,
+          base,
+          block.f,
+          block.orbit,
+          block.creation,
+          block.exchange,
+        )
       }
 
       swapAll(slots, base)
 
       for (const [leading, trailing] of layout.lines) {
-        const out = table[key(slots[base + leading] ?? 0, slots[base + trailing] ?? 0)] ?? [0, 0]
+        const out = table[
+          key(slots[base + leading] ?? 0, slots[base + trailing] ?? 0)
+        ] ?? [0, 0]
 
         slots[base + leading] = out[0]
         slots[base + trailing] = out[1]
@@ -255,7 +388,14 @@ export function trialityWeave(input: {
       swapAll(slots, base)
 
       for (const block of blocks) {
-        vertex(slots, base, block.f, block.orbit, block.creation, block.exchange)
+        vertex(
+          slots,
+          base,
+          block.f,
+          block.orbit,
+          block.creation,
+          block.exchange,
+        )
       }
     }
   }

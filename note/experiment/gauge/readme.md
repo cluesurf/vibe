@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**107 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0107`](../../../test/experiment/gauge/triality-against-universality.ts)**.
+**111 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0111`](../../../test/experiment/gauge/triality-weave-acceptance.ts)**.
 
 ## What this arena tests
 
@@ -181,6 +181,10 @@ open are in [`strong-force.md`](strong-force.md).
 - **[`E-FRC-0105`](../../../test/experiment/gauge/colour-shader.ts)** (L2) - the shader: a phase on the colour swap at each encounter of three preserved excitations of the committed rule makes which one ends red a continuous, interfering function of the phase, while no tone observable changes.
 - **[`E-FRC-0106`](../../../test/experiment/gauge/colour-plane-selection.ts)** (L2) - what selects a colour plane in the coin: the 32 triality rotations of W(F4) each fix exactly one A2 and cycle the three triplet copies, and the previous knit keeps one such rotation where the committed turning weave keeps none.
 - **[`E-FRC-0107`](../../../test/experiment/gauge/triality-against-universality.ts)** (L2) - that selection cannot live in the committed rule's design family: triality fixes the three colour-plane lines, no coupling of all twelve lines is invariant (0 of 10,395), CPT then forces invariance beat by beat, and universality fails. Joining them symmetrically needs a four-line block.
+- **[`E-FRC-0108`](../../../test/experiment/gauge/d4-box-triality.ts)** (L2) - a periodic box with D4-shaped periods admits all 1,152 elements of W(F4), against 384 on the integer torus. On it the previous knit commutes with exactly the 2 colour-selecting trialities and the committed turning weave with none.
+- **[`E-FRC-0109`](../../../test/experiment/gauge/triality-weave.ts)** (L2) - the four-line block built: one charge on a colour line exchanged for three across a triality orbit, with triality-symmetric swaps. It reverses exactly, conserves charge, commutes with the triality, is CPT exact, and connects all 12 lines on the vacuum and on a dense background. The committed turning weave splits into 3 sectors on the vacuum.
+- **[`E-FRC-0110`](../../../test/experiment/gauge/finite-colour-automaton.ts)** (L2) - Sigma(648) under a deterministic reversible rule: an integer plaquette action makes the kinetic demon bookkeeping exact, the run reverses to the bit, and it matches the heatbath where ordered and disordered starts agree and stays inside their envelope where they split.
+- **[`E-FRC-0111`](../../../test/experiment/gauge/triality-weave-acceptance.ts)** (L2) - the triality weave on the rest of the acceptance battery: vacuum period 3 from birth, exact superposition, sheet-quantized walls, and dressing growth 4.6 against the committed rule's 13. Neither rule's wall is periodic.
 - **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
 
 ## What this arena establishes

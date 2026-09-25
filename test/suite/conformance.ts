@@ -296,6 +296,11 @@ import {
   makeLinkSetLattice,
   linkSetPlaquette,
 } from '@/code/dynamics/link-set-gauge'
+import {
+  actionLevels,
+  microcanonicalSweep,
+  quantizedEnergy,
+} from '@/code/dynamics/finite-kinetic'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { passThrough } from '@/code/rule/collision'
 import {
@@ -3362,6 +3367,42 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           set.matrices.length > delta.order &&
           Math.abs(linkSetPlaquette({ lattice: setLattice }) - 1) <
             1e-12,
+      })
+
+      // the seeded microcanonical reference conserves lattice plus demon energy exactly, keeps every
+      // demon in its bounds, and moves the lattice. From a random start: on Delta(27) every move
+      // off the identity costs at least 36, which a small demon cannot pay, so a cold start is frozen
+      const microLevels = actionLevels({ group: delta, scale: 6 })
+      const micro = makeFiniteGaugeLattice({
+        group: delta,
+        lengths: [3, 3, 3, 3],
+        start: 'hot',
+        rng: makeRng({ seed: 1 }),
+      })
+      const microStartLinks = Int16Array.from(micro.links)
+      const microDemons = new Int32Array(micro.links.length).fill(4)
+      const microRng = makeRng({ seed: 2 })
+      const microEnergy = (): number =>
+        quantizedEnergy({ lattice: micro, levels: microLevels }) +
+        microDemons.reduce((a, b) => a + b, 0)
+      const microStart = microEnergy()
+
+      for (let sweep = 0; sweep < 5; sweep++) {
+        microcanonicalSweep({
+          lattice: micro,
+          levels: microLevels,
+          demons: microDemons,
+          capacity: 12,
+          rng: microRng,
+        })
+      }
+
+      check({
+        name: 'microcanonical sweep: exact energy, demons in bounds, the lattice moves',
+        ok:
+          microEnergy() === microStart &&
+          microDemons.every(d => d >= 0 && d <= 12) &&
+          micro.links.some((v, k) => v !== microStartLinks[k]),
       })
     }
   }

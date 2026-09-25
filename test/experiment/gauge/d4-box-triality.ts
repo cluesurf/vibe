@@ -30,23 +30,42 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites, type Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { pairCollision, turningWeave, type Collision } from '@/code/rule/collision'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
+import {
+  pairCollision,
+  turningWeave,
+  type Collision,
+} from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { makeWill, type Will } from '@/code/tone/will'
-import { boxCellMap, d4BoxMesh, linearMapOf, transformState } from '@/code/substrate/d4-box'
+import {
+  boxCellMap,
+  d4BoxMesh,
+  linearMapOf,
+  transformState,
+} from '@/code/substrate/d4-box'
 
 const SIDE = 3
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-function isAutomorphism(mesh: Mesh, cellMap: readonly number[] | undefined, permutation: readonly number[]): boolean {
+function isAutomorphism(
+  mesh: Mesh,
+  cellMap: readonly number[] | undefined,
+  permutation: readonly number[],
+): boolean {
   if (cellMap === undefined) {
     return false
   }
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     for (let d = 0; d < mesh.degree; d++) {
-      if (cellMap[mesh.neighbour(cell, d)] !== mesh.neighbour(cellMap[cell] ?? 0, permutation[d] ?? 0)) {
+      if (
+        cellMap[mesh.neighbour(cell, d)] !==
+        mesh.neighbour(cellMap[cell] ?? 0, permutation[d] ?? 0)
+      ) {
         return false
       }
     }
@@ -56,19 +75,29 @@ function isAutomorphism(mesh: Mesh, cellMap: readonly number[] | undefined, perm
 }
 
 // the integer torus: a cell is its Z^4 coordinates, acted on directly
-function torusCellMap(matrix: readonly (readonly number[])[]): number[] | undefined {
+function torusCellMap(
+  matrix: readonly (readonly number[])[],
+): number[] | undefined {
   const cells = SIDE ** 4
   const map: number[] = []
 
   for (let cell = 0; cell < cells; cell++) {
     const v = [0, 1, 2, 3].map(a => Math.floor(cell / SIDE ** a) % SIDE)
-    const image = matrix.map(row => row.reduce((s, x, k) => s + x * (v[k] ?? 0), 0))
+    const image = matrix.map(row =>
+      row.reduce((s, x, k) => s + x * (v[k] ?? 0), 0),
+    )
 
     if (image.some(x => Math.abs(x - Math.round(x)) > 1e-9)) {
       return undefined
     }
 
-    map.push(image.reduce((s, x, a) => s + (((Math.round(x) % SIDE) + SIDE) % SIDE) * SIDE ** a, 0))
+    map.push(
+      image.reduce(
+        (s, x, a) =>
+          s + (((Math.round(x) % SIDE) + SIDE) % SIDE) * SIDE ** a,
+        0,
+      ),
+    )
   }
 
   return new Set(map).size === cells ? map : undefined
@@ -95,12 +124,16 @@ function commutingOrderThree(input: {
   startCount: number
 }): { commuting: number; fixingSix: number } {
   const { mesh, rule, orderThree, startCount } = input
+
   let commuting = 0
   let fixingSix = 0
 
   for (const permutation of orderThree) {
     const matrix = linearMapOf(permutation)
-    const cellMap = matrix === undefined ? undefined : boxCellMap({ matrix, side: SIDE })
+    const cellMap =
+      matrix === undefined
+        ? undefined
+        : boxCellMap({ matrix, side: SIDE })
 
     if (cellMap === undefined) {
       continue
@@ -110,18 +143,34 @@ function commutingOrderThree(input: {
 
     for (const start of starts(mesh, startCount)) {
       let a: Will = { mesh, data: Int8Array.from(start.data) }
-      let b: Will = { mesh, data: transformState({ data: start.data, cellMap, permutation, degree: 24 }) }
+      let b: Will = {
+        mesh,
+        data: transformState({
+          data: start.data,
+          cellMap,
+          permutation,
+          degree: 24,
+        }),
+      }
 
       for (let t = 0; t < 24 && same; t++) {
         a = beat(a, rule(t))
         b = beat(b, rule(t))
-        same = transformState({ data: a.data, cellMap, permutation, degree: 24 }).every((x, k) => x === b.data[k])
+        same = transformState({
+          data: a.data,
+          cellMap,
+          permutation,
+          degree: 24,
+        }).every((x, k) => x === b.data[k])
       }
     }
 
     if (same) {
       commuting += 1
-      fixingSix += permutation.filter((image, d) => image === d).length === 6 ? 1 : 0
+      fixingSix +=
+        permutation.filter((image, d) => image === d).length === 6
+          ? 1
+          : 0
     }
   }
 
@@ -139,10 +188,13 @@ export default experiment({
   paper: false,
   run() {
     const roots = rootsD4()
-    const permutations = weylF4DirectionPermutations({ directions: roots })
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
     const box = d4BoxMesh({ side: SIDE })
     const torus = d4Mesh({ side: SIDE })
     const opposite = meshOpposites(box)
+
     let onBox = 0
     let onTorus = 0
 
@@ -153,14 +205,44 @@ export default experiment({
         continue
       }
 
-      onBox += isAutomorphism(box, boxCellMap({ matrix, side: SIDE }), permutation) ? 1 : 0
-      onTorus += isAutomorphism(torus, torusCellMap(matrix), permutation) ? 1 : 0
+      onBox += isAutomorphism(
+        box,
+        boxCellMap({ matrix, side: SIDE }),
+        permutation,
+      )
+        ? 1
+        : 0
+
+      onTorus += isAutomorphism(
+        torus,
+        torusCellMap(matrix),
+        permutation,
+      )
+        ? 1
+        : 0
     }
 
-    const orderThree = permutations.filter(p => permutationOrder({ permutation: p }) === 3)
-    const previous = commutingOrderThree({ mesh: box, rule: () => pairCollision({ opposite }), orderThree, startCount: 4 })
-    const previousOneStart = commutingOrderThree({ mesh: box, rule: () => pairCollision({ opposite }), orderThree, startCount: 1 })
-    const turning = commutingOrderThree({ mesh: box, rule: turningWeave({ opposite }), orderThree, startCount: 4 })
+    const orderThree = permutations.filter(
+      p => permutationOrder({ permutation: p }) === 3,
+    )
+    const previous = commutingOrderThree({
+      mesh: box,
+      rule: () => pairCollision({ opposite }),
+      orderThree,
+      startCount: 4,
+    })
+    const previousOneStart = commutingOrderThree({
+      mesh: box,
+      rule: () => pairCollision({ opposite }),
+      orderThree,
+      startCount: 1,
+    })
+    const turning = commutingOrderThree({
+      mesh: box,
+      rule: turningWeave({ opposite }),
+      orderThree,
+      startCount: 4,
+    })
 
     const ok =
       onBox === 1152 &&
@@ -186,7 +268,7 @@ export default experiment({
         orderThreeElements: orderThree.length,
       },
       notes:
-        'L2, exact. It answers the box half of why triality was never in the committed rule\'s design space: the search ran on a box triality cannot act on. On the D4 box it can, and the previous knit, which keeps a colour-selecting triality in its table (E-FRC-0106), keeps it in its full evolution too. The count uses four starts, since a coarse single start can let an element pass by coincidence. E-FRC-0107 is about the schedule and holds on any box. E-FRC-0109 builds a rule on this box that keeps the triality and is also universal.',
+        "L2, exact. It answers the box half of why triality was never in the committed rule's design space: the search ran on a box triality cannot act on. On the D4 box it can, and the previous knit, which keeps a colour-selecting triality in its table (E-FRC-0106), keeps it in its full evolution too. The count uses four starts, since a coarse single start can let an element pass by coincidence. E-FRC-0107 is about the schedule and holds on any box. E-FRC-0109 builds a rule on this box that keeps the triality and is also universal.",
     })
   },
 })

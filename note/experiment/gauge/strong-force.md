@@ -1,14 +1,14 @@
 # The Strong Force
 
 The gauge arena's strong-force work, on the `experiment/strong-force` branch. It holds
-twenty-eight experiments, and every claim in them has a control that could have failed.
+thirty-three experiments, and every claim in them has a control that could have failed.
 
 | codes | what | depth |
 | --- | --- | --- |
 | `E-FRC-0080` to `E-FRC-0092`, `E-FRC-0098`, and a rebuilt `E-FRC-0007` | SU(3) gauge theory and QCD simulated, each number mapped to a published value | L2 |
 | `E-FRC-0093` to `E-FRC-0097` | does SU(3) come out of the committed {3,4,3,4} rule | L3 and L2 |
 | `E-FRC-0099` | a three-valued cyclic link under a deterministic reversible rule, the center of SU(3) on its own | L2 |
-| `E-FRC-0100` to `E-FRC-0106` | what the base would need to carry colour, and what could select it, in [what-the-base-needs.md](what-the-base-needs.md) | L1 and L2 |
+| `E-FRC-0100` to `E-FRC-0111` | what the base would need to carry colour, what could select it, a rule that keeps it, and a deterministic sampler for it, in [what-the-base-needs.md](what-the-base-needs.md) | L1 and L2 |
 
 ## Why this exists
 
@@ -98,6 +98,10 @@ but it samples an ensemble all the same. Two experiments put that on a determini
 - `E-FRC-0099`: the **Z3 center on its own**, three cyclic values per link, under a reversible
   cellular automaton (the Z3 form of the Q2R rule), deterministic and exactly energy-conserving,
   against the heatbath. See its verdict.
+- `E-FRC-0102` and `E-FRC-0110`: the same with a **kinetic demon per link** that streams and trades
+  units, which is what keeps a deterministic link rule from freezing. On the Z3 center it covers the
+  whole phase diagram. On the 648-element classical colour group, with an integer-valued plaquette
+  action, it conserves energy to the unit, reverses to the bit, and matches the heatbath.
 
 The trace estimators went deterministic too. The chiral condensate reads the quark propagator
 diagonal at fixed sites, since translation invariance makes every site equivalent. It uses no
@@ -137,7 +141,8 @@ The ideas that turned raw lattice numbers into comparisons with published ones:
 | `code/algebra/linear/{conjugate-gradient,complex-cholesky,generalized-eigen}` | multi-shift CG, exact log det, the variational eigenproblem |
 | `code/measure/jackknife`, `code/tool/bisect`, `weightedLinearFit`, `weightedLeastSquares` | binned errors, transitions, fits with errors |
 
-Every module has a conformance block (137 checks pass). Each was checked against a published number
+Every module has a conformance block (157 checks pass, with the colour modules of
+[what-the-base-needs.md](what-the-base-needs.md)). Each was checked against a published number
 before the first experiment used it: the SU(3) plaquette at beta 6.0 on 6^4 is 0.5937, the
 published value.
 
@@ -156,4 +161,7 @@ ensembles (895 s), the hadrons in the 2 fm box (836 s), the N_t = 4 deconfinemen
 2. **The Luscher term cleanly.** Needs R well above 0.5 fm, so boxes of 16^4 and more.
 3. **Zero-temperature string breaking.** The thermal form is shown (`E-FRC-0090`). The potential
    flattening at 1.2 fm needs dynamical quarks in large boxes.
-4. **Continuum limits in 4D.** Everything here is at one or two couplings, apart from 3D SU(2).
+4. **Continuum limits in 4D.** Everything here is at one or two couplings, apart from 3D SU(2). For
+   the classical colour group the measured answer is a floor near the N_t = 4 spacing, which is why
+   the base table in [what-the-base-needs.md](what-the-base-needs.md) carries one non-Clifford
+   element.

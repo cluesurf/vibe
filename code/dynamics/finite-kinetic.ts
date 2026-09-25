@@ -20,13 +20,21 @@
 // The seeded heatbath of the same quantized action is the reference.
 
 import { Rng } from '@/code/tool/rng'
-import { FiniteGaugeLattice, FiniteGroup } from '@/code/dynamics/finite-gauge'
+import {
+  FiniteGaugeLattice,
+  FiniteGroup,
+} from '@/code/dynamics/finite-gauge'
 
 // the integer action level of every group element
-export function actionLevels(input: { group: FiniteGroup; scale: number }): Int32Array {
+export function actionLevels(input: {
+  group: FiniteGroup
+  scale: number
+}): Int32Array {
   const { group, scale } = input
 
-  return Int32Array.from(group.trace, trace => Math.round(scale * (1 - trace / 3)))
+  return Int32Array.from(group.trace, trace =>
+    Math.round(scale * (1 - trace / 3)),
+  )
 }
 
 // The integer levels of the modified action of Alexandru et al. (2019),
@@ -35,26 +43,40 @@ export function actionLevels(input: { group: FiniteGroup; scale: number }): Int3
 // round(scale times that). The canonical weight is then exp(-(beta0 / scale) sum_p E), so the demon
 // temperature reads beta0 / scale. A level can be negative when beta1 < 0 favours an element over the
 // identity, and the bookkeeping holds all the same, since only differences of levels move energy.
-export function mixedActionLevels(input: { group: FiniteGroup; scale: number; ratio: number }): Int32Array {
+export function mixedActionLevels(input: {
+  group: FiniteGroup
+  scale: number
+  ratio: number
+}): Int32Array {
   const { group, scale, ratio } = input
 
   return Int32Array.from({ length: group.order }, (_, g) => {
     const square = group.product[g * group.order + g] ?? 0
-    const value = 1 - (group.trace[g] ?? 0) / 3 + ratio * (3 - (group.trace[square] ?? 0))
+    const value =
+      1 -
+      (group.trace[g] ?? 0) / 3 +
+      ratio * (3 - (group.trace[square] ?? 0))
 
     return Math.round(scale * value)
   })
 }
 
 // the six staples of link (site, mu) as group elements, U s_k being the six plaquettes through it
-function staples(lattice: FiniteGaugeLattice, site: number, mu: number, out: Int32Array): void {
+function staples(
+  lattice: FiniteGaugeLattice,
+  site: number,
+  mu: number,
+  out: Int32Array,
+): void {
   const { group, geometry, links } = lattice
   const { dim, up, down } = geometry
   const { order, product, inverse } = group
-  const mul = (a: number, b: number): number => product[a * order + b] ?? 0
+  const mul = (a: number, b: number): number =>
+    product[a * order + b] ?? 0
   const link = (s: number, d: number): number => links[s * dim + d] ?? 0
   const inv = (g: number): number => inverse[g] ?? 0
   const siteUp = up[site * dim + mu] ?? 0
+
   let count = 0
 
   for (let nu = 0; nu < dim; nu++) {
@@ -62,11 +84,20 @@ function staples(lattice: FiniteGaugeLattice, site: number, mu: number, out: Int
       continue
     }
 
-    out[count++] = mul(mul(link(siteUp, nu), inv(link(up[site * dim + nu] ?? 0, mu))), inv(link(site, nu)))
+    out[count++] = mul(
+      mul(link(siteUp, nu), inv(link(up[site * dim + nu] ?? 0, mu))),
+      inv(link(site, nu)),
+    )
 
     const below = down[site * dim + nu] ?? 0
 
-    out[count++] = mul(mul(inv(link(down[siteUp * dim + nu] ?? 0, nu)), inv(link(below, mu))), link(below, nu))
+    out[count++] = mul(
+      mul(
+        inv(link(down[siteUp * dim + nu] ?? 0, nu)),
+        inv(link(below, mu)),
+      ),
+      link(below, nu),
+    )
   }
 }
 
@@ -77,6 +108,7 @@ function localEnergy(input: {
   value: number
 }): number {
   const { group, levels, staple, value } = input
+
   let sum = 0
 
   for (const s of staple) {
@@ -138,14 +170,18 @@ export function finiteKineticSweep(input: {
 
       const index = site * dim + mu
       const current = links[index] ?? 0
-      const total = localEnergy({ group, levels, staple, value: current }) + (demons[index] ?? 0)
+      const total =
+        localEnergy({ group, levels, staple, value: current }) +
+        (demons[index] ?? 0)
 
       for (let shift = 1; shift < group.order; shift++) {
         const candidate =
           input.reverse === true
             ? (current - shift + group.order) % group.order
             : (current + shift) % group.order
-        const demon = total - localEnergy({ group, levels, staple, value: candidate })
+        const demon =
+          total -
+          localEnergy({ group, levels, staple, value: candidate })
 
         if (demon >= 0 && demon <= capacity) {
           updates.push([index, candidate, demon])
@@ -222,12 +258,17 @@ export function exchangeFiniteDemons(input: {
 }
 
 // The total plaquette energy in integer levels.
-export function quantizedEnergy(input: { lattice: FiniteGaugeLattice; levels: Int32Array }): number {
+export function quantizedEnergy(input: {
+  lattice: FiniteGaugeLattice
+  levels: Int32Array
+}): number {
   const { lattice, levels } = input
   const { group, geometry, links } = lattice
   const { dim, sites, up } = geometry
   const { order, product, inverse } = group
-  const mul = (a: number, b: number): number => product[a * order + b] ?? 0
+  const mul = (a: number, b: number): number =>
+    product[a * order + b] ?? 0
+
   let energy = 0
 
   for (let site = 0; site < sites; site++) {
@@ -235,7 +276,9 @@ export function quantizedEnergy(input: { lattice: FiniteGaugeLattice; levels: In
       for (let nu = mu + 1; nu < dim; nu++) {
         const a = links[site * dim + mu] ?? 0
         const b = links[(up[site * dim + mu] ?? 0) * dim + nu] ?? 0
-        const c = inverse[links[(up[site * dim + nu] ?? 0) * dim + mu] ?? 0] ?? 0
+        const c =
+          inverse[links[(up[site * dim + nu] ?? 0) * dim + mu] ?? 0] ??
+          0
         const d = inverse[links[site * dim + nu] ?? 0] ?? 0
 
         energy += levels[mul(mul(mul(a, b), c), d)] ?? 0
@@ -266,7 +309,9 @@ export function quantizedHeatbathSweep(input: {
       let total = 0
 
       for (let g = 0; g < group.order; g++) {
-        const w = Math.exp(-beta * localEnergy({ group, levels, staple, value: g }))
+        const w = Math.exp(
+          -beta * localEnergy({ group, levels, staple, value: g }),
+        )
 
         weights[g] = w
         total += w
@@ -275,7 +320,10 @@ export function quantizedHeatbathSweep(input: {
       let pick = rng.next() * total
       let chosen = 0
 
-      while (chosen < group.order - 1 && pick > (weights[chosen] ?? 0)) {
+      while (
+        chosen < group.order - 1 &&
+        pick > (weights[chosen] ?? 0)
+      ) {
         pick -= weights[chosen] ?? 0
         chosen += 1
       }
@@ -285,10 +333,84 @@ export function quantizedHeatbathSweep(input: {
   }
 }
 
+// The seeded microcanonical reference: the same ensemble as the kinetic rule (the lattice and one
+// bounded demon per link, total energy fixed) under random dynamics. Each link proposes a uniformly
+// random element and takes it when its own demon can pay, then random pairs of demons share their
+// sum uniformly within the bounds. Both moves are symmetric and conserve energy, so the stationary
+// measure is uniform on the energy shell. Where a fixed energy has no canonical counterpart (the
+// back-bent branch of a first-order transition) this, not the heatbath, is the fair comparison.
+//
+// The link move is a heatbath on the shell: with everything else fixed, the link and its demon can
+// take any element whose local energy the pair can pay for, each equally likely, so the link draws
+// uniformly among exactly those. A first version proposed a uniformly random element and accepted it
+// when it fit, which is also exact but almost never fits a small demon, and left the lattice more
+// ordered than its own demons' temperature allows.
+export function microcanonicalSweep(input: {
+  lattice: FiniteGaugeLattice
+  levels: Int32Array
+  demons: Int32Array
+  capacity: number
+  rng: Rng
+}): void {
+  const { lattice, levels, demons, capacity, rng } = input
+  const { group, geometry, links } = lattice
+  const { dim, sites } = geometry
+  const staple = new Int32Array(2 * (dim - 1))
+  const admissible = new Int32Array(group.order)
+  const paid = new Int32Array(group.order)
+
+  for (let site = 0; site < sites; site++) {
+    for (let mu = 0; mu < dim; mu++) {
+      staples(lattice, site, mu, staple)
+
+      const index = site * dim + mu
+      const total =
+        (demons[index] ?? 0) +
+        localEnergy({ group, levels, staple, value: links[index] ?? 0 })
+
+      let count = 0
+
+      for (let g = 0; g < group.order; g++) {
+        const demon =
+          total - localEnergy({ group, levels, staple, value: g })
+
+        if (demon >= 0 && demon <= capacity) {
+          admissible[count] = g
+          paid[count] = demon
+          count += 1
+        }
+      }
+
+      const pick = Math.floor(rng.next() * count)
+
+      links[index] = admissible[pick] ?? 0
+      demons[index] = paid[pick] ?? 0
+    }
+  }
+
+  // one random pair redistribution per demon, on average
+  for (let round = demons.length; round > 0; round--) {
+    const a = Math.floor(rng.next() * demons.length)
+    const b = Math.floor(rng.next() * demons.length)
+    const sum = (demons[a] ?? 0) + (demons[b] ?? 0)
+    const low = Math.max(0, sum - capacity)
+    const high = Math.min(capacity, sum)
+
+    if (a !== b) {
+      demons[a] = low + Math.floor(rng.next() * (high - low + 1))
+      demons[b] = sum - (demons[a] ?? 0)
+    }
+  }
+}
+
 // The inverse coupling of a bounded demon with unit steps, from its mean: weights exp(-beta d),
 // d = 0 .. capacity, inverted by bisection.
-export function unitDemonBeta(input: { meanDemon: number; capacity: number }): number {
+export function unitDemonBeta(input: {
+  meanDemon: number
+  capacity: number
+}): number {
   const { meanDemon, capacity } = input
+
   const meanAt = (beta: number): number => {
     let weight = 0
     let sum = 0

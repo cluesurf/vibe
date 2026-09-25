@@ -33,7 +33,11 @@ const INVERSE: readonly (readonly number[])[] = [
 ]
 
 const ROOTS = rootsD4()
-const OPPOSITE = ROOTS.map(root => ROOTS.findIndex(other => other.every((x, k) => x === -(root[k] ?? 0))))
+const OPPOSITE = ROOTS.map(root =>
+  ROOTS.findIndex(other =>
+    other.every((x, k) => x === -(root[k] ?? 0)),
+  ),
+)
 
 function modulo(value: number, side: number): number {
   return ((value % side) + side) % side
@@ -41,21 +45,39 @@ function modulo(value: number, side: number): number {
 
 // the basis coordinates of a D4 vector (exact integers for a lattice vector)
 export function d4Coordinates(vector: readonly number[]): number[] {
-  return INVERSE.map(row => Math.round(row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0)))
+  return INVERSE.map(row =>
+    Math.round(
+      row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0),
+    ),
+  )
 }
 
 // a D4 vector from basis coordinates
 export function d4Vector(coordinates: readonly number[]): number[] {
-  return [0, 1, 2, 3].map(axis => BASIS.reduce((sum, b, k) => sum + (b[axis] ?? 0) * (coordinates[k] ?? 0), 0))
+  return [0, 1, 2, 3].map(axis =>
+    BASIS.reduce(
+      (sum, b, k) => sum + (b[axis] ?? 0) * (coordinates[k] ?? 0),
+      0,
+    ),
+  )
 }
 
-export function d4BoxCell(input: { coordinates: readonly number[]; side: number }): number {
+export function d4BoxCell(input: {
+  coordinates: readonly number[]
+  side: number
+}): number {
   const { coordinates, side } = input
 
-  return coordinates.reduce((index, c, k) => index + modulo(c, side) * side ** k, 0)
+  return coordinates.reduce(
+    (index, c, k) => index + modulo(c, side) * side ** k,
+    0,
+  )
 }
 
-export function d4BoxCoordinates(input: { cell: number; side: number }): number[] {
+export function d4BoxCoordinates(input: {
+  cell: number
+  side: number
+}): number[] {
   const { cell, side } = input
 
   return [0, 1, 2, 3].map(k => Math.floor(cell / side ** k) % side)
@@ -74,7 +96,10 @@ export function d4BoxMesh(input: { side: number }): Mesh {
       const c = d4BoxCoordinates({ cell, side })
       const step = rootCoordinates[direction] ?? [0, 0, 0, 0]
 
-      return d4BoxCell({ coordinates: c.map((x, k) => x + (step[k] ?? 0)), side })
+      return d4BoxCell({
+        coordinates: c.map((x, k) => x + (step[k] ?? 0)),
+        side,
+      })
     },
     opposite(direction) {
       return OPPOSITE[direction] ?? direction
@@ -84,16 +109,29 @@ export function d4BoxMesh(input: { side: number }): Mesh {
 
 // The 4 x 4 linear map (rows) that a permutation of the 24 roots is, read from four independent roots
 // (b1..b4 are roots). Undefined when the permutation is not linear.
-export function linearMapOf(permutation: readonly number[]): number[][] | undefined {
-  const indexOf = (vector: readonly number[]): number => ROOTS.findIndex(r => r.every((x, k) => x === vector[k]))
+export function linearMapOf(
+  permutation: readonly number[],
+): number[][] | undefined {
+  const indexOf = (vector: readonly number[]): number =>
+    ROOTS.findIndex(r => r.every((x, k) => x === vector[k]))
   // images of the basis vectors, as columns
-  const images = BASIS.map(b => ROOTS[permutation[indexOf(b)] ?? 0] ?? [0, 0, 0, 0])
+  const images = BASIS.map(
+    b => ROOTS[permutation[indexOf(b)] ?? 0] ?? [0, 0, 0, 0],
+  )
   // M = images * INVERSE_BASIS, M[i][j] = sum_k images[k][i] INVERSE[k][j]
   const matrix = [0, 1, 2, 3].map(i =>
-    [0, 1, 2, 3].map(j => images.reduce((sum, image, k) => sum + (image[i] ?? 0) * (INVERSE[k]?.[j] ?? 0), 0)),
+    [0, 1, 2, 3].map(j =>
+      images.reduce(
+        (sum, image, k) =>
+          sum + (image[i] ?? 0) * (INVERSE[k]?.[j] ?? 0),
+        0,
+      ),
+    ),
   )
   const linear = ROOTS.every((root, d) => {
-    const image = matrix.map(row => row.reduce((sum, x, k) => sum + x * (root[k] ?? 0), 0))
+    const image = matrix.map(row =>
+      row.reduce((sum, x, k) => sum + x * (root[k] ?? 0), 0),
+    )
     const target = ROOTS[permutation[d] ?? 0] ?? []
 
     return image.every((x, k) => Math.abs(x - (target[k] ?? 0)) < 1e-9)
@@ -104,15 +142,22 @@ export function linearMapOf(permutation: readonly number[]): number[][] | undefi
 
 // The permutation of cells a linear map of R^4 induces on the box, or undefined when some cell is not
 // sent to a cell (the map does not preserve D4, or not L D4).
-export function boxCellMap(input: { matrix: readonly (readonly number[])[]; side: number }): number[] | undefined {
+export function boxCellMap(input: {
+  matrix: readonly (readonly number[])[]
+  side: number
+}): number[] | undefined {
   const { matrix, side } = input
   const cells = side ** 4
   const map: number[] = []
 
   for (let cell = 0; cell < cells; cell++) {
     const vector = d4Vector(d4BoxCoordinates({ cell, side }))
-    const image = matrix.map(row => row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0))
-    const raw = INVERSE.map(row => row.reduce((sum, x, k) => sum + x * (image[k] ?? 0), 0))
+    const image = matrix.map(row =>
+      row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0),
+    )
+    const raw = INVERSE.map(row =>
+      row.reduce((sum, x, k) => sum + x * (image[k] ?? 0), 0),
+    )
 
     if (raw.some(x => Math.abs(x - Math.round(x)) > 1e-9)) {
       return undefined
@@ -136,7 +181,8 @@ export function transformState(input: {
 
   for (let cell = 0; cell < cellMap.length; cell++) {
     for (let d = 0; d < degree; d++) {
-      out[(cellMap[cell] ?? 0) * degree + (permutation[d] ?? 0)] = data[cell * degree + d] ?? 0
+      out[(cellMap[cell] ?? 0) * degree + (permutation[d] ?? 0)] =
+        data[cell * degree + d] ?? 0
     }
   }
 

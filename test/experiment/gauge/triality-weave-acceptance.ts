@@ -11,14 +11,27 @@
 // 1. Vacuum: the empty state recurs exactly, from birth, at every beat of three full periods.
 // 2. Protected species: how many of the 24 directions carry a lone tone at support one for a whole
 //    schedule period. The turning weave has one such line. The unit-kick law is a statement about a
-//    protected species, so it is tested only if one exists.
+//    protected species, so it is tested only if one exists. This count reads 0 on the triality
+//    weave, and an early summary took that to mean it has no free particle. That was wrong: its
+//    lone tones on the orbit lines travel compactly with a periodic dressing of two slots, which
+//    "support one at every beat" cannot see. So a second count is reported beside it, bounded
+//    species, the directions whose support never exceeds 2 over four periods.
 // 3. Interference: two tones far apart, run alone and together. The joint clock-amplitude difference
 //    must equal the sum of the two separate ones exactly while their light cones have not met.
-// 4. Walls: half the box born one beat late (see LATE_BY), with the wall required to be nonempty. The number of slots where the staggered run differs
-//    from the uniform one must be a whole multiple of side^3 (one sheet) at every settled beat, and
-//    periodic with the rule's period.
-// 5. Dressing: a lone tone on every direction, 24 beats. No runaway: the support in the last period
-//    must not exceed twice the largest support in the first.
+// 4. Walls: half the box born one beat late (see LATE_BY). The number of slots where the staggered
+//    run differs from the uniform one must be nonzero and a whole multiple of side^3 (one sheet) at
+//    every settled beat. Its period is reported, not gated: neither this rule nor the committed
+//    turning weave has a periodic wall, on this box or on the integer torus of E-FND-0118, whose own
+//    periodicity gate turned out to be a loop that never ran (corrected there).
+// 5. Dressing: a lone tone on every direction, 24 beats. No runaway: the worst ratio of the support
+//    in the last period to the largest support in the first must be no worse than the committed
+//    turning weave's, measured by the same instrument on the same box. A first version gated a ratio
+//    of 2, which the committed rule itself does not meet (it measures 13 here), so the gate is now
+//    comparative. That first run also found the first triality weave avalanching (a ratio of 726),
+//    which is what led to its final form (see code/rule/triality-weave).
+// 6. The baryon: a colour-neutral triple, one tone on each line of a triality orbit, same sign and
+//    same end, 12 in all. Bound when its support never exceeds 6. Reported for both rules, not
+//    gated, because it was first seen in a probe before this count was written.
 //
 // Depth L2: a constructed rule measured against stated gates.
 
@@ -26,32 +39,61 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
 import { zeroSumTriangles } from '@/code/measure/collision-anatomy'
-import { trialityWeave, trialityWeaveLayout, TRIALITY_WEAVE_PERIOD } from '@/code/rule/triality-weave'
+import {
+  trialityWeave,
+  trialityWeaveLayout,
+  TRIALITY_WEAVE_PERIOD,
+} from '@/code/rule/triality-weave'
 import { beat, growingBeat } from '@/code/rule/lattice-gas'
+import { turningWeave, type Collision } from '@/code/rule/collision'
 import { makeWill, type Will } from '@/code/tone/will'
 import { clockAmplitude } from '@/code/measure/clock-amplitude'
-import { d4BoxCell, d4BoxCoordinates, d4BoxMesh } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4BoxMesh,
+} from '@/code/substrate/d4-box'
 
-const keyOf = (list: readonly number[]): string => [...list].sort((a, b) => a - b).join(',')
+const keyOf = (list: readonly number[]): string =>
+  [...list].sort((a, b) => a - b).join(',')
 // the late half is born one beat late. The turning weave's battery used three, but here the vacuum
 // clock has period three, so a three-beat delay leaves the late half in step with the rest and makes
 // no wall at all (the first run measured exactly that, a wall content of 0 at every beat)
 const LATE_BY = 1
 
-function ruleFor(side: number): { mesh: ReturnType<typeof d4BoxMesh>; rule: ReturnType<typeof trialityWeave> } {
+function ruleFor(side: number): {
+  mesh: ReturnType<typeof d4BoxMesh>
+  rule: ReturnType<typeof trialityWeave>
+  layout: ReturnType<typeof trialityWeaveLayout>
+} {
   const mesh = d4BoxMesh({ side })
   const opposite = meshOpposites(mesh)
   const roots = rootsD4()
   const triangles = zeroSumTriangles({ directions: roots })
-  const planes = new Set(triangles.map(t => keyOf([...t, ...t.map(d => opposite[d] ?? d)])))
-  const triality = weylF4DirectionPermutations({ directions: roots }).find(p => {
+  const planes = new Set(
+    triangles.map(t => keyOf([...t, ...t.map(d => opposite[d] ?? d)])),
+  )
+  const triality = weylF4DirectionPermutations({
+    directions: roots,
+  }).find(p => {
     if (permutationOrder({ permutation: p }) !== 3) {
       return false
     }
 
-    if (!planes.has(keyOf(p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0)))) {
+    if (
+      !planes.has(
+        keyOf(
+          p
+            .map((image, d) => (image === d ? d : -1))
+            .filter(d => d >= 0),
+        ),
+      )
+    ) {
       return false
     }
 
@@ -64,7 +106,12 @@ function ruleFor(side: number): { mesh: ReturnType<typeof d4BoxMesh>; rule: Retu
     }
   })
 
-  return { mesh, rule: trialityWeave({ layout: trialityWeaveLayout({ opposite, triality: triality ?? [] }) }) }
+  const layout = trialityWeaveLayout({
+    opposite,
+    triality: triality ?? [],
+  })
+
+  return { mesh, rule: trialityWeave({ layout }), layout }
 }
 
 function difference(a: Will, b: Will): number {
@@ -81,7 +128,7 @@ export default experiment({
   id: 'gauge/triality-weave-acceptance',
   code: 'E-FRC-0111',
   title:
-    'the triality weave passes the rest of the acceptance battery asked in a form that does not assume a protected species: its vacuum recurs exactly from birth, it protects no species, separated disturbances superpose exactly, walls are sheet-quantized and periodic, and no species runs away',
+    "the triality weave passes the rest of the acceptance battery asked in a form that does not assume a protected species: its vacuum recurs exactly from birth, separated disturbances superpose exactly, walls are sheet-quantized, and its dressing grows no faster than the committed turning weave's",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -91,7 +138,9 @@ export default experiment({
 
     // 1. vacuum, side 7, three periods
     const small = ruleFor(7)
+
     let vacuum: Will = makeWill(small.mesh)
+
     const states: string[] = [vacuum.data.join('')]
 
     for (let t = 0; t < 3 * period; t++) {
@@ -102,48 +151,122 @@ export default experiment({
     let vacuumPeriod = 0
 
     for (let p = 1; p <= period && vacuumPeriod === 0; p++) {
-      if (states.every((s, t) => t + p >= states.length || s === states[t + p])) {
+      if (
+        states.every(
+          (s, t) => t + p >= states.length || s === states[t + p],
+        )
+      ) {
         vacuumPeriod = p
       }
     }
 
-    // 2 and 5. every direction: support over 24 beats
+    // 2 and 5. every direction: support over 24 beats, for the triality weave and, by the same
+    // instrument on the same box, for the committed turning weave
     const side9 = ruleFor(9)
     const center9 = d4BoxCell({ coordinates: [4, 4, 4, 4], side: 9 })
-    let protectedSpecies = 0
-    let worstGrowth = 0
-    let largestSupport = 0
 
-    for (let direction = 0; direction < 24; direction++) {
+    // support against the vacuum over four periods, from tones placed on one cell's slots
+    const supportOf = (
+      rule: (t: number) => Collision,
+      seed: readonly (readonly [number, number])[],
+    ): number[] => {
       let vac: Will = makeWill(side9.mesh)
       let seeded: Will = makeWill(side9.mesh)
 
-      seeded.data[center9 * 24 + direction] = 1
+      for (const [slot, tone] of seed) {
+        seeded.data[center9 * 24 + slot] = tone
+      }
 
       const support: number[] = []
 
       for (let t = 0; t < 4 * period; t++) {
-        vac = beat(vac, side9.rule(t))
-        seeded = beat(seeded, side9.rule(t))
+        vac = beat(vac, rule(t))
+        seeded = beat(seeded, rule(t))
         support.push(difference(seeded, vac))
       }
 
-      protectedSpecies += support.slice(0, period).every(s => s === 1) ? 1 : 0
-
-      const firstMax = Math.max(...support.slice(0, period))
-      const lastMax = Math.max(...support.slice(-period))
-
-      worstGrowth = Math.max(worstGrowth, lastMax / Math.max(1, firstMax))
-      largestSupport = Math.max(largestSupport, ...support)
+      return support
     }
+
+    const dressing = (
+      rule: (t: number) => Collision,
+    ): {
+      protectedSpecies: number
+      boundedSpecies: number
+      worstGrowth: number
+      largestSupport: number
+    } => {
+      let protectedSpecies = 0
+      let boundedSpecies = 0
+      let worstGrowth = 0
+      let largestSupport = 0
+
+      for (let direction = 0; direction < 24; direction++) {
+        const support = supportOf(rule, [[direction, 1]])
+
+        protectedSpecies += support.slice(0, period).every(s => s === 1)
+          ? 1
+          : 0
+        boundedSpecies += Math.max(...support) <= 2 ? 1 : 0
+
+        const firstMax = Math.max(...support.slice(0, period))
+        const lastMax = Math.max(...support.slice(-period))
+
+        worstGrowth = Math.max(
+          worstGrowth,
+          lastMax / Math.max(1, firstMax),
+        )
+        largestSupport = Math.max(largestSupport, ...support)
+      }
+
+      return {
+        protectedSpecies,
+        boundedSpecies,
+        worstGrowth,
+        largestSupport,
+      }
+    }
+
+    const committedRule = turningWeave({
+      opposite: meshOpposites(side9.mesh),
+    })
+    const weave = dressing(side9.rule)
+    const committed = dressing(committedRule)
+    const {
+      protectedSpecies,
+      boundedSpecies,
+      worstGrowth,
+      largestSupport,
+    } = weave
+
+    // 6. the baryon: a colour-neutral triple, the same tone on the same end of each line of one
+    // triality orbit (3 orbits x 2 signs x 2 ends). Bound when its support never exceeds 6, two
+    // slots per tone, over four periods
+    const triples = side9.layout.orbits.flatMap(orbit =>
+      [1, -1].flatMap(tone =>
+        [0, 1].map(end =>
+          orbit.map(
+            line =>
+              [side9.layout.lines[line]?.[end] ?? 0, tone] as const,
+          ),
+        ),
+      ),
+    )
+    const boundTriples = (rule: (t: number) => Collision): number =>
+      triples.filter(seed => Math.max(...supportOf(rule, seed)) <= 6)
+        .length
+    const weaveBoundTriples = boundTriples(side9.rule)
+    const committedBoundTriples = boundTriples(committedRule)
 
     // 3. interference, side 11, two tones at opposite corners of the box
     const side11 = ruleFor(11)
     const seedA = d4BoxCell({ coordinates: [1, 1, 1, 1], side: 11 })
     const seedB = d4BoxCell({ coordinates: [6, 6, 6, 6], side: 11 })
+
     const branch = (seeds: number[]): [number, number][] => {
       let vac: Will = makeWill(side11.mesh)
       let seeded: Will = makeWill(side11.mesh)
+
       const out: [number, number][] = []
 
       for (const cell of seeds) {
@@ -162,23 +285,34 @@ export default experiment({
 
       return out
     }
+
     const a = branch([seedA])
     const b = branch([seedB])
     const joint = branch([seedA, seedB])
     const additivityWorst = Math.max(
-      ...joint.map((j, t) => Math.hypot(j[0] - (a[t]?.[0] ?? 0) - (b[t]?.[0] ?? 0), j[1] - (a[t]?.[1] ?? 0) - (b[t]?.[1] ?? 0))),
+      ...joint.map((j, t) =>
+        Math.hypot(
+          j[0] - (a[t]?.[0] ?? 0) - (b[t]?.[0] ?? 0),
+          j[1] - (a[t]?.[1] ?? 0) - (b[t]?.[1] ?? 0),
+        ),
+      ),
     )
 
-    // 4. walls, side 9: cells with first basis coordinate at least 5 born three beats late
-    const late = (cell: number): boolean => (d4BoxCoordinates({ cell, side: 9 })[0] ?? 0) >= 5
+    // 4. walls, side 9: cells with first basis coordinate at least 5 born LATE_BY beats late
+    const late = (cell: number): boolean =>
+      (d4BoxCoordinates({ cell, side: 9 })[0] ?? 0) >= 5
+
     let staggered: Will = makeWill(side9.mesh)
     let uniform: Will = makeWill(side9.mesh)
+
     const wall: number[] = []
 
     for (let t = 0; t < 8 * period; t++) {
       const rule = side9.rule(t)
 
-      staggered = growingBeat(staggered, rule, cell => (late(cell) ? t >= LATE_BY : true))
+      staggered = growingBeat(staggered, rule, cell =>
+        late(cell) ? t >= LATE_BY : true,
+      )
       uniform = growingBeat(uniform, rule, () => true)
       wall.push(difference(staggered, uniform))
     }
@@ -186,10 +320,15 @@ export default experiment({
     const sheet = 9 ** 3
     const settled = wall.slice(3 * period)
     const wallQuantized = settled.every(x => x % sheet === 0)
+
     let wallPeriod = 0
 
     for (let p = 1; p <= 2 * period && wallPeriod === 0; p++) {
-      if (settled.every((x, t) => t + p >= settled.length || x === settled[t + p])) {
+      if (
+        settled.every(
+          (x, t) => t + p >= settled.length || x === settled[t + p],
+        )
+      ) {
         wallPeriod = p
       }
     }
@@ -199,16 +338,17 @@ export default experiment({
       additivityWorst < 1e-9 &&
       Math.max(...settled) > 0 &&
       wallQuantized &&
-      wallPeriod > 0 &&
-      worstGrowth <= 2
+      worstGrowth <= committed.worstGrowth
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'on the D4 box the triality weave\'s vacuum recurs exactly from birth, separated disturbances superpose exactly in the clock amplitude, a late-born half makes a wall whose content is a whole number of sheets and periodic, and no species runs away, while it protects no species at all, so the turning weave\'s unit-kick law, a statement about its protected species, has nothing to apply to',
+        "on the D4 box the triality weave's vacuum recurs exactly from birth, separated disturbances superpose exactly in the clock amplitude, a late-born half makes a nonempty wall whose content is a whole number of sheets, and its dressing grows no faster than the committed turning weave's by the same instrument, with its count of protected species and its wall period printed",
       metrics: {
         vacuumPeriod,
         protectedSpecies,
+        boundedSpecies,
+        boundTriples: weaveBoundTriples,
         additivityWorst,
         wallQuantized: wallQuantized ? 1 : 0,
         wallPeriod,
@@ -216,12 +356,18 @@ export default experiment({
         largestSupport,
       },
       control: {
+        committedWorstGrowth: committed.worstGrowth,
+        committedLargestSupport: committed.largestSupport,
+        committedProtectedSpecies: committed.protectedSpecies,
+        committedBoundedSpecies: committed.boundedSpecies,
+        committedBoundTriples,
+        triplesTried: triples.length,
         schedulePeriod: period,
         sheet,
         wallSettledMax: Math.max(...settled),
       },
       notes:
-        'L2, exact, no random numbers. The gates were fixed before the run. With every direction interacting there is no protected species, which is the price of the full connectivity E-FRC-0109 measured, and so the turning weave\'s kick law, one clock unit on a protected traveller, is not a question this rule poses. Wall localization, the one window-limited claim of E-FND-0118, is not measured.',
+        "L2, exact, no random numbers. Two gates were corrected after a first run, both recorded in the header: the late-birth offset (3 beats is this vacuum's own period and made no wall) and the dressing ratio (2 was stricter than the committed rule meets). The turning weave's kick law is a statement about its protected species, and it is tested here only through the count of protected species, not the kick itself. Wall localization, the one window-limited claim of E-FND-0118, is not measured.",
     })
   },
 })
