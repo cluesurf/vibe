@@ -103,6 +103,30 @@ rule that keeps one triality rotation, which the previous knit did and the commi
 So the concrete design question becomes: **is there a turning schedule that does everything the
 turning weave was adopted for and still commutes with one triality rotation?**
 
+**Measured: no, not in the family the turning weave came from** (`E-FRC-0107`). The weave couples
+the 12 lines in pairs every beat, and was adopted for universality (one connected species graph) and
+CPT (a palindrome with identity spatial parity, `E-FND-0117`).
+
+| step | measured |
+| --- | --- |
+| a colour-selecting triality on lines | fixes exactly the **3** colour-plane lines, cycles the other 9 in three 3-cycles (all 32) |
+| invariant couplings of all 12 lines | **0 of 10,395**. A fixed line must couple to a fixed line, and there are three. A fixed-point-free order-three control admits 27 |
+| CPT and covariance together | the adopted parity and full inversion both commute with triality, so a covariant palindrome has to be invariant beat by beat |
+| universality | an invariant beat never couples a colour line to one of the other nine, so the species graph cannot connect |
+| what would reconcile them | an invariant block of **4** lines (one colour line with a whole triality orbit), or a CPT whose parity inverts the triality (36 such elements, none of them the identity or the inversion) |
+
+The earlier triality search was also shut for a second reason. The adoption note records that the
+triality cosets "do not act on the integer torus": triality has entries of one half, so it preserves
+the D4 lattice but not a periodic box of shape L Z^4. That is a property of the box, and a box with
+D4-shaped periods would admit it. `E-FRC-0107` needs no box at all, and it shows the obstruction is in
+the schedule, not the box.
+
+So colour cannot emerge from the committed rule's design family. The obstruction is the same
+pairs-against-threes one as `E-FRC-0094`, one level up: **the colour plane holds three lines, and a
+rule that works in pairs can never treat them symmetrically and still reach them.** A base that wanted
+triality colour would need a four-line interaction block, and adopting one is a decision, not a
+measurement.
+
 ## What the base would change
 
 Each item names the base thing it touches, and the experiment that says why.

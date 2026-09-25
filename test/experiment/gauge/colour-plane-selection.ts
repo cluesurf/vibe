@@ -109,7 +109,7 @@ function complementShadows(roots: readonly (readonly number[])[], a: readonly nu
   return [...counts.values()]
 }
 
-function directionSpeeds(opposite: readonly number[]): number[] {
+function directionSpeeds(opposite: number[]): number[] {
   const mesh = d4Mesh({ side: SPEED_SIDE })
   const rule = turningWeave({ opposite })
   const mid = (SPEED_SIDE - 1) / 2

@@ -265,7 +265,18 @@ import {
   singletCount,
   singletResidual,
 } from '@/code/measure/colour-symmetry'
-import { generateGroup, matrix3 } from '@/code/dynamics/finite-gauge'
+import {
+  generateGroup,
+  matrix3,
+  makeFiniteGaugeLattice,
+  finitePlaquette,
+  finitePolyakovLoop,
+  finiteWilsonLoops,
+} from '@/code/dynamics/finite-gauge'
+import { phaseSpaceAction, affineOf, wignerFunction } from '@/code/measure/qutrit-phase-space'
+import { coinGroup, countIsomorphisms, specialLinear23 } from '@/code/algebra/group/coin-group'
+import { SU3_SUBGROUPS, GOLDEN, QUTRIT_T } from '@/code/algebra/group/su3-subgroups'
+import { doubleCosetSet, makeLinkSetLattice, linkSetPlaquette } from '@/code/dynamics/link-set-gauge'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { passThrough } from '@/code/rule/collision'
 import {
@@ -3003,6 +3014,67 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       check({
         name: 'generateGroup: clock and shift close on 27 elements, with the Fourier matrix on 108, triplet irreducible',
         ok: heisenberg.order === 27 && hessian.order === 108 && Math.abs(meanSquareTrace - 1) < 1e-9,
+      })
+
+      // the Clifford elements permute phase space affinely, the golden one does not, and the Wigner
+      // function of |0> sums to one and is nonnegative
+      const cliffordAffine = hessian.matrices.every(m => {
+        const map = phaseSpaceAction({ unitary: m })
+
+        return map !== undefined && affineOf({ map }) !== undefined
+      })
+      const zero = wignerFunction({ re: [1, 0, 0], im: [0, 0, 0] })
+
+      check({
+        name: 'qutrit phase space: Sigma(108) acts affinely, the golden element and T do not, W(|0>) sums to 1 and is nonnegative',
+        ok:
+          cliffordAffine &&
+          phaseSpaceAction({ unitary: GOLDEN }) === undefined &&
+          phaseSpaceAction({ unitary: QUTRIT_T }) === undefined &&
+          Math.abs(zero.reduce((a, b) => a + b, 0) - 1) < 1e-12 &&
+          zero.every(w => w > -1e-12),
+      })
+
+      // the 24 D4 directions form SL(2, 3) under x o y = x q y
+      const coin = coinGroup({ directions: rootsD4() })
+      const special = specialLinear23()
+      const at = (m: number[]): number => special.matrices.findIndex(x => x.join() === m.join())
+
+      check({
+        name: 'coin group: the D4 directions close under x q y, 24 isomorphisms from SL(2, 3)',
+        ok:
+          coin.closed &&
+          coin.hurwitz &&
+          countIsomorphisms({ first: special, second: coin, order: 24, generators: [at([1, 1, 0, 1]), at([0, 2, 1, 0])] }) === 24,
+      })
+
+      // a cold finite-group lattice: plaquette, Polyakov loop and every Wilson loop exactly 1
+      const cold = makeFiniteGaugeLattice({ group: hessian, lengths: [3, 3, 3, 3], start: 'cold', rng: makeRng({ seed: 1 }) })
+      const polyakov = finitePolyakovLoop({ lattice: cold })
+      const loops = finiteWilsonLoops({ lattice: cold, max: 2 })
+
+      check({
+        name: 'finite gauge lattice: a cold start has plaquette, Polyakov loop and Wilson loops exactly 1',
+        ok:
+          Math.abs(finitePlaquette({ lattice: cold }) - 1) < 1e-12 &&
+          Math.abs(polyakov.re - 1) < 1e-12 &&
+          Math.abs(polyakov.im) < 1e-12 &&
+          Math.abs((loops[2]?.[2] ?? 0) - 1) < 1e-12,
+      })
+
+      // the one-magic-step link set: group first (identity at 0), magic elements marked, cold plaquette 1
+      const delta = generateGroup({ generators: [...SU3_SUBGROUPS.delta27.generators] })
+      const set = doubleCosetSet({ group: delta.matrices, extras: [QUTRIT_T] })
+      const setLattice = makeLinkSetLattice({ set, lengths: [3, 3, 3, 3], start: 'cold', rng: makeRng({ seed: 1 }) })
+
+      check({
+        name: 'link set: the group comes first and is not magic, the double coset is, a cold start has plaquette 1',
+        ok:
+          set.magic[0] === 0 &&
+          set.magic.slice(0, delta.order).every(m => m === 0) &&
+          set.magic.slice(delta.order).every(m => m === 1) &&
+          set.matrices.length > delta.order &&
+          Math.abs(linkSetPlaquette({ lattice: setLattice }) - 1) < 1e-12,
       })
     }
   }
