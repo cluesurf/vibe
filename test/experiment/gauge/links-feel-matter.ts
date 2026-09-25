@@ -15,6 +15,7 @@
 // - a change of role frame in every cell commutes with the whole rule: 0 mismatches over 24 beats
 // - the links move (more than half the undirected links differ from the start after 24 beats), the matter
 //   term changes under some of those moves (the links feel it), and role moves and hops both happen
+// - all of the above again on the side-5 box (625 cells), for robustness to size
 // Controls, each run on the same start:
 // - `feel: false`, a link move priced without the matter term: reversal is still exact, and the energy
 //   leaks. So the matter term is what the demons pay for
@@ -40,6 +41,7 @@ import {
 } from '@/code/rule/matter-links'
 
 const SIDE = 4
+const LARGER_SIDE = 5
 const KAPPA = 3
 const CAPACITY = 24
 const BEATS = 24
@@ -217,6 +219,13 @@ export default experiment({
         hops: main.moves.hops,
         fieldEnergyAfter: main.field,
         matterEnergyAfter: main.matter,
+        side5ReversesExactly: larger.reverses ? 1 : 0,
+        side5EnergyConserved: larger.energyExact ? 1 : 0,
+        side5FrameMismatches: larger.frameMismatches,
+        side5LinksChanged: larger.linksChanged,
+        side5Links: larger.links,
+        side5LinkMovesThatChangedTheMatterTerm: larger.moves.felt,
+        side5Hops: larger.moves.hops,
       },
       control: {
         blindLinksReverse: blindRun.reverses ? 1 : 0,

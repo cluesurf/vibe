@@ -21,8 +21,11 @@
 // - each plaquette pays E(U_p) = round(K (1 - Re Tr U_p / 3)), the action of E-FRC-0110
 // - each site that is not calm pays the mass level M
 // - each link whose two ends are both not calm pays the bond level of <phi_x, U phi_(x + mu)>, the
-//   gauge-invariant hopping term: round(B (1 - Re <phi_x, U phi_y>)) for a fundamental triplet, or, for the
-//   center-blind control, round(B (1 - |<phi_x, U phi_y>|^2)), which is what a role point feels
+//   gauge-invariant hopping term: round(-B Re <phi_x, U phi_y>) for a fundamental triplet, a bond that
+//   lowers the energy when the two colors agree across the link and raises it when they oppose. For the
+//   center-blind control, round(-B (3 |<phi_x, U phi_y>|^2 - 1) / 2), the adjoint reading, which is what a
+//   role point feels (E-FRC-0119). Both average to zero over unrelated colors, and a first version, which
+//   charged B (1 - Re <>) and so made every bond cost energy, kept matter from ever forming a bond
 // Under a change of frame g_x in every cell (phi_x -> g_x phi_x, U -> g_x U g_y^-1) every term is
 // unchanged.
 //
@@ -191,10 +194,14 @@ export function bondLevels(input: {
   reading: BondReading
 }): Int32Array {
   const { triplet, scale, reading } = input
-  const source =
-    reading === 'fundamental' ? triplet.overlap : triplet.overlapSquared
 
-  return Int32Array.from(source, x => Math.round(scale * (1 - x)))
+  if (reading === 'fundamental') {
+    return Int32Array.from(triplet.overlap, x => Math.round(-scale * x))
+  }
+
+  return Int32Array.from(triplet.overlapSquared, x =>
+    Math.round((-scale * (3 * x - 1)) / 2),
+  )
 }
 
 export type MatterModel = {

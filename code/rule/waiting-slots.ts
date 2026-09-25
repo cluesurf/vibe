@@ -57,12 +57,21 @@ export const SLOTS = 26
 export const WAIT_PLUS = 24
 export const WAIT_MINUS = 25
 
+// which decision pass runs first. The note's rule leaves first, then waits
+export type PassOrder = 'leave-first' | 'wait-first'
+
+// which moving slots a waiting slot trades with: those of its own side (the rule), or those of the other
+// side (the control, which moves a charge between slots of opposite sign and must leak color)
+export type Pairing = 'same' | 'crossed'
+
 export type WaitingSlots = {
   readonly mesh: Mesh
   readonly side: number
   readonly mass: number
   readonly tension: number
   readonly orientation: number
+  readonly order: PassOrder
+  readonly pairing: Pairing
   readonly opposite: readonly number[]
   readonly lines: readonly (readonly [number, number])[]
   // +1 or -1 for each of the 26 slots: the sign of its color when calm
@@ -102,8 +111,17 @@ export type BeatLog = {
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
-export function makeWaitingSlots(input: { side: number; orientation: number; mass: number; tension: number }): WaitingSlots {
+export function makeWaitingSlots(input: {
+  side: number
+  orientation: number
+  mass: number
+  tension: number
+  order?: PassOrder
+  pairing?: Pairing
+}): WaitingSlots {
   const { side, orientation, mass, tension } = input
+  const order = input.order ?? 'leave-first'
+  const pairing = input.pairing ?? 'same'
   const weave = makeVibeWeave({ side })
   const mesh = d4BoxMesh({ side })
   const { opposite, lines, moves, links } = weave
@@ -167,7 +185,7 @@ export function makeWaitingSlots(input: { side: number; orientation: number; mas
     previous[onward] = l
   })
 
-  return { mesh, side, mass, tension, orientation, opposite, lines, sign, classes, moves, links, neighbour, edges, edgeOf, forwardOf, next, previous }
+  return { mesh, side, mass, tension, orientation, order, pairing, opposite, lines, sign, classes, moves, links, neighbour, edges, edgeOf, forwardOf, next, previous }
 }
 
 // the zero-sum triangles inside the plus side of an orientation, as direction triples
@@ -307,7 +325,7 @@ function decisionPass(rule: WaitingSlots, state: WaitingState, x: number, t: num
 
   for (let c = 0; c < 2; c++) {
     const wait = x * SLOTS + (c === 0 ? WAIT_PLUS : WAIT_MINUS)
-    const order = rule.classes[c] ?? []
+    const order = rule.classes[rule.pairing === 'same' ? c : 1 - c] ?? []
     const offset = ((t % 12) + 12) % 12
 
     for (let k = 0; k < 12; k++) {
@@ -328,12 +346,14 @@ function decisionPass(rule: WaitingSlots, state: WaitingState, x: number, t: num
 }
 
 function collideCell(rule: WaitingSlots, state: WaitingState, x: number, t: number, forward: boolean): void {
+  const first = rule.order === 'leave-first'
+
   if (forward) {
-    decisionPass(rule, state, x, t, true, false)
-    decisionPass(rule, state, x, t, false, false)
+    decisionPass(rule, state, x, t, first, false)
+    decisionPass(rule, state, x, t, !first, false)
   } else {
-    decisionPass(rule, state, x, t, false, true)
-    decisionPass(rule, state, x, t, true, true)
+    decisionPass(rule, state, x, t, !first, true)
+    decisionPass(rule, state, x, t, first, true)
   }
 }
 

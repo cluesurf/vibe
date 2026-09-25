@@ -41,9 +41,15 @@
 // Backward runs the inverse stream, then every move in the reverse order. Moves in index order are the only
 // order used, and a frame change does not move cells, so the order is frame-free.
 //
-// Two switches exist for controls only: `feel: false` prices a link move without the matter term (energy
-// then leaks), and `transport: false` compares and carries role points without the link (the frame change
-// then breaks).
+// Switches: `hop: false` holds the vibes in place (static sources), `roles: false` holds the role points (so
+// only the links can respond to the matter). Two exist for controls only: `feel: false` prices a link move
+// without the matter term (energy then leaks), and `transport: false` compares and carries role points
+// without the link (the frame change then breaks).
+//
+// The step of step 1 cannot leave a field that is pure gauge (every triangle 0): with every staple flat, the
+// reflection gives back U. That holds for any frame-covariant deterministic link move that reads only links, since at a flat field it
+// must commute with every frame change, and the 216 grid moves have no center. So a cold field stays cold, and
+// runs start from the hashed links of the vibe weave.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
@@ -491,10 +497,9 @@ export function cellFieldLevel(rule: MatterLinks, links: Int16Array): Float64Arr
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
       const e = triangleEnergy(rule, links, x, a, links[x * DEGREE + a] ?? 0)
-
-      sum[x] = (sum[x] ?? 0) + e
       const y = rule.neighbour[x * DEGREE + a] ?? 0
 
+      sum[x] = (sum[x] ?? 0) + e
       sum[y] = (sum[y] ?? 0) + e
     }
   }

@@ -40,6 +40,14 @@
 // The rest is reported as measured: whether a string can be read on each branch, whether the pair depends on
 // its separation, and whether the meson is confined (its mean gap against the control).
 //
+// Result of the first run, recorded as it came out: every gate holds but one. On the cold branch the source
+// links carry their role points 0.475 of the time, under the 0.5 set from the melted probe, and the Polyakov
+// count on the lines rises only from 0.999 to 1.004. A reading, not measured: a colder field is stiffer, a
+// link move there disturbs 8 triangles at a lower level, so the matter's kappa pays for fewer of them. The
+// gate is left as set,
+// and the experiment fails on it. The kappa-0 meson reads the same on both branches because with no matter
+// term a hop costs nothing, so its path does not depend on the field at all.
+//
 // Depth L2: a constructed rule, measured.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -91,7 +99,7 @@ export default experiment({
   id: 'gauge/matter-shapes-the-field',
   code: 'E-FRC-0135',
   title:
-    "does matter shape the field: under the rule where links feel the matter, static source lines pull their links into carrying their color (about 0.8 of the time against 1/9 by chance) and raise the Polyakov count on the lines at an energy cost in the triangles round them, and a meson's link follows it as it moves, but the effect stays on the links the matter touches: no string between separated lines, the pair confined by contact only, and the role-point string read only on the cold branch",
+    "does matter shape the field: under the rule where links feel the matter, static source lines pull their links into carrying their color (0.81 of the time on the melted field, 0.48 on the cold one, against 1/9 by chance) at an energy cost in the triangles round them, and a meson's link follows it as it moves, but the effect stays on the links the matter touches: no string between separated lines, the pair bound by contact only, the role-point string read only on the cold field, and the gate that the cold field's links respond more than half the time fails",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -237,7 +245,7 @@ export default experiment({
           lineN += fixedPoints(rule, lineTransport(rule, s.links, x, tau)) / starts.length / BEATS
 
           for (const c of line(x)) {
-            perLine[k] += linkLevel(rule, s.links, c, tau) / SIDE / BEATS
+            perLine[k] = (perLine[k] ?? 0) + linkLevel(rule, s.links, c, tau) / SIDE / BEATS
             matched += vibe[c] !== 0 && carries(rule, s, c, tau) ? 1 / (SIDE * starts.length * BEATS) : 0
           }
         })
@@ -382,7 +390,7 @@ export default experiment({
         sourceLines: starts.length,
       },
       notes:
-        "L2, exact integers, no random numbers. The role points see the 216 grid moves, Sigma(648) with its center divided out, so a role-point source is gluon-like (adjoint): its string can break, and a Polyakov count N of 1 is the confined value, not 0. The triality string is the center flux of E-FRC-0129 and 0131, which this rule does not carry. The hopping term binds only on contact, one link, so a pair's energy does not grow with its separation by construction, and any string would have to come from the field, whose correlation the Polyakov correlator reads. The reflection dynamics reaches neither the ordered phase nor equilibrium on the cold branch, so the cold numbers are of a slowly aging field.",
+        "L2, exact integers, no random numbers. The role points see the 216 grid moves, Sigma(648) with its center divided out, so a role-point source is gluon-like (adjoint): its string can break, and a Polyakov count N of 1 is the confined value, not 0. The triality string is the center flux of E-FRC-0129 and 0131, which this rule does not carry. The hopping term binds only on contact, one link, so a pair's energy does not grow with its separation by construction, and any string would have to come from the field, whose correlation the Polyakov correlator reads. The reflection dynamics reaches neither the ordered phase nor equilibrium on the cold branch, so the cold numbers are of a slowly aging field. On the melted branch every role-point loop past 1 x 1 is at the noise (W(2,2) comes out negative), so no Creutz ratio can be read there and it is reported as NaN.",
     })
   },
 })

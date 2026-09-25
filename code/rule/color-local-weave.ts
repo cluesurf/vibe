@@ -6,7 +6,8 @@
 // is color-local as long as the wire tables are hop-free. This file makes that whole family one function
 // of a spec, so it can be searched:
 // - the wire tables, any sum-keeping 9-state tables, chosen per beat (a table and its negation conjugate
-//   can alternate so CPT can hold for a table that is not its own negated inverse)
+//   can alternate so CPT can hold for a table that is not its own negated inverse), and optionally per
+//   couple, or a separate table on the couple that swaps (used for controls that keep the hop there only)
 // - the couple partitions: the partition at beat zero, the line symmetry that turns it, and the walk of
 //   the turn over the beats (the committed walk is out and back, the mirror)
 // - which couple swaps on each beat (the committed order runs out and back), or none
