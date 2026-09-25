@@ -83,6 +83,36 @@ export function d4BoxCoordinates(input: {
   return [0, 1, 2, 3].map(k => Math.floor(cell / side ** k) % side)
 }
 
+// The distance between two cells of the box: the shortest of the vectors between them over the
+// periods L D4. Wrapping each basis coordinate on its own is not enough, since the basis is skewed,
+// and it overstates distances near half a period, so the shift by each combination of -1, 0 and 1
+// periods along b1..b4 is tried and the shortest kept.
+export function d4BoxDistance(input: {
+  a: number
+  b: number
+  side: number
+}): number {
+  const { a, b, side } = input
+  const ca = d4BoxCoordinates({ cell: a, side })
+  const cb = d4BoxCoordinates({ cell: b, side })
+  const raw = ca.map(
+    (x, k) =>
+      modulo(x - (cb[k] ?? 0) + Math.floor(side / 2), side) -
+      Math.floor(side / 2),
+  )
+
+  let best = Number.POSITIVE_INFINITY
+
+  for (let shift = 0; shift < 81; shift++) {
+    const s = [0, 1, 2, 3].map(k => (Math.floor(shift / 3 ** k) % 3) - 1)
+    const vector = d4Vector(raw.map((x, k) => x + side * (s[k] ?? 0)))
+
+    best = Math.min(best, Math.hypot(...vector))
+  }
+
+  return best
+}
+
 // The D4 lattice mod L D4, with the 24 D4 roots as directions in the order of rootsD4.
 export function d4BoxMesh(input: { side: number }): Mesh {
   const { side } = input
