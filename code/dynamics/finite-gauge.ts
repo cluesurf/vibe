@@ -204,14 +204,20 @@ export type FiniteGaugeLattice = {
 export function makeFiniteGaugeLattice(input: {
   group: FiniteGroup
   lengths: readonly number[]
-  start: 'cold' | 'hot'
+  // mixed: the half of the box with first coordinate below half its length hot, the rest cold, so a
+  // first-order transition is decided by which phase grows, not by which one the start held
+  start: 'cold' | 'hot' | 'mixed'
   rng: Rng
 }): FiniteGaugeLattice {
   const geometry = makeHypercubic({ lengths: input.lengths })
   const links = new Int16Array(geometry.sites * geometry.dim)
+  const half = (geometry.lengths[0] ?? 2) / 2
 
-  if (input.start === 'hot') {
-    for (let k = 0; k < links.length; k++) {
+  for (let k = 0; k < links.length; k++) {
+    const site = Math.floor(k / geometry.dim)
+    const hot = input.start === 'hot' || (input.start === 'mixed' && site % (geometry.lengths[0] ?? 1) < half)
+
+    if (hot) {
       links[k] = Math.floor(input.rng.next() * input.group.order)
     }
   }
@@ -328,4 +334,102 @@ export function finitePlaquette(input: { lattice: FiniteGaugeLattice }): number 
   }
 
   return sum / count
+}
+
+// Tr of a group element, both parts, from its matrix.
+function traceOf(group: FiniteGroup, g: number): [number, number] {
+  const m = group.matrices[g]
+
+  return [(m?.[0] ?? 0) + (m?.[8] ?? 0) + (m?.[16] ?? 0), (m?.[1] ?? 0) + (m?.[9] ?? 0) + (m?.[17] ?? 0)]
+}
+
+// The spatially averaged Polyakov loop (1/3) Tr of the product of the time-direction links (the last
+// axis) along each spatial site's time line, as a complex number.
+export function finitePolyakovLoop(input: { lattice: FiniteGaugeLattice }): { re: number; im: number } {
+  const { group, geometry, links } = input.lattice
+  const { dim, sites, up, lengths } = geometry
+  const time = dim - 1
+  const nt = lengths[time] ?? 1
+  const spatial = sites / nt
+  let re = 0
+  let im = 0
+
+  // sites with time coordinate 0 are the first `spatial` indices, the last axis varying slowest
+  for (let site = 0; site < spatial; site++) {
+    let current = site
+    let product = group.identity
+
+    for (let t = 0; t < nt; t++) {
+      product = group.product[product * group.order + (links[current * dim + time] ?? 0)] ?? 0
+      current = up[current * dim + time] ?? 0
+    }
+
+    const [tr, ti] = traceOf(group, product)
+
+    re += tr / 3
+    im += ti / 3
+  }
+
+  return { re: re / spatial, im: im / spatial }
+}
+
+// Rectangular Wilson loops W(R, T) = <Re Tr / 3> of the R x T loop, averaged over every site and
+// ordered pair of distinct directions, for 1 <= R, T <= max, as table[R][T].
+export function finiteWilsonLoops(input: { lattice: FiniteGaugeLattice; max: number }): number[][] {
+  const { lattice, max } = input
+  const { group, geometry, links } = lattice
+  const { dim, sites, up } = geometry
+  const { order, product, inverse, trace } = group
+  const mul = (a: number, b: number): number => product[a * order + b] ?? 0
+  const table = Array.from({ length: max + 1 }, () => new Array<number>(max + 1).fill(1))
+
+  const walk = (site: number, mu: number, steps: number): { end: number; element: number } => {
+    let current = site
+    let element = group.identity
+
+    for (let k = 0; k < steps; k++) {
+      element = mul(element, links[current * dim + mu] ?? 0)
+      current = up[current * dim + mu] ?? 0
+    }
+
+    return { end: current, element }
+  }
+
+  for (let r = 1; r <= max; r++) {
+    for (let t = r; t <= max; t++) {
+      let total = 0
+      let count = 0
+
+      for (let mu = 0; mu < dim; mu++) {
+        for (let nu = 0; nu < dim; nu++) {
+          if (nu === mu) {
+            continue
+          }
+
+          for (let site = 0; site < sites; site++) {
+            const bottom = walk(site, mu, r)
+            const right = walk(bottom.end, nu, t)
+            const left = walk(site, nu, t)
+            const top = walk(left.end, mu, r)
+            // bottom right top^-1 left^-1
+            const loop = mul(mul(mul(bottom.element, right.element), inverse[top.element] ?? 0), inverse[left.element] ?? 0)
+
+            total += (trace[loop] ?? 0) / 3
+            count += 1
+          }
+        }
+      }
+
+      const value = total / count
+      const row = table[r]
+      const column = table[t]
+
+      if (row !== undefined && column !== undefined) {
+        row[t] = value
+        column[r] = value
+      }
+    }
+  }
+
+  return table
 }
