@@ -22,6 +22,18 @@
 // within three standard errors of zero; the matched-temperature plaquette shift positive by five standard
 // errors; energy and charge exact on every beat of every run.
 //
+// Result, first run (606 s), and the gate that failed. With matter C(R) = 0.1214, 0.00902, 0.00734,
+// 0.00660 for R = 0 .. 3 against |<P>|^2 = 0.00728: the correlator levels off at |<P>|^2, and C(3) is 21
+// standard errors above zero. Pure gauge and the heavy mass (no pair ever created) read C(3) = -0.00039 and
+// -0.00052, within 1.2 and 1.8 standard errors of zero. The plaquette rises by 0.1072 +- 0.0003 over the
+// canonical pure gauge value at the matter run's coupling, and falls by 0.0436 at the same total energy.
+// Energy and charge exact throughout. The connected correlator is 0.00174 at R = 1, 0.00006 +- 0.00024 at
+// R = 2 and -0.00068 +- 0.00023 at R = 3: at R = 3, half the box, it overshoots below zero by 3.02
+// standard errors, and the gate asked for under 3. So the experiment fails on that one item, by a hair,
+// and the failure stands. Whether R = 3 is a real anticorrelation across half a periodic box or the bias
+// of the |<P>|^2 estimator (the square of a mean, taken over 10 bins) is not resolved here. The screening
+// itself is carried by R = 2, where the connected part is already zero.
+//
 // Depth L2: known lattice physics (screening of a static charge by dynamical matter, and the plaquette
 // shift of sea quarks) reproduced for a finite color group by a deterministic reversible rule. At N_t = 4
 // and R <= 3 this is the thermal form of string breaking, not the zero-temperature breaking of the static

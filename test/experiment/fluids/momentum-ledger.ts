@@ -23,8 +23,9 @@
 //
 // Controls: the hop-free bind table under the same schedule, which the lattice analysis says keeps one
 // exact line invariant the committed rule does not (the sum of all N_L), checked on a run; and the
-// momentum weave (E-FLD-0022's member), whose ledger must book zero P on every piece, so the ledger can
-// say no.
+// momentum weave (E-FLD-0022's member), which must drift by zero, its table booking no P and its two
+// exchanges booking equal and opposite P (the first turns a lone tone, the second always turns it back),
+// so the ledger can say no.
 //
 // Depth L2: an exact accounting of a constructed rule, with a control that keeps what the rule breaks.
 
@@ -174,7 +175,14 @@ export default experiment({
     const pairMovesJ = pairPieces.every(k => entry(committed.ledger, k).jSize > 0)
     // every hop moves exactly two roots (L1 size 4), a reversal of one unit mover
     const hopIsReversal = ['bare:hop', 'swap:hop'].every(k => entry(committed.ledger, k).pSize === 4 * entry(committed.ledger, k).count)
-    const controlZero = [...control.ledger.values()].every(e => e.pSize === 0)
+    // the momentum weave's table moves no P, and its two exchanges move P out and back in equal measure:
+    // an exchange that fires on a lone tone always fires again after the clock, so their net is zero
+    const controlOut = entry(control.ledger, 'swap:out')
+    const controlBack = entry(control.ledger, 'swap:back')
+    const controlZero =
+      [...control.ledger.entries()].every(([k, e]) => k.startsWith('swap:out') || k.startsWith('swap:back') || e.pSize === 0) &&
+      controlOut.pSize === controlBack.pSize &&
+      controlOut.p.every((x, axis) => x + (controlBack.p[axis] ?? 0) === 0)
 
     // which quantities could be kept at all
     const d4 = latticeQuotient(rootsD4(), 4)
@@ -251,7 +259,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the spec form equals turningWeave bit for bit; its ledger closes exactly; the only pieces that move particle momentum are the hop (every act a reversal of one unit mover) and the two exchanges of the swap couple, while create, flip and annihilate move none of it and all move charge current; the empty vacuum keeps P exactly and not J; no integer residue of P or J survives the committed rule beyond charge parity; the hop-free bind table keeps the sum of the twelve line momenta exactly (checked on a run) where the committed rule does not; and the momentum weave books zero particle momentum on every piece',
+        'the spec form equals turningWeave bit for bit; its ledger closes exactly; the only pieces that move particle momentum are the hop (every act a reversal of one unit mover) and the two exchanges of the swap couple, while create, flip and annihilate move none of it and all move charge current; the empty vacuum keeps P exactly and not J; no integer residue of P or J survives the committed rule beyond charge parity; the hop-free bind table keeps the sum of the twelve line momenta exactly (checked on a run) where the committed rule does not; and the momentum weave keeps P exactly, its table moving none and its two exchanges moving exactly as much back as out',
       metrics: {
         identicalPair: identical[0] ? 1 : 0,
         identicalBind: identical[1] ? 1 : 0,
@@ -281,7 +289,11 @@ export default experiment({
       },
       control: {
         momentumWeaveMomentumDrift: control.pDrift,
-        momentumWeaveBookedMomentum: [...control.ledger.values()].reduce((s, e) => s + e.pSize, 0),
+        momentumWeaveTableMomentum: [...control.ledger.entries()]
+          .filter(([k]) => !k.startsWith('swap:out') && !k.startsWith('swap:back'))
+          .reduce((s, [, e]) => s + e.pSize, 0),
+        momentumWeaveExchangeOutSize: controlOut.pSize,
+        momentumWeaveExchangeBackSize: controlBack.pSize,
         momentumWeaveCurrentDrift: control.jDrift,
       },
       notes:

@@ -425,7 +425,7 @@ export default experiment({
   id: 'quantum/swap-phase-continuum',
   code: 'E-QTM-0101',
   title:
-    'the cube-root swap phase supplies the non-classical element the continuum floor needs: with only the link values a lattice of roles carries, Sigma(648) on each role, it generates a group whose Lie algebra is all of su(9), and a single swap phase already makes a step finer than the classical color group and a closer approach to the qutrit T gate than any classical element, at the price of one fear beat of grain',
+    'the cube-root swap phase supplies the non-classical element the continuum floor needs in the closure, not in one step: with only the link values a lattice of roles carries, Sigma(648) on each role, it generates a group whose Lie algebra is all of su(9), but one swap phase between classical words gives no step finer than the classical color group and no closer approach to the qutrit T gate, while two give the first finer step, sqrt(1/6) against 0.650, at two fear beats of grain',
   category: 'quantum',
   substrates: 'any',
   depth: 'L1',
@@ -758,7 +758,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'Sigma(648) is 648 classical elements through 216 grid moves; with it on each role, the cube-root swap phase generates a group with an infinite-order element whose Lie algebra is all 80 dimensions of su(9), while the plain exchange closes at 93,312 elements; one swap phase between classical words gives a step smaller than the classical group smallest step and comes closer to T on one role than any classical element, and that word has a kernel in quarters with fears, while one exchange comes no closer than sqrt(2/3)',
+        'Sigma(648) is 648 classical elements through 216 grid moves; with it on each role, the cube-root swap phase generates a group with an infinite-order element whose Lie algebra is all 80 dimensions of su(9), while the plain exchange closes at 93,312 elements; the gate that one swap phase between classical words gives a finer step and a closer approach to T on one role FAILED (0.650115 against 0.650115, 0.716 against 0.395), and the failure stands; reported after that run, two swap phases give a step of sqrt(1/6) = 0.408 whose kernel is in sixteenths with fears, and still come no closer to T than 0.395',
       metrics: {
         sigma648Order: group.order,
         classicalElements: classical,

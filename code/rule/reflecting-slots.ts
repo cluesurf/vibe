@@ -33,6 +33,16 @@
 // 3. the demons move one link along their direction, as in string-graph
 // Every step is a bijection, and the beat runs backward as 3 back, then 2, then 1, then 0.
 //
+// Options added for E-FRC-0146 and E-FRC-0147, each off by default so the rule above is unchanged:
+// - steer: step 0 becomes steering. On couples of lines (the turning weave's, or every pair of lines in turn
+//   by a round robin of 11 matchings), each slot and the matching slot of the other line trade contents
+//   where exactly one of them holds a charge and exactly one of the two links they point along carries
+//   string. A charge turns onto its string or off it. Its own inverse
+// - carry: each slot's contents carry a store of energy. A lone charge crossing a link pays the change in
+//   string energy from its own store and is paid into it, and at every beat that is a multiple of the
+//   contact period (never, at 0) a lone charge on a link trades its store with that link's demon
+// - demonSpeed: how many links a demon moves each beat
+//
 // There is no clock: calm never makes a pair here. In code/rule/string-graph a pair costs twice the mass
 // and the demons are capped below that, so it never makes one either. A clock on a moving line would make
 // a love and a fear that stream apart at once, and would have to pay for both strings.
@@ -49,6 +59,12 @@ import { type GridMoves, makeVibeWeave } from '@/code/rule/vibe-weave'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
 import { G_TURN, TURN_COUPLES_ZERO, TURN_POS_MIRROR } from '@/code/rule/collision'
 
+export type Steer = false | 'weave' | 'round-robin' | 'folded'
+
+// which slot pairs steering trades: 'slot' where exactly one holds a charge (E-FRC-0146), 'differ' where
+// their vibes differ, 'lone' two lines whole where together they hold exactly one charge
+export type SteerWhen = 'slot' | 'differ' | 'lone'
+
 export type ReflectingSlots = {
   readonly mesh: Mesh
   readonly mass: number
@@ -56,6 +72,18 @@ export type ReflectingSlots = {
   // whether a beat begins with the turning step, and the couples of lines it uses at each schedule position
   readonly turn: boolean
   readonly couples: readonly (readonly (readonly [number, number])[])[]
+  // whether a charge carries its own store and pays for a lone crossing from it (E-FRC-0146), and every
+  // how many beats a lone charge trades its store with its link's demon (0: never)
+  readonly carry: boolean
+  readonly contact: number
+  // how many links a demon moves along its direction each beat
+  readonly demonSpeed: number
+  // whether the turning step is the string-steered one in place of the lone-charge one, and on which
+  // couples of lines: the turning weave's, or every pair of lines in turn (round robin)
+  readonly steer: Steer
+  readonly steerWhen: SteerWhen
+  // whether demons at the ends of strings are led across them each beat (E-FRC-0153)
+  readonly stringLead: boolean
   readonly opposite: readonly number[]
   readonly lines: readonly (readonly [number, number])[]
   readonly moves: GridMoves
@@ -76,6 +104,9 @@ export type ReflectingState = {
   readonly tag: Int32Array
   readonly flux: Int32Array
   readonly demon: Int32Array
+  // each slot's store of energy, moving with what the slot holds. Zero on every calm slot, and unused
+  // unless the rule carries
+  readonly store: Int32Array
 }
 
 export type ReflectLog = {
@@ -85,8 +116,25 @@ export type ReflectLog = {
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
-export function makeReflectingSlots(input: { side: number; mass: number; tension: number; turn: boolean }): ReflectingSlots {
+export function makeReflectingSlots(input: {
+  side: number
+  mass: number
+  tension: number
+  turn: boolean
+  carry?: boolean
+  contact?: number
+  demonSpeed?: number
+  steer?: Steer
+  steerWhen?: SteerWhen
+  stringLead?: boolean
+}): ReflectingSlots {
+  const steer = input.steer ?? false
+  const steerWhen = input.steerWhen ?? 'slot'
+  const stringLead = input.stringLead ?? false
   const { side, mass, tension, turn } = input
+  const carry = input.carry ?? false
+  const contact = input.contact ?? 0
+  const demonSpeed = input.demonSpeed ?? 1
   const norm = (a: number, b: number): [number, number] => (a < b ? [a, b] : [b, a])
   const couples: [number, number][][] = []
 
@@ -130,7 +178,7 @@ export function makeReflectingSlots(input: { side: number; mass: number; tension
     previous[onward] = l
   })
 
-  return { mesh, mass, tension, turn, couples, opposite, lines, moves, links, neighbour, edges, edgeAt, next, previous }
+  return { mesh, mass, tension, turn, couples, carry, contact, demonSpeed, steer, steerWhen, stringLead, opposite, lines, moves, links, neighbour, edges, edgeAt, next, previous }
 }
 
 // an empty state whose calm signs are the sides of an orientation (mask bit k set: plus on line k's
@@ -153,6 +201,7 @@ export function emptyReflectingState(rule: ReflectingSlots, orientation: number)
     tag: new Int32Array(slots),
     flux: new Int32Array(rule.edges.length),
     demon: new Int32Array(rule.edges.length),
+    store: new Int32Array(slots),
   }
 }
 
@@ -164,32 +213,64 @@ export function copyReflectingState(state: ReflectingState): ReflectingState {
     tag: Int32Array.from(state.tag),
     flux: Int32Array.from(state.flux),
     demon: Int32Array.from(state.demon),
+    store: Int32Array.from(state.store),
   }
 }
 
 const tensionOf = (rule: ReflectingSlots, e: number): number => (mod3(e) !== 0 ? rule.tension : 0)
 
 function trade(state: ReflectingState, i: number, j: number): void {
-  const { vibe, role, sign, tag } = state
+  const { vibe, role, sign, tag, store } = state
   const v = vibe[i] ?? 0
   const r = role[i] ?? 0
   const s = sign[i] ?? 1
   const g = tag[i] ?? 0
+  const k = store[i] ?? 0
 
   vibe[i] = vibe[j] ?? 0
   role[i] = role[j] ?? 0
   sign[i] = sign[j] ?? 1
   tag[i] = tag[j] ?? 0
+  store[i] = store[j] ?? 0
   vibe[j] = v
   role[j] = r
   sign[j] = s
   tag[j] = g
+  store[j] = k
+}
+
+// when the rule carries, at beats that are a multiple of its contact period: on every link where exactly
+// one of the two slots pointing along it holds a charge, that charge's store and the link's demon trade
+// values. Links are disjoint, so the step is its own inverse, and it moves energy without changing it
+function contactTrades(rule: ReflectingSlots, state: ReflectingState, t: number): void {
+  if (!rule.carry || rule.contact <= 0 || t % rule.contact !== 0) {
+    return
+  }
+
+  const { vibe, store, demon } = state
+
+  rule.edges.forEach(([a, b, d], l) => {
+    const i = a * 24 + d
+    const j = b * 24 + (rule.opposite[d] ?? d)
+    const vi = vibe[i] !== 0
+    const vj = vibe[j] !== 0
+
+    if (vi === vj) {
+      return
+    }
+
+    const m = vi ? i : j
+    const k = store[m] ?? 0
+
+    store[m] = demon[l] ?? 0
+    demon[l] = k
+  })
 }
 
 // step 1, in place: an involution on every link
 function linkTrades(rule: ReflectingSlots, state: ReflectingState, log?: ReflectLog): void {
   const { moves, links, opposite, edges } = rule
-  const { vibe, role, flux, demon } = state
+  const { vibe, role, flux, demon, store } = state
 
   edges.forEach(([a, b, d], l) => {
     const i = a * 24 + d
@@ -199,7 +280,9 @@ function linkTrades(rule: ReflectingSlots, state: ReflectingState, log?: Reflect
     const e = flux[l] ?? 0
     const change = u - v
     const cost = tensionOf(rule, e + change) - tensionOf(rule, e)
-    const now = demon[l] ?? 0
+    // a lone charge pays from, and is paid into, its own store when the rule carries; otherwise the demon
+    const mover = rule.carry && (v !== 0) !== (u !== 0) ? (v !== 0 ? i : j) : -1
+    const now = mover >= 0 ? (store[mover] ?? 0) : (demon[l] ?? 0)
 
     if (now < 0 || now - cost < 0) {
       if (log && (v !== 0 || u !== 0)) {
@@ -217,7 +300,13 @@ function linkTrades(rule: ReflectingSlots, state: ReflectingState, log?: Reflect
     role[j] = moves.act[links[i] ?? moves.identity]?.[role[j] ?? 0] ?? 0
     role[i] = moves.act[links[j] ?? moves.identity]?.[role[i] ?? 0] ?? 0
     flux[l] = e + change
-    demon[l] = now - cost
+
+    // the mover's contents now sit in the other slot of the link
+    if (mover >= 0) {
+      store[mover === i ? j : i] = now - cost
+    } else {
+      demon[l] = now - cost
+    }
   })
 }
 
@@ -230,12 +319,16 @@ function lineTrades(rule: ReflectingSlots, state: ReflectingState): void {
   }
 }
 
+// step 3: every demon moves `demonSpeed` links along its direction (1 unless the rule says otherwise)
 function moveDemons(rule: ReflectingSlots, state: ReflectingState, forward: boolean): void {
-  const demon = Int32Array.from(state.demon)
   const to = forward ? rule.next : rule.previous
 
-  for (let l = 0; l < rule.edges.length; l++) {
-    state.demon[to[l] ?? l] = demon[l] ?? 0
+  for (let k = 0; k < rule.demonSpeed; k++) {
+    const demon = Int32Array.from(state.demon)
+
+    for (let l = 0; l < rule.edges.length; l++) {
+      state.demon[to[l] ?? l] = demon[l] ?? 0
+    }
   }
 }
 
@@ -262,16 +355,128 @@ function turnTrades(rule: ReflectingSlots, state: ReflectingState, t: number): v
   }
 }
 
+// the 11 perfect matchings of the 12 lines by the circle method: line 11 fixed, round r pairs r with 11
+// and r + k with r - k (mod 11) for k = 1 to 5. Every two lines are coupled exactly once in 11 beats
+const ROUND_ROBIN: readonly (readonly (readonly [number, number])[])[] = Array.from({ length: 11 }, (_, r) => [
+  [r, 11] as const,
+  ...[1, 2, 3, 4, 5].map(k => [(r + k) % 11, (r - k + 11) % 11] as const),
+])
+
+// the undirected link the slot (x, d) points along
+function edgeOfSlot(rule: ReflectingSlots, x: number, d: number): number {
+  const o = rule.opposite[d] ?? d
+
+  return d < o ? (rule.edgeAt[x * 24 + d] ?? 0) : (rule.edgeAt[(rule.neighbour[x * 24 + d] ?? 0) * 24 + o] ?? 0)
+}
+
+// step 0 when the rule steers (E-FRC-0146), in place: on the couples of lines the turning weave pairs at
+// beat t, each slot of one line and the matching slot of the other trade contents where exactly one of the
+// two holds a charge and exactly one of the two links they point along carries string (flux not a
+// multiple of 3). A charge next to its string turns onto it or off it. The condition reads the same after
+// the trade and the slot pairs are disjoint, so the step is its own inverse
+// the folded walk: out over the 12 powers of the round robin's rotation and back, a palindrome of 24 beats
+const FOLDED = [...Array.from({ length: 12 }, (_, k) => k % 11), ...Array.from({ length: 12 }, (_, k) => (11 - k) % 11)]
+
+function steerCouples(rule: ReflectingSlots, t: number): readonly (readonly [number, number])[] {
+  if (rule.steer === 'round-robin') {
+    return ROUND_ROBIN[((t % 11) + 11) % 11] ?? []
+  }
+
+  if (rule.steer === 'folded') {
+    return ROUND_ROBIN[FOLDED[((t % 24) + 24) % 24] ?? 0] ?? []
+  }
+
+  return rule.couples[TURN_POS_MIRROR[((t % 8) + 8) % 8] ?? 0] ?? []
+}
+
+function steerTrades(rule: ReflectingSlots, state: ReflectingState, t: number): void {
+  const couples = steerCouples(rule, t)
+  const { vibe, flux } = state
+  const string = (x: number, d: number): boolean => mod3(flux[edgeOfSlot(rule, x, d)] ?? 0) !== 0
+
+  for (let x = 0; x < rule.mesh.cellCount; x++) {
+    for (const [p, q] of couples) {
+      const a = rule.lines[p] ?? [0, 0]
+      const b = rule.lines[q] ?? [0, 0]
+
+      if (rule.steerWhen === 'lone') {
+        const charged = [a[0], a[1], b[0], b[1]].filter(d => vibe[x * 24 + d] !== 0)
+        const s = charged[0] === a[0] || charged[0] === b[0] ? 0 : 1
+
+        if (charged.length === 1 && string(x, a[s]) !== string(x, b[s])) {
+          trade(state, x * 24 + a[0], x * 24 + b[0])
+          trade(state, x * 24 + a[1], x * 24 + b[1])
+        }
+
+        continue
+      }
+
+      for (const s of [0, 1] as const) {
+        const i = a[s]
+        const j = b[s]
+        const vi = vibe[x * 24 + i] ?? 0
+        const vj = vibe[x * 24 + j] ?? 0
+        const differ = rule.steerWhen === 'differ' ? vi !== vj : (vi !== 0) !== (vj !== 0)
+
+        if (differ && string(x, i) !== string(x, j)) {
+          trade(state, x * 24 + i, x * 24 + j)
+        }
+      }
+    }
+  }
+}
+
+// when the rule leads demons along strings: two passes over the pairs of consecutive links along a
+// direction, the demons of a pair trading values where the first carries string and the second not, then
+// where the first carries none and the second does. Within a pass no two pairs share a link, the flux is
+// not changed, so each pass is its own inverse
+function leadDemons(rule: ReflectingSlots, state: ReflectingState, forward: boolean): void {
+  if (!rule.stringLead) {
+    return
+  }
+
+  const { flux, demon } = state
+  const string = (l: number): boolean => mod3(flux[l] ?? 0) !== 0
+  const pass = (first: boolean): void => {
+    for (let l = 0; l < rule.edges.length; l++) {
+      const n = rule.next[l] ?? l
+
+      if (n !== l && string(l) === first && string(n) !== first) {
+        const k = demon[l] ?? 0
+
+        demon[l] = demon[n] ?? 0
+        demon[n] = k
+      }
+    }
+  }
+
+  if (forward) {
+    pass(true)
+    pass(false)
+  } else {
+    pass(false)
+    pass(true)
+  }
+}
+
+function turnStep(rule: ReflectingSlots, state: ReflectingState, t: number): void {
+  if (rule.steer) {
+    steerTrades(rule, state, t)
+  } else if (rule.turn) {
+    turnTrades(rule, state, t)
+  }
+}
+
 export function reflectBeat(rule: ReflectingSlots, state: ReflectingState, t: number, log?: ReflectLog): ReflectingState {
   const out = copyReflectingState(state)
 
-  if (rule.turn) {
-    turnTrades(rule, out, t)
-  }
+  contactTrades(rule, out, t)
+  turnStep(rule, out, t)
 
   linkTrades(rule, out, log)
   lineTrades(rule, out)
   moveDemons(rule, out, true)
+  leadDemons(rule, out, true)
 
   return out
 }
@@ -279,13 +484,12 @@ export function reflectBeat(rule: ReflectingSlots, state: ReflectingState, t: nu
 export function reflectBeatBack(rule: ReflectingSlots, state: ReflectingState, t: number): ReflectingState {
   const out = copyReflectingState(state)
 
+  leadDemons(rule, out, false)
   moveDemons(rule, out, false)
   lineTrades(rule, out)
   linkTrades(rule, out)
-
-  if (rule.turn) {
-    turnTrades(rule, out, t)
-  }
+  turnStep(rule, out, t)
+  contactTrades(rule, out, t)
 
   return out
 }
@@ -294,7 +498,7 @@ export function reflectEnergy(rule: ReflectingSlots, state: ReflectingState): nu
   let total = 0
 
   for (let i = 0; i < state.vibe.length; i++) {
-    total += state.vibe[i] !== 0 ? rule.mass : 0
+    total += (state.vibe[i] !== 0 ? rule.mass : 0) + (state.store[i] ?? 0)
   }
 
   for (let l = 0; l < rule.edges.length; l++) {
@@ -342,10 +546,8 @@ export function reflectColorLeaks(input: { rule: ReflectingSlots; state: Reflect
   let leaks = 0
   let before = colors()
 
-  if (rule.turn) {
-    turnTrades(rule, work, t)
-  }
-
+  contactTrades(rule, work, t)
+  turnStep(rule, work, t)
   leaks += count(before, colors())
   linkTrades(rule, work)
   before = colors()

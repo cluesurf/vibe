@@ -32,6 +32,16 @@
 // errors; pure gauge and center-blind |<Re P>| under three standard errors; the fundamental sector weight
 // positive on every sampled configuration; the center-blind sector weight exactly zero on every one.
 //
+// How the parameters were found, and result. A first bond charged B (1 - Re <>), so every bond cost energy
+// and matter never formed one (recorded in code/dynamics/finite-matter). A scan then showed the matter
+// density jumps: mass 4 at bond 6 fills the lattice (0.998 of sites), mass 12 and above never pays for a
+// pair, so no dilute regime exists at this bond scale. The matter fill 0.2 was chosen because its demons
+// read beta 0.536 against the pure gauge run's 0.550 at fill 0.35 (fill 0.25 without matter is the ordered
+// branch of E-FRC-0126 and was avoided). Result: <Re P> = 0.0853 +- 0.0022 with matter, 0.0005 +- 0.0015
+// pure, 0.0009 +- 0.0007 center-blind. A center rotation of one time slice raises the matter energy by at
+// least 1,226 units (mean 1,300) on all 10 sampled configurations, and by exactly 0 for blind matter.
+// 527 pairs made from calm during the run. Run time about 500 s.
+//
 // Depth L2: the explicit center breaking by dynamical matter, known lattice physics, reproduced for a
 // finite color group by a deterministic reversible rule. The matter is classical and bosonic: a color
 // vector per site, not a Grassmann field, so this is the gauge-Higgs form of dynamical matter (Fradkin

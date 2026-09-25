@@ -235,6 +235,12 @@ export function lineComponents(rule: ScheduledRule, withDense: boolean, input: {
 }
 
 function sparseComponents(rule: ScheduledRule, withDense: boolean): number {
+  return lineSectors(rule, withDense).length
+}
+
+// The line graph's components themselves, the sectors: each a sorted list of line indices (lines in the
+// order of direction d paired with its opposite, d < opposite), sectors sorted by their first line
+export function lineSectors(rule: ScheduledRule, withDense: boolean): number[][] {
   const five = build(rule, 5)
   const opposite5 = meshOpposites(five.mesh)
   const lineOf: number[] = []
@@ -284,7 +290,13 @@ function sparseComponents(rule: ScheduledRule, withDense: boolean): number {
     }
   }
 
-  return new Set(Array.from({ length: 12 }, (_, i) => find(i))).size
+  const sectors = new Map<number, number[]>()
+
+  for (let l = 0; l < 12; l++) {
+    sectors.set(find(l), [...(sectors.get(find(l)) ?? []), l])
+  }
+
+  return [...sectors.values()].sort((a, b) => (a[0] ?? 0) - (b[0] ?? 0))
 }
 
 export function additivityWorst(rule: ScheduledRule): number {
@@ -414,10 +426,19 @@ export function dressing(
 }
 
 export function travel(rule: ScheduledRule): { travellers: number; meanReach: number } {
+  const reaches = travelReaches(rule)
+  const free = Math.SQRT2 * TRAVEL_BEATS
+
+  return { travellers: reaches.filter(r => r >= free / 2).length, meanReach: reaches.reduce((x, y) => x + y, 0) / reaches.length }
+}
+
+// per direction, the farthest true distance a lone love's disturbance reaches in 6 beats (side 13); a free
+// tone moving one root per beat reaches 6 sqrt 2
+export function travelReaches(rule: ScheduledRule): number[] {
   const thirteen = build(rule, 13)
   const center13 = d4BoxCell({ coordinates: [6, 6, 6, 6], side: 13 })
-  const free = Math.SQRT2 * TRAVEL_BEATS
-  const reaches = Array.from({ length: 24 }, (_, direction) => {
+
+  return Array.from({ length: 24 }, (_, direction) => {
     let vac: Will = makeWill(thirteen.mesh)
     let seeded: Will = makeWill(thirteen.mesh)
 
@@ -441,8 +462,6 @@ export function travel(rule: ScheduledRule): { travellers: number; meanReach: nu
 
     return farthest
   })
-
-  return { travellers: reaches.filter(r => r >= free / 2).length, meanReach: reaches.reduce((x, y) => x + y, 0) / reaches.length }
 }
 
 export type Acceptance = {

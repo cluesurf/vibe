@@ -28,19 +28,25 @@
 // points with the same sum x + y, with signs: this is where fear is made. At phi = pi, SWAP U(pi) = 1, so
 // the rule with the fear beat switched off is the color weave exactly.
 //
+// The color mode (advanceWhole's color input, fearKernels), the three-trit color law adopted after
+// E-QTM-0102: where a love meets a fear the one-third turn is the singlet phase 1 + (omega - 1) P_Phi instead,
+// with the fear's conjugate role stored at the reflected point, which keeps love minus fear of the two role
+// points in every configuration. Like meetings keep the swap phase. The grain is then 2^a 3^b.
+//
 // K is in quarters at phi = 2 pi / 3 (E-FRC-0121). In the fixed mode the whole keeps its units and a beat
 // that would need a fraction is refused, never rounded. In the grain mode the units are multiplied by 4
 // when needed and reduced by the common factor after every step, so the units are always the fewest that
 // write the whole exactly: the grain.
 //
 // Everything is a bijection. The backward beat unstreams (tokens back through the inverse links), then runs
-// the backward collision, applying the kernel of U(phi)^dagger at the same meetings. Meetings in one beat
-// touch disjoint pairs of tokens, so their order does not matter.
+// the backward collision, applying the meeting kernel of U(phi)^dagger (SWAP U(-phi)) at the same
+// meetings. Meetings in one beat touch disjoint pairs of tokens, so their order does not matter.
 //
 // What the whole leaves out, stated: only open tokens carry weight. Every other token holds one classical
 // role point. A token outside the whole that meets an open one is exchanged with it, never entangled, so
-// the whole stays closed. Positions stay classical: the fear beat acts on roles, never on where a vibe is. Letting every token be open is the same rule with every token in the whole, and
-// its cost is measured in E-QTM-0099.
+// the whole stays closed. Letting every token be open is the same rule with every token in the whole, and
+// its cost is measured in E-QTM-0099. Positions stay classical: the fear beat acts on roles, never on where
+// a vibe is.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
 import {
@@ -96,6 +102,8 @@ export type Lattice = {
 export type BeatRecord = {
   readonly meetings: readonly (readonly [number, number])[]
   readonly crossings: readonly (readonly [number, number])[]
+  // the two vibes of each meeting before the line table acts, love +1 or fear -1, in meeting order
+  readonly signs?: readonly (readonly [number, number])[]
 }
 
 // the lattice at rest: every token named by the slot it starts on, at the given role points
@@ -119,8 +127,9 @@ function collideCell(input: {
   t: number
   forward: boolean
   meetings: [number, number][]
+  signs: [number, number][]
 }): void {
-  const { weave, vibe, token, open, base, t, forward, meetings } = input
+  const { weave, vibe, token, open, base, t, forward, meetings, signs } = input
   const table =
     weave.table === 'bind'
       ? forward
@@ -177,6 +186,9 @@ function collideCell(input: {
 
         if (open[ti] === 1 && open[tj] === 1) {
           meetings.push([ti, tj])
+          // going back, the tokens on the wire are the ones the forward step exchanged, so ti held the
+          // second slot's vibe before it
+          signs.push(forward ? [before[0] ?? 0, before[1] ?? 0] : [before[1] ?? 0, before[0] ?? 0])
         }
 
         token[i] = tj
@@ -208,9 +220,10 @@ export function fearBeat(input: {
   const token = Int32Array.from(lattice.token)
   const point = Int8Array.from(lattice.point)
   const meetings: [number, number][] = []
+  const signs: [number, number][] = []
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collideCell({ weave, vibe, token, open, base: x * 24, t, forward: true, meetings })
+    collideCell({ weave, vibe, token, open, base: x * 24, t, forward: true, meetings, signs })
   }
 
   const moved = new Int32Array(token.length)
@@ -237,7 +250,7 @@ export function fearBeat(input: {
 
   return {
     lattice: { vibe: streamed, token: moved, point },
-    record: { meetings, crossings },
+    record: { meetings, crossings, signs },
   }
 }
 
@@ -276,12 +289,13 @@ export function fearBeatBack(input: {
   }
 
   const meetings: [number, number][] = []
+  const signs: [number, number][] = []
 
   for (let x = 0; x < mesh.cellCount; x++) {
-    collideCell({ weave, vibe, token, open, base: x * 24, t, forward: false, meetings })
+    collideCell({ weave, vibe, token, open, base: x * 24, t, forward: false, meetings, signs })
   }
 
-  return { lattice: { vibe, token, point }, record: { meetings, crossings } }
+  return { lattice: { vibe, token, point }, record: { meetings, crossings, signs } }
 }
 
 // the whole: open tokens (coordinate order, most significant first) and loves minus fears at each of
@@ -353,8 +367,11 @@ export function meetWhole(input: {
   b: number
   kernel4: readonly (readonly number[])[]
   fixed: boolean
+  // the kernel is kernel4 / divisor, 4 unless given
+  divisor?: number
 }): Whole | null {
   const { whole, a, b, kernel4, fixed } = input
+  const divisor = BigInt(input.divisor ?? 4)
   const k = whole.tokens.length
   const sa = 9 ** (k - 1 - a)
   const sb = 9 ** (k - 1 - b)
@@ -395,11 +412,11 @@ export function meetWhole(input: {
       }
 
       if (fixed) {
-        if (m % 4n !== 0n) {
+        if (m % divisor !== 0n) {
           return null
         }
 
-        m /= 4n
+        m /= divisor
       }
 
       out[i + Math.floor(r / 9) * sa + (r % 9) * sb] = m
@@ -420,8 +437,30 @@ export function advanceWhole(input: {
   kernel4: readonly (readonly number[])[]
   fixed: boolean
   forward: boolean
+  // a kernel chosen per meeting (by the tokens' signs, say): it acts with order[0] as its first coordinate
+  kernelOf?: (
+    ta: number,
+    tb: number,
+  ) => { kernel: readonly (readonly number[])[]; divisor: number; order: readonly [number, number] }
+  // the color mode: the kernel chosen by the vibes each meeting recorded, like or love-fear. Every
+  // coordinate is then read in the color weave's convention, a fear's conjugate role at the reflected point
+  color?: FearKernels
 }): Whole | null {
-  const { weave, record, kernel4, fixed, forward } = input
+  const { weave, record, fixed, forward, color } = input
+  const signs = record.signs ?? []
+  let meetingIndex = 0
+  const kernelOf =
+    input.kernelOf ??
+    (color
+      ? (ta: number, tb: number) => {
+          const [sa, sb] = signs[meetingIndex++] ?? [1, 1]
+
+          return sa === sb
+            ? { kernel: color.like, divisor: color.likeDivisor, order: [ta, tb] as const }
+            : { kernel: color.unlike, divisor: color.unlikeDivisor, order: (sa > 0 ? [ta, tb] : [tb, ta]) as readonly [number, number] }
+        }
+      : undefined)
+  const { kernel4 } = input
   const coordinate = new Map(input.whole.tokens.map((t, i) => [t, i]))
 
   let whole: Whole | null = input.whole
@@ -432,7 +471,20 @@ export function advanceWhole(input: {
         return
       }
 
-      whole = meetWhole({ whole, a: coordinate.get(ta) ?? 0, b: coordinate.get(tb) ?? 0, kernel4, fixed })
+      if (kernelOf) {
+        const chosen = kernelOf(ta, tb)
+
+        whole = meetWhole({
+          whole,
+          a: coordinate.get(chosen.order[0]) ?? 0,
+          b: coordinate.get(chosen.order[1]) ?? 0,
+          kernel4: chosen.kernel,
+          divisor: chosen.divisor,
+          fixed,
+        })
+      } else {
+        whole = meetWhole({ whole, a: coordinate.get(ta) ?? 0, b: coordinate.get(tb) ?? 0, kernel4, fixed })
+      }
     }
   }
 
@@ -459,6 +511,28 @@ export function advanceWhole(input: {
   }
 
   return whole
+}
+
+// The color mode's kernels, the three-trit color law adopted: the swap phase where like vibes meet (two
+// loves, or two fears in the conjugate convention, where U* acts as U does on the reflected points) and the
+// singlet phase where a love meets a fear, love first, the fear's coordinate at the reflected point. The
+// grain is 2^a 3^b: quarters at like meetings, thirds at love-fear ones (at the cube-root angles).
+export type FearKernels = {
+  readonly like: readonly (readonly number[])[]
+  readonly likeDivisor: number
+  readonly unlike: readonly (readonly number[])[]
+  readonly unlikeDivisor: number
+}
+
+// the color mode at angles like and unlike: the fear beat is (2 pi / 3, 2 pi / 3), the color weave with the
+// fear beat off is (pi, 0), and the backward beat of (x, y) is (-x, -y)
+export function fearKernels(input: { like: number; unlike: number }): FearKernels | null {
+  const like = wholeKernel(multiplyOperators(exchangeOperator(), swapPhase(input.like)), 1000)
+  const unlike = wholeKernel(singletPhase(input.unlike), 1000)
+
+  return like && unlike
+    ? { like: like.kernel, likeDivisor: like.divisor, unlike: conjugateSecond(unlike.kernel), unlikeDivisor: unlike.divisor }
+    : null
 }
 
 // the swap phase U(phi) = P_sym + e^(i phi) P_anti on two roles, index 3 i + j
@@ -530,6 +604,57 @@ export function exchangeOperator(): Operator {
 // tokens have been exchanged, so it is the kernel of SWAP u, as 4 K, or null when not in quarters
 export function meetingKernel(u: Operator): number[][] | null {
   return quarterKernel(multiplyOperators(exchangeOperator(), u))
+}
+
+// The singlet phase for a love meeting a fear, the color-respecting gate of a role and its conjugate:
+// V(phi) = 1 + (e^(i phi) - 1) P, P the projector on the whole Phi = sum_j |j j> / sqrt 3, with the fear's
+// role in the conjugate representation. Every color move acts on a love as C and on a fear as C*, and
+// C x C* fixes Phi, so V commutes with every change of frame; its commutant is span{1, P}.
+export function singletPhase(phi: number): Operator {
+  const v = operator(9)
+  const c = Math.cos(phi) - 1
+  const s = Math.sin(phi)
+
+  for (let i = 0; i < 9; i++) {
+    v.re[i * 9 + i] = 1
+  }
+
+  for (let j = 0; j < 3; j++) {
+    for (let k = 0; k < 3; k++) {
+      const at = (3 * j + j) * 9 + (3 * k + k)
+
+      v.re[at] = (v.re[at] ?? 0) + c / 3
+      v.im[at] = (v.im[at] ?? 0) + s / 3
+    }
+  }
+
+  return v
+}
+
+// the grid point a fear's conjugate role is stored at: (a, b) -> (a, -b), since A(a, b)* = A(a, -b). Stored
+// this way, a fear's point moves by the same grid move as a love's, which is the color weave's convention
+export const CONJUGATE_POINT: readonly number[] = Array.from({ length: 9 }, (_, p) => 3 * Math.floor(p / 3) + ((3 - (p % 3)) % 3))
+
+// a kernel on (love, fear) with the fear's coordinate in the color weave's convention
+export function conjugateSecond(kernel: readonly (readonly number[])[]): number[][] {
+  const map = (i: number): number => Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)
+
+  return Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, (__, c) => kernel[map(r)]?.[map(c)] ?? 0))
+}
+
+// D K in whole numbers with the smallest D up to a limit, or null
+export function wholeKernel(u: Operator, limit: number): { divisor: number; kernel: number[][] } | null {
+  const k = wignerKernel(u)
+
+  for (let d = 1; d <= limit; d++) {
+    const scaled = k.map(row => row.map(x => Math.round(d * x)))
+
+    if (k.every((row, r) => row.every((x, c) => Math.abs(d * x - (scaled[r]?.[c] ?? 0)) < 1e-9))) {
+      return { divisor: d, kernel: scaled }
+    }
+  }
+
+  return null
 }
 
 // 4 K in whole numbers, or null when K is not in quarters

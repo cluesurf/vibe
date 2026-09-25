@@ -20,7 +20,9 @@
 // With the committed spec (pair table, lone-away condition, palindrome, the turning schedule) the
 // collision is bit for bit turningWeave, and with the bind table it is turningWeave's 'bind' form;
 // E-FLD-0021 checks both on every beat. MOMENTUM_WEAVE is the member E-FLD-0022 selects: the hop-free
-// bind table with the exchange allowed only between lines of equal momentum, so every piece keeps P.
+// bind table, the committed schedule, and the committed lone-away exchange widened to LONE_WITH_CLOCK (a
+// lone tone on either slot exchanges with a calm or paired line), so every piece keeps P. E-FLD-0022
+// shows why any such member keeps all twelve line momenta separately, and E-FLD-0023 runs its battery.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import {
@@ -100,6 +102,21 @@ export const HEAD_ON = firesOf((l, w) => {
 
 export const NEVER = new Uint8Array(81)
 
+// the calm class, the three states the pair clock cycles: calm, (1, -1), (-1, 1)
+const CLOCK_CLASS = [lineKey(0, 0), lineKey(1, -1), lineKey(-1, 1)]
+const lone = (k: number): boolean => {
+  const [a, b] = keyTones(k)
+
+  return (a === 0) !== (b === 0)
+}
+
+// the committed condition widened until it keeps momentum: a line holding one lone tone (on either slot,
+// either sign) exchanges with a line in the clock class (calm or a pair). Under a hop-free table the clock
+// class is closed, so the palindrome's second exchange always fires with the first: a lone tone never
+// leaves its line, and the pair clock of the couple runs on the line without the lone tone when the tone
+// sits on the wire and is skipped when it sits on the line
+export const LONE_WITH_CLOCK = firesOf((l, w) => lone(l) && CLOCK_CLASS.includes(w))
+
 export const MIRRORED_SWAP_ORDER: readonly number[] = [...TURN_SWAP_ORDER, ...[...TURN_SWAP_ORDER].reverse()]
 
 export function weaveSpec(input: Partial<MomentumWeaveSpec> & { table: LineTable }): MomentumWeaveSpec {
@@ -116,7 +133,7 @@ export function weaveSpec(input: Partial<MomentumWeaveSpec> & { table: LineTable
 
 export const COMMITTED_SPEC = weaveSpec({ table: PAIR_FORWARD })
 export const BIND_SPEC = weaveSpec({ table: BIND_MOVE_FORWARD })
-export const MOMENTUM_WEAVE = weaveSpec({ table: BIND_MOVE_FORWARD, fires: EQUAL_MOMENTUM })
+export const MOMENTUM_WEAVE = weaveSpec({ table: BIND_MOVE_FORWARD, fires: LONE_WITH_CLOCK })
 
 export function invertLineTable(table: LineTable): LineTable {
   const inverse = new Array<[number, number]>(9)
@@ -536,27 +553,41 @@ export function negationSymmetricMembers(tables: readonly (readonly [string, Lin
   }
 
   const members: { id: string; spec: MomentumWeaveSpec }[] = []
+  const fires = new Uint8Array(81)
+  const composite = new Int32Array(81)
+  const swapped = Int32Array.from({ length: 81 }, (_, x) => exchange(x))
+  const groupMask = groups.map(group => group.flatMap(o => [o, exchange(o)]))
 
   for (const [name, table] of tables) {
+    const clocked = Int32Array.from({ length: 81 }, (_, x) => {
+      const image = table[x % 9] ?? keyTones(x % 9)
+
+      return Math.floor(x / 9) * 9 + lineKey(image[0], image[1])
+    })
+
     for (const palindrome of [true, false]) {
       const composites = new Set<string>()
 
       for (let mask = 0; mask < 1 << groups.length; mask++) {
-        const fires = new Uint8Array(81)
-
-        groups.forEach((group, i) => {
+        fires.fill(0)
+        groupMask.forEach((slots, i) => {
           if ((mask >> i) & 1) {
-            group.forEach(o => {
-              fires[o] = 1
-              fires[exchange(o)] = 1
-            })
+            slots.forEach(o => (fires[o] = 1))
           }
         })
 
-        const spec = weaveSpec({ table, fires, palindrome })
-        const composite = coupleComposite(spec)
+        let keeps = true
 
-        if (!keepsLineMomenta(spec, composite)) {
+        for (let x = 0; x < 81 && keeps; x++) {
+          const once = clocked[fires[x] === 1 ? (swapped[x] ?? x) : x] ?? x
+          const y = palindrome && fires[once] === 1 ? (swapped[once] ?? once) : once
+
+          composite[x] = y
+          keeps =
+            LINE_MOMENTUM[Math.floor(y / 9)] === LINE_MOMENTUM[Math.floor(x / 9)] && LINE_MOMENTUM[y % 9] === LINE_MOMENTUM[x % 9]
+        }
+
+        if (!keeps) {
           continue
         }
 
@@ -564,7 +595,7 @@ export function negationSymmetricMembers(tables: readonly (readonly [string, Lin
 
         if (!composites.has(key)) {
           composites.add(key)
-          members.push({ id: `${name}:${palindrome ? 'palindrome' : 'once'}:${mask}`, spec })
+          members.push({ id: `${name}:${palindrome ? 'palindrome' : 'once'}:${mask}`, spec: weaveSpec({ table, fires: Uint8Array.from(fires), palindrome }) })
         }
       }
     }

@@ -12,7 +12,10 @@
 // - condition: a constant table with each of seven swap conditions, palindromic or not
 // - couple: a different table on each of the six couples of a partition, 4^6 ways
 // - none: a constant table with no swap at all, on each walk
+// - tables-cpt: every period-8 or period-12 table sequence paired the way CPT needs (cptTableSweep)
 // - turn-schedule: turn and swap order together, for the turns a search names (turnScheduleSweep)
+// - table-schedule: swap order and table sequence together, for named sequences (tableScheduleSweep)
+// - schedule-tables: every CPT-paired table sequence on named swap orders (scheduleTableSweep)
 // Ids are stable strings, so a result can be traced back to its spec.
 
 import { rootsD4 } from '@/code/algebra/group/root-system'

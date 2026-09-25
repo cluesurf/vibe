@@ -40,6 +40,23 @@
 // - on both branches the meson with kappa and tension has a mean gap under a tenth of the free meson's, and
 //   travels more than 5
 //
+// The first run, recorded as it came out. It counted the string as the flux-carrying links now minus those
+// at the start. On the melted branch that read lengths 1.56, 2.96, 3.62, 5.13 at R = 1 to 4 (excess 0.56,
+// 0.96, 0.62, 1.13, so the R = 4 gate failed), and the meson a mean gap of 1.48 against the free 65.6 while
+// travelling 7.7. On the cold branch it read 0.02, -1.61, -0.77, 2.78: impossible, since Gauss's law needs at
+// least R links per slice. The cold vacuum holds about 100 links of closed flux loops that drift during a run,
+// and subtracting the start's count measured that drift. So the instrument was wrong, not the gate. The
+// count now subtracts, beat by beat, the same field run with no charge. The gates are unchanged.
+//
+// The second run, with that count. Melted: every gate holds. The string lengths are 1.20, 2.60, 3.26, 4.77
+// at R = 1 to 4 (excess 0.20, 0.60, 0.26, 0.77), the potential rises 14.4, 31.2, 39.1, 57.3, and with no
+// tension the flux spreads over about 4,200 links. Cold: the meson gates hold (gap 2.68 against 65.6,
+// travel 22.7), and the string gates fail. The lengths read 3.77, 2.14, 2.98, 6.53, not monotonic, and one
+// excess (-0.02 at R = 3) sits below the floor Gauss's law sets, so the reading is at the noise of the ~100
+// vacuum flux links, whose paths in the paired runs decorrelate. Tension x beta there is 3.33, near the
+// expected threshold of 3.1, so a taut string was predicted only barely. The failure stands: on the cold
+// branch this instrument cannot show a taut string.
+//
 // Depth L2: a constructed rule, measured.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -73,7 +90,7 @@ const GOLDEN = (Math.sqrt(5) - 1) / 2
 
 type Branch = { base: CenterState; start: number }
 
-type FieldRun = { level: number; beta: number; bulkN: number; correlator: number[]; vacuumStringLinks: number }
+type FieldRun = { level: number; beta: number; bulkN: number; correlator: number[]; vacuumStringLinks: number; vacuumSeries: number[] }
 
 type PairRun = { exact: boolean; length: number; carry: number; lineN: number }
 
@@ -91,7 +108,8 @@ function slope(xs: number[], ys: number[]): number {
 export default experiment({
   id: 'gauge/quark-string-forms',
   code: 'E-FRC-0145',
-  title: 'does a quark string form with the whole three-trit link: the string between a static love line and a fear line, and a moving meson, under the rule where each link holds the grid move and the center flux',
+  title:
+    'a quark string forms with the whole three-trit link: on the melted field the string between a static love line and a fear line stays taut (excess length under 0.8 per slice at R = 1 to 4, the potential rising 14 to 57) and a meson keeps a mean gap of 1.48 against 65.6 free while it travels, the center flux doing the binding and the grid field only the contact, while on the cold field the meson binds and the string reading is lost in the vacuum flux, so the string gates fail there',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -178,6 +196,7 @@ export default experiment({
       let vacuumStringLinks = 0
 
       const correlator = new Array<number>(SIDE).fill(0)
+      const vacuumSeries: number[] = []
 
       for (let t = 0; t < BEATS; t++) {
         s = centerBeat(plain, s, b.start + t).state
@@ -201,7 +220,8 @@ export default experiment({
 
         level += fieldEnergy(matter, s.links) / triangles / BEATS
         demon += demonMean(s) / BEATS
-        vacuumStringLinks += stringLinks(plain, s.flux) / BEATS
+        vacuumSeries.push(stringLinks(plain, s.flux))
+        vacuumStringLinks += (vacuumSeries[t] ?? 0) / BEATS
       }
 
       return {
@@ -210,10 +230,13 @@ export default experiment({
         bulkN,
         correlator: correlator.map(c => c / (bulkN * bulkN) - 1),
         vacuumStringLinks,
+        vacuumSeries,
       }
     }
 
-    const pair = (b: Branch, rule: CenterLinks, r: number): PairRun => {
+    // `reference`, beat by beat, is the flux-carrying links of the same field run with no charge, subtracted
+    // so that flux loops of the vacuum are not counted as string. Without it the start's count is used
+    const pair = (b: Branch, rule: CenterLinks, r: number, reference?: number[]): PairRun => {
       const s0 = fresh(b)
       const x0 = 0
       const y0 = walk(x0, along, r)
@@ -244,7 +267,7 @@ export default experiment({
       for (let t = 0; t < BEATS; t++) {
         s = centerBeat(rule, s, b.start + t).state
         exact = exact && centerEnergy(rule, s) === e0 && gaussViolations(rule, s) === 0
-        length += (stringLinks(rule, s.flux) - stringLinks(rule, b.base.flux)) / SIDE / BEATS
+        length += (stringLinks(rule, s.flux) - (reference?.[t] ?? stringLinks(rule, b.base.flux))) / SIDE / BEATS
 
         for (const x of lines) {
           lineN += fixedPoints(matter, lineTransport(matter, s.links, x, tau)) / lines.length / BEATS
@@ -318,7 +341,7 @@ export default experiment({
 
     const measure = (b: Branch) => {
       const field = fieldAlone(b)
-      const pairs = SEPARATIONS.map(r => pair(b, staticRule, r))
+      const pairs = SEPARATIONS.map(r => pair(b, staticRule, r, field.vacuumSeries))
       const slackPair = pair(b, slack, SEPARATIONS[SEPARATIONS.length - 1] ?? 4)
       const potential = pairs.map(p => TENSION * p.length)
       const excess = pairs.map((p, k) => p.length - (SEPARATIONS[k] ?? 0))

@@ -53,6 +53,7 @@ import { latticeQuotient } from '@/code/measure/integer-lattice'
 import {
   additivityWorst,
   cptMirrorPhase,
+  dressing,
   lineComponents,
   reversalAndCharge,
   type ScheduledRule,
@@ -64,6 +65,7 @@ import {
   BIND_REVERSE_TABLE,
   COMMITTED_SPEC,
   coupleChanges,
+  coupleComposite,
   FLIP_TABLE,
   IDENTITY_TABLE,
   keyTones,
@@ -79,10 +81,6 @@ import {
   sumKeepingTables,
 } from '@/code/rule/momentum-weave'
 
-// the committed rule's own values on each gate (E-FRC-0125, and recomputed here)
-const COMMITTED_VACUUM_COMPONENTS = 3
-const COMMITTED_DENSE_COMPONENTS = 1
-const COMMITTED_TRAVELLERS = 12
 const PERIOD = 24
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
@@ -95,8 +93,11 @@ const ruleOf =
   (opposite, forward) =>
     momentumWeave({ spec, opposite, forward })
 
+// the committed rule's own values on the gates that compare counts, measured by the same functions
+type Reference = { vacuumComponents: number; denseComponents: number; travellers: number }
+
 // the first gate a member fails, in increasing cost, or undefined
-function firstFailure(spec: MomentumWeaveSpec): { failed: Gate | undefined; values: Record<string, number> } {
+function firstFailure(spec: MomentumWeaveSpec, reference: Reference): { failed: Gate | undefined; values: Record<string, number> } {
   const rule = ruleOf(spec)
   const values: Record<string, number> = {}
   const done = (failed: Gate | undefined) => ({ failed, values })
@@ -115,19 +116,19 @@ function firstFailure(spec: MomentumWeaveSpec): { failed: Gate | undefined; valu
 
   values.vacuumComponents = lineComponents(rule, false)
 
-  if (values.vacuumComponents > COMMITTED_VACUUM_COMPONENTS) {
+  if (values.vacuumComponents > reference.vacuumComponents) {
     return done('vacuumComponents')
   }
 
   values.denseComponents = lineComponents(rule, true)
 
-  if (values.denseComponents > COMMITTED_DENSE_COMPONENTS) {
+  if (values.denseComponents > reference.denseComponents) {
     return done('denseComponents')
   }
 
   values.travellers = travel(rule).travellers
 
-  if (values.travellers < COMMITTED_TRAVELLERS) {
+  if (values.travellers < reference.travellers) {
     return done('travel')
   }
 
@@ -182,6 +183,7 @@ function conditionCount(table: LineTable, crossed: boolean): { changing: number;
   const index = new Map<number, number>()
 
   let keeping = 0
+  let changingSoFar = 0
 
   for (let x = 0; x < 81; x++) {
     const o = Math.min(x, exchange(x))
@@ -191,7 +193,8 @@ function conditionCount(table: LineTable, crossed: boolean): { changing: number;
     }
 
     if (changes(x)) {
-      index.set(o, index.size)
+      index.set(o, changingSoFar)
+      changingSoFar++
     } else {
       index.set(o, -1)
       keeping++
@@ -230,11 +233,54 @@ function conditionCount(table: LineTable, crossed: boolean): { changing: number;
   return { changing, keeping, closedSets }
 }
 
+// The same count by a second method, for the straight orientation with the pair-keeping orbits off: every
+// subset of the pair-changing orbits, the swap couple composed directly and tested on all 81 states
+function bruteForceCount(table: LineTable): number {
+  const exchange = (x: number): number => (x % 9) * 9 + Math.floor(x / 9)
+  const n = Array.from({ length: 9 }, (_, k) => lineMomentum(k))
+  const onWire = Array.from({ length: 81 }, (_, x) => {
+    const image = table[x % 9] ?? [0, 0]
+
+    return Math.floor(x / 9) * 9 + lineKey(image[0], image[1])
+  })
+  const orbit = new Int32Array(81).fill(-1)
+
+  let changing = 0
+
+  for (let x = 0; x < 81; x++) {
+    if (exchange(x) > x && n[Math.floor(x / 9)] !== n[x % 9]) {
+      orbit[x] = changing
+      orbit[exchange(x)] = changing
+      changing++
+    }
+  }
+
+  let count = 0
+
+  for (let mask = 0; mask < 1 << changing; mask++) {
+    let keeps = true
+
+    for (let x = 0; x < 81 && keeps; x++) {
+      const i = orbit[x] ?? -1
+      const y = i >= 0 && (mask >> i) & 1 ? exchange(x) : x
+      const z = onWire[y] ?? y
+      const j = orbit[z] ?? -1
+      const f = j >= 0 && (mask >> j) & 1 ? exchange(z) : z
+
+      keeps = n[Math.floor(f / 9)] === n[Math.floor(x / 9)] && n[f % 9] === n[x % 9]
+    }
+
+    count += keeps ? 1 : 0
+  }
+
+  return count
+}
+
 export default experiment({
   id: 'fluids/momentum-family',
   code: 'E-FLD-0022',
   title:
-    "in the committed rule's design family a rule conserves particle momentum exactly if and only if its wire table has no hop and its exchange never moves momentum between the couple's lines, and then it conserves each of the twelve line momenta separately (a couple is too small a block for momentum to pass between lines, so every such rule has momentum but no momentum exchange); of every distinct such member with a negation-symmetric condition, none passes the committed acceptance gates; the smallest change that lets momentum pass between lines is a block of three lines of one A2 plane (the FHP triple), and four-line binary scatterings leave P and charge parity as the only invariants",
+    "in the committed rule's design family a rule conserves particle momentum exactly if and only if its wire table has no hop and its exchange never moves momentum between the couple's lines, and then it conserves each of the twelve line momenta separately (a couple is too small a block for momentum to pass between lines, so every such rule has momentum but no momentum exchange); of the 1,345 distinct such members with a negation-symmetric condition, 31 pass every committed structural gate (CPT, a vacuum period, line components, travel, superposition, reversal, walls), all palindromic on the two pair-making hop-free tables, among them the committed exchange widened to a lone tone against a calm or paired line; the smallest change that lets momentum pass between lines is a block of three lines of one A2 plane (the FHP triple), and four-line binary scatterings leave P and charge parity as the only invariants",
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L1',
@@ -263,6 +309,12 @@ export default experiment({
     const counts = pTables.flatMap((table, i) =>
       [false, true].map(crossed => ({ table: i, crossed, ...conditionCount(table, crossed) })),
     )
+    // the second method on the flip table and the bind table
+    const bruteChecks = [FLIP_TABLE, BIND_MOVE_FORWARD].map(table => {
+      const i = pTables.findIndex(t => t.every(([a, b], k) => a === table[k]?.[0] && b === table[k]?.[1]))
+
+      return { brute: bruteForceCount(table), closed: counts.find(c => c.table === i && !c.crossed)?.closedSets ?? -1 }
+    })
     const roots = rootsD4()
     const opposite = meshOpposites(d4BoxMesh({ side: 5 }))
     const lineRoots = roots.filter((_, d) => d < (opposite[d] ?? d))
@@ -304,10 +356,16 @@ export default experiment({
     ])
     const failures: Record<string, number> = Object.fromEntries([...GATES, 'none'].map(g => [g, 0]))
     const deepest: { id: string; stage: number; values: Record<string, number> }[] = []
-    const reference = firstFailure(COMMITTED_SPEC)
+    const committedRule = ruleOf(COMMITTED_SPEC)
+    const thresholds: Reference = {
+      vacuumComponents: lineComponents(committedRule, false),
+      denseComponents: lineComponents(committedRule, true),
+      travellers: travel(committedRule).travellers,
+    }
+    const reference = firstFailure(COMMITTED_SPEC, thresholds)
 
     for (const { id, spec } of members) {
-      const { failed, values } = firstFailure(spec)
+      const { failed, values } = firstFailure(spec, thresholds)
       const stage = failed === undefined ? GATES.length : GATES.indexOf(failed)
 
       failures[failed ?? 'none'] = (failures[failed ?? 'none'] ?? 0) + 1
@@ -318,6 +376,32 @@ export default experiment({
 
     const furthest = deepest[0]
     const passing = failures.none ?? 0
+    const passers = deepest.filter(d => d.stage === GATES.length)
+    const passersOn = (prefix: string): number => passers.filter(d => d.id.startsWith(prefix)).length
+    const selectedComposite = coupleComposite(MOMENTUM_WEAVE).join(',')
+    const selectedPasses = passers.some(d => {
+      const member = members.find(m => m.id === d.id)
+
+      return member !== undefined && coupleComposite(member.spec).join(',') === selectedComposite && member.spec.table === MOMENTUM_WEAVE.table
+    })
+    // the dressing of a lone love on every passer and on the committed rule (reported, not a gate here)
+    const dressingOf = (spec: MomentumWeaveSpec): number[] => dressing(ruleOf(spec), { tone: 1 }).periodLargest
+    const committedDressing = dressingOf(COMMITTED_SPEC)
+    const passerDressing = passers.map(d => {
+      const member = members.find(m => m.id === d.id)
+
+      return { id: d.id, largest: member ? dressingOf(member.spec) : [] }
+    })
+
+    passerDressing.sort((a, b) => (a.largest[3] ?? 0) - (b.largest[3] ?? 0))
+
+    const leastDressed = passerDressing[0]
+    const dressedMoreEverywhere = passerDressing.every(p => p.largest.some((x, i) => x > (committedDressing[i] ?? 0)))
+    const selectedTravellers = passers.find(d => {
+      const member = members.find(m => m.id === d.id)
+
+      return member !== undefined && coupleComposite(member.spec).join(',') === selectedComposite && member.spec.table === MOMENTUM_WEAVE.table
+    })?.values.travellers ?? -1
     const densePassers = deepest.filter(d => d.stage > GATES.indexOf('denseComponents'))
     const smallestDense = Math.min(...deepest.filter(d => d.values.denseComponents !== undefined).map(d => d.values.denseComponents ?? 12))
 
@@ -386,7 +470,8 @@ export default experiment({
     const binaryQ = latticeQuotient(binary, 12)
     const lineOfWorks = roots.every((_, d) => lineOf(d) >= 0 && lineOf(d) === lineOf(opposite[d] ?? d))
 
-    const countsExact = counts.every(c => c.changing + c.keeping === 36 && c.closedSets > 1)
+    const countsExact =
+      counts.every(c => c.changing + c.keeping === 36 && c.closedSets > 1) && bruteChecks.every(c => c.brute === c.closed)
 
     const ok =
       tablesExact &&
@@ -397,8 +482,11 @@ export default experiment({
       committedLine.free === 0 &&
       lineDrift === 0 &&
       reference.failed === undefined &&
-      passing === 0 &&
-      members.length > 0 &&
+      passing > 0 &&
+      selectedPasses &&
+      passers.every(d => d.id.includes(':palindrome:')) &&
+      passersOn('flip:') === 0 &&
+      passersOn('identity:') === 0 &&
       planes.size === 16 &&
       keepsVector(triples) &&
       keepsVector(binary) &&
@@ -420,18 +508,33 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'P is kept on a wire by exactly the hop-free tables and J by the identity alone; the number of P-keeping conditions is counted exactly for every hop-free table and orientation; every two lines have independent roots, so a P-keeping member keeps all twelve line momenta (the selected member: twelve free invariants, zero drift of every line momentum on a dense run, against none kept by the committed rule); none of the distinct negation-symmetric momentum-keeping members passes the committed gates; triple moves on the 16 A2 planes and four-line binary scatterings both keep P and leave it as the only free invariant, the binary ones with charge parity as the only residue',
+        'P is kept on a wire by exactly the hop-free tables and J by the identity alone; the number of P-keeping conditions is counted exactly for every hop-free table and orientation; every two lines have independent roots, so a P-keeping member keeps all twelve line momenta (the selected member: twelve free invariants, zero drift of every line momentum on a dense run, against none kept by the committed rule); some distinct negation-symmetric momentum-keeping members pass every committed structural gate, all of them palindromic on a table that makes pairs from calm, the selected momentum weave among them; triple moves on the 16 A2 planes and four-line binary scatterings both keep P and leave it as the only free invariant, the binary ones with charge parity as the only residue',
       metrics: {
         sumKeepingTables: tables.length,
         momentumKeepingTables: pTables.length,
         currentKeepingTables: jTables.length,
         ...countMetrics,
+        flipBruteForceCount: bruteChecks[0]?.brute ?? -1,
+        bindBruteForceCount: bruteChecks[1]?.brute ?? -1,
         linePairsIndependent: independent ? 1 : 0,
         selectedFreeLineInvariants: selectedLine.free,
         committedFreeLineInvariants: committedLine.free,
         selectedLineMomentumDrift: lineDrift,
         membersGated: members.length,
         ...Object.fromEntries(Object.entries(failures).map(([g, n]) => [`firstFailure_${g}`, n])),
+        membersPassingEveryGate: passing,
+        passersOnBind: passersOn('bind:'),
+        passersOnBindReverse: passersOn('bind-reverse:'),
+        passersOnFlip: passersOn('flip:'),
+        passersOnIdentity: passersOn('identity:'),
+        passersSwapThenClock: passers.filter(d => d.id.includes(':once:')).length,
+        selectedPasses: selectedPasses ? 1 : 0,
+        selectedTravellers,
+        largestTravellersAmongPassers: Math.max(...passers.map(d => d.values.travellers ?? 0)),
+        smallestTravellersAmongPassers: Math.min(...passers.map(d => d.values.travellers ?? 0)),
+        ...Object.fromEntries((leastDressed?.largest ?? []).map((x, p) => [`leastDressedPasserLoveSupportPeriod${p + 1}`, x])),
+        ...Object.fromEntries(committedDressing.map((x, p) => [`committedLoveSupportPeriod${p + 1}`, x])),
+        everyPasserDressesMore: dressedMoreEverywhere ? 1 : 0,
         membersPastDenseComponents: densePassers.length,
         smallestDenseComponents: smallestDense,
         furthestStage: furthest?.stage ?? -1,
@@ -451,7 +554,7 @@ export default experiment({
         committedTravellers: reference.values.travellers ?? -1,
         committedCptPhase: reference.values.cpt ?? -1,
       },
-      notes: `L1, exhaustive and exact, no random numbers. Furthest member: ${furthest?.id} at stage ${furthest?.stage} (${JSON.stringify(furthest?.values)}). Tables are indexed in the order of sumKeepingTables among the P-keeping ones. The count of conditions is over all 2^36 exchange-symmetric conditions; the gates are run on the negation-symmetric ones only (2^20 per table and mode, deduplicated by the swap couple's composite), because the collision-level CPT test negates every tone and a condition that is not negation-symmetric is not its own image. The schedule is the committed one for the gate sweep; the argument that P-keeping forces all twelve line momenta holds for every schedule, every orientation and every condition, since it is a statement about one couple. What the family cannot give is momentum exchange: a couple of two lines has no integer relation among its roots, so no map on it can move momentum from one line to the other while keeping P. The FHP-style triple on three lines of an A2 plane (e1 + e2 + e3 = 0) is the smallest block that can, and over all 16 planes its moves leave exactly P free (with 2^8 residues mod 2, the parity of each line's tone count, still kept); the four-line binary scatterings (u + v = w + x) leave exactly P and the charge parity.`,
+      notes: `L1, exhaustive and exact, no random numbers. Least dressed passer: ${leastDressed?.id}. Furthest member: ${furthest?.id} at stage ${furthest?.stage} (${JSON.stringify(furthest?.values)}). Tables are indexed in the order of sumKeepingTables among the P-keeping ones. The count of conditions is over all 2^36 exchange-symmetric conditions; the gates are run on the negation-symmetric ones only (2^20 per table and mode, deduplicated by the swap couple's composite), because the collision-level CPT test negates every tone and a condition that is not negation-symmetric is not its own image. The schedule is the committed one for the gate sweep; the argument that P-keeping forces all twelve line momenta holds for every schedule, every orientation and every condition, since it is a statement about one couple. What the family cannot give is momentum exchange: a couple of two lines has no integer relation among its roots, so no map on it can move momentum from one line to the other while keeping P. The FHP-style triple on three lines of an A2 plane (e1 + e2 + e3 = 0) is the smallest block that can, and over all 16 planes its moves leave exactly P free (with 2^8 residues mod 2, the parity of each line's tone count, still kept); the four-line binary scatterings (u + v = w + x) leave exactly P and the charge parity.`,
     })
   },
 })
