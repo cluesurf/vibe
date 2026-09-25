@@ -14,14 +14,14 @@ export const OBJECTIONS: Objection[] = [
     measured:
       'the empty state flashes with period 3, a seeded defect stays within 2 slots over 4 beats, and two defects add with 0 overlap, where a coined walk spreads to 5 sites with cross term 0.357',
     verdict: 'stands',
-    source: 'E-FND-0080, result 04',
+    source: 'E-FND-0080, R-FND-0001',
   },
   {
     objection: 'SU(3) colour is absent from the rule, including under coarse-graining',
     measured:
       '2 of 9 u(3) generators kept, 1 of 995,328 schedule symmetries, 0 of 32 triangles inside a block, and 84 to 88 percent of the breaking kept at the whole-mesh scale',
     verdict: 'stands',
-    source: 'E-FRC-0093 to E-FRC-0097, result 03',
+    source: 'E-FRC-0093 to E-FRC-0097, R-FRC-0003',
   },
   {
     objection: 'goal-directed movement is not produced by the base rule',
@@ -58,18 +58,18 @@ export const OBJECTIONS: Objection[] = [
     objection: 'the greedy-routing result is labelled {3,4,3,4} but runs on the {5,4} plane tiling',
     measured: 'the experiment builds hyperbolicTiling({ p: 5, q: 4 }), at most 2,500 vertices',
     verdict: 'stands',
-    source: 'E-NVG-0010, result 06, open problem OP-04',
+    source: 'E-NVG-0010, R-NVG-0001, open problem OP-04',
   },
   {
     objection: 'the dimension-eight pinch is described as proof-checked, but the kernel checks it only on integers',
     measured: 'the formal pinch file holds integer spot checks. The converse of Hurwitz is not a checked proof',
     verdict: 'stands',
-    source: 'result 08, open problem OP-09',
+    source: 'R-FND-0002, open problem OP-09',
   },
   {
     objection: 'the lattice QCD reproductions say nothing about the program',
     measured: 'they rest on the Wilson action and a seeded sampler, and on none of the five assumptions',
     verdict: 'stands',
-    source: 'result 01, the claim graph',
+    source: 'R-FRC-0001, the claim graph',
   },
 ]

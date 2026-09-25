@@ -359,6 +359,7 @@ export function exchangeDemons(input: {
 // function of beta, inverted here by bisection.
 export function demonBeta(input: { meanDemon: number; capacity: number }): number {
   const { meanDemon, capacity } = input
+
   const meanAt = (beta: number): number => {
     let weight = 0
     let sum = 0

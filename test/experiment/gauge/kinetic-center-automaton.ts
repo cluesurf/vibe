@@ -105,6 +105,7 @@ function run(energy: number, kinetic: boolean): Run {
   const e0 = totalEnergy(lattice, demons)
   const plaquettes: number[] = []
   const histogram = new Array<number>(CAPACITY + 1).fill(0)
+
   let demonSum = 0
   let moves = 0
 
@@ -223,7 +224,9 @@ export default experiment({
         coldHeatbath: coldReference?.value ?? 0,
         coldBeta: cold.beta,
         coldMovesPerSweep: cold.movesPerSweep,
-        warmDemonLogRatios: warm.demonLogRatios.map(x => Number(x.toFixed(3))).join(' '),
+        warmDemonLogRatio1: warm.demonLogRatios[0] ?? Number.NaN,
+        warmDemonLogRatio2: warm.demonLogRatios[1] ?? Number.NaN,
+        warmDemonLogRatio3: warm.demonLogRatios[2] ?? Number.NaN,
       },
       control: {
         strandedColdPlaquette: stranded.plaquette.value,

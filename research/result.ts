@@ -1,8 +1,9 @@
-// The numbered results. Each stands alone: a reader can meet 07 without accepting 01 to 06.
+// The results, each by its code, R-<arena>-<NNNN>. Each stands alone: a reader can meet one without
+// accepting any other.
 //
 // Every number is from a run of the named experiment at seed 1 on this branch, or quoted from
 // note/experiment/gauge/strong-force.md where the reference says "strong-force note". `checks`
-// are what `pnpm result reproduce <number>` holds each verdict to, so a record cannot drift from
+// are what `pnpm result reproduce <code>` holds each verdict to, so a record cannot drift from
 // the code without the reproduce command saying so.
 //
 // The claim is in standard terms. The program's own words appear only in `program`, which
@@ -68,39 +69,39 @@ const QCD_IMPORTS = ['I1', 'I2']
 
 export const RESULTS: Result[] = [
   {
-    number: '01',
+    code: 'R-FRC-0001',
     title: 'SU(3) lattice gauge theory rebuilt from scratch, against published values',
     subject: 'lattice gauge theory',
     sentence:
-      'An independent lattice code reproduces the standard quenched and dynamical SU(3) results, each against a published value or a computed control, with every pull within 2 sigma.',
+      'An independent lattice code reproduces the standard quenched and dynamical SU(3) results, each against a published value or a computed control, with every pull within $2\\sigma$.',
     claim:
-      'A lattice gauge theory code written from scratch reproduces, at beta 5.7 to 5.9, confinement, the gluon and colour count, the static potential and the Sommer scale, the scalar glueball, the deconfinement transition, chiral symmetry breaking, the pion as a Goldstone boson, and string breaking by dynamical quarks.',
-    headline: { value: '5 of 5', label: 'quantities with a published error within 2 sigma' },
+      'A lattice gauge theory code written from scratch reproduces, at $\\beta = 5.7$ to $5.9$, confinement, the gluon and colour count, the static potential and the Sommer scale, the scalar glueball, the deconfinement transition, chiral symmetry breaking, the pion as a Goldstone boson, and string breaking by dynamical quarks.',
+    headline: { value: '5 of 5', label: 'quantities with a published error within 2σ' },
     category: 'reproduction',
     status: ['simulated'],
     depth: 'L2',
     audience: 'lattice gauge theorists, computational physics',
     question: 'Does an independent codebase get known strong-force physics right, with controls that could fail?',
     answer:
-      'Yes. Thirteen experiments rebuild the standard SU(3) results, and every quantity with a published error lands within 2 sigma of it.',
+      'Yes. Thirteen experiments rebuild the standard SU(3) results, and every quantity with a published error lands within $2\\sigma$ of it.',
     importance:
       'It checks the measuring apparatus before anything it says about new physics is read. It says nothing about the program itself, which rests on none of the same assumptions.',
     limits: [
       'nothing about the committed rule. It rests on none of the five assumptions',
       'one or two couplings in 4D. Only 3D SU(2) is extrapolated to the continuum',
-      'T_c r0 uses the published r0 / a at the measured beta_c, not an independently measured r0',
-      'the J parameter and m_N / m_rho (E-FRC-0091) are printed but not gated. 12 configurations cannot decide them',
+      '$T_c r_0$ uses the published $r_0/a$ at the measured $\\beta_c$, not an independently measured $r_0$',
+      'the $J$ parameter and $m_N/m_\\rho$ (E-FRC-0091) are printed but not gated. 12 configurations cannot decide them',
     ],
     equations: [
-      'Wilson action: S = beta sum_P (1 - Re Tr U_P / N)',
-      'Creutz ratio: chi(R, T) = -ln( W(R,T) W(R-1,T-1) / W(R,T-1) W(R-1,T) ), which levels off at the string tension under an area law',
-      'Sommer scale: r0^2 F(r0) = 1.65',
-      'pull (D1): (measured - published) / sigma',
+      'Wilson action: $S = \\beta \\sum_P \\left(1 - \\tfrac{1}{N}\\operatorname{Re}\\operatorname{Tr} U_P\\right)$',
+      'Creutz ratio, which levels off at the string tension under an area law: $\\chi(R,T) = -\\ln \\dfrac{W(R,T)\\,W(R-1,T-1)}{W(R,T-1)\\,W(R-1,T)}$',
+      'Sommer scale: $r_0^2 F(r_0) = 1.65$',
+      'pull (D1): $(\\text{measured} - \\text{published})/\\sigma$',
     ],
     measurements: [
       {
-        quantity: 'Creutz ratio chi(3,3) / chi(2,2), SU(3) at beta 5.7',
-        measured: '0.76 +- 0.03 (area law)',
+        quantity: 'Creutz ratio $\\chi(3,3)/\\chi(2,2)$, SU(3) at $\\beta = 5.7$',
+        measured: '0.76 ± 0.03 (area law)',
         reference: 'U(1) 0.32 and weak-coupling SU(3) 0.36, both Coulombic (strong-force note)',
         code: 'E-FRC-0080',
       },
@@ -111,56 +112,56 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0081',
       },
       {
-        quantity: 'string tension and Coulomb coefficient, beta 5.7',
-        measured: 'sigma a^2 = 0.125 +- 0.021, e = 0.34 +- 0.05',
-        reference: 'e against pi / 12 = 0.262, pull 1.7. Photon sigma 0.0002 +- 0.0006 (strong-force note)',
+        quantity: 'string tension and Coulomb coefficient, $\\beta = 5.7$',
+        measured: '$\\sigma a^2$ = 0.125 ± 0.021, $e$ = 0.34 ± 0.05',
+        reference: '$e$ against $\\pi/12 = 0.262$, pull 1.7. Photon $\\sigma$ = 0.0002 ± 0.0006 (strong-force note)',
         code: 'E-FRC-0087',
       },
       {
-        quantity: 'Sommer scale r0 / a at beta 5.7',
-        measured: '3.23 +- 0.21',
+        quantity: 'Sommer scale $r_0/a$ at $\\beta = 5.7$',
+        measured: '3.23 ± 0.21',
         reference: 'Necco-Sommer 2.94, pull 1.4 (strong-force note)',
         code: 'E-FRC-0088',
       },
       {
-        quantity: 'scalar glueball m r0',
-        measured: '4.05 +- 0.50',
-        reference: 'continuum 4.21 +- 0.11, Morningstar and Peardon (package gauge readme)',
+        quantity: 'scalar glueball $m r_0$',
+        measured: '4.05 ± 0.50',
+        reference: 'continuum 4.21 ± 0.11, Morningstar and Peardon (package gauge readme)',
         code: 'E-FRC-0089',
       },
       {
-        quantity: '3D SU(2) sqrt(sigma) / g^2, extrapolated to the continuum',
-        measured: '0.332 +- 0.06',
+        quantity: '3D SU(2) $\\sqrt{\\sigma}/g^2$, extrapolated to the continuum',
+        measured: '0.332 ± 0.06',
         reference: 'continuum 0.3353, Teper, pull -0.06 (strong-force note)',
         code: 'E-FRC-0007',
       },
       {
-        quantity: 'deconfinement beta_c, N_t = 2, 8^3 box',
+        quantity: 'deconfinement $\\beta_c$, $N_t = 2$, $8^3$ box',
         measured: 'bracket [5.1000, 5.1625]',
         reference: 'published 5.09. Centre-sector phase error 0.0009. Confined loop volume ratio 1.533 against 1.540 (run)',
         code: 'E-FRC-0082',
       },
       {
-        quantity: 'deconfinement beta_c, N_t = 4, infinite volume',
-        measured: '5.6865 +- 0.0093',
-        reference: 'published 5.6925. T_c r0 = 0.712 against the published N_t = 4 value 0.722 (registry)',
+        quantity: 'deconfinement $\\beta_c$, $N_t = 4$, infinite volume',
+        measured: '5.6865 ± 0.0093',
+        reference: 'published 5.6925. $T_c r_0$ = 0.712 against the published $N_t = 4$ value 0.722, about 281 MeV (run)',
         code: 'E-FRC-0098',
       },
       {
-        quantity: 'chiral condensate Sigma(0), below and above T_c',
-        measured: '0.286 +- 0.028 below, 0.00014 above',
+        quantity: 'chiral condensate $\\Sigma(0)$, below and above $T_c$',
+        measured: '0.286 ± 0.028 below, 0.00014 above',
         reference: 'the estimator reproduces the free condensate to 3.6e-14 (strong-force note)',
         code: 'E-FRC-0086',
       },
       {
-        quantity: 'd ln m_pi / d ln m_q',
+        quantity: '$d \\ln m_\\pi / d \\ln m_q$',
         measured: 'near 0.44',
         reference: 'Goldstone expects 0.5. Gluons off 0.97 (strong-force note)',
         code: 'E-FRC-0084',
       },
       {
         quantity: 'Polyakov loop with dynamical quarks, 4^3 and 6^3',
-        measured: 'Re P = 0.412 and 0.394, ln det = -60 under a centre rotation',
+        measured: '$\\operatorname{Re} P$ = 0.412 and 0.394, $\\ln\\det$ = −60 under a centre rotation',
         reference: 'quenched falls 1.79 against 1.84 for zero. Hopping expansion agrees to 0.06 percent (strong-force note)',
         code: 'E-FRC-0090',
       },
@@ -168,18 +169,18 @@ export const RESULTS: Result[] = [
     figure: {
       form: 'pulls',
       caption:
-        'Reproduction. Every quantity with a published value and error, as (measured - published) / sigma. No fitted parameters. All five lie within 2 sigma.',
+        'Reproduction. Every quantity with a published value and error, as (measured − published) / σ. No fitted parameters. All five lie within 2σ.',
       rows: [
         { label: '3D SU(2) string tension', pull: -0.06, source: 'E-FRC-0007' },
-        { label: 'Coulomb coefficient against pi / 12', pull: 1.7, source: 'E-FRC-0087' },
-        { label: 'Sommer scale r0 / a, beta 5.7', pull: 1.4, source: 'E-FRC-0088' },
-        { label: 'scalar glueball m r0', pull: -0.32, source: 'E-FRC-0089' },
-        { label: 'deconfinement beta_c, N_t = 4', pull: -0.65, source: 'E-FRC-0098' },
+        { label: 'Coulomb coefficient against π/12', pull: 1.7, source: 'E-FRC-0087' },
+        { label: 'Sommer scale r₀/a, β = 5.7', pull: 1.4, source: 'E-FRC-0088' },
+        { label: 'scalar glueball m r₀', pull: -0.32, source: 'E-FRC-0089' },
+        { label: 'critical β, deconfinement at Nₜ = 4', pull: -0.65, source: 'E-FRC-0098' },
       ],
     },
     comparison: {
       standard: 'the published lattice values: Necco-Sommer, Morningstar-Peardon, Teper, the SU(3) thermodynamics literature',
-      vibe: 'the same values within 2 sigma, from an independent codebase',
+      vibe: 'the same values within $2\\sigma$, from an independent codebase',
       difference: 'none, by design',
     },
     closest: [
@@ -200,14 +201,14 @@ export const RESULTS: Result[] = [
     }),
     failure: [
       'a rerun at seed 1 that gives a different number: the code is not reproducible',
-      'a pull beyond 3 sigma at a second lattice spacing: a bug, or a match that held at one spacing by luck',
+      'a pull beyond $3\\sigma$ at a second lattice spacing: a bug, or a match that held at one spacing by luck',
       'a control (U(1), gluons off, the free quark) failing its exact value: the estimator is wrong',
     ],
     novelty: 'known',
     free_parameters: 0,
     fitted: false,
     known_before: true,
-    falsified_by: 'a reproduction failure, or a pull beyond 3 sigma at a second spacing',
+    falsified_by: 'a reproduction failure, or a pull beyond $3\\sigma$ at a second spacing',
     version: '1.0.0',
     audited: '2026-09-25',
     history: [FIRST],
@@ -239,7 +240,9 @@ export const RESULTS: Result[] = [
       { code: 'E-FRC-0007', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 },
       { code: 'E-FRC-0082', metric: 'criticalBetaLow', from: 'metrics', expected: 5.1, tolerance: 0.0001 },
       { code: 'E-FRC-0082', metric: 'criticalBetaHigh', from: 'metrics', expected: 5.1625, tolerance: 0.0001 },
-      { code: 'E-FRC-0098', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 },
+      { code: 'E-FRC-0098', metric: 'criticalBetaInfiniteVolume', from: 'metrics', expected: 5.6865, tolerance: 0.0001 },
+      { code: 'E-FRC-0098', metric: 'tcR0', from: 'metrics', expected: 0.7118, tolerance: 0.0001 },
+      { code: 'E-FRC-0098', metric: 'publishedCriticalBeta', from: 'control', expected: 5.6925, tolerance: 0 },
       { code: 'E-FRC-0086', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 },
       { code: 'E-FRC-0084', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 },
       { code: 'E-FRC-0085', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 },
@@ -251,11 +254,11 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'planned paper 1, the testbed paper, as its central result family',
     program:
-      'The strong-force arc of the vibe program (v1.5.0). It checks the measuring apparatus. It does not test the committed rule, which is result 03.',
+      'The strong-force arc of the vibe program (v1.5.0). It checks the measuring apparatus. It does not test the committed rule, which is R-FRC-0003.',
     outputs: NO_OUTPUTS,
   },
   {
-    number: '02',
+    code: 'R-FRC-0002',
     title: 'Deterministic reversible SU(3) dynamics reproduces the thermal ensemble, with no random numbers',
     subject: 'statistical mechanics',
     sentence:
@@ -270,17 +273,17 @@ export const RESULTS: Result[] = [
       "statistical physics, microcanonical lattice gauge theory, 't Hooft's cellular-automaton interpretation, reversible computing",
     question: 'Does thermal lattice physics need random numbers, or does deterministic reversible dynamics reach the same ensemble?',
     answer:
-      "It reaches the same ensemble. The kurtosis goes from 1.5 to 2.997, the eight colours equipartition to 0.0005, and the plaquette and Creutz ratio match the heatbath at the predicted beta' = 5.699.",
+      "It reaches the same ensemble. The kurtosis goes from 1.5 to 2.997, the eight colours equipartition to 0.0005, and the plaquette and Creutz ratio match the heatbath at the predicted $\\beta' = 5.699$.",
     importance:
-      'A sampler is a shortcut, not a necessity. The Gauss-law temperature count is what makes the prediction right: the naive count is excluded at 306 sigma.',
+      'A sampler is a shortcut, not a necessity. The Gauss-law temperature count is what makes the prediction right: the naive count is excluded at $306\\sigma$.',
     limits: [
-      'the dynamics is Hamiltonian SU(3), not the committed rule. The rule carries no SU(3) (result 03)',
+      'the dynamics is Hamiltonian SU(3), not the committed rule. The rule carries no SU(3) (R-FRC-0003)',
       'one structured start',
-      'the Z3 automaton (E-FRC-0099) freezes at low energy, the known Q2R non-ergodicity, and needs a kinetic variable there',
+      'the $\\mathbb{Z}_3$ automaton (E-FRC-0099) freezes at low energy, the known Q2R non-ergodicity, and needs a kinetic variable there',
     ],
     equations: [
-      'Wilson coupling: beta = 2 N / g^2',
-      "beta' is predicted from the kinetic temperature, with the degrees of freedom counted after the Gauss-law constraints are removed. The exact count is in the experiment file",
+      'Wilson coupling: $\\beta = 2N/g^2$',
+      "$\\beta'$ is predicted from the kinetic temperature, with the degrees of freedom counted after the Gauss-law constraints are removed. The exact count is in the experiment file",
     ],
     measurements: [
       {
@@ -296,27 +299,27 @@ export const RESULTS: Result[] = [
         code: 'E-FRC-0092',
       },
       {
-        quantity: "predicted coupling beta'",
+        quantity: "predicted coupling $\\beta'$",
         measured: '5.699',
-        reference: 'the naive temperature count is excluded at 306 sigma (strong-force note)',
+        reference: 'the naive temperature count is excluded at $306\\sigma$ (strong-force note)',
         code: 'E-FRC-0092',
       },
       {
-        quantity: "plaquette, deterministic against heatbath at beta'",
+        quantity: "plaquette, deterministic against heatbath at $\\beta'$",
         measured: '0.5504',
         reference: '0.5497 (strong-force note)',
         code: 'E-FRC-0092',
       },
       {
-        quantity: 'Creutz ratio chi(2,2), deterministic against heatbath',
+        quantity: 'Creutz ratio $\\chi(2,2)$, deterministic against heatbath',
         measured: '0.369',
         reference: '0.371 (strong-force note)',
         code: 'E-FRC-0092',
       },
       {
-        quantity: 'Z3 reversible automaton, hot-phase area exponent',
-        measured: '2.0014 +- 0.0090',
-        reference: 'heatbath 2.0015 at effective beta 0.5602. Energy drift 0 (run)',
+        quantity: '$\\mathbb{Z}_3$ reversible automaton, hot-phase area exponent',
+        measured: '2.0014 ± 0.0090',
+        reference: 'heatbath 2.0015 at effective $\\beta$ = 0.5602. Energy drift 0 (run)',
         code: 'E-FRC-0099',
       },
     ],
@@ -328,8 +331,8 @@ export const RESULTS: Result[] = [
       control: 'heatbath Monte Carlo',
       rows: [
         { label: 'plaquette', measured: 0.5504, control: 0.5497 },
-        { label: 'Creutz ratio chi(2,2)', measured: 0.369, control: 0.371 },
-        { label: 'Z3 area exponent', measured: 2.0014, control: 2.0015 },
+        { label: 'Creutz ratio χ(2,2)', measured: 0.369, control: 0.371 },
+        { label: 'ℤ₃ area exponent', measured: 2.0014, control: 2.0015 },
       ],
     },
     comparison: {
@@ -389,7 +392,7 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '03',
+    code: 'R-FRC-0003',
     title: 'The committed rule does not carry SU(3) colour',
     subject: 'symmetry',
     sentence:
@@ -403,7 +406,7 @@ export const RESULTS: Result[] = [
     audience: 'anyone judging whether the program reports against itself',
     question: 'Does the committed rule carry the symmetry of the strong force?',
     answer:
-      'No. It keeps the charge U(1) and the phase and nothing else of U(3), no Z3 and no S3, and coarse-graining brings none of it back.',
+      'No. It keeps the charge U(1) and the phase and nothing else of U(3), no $\\mathbb{Z}_3$ and no $S_3$, and coarse-graining brings none of it back.',
     importance:
       'The program measured the absence of the strong force in its own rule, exactly, and named what would have to be added. Adding a sixth ingredient is not emergence.',
     limits: [
@@ -412,18 +415,18 @@ export const RESULTS: Result[] = [
       'time-reversed and cell-dependent symmetries are excluded by design',
     ],
     equations: [
-      'the commutant: dim { X in u(3) : [X, B_t] = 0 for all 24 beats B_t } = 2',
-      'L1 (Schur-Weyl): the U(3)-covariant two-line maps are spanned by the identity and the swap',
+      'the commutant of the rule in $\\mathfrak{u}(3)$, over all 24 beats: $\\dim\\{X \\in \\mathfrak{u}(3) : [X, B_t] = 0,\\ t = 1, \\dots, 24\\} = 2$',
+      'L1 (Schur-Weyl): the U(3)-covariant maps on two lines are spanned by the identity and the swap, $\\operatorname{End}_{U(3)}(\\mathbb{C}^3 \\otimes \\mathbb{C}^3) = \\operatorname{span}\\{1, P\\}$',
     ],
     measurements: [
       {
-        quantity: 'u(3) generators commuting with all 24 beats',
+        quantity: '$\\mathfrak{u}(3)$ generators commuting with all 24 beats',
         measured: '2 of 9',
         reference: 'identity and swap maps keep 9 (run)',
         code: 'E-FRC-0093',
       },
       {
-        quantity: 'tone relabellings (S3 on each line end) commuting with the rule, sides 3 and 5',
+        quantity: 'tone relabellings ($S_3$ on each line end) commuting with the rule, sides 3 and 5',
         measured: '1 of 36, the identity',
         reference: 'pure streaming keeps 36 (run)',
         code: 'E-FRC-0093',
@@ -460,7 +463,7 @@ export const RESULTS: Result[] = [
       measured: 'the committed rule',
       control: 'control: streaming, or a whole-cell collision',
       rows: [
-        { label: 'u(3) generators kept', measured: 2, control: 9 },
+        { label: '𝔲(3) generators kept', measured: 2, control: 9 },
         { label: 'tone relabellings kept', measured: 1, control: 36 },
         { label: 'triangles inside a block', measured: 0, control: 32 },
         { label: 'exact schedule symmetries', measured: 1, control: 1152 },
@@ -498,7 +501,7 @@ export const RESULTS: Result[] = [
     version: '1.0.0',
     audited: '2026-09-25',
     history: [FIRST],
-    depends: ['R04', 'L1'],
+    depends: ['R-FND-0001', 'L1'],
     experiments: [
       { code: 'E-FRC-0093', file: 'test/experiment/gauge/rule-tone-symmetry.ts', depends: ['A1', 'A2', 'A3', 'A4', 'A5', 'L1'] },
       { code: 'E-FRC-0094', file: 'test/experiment/gauge/rule-no-triplet-vertex.ts', depends: ['A1', 'A2', 'A3'] },
@@ -530,7 +533,7 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '04',
+    code: 'R-FND-0001',
     title: 'The committed rule has no amplitudes',
     subject: 'quantum foundations',
     sentence:
@@ -552,8 +555,8 @@ export const RESULTS: Result[] = [
       'side 8 is even, so the mesh is two disconnected lattices and the run covers one component of 2,048 cells',
     ],
     equations: [
-      'the empty state under the pair table: (0,0) -> (+1,-1) -> (-1,+1) -> (0,0), period 3',
-      'occupation numbers are nonnegative integers, so a cross term cannot exist',
+      'the empty state under the pair table, period 3: $(0,0) \\to (+1,-1) \\to (-1,+1) \\to (0,0)$',
+      'occupation numbers are nonnegative integers, $n \\in \\mathbb{Z}_{\\ge 0}$, so there is no cross term: $n_{a \\cup b} = n_a + n_b$ exactly, where a walk has $|\\psi_a + \\psi_b|^2 \\ne |\\psi_a|^2 + |\\psi_b|^2$',
     ],
     measurements: [
       {
@@ -645,7 +648,7 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '05',
+    code: 'R-MMR-0001',
     title: 'Search radius that does not grow with memory size on {3,4,3,4}',
     subject: 'network geometry',
     sentence:
@@ -666,7 +669,10 @@ export const RESULTS: Result[] = [
       'the curvature ladder (E-MMR-0002) runs {5,3,4} to {5,3,3,5} and leaves {3,4,3,4} out',
       'the ladder claim fails at half size: at 600 cells the cubic radius ties the least-curved one. Its measured floor is about 1,000 cells',
     ],
-    equations: ['coverage radius (D3) at N and 4N cells, and its change'],
+    equations: [
+      'coverage radius (D3) at $N$ and $4N$ cells, and its change $\\Delta r = r(4N) - r(N)$',
+      'with exponential growth $r \\sim \\log_\\lambda N$, so $\\Delta r \\approx \\log_\\lambda 4$. On a cubic lattice $r \\sim N^{1/3}$, so $\\Delta r$ grows with $N$',
+    ],
     measurements: [
       {
         quantity: 'coverage radius, {3,4,3,4}, 750 to 3,000 cells',
@@ -753,7 +759,7 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '06',
+    code: 'R-NVG-0001',
     title: 'Greedy routing with stretch 1.002 on a hyperbolic tiling',
     subject: 'network geometry',
     sentence:
@@ -772,7 +778,10 @@ export const RESULTS: Result[] = [
       'the experiment builds a two-dimensional {5,4} tiling of at most 2,500 vertices, not the {3,4,3,4} honeycomb. Its catalog substrate label is wrong',
       'one size',
     ],
-    equations: ['stretch: greedy path length / shortest path length, averaged over pairs'],
+    equations: [
+      'mean stretch over the tested pairs: $\\bar{s} = \\dfrac{1}{|P|} \\sum_{(u,v) \\in P} \\dfrac{\\ell_{\\text{greedy}}(u,v)}{d(u,v)}$',
+      'a greedy step moves to the neighbour closest to the target in hyperbolic distance, using only the current cell, its neighbours and the target',
+    ],
     measurements: [
       {
         quantity: 'delivery, greedy in hyperbolic coordinates',
@@ -839,13 +848,13 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '07',
+    code: 'R-HLG-0001',
     title: 'The outer shell holds 94.5 percent of the ball',
     subject: 'geometry',
     sentence:
-      'In the {3,4,3,4} honeycomb the outermost shell of a ball holds 0.9453 of it, exactly (lambda - 1) / lambda for the measured growth factor.',
+      'In the {3,4,3,4} honeycomb the outermost shell of a ball holds 0.9453 of it, exactly $(\\lambda - 1)/\\lambda$ for the measured growth factor $\\lambda$.',
     claim:
-      'In the {3,4,3,4} honeycomb, through shell 4, the outermost shell of a ball holds a constant 0.9453 of the ball, equal to (lambda - 1) / lambda for the growth factor lambda = 18.278, while in a flat four-dimensional lattice the fraction falls to 0.2467 by radius 14.',
+      'In the {3,4,3,4} honeycomb, through shell 4, the outermost shell of a ball holds a constant 0.9453 of the ball, equal to $(\\lambda - 1)/\\lambda$ for the growth factor $\\lambda = 18.278$, while in a flat four-dimensional lattice the fraction falls to 0.2467 by radius 14.',
     headline: { value: '94.5%', label: 'of the ball in its outermost shell' },
     category: 'measurement',
     status: ['simulated'],
@@ -856,17 +865,18 @@ export const RESULTS: Result[] = [
     importance: 'The program reads the surface as physical space and the interior as wiring. This is the number behind that picture.',
     limits: ['five shells, 170,000 cells', 'a property of the geometry, not of the rule running on it'],
     equations: [
-      'boundary share (D2): |S_r| / |B_r|',
-      'L4: with |S_r| ~ lambda^r, the share tends to (lambda - 1) / lambda = 17.278 / 18.278 = 0.9453',
+      'boundary share (D2): $\\dfrac{|S_r|}{|B_r|}$, with $S_r$ the shell at radius $r$ and $B_r$ the ball',
+      'L4: if $|S_r| \\sim \\lambda^r$, then $\\dfrac{|S_r|}{|B_r|} \\to \\dfrac{\\lambda - 1}{\\lambda} = \\dfrac{17.278}{18.278} = 0.9453$',
+      'the growth factor is exactly the largest root of $x^3 - 21x^2 + 51x - 23$ (E-FND-0043)',
     ],
     measurements: [
       {
         quantity: 'boundary share, {3,4,3,4}, shells 0 to 4',
         measured: '0.9453',
-        reference: 'predicted (lambda - 1) / lambda = 0.9453 (run)',
+        reference: 'predicted $(\\lambda - 1)/\\lambda$ = 0.9453 (run)',
         code: 'E-HLG-0032',
       },
-      { quantity: 'recovered growth factor', measured: '18.296', reference: 'lambda = 18.278 (run)', code: 'E-HLG-0032' },
+      { quantity: 'recovered growth factor', measured: '18.296', reference: '$\\lambda$ = 18.278 (run)', code: 'E-HLG-0032' },
       {
         quantity: 'boundary share, flat 4D lattice',
         measured: '0.5981 at radius 4, 0.2467 at radius 14',
@@ -876,7 +886,7 @@ export const RESULTS: Result[] = [
     ],
     figure: {
       form: 'pairs',
-      caption: 'Measurement. Share of a ball in its outermost shell. No fitted parameters: lambda is counted.',
+      caption: 'Measurement. Share of a ball in its outermost shell. No fitted parameters: λ is counted.',
       measured: '{3,4,3,4}',
       control: 'flat 4D lattice, radius 14',
       rows: [{ label: 'boundary share', measured: 0.9453, control: 0.2467 }],
@@ -927,13 +937,13 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '08',
+    code: 'R-FND-0002',
     title: 'Dimension eight, pinched from above and below',
     subject: 'mathematical physics',
     sentence:
       'Two standard theorems bound one dimension from both sides, and only eight survives: composition algebras stop at eight, and triality exists only at eight.',
     claim:
-      'Normed division algebras exist only in dimensions 1, 2, 4 and 8 (Hurwitz), and among the D_n Lie algebras only D4, whose vector is eight-dimensional, has an outer automorphism of order three (triality), while vector and half-spinor dimensions agree only at n = 8.',
+      'Normed division algebras exist only in dimensions 1, 2, 4 and 8 (Hurwitz), and among the $D_n$ Lie algebras only $D_4$, whose vector is eight-dimensional, has an outer automorphism of order three (triality), while vector and half-spinor dimensions agree only at $n = 8$.',
     headline: { value: '8', label: 'the one dimension both bounds allow' },
     category: 'explanation',
     status: ['derived'],
@@ -950,21 +960,21 @@ export const RESULTS: Result[] = [
       'the step from dimension eight to {3,4,3,4} is argued, and the hyperbolic tiling over the flat {3,4,3,3} is stated as a premise (E-FND-0043)',
     ],
     equations: [
-      'L2 (Hurwitz): dim A in {1, 2, 4, 8}',
-      'L3: |Out(D4)| = 6, |Out(D_n)| = 2 for n != 4',
-      'vector = half-spinor: n = 2^(n/2 - 1) holds only at n = 8',
+      'L2 (Hurwitz): a normed division algebra $A$ over $\\mathbb{R}$ has $\\dim A \\in \\{1, 2, 4, 8\\}$',
+      'L3: $|\\operatorname{Out}(D_4)| = |S_3| = 6$, and $|\\operatorname{Out}(D_n)| = 2$ for $n \\ne 4$',
+      'vector equals half-spinor: $n = 2^{n/2 - 1}$ holds for even $n$ only at $n = 8$',
     ],
     measurements: [
       {
-        quantity: 'outer automorphism order, D2 to D5',
-        measured: 'D4: 6',
-        reference: 'D2, D3, D5 and the A series: 2 (run)',
+        quantity: 'outer automorphism order, $D_2$ to $D_5$',
+        measured: '$D_4$: 6',
+        reference: '$D_2$, $D_3$, $D_5$ and the $A$ series: 2 (run)',
         code: 'E-FND-0050',
       },
       {
         quantity: 'even dimensions with vector = half-spinor',
-        measured: 'one, n = 8',
-        reference: 'n = 10: vector 10, spinor 16 (run)',
+        measured: 'one, $n = 8$',
+        reference: '$n = 10$: vector 10, spinor 16 (run)',
         code: 'E-FND-0033',
       },
       {
@@ -976,9 +986,9 @@ export const RESULTS: Result[] = [
     ],
     figure: {
       form: 'pairs',
-      caption: 'Explanation. Order of the outer automorphism group: triality exists only at D4.',
-      measured: 'D4, dimension 8',
-      control: 'D5, dimension 10',
+      caption: 'Explanation. Order of the outer automorphism group: triality exists only at D₄.',
+      measured: 'D₄, dimension 8',
+      control: 'D₅, dimension 10',
       rows: [{ label: 'order of Out', measured: 6, control: 2 }],
     },
     comparison: {
@@ -1045,13 +1055,13 @@ export const RESULTS: Result[] = [
     outputs: NO_OUTPUTS,
   },
   {
-    number: '09',
+    code: 'R-FRC-0004',
     title: 'The running of the coupling scales with the gluon colour charge',
     subject: 'lattice gauge theory',
     sentence:
       'Adjoint and fundamental sources feel the coupling run at the same rate in SU(2), SU(3) and SU(4), which excludes running set by the source charge.',
     claim:
-      'In Wilson loops the effective coupling grows with distance at alpha + kappa C_A, with kappa the same from SU(2), SU(3) and SU(4), and adjoint and fundamental sources rising at the same rate, which excludes a running proportional to the source charge.',
+      'In Wilson loops the effective coupling grows with distance at $\\alpha + \\kappa C_A$, with $\\kappa$ the same from SU(2), SU(3) and SU(4), and adjoint and fundamental sources rising at the same rate, which excludes a running proportional to the source charge.',
     headline: { value: '0.997', label: 'adjoint over fundamental rate in SU(3), against 2.25 for source-charge running' },
     category: 'reproduction',
     status: ['simulated'],
@@ -1059,29 +1069,30 @@ export const RESULTS: Result[] = [
     audience: 'lattice gauge theory, teaching',
     question: 'Does the running come from the gluons or from the source?',
     answer: 'From the gluons: two representations rise at the same rate, and the source-charge alternative is excluded.',
-    importance: 'Separating C_A from C_F needs two representations. It is a clean check that the running comes from the gluons.',
+    importance: 'Separating $C_A$ from $C_F$ needs two representations. It is a clean check that the running comes from the gluons.',
     limits: ['nothing about the committed rule', 'one coupling per group'],
     equations: [
-      'growth rate of the Wilson-loop coupling with distance = alpha + kappa C_A, with alpha the colour-blind lattice artifact',
-      'the tree level computed exactly, not fitted: rho_0 = 0.28713',
+      'the force ratio $\\chi(2,2)/\\chi(1,1)$ rises with $g^2$ at $\\alpha + \\kappa C_A$, with $\\alpha$ the colour-blind lattice artifact of the compact action',
+      'the Casimirs: $C_A = N$ for the adjoint, $C_F = \\dfrac{N^2 - 1}{2N}$ for the fundamental, so a source-charge running would give an adjoint over fundamental ratio of $C_A/C_F = \\dfrac{2N^2}{N^2 - 1}$, which is $8/3$, $9/4$ and $32/15$ for $N = 2, 3, 4$',
+      'the tree level computed exactly, not fitted: $\\rho_0 = 0.28713$',
     ],
     measurements: [
       {
-        quantity: 'kappa, SU(2) / SU(3) / SU(4)',
-        measured: '0.0221 +- 0.0063 / 0.0228 +- 0.0041 / 0.0232 +- 0.0033',
-        reference: 'largest pairwise pull 0.14 (strong-force note)',
+        quantity: '$\\kappa$, SU(2) / SU(3) / SU(4)',
+        measured: '0.0245 ± 0.0036 / 0.0213 ± 0.0032 / 0.0220 ± 0.0028',
+        reference: 'largest pairwise pull 0.65 (run)',
         code: 'E-FRC-0083',
       },
       {
         quantity: 'adjoint over fundamental rate',
-        measured: '0.979, 0.997, 0.982',
-        reference: 'source-charge running predicts 2.67, 2.25, 2.13 (strong-force note)',
+        measured: '1.008, 0.997, 0.982',
+        reference: 'source-charge running predicts 2.67, 2.25, 2.13, excluded at $6.47\\sigma$ combined (run)',
         code: 'E-FRC-0083',
       },
       {
         quantity: 'U(1) extrapolation',
-        measured: '0.2855 +- 0.0023',
-        reference: 'exact tree level 0.28713 (strong-force note)',
+        measured: '0.2860 ± 0.0013',
+        reference: 'exact tree level 0.28713, pull -0.88 (run)',
         code: 'E-FRC-0083',
       },
     ],
@@ -1091,12 +1102,12 @@ export const RESULTS: Result[] = [
       measured: 'measured',
       control: 'if the running followed the source charge',
       rows: [
-        { label: 'SU(2)', measured: 0.979, control: 2.67 },
+        { label: 'SU(2)', measured: 1.008, control: 2.67 },
         { label: 'SU(3)', measured: 0.997, control: 2.25 },
         { label: 'SU(4)', measured: 0.982, control: 2.13 },
       ],
     },
-    comparison: { standard: 'the beta function is proportional to C_A', vibe: 'the same, measured', difference: 'none' },
+    comparison: { standard: 'the beta function is proportional to $C_A$', vibe: 'the same, measured', difference: 'none' },
     closest: [
       {
         work: 'Bali 2000, Casimir scaling of SU(3) static potentials',
@@ -1106,7 +1117,7 @@ export const RESULTS: Result[] = [
     ],
     literature: null,
     gate: reproductionGate({ interesting: { mark: 'unknown', reason: 'as teaching, plausibly' } }),
-    failure: ['kappa differing between groups beyond 3 sigma', 'the adjoint rate matching the source-charge line'],
+    failure: ['$\\kappa$ differing between groups beyond $3\\sigma$', 'the adjoint rate matching the source-charge line'],
     novelty: 'known',
     free_parameters: 0,
     fitted: false,
@@ -1117,16 +1128,22 @@ export const RESULTS: Result[] = [
     history: [FIRST],
     depends: [],
     experiments: [{ code: 'E-FRC-0083', file: 'test/experiment/gauge/asymptotic-freedom.ts', depends: QCD_IMPORTS }],
-    checks: [{ code: 'E-FRC-0083', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 }],
+    checks: [
+      { code: 'E-FRC-0083', metric: 'status', from: 'status', expected: 'pass', tolerance: 0 },
+      { code: 'E-FRC-0083', metric: 'adjointOverFundamentalSu3', from: 'metrics', expected: 0.9968, tolerance: 0.0001 },
+      { code: 'E-FRC-0083', metric: 'combinedSourceChargePull', from: 'metrics', expected: 6.468, tolerance: 0.001 },
+      { code: 'E-FRC-0083', metric: 'treeLevelRatio', from: 'metrics', expected: 0.28713, tolerance: 0.00001 },
+      { code: 'E-FRC-0083', metric: 'u1ExtrapolatedToZero', from: 'control', expected: 0.286, tolerance: 0.0001 },
+    ],
     notes: ['note/experiment/gauge/strong-force.md'],
     problem: 'OP-10',
     candidate: null,
     paper: 'planned paper 1, the testbed paper',
-    program: 'Part of the strong-force arc, beside result 01.',
+    program: 'Part of the strong-force arc, beside R-FRC-0001.',
     outputs: NO_OUTPUTS,
   },
   {
-    number: '10',
+    code: 'R-HLG-0002',
     title: 'Correlation without signal through a shared ancestor',
     subject: 'holography',
     sentence:
@@ -1150,8 +1167,8 @@ export const RESULTS: Result[] = [
       'a common cause cannot reach Bell-violating correlations. The account has to meet that and does not yet',
     ],
     equations: [
-      'interior steps: 2 ceil(log_3 s) + 1 against s along the boundary (I8)',
-      'if C ~ exp(-d_interior / xi) and d_interior ~ 2 log s, then C ~ s^(-alpha). alpha is not measured',
+      'interior steps between boundary points $s$ apart (I8): $d_{\\text{interior}}(s) = 2\\lceil \\log_3 s \\rceil + 1$, against $d_{\\text{boundary}}(s) = s$',
+      'if $C \\sim e^{-d_{\\text{interior}}/\\xi}$ and $d_{\\text{interior}} \\approx 2\\log_3 s$, then $C(s) \\sim s^{-\\alpha}$ with $\\alpha = \\dfrac{2}{\\xi \\ln 3}$. Neither $\\xi$ nor $\\alpha$ is measured',
     ],
     measurements: [
       {
@@ -1166,7 +1183,7 @@ export const RESULTS: Result[] = [
         reference: '1,024 along the boundary. Break-even at 6 (run, analytic formula)',
         code: 'E-HLG-0033',
       },
-      { quantity: 'decay exponent alpha', measured: 'not measured', reference: 'OP-11', code: 'none' },
+      { quantity: 'decay exponent $\\alpha$', measured: 'not measured', reference: 'OP-11', code: 'none' },
     ],
     figure: {
       form: 'pairs',
@@ -1178,7 +1195,7 @@ export const RESULTS: Result[] = [
     comparison: {
       standard: 'correlation without signalling is quantum entanglement, which no classical common cause reproduces at Bell-violating strength',
       vibe: 'a common ancestor in the interior',
-      difference: 'unknown until alpha is measured and compared with a physical system',
+      difference: 'unknown until $\\alpha$ is measured and compared with a physical system',
     },
     closest: [
       {
@@ -1200,23 +1217,23 @@ export const RESULTS: Result[] = [
         mark: 'fail',
         reason: 'E-HLG-0004 runs on {5,3,4} and E-HLG-0033 is an analytic formula. Neither runs the committed rule',
       },
-      quantitative: { mark: 'fail', reason: 'alpha, which would make it quantitative, is not measured' },
-      differentiating: { mark: 'unknown', reason: 'depends on alpha' },
-      falsifiable: { mark: 'unknown', reason: 'depends on alpha and the system it applies to' },
+      quantitative: { mark: 'fail', reason: '$\\alpha$, which would make it quantitative, is not measured' },
+      differentiating: { mark: 'unknown', reason: 'depends on $\\alpha$' },
+      falsifiable: { mark: 'unknown', reason: 'depends on $\\alpha$ and the system it applies to' },
       auditable: { mark: 'pass', reason: PUBLIC },
       skeptic_reviewed: { mark: 'fail', reason: NO_SKEPTIC },
       independently_reproduced: { mark: 'fail', reason: NOT_REPRODUCED },
-      interesting: { mark: 'pass', reason: 'if alpha differs from a known decay, yes' },
+      interesting: { mark: 'pass', reason: 'if $\\alpha$ differs from a known decay, yes' },
     },
     failure: [
       'correlations through a common ancestor that never reach the Bell bound, which rules it out as an account of entanglement',
-      'an alpha that matches no physical system',
+      'an $\\alpha$ that matches no physical system',
     ],
     novelty: 'uncertain',
     free_parameters: null,
     fitted: false,
     known_before: false,
-    falsified_by: 'an observation, once alpha is measured and a system named',
+    falsified_by: 'an observation, once $\\alpha$ is measured and a system named',
     version: '1.0.0',
     audited: '2026-09-25',
     history: [FIRST],
@@ -1233,8 +1250,8 @@ export const RESULTS: Result[] = [
     ],
     notes: [],
     problem: 'OP-11',
-    candidate: 'C-01',
-    paper: 'a prediction paper, if alpha is measured and a row passes the gate',
+    candidate: 'PC-01',
+    paper: 'a prediction paper, if $\\alpha$ is measured and a row passes the gate',
     program: 'The bulk shortcut: two tones on the skin share a past through the bulk.',
     outputs: NO_OUTPUTS,
   },

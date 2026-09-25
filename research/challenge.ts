@@ -1,4 +1,4 @@
-// Challenge submissions. Every result is a standing challenge, VIBE-CHALLENGE-0NN, open to
+// Challenge submissions. Every result is a standing challenge, C-<arena>-<NNNN> for R-<arena>-<NNNN>, open to
 // breaking by any route in ROUTES (type.ts). A submission is recorded here when it arrives,
 // whatever it finds, and the person who made it is credited permanently. A `broken` or
 // `corrected` submission marks its result `challenged` or `broken` in the claim graph, and
@@ -10,6 +10,7 @@ import type { Submission } from './type'
 
 export const SUBMISSIONS: Submission[] = []
 
-export function challengeId(number: string): string {
-  return `VIBE-CHALLENGE-${number.padStart(3, '0')}`
+// A result's challenge: the same code with C in place of R, so R-FRC-0001 is challenged as C-FRC-0001.
+export function challengeId(code: string): string {
+  return `C${code.slice(1)}`
 }

@@ -121,6 +121,16 @@ effective epsilon vertex.
 What remains untested: coarse variables other than block populations (currents, correlations),
 spread three-tone starts and windows longer than 8 beats.
 
+## What a base would need instead
+
+[`what-the-base-needs.md`](what-the-base-needs.md) takes the four obstructions above and measures the
+smallest change behind each (`E-FRC-0100` to `0104`). Two of them move.
+
+- **The clock does not have to go.** It has to stand beside the colour, not be it: the clock kept as
+  colour keeps 3 of the 9 generators, a colour factor beside it keeps all 9.
+- **No three-line vertex is needed.** Pairwise exchange with a phase binds the epsilon singlet as the
+  unique ground state, so the missing ingredient is the phase, not a third line.
+
 ## The library
 
 | module | what |

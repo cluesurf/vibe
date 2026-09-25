@@ -204,7 +204,7 @@ export const NODE_KINDS: { kind: NodeKind; prefix: string; rule: string }[] = [
     rule: 'a standard model or method brought in from outside. A result resting only on imports is a reproduction',
   },
   { kind: 'simulation', prefix: 'S', rule: 'one experiment in the suite, by its code' },
-  { kind: 'result', prefix: 'R', rule: 'a numbered result. A negative one is marked N on the graph' },
+  { kind: 'result', prefix: 'R', rule: 'a result, by its code, R-<arena>-<NNNN>' },
   { kind: 'prediction', prefix: 'P', rule: 'a frozen prediction row' },
   { kind: 'observation', prefix: 'O', rule: 'a measurement of nature a prediction is held against' },
 ]
@@ -310,7 +310,9 @@ export type Figure =
 export type Novelty = 'known' | 'apparently_new' | 'uncertain'
 
 export type Result = {
-  number: string
+  // R-<arena>-<NNNN>, the arena code from test/codes.csv and a number counted within that arena,
+  // the same shape as an experiment's E-<arena>-<NNNN>. Permanent: a retired result keeps its code.
+  code: string
   title: string
   subject: string
   // The one restrained sentence above the fold.
@@ -412,7 +414,7 @@ export type Objection = {
 export const LADDER: { level: number; contribution: string; where: string }[] = [
   { level: 0, contribution: 'send a citation', where: 'Submit prior work, on any result' },
   { level: 1, contribution: 'report an error', where: 'Submit counterexample, on any result' },
-  { level: 2, contribution: 'reproduce one result', where: 'pnpm result reproduce <number>' },
+  { level: 2, contribution: 'reproduce one result', where: 'pnpm result reproduce <code>' },
   { level: 3, contribution: 'attack an open problem', where: 'the open problems' },
   { level: 4, contribution: 'contribute code or a derivation', where: 'a pull request against the experiment' },
   { level: 5, contribution: 'an independent analysis', where: 'your own code, reported as a reproduction' },

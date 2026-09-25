@@ -1,10 +1,16 @@
-// Results, by number: list them, check the database, reproduce one, or audit one.
+// Results, by code: list them, check the database, reproduce one, or audit one.
 //
 //   pnpm result list
-//   pnpm result check                 the database against itself and the registry
-//   pnpm result reproduce 07          run the result's experiments, hold each check, PASS or FAIL
-//   pnpm result audit 07 [--out f]    reproduce, plus environment, file hashes, every metric,
-//                                     written as result.json
+//   pnpm result check                        the database against itself and the registry
+//   pnpm result reproduce R-HLG-0001         run the result's experiments, hold each check
+//   pnpm result audit R-HLG-0001 [--out f]   reproduce, plus environment, file hashes, every
+//                                            metric, written as result.json
+//   pnpm result audit R-HLG-0001 --commit    the same, frozen as research/capsule/R-HLG-0001.json
+//
+// A capsule is the record of one audited run: the commit, the environment, the hash of every
+// experiment file, and each experiment's full verdict and time. The site reads the capsules, so
+// an experiment page shows the last recorded output and how long the run took, and a reader can
+// compare their own run against it. Capsules are only written on `--commit`.
 //
 // A result's `checks` in research/result.ts are what it claims in numbers. Reproduce runs the
 // experiments at seed 1, reads each named metric from the verdict, and compares it to the
@@ -13,7 +19,7 @@
 
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { allExperiments, runSuite } from '@/test/scaffold/suite'
 import type { Verdict } from '@/test/scaffold/verdict'
 import { RESULTS, dangling, refusals, NODES, challengeId } from '@/research/index'
@@ -30,12 +36,14 @@ type Observed = {
   passed: boolean
 }
 
-function findResult(number: string | undefined): Result {
-  const wanted = (number ?? '').replace(/^R/i, '').padStart(2, '0')
-  const result = RESULTS.find(r => r.number === wanted)
+const CAPSULE_DIRECTORY = 'research/capsule'
+
+function findResult(code: string | undefined): Result {
+  const wanted = (code ?? '').toUpperCase()
+  const result = RESULTS.find(r => r.code === wanted)
 
   if (!result) {
-    console.error(`no result numbered ${number ?? '(none given)'}. Run pnpm result list`)
+    console.error(`no result with the code ${code ?? '(none given)'}. Run pnpm result list`)
     process.exit(1)
   }
 
@@ -93,8 +101,8 @@ function hold(check: Check, verdict: Verdict): Observed {
 }
 
 function reproduce(result: Result) {
-  console.log(`\nVIBE R${result.number}  ${result.title}`)
-  console.log(`${challengeId(result.number)}  version ${result.version}\n`)
+  console.log(`\n${result.code}  ${result.title}`)
+  console.log(`${challengeId(result.code)}  version ${result.version}\n`)
 
   const verdicts = runExperiments(result)
   const observed = result.checks.map(check => hold(check, verdicts.get(check.code)!.verdict))
@@ -115,7 +123,7 @@ function reproduce(result: Result) {
   return { verdicts, observed, failed }
 }
 
-function audit(result: Result, out: string | undefined) {
+function audit({ result, out, commit }: { result: Result; out: string | undefined; commit: boolean }) {
   const { verdicts, observed, failed } = reproduce(result)
 
   const git = (args: string[]) => {
@@ -129,9 +137,10 @@ function audit(result: Result, out: string | undefined) {
   const files = [...new Set(result.experiments.map(e => e.file))]
 
   const record = {
-    result: `R${result.number}`,
-    challenge: challengeId(result.number),
+    result: result.code,
+    challenge: challengeId(result.code),
     version: result.version,
+    audited: new Date().toISOString().slice(0, 10),
     commit: git(['rev-parse', 'HEAD']),
     dirty: (git(['status', '--porcelain', '--', ...files]) ?? '') !== '',
     environment: {
@@ -159,14 +168,37 @@ function audit(result: Result, out: string | undefined) {
 
   const json = JSON.stringify(record, null, 2)
 
+  if (commit) {
+    const path = `${CAPSULE_DIRECTORY}/${result.code}.json`
+
+    mkdirSync(CAPSULE_DIRECTORY, { recursive: true })
+    writeFileSync(path, `${json}\n`)
+    console.log(`wrote ${path}`)
+  }
+
   if (out) {
     writeFileSync(out, `${json}\n`)
     console.log(`wrote ${out}`)
-  } else {
+  }
+
+  if (!commit && !out) {
     console.log(`\n${json}`)
   }
 
   return failed
+}
+
+// Every string inside a record, at any depth, with the path that reaches it.
+function strings(value: unknown, path = ''): { path: string; text: string }[] {
+  if (typeof value === 'string') {
+    return [{ path, text: value }]
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, inner]) => strings(inner, path ? `${path}.${key}` : key))
+  }
+
+  return []
 }
 
 // The database against itself and against the registry.
@@ -187,21 +219,42 @@ function check(): number {
 
     for (const { code, file } of result.experiments) {
       if (!codes.has(code)) {
-        problems.push(`R${result.number} names ${code}, which is not registered`)
+        problems.push(`${result.code} names ${code}, which is not registered`)
       }
 
       try {
         readFileSync(file)
       } catch {
-        problems.push(`R${result.number} names ${file}, which does not exist`)
+        problems.push(`${result.code} names ${file}, which does not exist`)
       }
     }
 
     for (const c of result.checks) {
       if (!own.has(c.code)) {
-        problems.push(`R${result.number} checks ${c.code}, which is not one of its experiments`)
+        problems.push(`${result.code} checks ${c.code}, which is not one of its experiments`)
       }
     }
+
+    if (!/^R-[A-Z]{3}-\d{4}$/.test(result.code)) {
+      problems.push(`${result.code} is not shaped R-<arena>-<NNNN>`)
+    }
+
+    // An unbalanced dollar leaves a formula open to the end of the string on every page.
+    for (const { path, text } of strings(result)) {
+      if ((text.split('$').length - 1) % 2 === 1) {
+        problems.push(`${result.code} ${path} has an unbalanced $`)
+      }
+    }
+  }
+
+  const seen = new Set<string>()
+
+  for (const { code } of RESULTS) {
+    if (seen.has(code)) {
+      problems.push(`${code} is used by two results`)
+    }
+
+    seen.add(code)
   }
 
   for (const line of problems) {
@@ -215,7 +268,7 @@ function check(): number {
 
 if (command === 'list') {
   for (const r of RESULTS) {
-    console.log(`R${r.number}  ${r.category.padEnd(12)}  ${r.status.join(', ').padEnd(22)}  ${r.title}`)
+    console.log(`${r.code}  ${r.category.padEnd(12)}  ${r.status.join(', ').padEnd(22)}  ${r.title}`)
   }
 } else if (command === 'check') {
   process.exit(check() > 0 ? 1 : 0)
@@ -223,9 +276,14 @@ if (command === 'list') {
   process.exit(reproduce(findResult(rest[0])).failed > 0 ? 1 : 0)
 } else if (command === 'audit') {
   const outIndex = rest.indexOf('--out')
+  const failed = audit({
+    result: findResult(rest[0]),
+    out: outIndex >= 0 ? rest[outIndex + 1] : undefined,
+    commit: rest.includes('--commit'),
+  })
 
-  process.exit(audit(findResult(rest[0]), outIndex >= 0 ? rest[outIndex + 1] : undefined) > 0 ? 1 : 0)
+  process.exit(failed > 0 ? 1 : 0)
 } else {
-  console.error('pnpm result list | check | reproduce <number> | audit <number> [--out <file>]')
+  console.error('pnpm result list | check | reproduce <code> | audit <code> [--out <file>] [--commit]')
   process.exit(1)
 }

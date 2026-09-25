@@ -29,8 +29,8 @@ const RANK: Record<Shown, number> = {
 
 // A result's own standing, from its challenge submissions. An undecided submission challenges
 // it, a successful one breaks it, and a corrected or survived one leaves it holding.
-function standingOf(number: string): Standing {
-  const submissions = SUBMISSIONS.filter(s => s.result === number)
+function standingOf(code: string): Standing {
+  const submissions = SUBMISSIONS.filter(s => s.result === code)
 
   if (submissions.some(s => s.status === 'broken')) {
     return 'broken'
@@ -68,11 +68,11 @@ function buildNodes(): Map<string, Node> {
   }
 
   for (const result of RESULTS) {
-    nodes.set(`R${result.number}`, {
-      id: `R${result.number}`,
+    nodes.set(result.code, {
+      id: result.code,
       kind: 'result',
       statement: result.title,
-      standing: standingOf(result.number),
+      standing: standingOf(result.code),
       depends: [...result.depends, ...result.experiments.map(e => e.code)],
     })
   }
@@ -83,7 +83,7 @@ function buildNodes(): Map<string, Node> {
       kind: 'prediction',
       statement: prediction.vibe,
       standing: prediction.outcome === 'refuted' ? 'broken' : 'holds',
-      depends: [`R${prediction.result}`],
+      depends: [prediction.result],
     })
   }
 
@@ -152,7 +152,7 @@ export function dependents(id: string): string[] {
 // Every prediction row whose result fails a criterion the prediction gate requires.
 export function refusals(): { prediction: string; unmet: Criterion[] }[] {
   return PREDICTIONS.flatMap(prediction => {
-    const result = RESULTS.find(r => r.number === prediction.result)
+    const result = RESULTS.find(r => r.code === prediction.result)
     const unmet = result
       ? PREDICTION.filter(c => result.gate[c].mark !== 'pass')
       : [...PREDICTION]

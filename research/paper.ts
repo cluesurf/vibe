@@ -51,7 +51,7 @@ export const PLANNED: Planned[] = [
     audience: 'computational physics',
     contents:
       'the SU(3) lattice results rebuilt from scratch against published values, each with a control, and deterministic reversible dynamics reproducing the thermal ensemble. Methods, not new physics, and it says so',
-    results: ['01', '02', '09'],
+    results: ['R-FRC-0001', 'R-FRC-0002', 'R-FRC-0004'],
     needs: 'a reproducibility appendix (seeds, commands, versions), figures, and a pinned code release with a DOI',
   },
   {
@@ -59,7 +59,7 @@ export const PLANNED: Planned[] = [
     title: 'The hyperbolic substrate: navigation, memory and the boundary',
     audience: 'network science (hyperbolic random graphs, greedy routing), associative memory',
     contents: 'routing, search radius and the boundary share on {3,4,3,4}, grounded in the hyperbolic random graph literature',
-    results: ['05', '06', '07'],
+    results: ['R-MMR-0001', 'R-NVG-0001', 'R-HLG-0001'],
     needs: 'routing run on {3,4,3,4} (OP-04), finite-size scaling, and a precise statement of what is new against that literature',
   },
   {
@@ -75,7 +75,7 @@ export const PLANNED: Planned[] = [
     title: 'The framework',
     audience: 'general physics, as a preprint',
     contents: 'the whole picture and the full scoreboard, negatives included, citing papers 1 to 3',
-    results: ['03', '04', '08'],
+    results: ['R-FRC-0003', 'R-FND-0001', 'R-FND-0002'],
     needs: 'papers 1 to 3',
   },
 ]
@@ -84,13 +84,13 @@ export const ERRATA: Erratum[] = [
   {
     paper: '0012',
     claim: 'the Born rule and the Tsirelson bound, saturated by the exchange dynamics. Derived',
-    code: 'E-QTM-0011 applies the exchange unitary to |01> in a four-dimensional Hilbert space, with no mesh, rule or tone. E-QTM-0012 puts |a|^2 in by fine-graining',
+    code: 'E-QTM-0011 applies the exchange unitary to $|01\\rangle$ in a four-dimensional Hilbert space, with no mesh, rule or tone. E-QTM-0012 puts $|a|^2$ in by fine-graining',
     label: 'reproduced, L1',
   },
   {
     paper: '0012',
     claim: 'spin-statistics holds on the same footing',
-    code: 'E-SPN-0014 computes 2(1 - overlap^2) for a vector with itself, zero for every vector, and the exchange signs were typed constants',
+    code: 'E-SPN-0014 computes $2(1 - \\langle v | v \\rangle^2)$ for a unit vector with itself, zero for every vector, and the exchange signs were typed constants',
     label: 'L1, with the exchange sign an input. The dynamical result is open (OP-08)',
   },
   {
@@ -109,13 +109,13 @@ export const ERRATA: Erratum[] = [
   {
     paper: '0012',
     claim: 'three large dimensions. Derived',
-    code: "E-CSM-0012 integrates central-force orbits in d = 2 to 5: Bertrand's theorem, with no substrate",
+    code: "E-CSM-0012 integrates central-force orbits in $d = 2$ to $5$: Bertrand's theorem, with no substrate",
     label: 'reproduced, L1',
   },
   {
     paper: '0012',
     claim: 'the mass hierarchy: the geometric spacing beats a power law',
-    code: 'E-FRC-0031 compares two hand-written ansatzes, with the shell spacing the one measured number, inside a plus or minus three decade window',
+    code: 'E-FRC-0031 compares two hand-written ansatzes, with the shell spacing the one measured number, inside a ± three decade window',
     label: 'a consistency check, not a derivation',
   },
   {

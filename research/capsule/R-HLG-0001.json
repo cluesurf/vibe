@@ -1,0 +1,95 @@
+{
+  "result": "R-HLG-0001",
+  "challenge": "C-HLG-0001",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/holography/holography-is-derived.ts",
+      "sha256": "1cd887fab84097d03e4e8b6515b6203d9c3524d5fd9b6c8499e869c5fb25e3c0"
+    }
+  ],
+  "expected": {
+    "E-HLG-0032 metrics.deepBoundaryFraction": 0.9453,
+    "E-HLG-0032 metrics.predictedFraction": 0.9453,
+    "E-HLG-0032 metrics.shellsExact": 1,
+    "E-HLG-0032 control.flatFractionFar": 0.2467
+  },
+  "observed": {
+    "E-HLG-0032 metrics.deepBoundaryFraction": 0.9453,
+    "E-HLG-0032 metrics.predictedFraction": 0.9453,
+    "E-HLG-0032 metrics.shellsExact": 1,
+    "E-HLG-0032 control.flatFractionFar": 0.2467
+  },
+  "checks": [
+    {
+      "code": "E-HLG-0032",
+      "metric": "deepBoundaryFraction",
+      "from": "metrics",
+      "expected": 0.9453,
+      "tolerance": 0.0001,
+      "observed": 0.9453,
+      "passed": true
+    },
+    {
+      "code": "E-HLG-0032",
+      "metric": "predictedFraction",
+      "from": "metrics",
+      "expected": 0.9453,
+      "tolerance": 0.0001,
+      "observed": 0.9453,
+      "passed": true
+    },
+    {
+      "code": "E-HLG-0032",
+      "metric": "shellsExact",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-HLG-0032",
+      "metric": "flatFractionFar",
+      "from": "control",
+      "expected": 0.2467,
+      "tolerance": 0.0001,
+      "observed": 0.2467,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-HLG-0032": {
+      "seconds": 1.095,
+      "status": "pass",
+      "claim": "holography is a derived theorem of the discrete mesh, not a postulate. On the {3,4,3,4} bulk the outermost shell holds a constant 94.5 percent of the whole ball, exactly (lambda-1)/lambda where lambda is the warp factor, so the information lives on the boundary and the boundary fraction is fixed by the growth rate, which is the holographic principle as a consequence of the geometry. The flat 4D lattice is amenable, its boundary a vanishing fraction of its ball, so it is not holographic, the control. So vibe holographic cusp is a real property (the mesh is holographic and one can recover the warp factor from the boundary fraction), and TD refusal to POSTULATE a holographic screen is honored because holography is derived, not assumed. The apparent contradiction dissolves, and it was partly a category difference, vibe spatial mesh is non-amenable and holographic while TD statistical manifold is compact and amenable and not, so the two were describing different spaces. The best model is emergent holography.",
+      "metrics": {
+        "deepBoundaryFraction": 0.9453,
+        "predictedFraction": 0.9453,
+        "recoveredWarpFactor": 18.296,
+        "flatFractionNear": 0.5981,
+        "flatFractionFar": 0.2467,
+        "shellsExact": 1
+      },
+      "control": {
+        "flatFractionNear": 0.5981,
+        "flatFractionFar": 0.2467,
+        "bulkBoundaryFraction": 0.9453
+      },
+      "notes": "L2, the discrete holographic bound measured on the actual honeycomb, reusing code/substrate/mesh-unfolding and code/measure/shell-growth. The {3,4,3,4} boundary shell holds 94.5 percent of the ball, exactly (lambda-1)/lambda, so holography is a theorem of the non-amenable geometry with its strength set by the warp factor, and one can recover lambda from the boundary fraction. The flat lattice is amenable (boundary fraction toward zero), the non-holographic control. This resolves the vibe-versus-TD holography tension: vibe reads a real derived property, TD is right not to postulate it (it is derived), and the two frameworks describe different spaces (vibe non-amenable spatial mesh, TD amenable statistical manifold). The best model is emergent holography, connecting to the gravity-on-the-cusp result (E-GRV-0049) and the non-amenable dispersal (E-FND-0058). Deterministic, no random."
+    }
+  },
+  "passed": true
+}

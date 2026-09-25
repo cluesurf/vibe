@@ -1,0 +1,309 @@
+{
+  "result": "R-FRC-0003",
+  "challenge": "C-FRC-0003",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/gauge/rule-tone-symmetry.ts",
+      "sha256": "72bd7f235528a5695aaa5894c262d2d41e86dfce6a0b5cd00b958af74d880343"
+    },
+    {
+      "file": "test/experiment/gauge/rule-no-triplet-vertex.ts",
+      "sha256": "2288912007ae5c58d89e87e1bcb425e1225f2305fdb231710ee14f193dc8300c"
+    },
+    {
+      "file": "test/experiment/gauge/rule-coin-symmetry.ts",
+      "sha256": "7fe4db05c0a052922814a11c923fa8e9c3be3b58d7ce9c3a2f92d57c268392fb"
+    },
+    {
+      "file": "test/experiment/gauge/rule-coarse-tone-symmetry.ts",
+      "sha256": "d702d26a1497c90705ed39d7f255c31bcf4c44447fdc15ae85ffe6855f7cd866"
+    },
+    {
+      "file": "test/experiment/gauge/rule-triangle-coupling.ts",
+      "sha256": "59a4931c783c36ef23cc40dfee7657f351a468cdaf128a1bc8a0a04e6d24b934"
+    }
+  ],
+  "expected": {
+    "E-FRC-0093 metrics.wholeRuleAlgebraDimension": 2,
+    "E-FRC-0093 metrics.commutingRelabellingsSide3": 1,
+    "E-FRC-0093 metrics.commutingRelabellingsSide5": 1,
+    "E-FRC-0093 control.identityAlgebraDimension": 9,
+    "E-FRC-0093 control.streamingCommutingRelabellings": 36,
+    "E-FRC-0094 metrics.trianglesInsideCommittedBlocks": 0,
+    "E-FRC-0094 control.stickyReflectTrianglesInside": 32,
+    "E-FRC-0095 metrics.candidatesTested": 995328,
+    "E-FRC-0095 metrics.committedSymmetries": 1,
+    "E-FRC-0095 metrics.committedOrderThreeOrMultiple": 0,
+    "E-FRC-0095 control.streamingSymmetries": 1152,
+    "E-FRC-0096 status.status": "pass",
+    "E-FRC-0097 status.status": "pass"
+  },
+  "observed": {
+    "E-FRC-0093 metrics.wholeRuleAlgebraDimension": 2,
+    "E-FRC-0093 metrics.commutingRelabellingsSide3": 1,
+    "E-FRC-0093 metrics.commutingRelabellingsSide5": 1,
+    "E-FRC-0093 control.identityAlgebraDimension": 9,
+    "E-FRC-0093 control.streamingCommutingRelabellings": 36,
+    "E-FRC-0094 metrics.trianglesInsideCommittedBlocks": 0,
+    "E-FRC-0094 control.stickyReflectTrianglesInside": 32,
+    "E-FRC-0095 metrics.candidatesTested": 995328,
+    "E-FRC-0095 metrics.committedSymmetries": 1,
+    "E-FRC-0095 metrics.committedOrderThreeOrMultiple": 0,
+    "E-FRC-0095 control.streamingSymmetries": 1152,
+    "E-FRC-0096 status.status": "pass",
+    "E-FRC-0097 status.status": "pass"
+  },
+  "checks": [
+    {
+      "code": "E-FRC-0093",
+      "metric": "wholeRuleAlgebraDimension",
+      "from": "metrics",
+      "expected": 2,
+      "tolerance": 0,
+      "observed": 2,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0093",
+      "metric": "commutingRelabellingsSide3",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0093",
+      "metric": "commutingRelabellingsSide5",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0093",
+      "metric": "identityAlgebraDimension",
+      "from": "control",
+      "expected": 9,
+      "tolerance": 0,
+      "observed": 9,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0093",
+      "metric": "streamingCommutingRelabellings",
+      "from": "control",
+      "expected": 36,
+      "tolerance": 0,
+      "observed": 36,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0094",
+      "metric": "trianglesInsideCommittedBlocks",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0094",
+      "metric": "stickyReflectTrianglesInside",
+      "from": "control",
+      "expected": 32,
+      "tolerance": 0,
+      "observed": 32,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0095",
+      "metric": "candidatesTested",
+      "from": "metrics",
+      "expected": 995328,
+      "tolerance": 0,
+      "observed": 995328,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0095",
+      "metric": "committedSymmetries",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0095",
+      "metric": "committedOrderThreeOrMultiple",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0095",
+      "metric": "streamingSymmetries",
+      "from": "control",
+      "expected": 1152,
+      "tolerance": 0,
+      "observed": 1152,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0096",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0097",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FRC-0093": {
+      "seconds": 11.941,
+      "status": "pass",
+      "claim": "the committed turning weave keeps exactly two continuous tone symmetries, the charge U(1) and the overall phase, out of the nine of U(3), at most two under any way a line can carry a triplet or antitriplet, and none of the 35 nontrivial line relabellings of the tone (the SU(3) Weyl group S3 on each end), so SU(3) colour is not a symmetry of the tone under the rule, while the same detectors find all of U(3) on the identity and swap maps and all 36 relabellings under pure streaming",
+      "metrics": {
+        "wholeRuleAlgebraDimension": 2,
+        "smallestBrokenGeneratorWeight": 2688,
+        "phaseOutsideAlgebra": 9.747437813246289e-17,
+        "chargeOutsideAlgebra": 1.2566871346510766e-16,
+        "largestLineAlgebraOverRepresentations": 2,
+        "pairTableDistanceFromCovariant": 0.627310543924234,
+        "commutingRelabellingsSide3": 1,
+        "commutingRelabellingsSide5": 1,
+        "blockDecompositionExact": 1,
+        "beatsChecked": 48
+      },
+      "control": {
+        "identityAlgebraDimension": 9,
+        "swapAlgebraDimension": 9,
+        "covariantPairSpaceComplexDimension": 2,
+        "swapDistanceFromCovariant": 9.13594680071102e-16,
+        "streamingCommutingRelabellings": 36,
+        "bindMoveLargestLineAlgebra": 3,
+        "leakyConfineLargestLineAlgebra": 5
+      },
+      "notes": "L3 format, an honest negative: the committed rule is run through beat on the D4 mesh (sides 3 and 5) with a streaming control that differs, and its collision is decomposed and checked exactly. No random numbers: probes, starts and representations are fixed and enumerated. What SU(3) on the tone would need: by Schur-Weyl the only line maps that commute with all of U(3) are combinations of the identity and the swap, so the only U(3)-symmetric ternary line rules are do-nothing and exchange, neither of which has the create, flip and annihilate clock (the arrow). The clock is what breaks U(3) down to its charge and phase directions, and removing it removes the arrow. The continuous symmetries here act on the tone read as a vector in C^3, which the classical rule does not do (it has no amplitudes), so this is the statement that no linear extension of the rule carries SU(3), not a claim about a quantum version. Composite symmetries acting on several cells, time-reversed symmetries (CPT) and approximate coarse-grained symmetries are outside this test."
+    },
+    "E-FRC-0094": {
+      "seconds": 7.462,
+      "status": "pass",
+      "claim": "the 24 D4 coin directions hold 32 zero-sum triangles, and over all 24 beats of the committed turning weave none of them falls inside one interaction block (the largest block spans two lines), so no single collision couples three directions of a triangle, the vertex an epsilon-tensor colour singlet or a three-gluon coupling would need, while a whole-cell collision puts all 32 inside",
+      "metrics": {
+        "triangles": 32,
+        "a2Subsystems": 16,
+        "trianglesInsideCommittedBlocks": 0,
+        "largestBlockSlots": 4,
+        "mostLinesInABlock": 2,
+        "linesThatEverInteract": 12,
+        "blockDecompositionExact": 1
+      },
+      "control": {
+        "stickyReflectTrianglesInside": 32,
+        "stickyReflectBlocks": 1,
+        "streamingTrianglesInside": 0,
+        "streamingBlocks": 24
+      },
+      "notes": "L2, a structural measurement of the committed collision, with no random numbers (the probe set is a fixed enumeration of sparse and structured cell states). An honest negative for colour at the level of one collision. It does not exclude an effective three-body coupling assembled over several beats as tones stream between cells, which a separate dynamical measurement would have to test. What the rule would need: a collision whose blocks join three lines whose directions close a triangle, which the per-line clock and the two-line swap never do."
+    },
+    "E-FRC-0095": {
+      "seconds": 9.483,
+      "status": "pass",
+      "claim": "over every 24-cell element, every tone relabelling on the two ends of a line and every beat shift, the committed 24-beat turning schedule is exactly symmetric under the identity alone, so it keeps no order-three symmetry, neither the Z3 center nor the S3 Weyl group of SU(3), while pure streaming keeps all 1152 elements of W(F4) and the previous knit keeps order-three elements the same measure finds",
+      "metrics": {
+        "candidatesTested": 995328,
+        "committedSymmetries": 1,
+        "committedOrderThreeOrMultiple": 0,
+        "staticWeaveSymmetries": 1
+      },
+      "control": {
+        "weylF4Order": 1152,
+        "streamingSymmetries": 1152,
+        "streamingOrderThreeOrMultiple": 640,
+        "previousKnitSymmetries": 12,
+        "previousKnitOrderThreeOrMultiple": 4
+      },
+      "notes": "L2, an exact exhaustive structural measurement with no random numbers. Symmetries that also reverse time (the CPT of the committed rule is one) and symmetries that act differently on different cells are outside it, since neither can be the internal colour group of a single cell. The symmetry breaking has two sources that the controls separate: the oriented clock (the pair table is not symmetric under swapping a line's two ends, which already cuts W(F4) down for the previous knit) and the turning schedule with its single swapped couple, which removes the rest. Within these symmetries, no finite subgroup of SU(3) with an element of order three can act on the coin."
+    },
+    "E-FRC-0096": {
+      "seconds": 86.634,
+      "status": "pass",
+      "claim": "under coarse-graining into blocks up to the whole mesh, the committed rule keeps no tone symmetry: the four relabellings that move the vacuum tone survive at the whole-mesh scale at about 86 percent of their single-cell breaking at L = 9 and L = 15, and charge conjugation shrinks about elevenfold but to a floor that does not fall with volume, while streaming commutes at every scale, a tone cycle breaks at every scale, and a breaking that only moves tones inside cells vanishes exactly at the whole-mesh scale",
+      "metrics": {
+        "vacuumMovingSurvivalSmallest": 0.8448830925369103,
+        "vacuumMovingSurvivalLargest": 0.8750569225328548,
+        "vacuumMovingSingleCellL9": 0.3282382533997202,
+        "vacuumMovingWholeMeshL15": 0.28388569101508915,
+        "conjugationSingleCellL9": 0.09956614421920923,
+        "conjugationWholeMeshL9": 0.008681613998543588,
+        "conjugationWholeMeshL15": 0.009070524691358025,
+        "conjugationSurvivalL9": 0.08719443809564185,
+        "conjugationSurvivalL15": 0.09192656030675761,
+        "conjugationFloorRatioL15OverL9": 1.044797049590051,
+        "incoherentFloorRatioPredicted": 0.35999999999999993
+      },
+      "control": {
+        "streamingLargestD": 0,
+        "cycleTranspositionSurvivalSmallest": 0.900527708903221,
+        "cycleThreeCycleLargestD": 0,
+        "localBrokenAtCellScale": 4,
+        "localSingleCellSmallestBroken": 0.08128359233433459,
+        "localWholeMeshLargest": 0
+      },
+      "notes": "L3 format, an honest negative: the committed rule runs through beat on the D4 mesh at two sizes, with three calibrations that each come out as constructed. The coarse variable is the tone population of a block, the only block quantity a relabelling of tone values acts on without a choice of basis, so this tests the S3 Weyl skeleton of SU(3) and nothing continuous. The vacuum tone 0 is where the clock (the arrow) creates and annihilates pairs, and every relabelling that moves it stays broken at every scale, which is the coarse form of the E-FRC-0093 obstruction. Charge conjugation, which fixes the vacuum, is approximately restored by averaging (about elevenfold) but keeps a floor, and the floor is the same at L = 9 and L = 15 instead of shrinking by the 2.8 of incoherent cancellation, so the remaining breaking is coherent. Two starts and two schedule periods, deterministic. Coarse variables other than populations (block currents, correlations) are not tested."
+    },
+    "E-FRC-0097": {
+      "seconds": 308.81,
+      "status": "pass",
+      "claim": "three tones placed together in one cell of the vacuum give no joint effect within 8 beats for any of the 32 triangles or 32 other triples at 12 phases, and around a pair that already interacts a joint effect appears for some third tones but not preferentially for the one that closes a zero-sum triangle, so the committed rule assembles only generic re-scattering over several beats and no triangle (A2) vertex, while a whole-cell collision couples every triple and streaming none",
+      "metrics": {
+        "censusTriangleJointWithin4": 0,
+        "censusTriangleJointWithin8": 0,
+        "censusOtherJointWithin4": 0,
+        "censusOtherJointWithin8": 0,
+        "censusTestsEach": 384,
+        "targetedPairs": 16,
+        "closingThirdTests": 32,
+        "closingThirdHits": 0,
+        "otherThirdTests": 672,
+        "otherThirdHits": 57,
+        "closingThirdRate": 0,
+        "otherThirdRate": 0.08482142857142858
+      },
+      "control": {
+        "stickyJointRate": 1,
+        "streamingJointRate": 0
+      },
+      "notes": "L3 format: the committed rule runs through beat on the D4 mesh with a whole-cell and a free calibration. A nonzero inclusion-exclusion difference says the outcome depends on all three tones jointly, which any nonlinear classical composition produces (tone A deflects B, which then meets C), so a joint effect alone is not an epsilon vertex. What would single out colour is a coupling specific to the triangle geometry, which is what the closing third is compared for. Windows of 8 beats on a side-5 mesh, tones starting in one cell, the first 16 interacting closable pairs in a fixed order; spread starts and longer windows are not tested. No random numbers."
+    }
+  },
+  "passed": true
+}

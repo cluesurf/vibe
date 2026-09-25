@@ -65,8 +65,12 @@ export function coinGroup(input: { directions: readonly (readonly number[])[] })
 }
 
 // SL(2, 3): its 24 matrices [a, b, c, d] (row major, entries 0 .. 2) and product table.
-export function specialLinear23(): { matrices: number[][]; product: Int8Array; identity: number } {
-  const matrices: number[][] = []
+type Matrix22 = [number, number, number, number]
+
+const IDENTITY_22: Matrix22 = [1, 0, 0, 1]
+
+export function specialLinear23(): { matrices: Matrix22[]; product: Int8Array; identity: number } {
+  const matrices: Matrix22[] = []
 
   for (let a = 0; a < 3; a++) {
     for (let b = 0; b < 3; b++) {
@@ -87,8 +91,8 @@ export function specialLinear23(): { matrices: number[][]; product: Int8Array; i
 
   for (let x = 0; x < n; x++) {
     for (let y = 0; y < n; y++) {
-      const [a, b, c, d] = matrices[x] ?? [1, 0, 0, 1]
-      const [e, f, g, h] = matrices[y] ?? [1, 0, 0, 1]
+      const [a, b, c, d] = matrices[x] ?? IDENTITY_22
+      const [e, f, g, h] = matrices[y] ?? IDENTITY_22
       const m = [(a * e + b * g) % 3, (a * f + b * h) % 3, (c * e + d * g) % 3, (c * f + d * h) % 3]
 
       product[x * n + y] = index.get(key(m)) ?? -1

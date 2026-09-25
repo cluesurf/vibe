@@ -1,0 +1,120 @@
+{
+  "result": "R-FND-0001",
+  "challenge": "C-FND-0001",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/foundations/rule-has-no-amplitudes.ts",
+      "sha256": "a52e699a83e2d6ab2415f36bed97059f1ac7cbe0a0e0cf6928332b58568843cc"
+    }
+  ],
+  "expected": {
+    "E-FND-0080 metrics.vacuumPeriod": 3,
+    "E-FND-0080 metrics.maxDefectSlots": 2,
+    "E-FND-0080 metrics.defectOverlapSlots": 0,
+    "E-FND-0080 metrics.unionExact": 1,
+    "E-FND-0080 metrics.chargeConserved": 1,
+    "E-FND-0080 control.walkCrossTerm": 0.3573
+  },
+  "observed": {
+    "E-FND-0080 metrics.vacuumPeriod": 3,
+    "E-FND-0080 metrics.maxDefectSlots": 2,
+    "E-FND-0080 metrics.defectOverlapSlots": 0,
+    "E-FND-0080 metrics.unionExact": 1,
+    "E-FND-0080 metrics.chargeConserved": 1,
+    "E-FND-0080 control.walkCrossTerm": 0.3573
+  },
+  "checks": [
+    {
+      "code": "E-FND-0080",
+      "metric": "vacuumPeriod",
+      "from": "metrics",
+      "expected": 3,
+      "tolerance": 0,
+      "observed": 3,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0080",
+      "metric": "maxDefectSlots",
+      "from": "metrics",
+      "expected": 2,
+      "tolerance": 0,
+      "observed": 2,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0080",
+      "metric": "defectOverlapSlots",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0080",
+      "metric": "unionExact",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0080",
+      "metric": "chargeConserved",
+      "from": "metrics",
+      "expected": 1,
+      "tolerance": 0,
+      "observed": 1,
+      "passed": true
+    },
+    {
+      "code": "E-FND-0080",
+      "metric": "walkCrossTerm",
+      "from": "control",
+      "expected": 0.3573,
+      "tolerance": 0.0001,
+      "observed": 0.3573,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FND-0080": {
+      "seconds": 0.057,
+      "status": "pass",
+      "claim": "on the committed d4Mesh with the committed pair collision the all-zero state is a global period-three flash (every slot nonzero at beats one and two, zero at beat three, the create-flip-annihilate cycle), a seeded tone is a classical defect of at most two slots that stays within the light cone and does not spread, two defects seeded on parallel lines evolve as the exact slot-for-slot union of their separate defects with zero overlap, and the charge is conserved, so the rule has no spreading, no superposition and no phase in its single-tone sector, while the coined Dirac walk seeded the same way spreads over more sites than beats and shows a nonzero site-wise interference term, so the walk is not a sector of the rule and every result on the walk is a result about the walk",
+      "metrics": {
+        "vacuumPeriod": 3,
+        "vacuumFillBeat1": 1,
+        "vacuumFillBeat3": 0,
+        "maxDefectSlots": 2,
+        "maxDefectRadius": 2,
+        "seedDistance": 4,
+        "defectOverlapSlots": 0,
+        "unionExact": 1,
+        "chargeConserved": 1,
+        "beats": 4
+      },
+      "control": {
+        "walkSupportSites": 5,
+        "walkCrossTerm": 0.3573
+      },
+      "notes": "AUDIT 2026-08-31: this run uses d4Mesh with an even side, which is two disconnected lattices (the D4 roots preserve coordinate-sum parity, see the PARITY note on d4Mesh), and it reports a whole-mesh quantity (a cell count, fraction, distance or coverage), so half of the cells counted belong to the component the seed never reaches. Read the number as a two-component figure until roadmap item 0017 decides whether to switch to an odd side. The honest negative behind the 2026-08-31 regrade of the quantum arena. Side 8 is even, so this d4Mesh is two disconnected lattices (see the PARITY note on d4Mesh); both seeds sit on the same half because the offset walks along a root, so the result is about one connected component of 2048 cells. Two facts, both about the committed rule as it stands: its vacuum is not quiet (a global period-three flash from the create move), and a seeded tone on top of it is a classical defect that neither spreads nor superposes. This does not show that no middle layer could ever carry amplitudes, only that any amplitude has to be built on top of this and its construction has to be shown before a walk result counts toward the base."
+    }
+  },
+  "passed": true
+}

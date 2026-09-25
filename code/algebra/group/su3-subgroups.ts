@@ -65,6 +65,16 @@ export const VALENTINER: Matrix3 = matrix3([
   [O, negate(omega(2)), O],
 ])
 
+// The qutrit T gate of Howard and Vala (2012), diag(1, e^(2 pi i / 9), e^(-2 pi i / 9)): determinant
+// 1, not Clifford, and with the Clifford group it generates a dense subgroup of SU(3).
+const ninth = (k: number): C => [Math.cos((2 * Math.PI * k) / 9), Math.sin((2 * Math.PI * k) / 9)]
+
+export const QUTRIT_T: Matrix3 = matrix3([
+  [I, O, O],
+  [O, ninth(1), O],
+  [O, O, ninth(-1)],
+])
+
 export const SU3_SUBGROUPS = {
   delta27: { order: 27, generators: [CLOCK, SHIFT] },
   sigma108: { order: 108, generators: [CLOCK, SHIFT, FOURIER] },

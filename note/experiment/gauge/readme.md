@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**99 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0099`](../../../test/experiment/gauge/center-automaton.ts)**.
+**106 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0106`](../../../test/experiment/gauge/colour-plane-selection.ts)**.
 
 ## What this arena tests
 
@@ -177,6 +177,9 @@ open are in [`strong-force.md`](strong-force.md).
 - **[`E-FRC-0093`](../../../test/experiment/gauge/rule-tone-symmetry.ts)** (L3) to **[`E-FRC-0097`](../../../test/experiment/gauge/rule-triangle-coupling.ts)** - SU(3) is not in the committed rule: 2 of 9 u(3) generators, no order-three coin symmetry, no triangle vertex at one beat or several, and no symmetry restored under coarse-graining. See [`su3-from-the-rule.md`](su3-from-the-rule.md).
 - **[`E-FRC-0098`](../../../test/experiment/gauge/su3-deconfinement.ts)** (L2) - the N_t = 4 transition on two volumes, carried to infinite volume, and T_c r0 against its published value.
 - **[`E-FRC-0099`](../../../test/experiment/gauge/center-automaton.ts)** (L2) - the Z3 center under a deterministic reversible automaton: confinement at high energy, first-order coexistence, and a frozen ordered phase.
+- **[`E-FRC-0100`](../../../test/experiment/gauge/colour-needs-amplitudes.ts)** (L1) to **[`E-FRC-0104`](../../../test/experiment/gauge/classical-colour-group.ts)** - what the base would need for colour: a phase on the pair swap to turn colour (0100), pairwise exchange binds the baryon with no three-body vertex (0101), a streaming kinetic demon unfreezes the Z3 center (0102), the classical colour group Sigma(648) matches SU(3) Creutz ratios at the N_t = 4 spacing (0103), and its links are three tones and a coin direction, the coin directions forming SL(2, 3) (0104). See [`what-the-base-needs.md`](what-the-base-needs.md).
+- **[`E-FRC-0105`](../../../test/experiment/gauge/colour-shader.ts)** (L2) - the shader: a phase on the colour swap at each encounter of three preserved excitations of the committed rule makes which one ends red a continuous, interfering function of the phase, while no tone observable changes.
+- **[`E-FRC-0106`](../../../test/experiment/gauge/colour-plane-selection.ts)** (L2) - what selects a colour plane in the coin: the 32 triality rotations of W(F4) each fix exactly one A2 and cycle the three triplet copies, and the previous knit keeps one such rotation where the committed turning weave keeps none.
 - **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
 
 ## What this arena establishes

@@ -1,13 +1,14 @@
 # The Strong Force
 
 The gauge arena's strong-force work, on the `experiment/strong-force` branch. It holds
-twenty-one experiments, and every claim in them has a control that could have failed.
+twenty-eight experiments, and every claim in them has a control that could have failed.
 
 | codes | what | depth |
 | --- | --- | --- |
 | `E-FRC-0080` to `E-FRC-0092`, `E-FRC-0098`, and a rebuilt `E-FRC-0007` | SU(3) gauge theory and QCD simulated, each number mapped to a published value | L2 |
 | `E-FRC-0093` to `E-FRC-0097` | does SU(3) come out of the committed {3,4,3,4} rule | L3 and L2 |
 | `E-FRC-0099` | a three-valued cyclic link under a deterministic reversible rule, the center of SU(3) on its own | L2 |
+| `E-FRC-0100` to `E-FRC-0106` | what the base would need to carry colour, and what could select it, in [what-the-base-needs.md](what-the-base-needs.md) | L1 and L2 |
 
 ## Why this exists
 
@@ -53,8 +54,8 @@ input. All L2: the group and the action are chosen, then everything follows.
 | [`E-FRC-0080`](../../../test/experiment/gauge/su3-area-law.ts) | do SU(3) gluons confine | chi(3,3) / chi(2,2) = **0.76 +- 0.03**, an area law | U(1) photon 0.32, weak-coupling SU(3) 0.36, both Coulombic |
 | [`E-FRC-0081`](../../../test/experiment/gauge/gluon-count.ts) | how many gluons and colours | **8.02** fields, **N = 3.004**, the three-quark invariant **0.2500** | SU(2) 3.02, U(1) 1.01, invariant 0 for both. Predicted 8, 3, 1/4 |
 | [`E-FRC-0087`](../../../test/experiment/gauge/static-quarks.ts) | the static potential | sigma a^2 = **0.125 +- 0.021**, e = **0.34 +- 0.05** | e against pi / 12 = 0.262, pull 1.7. The photon has sigma = 0.0002 +- 0.0006 |
-| [`E-FRC-0088`](../../../test/experiment/gauge/static-quarks.ts) | the scale, and how it runs | r0 / a = **3.23 +- 0.21** at 5.7 | Necco-Sommer 2.94, pull 1.4. The ratio to 5.9 against bare and E-scheme two-loop, see the verdict |
-| [`E-FRC-0089`](../../../test/experiment/gauge/static-quarks.ts) | the glueball | variational m r0, see the verdict | continuum 4.21 (Morningstar and Peardon) |
+| [`E-FRC-0088`](../../../test/experiment/gauge/static-quarks.ts) | the scale, and how it runs | r0 / a = **3.23 +- 0.21** at 5.7 and **4.27 +- 0.09** at 5.9, spacing ratio **1.32** | Necco-Sommer 2.94 and 4.48, pulls 1.4 and -2.4. The spacing ratio against the E-scheme two-loop prediction, pull -1.6 |
+| [`E-FRC-0089`](../../../test/experiment/gauge/static-quarks.ts) | the glueball | variational m r0 = **4.05 +- 0.50** (m a = 1.25 +- 0.13) | continuum 4.21 (Morningstar and Peardon), compatible, the least precise result here |
 | [`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts) | 3D SU(2) to the continuum | sqrt(sigma) / g^2 extrapolates to **0.332 +- 0.06** | continuum 0.3353 (Teper), pull -0.06 |
 
 ### Temperature
@@ -62,7 +63,7 @@ input. All L2: the group and the action are chosen, then everything follows.
 | code | question | measured | published or control |
 | --- | --- | --- | --- |
 | [`E-FRC-0082`](../../../test/experiment/gauge/su3-deconfinement.ts) | does colour deconfine | beta_c in **[5.100, 5.163]** on N_t = 2 | published 5.09. Three center sectors at phase 0, 1, 2 x 2 pi / 3 to 0.0006. The confined loop scales 1.51 against 1.54 for zero |
-| [`E-FRC-0098`](../../../test/experiment/gauge/su3-deconfinement.ts) | at what temperature | beta_c on N_t = 4, T_c r0, T_c in MeV | published 5.6925 and T_c r0 = 0.7498, about 296 MeV |
+| [`E-FRC-0098`](../../../test/experiment/gauge/su3-deconfinement.ts) | at what temperature | beta_c on N_t = 4 carried to infinite volume **5.6865 +- 0.0093**, T_c r0 = **0.712**, about **281 MeV** | published 5.6925, and T_c r0 = 0.722 at N_t = 4 (0.7498 in the continuum) |
 | [`E-FRC-0086`](../../../test/experiment/gauge/chiral-condensate.ts) | is chiral symmetry broken, and restored when hot | Sigma(0) = **0.286 +- 0.028** below T_c, **0.00014** above | the estimator reproduces the free condensate to 3.6e-14, with no noise vectors |
 
 ### Running
@@ -77,7 +78,7 @@ input. All L2: the group and the action are chosen, then everything follows.
 | --- | --- | --- | --- |
 | [`E-FRC-0084`](../../../test/experiment/gauge/quenched-hadrons.ts) | is the pion a Goldstone boson | d ln m_pi / d ln m_q near **0.44** | gluons off: 0.97, and 2 asinh(m) to 0.1 percent |
 | [`E-FRC-0085`](../../../test/experiment/gauge/quenched-hadrons.ts) | do gluons make the nucleon mass | many times three free quarks at every resolved mass, still heavy at m_q = 0 | gluons off: 3 asinh(m) to 0.1 percent |
-| [`E-FRC-0091`](../../../test/experiment/gauge/quenched-hadrons.ts) | the rho, and the ratios nature fixes | m_rho(0), m_N / m_rho at the physical point, J | 938 / 775 = 1.21, and J = 0.37 quenched against 0.48 experiment |
+| [`E-FRC-0091`](../../../test/experiment/gauge/quenched-hadrons.ts) | the rho, and the ratios nature fixes | J = **0.391 +- 0.012**. m_N / m_rho at the physical point **1.98 +- 0.17**, reported, not gated | J: quenched lattice values near 0.37 to 0.39, experiment 0.48. m_N / m_rho: nature 1.21, pull 4.4, the size of a quenched, single-box, coarse-lattice estimate far from the light quarks |
 | [`E-FRC-0090`](../../../test/experiment/gauge/dynamical-quarks.ts) | do dynamical quarks break the string | Re P = **0.412 / 0.394** on 4^3 and 6^3 (volume independent). A center rotation costs **ln det = -60** | quenched falls 1.79 against 1.84 for zero, gauge action shifts by exactly 0. The determinant agrees with the hopping expansion to 0.06 percent, and HMC gives <exp(-dH)> = 1.00 |
 
 ## Part three: no randomness at the base
@@ -148,7 +149,9 @@ ensembles.
 
 ## What is still open
 
-1. **SU(3) in the rule.** Measured absent. Colour needs a sixth ingredient.
+1. **SU(3) in the rule.** Measured absent from the committed rule. What a base would need, measured
+   piece by piece, and the triality rotation that would select a colour plane from the coin itself,
+   are in [what-the-base-needs.md](what-the-base-needs.md).
 2. **The Luscher term cleanly.** Needs R well above 0.5 fm, so boxes of 16^4 and more.
 3. **Zero-temperature string breaking.** The thermal form is shown (`E-FRC-0090`). The potential
    flattening at 1.2 fm needs dynamical quarks in large boxes.

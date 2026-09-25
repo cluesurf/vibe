@@ -58,6 +58,7 @@ function census(name: Su3SubgroupName): Census {
   const group = generateGroup({ generators: [...SU3_SUBGROUPS[name].generators] })
   const fibres = new Map<string, number>()
   const linear = new Set<string>()
+
   let classical = 0
   let largestNegativity = 0
 
@@ -121,6 +122,7 @@ export default experiment({
     // control: the plain quaternion product of two scaled roots lands among the roots how often
     const scaled = rootsD4().map(r => r.map(x => x / Math.sqrt(2)) as unknown as [number, number, number, number])
     const keys = new Set(scaled.map(q => q.map(x => Math.round(x * 1e6) || 0).join()))
+
     let plainClosed = 0
 
     for (const a of scaled) {

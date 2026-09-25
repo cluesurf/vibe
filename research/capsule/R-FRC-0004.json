@@ -1,0 +1,120 @@
+{
+  "result": "R-FRC-0004",
+  "challenge": "C-FRC-0004",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/gauge/asymptotic-freedom.ts",
+      "sha256": "a4ac5b585b6f33c89e1a4ca66517e9735345d699da21482e4965cb758f6bbd39"
+    }
+  ],
+  "expected": {
+    "E-FRC-0083 status.status": "pass",
+    "E-FRC-0083 metrics.adjointOverFundamentalSu3": 0.9968,
+    "E-FRC-0083 metrics.combinedSourceChargePull": 6.468,
+    "E-FRC-0083 metrics.treeLevelRatio": 0.28713,
+    "E-FRC-0083 control.u1ExtrapolatedToZero": 0.286
+  },
+  "observed": {
+    "E-FRC-0083 status.status": "pass",
+    "E-FRC-0083 metrics.adjointOverFundamentalSu3": 0.996794661513411,
+    "E-FRC-0083 metrics.combinedSourceChargePull": 6.468357980312694,
+    "E-FRC-0083 metrics.treeLevelRatio": 0.2871313518211539,
+    "E-FRC-0083 control.u1ExtrapolatedToZero": 0.2859745588964381
+  },
+  "checks": [
+    {
+      "code": "E-FRC-0083",
+      "metric": "status",
+      "from": "status",
+      "expected": "pass",
+      "tolerance": 0,
+      "observed": "pass",
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0083",
+      "metric": "adjointOverFundamentalSu3",
+      "from": "metrics",
+      "expected": 0.9968,
+      "tolerance": 0.0001,
+      "observed": 0.996794661513411,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0083",
+      "metric": "combinedSourceChargePull",
+      "from": "metrics",
+      "expected": 6.468,
+      "tolerance": 0.001,
+      "observed": 6.468357980312694,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0083",
+      "metric": "treeLevelRatio",
+      "from": "metrics",
+      "expected": 0.28713,
+      "tolerance": 0.00001,
+      "observed": 0.2871313518211539,
+      "passed": true
+    },
+    {
+      "code": "E-FRC-0083",
+      "metric": "u1ExtrapolatedToZero",
+      "from": "control",
+      "expected": 0.286,
+      "tolerance": 0.0001,
+      "observed": 0.2859745588964381,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-FRC-0083": {
+      "seconds": 716.782,
+      "status": "pass",
+      "claim": "the force ratio chi(2,2) / chi(1,1) starts from its exactly computed tree-level value and rises with g^2 at alpha + kappa C_A with the same positive kappa from SU(2), SU(3) and SU(4), and at the same rate for adjoint and fundamental sources, so the coupling grows with distance in proportion to the gluon colour charge and not the source charge, the anti-screening behind asymptotic freedom",
+      "metrics": {
+        "kappaSu2": 0.024454486403641406,
+        "kappaSu2Error": 0.003623029538532202,
+        "kappaSu3": 0.021318848531961507,
+        "kappaSu3Error": 0.0032370831979301943,
+        "kappaSu4": 0.02203974575332069,
+        "kappaSu4Error": 0.0027515398428952197,
+        "largestKappaPull": 0.6453917843429136,
+        "adjointOverFundamentalSu2": 1.0081881236348469,
+        "adjointOverFundamentalSu3": 0.996794661513411,
+        "adjointOverFundamentalSu4": 0.9815282792776432,
+        "largestSameRatePull": 0.11855297718171863,
+        "smallestSourceChargePull": 3.331369805569317,
+        "combinedSourceChargePull": 6.468357980312694,
+        "treeLevelRatio": 0.2871313518211539,
+        "impliedScaleRatio": 5.372698817395574
+      },
+      "control": {
+        "u1Rate": 0.0006894681194667799,
+        "u1RateError": 0.005189784582282154,
+        "u1ExtrapolatedToZero": 0.2859745588964381,
+        "u1ExtrapolatedError": 0.0013182609738145931,
+        "treePull": -0.8775143523884056,
+        "sourceChargeRatioSu2": 2.6666666666666665,
+        "sourceChargeRatioSu3": 2.25,
+        "sourceChargeRatioSu4": 2.1333333333333333
+      },
+      "notes": "L2, known physics: the colour-charge scaling of the one-loop Yang-Mills running in Wilson loops at weak coupling on an 8^4 periodic box, at C_A g^2 = 0.6, 0.9, 1.2 for every non-abelian group, with the next order carried by the slope of each line so the leading rate is not biased by it. The rise of compact U(1) (C_A = 0) is not running, pure U(1) has nothing charged to run with. It is the self-coupling of the compact cos action, the alpha the non-abelian rates are measured against. kappa also holds C_A-proportional lattice constants that are not a logarithm, so the implied ratio of the two distances mixes running with those constants and is printed, not tested. Errors are binned jackknife, bins of 5 consecutive measurements."
+    }
+  },
+  "passed": true
+}

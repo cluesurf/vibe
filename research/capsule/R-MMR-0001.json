@@ -1,0 +1,115 @@
+{
+  "result": "R-MMR-0001",
+  "challenge": "C-MMR-0001",
+  "version": "1.0.0",
+  "audited": "2026-09-25",
+  "commit": "e52e001630b374004107f49b3f3fd4693072bc6d",
+  "dirty": false,
+  "environment": {
+    "node": "v24.13.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "inputs": {
+    "seed": 1,
+    "scale": 1
+  },
+  "files": [
+    {
+      "file": "test/experiment/associative/search-latency.ts",
+      "sha256": "f4ac7b70cddc231807a51ae4308afe71e65662a6f0f6e7b3b3e92b3069b3356d"
+    },
+    {
+      "file": "test/experiment/associative/capacity-vs-curvature.ts",
+      "sha256": "247aee4bec6cb7b3e0fd5327c6afa294204dc44cf445cc48b7f00226817398ce"
+    }
+  ],
+  "expected": {
+    "E-MMR-0013 metrics.bulkDelta": 0,
+    "E-MMR-0013 metrics.cubicDelta": 9,
+    "E-MMR-0002 metrics.mostCurvedCoverageRadius": 8,
+    "E-MMR-0002 control.cubicCoverageRadius": 18
+  },
+  "observed": {
+    "E-MMR-0013 metrics.bulkDelta": 0,
+    "E-MMR-0013 metrics.cubicDelta": 9,
+    "E-MMR-0002 metrics.mostCurvedCoverageRadius": 8,
+    "E-MMR-0002 control.cubicCoverageRadius": 18
+  },
+  "checks": [
+    {
+      "code": "E-MMR-0013",
+      "metric": "bulkDelta",
+      "from": "metrics",
+      "expected": 0,
+      "tolerance": 0,
+      "observed": 0,
+      "passed": true
+    },
+    {
+      "code": "E-MMR-0013",
+      "metric": "cubicDelta",
+      "from": "metrics",
+      "expected": 9,
+      "tolerance": 0,
+      "observed": 9,
+      "passed": true
+    },
+    {
+      "code": "E-MMR-0002",
+      "metric": "mostCurvedCoverageRadius",
+      "from": "metrics",
+      "expected": 8,
+      "tolerance": 0,
+      "observed": 8,
+      "passed": true
+    },
+    {
+      "code": "E-MMR-0002",
+      "metric": "cubicCoverageRadius",
+      "from": "control",
+      "expected": 18,
+      "tolerance": 0,
+      "observed": 18,
+      "passed": true
+    }
+  ],
+  "verdicts": {
+    "E-MMR-0013": {
+      "seconds": 0.098,
+      "status": "pass",
+      "claim": "quadrupling the memory grows the bulk coverage radius by a small fixed amount (logarithmic scaling) while it grows the flat cubic radius far more (polynomial scaling), so associative search latency is sub-polynomial on the bulk",
+      "metrics": {
+        "bulkRadiusSmall": 3,
+        "bulkRadiusLarge": 3,
+        "bulkDelta": 0,
+        "cubicDelta": 9
+      },
+      "control": {
+        "cubicRadiusSmall": 12,
+        "cubicRadiusLarge": 21,
+        "cubicDelta": 9
+      }
+    },
+    "E-MMR-0002": {
+      "seconds": 0.852,
+      "status": "pass",
+      "claim": "across a curvature-ordered ladder of buildable tessellations, the more curved substrate stores more words per search radius (higher associative growth ratio) and covers its built region in fewer beats (smaller coverage radius), while the flat 3D cubic lattice has the lowest growth ratio and the largest coverage radius, so curvature buys associative capacity and cuts latency",
+      "metrics": {
+        "leastCurvedGrowthRatio": 1.6624152980071218,
+        "mostCurvedGrowthRatio": 2.158378535424588,
+        "leastCurvedCoverageRadius": 11,
+        "mostCurvedCoverageRadius": 8,
+        "growthRisesWithCurvature": 1,
+        "coverageFallsWithCurvature": 1
+      },
+      "control": {
+        "cubicGrowthRatio": 1.122462048309373,
+        "cubicCoverageRadius": 18,
+        "flatIsLowestGrowthLargestRadius": 1
+      },
+      "notes": "AUDIT 2026-08-31 (perturbation): at half size (600 ladder cells, cubic side 6) the verdict fails because the cubic control coverage radius (9) ties the least-curved hyperbolic one (9); it holds at 1200 and 1800 cells. The measured floor of the claim is about 1000 cells. L3, a deep cross-tessellation claim with the flat cubic lattice as the null control. The ladder is a representative handful of buildable tessellations ordered by catalog curvature ({5,3,4} least, {5,3,3,5} most), not the full catalog, the full sweep with the associative columns per tessellation is the battery CSV. The associative growth ratio and coverage radius come from the one reusable battery column (code/measure/tessellation-battery), so the ladder and the CSV agree. Build is kept small (maxCells 1200, cubic side 13) for suite cost."
+    }
+  },
+  "passed": true
+}
