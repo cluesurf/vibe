@@ -24,7 +24,7 @@ export const STATUS_RULES: {
 }[] = [
   {
     status: 'derived',
-    rule: 'follows from the committed rule by exact argument or exhaustive computation',
+    rule: 'follows from the committed knit by exact argument or exhaustive computation',
     grade: 'L1 or L3',
   },
   {
@@ -44,7 +44,7 @@ export const STATUS_RULES: {
   },
   {
     status: 'negative',
-    rule: 'the committed rule was measured not to do this',
+    rule: 'the committed knit was measured not to do this',
     grade: 'any grade, stated as negative',
   },
   {
@@ -95,7 +95,7 @@ export const CATEGORY_RULES: {
   },
   {
     category: 'retrodiction',
-    rule: 'a known observation derived quantitatively from the committed rule, known while the rule was being built',
+    rule: 'a known observation derived quantitatively from the committed knit, known while the rule was being built',
     worth:
       'stronger than an explanation, weaker than a prediction, because choices were made knowing the answer',
   },
@@ -106,7 +106,7 @@ export const CATEGORY_RULES: {
   },
   {
     category: 'measurement',
-    rule: 'a measured property of the committed rule itself, compared with nothing in nature',
+    rule: 'a measured property of the committed knit itself, compared with nothing in nature',
     worth: 'what the program is, including what it lacks',
   },
 ]

@@ -21,7 +21,7 @@
 // a spec whose turn is the circle-method rotation of the 12 lines (line 11 fixed, the others cycled), so
 // that every two lines are coupled once in 11 beats.
 
-import { type Collision, TURN_COUPLES_ZERO } from '@/code/rule/collision'
+import { type Collision } from '@/code/rule/collision'
 import { colorLocalCollision, type ColorLocalSpec } from '@/code/rule/color-local-weave'
 import { type Mesh } from '@/code/tool/mesh'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
@@ -257,5 +257,3 @@ export function knitBeatBack(knit: SteeredKnit, state: KnitState, t: number): Kn
 
   return work
 }
-
-export { TURN_COUPLES_ZERO }

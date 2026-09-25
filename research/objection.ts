@@ -10,7 +10,7 @@ import type { Objection } from './type'
 export const OBJECTIONS: Objection[] = [
   {
     objection:
-      'the committed rule is a classical permutation with no amplitudes, so every quantum-walk result is imported',
+      'the committed knit is a classical permutation with no amplitudes, so every quantum-walk result is imported',
     measured:
       'the empty state flashes with period 3, a seeded defect stays within 2 slots over 4 beats, and two defects add with 0 overlap, where a coined walk spreads to 5 sites with cross term 0.357',
     verdict: 'stands',

@@ -56,7 +56,7 @@ function reproductionGate(overrides: Partial<Gate>): Gate {
   return { ...base, ...overrides }
 }
 
-// A measurement of the committed rule.
+// A measurement of the committed knit.
 function measurementGate(overrides: Partial<Gate>): Gate {
   const base: Gate = {
     prior_art_reviewed: { mark: 'fail', reason: NOT_RUN },
@@ -67,7 +67,7 @@ function measurementGate(overrides: Partial<Gate>): Gate {
     derived: {
       mark: 'pass',
       reason:
-        'run through the committed rule, by exhaustive enumeration',
+        'run through the committed knit, by exhaustive enumeration',
     },
     quantitative: { mark: 'pass', reason: 'exact integers' },
     differentiating: {
@@ -131,7 +131,7 @@ export const RESULTS: Result[] = [
     importance:
       'It checks the measuring apparatus before anything it says about new physics is read. It says nothing about the program itself, which rests on none of the same assumptions.',
     limits: [
-      'nothing about the committed rule. It rests on none of the five assumptions',
+      'nothing about the committed knit. It rests on none of the five assumptions',
       'one or two couplings in 4D. Only 3D SU(2) is extrapolated to the continuum',
       '$T_c r_0$ uses the published $r_0/a$ at the measured $\\beta_c$, not an independently measured $r_0$',
       'the $J$ parameter and $m_N/m_\\rho$ (E-FRC-0091) are printed but not gated. Eight quark masses on the Edinburgh plot extrapolate to 2.04 ± 0.20 ± 0.19 against the quenched continuum 1.14, with the trend running the wrong way, which a later nucleon window traces to excited states in the early nucleon',
@@ -509,7 +509,7 @@ export const RESULTS: Result[] = [
     paper:
       'planned paper 1, the testbed paper, as its central result family',
     program:
-      'The strong-force arc of the vibe program (v1.5.0). It checks the measuring apparatus. It does not test the committed rule, which is R-FRC-0003.',
+      'The strong-force arc of the vibe program (v1.5.0). It checks the measuring apparatus. It does not test the committed knit, which is R-FRC-0003.',
     outputs: NO_OUTPUTS,
   },
   {
@@ -537,7 +537,7 @@ export const RESULTS: Result[] = [
     importance:
       'A sampler is a shortcut, not a necessity. The Gauss-law temperature count is what makes the prediction right: the naive count is excluded at $306\\sigma$.',
     limits: [
-      'the dynamics is Hamiltonian SU(3), not the committed rule. The rule carries no SU(3) (R-FRC-0003)',
+      'the dynamics is Hamiltonian SU(3), not the committed knit. The rule carries no SU(3) (R-FRC-0003)',
       'one structured start',
       'the $\\mathbb{Z}_3$ automaton (E-FRC-0099) freezes at low energy, the known Q2R non-ergodicity, and needs a kinetic variable there',
     ],
@@ -696,7 +696,7 @@ export const RESULTS: Result[] = [
   },
   {
     code: 'R-FRC-0003',
-    title: 'The committed rule does not carry SU(3) color',
+    title: 'The committed knit does not carry SU(3) color',
     subject: 'symmetry',
     sentence:
       'A deterministic reversible lattice gas on the {3,4,3,4} honeycomb keeps 2 of the 9 generators of U(3), and no symmetry of order three, at any scale tested.',
@@ -712,13 +712,13 @@ export const RESULTS: Result[] = [
     audience:
       'anyone judging whether the program reports against itself',
     question:
-      'Does the committed rule carry the symmetry of the strong force?',
+      'Does the committed knit carry the symmetry of the strong force?',
     answer:
       'No. It keeps the charge U(1) and the phase and nothing else of U(3), no $\\mathbb{Z}_3$ and no $S_3$, and coarse-graining brings none of it back.',
     importance:
       'The program measured the absence of the strong force in its own rule, exactly, and named what would have to be added. Adding a sixth ingredient is not emergence.',
     limits: [
-      'the committed rule only. A different rule, or a sixth ingredient, is not excluded',
+      'the committed knit only. A different rule, or a sixth ingredient, is not excluded',
       'coarse variables other than block populations, spread three-tone starts, and windows beyond 8 beats are untested',
       'time-reversed and cell-dependent symmetries are excluded by design',
     ],
@@ -773,8 +773,8 @@ export const RESULTS: Result[] = [
     figure: {
       form: 'pairs',
       caption:
-        'Measurement. What the committed rule keeps, against a control that keeps everything. Each row is scaled to its own control.',
-      measured: 'the committed rule',
+        'Measurement. What the committed knit keeps, against a control that keeps everything. Each row is scaled to its own control.',
+      measured: 'the committed knit',
       control: 'control: streaming, or a whole-cell collision',
       rows: [
         { label: '𝔲(3) generators kept', measured: 2, control: 9 },
@@ -956,7 +956,7 @@ export const RESULTS: Result[] = [
   },
   {
     code: 'R-FND-0001',
-    title: 'The committed rule has no amplitudes',
+    title: 'The committed knit has no amplitudes',
     subject: 'quantum foundations',
     sentence:
       'The same lattice gas has no quantum single-particle sector: a seeded defect never spreads, and two defects add exactly as sets.',
@@ -973,7 +973,7 @@ export const RESULTS: Result[] = [
     audience:
       "quantum foundations, 't Hooft's cellular-automaton interpretation, quantum walks",
     question:
-      'Does the committed rule have a quantum sector of its own?',
+      'Does the committed knit have a quantum sector of its own?',
     answer:
       "No. Its values are integers that add as sets. Thirteen quantum results that were cited as the rule's own dynamics ran a hand-written walk instead.",
     importance:
@@ -1009,8 +1009,8 @@ export const RESULTS: Result[] = [
     figure: {
       form: 'pairs',
       caption:
-        'Measurement. A seeded defect under the committed rule against a coined Dirac walk, after 4 beats.',
-      measured: 'the committed rule',
+        'Measurement. A seeded defect under the committed knit against a coined Dirac walk, after 4 beats.',
+      measured: 'the committed knit',
       control: 'coined Dirac walk',
       rows: [
         {
@@ -1806,7 +1806,7 @@ export const RESULTS: Result[] = [
     importance:
       'Separating $C_A$ from $C_F$ needs two representations. It is a clean check that the running comes from the gluons.',
     limits: [
-      'nothing about the committed rule',
+      'nothing about the committed knit',
       'one coupling per group',
     ],
     equations: [
@@ -1958,7 +1958,7 @@ export const RESULTS: Result[] = [
     importance:
       'It splits the strong force into a classical part a deterministic base can carry and one non-classical ingredient, and shows the ingredient is negative weight on the same grid.',
     limits: [
-      'a candidate addition to the base, not the committed rule, which carries none of it (R-FRC-0003)',
+      'a candidate addition to the base, not the committed knit, which carries none of it (R-FRC-0003)',
       'the links are a fixed background field in the gauge test. Moving links, color kept local and binding are R-FRC-0006',
       'no rule here binds a whole: flux on the links obeys Gauss exactly and costs nothing. Binding is R-FRC-0006',
       'pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases. The neutral creation, and why it needs a table with no hop, is R-FRC-0006',
@@ -2050,7 +2050,7 @@ export const RESULTS: Result[] = [
       derived: {
         mark: 'fail',
         reason:
-          'a candidate addition to the base, run on constructed rules, not the committed rule',
+          'a candidate addition to the base, run on constructed rules, not the committed knit',
       },
       quantitative: { mark: 'pass', reason: 'exact integers and exact kernels' },
       differentiating: {
@@ -2214,11 +2214,11 @@ export const RESULTS: Result[] = [
     audience: 'lattice gauge theory, reversible and cellular automata, anyone building color into a deterministic rule',
     question: 'Can a deterministic reversible rule keep color local, move its links, and bind a part while leaving a whole free?',
     answer:
-      'Yes, each exactly, with one table change (no hop) for local color and a paid hop for binding. The committed rule\'s own architecture cannot bind a moving part: its orientation makes a lone vibe drift one way, and every slot must stream.',
+      'Yes, each exactly, with one table change (no hop) for local color and a paid hop for binding. The committed knit\'s own architecture cannot bind a moving part: its orientation makes a lone vibe drift one way, and every slot must stream.',
     importance:
       'It closes the classical side of color: locality, gauge dynamics, confinement and binding are all carried without amplitudes, and it names exactly which base changes they need.',
     limits: [
-      'candidates for the base, not the committed rule',
+      'candidates for the base, not the committed knit',
       'dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider (E-FRC-0125 fails its comparative dressing gate)',
       'moving binding is shown on a line and on the D4 lattice with matter that waits in cells, not in the committed slot architecture, which would need waiting slots, a returning orientation and paid streaming',
       'the moving links do not feel the matter: no matter term enters their energy',
@@ -2312,7 +2312,7 @@ export const RESULTS: Result[] = [
       },
       derived: {
         mark: 'fail',
-        reason: 'candidates for the base run on constructed rules, not the committed rule',
+        reason: 'candidates for the base run on constructed rules, not the committed knit',
       },
       quantitative: { mark: 'pass', reason: 'exact integers, exhaustive searches and measured controls' },
       differentiating: {
@@ -2474,7 +2474,7 @@ export const RESULTS: Result[] = [
       derived: {
         mark: 'fail',
         reason:
-          'E-HLG-0004 runs on {5,3,4} and E-HLG-0033 is an analytic formula. Neither runs the committed rule',
+          'E-HLG-0004 runs on {5,3,4} and E-HLG-0033 is an analytic formula. Neither runs the committed knit',
       },
       quantitative: {
         mark: 'fail',

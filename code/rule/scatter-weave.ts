@@ -176,6 +176,9 @@ export type ScatterWeaveSpec = {
   readonly mirror: number
   // the scattering set of each beat of the period; empty sets switch the block off
   readonly sets: readonly (readonly Scattering[])[]
+  // only lone tones scatter, into lines that are wholly calm (the default); false lets any two tones
+  // scatter into two calm slots, pair members of the vacuum included
+  readonly lone?: boolean
 }
 
 const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
@@ -230,13 +233,25 @@ function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
   }
 }
 
-// the scattering set, in place: two tones on u, v with w, x calm move to w, x, and back
-function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array): void {
+// the scattering set, in place: two tones on u, v with w, x calm move to w, x, and back. With `lone`, only
+// lone tones scatter (the opposite slots of all four calm), so the head-on pairs of the vacuum never do
+function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array, lone: boolean): void {
   for (let k = 0; k < set.length; k += 4) {
     const u = base + (set[k] ?? 0)
     const v = base + (set[k + 1] ?? 0)
     const w = base + (set[k + 2] ?? 0)
     const x = base + (set[k + 3] ?? 0)
+
+    if (
+      lone &&
+      (vibe[base + (OPPOSITE[set[k] ?? 0] ?? 0)] !== 0 ||
+        vibe[base + (OPPOSITE[set[k + 1] ?? 0] ?? 0)] !== 0 ||
+        vibe[base + (OPPOSITE[set[k + 2] ?? 0] ?? 0)] !== 0 ||
+        vibe[base + (OPPOSITE[set[k + 3] ?? 0] ?? 0)] !== 0)
+    ) {
+      continue
+    }
+
     const here = vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
     const there = vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
 
@@ -343,14 +358,16 @@ function dockCollide(spec: ScatterWeaveSpec, built: Built, vibe: Int8Array, role
   const first = n > 0 ? built.sets[mod(spec.mirror - t, n)] : undefined
   const last = n > 0 ? built.sets[mod(t, n)] : undefined
 
+  const lone = spec.lone ?? true
+
   if (forward) {
-    if (first) scatter(vibe, role, base, first)
+    if (first) scatter(vibe, role, base, first, lone)
     baseCollide(spec.base, built, vibe, role, base, t, true)
-    if (last) scatter(vibe, role, base, last)
+    if (last) scatter(vibe, role, base, last, lone)
   } else {
-    if (last) scatter(vibe, role, base, last)
+    if (last) scatter(vibe, role, base, last, lone)
     baseCollide(spec.base, built, vibe, role, base, t, false)
-    if (first) scatter(vibe, role, base, first)
+    if (first) scatter(vibe, role, base, first, lone)
   }
 }
 

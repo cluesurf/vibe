@@ -95,7 +95,7 @@ export const ERRATA: Erratum[] = [
     paper: '0012',
     claim:
       'the Born rule and the Tsirelson bound, saturated by the exchange dynamics. Derived',
-    code: 'E-QTM-0011 applies the exchange unitary to $|01\\rangle$ in a four-dimensional Hilbert space, with no mesh, rule or tone. E-QTM-0012 puts $|a|^2$ in by fine-graining',
+    code: 'E-QTM-0011 applies the exchange unitary to $|01\\rangle$ in a four-dimensional Hilbert space, with no mesh, knit or vibe. E-QTM-0012 puts $|a|^2$ in by fine-graining',
     label: 'reproduced, L1',
   },
   {
@@ -115,7 +115,7 @@ export const ERRATA: Erratum[] = [
     paper: '0012',
     claim:
       'the Dirac dispersion and a finite light cone, and every walk result',
-    code: 'thirteen experiments run a hand-written coined Dirac walk, not the committed rule (E-FND-0080)',
+    code: 'thirteen experiments run a hand-written coined Dirac walk, not the committed knit (E-FND-0080)',
     label:
       'reproduced, L2, with prior art: Strauch 2006, Kurzynski 2008, Regensburger 2011, Kitagawa 2010, Asboth and Obuse 2013',
   },
@@ -147,7 +147,7 @@ export const ERRATA: Erratum[] = [
   {
     paper: '0014',
     claim: 'a tone is a value held at a site',
-    code: 'neither paper says the committed vacuum is a global period-three flash, so a lone tone is a defect on a flashing background (E-FND-0080)',
+    code: 'neither paper says the vacuum of the pair table, the committed knit when they were written, is a global period-three flash, so a lone vibe is a defect on a flashing background (E-FND-0080). The committed turning weave\'s vacuum recurs at beat 24 (E-FND-0118)',
     label: 'an omission, now measured',
   },
 ]

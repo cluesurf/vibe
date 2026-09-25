@@ -8,9 +8,9 @@ export const PROBLEMS: Problem[] = [
   {
     id: 'OP-01',
     title:
-      'build a layer that carries amplitudes on the committed rule',
+      'build a layer that carries amplitudes on the committed knit',
     question:
-      'Is there a coarse-grained quantity over many slots or beats of the committed rule that carries a phase and superposes?',
+      'Is there a coarse-grained quantity over many slots or beats of the committed knit that carries a phase and superposes?',
     known:
       'the bare rule has no amplitudes: defects add exactly as sets (R-FND-0001)',
     unknown:
@@ -35,7 +35,7 @@ export const PROBLEMS: Problem[] = [
     title:
       'find a coarse variable in which SU(3) appears, or prove none does',
     question:
-      'Does any coarse variable of the committed rule other than block populations (currents, correlations) show an S3 at long distance?',
+      'Does any coarse variable of the committed knit other than block populations (currents, correlations) show an S3 at long distance?',
     known:
       'block populations do not, at $L = 9$ and $15$ (E-FRC-0096). No single collision joins three lines (E-FRC-0094)',
     unknown:
@@ -143,7 +143,7 @@ export const PROBLEMS: Problem[] = [
     id: 'OP-08',
     title: 'spin-statistics through the rule',
     question:
-      'Does a spinor carry the minus sign under exchange through the committed rule, rather than as an input?',
+      'Does a spinor carry the minus sign under exchange through the committed knit, rather than as an input?',
     known:
       'E-SPN-0014 computes an identity true of every vector, and the exchange signs were typed',
     unknown: 'the dynamical result',
@@ -195,7 +195,7 @@ export const PROBLEMS: Problem[] = [
     id: 'OP-11',
     title: 'measure the correlation exponent',
     question:
-      'Does the shared-ancestor mechanism imply $C(r) \\sim r^{-\\alpha}$, and what is $\\alpha$ on the committed rule?',
+      'Does the shared-ancestor mechanism imply $C(r) \\sim r^{-\\alpha}$, and what is $\\alpha$ on the committed knit?',
     known:
       'interior distance grows like the logarithm of boundary distance (R-HLG-0002)',
     unknown:
