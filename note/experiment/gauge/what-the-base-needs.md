@@ -568,11 +568,51 @@ lacks too (`E-FND-0080`), so it is one decision for both, not a second one for c
      that splits into the pair at creation and rejoins at annihilation
 2. Roles on moving links: run the transport of `E-FRC-0117` on the link fields of `E-FRC-0110` as they
    evolve, which needs the two geometries (the D4 box and the hypercubic lattice) brought together.
-3. The signed weight, as small as it can be made: a sign bit or a cube-root phase per slot, advanced
-   deterministically, entering only at encounters (the phase on the swap). Pass it if the quark loop
-   and the singlet both appear and nothing classical above breaks.
+3. The signed weight. **It may already be in the base, as the vibe** (`E-FRC-0120`). A quantum
+   state of roles is exactly a weighting of the role grid, its discrete Wigner function, and it is
+   classical where every weight is at least 0: the colour group then only permutes points. A set of
+   vibes on grid points is already a signed weighting, love +1 and fear -1. Measured on the 729
+   points of three roles:
 
-Steps 1 and 2 need no new kind of ingredient. Step 3 is the one decision the base cannot avoid.
+   | state | units | loves | fears |
+   | --- | --- | --- | --- |
+   | a classical product state | 27 | 27 | 0 |
+   | the whole of three equal roles | 27 | 27 | 0 |
+   | the singlet, three different roles | 54 | 72 | 18, on 9 points |
+
+   Each sums to 1 and gives back the state's role probabilities. So the singlet is written exactly by
+   whole numbers of loves and fears and needs fear, and the all-same whole does not: the sign that
+   tells all-different from all-the-same is fear. Three things then line up. Negative weight is what
+   quantum physics calls magic, the same single non-classical ingredient the continuum floor needed
+   (`E-FRC-0103`). Calm gives rise to a love and a fear together, which adds no weight and creates
+   negativity, the way a quasi-probability becomes non-classical while staying normalised. And the
+   probability of an outcome is a sum of weights along a line of the grid, and the lines are the
+   wholes (`E-FRC-0118`).
+
+   **And a step, not only a state (`E-FRC-0121`).** Any gate moves grid weights by an exact real
+   kernel. A classical gate permutes points, and a non-classical one spreads a point's weight over
+   several with signs, one love becoming loves and fears, which is what calm does when it gives rise
+   to a pair:
+
+   | step | classical? | weight kept | kernel in whole fractions | vibes from one, per step |
+   | --- | --- | --- | --- | --- |
+   | the plain swap | yes | yes | yes, a permutation | 1 |
+   | a colour move | yes | yes | yes, a permutation | 1 |
+   | **swap phase at 2 pi / 3** | **no** | yes | **yes, quarters** | 2.5 |
+   | swap phase at pi / 2 | no | yes | no, it needs sqrt 3 | 2.7 |
+   | T, the continuum floor's element | no | yes | no, it needs cos(2 pi / 9) | 1.6 |
+
+   **The swap phase at a cube-root angle is carried exactly by whole loves and fears.** The Clifford
+   group is a maximal finite group for a prime number of levels, so the classical moves plus any one
+   element outside them generate an infinite, dense set of gates (the cited result, not measured
+   here). If that holds for this pair, loves, fears and calm can carry the quantum side exactly with
+   no irrational amplitude, using the cube-root swap alone.
+   The price is the known price of anything non-classical: each such step can turn one vibe into up
+   to 2.5 before loves and fears on one point cancel back to calm. Not measured: how much that
+   cancellation saves over many steps, which decides whether the cost stays bounded.
+
+Steps 1 and 2 need no new kind of ingredient. Step 3 may not either: the sign is fear, and the one
+exact non-classical step is the swap phase at the cube-root angle.
 
 ## What the base would change
 

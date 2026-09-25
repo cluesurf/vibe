@@ -1,6 +1,6 @@
 # Gauge Arena
 
-**119 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0119`](../../../test/experiment/gauge/role-survives-a-loop.ts)**.
+**121 experiments.** Codes **[`E-FRC-0001`](../../../test/experiment/gauge/actual-rule-soliton.ts)** through **[`E-FRC-0121`](../../../test/experiment/gauge/fear-carries-a-step.ts)**.
 
 ## What this arena tests
 
@@ -193,6 +193,8 @@ open are in [`strong-force.md`](strong-force.md).
 - **[`E-FRC-0117`](../../../test/experiment/gauge/vibe-role-tilt.ts)** (L2) - the three-trit slot (vibe, role, tilt) as one rule: roles carried along links holding grid moves and swapped where vibes meet. Charge exact, reversal exact, and exactly invariant under an independent change of role frame in every cell, which roles without links or turned by a fixed move per direction are not.
 - **[`E-FRC-0118`](../../../test/experiment/gauge/whole-is-a-line.ts)** (L1) - a whole without amplitudes: role points whose vibe-signed sum is zero stay whole under every change of frame exactly when love minus fear is a multiple of 3, the pattern of the quantum singlets of SU(3) and Sigma(648) in all 27 mixes up to six. Three loves are whole exactly on a line of the role grid, the rule of SET.
 - **[`E-FRC-0119`](../../../test/experiment/gauge/role-survives-a-loop.ts)** (L2) - a role point carried round a loop survives exactly as often as the adjoint Wilson loop says (grid points fixed = |Tr U|^2 on all 648 elements), on deterministic fields in both phases: a classical role sees the gluon string, and the quark string needs a signed weight.
+- **[`E-FRC-0120`](../../../test/experiment/gauge/fear-is-negativity.ts)** (L1) - the singlet is written exactly by whole numbers of loves and fears on the grid of three roles (72 loves, 18 fears) and needs fear, while the all-same whole and a classical state need none: the signed weight is the vibe, fear as negativity.
+- **[`E-FRC-0121`](../../../test/experiment/gauge/fear-carries-a-step.ts)** (L1) - a non-classical step moves loves and fears by an exact signed kernel that conserves weight. The swap phase at the cube-root angle has a kernel in quarters, carried exactly by whole loves and fears (growth 2.5 per step). The swap phase at pi / 2 and T need irrational weights.
 - **[`E-FRC-0007`](../../../test/experiment/gauge/confinement.ts)** (L2, rebuilt) - 3D SU(2) carried to the continuum, sqrt(sigma) / g^2 = 0.325 +- 0.047 against 0.3353.
 
 ## What this arena establishes
