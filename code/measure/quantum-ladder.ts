@@ -756,10 +756,11 @@ export function oneQuantumBand(spec: LadderSpec): { band: BandPoint[]; levels: L
   const n = spec.n
   const sectors = sectorsOf(spec)
   const { levels, residual } = ladderSpectrum(spec, full => modeEnergy(kernel, full.re, full.im))
-  let vacuum = 0
+  // the vacuum: the lowest invariant energy among the translation-invariant states
+  let vacuum = levels.findIndex(l => l.q === 0)
 
   levels.forEach((l, i) => {
-    if (l.energy < levels[vacuum]!.energy) vacuum = i
+    if (l.q === 0 && l.energy < levels[vacuum]!.energy) vacuum = i
   })
 
   const vfull = sectorToFull(spec, sectors, sectorBasis(spec, sectors, 0), 0, levels[vacuum]!.vector)
@@ -808,7 +809,7 @@ export function oneQuantumBand(spec: LadderSpec): { band: BandPoint[]; levels: L
       }
     })
 
-    const omega = (((levels[vacuum]!.phase - levels[best]!.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    const omega = best < 0 ? Number.NaN : (((levels[vacuum]!.phase - levels[best]!.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
 
     band.push({ q, k, omega, classical: classicalOmega(kappa, k, L), overlap: bestWeight })
   }
@@ -1220,6 +1221,85 @@ export function goldenRule(spec: LadderSpec, gap: number, dipole: number): { rat
     k,
     velocity: (kappa * Math.sin(k)) / Math.sin(gap),
   }
+}
+
+// the linear single-excitation reading of the atom on a ring of `ring` squares (the harmonic light's one-quantum
+// band, the classical symbol's omega_j, and the rung's matrix elements |r_j|^2 = (4 sin^2(k_j/2) / ring)
+// (hbar/2) f / sin omega_j), stepped as the rule steps: the coupling g d (sigma+ R- + h.c.) as one exact rotation
+// per beat, then the free phases. Returns P_e(t) for t = 0 .. beats (measurement; the harmonic reading, not the rule)
+export function singleExcitationDecay(spec: LadderSpec, gap: number, dipole: number, ring: number, beats: number): Float64Array {
+  const { f, kappa } = splitOf(spec)
+  const hbar = spec.n / (2 * Math.PI)
+  const g = (4 * Math.PI * spec.drift) / spec.root
+  const omegas = new Float64Array(ring)
+  const r = new Float64Array(ring)
+
+  for (let j = 0; j < ring; j++) {
+    const k = (2 * Math.PI * j) / ring
+
+    omegas[j] = classicalOmega(kappa, k, Math.max(ring, 2))
+    r[j] = Math.sqrt(((4 * Math.sin(k / 2) ** 2) / ring) * (hbar / 2) * (f / Math.sin(omegas[j]!)))
+  }
+
+  let rNorm = 0
+
+  for (let j = 0; j < ring; j++) rNorm += r[j]! ** 2
+
+  rNorm = Math.sqrt(rNorm)
+
+  const theta = g * dipole * rNorm
+  const out = new Float64Array(beats + 1)
+  let er = 1
+  let ei = 0
+  const br = new Float64Array(ring)
+  const bi = new Float64Array(ring)
+
+  for (let t = 0; t <= beats; t++) {
+    out[t] = er * er + ei * ei
+
+    if (t === beats) break
+
+    // coupling: in the plane {|e>, |rhat>}: e' = cos(theta) e - i sin(theta) <rhat|b>, b' = b + (cos(theta) - 1)
+    // rhat <rhat|b> - i sin(theta) rhat e
+    let pr = 0
+    let pi = 0
+
+    for (let j = 0; j < ring; j++) {
+      pr += (r[j]! / rNorm) * br[j]!
+      pi += (r[j]! / rNorm) * bi[j]!
+    }
+
+    const c = Math.cos(theta)
+    const s = Math.sin(theta)
+    const ner = c * er + s * pi
+    const nei = c * ei - s * pr
+
+    for (let j = 0; j < ring; j++) {
+      const u = r[j]! / rNorm
+
+      br[j] = br[j]! + (c - 1) * u * pr + s * u * ei
+      bi[j] = bi[j]! + (c - 1) * u * pi - s * u * er
+    }
+
+    er = ner
+    ei = nei
+
+    // free phases: e^(-i gap) on the atom, e^(-i omega_j) on each mode
+    const ar = Math.cos(-gap) * er - Math.sin(-gap) * ei
+
+    ei = Math.sin(-gap) * er + Math.cos(-gap) * ei
+    er = ar
+
+    for (let j = 0; j < ring; j++) {
+      const w = -omegas[j]!
+      const xr = Math.cos(w) * br[j]! - Math.sin(w) * bi[j]!
+
+      bi[j] = Math.sin(w) * br[j]! + Math.cos(w) * bi[j]!
+      br[j] = xr
+    }
+  }
+
+  return out
 }
 
 // ---------------------------------------------------------------------------------------------------------

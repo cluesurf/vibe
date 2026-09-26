@@ -42,6 +42,7 @@ const cexp = (t: number): Complex => [Math.cos(t), Math.sin(t)]
 
 // the two stream steps: slot 0 forward, slot 1 back
 export const STEP = [1, -1] as const
+const stepOf = (c: number): number => (c === 0 ? 1 : -1)
 
 // index of (r, c1, c2) in the relative basis
 const rel = (r: number, c1: number, c2: number): number => r * 4 + c1 * 2 + c2
@@ -67,8 +68,8 @@ export function relativeWalk(input: { ring: number; momentum: number; phase: Com
         for (let c1 = 0; c1 < 2; c1++) {
           for (let c2 = 0; c2 < 2; c2++) {
             const amp = mul(mul(coin[c1]![d1]!, coin[c2]![d2]!), m)
-            const r2 = (((r + STEP[c2] - STEP[c1]) % L) + L) % L
-            const phase1 = cexp(-K * STEP[c1])
+            const r2 = (((r + stepOf(c2) - stepOf(c1)) % L) + L) % L
+            const phase1 = cexp(-K * stepOf(c1))
             const v = mul(amp, phase1)
             const at = rel(r2, c1, c2) * n + rel(r, d1, d2)
 
@@ -210,7 +211,7 @@ export function contactDeterminant(input: { ring: number; momentum: number; phas
 
     for (let c1 = 0; c1 < 2; c1++) {
       for (let c2 = 0; c2 < 2; c2++) {
-        const ph = cexp(-K * STEP[c1] - q * (STEP[c2] - STEP[c1]))
+        const ph = cexp(-K * stepOf(c1) - q * (stepOf(c2) - stepOf(c1)))
 
         for (let d1 = 0; d1 < 2; d1++) {
           for (let d2 = 0; d2 < 2; d2++) {

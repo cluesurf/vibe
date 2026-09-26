@@ -60,6 +60,12 @@ export function useLinkStart(start?: LinkStartOf): LinkStartOf {
   return previous
 }
 
+// The start a weave built now would use. Caches of built weaves key on it, so a start changed with useLinkStart
+// is never answered from a weave built under another (the weaveOf defect found by E-RLT-0089).
+export function currentLinkStart(): LinkStartOf {
+  return defaultStart
+}
+
 export type GridMoves = {
   // act[g][p] is the image of point p = x + 3 y under move g
   readonly act: readonly Int8Array[]

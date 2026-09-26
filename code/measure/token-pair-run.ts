@@ -24,7 +24,6 @@ const SQRT3_2 = Math.sqrt(3) / 2
 const A: Complex = [0.25, SQRT3_2 / 2]
 const B: Complex = [0.75, -SQRT3_2 / 2]
 const OMEGA: Complex = [-0.5, SQRT3_2]
-const STEP = [1, -1] as const
 
 export type Meeting = 'fixed' | 'comoving'
 
@@ -372,8 +371,8 @@ export function pairRun(input: {
             for (let c = 0; c < 4; c++) {
               const c1 = c >> 1
               const c2 = c & 1
-              const y1 = (x1 + STEP[c1] + L) % L
-              const y2 = (x2 + STEP[c2] + L) % L
+              const y1 = (x1 + (c1 === 0 ? 1 : -1) + L) % L
+              const y2 = (x2 + (c2 === 0 ? 1 : -1) + L) % L
               const v1 = n === 1 ? 0 : (w1 + (c1 === 0 && x1 === L - 1 ? 1 : c1 === 1 && x1 === 0 ? n - 1 : 0)) % n
               const v2 = n === 1 ? 0 : (w2 + (c2 === 0 && x2 === L - 1 ? 1 : c2 === 1 && x2 === 0 ? n - 1 : 0)) % n
               const from = idx(w1, w2, x1, x2, c1, c2, 0, 0)

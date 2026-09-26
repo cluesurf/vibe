@@ -19,6 +19,7 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import { currentLinkStart, type LinkStartOf } from '@/code/rule/vibe-weave'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { cloneStoreState, sameStoreState, storeCharge, type TokenStoreState } from '@/code/rule/token-store-knit'
 import { livingBeat, livingBeatBack, livingCollide, makeLivingKnit, separatedLayout, type LivingKnit } from '@/code/rule/living-pair-knit'
@@ -81,43 +82,62 @@ export const EVEN_SIDES: Sides = { q: 4, reversal: 8, components: 8, vacuum: 8, 
 // a dock-varying vacuum: its store on a box, anchored so the anchor dock stores line 0
 export type VaryingVacuum = { readonly key: string; readonly store: (side: number, anchor: number) => Int8Array }
 
-const WEAVES = new Map<number, ColorWeave>()
-const LAYOUTS = new Map<number, Int8Array>()
-const KERNELS = new Map<number, LivingKernel>()
+// The weave, layout and kernel depend on the link start, so each cache is kept per start (keyed on the start
+// function currentLinkStart returns) and then per side. Before E-RLT-0089 found it, one cache per side answered
+// every start with the weave built under the first, so a start-family run read one start many times.
+const WEAVES = new WeakMap<LinkStartOf, Map<number, ColorWeave>>()
+const LAYOUTS = new WeakMap<LinkStartOf, Map<number, Int8Array>>()
+const KERNELS = new WeakMap<LinkStartOf, Map<number, LivingKernel>>()
 const STORES = new Map<string, Int8Array>()
 
+function cacheFor<T>(caches: WeakMap<LinkStartOf, Map<number, T>>): Map<number, T> {
+  const start = currentLinkStart()
+  const known = caches.get(start)
+
+  if (known) return known
+
+  const made = new Map<number, T>()
+
+  caches.set(start, made)
+
+  return made
+}
+
 export function weaveOf(side: number): ColorWeave {
-  const known = WEAVES.get(side)
+  const cache = cacheFor(WEAVES)
+  const known = cache.get(side)
 
   if (known) return known
 
   const w = makeColorWeave({ side, table: 'bind' })
 
-  WEAVES.set(side, w)
+  cache.set(side, w)
 
   return w
 }
 
 export function layoutOf(side: number): Int8Array {
-  const known = LAYOUTS.get(side)
+  const cache = cacheFor(LAYOUTS)
+  const known = cache.get(side)
 
   if (known) return known
 
   const l = separatedLayout(weaveOf(side))
 
-  LAYOUTS.set(side, l)
+  cache.set(side, l)
 
   return l
 }
 
 function kernelOf(side: number): LivingKernel {
-  const known = KERNELS.get(side)
+  const cache = cacheFor(KERNELS)
+  const known = cache.get(side)
 
   if (known) return known
 
   const k = makeLivingKernel(weaveOf(side))
 
-  KERNELS.set(side, k)
+  cache.set(side, k)
 
   return k
 }

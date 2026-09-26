@@ -191,8 +191,8 @@ function streamPiece(s: ExactPairState, inverse: boolean): void {
       for (let c = 0; c < 4; c++) {
         const c1 = c >> 1
         const c2 = c & 1
-        const y1 = (((x1 + sign * STEP[c1]) % L) + L) % L
-        const y2 = (((x2 + sign * STEP[c2]) % L) + L) % L
+        const y1 = (((x1 + sign * (c1 === 0 ? STEP[0] : STEP[1])) % L) + L) % L
+        const y2 = (((x2 + sign * (c2 === 0 ? STEP[0] : STEP[1])) % L) + L) % L
         const from = pairIndex(L, x1, x2, c1, c2, 0, 0)
         const to = pairIndex(L, y1, y2, c1, c2, 0, 0)
 
