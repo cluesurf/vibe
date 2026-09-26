@@ -2,6 +2,14 @@
 // meet, the singlet phase where a love meets a fear, stored as the departure from calm times omega^q) run on
 // code/rule/cold-quaternion-knit (E-RLT-0054).
 //
+// STATUS (2026-09-26, E-MTH-0028): fail at the default integer link start (E-MTH-0027), pass on 11 of 17 starts of
+// the start family. Every failing start (integer+0, 2, 3, 6, 9, 10) fails the frame gate on its control alone: the
+// searched love-fear pair makes no fear there, so the swap phase at love-fear meetings reads 0 mismatches. At
+// integer+0 the storage gate also fails, because the grower search returns the love-fear pair (10, 11) (charge 0,
+// units growing to 3^5 against 2^2 3^2 for the best like pair); with the search restricted to like pairs the grower
+// is (1, 17), charge 2, and stores with 0 mismatches over 480 beats (tmp/fix-rlt55-like.ts). Both are instrument or
+// search artifacts, not failures of the fear beat.
+//
 // THE MEETING. E-QTM-0109's meetings are wire meetings: two vibes on one wire when its table acts. This knit
 // has no wires. Its collision acts on footprints: the couple clock on the four slots of a couple, the
 // exchange on the two lone tones it moves, the threshold on a couple and its payer line. A meeting is
@@ -57,7 +65,7 @@ export default experiment({
   id: 'relativity/cold-quaternion-fear-beat',
   code: 'E-RLT-0055',
   title:
-    'the fear beat ported to the cold quaternion knit, with a meeting defined as a move that changes a footprint holding exactly two vibes: the color mode keeps every token sign for life, stays exact, pure, reversible and frame-covariant, interferes (1/3, 1/3, 1), violates CHSH (2.55) and reads back from storage on this knit as on the color turn weave',
+    'the fear beat ported to the cold quaternion knit, a meeting being a move that changes a footprint holding exactly two vibes, fail at the default integer link start (E-MTH-0027), and pass on 11 of 17 starts of E-MTH-0028\'s family: 0 sign flips, pure, under a third fear, exact reversal, interference 1/3, 1/3, 1, CHSH 2.55 on every start; each of the 6 failing starts is one where the searched love-fear pair makes no fear, so the frame gate\'s control (the swap phase at love-fear meetings) reads 0 and the frame gate fails, uninformative rather than a failure; at the default start the storage gate also fails because the grower found is a love-fear pair (charge 0), a search artifact: the like pair (1, 17) stores with 0 mismatches there',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -73,7 +81,7 @@ export default experiment({
       metrics: reading.metrics,
       control: reading.control,
       notes:
-        'L2, exact BigInt weights, golden-ratio fills, no random numbers. The classical layer never reads the whole, so the knit and its gates of E-RLT-0054 are untouched by the fear beat (checked slot for slot). The meeting definition is the one choice made here, argued in the header; many-body clock moves (three or four vibes on a couple) record no meeting and are counted, and on the golden fill they outnumber the two-vibe meetings (22,980 against 19,267 clock and 156 exchange meetings in 240 beats), so most of a dense gas\'s interaction carries no fear beat under this definition. The love-fear pair (tokens 8 and 11, line 4, a line of the second couple orbit) meets 160 times in 480 beats, all love-fear, and carries the interference, CHSH (2.552, as on the color turn weave) and frame gates. The matter pair meets only 3 times in 480 beats and not at all in the 48 beats of the frame test, so the frame gate\'s matter half is vacuous and its reversal half light; the grower is a like pair of fears (q = -2) with 2 meetings. Positions stay classical, as in E-QTM-0109. Not examined: whether the quantum layer commutes with Q8 (its tokens are carried by a rule that pairs slots in frame order, which Q8 need not keep).',
+        "RERUN 2026-09-26 under the adopted comoving fear beat and exact Eisenstein kernels (E-FRC-0206): status pass as before; the pair's fear share max 0.3134 -> 0.3192, the grower's fears max 104 -> 96 and share max 0.2955 -> 0.2857. " + ('L2, exact BigInt weights, golden-ratio fills, no random numbers. The classical layer never reads the whole, so the knit and its gates of E-RLT-0054 are untouched by the fear beat (checked slot for slot). The meeting definition is the one choice made here, argued in the header; many-body clock moves (three or four vibes on a couple) record no meeting and are counted, and on the golden fill they outnumber the two-vibe meetings (22,980 against 19,267 clock and 156 exchange meetings in 240 beats), so most of a dense gas\'s interaction carries no fear beat under this definition. The love-fear pair (tokens 8 and 11, line 4, a line of the second couple orbit) meets 160 times in 480 beats, all love-fear, and carries the interference, CHSH (2.552, as on the color turn weave) and frame gates. The matter pair meets only 3 times in 480 beats and not at all in the 48 beats of the frame test, so the frame gate\'s matter half is vacuous and its reversal half light; the grower is a like pair of fears (q = -2) with 2 meetings. Positions stay classical, as in E-QTM-0109. Not examined: whether the quantum layer commutes with Q8 (its tokens are carried by a rule that pairs slots in frame order, which Q8 need not keep).'),
     })
   },
 })

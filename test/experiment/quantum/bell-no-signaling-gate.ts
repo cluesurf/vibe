@@ -322,7 +322,7 @@ export default experiment({
         signalingControlEveryHistory: controlAll ? 1 : 0,
       },
       notes:
-        'L2, exact BigInt knots, no random numbers: starts are the 144 products of grid lines, settings the 216 grid moves and the 12 x kernels one-meeting ancillas. Superdeterminism does not arise: the classical layer never reads the knot (fearBeat, combinedBeat and the cold beat take no whole), so every setting is independent of every start by construction, and the settings here are chosen outside the knit. The plain-settings CHSH is exact; the one-meeting value is a lower bound (alternating maximization from the 676 plain pairs).',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; the largest plain CHSH over the own starts 2.2963 -> 2.5298 (rlt0055, beat 57 -> 78), meetings above 2 at the plain settings on rlt0055 43 -> 85, every no-signaling count unchanged. " + ('L2, exact BigInt knots, no random numbers: starts are the 144 products of grid lines, settings the 216 grid moves and the 12 x kernels one-meeting ancillas. Superdeterminism does not arise: the classical layer never reads the knot (fearBeat, combinedBeat and the cold beat take no whole), so every setting is independent of every start by construction, and the settings here are chosen outside the knit. The plain-settings CHSH is exact; the one-meeting value is a lower bound (alternating maximization from the 676 plain pairs).'),
     })
   },
 })

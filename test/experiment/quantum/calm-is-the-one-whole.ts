@@ -2,6 +2,14 @@
 // so its loves and fears are equal, run on the committed lattice beside the fear weave's own storage
 // (code/rule/calm-weave, code/rule/fear-weave, E-QTM-0099).
 //
+// STATUS (2026-09-26, E-MTH-0028): pass at the default integer link start (E-MTH-0027), pass on 8 of 17 starts of the
+// start family. Eight failing starts (integer+2 to 7, 12 and the retired golden start) are the ones whose live-link
+// reading lands on the middle rung 4 / sqrt 3 of one meeting's ladder, where gate 12 asks for sqrt 7. The ninth,
+// integer+9, reads the top rung and fails gate 4 alone: the grower pair meets 17 times in 480 beats and at grain
+// 9 x 4 both the knot and its departure refuse at meeting 12, but at grain 9 x 16 neither refuses at all (0 and 0),
+// and the gate requires a refusal. Knot and departure agree at both grains, so this is a clause that could not fire
+// on that history (an instrument artifact), not a disagreement between the two storages.
+//
 // The question. On the lattice love minus fear is the vibe charge and from calm it is 0. On the role grid a
 // knot's weights sum to 1, so love minus fear is one whole in every knot. Store instead
 // Delta = W - U, U = 1 / 9^k on each of the 9^k joint points of k roles: Delta sums to 0, so love = fear
@@ -120,7 +128,7 @@ export default experiment({
   id: 'quantum/calm-is-the-one-whole',
   code: 'E-QTM-0105',
   title:
-    'calm is the one whole: stored as its departure from the fully mixed state, every knot of the fear weave holds exactly as many loves as fears, the departure moves by the same kernel because every step fixes calm, and nothing measured changes (chances 1/4, 3/4, 1, CHSH sqrt 7, exact reversal, purity), at a grain cost of exactly 3^k units per knot of k roles; charge conjugation stays a symmetry but the literal swap of love and fear does not',
+    'calm is the one whole, pass at the default integer link start (E-MTH-0027), and on 8 of 17 starts of E-MTH-0028\'s family: stored as its departure from the fully mixed state, every knot of the fear weave holds exactly as many loves as fears, the departure moves by the same kernel because every step fixes calm, and nothing measured changes (chances 1/4, 3/4, 1, exact reversal, purity, CHSH sqrt 7 = 2.6458 at the default start, the top rung of one meeting\'s ladder), at a grain cost of exactly 3^k units per knot of k roles; it fails its sqrt 7 gate on the 8 starts whose reading lands on the middle rung 4 / sqrt 3 (the retired golden start among them), and at integer+9 on its refusal clause alone, where the grower pair at grain 9 x 16 never refuses in 480 beats (knot and departure agree, 0 and 0), so the clause cannot fire; charge conjugation stays a symmetry but the literal swap of love and fear does not',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -458,11 +466,22 @@ export default experiment({
       mergesAgree
 
     const ratioOf = (s: Study): number => Number([...s.ratios][0] ?? -1n)
+    // the rung and the refusals as measured (added 2026-09-26, no gate moved: the claim had printed sqrt 7 and "the
+    // same refusals" whatever the start gave). One meeting's swap ladder is {2, 4 / sqrt 3, sqrt 7} (E-QTM-0140); the
+    // departure's CHSH is a see-saw lower bound that meets a rung to 1e-6.
+    const bellRung =
+      ([
+        ['sqrt 7 (the top rung of one meeting\'s ladder)', Math.sqrt(7)],
+        ['4 / sqrt 3 (the middle rung of one meeting\'s ladder; the gate asks for sqrt 7)', 4 / Math.sqrt(3)],
+        ['2 (the bottom rung)', 2],
+      ] as const).find(([, v]) => bell >= v - 1e-6 && bell <= v + 1e-9)?.[0] ?? `${bell.toFixed(4)} (on no rung of one meeting's ladder)`
+    const refusalText = refusals.every(r => r.whole > 0 && r.whole === r.departure)
+      ? `the same refusals in fixed units (meetings ${refusals.map(r => r.whole).join(' and ')} at grains 9 x 4 and 9 x 16)`
+      : `refusals in fixed units at meetings ${refusals.map(r => r.whole || 'none').join(' and ')} for the knot and ${refusals.map(r => r.departure || 'none').join(' and ')} for its departure at grains 9 x 4 and 9 x 16 (the gate needs a refusal at both grains)`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim:
-        'every step of the fear weave fixes the fully mixed state (unital kernels, permutations), so a knot stored as its departure from calm moves by the same kernel and reads back as the fear weave\'s knot at every one of 480 beats for three pairs and a triple, with love = fear in every knot, purity 9^k sum delta^2 = (3^k - 1) M^2, chances summing to 1, exact reversal, the same refusals in fixed units, chances 1/4, 3/4, 1 and CHSH sqrt 7 unchanged, and the grid\'s love minus fear equal to the vibe charge of the pair made from calm at every beat; the cost is exactly 3^k more units per knot; C stays a symmetry, sending the rule to its reverse phase, while the literal swap of love and fear sends a pure knot to negative chances',
+      claim: `every step of the fear weave fixes the fully mixed state (unital kernels, permutations), so a knot stored as its departure from calm moves by the same kernel and reads back as the fear weave's knot at every one of 480 beats for three pairs and a triple, with love = fear in every knot, purity 9^k sum delta^2 = (3^k - 1) M^2, chances summing to 1, exact reversal, ${refusalText}, chances 1/4, 3/4, 1 and CHSH ${bellRung} unchanged, and the grid's love minus fear equal to the vibe charge of the pair made from calm at every beat; the cost is exactly 3^k more units per knot; C stays a symmetry, sending the rule to its reverse phase, while the literal swap of love and fear sends a pure knot to negative chances`,
       metrics: {
         kernelsUnitalAndWeightKeeping: kernelsUnital ? 1 : 0,
         gridMovesArePermutations: movesPermute ? 1 : 0,
@@ -518,7 +537,7 @@ export default experiment({
         resetDepartureMismatches: resetMismatches,
       },
       notes:
-        'L2, exact BigInt weights, no random numbers (golden-ratio fills). The departure is stored over its own units M because a sum of zero no longer names them; the whole-number form is delta = 9^k n - N over 9^k N, reduced. That love = fear (and the share of fear 1/2) holds by construction; the measurements are that the rule still acts (unital kernels), that every reading and result is unchanged, and the grain cost. The ledger gate counts beats where the grid\'s love minus fear equals the vibe charge of the knot\'s tokens; the fear weave\'s storage puts one whole there. The reset control is not a step of the rule: it is the simplest weight-keeping kernel that moves calm, and there the departure alone cannot follow. The literal love-fear swap is -Delta, the Wigner function of 2/3^k - rho, which is not a state for a pure knot.',
+        "STATUS BY START (E-MTH-0028): pass at the default integer start, pass on 8 of 17 starts; the rerun below read the retired golden start, a middle-rung start. RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; loveMaxWholesPairs 1.2372 -> 1.3128, loveMaxWholesTriple 2.0881 -> 2.0708. " + ('L2, exact BigInt weights, no random numbers (golden-ratio fills). The departure is stored over its own units M because a sum of zero no longer names them; the whole-number form is delta = 9^k n - N over 9^k N, reduced. That love = fear (and the share of fear 1/2) holds by construction; the measurements are that the rule still acts (unital kernels), that every reading and result is unchanged, and the grain cost. The ledger gate counts beats where the grid\'s love minus fear equals the vibe charge of the knot\'s tokens; the fear weave\'s storage puts one whole there. The reset control is not a step of the rule: it is the simplest weight-keeping kernel that moves calm, and there the departure alone cannot follow. The literal love-fear swap is -Delta, the Wigner function of 2/3^k - rho, which is not a state for a pure knot.'),
     })
   },
 })

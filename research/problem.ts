@@ -11,7 +11,7 @@ export const PROBLEMS: Problem[] = [
     question:
       'Can the signed weight on the role grid, the loves and fears that write the singlet, run inside the committed knit, and does it give positions a quantum sector as well as roles?',
     known:
-      'the bare knit has no amplitudes: defects add exactly as sets (R-FND-0001). The signed weight on the role grid is the quantum part (E-FRC-0120 to E-FRC-0122, E-FRC-0127). The fear weave runs it inside the lattice: quantum in the roles (chances 1/4, 3/4, 1 against 1/4, 3/8, 7/16, CHSH sqrt 7 against 2, E-QTM-0100), and a lone vibe moves ballistically under the one-third turn (exponent 0.997 against 0.497, E-QTM-0103). Grain grows: a knot of 9 x 4^m units is refused at meeting m + 1 (E-QTM-0099)',
+      'the bare knit has no amplitudes: defects add exactly as sets (R-FND-0001). The signed weight on the role grid is the quantum part (E-FRC-0120 to E-FRC-0122, E-FRC-0127). The fear weave runs it inside the lattice: quantum in the roles (chances 1/4, 3/4, 1 against 1/4, 3/8, 7/16, and CHSH above 2 where both classical rules stay at 2, E-QTM-0100). One meeting on a product start gives a three-rung ladder set by the overlap of the two roles, 2, 4 / sqrt 3 and sqrt 7 for like vibes and 2, a quartic 2.3613 and (2 + 4 sqrt 2) / 3 for a love and a fear (E-QTM-0140, E-QTM-0141), and the knit\'s own histories read up to 2.5298 as a signed count at the model\'s own settings (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143), and a lone vibe moves ballistically under the one-third turn (exponent 0.997 against 0.497, E-QTM-0103). Grain grows: a knot of 9 x 4^m units is refused at meeting m + 1 (E-QTM-0099)',
     unknown:
       'real weights on positions: streaming permutes the Wigner grid only on a ring of 3 docks, so the weight on a position is complex, not loves and fears (E-QTM-0103). And none of it runs on the committed knit',
     why: 'every quantum result about positions in the program is about an imported walk until this exists',
@@ -28,7 +28,7 @@ export const PROBLEMS: Problem[] = [
       "'t Hooft 2016, The Cellular Automaton Interpretation of Quantum Mechanics",
     ],
     depends: ['R-FND-0001', 'R-FRC-0005'],
-    source: 'E-FND-0080, E-FRC-0120 to E-FRC-0122, E-FRC-0127, E-QTM-0099, E-QTM-0100, E-QTM-0103',
+    source: 'E-FND-0080, E-FRC-0120 to E-FRC-0122, E-FRC-0127, E-QTM-0099, E-QTM-0100, E-QTM-0103, E-QTM-0111, E-QTM-0140, E-QTM-0141, E-QTM-0143, E-RLT-0055',
   },
   {
     id: 'OP-02',

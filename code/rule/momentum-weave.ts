@@ -24,7 +24,7 @@
 // lone tone on either slot exchanges with a calm or paired line), so every piece keeps P. E-FLD-0022
 // shows why any such member keeps all twelve line momenta separately, and E-FLD-0023 runs its battery.
 
-import { rootsD4 } from '@/code/algebra/group/root-system'
+import { rootsD4 } from '@/code/algebra/group/integer-roots'
 import {
   BIND_MOVE_FORWARD,
   type Collision,

@@ -87,7 +87,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { CONJUGATE_POINT, fearKernels, GRID_OF_PHASE, meetWhole, moveCoordinate, movePhaseCoordinate, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import { carryCoordinate, carryPhaseCoordinate, CONJUGATE_POINT, fearKernels, GRID_OF_PHASE, meetWhole, translatedOf, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { COLD_FIRSTS, COLD_OPPOSITE } from '@/code/rule/cold-quaternion-knit'
 import { coldRecords, coldStart, lineKnot } from '@/code/measure/knot-histories'
@@ -126,22 +126,29 @@ function gasMeeting(input: {
   kernel: readonly (readonly number[])[]
   divisor: number
   loveFirst: boolean
+  // the gas token's own role point (phase index): its classical point, the one the knit carries for it
+  gasOwn: number
 }): { traced: Whole; met: Whole } {
-  const { whole, c, role, kernel, divisor, loveFirst } = input
+  const { whole, c, role, kernel, divisor, loveFirst, gasOwn } = input
   const k = whole.tokens.length
   const line = [0, 1, 2].map(t => 3 * role + t)
+  const own = [...(whole.own ?? new Array<number>(k).fill(0)), gasOwn]
   const opened: Whole = {
     tokens: [...whole.tokens, -1],
     weight: Array.from({ length: whole.weight.length * 9 }, (_, i) => (line.includes(i % 9) ? (whole.weight[Math.floor(i / 9)] ?? 0n) : 0n)),
+    own,
   }
-  const met = meetWhole({ whole: opened, a: loveFirst ? c : k, b: loveFirst ? k : c, kernel4: kernel, divisor, fixed: false })!
+  const [c0, c1] = loveFirst ? [c, k] : [k, c]
+  // the comoving fear beat (adopted 2026-09-26): the kernel read about the two tokens' own points
+  const read = translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0)
+  const met = meetWhole({ whole: opened, a: c0, b: c1, kernel4: read, divisor, fixed: false })!
   const traced = new Array<bigint>(whole.weight.length).fill(0n)
 
   met.weight.forEach((x, i) => {
     traced[Math.floor(i / 9)] = (traced[Math.floor(i / 9)] ?? 0n) + x
   })
 
-  return { traced: { tokens: whole.tokens, weight: traced }, met }
+  return { traced: { tokens: whole.tokens, weight: traced, own: own.slice(0, k) }, met }
 }
 
 // mana, the sum-negativity magic monotone (Veitch, Mousavian, Gottesman and Emerson 2014): ln sum |W| over a
@@ -229,7 +236,7 @@ export default experiment({
         if (c === undefined) return
 
         if ((frame[c] ?? 0) !== 0 && frame[c] !== s) {
-          whole = movePhaseCoordinate(whole, c, CONJUGATE_POINT)
+          whole = carryPhaseCoordinate(whole, c, CONJUGATE_POINT)
           rewrites++
         }
 
@@ -248,10 +255,11 @@ export default experiment({
           if (ca !== undefined && cb !== undefined) {
             const before = manaOf(whole)
 
-            whole =
-              sa === sb
-                ? meetWhole({ whole, a: ca, b: cb, kernel4: kernels.like, divisor: kernels.likeDivisor, fixed: false })!
-                : meetWhole({ whole, a: sa > 0 ? ca : cb, b: sa > 0 ? cb : ca, kernel4: kernels.unlike, divisor: kernels.unlikeDivisor, fixed: false })!
+            // the comoving fear beat (adopted 2026-09-26): each kernel read about the two coordinates' own points
+            const [c0, c1] = sa === sb || sa > 0 ? [ca, cb] : [cb, ca]
+            const kernel = translatedOf(sa === sb ? kernels.like : kernels.unlike, whole.own?.[c0] ?? 0, whole.own?.[c1] ?? 0)
+
+            whole = meetWhole({ whole, a: c0, b: c1, kernel4: kernel, divisor: sa === sb ? kernels.likeDivisor : kernels.unlikeDivisor, fixed: false })!
             ledger.own += manaOf(whole) - before
           } else if (ca !== undefined || cb !== undefined) {
             const mine = ca !== undefined ? ta : tb
@@ -274,6 +282,7 @@ export default experiment({
               kernel: like ? kernels.like : kernels.unlike,
               divisor: like ? kernels.likeDivisor : kernels.unlikeDivisor,
               loveFirst: like || mySign > 0,
+              gasOwn: GRID_OF_PHASE[hidden[other] ?? 0] ?? 0,
             })
             const opened = manaOf(step.met)
             const traced = manaOf(step.traced)
@@ -293,7 +302,8 @@ export default experiment({
             if (g !== weave.moves.identity) {
               const before = manaOf(whole)
 
-              whole = moveCoordinate(whole, c, act)
+              // a crossing carries the own point with the weights (the comoving beat, 2026-09-26)
+              whole = carryCoordinate(whole, c, act)
 
               const after = manaOf(whole)
 
@@ -431,7 +441,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L2, exact BigInt knots, golden and silver Weyl fills, no random numbers. Mana is the sum-negativity monotone ln((L + F) / (L - F)), the fear share read as magic (E-QTM-0119), ledgered by step kind. The gas is opened only at its meetings with the pair and traced at once (the collision model), since a closed token cannot entangle in the fear weave: that is the approximation, and repeat meetings with one gas token are counted. The fear share is reported, not gated: the pair\'s own meetings move it too, so its decay is not a clean decoherence signal.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat (the pair's own meetings read about the two own points, a gas meeting about the kept token's own point and the gas token's classical point, crossings and frame rewrites carrying the own points): status fail as before, and G6 (magic decays) now FAILS: at f = 1/16 the late mana is 0.632 against the isolated pair's 0.614 (it was 0.188), the final purity 0.338 -> 0.996, gas kernels make 15.7 of mana where they made 70.2; the pointer families still end in one whole (final purity 0.780 -> 0.836). " + ('L2, exact BigInt knots, golden and silver Weyl fills, no random numbers. Mana is the sum-negativity monotone ln((L + F) / (L - F)), the fear share read as magic (E-QTM-0119), ledgered by step kind. The gas is opened only at its meetings with the pair and traced at once (the collision model), since a closed token cannot entangle in the fear weave: that is the approximation, and repeat meetings with one gas token are counted. The fear share is reported, not gated: the pair\'s own meetings move it too, so its decay is not a clean decoherence signal.'),
     })
   },
 })

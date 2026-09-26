@@ -4,6 +4,15 @@
 // phase with its phases thrown away, which exchanges two meeting roles with chance 3/4 and leaves them
 // with chance 1/4 (|b|^2 and |a|^2 of U = a + b SWAP), a kernel with no fear.
 //
+// STATUS (2026-09-26, E-MTH-0028): pass at the default integer link start (E-MTH-0027), pass on 9 of 17 starts of
+// the start family. The start picks which rung of one meeting's ladder {2, 4 / sqrt 3, sqrt 7} the live-link
+// reading lands on (E-QTM-0140): the top rung sqrt 7 on 9 starts, the default among them, the middle rung 4 / sqrt 3
+// on 8 (integer+2 to 7, 12 and the retired golden start), and exactly those 8 fail the sqrt 7 gate. Every other
+// witness holds on every start. The claim names the rung measured, not the gated one. On the middle-rung starts
+// the color-mode reading is 2.3612 to 2.3669: its knot has three Schmidt weights (0.8748, 1/9, 0.0141), and the
+// eight-start see-saw lands on different local optima; a 1,500-start see-saw on the same physical knot reaches
+// 2.3848, so E-QTM-0140's middle color value 2.3613 is a lower bound there, not the maximum.
+//
 // 1. Interference. The vacuum whole of E-QTM-0099 (a pair made together from calm, tokens 4 and 7) on flat
 //    links, from |0>|1>. Between meetings nothing touches its roles, so each meeting is one step of
 //    SWAP U. Measured from the grid weights (a role's value is the sum over its tilts): the chance the
@@ -14,12 +23,12 @@
 //    7/16 and cancels
 //    nothing; the fear-off rule gives 0 at every meeting.
 // 2. Nonlocality. The same whole on the live links, read one beat after its first meeting, when its two
-//    tokens stand in different cells. From its grid weights the density matrix rho = sum W(x) A(x), and the
+//    tokens stand in different docks. From its grid weights the density matrix rho = sum W(x) A(x), and the
 //    largest CHSH value over two-outcome measurements on each role, by a deterministic see-saw from eight
 //    fixed starts. Predicted: sqrt 7 = 2.6458, the value for Schmidt weights 1/4 and 3/4 (Gisin), above
 //    the local bound 2. Controls: the fear-off rule and the stochastic stand-in, both at most 2. The see-saw
 //    is also run after every meeting of the pair that spends the most grain in E-QTM-0099.
-// 3. The whole of three different roles. A three-token whole from |0>|1>|2>: the cell-0 triple of the
+// 3. The whole of three different roles. A three-token whole from |0>|1>|2>: the dock-0 triple of the
 //    golden-ratio matter fill whose three pairs all meet in 480 beats, with the most meetings. The
 //    singlet's share is F = 27 sum W W_singlet, exact in integers since the singlet's weights are whole in
 //    units of 54 (18 fears, E-FRC-0120). Predicted: on flat links F stays exactly 1/6 through every
@@ -33,7 +42,7 @@
 //
 // Gates, fixed before the run: interference 1/4, 3/4, 1 exactly, the stand-in 1/4, 3/8, 7/16, the fear-off
 // rule 0, cancellations at the first three meetings above 0 for the fear beat and 0 for the stand-in; CHSH
-// within 1e-6 of sqrt 7 with the tokens in different cells, both controls at most 2 + 1e-9; F exactly 1/6
+// within 1e-6 of sqrt 7 with the tokens in different docks, both controls at most 2 + 1e-9; F exactly 1/6
 // after every meeting on flat links, with the triple meeting at least once in each pairing.
 //
 // Positions stay classical in this rule: every witness here is in the roles, none in where a vibe goes.
@@ -355,7 +364,7 @@ export default experiment({
   id: 'quantum/fear-witness',
   code: 'E-QTM-0100',
   title:
-    'the fear weave is quantum in its roles and only there: a pair made together interferes (its chance of a reading goes 1/4, 3/4, 1 over three meetings, with fears cancelling, where the phase-free stand-in gives 1/4, 3/8, 7/16), its two tokens violate CHSH at sqrt 7 from different cells where both classical rules stay at 2, and meetings can never make or unmake a whole of three different roles',
+    'the fear weave is quantum in its roles, pass at the default integer link start (E-MTH-0027), and on 9 of 17 starts of E-MTH-0028\'s family: a pair made together reads 1/4, 3/4, 1 over three meetings with fears cancelling where the phase-free stand-in gives 1/4, 3/8, 7/16, and its tokens violate CHSH from different docks where both classical rules stay at 2, at a rung of one meeting\'s three-rung ladder {2, 4 / sqrt 3, sqrt 7} (E-QTM-0140) that the start chooses: at the default start the gated top rung sqrt 7 = 2.6458 (color mode 2.5523), and on the 8 starts whose reading lands on the middle rung 4 / sqrt 3 = 2.3094 (color mode 2.3612 to 2.3669 by its eight-start see-saw, a lower bound; the retired golden start among them) it fails that gate; meetings keep the singlet share of three roles at exactly 1/6, so they can neither make nor unmake a knot of different roles',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -660,10 +669,43 @@ export default experiment({
       tripleFlat.pairings === 3 &&
       tripleFlat.allSixth
 
+    // THE RUNG the reading lands on, named from the measured value (added 2026-09-26: E-MTH-0028 found the link
+    // start picks the rung, and the claim had printed sqrt 7 whatever was measured). One meeting on a stabilizer
+    // product can give only three values per mode (E-QTM-0140, proven in E-QTM-0141); the see-saw is a lower bound
+    // that meets them to 1e-6 (E-QTM-0140 G5), so a reading names the ladder value it lies within 1e-6 below. No gate
+    // reads this. One caution, found while writing this: the color ladder's middle value is the Schmidt-aligned
+    // block value of a knot with three Schmidt weights, a lower bound on that knot's maximum, not the maximum (a
+    // 1,500-start see-saw on the same physical knot reaches 2.3848), so a color reading between the middle and top
+    // values is named as such, never forced onto a rung.
+    const rungOf = (value: number, ladder: readonly (readonly [string, number])[]): string => {
+      const hit = ladder.find(([, v]) => value >= v - 1e-6 && value <= v + 1e-9)
+      const middle = ladder[1]?.[1] ?? 0
+      const top = ladder[2]?.[1] ?? 0
+
+      if (hit) {
+        return hit[0]
+      }
+
+      return value > middle && value < top
+        ? `${value.toFixed(4)}, above the middle-rung value ${middle.toFixed(4)} and below the top rung`
+        : `${value.toFixed(4)}, on no rung of the one-meeting ladder`
+    }
+    const swapLadder = [
+      ['2, the bottom rung', 2],
+      ['4 / sqrt 3 = 2.3094, the middle rung', 4 / Math.sqrt(3)],
+      ['sqrt 7 = 2.6458, the top rung', Math.sqrt(7)],
+    ] as const
+    const colorLadder = [
+      ['2, the bottom rung', 2],
+      ['(8 + 2 sqrt 21 + 2 sqrt 35 - 2 sqrt 15) / 9 = 2.3613, the middle-rung value (Schmidt-aligned, a lower bound on this knot\'s maximum)',(8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * Math.sqrt(15)) / 9],
+      ['(2 + 4 sqrt 2) / 3 = 2.5523, the top rung', (2 + 4 * Math.sqrt(2)) / 3],
+    ] as const
+    const swapRung = rungOf(bellQuantum, swapLadder)
+    const colorRung = rungOf(colorBell, colorLadder)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim:
-        'on flat links the pair made together reads (1, 0) with chance 1/4, 3/4, 1 after three meetings, with loves and fears cancelling at each, where the phase-free stand-in gives 1/4, 3/8, 7/16 and cancels none and the fear-off rule gives 0; one beat after its first meeting on live links, with its tokens in different cells, its CHSH value is sqrt 7 where the fear-off rule and the stand-in stay at 2; and a three-token whole keeps its singlet share at exactly 1/6 through every meeting on flat links, in all three pairings',
+      claim: `on flat links the pair made together reads (1, 0) with chance 1/4, 3/4, 1 after three meetings, with loves and fears cancelling at each, where the phase-free stand-in gives 1/4, 3/8, 7/16 and cancels none and the fear-off rule gives 0; one beat after its first meeting on live links, with its tokens in different docks, its CHSH value is ${swapRung} of one meeting's ladder (the gate asks for sqrt 7), where the fear-off rule and the stand-in stay at 2, and in the color mode ${colorRung}; and a three-token whole keeps its singlet share at exactly 1/6 through every meeting on flat links, in all three pairings`,
       metrics: {
         chanceAfterMeeting1: quantum.chance[0] ?? -1,
         chanceAfterMeeting2: quantum.chance[1] ?? -1,
@@ -719,7 +761,7 @@ export default experiment({
         chshStochastic: bellStochastic,
       },
       notes:
-        'L2. Chances and the singlet share are exact ratios of BigInt sums; the CHSH value is a floating-point see-saw (200 rounds from eight fixed golden-ratio starts), a lower bound on the maximum that meets the analytic sqrt 7 for this state. The stochastic stand-in is the swap phase with its phases dropped, which is the kernel a classical rule with a coin at each meeting would carry; it is not reversible. The tokens are read in different cells, but the rule is local and deterministic in its classical layer, so the witness is of the state the meeting made, not a loophole-free test. Positions stay classical: no witness here is in where a vibe goes. The triple is the cell-0 triple of the matter fill (golden ratio at 2.11) whose three pairs all meet in 480 beats, with the most meetings in total, found from one classical run. The grower pair (4, 20) is the one E-QTM-0099 found spending the most grain.',
+        "STATUS BY START (E-MTH-0028): pass at the default integer start, pass on 9 of 17 starts; the rerun below read the retired golden start, a middle-rung start. RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; the grower's CHSH max 2.7607 -> 2.4037 (min 2.2215 -> 2.0951, final 2.2900 -> 2.1824), the color-mode CHSH 2.3631 -> 2.3613, the live triple's final singlet share 0.0551 -> 0.0158. " + ('L2. Chances and the singlet share are exact ratios of BigInt sums; the CHSH value is a floating-point see-saw (200 rounds from eight fixed golden-ratio starts), a lower bound on the maximum that meets the analytic sqrt 7 for this state. The stochastic stand-in is the swap phase with its phases dropped, which is the kernel a classical rule with a coin at each meeting would carry; it is not reversible. The tokens are read in different docks, but the rule is local and deterministic in its classical layer, so the witness is of the state the meeting made, not a loophole-free test. Positions stay classical: no witness here is in where a vibe goes. The triple is the dock-0 triple of the matter fill (golden ratio at 2.11) whose three pairs all meet in 480 beats, with the most meetings in total, found from one classical run. The grower pair (4, 20) is the one E-QTM-0099 found spending the most grain.'),
     })
   },
 })

@@ -24,7 +24,7 @@
 import { type Collision } from '@/code/rule/collision'
 import { colorLocalCollision, type ColorLocalSpec } from '@/code/rule/color-local-weave'
 import { type Mesh } from '@/code/tool/mesh'
-import { d4BoxMesh } from '@/code/substrate/d4-box'
+import { d4BoxMesh } from '@/code/substrate/d4-box-integer'
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0

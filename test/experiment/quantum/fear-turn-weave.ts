@@ -3,6 +3,15 @@
 // knots stored as their departure from calm (code/rule/calm-weave) with the center phase omega^q
 // (code/rule/signed-knot).
 //
+// STATUS (2026-09-26, E-MTH-0028): fail at the default integer link start (E-MTH-0027), pass on 10 of 17 starts of
+// the start family. Six failing starts (integer+0, 4, 6, 7, 9, 12) are ones where the searched vacuum and matter pairs
+// make no fear, so the frame control reads 0 mismatches and the frame gate cannot fire. The seventh, integer+8, has
+// informative controls (352) and fails one clause only: the grower search returns the love-fear pair (16, 21),
+// charge 0 (20 love-fear meetings, units to 3^11), where the storage gate asks for a like pair so the center phase
+// omega^q is not trivial; its storage still reads back with 0 mismatches. Restricted to like pairs, the grower is
+// (17, 18), charge 2, and the file passes every gate at integer+8 (tmp/fix-qtm109-like.ts). A search artifact, not a
+// failure of the color mode.
+//
 // The color turn weave keeps the bind table (no hop) and moves role points only where a wire's first slot
 // changes sign, so like pairs keep their tokens: the knit is built from its own spec
 // (code/rule/fear-weave, colorLocalKnit) and the like kernel is the swap phase U itself, not SWAP U. The fear
@@ -54,7 +63,7 @@ import {
   fearBeatBack,
   fearKernels,
   makeLattice,
-  moveCoordinate,
+  carryCoordinate,
   reduceWhole,
   swapPhase,
   wholeKernel,
@@ -117,7 +126,7 @@ export default experiment({
   id: 'quantum/fear-turn-weave',
   code: 'E-QTM-0109',
   title:
-    'the fear weave on the hop-free color turn weave: the color mode keeps every token sign for life, stays exact, pure, reversible, frame-covariant and under a third fear, interferes and violates CHSH, and stored as its departure from calm times omega^q it reads back unchanged at every beat',
+    'the fear weave\'s color mode on the hop-free color turn weave, fail at the default integer link start (E-MTH-0027), and pass on 10 of 17 starts of E-MTH-0028\'s family: the knit matches the color turn weave at every slot, every token keeps its sign for life, the knots stay pure and under a third fear, reverse exactly, keep love minus fear, interfere 1/3, 1/3, 1 against 1/3 dephased and violate CHSH at 2.55 against 2, and stored as their departure from calm times omega^q they read back unchanged at every beat; 6 of the 7 failing starts are ones where the searched vacuum pair makes no fear and the frame control (the swap phase at love-fear meetings) reads 0, uninformative rather than a failure; the seventh (integer+8) is the grower search returning a love-fear pair (charge 0), where the like pair (17, 18) passes every gate',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -383,7 +392,8 @@ export default experiment({
       let moved = whole
 
       whole.tokens.forEach((tk, c) => {
-        moved = moveCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+        // a change of frame relabels the own point with the weights (the comoving beat reads it, 2026-09-26)
+        moved = carryCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
       })
 
       return moved

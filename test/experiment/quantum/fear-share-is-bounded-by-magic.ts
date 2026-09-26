@@ -262,7 +262,7 @@ export default experiment({
         strangeStrangeShare: (1 - 9 / 25) / 2,
       },
       notes:
-        'L1 and L2. The maximum over pure states of sum |W| is the maximum over sign patterns of the top eigenvalue of sum sigma_x A(x) / 9, since sum |W| = max over sigma of sum sigma W; the ascent climbs that monotonely but can stop at a local maximum, so the value found is a lower bound on s_max and 3 is the only certified upper bound. P2 compares against that lower bound, so a knit share above it would mean the search missed, not that the identity failed.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; the knit's largest fear share from a basis start 0.3094 -> 0.3105 and from a Strange basis start 0.3135 -> 0.3199, both still under the bound. " + ('L1 and L2. The maximum over pure states of sum |W| is the maximum over sign patterns of the top eigenvalue of sum sigma_x A(x) / 9, since sum |W| = max over sigma of sum sigma W; the ascent climbs that monotonely but can stop at a local maximum, so the value found is a lower bound on s_max and 3 is the only certified upper bound. P2 compares against that lower bound, so a knit share above it would mean the search missed, not that the identity failed.'),
     })
   },
 })

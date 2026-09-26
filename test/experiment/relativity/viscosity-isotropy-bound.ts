@@ -1,6 +1,12 @@
 // Which symmetry groups can force an isotropic viscosity, and what a cold knit on the best frozen-free group
 // does (E-RLT-0057).
 //
+// STATUS (2026-09-26): fail at the default integer link start (E-MTH-0027) and on all 17 starts of E-MTH-0028's
+// family. T1, T2 and K1 to K3 hold; K4 and K6 fail on the physics (no hydrodynamic husk, a still vacuum); K5 fails on
+// every start because the quantum instrument has nothing to read: no love-fear pair meets on this knit's cold vacuum
+// within 24 beats (pair -1, -1), so interference, CHSH, frame and storage cannot be evaluated. Partial needs K5, so
+// no start can make this file partial. The bound T1, the result the file exists for, holds.
+//
 // E-RLT-0051 showed that exact local color and an irreducible period group force at least 8 of the 12 line
 // momenta to be kept at every dock. Among its 109 least-rank groups, Q8 (E-RLT-0054, E-RLT-0056) freezes
 // four lines one by one; 15 freeze none (tmp probe, confirmed here). A cold vacuum needs no couples, so the
@@ -89,7 +95,8 @@ const same = (x: ArrayLike<number>, y: ArrayLike<number>): boolean => x.length =
 export default experiment({
   id: 'relativity/viscosity-isotropy-bound',
   code: 'E-RLT-0057',
-  title: 'which groups can force an isotropic viscosity, and a cold knit on the best frozen-free group',
+  title:
+    'which groups can force an isotropic viscosity, and a cold knit on the best frozen-free group, fail at the default integer link start (E-MTH-0027) and on every one of E-MTH-0028\'s 17 starts: the bound holds exhaustively (of the 277 subgroups of W(F4) containing one of its 16 Sylow 3-subgroups, 5 force an isotropic viscosity, orders 288, 576 (three) and 1,152, and every one keeps all 12 line momenta once local color is exact, so a symmetry-forced isotropic viscosity moves no momentum between lines and viscosity isotropy on a color-local knit can only be emergent); the 15 frozen-free least-rank groups (orders 16 to 64) force rank-2 isotropy and no viscosity (commutant 5 to 13); the cold knit on the chosen group (order 16, 24 quads, 6 rotations) keeps its symmetry, CPT, reversal, every exact law and zero dressing, but its husk is not hydrodynamic (three shear orientations never decay), its cold vacuum stays still (no walls, 9 husk components against the committed knit\'s 1), and E-RLT-0055\'s quantum gates cannot be evaluated: no love-fear pair meets on its cold vacuum, on any start',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -434,7 +441,8 @@ export default experiment({
         combinedHuskVacuumComponents: huskComponents(combinedVacuum),
         ...Object.fromEntries(Object.entries(quantum.control).map(([k, v]) => [`quantum_${k}`, v])),
       },
-      notes: 'L2. See the header.',
+      notes:
+        'RUN RECORD (registered 2026-09-26; the file had no record before; 242 s at the default integer start, tmp/fix-rlt0057.jsonl, and E-MTH-0027\'s golden and integer runs, 282 s each, identical in every non-quantum metric). THE BOUND (T1, pass): 16 Sylow 3-subgroups (forced rank 7 on 4, 11 on 12), 277 subgroups of W(F4) containing one, 5 with commutant 1 on the 9 traceless symmetric shears (orders 576, 576, 576, 288, 1,152; W(F4) itself 1), every one of forced rank 12. So once local color is exact, a group that forces an isotropic viscosity keeps every line momentum, and a knit on it moves none between lines: a color-local knit\'s isotropic viscosity can only be emergent. T2 (pass): the 109 least-rank groups have commutant at least 2; 15 freeze no line, of orders 64, 32 and 16, all holding -1, rank-2 spread at most 1.3e-15, commutant 5, 7 or 13, rank-4 spread 0.13 to 0.25. THE KNIT: the rule chose group 14 (order 16, 24 quads, 6 rotations, rank-4 spread 0.136, commutant 13). K1 (pass): 0 equivariance, 0 reversal and 0 CPT failures on 3,000 docks; 64 glides generate a group of order 32 containing it (rank-2 spread 1.25e-15, rank-4 0.130). K2 (pass): every law exact, 0 color leaks, 0 forced-form breaks, exact reversal. K3 (pass): every lone support 1. Gas: 0.387 moves fired per dock-beat, 0.198 docks blocked. K4 (FAIL): of six in-husk shear orientations, axes01, axes10 and axes20 never decay (r2 0.002 to 0.14, the shear left at 0.55); axes12, diagonal01 and diagonal12 decay with exponents 1.26, 1.14 and 1.62 and nu varying by factors 1.45, 1.53 and 1.26 over L = 12 to 20, not diffusively; husk sound extrapolates to 0.843, 0.844 and 0.847 along the axes and 0.706 on the diagonal (c / 2 = 0.707), speed spread 1.34 at L = 16; energy exact on every run. The combined knit\'s husk at L = 16, the comparison, fails the law too (nu spread 100, energy not exact on every run). K6 (FAIL): the cold vacuum stays still for 48 beats, so no walls, and its line graph has 12 components (9 on the husk) against the committed knit\'s 3 (1); a dense background connects (1). K5 (FAIL on every start): no love-fear pair meets in the cold vacuum within 24 beats (measured on every line of dock 0; this knit has no clock, so a head-on love and fear alone meet only if a quad or rotation fires on them, and none does), so the pair gates read an empty pair (CHSH reads 18 on it, a meaningless number from no meeting); the matter pair and grower (9, 13), charge -2, stay pure under a third fear (0.295) and store with 0 mismatches, and the knit makes 4,001 quad and 1,288 rotation meetings in the search. Fear-port over all 17 starts fails the same six gates on every one (tmp/fix-cold-ensemble.log), so the start changes nothing here but the matter pair\'s fears (416 at integer+0, 90 at golden). WHAT IT MEANS: the bound is the result. The cold quaternion line of knits (E-RLT-0054, 0056, 0057) cannot reach an isotropic viscosity by symmetry and does not reach one dynamically at these sizes, and a cold vacuum with exact P_E gives the fear beat no pair to act on. L2, exhaustive group theory, deterministic Weyl-sequence gases.',
     })
   },
 })

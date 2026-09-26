@@ -464,7 +464,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L2, exact BigInt knots, no random numbers: apparatus starts, system starts and translations are enumerated. The one stand-in left: WHEN the system meets its apparatus is chosen by hand (the beat read), not scheduled by the knit. Mutual information between setting and system member is 0 by construction once the in-situ check holds (the setting is a function of the apparatus start alone). The whole is the signed count over the runs; a CHSH value above 2 at these settings needs negative weight (the bound 2 (L + F) / (L - F) of code/measure/bell-gates).',
+        "RERUN 2026-09-26 under the adopted comoving fear beat (Bob's translation kept as an operation on the role, his own point unmoved): status fail as before, on G1 only; the whole's largest in-model CHSH 2.2963 -> 2.5298 (rlt0055), every no-signaling and contact count unchanged. " + ('L2, exact BigInt knots, no random numbers: apparatus starts, system starts and translations are enumerated. The one stand-in left: WHEN the system meets its apparatus is chosen by hand (the beat read), not scheduled by the knit. Mutual information between setting and system member is 0 by construction once the in-situ check holds (the setting is a function of the apparatus start alone). The whole is the signed count over the runs; a CHSH value above 2 at these settings needs negative weight (the bound 2 (L + F) / (L - F) of code/measure/bell-gates).'),
     })
   },
 })

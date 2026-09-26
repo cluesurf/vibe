@@ -586,7 +586,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L2, exact BigInt wholes on the reached states, exact integer tables elsewhere, no random numbers. The apparatus preparation (two tokens opened on one line, the line through the pair\'s classical points) is a stand-in: the knit does not open tokens. A pass of the exhaustive search is a measurement on the 12 system line states (the label distribution kept, flat along the class, some apparatus label a bijection of the system\'s); the reached-state gates then check the one that passes on the knit\'s own states.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear on A 1,208 -> 995. " + ('L2, exact BigInt wholes on the reached states, exact integer tables elsewhere, no random numbers. The apparatus preparation (two tokens opened on one line, the line through the pair\'s classical points) is a stand-in: the knit does not open tokens. A pass of the exhaustive search is a measurement on the 12 system line states (the label distribution kept, flat along the class, some apparatus label a bijection of the system\'s); the reached-state gates then check the one that passes on the knit\'s own states.'),
     })
   },
 })

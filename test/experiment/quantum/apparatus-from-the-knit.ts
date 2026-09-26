@@ -481,7 +481,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L2. Exact integer kernels and BigInt wholes on the reached states; the helper search is Float64 with a 1e-9 tolerance. No random numbers: every start, word and member is enumerated. The role opening is a convention of the experiments\' starts (lineKnot), not a derived operation, and it picks the role axis at the opening. H, the roadmap\'s gate, is the hypothesis a word of the model\'s operations prepares the stand-in from points; P1 predicted it false.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status partial as before; states with fear on A 1,208 -> 995 (sequentially negative states the same 995). " + ('L2. Exact integer kernels and BigInt wholes on the reached states; the helper search is Float64 with a 1e-9 tolerance. No random numbers: every start, word and member is enumerated. The role opening is a convention of the experiments\' starts (lineKnot), not a derived operation, and it picks the role axis at the opening. H, the roadmap\'s gate, is the hypothesis a word of the model\'s operations prepares the stand-in from points; P1 predicted it false.'),
     })
   },
 })

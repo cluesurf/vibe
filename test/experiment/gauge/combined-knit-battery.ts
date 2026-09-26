@@ -1,6 +1,12 @@
 // The combined knit (code/rule/combined-knit, built and checked in E-FRC-0158) through every battery this
 // line of work has, with the fear beat off and on, and with and without the fold.
 //
+// STATUS (2026-09-26, E-MTH-0028): fail at the default integer link start (E-MTH-0027) on its frame control alone,
+// pass on 5 of 9 starts of the start family (integer+1, 2, 3, 5 and the retired golden start). On all 9 no gate
+// fails only with the fear beat on and every quantum gate passes with it on. Each failing start (integer+0, 4, 6, 7)
+// is one where the vacuum pair's meetings make no fear, so the frame control reads 0 in both the on and off
+// columns: uninformative, not a failure of the fear beat. The base's classical failures are the same on every start.
+//
 // PRE-REGISTERED, written into this header on 2026-09-25 before any number on the combined knit was run
 // beyond E-FRC-0158's piece-by-piece checks.
 //
@@ -55,10 +61,10 @@
 //
 // RERUN 2026-09-26 under the adopted COMOVING fear beat (code/rule/fear-weave advanceWhole's default, E-SPN-0063),
 // and under the 2026-09-26 frame and phase-index conventions (E-QTM-0123, E-QTM-0124) its first numbers predate.
-// "On" is now the comoving beat. The frame change still moves each coordinate with moveCoordinate, which since the
-// adoption moves the coordinate's own point with its weights, so it acts on the whole state the comoving beat
-// reads. One instrument change, made before the rerun and touching no gate's rule: the dephased stand-in keeps
-// the own points (it drops the frames, as before), exactly E-SPN-0063's harness.
+// "On" is now the comoving beat. Two instrument changes, made for the rerun and touching no gate's rule: the frame
+// change moves each coordinate's own point with its weights (carryCoordinate), since the comoving beat reads the
+// own points and a change of frame relabels them too; and the dephased stand-in keeps the own points (it drops the
+// frames, as before). Both are exactly E-SPN-0063's harness.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -71,18 +77,16 @@ import {
   CONJUGATE_POINT,
   fearBeat,
   fearBeatBack,
-  fearKernels,
   makeLattice,
-  moveCoordinate,
+  carryCoordinate,
   reduceWhole,
-  swapPhase,
-  wholeKernel,
   wholeLovesAndFears,
   wholeUnits,
   type BeatRecord,
   type FearKernels,
   type Whole,
 } from '@/code/rule/fear-weave'
+import { doubledSwapPhase, exactFearKernels, exactWholeKernel } from '@/code/rule/fear-kernel-exact'
 import { departureChances, departureOf, kernelIsUnital, kernelKeepsWeight, reduceDeparture, type Departure } from '@/code/rule/calm-weave'
 import { timesOmega } from '@/code/rule/signed-knot'
 import { foldRoundRobin, makeSteeredKnit } from '@/code/rule/steered-knit'
@@ -107,7 +111,6 @@ import { vacuumCells } from '@/code/measure/lone-dressing'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
-const OMEGA = (2 * Math.PI) / 3
 const QSIDE = 3
 const BOX_BEATS = 48
 const SEARCH_BEATS = 240
@@ -362,11 +365,13 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
   const weave = knit.weave
   const slots = mesh.cellCount * 24
   const flat = withLinks(knit, new Int16Array(slots).fill(moves.identity))
-  const kernels = fearKernels({ like: mode === 'on' ? OMEGA : 0, unlike: mode === 'on' ? OMEGA : 0, likeExchanged: false })!
-  const back = fearKernels({ like: mode === 'on' ? -OMEGA : 0, unlike: mode === 'on' ? -OMEGA : 0, likeExchanged: false })!
-  const off = fearKernels({ like: 0, unlike: 0, likeExchanged: false })!
-  const on = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
-  const swapControl: FearKernels = { ...on, unlike: conjugateSecond(wholeKernel(swapPhase(OMEGA), 1000)?.kernel ?? []), unlikeDivisor: 4 }
+  // the kernels in exact Eisenstein integers, the phases as trits (E-FRC-0206; equal to fearKernels' tables)
+  const kernels = exactFearKernels({ like: mode === 'on' ? 1 : 0, unlike: mode === 'on' ? 1 : 0, likeExchanged: false })
+  const back = exactFearKernels({ like: mode === 'on' ? 2 : 0, unlike: mode === 'on' ? 2 : 0, likeExchanged: false })
+  const off = exactFearKernels({ like: 0, unlike: 0, likeExchanged: false })
+  const on = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
+  const swapExact = exactWholeKernel(doubledSwapPhase(1), 2)
+  const swapControl: FearKernels = { ...on, unlike: conjugateSecond(swapExact.kernel), unlikeDivisor: swapExact.divisor }
   const side = Array.from({ length: 24 }, (_, d) => (d < (opposite[d] ?? d) ? 1 : -1))
   const openOf = (tokens: readonly number[]): Uint8Array => {
     const open = new Uint8Array(slots)
@@ -552,7 +557,7 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
     let moved = whole
 
     whole.tokens.forEach((tk, c) => {
-      moved = moveCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+      moved = carryCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
     })
 
     return moved
@@ -754,7 +759,7 @@ export default experiment({
   id: 'gauge/combined-knit-battery',
   code: 'E-FRC-0159',
   title:
-    'the combined knit through every battery, with the fear beat off and on and with and without the fold: the head-on turn base with the scatter block, unfolded, folded, and folded with lone steering, against the E-FRC-0136 dressing gates, the momentum gates, the color leaks, the E-QTM-0109 quantum gates and the full E-FRC-0149 characterization, with the gates that fail only with the fear beat on listed',
+    'the combined knit through every battery with the fear beat off and on and with and without the fold, fail at the default integer link start (E-MTH-0027) on its frame control alone, and pass on 5 of 9 starts of E-MTH-0028\'s family: on all 9 no gate fails only with the fear beat on and every quantum gate passes with it on (CHSH 2.55 on H, HF and HFL at the default start), so the fear beat works with the knit by the registered rule; each of the 4 failing starts is one where the vacuum pair makes no fear and the frame control (the swap phase at love-fear meetings) reads 0 in both the on and off columns, uninformative rather than a failure of the fear beat; on every start the base\'s own gates fail on a lone fear\'s first-period dressing (33 against 27), on the fold (5 vacuum line components, dressing 22,722 at side 9, vacuum period 72) and on lone steering (momentum drift 35), and the kick law stays lost',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -948,7 +953,7 @@ export default experiment({
         ),
         ...Object.fromEntries(profiles.filter(p => p.name !== 'H' && p.name !== 'HF').flatMap(p => Object.entries(flatten(p.name, p.profile)))),
       },
-      notes: `L2, exact, no random numbers. Fails only with the fear beat on: ${failsOnlyOn.join(', ') || 'none'}. Quantum gates failing with it on: ${quantumOnFails.join(', ') || 'none'}. Gained with it on (fail off, pass on): ${gainedOn.join(', ') || 'none'}. The base's classical gate failures: ${classicalFails.join(', ') || 'none'}. The classical gates are the same with the fear beat on or off because the classical layer never reads the whole, measured here on every configuration (openingTokensChangesClassical 0 means opening every token changed no vibe, token or flux in 48 beats) and in E-FRC-0158. The fold is not chosen here: its choice waits on the isotropy measurements of E-RLT-0047 and E-RLT-0048. Steering reads the flux, so HFL has no dock-level collision: its gates are the box-level ones, its dressing is measured densely at side 7 only, and its CPT is E-FRC-0156's question (lone steering loses full-box CPT there). The kick law on the new base and the rest of the characterization are the H_ and HF_ metrics, beside the committed rule, A (chosen_) and B (runnerUp_) in the control block.`,
+      notes: "RERUN 2026-09-26 under the adopted comoving fear beat and the 2026-09-26 frame and phase-index conventions: status pass, every verdict the same; on HF the fears max 27,747,493,661 -> 25,616,991,761 and the fear share max 0.3074 -> 0.2996, the swap-at-love-fear control 1,303 -> 352 on H and 2,959 -> 1,760 on HF and HFL (still breaking the frame change), and the on column equals E-SPN-0063's comoving column on 132 of 132 shared metrics. " + (`L2, exact, no random numbers. Fails only with the fear beat on: ${failsOnlyOn.join(', ') || 'none'}. Quantum gates failing with it on: ${quantumOnFails.join(', ') || 'none'}. Gained with it on (fail off, pass on): ${gainedOn.join(', ') || 'none'}. The base's classical gate failures: ${classicalFails.join(', ') || 'none'}. The classical gates are the same with the fear beat on or off because the classical layer never reads the whole, measured here on every configuration (openingTokensChangesClassical 0 means opening every token changed no vibe, token or flux in 48 beats) and in E-FRC-0158. The fold is not chosen here: its choice waits on the isotropy measurements of E-RLT-0047 and E-RLT-0048. Steering reads the flux, so HFL has no dock-level collision: its gates are the box-level ones, its dressing is measured densely at side 7 only, and its CPT is E-FRC-0156's question (lone steering loses full-box CPT there). The kick law on the new base and the rest of the characterization are the H_ and HF_ metrics, beside the committed rule, A (chosen_) and B (runnerUp_) in the control block.`),
     })
   },
 })

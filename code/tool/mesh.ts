@@ -5,7 +5,7 @@
 // consumer of a Mesh never knows or cares which substrate it was handed.
 
 import { modulo } from '@/code/tool/integer'
-import { rootsD4, rootsB4 } from '@/code/algebra/group/root-system'
+import { rootsD4, rootsB4 } from '@/code/algebra/group/integer-roots'
 
 export type Mesh = {
   readonly id: string
@@ -153,7 +153,7 @@ export function squareMesh(input: { side: number }): Mesh {
     cellCount: side * side,
     neighbour(cell, direction) {
       const x = cell % side
-      const y = (cell - x) / side
+      const y = Math.floor(cell / side)
 
       switch (direction) {
         case 0:

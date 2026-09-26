@@ -27,10 +27,7 @@ import {
   type Whole,
   colorLocalKnit,
   fearBeat,
-  fearKernels,
   makeLattice,
-  meetingKernel,
-  swapPhase,
   type BeatRecord,
   type FearKernels,
   type Knit,
@@ -46,9 +43,20 @@ import {
   type ColdMeeting,
   type ColdQuaternionState,
 } from '@/code/rule/cold-quaternion-knit'
+import { exactFearKernels, exactQuotient } from '@/code/rule/fear-kernel-exact'
 
-const OMEGA = (2 * Math.PI) / 3
 const SIDE = 3
+
+// every kernel here is built in exact Eisenstein integers (E-FRC-0206, code/rule/fear-kernel-exact): no cosine,
+// sine or rounding, the user's rule of 2026-09-26; the tables equal the fear weave's float-built ones entry for
+// entry. The swap mode's kernel is 4 K of SWAP U(2 pi / 3), E-QTM-0100's meetingKernel, from the exchanged like
+// kernel at its own divisor
+const SWAP_KERNEL4: number[][] = (() => {
+  const { like, likeDivisor } = exactFearKernels({ like: 1, unlike: 1, likeExchanged: true })
+  const scale = exactQuotient(4, likeDivisor)
+
+  return like.map(row => row.map(x => x * scale))
+})()
 
 // how a history's knot moves at a meeting: E-QTM-0100's swap kernel on the tokens, or the color mode
 export type KnotKernels = { readonly mode: 'swap'; readonly kernel4: number[][] } | { readonly mode: 'color'; readonly color: FearKernels }
@@ -113,8 +121,8 @@ export function qtm0100Histories(beats: number): KnotHistory[] {
   const records = fearWeaveRecords({ weave, tokens, beats })
 
   return [
-    { name: 'qtm0100-swap', code: 'E-QTM-0100', weave, tokens, records, kernels: { mode: 'swap', kernel4: meetingKernel(swapPhase(OMEGA)) ?? [] }, start: [0, 1], conjugated: false },
-    { name: 'qtm0100-color', code: 'E-QTM-0100', weave, tokens, records, kernels: { mode: 'color', color: fearKernels({ like: OMEGA, unlike: OMEGA })! }, start: [0, 0], conjugated: true },
+    { name: 'qtm0100-swap', code: 'E-QTM-0100', weave, tokens, records, kernels: { mode: 'swap', kernel4: SWAP_KERNEL4 }, start: [0, 1], conjugated: false },
+    { name: 'qtm0100-color', code: 'E-QTM-0100', weave, tokens, records, kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1 }) }, start: [0, 0], conjugated: true },
   ]
 }
 
@@ -137,7 +145,7 @@ export function qtm0109History(beats: number): KnotHistory {
     weave,
     tokens,
     records: fearWeaveRecords({ weave, knit, tokens, beats }),
-    kernels: { mode: 'color', color: fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })! },
+    kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1, likeExchanged: false }) },
     start: [0, 0],
     conjugated: true,
   }
@@ -169,7 +177,7 @@ export function frc0159History(input: { fold: boolean; beats: number }): KnotHis
     weave: knit.weave,
     tokens,
     records: recordsOf(tokens, input.beats),
-    kernels: { mode: 'color', color: fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })! },
+    kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1, likeExchanged: false }) },
     start: [0, 0],
     conjugated: true,
   }
@@ -252,7 +260,7 @@ export function rlt0055History(beats: number): KnotHistory {
     weave,
     tokens,
     records: coldRecords({ start, tokens, beats }).records,
-    kernels: { mode: 'color', color: fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })! },
+    kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1, likeExchanged: false }) },
     start: [0, 0],
     conjugated: true,
   }

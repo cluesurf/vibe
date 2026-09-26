@@ -235,7 +235,8 @@ export function openToken(whole: Whole, token: number, points: readonly number[]
     }
   })
 
-  return { tokens: [...whole.tokens, token], weight }
+  // the own points (the comoving fear beat's, code/rule/fear-weave) carried, the new token's at the origin
+  return { tokens: [...whole.tokens, token], weight, ...(whole.own ? { own: [...whole.own, 0] } : {}) }
 }
 
 // move coordinates a and b of the whole by an 81-point joint permutation (perm[9 x + y], x on a)
@@ -260,7 +261,7 @@ export function permuteTwo(whole: Whole, a: number, b: number, perm: ArrayLike<n
     out[j] = (out[j] ?? 0n) + w
   }
 
-  return { tokens: whole.tokens, weight: out }
+  return { tokens: whole.tokens, weight: out, ...(whole.own ? { own: whole.own } : {}) }
 }
 
 // sum coordinate c out of the whole
@@ -277,7 +278,7 @@ export function traceOut(whole: Whole, c: number): Whole {
     out[j] = (out[j] ?? 0n) + w
   })
 
-  return { tokens: whole.tokens.filter((_, i) => i !== c), weight: out }
+  return { tokens: whole.tokens.filter((_, i) => i !== c), weight: out, ...(whole.own ? { own: whole.own.filter((_, i) => i !== c) } : {}) }
 }
 
 // the 9 weights of coordinate c alone

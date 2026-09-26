@@ -418,7 +418,7 @@ export default experiment({
         stabilizerPentagons: pentagons,
       },
       notes:
-        'L2. The aligned value is (5 - sqrt 5)/2 + (3 sqrt 5 - 5)/2 x (1 - 3 W)/2, checked against the pentagram built on the -1 eigenvector of A(u) at the most negative point of every state; the free value is the best orientation of the regular pentagram, not the best of all pentagon configurations. Reduced states are the marginals of the two-role wholes of E-QTM-0119\'s histories, starts included, both tokens, both laws. The contextuality HWVE equate with negativity is with respect to stabilizer measurements on many copies or with ancillas; one qutrit\'s stabilizer states hold no pentagon, so no KCBS test lives inside them.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear 113,016 -> 94,658, aligned violations 52,820 -> 63,330, fear without an aligned violation 60,196 -> 31,328, the aligned correlation with negativity 0.9676 -> 0.9722. " + ('L2. The aligned value is (5 - sqrt 5)/2 + (3 sqrt 5 - 5)/2 x (1 - 3 W)/2, checked against the pentagram built on the -1 eigenvector of A(u) at the most negative point of every state; the free value is the best orientation of the regular pentagram, not the best of all pentagon configurations. Reduced states are the marginals of the two-role wholes of E-QTM-0119\'s histories, starts included, both tokens, both laws. The contextuality HWVE equate with negativity is with respect to stabilizer measurements on many copies or with ancillas; one qutrit\'s stabilizer states hold no pentagon, so no KCBS test lives inside them.'),
     })
   },
 })

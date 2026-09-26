@@ -37,7 +37,7 @@
 // sign, a couple's exchange trades role points with vibes); E-FLD-0024 checks it bit for bit against
 // colorLocalBeat with the scattering switched off.
 
-import { rootsD4 } from '@/code/algebra/group/root-system'
+import { rootsD4 } from '@/code/algebra/group/integer-roots'
 import { BIND_MOVE_FORWARD, type Collision } from '@/code/rule/collision'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
 import { type ColorLocalSpec, colorLocalSpec, invertTable, stateKey, type WireTable } from '@/code/rule/color-local-weave'
@@ -454,8 +454,8 @@ function baseCollide(
         : tables[(tableIndex + (spec.coupleTable?.[k] ?? 0)) % tables.length]) ?? []
     const line = built.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
     const wire = built.lines[couples[k]?.[1] ?? 0] ?? [0, 0]
-    // the demon of this dock's wire line, 12 counters to a dock
-    const demon = counters ? { counters, at: (base / 24) * 12 + (couples[k]?.[1] ?? 0) } : undefined
+    // the demon of this dock's wire line, 12 counters to a dock (base is the dock times 24, an exact quotient)
+    const demon = counters ? { counters, at: Math.floor(base / 24) * 12 + (couples[k]?.[1] ?? 0) } : undefined
 
     if (k !== swapIndex) {
       clock(vibe, role, base, wire, table, demon)

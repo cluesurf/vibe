@@ -83,7 +83,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { CONJUGATE_POINT, fearKernels, meetWhole, moveCoordinate, movePhaseCoordinate, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import { carryCoordinate, carryPhaseCoordinate, CONJUGATE_POINT, fearKernels, meetWhole, translatedOf, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
 import { lineKnot } from '@/code/measure/knot-histories'
 import { coldGas, type ColdGas } from '@/code/measure/cold-gas-bath'
 import { LINE_CLASSES, marginalOne, openToken, permuteTwo, sumPermutation, traceOut } from '@/code/measure/sum-record'
@@ -156,7 +156,7 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
   const frame = new Array<number>(keep.length).fill(0)
   const align = (c: number, sign: number): void => {
     if ((frame[c] ?? 0) !== 0 && frame[c] !== sign) {
-      whole = movePhaseCoordinate(whole, c, CONJUGATE_POINT)
+      whole = carryPhaseCoordinate(whole, c, CONJUGATE_POINT)
     }
 
     frame[c] = sign
@@ -192,10 +192,11 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
 
         out.firstOwn = out.firstOwn ?? { beat: t, purity: purityOf(whole) }
 
-        whole =
-          sa === sb
-            ? meetWhole({ whole, a: ca, b: cb, kernel4: kernels.like, divisor: kernels.likeDivisor, fixed: false })!
-            : meetWhole({ whole, a: sa > 0 ? ca : cb, b: sa > 0 ? cb : ca, kernel4: kernels.unlike, divisor: kernels.unlikeDivisor, fixed: false })!
+        // the comoving fear beat (adopted 2026-09-26): each kernel read about the two coordinates' own points
+        const [c0, c1] = sa === sb || sa > 0 ? [ca, cb] : [cb, ca]
+        const kernel = translatedOf(sa === sb ? kernels.like : kernels.unlike, whole.own?.[c0] ?? 0, whole.own?.[c1] ?? 0)
+
+        whole = meetWhole({ whole, a: c0, b: c1, kernel4: kernel, divisor: sa === sb ? kernels.likeDivisor : kernels.unlikeDivisor, fixed: false })!
         out.manaAtOwn += manaOf(whole) - before
         out.ownMeetings++
 
@@ -247,7 +248,8 @@ function runBath(input: { gas: ColdGas; keep: readonly number[]; start: Whole; o
         const before = manaOf(whole)
         const rolesBefore = roleShares(marginalOne(whole, c))
 
-        whole = moveCoordinate(whole, c, act)
+        // a crossing carries the coordinate's own point with its weights (the comoving beat, 2026-09-26)
+        whole = carryCoordinate(whole, c, act)
         out.ledgerBad += Math.abs(manaOf(whole) - before) > 1e-12 ? 1 : 0
         out.linkRoleChanges += roleShares(marginalOne(whole, c)).every((x, a) => x === rolesBefore[a]) ? 0 : 1
       }
@@ -402,7 +404,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L2, exact BigInt wholes, golden and silver Weyl fills (code/measure/cold-gas-bath, E-QTM-0114\'s environment), no random numbers. The gas token is opened on its role line at a SUM and traced at once (the collision model); its classical point is not updated. A fear of the pair is stored at the reflected point (color mode), so a SUM on it acts on the conjugate representation: it still reads the role.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat (the pair's own meetings read about the own points, crossings and frame rewrites carrying them; the gas meeting is SUM and is unchanged): status pass as before; the isolated pair's mana max 0.9856 -> 1.0170, late mana 0.6603 -> 0.6144. " + ('L2, exact BigInt wholes, golden and silver Weyl fills (code/measure/cold-gas-bath, E-QTM-0114\'s environment), no random numbers. The gas token is opened on its role line at a SUM and traced at once (the collision model); its classical point is not updated. A fear of the pair is stored at the reflected point (color mode), so a SUM on it acts on the conjugate representation: it still reads the role.'),
     })
   },
 })

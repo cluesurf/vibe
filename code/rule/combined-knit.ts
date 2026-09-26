@@ -23,6 +23,10 @@
 //   whole (advanceWhole in color mode, or its calm departure times omega^q, code/rule/calm-weave and
 //   code/rule/signed-knot) evolves by the same kernels. The classical layer never reads the whole, so
 //   switching the fear beat on or off cannot change a vibe, a token or a flux: only the whole's weights.
+//   Since 2026-09-26 that beat is the COMOVING one, by the user's decision (E-SPN-0063): each meeting's kernel
+//   read about the two tokens' own role points, which the whole carries beside its weights and moves by the
+//   same grid move a closed token's classical role point takes here. Nothing in this module changes for it:
+//   the record it hands over (meetings, signs, crossings) is all the comoving beat reads.
 //
 // The dock collision of beat t, forward:  G_t  S_t  B_t  S_(c - t)  G_t,  G the steering trade, S the scatter
 // set, B the base. Backward: G_t  S_(c - t)  B_t^-1  S_t  G_t. Then every slot streams, forward or back.

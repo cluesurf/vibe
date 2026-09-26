@@ -1,6 +1,12 @@
 // The comoving fear beat (E-SPN-0062, the fear beat read in each token's own frame) through the battery the user's
 // adoption condition names: E-FRC-0159's, gate for gate, on the combined knit (code/rule/combined-knit).
 //
+// STATUS (2026-09-26, E-MTH-0028): fail at the default integer link start (E-MTH-0027) on its frame control alone,
+// pass on 11 of 17 starts of the start family. Each failing start (integer+0, 4, 6, 7, 9, 12) is one where the vacuum
+// pair makes no fear and the frame control reads 0 in both paired columns: uninformative, not a failure. Paired on
+// the same start, the comoving beat adds no quantum-gate failure against the fear-off column or the fixed-frame beat
+// on any of the 17, and gains CHSH above 2 on HF and HFL at 4.
+//
 // The user adopted the fear beat into the knit "if it works with everything" (tmp/integration.md, E-FRC-0158 and
 // 0159). E-SPN-0062 found that reading each meeting in the tokens' own frames makes the role's fermion number
 // exact on live links, is covariant under all 648 frame changes, and is the model's beat on pure-gauge links. That
@@ -62,19 +68,17 @@ import {
   conjugateSecond,
   CONJUGATE_POINT,
   fearBeat,
-  fearKernels,
   makeLattice,
   moveCoordinate,
   phasePermOf,
   reduceWhole,
-  swapPhase,
-  wholeKernel,
   wholeLovesAndFears,
   wholeUnits,
   type BeatRecord,
   type FearKernels,
   type Whole,
 } from '@/code/rule/fear-weave'
+import { doubledSwapPhase, exactFearKernels, exactWholeKernel } from '@/code/rule/fear-kernel-exact'
 import { departureChances, departureOf, kernelIsUnital, kernelKeepsWeight, reduceDeparture, type Departure } from '@/code/rule/calm-weave'
 import { timesOmega } from '@/code/rule/signed-knot'
 import { makeSteeredKnit } from '@/code/rule/steered-knit'
@@ -85,7 +89,6 @@ import { denseKnitState } from '@/code/measure/steered-acceptance'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
-const OMEGA = (2 * Math.PI) / 3
 const QSIDE = 3
 const BOX_BEATS = 48
 const SEARCH_BEATS = 240
@@ -198,12 +201,14 @@ function quantum(spec: CombinedKnitSpec, mode: Mode): { gates: Record<string, bo
   const weave = knit.weave
   const slots = mesh.cellCount * 24
   const flat = withLinks(knit, new Int16Array(slots).fill(moves.identity))
-  const angle = mode === 'off' ? 0 : OMEGA
-  const kernels = fearKernels({ like: angle, unlike: angle, likeExchanged: false })!
-  const back = fearKernels({ like: -angle, unlike: -angle, likeExchanged: false })!
-  const off = fearKernels({ like: 0, unlike: 0, likeExchanged: false })!
-  const on = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
-  const swapControl: FearKernels = { ...on, unlike: conjugateSecond(wholeKernel(swapPhase(OMEGA), 1000)?.kernel ?? []), unlikeDivisor: 4 }
+  // the kernels in exact Eisenstein integers, the phases as trits (E-FRC-0206; equal to fearKernels' tables)
+  const trit = mode === 'off' ? 0 : 1
+  const kernels = exactFearKernels({ like: trit, unlike: trit, likeExchanged: false })
+  const back = exactFearKernels({ like: (3 - trit) % 3, unlike: (3 - trit) % 3, likeExchanged: false })
+  const off = exactFearKernels({ like: 0, unlike: 0, likeExchanged: false })
+  const on = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
+  const swapExact = exactWholeKernel(doubledSwapPhase(1), 2)
+  const swapControl: FearKernels = { ...on, unlike: conjugateSecond(swapExact.kernel), unlikeDivisor: swapExact.divisor }
   const side = Array.from({ length: 24 }, (_, d) => (d < (opposite[d] ?? d) ? 1 : -1))
   // the law under test: the comoving beat, or the model's color mode (on, off)
   const advance = (w: ComovingWhole, record: BeatRecord, k: FearKernels, fixed: boolean, forward: boolean, onWeave = weave): ComovingWhole | null =>
@@ -769,7 +774,7 @@ export default experiment({
   id: 'spin/comoving-battery',
   code: 'E-SPN-0063',
   title:
-    'the comoving fear beat through E-FRC-0159\'s battery on the combined knit, gate for gate: the color law with every meeting read in the two tokens\' own frames, against the model\'s beat and the fear beat off on the unfolded, folded and steered configurations, with the fermion number, Gauss\'s law, reversal and determinism checked beside the fourteen quantum gates',
+    'the comoving fear beat through E-FRC-0159\'s battery on the combined knit, gate for gate, fail at the default integer link start (E-MTH-0027) on its frame control alone, and pass on 11 of 17 starts of E-MTH-0028\'s family: 0 of 42 quantum gates fail and 0 change verdict against the model\'s beat on H, HF and HFL (CHSH 2.55 on all three at the default start); each of the 6 failing starts is one where the vacuum pair makes no fear and the frame control (the swap phase at love-fear meetings) reads 0 in both paired columns, uninformative rather than a failure; paired on the same start, the comoving beat adds a quantum-gate failure against the fear-off column on 0 of 17 and against the fixed-frame beat on 0 of 17, and gains CHSH above 2 on HF and HFL at 4; the classical layer takes no kernel (Gauss\'s law on 3,888 of 3,888 dock-beats), and the fermion number is kept at 831 of 831 meetings where the model\'s beat breaks it at 197',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -859,7 +864,7 @@ export default experiment({
       control: {
         ...Object.fromEntries(runs.flatMap(r => [...flatten(`${r.name}_on_gate`, r.on.gates), ...flatten(`${r.name}_on`, r.on.metrics), ...flatten(`${r.name}_off_gate`, r.off.gates)])),
       },
-      notes: `L2, exact, deterministic, no random numbers. Fails only with the comoving beat: ${failsOnlyComoving.join(', ') || 'none'}. Quantum gates failing with it: ${comovingFails.join(', ') || 'none'}. Verdicts that move against the model's beat: ${moved.join(', ') || 'none'}. Numbers that move (model's beat -> comoving): ${movedNumbers.join('; ') || 'none'}. Carried over from E-FRC-0159 unchanged, since combinedBeat takes no kernel: the base's classical failures ${carried.join(', ')} and the whole E-FRC-0149 characterization. The change itself: each meeting's kernel is the model's with both coordinates translated to the tokens' own role points, which are record data (moved by the same grid move as the weights at every crossing, reflected with them at every frame rewrite), so the meeting needs only what the two tokens hold at the dock. The kernel depends only on the difference of the two points and is the model's wherever they coincide, which is every meeting on a pure-gauge field. The fermion number read here is each coordinate's weight at its own point over the units, in the frame it is written in; a like meeting keeps the sum of the two, a love-fear meeting the love's minus the fear's. First run, recorded: every gate passed. The model's own column here does NOT reproduce E-FRC-0159's logged numbers (H fearsMaxMatter 1,809,349,279 against 1,751,142,021, HF 27,747,493,661 against 26,119,651,318, HF and HFL CHSH 2.3749 against 2.3689, the swap-at-love-fear control 1,303 against 2,788 on H): that log predates the 2026-09-26 frame tracking and phase-index convention (E-QTM-0123, E-QTM-0124) now in advanceWhole. Every E-FRC-0159 quantum verdict is the same here, but its registered numbers are stale and it should be rerun.`,
+      notes: "RERUN 2026-09-26 after the adoption (advanceComoving now a thin use of advanceWhole, the model's column run with comoving false, exact Eisenstein kernels): status pass, every gate and every comoving number the same except the swap-at-love-fear control 1,303 -> 352 on H and 2,959 -> 1,760 on HF and HFL, because the old comoving-weave skipped the translation wherever the two own points coincided, which is exact for the color law's kernels (all 9 diagonal pairs) but not for that control kernel. " + (`L2, exact, deterministic, no random numbers. Fails only with the comoving beat: ${failsOnlyComoving.join(', ') || 'none'}. Quantum gates failing with it: ${comovingFails.join(', ') || 'none'}. Verdicts that move against the model's beat: ${moved.join(', ') || 'none'}. Numbers that move (model's beat -> comoving): ${movedNumbers.join('; ') || 'none'}. Carried over from E-FRC-0159 unchanged, since combinedBeat takes no kernel: the base's classical failures ${carried.join(', ')} and the whole E-FRC-0149 characterization. The change itself: each meeting's kernel is the model's with both coordinates translated to the tokens' own role points, which are record data (moved by the same grid move as the weights at every crossing, reflected with them at every frame rewrite), so the meeting needs only what the two tokens hold at the dock. The kernel depends only on the difference of the two points and is the model's wherever they coincide, which is every meeting on a pure-gauge field. The fermion number read here is each coordinate's weight at its own point over the units, in the frame it is written in; a like meeting keeps the sum of the two, a love-fear meeting the love's minus the fear's. First run, recorded: every gate passed. The model's own column here does NOT reproduce E-FRC-0159's logged numbers (H fearsMaxMatter 1,809,349,279 against 1,751,142,021, HF 27,747,493,661 against 26,119,651,318, HF and HFL CHSH 2.3749 against 2.3689, the swap-at-love-fear control 1,303 against 2,788 on H): that log predates the 2026-09-26 frame tracking and phase-index convention (E-QTM-0123, E-QTM-0124) now in advanceWhole. Every E-FRC-0159 quantum verdict is the same here, but its registered numbers are stale and it should be rerun.`),
     })
   },
 })

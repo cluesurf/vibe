@@ -28,7 +28,7 @@
 // which sums to zero again, so the balance survives every merge.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { CONJUGATE_GRID, CONJUGATE_POINT, meetWhole, moveCoordinate, translatedOf, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
+import { carryCoordinate, CONJUGATE_GRID, CONJUGATE_POINT, meetWhole, translatedOf, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
 
 // a knot's departure from calm: tokens (most significant coordinate first), delta on the 9^k joint points,
 // and the units M (Delta = delta / M). Like a whole, it carries each coordinate's own role point (phase index),
@@ -188,8 +188,8 @@ export function advanceDeparture(input: {
       const c = coordinate.get(tk)
 
       if (d && c !== undefined && g !== weave.moves.identity) {
-        // the own point moves with the weights (movePhaseCoordinate)
-        const moved = moveCoordinate({ tokens: d.tokens, weight: d.delta, ...(d.own ? { own: d.own } : {}) }, c, moveOf ? moveOf(g) : (weave.moves.act[g] ?? []))
+        // a crossing carries the own point with the weights
+        const moved = carryCoordinate({ tokens: d.tokens, weight: d.delta, ...(d.own ? { own: d.own } : {}) }, c, moveOf ? moveOf(g) : (weave.moves.act[g] ?? []))
 
         d = { ...d, delta: moved.weight, ...(moved.own ? { own: moved.own } : {}) }
       }

@@ -377,7 +377,7 @@ export default experiment({
         fakeChsh,
       },
       notes:
-        'Exact BigInt knots on the histories; the see-saw and eigenvalues in floating point. The reach search merges states by their sorted weights, which a grid move on either token keeps, so it explores local classes of the kernel group; it can merge two classes that share a weight multiset and so under-explore, never over-report.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; the largest CHSH over the histories 2.7487 -> 2.8271 (see-saw and closed form, rlt0055), within 0.0014 of Tsirelson's 2 sqrt 2, the worst closed-form agreement 1.5e-4 -> 4.0e-4. " + ('Exact BigInt knots on the histories; the see-saw and eigenvalues in floating point. The reach search merges states by their sorted weights, which a grid move on either token keeps, so it explores local classes of the kernel group; it can merge two classes that share a weight multiset and so under-explore, never over-report.'),
     })
   },
 })

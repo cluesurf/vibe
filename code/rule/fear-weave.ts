@@ -488,9 +488,9 @@ export function phaseMove(grid: ArrayLike<number>): number[] {
   return GRID_OF_PHASE.map(q => GRID_OF_PHASE[grid[q] ?? q] ?? 0)
 }
 
-// move one coordinate of the whole by a permutation of its 9 PHASE points (index 3 a + b). The coordinate's own
-// point moves with its weights (a whole without own points gets them, every other one at the origin), so every
-// move of a coordinate, a crossing, a frame rewrite or a frame change, carries the point the comoving beat reads
+// move one coordinate of the whole by a permutation of its 9 PHASE points (index 3 a + b). The weights only: an
+// OPERATION on the role (a kick, a reading's reflection, an apparatus's translation) leaves the own point where
+// it is. A move of the FRAME carries the own point with it: carryPhaseCoordinate
 export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
   const k = whole.tokens.length
   const stride = 9 ** (k - 1 - coordinate)
@@ -503,17 +503,31 @@ export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: Arra
     out[j] = whole.weight[i] ?? 0n
   }
 
-  const own = whole.own ? [...whole.own] : new Array<number>(k).fill(0)
+  return { ...whole, weight: out }
+}
+
+// move one coordinate AND its own point by a permutation of the phase points: what a crossing does (the token
+// streams through a link), what a frame rewrite does (the coordinate reflected into its token's new frame), and
+// what a change of frame at a dock does. The own point is the role point the comoving fear beat reads a meeting
+// about; a whole without own points gets them, every other one at the origin
+export function carryPhaseCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
+  const moved = movePhaseCoordinate(whole, coordinate, perm)
+  const own = whole.own ? [...whole.own] : new Array<number>(whole.tokens.length).fill(0)
   const p = own[coordinate] ?? 0
 
   own[coordinate] = perm[p] ?? p
 
-  return { ...whole, weight: out, own }
+  return { ...moved, own }
 }
 
 // move one coordinate of the whole by a GRID move (a table on the grid index a + 3 b, as weave.moves.act)
 export function moveCoordinate(whole: Whole, coordinate: number, grid: ArrayLike<number>): Whole {
   return movePhaseCoordinate(whole, coordinate, phaseMove(grid))
+}
+
+// a GRID move of one coordinate and its own point (see carryPhaseCoordinate): a crossing, or a frame change
+export function carryCoordinate(whole: Whole, coordinate: number, grid: ArrayLike<number>): Whole {
+  return carryPhaseCoordinate(whole, coordinate, phasePermOf(grid))
 }
 
 // grid moves as permutations of the phase index, cached per table: how an own point moves at a crossing
@@ -698,8 +712,8 @@ export function advanceWhole(input: {
   const { weave, record, fixed, forward, color } = input
   const comoving = input.comoving !== false
   const signs = record.signs ?? []
-  // a kernel read about the two coordinates' own points, as the whole holds them at the meeting (every move of a
-  // coordinate moves its own point, movePhaseCoordinate)
+  // a kernel read about the two coordinates' own points, as the whole holds them at the meeting (every crossing
+  // and frame rewrite carries its coordinate's own point, carryPhaseCoordinate)
   const about = (kernel: readonly (readonly number[])[], c0: number, c1: number): readonly (readonly number[])[] => {
     const own = (whole as Whole | null)?.own
 
@@ -745,7 +759,7 @@ export function advanceWhole(input: {
     const from = state.frame[c] ?? 0
 
     if (from !== 0 && to !== 0 && from !== to) {
-      whole = movePhaseCoordinate(whole as Whole, c, CONJUGATE_POINT)
+      whole = carryPhaseCoordinate(whole as Whole, c, CONJUGATE_POINT)
     }
 
     state.frame[c] = to
@@ -826,7 +840,7 @@ export function advanceWhole(input: {
       const c = coordinate.get(tk)
 
       if (c !== undefined && g !== weave.moves.identity) {
-        whole = moveCoordinate(whole, c, weave.moves.act[g] ?? [])
+        whole = carryCoordinate(whole, c, weave.moves.act[g] ?? [])
       }
     }
   }

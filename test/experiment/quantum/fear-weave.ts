@@ -64,7 +64,7 @@ import {
   meetingKernel,
   fearKernels,
   type FearKernels,
-  moveCoordinate,
+  carryCoordinate,
   reduceWhole,
   swapPhase,
   wholeLovesAndFears,
@@ -427,7 +427,8 @@ export default experiment({
       let moved = whole
 
       whole.tokens.forEach((tk, c) => {
-        moved = moveCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+        // a change of frame relabels the own point with the weights (the comoving beat reads it, 2026-09-26)
+        moved = carryCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
       })
 
       return { lattice: { vibe: lattice.vibe, token: lattice.token, point }, whole: moved }
@@ -771,7 +772,7 @@ export default experiment({
         openVacuumSupportFearOff: openSupportOff[openSupportOff.length - 1] ?? -1,
       },
       notes:
-        'L2, exact integers (BigInt) for every weight, no random numbers (golden-ratio fills for the backgrounds, links and frames). Tokens move as the color weave moves role points, exchange included, so the classical layer never depends on the whole, and a meeting of two open tokens applies the kernel of SWAP U(phi) to their coordinates. The whole is closed: only its tokens carry weight. The open-vacuum run puts every token of the box in the whole with roles at one grid point (a classical background, not a quantum state) and one token moved to another point, on flat links, and counts joint points holding weight until the count passes 200,000 or 24 beats. Purity 9 sum n^2 = N^2 is the integer form of sum W^2 = 1/9 for a pure state of two roles, which with love minus fear = N bounds the share of fear by 1/3 (E-FRC-0122). Log4 units over 9: how many factors of 4 the grain has grown from the nine units of |0>|1>.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat, the frame change now carrying each coordinate's own point with its weights (carryCoordinate): status fail as before; survey pairs past 36 units 19 -> 21, the grower's largest fear share 0.3048 -> 0.3105 and final negativity 2.490 -> 2.146, the color gauge mismatch 540 -> 536, the color grower's fears max 84 -> 80. " + ('L2, exact integers (BigInt) for every weight, no random numbers (golden-ratio fills for the backgrounds, links and frames). Tokens move as the color weave moves role points, exchange included, so the classical layer never depends on the whole, and a meeting of two open tokens applies the kernel of SWAP U(phi) to their coordinates. The whole is closed: only its tokens carry weight. The open-vacuum run puts every token of the box in the whole with roles at one grid point (a classical background, not a quantum state) and one token moved to another point, on flat links, and counts joint points holding weight until the count passes 200,000 or 24 beats. Purity 9 sum n^2 = N^2 is the integer form of sum W^2 = 1/9 for a pure state of two roles, which with love minus fear = N bounds the share of fear by 1/3 (E-FRC-0122). Log4 units over 9: how many factors of 4 the grain has grown from the nine units of |0>|1>.'),
     })
   },
 })

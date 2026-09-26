@@ -319,7 +319,7 @@ export default experiment({
         nonCliffordControlChanged: controlChanged,
       },
       notes:
-        'L2, exact integers (BigInt) for every weight; mana compared in floating point to 1e-12 only at meetings and in the controls. Mana = ln((L + F) / (L - F)) = -ln(1 - 2 f) is an identity for a whole, so the fear share and mana are one number; a pure two-role whole has sum W^2 = 1/9, which bounds sum |W| by 3 (Cauchy-Schwarz), mana by ln 3 and the fear share by 1/3 (E-QTM-0099, E-FRC-0122). Histories: every pair of dock-0 tokens that meets in 480 beats, in the vacuum and in a golden-ratio matter fill, each from three product starts.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; swap meetings raising, lowering and keeping mana 1,042, 1,025, 315 -> 779, 717, 886, color meetings 609, 590, 1,183 -> 435, 430, 1,517 (more meetings keep mana, as the comoving kernel is the model's wherever the two own points agree). " + ('L2, exact integers (BigInt) for every weight; mana compared in floating point to 1e-12 only at meetings and in the controls. Mana = ln((L + F) / (L - F)) = -ln(1 - 2 f) is an identity for a whole, so the fear share and mana are one number; a pure two-role whole has sum W^2 = 1/9, which bounds sum |W| by 3 (Cauchy-Schwarz), mana by ln 3 and the fear share by 1/3 (E-QTM-0099, E-FRC-0122). Histories: every pair of dock-0 tokens that meets in 480 beats, in the vacuum and in a golden-ratio matter fill, each from three product starts.'),
     })
   },
 })

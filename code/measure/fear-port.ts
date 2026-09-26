@@ -53,18 +53,16 @@ import {
   conjugateSecond,
   CONJUGATE_POINT,
   fearBeat,
-  fearKernels,
   makeLattice,
-  moveCoordinate,
+  carryCoordinate,
   reduceWhole,
-  swapPhase,
-  wholeKernel,
   wholeLovesAndFears,
   wholeUnits,
   type BeatRecord,
   type FearKernels,
   type Whole,
 } from '@/code/rule/fear-weave'
+import { doubledSwapPhase, exactFearKernels, exactWholeKernel } from '@/code/rule/fear-kernel-exact'
 import { departureChances, departureOf, kernelIsUnital, kernelKeepsWeight, reduceDeparture, type Departure } from '@/code/rule/calm-weave'
 import { timesOmega } from '@/code/rule/signed-knot'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
@@ -85,7 +83,6 @@ import {
 } from '@/code/rule/cold-quaternion-knit'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
-const OMEGA = (2 * Math.PI) / 3
 const SIDE = 3
 const MATTER_SCALE = 2.11
 const SEARCH_BEATS = 240
@@ -145,10 +142,13 @@ export function fearPortReading(knit: ColdQuaternionKnit): FearPortReading {
     const liveLinks = weave.links
     const flatLinks = new Int16Array(slots).fill(moves.identity)
     const lattice: ColdQuaternionLattice = makeColdQuaternionLattice(mesh, knit)
-    const on = fearKernels({ like: OMEGA, unlike: OMEGA, likeExchanged: false })!
-    const back = fearKernels({ like: -OMEGA, unlike: -OMEGA, likeExchanged: false })!
-    const off = fearKernels({ like: 0, unlike: 0, likeExchanged: false })!
-    const swapControl: FearKernels = { ...on, unlike: conjugateSecond(wholeKernel(swapPhase(OMEGA), 1000)?.kernel ?? []), unlikeDivisor: 4 }
+    // the kernels in exact Eisenstein integers (E-FRC-0206), the phases as trits: no cosine, sine or rounding
+    // reaches the knit's fear beat (the user's rule of 2026-09-26); the tables equal fearKernels' entry for entry
+    const on = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
+    const back = exactFearKernels({ like: 2, unlike: 2, likeExchanged: false })
+    const off = exactFearKernels({ like: 0, unlike: 0, likeExchanged: false })
+    const swapExact = exactWholeKernel(doubledSwapPhase(1), 2)
+    const swapControl: FearKernels = { ...on, unlike: conjugateSecond(swapExact.kernel), unlikeDivisor: swapExact.divisor }
     const openOf = (tokens: readonly number[]): Uint8Array => {
       const open = new Uint8Array(slots)
 
@@ -464,7 +464,8 @@ export function fearPortReading(knit: ColdQuaternionKnit): FearPortReading {
       let moved = whole
 
       whole.tokens.forEach((tk, c) => {
-        moved = moveCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+        // a change of frame relabels the own point with the weights (the comoving beat reads it)
+        moved = carryCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
       })
 
       return moved

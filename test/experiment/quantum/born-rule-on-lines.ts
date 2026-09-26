@@ -422,7 +422,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L1/L2, exact BigInt wholes; the Born identity I1 in floating point to 1e-9. The hidden starts are E-QTM-0113\'s: A\'s classical point, moved by the links and never by a meeting kernel; the SUM moves the record\'s hidden point by the same permutation the weights ride. The fear-off histories are E-QTM-0113\'s fearOff, rebuilt here.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status partial as before; non-line triple checks below zero 6,287 -> 5,621, non-isotropic coset checks below zero 200,372 -> 202,685. " + ('L1/L2, exact BigInt wholes; the Born identity I1 in floating point to 1e-9. The hidden starts are E-QTM-0113\'s: A\'s classical point, moved by the links and never by a meeting kernel; the SUM moves the record\'s hidden point by the same permutation the weights ride. The fear-off histories are E-QTM-0113\'s fearOff, rebuilt here.'),
     })
   },
 })

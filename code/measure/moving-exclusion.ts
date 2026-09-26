@@ -47,6 +47,9 @@ export type Substep = {
   readonly minus: Internal
   // whether the exclusion is checked on this substep (a depth step's husk shadow does not tell the depth apart)
   readonly checked: boolean
+  // the component reading of the exclusion (see tokenSubsteps): rank-one projectors, each its own slot. Absent
+  // for the slot reading, where the forbidden pair space is P+ x P+ + P- x P-
+  readonly components?: readonly Internal[]
 }
 
 export type Sector = {
@@ -153,7 +156,9 @@ function pairSteps(substeps: readonly Substep[]): PairStep[] {
       { s1: -1, s2: 1, op: kron(s.minus, s.plus) },
       { s1: -1, s2: -1, op: kron(s.minus, s.minus) },
     ].map(p => ({ ...p, opAdjoint: adjoint(p.op) }))
-    const same = add(parts[0]?.op ?? coin, parts[3]?.op ?? coin)
+    const same = s.components
+      ? s.components.map(c => kron(c, c)).reduce((a, b) => add(a, b))
+      : add(parts[0]?.op ?? coin, parts[3]?.op ?? coin)
 
     return { axis: s.axis, checked: s.checked, coin, coinAdjoint: adjoint(coin), parts, forbidden: multiply(adjoint(coin), same) }
   })
@@ -167,7 +172,7 @@ function cellOf(side: number, x: number, y: number, z: number): number {
 }
 
 // a vector of the sector, split into real and imaginary parts
-type Vector = { re: Float64Array; im: Float64Array }
+export type Vector = { re: Float64Array; im: Float64Array }
 
 function zero(dimension: number): Vector {
   return { re: new Float64Array(dimension), im: new Float64Array(dimension) }
@@ -439,6 +444,10 @@ export type KeptSpace = {
   readonly closureResidual: number
   // is the exchange a symmetry of the beat (|X U v - U X v| / |v| on a probe)?
   readonly exchangeCommutes: number
+  // the smallest residual taken as a new direction and the largest dismissed as rounding: a clean computation
+  // has a wide gap between them
+  readonly smallestAccepted: number
+  readonly largestRejected: number
 }
 
 // the kept space of one total-momentum sector
@@ -447,8 +456,7 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
   const d = n * n
   const sector: Sector = { side, n, k, dimension: d * side ** 3 }
   const steps = pairSteps(substeps)
-  const tolerance = input.tolerance ?? 1e-8
-  const bad = new Basis(sector.dimension, tolerance)
+  const tolerance = input.tolerance ?? KRYLOV_TOLERANCE
   const period = (v: Vector): Vector => {
     // the adjoint of the period map: the last substep's adjoint first ... the first's last
     let w = v
@@ -460,9 +468,16 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
     return w
   }
   const periodForward = (v: Vector): Vector => steps.reduce((w, s) => forward(sector, s, w), v)
-  const queue: Vector[] = []
+  // the exchange sectors: the beat commutes with X, so each sector's bad space is found on its own, every vector
+  // projected back into its sector after each map so rounding cannot leak between them
+  const project = (v: Vector, sign: 1 | -1): Vector => {
+    const x = exchange(sector, v)
 
+    return { re: Float64Array.from(v.re, (a, j) => (a + sign * (x.re[j] as number)) / 2), im: Float64Array.from(v.im, (a, j) => (a + sign * (x.im[j] as number)) / 2) }
+  }
   // the forbidden functionals of every checked substep, pulled back to the start of the period
+  const seeds: Vector[] = []
+
   steps.forEach((step, s) => {
     if (!step.checked) {
       return
@@ -481,63 +496,75 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
         v = backward(sector, steps[t] as PairStep, v)
       }
 
-      if (bad.add(v)) {
-        queue.push(bad.vectors[bad.vectors.length - 1] as Vector)
+      if (norm2(v) > 0) {
+        seeds.push(v)
       }
     }
   })
 
-  // the Krylov closure under the (adjoint) period map
-  while (queue.length > 0) {
-    const v = queue.shift() as Vector
-    const w = period(v)
+  // the Krylov closure of one sector's seeds under the (adjoint) period map. A vector is new when its residual,
+  // after projection on the span, exceeds the tolerance times its norm; the smallest accepted and the largest
+  // rejected residuals are kept, so the gap between genuine directions and rounding is on the record
+  const closure = (sign: 1 | -1): { basis: Basis; accepted: number; rejected: number; closureResidual: number } => {
+    const basis = new Basis(sector.dimension, 0)
+    const queue: Vector[] = []
 
-    if (bad.add(w)) {
-      queue.push(bad.vectors[bad.vectors.length - 1] as Vector)
+    let accepted = Infinity
+    let rejected = 0
+
+    const offer = (v: Vector): void => {
+      const w = project(v, sign)
+      const size = Math.sqrt(norm2(v))
+
+      if (size === 0) {
+        return
+      }
+
+      const r = basis.residual(w) * (Math.sqrt(norm2(w)) / size)
+
+      if (r > tolerance) {
+        basis.add(w)
+        queue.push(basis.vectors[basis.vectors.length - 1] as Vector)
+        accepted = Math.min(accepted, r)
+      } else {
+        rejected = Math.max(rejected, r)
+      }
+    }
+
+    seeds.forEach(offer)
+
+    while (queue.length > 0) {
+      offer(period(queue.shift() as Vector))
+    }
+
+    const closureResidual = basis.vectors.reduce((worst, v) => Math.max(worst, basis.residual(project(periodForward(v), sign))), 0)
+
+    return { basis, accepted, rejected, closureResidual }
+  }
+  const badSymmetric = closure(1)
+  const badAntisymmetric = closure(-1)
+  // the sectors' dimensions from the trace of X: dim = (D +- tr X) / 2
+  let traceX = 0
+
+  for (let r = 0; r < side ** 3; r++) {
+    const x = r % side
+    const y = Math.floor(r / side) % side
+    const z = Math.floor(r / (side * side))
+
+    if (cellOf(side, -x, -y, -z) === r) {
+      traceX += n * Math.cos((2 * Math.PI * ((k[0] ?? 0) * x + (k[1] ?? 0) * y + (k[2] ?? 0) * z)) / side)
     }
   }
 
-  // closure check: the period map of every bad vector stays in the bad space
-  const closureResidual = bad.vectors.reduce((worst, v) => Math.max(worst, bad.residual(periodForward(v))), 0)
-
-  // the exchange sectors: X e_i projected, for every basis vector e_i of the sector
-  const symmetric = new Basis(sector.dimension, 1e-8)
-  const antisymmetric = new Basis(sector.dimension, 1e-8)
-
-  for (let i = 0; i < sector.dimension; i++) {
-    const e = zero(sector.dimension)
-
-    e.re[i] = 1
-
-    const x = exchange(sector, e)
-    const plus = { re: Float64Array.from(e.re, (a, j) => (a + (x.re[j] as number)) / 2), im: Float64Array.from(e.im, (a, j) => (a + (x.im[j] as number)) / 2) }
-    const minus = { re: Float64Array.from(e.re, (a, j) => (a - (x.re[j] as number)) / 2), im: Float64Array.from(e.im, (a, j) => (a - (x.im[j] as number)) / 2) }
-
-    symmetric.add(plus)
-    antisymmetric.add(minus)
-  }
-
-  // symmetric directions outside the bad space: grow a copy of the bad basis by them
-  const withSymmetric = new Basis(sector.dimension, 1e-6)
-
-  bad.vectors.forEach(v => withSymmetric.vectors.push(v))
-
-  let symmetricKept = 0
-
-  for (const v of symmetric.vectors) {
-    symmetricKept += withSymmetric.add(v) ? 1 : 0
-  }
-
-  // antisymmetric directions inside the bad space: dim(bad) + dim(anti) - dim(bad + anti)
-  const withAnti = new Basis(sector.dimension, 1e-6)
-
-  bad.vectors.forEach(v => withAnti.vectors.push(v))
-
-  let grown = 0
-
-  for (const v of antisymmetric.vectors) {
-    grown += withAnti.add(v) ? 1 : 0
-  }
+  const symmetricDimension = Math.round((sector.dimension + traceX) / 2)
+  const antisymmetricDimension = Math.round((sector.dimension - traceX) / 2)
+  const bad = { vectors: [...badSymmetric.basis.vectors, ...badAntisymmetric.basis.vectors] }
+  const closureResidual = Math.max(badSymmetric.closureResidual, badAntisymmetric.closureResidual)
+  const symmetricKept = symmetricDimension - badSymmetric.basis.vectors.length
+  const antisymmetric = { vectors: { length: antisymmetricDimension } }
+  const grown = antisymmetricDimension - badAntisymmetric.basis.vectors.length
+  const smallestAccepted = Math.min(badSymmetric.accepted, badAntisymmetric.accepted)
+  const largestRejected = Math.max(badSymmetric.rejected, badAntisymmetric.rejected)
 
   // the exchange commutes with the beat: one probe vector from the golden sequence
   const probe = zero(sector.dimension)
@@ -560,8 +587,13 @@ export function keptSpace(input: { side: number; n: number; k: readonly [number,
     antisymmetricRemoved: antisymmetric.vectors.length - grown,
     closureResidual,
     exchangeCommutes: Math.sqrt(norm2(diff) / norm2(probe)),
+    smallestAccepted,
+    largestRejected,
   }
 }
+
+// the relative residual under which a Krylov vector is taken to lie in the span already
+const KRYLOV_TOLERANCE = 1e-7
 
 // ---------------------------------------------------------------------------------------------------------
 // the tokens
@@ -595,8 +627,16 @@ const PAULI: Record<'x' | 'y' | 'z', Complex[]> = {
 export type TokenMode = 'locked' | 'spectator' | 'walk'
 export type TokenStep = 'x' | 'y' | 'z' | 'up' | 'down'
 
+// How the exclusion is read. 'slot', the model's reading: a slot is one direction on one link and holds one
+// vibe whatever its role, so two tokens may not both be copied forward (or both back) from one dock. 'component',
+// the reading under which a two-valued label is Pauli's: each one-dimensional component of the copied part, in
+// the eigenbasis of tau_z and sigma_a, is a slot of its own, so two tokens may share a link direction when their
+// labels differ there. The second reading is a CHOICE of basis, stated as one, and serves as the control that
+// shows what Pauli's exclusion would look like in this harness.
+export type ExclusionReading = 'slot' | 'component'
+
 // the substeps of a schedule for the spinor token (n = 4, index 2 slot + spin) or the bare fear walk (n = 2)
-export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode): Substep[] {
+export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode, reading: ExclusionReading = 'slot'): Substep[] {
   const n = mode === 'walk' ? 2 : 4
   const coin: Complex[] = Array.from({ length: n * n }, () => [0, 0] as Complex)
   const spins = n / 2
@@ -633,6 +673,12 @@ export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode): 
     const plus: Complex[] = identity.map((v, i) => [(v[0] + (gamma[i] as Complex)[0]) / 2, (v[1] + (gamma[i] as Complex)[1]) / 2])
     const minus: Complex[] = identity.map((v, i) => [(v[0] - (gamma[i] as Complex)[0]) / 2, (v[1] - (gamma[i] as Complex)[1]) / 2])
     const zeroes: Complex[] = identity.map(() => [0, 0])
+    // the component reading: the rank-one projectors onto (tau_z = t) x (sigma_a = s), or onto the slots alone
+    // for the bare walk
+    const components =
+      reading === 'component' && !depth
+        ? componentProjectors(n, mode === 'locked' ? (step as 'x' | 'y' | 'z') : 'z')
+        : undefined
 
     return {
       axis,
@@ -640,8 +686,103 @@ export function tokenSubsteps(schedule: readonly TokenStep[], mode: TokenMode): 
       plus: internalFrom(n, step === 'down' ? zeroes : plus),
       minus: internalFrom(n, step === 'down' ? identity : step === 'up' ? zeroes : minus),
       checked: !depth,
+      components,
     }
   })
+}
+
+// the rank-one projectors |t, s><t, s| with t a slot and s an eigenvector of sigma_a (n = 4), or the slots (n = 2)
+function componentProjectors(n: number, a: 'x' | 'y' | 'z'): Internal[] {
+  if (n === 2) {
+    return [0, 1].map(t => internalFrom(2, Array.from({ length: 4 }, (_, i) => [i === 3 * t ? 1 : 0, 0] as Complex)))
+  }
+
+  // the eigenvectors of sigma_a
+  const r = Math.SQRT1_2
+  const spin: Record<'x' | 'y' | 'z', Complex[][]> = {
+    x: [
+      [
+        [r, 0],
+        [r, 0],
+      ],
+      [
+        [r, 0],
+        [-r, 0],
+      ],
+    ],
+    y: [
+      [
+        [r, 0],
+        [0, r],
+      ],
+      [
+        [r, 0],
+        [0, -r],
+      ],
+    ],
+    z: [
+      [
+        [1, 0],
+        [0, 0],
+      ],
+      [
+        [0, 0],
+        [1, 0],
+      ],
+    ],
+  }
+  const out: Internal[] = []
+
+  for (let t = 0; t < 2; t++) {
+    for (const v of spin[a]) {
+      const vector: Complex[] = [0, 1, 2, 3].map(i => (Math.floor(i / 2) === t ? (v[i % 2] as Complex) : [0, 0]))
+      const entries: Complex[] = []
+
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          const p = vector[i] as Complex
+          const q = vector[j] as Complex
+
+          // |v><v|: v_i conj(v_j)
+          entries.push([p[0] * q[0] + p[1] * q[1], p[1] * q[0] - p[0] * q[1]])
+        }
+      }
+
+      out.push(internalFrom(4, entries))
+    }
+  }
+
+  return out
+}
+
+// The weight of a pair's internal state on the forbidden pair space, summed over the checked substeps of one
+// period, for two tokens that are both in one uniform (k = 0) orbital. At k = 0 the stream copies a uniform
+// state onto itself, so the internal state evolves by the coin alone and the pair's forbidden weight per period
+// is this number times the chance the two share a dock (1 / L^3 on the torus, sum |phi|^4 in an atom).
+export function contactWeight(input: { substeps: readonly Substep[]; pair: Vector }): { perSubstep: number[]; total: number } {
+  const steps = pairSteps(input.substeps)
+  const d = steps[0]?.coin.n ?? 0
+  const perSubstep: number[] = []
+
+  let state: Vector = { re: Float64Array.from(input.pair.re), im: Float64Array.from(input.pair.im) }
+
+  for (const step of steps) {
+    const coined = zero(d)
+
+    applyLocal(1, step.coin, state, coined)
+
+    if (step.checked) {
+      // the forbidden weight: |Pi_f (C x C) state|^2, with Pi_f = C2 (forbidden) since forbidden = C2^dagger Pi_f
+      const projected = zero(d)
+
+      applyLocal(1, multiply(step.coin, step.forbidden), coined, projected)
+      perSubstep.push(norm2(projected) / norm2(state))
+    }
+
+    state = coined
+  }
+
+  return { perSubstep, total: perSubstep.reduce((a, b) => a + b, 0) }
 }
 
 // the dimension of the totally antisymmetric part of k d-valued labels, C(d, k), by the antisymmetrizer's

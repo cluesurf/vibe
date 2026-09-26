@@ -4,6 +4,7 @@
 // Until 2026-09-25 the streams were a seeded generator and the beat-indexed values a hash.
 
 import { Weyl, weylCell } from '@/code/tool/weyl'
+import { weylPoint } from '@/code/tool/weyl-point'
 
 // One beat of the conserving perception rule over an edge list. Each undirected
 // edge is visited once; a vertex already touched this sweep is skipped (so a beat
@@ -681,8 +682,25 @@ export function hashedTone(size: number, salt: number): Int8Array {
 // moved to code/tool/weyl-point. Two weylCell values of one key at two beats differ by a fixed shift, so
 // they are not independent choices: where two decisions are made per key, read two slots of weylPoint.
 
+// The position-indexed value conservingEdgeSweepHashed reads for one decision at one edge and beat: slot
+// `decision` (0 hop, 1 spawn, 2 the spawned pair's sign) of the Kronecker stream the beat owns
+// (code/tool/weyl-point, start HASHED_SWEEP_START + beat), at index `edge`. Fixed 2026-09-26 (E-MTH-0026):
+// the sweep read weylCell(edge, beat, 1 | 2 | 3) until then, and weylCell is linear in all three arguments,
+// so the spawn value (salt 2) and the sign value (salt 3) of one edge differed by the fixed shift frac(sqrt 5)
+// = 0.2361: whenever arrow <= 0.2639 a spawn (value below arrow) forced the sign value below one half, and every
+// pair was created +1 on eu and -1 on ev. One edge at two beats differed by the fixed shift frac(sqrt 3) too.
+// Here each beat owns its own stream (rates frac(sqrt(q_j P_beat)), a new prime per beat), so two beats of one
+// edge are two rationally independent rotations, jointly equidistributed over the edges, and the three
+// decisions of one edge and beat are three slots, jointly equidistributed as well. Along the edge index the
+// values are still a rotation (a Kronecker fill, as before): neighboring edges are not independent draws.
+export const HASHED_SWEEP_START = 2 ** 20
+
+export function hashedSweepValue(edge: number, beat: number, decision: number): number {
+  return weylPoint({ start: HASHED_SWEEP_START + beat, index: edge, slot: decision })
+}
+
 // One beat of the conserving perception rule using the position-indexed Kronecker value
-// weylCell(edge, beat, salt) instead of a stream, so differences between two copies propagate
+// hashedSweepValue(edge, beat, decision) instead of a stream, so differences between two copies propagate
 // only locally (a damage-spreading / front-velocity probe). Same local update as
 // conservingEdgeSweep: opposite tones annihilate, a charge next to a 0 hops where the value is
 // below one half, two 0s spawn a +/- pair where it is below `arrow`. `beat` is the time-step.
@@ -718,15 +736,15 @@ export function conservingEdgeSweepHashed(input: {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
 
-      if (weylCell(k, beat, 1) < 0.5) {
+      if (hashedSweepValue(k, beat, 0) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
         moved[w] = 1
       }
     } else if (a === 0 && b === 0) {
-      if (weylCell(k, beat, 2) < arrow) {
-        if (weylCell(k, beat, 3) < 0.5) {
+      if (hashedSweepValue(k, beat, 1) < arrow) {
+        if (hashedSweepValue(k, beat, 2) < 0.5) {
           tone[v] = 1
           tone[w] = -1
         } else {

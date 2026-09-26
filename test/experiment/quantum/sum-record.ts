@@ -466,7 +466,7 @@ export default experiment({
         ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
       },
       notes:
-        'L2, exact BigInt wholes; the commutants in floating point with rank tolerance 1e-9. The SUM permutation is derived from the SUM operator through the fear weave\'s own wignerKernel, never typed in. G2 to G6 are theorems for a Clifford record (Gross 2006) checked on the model\'s own reached states; what is measured is that the knit\'s states, including those with fears, obey them. G8 is a code identity (colorBeat adds the post-collision vibe to the flow) checked on the running rule.',
+        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear on A 1,208 -> 995. " + ('L2, exact BigInt wholes; the commutants in floating point with rank tolerance 1e-9. The SUM permutation is derived from the SUM operator through the fear weave\'s own wignerKernel, never typed in. G2 to G6 are theorems for a Clifford record (Gross 2006) checked on the model\'s own reached states; what is measured is that the knit\'s states, including those with fears, obey them. G8 is a code identity (colorBeat adds the post-collision vibe to the flow) checked on the running rule.'),
     })
   },
 })

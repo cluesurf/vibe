@@ -977,7 +977,7 @@ export const RESULTS: Result[] = [
     answer:
       "No. Its values are integers that add as sets. Thirteen quantum results that were cited as the knit's own dynamics ran a hand-written walk instead.",
     importance:
-      'This is the measurement that regraded the quantum arena. Until a layer carrying amplitudes runs on the knit, every walk result is a result about the walk. The candidate layer is the signed weight on the role grid: the singlet is written by 72 loves and 18 fears on 54 units (E-FRC-0120), 8 rounds of the cube-root swap phase stay exact with a fear share near 0.3, under the bound of a third (E-FRC-0122), and the swap phase is an exact reversible beat whose gate set closes to su(9) (E-FRC-0127). None of it runs on the committed knit yet. Inside the lattice, the fear weave carries it exactly: quantum in the roles, with chances 1/4, 3/4, 1 over three meetings against 1/4, 3/8, 7/16 for the phase-free stand-in and CHSH $\\sqrt 7$ against 2 from different docks (E-QTM-0100), and a lone vibe under the one-third turn spreads as $t$ (exponent 0.997) against $\\sqrt t$ (0.497), with $\\langle x^2 \\rangle / t^2 = 0.13398 = 1 - \\sqrt 3 / 2$ (E-QTM-0103).',
+      'This is the measurement that regraded the quantum arena. Until a layer carrying amplitudes runs on the knit, every walk result is a result about the walk. The candidate layer is the signed weight on the role grid: the singlet is written by 72 loves and 18 fears on 54 units (E-FRC-0120), 8 rounds of the cube-root swap phase stay exact with a fear share near 0.3, under the bound of a third (E-FRC-0122), and the swap phase is an exact reversible beat whose gate set closes to su(9) (E-FRC-0127). None of it runs on the committed knit yet. Inside the lattice, the fear weave carries it exactly: quantum in the roles, with chances 1/4, 3/4, 1 over three meetings against 1/4, 3/8, 7/16 for the phase-free stand-in, and CHSH above 2 from different docks where both classical rules stay at 2 (E-QTM-0100). One meeting on a product start gives a three-rung ladder set by the overlap of the two roles, $2$, $4 / \\sqrt 3$ and $\\sqrt 7$ for like vibes and $2$, a quartic $2.3613$ and $(2 + 4 \\sqrt 2) / 3$ for a love and a fear (E-QTM-0140, E-QTM-0141), and the knit\'s own histories read up to $2.5298$ as a signed count at the model\'s own settings (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143). A lone vibe under the one-third turn spreads as $t$ (exponent 0.997) against $\\sqrt t$ (0.497), with $\\langle x^2 \\rangle / t^2 = 0.13398 = 1 - \\sqrt 3 / 2$ (E-QTM-0103).',
     limits: [
       'the bare knit only. A middle layer carrying amplitudes is not excluded. The signed weight on the role grid is that layer, measured apart from the knit (R-FRC-0005)',
       'measured with the pair table on every line (pairCollision), the committed knit until 2026-09-02 and the clock sector of the turning weave since. The period 3 is that pair clock. The committed turning weave\'s vacuum recurs at beat 24, not before (E-FND-0118)',
@@ -2311,7 +2311,7 @@ export const RESULTS: Result[] = [
       },
       {
         quantity: 'CHSH on the combined knit with the fear beat on, unfolded and folded',
-        measured: '2.55 and 2.37',
+        measured: '2.55 and 2.36',
         reference: '2.00 for the phase-free stand-in (run)',
         code: 'E-FRC-0159',
       },
@@ -2484,7 +2484,7 @@ export const RESULTS: Result[] = [
       'E-HLG-0004 is on {5,3,4}, and its control repeats its own measurement',
       'E-HLG-0033 evaluates a formula for a branching tree. It is not a simulation',
       'no correlation is measured at all, only path lengths',
-      'a common cause cannot reach Bell-violating correlations. The account has to meet that and does not yet. The fear weave\'s tokens from different docks reach CHSH $\\sqrt 7$ where both classical rules stay at 2 (E-QTM-0100): that is quantum weight in the roles, not a common cause, and it is not run on {3,4,3,4}',
+      'a common cause cannot reach Bell-violating correlations. The account has to meet that and does not yet. The fear weave\'s tokens from different docks pass CHSH 2 where both classical rules stay at 2 (E-QTM-0100): one meeting reaches the rungs $4 / \\sqrt 3$ or $\\sqrt 7$ for like vibes and $2.3613$ or $(2 + 4 \\sqrt 2) / 3$ for a love and a fear, by the overlap of the two roles (E-QTM-0140, E-QTM-0141), and the knit\'s own histories reach $2.5298$ as a signed count with no signaling (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143). That is quantum weight in the roles, not a common cause, and it is not run on {3,4,3,4}',
     ],
     equations: [
       'interior steps between boundary points $s$ apart (I8): $d_{\\text{interior}}(s) = 2\\lceil \\log_3 s \\rceil + 1$, against $d_{\\text{boundary}}(s) = s$',

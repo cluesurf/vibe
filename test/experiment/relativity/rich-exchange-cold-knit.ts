@@ -1,5 +1,11 @@
 // The cold quaternion knit with every exchange its laws allow (E-RLT-0056).
 //
+// STATUS (2026-09-26): fail at the default integer link start (E-MTH-0027), partial on 11 of 17 starts of E-MTH-0028's
+// start family, pass on none. G1 to G5 hold and G6 and G8 fail on every start: the non-quantum sections never read
+// the link start (0 calls, tmp/fix-start-blind.ts), and 9 full runs agree gate for gate. G7 (E-RLT-0055's quantum
+// gates, code/measure/fear-port) holds on 11 of 17 and fails on 6 (integer+0, 2, 3, 6, 9, 10) through its frame gate
+// alone, each a start where the love-fear pair makes no fear and the frame control reads 0: uninformative.
+//
 // E-RLT-0054's cold quaternion knit had forced isotropy, CPT, exact laws and zero dressing together, and no
 // hydrodynamics: its one momentum-moving move, the exchange of two lone like tones on the eight free lines
 // with both target lines calm, fired at 4 dock-beats of 15,000. Here the exchange is replaced by every
@@ -433,7 +439,8 @@ function dressing(knit: ColdQuaternionKnit): { largest: number; runs: number } {
 export default experiment({
   id: 'relativity/rich-exchange-cold-knit',
   code: 'E-RLT-0056',
-  title: 'the cold quaternion knit with every exchange its laws allow',
+  title:
+    'the cold quaternion knit with every exchange its laws allow, fail at the default integer link start (E-MTH-0027) and partial on 11 of 17 starts of E-MTH-0028\'s family: the rich exchange (40 quads, 6 rotations) keeps Q8 exactly (glide group order 8), CPT, reversal, every exact law and local color, and moves line momentum on 506 of 15,000 dense dock-beats (the lone exchange of E-RLT-0054: 4); no two-tone move can pay or refund a store and no lone tone can change on a cold vacuum (3,910 and 78,528 cases, 0 violations), so a lone tone stays one trit; but the husk is not hydrodynamic (no in-husk shear orientation obeys the diffusive law, two do not decay at all, husk sound 0.85 along axes against 0.59 on a diagonal) and the cold vacuum stays still, so there are no walls (9 husk vacuum components against the committed knit\'s 1); the quantum gates of E-RLT-0055 pass on 11 of 17 starts (CHSH 2.55), each failing start one where the love-fear pair makes no fear and the frame control reads 0',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -550,7 +557,10 @@ export default experiment({
         combinedHuskDenseComponents: huskComponents(toneSectors.combinedDense),
         ...Object.fromEntries(Object.entries(quantum.control).map(([k, v]) => [`quantum_${k}`, v])),
       },
-      notes: 'L2. See the header.',
+      notes: "RERUN 2026-09-26 under the adopted comoving fear beat and exact Eisenstein kernels (E-FRC-0206): status partial as before; the grower pair 11, 17 -> 1, 20, its fears max 24 -> 9 and share max 0.2857 -> 0.1667, the pair's share max 0.3134 -> 0.3192. " +
+        'RUN RECORD (registered 2026-09-26; the file had no record before). At the default integer link start: fail, on G6, G7 and G8. G1: 0 equivariance, 0 reversal and 0 CPT failures on 4,000 docks, glide group Q8 exactly (8 glides, order 8, rank-2 spread 1.25e-15). G2: the store lemma on 3,910 move-store cases and the lone lemma on 78,528 states, 0 violations each. G3: every law exact over 48 beats on the side-3 box, 0 color leaks, 0 forced-form breaks, exact reversal. G4: 0.58 moves fired per dock-beat in the gas (0.71 docks blocked), and 506 of 15,000 dense dock-beats change a line momentum, spanning rank 4 (E-RLT-0054: 4 of 15,000). G5: every lone support 1 over 192 runs. G6 FAILS: no in-husk shear orientation obeys the law; axes01 and axes10 do not decay at all (fitted exponents -36 and -34), axes12 and axes20 give exponents -0.53 and -0.89 with nu varying by factors 3.6 and 4.4 over L, the diagonals give 0.61 and 2.73 with nu varying by a factor 2.0 and 2.2 over L = 12 to 20; husk sound extrapolates to 0.850, 0.846 and 0.846 along the axes and 0.590 on the diagonal, against c / 2 = 0.707. G8 FAILS: the cold vacuum stays still for 48 beats (no walls), and its bulk line graph has 12 components (9 on the husk) against the committed knit\'s 3 (1 on the husk); the dense background connects (1). G7 at the default start fails on its frame gate alone: the love-fear pair (8, 11) makes no fear there, so the swap phase at love-fear meetings reads 0 mismatches. ' +
+        'OVER THE START FAMILY: full runs at integer+0 to 7 and golden (tmp/mth28-rlt0056.jsonl and E-MTH-0027\'s pair) give G1 to G5 = 1 and G6 = G8 = 0 on all 9, with every non-quantum metric identical; a counting link start confirms the non-quantum sections read it 0 times and fear-port 1,944 times (one side-3 weave); fear-port alone over all 17 starts passes every quantum gate on 11 (CHSH 2.5523 on all 17, grower (1, 20), charge 2) and fails the frame gate on 6 (integer+0, 2, 3, 6, 9, 10), each with pair fears 0 and control 0. So: partial on 11 of 17, fail on 6, and the fails are an instrument that could not fire. ' +
+        'WHAT IT MEANS: the two lemmas close the escape E-RLT-0054 left open. A cold knit with exact P_E cannot dress, but also cannot let a lone tone touch anything, so its vacuum is inert and its connectivity is the bare lines. Enriching the exchange raised the firing rate by two orders of magnitude and still gave no hydrodynamic husk: two shear orientations never decay, as expected where Q8 keeps four line momenta one by one (E-RLT-0051), and that is the question E-RLT-0057 then asks of every group. Bulk and husk agree for in-husk waves (richHuskEqualsBulkForInHuskWaves 1). L2, deterministic, Weyl-sequence gases.',
     })
   },
 })
