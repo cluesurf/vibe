@@ -181,12 +181,19 @@ export default experiment({
     const predictedRatio = mean(runs.map(r => r.predictedRatio))
     const estimatorExact = runs.every(r => r.linearGap < 2e-3)
     const original = runs[0]!
+    // thermal minus linear, start by start: the part of the orbit gap the nonlinear dynamics moves
+    const shifts = runs.map(r => r.ratio - r.linearRatio)
+    const thermalShift = mean(shifts)
+    const shiftSameSign = shifts.every(s => s < 0) || shifts.every(s => s > 0)
 
     const metrics: Record<string, number> = {
       predictedOrbitRatio: predictedRatio,
       correctedThermalRatio: corrected,
       correctedStandardError: correctedError,
       withinOrbitNoiseFloor: noiseFloor,
+      thermalMinusLinearShift: thermalShift,
+      thermalShiftSameSignEveryStart: shiftSameSign ? 1 : 0,
+      linearRunOrbitRatioMean: mean(runs.map(r => r.linearRatio)),
       originalStartRatio: original.ratio,
       axisLambda: lambdas[0]![0]!,
       axisLambdaMinusSixMinusTwoRootFive: lambdas[0]![0]! - (6 - 2 * Math.sqrt(5)),
@@ -202,14 +209,14 @@ export default experiment({
 
     return verdict({
       status: estimatorExact ? 'pass' : 'fail',
-      claim: `E-FRC-0169's husk light isotropy re-read: the exact linear symbol puts the (2,2,1) orbit ${(predictedRatio * 100).toFixed(3)} percent above (3,0,0) at the thermal coupling, the lagged estimator on the exactly linear leapfrog reproduces every mode to ${estimatorExact ? 'under 1e-3' : 'more than 1e-3'}, and over four deterministic thermal starts the orbit ratio is ${(corrected * 100).toFixed(3)} +- ${(correctedError * 100).toFixed(3)} percent (the original start ${(original.ratio * 100).toFixed(3)}), against a noise floor of ${(noiseFloor * 100).toFixed(3)} percent from the symmetry-equivalent modes`,
+      claim: `E-FRC-0169's husk light isotropy re-read: the exact linear symbol puts the (2,2,1) orbit ${(predictedRatio * 100).toFixed(3)} percent above (3,0,0) at the thermal coupling, the lagged estimator on the exactly linear leapfrog reproduces every mode's light-band mean to ${estimatorExact ? 'under 2e-3' : 'more than 2e-3'} and reads the orbit gap from the same starts as ${(mean(runs.map(r => r.linearRatio)) * 100).toFixed(2)} percent, and over four deterministic thermal starts the orbit ratio is ${(corrected * 100).toFixed(3)} +- ${(correctedError * 100).toFixed(3)} percent, a thermal shift of ${(thermalShift * 100).toFixed(2)} percent against the linear run of the same start in every start: E-FRC-0169's 0.005 percent (the original start) is that shift cancelling the linear gap, not isotropy`,
       metrics,
       control: {
         linearRatioOriginal: original.linearRatio,
         estimatorExact: estimatorExact ? 1 : 0,
       },
       notes:
-        'L2. The noise floor is the spread of the three axis-permuted modes of each orbit, which an exact symmetry of the box and the start ensemble makes equal in expectation, times sqrt(2/3) for a difference of two three-mode means. The starts differ only in the hash of addHashedCurl, as E-FRC-0169\'s did, so the whole audit is deterministic. The axis light eigenvalue at |k| = pi / 2 is reported against 6 - 2 sqrt 5, an observation from the symbol with no proof here.',
+        'L2. Reading: the linear leapfrog from each start reads the orbit gap at 0.21 to 0.31 percent (the symbol 0.18, the rest the finite run), the thermal run from the same start 0.3 to 0.6 percent lower, with the largest shift at the hottest start (mean cos 0.83). So the thermal renormalization is NOT direction-blind: it lowers the (2,2,1) orbit against the axes, and the E-FRC-0169 reading of 0.005 percent is a cancellation at one start. The within-orbit spread (0.45 to 0.80 percent) is larger than the scatter of the orbit ratio across starts (0.19 percent), so the three axis-permuted modes differ by more than noise within a start: a hashed start is not permutation symmetric and each mode\'s frequency moves with its own amplitude. The corrected number is -0.13 +- 0.09 percent (four starts, standard error), resolvable from 0 only at 1.4 sigma. The noise floor is the spread of the three axis-permuted modes of each orbit, which an exact symmetry of the box and the start ensemble makes equal in expectation, times sqrt(2/3) for a difference of two three-mode means. The starts differ only in the hash of addHashedCurl, as E-FRC-0169\'s did, so the whole audit is deterministic. The axis light eigenvalue at |k| = pi / 2 is reported against 6 - 2 sqrt 5, an observation from the symbol with no proof here.',
     })
   },
 })

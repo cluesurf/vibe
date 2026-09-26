@@ -9,41 +9,61 @@
 //   Kronecker: for 1, a_1, ..., a_d linearly independent over the rationals, the points
 //   (frac(n a_1), ..., frac(n a_d)) are equidistributed on the d-cube.
 //
-// Every irrational below is the fractional part of the square root of a prime, and square roots of
-// distinct primes are linearly independent over the rationals together with 1, so Kronecker applies.
+// The stream's irrationals are the fractional parts of 4096 sqrt p for primes p. Square roots of distinct
+// primes are linearly independent over the rationals together with 1 (and so are their integer
+// multiples), so Kronecker applies. The factor 4096 spreads neighbours apart: sqrt p itself changes by
+// only about 1 / sqrt p from one prime to the next, which made adjacent slots nearly equal and adjacent
+// values correlated, while 4096 sqrt p changes by more than ten.
 //
 // The stream (makeWeyl) keeps the interface the retired seeded generator had (next, nextInt,
 // nextGaussian), so a caller that took a generator takes a stream unchanged. Its structure, stated so a
 // reader can judge where it is and is not a stand-in for independent draws:
 //
-//   draw k uses slot j = k mod 64 and step m = floor(k / 64) + 1, and returns
-//   frac(start * b_j + m * a_j), with a_j = frac(sqrt(p_j)) and b_j = frac(sqrt(p_(64 + j))).
+//   draw k uses slot j = k mod D and step m = floor(k / D) + 1, D = 4096, and returns
+//   frac(start * b_j + m * a_j), with a_j = frac(4096 sqrt p_j) and b_j = frac(4096 sqrt p_(D + j)).
 //
-//   Any window of up to 64 consecutive draws is jointly equidistributed (the window's slots are distinct,
-//   so it is a Kronecker point). Two streams with different starts differ by the irrational offsets b_j,
-//   so the value at one (slot, step) across starts 0, 1, 2, ... is itself a Weyl sequence. What it is NOT:
-//   a slot revisited 64 draws later has moved by exactly a_j, so the sequence is not completely uniformly
-//   distributed, and a Monte Carlo chain driven by it is a deterministic dynamics with a quasi-random
-//   schedule, not a Markov chain. A result that needed true independence can move when switched to it.
+//   Across starts 0, 1, 2, ... the first D values are a D-dimensional Kronecker sequence, and any window of
+//   up to D consecutive draws is a Kronecker point (its slots are distinct), so it is jointly
+//   equidistributed over starts. Along one stream, slot j revisited D draws later has moved by exactly a_j:
+//   each slot is a Weyl orbit in m.
 //
-// Arithmetic is exact 32-bit fixed point: each a_j and b_j is rounded to an odd 32-bit integer, the
-// state advances by integer addition modulo 2^32, so the stream is bit-identical on every machine.
+//   Why D is 4096 and not 64: two streams at different starts correlate through their D slot offsets, so
+//   the sign-pattern correlation of two streams of n values sits near 1 / sqrt(min(n, D)). At D = 64 that
+//   is a floor of about 0.07 however long the streams are, far above the 1 / sqrt(n) of independent
+//   values, and it broke a vector memory (E-DST-0002) whose vectors must be near orthogonal. At D = 4096
+//   the measured correlation follows 1 / sqrt(n) to n = 8192 (tmp/det-corr-probe.ts, 2026-09-25).
+//
+//   What it is NOT: the sequence is not completely uniformly distributed, so a Monte Carlo chain driven by
+//   it is a deterministic dynamics with a quasi-random schedule, not a Markov chain. A result that needed
+//   true independence can move when switched to it.
+//
+// Arithmetic is exact 32-bit fixed point: each a_j and b_j is rounded to an odd 32-bit integer and the
+// value is (start * b_j + m * a_j) mod 2^32, computed directly from (start, k) with no stored state, so the
+// stream is bit-identical on every machine.
 
 // the golden and silver Weyl rotations, the fractional parts of (1 + sqrt 5) / 2 and 1 + sqrt 2
 export const GOLDEN = (Math.sqrt(5) - 1) / 2
 export const SILVER = Math.SQRT2 - 1
 
-// the number of slots in the stream: the largest window that is jointly equidistributed
-export const WEYL_DIMENSION = 64
+// the number of slots in the stream: the largest window that is a single Kronecker point
+export const WEYL_DIMENSION = 4096
 
 const TWO_32 = 4294967296
 
+// the first `count` primes, by a sieve large enough for 2 * WEYL_DIMENSION of them
+const SIEVE_LIMIT = 100_000
+
 function firstPrimes(count: number): number[] {
+  const composite = new Uint8Array(SIEVE_LIMIT)
   const primes: number[] = []
 
-  for (let n = 2; primes.length < count; n++) {
-    if (primes.every(p => n % p !== 0)) {
+  for (let n = 2; n < SIEVE_LIMIT && primes.length < count; n++) {
+    if (!composite[n]) {
       primes.push(n)
+
+      for (let m = n * n; m < SIEVE_LIMIT; m += n) {
+        composite[m] = 1
+      }
     }
   }
 
@@ -52,22 +72,26 @@ function firstPrimes(count: number): number[] {
 
 const PRIMES = firstPrimes(2 * WEYL_DIMENSION)
 
-// frac(sqrt p) as an odd 32-bit integer: odd so the rotation by it has the full period 2^32
-function fixedIrrational(prime: number): number {
-  const root = Math.sqrt(prime)
-  const fraction = root - Math.floor(root)
-
-  return (Math.floor(fraction * TWO_32) | 1) >>> 0
+// frac(x) as an odd 32-bit integer: odd so the rotation by it has the full period 2^32
+function fixedFraction(x: number): number {
+  return (Math.floor((x - Math.floor(x)) * TWO_32) | 1) >>> 0
 }
 
-// the step irrationals a_j and the start irrationals b_j, as 32-bit fixed point
-const STEP = Uint32Array.from(
-  PRIMES.slice(0, WEYL_DIMENSION),
-  fixedIrrational,
+// frac(sqrt p), for the lattice values of weylCell
+function fixedIrrational(prime: number): number {
+  return fixedFraction(Math.sqrt(prime))
+}
+
+// the stream's spread factor: 4096 sqrt p carries 20 integer bits and leaves 33 bits of a double's
+// precision for the fraction, so the 32-bit fixed point is exact to its last bit
+const SPREAD = 4096
+
+// the step irrationals a_j and the start irrationals b_j, frac(4096 sqrt p) as 32-bit fixed point
+const STEP = Uint32Array.from(PRIMES.slice(0, WEYL_DIMENSION), p =>
+  fixedFraction(SPREAD * Math.sqrt(p)),
 )
-const OFFSET = Uint32Array.from(
-  PRIMES.slice(WEYL_DIMENSION),
-  fixedIrrational,
+const OFFSET = Uint32Array.from(PRIMES.slice(WEYL_DIMENSION), p =>
+  fixedFraction(SPREAD * Math.sqrt(p)),
 )
 
 // The stream type. The method names match the retired generator so every caller that took one keeps
@@ -139,23 +163,22 @@ export function inverseNormal(u: number): number {
 // initial phase frac(start * b_j) of every slot), not a seed: there is nothing random behind it.
 export function makeWeyl(input: { start: number }): Weyl {
   const start = Math.round(input.start) | 0
-  const state = new Uint32Array(WEYL_DIMENSION)
-
-  for (let j = 0; j < WEYL_DIMENSION; j++) {
-    state[j] = Math.imul(start, OFFSET[j] ?? 0) >>> 0
-  }
 
   let slot = 0
+  let step = 1
 
-  // the raw 32-bit value of the next draw
+  // the raw 32-bit value of the next draw: (start * b_j + m * a_j) mod 2^32
   const advance = (): number => {
     const j = slot
+    const value =
+      (Math.imul(start, OFFSET[j] ?? 0) + Math.imul(step, STEP[j] ?? 0)) >>> 0
 
-    slot = slot + 1 === WEYL_DIMENSION ? 0 : slot + 1
+    slot++
 
-    const value = ((state[j] ?? 0) + (STEP[j] ?? 0)) >>> 0
-
-    state[j] = value
+    if (slot === WEYL_DIMENSION) {
+      slot = 0
+      step++
+    }
 
     return value
   }

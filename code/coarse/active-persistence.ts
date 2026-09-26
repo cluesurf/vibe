@@ -13,7 +13,7 @@ import {
   largestPositiveCluster,
 } from '@/code/model/self-kit'
 import { makeWeyl } from '@/code/tool/weyl'
-import type { Graph, Weyl } from '@/code/model/self-kit'
+import type { Graph, Stream } from '@/code/model/self-kit'
 
 export type PersistenceResult = {
   // the surviving plus cluster with the refuge source masked out (the audit shows it is the refuge halo).
@@ -42,7 +42,7 @@ function labeledBeat(
   label: Uint8Array,
   g: Graph,
   moved: Uint8Array,
-  rng: Weyl,
+  rng: Stream,
   cohesion: number,
 ): void {
   const { offsets, adj } = g
