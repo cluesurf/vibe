@@ -1,6 +1,6 @@
 # Quantum arena
 
-**108 experiments.** Codes [`E-QTM-0001`](../../../test/experiment/quantum/alignment.ts) through [`E-QTM-0108`](../../../test/experiment/quantum/fear-clock.ts). Files in `test/experiment/quantum/`.
+**110 experiments.** Codes [`E-QTM-0001`](../../../test/experiment/quantum/alignment.ts) through [`E-QTM-0110`](../../../test/experiment/quantum/dock-interference.ts). Files in `test/experiment/quantum/`.
 
 ## What this arena tests
 
@@ -168,7 +168,9 @@ The signed weight on the role grid run inside the lattice, and what it needs. Se
 - **[`E-QTM-0105`](../../../test/experiment/quantum/calm-is-the-one-whole.ts)** (L2) - stored as its departure from calm, every knot holds as many loves as fears, and the fear weave reads back exactly at all 480 beats, at a grain cost of 3^k units per knot.
 - **[`E-QTM-0106`](../../../test/experiment/quantum/charge-as-the-sign.ts)** (L2) - a +1 or -1 sign per knot breaks the additive ledger at the first join (beat 6 and beat 232). The center phase omega^q passes the same gates with its exponent as the ledger.
 - **[`E-QTM-0107`](../../../test/experiment/quantum/role-phased-counts.ts)** (L1) - every Eisenstein weight is one knot-free count of vibes in take, hold and free, and the walk run as those counts equals the Eisenstein walk at every slot for 200 beats.
-- **[`E-QTM-0108`](../../../test/experiment/quantum/fear-clock.ts)** (L2) - the fear clock: at phi = pi it is the committed knit beat for beat. With the turn, two seeds interfere on rings from beat 3. On one dock in 9 beats they never interfere, a failed gate that stands.
+- **[`E-QTM-0108`](../../../test/experiment/quantum/fear-clock.ts)** (L2) - the fear clock: at phi = pi it is the committed knit beat for beat. With the turn, two seeds interfere on rings from beat 3. On one dock in 9 beats they never interfere, a failed gate that stands, answered by `E-QTM-0110` over longer runs.
+- **[`E-QTM-0109`](../../../test/experiment/quantum/fear-turn-weave.ts)** (L2) - the fear weave on the hop-free color turn weave: every token keeps its sign for life (0 flips against 126), the knots interfere 1/3, 1/3, 1 against 1/3 dephased and violate CHSH at 2.55, and stored as the departure from calm times omega^q they read back unchanged for 480 beats.
+- **[`E-QTM-0110`](../../../test/experiment/quantum/dock-interference.ts)** (L2) - lines of one dock interfere: an exact reduced state (the vacuum is a product of line states) equals the full configuration space, and two seeds on different lines interfere from beat 15 on the committed knit and beat 37 on the color turn knit.
 
 ## What this arena establishes
 

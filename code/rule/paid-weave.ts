@@ -1,5 +1,5 @@
 // The paid scatter weave: the scatter weave (code/rule/scatter-weave) whose pair clock is paid from demons,
-// so the rule keeps an energy and keeps its arrow (E-FLD-0028).
+// so the rule keeps an energy and keeps its pair clock (E-FLD-0028).
 //
 // E-FLD-0027 proved that no rule that makes a love and a fear from calm keeps an additive energy over the
 // slots. A demon escapes the proof by being a second kind of degree of freedom: every line of every dock

@@ -37,6 +37,24 @@
 // - V(R) rises strictly from R = 1 to 3, and the slope times beta lies within 30 percent of chi(2,2)
 // - the meson keeps a mean gap under a tenth of the free meson's and travels more than 5
 //
+// The run, recorded as it came out. Energy and Gauss's law exact in every run. The cooling works and the
+// physics gates fail.
+// - the point now holds: the three runs cool to -0.79 to -0.80 per triangle and settle at beta0 13.6 / 13.2,
+//   13.6 / 13.1 and 13.3 / 13.0 in the two halves, drifting by under 0.5 where E-FRC-0160 fell from 18 to 7.
+//   The first halves sit just above 13, so the beta0 gate fails by 0.3 to 0.6
+// - but the field there is not confined: Polyakov 0.22, 0.20, 0.26. The loops stand well above the noise,
+//   W(1,1) 0.45 to 0.49 down to W(3,3) 0.07 to 0.09, and fall off with the perimeter, not the area: chi(2,2)
+//   is -0.031 +- 0.011 and chi(3,3) -0.015 +- 0.037. No string tension, against 0103's 0.375 and 0126's 1.41.
+//   On the D4 lattice, with 8 triangles through each link where the hypercubic lattice has 6 plaquettes,
+//   beta0 = 13 is on the deconfined side
+// - the field-borne potential rises strictly, 23.2, 37.2, 65.2 per slice at R = 1 to 3, slope 21.0, times
+//   beta 23.4, nothing like chi(2,2), as in a deconfined field whose string costs its twists locally
+// - the meson is frozen: gap 1.414 and travel 0 in 600 beats, against 66.1 and 133.2 for the free meson.
+//   The field holds the pair and at this temperature cannot pay for either charge to move
+// So the move family of E-FRC-0162 cools the field and holds beta0 near 13, which the one-staple reflection
+// could not, and what it finds there is the deconfined side. The confined side at readable loops, if it
+// exists on this lattice, is at lower beta0, between the 3.8 where loops are noise and 13.
+//
 // Depth L2: a constructed rule, measured.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -97,7 +115,7 @@ export default experiment({
   id: 'gauge/sigma-cooled-string',
   code: 'E-FRC-0163',
   title:
-    'the confined point with the cooling moves: the coupled Sigma(648) rule under the modified action, its links moved by 40 staple words and three centers and prepared by a heat-assisted drain, read for beta0, the Polyakov loop and Creutz ratios across three starts, the field-borne string, and a moving meson',
+    'the confined point with the cooling moves: the covariant moves of E-FRC-0162 cool the coupled Sigma(648) field and hold beta0 near 13 (13.0 to 13.6 across three starts), but on the D4 lattice that point is deconfined (Polyakov 0.20 to 0.26, chi(2,2) -0.031 +- 0.011), the field-borne potential rises (23, 37, 65 per slice) with no area law behind it, and the meson is frozen, so the physics gates fail',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -353,13 +371,13 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         "with the energy exact and Gauss's law at every dock on every beat, every run holds beta0 within 11 to 13 with the Polyakov loop under 0.05, chi(2,2) across three runs is above zero by 3 standard errors, the field energy a static pair costs rises strictly from R = 1 to 3 with its slope times beta within 30 percent of chi(2,2), and a meson keeps a mean gap under a tenth of the free meson's while it travels more than 5",
-      metrics: Object.fromEntries([
+      metrics: Object.fromEntries<number>([
         ['energyAndGaussExact', exact ? 1 : 0],
         ['creutz22Mean', chi22.mean],
         ['creutz22Error', chi22.error],
         ['creutz33Mean', chi33.mean],
         ['creutz33Error', chi33.error],
-        ...runs.flatMap((r, k) => [
+        ...runs.flatMap((r, k): [string, number][] => [
           [`run${k + 1}CooledLevel`, r.cooledLevel],
           [`run${k + 1}Level`, r.level],
           [`run${k + 1}Beta0FirstHalf`, r.beta0[0] ?? 0],
@@ -373,7 +391,7 @@ export default experiment({
           [`run${k + 1}Creutz22`, r.chi22],
           [`run${k + 1}Creutz33`, r.chi33],
         ]),
-        ...SEPARATIONS.map((r, k) => [`fieldEnergyAboveVacuumPerSliceR${r}`, potential[k] ?? 0]),
+        ...SEPARATIONS.map((r, k): [string, number] => [`fieldEnergyAboveVacuumPerSliceR${r}`, potential[k] ?? 0]),
         ['fieldSlope', sigma],
         ['fieldSlopeTimesBeta', tension],
         ['mesonMeanGap', bound.meanGap],

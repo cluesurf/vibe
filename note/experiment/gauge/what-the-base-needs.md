@@ -23,6 +23,21 @@ The prose of the base uses experiential names for the same things.
 | **beat** | the time step | one collision in every dock, then one stream. The schedule repeats every 24 beats |
 | **knit** | the update rule | one reversible update conserving love minus fear. The committed knit is the turning weave (`code/rule/collision.ts`) |
 | **wake** | the growing boundary | the open end, where a new shell of docks is born every beat (1, 24, 456, 8,376 on {3,4,3,4}), the arrow of time (`E-FND-0051`) |
+| **husk** | physical space | the 3D surface of the 4D {3,4,3,4} tessellation, the flat horosphere shell at the cusp. Every physical observable is read here |
+| **bulk** | none: the substrate | the 4D tessellation the knit runs on, the discrete algorithmic structure. A D4-box number is a statement about the bulk substrate, not about physics |
+
+**Physics is not in the 4D bulk.** The physical 3D world is the husk. The D4 boxes most experiments
+here run on are the bulk substrate, so a count measured there, such as light's 3 polarizations or a
+Coulomb field falling as 1 / r^2 (`E-FRC-0165`), describes the substrate. The physical reading of the
+same quantity is taken on the husk, where light should have 2 polarizations and a 1 / r field, and
+that measurement on the 3D surface is open.
+
+**Nothing moves.** The stream copies each slot's vibe one dock along its direction, and a vibe has
+no identity across beats. "Travel" and "carried" in the rows below name a pattern the stream keeps
+copying, not a thing that moves. Flow is the running total of the vibes the stream has copied across
+a link, one way minus the other. A link is the relation between the two vibes that share it, not a
+separate object. Where an experiment stores state per link (grid moves, flux, angles, demons), that is
+a modeling choice under test, not the ontology.
 
 Why fear and love: the rule treats -1 and +1 as exact mirror images, so the names are true
 opposites of one kind and one strength (moving away and drawn toward), with calm as neither. What
@@ -695,7 +710,19 @@ Each step above was built and measured. What each one found, and what it changed
 | binding, moving | the mechanism, on a line. A hop pays the change in string energy (the triality flux, E mod 3) to a demon, or reflects. A love and a fear keep a mean gap of 1.9 docks while traveling 486, against 64 with no tension. A baryon holds together (spread 4.0 against 61) and moves freely relative to its antibaryon | `E-FRC-0129` |
 | can a lone color return? | not under the committed orientation. Color-local moves keep a lone vibe in its sign class, and the committed class of 12 directions lies in an open half-space (witness c = (4, 3, 2, -1)): a lone part drifts one way forever. Exactly 192 of the 4,096 orientations of the lines do this, the positive systems of D4. The other 3,904 hold a zero-sum triangle, so a part could come back | `E-FRC-0130` |
 | binding, moving, on D4 | bound when cold, melted when warm. With matter that waits in docks and a paid hop, at the coldest demon energy a meson keeps a mean gap of 1.72 while traveling 34, against 122 with no tension, and a baryon holds together (spread 2.7 against 228) while it moves. Warmer, the string melts (mean gap 89.5 at the hottest), the deconfinement of a string with 23 ways to turn, between the fills 0.05 and 0.1 | `E-FRC-0131` |
-| 1, the dressing, answered | a color-local table that dresses no more. A lone vibe's dressing is pair creation from calm, exactly 1 + 2 x the net pairs left. The committed table is the hop-free transposition after a line reflection, and the reflection is the move that breaks color and keeps the dressing low. Varying the hop-free schedule one freedom at a time finds 0 winners in 98,468 members. Varying the turn and the swap order together finds several. The color turn weave (its turn swaps axes 0 and 1 and negates axis 2, line permutation [0, 1, 7, 6, 8, 9, 3, 2, 4, 5, 11, 10], swap order 3, 0, 5, 2, 4, 1) keeps reversal, charge, CPT, the vacuum's period, superposition and sheet-quantized walls, has 2 vacuum line components against 3, and leaks 0 color. At side 9 a lone love dresses 31, 115, 265, 507 slots and a lone fear 27, 115, 265, 507 in the first four periods, against 33, 160, 565, 1,508 and 27, 163, 581, 1,501 under the committed knit, and it stays bounded the same way at sides 7 and 11. The full battery on it is still running (`E-FRC-0148`, `0149`, not yet registered) | `E-FRC-0136`, `0137` |
+| 1, the dressing, answered | a color-local table that dresses no more. A lone vibe's dressing is pair creation from calm, exactly 1 + 2 x the net pairs left. The committed table is the hop-free transposition after a line reflection, and the reflection is the move that breaks color and keeps the dressing low. Varying the hop-free schedule one freedom at a time finds 0 winners in 98,468 members. Varying the turn and the swap order together finds several. The color turn weave (its turn swaps axes 0 and 1 and negates axis 2, line permutation [0, 1, 7, 6, 8, 9, 3, 2, 4, 5, 11, 10], swap order 3, 0, 5, 2, 4, 1) keeps reversal, charge, CPT, the vacuum's period, superposition and sheet-quantized walls, has 2 vacuum line components against 3, and leaks 0 color. At side 9 a lone love dresses 31, 115, 265, 507 slots and a lone fear 27, 115, 265, 507 in the first four periods, against 33, 160, 565, 1,508 and 27, 163, 581, 1,501 under the committed knit, and it stays bounded the same way at sides 7 and 11. Bounded here means bounded in a side-9 box: on an unbounded lattice most lone vibes dress without bound (`E-CMP-0015`, below) | `E-FRC-0136`, `0137` |
+| the knit, chosen by rule | the color turn weave, on a tie-break. Both color-local candidates pass every gate of `E-FRC-0136` for both signs at sides 7, 9 and 11. Both worst-period dressing ratios are exactly 1, because a lone fear's first-period support is 27 under both and under the committed knit. The vacuum components tie at 2. The third step of the rule written before the numbers, travelers 16 against 15, chooses the color turn weave. The runner-up (turn schedule bind-reverse 103:130542) dresses far less from the second period on: 96 against 569 at side 11, period 4 | `E-FRC-0148` |
+| what changes when the knit changes | CPT, the symmetry ledger, the swap graph, the vacuum period, the walls and the generation split carry over to both color-local candidates. The unit phase kick is lost for every protected species, since the committed hop tied the phase to the vacuum clock. The turn becomes an achiral involution, the response handedness reverses and weakens, and the loop of turns lifts to (-1, -1) instead of (-1, +1) | `E-FRC-0149` |
+| the folded round robin, on the battery | fails. It keeps reversal, charge, CPT on single docks and on a full box with the flux evolving, superposition, walls and local color. But a lone vibe's disturbance grows about tenfold each period (side 11: 119 to 75,050, against the committed knit's 33 to 2,241), and its line graph splits into 3 and 4 components. Lone steering loses full-box CPT. Line steering keeps it and loses superposition | `E-FRC-0156` |
+| the baryon, steered | no steering closes the baryon gap while the meson's pattern is still carried. Steering toward the junction spreads the baryon to 15.3. Stretch steering is lone steering exactly. Line steering holds the baryon at 2.6 (`E-FRC-0131`: 2.7) but the meson's pattern stops being carried (travel 1.8). A member with two strings bounces in place 418 beats in 454. So moving binding in the slot architecture meets two walls, the fold's dressing and per-slot against per-line steering. Matter waiting in docks with paid hops (`E-FRC-0131`, `0138`) binds, and its bound pattern is carried cleanly: a choice of base architecture | `E-FRC-0157` |
+| the combined knit | one rule carrying the head-on turn base, the four-line scatter block, the folded round robin with lone steering and the fear beat in color mode. Each piece switched on alone reproduces its owning experiment's rule bit for bit. Opening tokens changes no vibe, token or flux, and with every piece on the rule reverses exactly | `E-FRC-0158` |
+| the combined knit, every battery | the fear beat works with the knit. With the fear beat off and on, folded and unfolded, 0 gates fail only with the fear beat on, and every quantum gate passes with it on: CHSH 2.55 unfolded, 2.37 folded, 2.00 for the stand-in. The classical layer never reads the knot. The failures are the base's: a lone fear's first-period dressing on the head-on base (33 against 27), the fold (5 vacuum line components, dressing to 22,722 at side 9, vacuum period 72) and lone steering (momentum drift 35). The kick law stays lost on every color-local base. The head-on base's handedness reads exactly 1.00 | `E-FRC-0159` |
+| the center phase and the flux as a conjugate pair | exact, and the lock is built in, not derived. The group element and flux are stored per link, a modeling choice under test. Every change of a link's flux twists the link by the center element to that change, in flux loops and in hops, so the phase is E mod 3 relative to the link's untwisted part. Exact reversal, energy to the unit, love and fear, Gauss's law, and a frame change by all 648 elements. The uncoupled rule breaks the lock, a non-central twist breaks the frame change, and an unpaid twist leaks energy | `E-FRC-0154` |
+| a string tension from the coupled field | three gates fail. At the one stationary ordered point the loops rise far above the noise but the field is deconfined (Polyakov 0.58, chi(2,2) -0.08, chi(3,3) 0.27). With no put-in tension the coupled field holds a flux string within a few links of taut (excess 0.9 to 2.6, against 4,207 uncoupled), at an energy rising about 21 per unit length. A cold meson at tension x beta 4.2 binds, and its pattern is carried only 4.2 docks in 600 beats | `E-FRC-0155` |
+| the confined point, released | the coupled rule cannot hold it. Its drain stalls 4.4 to 9.7 units per link above the lowest level. Released, beta0 goes to 7 to 9 from the ordered starts (Polyakov 0.56 to 0.63) and to 3.8 from the disordered one (confined, loops at the noise), so no confining string tension can be read. At beta0 7.4 the field alone charges a static love-fear pair 19.3, 16.6, 30.8 per slice at R = 1 to 3, not monotonic, its slope times beta (3.56) some 300 times the empty field's chi(2,2) (0.012), and the meson's pattern is barely carried (travel 2.45). The cause: link reflection through a staple cannot lower a field to its ground state | `E-FRC-0160`, `0161` |
+| cooling moves | covariant, and they cool. Every move U -> z W U^-1 W, W an odd word of the staples and z central, is covariant and its own inverse. The richer the words, the lower the drain: 0.74 per triangle with one staple, -0.53 with 40 words and three centers, and -0.80 heat-assisted, below a seeded annealing reference at -0.71 after 20,000 sweeps. They hold beta0 near 13 (13.0 to 13.6 over three starts), but on the D4 lattice that point is deconfined (Polyakov 0.20 to 0.26, chi(2,2) -0.031 +- 0.011): 8 triangles per link against 6 plaquettes. The potential rises (23, 37, 65 per slice) with no area law, and the meson is frozen, so the physics gates fail. The confined side between beta0 3.8 and 13 is not yet scanned | `E-FRC-0162`, `0163` |
+| a U(1) link sector | exact. Compact U(1) as Z_8192, each link's angle beside its integer flux, a leapfrog of two shears (A <- A + E, E <- E - curl f(B)): exact reversal, love and fear, Gauss's law at every dock and beat while the stream copies vibes across links with their flux, and a Z_N frame change in every dock (0 mismatches on the side-4 and side-5 D4 boxes). Its shadow energy moves at most 2.7 percent over 2,000 beats. The demon-paid form keeps energy to the unit. A hop that leaves its flux behind (6,967) or a kick that is not a curl (12,287) breaks Gauss's law, and a force read from the angle breaks the frame change (444,661). The angle and flux stored per link are a modeling choice under test, not the ontology | `E-FRC-0164` |
+| light, in the bulk substrate | partial. On the D4 box, the bulk substrate and not physical space, Gauss's law pins exactly the longitudinal direction at every mode, light is isotropic between two W(F4) orbits at \|k\| = pi / 2 (0.83 percent, against 6.2 on the cubic torus), the exact-energy demon form carries none, and a static love and fear relax to the bulk substrate's Coulomb field (flux residual under 0.082, V(4) / V(1) 1.12). The bulk substrate is four-dimensional, so light there has 3 polarizations and a 1 / r^2 field. The cubic torus, the stand-in for the 3D husk, gives 2 and 1 / r. The frequency estimator counts 2 branches on the D4 box where 3 are expected and reads the photon 13 percent fast (a time-domain reading is within 2.3 percent), finds no transition in its scan (a post-hoc reading puts one near beta 0.55 to 0.60), the Wilson loops fit the free photon with r^2 0.93, and the D4 Coulomb energy sits 7 to 10 percent high against a 5 percent gate. Light on the husk itself is not measured | `E-FRC-0165` |
 | binding, moving, in the slots: waiting | built as argued, and it cannot pay. Two waiting slots per dock and the returning orientation (mask 1, 4 triangles in its plus class, the committed one 0) give a rule exact in reversal, charge, energy, Gauss's law, local color (0 leaks, 3,629 when a waiting slot trades across sides) and frame change. But the stream moves every charge in a moving slot, so where no direction can be paid, a charge just arrived and a charge already waiting would both have to end waiting. A reversible rule sends 12 of the 13 places of a lone charge across unpaid, and more waiting slots add places before and after alike. A lone love with no tension does not come back under either orientation | `E-FRC-0132` |
 | binding, moving, in the slots: the result | waiting slots do not bind: at the coldest fill 1,012 of 1,024 string crossings go into debt and the meson's mean gap is 219, against 121 with no tension. What removes the debt is a crossing that bounces when it cannot be paid, with a calm slot's color sign carried by what the slot holds (0 color leaks, 3,759 with the sign fixed by the slot). No demon goes below zero. A meson keeps a mean gap of 0.17 against 441 and a baryon a spread of 1.8 against 447, melting between the fills 0.2 and 0.35. But a bounce reverses the charge, so the cold bound pair settles in one dock and travels 0.7 in 600 beats, against 34 in `E-FRC-0131`. Moving binding in the slot architecture is not shown by bouncing | `E-FRC-0133` |
 | binding, moving, in the slots: what frees it | steering. A charge that can steer onto or off its string, with each charge carrying its own store of energy, keeps every local law of the reflecting slots exact: reversal, charge, energy to the unit, Gauss, no demon or store below zero, local color with the sign carried (0 leaks, about 3,750 with the sign fixed), and a frame change in every dock | `E-FRC-0146` |
@@ -783,28 +810,70 @@ it is the committed knit beat for beat on rings of docks and on one D4 dock, rep
 `E-FND-0080`. With the turn it is exact, keeps love minus fear and reverses, and on the rings a
 seeded vibe spreads to every slot and two seeds interfere from beat 3, the amplitude `E-FND-0080`
 found missing. On one dock in 9 beats seeds spread to 3 slots but never interfere, a failed gate that
-stands. `E-QTM-0099`, `0100` and `0102` also carry color-mode sections, their gates fixed before the
+stands. Run longer by an exact reduced method, they do: from beat 15 on the committed knit
+(`E-QTM-0110`, below), so quantum motion interferes on one dock. `E-QTM-0099`, `0100` and `0102` also carry color-mode sections, their gates fixed before the
 runs: in color mode the pair reads 1/3, 1/3, 1 against 1/3 dephased, with CHSH 2.5523.
 
 **Forced by the color law, not chosen:** with the three-trit model adopted, the fear weave uses the
 singlet phase where a love meets a fear and the swap phase where like meets like, so grain becomes
 2^a 3^b.
 
+**On the hop-free knit (`E-QTM-0109`).** The fear weave's color mode on the color turn weave matches
+that knit at every slot, and every token keeps its sign for life: 0 flips, against 126 on the
+committed table. The knots stay pure and under a third fear, reverse exactly, keep love minus fear
+and commute with a frame change in every dock. They interfere 1/3, 1/3, 1 against 1/3 dephased and
+violate CHSH at 2.55 against 2. Stored as their departure from calm times omega^q, they read back
+unchanged at every beat for 480 beats, including a like pair with q = 2. Vacuum pairs read 6.50
+against 6.5 and 5.29 against 5.33: superposition shows in the fluctuation, not the mean.
+
+**Lines of one dock interfere (`E-QTM-0110`).** The vacuum is a product of line states, since no
+palindromic swap fires without a lone charge, and a seed correlates only the lines it reaches. So an
+exact reduced state holds the whole dock: it equals the full configuration space, recovers both
+knits at phi = pi and reverses exactly. Two seeds on different lines interfere from beat 15 on the
+committed knit and from beat 37 on the color turn knit. That answers the failed gate of
+`E-QTM-0108`, where one dock ran only 9 beats: quantum motion interferes on one dock.
+
+**The fear walk, solved (`E-CMP-0017`).** Read off the walk, its symbol has eigenvalues
+e^(i pi/3 +- i W(k)) with cos W = cos(k) / 2. A Chebyshev closed form gives every weight exactly at any
+beat and distance, bit for bit with the walk and at t = 10^5, where the walk would take 10^10
+updates. Stationary phase on the symbol gives the chance to 1e-5. A lone vibe's quantum motion is a
+free particle of rest mass sqrt 3 and top speed 1/2.
+
+**Dressing on an unbounded lattice (`E-CMP-0015`, `E-CMP-0016`).** The difference engine runs the knit
+only where it differs from its vacuum, bit-identical to the dense lattice gas on wrapping boxes and on
+the unbounded lattice, at a flat cost per differing dock while the support grows a thousandfold.
+HashLife on the knit agrees bit for bit on both knits and follows a traveler, a pattern the stream
+keeps copying, exactly to beat 2^40 - 1. What they show: the bounded dressing of `E-FRC-0125` and
+`E-FRC-0136` was the side-9 box, which caps the support at its volume. On an unbounded lattice most
+lone vibes dress without bound, growing about as t^5. The exceptions are exact travelers, patterns
+that recur exactly shifted: 7 of 24 directions on the committed knit and 8 of 24 on the combined knit. The dressing gate compares
+knits at one box size and stays a fair comparison. It is not a bound. The engine's unbounded
+comparison gate was lowered from 20 beats to 2 after the first run, since no spreading seed reaches
+20 on a box brute force can run, and the long runs rest on `E-CMP-0016` (disclosed).
+
 ## What the base would change
 
 Each item names the base thing it touches, the experiment that says why, and where the decision
 stands. The color trit and the Sigma(648) links were adopted on 2026-09-25 as the three-trit model
 (vibe, role and tilt per slot, a grid move per link). Its results are measured on the knit variants
-named in each experiment. The committed knit (`code/rule/collision.ts`) has not changed yet, and
-which pair table the three-trit knit runs is still open.
+named in each experiment. The committed knit (`code/rule/collision.ts`) has not changed yet. The
+pair table was chosen by a rule written before the numbers (`E-FRC-0148`), and the fear beat was
+adopted into the knit once the combined knit met the stated condition (`E-FRC-0158`, `0159`).
 
 | change | touches | why | cost | decision |
 | --- | --- | --- | --- | --- |
 | a color trit beside the vibe | the vibe | the pair table runs the vibe on a period-three clock, and a clock kept as color breaks SU(3) to its 3-dimensional Cartan part (`E-FRC-0100`). With it, color is an exact local law on a hop-free table (`E-FRC-0124`) | one more trit per slot | **adopted** 2026-09-25, the three-trit model |
 | links that hold a Sigma(648) element | the crystal | gauge color lives on links, and this group is a record of three vibes and a coin direction (`E-FRC-0104`), classical. The full element per link is exact beside the flux and Gauss's law (`E-FRC-0150`) | 648 states per link | **adopted** 2026-09-25, the three-trit model |
-| which pair table the knit runs | the rule | a hop-free table keeps color local exactly (`E-FRC-0124`). The first one dressed 1.7 to 2.3 times wider (`E-FRC-0125`). The color turn weave does not, and passes every gate of the committed knit (`E-FRC-0136`, `0137`) | none beyond the table | **pending**: the color turn weave is the candidate, and its full battery (`E-FRC-0148`, `0149`) is still running |
+| which pair table the knit runs | the rule | a hop-free table keeps color local exactly (`E-FRC-0124`). The first one dressed 1.7 to 2.3 times wider (`E-FRC-0125`). The color turn weave does not, and passes every gate of the committed knit (`E-FRC-0136`, `0137`). The pre-registered choice picks it on a tie-break, travelers 16 against 15 (`E-FRC-0148`). The unit phase kick is lost on it, as on every color-local base (`E-FRC-0149`). It cannot carry exact P, so the combined knit runs the head-on turn base, the color turn schedule with the head-on rotation (`E-FLD-0024`) | none beyond the table | **chosen** 2026-09-25 by the pre-registered rule: the color turn weave (`E-FRC-0148`) |
 | weights stored as the departure from calm, with the center phase omega^q | the signed weight | love = fear in every knot, and every chance and the grid's charge read back for 480 of 480 beats (`E-QTM-0105`). A +1 or -1 sign per knot breaks the additive ledger at the first join. omega^q passes the same gates with its exponent as the ledger (`E-QTM-0106`) | 3^k units of grain per knot | **adopted** 2026-09-25: option 1 storage plus the center phase omega^q. Neither changes a chance |
-| one phase on the pair swap | the rule | the only color-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's color. Where a love meets a fear, the color law forces the singlet phase instead of the swap phase (`E-QTM-0102`) | an amplitude, the same missing piece as `E-FND-0080`. Grain becomes 2^a 3^b | **adopted**: the singlet phase at love-fear meetings and the swap phase at like meetings, forced by the color law. **Pending**: putting the fear beat into the knit, held until quantum motion and the color gate report |
+| one phase on the pair swap | the rule | the only color-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's color. Where a love meets a fear, the color law forces the singlet phase instead of the swap phase (`E-QTM-0102`) | an amplitude, the same missing piece as `E-FND-0080`. Grain becomes 2^a 3^b | **adopted**: the singlet phase at love-fear meetings and the swap phase at like meetings, forced by the color law |
+| the fear beat in the knit | the rule | the user's condition (2026-09-25): adopt it if it works with everything. On the combined knit 0 gates fail only with the fear beat on, and every quantum gate passes with it on (CHSH 2.55 unfolded, 2.37 folded, stand-in 2.00). The classical layer never reads the knot (`E-FRC-0158`, `0159`) | the grain of the signed weight | **adopted** 2026-09-25 into the knit: condition met (`E-FRC-0158`, `0159`) |
+| the folded round robin | the schedule | every line meets every other, which steering needs (`E-FRC-0152`). But the fold fails the acceptance battery: a lone vibe's disturbance grows about tenfold a period, 5 vacuum line components on the combined knit, vacuum period 72 (`E-FRC-0156`, `0159`) | the dressing and the vacuum period | **not adopted** |
+| steering | the rule | lets the stream carry a bound pair's pattern in the slots (`E-FRC-0147`, `0153`). Lone steering breaks P on the combined knit (momentum drift 35) and full-box CPT on the fold. No steering closes the baryon gap while the meson's pattern is carried (`E-FRC-0156`, `0157`, `0159`) | P, and full-box CPT | **not adopted** |
+| **open fork**: CPT against isotropy | the schedule | no schedule of the committed architecture restores rotation symmetry. The orbit knit does (anisotropy 0.23 and 0.21, noise, against 1.20) with no CPT partner (`E-RLT-0048`). A palindrome buys CPT back and loses the isotropy (`E-RLT-0049`). The scatter block narrows the fork and does not open it (`E-RLT-0050`). Forced isotropy with exact local color costs at least 8 line-momentum invariants, and the one knit found with both, the quaternion knit, dresses without bound (`E-RLT-0051`) | CPT and the round robin, or isotropy | **open**, the user's decision |
+| **open fork**: the architecture | the base | moving binding in the slot architecture hits the fold's dressing and per-slot against per-line steering (`E-FRC-0156`, `0157`). Matter waiting in docks with paid hops binds, and its bound pattern is carried cleanly (`E-FRC-0131`, `0138`) | a base-architecture change | **open**, the user's decision |
+| **open fork**: the vacuum clock against a cold vacuum | the vacuum | an additive energy and a pair-making vacuum clock exclude each other. A clock paid from demons keeps both, but its wave does not propagate and a lone love sets off a pair avalanche (`E-FLD-0028`). A cold vacuum with a kinetic threshold has energy, sound and a viscosity on one rule and stands still (`E-FLD-0032`). It costs the vacuum clock: a lone vibe meets nothing, the empty vacuum's line graph falls into 12 pieces, and the committed knit's clock phase kick has nothing to run on. The fear clock's vacuum fluctuates, but as the hot flash superposed, not virtual pairs about a cold vacuum (`E-FLD-0033`). Time's arrow is the wake (`E-FND-0051`) either way | the vacuum clock, or an energy | **open**, the user's decision |
+| **open**: light in the bulk substrate | the link sector | the knit's D4 box is the four-dimensional bulk substrate, not physical space, so light there has 3 polarizations and a 1 / r^2 Coulomb field (`E-FRC-0165`). Physics is read on the husk, where 2 polarizations and 1 / r are expected, and that is not yet measured on the 3D surface | none | **open**: light on the husk |
 | a kinetic counter per link that streams | the rule | without it a deterministic link rule freezes (`E-FRC-0099`), with it the Z3 center has its whole phase diagram (`E-FRC-0102`) | one bounded counter per link | not decided |
 | a four-line vertex | the rule | the only way to keep a color-selecting triality and still connect every line (`E-FRC-0107`), built and measured (`E-FRC-0109`). Its three copies are exactly degenerate (`E-FRC-0140`) | one classical exchange, a charge on a color line for three on the triality orbit | **pending**: how the triality weave lists its orbits, as built (one orbit a copy ahead) or relisted from one copy (an exactly conserved copy number). Recommended: relisted, for consistency |
 | one non-Clifford element | the rule | not needed down to about the N_t = 4 spacing (`E-FRC-0103`). Finer than that the classical group stops shrinking. The first finer step needs two swap phases (`E-QTM-0101`), and the first word closer to T needs four (`E-QTM-0104`) | Wigner negativity, the qutrit form of magic, the same ingredient as the swap phase | not decided |
@@ -840,7 +909,8 @@ the same ingredient the quantum sector is missing, so color does not add a secon
   connected correlator overshoots below zero by 3.02 standard errors against a gate of 3.
 - **That the base does this.** These are measurements of what a base with these changes would do,
   not of the committed knit, which still does none of it (`E-FRC-0093` to `0097`). The three-trit
-  model is adopted, and the knit that carries it is not yet chosen (see the table above).
+  model is adopted, its pair table is chosen by rule (`E-FRC-0148`) and the fear beat is adopted
+  into the knit (`E-FRC-0159`), but `code/rule/collision.ts` is not yet changed (see the table above).
 - **The deterministic sampler on larger boxes and at N_t = 4 geometry.** `E-FRC-0110` runs both
   actions on 4^4. The quantization at scale 12 rounds the action, so it is a nearby action, not the
   exact one, and its plaquettes sit 0.009 to 0.015 below the unquantized heatbath's.
@@ -886,14 +956,26 @@ the same ingredient the quantum sector is missing, so color does not add a secon
   steering runs on a round robin of all 11 line matchings, not the committed weave, whose couples
   reach 5 of 12 lines and let 88 of 576 headings walk. Folded into the 24-beat palindrome the round
   robin is a schedule a knit could carry (`E-FRC-0152`), and on it a cold meson travels 20 bound
-  (`E-FRC-0153`). Still not shown: a folded knit that passes the acceptance battery, and binding on
-  it as strong as matter that waits (travel 20 against 34, baryon spread 8.1 against 2.7).
+  (`E-FRC-0153`). But the fold fails the acceptance battery: a lone vibe's disturbance grows about
+  tenfold each period and its line graph splits (`E-FRC-0156`). And no steering closes the baryon gap
+  while the meson's pattern is carried: line steering holds the baryon at 2.6 and the meson's
+  pattern stops (`E-FRC-0157`). Moving binding in the slot architecture is not shown. Matter that
+  waits in docks with paid hops is the architecture whose bound pattern the stream carries cleanly
+  (`E-FRC-0131`, `0138`), an open choice of base.
 - **A quark string on the link fields at the cold branch.** Links priced with the hopping term feel
   the matter but form no string (`E-FRC-0134`, `0135`). The full three-trit link forms one on the
   melted field (`E-FRC-0145`), and one Sigma(648) element per link keeps it taut on both branches
   (`E-FRC-0151`). But on the cold field the string gates fail with the three-trit link, and with the
   full element no Creutz ratio can be read and the cold meson is frozen. In the three-trit link the
   center phase is not a variable, and the grid field and the flux meet only through matter.
-- **The color turn weave on the full battery.** `E-FRC-0136` passes every gate the committed knit
-  was adopted by, dressing included, at sides 7, 9 and 11. Its full-battery follow-up (`E-FRC-0148`,
-  `0149`) is still running.
+- **A bounded dressing.** `E-FRC-0136` passes every gate the committed knit was adopted by, dressing
+  included, at sides 7, 9 and 11, and the pre-registered choice picks it (`E-FRC-0148`). But the
+  dressing gate is read in a box, which caps it at its volume. On an unbounded lattice most lone
+  vibes dress without bound, on the committed knit as on the combined one, and only 7 or 8 of 24
+  directions recur exactly as travelers (`E-CMP-0015`).
+- **The confined point of the Sigma(648) field on D4.** The coupled rule cannot hold it
+  (`E-FRC-0160`, `0161`), and the cooling moves hold a point that is deconfined on D4
+  (`E-FRC-0162`, `0163`). The confined side between beta0 3.8 and 13 is not yet scanned.
+- **Light on the husk.** The U(1) link sector is exact (`E-FRC-0164`), and its light is measured in
+  the bulk substrate (`E-FRC-0165`), where 3 polarizations are a fact about the substrate. Light with
+  2 polarizations and a 1 / r field, read on the 3D surface, is not measured.

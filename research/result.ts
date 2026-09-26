@@ -2219,10 +2219,10 @@ export const RESULTS: Result[] = [
     importance:
       'It closes the classical side of color: locality, gauge dynamics, confinement and binding are all carried without amplitudes, and it names exactly which base changes they need.',
     limits: [
-      'run on variant rules, not the committed knit. The three-trit model they belong to was adopted for the base on 2026-09-25, and which table its knit runs is still open',
-      'dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider on the color weave (E-FRC-0125). Answered by a different color-local table: the color turn weave, the hop-free table with another turn of the couples and swap order, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (E-FRC-0136). A lone vibe\'s dressing is pair creation from calm, 1 + 2 x the pairs left, and the committed table keeps it low only through its line reflection, the move that breaks color (E-FRC-0137). The full-battery follow-up on the color turn weave is still running',
-      'moving binding in the committed slot architecture: waiting slots are exact, but a charge that cannot pay cannot wait, since 12 of the 13 places of a lone charge cross unpaid (E-FRC-0132). A crossing that bounces when unpaid binds a meson (mean gap 0.17 against 441) and a baryon when cold and melts when warm, but the pair is stuck: 0.7 docks in 600 beats against 34 (E-FRC-0133). Steering a charge onto its string frees it: a cold meson keeps a mean gap of 1.87 while traveling 13, against 409 with no tension, and 510 of 576 starting headings give a bound pair that travels (E-FRC-0146, E-FRC-0147). The steering runs on a round robin of all 11 line matchings, a new schedule. The committed turning weave\'s couples reach 5 of 12 lines, and 88 of 576 headings walk. Folded into the 24-beat palindrome the round robin reaches all 66 pairs of lines and keeps CPT (E-FRC-0152), and on it a cold meson keeps a mean gap of 1.27 while traveling 20, against 252 with no tension (E-FRC-0153)',
-      'links priced with a hopping term are exact and local, and static matter makes its links carry its color 0.81 of the time on a melted field against 1/9 by chance, but they form no string (E-FRC-0134, E-FRC-0135). The full three-trit link, grid move and center flux, forms a quark string on the melted field: excess under 0.8 per slice at R = 1 to 4, and a meson keeps a mean gap of 1.48 against 65.6 while it travels (E-FRC-0144, E-FRC-0145). On the cold field the string gates fail. One Sigma(648) element per link keeps the string taut on both branches, but no Creutz ratio can be read and the cold meson is frozen (E-FRC-0150, E-FRC-0151)',
+      'run on variant rules, not the committed knit. The three-trit model they belong to was adopted for the base on 2026-09-25. A rule written before the numbers chose the color turn weave for its table, on a tie-break of travelers, 16 against 15 (E-FRC-0148). The unit phase kick is lost on every color-local base, and the loop of turns lifts to (-1, -1) instead of (-1, +1) (E-FRC-0149)',
+      'dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider on the color weave (E-FRC-0125). Answered by a different color-local table: the color turn weave, the hop-free table with another turn of the couples and swap order, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (E-FRC-0136). A lone vibe\'s dressing is pair creation from calm, 1 + 2 x the pairs left, and the committed table keeps it low only through its line reflection, the move that breaks color (E-FRC-0137). Its full battery passes for both signs at sides 7, 9 and 11 (E-FRC-0148). This answer is a comparison in a side-9 box, and the box is what bounded it: on an unbounded lattice most lone vibes dress without bound, growing about as t^5, under the committed knit as under the color-local ones, and only 7 of 24 directions on the committed knit and 8 of 24 on the combined knit travel as exactly recurring particles (E-CMP-0015)',
+      'moving binding in the committed slot architecture: waiting slots are exact, but a charge that cannot pay cannot wait, since 12 of the 13 places of a lone charge cross unpaid (E-FRC-0132). A crossing that bounces when unpaid binds a meson (mean gap 0.17 against 441) and a baryon when cold and melts when warm, but the pair is stuck: 0.7 docks in 600 beats against 34 (E-FRC-0133). Steering a charge onto its string frees it: a cold meson keeps a mean gap of 1.87 while traveling 13, against 409 with no tension, and 510 of 576 starting headings give a bound pair that travels (E-FRC-0146, E-FRC-0147). The steering runs on a round robin of all 11 line matchings, a new schedule. The committed turning weave\'s couples reach 5 of 12 lines, and 88 of 576 headings walk. Folded into the 24-beat palindrome the round robin reaches all 66 pairs of lines and keeps CPT (E-FRC-0152), and on it a cold meson keeps a mean gap of 1.27 while traveling 20, against 252 with no tension (E-FRC-0153). But the fold fails the acceptance battery: a lone vibe\'s disturbance grows about tenfold each period, 119 to 75,050 at side 11 against the committed knit\'s 33 to 2,241 (E-FRC-0156). And no steering closes the baryon gap while the meson\'s pattern is carried: line steering holds the baryon at 2.6 and the meson\'s pattern stops, travel 1.8 (E-FRC-0157). The combined knit, the head-on turn base with the scatter block, the fold with lone steering and the fear beat, reverses exactly and reproduces each piece bit for bit (E-FRC-0158), and its failures are the fold and lone steering, not the fear beat (E-FRC-0159). Moving binding in the slot architecture is not shown. Matter that waits in docks with paid hops binds, and the stream carries its bound pattern (E-FRC-0131)',
+      'links priced with a hopping term are exact and local, and static matter makes its links carry its color 0.81 of the time on a melted field against 1/9 by chance, but they form no string (E-FRC-0134, E-FRC-0135). The full three-trit link, grid move and center flux, forms a quark string on the melted field: excess under 0.8 per slice at R = 1 to 4, and a meson keeps a mean gap of 1.48 against 65.6 while it travels (E-FRC-0144, E-FRC-0145). On the cold field the string gates fail. One Sigma(648) element per link keeps the string taut on both branches, but no Creutz ratio can be read and the cold meson is frozen (E-FRC-0150, E-FRC-0151). Coupling the center phase to the flux as a conjugate pair is exact, with the lock built in rather than derived (E-FRC-0154), and holds a flux string near taut with no put-in tension, but at a deconfined point, and a cold meson\'s pattern is carried 4.2 docks in 600 beats (E-FRC-0155). The coupled rule cannot hold the confined point (E-FRC-0160, E-FRC-0161). Covariant cooling moves hold beta0 near 13, which is deconfined on D4 (Polyakov 0.20 to 0.26), with no area law and a frozen meson (E-FRC-0162, E-FRC-0163). The confined side between beta0 3.8 and 13 is not scanned',
       'confinement is at one spacing on a 6^3 x 4 lattice. Under the Wilson action with a Re Tr U^2 term the classical group $\\Sigma(648)$ matches SU(3) at the N_t = 4 transition (chi(2, 2) 0.375 against 0.378, E-FRC-0103), and on the trajectories measured its spacing stops shrinking there. Two cube-root swap phases give the first finer step, $\\sqrt{1/6}$ (E-QTM-0101), and the first word closer to T than any classical element needs 4 swap phases, 0.362 at $2^8$ of grain (E-QTM-0104)',
     ],
     equations: [
@@ -2296,6 +2296,30 @@ export const RESULTS: Result[] = [
         measured: '510 of 576',
         reference: '88 of 576 walk on the committed turning weave\'s couples (run)',
         code: 'E-FRC-0147',
+      },
+      {
+        quantity: 'travelers among the 24 directions, the third step of the pre-registered knit choice',
+        measured: '16 for the color turn weave',
+        reference: '15 for the runner-up, after exact ties on dressing ratio (1) and vacuum components (2) (run)',
+        code: 'E-FRC-0148',
+      },
+      {
+        quantity: 'a lone vibe\'s disturbance on the folded round robin at side 11, first to fourth period',
+        measured: '119 to 75,050 slots',
+        reference: '33 to 2,241 under the committed knit (run)',
+        code: 'E-FRC-0156',
+      },
+      {
+        quantity: 'CHSH on the combined knit with the fear beat on, unfolded and folded',
+        measured: '2.55 and 2.37',
+        reference: '2.00 for the phase-free stand-in (run)',
+        code: 'E-FRC-0159',
+      },
+      {
+        quantity: 'lone-vibe directions whose pattern recurs exactly, shifted, on an unbounded lattice (travelers)',
+        measured: '7 of 24 on the committed knit, 8 of 24 on the combined knit',
+        reference: 'the rest dress without bound, where a side-9 box caps them at its volume (run)',
+        code: 'E-CMP-0015',
       },
     ],
     figure: {
@@ -2393,6 +2417,19 @@ export const RESULTS: Result[] = [
       { code: 'E-FRC-0151', file: 'test/experiment/gauge/sigma-quark-string.ts', depends: ['A1'] },
       { code: 'E-FRC-0152', file: 'test/experiment/gauge/steering-schedule.ts', depends: ['A1'] },
       { code: 'E-FRC-0153', file: 'test/experiment/gauge/knit-binding.ts', depends: ['A1'] },
+      { code: 'E-FRC-0148', file: 'test/experiment/gauge/color-knit-choice.ts', depends: ['A1'] },
+      { code: 'E-FRC-0149', file: 'test/experiment/gauge/color-knit-characterization.ts', depends: ['A1'] },
+      { code: 'E-FRC-0154', file: 'test/experiment/gauge/sigma-conjugate-pair.ts', depends: ['A1'] },
+      { code: 'E-FRC-0155', file: 'test/experiment/gauge/sigma-string-tension.ts', depends: ['A1'] },
+      { code: 'E-FRC-0156', file: 'test/experiment/gauge/folded-acceptance.ts', depends: ['A1'] },
+      { code: 'E-FRC-0157', file: 'test/experiment/gauge/baryon-steering.ts', depends: ['A1'] },
+      { code: 'E-FRC-0158', file: 'test/experiment/gauge/combined-knit.ts', depends: ['A1'] },
+      { code: 'E-FRC-0159', file: 'test/experiment/gauge/combined-knit-battery.ts', depends: ['A1'] },
+      { code: 'E-FRC-0160', file: 'test/experiment/gauge/sigma-confined-point.ts', depends: ['A1'] },
+      { code: 'E-FRC-0161', file: 'test/experiment/gauge/sigma-field-string.ts', depends: ['A1'] },
+      { code: 'E-FRC-0162', file: 'test/experiment/gauge/sigma-cooling-moves.ts', depends: ['A1'] },
+      { code: 'E-FRC-0163', file: 'test/experiment/gauge/sigma-cooled-string.ts', depends: ['A1'] },
+      { code: 'E-CMP-0015', file: 'test/experiment/computation/difference-engine.ts', depends: ['A1'] },
     ],
     checks: [
       { code: 'E-FRC-0124', metric: 'creatingWithLocalColor', from: 'metrics', expected: 4, tolerance: 0 },
@@ -2417,7 +2454,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'the testbed paper, as what a base would need for color',
     program:
-      'The path forward of the vibe, role and tilt model, walked: color as a local law, roles on moving links, the signed weight as a beat, and binding. Adopted as the three-trit model on 2026-09-25. The candidate knit for it is the color turn weave (E-FRC-0136), color exact dock by dock and passing every gate of the committed knit, dressing included. The committed knit (code/rule/collision.ts) has not changed yet.',
+      'The path forward of the vibe, role and tilt model, walked: color as a local law, roles on moving links, the signed weight as a beat, and binding. Adopted as the three-trit model on 2026-09-25. A rule written before the numbers chose the color turn weave as its table (E-FRC-0136, E-FRC-0148), and the fear beat was adopted into the knit once the combined knit passed every quantum gate with no gate failing only with it on (E-FRC-0158, E-FRC-0159). The fold and steering are not adopted. The committed knit (code/rule/collision.ts) has not changed yet.',
     outputs: NO_OUTPUTS,
   },
   {

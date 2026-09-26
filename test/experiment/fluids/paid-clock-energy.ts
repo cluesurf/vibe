@@ -1,4 +1,4 @@
-// Energy and the arrow together: the scatter weave with its pair clock paid from demons.
+// Energy and the pair clock together: the scatter weave with its pair clock paid from demons.
 //
 // E-FLD-0027 proved that no rule that makes a love and a fear from calm keeps an additive energy over the
 // slots, so energy (and with it sound) and the vacuum's clock excluded each other in the scatter weave.
@@ -235,7 +235,8 @@ function paidDressing(spec: ScatterWeaveSpec): number[] {
 export default experiment({
   id: 'fluids/paid-clock-energy',
   code: 'E-FLD-0028',
-  title: 'PENDING',
+  title:
+    'a pair clock paid from per-line demons keeps an exact energy (tones plus counters) with the pair clock: reversal, charge, P, local color and CPT at the base phase all exact, the vacuum clocking with period 24 when every line holds at least the pair mass 2 and not at all below it; but the energy does not buy sound where the clock runs: with counters of 2 the longitudinal wave slows as k shrinks (omega about k^1.89, speed 0.70 to 0.38 from L = 12 to 24), a mode that does not propagate at long wavelength, and a lone love sets off a pair avalanche (89,010 slots by the fourth period against 1,508); with the counters empty the clock cannot start and the wave rings, extrapolating to 0.66',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -303,10 +304,12 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: 'PENDING',
+      claim:
+        'energy, charge and P exact every beat, no color leak, no counter below zero, reversal of vibes, role points, flows and counters exact, CPT with counters at the base mirror phase; the vacuum with counters of 2 or 4 on every line clocks with period 24 and with 0 or 1 does not clock; energy exact in every sound run. The sound speeds, the hashed-fill vacua and the dressing are reported',
       metrics,
       control: Object.fromEntries(committedDressing.map((v, p) => [`committedLoveSupportPeriod${p + 1}`, v])),
-      notes: 'PENDING',
+      notes:
+        'L2, exact, no random numbers. THE ENERGY: a demon per line escapes the additive-energy proof of E-FLD-0027 because it is a second kind of variable that does not stream; the paid clock is a bijection on (wire state, counter) for the bind cycle, a calm wire whose counter holds less than 2 staying calm, so reversal is exact, and negation leaves counters alone, so CPT holds where it held. THE VACUUM: with the same counter on every line the vacuum stays the same in every dock and clocks exactly as the unpaid one does, period 24, when that counter is at least 2 (a pair made in one dock annihilates in another, but every dock is alike, so every counter is paid back); with 0 or 1 nothing is made, and the empty state stands still (its "period" of 24 is a state that never changes). Hashed fills, 2 on a quarter, half or 90 percent of the lines, make a vacuum that is no longer the same in every dock; it did not return within 480 beats (reversible and finite, so it returns eventually, but not within any period the gates use). SOUND: the counters are energy that does not move, so they join the density the momentum pushes against without adding to the pressure. With counters empty at the start the clock is idle and a wave rings as on the flip table, its speed 0.79 to 0.69 from L = 12 to 24, extrapolating to 0.66 in k^2, below the c / 2 = 0.707 of E-FLD-0027 as annihilations fill the counters. With counters of 2 everywhere, the clocking vacuum, the fitted speed keeps falling as k shrinks, omega about k^1.89 over L = 12 to 24, so there is no sound speed at long wavelength on any mesh run here: the energy moves more like a diffusing density than a wave. DRESSING: on the clocking vacuum a lone love sets off a pair avalanche, 38, 124, 818 and 89,010 slots by period against the committed 33, 160, 565, 1,508 (E-FLD-0029 shows the support is pairs). So the demon escapes the proof but not the fork: energy and the clocking vacuum coexist exactly, while sound and a quiet vacuum response do not come with them in this rule.',
     })
   },
 })

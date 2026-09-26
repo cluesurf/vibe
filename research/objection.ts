@@ -43,9 +43,9 @@ export const OBJECTIONS: Objection[] = [
   {
     objection: 'the committed knit does not conserve momentum',
     measured:
-      'charge is conserved at every beat of every run, while the charge-signed momentum along x drifts by 830 over 48 beats from a hash start. The hop is 96 percent of the loss, and create, flip and annihilate move no particle momentum (E-FLD-0021). A rule in the family keeps it only with no hop, and every such rule dresses more (E-FLD-0022), the momentum weave at 108,080 slots against 1,508 (E-FLD-0023)',
+      'charge is conserved at every beat of every run, while the charge-signed momentum along x drifts by 830 over 48 beats from a hash start. The hop is 96 percent of the loss, and create, flip and annihilate move no particle momentum (E-FLD-0021). A rule in the family keeps it only with no hop, and every such rule dresses more (E-FLD-0022), the momentum weave at 108,080 slots against 1,508 (E-FLD-0023). A four-line scatter block on the head-on turn weave keeps P with momentum exchange and passes every committed gate (E-FLD-0024), and a wider scattering reaches hydrodynamics (nu = 0.47, E-FLD-0026), but not with the committed dressing. The committed knit itself still breaks it',
     verdict: 'stands',
-    source: 'E-FLD-0020 to E-FLD-0023',
+    source: 'E-FLD-0020 to E-FLD-0026',
   },
   {
     objection:
@@ -65,9 +65,16 @@ export const OBJECTIONS: Objection[] = [
   {
     objection: 'dropping the hop for local color spreads a lone disturbance about twice as wide',
     measured:
-      'the color weave dresses 1.7 to 2.3 times wider than the committed knit (E-FRC-0125). The color turn weave, another hop-free table, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (love 31, 115, 265, 507 against 33, 160, 565, 1,508 at side 9). Its full-battery follow-up is still running, and the verdict returns to open if it fails a gate',
+      'the color weave dresses 1.7 to 2.3 times wider than the committed knit (E-FRC-0125). The color turn weave, another hop-free table, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (love 31, 115, 265, 507 against 33, 160, 565, 1,508 at side 9). Its full battery passes for both signs at sides 7, 9 and 11, and a rule written before the numbers chooses it (E-FRC-0148). The answer is a comparison at one box size, not a bound: those supports are capped by the side-9 box, and on an unbounded lattice most lone vibes dress without bound under the committed knit as under the color-local ones (E-CMP-0015)',
     verdict: 'answered',
-    source: 'E-FRC-0125, E-FRC-0136, E-FRC-0137',
+    source: 'E-FRC-0125, E-FRC-0136, E-FRC-0137, E-FRC-0148, E-CMP-0015',
+  },
+  {
+    objection: 'a lone vibe dresses the vacuum without bound',
+    measured:
+      'the bounded dressing read in E-FRC-0125 and E-FRC-0136 was the side-9 box, which caps the support at its volume. The difference engine runs the knit exactly on an unbounded lattice: there most lone vibes dress without bound, growing about as t^5, and only 7 of 24 directions on the committed knit and 8 of 24 on the combined knit recur exactly, shifted, as travelers the stream keeps copying (E-CMP-0015). In the viscous scatter weave the dressing is pair creation, a front of new pairs at the vibe speed sqrt 2 (E-FLD-0029)',
+    verdict: 'stands',
+    source: 'E-CMP-0015, E-CMP-0016, E-FLD-0029',
   },
   {
     objection: 'willpower is added as a scalar, not derived',

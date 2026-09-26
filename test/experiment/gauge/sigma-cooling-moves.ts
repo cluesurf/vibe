@@ -134,6 +134,7 @@ function anneal(rule: SigmaLinks): number {
 // the structural battery of E-FRC-0154 for one family
 function structure(moves: MoveFamily): { exact: boolean; frame: number; centerFrame: number; gauss: number } {
   const rule = makeSigmaLinks({ side: SIDE, kappa: 3, tension: 3, capacity: 24, couple: 'center', scale: SCALE, ratio: RATIO, moves })
+
   const start = (scale: number): SigmaState => {
     const s = empty(rule, hashedSigmaLinks(rule))
 
@@ -157,12 +158,15 @@ function structure(moves: MoveFamily): { exact: boolean; frame: number; centerFr
 
     return s
   }
+
   const fields = (s: SigmaState): ArrayLike<number>[] => [s.vibe, s.role, s.links, s.demon, s.flux]
+
   const mismatches = (a: SigmaState, b: SigmaState): number => {
     const right = fields(b)
 
     return fields(a).reduce((n, f, k) => n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length, 0)
   }
+
   const count = (s: SigmaState, v: number): number => s.vibe.filter(x => x === v).length
   const s0 = start(1.37)
   const e0 = sigmaEnergy(rule, s0)
@@ -237,15 +241,15 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         "the families 'center' and 'wide' reverse exactly, conserve energy to the unit, love and fear, keep Gauss's law and commute with frame changes by all 648 elements and by the center alone, each richer family drains at least as low as the one before it from both starts, and the heat-assisted drain with the richest family reaches the annealing reference's level or below it within 0.05 per triangle",
-      metrics: Object.fromEntries([
-        ...ladder.flatMap(row => [
+      metrics: Object.fromEntries<number>([
+        ...ladder.flatMap((row): [string, number][] => [
           [`${row.moves}OrderedDrain`, row.ordered],
           [`${row.moves}DisorderedDrain`, row.disordered],
         ]),
         ['wideHeatAssistedDrain', cooled],
         ['lowestLevel', Math.min(...Array.from(wide.level))],
         ['monotoneLadder', monotone ? 1 : 0],
-        ...(['center', 'wide'] as MoveFamily[]).flatMap((moves, k) => [
+        ...(['center', 'wide'] as MoveFamily[]).flatMap((moves, k): [string, number][] => [
           [`${moves}Exact`, structures[k]?.exact ? 1 : 0],
           [`${moves}FrameMismatches`, structures[k]?.frame ?? -1],
           [`${moves}CenterFrameMismatches`, structures[k]?.centerFrame ?? -1],

@@ -44,25 +44,25 @@ folder). Counts are file counts.
 | arena | files | registered | what it tests |
 |:--- | ---: | ---: |:--- |
 | [selves](selves/readme.md) | 176 | 175 | whether a bound, self-maintaining self emerges from lossy coarse-graining: binding, agency, integration, identity, death, nesting, self-model, self-localization |
-| [gauge](gauge/readme.md) | 146 | 151 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate, and the strong force simulated and mapped to published values, with SU(3) measured absent from the rule ([strong-force](gauge/strong-force.md)) and what a base would need to carry it ([what-the-base-needs](gauge/what-the-base-needs.md)) |
+| [gauge](gauge/readme.md) | 160 | 165 | the Standard Model gauge group, charges, forces, the mass hierarchy, Koide, and generations, emerging from the substrate, and the strong force simulated and mapped to published values, with SU(3) measured absent from the rule ([strong-force](gauge/strong-force.md)) and what a base would need to carry it ([what-the-base-needs](gauge/what-the-base-needs.md)) |
 | [foundations](foundations/readme.md) | 143 | 151 | the base axioms: the ternary tone, the one reversible rule, records and the arrow, the pinch to dimension eight, the substrate forced, the SM from the seed, and the rule's own limits (no amplitudes, a period-three vacuum) |
-| [quantum](quantum/readme.md) | 108 | 108 | the quantum on stated models (the coined Dirac walk, tight-binding chains, small Hilbert spaces): Born rule, entanglement, measurement as settling, topological walks. None of it yet runs the base rule, see `../audit/2026-08-31-experiment-audit.md` |
+| [quantum](quantum/readme.md) | 110 | 110 | the quantum on stated models (the coined Dirac walk, tight-binding chains, small Hilbert spaces): Born rule, entanglement, measurement as settling, topological walks. None of it yet runs the base rule, see `../audit/2026-08-31-experiment-audit.md` |
 | [gravity](gravity/readme.md) | 55 | 55 | gravity as emergent and entropic: curvature from the area law, Einstein as an equation of state, the dark sector, horizons |
 | [cosmology](cosmology/readme.md) | 57 | 57 | the growing wake: self-creation from the void, expansion, dimension selection, inflation, the CMB, dark energy |
 | [spin](spin/readme.md) | 45 | 45 | spinors and fermions from the 24-cell and D4 coin: the double cover, Dirac, triality, anyons, and textbook atomic and nuclear calculations |
-| [relativity](relativity/readme.md) | 46 | 46 | Lorentz invariance and the light cone as emergent from a fixed lattice (the hard problem for any discrete theory) |
+| [relativity](relativity/readme.md) | 53 | 53 | Lorentz invariance and the light cone as emergent from a fixed lattice (the hard problem for any discrete theory) |
 | [geometry](geometry/readme.md) | 38 | 38 | why {3,4,3,4}: the 24-cell, F4, hyperbolic tessellation, curvature, the exceptional-algebra spine |
 | [holography](holography/readme.md) | 36 | 36 | bulk-boundary duality: the area law, Ryu-Takayanagi, celestial holography, error-correcting codes |
 | [substrate-survey](substrate-survey/readme.md) | 30 | 30 | why this geometry and not another: the same battery re-run on rival lattices |
 | [data-structure](data-structure/readme.md) | 28 | 28 | the substrate as a data plane: capacity, indexes, paths, routing |
 | [associative](associative/readme.md) | 16 | 16 | content-addressable memory on the bulk: recall, Hopfield attractors, capacity from curvature |
-| [renormalization](renormalization/readme.md) | 16 | 18 | the coarse-graining tower and the renormalization-group flow to the continuum, and the committed rule's screen ([engine-and-screen](scale/engine-and-screen.md)) |
-| [computation](computation/readme.md) | 14 | 14 | universal computation on the substrate: reversible CA, the railway, goal-directed search |
-| [fluids](fluids/readme.md) | 23 | 23 | lattice-gas hydrodynamics: emergent Navier-Stokes, conservation laws, exotic phases |
+| [renormalization](renormalization/readme.md) | 17 | 19 | the coarse-graining tower and the renormalization-group flow to the continuum, and the committed rule's screen ([engine-and-screen](scale/engine-and-screen.md)) |
+| [computation](computation/readme.md) | 17 | 17 | universal computation on the substrate: reversible CA, the railway, goal-directed search |
+| [fluids](fluids/readme.md) | 33 | 33 | lattice-gas hydrodynamics: emergent Navier-Stokes, conservation laws, exotic phases |
 | [addressing](addressing/readme.md) | 14 | 14 | the addressing scheme and greedy geometric routing on the honeycomb |
 | [method](method/readme.md) | 6 | 6 | meta-experiments about the suite: the rigidity test and the anti-fooling gates |
 | [general](general/readme.md) | 1 | (under renormalization) | the exact renormalization mechanism |
-| **total** | **998** | **1,011** | a file may register more than one experiment |
+| **total** | **1,035** | **1,048** | a file may register more than one experiment |
 
 ## The coverage map
 
@@ -71,30 +71,30 @@ view: where the suite is deep, where it is thin, and where it has no
 control-gated result yet.
 
 Counts by catalog category, regenerated 2026-09-25 from
-`test/catalog.csv` (1,011 experiments), after the 2026-08-31 audit
+`test/catalog.csv` (1,048 experiments), after the 2026-08-31 audit
 regraded every L3 that never ran a substrate.
 
 | arena | L0 | L1 | L2 | L3 | paper |
 |:--- | ---: | ---: | ---: | ---: | ---: |
 | selves | 3 | 14 | 144 | 14 | 109 |
 | foundations | 0 | 40 | 109 | 2 | 115 |
-| gauge | 3 | 43 | 96 | 9 | 46 |
-| quantum | 1 | 22 | 85 | **0** | 68 |
+| gauge | 3 | 43 | 110 | 9 | 46 |
+| quantum | 1 | 22 | 87 | **0** | 68 |
 | cosmology | 1 | 11 | 38 | 7 | 37 |
 | gravity | 4 | 12 | 38 | 1 | 24 |
-| relativity | 1 | 5 | 37 | 3 | 35 |
+| relativity | 1 | 5 | 44 | 3 | 35 |
 | spin | 1 | 17 | 27 | **0** | 30 |
 | geometry | 0 | 13 | 23 | 2 | 20 |
 | holography | 0 | 8 | 24 | 4 | 18 |
 | substrate-survey | 0 | 17 | 12 | 1 | 13 |
 | data-structure | 0 | 16 | 12 | **0** | 28 |
-| fluids | 0 | 1 | 21 | 1 | 15 |
-| renormalization | 0 | 3 | 12 | 3 | 8 |
+| fluids | 0 | 1 | 31 | 1 | 15 |
+| renormalization | 0 | 3 | 13 | 3 | 8 |
 | associative | 0 | 2 | 9 | 5 | 16 |
-| computation | 0 | 2 | 12 | **0** | 10 |
+| computation | 0 | 2 | 15 | **0** | 10 |
 | addressing | 0 | 5 | 9 | **0** | 3 |
 | method | 0 | 1 | 5 | 0 | 3 |
-| **total** | **14** | **232** | **713** | **52** | **598** |
+| **total** | **14** | **232** | **750** | **52** | **598** |
 
 The bulk of the suite is L2 (known physics reproduced on a stated
 model). 52 experiments reach L3 (one base rule, a measured consequence,
