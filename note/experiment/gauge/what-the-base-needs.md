@@ -172,6 +172,24 @@ rule that works in pairs can never treat them symmetrically and still reach them
 triality color would need a four-line interaction block, and adopting one is a decision, not a
 measurement.
 
+### The three copies, measured as generations (`E-FRC-0140`, `0141`)
+
+Under the triality weave every lone vibe on a copy line and its triality image have the same support
+at every beat, the same reach and the same charges line for line. The copies are exactly degenerate,
+as the symmetry forces. The committed turning weave breaks this on 36 of 36 seeds, with reach 6.74,
+2.74 and 1.38 by copy. What the symmetry leaves open is the transition table. The weave's swaps pair
+orbits in the order they were listed, and `E-FRC-0109` listed them by line index, which puts one
+orbit a copy ahead. As built, 0.028 of a vibe's charge moves one copy ahead and 0.028 one copy behind,
+equal both ways, so there is no handedness. Relisted from one copy, the weave keeps every vibe on its
+copy at every beat: an exactly conserved copy number, and an identity table. A vibe on a gluon line
+gives 0.299 of its charge to each copy. So the triality weave has three exactly conserved, exactly
+degenerate copies, a family symmetry with nothing inside it to break it. Breaking it from outside:
+the committed knit splits all three apart on all 16 planes (reach spreads 1.59 to 5.66). But a
+condensate on one copy under the triality weave sets only that copy apart. The other two stay
+exactly degenerate and never feel it (1 + 2), because the vertex never fires on an orbit that one
+condensed copy fills. A hierarchy of three distinct values needs a knit that breaks the triality, not
+a background on one copy.
+
 ## The four follow-ups, worked
 
 ### A box where triality acts (`E-FRC-0108`)
@@ -663,7 +681,7 @@ Steps 1 and 2 need no new kind of ingredient. Step 3 may not either: the sign is
 non-classical step is the swap phase at the cube-root angle, and it is the one place the vibe depends
 on the roles.
 
-## The path, walked (`E-FRC-0124` to `E-FRC-0129`)
+## The path, walked (from `E-FRC-0124`)
 
 Each step above was built and measured. What each one found, and what it changed about the plan:
 
@@ -677,6 +695,16 @@ Each step above was built and measured. What each one found, and what it changed
 | binding, moving | the mechanism, on a line. A hop pays the change in string energy (the triality flux, E mod 3) to a demon, or reflects. A love and a fear keep a mean gap of 1.9 docks while traveling 486, against 64 with no tension. A baryon holds together (spread 4.0 against 61) and moves freely relative to its antibaryon | `E-FRC-0129` |
 | can a lone color return? | not under the committed orientation. Color-local moves keep a lone vibe in its sign class, and the committed class of 12 directions lies in an open half-space (witness c = (4, 3, 2, -1)): a lone part drifts one way forever. Exactly 192 of the 4,096 orientations of the lines do this, the positive systems of D4. The other 3,904 hold a zero-sum triangle, so a part could come back | `E-FRC-0130` |
 | binding, moving, on D4 | bound when cold, melted when warm. With matter that waits in docks and a paid hop, at the coldest demon energy a meson keeps a mean gap of 1.72 while traveling 34, against 122 with no tension, and a baryon holds together (spread 2.7 against 228) while it moves. Warmer, the string melts (mean gap 89.5 at the hottest), the deconfinement of a string with 23 ways to turn, between the fills 0.05 and 0.1 | `E-FRC-0131` |
+| 1, the dressing, answered | a color-local table that dresses no more. A lone vibe's dressing is pair creation from calm, exactly 1 + 2 x the net pairs left. The committed table is the hop-free transposition after a line reflection, and the reflection is the move that breaks color and keeps the dressing low. Varying the hop-free schedule one freedom at a time finds 0 winners in 98,468 members. Varying the turn and the swap order together finds several. The color turn weave (its turn swaps axes 0 and 1 and negates axis 2, line permutation [0, 1, 7, 6, 8, 9, 3, 2, 4, 5, 11, 10], swap order 3, 0, 5, 2, 4, 1) keeps reversal, charge, CPT, the vacuum's period, superposition and sheet-quantized walls, has 2 vacuum line components against 3, and leaks 0 color. At side 9 a lone love dresses 31, 115, 265, 507 slots and a lone fear 27, 115, 265, 507 in the first four periods, against 33, 160, 565, 1,508 and 27, 163, 581, 1,501 under the committed knit, and it stays bounded the same way at sides 7 and 11. The full battery on it is still running (`E-FRC-0148`, `0149`, not yet registered) | `E-FRC-0136`, `0137` |
+| binding, moving, in the slots: waiting | built as argued, and it cannot pay. Two waiting slots per dock and the returning orientation (mask 1, 4 triangles in its plus class, the committed one 0) give a rule exact in reversal, charge, energy, Gauss's law, local color (0 leaks, 3,629 when a waiting slot trades across sides) and frame change. But the stream moves every charge in a moving slot, so where no direction can be paid, a charge just arrived and a charge already waiting would both have to end waiting. A reversible rule sends 12 of the 13 places of a lone charge across unpaid, and more waiting slots add places before and after alike. A lone love with no tension does not come back under either orientation | `E-FRC-0132` |
+| binding, moving, in the slots: the result | waiting slots do not bind: at the coldest fill 1,012 of 1,024 string crossings go into debt and the meson's mean gap is 219, against 121 with no tension. What removes the debt is a crossing that bounces when it cannot be paid, with a calm slot's color sign carried by what the slot holds (0 color leaks, 3,759 with the sign fixed by the slot). No demon goes below zero. A meson keeps a mean gap of 0.17 against 441 and a baryon a spread of 1.8 against 447, melting between the fills 0.2 and 0.35. But a bounce reverses the charge, so the cold bound pair settles in one dock and travels 0.7 in 600 beats, against 34 in `E-FRC-0131`. Moving binding in the slot architecture is not shown by bouncing | `E-FRC-0133` |
+| binding, moving, in the slots: what frees it | steering. A charge that can steer onto or off its string, with each charge carrying its own store of energy, keeps every local law of the reflecting slots exact: reversal, charge, energy to the unit, Gauss, no demon or store below zero, local color with the sign carried (0 leaks, about 3,750 with the sign fixed), and a frame change in every dock | `E-FRC-0146` |
+| binding, moving, in the slots: steered | bound and moving, on a new schedule. A cold meson keeps a mean gap of 1.87 while traveling 13, against 409 with no tension, and a baryon holds together (spread 10.8). The mechanism is a cold walker: the rear charge's released unit rides the streaming demon to the front. Both melt as the demons warm, not monotonically. 510 of 576 starting headings give a bound pair that travels, and all 576 bind. A store carried by each charge does not free it. The steering runs on a round robin of all line pairs (11 matchings), which is not the committed weave: the weave's couples reach only 5 of 12 lines, and on them 88 of 576 headings walk. Weaker than `E-FRC-0131`: travel 13 against 34, baryon spread 10.8 against 2.7 | `E-FRC-0147` |
+| a schedule the knit could carry | a folded round robin. Steering needs every line to meet every other, and no knit that precesses one partition by a symmetry of the box has that: the color turn weave's couples reach 12 of 66 pairs of lines, and no power of any of the 1,152 symmetries reaches more than 36. A round robin folded into the 24-beat palindrome reaches all 66 and keeps CPT, and lone steering leaves the folded vacuum's period as it was, 72 beats, against the committed knit's 24. The fold's turn is not a box symmetry, and the acceptance battery on the fold is not yet run | `E-FRC-0152` |
+| binding, moving, on the fold | bound and moving, short of matter that waits. With lone steering on the folded round robin a cold meson keeps a mean gap of 1.27 while traveling 20, against 252 with no tension, and a baryon holds together (spread 8.1 against 383). The gap rises monotonically with the demon energy. String-led demons, faster demons and differ steering do not close the gap to `E-FRC-0131` (travel 34, spread 2.7) | `E-FRC-0153` |
+| links that feel the matter | exact, and local. With the hopping term in the links' energy and every move paid to a demon, the rule reverses, conserves energy to the unit and commutes with a frame change in every dock (a link priced without the matter term leaks 99 units, matter coupled without the link gives 208,606 frame mismatches). Matter shapes the links it touches: static source lines make their links carry their color 0.81 of the time on a melted field (1/9 by chance, 0.10 with kappa 0) at a cost of 0.22 ± 0.07 in the triangles round them, and a meson's link carries its color 0.92 of the time when adjacent. But no string forms: the pair's link response does not depend on its separation beyond the noise, the Polyakov correlator is at the noise, and the meson is bound only by contact (mean gap 3.73 against 3.94). The role points see the 216 grid moves, the center divided out, so their string is the gluon's and can break. The quark string is the center flux of `E-FRC-0129` and `0131`, which this rule lacks. On the cold field the link response drops to 0.48 and its gate fails | `E-FRC-0134`, `0135` |
+| the full three-trit link | exact, and a quark string on the melted field. Each link holds the grid move, priced with the hopping term, and the center flux, Gauss's law with a tension on E mod 3, every move paid to a demon: exact reversal, energy to the unit, love and fear, Gauss's law at every dock and a frame change in every dock. A hop that leaves its flux behind breaks Gauss's law, unpaid flux leaks energy, and matter carried without the link breaks the frame change. Melted, the string between a static love line and a fear line stays taut: excess 0.20, 0.60, 0.26, 0.77 per slice at R = 1 to 4, potential rising from 14.4 to 57.3, where the tension-0 control spreads over 4,228 links. A meson keeps a mean gap of 1.48 against 65.6 free while traveling 7.7. Tension alone binds (1.65), hopping alone does not (148.7). Cold, the meson binds (2.68) but the string gates fail (excess 2.77, 0.14, -0.02, 2.53), at the noise of about 102 vacuum flux links, with tension x beta 3.33 against ln 23 = 3.14. The limit: the center phase is not a variable here, and the grid field and the flux meet only through matter | `E-FRC-0144`, `0145` |
+| one Sigma(648) element per link | exact, and two gates fail. Each link holds the full element of the classical color group, priced on Re Tr so the field feels the center, with the grid move its quotient (a homomorphism with kernel exactly the 3 center elements) beside the flux E and Gauss's law: exact reversal, energy to the unit, love and fear, and a frame change by all 648 elements and by center elements alone. Setting the link's center phase equal to E mod 3 instead breaks Gauss's law at 187 of 256 docks under a center frame change. The string between a static love line and a fear line stays taut on both branches (excess under 0.61 melted, under 0.012 cold), the melted meson binds while it moves (gap 1.43 against 65.6), and the center stays unbroken (\|<P>\| 0.0001). But no Creutz ratio can be read, loops past 1 x 1 sitting at the noise, and the cold meson is frozen | `E-FRC-0150`, `0151` |
 
 **Two things the plan said that the measurements corrected.** A calm line does not hold one shared
 role: every calm slot keeps its own, and its sign is set by its side of the line, which is what makes
@@ -690,20 +718,100 @@ elements, which is Sigma(648) with its center divided out, and the link's flow m
 So the link of the three-trit model carries exactly the Sigma(648) element whose confinement
 `E-FRC-0126` measures.
 
+### The signed weight inside the lattice (`E-QTM-0099` to `E-QTM-0108`)
+
+**The fear beat inside the lattice (`E-QTM-0099` to `0101`).** In `code/rule/fear-weave`, tokens
+move exactly as the color weave moves role points. A knot's loves and fears ride those tokens as
+whole-number weights on their joint role points, and the one-third turn acts where two of them meet.
+With it off the rule is the color weave (0 mismatches over 5,423 meetings). With it on it reverses
+exactly, keeps love minus fear and the vibe sum, stays pure in integers (fear share at most 0.30),
+and commutes with a change of frame in every dock. A meeting feels only the holonomy of the loop the
+two tokens' paths enclose. The pair made together in the vacuum shuttles round its own line and never
+passes 36 units. The pair that grows most quadruples its grain at every meeting and is refused at
+meeting m + 1 when it holds 9·4^m units. The weights are quantum in the roles: chances 1/4, 3/4, 1
+over three meetings against 1/4, 3/8, 7/16 for the phase-free stand-in, and CHSH √7 from two docks
+against 2. Meetings keep the singlet share at exactly 1/6, so the singlet's 18 fears are not made by
+meeting. Positions stay classical. Toward the continuum, Sigma(648) on each role plus the swap phase
+spans all of su(9). But one swap phase gives no step finer than the classical group (0.650). Two give
+the first finer step (√(1/6) = 0.408) at 16ths of grain, and neither comes closer to T than the
+classical 0.395.
+
+**A love meeting a fear (`E-QTM-0102`).** The swap phase does not respect color when a love meets a
+fear: it breaks both love minus fear of the two role points and the grid moves, with 378 color
+violations. The gate that respects color there is the singlet phase. Its kernel is in thirds with
+fears, it keeps love minus fear of the two role points in every configuration, and it commutes with
+all 216 grid moves, with 0 violations. Sigma(648) allows only two color-respecting gates per pair (a
+commutant of dimension 2), so no color-respecting meeting can make or unmake a knot of two or three
+roles. The love-fear knot is nine loves and no fear. Only link holonomy moves the knot share: one
+meeting and one grid move make the meson knot exactly, and holonomy lifts the three-role share from
+1/6 to 0.784.
+
+**Motion (`E-QTM-0103`).** The one-third turn on a lone vibe's slot moves it quantum-mechanically,
+exact in Eisenstein integers for 400 beats and reversible. The spread grows as t (exponent 0.997),
+where the phase-free stand-in diffuses as √t (0.497), and <x^2>/t^2 = 0.1339779 against
+1 - √3/2. Two paths round a ring give 1/4, 13/16, 13/16 against 10/16 without the phase. But streaming
+permutes the Wigner grid only on a ring of 3 docks, so on a longer ring the weight on position is
+complex, not real loves and fears.
+
+**The ladder toward T (`E-QTM-0104`).** A beam over words of Sigma(648) moves and m cube-root swap
+phases on two roles is exact at one swap phase but misses the two-swap-phase optimum (0.497 against
+0.395), a failed gate that stands. The first word closer to T than any classical element needs 4 swap
+phases (0.362) and costs 2^8 of grain. Six give 0.348 at 2^12, and the smallest step reaches
+√(1/8).
+
+**Love = fear, measured (`E-QTM-0105`, `0106`).** Stored as its departure from calm, the fully mixed
+state, every knot of the fear weave holds exactly as many loves as fears. Every step fixes calm, so
+the departure moves by the same kernel and reads back as the fear weave's knot at every one of 480
+beats for three pairs and a triple, with chances 1/4, 3/4, 1, CHSH √7, exact reversal, and the grid's
+love minus fear equal to the vibe charge of the pair made from calm on 480 of 480 beats. The cost is
+exactly 3^k units of grain per knot. C stays a symmetry, but the literal love-fear swap gives negative
+chances. Giving each knot its charge as a sign, +1 for a love-knot and -1 for its mirror, keeps
+love = fear and every chance, but the additive ledger breaks at the first meeting of two knots (0
+before the join, -1 after, at beat 6 for the pair made from calm and beat 232 for the grower pair),
+because joined knots multiply what they carry and charges add. The center phase omega^q, a cube root
+of unity raised to the charge and exact in Eisenstein integers, passes every one of the same gates:
+love and fear carry mirror values (omega and omega^2), the exponent is the additive ledger, and C is
+complex conjugation. Neither changes a chance.
+
+**The weight is roles, and the fear clock (`E-QTM-0107`, `0108`).** Every Eisenstein weight is one
+knot-free count of vibes in take, hold and free, unique up to knots (1 + omega + omega^2 = 0) and the
+fewest vibes, with -1 = (0, 1, 1). The walk run as additions of role-rolled counts and knot removal
+equals the Eisenstein walk at every slot for 200 beats, drops knots only where the swap phase turns
+roles, reverses exactly and keeps (2^t, 0, 0) as its total. And the committed pair table is calm-pair
+creation after an exchange: the fear clock puts the swap phase in place of the exchange. At phi = pi
+it is the committed knit beat for beat on rings of docks and on one D4 dock, reproducing
+`E-FND-0080`. With the turn it is exact, keeps love minus fear and reverses, and on the rings a
+seeded vibe spreads to every slot and two seeds interfere from beat 3, the amplitude `E-FND-0080`
+found missing. On one dock in 9 beats seeds spread to 3 slots but never interfere, a failed gate that
+stands. `E-QTM-0099`, `0100` and `0102` also carry color-mode sections, their gates fixed before the
+runs: in color mode the pair reads 1/3, 1/3, 1 against 1/3 dephased, with CHSH 2.5523.
+
+**Forced by the color law, not chosen:** with the three-trit model adopted, the fear weave uses the
+singlet phase where a love meets a fear and the swap phase where like meets like, so grain becomes
+2^a 3^b.
+
 ## What the base would change
 
-Each item names the base thing it touches, and the experiment that says why. The first two, the
-color trit and the Sigma(648) links, were adopted on 2026-09-25 as the three-trit model. They are
-measured so far in variant rules, not in the committed knit.
+Each item names the base thing it touches, the experiment that says why, and where the decision
+stands. The color trit and the Sigma(648) links were adopted on 2026-09-25 as the three-trit model
+(vibe, role and tilt per slot, a grid move per link). Its results are measured on the knit variants
+named in each experiment. The committed knit (`code/rule/collision.ts`) has not changed yet, and
+which pair table the three-trit knit runs is still open.
 
-| change | touches | why | cost |
-| --- | --- | --- | --- |
-| a color trit beside the vibe | the vibe | the pair table runs the vibe on a period-three clock, and a clock kept as color breaks SU(3) to its 3-dimensional Cartan part (`E-FRC-0100`) | one more trit per slot |
-| links that hold a Sigma(648) element | the crystal | gauge color lives on links, and this group is a record of three vibes and a coin direction (`E-FRC-0104`), classical | 648 states per link |
-| a kinetic counter per link that streams | the rule | without it a deterministic link rule freezes (`E-FRC-0099`), with it the Z3 center has its whole phase diagram (`E-FRC-0102`) | one bounded counter per link |
-| one phase on the pair swap | the rule | the only color-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's color | an amplitude, the same missing piece as `E-FND-0080` |
-| a four-line vertex | the rule | the only way to keep a color-selecting triality and still connect every line (`E-FRC-0107`), built and measured (`E-FRC-0109`) | one classical exchange, a charge on a color line for three on the triality orbit |
-| one non-Clifford element | the rule | not needed down to about the N_t = 4 spacing (`E-FRC-0103`). Finer than that the classical group stops shrinking, and the next step up from a maximal finite subgroup is already dense in SU(3) | Wigner negativity, the qutrit form of magic, the same ingredient as the swap phase |
+| change | touches | why | cost | decision |
+| --- | --- | --- | --- | --- |
+| a color trit beside the vibe | the vibe | the pair table runs the vibe on a period-three clock, and a clock kept as color breaks SU(3) to its 3-dimensional Cartan part (`E-FRC-0100`). With it, color is an exact local law on a hop-free table (`E-FRC-0124`) | one more trit per slot | **adopted** 2026-09-25, the three-trit model |
+| links that hold a Sigma(648) element | the crystal | gauge color lives on links, and this group is a record of three vibes and a coin direction (`E-FRC-0104`), classical. The full element per link is exact beside the flux and Gauss's law (`E-FRC-0150`) | 648 states per link | **adopted** 2026-09-25, the three-trit model |
+| which pair table the knit runs | the rule | a hop-free table keeps color local exactly (`E-FRC-0124`). The first one dressed 1.7 to 2.3 times wider (`E-FRC-0125`). The color turn weave does not, and passes every gate of the committed knit (`E-FRC-0136`, `0137`) | none beyond the table | **pending**: the color turn weave is the candidate, and its full battery (`E-FRC-0148`, `0149`) is still running |
+| weights stored as the departure from calm, with the center phase omega^q | the signed weight | love = fear in every knot, and every chance and the grid's charge read back for 480 of 480 beats (`E-QTM-0105`). A +1 or -1 sign per knot breaks the additive ledger at the first join. omega^q passes the same gates with its exponent as the ledger (`E-QTM-0106`) | 3^k units of grain per knot | **adopted** 2026-09-25: option 1 storage plus the center phase omega^q. Neither changes a chance |
+| one phase on the pair swap | the rule | the only color-respecting move beyond leave-or-swap (`E-FRC-0100`), and what turns a quark's color. Where a love meets a fear, the color law forces the singlet phase instead of the swap phase (`E-QTM-0102`) | an amplitude, the same missing piece as `E-FND-0080`. Grain becomes 2^a 3^b | **adopted**: the singlet phase at love-fear meetings and the swap phase at like meetings, forced by the color law. **Pending**: putting the fear beat into the knit, held until quantum motion and the color gate report |
+| a kinetic counter per link that streams | the rule | without it a deterministic link rule freezes (`E-FRC-0099`), with it the Z3 center has its whole phase diagram (`E-FRC-0102`) | one bounded counter per link | not decided |
+| a four-line vertex | the rule | the only way to keep a color-selecting triality and still connect every line (`E-FRC-0107`), built and measured (`E-FRC-0109`). Its three copies are exactly degenerate (`E-FRC-0140`) | one classical exchange, a charge on a color line for three on the triality orbit | **pending**: how the triality weave lists its orbits, as built (one orbit a copy ahead) or relisted from one copy (an exactly conserved copy number). Recommended: relisted, for consistency |
+| one non-Clifford element | the rule | not needed down to about the N_t = 4 spacing (`E-FRC-0103`). Finer than that the classical group stops shrinking. The first finer step needs two swap phases (`E-QTM-0101`), and the first word closer to T needs four (`E-QTM-0104`) | Wigner negativity, the qutrit form of magic, the same ingredient as the swap phase | not decided |
+
+**Also pending the user:** whether `E-FRC-0139` keeps its failed R = 3 screening gate (3.02
+standard errors against a gate of 3) against the pre-registered R = 2 gate. Recommended: keep the
+fail, and add a measurement of the correlator's bias at half the box.
 
 The gauge side of color, confinement and deconfinement, needs no amplitudes at the spacing
 measured. The matter side, a quark whose color turns, needs the phase on the swap. That phase is
@@ -713,9 +821,26 @@ the same ingredient the quantum sector is missing, so color does not add a secon
 
 - **The continuum limit.** One spacing, small boxes. The N_t = 6 and N_t = 8 transitions of
   Sigma(648) on some unfrozen trajectory are the next measurement.
-- **Dynamical quarks with a finite color group.** Everything in `E-FRC-0103` is pure gauge.
+- **Dynamical quarks with a finite color group, now measured (`E-FRC-0138`, `0139`).** Color
+  triplets (the orbit of e0 under Sigma(648): 216 vectors on 12 rays, the center moving each along
+  its ray) hop along links carrying their color across, are made from calm in pairs of love and
+  fear, and pay a mass and the hopping term round(-6 Re <phi_x, U phi_y>) from the same demons that
+  move the links. The rule reverses exactly and conserves energy to the unit and love minus fear
+  exactly. The center breaks: <Re P> = 0.0853 +- 0.0022 against 0.0005 +- 0.0015 for pure gauge and
+  0.0009 +- 0.0007 for center-blind matter, whose bond reads |<>|^2, what a role point feels.
+  Rotating one time slice by the center raises the matter energy by at least 1,226 units on every
+  sampled configuration, and by exactly 0 for blind matter. The Polyakov correlator levels off at
+  |<P>|^2 (C = 0.00902, 0.00734, 0.00660 at R = 1, 2, 3, with |<P>|^2 = 0.00728), which is
+  screening, string breaking in its thermal form. Pure gauge and a mass too heavy to make a pair fall
+  to zero. At the same demon temperature the matter raises the plaquette by 0.107. At the same total
+  energy it lowers it by 0.044, because the bonds heat the gauge field. Three limits. The matter is a
+  classical color vector with an occupation, the gauge-Higgs form, not a fermion. It condenses (0.998
+  of sites filled), and no dilute regime exists at this bond scale: the density jumps from full to
+  none as the mass rises. And the screening gate fails by a hair: at R = 3, half the box, the
+  connected correlator overshoots below zero by 3.02 standard errors against a gate of 3.
 - **That the base does this.** These are measurements of what a base with these changes would do,
-  not of the committed knit, which still does none of it (`E-FRC-0093` to `0097`).
+  not of the committed knit, which still does none of it (`E-FRC-0093` to `0097`). The three-trit
+  model is adopted, and the knit that carries it is not yet chosen (see the table above).
 - **The deterministic sampler on larger boxes and at N_t = 4 geometry.** `E-FRC-0110` runs both
   actions on 4^4. The quantization at scale 12 rounds the action, so it is a nearby action, not the
   exact one, and its plaquettes sit 0.009 to 0.015 below the unquantized heatbath's.
@@ -750,7 +875,25 @@ the same ingredient the quantum sector is missing, so color does not add a secon
   class, two per dock. A charge that waits still leaves only along its class's directions, so it also
   needs a returning orientation to come back. **Moving binding in the committed knit's own architecture
   therefore needs two changes to the base: two waiting slots per dock, and a returning orientation of
-  the lines.** Both are decisions. `E-FRC-0131` measures what the result does once matter can wait,
-  and it binds. The derivation here is argued, not yet run as a rule.
-- **Links that feel the matter.** In `E-FRC-0128` the links move and the roles ride them, but no
-  matter term enters the links' energy.
+  the lines.** `E-FRC-0131` measures what the result does once matter can wait, and it binds.
+
+  **Run as a rule, the waiting slots fail** (`E-FRC-0132`). Two waiting slots per dock and a
+  returning orientation are exact in every local law, but a charge that cannot pay cannot wait: 12 of
+  the 13 places of a lone charge cross unpaid, and 1,012 of 1,024 string crossings go into debt
+  (`E-FRC-0133`). A crossing that bounces when unpaid binds, but a bounce reverses the charge, so the
+  bound pair is stuck (0.7 docks in 600 beats against 34). What frees it is steering a charge onto
+  its string (`E-FRC-0146`, `0147`): a cold meson travels 13 bound, and 510 of 576 headings walk. That
+  steering runs on a round robin of all 11 line matchings, not the committed weave, whose couples
+  reach 5 of 12 lines and let 88 of 576 headings walk. Folded into the 24-beat palindrome the round
+  robin is a schedule a knit could carry (`E-FRC-0152`), and on it a cold meson travels 20 bound
+  (`E-FRC-0153`). Still not shown: a folded knit that passes the acceptance battery, and binding on
+  it as strong as matter that waits (travel 20 against 34, baryon spread 8.1 against 2.7).
+- **A quark string on the link fields at the cold branch.** Links priced with the hopping term feel
+  the matter but form no string (`E-FRC-0134`, `0135`). The full three-trit link forms one on the
+  melted field (`E-FRC-0145`), and one Sigma(648) element per link keeps it taut on both branches
+  (`E-FRC-0151`). But on the cold field the string gates fail with the three-trit link, and with the
+  full element no Creutz ratio can be read and the cold meson is frozen. In the three-trit link the
+  center phase is not a variable, and the grid field and the flux meet only through matter.
+- **The color turn weave on the full battery.** `E-FRC-0136` passes every gate the committed knit
+  was adopted by, dressing included, at sides 7, 9 and 11. Its full-battery follow-up (`E-FRC-0148`,
+  `0149`) is still running.

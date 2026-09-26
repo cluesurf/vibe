@@ -78,6 +78,36 @@ export function loneCellStates(degree: number): Int8Array[] {
   return out
 }
 
+// The states that make each four-slot move fire: for a move [u, v, w, x] (u to w, v to x), tones on u and v
+// with every other slot calm, and on w and x likewise, in all four sign combinations. A move whose firing
+// asks only that its own slots be held and its opposite slots be calm fires on these; a map that carries
+// the move to one the rule does not make is caught on them
+export function moveFiringStates(input: {
+  moves: readonly (readonly [number, number, number, number])[]
+  degree: number
+}): Int8Array[] {
+  const out: Int8Array[] = []
+
+  for (const [u, v, w, x] of input.moves) {
+    for (const [a, b] of [
+      [u, v],
+      [w, x],
+    ] as const) {
+      for (const sa of [1, -1]) {
+        for (const sb of [1, -1]) {
+          const state = new Int8Array(input.degree)
+
+          state[a] = sa
+          state[b] = sb
+          out.push(state)
+        }
+      }
+    }
+  }
+
+  return out
+}
+
 export type LedgerEntry = {
   // index into the permutation list
   p: number
@@ -109,11 +139,16 @@ export function symmetryLedger(input: {
   relabellings?: readonly (readonly number[])[]
   quickDense?: number
   thoroughDense?: number
+  // states a piece of the collision needs to fire at all, added to the quick set: a rule whose pieces
+  // fire only in configurations the dense fills rarely reach (a four-line scattering needs two lone
+  // tones going into two wholly calm lines) is otherwise tested blind to those pieces
+  extraStates?: readonly Int8Array[]
 }): LedgerEntry[] {
   const { period, permutations, degree } = input
   const relabellings = input.relabellings ?? TONE_RELABELLINGS
   const quick = [
     ...loneCellStates(degree),
+    ...(input.extraStates ?? []),
     ...denseCellStates({ count: input.quickDense ?? 64, offset: 0, degree }),
   ]
   const thorough = denseCellStates({

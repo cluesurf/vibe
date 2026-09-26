@@ -28,6 +28,14 @@
 // the size of the joint map, and the vacuum's properties: the expected number of vibes per beat against the
 // classical vacuum flash, the spread of the number of love-fear pairs, and its support as a product.
 //
+// The first run ran out of memory before reporting: it kept every beat's three states, and on the committed
+// knit the seed touches all twelve lines by beat 37, the joint map passing 450,000 entries. The run now keeps
+// only the current states and stops a knit where a joint map passes 150,000 entries, reporting the beats
+// reached. Gates 2 to 5 read "within the beats reached". The second run failed reversal on both knits
+// through a harness error: it compared the joint maps' keys, but lines touched on the way stay in the joint
+// map holding calm after the backward run, so an equal state has different keys. Reversal is now compared
+// on the whole state, both expanded over all twelve lines. Nothing else changed.
+//
 // Depth L2: a constructed rule on the committed and adopted knits, exact.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -41,9 +49,11 @@ import { makeWill } from '@/code/tone/will'
 import { colorLocalKnit, colorWeaveKnit, type Knit } from '@/code/rule/fear-weave'
 import { norm } from '@/code/rule/fear-walk'
 import { chargeProfile, configOf, dockBeat, makeDock, setTone, totalNorm, type Amplitudes } from '@/code/rule/fear-clock'
-import { dockCross, dockNorm, dockProfile, dockReducedBeat, dockStart, type ClockKind, type DockMode, type DockState } from '@/code/rule/fear-dock'
+import { dockCross, dockNorm, dockProfile, dockReducedBeat, dockStart, expandDock, type ClockKind, type DockMode, type DockState } from '@/code/rule/fear-dock'
 
 const BEATS = 48
+// the largest joint map a run may hold before it stops: memory, not time, is the laptop's limit here
+const JOINT_CAP = 150000
 const CHECK_BEATS = 6
 
 const stateOf = (k: number): [number, number] => [Math.floor(k / 3) - 1, (k % 3) - 1]
@@ -241,12 +251,20 @@ export default experiment({
         back = dockReducedBeat(back, knit, kind, 'fear', t, false)
       }
 
+      // compared as whole states: both expanded over all twelve lines, weights over 2^halvings
       const start = dockStart(lines, starts[1])
+      const all = lines.map((_, l) => l)
+      const eb = expandDock(back, all)
+      const es = expandDock(start, all)
+      const scaleB = 2n ** BigInt(start.halvings)
+      const scaleS = 2n ** BigInt(back.halvings)
       const reverses =
-        back.halvings === 0 &&
-        back.joint.size === start.joint.size &&
-        [...start.joint].every(([k, z]) => back.joint.get(k)?.[0] === z[0] && back.joint.get(k)?.[1] === z[1]) &&
-        back.free.every((vec, l) => back.touched.includes(l) || vec.every((z, k) => z[0] === (start.free[l]?.[k]?.[0] ?? 0n) && z[1] === (start.free[l]?.[k]?.[1] ?? 0n)))
+        eb.size === es.size &&
+        [...es].every(([k, z]) => {
+          const w = eb.get(k)
+
+          return w !== undefined && w[0] * scaleB === z[0] * scaleS && w[1] * scaleB === z[1] * scaleS
+        })
 
       const classicalPairs: number[] = []
 
@@ -285,8 +303,7 @@ export default experiment({
         classicalPairsMean: mean(classicalPairs),
         vacuumPairSpreadAtEnd: spreadAtEnd,
         vacuumSupport: lineSupports.reduce((p, x) => p * x, 1),
-        v,
-        a,
+        early,
       }
     }
 
@@ -305,8 +322,8 @@ export default experiment({
       fullA = dockBeat(fullA, dock, t, 'fear', true)
 
       for (const [full, reduced] of [
-        [fullV, committed.v[t + 1]!],
-        [fullA, committed.a[t + 1]!],
+        [fullV, committed.early[t]!.v],
+        [fullA, committed.early[t]!.a],
       ] as const) {
         const pf = chargeProfile(full, 24)
         const pr = dockProfile(reduced, lines, 24)
@@ -332,7 +349,8 @@ export default experiment({
       [`${name}VacuumLinesTouched`, s.vacuumTouched],
       [`${name}SeedALinesTouched`, s.touchedA],
       [`${name}SeedBLinesTouched`, s.touchedB],
-      [`${name}SeedAJointSize`, s.jointA],
+      [`${name}JointMapMax`, s.jointMax],
+      [`${name}BeatsReached`, s.reached],
       [`${name}DefectMax`, s.defectMax],
       [`${name}FirstSpreadBeat`, s.firstSpread],
       [`${name}CrossSlotsMax`, s.crossMax],
@@ -346,7 +364,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the reduced method equals the full configuration space for 6 beats; at phi = pi both knits stay one configuration and equal the classical knit for 48 beats; with the turn both are exact, stay in their charge sector and reverse, and the vacuum never correlates two lines; on the committed knit two seeds on different lines interfere within 48 beats',
+        'the reduced method equals the full configuration space for 6 beats; at phi = pi both knits stay one configuration and equal the classical knit for 48 beats; with the turn both are exact, stay in their charge sector and reverse, and the vacuum never correlates two lines; two seeds on different lines interfere, from beat 15 on the committed knit (run to beat 24, where the joint map passes the cap) and from beat 37 on the color turn knit (run to 48)',
       metrics: {
         reducedAgainstFullMismatch: fullMismatch,
         ...Object.fromEntries([...report('committed', committed), ...report('colorTurn', turned)]),

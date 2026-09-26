@@ -6,7 +6,7 @@ The central finding is a dichotomy. The **reversible bulk carries no dissipation
 
 The suite then finds where genuine hydrodynamics does emerge (the momentum-conserving gas), pins the exact conservation laws, and reaches for the superfluid and turbulent limits. Every result runs deterministically against a control (a lossy rule, a pinning pair table, an impoverished coin).
 
-13 experiments, grouped below into five sub-themes. Every code appears once.
+23 experiments, `E-FLD-0001` to `E-FLD-0023`. Every code appears once below except `E-FLD-0016` to `0019`, which are in `test/catalog.csv` and not yet sorted into a sub-theme here.
 
 ## The reversible bulk is inviscid
 
@@ -51,6 +51,16 @@ The hardest fluid limits, superfluidity and the turbulent cascade.
 - **[`E-FLD-0014`](../../../test/experiment/fluids/sound-superposition-interference.ts)** - (L2, paper) disjoint pulses superpose exactly, a compression crossing a rarefaction cancels to 0.45 of the separate sum, and the overlap nonlinearity is the measured obstruction to a unitary coarse dynamics
 - **[`E-FLD-0015`](../../../test/experiment/fluids/no-wavelength-independent-damping.ts)** - (L2, paper) the exact echo plus a k -> 0 damping intercept consistent with zero, against the leaky control that shows its imposed intercept: the one measured number separating this gas from the Chronoflux damped fluid limit
 - **[`E-FLD-0020`](../../../test/experiment/fluids/charge-mode-law.ts)** - (L3) the committed rule's long charge modes: charge conserved exactly, half the mode moves at exactly one cell per beat (omega = k), and the rest relaxes at a wavelength-independent rate near 0.0015 per beat (exponent -0.08 +- 0.03, neither 2 for diffusion nor 1 for a damped front), a nearly collisionless gas at every scale reached, while pure streaming relaxes nothing. The flat law holds at four background densities (rate 0.0011 to 0.0022, rising with the empty fraction), the spread across k is the sampling scatter of one background, and the rate depends on direction (1.8 times faster along axis 1). See [`../scale/engine-and-screen.md`](../scale/engine-and-screen.md)
+
+## Momentum (`E-FLD-0021` to `0023`), added 2026-09-25
+
+The committed knit does not conserve momentum (`E-FLD-0020`). These three find where it is lost, which knits keep it, and what keeping it costs.
+
+- **[`E-FLD-0021`](../../../test/experiment/fluids/momentum-ledger.ts)** (L2) - where the loss is. Particle momentum breaks only in the hop, a reversal of one mover and 96 percent of the loss, and in the palindromic exchange, a turn between the couple's lines. Create, flip and annihilate move no particle momentum and all of the charge current. The Smith form of every possible change leaves no residue of either momentum beyond charge parity. The hop-free table keeps one line invariant, the sum of the twelve line momenta.
+- **[`E-FLD-0022`](../../../test/experiment/fluids/momentum-family.ts)** (L1) - which knits keep it. In the committed knit's family a rule keeps particle momentum exactly if and only if its table has no hop and each couple keeps both line momenta, so every such rule keeps all twelve line momenta separately and exchanges none. 31 of 1,345 distinct negation-symmetric such members pass every structural gate, and all of them dress more than the committed knit. The smallest block that lets momentum pass between lines is three lines of an A2 plane. Four-line binary scatterings leave only P and charge parity.
+- **[`E-FLD-0023`](../../../test/experiment/fluids/momentum-weave-acceptance.ts)** (L2) - the momentum weave, the hop removed and the palindromic exchange widened to a lone vibe against a calm or paired line. It keeps particle momentum and all twelve line momenta exactly, keeps color local, and matches or beats the committed knit on reversal, charge, CPT, vacuum period, line components (1 and 1 against 3 and 1), superposition, walls and travel (20 against 12). The price is dressing: 108,080 slots against 1,508.
+
+So momentum and low dressing pull against each other in this family: every member that keeps momentum keeps each line's momentum apart, and every one of them dresses more than the committed knit. Scattering between lines, the next measurement, needs a block of at least three lines.
 
 ## What it establishes
 

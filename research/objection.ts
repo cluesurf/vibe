@@ -43,17 +43,31 @@ export const OBJECTIONS: Objection[] = [
   {
     objection: 'the committed knit does not conserve momentum',
     measured:
-      'charge is conserved at every beat of every run, while the charge-signed momentum along x drifts by 830 over 48 beats from a hash start',
+      'charge is conserved at every beat of every run, while the charge-signed momentum along x drifts by 830 over 48 beats from a hash start. The hop is 96 percent of the loss, and create, flip and annihilate move no particle momentum (E-FLD-0021). A rule in the family keeps it only with no hop, and every such rule dresses more (E-FLD-0022), the momentum weave at 108,080 slots against 1,508 (E-FLD-0023)',
     verdict: 'stands',
-    source: 'E-FLD-0020',
+    source: 'E-FLD-0020 to E-FLD-0023',
   },
   {
     objection:
       'a knot alone is not bound, and under the committed orientation a lone color cannot come back',
     measured:
-      'under the committed knit a color-neutral triple reaches as far in 6 beats as one of its members alone, 8.5 against 8.5, so nothing binds it (E-FRC-0111). Color-local moves keep a lone vibe in its sign class, and the committed class is one of the 192 of 4,096 line orientations that form an open half-space (E-FRC-0130). Binding is shown only with a paid string, on a line and on the D4 lattice with matter that waits in docks (E-FRC-0129, E-FRC-0131)',
+      'under the committed knit a color-neutral triple reaches as far in 6 beats as one of its members alone, 8.5 against 8.5, so nothing binds it (E-FRC-0111). Color-local moves keep a lone vibe in its sign class, and the committed class is one of the 192 of 4,096 line orientations that form an open half-space (E-FRC-0130). Binding is shown only with a paid string, on a line and on the D4 lattice with matter that waits in docks (E-FRC-0129, E-FRC-0131). In the committed slot architecture a bouncing crossing binds and the pair is stuck, 0.7 docks in 600 beats against 34 (E-FRC-0133). Steering onto the string frees it on a new schedule, 510 of 576 headings, not on the committed couples, 88 of 576 (E-FRC-0147)',
     verdict: 'stands',
-    source: 'E-FRC-0111, E-FRC-0130, R-FRC-0006',
+    source: 'E-FRC-0111, E-FRC-0130, E-FRC-0133, E-FRC-0147, R-FRC-0006',
+  },
+  {
+    objection: 'spin one half is not carried by the committed knit',
+    measured:
+      'the turn lifts after four beats to (-1, +1) in SU(2)_L x SU(2)_R, and the palindromic schedule nets +1 over its period, where the rejected cyclic one nets -1. The coin directions are a 2T torsor. The fermion sign lives only in the signed weight, 72 loves and 18 fears in the fermion pair',
+    verdict: 'stands',
+    source: 'E-SPN-0044, E-SPN-0045, open problem OP-08',
+  },
+  {
+    objection: 'dropping the hop for local color spreads a lone disturbance about twice as wide',
+    measured:
+      'the color weave dresses 1.7 to 2.3 times wider than the committed knit (E-FRC-0125). The color turn weave, another hop-free table, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (love 31, 115, 265, 507 against 33, 160, 565, 1,508 at side 9). Its full-battery follow-up is still running, and the verdict returns to open if it fails a gate',
+    verdict: 'answered',
+    source: 'E-FRC-0125, E-FRC-0136, E-FRC-0137',
   },
   {
     objection: 'willpower is added as a scalar, not derived',

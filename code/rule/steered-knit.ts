@@ -101,7 +101,8 @@ export type KnitState = {
 // 'line' is 'lone' with the string read per line instead of per slot: the two lines are traded where
 // together they hold one charge and they carry string on different numbers of their links. A reversal of
 // every direction swaps the two links of a line, so this reading is the one that reversal leaves alone
-export type KnitSteer = false | 'slot' | 'lone' | 'line'
+// 'either' is 'lone' read on either slot pair of the two lines, which reversal also leaves alone
+export type KnitSteer = false | 'slot' | 'lone' | 'line' | 'either'
 
 export function makeSteeredKnit(input: { side: number; spec: ColorLocalSpec; steer: KnitSteer }): SteeredKnit {
   const mesh = d4BoxMesh({ side: input.side })
@@ -192,11 +193,12 @@ export function steerDock(input: {
     const a = knit.lines[p] ?? [0, 0]
     const b = knit.lines[q] ?? [0, 0]
 
-    if (knit.steer === 'lone' || knit.steer === 'line') {
+    if (knit.steer === 'lone' || knit.steer === 'line' || knit.steer === 'either') {
       const charged = [a[0], a[1], b[0], b[1]].filter(d => slots[base + d] !== 0)
       const s = charged[0] === a[0] || charged[0] === b[0] ? 0 : 1
       const count = (l: readonly [number, number]): number => (string(l[0]) ? 1 : 0) + (string(l[1]) ? 1 : 0)
-      const differ = knit.steer === 'lone' ? string(a[s]) !== string(b[s]) : count(a) !== count(b)
+      const pair = (k: number): boolean => string(a[k] ?? 0) !== string(b[k] ?? 0)
+      const differ = knit.steer === 'lone' ? pair(s) : knit.steer === 'line' ? count(a) !== count(b) : pair(0) || pair(1)
 
       if (charged.length === 1 && differ) {
         swap(a[0], b[0])

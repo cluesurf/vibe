@@ -24,7 +24,7 @@ export const CANDIDATES: Candidate[] = [
     id: 'PC-02',
     candidate: 'a smallest stable remnant halts black-hole evaporation',
     stands:
-      'E-GRV-0051 finds a remnant at mass $1/(4\\omega_{\\max})$, but from the cutoff of the coined walk, which is imported (R-FND-0001)',
+      'E-GRV-0051 finds a remnant at mass $1/(4\\omega_{\\max})$, but from the cutoff of the coined walk, which is imported (R-FND-0001). A lone vibe\'s motion under the one-third turn, apart from the committed knit, is measured (E-QTM-0103) and could replace the walk\'s cutoff',
     needs:
       'a remnant mass derived from the committed knit, and an observable that bounds it',
     problem: null,

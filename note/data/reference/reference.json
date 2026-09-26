@@ -1359,7 +1359,7 @@
         "matches_data": "partial",
         "source": "math:quaternions-octonions",
         "verified": "derived",
-        "note": "the forced threefold; identification with 3 generations is OPEN"
+        "note": "the forced threefold. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is OPEN"
       },
       {
         "name": "SO(10) dimension",
@@ -1389,7 +1389,7 @@
         "matches_data": "partial",
         "source": "math:quaternions-octonions",
         "verified": "derived",
-        "note": "the second forced threefold; generation identification OPEN"
+        "note": "the second forced threefold. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Generation identification OPEN"
       },
       {
         "name": "knit pairings (11 double-factorial)",
@@ -1801,7 +1801,7 @@
         "status": "open",
         "source": "math:quaternions-octonions",
         "verified": "derived",
-        "note": "structure forced; identification with 3 generations is open"
+        "note": "structure forced. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is open"
       },
       {
         "experiment": "gauge/exceptional-jordan-generations",

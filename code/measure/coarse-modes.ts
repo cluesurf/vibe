@@ -42,12 +42,18 @@ export type ModeRecord = {
 
 const SILVER = Math.SQRT2 - 1
 
-// cell coordinates on the integer torus d4Mesh (cell = x + L y + L^2 z + L^3 w)
-function phaseOf(cell: number, side: number, mode: readonly number[]): number {
+// a dock's position on the integer torus d4Mesh (dock = x + L y + L^2 z + L^3 w), the default
+export function torusPosition(dock: number, side: number): number[] {
+  return [0, 1, 2, 3].map(axis => Math.floor(dock / side ** axis) % side)
+}
+
+// k . x with k = 2 pi n / L; an integer n is a wave of the torus and of the D4 box alike, since every
+// period of either is L times an integer vector
+function phaseOf(position: readonly number[], side: number, mode: readonly number[]): number {
   let p = 0
 
   for (let axis = 0; axis < 4; axis++) {
-    p += (mode[axis] ?? 0) * (Math.floor(cell / side ** axis) % side)
+    p += (mode[axis] ?? 0) * (position[axis] ?? 0)
   }
 
   return (2 * Math.PI * p) / side
@@ -63,6 +69,8 @@ export function chargeWaveResponse(input: {
   warm: number
   beats: number
   fill?: { love: number; fear: number }
+  // a dock's position in R^4, the integer torus coordinates by default (pass the D4 box's for its mesh)
+  positionOf?: (dock: number) => readonly number[]
 }): ModeRecord[] {
   const { mesh, side, schedule, directions, modes, epsilon, warm, beats } =
     input
@@ -70,6 +78,9 @@ export function chargeWaveResponse(input: {
   const cells = mesh.cellCount
   const table = streamSourceTable(mesh)
   const fill = input.fill ?? { love: 0.3, fear: 0.3 }
+  const positionOf =
+    input.positionOf ?? ((dock: number) => torusPosition(dock, side))
+  const positions = Array.from({ length: cells }, (_, dock) => positionOf(dock))
 
   // thermalize the shared background
   let src: Will = makeWill(mesh)
@@ -105,12 +116,12 @@ export function chargeWaveResponse(input: {
   // per-mode cos and sin tables and the perturbed copies
   const cosines = modes.map(mode =>
     Float64Array.from({ length: cells }, (_, c) =>
-      Math.cos(phaseOf(c, side, mode)),
+      Math.cos(phaseOf(positions[c] ?? [], side, mode)),
     ),
   )
   const sines = modes.map(mode =>
     Float64Array.from({ length: cells }, (_, c) =>
-      Math.sin(phaseOf(c, side, mode)),
+      Math.sin(phaseOf(positions[c] ?? [], side, mode)),
     ),
   )
   const baseline = { now: src, next: dst }

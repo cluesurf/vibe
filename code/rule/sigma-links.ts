@@ -52,7 +52,8 @@
 // the phase is E mod 3 relative to g w^-E, which a frame change moves with it, not relative to a fixed
 // section, which is what broke Gauss's law in E-FRC-0150. Off by default, which is the rule of E-FRC-0150 and
 // 0151. `scale` sets the level round(scale (1 - Re Tr / 3)), 6 by default. `reflect: false` stops the link
-// reflections, to isolate the lock.
+// reflections, to isolate the lock. `ratio` switches the level to the modified action of E-FRC-0103 and
+// 0110, round(scale ((1 - Re Tr / 3) + ratio (3 - Re Tr g^2))), whose lowest level is not the identity.
 //
 // Switches for controls only: `gauss: false` hops without moving the flux, `priceFlux: false` takes flux
 // moves without paying the tension, `transport: false` carries role points without the link, `couple:
@@ -62,7 +63,7 @@
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
 import { generateGroup, type FiniteGroup } from '@/code/dynamics/finite-gauge'
-import { actionLevels } from '@/code/dynamics/finite-kinetic'
+import { actionLevels, mixedActionLevels } from '@/code/dynamics/finite-kinetic'
 import { phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
 import { gridMoves } from '@/code/rule/vibe-weave'
@@ -105,6 +106,11 @@ export type SigmaLinks = {
   readonly priceField: boolean
   // whether links reflect (false only to isolate the coupling)
   readonly reflect: boolean
+  // the link moves of a beat, each U -> z V U^-1 V (E-FRC-0162): 'one' reflects through one staple, the
+  // staple turning with the beat (E-FRC-0128), 'staples' through all 8 in turn, 'center' through all 8 with
+  // z each of 1, w and w^2, 'words' adds 8 words V_i V_j^-1 V_k of three staples, each with the 3 centers,
+  // and 'wide' 32 such words in four patterns of (j - i, k - i)
+  readonly moves: MoveFamily
   readonly scale: number
   // w, the center element with Tr = 3 w, and its inverse
   readonly omega: number
@@ -123,7 +129,9 @@ export type SigmaState = {
   readonly flux: Int32Array
 }
 
-export type SigmaMoves = { links: number; loops: number; roles: number; hops: number }
+export type MoveFamily = 'one' | 'staples' | 'center' | 'words' | 'wide'
+
+export type SigmaMoves ={ links: number; loops: number; roles: number; hops: number }
 
 export type HopListener = (from: number, to: number, direction: number) => void
 
@@ -143,7 +151,10 @@ export function makeSigmaLinks(input: {
   couple?: 'none' | 'center' | 'fixed'
   priceField?: boolean
   reflect?: boolean
+  moves?: MoveFamily
   scale?: number
+  // beta1 / beta0 of the modified action of E-FRC-0103: the level then carries a Re Tr U^2 term
+  ratio?: number
 }): SigmaLinks {
   const mesh = d4BoxMesh({ side: input.side })
   const cells = mesh.cellCount
@@ -218,7 +229,10 @@ export function makeSigmaLinks(input: {
     group,
     order: group.order,
     identity: group.identity,
-    level: actionLevels({ group, scale: input.scale ?? SCALE }),
+    level:
+      input.ratio === undefined
+        ? actionLevels({ group, scale: input.scale ?? SCALE })
+        : mixedActionLevels({ group, scale: input.scale ?? SCALE, ratio: input.ratio }),
     traceIm,
     quotient,
     act,
@@ -234,6 +248,7 @@ export function makeSigmaLinks(input: {
     couple: input.couple ?? 'none',
     priceField: input.priceField ?? true,
     reflect: input.reflect ?? true,
+    moves: input.moves ?? 'one',
     scale: input.scale ?? SCALE,
     omega,
     omegaInverse: group.inverse[omega] ?? group.identity,
@@ -264,6 +279,25 @@ export function hashedSigmaLinks(rule: SigmaLinks, scale = 7.31): Int16Array {
 
       links[x * DEGREE + d] = g
       links[(rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE + (rule.opposite[d] ?? d)] = inverse(rule, g)
+    }
+  }
+
+  return links
+}
+
+// the identity field with a fraction of its links set as in the hashed start: an ordered start with defects
+export function defectSigmaLinks(rule: SigmaLinks, fraction: number, hash = 3.3): Int16Array {
+  const hot = hashedSigmaLinks(rule)
+  const links = new Int16Array(rule.cells * DEGREE).fill(rule.identity)
+
+  for (let x = 0; x < rule.cells; x++) {
+    for (const a of rule.firsts) {
+      if (((x * DEGREE + a + 2) * GOLDEN * hash) % 1 < fraction) {
+        const g = hot[x * DEGREE + a] ?? 0
+
+        links[x * DEGREE + a] = g
+        links[(rule.neighbour[x * DEGREE + a] ?? 0) * DEGREE + (rule.opposite[a] ?? a)] = inverse(rule, g)
+      }
     }
   }
 
@@ -369,15 +403,34 @@ function pay(rule: SigmaLinks, state: SigmaState, slot: number, cost: number): b
 
 const tensionOf = (rule: SigmaLinks, e: number): number => (mod3(e) !== 0 ? rule.tension : 0)
 
-function reflectLink(rule: SigmaLinks, state: SigmaState, x: number, a: number, type: number): boolean {
-  const links = state.links
+// the link-like word of staple i of the link (x, a): the transport x -> x + a round the other two sides
+function stapleLink(rule: SigmaLinks, links: Int16Array, x: number, a: number, i: number): number {
   const pairs = rule.staples[a] ?? []
-  const [b, c] = pairs[type % pairs.length] ?? [0, 0]
-  const u = links[x * DEGREE + a] ?? 0
+  const [b, c] = pairs[i % pairs.length] ?? [0, 0]
   const y = rule.neighbour[x * DEGREE + a] ?? 0
   const z = rule.neighbour[y * DEGREE + b] ?? 0
-  const back = inverse(rule, times(rule, links[z * DEGREE + c] ?? 0, links[y * DEGREE + b] ?? 0))
-  const next = times(rule, back, times(rule, inverse(rule, u), back))
+
+  return inverse(rule, times(rule, links[z * DEGREE + c] ?? 0, links[y * DEGREE + b] ?? 0))
+}
+
+// the word V of a move: one staple [i], or three [i, j, k] read as V_i V_j^-1 V_k, each a link-like word
+function moveWord(rule: SigmaLinks, links: Int16Array, x: number, a: number, word: readonly number[]): number {
+  const [i = 0, j, k] = word
+  const vi = stapleLink(rule, links, x, a, i)
+
+  if (j === undefined || k === undefined) {
+    return vi
+  }
+
+  return times(rule, vi, times(rule, inverse(rule, stapleLink(rule, links, x, a, j)), stapleLink(rule, links, x, a, k)))
+}
+
+// the move U -> z V U^-1 V, V a link-like word of the staples, z central: covariant, and its own inverse
+function wordMove(rule: SigmaLinks, state: SigmaState, x: number, a: number, word: readonly number[], center: number): boolean {
+  const links = state.links
+  const u = links[x * DEGREE + a] ?? 0
+  const v = moveWord(rule, links, x, a, word)
+  const next = times(rule, center, times(rule, v, times(rule, inverse(rule, u), v)))
 
   if (next === u) {
     return false
@@ -391,9 +444,41 @@ function reflectLink(rule: SigmaLinks, state: SigmaState, x: number, a: number, 
   }
 
   links[x * DEGREE + a] = next
-  links[y * DEGREE + (rule.opposite[a] ?? a)] = inverse(rule, next)
+  links[(rule.neighbour[x * DEGREE + a] ?? 0) * DEGREE + (rule.opposite[a] ?? a)] = inverse(rule, next)
 
   return true
+}
+
+// the moves one link makes in one beat, as (word, center) pairs, by the rule's `moves` family
+function linkMoves(rule: SigmaLinks, t: number, k: number): [readonly number[], number][] {
+  const staples = (rule.staples[0] ?? []).length
+  const centers = rule.moves === 'one' || rule.moves === 'staples' ? [rule.identity] : [rule.identity, rule.omega, rule.omegaInverse]
+
+  if (rule.moves === 'one') {
+    return [[[(t + k) % staples], rule.identity]]
+  }
+
+  const singles = Array.from({ length: staples }, (_, i) => [(i + t + k) % staples])
+  const patterns = rule.moves === 'words' ? [[1, 3]] : rule.moves === 'wide' ? [[1, 3], [2, 5], [1, 2], [3, 4]] : []
+  const triples = patterns.flatMap(([p = 0, q = 0]) =>
+    Array.from({ length: staples }, (_, i) => [(i + t + k) % staples, (i + t + k + p) % staples, (i + t + k + q) % staples]),
+  )
+
+  return [...singles, ...triples].flatMap(word => centers.map(z => [word, z] as [readonly number[], number]))
+}
+
+// every move of the link (x, a) at schedule step s, in order forward and in reverse order backward
+function reflectLink(rule: SigmaLinks, state: SigmaState, x: number, a: number, s: number, forward = true): number {
+  const moves = linkMoves(rule, s, 0)
+  const order = forward ? moves : [...moves].reverse()
+
+  let moved = 0
+
+  for (const [word, center] of order) {
+    moved += wordMove(rule, state, x, a, word, center) ? 1 : 0
+  }
+
+  return moved
 }
 
 function loopMove(rule: SigmaLinks, state: SigmaState, x: number, a: number, type: number): boolean {
@@ -427,6 +512,7 @@ function loopMove(rule: SigmaLinks, state: SigmaState, x: number, a: number, typ
           ? rule.fixedElement
           : inverse(rule, rule.fixedElement)
         : rule.identity
+
   const multiply = (m: number): void => {
     for (const [from, d] of legs) {
       const g = times(rule, m, state.links[from * DEGREE + d] ?? 0)
@@ -435,6 +521,7 @@ function loopMove(rule: SigmaLinks, state: SigmaState, x: number, a: number, typ
       state.links[(rule.neighbour[from * DEGREE + d] ?? 0) * DEGREE + (rule.opposite[d] ?? d)] = inverse(rule, g)
     }
   }
+
   // every triangle through a leg, the loop itself counted once though it holds all three legs
   const local = (): number =>
     legs.reduce((sum, [from, d]) => sum + triangleEnergy(rule, state.links, from, d, state.links[from * DEGREE + d] ?? 0), 0) -
@@ -576,7 +663,7 @@ export function sigmaBeat(rule: SigmaLinks, input: SigmaState, t: number, onHop?
 
   rule.firsts.forEach((a, k) => {
     for (let x = 0; x < (rule.reflect ? rule.cells : 0); x++) {
-      moved.links += reflectLink(rule, state, x, a, t + k) ? 1 : 0
+      moved.links += reflectLink(rule, state, x, a, t + k)
     }
   })
 
@@ -647,7 +734,7 @@ export function sigmaBeatBack(rule: SigmaLinks, input: SigmaState, t: number): S
     const a = rule.firsts[k] ?? 0
 
     for (let x = rule.cells - 1; x >= 0; x--) {
-      reflectLink(rule, state, x, a, t + k)
+      reflectLink(rule, state, x, a, t + k, false)
     }
   }
 
@@ -732,6 +819,11 @@ export function changeSigmaFrame(rule: SigmaLinks, state: SigmaState, frame: Arr
   }
 }
 
+// the summed level of the 8 triangles through the link (x, a) with u in its place
+export function linkTriangleEnergy(rule: SigmaLinks, links: Int16Array, x: number, a: number, u: number): number {
+  return triangleEnergy(rule, links, x, a, u)
+}
+
 // the untwisted part g w^-E of every link (x, a), a a first direction: under the coupling it changes only
 // when the link reflects
 export function untwistedLinks(rule: SigmaLinks, state: SigmaState): Int16Array {
@@ -747,6 +839,108 @@ export function untwistedLinks(rule: SigmaLinks, state: SigmaState): Int16Array 
   }
 
   return out
+}
+
+// the preparation of E-FRC-0110: drain (a beat, then every demon emptied), fill a fraction of the demons to
+// capacity, settle. Returns the level where the drain stood halfway and at its end
+export function drainFillSettle(
+  rule: SigmaLinks,
+  links: Int16Array,
+  input: { drain: number; fill: number; settle: number },
+): { state: SigmaState; drainedLevel: number; halfwayLevel: number; exact: boolean } {
+  const triangles = (rule.cells * 12 * 8) / 3
+
+  let s: SigmaState = {
+    vibe: new Int8Array(rule.cells),
+    role: new Int8Array(rule.cells),
+    links,
+    demon: new Int32Array(rule.cells * DEGREE),
+    flux: new Int32Array(rule.cells * DEGREE),
+  }
+
+  let halfwayLevel = 0
+
+  for (let k = 0; k < input.drain; k++) {
+    s = sigmaBeat(rule, s, k).state
+    s.demon.fill(0)
+
+    if (k === Math.floor(input.drain / 2) - 1) {
+      halfwayLevel = sigmaFieldEnergy(rule, s.links) / triangles
+    }
+  }
+
+  const drainedLevel = sigmaFieldEnergy(rule, s.links) / triangles
+
+  for (let x = 0; x < rule.cells; x++) {
+    rule.firsts.forEach((a, k) => {
+      s.demon[x * DEGREE + a] = ((x * 12 + k) * GOLDEN) % 1 < input.fill ? rule.capacity : 0
+    })
+  }
+
+  const e0 = sigmaEnergy(rule, s)
+
+  let exact = true
+
+  for (let t = 0; t < input.settle; t++) {
+    s = sigmaBeat(rule, s, input.drain + t).state
+
+    if (t % 100 === 0) {
+      exact = exact && sigmaEnergy(rule, s) === e0
+    }
+  }
+
+  return { state: s, drainedLevel, halfwayLevel, exact: exact && sigmaEnergy(rule, s) === e0 }
+}
+
+// a heat-assisted drain (E-FRC-0162): drain, then cycles of a small fill, some beats, and a short drain,
+// every demon empty at the end. Only a starting condition: the rule is unchanged
+export function coolSigmaLinks(
+  rule: SigmaLinks,
+  links: Int16Array,
+  input: { drain: number; cycles: number; fill: number; beats: number; empties: number },
+): { state: SigmaState; beats: number } {
+  let s: SigmaState = {
+    vibe: new Int8Array(rule.cells),
+    role: new Int8Array(rule.cells),
+    links,
+    demon: new Int32Array(rule.cells * DEGREE),
+    flux: new Int32Array(rule.cells * DEGREE),
+  }
+  let t = 0
+
+  const empty = (n: number): void => {
+    for (let k = 0; k < n; k++) {
+      s = sigmaBeat(rule, s, t++).state
+      s.demon.fill(0)
+    }
+  }
+
+  empty(input.drain)
+
+  for (let c = 0; c < input.cycles; c++) {
+    for (let x = 0; x < rule.cells; x++) {
+      rule.firsts.forEach((a, k) => {
+        s.demon[x * DEGREE + a] = ((x * 12 + k) * GOLDEN) % 1 < input.fill ? rule.capacity : 0
+      })
+    }
+
+    for (let k = 0; k < input.beats; k++) {
+      s = sigmaBeat(rule, s, t++).state
+    }
+
+    empty(input.empties)
+  }
+
+  return { state: s, beats: t }
+}
+
+// fill a fraction of the demons to capacity, by the fixed golden pattern of E-FRC-0110
+export function fillSigmaDemons(rule: SigmaLinks, state: SigmaState, fraction: number): void {
+  for (let x = 0; x < rule.cells; x++) {
+    rule.firsts.forEach((a, k) => {
+      state.demon[x * DEGREE + a] = ((x * 12 + k) * GOLDEN) % 1 < fraction ? rule.capacity : 0
+    })
+  }
 }
 
 // the elements whose quotient is the identity: the center

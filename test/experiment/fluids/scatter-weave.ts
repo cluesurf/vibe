@@ -30,7 +30,9 @@
 //    of vibes, role points and flows, Gauss's law at every dock every beat, color leaks from no dock on any
 //    beat, and a change of role frame in every dock (links changed to match) commuting with the rule;
 // 4. CPT: the mirror phase searched as E-FND-0117 and E-FRC-0125 do, over all 24 phases;
-// 5. the Smith form of the block's line-momentum changes: which invariants are left;
+// 5. the Smith form of the block's line-momentum changes: which invariants are left. Expected before the
+//    run: P alone, as for all 216 scatterings (E-FLD-0022). Measured: P and the sum of the twelve line
+//    momenta, which the side-keeping restriction local color asks for keeps exactly;
 // 6. the lattice symmetries (of the 384 signed axis permutations, with any time map) the knit keeps at the
 //    dock, and the ones the scatter weave keeps: at least the same set;
 // 7. the acceptance battery (code/measure/weave-acceptance) against the committed rule: reversal, charge,
@@ -133,6 +135,9 @@ function laws(spec: ScatterWeaveSpec) {
   let leaks = 0
   let pDrift = 0
   let lineDrift = 0
+  let lineSumDrift = 0
+
+  const sum0 = n0.reduce((a, b) => a + b, 0)
 
   for (let t = 0; t < BEATS; t++) {
     leaks += scatterLeaks(weave, s, t)
@@ -140,7 +145,11 @@ function laws(spec: ScatterWeaveSpec) {
     chargeKept = chargeKept && charge(s) === charge(start)
     gauss = gauss && gaussHolds(weave, start, s)
     pDrift = Math.max(pDrift, ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))))
-    lineDrift = Math.max(lineDrift, ...lineMomenta(s.vibe, weave.opposite).map((x, k) => Math.abs(x - (n0[k] ?? 0))))
+
+    const n = lineMomenta(s.vibe, weave.opposite)
+
+    lineDrift = Math.max(lineDrift, ...n.map((x, k) => Math.abs(x - (n0[k] ?? 0))))
+    lineSumDrift = Math.max(lineSumDrift, Math.abs(n.reduce((a, b) => a + b, 0) - sum0))
   }
 
   for (let t = BEATS - 1; t >= 0; t--) {
@@ -179,7 +188,7 @@ function laws(spec: ScatterWeaveSpec) {
     frameFree = frameFree && same(gaugeRoles(a), b)
   }
 
-  return { chargeKept, gauss, leaks, pDrift, lineDrift, reverses, frameFree, cpt: cptMirrorPhase(scatterRule(spec)) }
+  return { chargeKept, gauss, leaks, pDrift, lineDrift, lineSumDrift, reverses, frameFree, cpt: cptMirrorPhase(scatterRule(spec)) }
 }
 
 // the block switched off is the base, vibes and role points
@@ -362,7 +371,7 @@ export default experiment({
   id: 'fluids/scatter-weave',
   code: 'E-FLD-0024',
   title:
-    'a four-line binary scattering block (two lone tones on u and v leave on w and x when e_u + e_v = e_w + e_x, an involution on a fixed 24-beat schedule placed around the CPT mirror phase) makes the twelve line momenta exchange while charge, P, reversal, Gauss, local color, the frame change and CPT stay exact, the Smith form of its moves leaving P and charge parity as the only momentum invariants; on the head-on turn weave (the color turn schedule with the FHP rotation of a like head-on pair as its exchange), the one momentum-keeping base a search of 2,690 finds that the block carries through every committed acceptance gate, a lone love dressing no more than the committed rule, the block joining the three dense line components the base leaves into one',
+    'a four-line binary scattering block (two lone tones on u and v leave on w and x when e_u + e_v = e_w + e_x, an involution on a fixed 24-beat schedule placed around the CPT mirror phase) makes the twelve line momenta exchange while charge, P, reversal, Gauss, local color, the frame change and CPT stay exact; local color leaves one more invariant than P, the sum of the twelve line momenta, since a dock counts its calm slots by side and every binary scattering that changes that sum changes it by 2, not a multiple of 3, so the 144 color-keeping scatterings of the 216 leave five free invariants where all 216 leave four; on the head-on turn weave (the color turn schedule with the FHP rotation of a like head-on pair as its exchange), the one momentum-keeping base a search of 2,690 finds that the block carries through every committed acceptance gate, a lone love dressing no more than the committed rule, the block joining the three dense line components the base leaves into one',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -418,6 +427,46 @@ export default experiment({
         return row
       })
     const blockQuotient = latticeQuotient(rows, 12)
+    // every binary scattering, sides kept or not, and the sum of the twelve line momenta: the side-keeping
+    // ones keep it exactly, the others change it by 2 or 4, which a dock's color weight (calm slots counted
+    // by side) cannot absorb mod 3
+    const rowOf = ([u, v, w, x]: readonly number[]): number[] => {
+      const row = new Array<number>(12).fill(0)
+
+      for (const [d, sign] of [
+        [u ?? 0, -1],
+        [v ?? 0, -1],
+        [w ?? 0, 1],
+        [x ?? 0, 1],
+      ] as const) {
+        row[lineOfSlot(d)] = (row[lineOfSlot(d)] ?? 0) + sign * (SIDE[d] ?? 0)
+      }
+
+      return row
+    }
+    const lineSum = (row: number[]): number => row.reduce((s, x) => s + x, 0)
+    const allQuotient = latticeQuotient(all.map(s => rowOf(s.scattering)), 12)
+    const keptKeepSum = all.filter(s => s.sideKept).every(s => lineSum(rowOf(s.scattering)) === 0)
+    const otherChangeSum = all.filter(s => !s.sideKept).map(s => Math.abs(lineSum(rowOf(s.scattering))))
+    const otherNotMultipleOf3 = otherChangeSum.every(x => x !== 0 && x % 3 !== 0)
+    // the FHP triples: three tones on three lines with e_a + e_b + e_c = 0 reverse
+    const roots4 = rootsD4()
+    const tripleChanges: number[] = []
+
+    for (let a = 0; a < 24; a++) {
+      for (let b = a + 1; b < 24; b++) {
+        for (let c = b + 1; c < 24; c++) {
+          const distinct = new Set([lineOfSlot(a), lineOfSlot(b), lineOfSlot(c)]).size === 3
+          const closes = [0, 1, 2, 3].every(k => (roots4[a]?.[k] ?? 0) + (roots4[b]?.[k] ?? 0) + (roots4[c]?.[k] ?? 0) === 0)
+
+          if (distinct && closes) {
+            tripleChanges.push(-2 * ((SIDE[a] ?? 0) + (SIDE[b] ?? 0) + (SIDE[c] ?? 0)))
+          }
+        }
+      }
+    }
+
+    const triplesChangeByTwo = tripleChanges.length === 32 && tripleChanges.every(x => Math.abs(x) === 2)
 
     // 6. symmetries, at the dock
     const mainSpec: ScatterWeaveSpec = turn?.spec ?? { base: HEAD_TURN_SPEC, mirror: 23, sets }
@@ -451,8 +500,14 @@ export default experiment({
       (turn?.lineDrift ?? 0) > 0 &&
       (weave?.lineDrift ?? 0) > 0 &&
       (control?.pDrift ?? 0) > 0 &&
-      blockQuotient.free === 4 &&
-      blockQuotient.torsion.join(',') === '2' &&
+      blockQuotient.free === 5 &&
+      blockQuotient.torsion.length === 0 &&
+      allQuotient.free === 4 &&
+      allQuotient.torsion.join(',') === '2' &&
+      keptKeepSum &&
+      otherNotMultipleOf3 &&
+      triplesChangeByTwo &&
+      (turn?.lineSumDrift ?? 1) === 0 &&
       scatterSymmetries >= knitSymmetries &&
       structural &&
       !passes(baseBattery) &&
@@ -494,7 +549,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the census is as stated; with the block off the rule is its base bit for bit; on both momentum-keeping bases the scatter weave keeps charge, P, Gauss, reversal, local color, the frame change and CPT at the base mirror phase exactly while the line momenta change, and on the color turn base P drifts; the block leaves exactly P free with charge parity the only residue; it keeps every dock symmetry the knit keeps; the selection finds members that pass every gate only with the block, all palindromic, the head-on turn weave among them; the scatter weave on it is at least as good as the committed rule on every E-FRC-0125 gate, a lone love\'s dressing included, where the head-on turn weave without the block and the momentum turn weave with it are not',
+        'the census is as stated; with the block off the rule is its base bit for bit; on both momentum-keeping bases the scatter weave keeps charge, P, Gauss, reversal, local color, the frame change and CPT at the base mirror phase exactly while the line momenta change, and on the color turn base P drifts; the block leaves P and the sum of the line momenta free (all 216 scatterings would leave P alone, with charge parity), every color-keeping scattering keeps that sum and every other changes it by 2, which local color cannot absorb, as do all 32 FHP triples, and the sum is exact on a run; it keeps every dock symmetry the knit keeps; the selection finds members that pass every gate only with the block, all palindromic, the head-on turn weave among them; the scatter weave on it is at least as good as the committed rule on every E-FRC-0125 gate, a lone love\'s dressing included, where the head-on turn weave without the block and the momentum turn weave with it are not',
       metrics: {
         scatterings: all.length,
         sideKeptScatterings: all.filter(s => s.sideKept).length,
@@ -505,6 +560,15 @@ export default experiment({
         blockRank: blockQuotient.rank,
         blockFree: blockQuotient.free,
         blockTorsionOrder: blockQuotient.torsion.reduce((s, x) => s * x, 1),
+        allScatteringsRank: allQuotient.rank,
+        allScatteringsFree: allQuotient.free,
+        allScatteringsTorsionOrder: allQuotient.torsion.reduce((s, x) => s * x, 1),
+        sideKeptKeepLineSum: keptKeepSum ? 1 : 0,
+        otherScatteringsLineSumChangeSmallest: Math.min(...otherChangeSum),
+        otherScatteringsLineSumChangeLargest: Math.max(...otherChangeSum),
+        headTurnLineSumDrift: turn?.lineSumDrift ?? -1,
+        fhpTriples: tripleChanges.length,
+        fhpTriplesChangingSumByTwo: tripleChanges.filter(x => Math.abs(x) === 2).length,
         knitDockSymmetries: knitSymmetries,
         baseDockSymmetries: baseSymmetries,
         scatterDockSymmetries: scatterSymmetries,
@@ -522,7 +586,7 @@ export default experiment({
         ...flat('anyTones', anyTones),
       },
       notes:
-        'L2, exact, no random numbers. The block scatters lone tones only (the opposite slots of all four calm): letting any two tones scatter makes the head-on pairs of the vacuum scatter too, which the anyTones control shows costs the vacuum its 24-beat period and spreads a lone tone over two thirds of the side-9 box in the first period. The color turn weave cannot carry exact P under any added block, since its lone-away exchange turns a lone tone between lines (E-FLD-0021). Among momentum-keeping bases the dressing and the line graph pull against each other: every member that dresses a lone love no more than the committed rule either never couples lines (12 vacuum components under the committed schedule) or, under the color turn schedule, leaves the dense background in two or three pieces; the block couples lone tones across lines and joins those pieces, and that is what reaches every gate at once. A lone fear on the head-on turn scatter weave dresses 33 slots in the first period against the committed 27 (a love 33 against 33), reported and not gated, as in E-FRC-0125. At the dock the committed rule, the knit and the scatter weave each keep only the identity among the 384 signed axis permutations, even allowing a time map, so "the same symmetries" is the identity plus the 24-beat period and CPT. The side-keeping restriction (144 of 216) is what local color asks: a calm role point is counted by its side, and a scattering moves calm role points from w and x to u and v. The dressing and the transport physics are E-FLD-0025.',
+        'L2, exact, no random numbers. The block scatters lone tones only (the opposite slots of all four calm): letting any two tones scatter makes the head-on pairs of the vacuum scatter too, which the anyTones control shows costs the vacuum its 24-beat period and spreads a lone tone over two thirds of the side-9 box in the first period. The color turn weave cannot carry exact P under any added block, since its lone-away exchange turns a lone tone between lines (E-FLD-0021). Among momentum-keeping bases the dressing and the line graph pull against each other: every member that dresses a lone love no more than the committed rule either never couples lines (12 vacuum components under the committed schedule) or, under the color turn schedule, leaves the dense background in two or three pieces; the block couples lone tones across lines and joins those pieces, and that is what reaches every gate at once. A lone fear on the head-on turn scatter weave dresses 33 slots in the first period against the committed 27 (a love 33 against 33), reported and not gated, as in E-FRC-0125. At the dock the committed rule, the knit and the scatter weave each keep only the identity among the 384 signed axis permutations, even allowing a time map, so "the same symmetries" is the identity plus the 24-beat period and CPT. The side-keeping restriction (144 of 216) is what local color asks: a calm role point is counted by its side, and a scattering moves calm role points from w and x to u and v. ITS COST: the first run gated the block to leave P as the only invariant, as all 216 scatterings do, and failed: the 144 leave one more, the sum of the twelve line momenta (tones on first slots minus tones on second slots). It is forced, not chosen: the weight part of a dock\'s color is the vibe sum plus the side sum of its calm slots, which with charge kept is minus that line-momentum sum, so local color keeps the sum mod 3 per dock, and a binary scattering changes it by 0 or 2 (the 72 that do not keep sides all by 2). So no color-local binary block exchanges momentum fully. The FHP triple does not help: its 32 moves change the sum by 2 in size (measured here, 16 each way). Every momentum-keeping move of two or three tones changes the sum by 0 or 2, so a color-local rule that removes this invariant has to change it by 6 in one act: three such moves fired together as one conditional move, a block of at least six tones. The dressing and the transport physics are E-FLD-0025.',
     })
   },
 })

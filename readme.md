@@ -555,12 +555,12 @@ enforces (an L3 claim must carry a control) are in
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per registered experiment, generated from the registry itself so the
 code and the catalog are one source of truth, sorted strongest first. As
-of the latest regeneration it holds **974 experiments across 18
+of the latest regeneration it holds **1,011 experiments across 18
 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|   974 |                 52 |              682 |           226 |          14 |                   598 |
+|  1011 |                 52 |              713 |           232 |          14 |                   598 |
 
 The largest categories are selves, quantum, foundations, gauge, gravity,
 and cosmology. The standing depth audit regrades overclaimed depths down

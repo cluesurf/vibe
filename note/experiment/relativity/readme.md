@@ -1,6 +1,6 @@
 # Relativity arena
 
-**43 experiments ([`E-RLT-0001`](../../../test/experiment/relativity/addressing-lorentz.ts) to [`E-RLT-0043`](../../../test/experiment/relativity/massive-shell-lorentz.ts)).**
+**46 experiments ([`E-RLT-0001`](../../../test/experiment/relativity/addressing-lorentz.ts) to [`E-RLT-0046`](../../../test/experiment/relativity/chirality-at-scale.ts)).**
 
 ## What this arena tests
 
@@ -101,6 +101,13 @@ Discreteness must leave a signature and must break Lorentz at some order in mome
 ## Added by the 2026-09-01 amplitude branch
 
 - **[`E-RLT-0044`](../../../test/experiment/relativity/chronoflux-aether-bound.ts)** - (L1, paper) the Einstein-aether spin-2 bound pins the withdrawn Chronoflux alpha_1 below 6e-15, thirteen orders from the values its flow sector uses
+
+## The committed knit at coarse scale, added 2026-09-25
+
+- **[`E-RLT-0045`](../../../test/experiment/relativity/coarse-isotropy-of-the-rule.ts)** (L2) - rotation symmetry does not come back at coarse scale under the committed knit. It keeps only {I, -I}, which forces nothing, so rank 2 is the lowest unforced rank (the torus group forces rank 2 only, W(F4) ranks 2 and 4, not 6). The rank-2 response of long charge waves stays anisotropic from side 9 to 17: kernel 1.60, 1.34, 1.31, axis-shell spread 0.31, 0.33, 0.34. It keeps 0.82 and 1.10 of itself where a lattice correction would keep 0.53 or 0.28, against a streaming floor of 0.001 to 0.04.
+- **[`E-RLT-0046`](../../../test/experiment/relativity/chirality-at-scale.ts)** (L2, partial) - the knit's handedness does not survive coarse-graining. At the lattice scale a lone love's response is 4.12 times more self-dual than anti-self-dual (`E-FRC-0142`). The long-wave current response at L = 9, 13, 17 splits within a factor of 1.46 on the dense background and the vacuum, with no stable sign, and its antisymmetric part shrinks from 0.45 to 0.19 of the isotropic. Partial, because the mirror control swaps the halves to 2 percent at side 9 but reproduces their size only to about 25 percent at side 13.
+
+So the isotropy results above hold for the walk and the 24-direction coin, not for the committed knit's own long waves: the knit breaks rotation at every scale measured and keeps its chirality only at the lattice scale. A knit whose symmetry group acts irreducibly on rank 2 is the open design constraint.
 
 ## What this arena establishes
 

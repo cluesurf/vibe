@@ -13,7 +13,7 @@ gauge/rg-unification,electroweak,GUT U(1) normalization,5/3,derived,exact,pass,p
 gauge/mass-hierarchy,electroweak,charged fermions,9,derived,exact,pass,phys:gut,derived,e mu tau u c t d s b
 gauge/mass-hierarchy,electroweak,top-over-electron mass span,~337700,measured,order-of-magnitude,context,PDG-2024,2026-06-24,about 5.5 decades; geometry gives the pattern not the value
 gauge/flavor-mixing-pattern,quark mixing,Cabibbo |V_us|,0.22501,measured,0.03,approx,PDG-2024,2026-06-24,vs Gatto relation sqrt(m_d/m_s) ~ 0.217 (phys:gatto)
-gauge/exceptional-jordan-generations,electroweak,Albert algebra J3(O) dimension,27,derived,exact,open,math:quaternions-octonions,derived,structure forced; identification with 3 generations is open
+gauge/exceptional-jordan-generations,electroweak,Albert algebra J3(O) dimension,27,derived,exact,open,math:quaternions-octonions,derived,structure forced. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is open
 gauge/exceptional-jordan-generations,electroweak,naive piece dimension vs generation,8 vs 16,derived,exact,honest-negative,vibe,derived,the naive identification fails dimensionally
 relativity/lorentz-violation-scale,relativity,D4 anisotropy leading order,4,derived,>cubic+1.5,pass,vibe,derived,"vs cubic order 2 (control); violation high-order, below bounds"
 relativity/discreteness-signature,relativity,dispersion deviation order,2,derived,1.5 to 2.5,pass,vibe,derived,leading correction to the linear dispersion

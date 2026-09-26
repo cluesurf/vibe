@@ -316,7 +316,7 @@ export default experiment({
         vacuumSeries.push(sigmaStringLinks(plain, s.flux))
       }
 
-      const mean = (xs: Loops[], key: keyof Loops): number => xs.reduce((a, x) => a + x[key], 0) / xs.length
+      const mean = (xs: readonly Loops[], key: keyof Loops): number => xs.reduce((a, x) => a + x[key], 0) / xs.length
       const chi = jackknife({
         samples,
         estimator: picked => -Math.log((mean(picked, 'w22') * mean(picked, 'w11')) / mean(picked, 'w12') ** 2),

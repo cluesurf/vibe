@@ -1,6 +1,6 @@
 # Quantum arena
 
-**92 experiments.** Codes [`E-QTM-0001`](../../../test/experiment/quantum/alignment.ts) through [`E-QTM-0092`](../../../test/experiment/quantum/lyapunov-recordability-ceiling.ts). Files in `test/experiment/quantum/`.
+**108 experiments.** Codes [`E-QTM-0001`](../../../test/experiment/quantum/alignment.ts) through [`E-QTM-0108`](../../../test/experiment/quantum/fear-clock.ts). Files in `test/experiment/quantum/`.
 
 ## What this arena tests
 
@@ -153,6 +153,22 @@ Bosons, fermions, Pauli exclusion, and bound states from the exchange structure 
 
 - **[`E-QTM-0094`](../../../test/experiment/quantum/ehrenfest-theorem.ts)** (L2) - the Ehrenfest theorem on the coined Dirac walk model: a packet built from the positive band of cos E = cos m cos k follows the classical trajectory of its own momentum distribution to 9e-14 cells free and 0.002 cells under a slow force over 45 cells, momentum exact to 4e-16, once the packet's Berry-connection offset and the midpoint momentum of the step are in the prediction. A force of 0.8 leaves 26 percent in the band and misses by 14 cells, and the equal-chirality rest seed (21 percent negative-energy) lags by 19 cells
 - **[`E-QTM-0095`](../../../test/experiment/quantum/qutrit-toric-code-from-the-mesh.ts)** (L2) - the Z_3 toric code on the mesh complex with the tone as the qutrit: oriented vertex and triangle checks over the field of three elements commute, four logical qutrits per four-torus (four at side 3, eight at the split side 4), zero on an open patch
+
+## The fear weave, added 2026-09-25
+
+The signed weight on the role grid run inside the lattice, and what it needs. See
+[`what-the-base-needs.md`](../gauge/what-the-base-needs.md).
+
+- **[`E-QTM-0099`](../../../test/experiment/quantum/fear-weave.ts)** (L2) - the fear beat inside the lattice: the cube-root swap phase where two tokens of a knot meet. Off, the rule is the color weave at every slot. On, it reverses exactly, keeps love minus fear and commutes with a frame change in every dock. The grain gate fails on the vacuum pair, which never passes 36 units.
+- **[`E-QTM-0100`](../../../test/experiment/quantum/fear-witness.ts)** (L2) - the fear weave is quantum in its roles: chances 1/4, 3/4, 1 over three meetings against 1/4, 3/8, 7/16 for the phase-free stand-in, and CHSH sqrt 7 from different docks against 2.
+- **[`E-QTM-0101`](../../../test/experiment/quantum/swap-phase-continuum.ts)** (L1) - Sigma(648) on each role plus the swap phase spans all 80 dimensions of su(9), but one swap phase gives no finer step than the classical group (0.650). Two give sqrt(1/6).
+- **[`E-QTM-0102`](../../../test/experiment/quantum/singlet-phase.ts)** (L2) - the color-respecting gate for a love meeting a fear is the singlet phase: 0 color violations against 378 for the swap phase. No color-respecting meeting makes or unmakes a knot, only link holonomy (share 1/6 lifted to 0.784).
+- **[`E-QTM-0103`](../../../test/experiment/quantum/fear-walk.ts)** (L2) - a lone vibe under the one-third turn moves ballistically: <x^2>/t^2 = 0.13398 against 1 - sqrt 3 / 2, exponent 0.997 against 0.497 for the phase-free stand-in. The weight on position is complex, not real loves and fears.
+- **[`E-QTM-0104`](../../../test/experiment/quantum/swap-phase-ladder.ts)** (L1) - the ladder toward T: the first word closer than any classical element needs 4 swap phases (0.362 at 2^8 of grain), 6 give 0.348 at 2^12. The beam misses the two-swap-phase optimum, a failed gate that stands.
+- **[`E-QTM-0105`](../../../test/experiment/quantum/calm-is-the-one-whole.ts)** (L2) - stored as its departure from calm, every knot holds as many loves as fears, and the fear weave reads back exactly at all 480 beats, at a grain cost of 3^k units per knot.
+- **[`E-QTM-0106`](../../../test/experiment/quantum/charge-as-the-sign.ts)** (L2) - a +1 or -1 sign per knot breaks the additive ledger at the first join (beat 6 and beat 232). The center phase omega^q passes the same gates with its exponent as the ledger.
+- **[`E-QTM-0107`](../../../test/experiment/quantum/role-phased-counts.ts)** (L1) - every Eisenstein weight is one knot-free count of vibes in take, hold and free, and the walk run as those counts equals the Eisenstein walk at every slot for 200 beats.
+- **[`E-QTM-0108`](../../../test/experiment/quantum/fear-clock.ts)** (L2) - the fear clock: at phi = pi it is the committed knit beat for beat. With the turn, two seeds interfere on rings from beat 3. On one dock in 9 beats they never interfere, a failed gate that stands.
 
 ## What this arena establishes
 

@@ -67,7 +67,10 @@ export type Steer = false | 'weave' | 'round-robin' | 'folded'
 // whose string the charge would shorten by crossing it (E-FRC-0157)
 // 'line' is 'lone' with string counted per line, over both its links, so reversing every direction leaves
 // the condition alone (E-FRC-0156)
-export type SteerWhen = 'slot' | 'differ' | 'lone' | 'retract' | 'line'
+// the same condition as 'lone' read on either slot pair of the two lines ('either'), which reversal also
+// leaves alone
+// 'stretch' marks the directions whose crossing would make a string where there was none
+export type SteerWhen = 'slot' | 'differ' | 'lone' | 'retract' | 'line' | 'either' | 'stretch'
 
 export type ReflectingSlots = {
   readonly mesh: Mesh
@@ -404,19 +407,26 @@ function steerTrades(rule: ReflectingSlots, state: ReflectingState, t: number): 
 
     return mod3(e) !== 0 && mod3(e + (d < (rule.opposite[d] ?? d) ? -v : v)) === 0
   }
+  // whether crossing would make a string where there was none
+  const stretches = (x: number, d: number, v: number): boolean => {
+    const e = flux[edgeOfSlot(rule, x, d)] ?? 0
+
+    return mod3(e) === 0 && mod3(e + (d < (rule.opposite[d] ?? d) ? -v : v)) !== 0
+  }
 
   for (let x = 0; x < rule.mesh.cellCount; x++) {
     for (const [p, q] of couples) {
       const a = rule.lines[p] ?? [0, 0]
       const b = rule.lines[q] ?? [0, 0]
 
-      if (rule.steerWhen === 'retract') {
+      if (rule.steerWhen === 'retract' || rule.steerWhen === 'stretch') {
         const charged = [a[0], a[1], b[0], b[1]].filter(d => vibe[x * 24 + d] !== 0)
         const d0 = charged[0] ?? 0
         const s = d0 === a[0] || d0 === b[0] ? 0 : 1
         const v = vibe[x * 24 + d0] ?? 0
+        const marks = rule.steerWhen === 'retract' ? releases : stretches
 
-        if (charged.length === 1 && releases(x, a[s], v) !== releases(x, b[s], v)) {
+        if (charged.length === 1 && marks(x, a[s], v) !== marks(x, b[s], v)) {
           trade(state, x * 24 + a[0], x * 24 + b[0])
           trade(state, x * 24 + a[1], x * 24 + b[1])
         }
@@ -424,11 +434,12 @@ function steerTrades(rule: ReflectingSlots, state: ReflectingState, t: number): 
         continue
       }
 
-      if (rule.steerWhen === 'lone' || rule.steerWhen === 'line') {
+      if (rule.steerWhen === 'lone' || rule.steerWhen === 'line' || rule.steerWhen === 'either') {
         const charged = [a[0], a[1], b[0], b[1]].filter(d => vibe[x * 24 + d] !== 0)
         const s = charged[0] === a[0] || charged[0] === b[0] ? 0 : 1
         const count = (l: readonly [number, number]): number => (string(x, l[0]) ? 1 : 0) + (string(x, l[1]) ? 1 : 0)
-        const differ = rule.steerWhen === 'lone' ? string(x, a[s]) !== string(x, b[s]) : count(a) !== count(b)
+        const pair = (k: number): boolean => string(x, a[k] ?? 0) !== string(x, b[k] ?? 0)
+        const differ = rule.steerWhen === 'lone' ? pair(s) : rule.steerWhen === 'line' ? count(a) !== count(b) : pair(0) || pair(1)
 
         if (charged.length === 1 && differ) {
           trade(state, x * 24 + a[0], x * 24 + b[0])

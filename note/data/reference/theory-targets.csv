@@ -17,10 +17,10 @@ F4 root count,48,group,derived,n/a,math:lie-groups,derived,the roots of the 24-c
 F4 group order,1152,group,derived,n/a,math:lie-groups,derived,"the symmetry of the 24-cell / {3,4,3,4}"
 E8 root count,240,group,derived,n/a,math:lie-groups,derived,the integral octonion units
 triality reps,8+8+8,group,derived,n/a,math:quaternions-octonions,derived,8v + 8s + 8c of SO(8)
-triality order,3,group,derived,partial,math:quaternions-octonions,derived,the forced threefold; identification with 3 generations is OPEN
+triality order,3,group,derived,partial,math:quaternions-octonions,derived,the forced threefold. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is OPEN
 SO(10) dimension,45,group,derived,yes,phys:gut,derived,a grand-unified gauge group on this substrate
 SO(10) spinor (one generation),16,group,derived,yes,phys:gut,derived,15 SM Weyl fermions plus a right-handed neutrino
-Albert algebra J3(O) dimension,27,algebra,derived,partial,math:quaternions-octonions,derived,the second forced threefold; generation identification OPEN
+Albert algebra J3(O) dimension,27,algebra,derived,partial,math:quaternions-octonions,derived,the second forced threefold. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Generation identification OPEN
 knit pairings (11 double-factorial),10395,rule,derived,n/a,vibe,derived,collapse to 1 law by the dock symmetry
 warp factor (growth ratio),18.2787,geometry,derived,n/a,vibe,derived,"docks per layer of the {3,4,3,4} bulk (hyperbolic); see holography/rt-geodesic-3434"
 600-cell as inscribed 24-cells,5,geometry,derived,n/a,math:polytopes,derived,5 disjoint 24-cells inscribe the 600-cell

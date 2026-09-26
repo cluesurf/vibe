@@ -7,13 +7,17 @@
 // lines whose roots satisfy e_u + e_v = e_w + e_x, the lattice-gas binary scattering (FHP, and the D4
 // face-centred hypercubic gas of d'Humieres, Lallemand and Frisch). This file adds that block.
 //
-// THE SCATTERING. Two tones on u and v, with w and x calm, move to w and x (u to w, v to x), and back: an
-// involution, so it is reversible. Any two tones scatter, alike or not, so charge is kept, and P is kept
-// since every mover counts one. The pairing u to w, v to x is the one that keeps each slot's side (the
-// first or second slot of its line), and only scatterings where such a pairing exists are used (144 of
-// the 216): the move exchanges slot contents, role point with vibe, so a calm role point moves from w to
-// u keeping its side sign, and a dock's color content (E-FRC-0124, calm slots counted by side) is kept.
-// Exchanging role points inside a dock commutes with a change of role frame in that dock.
+// THE SCATTERING. Two lone tones on u and v (their opposite slots calm), with the lines of w and x wholly
+// calm, move to w and x (u to w, v to x), and back: an involution, so it is reversible. Any two tones
+// scatter, alike or not, so charge is kept, and P is kept since every mover counts one. Only lone tones
+// scatter, so the head-on pairs of the vacuum never do and the vacuum keeps its period (with `lone: false`
+// any two tones into two calm slots scatter, the control). The pairing u to w, v to x is the one that keeps
+// each slot's side (the first or second slot of its line), and only scatterings where such a pairing
+// exists are used (144 of the 216): the move exchanges slot contents, role point with vibe, so a calm role
+// point moves from w to u keeping its side sign, and a dock's color content (E-FRC-0124, calm slots counted
+// by side) is kept. Exchanging role points inside a dock commutes with a change of role frame in that
+// dock. The cost, measured in E-FLD-0024: the side-keeping scatterings also keep the sum of the twelve
+// line momenta, which local color forces, so the block leaves that sum beside P as a fifth invariant.
 //
 // THE SCHEDULE. The 144 lie in 24 quadruples of lines, six to each, and the 24 quadruples split the twelve
 // lines three at a time in exactly six ways. In each quadruple the six scatterings fall into three
@@ -27,7 +31,8 @@
 // at the same phase. Placing S on both sides is what CPT asks; a single S on one side breaks it. Since
 // c - t and t never fall on the same partition (c odd), the two sets differ.
 //
-// The base is any ColorLocalSpec (code/rule/color-local-weave). The base collision with role points is a
+// The base is any ColorLocalSpec (code/rule/color-local-weave); HEAD_TURN_SPEC below is the one E-FLD-0024
+// selects, and E-FLD-0025 measures the transport on it. The base collision with role points is a
 // copy of that file's private collide (the wire's role points swap when the first slot's weight changes
 // sign, a couple's exchange trades role points with vibes); E-FLD-0024 checks it bit for bit against
 // colorLocalBeat with the scattering switched off.
@@ -194,16 +199,43 @@ export function scatterPartitions(quads: readonly ScatterQuad[]): number[][] {
   return out
 }
 
-// the 24 scattering sets of the schedule: partition t mod 6, pair choice floor(t / 6) mod 3
-export function scatterSchedule(): Scattering[][] {
+// How many scatterings a beat tries, as the schedule's 24 sequences:
+// - 'pair' (the default): partition t mod 6, pair choice floor(t / 6) mod 3, six on disjoint slots
+// - 'partition': partition t mod 6 with all three pair choices, eighteen, run in order
+// - 'all': all 144 side-keeping scatterings, the 24 quadruples in order starting from quadruple t, each
+//   quadruple's three pairs in order
+// A sequence whose scatterings share slots is not an involution, but its inverse is the same sequence
+// run backward, which the beat does (see dockCollide).
+// - { partitions, pairs }: that many consecutive partitions from t mod 6, each with that many pair choices
+//   from floor(t / 6) mod 3 on (so 'pair' is { 1, 1 } and 'partition' is { 1, 3 })
+export type ScatterDensity = 'pair' | 'partition' | 'all' | { readonly partitions: number; readonly pairs: number }
+
+export function scatterSchedule(density: ScatterDensity = 'pair'): Scattering[][] {
   const quads = scatterQuads()
   const partitions = scatterPartitions(quads)
 
-  return Array.from({ length: 24 }, (_, t) => {
-    const partition = partitions[t % partitions.length] ?? []
-    const choice = Math.floor(t / partitions.length) % 3
+  if (density === 'all') {
+    return Array.from({ length: 24 }, (_, t) =>
+      quads.flatMap((_, i) => (quads[(i + t) % quads.length]?.pairs ?? []).flatMap(pair => [...pair])),
+    )
+  }
 
-    return partition.flatMap(q => [...(quads[q]?.pairs[choice] ?? [])])
+  const shape = density === 'pair' ? { partitions: 1, pairs: 1 } : density === 'partition' ? { partitions: 1, pairs: 3 } : density
+
+  return Array.from({ length: 24 }, (_, t) => {
+    const out: Scattering[] = []
+
+    for (let p = 0; p < shape.partitions; p++) {
+      const partition = partitions[(t + p) % partitions.length] ?? []
+
+      for (let c = 0; c < shape.pairs; c++) {
+        const choice = (Math.floor(t / partitions.length) + c) % 3
+
+        partition.forEach(q => out.push(...(quads[q]?.pairs[choice] ?? [])))
+      }
+    }
+
+    return out
   })
 }
 
@@ -214,9 +246,20 @@ export type ScatterWeaveSpec = {
   // the scattering set of each beat of the period; empty sets switch the block off
   readonly sets: readonly (readonly Scattering[])[]
   // only lone tones scatter, into lines that are wholly calm (the default); false lets any two tones
-  // scatter into two calm slots, pair members of the vacuum included
+  // scatter into two calm slots, pair members of the vacuum included. Overridden by `condition`
   readonly lone?: boolean
+  // which configurations scatter, on top of "u, v held and w, x calm, or the reverse":
+  // - 'lone': the opposite slots of all four calm
+  // - 'matched': the opposite slot of u held exactly when that of w is, and of v exactly when that of x
+  //   is, so a lone tone scatters against a lone tone, and a pair's member against a lone tone's partner
+  //   line, and each line's pair or lone state moves with the tone (the vacuum, whose lines are pairs or
+  //   wholly calm, never matches)
+  // - 'any': no condition on the opposite slots
+  // The opposite slots are not moved, so every condition reads the same before and after: an involution
+  readonly condition?: ScatterCondition
 }
+
+export type ScatterCondition = 'lone' | 'matched' | 'any'
 
 const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
 const mod = (t: number, n: number): number => ((t % n) + n) % n
@@ -228,6 +271,9 @@ type Built = {
   readonly inverseTables: readonly WireTable[]
   readonly fires: Uint8Array
   readonly sets: readonly Int32Array[]
+  // each set with its scatterings in reverse order
+  readonly reversed: readonly Int32Array[]
+  readonly condition: number
 }
 
 function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
@@ -267,26 +313,31 @@ function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
     inverseTables: base.tables.map(invertTable),
     fires,
     sets: spec.sets.map(set => Int32Array.from(set.flatMap(s => [...s]))),
+    reversed: spec.sets.map(set => Int32Array.from([...set].reverse().flatMap(s => [...s]))),
+    condition: CONDITION_CODE[spec.condition ?? (spec.lone === false ? 'any' : 'lone')],
   }
 }
 
+const CONDITION_CODE: Record<ScatterCondition, number> = { lone: 0, matched: 1, any: 2 }
+
 // the scattering set, in place: two tones on u, v with w, x calm move to w, x, and back. With `lone`, only
 // lone tones scatter (the opposite slots of all four calm), so the head-on pairs of the vacuum never do
-function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array, lone: boolean, tally?: ScatterTally): void {
+function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array, condition: number, tally?: ScatterTally): void {
   for (let k = 0; k < set.length; k += 4) {
     const u = base + (set[k] ?? 0)
     const v = base + (set[k + 1] ?? 0)
     const w = base + (set[k + 2] ?? 0)
     const x = base + (set[k + 3] ?? 0)
 
-    if (
-      lone &&
-      (vibe[base + (OPPOSITE[set[k] ?? 0] ?? 0)] !== 0 ||
-        vibe[base + (OPPOSITE[set[k + 1] ?? 0] ?? 0)] !== 0 ||
-        vibe[base + (OPPOSITE[set[k + 2] ?? 0] ?? 0)] !== 0 ||
-        vibe[base + (OPPOSITE[set[k + 3] ?? 0] ?? 0)] !== 0)
-    ) {
-      continue
+    if (condition !== 2) {
+      const ou = vibe[base + (OPPOSITE[set[k] ?? 0] ?? 0)] !== 0
+      const ov = vibe[base + (OPPOSITE[set[k + 1] ?? 0] ?? 0)] !== 0
+      const ow = vibe[base + (OPPOSITE[set[k + 2] ?? 0] ?? 0)] !== 0
+      const ox = vibe[base + (OPPOSITE[set[k + 3] ?? 0] ?? 0)] !== 0
+
+      if (condition === 0 ? ou || ov || ow || ox : ou !== ow || ov !== ox) {
+        continue
+      }
     }
 
     const here = vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
@@ -344,12 +395,30 @@ function exchange(vibe: Int8Array, role: Int8Array | undefined, base: number, li
   }
 }
 
-function clock(vibe: Int8Array, role: Int8Array | undefined, base: number, wire: readonly [number, number], table: WireTable): void {
+// A wire demon: when given, the wire's step is paid from demon[at], the counter of that dock's line. A step
+// that raises the tone count by c takes c from the counter and is not taken if the counter holds less (a
+// step that lowers the tone count gives the difference back). For the bind table and its inverse, whose
+// only steps that change the count are create (+2) and annihilate (-2) on one cycle, this is a bijection on
+// (wire state, counter) and the inverse table with the same rule is its inverse.
+type Demon = { readonly counters: Int32Array; readonly at: number }
+
+function clock(vibe: Int8Array, role: Int8Array | undefined, base: number, wire: readonly [number, number], table: WireTable, demon?: Demon): void {
   const i = base + wire[0]
   const j = base + wire[1]
   const a = vibe[i] ?? 0
   const b = vibe[j] ?? 0
   const image = table[stateKey(a, b)] ?? [a, b]
+
+  if (demon) {
+    const cost = Math.abs(image[0]) + Math.abs(image[1]) - Math.abs(a) - Math.abs(b)
+    const held = demon.counters[demon.at] ?? 0
+
+    if (held < cost) {
+      return
+    }
+
+    demon.counters[demon.at] = held - cost
+  }
 
   vibe[i] = image[0]
   vibe[j] = image[1]
@@ -363,7 +432,16 @@ function clock(vibe: Int8Array, role: Int8Array | undefined, base: number, wire:
 }
 
 // the base collision of beat t on one dock, with role points when given (a copy of color-local-weave's)
-function baseCollide(spec: ColorLocalSpec, built: Built, vibe: Int8Array, role: Int8Array | undefined, base: number, t: number, forward: boolean): void {
+function baseCollide(
+  spec: ColorLocalSpec,
+  built: Built,
+  vibe: Int8Array,
+  role: Int8Array | undefined,
+  base: number,
+  t: number,
+  forward: boolean,
+  counters?: Int32Array,
+): void {
   const tables = forward ? built.forwardTables : built.inverseTables
   const tableIndex = at(spec.tableAt, t)
   const couples = built.positions[at(spec.positionAt, t)] ?? []
@@ -376,48 +454,84 @@ function baseCollide(spec: ColorLocalSpec, built: Built, vibe: Int8Array, role: 
         : tables[(tableIndex + (spec.coupleTable?.[k] ?? 0)) % tables.length]) ?? []
     const line = built.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
     const wire = built.lines[couples[k]?.[1] ?? 0] ?? [0, 0]
+    // the demon of this dock's wire line, 12 counters to a dock
+    const demon = counters ? { counters, at: (base / 24) * 12 + (couples[k]?.[1] ?? 0) } : undefined
 
     if (k !== swapIndex) {
-      clock(vibe, role, base, wire, table)
+      clock(vibe, role, base, wire, table, demon)
     } else if (spec.palindrome) {
       exchange(vibe, role, base, line, wire, built.fires)
-      clock(vibe, role, base, wire, table)
+      clock(vibe, role, base, wire, table, demon)
       exchange(vibe, role, base, line, wire, built.fires)
     } else if (forward) {
       exchange(vibe, role, base, line, wire, built.fires)
-      clock(vibe, role, base, wire, table)
+      clock(vibe, role, base, wire, table, demon)
     } else {
-      clock(vibe, role, base, wire, table)
+      clock(vibe, role, base, wire, table, demon)
       exchange(vibe, role, base, line, wire, built.fires)
     }
   }
 }
 
-// the whole dock collision of beat t: S_t after B_t after S_(c - t), or its inverse
-function dockCollide(spec: ScatterWeaveSpec, built: Built, vibe: Int8Array, role: Int8Array | undefined, base: number, t: number, forward: boolean): void {
+// The whole dock collision of beat t: the sequence S_(c - t) run backward, then B_t, then S_t run forward.
+// Its inverse runs S_t backward, then B_t inverse, then S_(c - t) forward. Negating every vibe turns B_t
+// into the inverse of B_(c - t) and leaves each scattering as it is, so the negated collision of beat t is
+// the inverse of the collision of beat c - t: CPT at the base's phase, whether or not the scatterings of a
+// sequence share slots
+// With `counters` (12 to a dock, indexed dock * 12 + line), every wire step is paid from its line's demon
+// (code/rule/paid-weave builds beats on this).
+export function dockCollide(
+  spec: ScatterWeaveSpec,
+  built: Built,
+  vibe: Int8Array,
+  role: Int8Array | undefined,
+  base: number,
+  t: number,
+  forward: boolean,
+  tally?: ScatterTally,
+  counters?: Int32Array,
+): void {
   const n = built.sets.length
-  const first = n > 0 ? built.sets[mod(spec.mirror - t, n)] : undefined
-  const last = n > 0 ? built.sets[mod(t, n)] : undefined
+  const before = mod(spec.mirror - t, n)
+  const after = mod(t, n)
+  const condition = built.condition
 
-  const lone = spec.lone ?? true
-
-  if (forward) {
-    if (first) scatter(vibe, role, base, first, lone)
-    baseCollide(spec.base, built, vibe, role, base, t, true)
-    if (last) scatter(vibe, role, base, last, lone)
+  if (n === 0) {
+    baseCollide(spec.base, built, vibe, role, base, t, forward, counters)
+  } else if (forward) {
+    scatter(vibe, role, base, built.reversed[before] ?? EMPTY, condition, tally)
+    baseCollide(spec.base, built, vibe, role, base, t, true, counters)
+    scatter(vibe, role, base, built.sets[after] ?? EMPTY, condition, tally)
   } else {
-    if (last) scatter(vibe, role, base, last, lone)
-    baseCollide(spec.base, built, vibe, role, base, t, false)
-    if (first) scatter(vibe, role, base, first, lone)
+    scatter(vibe, role, base, built.reversed[after] ?? EMPTY, condition, tally)
+    baseCollide(spec.base, built, vibe, role, base, t, false, counters)
+    scatter(vibe, role, base, built.sets[before] ?? EMPTY, condition, tally)
   }
 }
 
-// the vibe collision of beat t, forward or inverse, for the lattice-gas engine
-export function scatterCollision(input: { spec: ScatterWeaveSpec; opposite: readonly number[]; forward?: boolean }): (t: number) => Collision {
+export function buildScatterWeave(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
+  return build(spec, opposite)
+}
+
+export type ScatterBuilt = Built
+
+const EMPTY = new Int32Array(0)
+
+// how many scatterings fired
+export type ScatterTally = { fired: number }
+
+// the vibe collision of beat t, forward or inverse, for the lattice-gas engine; with a tally, every
+// scattering that fires is counted into it
+export function scatterCollision(input: {
+  spec: ScatterWeaveSpec
+  opposite: readonly number[]
+  forward?: boolean
+  tally?: ScatterTally
+}): (t: number) => Collision {
   const built = build(input.spec, input.opposite)
   const forward = input.forward ?? true
 
-  return t => (slots, base) => dockCollide(input.spec, built, slots, undefined, base, t, forward)
+  return t => (slots, base) => dockCollide(input.spec, built, slots, undefined, base, t, forward, input.tally)
 }
 
 export type ScatterWeave = VibeWeave & {
