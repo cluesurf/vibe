@@ -60,6 +60,19 @@
 //  without the coin. REPORTED beside G1: sector (i) under 'native' (predicted: bosonic, share under 0.95) and under
 //  'token' (E-SPN-0087's electron, share 0.98).
 //
+// FIRST RUN (1,894 s, tmp/spn91-exp1.log): FAIL on G1, G4 and G5, no gate moved. R1 to R5, C1, C2, G2, G3 pass.
+// The lone love is massive on the knit's own beat (24 of 24 slots, 17 of 17 starts; gap 2 pi/3, curvature 0.57735,
+// top speed 0.5; uncoined gap 0) and its momentum goes r -> -r/2. The instrument equals E-SPN-0087 to 5.6e-17 and the
+// exact knit to 1.1e-15. G1 FAILS as predicted: the lightest husk-line charge-one level is the depth-flavored (ii)
+// [3] level, E 0.77413, spin one half share 0.2406 (compact: tail 4.6e-5, box shift 3.5e-9). The one-line cluster
+// (i) is the heaviest sector, E 1.58831, share 0.2907, against the token's 0.33002 and 0.9824: the bounce's sign
+// removes the contact binding (contact weight 0.118 against 0.918). NOT PREDICTED: the fermionic (i) and the native
+// (i) have the SAME energy (1.58831, shares 0.2907 and 0.2118): in one dimension a fermion that bounces is a hard-core
+// boson that passes, so the knit's collision turns its fermions into the bosons its literal code already was.
+// Also: (iii) and (ii) [2,1] share their lightest energy (0.94926). G4 FAILS on one clause: the lightest travels
+// (band 0.2217 wide, speed 0.1906) but the tracker's least overlap is 0.475, under the 0.5 fixed (a level crossing
+// near K = 7 pi/12 by the energies' kink at 0.9773). G5 FAILS as predicted: every lone vibe stays on its bulk line.
+//
 // Depth L2: the knit's own rule with one new piece, on its own loves; the sector spectra are floats (measurement)
 // checked against the exact rule by C2. HUSK FIRST: every sector is one husk line, every span a husk span.
 

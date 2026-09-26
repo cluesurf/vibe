@@ -52,6 +52,7 @@ import { departureChances, departureOf, kernelIsUnital, kernelKeepsWeight, reduc
 import { timesOmega } from '@/code/rule/signed-knot'
 import { roleChsh, roleDensity } from '@/code/measure/role-bell'
 import { layoutOf, weaveOf } from '@/code/measure/varying-living-battery'
+import { currentLinkStart, type LinkStartOf } from '@/code/rule/vibe-weave'
 
 const ROOTS = rootsD4()
 const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
@@ -68,18 +69,36 @@ const TRAVEL_BEATS = 6
 // a dock-varying vacuum: its store on a box, anchored so the anchor dock stores line 0, and the collision it runs under
 export type VaryingVacuum = { readonly key: string; readonly collision: CollisionKind; readonly store: (side: number, anchor: number) => Int8Array }
 
-const KERNELS = new Map<string, LivingKernel>()
+// The kernel and the vacuum track are built from the weave and layout, which depend on the link start, so each is
+// cached per start (keyed on the start function currentLinkStart returns) and then per key, as
+// varying-living-battery does since E-RLT-0089. One cache per key answered every start with the kernel built under
+// the first. The stores come from the vacuum alone and stay one cache.
+const KERNELS = new WeakMap<LinkStartOf, Map<string, LivingKernel>>()
 const STORES = new Map<string, Int8Array>()
+
+function cacheFor<T>(caches: WeakMap<LinkStartOf, Map<string, T>>): Map<string, T> {
+  const start = currentLinkStart()
+  const known = caches.get(start)
+
+  if (known) return known
+
+  const made = new Map<string, T>()
+
+  caches.set(start, made)
+
+  return made
+}
 
 function kernelOf(side: number, collision: CollisionKind): LivingKernel {
   const key = `${side}:${collision}`
-  const known = KERNELS.get(key)
+  const cache = cacheFor(KERNELS)
+  const known = cache.get(key)
 
   if (known) return known
 
   const k = makeBounceKernel(weaveOf(side), collision)
 
-  KERNELS.set(key, k)
+  cache.set(key, k)
 
   return k
 }
@@ -131,11 +150,12 @@ function stateFill(fill: { vibe: Int8Array; point: Int8Array }, store: Int8Array
 
 type VacuumTrack = { at: (t: number) => Reduced; period: number }
 
-const TRACKS = new Map<string, VacuumTrack>()
+const TRACKS = new WeakMap<LinkStartOf, Map<string, VacuumTrack>>()
 
 function vacuumTrack(vac: VaryingVacuum, side: number, anchor: number): VacuumTrack {
   const key = `${vac.key}:${vac.collision}:${side}:${anchor}`
-  const known = TRACKS.get(key)
+  const cache = cacheFor(TRACKS)
+  const known = cache.get(key)
 
   if (known) return known
 
@@ -156,7 +176,7 @@ function vacuumTrack(vac: VaryingVacuum, side: number, anchor: number): VacuumTr
 
   const track: VacuumTrack = { at: (t: number) => states[t % period] as Reduced, period }
 
-  TRACKS.set(key, track)
+  cache.set(key, track)
 
   return track
 }
