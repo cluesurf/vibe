@@ -242,5 +242,5 @@ export function classOrbits(perms: readonly (readonly number[])[]): number[][] {
 }
 
 // the moves fixing a set of points (as a set)
-export const stabilizerOf = (perms: readonly (readonly number[])[], set: readonly number[]): number[][] =>
+export const stabilizerOf = (perms: readonly (readonly number[])[], set: readonly number[]): (readonly number[])[] =>
   perms.filter(p => set.every(x => set.includes(p[x] as number)))

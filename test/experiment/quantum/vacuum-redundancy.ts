@@ -43,6 +43,24 @@
 // over husk columns; the same reader in the DOCK frame (the class read not carried with the knot), on live links.
 // Verdict: pass if C1, M1 and M2 hold on 17 of 17 starts; fail otherwise.
 //
+// FIRST RUN (2026-09-26, 1,566 s, tmp/dar-vacuum-redundancy.log): FAIL on C1 (0 of 17), a wrong prediction of the
+// calibration, no gate moved. M1 and M2 hold on 17 of 17.
+//  - M1: over 136 cases (8 of 24 directions per start, 4 partners each), no partner ever holds a record of any class
+//    at any beat; the largest I / H is 0.2689, the same on every start.
+//  - M2: no class is kept while another decays. But the covariance reading FAILS: the four start classes end with
+//    equal survival on only 6 of 136 cases. Survivals run 0.0085 to 0.4004, and the class that survives best changes
+//    from case to case: each of the four wins on some cases (read from the notes, tmp/dar-parse155.ts), none on all.
+//    A partner met twice through different links carries a relative frame (the link holonomy between the two paths),
+//    which is exactly what breaks the covariance of E-QTM-0154 (A). It favors a class per case, never one class.
+//  - C1, diagnosed after the run (tmp/dar-probe5 to 8, the clauses counted separately over the whole family): the role
+//    start keeps its line exactly on 136 of 136 cases; the first partner holds a full log 3 record right after the
+//    first meeting on 303 of 408 (start, case) pairs, the rest having met another partner first; the other starts end
+//    at survival exactly 0 on only 3 of 408, with r from 0.2608 to 0.4132 instead of 1/3. They miss because the partners also meet EACH OTHER by the fear beat, which spoils their role-line
+//    ready states, so later SUMs kick back a non-uniform tilt and no longer dephase completely. For the same reason
+//    no partner holds the role record at the end (R = 0 over partners and husk columns on every case): the vacuum's
+//    own fear beats among the environment swap each single-token record into many-token correlations. The prediction
+//    assumed fresh ready states; the vacuum does not supply them.
+//
 // Depth L2 (the model's own vacuum, knit and fear beat; the calibration is a stand-in). The husk: the fragments are
 // read as husk columns first, the bulk tokens beside them. No random numbers: starts are E-MTH-0028's family,
 // directions and knot starts are enumerated.

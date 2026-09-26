@@ -173,7 +173,7 @@ export function loneKeepsSlot(kinds: readonly CollisionKind[] = ['isometric', 'b
   }
 
   // the pair move on a dock holding one vibe, every store trit, points equal or not
-  const kernel = { veto: true } as unknown as BounceKernel
+  const kernel: BounceKernel = { cells: 1, table: BOUNCE_TABLE, schedule: 'alternate', veto: true, collision: 'lone', target: new Int32Array(24), move: [] }
   let pairCases = 0
   let pairTouched = 0
 

@@ -29,6 +29,14 @@
 // with the record (that environment is not frame invariant, so the theorem does not cover it).
 // Verdict: pass if Z1 holds and Z2 holds on 17 of 17 starts; fail otherwise.
 //
+// FIRST RUN (2026-09-26, 842 s, tmp/dar-record-zeno.log): pass, both gates on the first run, no gate moved.
+//  - Z1: 648 of 648. With a POINT member environment the record commutes in 0 of 648 (reading).
+//  - Z2: 17 of 17; the first-meeting survival is exactly 2/3 or 1/4 with and without records on all 544 runs.
+//  - Readings: at the end of 48 beats the records change the survival on all 544 runs, lowering it on 474 and raising
+//    it on 70 (largest rise 0.1055, largest fall 0.1445, tmp/dar-parse156.ts); the largest survival with a record
+//    every beat is 0.2757. So once a partner is met twice the record no longer commutes (the relative frame of
+//    E-QTM-0155), and recording mostly speeds the loss (anti-Zeno), never freezes it.
+//
 // Depth L2. The husk is not read: survival is a role-grid number; the schedule is the bulk knit's on the side-4
 // box. No random numbers.
 
