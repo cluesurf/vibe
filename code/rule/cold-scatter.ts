@@ -207,15 +207,26 @@ export type LabelledArrays = {
 
 export type ScatterMeeting = { readonly tokens: readonly [number, number]; readonly signs: readonly [number, number]; readonly kind: 'quad' | 'rotation' }
 
+// written without inner closures: it runs for every move of every dock of every beat
 function canFire(m: ScatterMove, a: LabelledArrays, base: number): 0 | 1 | -1 {
   const v = a.vibe
   const s = a.store
-  const full = (p: readonly [number, number]): boolean =>
-    (v[base + p[0]] ?? 0) !== 0 && (v[base + p[1]] ?? 0) !== 0 && (s[base + p[0]] ?? 0) === (s[base + p[1]] ?? 0) && (!m.alike || v[base + p[0]] === v[base + p[1]])
-  const empty = (p: readonly [number, number]): boolean => (v[base + p[0]] ?? 0) === 0 && (v[base + p[1]] ?? 0) === 0
+  const a0 = base + m.a[0]
+  const a1 = base + m.a[1]
+  const b0 = base + m.b[0]
+  const b1 = base + m.b[1]
+  const va0 = v[a0] ?? 0
+  const va1 = v[a1] ?? 0
+  const vb0 = v[b0] ?? 0
+  const vb1 = v[b1] ?? 0
 
-  if (full(m.a) && empty(m.b)) return 1
-  if (full(m.b) && empty(m.a)) return -1
+  if (vb0 === 0 && vb1 === 0) {
+    if (va0 !== 0 && va1 !== 0 && s[a0] === s[a1] && (!m.alike || va0 === va1)) return 1
+
+    return 0
+  }
+
+  if (va0 === 0 && va1 === 0 && vb0 !== 0 && vb1 !== 0 && s[b0] === s[b1] && (!m.alike || vb0 === vb1)) return -1
 
   return 0
 }
@@ -248,7 +259,8 @@ function apply(m: ScatterMove, direction: 1 | -1, a: LabelledArrays, base: numbe
     const straight = SIDE[from[0]] === SIDE[to[0]] && SIDE[from[1]] === SIDE[to[1]]
     const into = straight ? [to[0], to[1]] : [to[1], to[0]]
 
-    from.forEach((f, k) => {
+    for (let k = 0; k < 2; k++) {
+      const f = from[k] ?? 0
       const t = into[k] ?? f
 
       a.vibe[base + f] = 0
@@ -256,7 +268,7 @@ function apply(m: ScatterMove, direction: 1 | -1, a: LabelledArrays, base: numbe
       a.vibe[base + t] = tones[k] ?? 0
       a.store[base + t] = store
       swapLabels(a, base + f, base + t)
-    })
+    }
 
     return
   }
@@ -290,26 +302,36 @@ function apply(m: ScatterMove, direction: 1 | -1, a: LabelledArrays, base: numbe
 
 // the scattering involution on one dock; meetings are read in the forward sense (the tokens on the moving
 // tones before the move going forward, after it going backward)
+const ACTIVE = new Int32Array(256)
+const DIRECTION = new Int8Array(256)
+
 export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, forward: boolean, meetings?: ScatterMeeting[], tally?: { fired: number; blocked: number }): void {
-  const active: [number, 1 | -1][] = []
-  const used = new Set<number>()
+  const moves = set.moves
+  let count = 0
+  let used = 0
   let overlap = false
 
-  set.moves.forEach((m, i) => {
+  for (let i = 0; i < moves.length; i++) {
+    const m = moves[i]
+
+    if (!m) continue
+
     const f = canFire(m, a, base)
 
-    if (f === 0) return
+    if (f === 0) continue
 
-    active.push([i, f])
+    ACTIVE[count] = i
+    DIRECTION[count] = f
+    count++
 
-    for (const d of [...m.a, ...m.b]) {
-      if (used.has(d)) overlap = true
+    const bits = (1 << m.a[0]) | (1 << m.a[1]) | (1 << m.b[0]) | (1 << m.b[1])
 
-      used.add(d)
-    }
-  })
+    if ((used & bits) !== 0) overlap = true
 
-  if (active.length === 0) return
+    used |= bits
+  }
+
+  if (count === 0) return
 
   if (overlap) {
     if (tally) tally.blocked++
@@ -317,11 +339,15 @@ export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, fo
     return
   }
 
+  const active: [number, 1 | -1][] = []
+
+  for (let k = 0; k < count; k++) active.push([ACTIVE[k] ?? 0, (DIRECTION[k] ?? 1) as 1 | -1])
+
   const snapshot = { vibe: a.vibe.slice(base, base + 24), store: a.store.slice(base, base + 24), role: a.role?.slice(base, base + 24), token: a.token?.slice(base, base + 24) }
   const moving: { tokens: [number, number]; signs: [number, number]; kind: 'quad' | 'rotation' }[] = []
 
   for (const [i, f] of active) {
-    const m = set.moves[i]
+    const m = moves[i]
 
     if (!m) continue
 
@@ -335,8 +361,28 @@ export function scatterDock(set: ScatterSet, a: LabelledArrays, base: number, fo
   }
 
   // the set that can fire afterwards must be the same moves, reversed
-  const again = set.moves.map((m, i) => [i, canFire(m, a, base)] as const).filter(([, f]) => f !== 0)
-  const same = again.length === active.length && again.every(([i, f]) => active.some(([j, g]) => j === i && g === -f))
+  let again = 0
+  let same = true
+
+  for (let i = 0; i < moves.length && same; i++) {
+    const m = moves[i]
+
+    if (!m) continue
+
+    const f = canFire(m, a, base)
+
+    if (f === 0) continue
+
+    again++
+
+    let found = false
+
+    for (const [j, g] of active) if (j === i && g === -f) found = true
+
+    same = found
+  }
+
+  same = same && again === active.length
 
   if (!same) {
     a.vibe.set(snapshot.vibe, base)

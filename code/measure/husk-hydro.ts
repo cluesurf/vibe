@@ -23,6 +23,7 @@ import { dampedCosineFit, type WaveGeometry } from '@/code/measure/momentum-tran
 import { decayRateFit } from '@/code/measure/shear-mode'
 import { linearFit } from '@/code/measure/regression'
 import { collide, streamSourceTable } from '@/code/rule/lattice-gas'
+import { SILVER, makeWeyl, weyl as weylPoint } from '@/code/tool/weyl'
 import {
   coldQuaternionBeat,
   coldQuaternionEnergy,
@@ -140,17 +141,18 @@ export function bulkAmplitude(vibe: ArrayLike<number>, side: number, geometry: W
   return amplitude
 }
 
-// DETERMINISTIC FILLS. No random numbers and no seeds: every choice is a Weyl sequence, frac((n + 1) alpha) with
-// alpha the fractional part of the square root of a prime, one prime per kind of choice.
-const WEYL = [2, 3, 5, 7, 11, 13, 17, 19].map(p => Math.sqrt(p) % 1)
+// DETERMINISTIC FILLS (code/tool/weyl). No random numbers and no seeds: every choice is a Weyl point,
+// frac((n + 1) alpha) with alpha the fractional part of the square root of a prime, one prime per kind of
+// choice, and sampled states come from the repo's Kronecker stream.
+const ALPHAS = [2, 3, 5, 7].map(p => Math.sqrt(p) % 1)
 
-export const weyl = (n: number, kind: number): number => ((n + 1) * (WEYL[kind % WEYL.length] ?? 0.4142135623730951)) % 1
+const weylAt = (n: number, kind: number): number => weylPoint(n + 1, ALPHAS[kind % ALPHAS.length] ?? SILVER)
 
-// a deterministic stream for sampling states: the n-th draw is weyl(n, kind), n counting up
-export function weylStream(kind: number): () => number {
-  let n = 0
+// a deterministic stream for sampling states: makeWeyl's stream at `start`
+export function weylStream(start: number): () => number {
+  const stream = makeWeyl({ start })
 
-  return () => weyl(n++, kind)
+  return () => stream.next()
 }
 
 // code/measure/momentum-transport momentumWaveStart with its hash replaced by Weyl sequences: a background
@@ -161,7 +163,7 @@ export function weylWaveStart(input: { mesh: Mesh; side: number; geometry: WaveG
   const data = new Int8Array(mesh.cellCount * 24)
 
   for (let i = 0; i < data.length; i++) {
-    if (weyl(i, 0) < fill) data[i] = weyl(i, 1) < 0.5 ? -1 : 1
+    if (weylAt(i, 0) < fill) data[i] = weylAt(i, 1) < 0.5 ? -1 : 1
   }
 
   const lines: [number, number][] = []
@@ -179,11 +181,11 @@ export function weylWaveStart(input: { mesh: Mesh; side: number; geometry: WaveG
     lines.forEach(([d, o], line) => {
       const along = dot(ROOTS[d] ?? [], geometry.momentum)
 
-      if (along === 0 || weyl(x * 12 + line, 2) >= Math.abs(local)) return
+      if (along === 0 || weylAt(x * 12 + line, 2) >= Math.abs(local)) return
 
       const forward = along * local > 0 ? d : o
 
-      data[x * 24 + forward] = weyl(x * 12 + line, 3) < 0.5 ? -1 : 1
+      data[x * 24 + forward] = weylAt(x * 12 + line, 3) < 0.5 ? -1 : 1
       data[x * 24 + (forward === d ? o : d)] = 0
     })
   }
@@ -268,31 +270,36 @@ export type HydroBattery = {
   readonly bulk: { name: string; run: ShearReading }[]
   // sound along the husk directions at L = 16, 20, 24, speed extrapolated to k = 0 in k^2
   readonly sound: { name: string; runs: SoundReading[]; speedAtZero: number }[]
-  // spread of nu over the husk orientations at L = 16 (max over min; infinite if any is not positive)
+  // spread of nu over the husk orientations at L = 16, or the first size run (max over min; infinite if any
+  // is not positive)
   readonly huskNuSpread: number
   readonly huskSpeedSpread: number
   readonly energyExact: boolean
   readonly huskEqualsBulk: boolean
 }
 
-export function hydroBattery<S>(system: GasSystem<S>): HydroBattery {
+// sides: the shear sizes (default 12, 16, 20, 24; the second one, 16 by default, is the isotropy size);
+// soundSides: the sound sizes (default 16, 20, 24)
+export function hydroBattery<S>(system: GasSystem<S>, input: { sides?: readonly number[]; soundSides?: readonly number[] } = {}): HydroBattery {
+  const sides = input.sides ?? SIDES
+  const soundSides = input.soundSides ?? [16, 20, 24]
   const husk = HUSK_SHEARS.map(([name, geometry]) => {
-    const runs = SIDES.map(side => shearRun(system, side, geometry))
+    const runs = sides.map(side => shearRun(system, side, geometry))
     const nus = runs.map(r => r.nu)
     const nuSpread = Math.min(...nus) > 0 ? Math.max(...nus) / Math.min(...nus) : Number.POSITIVE_INFINITY
-    const fit = linearFit({ xs: runs.map(r => Math.log(r.k)), ys: runs.map(r => Math.log(Math.max(1e-12, r.gamma))) })
-    const law = nuSpread <= 1.1 && runs.every(r => r.r2 > 0.99) && Math.abs(fit.slope - 2) <= 0.2
+    const slope = runs.length > 1 ? linearFit({ xs: runs.map(r => Math.log(r.k)), ys: runs.map(r => Math.log(Math.max(1e-12, r.gamma))) }).slope : Number.NaN
+    const law = runs.length > 1 && nuSpread <= 1.1 && runs.every(r => r.r2 > 0.99) && Math.abs(slope - 2) <= 0.2
 
-    return { name, runs, nuSpread, exponent: fit.slope, law }
+    return { name, runs, nuSpread, exponent: slope, law }
   })
   const bulk = BULK_SHEARS.map(([name, geometry]) => ({ name, run: shearRun(system, 16, geometry) }))
   const sound = HUSK_SOUNDS.map(([name, geometry]) => {
-    const runs = [16, 20, 24].map(side => soundRun(system, side, geometry))
-    const fit = linearFit({ xs: runs.map(r => r.k * r.k), ys: runs.map(r => r.speed) })
+    const runs = soundSides.map(side => soundRun(system, side, geometry))
+    const fit = runs.length > 1 ? linearFit({ xs: runs.map(r => r.k * r.k), ys: runs.map(r => r.speed) }).intercept : Number.NaN
 
-    return { name, runs, speedAtZero: fit.intercept }
+    return { name, runs, speedAtZero: fit }
   })
-  const at16 = husk.map(h => h.runs[1]?.nu ?? 0)
+  const at16 = husk.map(h => h.runs[sides.indexOf(16)]?.nu ?? h.runs[0]?.nu ?? 0)
   const speeds = sound.map(s => s.runs[0]?.speed ?? 0)
 
   return {

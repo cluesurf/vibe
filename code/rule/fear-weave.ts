@@ -31,7 +31,14 @@
 // The color mode (advanceWhole's color input, fearKernels), the three-trit color law adopted after
 // E-QTM-0102: where a love meets a fear the one-third turn is the singlet phase 1 + (omega - 1) P_Phi instead,
 // with the fear's conjugate role stored at the reflected point, which keeps love minus fear of the two role
-// points in every configuration. Like meetings keep the swap phase. The grain is then 2^a 3^b.
+// points in every configuration. Like meetings keep the swap phase. The grain is then 2^a 3^b. Since
+// 2026-09-26 the whole carries each coordinate's frame (the sign it is written in) and rewrites a coordinate
+// whose token changed sign between meetings before the kernel reads it (E-QTM-0123): no linear map carries
+// a love's role to a fear's while commuting with the links (the reflection is antisymplectic, so it is
+// antiunitary), and leaving the stored point in place applied a partial conjugation to entangled wholes.
+//
+// Grid moves act on the whole through sigma-links' identification of the phase point (a, b), index 3 a + b,
+// with the grid point x = a, y = b, index a + 3 b (moveCoordinate, GRID_OF_PHASE; E-QTM-0124).
 //
 // K is in quarters at phi = 2 pi / 3 (E-FRC-0121). In the fixed mode the whole keeps its units and a beat
 // that would need a fraction is refused, never rounded. In the grain mode the units are multiplied by 4
@@ -406,10 +413,14 @@ export function fearBeatBack(input: {
 }
 
 // the whole: open tokens (coordinate order, most significant first) and loves minus fears at each of
-// their 9^k joint role points
+// their 9^k joint role points. The color mode also carries, per coordinate, the FRAME its role is written
+// in (+1 a love's, -1 a fear's reflected point, 0 not yet met) and, for the backward beat, the frames it
+// held before each of its meetings (see advanceWhole)
 export type Whole = {
   readonly tokens: readonly number[]
   readonly weight: readonly bigint[]
+  readonly frame?: readonly number[]
+  readonly trail?: readonly (readonly number[])[]
 }
 
 export function wholeUnits(whole: Whole): bigint {
@@ -446,11 +457,25 @@ function gcd(a: bigint, b: bigint): bigint {
 export function reduceWhole(whole: Whole): Whole {
   const g = whole.weight.reduce((a, b) => gcd(a, b), 0n)
 
-  return g > 1n ? { tokens: whole.tokens, weight: whole.weight.map(w => w / g) } : whole
+  return g > 1n ? { ...whole, weight: whole.weight.map(w => w / g) } : whole
 }
 
-// move one coordinate of the whole by a permutation of the 9 grid points
-export function moveCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
+// THE TWO INDEXINGS OF THE NINE ROLE POINTS, one convention (fixed 2026-09-26, E-QTM-0124). A whole's weights
+// are indexed by the PHASE point (a, b) at 3 a + b, the index of code/measure/grid-weights and
+// qutrit-phase-space. A grid move (weave.moves.act, code/rule/sigma-links) is a table on the GRID point
+// x = a, y = b at a + 3 b, which is sigma-links' toGrid. moveCoordinate takes a grid move and applies it to
+// the phase index through that identification. Until 2026-09-26 it applied the grid table to the phase
+// index directly, so every link acted by its transpose T g T (T: (a, b) -> (b, a)): still a Clifford move,
+// since T reverses the symplectic form twice, but not the element sigma-links assigns the link.
+export const GRID_OF_PHASE: readonly number[] = Array.from({ length: 9 }, (_, q) => Math.floor(q / 3) + 3 * (q % 3))
+
+// a grid move (a table on a + 3 b) as a permutation of the phase index 3 a + b
+export function phaseMove(grid: ArrayLike<number>): number[] {
+  return GRID_OF_PHASE.map(q => GRID_OF_PHASE[grid[q] ?? q] ?? 0)
+}
+
+// move one coordinate of the whole by a permutation of its 9 PHASE points (index 3 a + b)
+export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
   const k = whole.tokens.length
   const stride = 9 ** (k - 1 - coordinate)
   const out = new Array<bigint>(whole.weight.length).fill(0n)
@@ -462,7 +487,12 @@ export function moveCoordinate(whole: Whole, coordinate: number, perm: ArrayLike
     out[j] = whole.weight[i] ?? 0n
   }
 
-  return { tokens: whole.tokens, weight: out }
+  return { ...whole, weight: out }
+}
+
+// move one coordinate of the whole by a GRID move (a table on the grid index a + 3 b, as weave.moves.act)
+export function moveCoordinate(whole: Whole, coordinate: number, grid: ArrayLike<number>): Whole {
+  return movePhaseCoordinate(whole, coordinate, phaseMove(grid))
 }
 
 // move two coordinates of the whole by a kernel on their 81 joint points, given as 4 K in whole numbers.
@@ -530,7 +560,7 @@ export function meetWhole(input: {
     }
   }
 
-  const next = { tokens: whole.tokens, weight: out }
+  const next = { ...whole, weight: out }
 
   return fixed ? next : reduceWhole(next)
 }
@@ -552,6 +582,9 @@ export function advanceWhole(input: {
   // the color mode: the kernel chosen by the vibes each meeting recorded, like or love-fear. Every
   // coordinate is then read in the color weave's convention, a fear's conjugate role at the reflected point
   color?: FearKernels
+  // the color mode's frame tracking (on unless false). Off is the law before 2026-09-26, kept as the
+  // control of E-QTM-0123: it is not a physical law, since it leaves non-states
+  frames?: boolean
 }): Whole | null {
   const { weave, record, fixed, forward, color } = input
   const signs = record.signs ?? []
@@ -572,10 +605,77 @@ export function advanceWhole(input: {
 
   let whole: Whole | null = input.whole
 
+  // The color mode's frames (E-QTM-0123). A coordinate is written in the frame of the sign its token had at
+  // its last meeting: a love's point, or a fear's conjugate role at the reflected point. A token's vibe can
+  // change sign between its meetings (the line table turns a love into a fear and back), and the kernels read
+  // the frame of the signs they are handed, so before a meeting every coordinate whose token now has the
+  // other sign is REFLECTED (the same role, rewritten in the new frame). Without this the whole took the
+  // change as a partial conjugation of the role, which is not a physical map on an entangled whole (the
+  // partial transpose), and 299 of 2,016 two-role wholes stopped being states. A coordinate that has not met
+  // yet takes the frame of its first meeting as it stands. Going back, each meeting restores the frames it
+  // replaced, from the whole's per-coordinate trail.
+  const frames = (): { frame: number[]; trail: number[][] } => {
+    const w = whole as Whole
+    const k = w.tokens.length
+
+    return {
+      frame: w.frame ? [...w.frame] : new Array<number>(k).fill(0),
+      trail: w.trail ? w.trail.map(t => [...t]) : Array.from({ length: k }, () => []),
+    }
+  }
+
+  const reframe = (c: number, to: number, state: { frame: number[] }): void => {
+    const from = state.frame[c] ?? 0
+
+    if (from !== 0 && to !== 0 && from !== to) {
+      whole = movePhaseCoordinate(whole as Whole, c, CONJUGATE_POINT)
+    }
+
+    state.frame[c] = to
+  }
+
   const meet = (): void => {
     for (const [ta, tb] of record.meetings) {
       if (!whole) {
         return
+      }
+
+      if (color && !input.kernelOf && input.frames !== false) {
+        const [sa, sb] = signs[meetingIndex] ?? [1, 1]
+        const ca = coordinate.get(ta) ?? 0
+        const cb = coordinate.get(tb) ?? 0
+        const state = frames()
+
+        if (forward) {
+          state.trail[ca]?.push(state.frame[ca] ?? 0)
+          state.trail[cb]?.push(state.frame[cb] ?? 0)
+          reframe(ca, sa, state)
+          reframe(cb, sb, state)
+        }
+
+        const chosen = (kernelOf as NonNullable<typeof kernelOf>)(ta, tb)
+        const met: Whole | null = meetWhole({
+          whole: whole as Whole,
+          a: coordinate.get(chosen.order[0]) ?? 0,
+          b: coordinate.get(chosen.order[1]) ?? 0,
+          kernel4: chosen.kernel,
+          divisor: chosen.divisor,
+          fixed,
+        })
+
+        whole = met
+
+        if (!whole) {
+          return
+        }
+
+        if (!forward) {
+          reframe(ca, state.trail[ca]?.pop() ?? 0, state)
+          reframe(cb, state.trail[cb]?.pop() ?? 0, state)
+        }
+
+        whole = { ...(whole as Whole), frame: state.frame, trail: state.trail }
+        continue
       }
 
       if (kernelOf) {
@@ -745,6 +845,25 @@ export function singletPhase(phi: number): Operator {
 // the grid point a fear's conjugate role is stored at: (a, b) -> (a, -b), since A(a, b)* = A(a, -b). Stored
 // this way, a fear's point moves by the same grid move as a love's, which is the color weave's convention
 export const CONJUGATE_POINT: readonly number[] = Array.from({ length: 9 }, (_, p) => 3 * Math.floor(p / 3) + ((3 - (p % 3)) % 3))
+
+// the same reflection (a, b) -> (a, -b) as a table on the GRID index a + 3 b, for a mover that takes grid
+// moves (moveCoordinate, calm-weave's conjugateMove): C g C in grid terms is CONJUGATE_GRID g CONJUGATE_GRID
+export const CONJUGATE_GRID: readonly number[] = Array.from({ length: 9 }, (_, g) => (g % 3) + 3 * ((3 - Math.floor(g / 3)) % 3))
+
+// the whole in the love frame on every coordinate: each coordinate a color-mode meeting left in a fear's
+// frame reflected back, so the weights are the Wigner function of the roles themselves, in whole units. A
+// whole with no frames is returned as it is
+export function physicalWhole(whole: Whole): Whole {
+  let out: Whole = { tokens: whole.tokens, weight: whole.weight }
+
+  whole.frame?.forEach((f, c) => {
+    if (f === -1) {
+      out = movePhaseCoordinate(out, c, CONJUGATE_POINT)
+    }
+  })
+
+  return out
+}
 
 // a kernel on (love, fear) with the fear's coordinate in the color weave's convention
 export function conjugateSecond(kernel: readonly (readonly number[])[]): number[][] {

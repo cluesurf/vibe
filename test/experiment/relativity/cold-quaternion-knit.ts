@@ -12,7 +12,7 @@
 //
 // Measured on this one rule (every number exact unless it is a fit):
 // 1. STRUCTURE. The Q8-equivariant payer maps (every one), and for each the full collision (tones, stores,
-//    counters) against every element of Q8 with its tone twist on 4,000 random dock states and 2,000 states
+//    counters) against every element of Q8 with its tone twist on 4,000 stream-sampled dock states and 2,000 states
 //    built to fire the threshold; the 'plain' sign rule as the control. Then every (W(F4) element keeping the
 //    couple partition, tone map +-1) tested as a glide (C g = g C) and as a reversal (C g = g C^-1) on 300
 //    states: the glide group, its forced rank-2 spread, CPT at the identity coin map. Beside it the rank-4
@@ -109,6 +109,7 @@ import { linearFit } from '@/code/measure/regression'
 import { slopeError } from '@/code/measure/charge-mode'
 import { coldResponse, toneResponse, type ResponseReading } from '@/code/measure/husk-response'
 import { buildHyperbolicBall, cuspLayer, labelledCoin } from '@/code/substrate/coxeter/label-transport'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const GENERIC = [0.31, -0.74, 0.52, 0.29]
@@ -116,21 +117,19 @@ const PERIOD = 24
 const ROOTS = rootsD4()
 
 // ---------------------------------------------------------------------------------------------------------
-// a small deterministic generator (a linear congruential sequence), for the symmetry checks
+// the docks the symmetry checks read: values from the Kronecker stream of code/tool/weyl (no generator,
+// no seed; the start picks which equidistributed stream is read). Until 2026-09-26 this was a local
+// linear congruential sequence.
 
-function sequence(seed: number): () => number {
-  let s = seed
+function sequence(start: number): () => number {
+  const stream = makeWeyl({ start })
 
-  return () => {
-    s = (s * 1103515245 + 12345) % 2147483648
-
-    return s / 2147483648
-  }
+  return () => stream.next()
 }
 
 type Dock = { vibe: number[]; store: number[]; counter: number[] }
 
-function randomDock(rand: () => number): Dock {
+function sampledDock(rand: () => number): Dock {
   const fill = rand()
   const vibe = Array.from({ length: 24 }, () => (rand() < fill ? (rand() < 0.5 ? 1 : -1) : 0))
   const store = vibe.map(v => (v === 0 ? 0 : rand() < 0.5 ? 0 : Math.floor(rand() * 5)))
@@ -141,7 +140,7 @@ function randomDock(rand: () => number): Dock {
 
 // a dock built so the threshold can fire: payer lines holding like pairs with stores, couples calm or made
 function thresholdDock(rand: () => number, knit: ColdQuaternionKnit): Dock {
-  const d = randomDock(rand)
+  const d = sampledDock(rand)
 
   knit.payers.forEach((line, c) => {
     if (line < 0) return
@@ -211,7 +210,7 @@ function structure() {
       const knit = makeColdQuaternionKnit({ payers, signRule })
 
       for (let n = 0; n < 6000; n++) {
-        const d = n < 4000 ? randomDock(rand) : thresholdDock(rand, knit)
+        const d = n < 4000 ? sampledDock(rand) : thresholdDock(rand, knit)
         const out = collideDockCopy(knit, d, true)
 
         if (signRule === 'twisted' && n >= 4000) {
@@ -235,7 +234,7 @@ function structure() {
   // every glide and reversal among the elements that keep the couples
   const table = groupTable()
   const knit = makeColdQuaternionKnit()
-  const states = Array.from({ length: 300 }, (_, n) => (n < 200 ? randomDock(rand) : thresholdDock(rand, knit)))
+  const states = Array.from({ length: 300 }, (_, n) => (n < 200 ? sampledDock(rand) : thresholdDock(rand, knit)))
   const images = states.map(d => collideDockCopy(knit, d, true))
   const glides: { p: number; tau: number }[] = []
   const reversals: { p: number; tau: number }[] = []
@@ -1267,7 +1266,7 @@ export default experiment({
         coldScatterWeaveViscosityAnisotropy: 12,
       },
       notes:
-        'L2, exact, no random numbers (a fixed linear congruential sequence for the symmetry checks, golden-ratio fills elsewhere). See the header for the gates. THE PAYERS: Q8 permutes the six couples in orbits of 4 and 2; a couple of the second orbit has a stabilizer that fixes no line, so only the first orbit can have one payer line, and 4 equivariant bijections onto the second orbit\'s lines exist; the made state must carry the frame\'s tone twist (the plain sign fails Q8). THE FROZEN LINES: the forced functionals fix four line momenta one by one (lines 0, 1, 10, 11, the frame e1 +- e2, e3 +- e4), so no collision of any Q8 knit with exact local color moves momentum on those lines. But that is not what stops the shear: the share of the final shear amplitude on the frozen lines is 0.03 or less. The four free directions are open in principle and nearly closed in practice, because the one move that uses them, the exchange, needs exactly two lone tones on the eight free lines, alike, of equal store, with both target lines calm: on a dense side-5 run it fired at 4 dock-beats of 15,000 and the changes spanned 1 direction of 4 (G4 fails on this, the forced rank itself is 8 as proved). With the exchange switched off the L = 16 shear reads the same (nu -0.0065, 0.63 of the amplitude left after 60 beats, against -0.0073 and 0.64 with it on). So every line momentum is conserved in practice, axis shears keep 0.64 to 0.69 of their amplitude, the diagonal shears fall to 0.08 by phase mixing of free streaming rather than by collisions (nu 2.34 and 2.40, r2 0.91), and sound runs at 0.93 to 0.95 (extrapolated 0.928 against c / 2 = 0.707, near the streaming speed, 0.63 on the diagonal). G8 passes on numbers (ratios 1.053, 1.019, 0.976 for the three Q8-related pairs) but for the axis pairs those are ratios of two non-decaying fits, so it shows the symmetry acting on the runs, not an isotropic viscosity. Q8 forces nothing at rank 4 (spread 0.235, commutant 27 on traceless symmetric tensors, against 1 for SO(4)), so an isotropic viscosity would not follow from the symmetry even if one existed. THE BATTERY: dressing 1 in every period at every side (committed 33, 160, 565, 1,508), travel 24 of 24 (committed 12), superposition exact, dense components 1, but vacuum components 12 (committed 3, combined 2: a lone tone on a cold vacuum meets nothing, as E-FLD-0032 found) and no walls (a still vacuum has no clock to stagger). The dense blob (25 docks, energy 762) spreads to 300 free-streaming tones by beat 25 and stays there; a head-on pair above threshold makes its four tones and nothing more. The husk reading is the bulk kernel restricted to hyperplanes perpendicular to the 24-cell\'s vertex directions, on the flat D4 model of the cusp (code/measure/husk-response); the real cusp layer\'s six in-layer facets were read off the radius-3 {3,4,3,4} ball, alternating between the roots with first entry +1 and -1 because the antipodal transport reverses orientation from cell to cell. Bulk and husk agree: the cold knit reads 1.09, 0.60, 0.33 (bulk) and 0.92, 0.51, 0.28 (husk mean) over 1, 4, 16 starts at side 9, falling as noise does, and 0.65, 0.35 and 0.55, 0.30 at side 13; the combined knit stays at 0.84, 0.80, 0.80 (bulk) and 0.72, 0.69, 0.69 (husk mean, 0.48 to 0.88 across the 12 husks), the committed knit at 1.60, 1.23, 1.18 and 1.35, 1.05, 1.01. A structural bulk anisotropy survives onto every husk, a little smaller.',
+        'L2, exact, no random numbers (the Kronecker stream of code/tool/weyl for the symmetry checks since 2026-09-26, a linear congruential sequence before it, golden-ratio fills elsewhere). See the header for the gates. THE PAYERS: Q8 permutes the six couples in orbits of 4 and 2; a couple of the second orbit has a stabilizer that fixes no line, so only the first orbit can have one payer line, and 4 equivariant bijections onto the second orbit\'s lines exist; the made state must carry the frame\'s tone twist (the plain sign fails Q8). THE FROZEN LINES: the forced functionals fix four line momenta one by one (lines 0, 1, 10, 11, the frame e1 +- e2, e3 +- e4), so no collision of any Q8 knit with exact local color moves momentum on those lines. But that is not what stops the shear: the share of the final shear amplitude on the frozen lines is 0.03 or less. The four free directions are open in principle and nearly closed in practice, because the one move that uses them, the exchange, needs exactly two lone tones on the eight free lines, alike, of equal store, with both target lines calm: on a dense side-5 run it fired at 4 dock-beats of 15,000 and the changes spanned 1 direction of 4 (G4 fails on this, the forced rank itself is 8 as proved). With the exchange switched off the L = 16 shear reads the same (nu -0.0065, 0.63 of the amplitude left after 60 beats, against -0.0073 and 0.64 with it on). So every line momentum is conserved in practice, axis shears keep 0.64 to 0.69 of their amplitude, the diagonal shears fall to 0.08 by phase mixing of free streaming rather than by collisions (nu 2.34 and 2.40, r2 0.91), and sound runs at 0.93 to 0.95 (extrapolated 0.928 against c / 2 = 0.707, near the streaming speed, 0.63 on the diagonal). G8 passes on numbers (ratios 1.053, 1.019, 0.976 for the three Q8-related pairs) but for the axis pairs those are ratios of two non-decaying fits, so it shows the symmetry acting on the runs, not an isotropic viscosity. Q8 forces nothing at rank 4 (spread 0.235, commutant 27 on traceless symmetric tensors, against 1 for SO(4)), so an isotropic viscosity would not follow from the symmetry even if one existed. THE BATTERY: dressing 1 in every period at every side (committed 33, 160, 565, 1,508), travel 24 of 24 (committed 12), superposition exact, dense components 1, but vacuum components 12 (committed 3, combined 2: a lone tone on a cold vacuum meets nothing, as E-FLD-0032 found) and no walls (a still vacuum has no clock to stagger). The dense blob (25 docks, energy 762) spreads to 300 free-streaming tones by beat 25 and stays there; a head-on pair above threshold makes its four tones and nothing more. The husk reading is the bulk kernel restricted to hyperplanes perpendicular to the 24-cell\'s vertex directions, on the flat D4 model of the cusp (code/measure/husk-response); the real cusp layer\'s six in-layer facets were read off the radius-3 {3,4,3,4} ball, alternating between the roots with first entry +1 and -1 because the antipodal transport reverses orientation from cell to cell. Bulk and husk agree: the cold knit reads 1.09, 0.60, 0.33 (bulk) and 0.92, 0.51, 0.28 (husk mean) over 1, 4, 16 starts at side 9, falling as noise does, and 0.65, 0.35 and 0.55, 0.30 at side 13; the combined knit stays at 0.84, 0.80, 0.80 (bulk) and 0.72, 0.69, 0.69 (husk mean, 0.48 to 0.88 across the 12 husks), the committed knit at 1.60, 1.23, 1.18 and 1.35, 1.05, 1.01. A structural bulk anisotropy survives onto every husk, a little smaller.',
     })
   },
 })

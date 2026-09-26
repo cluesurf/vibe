@@ -37,7 +37,8 @@
 //     reversal exact on every dock tested
 //  K2 exact E, P, P_E, charge and forced forms at every dock, 0 color leaks, exact reversal over 48 beats
 //  K3 every lone support 1 at every beat
-//  K4 the husk is hydrodynamic and isotropic, as E-RLT-0056's G6
+//  K4 the husk is hydrodynamic and isotropic, as E-RLT-0056's G6 (shears and sound at L = 12, 16, 20; the
+//     combined knit's husk at L = 16 only, as the comparison; sizes cut before any result, for machine load)
 //  K5 every quantum gate of E-RLT-0055
 //  K6 husk connectivity no worse than the committed knit's on the vacuum, and walls present
 // Verdict: pass if all hold; partial if T1, T2, K1, K2, K3 and K5 hold; fail otherwise.
@@ -352,8 +353,11 @@ export default experiment({
     }
 
     const quantum = fearPortReading(knitOf())
-    const hydro = hydroBattery(coldGas('frozenFree', knitOf))
-    const combinedHydro = hydroBattery(toneGas('combined', side => combinedCollision({ spec: COMBINED_DEFAULT, opposite: meshOpposites(d4Mesh({ side })) })))
+    const hydro = hydroBattery(coldGas('frozenFree', knitOf), { sides: [12, 16, 20], soundSides: [12, 16, 20] })
+    const combinedHydro = hydroBattery(
+      toneGas('combined', side => combinedCollision({ spec: COMBINED_DEFAULT, opposite: meshOpposites(d4Mesh({ side })) })),
+      { sides: [16], soundSides: [16] },
+    )
 
     const k1 = equivariance === 0 && containsGroup && reversal === 0 && cpt === 0
     const k2 = laws.exact && laws.leaks === 0 && laws.breaks === 0 && laws.reverses

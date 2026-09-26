@@ -10,7 +10,8 @@
 //   pair can be pulled from calm and bind to each static charge, so F(R) stops growing: C(R) levels off at
 //   |<P>|^2 and the connected part C(R) - |<P>|^2 goes to zero. Read for R = 0 .. 3 on 6^3 x 4 (the most
 //   this box resolves), with binned jackknife errors
-// - the plaquette, two ways. At the same demon temperature, against the seeded canonical heatbath of the
+// - the plaquette, two ways. At the same demon temperature, against the canonical heatbath (on a Weyl
+//   schedule, see the run) of the
 //   pure gauge action at the coupling the matter run's demons read: sea quarks make the gauge field more
 //   ordered at fixed coupling. And at the same total energy, against the pure gauge automaton with the
 //   same demon fill: the bonds release energy into the demons and the gauge field is hotter
@@ -41,7 +42,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   finitePlaquette,
   generateGroup,
@@ -143,8 +144,11 @@ export default experiment({
       unitDemonBeta({ meanDemon: mean(r.samples.map(s => s.meanDemon)), capacity })
     const matterBeta = betaOf(matter)
 
-    // the canonical pure gauge reference at the coupling the matter run's demons read
-    const rng = makeRng({ seed: 139 })
+    // the canonical pure gauge reference at the coupling the matter run's demons read. A heatbath on a
+    // Kronecker stream (code/tool/weyl, start 139): a deterministic dynamics with a quasi-random schedule,
+    // not a Markov chain. The kinetic demon dynamics of E-FRC-0110 cannot stand in here, because a demon
+    // run reads its coupling off its energy and this reference must sit at a coupling given in advance
+    const rng = makeWeyl({ start: 139 })
     const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'hot', rng })
     const reference: number[] = []
 
@@ -225,7 +229,7 @@ export default experiment({
         quenchedPairsCreated: quenched.created,
         quenchedBeta: betaOf(quenched),
       },
-      notes: `L2, known physics for a finite group, deterministic except the canonical heatbath reference, which is seeded. 6^3 x 4, scale ${SCALE}, bond ${BOND}, mass ${MASS} (heavy ${HEAVY_MASS}), fills ${PURE_FILL} and ${MATTER_FILL}, ${SWEEPS - SKIP} measured sweeps, bins of ${BIN}. The light matter condenses: nearly every site holds a vibe, so this is the dense, screening side of a gauge-Higgs system, continuous with confinement (Fradkin and Shenker 1979), not a dilute gas of quarks. A dilute regime was not found at this bond scale: lighter masses fill the lattice and heavier ones make no pair at all, so the density jumps between them. N_t = 4 with R up to 3 is the thermal form of string breaking.`,
+      notes: `L2, known physics for a finite group, fully deterministic: the canonical heatbath reference runs on the Kronecker stream of code/tool/weyl (start 139) since 2026-09-26, a quasi-random schedule rather than a Markov chain (it was seeded before). 6^3 x 4, scale ${SCALE}, bond ${BOND}, mass ${MASS} (heavy ${HEAVY_MASS}), fills ${PURE_FILL} and ${MATTER_FILL}, ${SWEEPS - SKIP} measured sweeps, bins of ${BIN}. The light matter condenses: nearly every site holds a vibe, so this is the dense, screening side of a gauge-Higgs system, continuous with confinement (Fradkin and Shenker 1979), not a dilute gas of quarks. A dilute regime was not found at this bond scale: lighter masses fill the lattice and heavier ones make no pair at all, so the density jumps between them. N_t = 4 with R up to 3 is the thermal form of string breaking.`,
     })
   },
 })

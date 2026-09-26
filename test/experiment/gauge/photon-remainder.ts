@@ -22,8 +22,12 @@
 // - the start remainders are a golden-ratio Weyl sequence over the plaquette index, floor(frac((i + 1) g) q),
 //   a deterministic dither. The all-zero start is reported beside
 //
-// Gates, fixed before the run. N = 8192, K = 80, the D4 box side 12 (husk 12^3) unless stated. Husk first,
-// bulk beside.
+// Gates, fixed before the run. N = 8192, K = 80. Husk first, bulk beside. The box: section D (the E-FRC-0169
+// protocol) runs on the D4 box side 12 (husk 12^3); sections B, C and E run on the side-8 box (husk 8^3). The
+// first launch at side 12 everywhere was stopped before it wrote a line (tmp/frc0181.log is empty), and the
+// resuming agent moved B, C and E to side 8 for machine load (about 5 times fewer docks) before any number
+// was seen. The E1 threshold stays 4.5 units, half of the side-12 E-FRC-0180 reading, and the E-FRC-0164
+// control is run on the same side-8 box beside it.
 // A. Exact reversibility:
 //    A1 on the rule itself: for every B in 0 .. N - 1 and every r in 0 .. q - 1, the kick forward then backward
 //       returns r and f, and r' lies in [0, q): 0 failures over the 536,870,912 pairs, for the linear and the
@@ -74,6 +78,10 @@
 //    beats of T[B]) mod q with B computed from that running-sum angle alone (0 mismatches), for the Weyl and
 //    the zero start remainders. Reported: from the same angles and fluxes, the Weyl and zero remainders give
 //    different futures (the first beat the fluxes differ, the links differing after 500 beats)
+//    H2, added by the resuming agent after A and H had run once in a section probe (tmp/frc0181-AH.log, all
+//    of the checks above at 0): while no plaquette wraps, every remainder equals (r_0 + p curl D) mod q, D
+//    each link's second running sum of the flux copied across it (the sum over beats of its unwrapped angle),
+//    mod q. 0 mismatches, over every plaquette and beat, both starts. The wrapped plaquette-beats are counted
 //
 // Depth L2: lattice electrodynamics with an error-diffusion force, a known numerical device (sigma-delta
 // modulation, Bresenham's line algorithm), built reversible and measured against the exact linear theory.
@@ -137,7 +145,10 @@ import {
   type Photon,
 } from '@/code/measure/photon-wave'
 
+// the E-FRC-0169 hot-field protocol (section D) keeps the side-12 box; the coherent waves (B, C), the love and
+// fear (E) and the heating (F2) run on the side-8 box (husk 8^3), fixed before the first run (see the header)
 const SIDE = 12
+const SMALL_SIDE = 8
 const N = 8192
 const K = 80
 const Q = 65536
@@ -154,18 +165,18 @@ const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / 
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
 const q2 = (w: number): number => 4 * Math.sin(w / 2) ** 2
 
-const linearRule = (lattice: PhotonLattice, charge = 1, on: 'plaquette' | 'link' = 'plaquette'): RemainderRule =>
+export const linearRule = (lattice: PhotonLattice, charge = 1, on: 'plaquette' | 'link' = 'plaquette'): RemainderRule =>
   makeRemainderRule({ lattice, n: N, k: K, q: Q, form: 'linear', on, charge })
 const sineRule = (lattice: PhotonLattice, charge = 1): RemainderRule => makeRemainderRule({ lattice, n: N, k: K, q: Q, form: 'sine', charge })
 const tableRule = (lattice: PhotonLattice, charge = 1): PhotonRule => makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false, charge })
 
 // a PhotonState view sharing the remainder state's arrays, for the photon-links helpers
-const view = (s: RemainderState): PhotonState => ({ vibe: s.vibe, angle: s.angle, flux: s.flux, demon: new Int32Array(s.flux.length) })
+export const view = (s: RemainderState): PhotonState => ({ vibe: s.vibe, angle: s.angle, flux: s.flux, demon: new Int32Array(s.flux.length) })
 
 // a rule run one beat at a time, whatever it is
 type Stepper = { readonly flux: ArrayLike<number>; readonly angle: ArrayLike<number>; beat(t: number): void }
 
-function remainderStepper(rule: RemainderRule, s: RemainderState): Stepper {
+export function remainderStepper(rule: RemainderRule, s: RemainderState): Stepper {
   return { flux: s.flux, angle: s.angle, beat: () => remainderBeatInPlace(rule, s) }
 }
 
@@ -173,7 +184,7 @@ function tableStepper(rule: PhotonRule, s: PhotonState): Stepper {
   return { flux: s.flux, angle: s.angle, beat: t => void photonBeatInPlace(rule, s, t) }
 }
 
-function linearStepper(lattice: PhotonLattice, kappa: number, angle0: ArrayLike<number>, flux0: ArrayLike<number>): Stepper {
+export function linearStepper(lattice: PhotonLattice, kappa: number, angle0: ArrayLike<number>, flux0: ArrayLike<number>): Stepper {
   const angle = Float64Array.from(angle0, x => centered(x, N))
   const flux = Float64Array.from(flux0)
   const step = makeLinearLeapfrog(lattice, kappa)
@@ -206,7 +217,7 @@ function start164(rule: PhotonRule, s: PhotonState, scale: number): void {
 }
 
 // the E-FRC-0165 / 0169 hashed start at beta 3: the curl of plaquette integers within sqrt(3 T / 4)
-function hotStart(rule: PhotonRule, s: PhotonState): void {
+export function hotStart(rule: PhotonRule, s: PhotonState): void {
   const target = (rule.k * rule.n) / (2 * Math.PI * BETA)
 
   addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * target) / 4))), 5.3)
@@ -234,7 +245,7 @@ const allZero = (a: ArrayLike<number>): boolean => {
 
 // A. reversibility
 
-function sectionA(): Record<string, number> & { ok: number } {
+export function sectionA(): Record<string, number> & { ok: number } {
   const out: Record<string, number> = {}
   const small = photonLatticeD4({ side: 4 })
 
@@ -397,7 +408,7 @@ function wave(w: Wave, kind: Kind, target: number, kappa: number): WaveReading {
   return { omega: reading.omega, stillBeats: reading.stillBeats, frozenBeats: reading.frozenBeats, peak: launch.peak }
 }
 
-function sectionBC(bulk: PhotonLattice, husk: Husk): Record<string, number> & { okB: number; okC: number; okC0: number } {
+export function sectionBC(bulk: PhotonLattice, husk: Husk): Record<string, number> & { okB: number; okC: number; okC0: number } {
   const out: Record<string, number> = {}
   const kappa = remainderKappa(linearRule(bulk))
   const huskWave = (m: readonly number[], photon: Photon): Wave => ({ husk, lattice: bulk, readLattice: husk.lattice, n: m, phase: huskPhase(husk, m), photon })
@@ -525,7 +536,7 @@ function feed(p: Probe, v: ModeVector): void {
 
 type HotRun = { probes: Probe[]; series: number[][]; meanCos: number }
 
-function hotRun(input: {
+export function hotRun(input: {
   stepper: Stepper
   base: PhotonRule
   lattice: PhotonLattice
@@ -599,7 +610,7 @@ function estimate(prefix: string, run: HotRun, exact: number, lambdas: readonly 
   return out
 }
 
-function sectionD(bulk: PhotonLattice, husk: Husk): Record<string, number> & { ok: number } {
+export function sectionD(bulk: PhotonLattice, husk: Husk, bulk8: PhotonLattice): Record<string, number> & { ok: number } {
   const out: Record<string, number> = {}
   const kappa = remainderKappa(linearRule(bulk))
   const huskModes = [
@@ -631,7 +642,6 @@ function sectionD(bulk: PhotonLattice, husk: Husk): Record<string, number> & { o
   Object.assign(out, estimate('dE164Husk', tableRun, renormalized, huskLambdas, E164_KAPPA))
 
   // the bulk beside, the E-FRC-0165 protocol
-  const bulk8 = photonLatticeD4({ side: 8 })
   const bulkModes = [
     [1, 0, 0, 0],
     [2, 0, 0, 0],
@@ -729,7 +739,7 @@ const distance = (a: ArrayLike<number>, b: (i: number) => number): number => {
   return Math.sqrt(sum)
 }
 
-function sectionE(bulk: PhotonLattice, husk: Husk): Record<string, number> & { ok: number; okE1: number; okE2: number } {
+export function sectionE(bulk: PhotonLattice, husk: Husk): Record<string, number> & { ok: number; okE1: number; okE2: number } {
   const out: Record<string, number> = {}
   const linear = new Map<number, PairField>()
 
@@ -843,7 +853,7 @@ function shadowSeries(stepper: Stepper, base: PhotonRule, potential: Float64Arra
   return { shadow, wraps }
 }
 
-function sectionF(): Record<string, number> & { ok: number; okF1: number; okF2: number } {
+export function sectionF(bulk8: PhotonLattice): Record<string, number> & { ok: number; okF1: number; okF2: number } {
   const out: Record<string, number> = {}
   const kappa = remainderKappa(linearRule(photonLatticeD4({ side: 4 })))
   const linearV = potentialTable('linear', kappa)
@@ -897,7 +907,6 @@ function sectionF(): Record<string, number> & { ok: number; okF1: number; okF2: 
   const okF1 = r1.drift < 0.1 && r1.growth < t1.growth
 
   // F2 the E-FRC-0180 C3 protocol
-  const bulk8 = photonLatticeD4({ side: 8 })
   const f2 = (kind: 'remainder' | 'e164' | 'sine'): { drift: number; wraps: number; start: number } => {
     let stepper: Stepper
     let base: PhotonRule
@@ -944,7 +953,7 @@ function sectionF(): Record<string, number> & { ok: number; okF1: number; okF2: 
 
 // H. the remainder as history
 
-function sectionH(): Record<string, number> & { ok: number } {
+export function sectionH(): Record<string, number> & { ok: number } {
   const out: Record<string, number> = {}
   const small = photonLatticeD4({ side: 4 })
   const rule = linearRule(small)
@@ -963,9 +972,18 @@ function sectionH(): Record<string, number> & { ok: number } {
     const r0 = Int32Array.from(s.remainder)
     const history = Int32Array.from(s.angle)
     const sums = new Float64Array(plaquettes)
+    // H2: each link's own records, both running sums of what the stream copied across it: the unwrapped angle
+    // (its centered start plus every flux) and the second sum D of the unwrapped angle, mod q. With no wrap,
+    // centered(B) is the curl of the unwrapped angles, so r = (r0 + p curl D) mod q: the remainder is the curl
+    // of a per-link history
+    const unwrapped = Int32Array.from(s.angle, a => centered(a, N))
+    const second = new Int32Array(small.links)
+    const size = small.plaquetteSize
 
     let angleMismatches = 0
     let remainderMismatches = 0
+    let curlMismatches = 0
+    let wraps = 0
 
     runs.push(copyRemainderState(s))
 
@@ -973,6 +991,8 @@ function sectionH(): Record<string, number> & { ok: number } {
       // the angle from history alone: its start plus the flux the stream copied across, beat by beat
       for (let l = 0; l < history.length; l++) {
         history[l] = modulo((history[l] ?? 0) + (s.flux[l] ?? 0), N)
+        unwrapped[l] = (unwrapped[l] ?? 0) + (s.flux[l] ?? 0)
+        second[l] = modulo((second[l] ?? 0) + (unwrapped[l] ?? 0), Q)
       }
 
       remainderBeatInPlace(rule, s)
@@ -981,12 +1001,30 @@ function sectionH(): Record<string, number> & { ok: number } {
       for (let p = 0; p < plaquettes; p++) {
         sums[p] = (sums[p] ?? 0) + (rule.table[plaquetteField(rule.base, history, p)] ?? 0)
         remainderMismatches += modulo((r0[p] ?? 0) + (sums[p] ?? 0), Q) === s.remainder[p] ? 0 : 1
+
+        let bInt = 0
+        let curlD = 0
+
+        for (let j = 0; j < size; j++) {
+          const sign = small.plaquetteSigns[p * size + j] ?? 0
+          const l = small.plaquetteLinks[p * size + j] ?? 0
+
+          bInt += sign * (unwrapped[l] ?? 0)
+          curlD += sign * (second[l] ?? 0)
+        }
+
+        wraps += bInt === centered(plaquetteField(rule.base, history, p), N) ? 0 : 1
+        curlMismatches += modulo((r0[p] ?? 0) + modulo(rule.p * modulo(curlD, Q), Q), Q) === s.remainder[p] ? 0 : 1
       }
     }
 
-    out[`h${dither === 'weyl' ? 'Weyl' : 'Zero'}AngleMismatches`] = angleMismatches
-    out[`h${dither === 'weyl' ? 'Weyl' : 'Zero'}RemainderMismatches`] = remainderMismatches
-    ok = ok && angleMismatches === 0 && remainderMismatches === 0
+    const tag = dither === 'weyl' ? 'Weyl' : 'Zero'
+
+    out[`h${tag}AngleMismatches`] = angleMismatches
+    out[`h${tag}RemainderMismatches`] = remainderMismatches
+    out[`h2${tag}CurlOfLinkHistoryMismatches`] = curlMismatches
+    out[`h2${tag}PlaquetteBeatsWrapped`] = wraps
+    ok = ok && angleMismatches === 0 && remainderMismatches === 0 && (wraps > 0 || curlMismatches === 0)
   }
 
   // the same angles and fluxes, two remainders: do the futures differ
@@ -1023,11 +1061,13 @@ export default experiment({
   run() {
     const bulk = photonLatticeD4({ side: SIDE })
     const husk = makeHusk(bulk)
+    const bulk8 = photonLatticeD4({ side: SMALL_SIDE })
+    const husk8 = makeHusk(bulk8)
     const a = sectionA()
-    const bc = sectionBC(bulk, husk)
-    const d = sectionD(bulk, husk)
-    const e = sectionE(bulk, husk)
-    const f = sectionF()
+    const bc = sectionBC(bulk8, husk8)
+    const d = sectionD(bulk, husk, bulk8)
+    const e = sectionE(bulk8, husk8)
+    const f = sectionF(bulk8)
     const h = sectionH()
     const sections = [a.ok, bc.okB, bc.okC, d.ok, e.okE1, e.okE2, f.okF1, f.okF2, h.ok]
     const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => !key.startsWith('ok')))
@@ -1060,7 +1100,8 @@ export default experiment({
         e164LoveFearFromLinearTimesCharge: e['eControlE164LargestFromLinearTimesCharge'] ?? -1,
         e164HuskLaggedOverRenormalized: d['dE164HuskLaggedOverExact'] ?? -1,
       },
-      notes: 'L2, exact integers, deterministic (golden-ratio Weyl dithers and hashed starts, no seeds). First run pending.',
+      notes:
+        "L2, exact integers, deterministic (golden-ratio Weyl dithers and hashed starts, no seeds). First run 2026-09-26 (tmp/frc0181.log, 568 s), partial. The first launch, at side 12 everywhere, was stopped before it printed; the resuming agent moved B, C and E to side 8 and added H2 before seeing any number from B to G (A and H had run once in a section probe), all disclosed in the header. Passes: A (0 failures over 1,073,741,824 kick pairs, 0 mismatches after 2,000 beats back, 0 Gauss violations, the link-remainder control 9,730), B (every target 1 to 8 moves and reads within 0.17 percent, the E-FRC-0164 rule frozen at all 8, and the ZERO start remainder reads 224, 34 and 5 percent off at targets 1, 4, 8, so the Weyl dither carries the small waves), C (worst husk reading 1.3e-4 of the symbol over 32, bulk 6.6e-5, where the E-FRC-0164 rule reads +2.3 percent at 16 and -1.9 at 1024 and the sine remainder -1.9 at 1024), H and H2 (0 mismatches, 0 wraps). E1 passes its threshold (2.79 to 2.85 units at e = 16, 64, 256) BUT the E-FRC-0164 control on the side-8 box also reads under it (3.88 to 4.36, against 8.5 to 9.6 at side 12 in E-FRC-0180), so the gate as moved to side 8 does not discriminate: the remainder removes about 35 percent of the leftover, not half, and what is left is a constant near 2.8 flux units at every charge, the floor of an integer flux. Fails: D, the lagged estimator reads the husk photon 25.6 percent fast (lowest branch +1.2 percent, the direct autocorrelation -0.06 percent, the difference estimator admits no light branch); E2, the husk energy of the averaged field sits 1.1 to 1.5 percent above the linear rule's at e = 64 (the E-FRC-0164 control 3.4 percent at r = 1); F1, the shadow energy moves 0.6 percent but grows 722 per beat against the E-FRC-0164 rule's 570 (3 wraps of B for the linear table on that start, 100 for the sine); F2, drift 1.0 percent against 1.6, ratio 0.63 against the 0.5 gate. Diagnosis (tmp/remainder-hot-probe.ts, side 8, not a gate): from the same start the float linear rule shows 3 frequencies at m1 (the photon at 0.15755 against 0.15763) and the remainder rule 8, its light pair split to 0.177 and 0.238. The carried error f - (p B + r) / q is a zero-mean kick of order one flux unit on every plaquette every beat. It averages away in the mean field, which is why B, C and H are exact, but it drives every husk direction as a broadband source, which the correlation-matrix estimators, the energy and the heating all see. A random-walk estimate made after the run, 1/2 x 3,072 links x 8 plaquettes per link x 1/12, gives about 1,000 per beat on the F1 box, the order of the measured 722.",
     })
   },
 })

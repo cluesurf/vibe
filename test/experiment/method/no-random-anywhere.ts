@@ -10,9 +10,12 @@
 // hashRand, and the constants of a known pseudo-random generator. It also reads the lint configuration to
 // confirm the same rule is wired into eslint, since the typecheck cannot see any of it.
 //
-// The control is a planted battery: the same scanner run on six small texts, four that each commit one of
-// the four offenses and two that must stay clean (the Weyl replacement, and a comment that only names the
-// old generator). The gate is only believed if it catches all four and flags neither clean text.
+// The control is a planted battery: the same scanner run on small texts, four that each commit one of the
+// four offenses and two that must stay clean (the Weyl replacement, and a comment that only names the old
+// generator). The gate is only believed if it catches every planted offense and flags no clean text.
+// Extended 2026-09-26 (the same gate, more planted texts): a fifth offense, a hand-rolled hash used as a
+// draw, planted twice, and two more clean look-alikes. The first run after the extension is recorded in
+// the notes.
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -28,10 +31,26 @@ const PLANTED_DIRTY = [
   `import { make${'Rng'} } from '@/code/tool/${'rng'}'`,
   `import { hash${'Rand'} } from '@/code/dynamics/conserving-sweep'`,
   `s = (Math.imul(s, ${'16645'}${'25'}) + 1013904223) >>> 0`,
+  // added 2026-09-26: a hand-rolled hash used as a draw, the lowbias32 finalizer of the old
+  // code/coarse/knit-boltzmann, and a finalizer with new constants that only its shape gives away
+  [
+    'function mix(input: number): number {',
+    '  let h = input >>> 0',
+    `  h = Math.imul(h ^ (h >>> 16), 0x7feb${'352d'})`,
+    `  h = Math.imul(h ^ (h >>> 15), 0x846c${'a68b'})`,
+    '  return (h ^ (h >>> 16)) >>> 0',
+    '}',
+    `const u = mix(draw) / ${'42949'}${'67296'}`,
+  ].join('\n'),
+  ['let x = key | 0', 'x ^= x >>> 11', 'x = Math.imul(x, 0x2c1b3c6d)', `const u = (x >>> 0) / 2 ** ${'32'}`].join('\n'),
 ]
 const PLANTED_CLEAN = [
   "import { makeWeyl } from '@/code/tool/weyl'\nconst v = makeWeyl({ start: 1 }).next()",
   `// the old ${'Math'}.${'random'}() and tool/${'rng'} are gone`,
+  // a Kronecker value normalized by 2^32, which never mixes (code/tool/weyl-point)
+  `const u = (Math.imul(n + 1, rate) >>> 0) / ${'42949'}${'67296'}`,
+  // a hash that only keys a table, which never normalizes
+  'let h = key | 0\nh ^= h >>> 16\nconst bucket = Math.imul(h, 0x45d9f3b) & 1023',
 ]
 
 export default experiment({
@@ -79,6 +98,7 @@ export default experiment({
         retiredModule: count('retired-module'),
         retiredHash: count('retired-hash'),
         generatorConstant: count('generator-constant'),
+        hashDraw: count('hash-draw'),
         lintWired: lintWired ? 1 : 0,
       },
       control: {
@@ -86,7 +106,7 @@ export default experiment({
         plantedOffenses: PLANTED_DIRTY.length,
         cleanFalseAlarms: falseAlarms,
       },
-      notes: `A static text scan of code lines (comments skipped), exempting only the retired generator code/tool/rng.ts and its old conformance test/code/tool/rng.ts, both unused and awaiting deletion, and the scanner's own two files. The typecheck cannot see a random call, so the rule is also an eslint rule (no-restricted-properties on Math.random, no-restricted-imports on tool/rng and hashRand, in eslint.config.ts), and this experiment checks that the rule is present. What it cannot see: a generator written from scratch with new constants and no import, which only a reader catches. Findings: ${findings.map(f => `${f.file}:${f.line} ${f.kind}`).join('; ') || 'none'}.`,
+      notes: `A static text scan of code lines (comments skipped), exempting only the retired generator code/tool/rng.ts and its old conformance test/code/tool/rng.ts, both unused and awaiting deletion, and the scanner's own two files. The typecheck cannot see a random call, so the rule is also an eslint rule (no-restricted-properties on Math.random, no-restricted-imports on tool/rng and hashRand, in eslint.config.ts), and this experiment checks that the rule is present. Since 2026-09-26 it also finds a hand-rolled hash used as a draw (a file that both mixes an integer, by an xorshift or a known finalizer multiplier, and normalizes one by 2^32), the shape the lowbias32 draws of code/coarse/knit-boltzmann had, which no import or constant check could see; the planted battery carries two such hashes (one with new constants) and two clean look-alikes (a Kronecker value normalized by 2^32, a hash that only keys a table). What it still cannot see: a generator with no xorshift, no known constant and no 2^32 normalization, which only a reader catches. Findings: ${findings.map(f => `${f.file}:${f.line} ${f.kind}`).join('; ') || 'none'}.`,
     })
   },
 })

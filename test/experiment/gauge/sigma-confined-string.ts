@@ -27,6 +27,38 @@
 // - the meson keeps a mean gap under a tenth of the free meson's and travels more than 5
 // sigma / T_c^2 is reported, not gated.
 //
+// The run, recorded as it came out. Energy and Gauss's law exact in every run. Three gates hold, two fail.
+// - the registered point confines and carries a string tension. beta0 5.87, 5.89, 5.90, Polyakov 0.003,
+//   0.009, 0.011. W(1,1), W(1,2), W(2,2) are 0.211, 0.070, 0.016 in every run, and chi(2,2) is 0.354, 0.403,
+//   0.400: 0.386 +- 0.016 across the three, an area law read on the coupled field for the first time. W(2,3)
+//   and W(3,3) (0.003 to 0.004 and 0.0009) are at the noise, so chi(3,3), -0.07 +- 0.28, is not read
+// - the transition fill on this box is not confined: beta0 7.26, 7.15, 6.99, Polyakov 0.16, 0.18, 0.22, the
+//   fixed energy holding the deconfined branch at the first-order transition. Its chi(2,2), 0.029 +- 0.013,
+//   is a deconfined field's, so 16 chi(2,2) = 0.46 +- 0.21 there is not sigma / T_c^2. The honest statement:
+//   sigma / T_c^2 needs chi(2,2) on the confined branch at beta0 7.1, and a fixed energy in the coexistence
+//   region lands on one branch or the other. The confined point at 5.88 gives 16 chi(2,2) = 6.2, beside
+//   SU(3)'s 6.05 at its transition, but at a coupling 1.2 below T_c's, so it is not the ratio either
+// - the field-borne potential rises strictly, 86.0, 116.1, 164.6 per slice at R = 1 to 3. Its slope, 39.3,
+//   times beta 0.489 is 19.2, about 50 times chi(2,2): the gate fails. The energy of a twisted string is the
+//   local cost of its twists, not the free energy an area law measures
+// - the meson is frozen, gap 1.414 and travel 0, against 66.1 and 133.2 free: the gate fails
+//
+// Added after that run, 2026-09-26, and disclosed here. No gate moved and the status stays by the gates above.
+// - speed: the file now runs code/rule/sigma-fast, a kernel that makes the same moves in the same order with
+//   precomputed tables (5.3 to 5.9 times faster on side 4, 0 mismatches in every array over 12 beats and four
+//   switch settings, tmp/sigma-fast-check.ts). The run checks it again on its own field: 3 beats from the first
+//   start at the registered fill by both kernels, every array compared, reported as fastKernelMismatches
+// - the confined branch near the transition coupling, REPORTED, NOT GATED. The first run could not read
+//   sigma / T_c^2 because fill 0.04 on this box held the deconfined branch. Two more fills, 0.05 and 0.06, from
+//   the same three starts, measured as the others. The rule for reading it, fixed before these fills were run:
+//   of 0.05 and 0.06, the fill whose three runs are all confined (Polyakov under 0.05) with the largest mean
+//   beta0 gives sigmaOverTcSquaredConfinedBranch = 16 chi(2,2) there, with its beta0 beside it; if neither is
+//   confined, the metric is -1. It is sigma / T_c^2 only as far as that beta0 is near 7.1
+// - whether the transition moved with the box: the side-4 box (E-FRC-0166) turns near beta0 7.1. On this
+//   box, where the tau lines are 6 long, a thermal transition would sit at a LARGER beta0 (a colder lattice at
+//   the same coupling is confined further up). The largest beta0 of any all-confined point and the smallest
+//   beta0 of any all-deconfined point (Polyakov over 0.1) are reported as the side-6 bracket
+//
 // Depth L2: a constructed rule, measured.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -35,19 +67,18 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { unitDemonBeta } from '@/code/dynamics/finite-kinetic'
 import {
   addSigmaFlux,
-  coolSigmaLinks,
   defectSigmaLinks,
   fillSigmaDemons,
   makeSigmaLinks,
   pathTransport,
   sigmaBeat,
   sigmaEnergy,
-  sigmaFieldEnergy,
   sigmaGaussViolations,
   sigmaLine,
   type SigmaLinks,
   type SigmaState,
 } from '@/code/rule/sigma-links'
+import { fastCoolSigmaLinks, fastFieldEnergy, fastSigmaBeat, makeSigmaTables, type SigmaTables } from '@/code/rule/sigma-fast'
 
 const SIDE = 6
 const SCALE = 12
@@ -57,6 +88,9 @@ const CAPACITY = 48
 const COOL = { drain: 100, cycles: 30, fill: 0.003, beats: 30, empties: 10 }
 const REGISTERED_FILL = 0.08
 const TRANSITION_FILL = 0.04
+// the fills added after the first run, reported and not gated
+const BRANCH_FILLS = [0.05, 0.06]
+const KERNEL_CHECK_BEATS = 3
 const TRANSITION_NT = 4
 const SETTLE = 300
 const MEASURE = 300
@@ -89,7 +123,7 @@ export default experiment({
   id: 'gauge/sigma-confined-string',
   code: 'E-FRC-0167',
   title:
-    'the string tension on the confined side of the D4 field: Creutz ratios from three starts at the registered confined point and at the N_t = 4 transition coupling, sigma / T_c^2 against SU(3), the field-borne potential of a static pair, and a moving meson',
+    'the string tension on the confined side of the D4 field: at the registered point (beta0 5.88, Polyakov under 0.011) the coupled field shows an area law, chi(2,2) = 0.386 +- 0.016 across three starts, but at the transition coupling the fixed energy holds the deconfined branch so sigma / T_c^2 is not read, the field-borne potential rises (86, 116, 165) some 50 times steeper than chi, and the meson is frozen',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -102,6 +136,7 @@ export default experiment({
     const make = (input: { hop: boolean; roles: boolean; kappa: number; couple: 'none' | 'center' }): SigmaLinks =>
       makeSigmaLinks({ side: SIDE, tension: 0, capacity: CAPACITY, scale: SCALE, ratio: RATIO, moves: 'wide', ...input })
     const rule = make({ hop: false, roles: false, kappa: KAPPA, couple: 'center' })
+    const tables = makeSigmaTables(rule)
     const { cells, group } = rule
     const triangles = (cells * 12 * 8) / 3
 
@@ -153,10 +188,30 @@ export default experiment({
       flux: Int32Array.from(s.flux),
     })
 
-    const cooled = HASHES.map(hash => coolSigmaLinks(rule, defectSigmaLinks(rule, 0.1, hash), COOL))
+    const cooled = HASHES.map(hash => fastCoolSigmaLinks(tables, defectSigmaLinks(rule, 0.1, hash), COOL))
+
+    // the fast kernel against sigmaBeat on this run's own field: every array, every beat
+    let fastKernelMismatches = 0
+
+    {
+      let slow = copyState(cooled[0]!.state)
+
+      fillSigmaDemons(rule, slow, REGISTERED_FILL)
+
+      const fast = copyState(slow)
+
+      for (let k = 0; k < KERNEL_CHECK_BEATS; k++) {
+        slow = sigmaBeat(rule, slow, cooled[0]!.beats + k).state
+        fastSigmaBeat(tables, fast, cooled[0]!.beats + k)
+
+        for (const key of ['vibe', 'role', 'links', 'demon', 'flux'] as const) {
+          slow[key].forEach((v, i) => (fastKernelMismatches += v === fast[key][i] ? 0 : 1))
+        }
+      }
+    }
 
     const point = (base: { state: SigmaState; beats: number }, fill: number) => {
-      let s = copyState(base.state)
+      const s = copyState(base.state)
 
       fillSigmaDemons(rule, s, fill)
 
@@ -166,7 +221,7 @@ export default experiment({
       let exact = true
 
       for (let k = 0; k < SETTLE; k++) {
-        s = sigmaBeat(rule, s, t++).state
+        fastSigmaBeat(tables, s, t++)
       }
 
       const settled = copyState(s)
@@ -178,7 +233,7 @@ export default experiment({
       let pim = 0
 
       for (let k = 0; k < MEASURE; k++) {
-        s = sigmaBeat(rule, s, t++).state
+        fastSigmaBeat(tables, s, t++)
         exact = exact && sigmaEnergy(rule, s) === e0
 
         for (let x = 0; x < cells; x++) {
@@ -197,7 +252,7 @@ export default experiment({
 
         pre += sr / MEASURE
         pim += si / MEASURE
-        level += sigmaFieldEnergy(rule, s.links) / triangles / MEASURE
+        level += fastFieldEnergy(tables, s.links) / triangles / MEASURE
         demon += demonMean(s) / MEASURE
       }
 
@@ -219,6 +274,22 @@ export default experiment({
 
     const registered = cooled.map(base => point(base, REGISTERED_FILL))
     const transition = cooled.map(base => point(base, TRANSITION_FILL))
+    const branch = BRANCH_FILLS.map(fill => ({ fill, runs: cooled.map(base => point(base, fill)) }))
+    const meanOf = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
+    const allPoints = [
+      { fill: REGISTERED_FILL, runs: registered },
+      { fill: TRANSITION_FILL, runs: transition },
+      ...branch,
+    ].map(p => ({
+      fill: p.fill,
+      beta0: meanOf(p.runs.map(r => r.beta0)),
+      confined: p.runs.every(r => r.polyakov < 0.05),
+      deconfined: p.runs.every(r => r.polyakov > 0.1),
+      chi22: meanOf(p.runs.map(r => r.chi22)),
+    }))
+    const branchPick = allPoints.filter(p => BRANCH_FILLS.includes(p.fill) && p.confined).sort((a, b) => b.beta0 - a.beta0)[0]
+    const bracketConfined = Math.max(-1, ...allPoints.filter(p => p.confined).map(p => p.beta0))
+    const bracketDeconfined = Math.min(99, ...allPoints.filter(p => p.deconfined).map(p => p.beta0))
     const chi22 = stats(registered.map(r => r.chi22))
     const chi33 = stats(registered.map(r => r.chi33))
     const chi22Transition = stats(transition.map(r => r.chi22))
@@ -255,14 +326,15 @@ export default experiment({
 
       const e0 = sigmaEnergy(rule, st)
 
-      let s = st
+      const s = st
+
       let exact = sigmaGaussViolations(rule, st) === 0
       let field = 0
 
       for (let k = 0; k < BEATS; k++) {
-        s = sigmaBeat(rule, s, first.start + k).state
+        fastSigmaBeat(tables, s, first.start + k)
         exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
-        field += sigmaFieldEnergy(rule, s.links) / BEATS
+        field += fastFieldEnergy(tables, s.links) / BEATS
       }
 
       return { exact, field }
@@ -305,14 +377,15 @@ export default experiment({
       }
 
       const e0 = sigmaEnergy(mover, st)
+      const moverTables: SigmaTables = makeSigmaTables(mover)
+      const s = st
 
-      let s = st
       let exact = sigmaGaussViolations(mover, st) === 0
       let gap = 0
       let travel = 0
 
       for (let k = 0; k < MESON_BEATS; k++) {
-        s = sigmaBeat(mover, s, first.start + k, onHop).state
+        fastSigmaBeat(moverTables, s, first.start + k, onHop)
         exact = exact && sigmaEnergy(mover, s) === e0 && sigmaGaussViolations(mover, s) === 0
 
         const [love, fear] = charges
@@ -374,6 +447,15 @@ export default experiment({
         ['fieldSlopeTimesBeta', tension],
         ['mesonMeanGap', bound.meanGap],
         ['mesonTravel', bound.travel],
+        // added after the first run, reported and not gated
+        ['fastKernelMismatches', fastKernelMismatches],
+        ...branch.flatMap(p => report(`branch${String(p.fill).replace('.', '_')}Run`, p.runs)),
+        ['confinedBranchFill', branchPick?.fill ?? -1],
+        ['confinedBranchBeta0', branchPick?.beta0 ?? -1],
+        ['confinedBranchCreutz22', branchPick?.chi22 ?? -1],
+        ['sigmaOverTcSquaredConfinedBranch', branchPick ? TRANSITION_NT ** 2 * branchPick.chi22 : -1],
+        ['side6LargestConfinedBeta0', bracketConfined],
+        ['side6SmallestDeconfinedBeta0', bracketDeconfined],
       ]),
       control: {
         freeMesonMeanGap: free.meanGap,

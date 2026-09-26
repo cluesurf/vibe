@@ -24,13 +24,13 @@
 // allow the eigenvalues (2/3, 2/3, -1/3, 0, ...). So positivity is measured here, from the density matrix,
 // and a weight array that passes the purity count but is not positive is built as the control.
 //
-// The largest CHSH value of a pure state of two qutrits over all two-outcome measurements, the closed form
-// checked against the see-saw: with Schmidt weights p1, p2, p3, pair two of them into a qubit block,
+// A CHSH value a pure state of two qutrits reaches with Schmidt weights p1, p2, p3, by pairing two of them
+// into a qubit block and giving the third a fixed outcome,
 //
 //   max over pairings of 2 sqrt((pi + pj)^2 + 4 pi pj) + 2 pk,
 //
-// which is sqrt 7 at (3/4, 1/4, 0) and (2 + 4 sqrt 2) / 3 at (1/3, 1/3, 1/3), and 2 sqrt 2 only at
-// (1/2, 1/2, 0), since sqrt((a + b)^2 + 4 a b) <= sqrt 2 (a + b) with equality at a = b and 2 pk < 2 sqrt 2 pk.
+// which is sqrt 7 at (3/4, 1/4, 0) and (2 + 4 sqrt 2) / 3 at (1/3, 1/3, 1/3), the see-saw's values there. It is
+// a LOWER bound on the maximum in general: E-QTM-0112 found the see-saw above it by up to 0.09 on other states.
 
 import { gridMoves } from '@/code/rule/vibe-weave'
 import { type Operator } from '@/code/measure/grid-weights'
@@ -250,6 +250,163 @@ export function reducedFirst(rho: Operator): Operator {
   }
 
   return out
+}
+
+// Settings with one local meeting: the party's token first meets an ancilla token of its own, started on a
+// line of the grid (uniform weight 1/3 on the line's three points, a basis state), through a meeting kernel
+// K (4 K or D K in whole numbers over `divisor`, on (token, ancilla) with the token first); then one of the
+// 26 line observables is read on the token or on the ancilla. A grid move before the meeting adds nothing:
+// the kernels commute with the same move on both coordinates, so it moves the ancilla's line and the reading
+// only, and both sets are closed under grid moves. The effective observable on the party's 9 points is
+//
+//   a~(x) = sum over z of W_anc(z) sum over (x', z') of K(x', z'; x, z) a(x' or z'),
+//
+// a real function that can leave [-1, 1] where the kernel is negative. Returned with the 26 plain ones.
+export function meetingObservables(kernels: readonly { kernel: readonly (readonly number[])[]; divisor: number }[]): Float64Array[] {
+  const plain = lineObservables()
+  const { lines } = gridLines()
+  const out: Float64Array[] = plain.map(a => Float64Array.from(a))
+
+  for (const { kernel, divisor } of kernels) {
+    for (const line of lines) {
+      for (const readAncilla of [false, true]) {
+        for (const a of plain) {
+          const effective = new Float64Array(9)
+
+          for (let x = 0; x < 9; x++) {
+            let sum = 0
+
+            for (const z of line) {
+              for (let r = 0; r < 81; r++) {
+                const k = kernel[r]?.[x * 9 + z] ?? 0
+
+                if (k !== 0) {
+                  const read = readAncilla ? r % 9 : Math.floor(r / 9)
+
+                  sum += (k / divisor) * (a[read] ?? 0)
+                }
+              }
+            }
+
+            effective[x] = sum / 3
+          }
+
+          out.push(effective)
+        }
+      }
+    }
+  }
+
+  return out
+}
+
+// the largest CHSH value found over two finite sets of observables (Alice's on the first coordinate, Bob's
+// on the second), by exact alternating maximization from every pair of Bob's first 26 (the plain settings):
+// for fixed b0, b1 the best a0 and a1 are found separately, and back, until no step improves. A lower bound on
+// the maximum over the sets, exact on the plain 26 x 26 (checked against enumeratedChsh)
+export function alternatingChsh(input: {
+  weight: readonly number[]
+  alice: readonly Float64Array[]
+  bob: readonly Float64Array[]
+}): { value: number; settings: readonly number[] } {
+  const { weight, alice, bob } = input
+  // Alice's observables folded against the weight: row[a][y] = sum_x W(x, y) a(x)
+  const folded = alice.map(a => {
+    const row = new Float64Array(9)
+
+    for (let x = 0; x < 9; x++) {
+      const ax = a[x] ?? 0
+
+      if (ax === 0) {
+        continue
+      }
+
+      for (let y = 0; y < 9; y++) {
+        row[y] = (row[y] ?? 0) + (weight[x * 9 + y] ?? 0) * ax
+      }
+    }
+
+    return row
+  })
+  const e = (a: number, b: number): number => {
+    const row = folded[a]!
+    const ob = bob[b]!
+    let s = 0
+
+    for (let y = 0; y < 9; y++) {
+      s += (row[y] ?? 0) * (ob[y] ?? 0)
+    }
+
+    return s
+  }
+  const table = alice.map((_, a) => bob.map((__, b) => e(a, b)))
+  const at = (a: number, b: number): number => table[a]?.[b] ?? 0
+  let best = Number.NEGATIVE_INFINITY
+  let settings: number[] = []
+  const starts = Math.min(26, bob.length)
+
+  for (let s0 = 0; s0 < starts; s0++) {
+    for (let s1 = 0; s1 < starts; s1++) {
+      let b0 = s0
+      let b1 = s1
+      let a0 = 0
+      let a1 = 0
+      let value = Number.NEGATIVE_INFINITY
+
+      for (let round = 0; round < 50; round++) {
+        let bestA0 = Number.NEGATIVE_INFINITY
+        let bestA1 = Number.NEGATIVE_INFINITY
+
+        for (let a = 0; a < alice.length; a++) {
+          const p = at(a, b0) + at(a, b1)
+          const m = at(a, b0) - at(a, b1)
+
+          if (p > bestA0) {
+            bestA0 = p
+            a0 = a
+          }
+
+          if (m > bestA1) {
+            bestA1 = m
+            a1 = a
+          }
+        }
+
+        let bestB0 = Number.NEGATIVE_INFINITY
+        let bestB1 = Number.NEGATIVE_INFINITY
+
+        for (let b = 0; b < bob.length; b++) {
+          const p = at(a0, b) + at(a1, b)
+          const m = at(a0, b) - at(a1, b)
+
+          if (p > bestB0) {
+            bestB0 = p
+            b0 = b
+          }
+
+          if (m > bestB1) {
+            bestB1 = m
+            b1 = b
+          }
+        }
+
+        const next = bestB0 + bestB1
+
+        if (next <= value + 1e-15) {
+          break
+        }
+
+        value = next
+      }
+
+      if (value > best) {
+        best = value
+        settings = [a0, a1, b0, b1]
+      }
+    }
+  }
+
+  return { value: best, settings }
 }
 
 // the closed-form largest CHSH value of a pure two-qutrit state from its Schmidt weights (see the header)

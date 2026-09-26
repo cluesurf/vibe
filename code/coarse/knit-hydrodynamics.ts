@@ -17,15 +17,19 @@
 // the sum over its waves of z_w e^{i phi_w(s)}.
 //
 // STARTS. A momentum field g(s) on the reduced lattice becomes a knit start (momentumFieldStart) the way
-// code/measure/momentum-transport makes a wave: a hashed background of both signs at a fill, then on each
-// line whose root has e . g != 0 a lone carrier pointing along the sign of e . g, placed with probability
-// min(1, |e . g|), its sign hashed. momentumFieldExpectation is the same start's ensemble mean on the
-// reduced lattice, for lattice Boltzmann runs on flows too large for the knit.
+// code/measure/momentum-transport makes a wave: a background of both signs at a fill, then on each line
+// whose root has e . g != 0 a lone carrier pointing along the sign of e . g, placed with probability
+// min(1, |e . g|), its sign chosen the same way. Every such choice compares a value of the Kronecker stream
+// at start = salt (code/tool/weyl-point) with the threshold: slot i reads slots 0 (fill) and 1 (sign) of
+// index i, dock x reads slots 2 + line (placement) and 14 + line (sign) of index x, so the choices made at
+// one index are jointly equidistributed. The start is a fixed function of the salt, no draw (the hash
+// hashRand before 2026-09-26). momentumFieldExpectation is the same start's ensemble mean on the reduced
+// lattice, for lattice Boltzmann runs on flows too large for the knit.
 
 import { makeWill, type Will } from '@/code/tone/will'
 import { type Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylPoint } from '@/code/tool/weyl-point'
 import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
 import {
   type ComplexMatrix,
@@ -167,8 +171,8 @@ export function momentumFieldStart(input: {
   const will = makeWill(mesh)
 
   for (let i = 0; i < will.data.length; i++) {
-    if (hashRand(i, 1, salt) < fill) {
-      will.data[i] = hashRand(i, 2, salt) < 0.5 ? -1 : 1
+    if (weylPoint({ start: salt, index: i, slot: 0 }) < fill) {
+      will.data[i] = weylPoint({ start: salt, index: i, slot: 1 }) < 0.5 ? -1 : 1
     }
   }
 
@@ -192,11 +196,11 @@ export function momentumFieldStart(input: {
 
       const w = dot(ROOTS[d] ?? [], g)
 
-      if (w !== 0 && hashRand(dock, 3 + line, salt) < Math.min(1, Math.abs(w))) {
+      if (w !== 0 && weylPoint({ start: salt, index: dock, slot: 2 + line }) < Math.min(1, Math.abs(w))) {
         const forward = w > 0 ? d : o
         const backward = forward === d ? o : d
 
-        will.data[dock * 24 + forward] = hashRand(dock, 20 + line, salt) < 0.5 ? -1 : 1
+        will.data[dock * 24 + forward] = weylPoint({ start: salt, index: dock, slot: 14 + line }) < 0.5 ? -1 : 1
         will.data[dock * 24 + backward] = 0
       }
 

@@ -152,16 +152,61 @@ export function repaid(t: number, next: number, q: number): number {
 }
 
 function drift(rule: RemainderRule, s: RemainderState, sign: number): void {
-  for (let l = 0; l < s.angle.length; l++) {
-    s.angle[l] = modulo((s.angle[l] ?? 0) + sign * (s.flux[l] ?? 0), rule.n)
+  const { angle, flux } = s
+  const n = rule.n
+
+  for (let l = 0; l < angle.length; l++) {
+    let a = (angle[l] as number) + sign * (flux[l] as number)
+
+    a %= n
+    angle[l] = a < 0 ? a + n : a
   }
 }
 
 // the kick, forward (sign 1) or backward (sign -1), in place
 function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
-  const { lattice, q, table } = rule
+  const { lattice, q, table, n } = rule
   const size = lattice.plaquetteSize
-  // the paid f, and the remainder after (forward) or before (backward) the kick
+  const links = lattice.plaquetteLinks
+  const signs = lattice.plaquetteSigns
+  const { angle, flux, remainder } = s
+
+  if (rule.on === 'plaquette') {
+    // the hot loop: no allocation, no helper calls. B is read from the angles (the kick does not change them),
+    // then f is paid forward, f = floor((T + r) / q), r' = T + r - q f, or repaid backward,
+    // f = ceil((T - r') / q), r = r' + q f - T
+    for (let p = 0, o = 0; p < lattice.plaquetteCount; p++, o += size) {
+      let b = 0
+
+      for (let j = 0; j < size; j++) {
+        b += (signs[o + j] as number) * (angle[links[o + j] as number] as number)
+      }
+
+      b %= n
+
+      const t = table[b < 0 ? b + n : b] as number
+      const r = remainder[p] as number
+      const f = sign > 0 ? Math.floor((t + r) / q) : Math.ceil((t - r) / q)
+
+      remainder[p] = sign > 0 ? t + r - q * f : r + q * f - t
+
+      if (f === 0) {
+        continue
+      }
+
+      const g = sign * f
+
+      for (let j = 0; j < size; j++) {
+        const l = links[o + j] as number
+
+        flux[l] = (flux[l] as number) - (signs[o + j] as number) * g
+      }
+    }
+
+    return
+  }
+
+  // the paid f, and the remainder after (forward) or before (backward) the kick, for the link control
   const settle = (t: number, r: number): [number, number] => {
     if (sign > 0) {
       const f = paid(t, r, q)
@@ -172,26 +217,6 @@ function kick(rule: RemainderRule, s: RemainderState, sign: number): void {
     const f = repaid(t, r, q)
 
     return [f, r + q * f - t]
-  }
-
-  if (rule.on === 'plaquette') {
-    for (let p = 0; p < lattice.plaquetteCount; p++) {
-      const [f, r] = settle(table[plaquetteField(rule.base, s.angle, p)] ?? 0, s.remainder[p] ?? 0)
-
-      s.remainder[p] = r
-
-      if (f === 0) {
-        continue
-      }
-
-      for (let j = 0; j < size; j++) {
-        const l = lattice.plaquetteLinks[p * size + j] ?? 0
-
-        s.flux[l] = (s.flux[l] ?? 0) - sign * (lattice.plaquetteSigns[p * size + j] ?? 0) * f
-      }
-    }
-
-    return
   }
 
   // the control: each link sums its plaquettes' T and carries its own remainder

@@ -30,7 +30,7 @@ import { eigHermitian, hermitianMatrixSign } from '@/code/algebra/linear/eig-her
 import { hermitianEigen } from '@/code/measure/photon-modes'
 import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -148,8 +148,9 @@ export default experiment({
     const fixedOverlap = largestOverlap(fixed)
     const shippedSign = signSquaredError(hermitianMatrixSign({ matrix: m }))
     const fixedSign = signSquaredError(fixed)
-    const u1Free = chiralCondensateSignal({ length: 5, disorder: 0, configs: 1, rng: makeRng({ seed: 500 }) }).nearZeroDensity
-    const su2Free = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 1, rng: makeRng({ seed: 700 }) }).nearZeroDensity
+    // disorder 0 makes every link the identity, so the stream is read and its values multiplied by zero
+    const u1Free = chiralCondensateSignal({ length: 5, disorder: 0, configs: 1, rng: makeWeyl({ start: 500 }) }).nearZeroDensity
+    const su2Free = chiralCondensateSignalSU2({ length: 3, disorder: 0, configs: 1, rng: makeWeyl({ start: 700 }) }).nearZeroDensity
     const u1Exact = 2 / (2 * 5 * 5)
     const su2Exact = 4 / (4 * 3 * 3)
     const ok =

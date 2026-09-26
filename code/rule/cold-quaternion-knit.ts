@@ -515,6 +515,12 @@ function threshold(a: Arrays, base: number, knit: ColdQuaternionKnit): void {
   }
 }
 
+// the exchange of either kind: the rich scattering set when the knit has one, the lone exchange otherwise
+function scatterStep(knit: ColdQuaternionKnit, a: Arrays, base: number, forward: boolean, meetings: ColdMeeting[] | undefined): void {
+  if (knit.scatter) scatterDock(knit.scatter, a, base, forward, meetings as ScatterMeeting[] | undefined, knit.tally)
+  else if (knit.exchange) exchange(a, base, meetings)
+}
+
 // one dock's collision, forward (C) or backward (C^-1), in place on the arrays; meetings are appended in
 // the order the moves ran
 export function coldQuaternionCollide(
@@ -525,22 +531,18 @@ export function coldQuaternionCollide(
   meetings?: ColdMeeting[],
 ): void {
   const base = dock * 24
-  const rich = knit.scatter
-  const scatter = (): void => {
-    if (rich) scatterDock(rich, a, base, forward, meetings as ScatterMeeting[] | undefined, knit.tally)
-    else if (knit.exchange) exchange(a, base, meetings)
-  }
 
+  // no closures here: this runs once per dock per beat, and the build wraps every closure it creates
   if (knit.mode === 'scatter') {
-    scatter()
+    scatterStep(knit, a, base, forward, meetings)
     return
   }
 
   if (knit.threshold) threshold(a, base, knit)
 
-  scatter()
+  scatterStep(knit, a, base, forward, meetings)
   clock(a, base, dock, forward ? 0 : 1, meetings)
-  scatter()
+  scatterStep(knit, a, base, forward, meetings)
 
   if (knit.threshold) threshold(a, base, knit)
 }

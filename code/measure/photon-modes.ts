@@ -16,80 +16,18 @@
 // The linear wave operator, the curl-curl matrix M(k) of the plaquettes, is here too: the prediction a
 // measured frequency is compared with, 4 sin^2(omega / 2) = kappa lambda(k), kappa = 2 pi K / N.
 
-import { makeComplexMatrix, makeDense, type ComplexMatrix } from '@/code/algebra/linear/dense'
-import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { type PhotonLattice } from '@/code/rule/photon-links'
 
-// The eigen decomposition of a Hermitian matrix, safe at degenerate eigenvalues. eigHermitian embeds H as
-// the real symmetric [[A, -B], [B, A]], where each complex eigenvector v appears as (u; w) and again as
-// (-w; u), which is i v. It keeps every second real column, and inside a degenerate eigenspace two of the kept
-// columns can be one complex vector and its i-multiple, so the returned vectors can fail to span the
-// eigenspace (a photon triplet of the D4 curl-curl operator came back with rank 2). Here every real column
-// is turned into a complex vector and kept only if it is independent of those kept before, by complex
-// Gram-Schmidt, so the n vectors are orthonormal and each eigenspace is spanned
+// The eigen decomposition of a Hermitian matrix, safe at degenerate eigenvalues. This was a local complex
+// Gram-Schmidt over every real column of the embedding, written when a photon triplet of the D4 curl-curl
+// operator came back from eigHermitian with rank 2 (E-FRC-0178). eigHermitian now completes every degenerate
+// eigenspace itself (code/algebra/linear/eig-hermitian, witness E-MTH-0011), so this is that one solver. On
+// all 320 curl-curl matrices of the side-4 D4 and cubic boxes the two agree to 2e-14 in the eigenvalues
+// and 1.2e-12 in each eigenspace's projector (tmp/probe-photon-eigen.ts, 2026-09-25).
 export function hermitianEigen(matrix: ComplexMatrix): { values: Float64Array; vectorsRe: Float64Array; vectorsIm: Float64Array } {
-  const n = matrix.rows
-  const m = makeDense({ rows: 2 * n, cols: 2 * n })
-
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      const a = matrix.re[i * n + j] ?? 0
-      const b = matrix.im[i * n + j] ?? 0
-
-      m.data[i * 2 * n + j] = a
-      m.data[(n + i) * 2 * n + n + j] = a
-      m.data[i * 2 * n + n + j] = -b
-      m.data[(n + i) * 2 * n + j] = b
-    }
-  }
-
-  const eig = eigSymmetric({ matrix: m })
-  const order = Array.from(eig.values, (v, i) => [v, i] as const).sort((a, b) => a[0] - b[0])
-  const kept: { value: number; re: Float64Array; im: Float64Array }[] = []
-
-  for (const [value, col] of order) {
-    if (kept.length === n) {
-      break
-    }
-
-    const re = Float64Array.from({ length: n }, (_, a) => eig.vectors[a * 2 * n + col] ?? 0)
-    const im = Float64Array.from({ length: n }, (_, a) => eig.vectors[(n + a) * 2 * n + col] ?? 0)
-
-    for (const k of kept) {
-      // c = k^dagger z
-      let cr = 0
-      let ci = 0
-
-      for (let a = 0; a < n; a++) {
-        cr += (k.re[a] ?? 0) * (re[a] ?? 0) + (k.im[a] ?? 0) * (im[a] ?? 0)
-        ci += (k.re[a] ?? 0) * (im[a] ?? 0) - (k.im[a] ?? 0) * (re[a] ?? 0)
-      }
-
-      for (let a = 0; a < n; a++) {
-        re[a] = (re[a] ?? 0) - (cr * (k.re[a] ?? 0) - ci * (k.im[a] ?? 0))
-        im[a] = (im[a] ?? 0) - (cr * (k.im[a] ?? 0) + ci * (k.re[a] ?? 0))
-      }
-    }
-
-    const norm = Math.sqrt(re.reduce((s, x) => s + x * x, 0) + im.reduce((s, x) => s + x * x, 0))
-
-    if (norm > 0.5) {
-      kept.push({ value, re: re.map(x => x / norm), im: im.map(x => x / norm) })
-    }
-  }
-
-  const values = Float64Array.from(kept, k => k.value)
-  const vectorsRe = new Float64Array(n * n)
-  const vectorsIm = new Float64Array(n * n)
-
-  kept.forEach((k, i) => {
-    for (let a = 0; a < n; a++) {
-      vectorsRe[a * n + i] = k.re[a] ?? 0
-      vectorsIm[a * n + i] = k.im[a] ?? 0
-    }
-  })
-
-  return { values, vectorsRe, vectorsIm }
+  return eigHermitian({ matrix })
 }
 
 export type ModeVector ={ readonly re: Float64Array; readonly im: Float64Array }

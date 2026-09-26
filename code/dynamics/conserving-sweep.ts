@@ -676,27 +676,10 @@ export function hashedTone(size: number, salt: number): Int8Array {
   return tone
 }
 
-// RETIRED 2026-09-25. A position-indexed hash giving a pseudo-random uniform value per (key, beat, salt):
-// a counter-based generator whose salt is a seed by another name. Nothing in the repo that follows the
-// no-seed rule calls it. It is kept only because two files created today still import it
-// (code/coarse/knit-hydrodynamics.ts, code/measure/momentum-transport.ts), and E-MTH-0015 lists every
-// importer. The replacement is weylCell(key, beat, salt) in code/tool/weyl, same arguments.
-export function hashRand(
-  key: number,
-  beat: number,
-  salt: number,
-): number {
-  let h =
-    (Math.imul(key, 73856093) ^
-      Math.imul(beat, 19349663) ^
-      Math.imul(salt, 83492791)) |
-    0
-
-  h = Math.imul(h ^ (h >>> 13), 1274126177)
-  h = h ^ (h >>> 16)
-
-  return (h >>> 0) / 4294967296
-}
+// The hash hashRand (a counter-based pseudo-random generator, retired 2026-09-25) was removed on 2026-09-26
+// once its last two importers, code/coarse/knit-hydrodynamics.ts and code/measure/momentum-transport.ts,
+// moved to code/tool/weyl-point. Two weylCell values of one key at two beats differ by a fixed shift, so
+// they are not independent choices: where two decisions are made per key, read two slots of weylPoint.
 
 // One beat of the conserving perception rule using the position-indexed Kronecker value
 // weylCell(edge, beat, salt) instead of a stream, so differences between two copies propagate

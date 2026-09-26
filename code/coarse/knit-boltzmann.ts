@@ -11,8 +11,8 @@
 // F_e(b) = E_b[1{C(x)_e = s'}]. Its derivative with respect to n+_d (holding n-_d, so calm pays) is
 // exactly E over the other 23 slots of [1{C(x with x_d = +1)_e = s'} - 1{C(x with x_d = 0)_e = s'}], and
 // the same with -1 for n-_d. This module estimates that expectation over a deterministic ensemble of
-// product draws (each slot's uniform a fixed hash of the salt, the phase, the draw and the slot, no random
-// numbers), running the knit's own dock collision (see linearizedCollision for the two estimators).
+// product draws (each slot's value a coordinate of one point of a Kronecker sequence fixed by the salt and
+// the phase, no random numbers and no hash), running the knit's own dock collision (see linearizedCollision for the two estimators).
 // Because the knit's collision keeps charge, P and the line-momentum sum configuration by configuration,
 // the estimated matrix keeps every exact additive invariant of the knit to rounding, whatever the draw
 // count; only the relaxation rates of the non-conserved directions carry sampling error.
@@ -38,44 +38,38 @@ import { type Collision } from '@/code/rule/collision'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { SIDE } from '@/code/rule/scatter-weave'
 import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import { weylRates } from '@/code/tool/weyl-point'
 
 export const SLOT_STATES = 48
 
 const ROOTS = rootsD4()
 const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
-// The draws. hashRand (code/dynamics/conserving-sweep) is one multiply and one shift of a linear
-// combination of its inputs, and its values for the 24 slots of one draw are not independent enough for
-// a product measure: two salts gave viscosities 4 percent apart that did not close as the draw count grew
-// from 5,000 to 100,000. The draws here chain a full 32-bit finalizer (the lowbias32 constants) through
-// salt, phase, draw and slot, so each uniform is a fixed function of the four and the salts agree.
-function mix32(input: number): number {
-  let h = input >>> 0
-
-  h = Math.imul(h ^ (h >>> 16), 0x7feb352d)
-  h = Math.imul(h ^ (h >>> 15), 0x846ca68b)
-
-  return (h ^ (h >>> 16)) >>> 0
+// The draws. A product measure over the 24 slots of a dock needs 24 values per draw that are jointly
+// equidistributed. Each (salt, phase) reads its own Kronecker stream (code/tool/weyl-point, start
+// salt * 10007 + phase), and draw n takes slot d's value from slot d of index n: frac((n + 1) r_d), r_d =
+// frac(sqrt(q_d P)), so the draws are the points of a 24-dimensional Kronecker sequence, equidistributed in
+// the 24-cube by Besicovitch and Kronecker, with no hash and no seed. History: hashRand (one multiply and
+// one shift of a linear combination) was not independent enough across the 24 slots, two salts giving
+// viscosities 4 percent apart that did not close; a chained 32-bit finalizer (lowbias32) replaced it, and
+// on 2026-09-26 the finalizer, a pseudo-random hash used as a draw, was replaced by this stream.
+function drawRates(salt: number, phase: number): Uint32Array {
+  return weylRates(salt * 10007 + phase)
 }
 
-function drawPrefix(salt: number, phase: number, draw: number): number {
-  return mix32(mix32(mix32(salt ^ 0x9e3779b9) ^ phase) ^ draw)
-}
-
-function slotUniform(prefix: number, slot: number): number {
-  return mix32(mix32(prefix ^ Math.imul(slot + 1, 0x9e3779b9))) / 4294967296
+function slotUniform(rates: Uint32Array, draw: number, slot: number): number {
+  return (Math.imul((draw + 1) | 0, rates[slot] ?? 0) >>> 0) / 4294967296
 }
 
 // A knit state drawn from a product background, dock by dock with the same draws as the estimators (the
 // dock index is the draw), for starts whose slots must be independent
 export function productState(input: { docks: number; background: Float64Array; salt: number }): Int8Array {
   const out = new Int8Array(input.docks * 24)
+  const rates = drawRates(input.salt, 7919)
 
   for (let dock = 0; dock < input.docks; dock++) {
-    const prefix = drawPrefix(input.salt, 7919, dock)
-
     for (let d = 0; d < 24; d++) {
-      const u = slotUniform(prefix, d)
+      const u = slotUniform(rates, dock, d)
       const plus = input.background[d * 2] ?? 0
       const minus = input.background[d * 2 + 1] ?? 0
 
@@ -126,12 +120,11 @@ export function linearizedCollision(input: {
   const work = new Int8Array(24)
   const outs = [new Int8Array(24), new Int8Array(24), new Int8Array(24)]
   const values = [1, -1, 0]
+  const rates = drawRates(salt, phase)
 
   for (let n = 0; n < samples; n++) {
-    const prefix = drawPrefix(salt, phase, n)
-
     for (let d = 0; d < 24; d++) {
-      const u = slotUniform(prefix, d)
+      const u = slotUniform(rates, n, d)
       const plus = background[d * 2] ?? 0
       const minus = background[d * 2 + 1] ?? 0
 
@@ -205,12 +198,11 @@ function conditionalCollision(input: { collision: Collision; background: Float64
   const y = new Int8Array(24)
   const index = new Int32Array(48)
   const value = new Float64Array(48)
+  const rates = drawRates(salt, phase)
 
   for (let draw = 0; draw < samples; draw++) {
-    const prefix = drawPrefix(salt, phase, draw)
-
     for (let d = 0; d < 24; d++) {
-      const u = slotUniform(prefix, d)
+      const u = slotUniform(rates, draw, d)
       const plus = background[d * 2] ?? 0
       const minus = background[d * 2 + 1] ?? 0
 

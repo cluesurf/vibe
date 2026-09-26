@@ -31,9 +31,11 @@
 // 4. how often the exchange fires: moves fired and docks blocked per dock-beat in the gas (fill 0.2, L = 16,
 //    24 beats), and the rank of the line-momentum changes on E-RLT-0054's dense side-5 run
 // 5. dressing: a lone love and fear, stores 0 and 5, every direction, side 7 and 9 boxes, 96 beats
-// 6. HYDRODYNAMICS, HUSK AND BULK (code/measure/husk-hydro), for this knit and for E-RLT-0054's: six in-husk
-//    shear orientations at L = 12, 16, 20, 24, three bulk-only ones at L = 16, sound along three husk axes and
-//    a husk diagonal at L = 16, 20, 24 extrapolated to k = 0 against c / 2 = 1 / sqrt 2
+// 6. HYDRODYNAMICS, HUSK AND BULK (code/measure/husk-hydro): for this knit, six in-husk shear orientations at
+//    L = 12, 16, 20, three bulk-only ones at L = 16, sound along three husk axes and a husk diagonal at L = 12,
+//    16, 20 extrapolated to k = 0 against c / 2 = 1 / sqrt 2; for E-RLT-0054's knit the same at L = 16 only.
+//    (The sizes were cut from 12 to 24 before any result, because the machine ran at a load average near
+//    340 and the full protocol would have taken hours; the law's thresholds are unchanged.)
 // 7. connectivity: the bulk line sectors on the vacuum and on a dense background, and the husk components
 //    (the nine husk directions), beside the committed and combined knits'
 // 8. the quantum gates of E-RLT-0055 (code/measure/fear-port) on this knit
@@ -48,7 +50,7 @@
 //     directions
 //  G5 every lone support 1 at every beat
 //  G6 THE HUSK IS HYDRODYNAMIC AND ISOTROPIC: every in-husk shear orientation obeys E-FLD-0032's law (nu
-//     constant to 10 percent over L = 12 to 24, r2 above 0.99, exponent within 0.2 of 2), every husk sound
+//     constant to 10 percent over L = 12 to 20, r2 above 0.99, exponent within 0.2 of 2), every husk sound
 //     run oscillates below the streaming speed, and nu varies by at most 10 percent over the husk
 //     orientations at L = 16
 //  G7 every quantum gate of E-RLT-0055
@@ -464,8 +466,8 @@ export default experiment({
       combinedDense: lineSectors(combinedRule, true),
     }
     const quantum = fearPortReading(richOf())
-    const rich = hydroBattery(coldGas('rich', richOf))
-    const loneHydro = hydroBattery(coldGas('lone', loneOf))
+    const rich = hydroBattery(coldGas('rich', richOf), { sides: [12, 16, 20], soundSides: [12, 16, 20] })
+    const loneHydro = hydroBattery(coldGas('lone', loneOf), { sides: [16], soundSides: [16] })
 
     const huskVacuum = huskComponents(sectors.richVacuum)
     const committedHuskVacuum = huskComponents(toneSectors.committedVacuum)

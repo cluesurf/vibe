@@ -20,7 +20,7 @@
 //
 // The lowest level. A triangle's lowest level under the modified action (scale 12, beta1 / beta0 = -1.67 /
 // 12) is -1, taken by 24 elements with Re Tr = 1.71, not by the identity (level 0). Whether every triangle of
-// the D4 lattice can sit at -1 at once is not known, so the reference is a seeded Metropolis annealing of the
+// the D4 lattice can sit at -1 at once is not known, so the reference is a Metropolis annealing (on a Weyl schedule since 2026-09-26, seeded before) of the
 // same triangle energy (uniform proposals, beta rising, then only downhill moves), a sampler that breaks the
 // frame change and is used only to say how low the energy can go.
 //
@@ -46,7 +46,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   addSigmaFlux,
   centerElements,
@@ -107,8 +107,12 @@ function heatAssisted(rule: SigmaLinks, links: Int16Array): number {
   return perTriangle(rule, state.links)
 }
 
+// The Metropolis annealing runs on the Kronecker stream of code/tool/weyl (start 7): proposal and acceptance
+// values are read in turn from one equidistributed stream, a deterministic schedule rather than a Markov
+// chain. The kinetic demon dynamics of E-FRC-0110 is not used here, because a demon anneal on these moves IS
+// the heat-assisted drain this reference is compared against, and a bound must come from a different method
 function anneal(rule: SigmaLinks): number {
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const links = hashedSigmaLinks(rule)
 
   for (let sweep = 0; sweep < ANNEAL + 100; sweep++) {
@@ -261,7 +265,7 @@ export default experiment({
         annealingSweeps: ANNEAL,
       },
       notes:
-        'L2, exact integers. The annealing reference uses random numbers and breaks the frame change, and is a bound on how low the energy goes, not a rule. Whether -1 per triangle is reachable on the D4 lattice at all is not settled here. The heat-assisted drain changes only the starting condition, as the drain of E-FRC-0110 does.',
+        'L2, exact integers. The annealing reference reads the Kronecker stream of code/tool/weyl (start 7, since 2026-09-26; seeded random numbers before), a quasi-random schedule rather than a Markov chain, and breaks the frame change, and is a bound on how low the energy goes, not a rule. Whether -1 per triangle is reachable on the D4 lattice at all is not settled here. The heat-assisted drain changes only the starting condition, as the drain of E-FRC-0110 does.',
     })
   },
 })

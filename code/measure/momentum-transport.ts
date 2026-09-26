@@ -9,9 +9,13 @@
 // q, so a diagonal wave is as good as an axis one. a perpendicular to q is a transverse (shear) wave, a
 // parallel to q a longitudinal one.
 //
-// The start is a deterministic hash: a background of tones of both signs at a fixed fill, plus lone
-// carriers on lines with a component along a, placed with probability |bias sin(2 pi m (q . r) / L)| and
-// pointed along the sign of the bias, each carrier's tone sign hashed so the charge stays near zero.
+// The start is deterministic: a background of tones of both signs at a fixed fill, plus lone carriers on
+// lines with a component along a, placed with probability |bias sin(2 pi m (q . r) / L)| and pointed along
+// the sign of the bias, each carrier's tone sign chosen evenly so the charge stays near zero. Every choice
+// compares a value of the Kronecker stream at start = salt (code/tool/weyl-point) with its threshold: slot
+// i reads slots 0 (fill) and 1 (sign) of index i, dock x reads slots 2 + line (placement) and 14 + line
+// (sign) of index x, so the choices made at one index are jointly equidistributed. Until 2026-09-26 the
+// values came from the hash hashRand.
 //
 // The exact spurious invariant that a rule keeping every line momentum has (E-FLD-0022), read per slab:
 // the (P . a) carried on lines whose root is perpendicular to q never leaves its slab q . r, since those
@@ -22,7 +26,7 @@ import { type Mesh } from '@/code/tool/mesh'
 import { type Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylPoint } from '@/code/tool/weyl-point'
 
 export type WaveGeometry = {
   // the momentum direction a and the wave vector q, integer 4-vectors
@@ -57,8 +61,8 @@ export function momentumWaveStart(input: {
   const will = makeWill(mesh)
 
   for (let i = 0; i < will.data.length; i++) {
-    if (hashRand(i, 1, salt) < fill) {
-      will.data[i] = hashRand(i, 2, salt) < 0.5 ? -1 : 1
+    if (weylPoint({ start: salt, index: i, slot: 0 }) < fill) {
+      will.data[i] = weylPoint({ start: salt, index: i, slot: 1 }) < 0.5 ? -1 : 1
     }
   }
 
@@ -78,14 +82,14 @@ export function momentumWaveStart(input: {
     lines.forEach(([d, o], line) => {
       const along = dot(ROOTS[d] ?? [], geometry.momentum)
 
-      if (along === 0 || hashRand(dock,3 + line, salt) >= Math.abs(local)) {
+      if (along === 0 || weylPoint({ start: salt, index: dock, slot: 2 + line }) >= Math.abs(local)) {
         return
       }
 
       const forward = along * local > 0 ? d : o
       const backward = forward === d ? o : d
 
-      will.data[dock * 24 + forward] = hashRand(dock,20 + line, salt) < 0.5 ? -1 : 1
+      will.data[dock * 24 + forward] = weylPoint({ start: salt, index: dock, slot: 14 + line }) < 0.5 ? -1 : 1
       will.data[dock * 24 + backward] = 0
     })
   }

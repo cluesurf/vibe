@@ -27,6 +27,13 @@
 // E the quaternion knit's Q8 is RIGHT multiplication (R_Q8), so every L_u commutes with it; reported: whether
 //   the knit itself commutes with any L_u
 // Reported: whether the knot seed of code/compute/knit-reference (directions 0, 8, 16) is an L_u or R_u orbit.
+// Reported, added after the first run (2026-09-26, not gated, disclosed): the two sevens through the E-MTH-0010
+// null. CHSH^2 = 4 (1 + sin^2 phi) = 7 for the swap-phase pair at phi = 2 pi / 3, and the fear share 2/7 of
+// E-FRC-0122's round 2 is (N - 1) / (2 N) at N = sum |W| = 7/3. A shared small integer is a common origin only
+// if the chance of it recurring is under 0.01; among the budget's integers 1 to 12 that chance is 1/12
+// (code/measure/coincidence-null). Both 7s are norms in Z[omega] (7 = |2 - omega|^2 = |3 + omega|^2), but so
+// are 6 of the integers 1 to 12 (1, 3, 4, 7, 9, 12), so that link carries no weight either. PREDICTION: rate
+// 0.083, inadmissible, and the swap pair's own N is 3/2, not 7/3 (E-MTH-0010), so the 7s come from two states.
 //
 // Depth L2: exact group computation, then the rules themselves.
 
@@ -51,6 +58,7 @@ import {
   rightMultiplication,
   type DoubledMatrix,
 } from '@/code/algebra/group/hurwitz-f4'
+import { sharedIntegerRate } from '@/code/measure/coincidence-null'
 
 const ROOTS = rootsD4()
 const OPPOSITE = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
@@ -330,6 +338,22 @@ export default experiment({
     const seedLeft = units.filter(u => orbitsOf(permutationOf(leftMultiplication(u))).some(o => setKey(o) === seed)).length
     const seedRight = units.filter(u => orbitsOf(permutationOf(rightMultiplication(u))).some(o => setKey(o) === seed)).length
 
+    // the two sevens
+    const chshSquared = 4 * (1 + Math.sin((2 * Math.PI) / 3) ** 2)
+    const roundTwoN = 7 / 3
+    const roundTwoShare = (roundTwoN - 1) / (2 * roundTwoN)
+    const eisensteinNorms = Array.from({ length: 12 }, (_, i) => i + 1).filter(m => {
+      for (let a = -6; a <= 6; a++) {
+        for (let b = -6; b <= 6; b++) {
+          if (a * a - a * b + b * b === m) {
+            return true
+          }
+        }
+      }
+
+      return false
+    })
+
     const solved = orbitsAreTriangles && leftCover && rightCover && factored && lockHolds && invariantStates === 6561 && controlFound && q8IsRight && leftCommutesWithQ8
 
     return verdict({
@@ -348,13 +372,18 @@ export default experiment({
         seedLeftOrbits: seedLeft,
         seedRightOrbits: seedRight,
         ...survey,
+        chshSquaredSwap: chshSquared,
+        fearShareRoundTwo: roundTwoShare,
+        sevensSharedIntegerRate: sharedIntegerRate(),
+        sevensAdmissible: sharedIntegerRate() < 0.01 ? 1 : 0,
+        eisensteinNormsUpToTwelve: eisensteinNorms.length,
       },
       control: {
         trialityWeaveKeepsItsTriality: controlFound ? 1 : 0,
         q8IsRightMultiplication: q8IsRight ? 1 : 0,
       },
       notes:
-        'L2. The exact statements (A to C, E) hold for the group, not for a rule: they say what identifying the bulk omega with the color center would mean, namely a knit that commutes with L_u and whose physical states satisfy L_u psi = omega^q psi. Such a rule would make the knot of three different roles the same thing as a closed triangle of momenta, and would lock charge to the center on every invariant state, and it would cycle generations and colors together, never apart (L_u = sigma_P rho_P). What it would NOT do is select one color plane: L_u keeps four, which is why it is not E-FRC-0106\'s selector. The survey (D) says no existing knit is such a rule. Building one is the open step: its schedule must be L_u-invariant up to a time shift, and E-FRC-0107 already shows that a rule of line pairs cannot keep a triality that fixes a plane; a fixed-point-free triality keeps no line and permutes the 12 lines in 4 orbits of 3, so a pair rule is not excluded by that argument. The knot seed of code/compute/knit-reference (loves on directions 0, 8, 16) is color-neutral only by charge mod 3: it is not a zero-sum triangle, so it is not a geometric knot in this sense. Survey: 60 golden-hash dock states per beat (deterministic), every beat of the period, every shift, both tone maps; a glide is counted only with zero mismatches.',
+        'L2. The exact statements (A to C, E) hold for the group, not for a rule: they say what identifying the bulk omega with the color center would mean, namely a knit that commutes with L_u and whose physical states satisfy L_u psi = omega^q psi. Such a rule would make the knot of three different roles the same thing as a closed triangle of momenta, and would lock charge to the center on every invariant state, and it would cycle generations and colors together, never apart (L_u = sigma_P rho_P). What it would NOT do is select one color plane: L_u keeps four, which is why it is not E-FRC-0106\'s selector. The survey (D) says no existing knit is such a rule. Building one is the open step: its schedule must be L_u-invariant up to a time shift, and E-FRC-0107 already shows that a rule of line pairs cannot keep a triality that fixes a plane; a fixed-point-free triality keeps no line and permutes the 12 lines in 4 orbits of 3, so a pair rule is not excluded by that argument. The knot seed of code/compute/knit-reference (loves on directions 0, 8, 16) is color-neutral only by charge mod 3: it is not a zero-sum triangle, so it is not a geometric knot in this sense. Survey: 60 golden-hash dock states per beat (deterministic), every beat of the period, every shift, both tone maps; a glide is counted only with zero mismatches. First run 2026-09-26, pass: 80 order-3 elements of W(F4), 32 color trialities, 32 zero-sum triangles, 32 of 32 factorizations, all commuting, 6,561 invariant states locked, 0 fixed-point-free glides in five knits (the triality weave keeps its own color triality, 2 glides). Disclosed: gate C\'s second clause (every charge-q sector holds L_u eigenvectors of eigenvalue omega^q) is not computed; it holds for any free orbit of three states, whose three Fourier sums have eigenvalues 1, omega and omega^2 whatever their charge, so it says nothing about the model. The two sevens (reported, added after the first run): the shared-integer rate is 1/12 = 0.083, over the 0.01 an identification needs, and 6 of the integers 1 to 12 are Eisenstein norms, so neither the number nor the ring ties CHSH^2 = 7 to the round-two share 2/7; the swap pair that makes the first has N = 3/2 (E-MTH-0010), so the second comes from another state. No common origin.',
     })
   },
 })
