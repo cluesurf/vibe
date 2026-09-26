@@ -17,7 +17,9 @@
 //   act on index pairs (0, 1), (1, 2) and (0, 2). This is ergodic on SU(3) and leaves the Boltzmann
 //   distribution invariant.
 //
-// Every draw comes from a seeded generator, so a run is a pure function of (seed, parameters).
+// Every value the heat bath and overrelaxation read comes from a Weyl stream (code/tool/weyl), so a run
+// is a pure function of (start, parameters) with no generator behind it: a deterministic dynamics with a
+// quasi-random schedule rather than a Markov chain. Until 2026-09-25 the values were seeded draws.
 
 import { Weyl } from '@/code/tool/weyl'
 import { Hypercubic, makeHypercubic } from '@/code/tool/hypercubic'

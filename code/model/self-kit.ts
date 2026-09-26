@@ -300,8 +300,9 @@ export function beat(
 
 // The DETERMINISTIC version of beat: the sweep start rotates by the golden ratio each beat, and every
 // probabilistic decision (the cohesion hop, the arrow pair creation, the pair sign) is decided by the
-// stateless hash hashRand(edge pointer, beat, salt) instead of an RNG. A fixed rule, no seed, no hidden
-// state, varying per edge and per beat exactly as the random version did. Callers pass the beat index.
+// Kronecker value weylCell(edge pointer, beat, salt) (code/tool/weyl) instead of a stream. A fixed rule, no
+// seed, no hidden state, varying per edge and per beat. Callers pass the beat index. Until 2026-09-25 the
+// value was the hash hashRand.
 export function beatHashed(
   tone: Int8Array,
   g: Graph,
@@ -643,9 +644,9 @@ export function emergeSelf(
   return { tone, cluster: largestPositiveCluster(tone, g) }
 }
 
-// The DETERMINISTIC version of emergeSelf: the initial low-density tone is drawn from the stateless
-// well-mixed hash hashRand(cell, 0, salt) (spatially decorrelated, like the random start but no seed),
-// and the dynamics use beatHashed. No randomness, no hidden state.
+// The beat-indexed version of emergeSelf: the initial low-density tone is read off the Kronecker values
+// weylCell(cell, 0, 7) (code/tool/weyl), a quasi-periodic fill at the stated density, and the dynamics use
+// beatHashed. No generator, no seed, no hidden state. Until 2026-09-25 the fill was the hash hashRand.
 export function emergeSelfHashed(
   g: Graph,
   moved: Uint8Array,

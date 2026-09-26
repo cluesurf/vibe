@@ -102,8 +102,9 @@ export function cohesiveEdgeSweep(input: {
 }
 
 // The DETERMINISTIC version of cohesiveEdgeSweep: every probabilistic decision (the escape hop, the
-// arrow pair creation, the pair sign) is decided by the stateless hash hashRand(edge index, beat, salt)
-// instead of an RNG. A fixed rule with no seed and no hidden state, varying per edge and per beat.
+// arrow pair creation, the pair sign) is decided by the Kronecker value weylCell(edge index, beat, salt)
+// (code/tool/weyl) instead of a stream. A fixed rule with no seed and no hidden state, varying per edge and
+// per beat. Until 2026-09-25 the value was the hash hashRand.
 export function cohesiveEdgeSweepHashed(input: {
   tone: Int8Array
   eu: Int32Array
