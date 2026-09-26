@@ -28,7 +28,7 @@
 // which sums to zero again, so the balance survives every merge.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { CONJUGATE_GRID, CONJUGATE_POINT, meetWhole, moveCoordinate, phasePermOf, translatedOf, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
+import { CONJUGATE_GRID, CONJUGATE_POINT, meetWhole, moveCoordinate, translatedOf, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
 
 // a knot's departure from calm: tokens (most significant coordinate first), delta on the 9^k joint points,
 // and the units M (Delta = delta / M). Like a whole, it carries each coordinate's own role point (phase index),
@@ -167,7 +167,6 @@ export function advanceDeparture(input: {
   const { weave, record, kernel, divisor, fixed, forward, moveOf } = input
   const comoving = input.comoving !== false
   const coordinate = new Map(input.departure.tokens.map((t, i) => [t, i]))
-  const own: number[] = input.departure.own ? [...input.departure.own] : new Array<number>(input.departure.tokens.length).fill(0)
 
   let d: Departure | null = input.departure
 
@@ -177,7 +176,7 @@ export function advanceDeparture(input: {
       const b = coordinate.get(tb)
 
       if (d && a !== undefined && b !== undefined) {
-        const read = comoving ? translatedOf(kernel, own[a] ?? 0, own[b] ?? 0) : kernel
+        const read = comoving && d.own ? translatedOf(kernel, d.own[a] ?? 0, d.own[b] ?? 0) : kernel
 
         d = meetDeparture({ departure: d, a, b, kernel: read, divisor, fixed })
       }
@@ -189,11 +188,10 @@ export function advanceDeparture(input: {
       const c = coordinate.get(tk)
 
       if (d && c !== undefined && g !== weave.moves.identity) {
-        const table = moveOf ? moveOf(g) : (weave.moves.act[g] ?? [])
-        const moved = moveCoordinate({ tokens: d.tokens, weight: d.delta }, c, table)
+        // the own point moves with the weights (movePhaseCoordinate)
+        const moved = moveCoordinate({ tokens: d.tokens, weight: d.delta, ...(d.own ? { own: d.own } : {}) }, c, moveOf ? moveOf(g) : (weave.moves.act[g] ?? []))
 
-        own[c] = phasePermOf(table)[own[c] ?? 0] ?? 0
-        d = { ...d, delta: moved.weight }
+        d = { ...d, delta: moved.weight, ...(moved.own ? { own: moved.own } : {}) }
       }
     }
   }
@@ -206,7 +204,7 @@ export function advanceDeparture(input: {
     meet()
   }
 
-  return d ? { ...(d as Departure), own } : null
+  return d
 }
 
 // two knots joined: the departure of the tensor product of U + Delta, coordinates of a then of b

@@ -488,7 +488,9 @@ export function phaseMove(grid: ArrayLike<number>): number[] {
   return GRID_OF_PHASE.map(q => GRID_OF_PHASE[grid[q] ?? q] ?? 0)
 }
 
-// move one coordinate of the whole by a permutation of its 9 PHASE points (index 3 a + b)
+// move one coordinate of the whole by a permutation of its 9 PHASE points (index 3 a + b). The coordinate's own
+// point moves with its weights (a whole without own points gets them, every other one at the origin), so every
+// move of a coordinate, a crossing, a frame rewrite or a frame change, carries the point the comoving beat reads
 export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: ArrayLike<number>): Whole {
   const k = whole.tokens.length
   const stride = 9 ** (k - 1 - coordinate)
@@ -501,7 +503,12 @@ export function movePhaseCoordinate(whole: Whole, coordinate: number, perm: Arra
     out[j] = whole.weight[i] ?? 0n
   }
 
-  return { ...whole, weight: out }
+  const own = whole.own ? [...whole.own] : new Array<number>(k).fill(0)
+  const p = own[coordinate] ?? 0
+
+  own[coordinate] = perm[p] ?? p
+
+  return { ...whole, weight: out, own }
 }
 
 // move one coordinate of the whole by a GRID move (a table on the grid index a + 3 b, as weave.moves.act)
@@ -691,10 +698,13 @@ export function advanceWhole(input: {
   const { weave, record, fixed, forward, color } = input
   const comoving = input.comoving !== false
   const signs = record.signs ?? []
-  // each coordinate's own point, carried through the beat and attached to the whole it returns
-  const own: number[] = input.whole.own ? [...input.whole.own] : new Array<number>(input.whole.tokens.length).fill(0)
-  const about = (kernel: readonly (readonly number[])[], c0: number, c1: number): readonly (readonly number[])[] =>
-    comoving ? translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0) : kernel
+  // a kernel read about the two coordinates' own points, as the whole holds them at the meeting (every move of a
+  // coordinate moves its own point, movePhaseCoordinate)
+  const about = (kernel: readonly (readonly number[])[], c0: number, c1: number): readonly (readonly number[])[] => {
+    const own = (whole as Whole | null)?.own
+
+    return comoving && own ? translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0) : kernel
+  }
   let meetingIndex = 0
   const kernelOf =
     input.kernelOf ??
@@ -736,7 +746,6 @@ export function advanceWhole(input: {
 
     if (from !== 0 && to !== 0 && from !== to) {
       whole = movePhaseCoordinate(whole as Whole, c, CONJUGATE_POINT)
-      own[c] = CONJUGATE_POINT[own[c] ?? 0] ?? 0
     }
 
     state.frame[c] = to
@@ -817,10 +826,7 @@ export function advanceWhole(input: {
       const c = coordinate.get(tk)
 
       if (c !== undefined && g !== weave.moves.identity) {
-        const table = weave.moves.act[g] ?? []
-
-        whole = moveCoordinate(whole, c, table)
-        own[c] = phasePermOf(table)[own[c] ?? 0] ?? 0
+        whole = moveCoordinate(whole, c, weave.moves.act[g] ?? [])
       }
     }
   }
@@ -833,7 +839,7 @@ export function advanceWhole(input: {
     meet()
   }
 
-  return whole ? { ...(whole as Whole), own } : null
+  return whole
 }
 
 // The color mode's kernels, the three-trit color law adopted: the swap phase where like vibes meet (two

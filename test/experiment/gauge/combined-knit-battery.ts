@@ -55,10 +55,10 @@
 //
 // RERUN 2026-09-26 under the adopted COMOVING fear beat (code/rule/fear-weave advanceWhole's default, E-SPN-0063),
 // and under the 2026-09-26 frame and phase-index conventions (E-QTM-0123, E-QTM-0124) its first numbers predate.
-// "On" is now the comoving beat. Two instrument changes, made before the rerun and touching no gate's rule: the
-// frame change moves each coordinate's own point with its weights (the comoving beat reads the own points, so
-// they are part of the state a frame change acts on), and the dephased stand-in keeps the own points (it drops
-// the frames, as before). Both are exactly E-SPN-0063's harness.
+// "On" is now the comoving beat. The frame change still moves each coordinate with moveCoordinate, which since the
+// adoption moves the coordinate's own point with its weights, so it acts on the whole state the comoving beat
+// reads. One instrument change, made before the rerun and touching no gate's rule: the dephased stand-in keeps
+// the own points (it drops the frames, as before), exactly E-SPN-0063's harness.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -74,7 +74,6 @@ import {
   fearKernels,
   makeLattice,
   moveCoordinate,
-  phasePermOf,
   reduceWhole,
   swapPhase,
   wholeKernel,
@@ -545,24 +544,18 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
   // the frame change on the vacuum and matter pairs
   const { frame, links: gaugeLinks } = frameOf(knit)
   const gauged = withLinks(knit, gaugeLinks)
-  // every coordinate moved by its dock's frame, and its own point with it (the comoving beat reads the own
-  // points, so they are part of the state the frame change acts on)
   const transform = (state: CombinedState, whole: Whole): Whole => {
     const at = new Map<number, number>()
 
     state.token.forEach((tk, s) => at.set(tk, Math.floor(s / 24)))
 
     let moved = whole
-    const own = whole.own ? [...whole.own] : new Array<number>(whole.tokens.length).fill(0)
 
     whole.tokens.forEach((tk, c) => {
-      const table = moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? []
-
-      moved = moveCoordinate(moved, c, table)
-      own[c] = phasePermOf(table)[own[c] ?? 0] ?? 0
+      moved = moveCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
     })
 
-    return { ...moved, own }
+    return moved
   }
   const frameMismatch = (background: { vibe: Int8Array; point: Int8Array }, tokens: number[], k: FearKernels, start: Whole): number => {
     const open = openOf(tokens)
