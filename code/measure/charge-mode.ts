@@ -23,9 +23,9 @@ import { Will, makeWill } from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
 import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { coordAlong } from '@/code/measure/hydrodynamics'
 import { linearFit } from '@/code/measure/regression'
+import { weylCell } from '@/code/tool/weyl'
 
 // A hash background with the charge modulated along `axis`: slot i is +1 when its hash falls below
 // p+(x), -1 below p+(x) + p-(x), else 0, with p+- = (1 - z) / 2 (1 +- contrast cos(2 pi n x / L)).
@@ -53,7 +53,7 @@ export function modulatedChargeStart(input: {
 
     for (let d = 0; d < mesh.degree; d++) {
       const i = cell * mesh.degree + d
-      const r = hashRand(i, 0, salt)
+      const r = weylCell(i, 0, salt)
 
       will.data[i] = r < plus ? 1 : r < plus + minus ? -1 : 0
     }

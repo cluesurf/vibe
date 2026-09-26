@@ -8,7 +8,7 @@
 // across the 3D crystal at low stretch (path length close to the shortest path).
 // Run: npx tsx code/experiment/p76-dodecagrid-navigation.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { graphDistance } from '@/code/measure/distance'
 import { greedyRouteHops } from '@/code/measure/navigation'
@@ -32,7 +32,7 @@ export function dodecagridNavigation(input: { seed: number }): {
     maxVertices: 1500,
   })
 
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   let delivered = 0
   let attempted = 0

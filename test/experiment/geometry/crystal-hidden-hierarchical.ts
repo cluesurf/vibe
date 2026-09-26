@@ -10,7 +10,7 @@
 //      size. So the crystal is tree-like and the flat lattice is not.
 // Run: npx tsx code/experiment/p49-crystal-hidden-hierarchical.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
@@ -26,7 +26,7 @@ function anisotropyOf(s: Substrate, seed: number): number {
   return lorentzIsotropy({
     substrate: s,
     samples: 3000,
-    rng: makeRng({ seed }),
+    rng: makeWeyl({ start: seed }),
   }).anisotropy
 }
 
@@ -48,7 +48,7 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
     count: 1500,
     radius: 7,
     connectThreshold: 3.0,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const flat = lattice({
@@ -69,13 +69,13 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
   const crystalDelta = gromovDelta({
     substrate: crystal,
     samples: 150,
-    rng: makeRng({ seed: input.seed + 2 }),
+    rng: makeWeyl({ start: input.seed + 2 }),
   })
 
   const latticeDelta = gromovDelta({
     substrate: flat,
     samples: 150,
-    rng: makeRng({ seed: input.seed + 2 }),
+    rng: makeWeyl({ start: input.seed + 2 }),
   })
 
   const crystalIsTreeLike = crystalDelta < 0.5 * latticeDelta

@@ -10,7 +10,7 @@
 // Run: npx tsx code/experiment/p135-self-organized-criticality.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { socEdgeSweep } from '@/code/dynamics/soc-sweep'
 import {
@@ -46,7 +46,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     seed: number,
   ): { tone: Int8Array; finalRho: number } => {
     const tone = new Int8Array(N)
-    const rng = makeRng({ seed })
+    const rng = makeWeyl({ start: seed })
 
     for (let i = 0; i < N; i++) {
       tone[i] = rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0
@@ -88,7 +88,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   // (b) avalanches via damage spreading at the self-organized state, and a uniform-creation control
   const avalancheRun = (uniform: boolean): number[] => {
     const base = new Int8Array(N)
-    const rng0 = makeRng({ seed: 5 })
+    const rng0 = makeWeyl({ start: 5 })
 
     for (let i = 0; i < N; i++) {
       base[i] = rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0
@@ -116,7 +116,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
       trials: 120,
       perturbSeed: 9000,
       streamSeed: 333,
-      makeRng: seed => makeRng({ seed }),
+      makeStream: seed => makeWeyl({ start: seed }),
       relax: (state, rng) =>
         socEdgeSweep({
           tone: state,

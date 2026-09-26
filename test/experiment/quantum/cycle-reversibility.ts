@@ -9,7 +9,7 @@
 // current, the signature of irreversibility. Run: npx tsx code/experiment/p128-cycle-reversibility.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -75,7 +75,7 @@ export function cycleReversibility(input?: { n?: number }): {
     }
   }
 
-  const rngC = makeRng({ seed: 2 })
+  const rngC = makeWeyl({ start: 2 })
 
   let tries = 0
 
@@ -116,7 +116,7 @@ export function cycleReversibility(input?: { n?: number }): {
   // run the dynamics (arrow on), instrumenting the net charge flow per edge
   const tone = new Int8Array(N)
   const moved = new Uint8Array(N)
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
 
   for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

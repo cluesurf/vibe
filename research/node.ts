@@ -1,9 +1,10 @@
 // The claim graph's foundations: assumptions, definitions, lemmas, imported methods and
 // observations. Results and experiments are nodes too, built from result.ts.
 //
-// The five assumptions are the whole of the program. A result that rests on none of them says
-// nothing about the program, however well it matches nature, which is why the lattice QCD
-// results are reproductions and not evidence for the rule.
+// The five assumptions are the program's committed choices. A2 states the three-trit slot adopted
+// on 2026-09-25, of which the committed knit so far moves only the vibe. A result that rests on
+// none of them says nothing about the program, however well it matches nature, which is why the
+// lattice QCD results are reproductions and not evidence for the knit.
 
 import type { Node } from './type'
 
@@ -12,7 +13,7 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A1',
     kind: 'assumption',
     statement:
-      'space is the four-dimensional hyperbolic honeycomb {3,4,3,4}, whose cells are 24-cells, with 24 directions per cell',
+      'space is the four-dimensional hyperbolic honeycomb {3,4,3,4}, whose docks are 24-cells, with 24 slots per dock, one per direction. The package runs the knit on the flat D4 lattice and on small D4 boxes, which have the same 24 directions per dock, not on {3,4,3,4} itself',
     standing: 'holds',
     depends: [],
   },
@@ -20,7 +21,7 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A2',
     kind: 'assumption',
     statement:
-      'each direction of each cell holds one value from {-1, 0, +1}, and nothing else is stored',
+      'each slot holds a vibe, fear, calm or love (-1, 0, +1), and a role point: a role (take, hold, free) and a tilt, one point of the 3 x 3 grid. Each link holds one of the 216 grid moves and a flow, the net vibe that has crossed it, whose value mod 3 is the center that makes the pair a Sigma(648) element. Adopted on 2026-09-25 as the three-trit model. The committed knit moves the vibe alone. Roles, tilts and links are measured so far only in variant rules (E-FRC-0117 to E-FRC-0128)',
     standing: 'holds',
     depends: [],
   },
@@ -28,7 +29,7 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A3',
     kind: 'assumption',
     statement:
-      'one update per step: a fixed nine-state collision table applied to each opposite pair of slots, then streaming each slot to its neighbour, on a fixed 24-beat turning schedule',
+      'the knit: one update per beat, a collision in every dock and then streaming each slot to its neighbor, on a schedule that repeats every 24 beats. The committed knit is the turning weave (code/rule/collision.ts), built on the nine-state pair table of each line of opposite slots',
     standing: 'holds',
     depends: [],
   },
@@ -36,14 +37,14 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A4',
     kind: 'assumption',
     statement:
-      'the update is a bijection of the state (reversible) and conserves the sum of the values (charge)',
+      'the knit is a bijection of the state (reversible) and conserves love minus fear, the sum of the vibes',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'A5',
     kind: 'assumption',
-    statement: 'the update draws no random number',
+    statement: 'the knit draws no random number',
     standing: 'holds',
     depends: [],
   },
@@ -62,7 +63,7 @@ export const DEFINITIONS: Node[] = [
     id: 'D2',
     kind: 'definition',
     statement:
-      'boundary share: the fraction of the cells within graph radius r of a cell that lie at exactly radius r',
+      'boundary share: the fraction of the docks within graph radius r of a dock that lie at exactly radius r',
     standing: 'holds',
     depends: [],
   },
@@ -70,7 +71,7 @@ export const DEFINITIONS: Node[] = [
     id: 'D3',
     kind: 'definition',
     statement:
-      'coverage radius: the smallest radius at which a breadth-first spread from a cell reaches every stored cell',
+      'coverage radius: the smallest radius at which a breadth-first spread from a dock reaches every stored dock',
     standing: 'holds',
     depends: [],
   },

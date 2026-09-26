@@ -18,7 +18,7 @@ import {
   hyperbolicTiling,
 } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 function assertInsideDisc(g: Graph, label: string): void {
   const coords = g.embedding!.coords
@@ -117,14 +117,14 @@ suite('substrate/hyperbolic-graph: determinism', [
         count: 60,
         radius: 4,
         connectThreshold: 1,
-        rng: makeRng({ seed: 7 }),
+        rng: makeWeyl({ start: 7 }),
       })
 
       const b = hyperbolicGraph({
         count: 60,
         radius: 4,
         connectThreshold: 1,
-        rng: makeRng({ seed: 7 }),
+        rng: makeWeyl({ start: 7 }),
       })
 
       equal(a.size, b.size, 'same size')

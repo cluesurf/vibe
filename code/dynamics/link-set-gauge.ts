@@ -9,7 +9,7 @@
 // matrices. The cost mu is the dial: it sets how often a link carries a magic element, and
 // mu = infinity recovers the gauge group alone.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Hypercubic, makeHypercubic } from '@/code/tool/hypercubic'
 import { Matrix3, multiply3 } from '@/code/dynamics/finite-gauge'
 
@@ -80,7 +80,7 @@ export function makeLinkSetLattice(input: {
   set: LinkSet
   lengths: readonly number[]
   start: 'cold' | 'hot'
-  rng: Rng
+  rng: Weyl
 }): LinkSetLattice {
   const geometry = makeHypercubic({ lengths: input.lengths })
   const links = new Int32Array(geometry.sites * geometry.dim)
@@ -101,7 +101,7 @@ export function linkSetHeatbathSweep(input: {
   lattice: LinkSetLattice
   beta: number
   magicCost?: number
-  rng: Rng
+  rng: Weyl
 }): void {
   const { lattice, beta, rng, magicCost = 0 } = input
   const { set, geometry, links } = lattice

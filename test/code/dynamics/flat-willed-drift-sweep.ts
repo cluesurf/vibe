@@ -4,7 +4,7 @@
 
 import { suite, check, equal } from '@/test/code/harness'
 import { flatWilledDriftSweep } from '@/code/dynamics/flat-willed-drift-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const L = 8
 
@@ -31,7 +31,7 @@ suite('dynamics/flat-willed-drift-sweep: conservation', [
     const q0 = charge(tone)
     const nz0 = nonzero(tone)
     const moved = new Uint8Array(L * L)
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
 
     for (let b = 0; b < 30; b++) {
       flatWilledDriftSweep({ tone, length: L, moved, rng, bias: 1.5 })
@@ -46,7 +46,7 @@ suite('dynamics/flat-willed-drift-sweep: conservation', [
       const q0 = charge(tone)
       const nz0 = nonzero(tone)
       const moved = new Uint8Array(L * L)
-      const rng = makeRng({ seed: 2 })
+      const rng = makeWeyl({ start: 2 })
 
       for (let b = 0; b < 30; b++) {
         flatWilledDriftSweep({ tone, length: L, moved, rng, bias: 0 })
@@ -62,7 +62,7 @@ suite('dynamics/flat-willed-drift-sweep: determinism', [
     const run = (): Int8Array => {
       const tone = makeTone()
       const moved = new Uint8Array(L * L)
-      const rng = makeRng({ seed: 7 })
+      const rng = makeWeyl({ start: 7 })
 
       for (let b = 0; b < 15; b++) {
         flatWilledDriftSweep({ tone, length: L, moved, rng, bias: 1 })

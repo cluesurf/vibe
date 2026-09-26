@@ -4,7 +4,7 @@
 // Run: npx tsx code/experiment/p202-dynamics-73.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { csrDistances } from '@/code/tool/graph'
 import { totalCharge as sumOf } from '@/code/measure/tone-census'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
@@ -109,7 +109,7 @@ export function dynamics73(): {
   const frontSpeed = Math.round((maxReached / 9) * 100) / 100
 
   // (2) perception rule (greedy graph matching per beat) from a seed -> EXACT charge conservation + churn
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
 

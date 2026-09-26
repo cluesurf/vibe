@@ -14,7 +14,7 @@
 //      wholes-within-wholes.
 // Run: npx tsx code/experiment/p57-recursion.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, makeGraph } from '@/code/tool/graph'
 import {
@@ -46,7 +46,7 @@ function coarseGrain(
   fills: Int8Array[],
   tone: Int8Array,
   blockSize: number,
-  rng: Rng,
+  rng: Weyl,
 ): Coarse {
   const n = g.size
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
@@ -206,7 +206,7 @@ export function recursion(input: { count: number; seed: number }): {
   towerCells: number
   towerValid: boolean
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const g = hyperbolicGraph({
     count: input.count,
     radius: 7,
@@ -216,7 +216,7 @@ export function recursion(input: { count: number; seed: number }): {
 
   const fills = symmetricEdgeFills({
     neighbors: g.neighbors,
-    rng: makeRng({ seed: input.seed + 1 }),
+    rng: makeWeyl({ start: input.seed + 1 }),
   })
 
   const init = new Int8Array(g.size)
@@ -232,7 +232,7 @@ export function recursion(input: { count: number; seed: number }): {
     fills,
     init,
     sweeps: 120,
-    rng: makeRng({ seed: input.seed + 6 }),
+    rng: makeWeyl({ start: input.seed + 6 }),
   })
 
   const base = baseRun.state
@@ -244,7 +244,7 @@ export function recursion(input: { count: number; seed: number }): {
     fills,
     base,
     10,
-    makeRng({ seed: input.seed + 2 }),
+    makeWeyl({ start: input.seed + 2 }),
   )
 
   // Self-similar structure: the aggregate view is the SAME kind of object, ternary and
@@ -260,7 +260,7 @@ export function recursion(input: { count: number; seed: number }): {
   const aniso = lorentzIsotropy({
     substrate: cg.superG,
     samples: 2000,
-    rng: makeRng({ seed: input.seed + 3 }),
+    rng: makeWeyl({ start: input.seed + 3 }),
   })
 
   // No separate higher dynamics: the higher self is stable BECAUSE the micro-self is. Run
@@ -272,7 +272,7 @@ export function recursion(input: { count: number; seed: number }): {
     fills,
     init: base,
     sweeps: 6,
-    rng: makeRng({ seed: input.seed + 7 }),
+    rng: makeWeyl({ start: input.seed + 7 }),
   }).state
 
   const aggBefore = clusterMajority(cg.cluster, cg.K, base)
@@ -311,7 +311,7 @@ export function recursion(input: { count: number; seed: number }): {
     cg.superFills,
     cg.superTone,
     6,
-    makeRng({ seed: input.seed + 4 }),
+    makeWeyl({ start: input.seed + 4 }),
   )
 
   let towerTernary = true

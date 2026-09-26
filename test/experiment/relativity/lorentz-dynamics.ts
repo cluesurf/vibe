@@ -8,7 +8,7 @@
 // isotropy of the wavefront. See note/questions/next-version.md (P11).
 // Run: npx tsx code/experiment/p11-lorentz-dynamics.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   randomGeometricMesh,
   squareLatticeMesh,
@@ -38,7 +38,7 @@ export default experiment({
       const mesh = randomGeometricMesh({
         count: 420,
         radius: 0.1,
-        rng: makeRng({ seed: 10 + r }),
+        rng: makeWeyl({ start: 10 + r }),
       })
 
       const profile = wavefrontProfile({ mesh, t, ...annulus })

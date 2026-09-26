@@ -12,7 +12,7 @@
 // peace and settles to a dynamic balance, and the cohesive rule gives memory (imprint retention beats
 // the churning random rule), all in feasible time and memory. Run: npx tsx code/experiment/p103-million-scale.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { csrBallNodes } from '@/code/tool/graph'
 import { buildRegularGraph } from '@/code/substrate/regular-graph'
 import { perceptionEdgeBeat } from '@/code/dynamics/perception-edge-beat'
@@ -41,7 +41,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
 } {
   const n = input?.n ?? 1_000_000
   const deg = 12
-  const rng = makeRng({ seed: 2 })
+  const rng = makeWeyl({ start: 2 })
   const t0 = input?.nowMs ?? 0
   const g = buildRegularGraph({ n, degree: deg, rng })
   const buildMs = (input?.nowMs ?? 0) - t0 // wall time stamped by caller if provided
@@ -52,7 +52,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   // life from peace + dynamic balance (random rule)
   const life = new Int8Array(n)
   const qL = sumTone(life)
-  const rngL = makeRng({ seed: 3 })
+  const rngL = makeWeyl({ start: 3 })
 
   for (let b = 0; b < 40; b++) {
     perceptionEdgeBeat({
@@ -114,7 +114,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
 
     const start = meanBlob(t)
-    const rng2 = makeRng({ seed: 31 })
+    const rng2 = makeWeyl({ start: 31 })
 
     for (let b = 0; b < 30; b++) {
       perceptionEdgeBeat({

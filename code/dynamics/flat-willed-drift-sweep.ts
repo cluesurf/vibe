@@ -1,4 +1,4 @@
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // One beat of a WILLED drift on a flat 2D square grid (4-neighbour, side L, row-major). Each
 // charged cell tries to hop into an empty neighbour, with the +x direction (toward a goal at the
@@ -11,7 +11,7 @@ export function flatWilledDriftSweep(input: {
   tone: Int8Array
   length: number
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   bias: number
 }): void {
   const { tone, length: L, moved, rng, bias } = input

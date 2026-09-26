@@ -11,7 +11,7 @@ import {
   lowestAbsoluteEigenvalues,
   ComplexVector,
 } from '@/code/algebra/linear/eig-lanczos-complex'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const DIAG = [-3, -1, 2, 4]
 
@@ -25,7 +25,7 @@ function diagApply(input: ComplexVector, output: ComplexVector): void {
 
 suite('algebra/linear/eig-lanczos-complex: diagonal Hermitian', [
   check('largestEigenvalueOfSquare(H) = max lambda^2 = 16', () => {
-    const rng7 = makeRng({ seed: 7 })
+    const rng7 = makeWeyl({ start: 7 })
     const lambda = largestEigenvalueOfSquare({
       apply: diagApply,
       dimension: DIAG.length,
@@ -35,7 +35,7 @@ suite('algebra/linear/eig-lanczos-complex: diagonal Hermitian', [
     close(lambda, 16, 1e-6, 'max(lambda^2)')
   }),
   check('lowestAbsoluteEigenvalues gives {1,2,3,4} ascending', () => {
-    const rng11 = makeRng({ seed: 11 })
+    const rng11 = makeWeyl({ start: 11 })
     const vals = lowestAbsoluteEigenvalues({
       apply: diagApply,
       dimension: DIAG.length,
@@ -53,7 +53,7 @@ suite('algebra/linear/eig-lanczos-complex: diagonal Hermitian', [
     )
   }),
   check('the two smallest |lambda| are {1, 2}', () => {
-    const rng3 = makeRng({ seed: 3 })
+    const rng3 = makeWeyl({ start: 3 })
     const vals = lowestAbsoluteEigenvalues({
       apply: diagApply,
       dimension: DIAG.length,

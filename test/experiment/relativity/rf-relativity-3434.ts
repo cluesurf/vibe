@@ -7,7 +7,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { supportFunctionAnisotropy } from '@/code/measure/isotropy'
 
@@ -18,7 +18,7 @@ const d4Roots = (): number[][] => rootsD4()
 function anisotropy(dirs: number[][], seed: number): number {
   return supportFunctionAnisotropy({
     directions: dirs,
-    rng: makeRng({ seed }),
+    rng: makeWeyl({ start: seed }),
   })
 }
 
@@ -32,7 +32,7 @@ export function rfRelativity(): {
 
   // RF1/RF3: ballistic vs diffusive displacement after T beats
   const T = 80
-  const rng = makeRng({ seed: 1 })
+  const rng = makeWeyl({ start: 1 })
   const rnd = (): number => rng.next()
 
   const walk = (mix: number, trials: number): number => {

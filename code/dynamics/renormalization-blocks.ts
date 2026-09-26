@@ -9,7 +9,7 @@
 // Coarse-graining a tone field to per-cluster majorities is code/measure/agreement clusterMajority.
 
 import { Graph } from '@/code/tool/graph'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // Compact Voronoi blocks on a CSR graph: scatter ~size/targetSize seeds, assign each cell to its
 // nearest seed by multi-source BFS. Returns the block index per cell and the block count. The CSR
@@ -19,7 +19,7 @@ export function csrVoronoiBlocks(input: {
   adj: ArrayLike<number>
   size: number
   targetSize: number
-  rng: Rng
+  rng: Weyl
 }): { blockOf: Int32Array; numBlocks: number } {
   const { offsets, adj, size, targetSize, rng } = input
   const numSeeds = Math.max(1, Math.floor(size / targetSize))
@@ -70,7 +70,7 @@ export function csrVoronoiBlocks(input: {
 export function geometricBlocks(
   g: Graph,
   blockSize: number,
-  rng: Rng,
+  rng: Weyl,
 ): { cl: Int32Array; K: number } {
   const n = g.size
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
@@ -161,7 +161,7 @@ export function domainBlocks(
 export function coherentFills(
   g: Graph,
   p: number,
-  rng: Rng,
+  rng: Weyl,
 ): Int8Array[] {
   const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()

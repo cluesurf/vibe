@@ -14,7 +14,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import {
   totalCharge as sumTone,
@@ -53,7 +53,7 @@ export function quantumField(input?: { n?: number }): {
   // bring the vacuum to its fluctuating steady state
   const vac = new Int8Array(N)
   const q0 = sumTone(vac)
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
 
   for (let b = 0; b < 80; b++) {
     conservingEdgeSweep({ tone: vac, eu: eu, ev: ev, moved, rng: rng, arrow: ARROW })
@@ -86,7 +86,7 @@ export function quantumField(input?: { n?: number }): {
     size: N,
     maxRadius: maxR,
     samples: 250,
-    rng: makeRng({ seed: 11 }),
+    rng: makeWeyl({ start: 11 }),
   })
 
   const correlation: { r: number; c: number }[] = c.map((cv, r) => ({
@@ -139,8 +139,8 @@ export function quantumField(input?: { n?: number }): {
   pert[center] = base[center] === 0 ? 1 : 0
 
   const T = 5
-  const rb = makeRng({ seed: 99 })
-  const rp = makeRng({ seed: 99 })
+  const rb = makeWeyl({ start: 99 })
+  const rp = makeWeyl({ start: 99 })
 
   for (let b = 0; b < T; b++) {
     conservingEdgeSweep({ tone: base, eu: eu, ev: ev, moved, rng: rb, arrow: ARROW })

@@ -8,7 +8,7 @@
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { makeGraph } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A ring of 6 cells with all-positive (ferromagnetic) couplings: the all-+1 state is a
 // fixed point (each cell's field is the sum of positive couplings times +1 neighbours).
@@ -36,7 +36,7 @@ suite('operator/signed-majority-settle: fixed point', [
         fills: ferroFills,
         init: allPlus,
         sweeps: 5,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       equal(finalFlip, 0, 'no cell flips in the final sweep')
@@ -56,7 +56,7 @@ suite('operator/signed-majority-settle: determinism', [
       fills: ferroFills,
       init,
       sweeps: 30,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     const b = settleAsync({
@@ -64,7 +64,7 @@ suite('operator/signed-majority-settle: determinism', [
       fills: ferroFills,
       init,
       sweeps: 30,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     equal(a.finalFlip, b.finalFlip, 'same seed -> same final flip')
@@ -85,7 +85,7 @@ suite('operator/signed-majority-settle: convergence', [
         fills: ferroFills,
         init,
         sweeps: 50,
-        rng: makeRng({ seed: 3 }),
+        rng: makeWeyl({ start: 3 }),
       })
 
       ok(

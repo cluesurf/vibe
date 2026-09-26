@@ -4,7 +4,7 @@
 // spectrum.
 // Run: npx tsx code/experiment/p8-gauge-fermion.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { lattice } from '@/code/substrate/lattice'
 import { Graph } from '@/code/tool/graph'
 import { makeGaugeField } from '@/code/tool/gauge-field'
@@ -18,7 +18,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): { potential: number; lowest: number[] } {
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
   const substrate = lattice({
     dimension: 2,
     extent: 12,

@@ -1,15 +1,18 @@
 // A rule maps the current configuration to the next, reading only a bounded
 // neighborhood per element. Some rules also rewrite the substrate.
+//
+// A rule reads nothing but the substrate, the configuration and the beat. Until 2026-09-25 the step
+// input also carried a seeded generator, which the asynchronous rule's random order and the gauge
+// rule's Metropolis sweep read while stepping. That is gone: a rule that needs a schedule derives it
+// from the beat through code/tool/weyl, so the same state at the same beat always steps the same way.
 
 import { Substrate } from '@/code/tool/substrate'
 import { Configuration } from '@/code/tone/configuration'
-import { Rng } from '@/code/tool/rng'
 
 export type RuleStepInput = {
   substrate: Substrate
   configuration: Configuration
   beat: number
-  rng: Rng
 }
 
 export type RuleStepOutput = {
@@ -41,7 +44,6 @@ export function runRule(input: {
   substrate: Substrate
   configuration: Configuration
   beats: number
-  rng: Rng
 }): { configuration: Configuration; substrate: Substrate } {
   let configuration = input.configuration
   let substrate = input.substrate
@@ -51,7 +53,6 @@ export function runRule(input: {
       substrate,
       configuration,
       beat,
-      rng: input.rng,
     })
 
     configuration = out.configuration

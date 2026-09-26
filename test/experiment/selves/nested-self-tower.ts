@@ -19,7 +19,7 @@ import {
   coarseGrainTpm,
 } from '@/code/coarse/causal-emergence'
 import { selfTrajectory } from '@/code/coarse/self-trajectory'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 export default experiment({
   id: 'selves/nested-self-tower',
@@ -71,7 +71,7 @@ export default experiment({
       const g = Array.from({ length: n }, (_, i) => i % m)
 
       for (let i = n - 1; i > 0; i--) {
-        const j = Math.floor(hashRand(i, 0, 3) * (i + 1))
+        const j = Math.floor(weylCell(i, 0, 3) * (i + 1))
         const t = g[i]!
 
         g[i] = g[j]!
@@ -119,7 +119,7 @@ export default experiment({
         eiMacroRandom: Number(eiMacroR.toFixed(3)),
       },
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'A6 / MS3 spatial, the self of selves at L3, two recursive coarse-grainings with the structured-vs-random control at each level.',
     })
   },

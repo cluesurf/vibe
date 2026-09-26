@@ -13,7 +13,6 @@
 // of coarse-graining up to coupling renormalization. That is the scale-invariance P57 left
 // open. Run: npx tsx code/experiment/p58-emergent-macro-rule.ts
 
-import { makeHashRng } from '@/code/dynamics/conserving-sweep'
 import { hyperbolicSunflower } from '@/code/substrate/hyperbolic-graph'
 import { signedMajorityStep } from '@/code/operator/signed-majority'
 import {
@@ -31,8 +30,10 @@ import {
 } from '@/code/operator/macro-rule'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeWeyl } from '@/code/tool/weyl'
 
-// a DETERMINISTIC counter-indexed hash stream (no seed, no randomness); salt distinguishes streams
+// the fills and the block centers are read off Weyl streams (code/tool/weyl) at fixed starts, no seed;
+// the `seed` input is kept for the perturbation check's call and feeds nothing
 export function emergentMacroRule(input: {
   count: number
   seed: number
@@ -56,16 +57,16 @@ export function emergentMacroRule(input: {
   // The CRITICAL fix: coarse-grain along GEOMETRIC blocks (BFS balls from random seeds), defined
   // WITHOUT looking at the tones, so the mean-field closure is not exact by construction. Then test
   // whether the renormalized macro-rule holds the coarse-grained fixed point.
-  const { cl, K } = geometricBlocks(g, 14, makeHashRng({ salt: 2 }))
+  const { cl, K } = geometricBlocks(g, 14, makeWeyl({ start: 2 }))
 
   const measure = (p: number): { renorm: number; naive: number } => {
     // Coherence-tunable fills: +1 with probability p, else -1. p = 0.5 is frustrated (spin-glass, no
     // coherent domains), p -> 1 is ordered (ferromagnetic). Emergence of a coarse rule requires order.
-    const fills = coherentFills(g, p, makeHashRng({ salt: 10 }))
+    const fills = coherentFills(g, p, makeWeyl({ start: 10 }))
 
     let base = new Int8Array(g.size)
 
-    const r0 = makeHashRng({ salt: 20 })
+    const r0 = makeWeyl({ start: 20 })
 
     for (let i = 0; i < g.size; i++) {
       base[i] = r0.nextInt({ max: 3 }) - 1
@@ -146,7 +147,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'the renormalized signed-majority macro-rule holds the coarse-grained fixed point in the ordered regime far beyond the naive rule and honestly fails when frustrated',
       metrics: {

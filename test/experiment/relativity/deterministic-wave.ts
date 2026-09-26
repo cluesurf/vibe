@@ -13,7 +13,7 @@
 // perturbation spreads BALLISTICALLY (RMS width ~ t, exponent ~1), versus the stochastic rule's diffusion
 // (exponent ~1/2). Run: npx tsx code/experiment/p148-deterministic-wave.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { powerLawExponent } from '@/code/measure/regression'
 import { differenceRmsWidthRing } from '@/code/measure/front-speed'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
@@ -38,7 +38,7 @@ export function deterministicWave(input?: {
 } {
   const L = input?.L ?? 2000
   const beats = input?.beats ?? 90
-  const rng0 = makeRng({ seed: 7 })
+  const rng0 = makeWeyl({ start: 7 })
   const neighbors = ringNeighbors(L)
   const ring = ringEdges(L)
   const step = (
@@ -96,7 +96,7 @@ export function deterministicWave(input?: {
   const center = Math.floor(L / 2)
 
   const measureDet = (): { times: number[]; spreads: number[] } => {
-    const r = makeRng({ seed: 11 })
+    const r = makeWeyl({ start: 11 })
     const p0 = new Uint8Array(L)
     const c0 = new Uint8Array(L)
 
@@ -156,7 +156,7 @@ export function deterministicWave(input?: {
 
       tone[center] = 1
 
-      const r = makeRng({ seed: 200 + run })
+      const r = makeWeyl({ start: 200 + run })
 
       let pos = center
 
@@ -246,7 +246,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'removing the randomness turns diffusion into a ballistic wave with z=1, so momentum emerges from a deterministic reversible rule with no new field',
       metrics: {

@@ -71,14 +71,16 @@ import {
   averagePlaquette,
   creutzRatio,
 } from '@/code/dynamics/su2-lattice'
-import { Rng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
-const rng = new Rng(1)
+// the Kronecker stream the proposals read: deterministic, no seed (start picks the sequence)
+const rng = makeWeyl({ start: 1 })
 
 // a 4D periodic lattice, length 6 per axis, cold start (every link the identity)
 const lattice = makeSu2Lattice({ dim: 4, length: 6, hot: false, rng })
 
-// sample at inverse coupling beta. Each sweep proposes a small rotation on every link.
+// sweep at inverse coupling beta. Each sweep proposes a small rotation on every link, on a Weyl
+// schedule: a deterministic dynamics with a quasi-random schedule, not a Markov chain.
 for (let i = 0; i < 200; i++) {
   const accept = metropolisSweep({ lattice, beta: 2.3, eps: 0.3, rng })
   // accept is the acceptance rate, tune eps so it stays near 0.5
@@ -88,7 +90,7 @@ averagePlaquette({ lattice }) // near 1 in the ordered (weak-coupling) phase, ne
 creutzRatio({ lattice, r: 2, t: 2 }) // the string tension, positive and scale-stable means confinement
 ```
 
-A `hot: true` start randomizes every link (the disordered phase). A
+A `hot: true` start sets every link from the stream (the disordered phase). A
 `cold` start is the ordered vacuum. The phase the lattice settles into
 depends on beta, which is the whole point of the sweep.
 

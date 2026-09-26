@@ -53,7 +53,7 @@ function fermionBinding(
     },
     count,
     shift: 2 * T + depth + 1,
-    seed: 1,
+    start: 1,
   })
 
   return eigenpairs.reduce(
@@ -80,7 +80,7 @@ function singleParticleGround(): number {
     },
     count: 1,
     shift: 2 * T + V0 + 1,
-    seed: 1,
+    start: 1,
   })[0]!.energy
 }
 

@@ -9,7 +9,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { signedTone } from '@/code/tone/pack'
 import { torusGrid } from '@/code/substrate/torus-grid'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const L = 24
 const N = L * L * L
@@ -20,7 +20,7 @@ export function eternalBootstrap(): {
   irreversibleDecays: boolean
   reversibleExact: boolean
 } {
-  const rng = makeRng({ seed: 12345 })
+  const rng = makeWeyl({ start: 12345 })
   const rnd = (): number => rng.next()
   const nbCache: number[][] = torusGrid(3, L).map(row =>
     Array.from(row),

@@ -22,7 +22,7 @@ function lowestEigenpairs(
   V: Float64Array,
   t: number,
   k: number,
-  seedBase: number,
+  startBase: number,
 ): { energy: number; state: Float64Array }[] {
   const N = V.length
 
@@ -40,7 +40,7 @@ function lowestEigenpairs(
     },
     count: k,
     shift,
-    seed: seedBase,
+    start: startBase,
   })
 }
 

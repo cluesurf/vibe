@@ -9,7 +9,7 @@
 // rule's last freedom). Run: npx tsx code/experiment/p223-emergent-gauge.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { experiment } from '@/test/scaffold/suite'
@@ -35,7 +35,7 @@ export function emergentGauge(): {
   internalLocallyConserved: boolean
 } {
   const { N, off, adj } = graph()
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
 

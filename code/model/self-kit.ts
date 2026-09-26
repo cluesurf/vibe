@@ -3,8 +3,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { makeWeyl, weylCell } from '@/code/tool/weyl'
 
 const GOLDEN_SK = (1 + Math.sqrt(5)) / 2
 
@@ -14,7 +13,8 @@ export type Graph = {
   adj: Int32Array
   coords?: number[][]
 }
-export type Rng = { next: () => number }
+// the part of a Weyl stream (code/tool/weyl) the beats read: one value in [0, 1) per call
+export type Stream = { next: () => number }
 
 // adjacency-list graph (e.g. the horosphere) to a CSR graph
 export function toCSR(
@@ -224,7 +224,7 @@ export function beat(
   tone: Int8Array,
   g: Graph,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Stream,
   arrow: number,
   cohesion: number,
 ): void {
@@ -300,8 +300,9 @@ export function beat(
 
 // The DETERMINISTIC version of beat: the sweep start rotates by the golden ratio each beat, and every
 // probabilistic decision (the cohesion hop, the arrow pair creation, the pair sign) is decided by the
-// stateless hash hashRand(edge pointer, beat, salt) instead of an RNG. A fixed rule, no seed, no hidden
-// state, varying per edge and per beat exactly as the random version did. Callers pass the beat index.
+// Kronecker value weylCell(edge pointer, beat, salt) (code/tool/weyl) instead of a stream. A fixed rule, no
+// seed, no hidden state, varying per edge and per beat. Callers pass the beat index. Until 2026-09-25 the
+// value was the hash hashRand.
 export function beatHashed(
   tone: Int8Array,
   g: Graph,
@@ -354,7 +355,7 @@ export function beatHashed(
 
         const pHop = 0.1 + cohesion * Math.min(like, 4)
 
-        if (hashRand(p, beat, 1) < pHop) {
+        if (weylCell(p, beat, 1) < pHop) {
           tone[w] = a
           tone[v] = 0
           moved[v] = 1
@@ -362,8 +363,8 @@ export function beatHashed(
           break
         }
       } else if (a === 0 && b === 0) {
-        if (arrow > 0 && hashRand(p, beat, 2) < arrow) {
-          if (hashRand(p, beat, 3) < 0.5) {
+        if (arrow > 0 && weylCell(p, beat, 2) < arrow) {
+          if (weylCell(p, beat, 3) < 0.5) {
             tone[v] = 1
             tone[w] = -1
           } else {
@@ -622,7 +623,7 @@ export const countPlus = (tone: Int8Array, cells: number[]): number => {
 // cohesion into a self below percolation. Returns the final tones and the emergent self's cells.
 export function emergeSelf(
   g: Graph,
-  rng: Rng,
+  rng: Stream,
   moved: Uint8Array,
   opts?: { beats?: number; density?: number },
 ): { tone: Int8Array; cluster: number[] } {
@@ -643,9 +644,9 @@ export function emergeSelf(
   return { tone, cluster: largestPositiveCluster(tone, g) }
 }
 
-// The DETERMINISTIC version of emergeSelf: the initial low-density tone is drawn from the stateless
-// well-mixed hash hashRand(cell, 0, salt) (spatially decorrelated, like the random start but no seed),
-// and the dynamics use beatHashed. No randomness, no hidden state.
+// The beat-indexed version of emergeSelf: the initial low-density tone is read off the Kronecker values
+// weylCell(cell, 0, 7) (code/tool/weyl), a quasi-periodic fill at the stated density, and the dynamics use
+// beatHashed. No generator, no seed, no hidden state. Until 2026-09-25 the fill was the hash hashRand.
 export function emergeSelfHashed(
   g: Graph,
   moved: Uint8Array,
@@ -656,7 +657,7 @@ export function emergeSelfHashed(
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    const r = hashRand(i, 0, 7)
+    const r = weylCell(i, 0, 7)
 
     tone[i] = r < density ? 1 : r < density * 1.3 ? -1 : 0
   }
@@ -685,18 +686,18 @@ export function selfLeakAndFidelity(input: {
   const cohesion = input.cohesion ?? 0.22
   const settle = input.settleBeats ?? 50
   const moved = new Uint8Array(g.cellCount)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const { tone, cluster } = emergeSelf(g, rng, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
 
-  beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, cohesion)
+  beat(tl, g, moved, makeWeyl({ start: seed + 1 }), 0, cohesion)
 
   const leakPerBeat =
     before > 0 ? 1 - countPlus(tl, cluster) / before : 1
 
   const t2 = tone.slice()
-  const rng2 = makeRng({ seed: seed + 2 })
+  const rng2 = makeWeyl({ start: seed + 2 })
 
   for (let b = 0; b < settle; b++) {
     beat(t2, g, moved, rng2, 0, cohesion)

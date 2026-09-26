@@ -15,10 +15,10 @@
 import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { scaled } from '@/test/scaffold/scale'
+import { weylCell } from '@/code/tool/weyl'
 
 // full perception beat (share annihilates opposite, hop transports into empty). Charge flows freely,
 // including out of the clamped input cells, which are re-clamped to the signal after each beat (a source).
@@ -54,7 +54,7 @@ function fullBeat(
       // deterministic tie-break: a golden/silver-ratio (Weyl-equidistributed) criterion on the edge
       // index k AND the beat, so it hops on half the ties and VARIES beat to beat like the original,
       // with no randomness
-      if (hashRand(k, beat, 1) < 0.5) {
+      if (weylCell(k, beat, 1) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
@@ -197,7 +197,7 @@ function run(withDynamics: boolean, scale: number | undefined): {
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
       // deterministic well-mixed telegraph (hashRand flips ~6% per beat like the original), no seed
-      if (hashRand(s, t, 5) < 0.06) {
+      if (weylCell(s, t, 5) < 0.06) {
         sigs[s] = -sigs[s]!
       }
     }
@@ -239,7 +239,7 @@ function run(withDynamics: boolean, scale: number | undefined): {
   const perm = gSeries.slice()
 
   for (let i = perm.length - 1; i > 0; i--) {
-    const j = Math.floor(hashRand(i, 0, 9) * (i + 1))
+    const j = Math.floor(weylCell(i, 0, 9) * (i + 1))
     const tmp = perm[i]!
 
     perm[i] = perm[j]!
@@ -308,7 +308,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'a central hub comes to represent the self global state far above peripheral local regions, far above a time-shuffled baseline, and vanishes without the dynamics',
       metrics: {

@@ -17,7 +17,7 @@ import {
   toneOverlap,
   nearestPattern,
 } from '@/code/operator/hopfield'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -98,13 +98,13 @@ function recallRate(input: {
   const patterns = storedPatterns(
     patternCount,
     size,
-    makeRng({ seed: 1 }),
+    makeWeyl({ start: 1 }),
   )
 
   let hits = 0
 
   for (let m = 0; m < patternCount; m++) {
-    const rng = makeRng({ seed: 200 + m })
+    const rng = makeWeyl({ start: 200 + m })
     const cue = Int8Array.from(patterns[m]!)
 
     for (let i = 0; i < size; i++) {

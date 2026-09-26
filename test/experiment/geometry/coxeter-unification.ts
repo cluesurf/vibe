@@ -6,7 +6,7 @@
 // the heptagrid, the pentagrid, and the dodecagrid are one machine on different settings.
 // See the choosing-the-base analysis. Run: npx tsx code/experiment/p47-coxeter-unification.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
@@ -53,7 +53,7 @@ export function coxeterUnification(input: { seed: number }): Record<
     const aniso = lorentzIsotropy({
       substrate: g,
       samples: 3000,
-      rng: makeRng({ seed: input.seed }),
+      rng: makeWeyl({ start: input.seed }),
     })
 
     out[sym.name] = {

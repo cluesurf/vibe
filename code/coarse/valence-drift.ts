@@ -10,7 +10,7 @@ import {
   beat,
   largestPositiveCluster,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
 
@@ -59,7 +59,7 @@ export function valenceDrift(input: {
   const margin = input.margin ?? 5
   const cohesion = input.cohesion ?? 0.22
   const graph = flatGraph(L)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const moved = new Uint8Array(graph.cellCount)
   const { tone } = emergeSelf(graph, rng, moved, {
     beats: 60,

@@ -36,7 +36,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { makeGaugeLattice } from '@/code/dynamics/gauge-lattice'
 import {
   HadronCorrelators,
@@ -137,7 +137,7 @@ let free: Spectrum | undefined
 // The ensemble is expensive and all three experiments read it, so it is built once per process.
 function hadronSamples(): HadronCorrelators[] {
   if (interactingSamples === undefined) {
-    const rng = makeRng({ seed: 840 })
+    const rng = makeWeyl({ start: 840 })
     const lattice = makeGaugeLattice({
       group: 'su3',
       lengths: [12, 12, 12, 16],
@@ -174,7 +174,7 @@ function freeSpectrum(): Spectrum {
       group: 'su3',
       lengths: [8, 8, 8, 64],
       start: 'cold',
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
     const correlators = measureHadronCorrelators({
       lattice,

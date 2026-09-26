@@ -2,6 +2,12 @@
 // CURRENT (partially updated) configuration, so earlier updates in the sweep
 // influence later ones. This realizes "no global clock, only local causal
 // coordination".
+//
+// Two visiting orders. 'sequential' visits 0, 1, 2, ... every beat. 'weyl' visits a
+// permutation that changes with the beat, the Fisher-Yates shuffle driven by the
+// Weyl stream at start = beat (code/tool/weyl), so the order is a fixed function of
+// the beat and nothing else. Until 2026-09-25 the second order was 'random', a
+// shuffle from a seeded generator carried in the step input.
 
 import { Rule, LocalMap } from '@/code/rule/rule'
 import { adjacencyOf } from '@/code/tool/substrate'
@@ -10,46 +16,26 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { Rng } from '@/code/tool/rng'
-
-// Fisher-Yates permutation of [0, size) using the seeded rng.
-function randomOrder(input: { size: number; rng: Rng }): number[] {
-  const order: number[] = []
-
-  for (let i = 0; i < input.size; i++) {
-    order.push(i)
-  }
-
-  for (let i = input.size - 1; i > 0; i--) {
-    const j = input.rng.nextInt({ max: i + 1 })
-    const a = order[i] ?? 0
-    const b = order[j] ?? 0
-
-    order[i] = b
-    order[j] = a
-  }
-
-  return order
-}
+import { weylPermutation } from '@/code/tool/weyl'
 
 export function asynchronousRule(input: {
   name: string
   local: LocalMap
-  order: 'sequential' | 'random'
+  order: 'sequential' | 'weyl'
 }): Rule {
   return {
     form: 'rule',
     name: input.name,
     scheme: 'asynchronous',
-    step({ substrate, configuration, rng }) {
+    step({ substrate, configuration, beat }) {
       // Mutate a single clone in place, so neighborhood reads see the running
       // state of the sweep.
       const next = cloneConfiguration(configuration)
       const adjacency = adjacencyOf({ substrate })
 
       const order =
-        input.order === 'random'
-          ? randomOrder({ size: configuration.size, rng })
+        input.order === 'weyl'
+          ? weylPermutation({ size: configuration.size, start: beat })
           : Array.from({ length: configuration.size }, (_value, i) => i)
 
       for (const element of order) {

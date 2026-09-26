@@ -24,8 +24,8 @@
 
 import { Will, cloneWill, makeWill } from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { blockSlots, goldenShift } from '@/code/coarse/screen'
+import { weylCell } from '@/code/tool/weyl'
 
 export type Profile = {
   readonly kind: 'ramp' | 'step' | 'uniform'
@@ -86,8 +86,8 @@ export function gradientStart(input: {
     for (let d = 0; d < degree; d++) {
       const i = cell * degree + d
 
-      if (hashRand(i, 0, salt) < active) {
-        will.data[i] = hashRand(i, 1, salt) < 0.5 ? 1 : -1
+      if (weylCell(i, 0, salt) < active) {
+        will.data[i] = weylCell(i, 1, salt) < 0.5 ? 1 : -1
       }
     }
   }

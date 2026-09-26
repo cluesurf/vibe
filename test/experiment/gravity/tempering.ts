@@ -7,7 +7,7 @@
 // layered and a manifold mode at the transition beta). See p2-p6-optimal-path.md.
 // Run: npx tsx code/experiment/p2-tempering.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { smearedBenincasaDowker } from '@/code/dynamics/action'
 import { parallelTempering } from '@/code/dynamics/parallel-tempering'
 import { orderStatistics } from '@/code/measure/order-stats'
@@ -40,7 +40,7 @@ export default experiment({
       sweeps: 150,
       movesPerSweep: 15,
       observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
-      rng: makeRng({ seed: 21 }),
+      rng: makeWeyl({ start: 21 }),
     })
 
     let peakBeta = 0

@@ -7,7 +7,7 @@
 //   C5 gauge: the massless plaquette is gauge-invariant, a Proca mass term m^2 A^2 is NOT (caught).
 // Run: npx tsx code/experiment/p252-controls-battery.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -136,7 +136,7 @@ export function controlsBattery(): {
   const Lg = 8,
     wrap = (x: number): number => ((x % Lg) + Lg) % Lg
 
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const rnd = (): number => rng.next() * 2 * Math.PI
   const Ax = Array.from({ length: Lg }, () =>
     Array.from({ length: Lg }, () => rnd()),

@@ -140,8 +140,9 @@ What it handles,
 - Exact and nearest (noisy) recall, with a don't-care mask for partial
   queries.
 - A CPU ground truth and a GPU parallel realization that agree exactly.
-- Deterministic, the words are a fixed hash and the noisy-recall
-  corruption uses a seeded rng, never `Math.random`.
+- Deterministic, the words are a fixed function of their index and the
+  noisy-recall corruption reads the Kronecker stream of `code/tool/weyl`
+  (`makeWeyl({ start })`), no seed and never `Math.random`.
 
 The distinctions,
 

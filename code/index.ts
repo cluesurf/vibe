@@ -6,7 +6,7 @@
 export * from './model/vibe'
 
 // core
-export * from './tool/rng'
+export * from './tool/weyl'
 export * from './tool/bitset'
 export * from './tool/embedding'
 export * from './tool/graph'

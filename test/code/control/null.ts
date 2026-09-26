@@ -11,7 +11,7 @@ import {
 } from '@/code/control/null'
 import { squareMesh } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern, charge } from '@/code/tone/will'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // the sorted multiset of an Int8Array, the invariant a permutation must preserve.
 function multiset(data: Int8Array): number[] {
@@ -79,7 +79,7 @@ suite('control/null: shuffledToneField', [
     'the shuffled field preserves the multiset and total charge',
     () => {
       const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
-      const out = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
+      const out = shuffledToneField({ tone, rng: makeWeyl({ start: 5 }) })
 
       equal(
         JSON.stringify(multiset(out)),
@@ -95,8 +95,8 @@ suite('control/null: shuffledToneField', [
   ),
   check('shuffledToneField is deterministic in its rng', () => {
     const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
-    const a = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
-    const b = shuffledToneField({ tone, rng: makeRng({ seed: 5 }) })
+    const a = shuffledToneField({ tone, rng: makeWeyl({ start: 5 }) })
+    const b = shuffledToneField({ tone, rng: makeWeyl({ start: 5 }) })
 
     equal(JSON.stringify(Array.from(a)), JSON.stringify(Array.from(b)))
   }),

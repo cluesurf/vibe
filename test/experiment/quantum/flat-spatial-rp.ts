@@ -12,7 +12,7 @@
 // MASSLESS / critical regime, which is what a sharp spatial-RP (and emergent-Lorentz) test requires.
 // Run: npx tsx code/experiment/p134-flat-spatial-rp.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
@@ -25,7 +25,7 @@ function beat(
   tone: Int8Array,
   L: number,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrow: number,
 ): void {
   conservingChainSweep({ tone, length: L, moved, rng, arrow })
@@ -64,7 +64,7 @@ export function flatSpatialRP(input?: {
   const measure = (arrow: number): { c: number[]; density: number } => {
     const tone = new Int8Array(L)
     const moved = new Uint8Array(L)
-    const rng = makeRng({ seed: 13 })
+    const rng = makeWeyl({ start: 13 })
 
     for (let i = 0; i < L; i++) {
       tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

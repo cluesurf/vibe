@@ -26,7 +26,7 @@ import { makeWill, Will } from '@/code/tone/will'
 import { Collision, headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { pairGasFill } from '@/code/measure/density-front'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 const PAIR_FILL = 0.3
 const BEATS = 60
@@ -88,7 +88,7 @@ function drudeGamma(input: { side: number; fraction: number }): {
   const mask = new Uint8Array(mesh.cellCount)
 
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    if (hashRand(cell, 0, MASK_SALT) < fraction) {
+    if (weylCell(cell, 0, MASK_SALT) < fraction) {
       mask[cell] = 1
     }
   }

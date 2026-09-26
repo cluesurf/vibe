@@ -13,24 +13,24 @@ gauge/rg-unification,electroweak,GUT U(1) normalization,5/3,derived,exact,pass,p
 gauge/mass-hierarchy,electroweak,charged fermions,9,derived,exact,pass,phys:gut,derived,e mu tau u c t d s b
 gauge/mass-hierarchy,electroweak,top-over-electron mass span,~337700,measured,order-of-magnitude,context,PDG-2024,2026-06-24,about 5.5 decades; geometry gives the pattern not the value
 gauge/flavor-mixing-pattern,quark mixing,Cabibbo |V_us|,0.22501,measured,0.03,approx,PDG-2024,2026-06-24,vs Gatto relation sqrt(m_d/m_s) ~ 0.217 (phys:gatto)
-gauge/exceptional-jordan-generations,electroweak,Albert algebra J3(O) dimension,27,derived,exact,open,math:quaternions-octonions,derived,structure forced; identification with 3 generations is open
+gauge/exceptional-jordan-generations,electroweak,Albert algebra J3(O) dimension,27,derived,exact,open,math:quaternions-octonions,derived,structure forced. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is open
 gauge/exceptional-jordan-generations,electroweak,naive piece dimension vs generation,8 vs 16,derived,exact,honest-negative,vibe,derived,the naive identification fails dimensionally
-relativity/lorentz-violation-scale,relativity,D4 anisotropy leading order,4,derived,>cubic+1.5,pass,vibe,derived,vs cubic order 2 (control); violation high-order, below bounds
+relativity/lorentz-violation-scale,relativity,D4 anisotropy leading order,4,derived,>cubic+1.5,pass,vibe,derived,"vs cubic order 2 (control); violation high-order, below bounds"
 relativity/discreteness-signature,relativity,dispersion deviation order,2,derived,1.5 to 2.5,pass,vibe,derived,leading correction to the linear dispersion
 geometry/dimension,geometry,Myrheim-Meyer dimension,2,known,0.5,reproduced,phys:dimension,derived,causal-set dimension estimator in 2D
-geometry/self-occlusion-fraction,geometry,perceived fraction,3/4,derived,exact,pass,vibe,derived,3 of 4 dimensions; central-symmetry control gives 1/2
+geometry/self-occlusion-fraction,geometry,visible fraction of dimensions,3/4,derived,exact,pass,vibe,derived,"3 of 4 dimensions of the bulk lie in the 3D cusp, and the 24 directions give 1/2 (E-GMT-0023)"
 gravity/gr-einstein-equations,gravity,area-law exponent,2,derived,0.3,reproduced,phys:ryu-takayanagi,derived,entanglement entropy scales as area
 gravity/gravity-boundary,gravity,Newtonian potential exponent,-1,known,convergent,reproduced,vibe,derived,1/r potential recovered
 gravity/gr-gravitational-waves,gravity,chirp exponent,-3/8,known,,circular-L0,vibe,derived,value equals -3/8 but the waveform and Peters decay are hardcoded; L0 circular, not evidence (flagged by verification)
 gravity/trace-singlet,gravity,F4 group order,1152,derived,exact,pass,math:lie-groups,derived,symmetry of the 24-cell
 gravity/trace-singlet,gravity,D4 root count,24,derived,exact,pass,math:lie-groups,derived,the 24 directions
-holography/rt-geodesic-3434,holography,warp factor,18.2787,derived,convergent,pass,vibe,derived,growth ratio of the {3,4,3,4} bulk
-holography/rt-geodesic-3434,holography,Ryu-Takayanagi ratio,1.0,derived,convergent,reproduced,phys:ryu-takayanagi,derived,bulk radius over log-base-warp of cell count
-holography/holographic-3434,holography,boundary dominance,0.945 ((warp-1)/warp),derived,,pass,vibe,derived,almost all cells near the boundary
+holography/rt-geodesic-3434,holography,warp factor,18.2787,derived,convergent,pass,vibe,derived,"growth ratio of the {3,4,3,4} bulk"
+holography/rt-geodesic-3434,holography,Ryu-Takayanagi ratio,1.0,derived,convergent,reproduced,phys:ryu-takayanagi,derived,bulk radius over log-base-warp of dock count
+holography/holographic-3434,holography,boundary dominance,0.945 ((warp-1)/warp),derived,,pass,vibe,derived,0.945 of the docks in the outer shell
 foundations/octonion-base-generator,foundations,octonion dimension,8,derived,exact,pass,math:Hurwitz,derived,maximal normed division algebra
 foundations/octonion-base-generator,foundations,sedenion dimension (has zero divisors),16,derived,exact,pass,math:Hurwitz,derived,the control: 8 is the ceiling
 foundations/octonion-base-generator,foundations,D4 root count,24,derived,exact,pass,math:lie-groups,derived,= 24-cell vertices
 foundations/octonion-base-generator,foundations,triality order,3,derived,exact,pass,math:quaternions-octonions,derived,Spin(8) threefold
 foundations/gauge-group-from-octonions,foundations,Standard Model gauge group dimension,12,derived,exact,pass,vibe,derived,su3+su2+u1 = 8+3+1 = 12 (with G2 14 alongside); NOT SO(10) 45 (corrected by verification)
 cosmology/expansion-rate,cosmology,hyperbolic expansion ratio,>1,derived,,reproduced,vibe,derived,exponential growth (the wake = expansion)
-selves (all),model,model-level dynamics,n/a,model,varies,n/a,vibe,derived,freedom/alignment/selves experiments test the model not external physics numbers
+SLF arena (all),model,model-level dynamics,n/a,model,varies,n/a,vibe,derived,the freedom and alignment experiments of the SLF arena measure the model's own dynamics and compare with no external physics number

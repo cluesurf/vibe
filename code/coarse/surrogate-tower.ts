@@ -45,7 +45,7 @@ export function surrogateTower(input: {
   const test = labels.slice(cut)
   const shuffledTrain = timeShuffle({
     trajectory: train,
-    seed: shuffleSeed,
+    start: shuffleSeed,
   })
 
   const out: TowerLevel[] = []

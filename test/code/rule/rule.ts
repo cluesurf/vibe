@@ -11,7 +11,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 import { Rule, runRule } from '@/code/rule/rule'
 import { synchronousRule } from '@/code/rule/synchronous'
 import { Substrate } from '@/code/tool/substrate'
@@ -51,7 +50,6 @@ suite('rule/rule: runRule applies step exactly `beats` times', [
       substrate: graph,
       configuration: start,
       beats: 5,
-      rng: makeRng({ seed: 1 }),
     })
 
     equal(
@@ -73,7 +71,6 @@ suite('rule/rule: runRule applies step exactly `beats` times', [
       substrate: graph,
       configuration: start,
       beats: 0,
-      rng: makeRng({ seed: 1 }),
     })
 
     equal(
@@ -113,7 +110,6 @@ suite('rule/rule: runRule carries a rewritten substrate forward', [
         substrate: graph,
         configuration: start,
         beats: 2,
-        rng: makeRng({ seed: 1 }),
       })
 
       equal(

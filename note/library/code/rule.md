@@ -10,7 +10,7 @@ The base-dynamics layer, the law the whole model obeys. It sits between the tone
 | `collision.ts` | `Collision`, `pairCollision`, `PAIR_FORWARD`, `PAIR_INVERSE`, `passThrough`, `momentumRotate2D`, `bindAndMove`, `leakyConfine`, `headOnRotate`, `stickyReflect` | the shipped local in-place collisions, the committed 9-state pair table plus variants |
 | `rule.ts` | `Rule`, `RuleStepInput`, `RuleStepOutput`, `LocalMap`, `runRule` | the generic rule interface over a `Substrate` and `Configuration` |
 | `synchronous.ts` | `synchronousRule` | a global synchronous rule from a local map |
-| `asynchronous.ts` | `asynchronousRule` | one-element-at-a-time updates, sequential or random order |
+| `asynchronous.ts` | `asynchronousRule` | one-element-at-a-time updates, sequential or 'weyl' order (a permutation read from the Kronecker stream at start = beat, a fixed function of the beat; it was 'random' until 2026-09-25) |
 | `reversible.ts` | `reversibleEvenOdd` | the even/odd sublattice reversible scheme |
 | `rewrite.ts` | `rewriteRule` | a substrate-rewriting rule, one match applied per beat |
 | `channel.ts` | `channelCollision`, `slotReversal` | dispatch a wall collision on wall cells, a bulk collision elsewhere |
@@ -40,7 +40,7 @@ A `Collision` is `(slots: Int8Array, base: number, degree: number) => void`, a l
 
 ## Alternative rules and operations
 
-- `rule.ts` is the generic interface for rules that act on a `Substrate` plus a `Configuration`, `runRule({ rule, substrate, configuration, beats, rng })` drives it. `synchronousRule`, `asynchronousRule`, `reversibleEvenOdd`, and `rewriteRule` construct rules of each scheme from a `LocalMap` or match/apply pair.
+- `rule.ts` is the generic interface for rules that act on a `Substrate` plus a `Configuration`, `runRule({ rule, substrate, configuration, beats })` drives it (the step input has carried no random source since 2026-09-25). `synchronousRule`, `asynchronousRule`, `reversibleEvenOdd`, and `rewriteRule` construct rules of each scheme from a `LocalMap` or match/apply pair.
 - `symmetry.ts` gives the discrete symmetry operations on a `Will`, `chargeConjugate` negates every tone, `timeReverse` reverses velocities, `parityReflect` reflects one axis with direction remapping, and `chargeParityTime` composes all three.
 - `viscous-collision.ts` and `perception-permutation.ts` are the hydrodynamic and perception-matching variants, both reversible pairwise sweeps.
 

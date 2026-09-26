@@ -21,10 +21,44 @@
 import { Mesh } from '@/code/tool/mesh'
 import { Collision, turningWeave } from '@/code/rule/collision'
 import { collide, stream, streamInverse } from '@/code/rule/lattice-gas'
-import { d4BoxMesh } from '@/code/substrate/d4-box'
+import { d4BoxMesh } from '@/code/substrate/d4-box-integer'
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
-const GOLDEN = (Math.sqrt(5) - 1) / 2
+
+// The start of the grid moves: an integer Weyl sequence. Link slot i = 24 x + d gets
+// w = (i + 1) * 40503 mod 2^16, and the move with index floor(w * count / 2^16), an exact shift. 40503 is
+// the odd integer nearest 2^16 / phi (Fibonacci hashing), so w visits all 2^16 residues before repeating
+// and consecutive slots spread like the golden Weyl sequence, with no real number (E-MTH-0027, replacing
+// the golden-ratio start of 2026-09-24).
+export const LINK_START_RATE = 40503
+
+// The start family (E-MTH-0028): member k adds the phase k * 27145 mod 2^16 to every slot's w, 27145 the odd
+// integer nearest 2^16 (sqrt 2 - 1) = 27145.9 (the silver Weyl rate), so the members' phases spread over the
+// period with no real number. Member 0 is the committed start, exactly as above.
+export const LINK_START_OFFSET_RATE = 27145
+
+export function linkStart(slot: number, count: number, offset = 0): number {
+  const w = (Math.imul(slot + 1, LINK_START_RATE) + Math.imul(offset, LINK_START_OFFSET_RATE)) & 0xffff
+
+  return (w * count) >>> 16
+}
+
+// the start a weave is built with when its caller names none: one move index per link slot
+export type LinkStartOf = (slot: number, count: number) => number
+
+const COMMITTED_START: LinkStartOf = (slot, count) => linkStart(slot, count)
+let defaultStart: LinkStartOf = COMMITTED_START
+
+// Replace the start every later makeVibeWeave uses when its caller names none, and return the one it replaced.
+// No argument restores the committed start. This is the measurement's handle (E-MTH-0028 reruns whole
+// experiments over a family of starts without editing them); the rule itself never calls it.
+export function useLinkStart(start?: LinkStartOf): LinkStartOf {
+  const previous = defaultStart
+
+  defaultStart = start ?? COMMITTED_START
+
+  return previous
+}
 
 export type GridMoves = {
   // act[g][p] is the image of point p = x + 3 y under move g
@@ -102,7 +136,8 @@ export type VibeState = {
   readonly flow: Int32Array
 }
 
-export function makeVibeWeave(input: { side: number }): VibeWeave {
+export function makeVibeWeave(input: { side: number; start?: LinkStartOf }): VibeWeave {
+  const startOf = input.start ?? defaultStart
   const mesh = d4BoxMesh({ side: input.side })
   const opposite = Array.from({ length: 24 }, (_, d) =>
     mesh.opposite(d),
@@ -125,9 +160,7 @@ export function makeVibeWeave(input: { side: number }): VibeWeave {
         continue
       }
 
-      const g = Math.floor(
-        (((x * 24 + d + 1) * GOLDEN * 7.31) % 1) * moves.act.length,
-      )
+      const g = startOf(x * 24 + d, moves.act.length)
       const y = mesh.neighbour(x, d)
 
       links[x * 24 + d] = g

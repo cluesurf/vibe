@@ -14,7 +14,7 @@ import {
   ternaryVector,
   hammingFraction,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -30,7 +30,7 @@ export function mirrorSymmetry(input: { n: number; trials: number }): {
 
   for (let k = 0; k < input.trials; k++) {
     const self = makeSelf({ n, patterns: 2, seed: 21000 + k })
-    const urge = ternaryVector(n, makeRng({ seed: 22000 + k }))
+    const urge = ternaryVector(n, makeWeyl({ start: 22000 + k }))
 
     const out = settle({
       patterns: self,

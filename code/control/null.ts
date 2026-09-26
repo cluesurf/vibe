@@ -1,39 +1,41 @@
 import { Will, cloneWill, charge } from '@/code/tone/will'
-import { makeRng } from '@/code/tool/rng'
+import { weylPermutation } from '@/code/tool/weyl'
 
 // Controls, the baselines a real result must beat. The audit found that the gap
 // between a deep result and a circular one is almost always the control, so they
 // are a first-class part of the library.
+//
+// Every null here permutes by a deterministic Weyl permutation (code/tool/weyl), not
+// by draws. A null rate is therefore computed on a fixed quasi-random set of
+// permutations, the same set on every run, and a claim that beats it beats that set.
+// Until 2026-09-25 the permutations came from a seeded generator.
 
-// The random null: the same tone multiset, reshuffled, so the structure is
-// destroyed while the histogram and the total charge are preserved. A measure
-// that scores high on a real pattern and near zero here is measuring structure,
-// not just the tone counts.
-export function randomNull(will: Will, seed: number): Will {
+// The shuffle null: the same tone multiset, permuted by the Weyl permutation at
+// `start`, so the structure is destroyed while the histogram and the total charge
+// are preserved. A measure that scores high on a real pattern and near zero here is
+// measuring structure, not just the tone counts. The name is kept for its callers.
+export function randomNull(will: Will, start: number): Will {
   const shuffled = cloneWill(will)
   const data = shuffled.data
-  const rng = makeRng({ seed })
+  const order = weylPermutation({ size: data.length, start })
 
-  for (let index = data.length - 1; index > 0; index--) {
-    const swap = rng.nextInt({ max: index + 1 })
-    const held = data[index] ?? 0
-
-    data[index] = data[swap] ?? 0
-    data[swap] = held
+  for (let index = 0; index < data.length; index++) {
+    data[index] = will.data[order[index] ?? 0] ?? 0
   }
 
   return shuffled
 }
 
-// True when a will and its random null carry the same total charge, which the
-// shuffle must preserve since it only permutes the slots.
-export function preservesCharge(will: Will, seed: number): boolean {
-  return charge(randomNull(will, seed)) === charge(will)
+// True when a will and its shuffle null carry the same total charge, which the
+// permutation must preserve since it only moves the slots.
+export function preservesCharge(will: Will, start: number): boolean {
+  return charge(randomNull(will, start)) === charge(will)
 }
 
-// The spatial-shuffle null for a tone field: a fresh Fisher-Yates permutation of the cells, so the tone
-// multiset (and total charge) is preserved while all spatial structure is destroyed. The control a coarse-
-// graining coherence claim must beat to show it measures structure rather than plain averaging.
+// The spatial-shuffle null for a tone field: a Fisher-Yates permutation of the cells driven by the
+// caller's Weyl stream, so the tone multiset (and total charge) is preserved while all spatial structure is
+// destroyed. The control a coarse-graining coherence claim must beat to show it measures structure rather
+// than plain averaging.
 export function shuffledToneField(input: {
   tone: Int8Array
   rng: { next: () => number }

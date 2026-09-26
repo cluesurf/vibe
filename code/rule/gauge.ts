@@ -1,11 +1,20 @@
 // Gauge rule (P8): carry a Z_q phase on each directed link and update it by a
 // local loop (plaquette) move toward lower Wilson action. The Rule interface
 // acts on a Configuration, so the gauge field is held by closure and each step
-// performs one Metropolis sweep that MUTATES field.link in place (acceptable for
+// performs one Metropolis-shaped sweep that MUTATES field.link in place (acceptable for
 // this research tool). The configuration passes through unchanged.
+//
+// The sweep reads no random number. The proposal direction and the acceptance
+// threshold of link i at beat t are the Kronecker values weylCell(i, t, 0) and
+// weylCell(i, t, 1) (code/tool/weyl), so the rule is a fixed function of the field and
+// the beat: a deterministic dynamics with a quasi-random schedule, which approaches
+// the Boltzmann weight exp(-beta S) in the quasi-Monte Carlo sense rather than as a
+// Markov chain. Until 2026-09-25 both numbers came from a seeded generator in the
+// step input.
 
 import { Rule } from '@/code/rule/rule'
 import { GaugeField, linkPhase } from '@/code/tool/gauge-field'
+import { weylCell } from '@/code/tool/weyl'
 
 // A triangle plaquette through an edge (a -> b): a third vertex c adjacent to
 // both endpoints. The loop is a -> b -> c -> a. Its Wilson action term is
@@ -99,7 +108,7 @@ export function gaugeRule(input: {
     name: input.name,
     // One link at a time, Monte Carlo style: the asynchronous scheme.
     scheme: 'asynchronous',
-    step({ configuration, rng }) {
+    step({ configuration, beat }) {
       // One sweep: try a +/-1 move on every link, accept by Metropolis.
       for (let i = 0; i < field.link.length; i++) {
         const triangles = edgeTriangles[i]
@@ -116,7 +125,7 @@ export function gaugeRule(input: {
         }
 
         // Propose link[i] -> link[i] +/- 1 (mod q).
-        const step = rng.next() < 0.5 ? -1 : 1
+        const step = weylCell(i, beat, 0) < 0.5 ? -1 : 1
         const current = field.link[i] ?? 0
         const proposed = (((current + step) % q) + q) % q
 
@@ -134,7 +143,7 @@ export function gaugeRule(input: {
         // Accept with min(1, exp(-beta * deltaS)); otherwise revert.
         if (
           deltaAction > 0 &&
-          rng.next() >= Math.exp(-input.beta * deltaAction)
+          weylCell(i, beat, 1) >= Math.exp(-input.beta * deltaAction)
         ) {
           field.link[i] = current
         }

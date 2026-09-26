@@ -16,7 +16,7 @@ import {
   makeLazyEngine,
   type LazyCell,
 } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -67,7 +67,7 @@ export function lazyNeighbors(input?: { n?: number }): {
   // (2) RANDOM ACCESS, walk to a deep cell via a random sequence of face steps, then compute its neighbors
   // on demand. Carry only a couple of matrices, never a graph. The cell we came from must be a neighbor.
   const eng = makeLazyEngine()
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
   const depth = 9
 
   let prev: LazyCell | null = null

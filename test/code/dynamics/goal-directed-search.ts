@@ -9,7 +9,7 @@ import {
   solveGoalDirected,
   solveUndirected,
 } from '@/code/dynamics/goal-directed-search'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const target = (k: number): Int8Array =>
   Int8Array.from({ length: k }, (_, i) => (i % 2) as 0 | 1)
@@ -21,7 +21,7 @@ suite('dynamics/goal-directed-search: convergence', [
       const K = 20
       const steps = solveGoalDirected({
         target: target(K),
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       ok(steps < 1000 * K, 'terminates before the guard')
@@ -35,12 +35,12 @@ suite('dynamics/goal-directed-search: convergence', [
       const K = 8
       const directed = solveGoalDirected({
         target: target(K),
-        rng: makeRng({ seed: 2 }),
+        rng: makeWeyl({ start: 2 }),
       })
 
       const undirected = solveUndirected({
         target: target(K),
-        rng: makeRng({ seed: 2 }),
+        rng: makeWeyl({ start: 2 }),
         budget: 1 << 16,
       })
 
@@ -64,11 +64,11 @@ suite('dynamics/goal-directed-search: determinism', [
     equal(
       solveGoalDirected({
         target: target(K),
-        rng: makeRng({ seed: 5 }),
+        rng: makeWeyl({ start: 5 }),
       }),
       solveGoalDirected({
         target: target(K),
-        rng: makeRng({ seed: 5 }),
+        rng: makeWeyl({ start: 5 }),
       }),
       'reproducible',
     )

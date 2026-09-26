@@ -9,9 +9,9 @@
 // population ADAPTS when the environment changes (open-ended), (3) variation is necessary (zero mutation
 // stalls). Run: npx tsx code/experiment/p161-evolution.ts
 
-import { makeHashRng } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeWeyl } from '@/code/tool/weyl'
 
 type Rng = { next: () => number }
 
@@ -115,7 +115,7 @@ export function evolution(input?: {
   const m = input?.m ?? 200
   const G = input?.generations ?? 60
   const mu = input?.mu ?? 0.03
-  const rng = makeHashRng({ salt: 0 })
+  const rng = makeWeyl({ start: 0 })
   const target = randomCode(m, rng)
 
   const initPop = (): Int8Array[] =>

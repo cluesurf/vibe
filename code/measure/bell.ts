@@ -4,7 +4,7 @@
 // superdeterminism (settings determined by the hidden state). With
 // settingCorrelation = 0 and any local model, |S| <= 2 (the classical bound).
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 
 // A hidden ontological value carried by the substrate.
 export type Lambda = number
@@ -52,7 +52,7 @@ function chooseSetting(input: {
   lambda: Lambda
   settingCorrelation: number
   side: 'a' | 'b'
-  rng: Rng
+  rng: Weyl
 }): number {
   const [first, second] = input.options
 
@@ -76,13 +76,13 @@ function chooseSetting(input: {
 // correlators E(a,b), E(a,b'), E(a',b), E(a',b'). S = E(a,b) - E(a,b') +
 // E(a',b) + E(a',b').
 export function chsh(input: {
-  drawHidden: (input: { rng: Rng }) => Lambda
+  drawHidden: (input: { rng: Weyl }) => Lambda
   settingCorrelation: number
   outcomeA?: (input: { angle: number; lambda: Lambda }) => -1 | 1
   outcomeB?: (input: { angle: number; lambda: Lambda }) => -1 | 1
   angles: { a: number; aPrime: number; b: number; bPrime: number }
   trials: number
-  rng: Rng
+  rng: Weyl
 }): {
   s: number
   correlators: {
@@ -180,7 +180,7 @@ export function chshShared(input: {
   trials: number
   seed: number
 }): number {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const sum = [0, 0, 0, 0] // cells (ai*2+bi)
   const count = [0, 0, 0, 0]
 

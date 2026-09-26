@@ -3,12 +3,12 @@
 // renormalization move and the testbed's nesting operator.
 
 import { Poset, subPoset } from '@/code/tool/poset'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 export function decimate(input: {
   poset: Poset
   keepProbability: number
-  rng: Rng
+  rng: Weyl
 }): Poset {
   const survivors: number[] = []
 

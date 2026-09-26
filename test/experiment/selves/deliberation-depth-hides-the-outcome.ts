@@ -20,7 +20,7 @@ import {
   hammingFraction,
   ternaryVector,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -77,7 +77,7 @@ export function depthHidesOutcome(input: {
   for (let k = 0; k < input.trials; k++) {
     // a richer self (more stored patterns) deliberates to varying depths across urges
     const self = makeSelf({ n, patterns: 3, seed: 200 + k })
-    const urge = ternaryVector(n, makeRng({ seed: 7000 + k }))
+    const urge = ternaryVector(n, makeWeyl({ start: 7000 + k }))
     const guess = oneStepGuess(urge)
 
     const r = settle({

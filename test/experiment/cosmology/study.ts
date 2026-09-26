@@ -6,7 +6,7 @@
 // Kleitman-Rothschild order. See note/questions/p2-dynamics-spec.md.
 // Run: npx tsx code/experiment/p2-study.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   benincasaDowkerAction,
   smearedBenincasaDowker,
@@ -39,7 +39,7 @@ function runConfig(input: {
     action: input.action,
     beta: input.beta,
     steps: STEPS,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
   })
 
@@ -48,7 +48,7 @@ function runConfig(input: {
     action: input.action,
     beta: input.beta,
     steps: STEPS,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).mmDimension,
   })
 
@@ -74,7 +74,7 @@ export default experiment({
       poset: sprinkleMinkowski({
         dimension: 2,
         count: 48,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       }),
     }).heightRatio
 

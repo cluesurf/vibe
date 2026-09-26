@@ -10,18 +10,18 @@
 import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 function fullBeat(
   tone: Int8Array,
   eu: Int32Array,
   ev: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
 ): void {
   moved.fill(0)
 
@@ -154,7 +154,7 @@ function selfModelAt(
   }
 
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const T = 200
   const sigs = new Array<number>(K).fill(1)
   const gSeries: number[] = []

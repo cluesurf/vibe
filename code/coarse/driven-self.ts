@@ -5,7 +5,7 @@
 // material for a predictive mutual-information measurement. Reuses the self-kit engine.
 
 import { flatGraph, beat } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 export type DrivenSelfSeries = {
   // mean interior tone each beat (the self's inner state).
@@ -73,7 +73,7 @@ export function drivenSelf(input: {
 
   const tone = new Int8Array(graph.cellCount)
   const moved = new Uint8Array(graph.cellCount)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const signals = new Array<number>(sectorCount).fill(1)
   const interior: number[] = []
   const environment: number[] = []

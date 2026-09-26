@@ -5,7 +5,7 @@
 // Run: npx tsx code/experiment/p213-universality.ts
 
 import { margolusStep } from '@/code/operator/margolus-billiard'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -50,7 +50,7 @@ export function universality(): {
 
   const ballistic = displacement > 6 // moved a clear distance in 16 steps (a propagating signal)
   // (2) exact reversibility: random field, forward T then backward T = identity
-  const rng = makeRng({ seed: 17 })
+  const rng = makeWeyl({ start: 17 })
   const rnd = (): number => rng.next()
   const h = new Uint8Array(L * L)
 

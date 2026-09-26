@@ -12,7 +12,7 @@
 // the remaining integration. See note/roadmap.md.
 // Run: npx tsx code/experiment/p55-one-rule-all-sectors.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import {
   Graph,
@@ -39,7 +39,7 @@ function lightCone(
   seed: number,
 ): { holds: boolean; propagated: boolean } {
   const n = g.size
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng })
   const center = mostConnectedNode(g.neighbors)
   const dist = neighborDistances({
@@ -103,7 +103,7 @@ export function oneRuleAllSectors(input: {
     count: input.count,
     radius: 7,
     connectThreshold: 3.0,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const g = largestComponent(raw)

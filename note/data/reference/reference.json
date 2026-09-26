@@ -8,6 +8,7 @@
     "PDG-2024": "Particle Data Group (Navas et al.), Review of Particle Physics, Phys. Rev. D 110, 030001 (2024). https://pdg.lbl.gov",
     "NuFIT-6.0": "Esteban, Gonzalez-Garcia, Maltoni, Schwetz et al., NuFIT 6.0, JHEP 12 (2024) 216; arXiv:2410.05380. http://www.nu-fit.org",
     "Planck-2018": "Planck Collaboration (Aghanim et al.), Planck 2018 results VI, A&A 641, A6 (2020); arXiv:1807.06209.",
+    "SH0ES-2022": "Riess et al. (SH0ES), A Comprehensive Measurement of the Local Value of the Hubble Constant with 1 km/s/Mpc Uncertainty, ApJ Lett. 934, L7 (2022); arXiv:2112.04510.",
     "math:Hurwitz": "Hurwitz (1898); Bott-Milnor, Kervaire (1958). Normed division algebras only in dims 1,2,4,8.",
     "math:polytopes": "Coxeter, Regular Polytopes, 3rd ed., Dover (1973).",
     "math:quaternions-octonions": "Conway & Smith, On Quaternions and Octonions (2003); Baez, The Octonions, Bull. AMS 39 (2002) 145.",
@@ -284,7 +285,7 @@
         "uncertainty": "1.04",
         "unit": "km/s/Mpc",
         "type": "measured",
-        "source": "Planck-2018",
+        "source": "SH0ES-2022",
         "verified": "2026-06-24",
         "note": "Riess et al. 2022 distance-ladder; ~5 sigma above Planck (the Hubble tension)"
       },
@@ -1171,7 +1172,7 @@
     ],
     "theory_targets": [
       {
-        "name": "ternary tone values",
+        "name": "ternary vibe values",
         "value": "3",
         "category": "substrate",
         "type": "derived",
@@ -1201,7 +1202,7 @@
         "note": "physical space is the 3D boundary"
       },
       {
-        "name": "tone words (3 to the 4th)",
+        "name": "vibe words (3 to the 4th)",
         "value": "81",
         "category": "substrate",
         "type": "derived",
@@ -1211,14 +1212,14 @@
         "note": "all 4-slot ternary words"
       },
       {
-        "name": "perceived fraction of being",
+        "name": "visible fraction of dimensions",
         "value": "3/4",
         "category": "substrate",
         "type": "derived",
         "matches_data": "n/a",
         "source": "vibe",
         "verified": "derived",
-        "note": "3 of 4 dimensions perceived; radial 4th hidden (self-occlusion experiment)"
+        "note": "3 of 4 dimensions of the bulk lie in the 3D cusp, and the radial 4th is occluded (E-GMT-0023, where the 24 directions give 1/2)"
       },
       {
         "name": "octonion dimension",
@@ -1318,7 +1319,7 @@
         "matches_data": "n/a",
         "source": "math:lie-groups",
         "verified": "derived",
-        "note": "the cell symmetry group's roots"
+        "note": "the roots of the 24-cell's symmetry group"
       },
       {
         "name": "F4 group order",
@@ -1328,12 +1329,7 @@
         "matches_data": "n/a",
         "source": "math:lie-groups",
         "verified": "derived",
-        "note": "the symmetry of the 24-cell / {3",
-        "null": [
-          "4",
-          "3",
-          "4}"
-        ]
+        "note": "the symmetry of the 24-cell / {3,4,3,4}"
       },
       {
         "name": "E8 root count",
@@ -1363,7 +1359,7 @@
         "matches_data": "partial",
         "source": "math:quaternions-octonions",
         "verified": "derived",
-        "note": "the forced threefold; identification with 3 generations is OPEN"
+        "note": "the forced threefold. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is OPEN"
       },
       {
         "name": "SO(10) dimension",
@@ -1393,7 +1389,7 @@
         "matches_data": "partial",
         "source": "math:quaternions-octonions",
         "verified": "derived",
-        "note": "the second forced threefold; generation identification OPEN"
+        "note": "the second forced threefold. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Generation identification OPEN"
       },
       {
         "name": "knit pairings (11 double-factorial)",
@@ -1403,7 +1399,7 @@
         "matches_data": "n/a",
         "source": "vibe",
         "verified": "derived",
-        "note": "collapse to 1 law by the cell symmetry"
+        "note": "collapse to 1 law by the dock symmetry"
       },
       {
         "name": "warp factor (growth ratio)",
@@ -1413,12 +1409,7 @@
         "matches_data": "n/a",
         "source": "vibe",
         "verified": "derived",
-        "note": "cells per layer of the {3",
-        "null": [
-          "4",
-          "3",
-          "4} bulk (hyperbolic); see holography/rt-geodesic-3434"
-        ]
+        "note": "docks per layer of the {3,4,3,4} bulk (hyperbolic); see holography/rt-geodesic-3434"
       },
       {
         "name": "600-cell as inscribed 24-cells",
@@ -1518,10 +1509,7 @@
         "matches_data": "yes",
         "source": "phys:Born",
         "verified": "derived",
-        "note": "forced by additivity",
-        "null": [
-          " not assumed"
-        ]
+        "note": "forced by additivity, not assumed"
       },
       {
         "name": "Peres-Mermin quantum value",
@@ -1813,7 +1801,7 @@
         "status": "open",
         "source": "math:quaternions-octonions",
         "verified": "derived",
-        "note": "structure forced; identification with 3 generations is open"
+        "note": "structure forced. The three triplet copies measured as generations are exactly degenerate under the triality weave and split by the committed knit (E-FRC-0140 and E-FRC-0141). Identification with 3 generations is open"
       },
       {
         "experiment": "gauge/exceptional-jordan-generations",
@@ -1837,10 +1825,7 @@
         "status": "pass",
         "source": "vibe",
         "verified": "derived",
-        "note": "vs cubic order 2 (control); violation high-order",
-        "null": [
-          " below bounds"
-        ]
+        "note": "vs cubic order 2 (control); violation high-order, below bounds"
       },
       {
         "experiment": "relativity/discreteness-signature",
@@ -1869,14 +1854,14 @@
       {
         "experiment": "geometry/self-occlusion-fraction",
         "category": "geometry",
-        "quantity": "perceived fraction",
+        "quantity": "visible fraction of dimensions",
         "reference_or_target": "3/4",
         "type": "derived",
         "tolerance": "exact",
         "status": "pass",
         "source": "vibe",
         "verified": "derived",
-        "note": "3 of 4 dimensions; central-symmetry control gives 1/2"
+        "note": "3 of 4 dimensions of the bulk lie in the 3D cusp, and the 24 directions give 1/2 (E-GMT-0023)"
       },
       {
         "experiment": "gravity/gr-einstein-equations",
@@ -1951,12 +1936,7 @@
         "status": "pass",
         "source": "vibe",
         "verified": "derived",
-        "note": "growth ratio of the {3",
-        "null": [
-          "4",
-          "3",
-          "4} bulk"
-        ]
+        "note": "growth ratio of the {3,4,3,4} bulk"
       },
       {
         "experiment": "holography/rt-geodesic-3434",
@@ -1968,7 +1948,7 @@
         "status": "reproduced",
         "source": "phys:ryu-takayanagi",
         "verified": "derived",
-        "note": "bulk radius over log-base-warp of cell count"
+        "note": "bulk radius over log-base-warp of dock count"
       },
       {
         "experiment": "holography/holographic-3434",
@@ -1980,7 +1960,7 @@
         "status": "pass",
         "source": "vibe",
         "verified": "derived",
-        "note": "almost all cells near the boundary"
+        "note": "0.945 of the docks in the outer shell"
       },
       {
         "experiment": "foundations/octonion-base-generator",
@@ -2055,7 +2035,7 @@
         "note": "exponential growth (the wake = expansion)"
       },
       {
-        "experiment": "selves (all)",
+        "experiment": "SLF arena (all)",
         "category": "model",
         "quantity": "model-level dynamics",
         "reference_or_target": "n/a",
@@ -2064,7 +2044,7 @@
         "status": "n/a",
         "source": "vibe",
         "verified": "derived",
-        "note": "freedom/alignment/selves experiments test the model not external physics numbers"
+        "note": "the freedom and alignment experiments of the SLF arena measure the model's own dynamics and compare with no external physics number"
       }
     ]
   }

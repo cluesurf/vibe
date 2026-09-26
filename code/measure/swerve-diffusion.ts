@@ -3,7 +3,7 @@
 // and its rapidity gets a tiny random kick at every step, so its variance grows linearly with proper
 // time. We sprinkle a box, walk a particle as straight as the discreteness allows, and fit the slope.
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleBox } from '@/code/substrate/sprinkle-box'
 import { swerveWalk } from '@/code/dynamics/swerve-walk'
 import { linearFit } from '@/code/measure/regression'
@@ -28,7 +28,7 @@ export function swerveDiffusion(input: {
       density: input.density,
       tMax: 26,
       xMax: 16,
-      rng: makeRng({ seed: input.seed + tr * 97 }),
+      rng: makeWeyl({ start: input.seed + tr * 97 }),
     })
 
     const trace = swerveWalk({

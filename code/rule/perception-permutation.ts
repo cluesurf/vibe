@@ -1,3 +1,5 @@
+import { weylCell } from '@/code/tool/weyl'
+
 // The exact 9-state ternary perception permutation on an ordered pair of tones
 // (values in -1, 0, +1). The reversible, charge-permuting local rule used by the
 // {3,4,3,4} / {4,3,4} experiments (the cusp and bulk towers). Each of the nine
@@ -100,17 +102,21 @@ export function perceptionMatchingSweepCsr(input: {
 }
 
 // One beat of the perception permutation as an asynchronous matching on a periodic L^3 cubic grid (the 6
-// face-neighbour directions). Cells are visited in a rotating order from a random offset; for each cell the
-// 6 directions are tried in a RANDOM order and the first not-yet-matched neighbour pairs with it, updated in
-// place by perceptionPermutation. The `matched` buffer is cleared at the start. The 3D-cusp counterpart of
-// perceptionMatchingSweepCsr, used by the form-coherence tower on the {4,3,4} cusp.
+// face-neighbour directions). Cells are visited in a rotating order from an offset; for each cell the 6
+// directions are tried in a shuffled order and the first not-yet-matched neighbour pairs with it, updated
+// in place by perceptionPermutation. The `matched` buffer is cleared at the start. The 3D-cusp counterpart
+// of perceptionMatchingSweepCsr, used by the form-coherence tower on the {4,3,4} cusp.
+//
+// The offset and every cell's direction order are Kronecker values of (cell, beat) from code/tool/weyl, so
+// the sweep is a fixed function of the tone and the beat. Until 2026-09-25 both came from a seeded
+// generator the caller passed in.
 export function perceptionMatchingSweep3d(input: {
   tone: Int8Array
   matched: Uint8Array
   length: number
-  rng: { next: () => number }
+  beat: number
 }): void {
-  const { tone, matched, length: L, rng } = input
+  const { tone, matched, length: L, beat } = input
   const N = L * L * L
   const at = (x: number, y: number, z: number): number =>
     (((z % L) + L) % L) * L * L +
@@ -119,7 +125,7 @@ export function perceptionMatchingSweep3d(input: {
 
   matched.fill(0)
 
-  const s0 = Math.floor(rng.next() * N)
+  const s0 = Math.floor(weylCell(N, beat, 0) * N)
 
   for (let s = 0; s < N; s++) {
     const v = (s0 + s) % N
@@ -134,7 +140,7 @@ export function perceptionMatchingSweep3d(input: {
     const ord = [0, 1, 2, 3, 4, 5]
 
     for (let i = 5; i > 0; i--) {
-      const j = Math.floor(rng.next() * (i + 1))
+      const j = Math.floor(weylCell(v, beat, i) * (i + 1))
       const t = ord[i]!
 
       ord[i] = ord[j]!

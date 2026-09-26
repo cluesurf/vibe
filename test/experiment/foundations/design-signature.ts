@@ -10,7 +10,7 @@
 // = fine-tuned = a tuner is needed. Run: npx tsx code/experiment/p166-design-signature.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweepTunable } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
@@ -84,7 +84,7 @@ export function designSignature(input?: { n?: number }): {
   for (const arrow of arrows) {
     for (const share of shares) {
       const tone = new Int8Array(N)
-      const rng = makeRng({ seed: 7 })
+      const rng = makeWeyl({ start: 7 })
 
       for (let i = 0; i < N; i++) {
         tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0

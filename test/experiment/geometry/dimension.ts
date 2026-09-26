@@ -14,7 +14,7 @@
 // lands on 2D orders. See note/questions/p2-p6-optimal-path.md.
 // Run: npx tsx code/experiment/p6-dimension.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { dimensionFromOrderingFraction } from '@/code/measure/dimension'
@@ -42,7 +42,7 @@ export default experiment({
     const sprinkle = sprinkleMinkowski({
       dimension: 2,
       count: n,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     const result = sampleUniform({
@@ -50,7 +50,7 @@ export default experiment({
       beta: 1,
       epsilon: 0.9,
       steps: 50000,
-      rng: makeRng({ seed: 30 + n }),
+      rng: makeWeyl({ start: 30 + n }),
       sampleEvery: Math.max(1, Math.floor(n / 2)),
       startFuture: sprinkle.future,
     })

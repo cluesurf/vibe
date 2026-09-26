@@ -18,7 +18,7 @@ import {
   edgesFromCsr,
 } from '@/code/tool/graph'
 import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -90,7 +90,7 @@ export function willSteering(input?: { n?: number }): {
 
   const beats = 12 * dd(dist, far)
   const willM = mk()
-  const r1 = makeRng({ seed: 3 })
+  const r1 = makeWeyl({ start: 3 })
 
   for (let b = 0; b < beats; b++) {
     conservingEdgeSweepSteered({
@@ -106,7 +106,7 @@ export function willSteering(input?: { n?: number }): {
 
   const mergeWithWill = meanDistTo(willM, distTarget) // lower = moved toward the target
   const noWillM = mk()
-  const r2 = makeRng({ seed: 3 })
+  const r2 = makeWeyl({ start: 3 })
 
   for (let b = 0; b < beats; b++) {
     conservingEdgeSweepSteered({
@@ -166,7 +166,7 @@ export function willSteering(input?: { n?: number }): {
   void plus
 
   const willA = mkSplit()
-  const r3 = makeRng({ seed: 3 })
+  const r3 = makeWeyl({ start: 3 })
 
   for (let b = 0; b < 50; b++) {
     conservingEdgeSweepSteered({
@@ -182,7 +182,7 @@ export function willSteering(input?: { n?: number }): {
 
   const avoidWithWill = meanDistTo(willA, distMinus) // higher = the + fled away from the - threat
   const noWillA = mkSplit()
-  const r4 = makeRng({ seed: 3 })
+  const r4 = makeWeyl({ start: 3 })
 
   for (let b = 0; b < 50; b++) {
     conservingEdgeSweepSteered({

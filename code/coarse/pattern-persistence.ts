@@ -5,7 +5,7 @@
 // active maintenance (re-stamping the pattern) makes it permanent at a work cost. Reuses the self-kit churn.
 
 import { flatGraph, beat } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // The survival time of a redundantly-stored pattern under the churn. radius sets the redundancy, maintainEvery
 // re-stamps the pattern every that-many beats (0 disables maintenance, the unmaintained case). Returns the
@@ -22,7 +22,7 @@ export function patternSurvivalTime(input: {
   const arrow = input.arrow ?? 0.05
   const maintainEvery = input.maintainEvery ?? 0
   const graph = flatGraph(L)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const moved = new Uint8Array(graph.cellCount)
   const tone = new Int8Array(graph.cellCount)
   const centre = Math.floor(L / 2)

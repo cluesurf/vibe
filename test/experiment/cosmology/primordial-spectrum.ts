@@ -10,7 +10,7 @@
 // stretching (P30) and gravitational growth, is the larger task that remains.
 // Run: npx tsx code/experiment/p78-primordial-spectrum.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { densityContrast } from '@/code/measure/density-contrast'
 import { linearFit } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
@@ -24,7 +24,7 @@ export function primordialSpectrum(input: { seed: number }): {
   solved: boolean
 } {
   const N = 200000
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const points: number[][] = []
 
   for (let i = 0; i < N; i++) {

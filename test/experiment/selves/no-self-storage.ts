@@ -13,7 +13,7 @@
 //      infinite tower of self-models fits in barely more than the universe itself.
 // Run: npx tsx code/experiment/p61-no-self-storage.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
 import {
@@ -28,7 +28,7 @@ import { verdict } from '@/test/scaffold/verdict'
 const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
 
 // Partition into K coherent blocks (K seeds, multi-source BFS), for a self-model of size K.
-function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
+function clusterToK(g: Graph, K: number, rng: Weyl): Int32Array {
   const n = g.size
   const seeds = new Set<number>()
 
@@ -77,7 +77,7 @@ function modelFidelity(
   g: Graph,
   base: Int8Array,
   K: number,
-  rng: Rng,
+  rng: Weyl,
 ): number {
   const cl = clusterToK(g, K, rng)
   const blocks = cl.reduce((m, c) => Math.max(m, c), 0) + 1
@@ -111,7 +111,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
   regressFullCopyDiverges: boolean
   solved: boolean
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const g = hyperbolicGraph({
     count: input.count,
     radius: 7,
@@ -121,7 +121,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
 
   const fills = symmetricEdgeFills({
     neighbors: g.neighbors,
-    rng: makeRng({ seed: input.seed + 1 }),
+    rng: makeWeyl({ start: input.seed + 1 }),
   })
 
   let base = new Int8Array(g.size)
@@ -148,7 +148,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
       g,
       base,
       K,
-      makeRng({ seed: input.seed + 7 + Math.round(ratio * 1000) }),
+      makeWeyl({ start: input.seed + 7 + Math.round(ratio * 1000) }),
     )
 
     return { ratio, modelSize: K, fidelity }

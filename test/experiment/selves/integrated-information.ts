@@ -12,8 +12,7 @@
 // therefore the old structural measure) completely unchanged.
 // Run: npx tsx code/experiment/p63-integrated-information.ts
 
-import { Rng } from '@/code/tool/rng'
-import { makeHashRng } from '@/code/dynamics/conserving-sweep'
+import { Weyl, makeWeyl } from '@/code/tool/weyl'
 import { undirectedAdjacency } from '@/code/tool/substrate'
 import {
   toneIntegration,
@@ -29,7 +28,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function tonePhi(
   adjacency: readonly Uint32Array[],
   region: number[],
-  rng: Rng,
+  rng: Weyl,
   fillOf?: (a: number, b: number) => number,
 ): number {
   return toneIntegration({
@@ -42,7 +41,7 @@ function tonePhi(
   })
 }
 
-function randomSubset(n: number, size: number, rng: Rng): number[] {
+function randomSubset(n: number, size: number, rng: Weyl): number[] {
   const s = new Set<number>()
 
   while (s.size < size) {
@@ -68,7 +67,7 @@ export function integratedInformation(input: {
 } {
   const numCells = scaled(12, input.scale)
   const cellSize = scaled(20, input.scale)
-  const rng = makeHashRng({ salt: 0 })
+  const rng = makeWeyl({ start: 0 })
   const { g, cellOf } = modularMesh({
     numCells,
     cellSize,
@@ -86,10 +85,10 @@ export function integratedInformation(input: {
   }
 
   // (1) tone-integration of genuine selves (cells) versus random same-size bags.
-  const pr = makeHashRng({ salt: 3 })
+  const pr = makeWeyl({ start: 3 })
   const cellPhis = members.map(m => tonePhi(adjacency, m, pr))
   const phiCell = cellPhis.reduce((a, b) => a + b, 0) / cellPhis.length
-  const rr = makeHashRng({ salt: 5 })
+  const rr = makeWeyl({ start: 5 })
   const randomPhis = Array.from({ length: numCells }, () =>
     tonePhi(adjacency, randomSubset(g.size, cellSize, rr), pr),
   )
@@ -101,8 +100,8 @@ export function integratedInformation(input: {
   let higher = 0
   let trials = 0
 
-  const sr = makeHashRng({ salt: 9 })
-  const pm = makeHashRng({ salt: 11 })
+  const sr = makeWeyl({ start: 9 })
+  const pm = makeWeyl({ start: 11 })
 
   for (let c = 0; c < numCells; c++) {
     const mem = members[c] ?? []
@@ -145,9 +144,9 @@ export function integratedInformation(input: {
   const sameHalf = (a: number, b: number): boolean =>
     half.has(a) === half.has(b)
 
-  const dr = makeHashRng({ salt: 21 })
+  const dr = makeWeyl({ start: 21 })
   const tonePhiFull = tonePhi(adjacency, cell, dr)
-  const dr2 = makeHashRng({ salt: 21 }) // same seed: only the fills differ
+  const dr2 = makeWeyl({ start: 21 }) // same seed: only the fills differ
   const tonePhiFillsCut = tonePhi(adjacency, cell, dr2, (a, b) =>
     sameHalf(a, b) ? 1 : 0,
   )
@@ -206,7 +205,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'a cohesive cell is a tone-integration local maximum far above a random bag, and cutting the fills collapses integration while the wiring is unchanged',
       metrics: {

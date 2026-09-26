@@ -12,7 +12,7 @@
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
@@ -67,7 +67,7 @@ export function nearCriticalRP(input?: {
   // measure the connected two-point function C(r) along the spine in the steady state, time-averaged
   const measure = (arrow: number): { c: number[]; density: number } => {
     const tone = new Int8Array(N)
-    const rng = makeRng({ seed: 11 })
+    const rng = makeWeyl({ start: 11 })
 
     for (let i = 0; i < N; i++) {
       tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0

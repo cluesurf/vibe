@@ -4,7 +4,7 @@ The high-level picture of what `@cluesurf/vibe`'s `code/` library contains, how 
 
 ## What it is for
 
-The library turns the vibe theory into runnable measurements. The theory says reality is a growing discrete crystal of experience, and the library is the bench where that idea is built, run, and checked against known physics. You generate a discrete substrate, run one local rule over it or build a field operator on it, and measure what emerges. Each question becomes a concrete experiment that either works or does not, and because everything is finite and seeded, every result is exactly reproducible.
+The library turns the vibe theory into runnable measurements. The theory says reality is a growing discrete crystal of experience, and the library is the bench where that idea is built, run, and checked against known physics. You generate a discrete substrate, run one local rule over it or build a field operator on it, and measure what emerges. Each question becomes a concrete experiment that either works or does not, and because everything is finite and deterministic, with no random number anywhere, every result is exactly reproducible.
 
 The consumers of the library are the experiments in `test/experiment/` (matter, spin, holography, cosmology, selves) and the cross-tessellation survey. The library ships the science, the experiments prove it.
 
@@ -30,7 +30,7 @@ The model DSL (`vibe()`) wraps the committed version of this whole chain in one 
 | dynamics | `code/dynamics` | search and sampling over states, MCMC, parallel tempering, lattice gauge, wave and walk evolution, renormalization |
 | algebra | `code/algebra` | the symmetry algebra (D4 and F4 roots, quaternions, Clifford, the 24-cell triality, octonions and the J3(O) Jordan algebra) and the linear algebra (dense and sparse, the eigensolvers, the kernel-polynomial method, the Bethe resolvent) |
 | the model | `code/model` | the committed model as a fluent DSL, the easiest entry point |
-| tools | `code/tool` | the substrate-agnostic primitives, the seeded rng, graphs, posets, bitsets |
+| tools | `code/tool` | the substrate-agnostic primitives, the Weyl and Kronecker sequences, graphs, posets, bitsets |
 | drawing | `code/draw`, `code/render`, `code/compute` | the 2D drawing primitives, the render scripts, and the WebGPU compute runners |
 
 A few smaller folders are specialized. `code/coarse` holds the coarse-graining and causal-emergence machinery for the selves work, `code/control` holds null and comparison generators, and `code/check` holds the base invariants (`conservesCharge`, `isReversible`).
@@ -59,7 +59,7 @@ const spectrum = laplacianSpectrum({ substrate, count: 8 }) // the lowest eigenv
 
 ## Determinism and reproducibility
 
-The base is deterministic. The library never relies on `Math.random`. Randomness, where it appears at all, is a seeded `makeRng` so the same call gives the same numbers, and robustness comes from varying the lattice SIZE, not from averaging over seeds. The base rule is integer arithmetic, so where a quantity should be exact the library asserts equality, not a tolerance. The result is that any reader running the same call gets the same number.
+The library is 100 percent deterministic: no `Math.random`, no seed, no pseudo-random generator and no hash used as a draw (E-MTH-0015 gates all four). Every spread-out value (a start, a fill, a null set, a solver's start vector, a sampler's schedule) is read off a Weyl or Kronecker sequence in `code/tool/weyl` (`makeWeyl({ start })`, `weylCell`, `weyl`), or `code/tool/weyl-point` where several independent choices are made per index. A `start` picks which equidistributed sequence is read; it is not a seed, since nothing random stands behind it. A sampler driven this way is a deterministic dynamics with a quasi-random schedule, not a Markov chain. Robustness comes from varying the lattice SIZE and the enumerated starts, not from averaging over draws. The base rule is integer arithmetic, so where a quantity should be exact the library asserts equality, not a tolerance. The result is that any reader running the same call gets the same number.
 
 ## See also
 

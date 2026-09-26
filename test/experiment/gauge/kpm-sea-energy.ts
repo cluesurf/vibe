@@ -6,7 +6,7 @@
 // If Delta E_sea RISES as the soliton sharpens (R -> small), the fermion adds POSITIVE stiffness -> the rule's
 // fermion supplies a STABILIZING term (the Skyrme sign). Run: npx tsx code/experiment/p216-kpm-sea-energy.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
@@ -48,7 +48,7 @@ export function kpmSeaEnergy(): {
     ) * 1.2
 
   const dMu: Float64Array[] = Rs.map(() => new Float64Array(MCHEB)) // accumulated Delta moments per R
-  const rng = makeRng({ seed: 12345 })
+  const rng = makeWeyl({ start: 12345 })
   const xi = newCx(dim)
 
   for (let r = 0; r < NRV; r++) {

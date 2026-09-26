@@ -16,7 +16,7 @@ import {
   hermitianMatrixSign,
   eigHermitian,
 } from '@/code/algebra/linear/eig-hermitian'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 type C4 = {
   re: [number, number, number, number]
@@ -102,7 +102,7 @@ const IDENT_COLOR: C4 = { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }
 
 function randomSu2(
   disorder: number,
-  rng: Rng,
+  rng: Weyl,
 ): [number, number, number, number] {
   const q1 = (rng.next() * 2 - 1) * disorder
   const q2 = (rng.next() * 2 - 1) * disorder
@@ -192,7 +192,7 @@ export function chiralCondensateSignalSU2(input: {
   configs: number
   m0?: number
   tolerance?: number
-  rng: Rng
+  rng: Weyl
 }): { nearZeroDensity: number } {
   const L = input.length
   const m0 = input.m0 ?? 1

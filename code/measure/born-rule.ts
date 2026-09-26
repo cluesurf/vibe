@@ -6,7 +6,7 @@
 //     which holds only at p = 2 (exponentResidual ~ 0 only there).
 // Fair sampling of the vibes then yields probability = count/total = |c|^2 (fairSampleFrequencies).
 
-import { makeRng, sampleEmpiricalFrequencies } from '@/code/tool/rng'
+import { makeWeyl, sampleEmpiricalFrequencies } from '@/code/tool/weyl'
 
 // Realise amplitude_k = sqrt(count_k): disjoint vibe sets of size round(c_k^2 * scale), at least one each.
 export function patchesFromAmplitudes(
@@ -52,7 +52,7 @@ export function exponentResidual(input: {
   seed: number
   trials?: number
 }): number {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const trials = input.trials ?? 4000
 
   let maxRel = 0
@@ -82,6 +82,6 @@ export function fairSampleFrequencies(input: {
   return sampleEmpiricalFrequencies({
     counts,
     draws: input.draws,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 }

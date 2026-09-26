@@ -5,7 +5,7 @@
 // BENCHMARKS at scale. Run: pnpm tsx code/gpu/run-bulk-3434.ts   (after `pnpm add webgpu`).
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 
@@ -93,7 +93,7 @@ async function run(): Promise<void> {
 
   // a deterministic pseudo-random initial field, both tone slots filled for the second-order rule
   const seed = new Uint32Array(n)
-  const r = makeRng({ seed: 987654321 })
+  const r = makeWeyl({ start: 987654321 })
   const nextR = (): number => r.next()
 
   for (let i = 0; i < n; i++) {

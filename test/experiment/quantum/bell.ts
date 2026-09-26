@@ -51,7 +51,7 @@ export default experiment({
       },
     }
 
-    const result = runScan({ spec, baseSeed: 5 })
+    const result = runScan({ spec, start: 5 })
     const independent = result.points.find(p => p.parameterIndex === 0)
     const correlated = result.points.find(p => p.parameterIndex === 1)
     const sIndependent = independent?.mean.s ?? 0

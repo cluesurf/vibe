@@ -8,7 +8,7 @@
 
 import { ternaryVector } from '@/code/model/deliberation'
 import { toneOverlap } from '@/code/operator/hopfield'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // a deterministic variant of a parent: flip a fixed set of sites chosen by the parent index and generation
 function variant(parent: Int8Array, tag: number): Int8Array {
@@ -36,11 +36,11 @@ export function evolvePopulation(input: {
   // a fixed dense environment to adapt to, and a fixed initial population (deterministic seeds, varied by size)
   const environment = ternaryVector(
     n,
-    makeRng({ seed: 70001 + n }),
+    makeWeyl({ start: 70001 + n }),
   ).map(v => (v === 0 ? 1 : v))
 
   let population = Array.from({ length: populationSize }, (_, k) =>
-    ternaryVector(n, makeRng({ seed: 80001 + k * 13 + n })).map(v =>
+    ternaryVector(n, makeWeyl({ start: 80001 + k * 13 + n })).map(v =>
       v === 0 ? 1 : v,
     ),
   )

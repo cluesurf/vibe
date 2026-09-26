@@ -1,6 +1,6 @@
 # The @cluesurf/vibe Library
 
-A finite, deterministic, reproducible toolkit for the vibe physics framework. You build a discrete substrate, put a state on it, run a rule or build an operator, and measure what emerges. Everything is seeded and finite, so every result is exactly reproducible.
+A finite, deterministic, reproducible toolkit for the vibe physics framework. You build a discrete substrate, put a state on it, run a rule or build an operator, and measure what emerges. Everything is deterministic and finite, with no random number and no seed, so every result is exactly reproducible.
 
 These are friendly, distilled guides for USING the library, not formal API reference. Each one covers a whole domain (many code files grouped into a few tables), with tiny snippets and pointers to real experiments. For how the whole thing fits together, read [overview.md](overview.md). For everything it solves for in one scannable page of tables, see [features.md](features.md).
 
@@ -26,7 +26,7 @@ Build a mesh, optionally put a tone state on it, either run the local rule or bu
 | [api/measure](api/measure.md) | read a number off a state, dimension, curvature, dispersion, entanglement, and more | you want to measure something |
 | [api/dynamics](api/dynamics.md) | sampling, MCMC, lattice gauge, wave and walk evolution, renormalization | you want search, sampling, or time evolution |
 | [api/algebra](api/algebra.md) | the symmetry algebra (D4, F4, quaternions, Clifford, octonions, Jordan) and the linear algebra (eigensolvers, KPM, Bethe) | you need spinors, roots, or an eigensolver |
-| [api/tool](api/tool.md) | the substrate-agnostic primitives, the seeded rng, graphs, posets, bitsets | you need a building block |
+| [api/tool](api/tool.md) | the substrate-agnostic primitives, the Weyl and Kronecker sequences, graphs, posets, bitsets | you need a building block |
 | [api/computing-and-data-structures](api/computing-and-data-structures.md) | content-addressable associative memory and classic data structures realized on the hyperbolic bulk | you want to compute, search, or store on the mesh |
 | [api/draw-and-render](api/draw-and-render.md) | the 2D drawing primitives, the render scripts, the WebGPU compute runners | you want a figure or a GPU run |
 
@@ -55,7 +55,7 @@ The analysis and controls:
 - [code/control](code/control.md) the null controls every L3 experiment beats (`scrambleNeighbors`, flat, `erasingCollision`)
 - [code/operator](code/operator.md) matrices on the substrate (Laplacian, Kahler-Dirac, gauge)
 - [code/compute](code/compute.md) the vibe computer and the compile backends
-- [code/tool](code/tool.md) substrate-agnostic primitives (rng, graph, poset, bitset, mesh)
+- [code/tool](code/tool.md) substrate-agnostic primitives (weyl, weyl-point, graph, poset, bitset, mesh)
 
 The rendering:
 
@@ -93,7 +93,7 @@ For custom work, the path is **substrate** then **tone-and-rule** (or **operator
 
 ## Conventions
 
-- **Deterministic.** The library never uses `Math.random`. Use the seeded `makeRng` (see [api/tool](api/tool.md)) or `fillWillPattern`. Vary the lattice SIZE, not seeds.
+- **Deterministic.** No `Math.random`, no seed, no generator, no hash used as a draw. Use the Kronecker stream `makeWeyl({ start })` or `weylPoint` (see [api/tool](api/tool.md)), `weylCell`, or `fillWillPattern`. Vary the lattice SIZE and enumerate starts.
 - **The `@/` alias.** Every import is absolute through `@/`, which points at the package root. No relative imports across folders, no `.js` extensions, no `/index`.
 - **Finite and exact.** Everything is finite. The base rule is integer arithmetic, so equalities are exact, not tolerant.
 

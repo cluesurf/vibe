@@ -3,7 +3,7 @@
 // the wave churns, and the U(1) Gauss law holds. All POSITIVE. Run: npx tsx code/experiment/s53333-dynamics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   streamDirectionalCharge,
   totalDirectionalCharge,
@@ -25,7 +25,7 @@ export function s53333Dynamics(): {
   const N = g.cellCount,
     nb = g.neighbors
 
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
   const rnd = (): number => rng.next()
   const charge0: number[][] = Array.from({ length: N }, (_, i) =>
     nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),

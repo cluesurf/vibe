@@ -1,6 +1,6 @@
 # The spin arena
 
-Forty-three experiments on where spin comes from.
+Forty-five experiments on where spin comes from, `E-SPN-0001` to `E-SPN-0045`.
 
 Vibe theory does not put spin in by hand. It grows spinors, fermions, and spin-1/2 out of the discrete substrate geometry. The 24 directions of the committed `{3,4,3,4}` coin are the binary tetrahedral group 2T, the double cover of the rotation group, so a spinor picks up a minus sign after a 2pi turn and returns only at 4pi. The 24-cell splits into 8v + 8s + 8c (a vector and two spinors) under SO(8) triality. The hyperbolic `{5,3,4}` bulk carries spin a different way, through its projective double cover 2I, its spin connection, and topological defects. This arena tests all of it: the spin-1/2 double cover, fermion statistics and the Pauli principle, the Dirac equation, chiral fermions, triality and the generations problem, anyons from the ternary tone, and the emergent matter (atoms, nuclei, molecules) that exclusion makes possible.
 
@@ -40,7 +40,7 @@ The relativistic fermion of the walk model. A discrete-time coined walk (a model
 - **[`E-SPN-0043`](../../../test/experiment/spin/chiral-fermion-no-doubling.ts)** - the walk model's fermion is a single chiral mode (eigenvalue winding one), no doubler, the discrete-time walk evading Nielsen-Ninomiya.
 - **[`E-SPN-0004`](../../../test/experiment/spin/chirality.ts)** - the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry, the naive operator having four doublers.
 - **[`E-SPN-0010`](../../../test/experiment/spin/dirac-lanczos.ts)** - a 3D hedgehog binds near-zero Dirac modes (index equals topological charge) that the uniform vacuum lacks.
-- **[`E-SPN-0037`](../../../test/experiment/spin/sy-discrete-symmetries.ts)** - C, P, T, and CPT are exact on the `{3,4,3,4}` substrate, the reversible rule making T exact and the D4 root set making P exact.
+- **[`E-SPN-0037`](../../../test/experiment/spin/sy-discrete-symmetries.ts)** - C, P, T, and CPT are exact for the walk on the `{3,4,3,4}` substrate, the reversible rule making T exact and the D4 root set making P exact. The committed knit itself breaks P: it keeps only the identity and C with reversal (`E-FRC-0142`).
 
 ## Spin across substrates and the projective cover
 
@@ -106,6 +106,11 @@ The payoff. Once fermions and exclusion exist, discrete shells, atoms, nuclei, a
 ## Added or first run by the 2026-08-31 audit
 
 - **[`E-SPN-0001`](../../../test/experiment/spin/anyon-deconfinement.ts)** (L1) - the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control
+
+## Spin and exclusion on the committed knit, added 2026-09-25
+
+- **[`E-SPN-0044`](../../../test/experiment/spin/double-cover-on-the-rule.ts)** (L2) - the committed knit does not carry the spinor sign. The coin directions are a 2T torsor whose SU(2)_L 2 pi turn is the point inversion. The knit's turn lifts after four beats to (-1, +1) in SU(2)_L x SU(2)_R, and the palindromic schedule nets +1 over its period, where the rejected cyclic one nets -1. The inversion is no symmetry of the knit except joined to charge conjugation and reversal: antipodal lone-love currents mismatch by 49.7 against 0 under streaming. So the 2T structure above is a fact of the coin, and the knit's own dynamics has no rotation group for it to double-cover.
+- **[`E-SPN-0045`](../../../test/experiment/spin/exchange-fear-and-slot-exclusion.ts)** (L2) - exclusion in the base, twice. On the role phase space the fermion pair is 72 loves and 18 fears, every fear on a coincident point, with zero chance of a shared role, while bosons need no fear: the fermion sign lives in the signed weight. And under the committed knit a charge-biased slot gas relaxes toward mass action, p(love) p(fear) = p(calm)^2 (pooled 0.96 and 1.01 from 0.16 and 0.35), while the 2 protected directions keep their fill.
 
 ## What this arena establishes
 

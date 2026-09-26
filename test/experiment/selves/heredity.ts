@@ -13,7 +13,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrBallNodes, csrFarthestNode } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -97,7 +97,7 @@ export function heredity(input?: { n?: number }): {
   const m = Math.min(parentCells.length, daughterCells.length)
 
   // the parent's heritable pattern: an EXACTLY balanced +/- CODE (information, net charge zero)
-  const rng = makeRng({ seed: 4 })
+  const rng = makeWeyl({ start: 4 })
   const parentPat = new Int8Array(m)
   const half = Math.floor(m / 2)
 
@@ -118,7 +118,7 @@ export function heredity(input?: { n?: number }): {
   const copyAndMeasure = (
     mu: number,
   ): { resemblance: number; charge: number } => {
-    const r = makeRng({ seed: 99 })
+    const r = makeWeyl({ start: 99 })
     const daughterPat = new Int8Array(m)
 
     let charge = 0

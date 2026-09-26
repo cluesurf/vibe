@@ -1,5 +1,5 @@
 import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // Conservation as a stabilizer check. A stabilizer check in quantum error correction is an
 // observable the encoded dynamics commutes with: it stays fixed under every legal evolution, so
@@ -31,7 +31,7 @@ export function syndromeFirstFires(input: {
   }
 
   const moved = new Uint8Array(length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const reference = blobEnd - blobStart
 
   let detectedAt = -1

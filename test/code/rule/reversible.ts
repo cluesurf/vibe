@@ -10,7 +10,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
 import { synchronousRule } from '@/code/rule/synchronous'
 import { LocalMap } from '@/code/rule/rule'
@@ -48,7 +47,6 @@ function stepRev(local: LocalMap, values: number[]): number[] {
     substrate: graph,
     configuration: configFrom(values),
     beat: 0,
-    rng: makeRng({ seed: 1 }),
   })
 
   return readAll(out.configuration)
@@ -78,7 +76,6 @@ suite('rule/reversible: even from old odd, then odd from new even', [
           substrate: graph,
           configuration: configFrom([1, 0, 0, 1]),
           beat: 0,
-          rng: makeRng({ seed: 1 }),
         })
 
         return readAll(out.configuration)

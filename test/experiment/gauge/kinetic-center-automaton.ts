@@ -30,7 +30,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   CenterLattice,
   centerHeatbathSweep,
@@ -170,7 +170,7 @@ function heatbath(
   beta: number,
   seed: number,
 ): { value: number; error: number } {
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const lattice = makeCenterLattice({ order: 3, lengths: LENGTHS })
   const samples: number[] = []
 

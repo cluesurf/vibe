@@ -15,7 +15,7 @@ import {
   beat,
   totalCharge,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 
 const L = 64
 const beats = 2000
@@ -47,7 +47,7 @@ export default experiment({
   paper: false,
   run() {
     const graph = flatGraph(L)
-    const rng = makeRng(56789)
+    const rng = makeStream(56789)
     const moved = new Uint8Array(graph.cellCount)
     const { tone, cluster } = emergeSelf(graph, rng, moved, {
       beats: 60,
@@ -81,7 +81,7 @@ export default experiment({
     // the leaking control, the same run with a deterministic charge leak each beat (zero the first plus cell),
     // which breaks conservation.
     const leaking = tone.slice()
-    const leakRng = makeRng(56789)
+    const leakRng = makeStream(56789)
 
     let leakDrift = 0
 

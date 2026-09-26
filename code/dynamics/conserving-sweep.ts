@@ -1,4 +1,10 @@
-import { Rng } from '@/code/tool/rng'
+// The conserving perception sweeps. The stream-driven sweeps read their hop and pair-creation
+// schedule off the caller's Weyl stream, the beat-indexed ones off weylCell(edge, beat, salt), both
+// from code/tool/weyl, so every sweep here is a deterministic dynamics with a quasi-random schedule.
+// Until 2026-09-25 the streams were a seeded generator and the beat-indexed values a hash.
+
+import { Weyl, weylCell } from '@/code/tool/weyl'
+import { weylPoint } from '@/code/tool/weyl-point'
 
 // One beat of the conserving perception rule over an edge list. Each undirected
 // edge is visited once; a vertex already touched this sweep is skipped (so a beat
@@ -15,7 +21,7 @@ export function conservingEdgeSweep(input: {
   eu: Int32Array
   ev: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
   onlyCreate?: boolean
 }): void {
@@ -80,7 +86,7 @@ export function conservingEdgeSweepTunable(input: {
   eu: Int32Array
   ev: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
   share: number
   hop: number
@@ -142,7 +148,7 @@ export function conservingChainSweep(input: {
   tone: Int8Array
   length: number
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
 }): void {
   const { tone, length, moved, rng, arrow } = input
@@ -201,7 +207,7 @@ export function conservingRingSweep(input: {
   length: number
   start: number
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
 }): void {
   const { tone, length, start, moved, rng, arrow } = input
@@ -258,7 +264,7 @@ export function evolveConservingRing(input: {
   tone: Int8Array
   beats: number
   arrow: number
-  rng: Rng
+  rng: Weyl
 }): void {
   const { tone, beats, arrow, rng } = input
   const length = tone.length
@@ -280,7 +286,7 @@ export function conservingRingSweepTunable(input: {
   tone: Int8Array
   length: number
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
   share: number
   hop: number
@@ -343,7 +349,7 @@ export function conservingHopSweep(input: {
   eu: Int32Array
   ev: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
 }): void {
   const { tone, eu, ev, moved, rng } = input
 
@@ -374,10 +380,10 @@ export function conservingHopSweep(input: {
   }
 }
 
-// The DETERMINISTIC version of conservingHopSweep: the tie-break at an ambiguous hop is decided by the
-// stateless hash hashRand(edge index, beat, salt) instead of an RNG, so the sweep is a fixed rule with
-// no hidden state and no seed, varying per edge and per beat exactly as the random version did but fully
-// reproducible. Callers pass the beat index instead of an Rng.
+// The beat-indexed version of conservingHopSweep: the tie-break at an ambiguous hop is decided by the
+// Kronecker value weylCell(edge index, beat, salt) (code/tool/weyl), so the sweep is a fixed rule with no
+// hidden state and no seed. Callers pass the beat index instead of a stream. Until 2026-09-25 the value
+// was the stateless hash hashRand, a counter-based pseudo-random generator.
 export function conservingHopSweepHashed(input: {
   tone: Int8Array
   eu: Int32Array
@@ -404,7 +410,7 @@ export function conservingHopSweepHashed(input: {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
 
-      if (hashRand(k, beat, 1) < 0.5) {
+      if (weylCell(k, beat, 1) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
@@ -421,7 +427,7 @@ export function conservingEdgeListSweep(input: {
   tone: Int8Array
   edges: readonly (readonly [number, number])[]
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
 }): void {
   const { tone, edges, moved, rng, arrow } = input
@@ -478,7 +484,7 @@ export function conservingEdgeListSweepPumped(input: {
   tone: Int8Array
   edges: readonly (readonly [number, number])[]
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
   pump: Int32Array | null
   farValue?: number
@@ -546,7 +552,7 @@ export function conservingEdgeSweepSteered(input: {
   eu: Int32Array
   ev: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   distGoal: Int32Array | null
   towardSign: number
   farValue?: number
@@ -597,8 +603,8 @@ export function conservingEdgeSweepSteered(input: {
   }
 }
 
-// The DETERMINISTIC version of conservingEdgeSweepSteered: the unbiased fallback tie-break uses the
-// stateless hash hashRand(edge index, beat, salt) instead of an RNG. No seed, no hidden state.
+// The beat-indexed version of conservingEdgeSweepSteered: the unbiased fallback tie-break uses the
+// Kronecker value weylCell(edge index, beat, salt) instead of a stream. No seed, no hidden state.
 export function conservingEdgeSweepSteeredHashed(input: {
   tone: Int8Array
   eu: Int32Array
@@ -642,7 +648,7 @@ export function conservingEdgeSweepSteeredHashed(input: {
         doHop =
           towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
       } else {
-        doHop = hashRand(k, beat, 1) < 0.5
+        doHop = weylCell(k, beat, 1) < 0.5
       }
 
       if (doHop) {
@@ -655,17 +661,15 @@ export function conservingEdgeSweepSteeredHashed(input: {
   }
 }
 
-// A position-indexed hash giving a deterministic uniform value per (key, beat, salt).
-// Used by the hashed sweep so that perturbing one cell does NOT shift the random
-// stream seen by distant edges (which would be a spurious instantaneous global
-// difference). Both copies of a damage-spreading run see the same hash per edge.
-// A generic ternary tone from the hash stream: each cell -1 with probability 0.3, +1 with 0.3,
-// else 0, a fixed function of (cell, salt). Two quantum experiments each carried this.
+// A generic ternary tone from the Kronecker values weylCell(cell, 0, salt): a cell is -1 where the value
+// is below 0.3, +1 where it is below 0.6, else 0, so the three shares are exactly 0.3, 0.3 and 0.4 up to
+// the sequence's discrepancy, laid out as a quasi-periodic (Sturmian) pattern along the cell index. Two
+// quantum experiments each carried this. Until 2026-09-25 the values came from the hash hashRand.
 export function hashedTone(size: number, salt: number): Int8Array {
   const tone = new Int8Array(size)
 
   for (let i = 0; i < size; i++) {
-    const r = hashRand(i, 0, salt)
+    const r = weylCell(i, 0, salt)
 
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }
@@ -673,28 +677,33 @@ export function hashedTone(size: number, salt: number): Int8Array {
   return tone
 }
 
-export function hashRand(
-  key: number,
-  beat: number,
-  salt: number,
-): number {
-  let h =
-    (Math.imul(key, 73856093) ^
-      Math.imul(beat, 19349663) ^
-      Math.imul(salt, 83492791)) |
-    0
+// The hash hashRand (a counter-based pseudo-random generator, retired 2026-09-25) was removed on 2026-09-26
+// once its last two importers, code/coarse/knit-hydrodynamics.ts and code/measure/momentum-transport.ts,
+// moved to code/tool/weyl-point. Two weylCell values of one key at two beats differ by a fixed shift, so
+// they are not independent choices: where two decisions are made per key, read two slots of weylPoint.
 
-  h = Math.imul(h ^ (h >>> 13), 1274126177)
-  h = h ^ (h >>> 16)
+// The position-indexed value conservingEdgeSweepHashed reads for one decision at one edge and beat: slot
+// `decision` (0 hop, 1 spawn, 2 the spawned pair's sign) of the Kronecker stream the beat owns
+// (code/tool/weyl-point, start HASHED_SWEEP_START + beat), at index `edge`. Fixed 2026-09-26 (E-MTH-0026):
+// the sweep read weylCell(edge, beat, 1 | 2 | 3) until then, and weylCell is linear in all three arguments,
+// so the spawn value (salt 2) and the sign value (salt 3) of one edge differed by the fixed shift frac(sqrt 5)
+// = 0.2361: whenever arrow <= 0.2639 a spawn (value below arrow) forced the sign value below one half, and every
+// pair was created +1 on eu and -1 on ev. One edge at two beats differed by the fixed shift frac(sqrt 3) too.
+// Here each beat owns its own stream (rates frac(sqrt(q_j P_beat)), a new prime per beat), so two beats of one
+// edge are two rationally independent rotations, jointly equidistributed over the edges, and the three
+// decisions of one edge and beat are three slots, jointly equidistributed as well. Along the edge index the
+// values are still a rotation (a Kronecker fill, as before): neighboring edges are not independent draws.
+export const HASHED_SWEEP_START = 2 ** 20
 
-  return (h >>> 0) / 4294967296
+export function hashedSweepValue(edge: number, beat: number, decision: number): number {
+  return weylPoint({ start: HASHED_SWEEP_START + beat, index: edge, slot: decision })
 }
 
-// One beat of the conserving perception rule using the position-indexed hash instead
-// of a stream RNG, so differences between two copies propagate only locally (a damage-
-// spreading / front-velocity probe). Same local update as conservingEdgeSweep: opposite
-// tones annihilate, a charge next to a 0 hops in half the time, two 0s spawn a +/- pair
-// with probability `arrow`. `beat` is the current time-step, used to index the hash.
+// One beat of the conserving perception rule using the position-indexed Kronecker value
+// hashedSweepValue(edge, beat, decision) instead of a stream, so differences between two copies propagate
+// only locally (a damage-spreading / front-velocity probe). Same local update as
+// conservingEdgeSweep: opposite tones annihilate, a charge next to a 0 hops where the value is
+// below one half, two 0s spawn a +/- pair where it is below `arrow`. `beat` is the time-step.
 export function conservingEdgeSweepHashed(input: {
   tone: Int8Array
   eu: Int32Array
@@ -727,15 +736,15 @@ export function conservingEdgeSweepHashed(input: {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
 
-      if (hashRand(k, beat, 1) < 0.5) {
+      if (hashedSweepValue(k, beat, 0) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
         moved[w] = 1
       }
     } else if (a === 0 && b === 0) {
-      if (hashRand(k, beat, 2) < arrow) {
-        if (hashRand(k, beat, 3) < 0.5) {
+      if (hashedSweepValue(k, beat, 1) < arrow) {
+        if (hashedSweepValue(k, beat, 2) < 0.5) {
           tone[v] = 1
           tone[w] = -1
         } else {
@@ -747,27 +756,5 @@ export function conservingEdgeSweepHashed(input: {
         moved[w] = 1
       }
     }
-  }
-}
-
-// A counter-indexed hash stream as an Rng: deterministic, seedless apart from `salt`, a drop-in for a
-// seeded generator where an experiment wants a reproducible fill. Until 2026-08-31 four experiments
-// each defined this as a local `detStream`. Note the methodology: a hashed fill is still a pseudo-random
-// initial condition, and a result that needs one is an ensemble claim unless size, not salt, is varied.
-export function makeHashRng(input: { salt: number }): Rng {
-  let counter = 0
-
-  const next = (): number => hashRand(counter++, 0, input.salt)
-
-  return {
-    next,
-    nextInt: ({ max }) => Math.floor(next() * max),
-    nextGaussian: () => {
-      // Box-Muller from two hashed uniforms
-      const u = 1 - next()
-      const v = next()
-
-      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
-    },
   }
 }

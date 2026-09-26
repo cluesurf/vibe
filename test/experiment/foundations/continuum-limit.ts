@@ -6,7 +6,7 @@
 // continuum-limit check the hardening roadmap asks for.
 // Run: npx tsx code/experiment/p52-continuum-limit.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { logLogSlope } from '@/code/measure/regression'
@@ -33,7 +33,7 @@ export function continuumLimit(input: {
       const poset = sprinkleMinkowski({
         dimension: input.dimension,
         count: nn,
-        rng: makeRng({ seed: input.seed + si * 100 + r }),
+        rng: makeWeyl({ start: input.seed + si * 100 + r }),
       })
 
       sum += myrheimMeyerDimension({ poset })

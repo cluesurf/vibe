@@ -5,7 +5,7 @@
 // (the fermion supplies the stabilizer). Run: pnpm tsx code/gpu/run-kpm-sea-energy.ts
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 Object.assign(globalThis, globals)
 
@@ -350,7 +350,7 @@ async function run(): Promise<void> {
   const vacN = nrt3('uniformz', 0)
   const texN = Rs.map(R => nrt3('texture', R))
   const dMu = Rs.map(() => new Float64Array(MCHEB))
-  const rng = makeRng({ seed: 999 })
+  const rng = makeWeyl({ start: 999 })
 
   console.log(
     `GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`,

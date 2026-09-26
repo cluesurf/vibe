@@ -26,7 +26,7 @@ import {
   shearGasSetup,
   shearModeSeries,
 } from '@/code/measure/shear-mode'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 const GRAD_AXIS = 1
 const MOM_AXIS = 0
@@ -143,7 +143,7 @@ export default experiment({
       gasRule(slots, base, degree)
 
       for (let d = 0; d < degree; d++) {
-        if (hashRand(base + d, leakBeat, LEAK_SALT) < LEAK_RATE) {
+        if (weylCell(base + d, leakBeat, LEAK_SALT) < LEAK_RATE) {
           slots[base + d] = 0
         }
       }

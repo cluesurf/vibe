@@ -12,7 +12,7 @@
 // Run via the suite: npx tsx test/run.ts
 
 import { toCSR, beat, totalCharge } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -47,7 +47,7 @@ function relax(
 ): { startDensity: number; endDensity: number; conserved: boolean } {
   const g = ring(n)
   const moved = new Uint8Array(n)
-  const rng = makeRng({ seed: 31000 })
+  const rng = makeWeyl({ start: 31000 })
   const startCharge = totalCharge(tone)
   const startDensity = nonzeroDensity(tone)
 

@@ -20,7 +20,7 @@ import {
   effectiveInformation,
   coarseGrainTpm,
 } from '@/code/coarse/causal-emergence'
-import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
+import { selfTrajectory, makeStream } from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/coarse-causal-emergence',
@@ -62,7 +62,7 @@ export default experiment({
     )
 
     // random map of the same coarseness, the control.
-    const rng = makeRng(7777)
+    const rng = makeStream(7777)
     const randomGroups = Array.from(
       { length: fine },
       (_, i) => i % macroCount,

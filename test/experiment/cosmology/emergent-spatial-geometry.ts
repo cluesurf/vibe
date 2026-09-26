@@ -7,7 +7,7 @@
 // d-1: about 1 for a 2D spacetime, about 2 for a 3D one.
 // See note/the-model.md. Run: npx tsx code/experiment/p38-emergent-spatial-geometry.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { ballGrowthDimension } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
@@ -45,7 +45,7 @@ export function sliceDimension(input: {
   const poset = sprinkleMinkowski({
     dimension: d,
     count: input.count,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const coords = poset.embedding?.coords ?? new Float64Array(0)

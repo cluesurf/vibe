@@ -9,7 +9,7 @@
 // chain. A stable fixed point across many levels = a faithful multiscale tower.
 // Run: npx tsx code/experiment/p164-coarse-graining-chain.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { evolveConservingRing } from '@/code/dynamics/conserving-sweep'
 import { blockChargeTower } from '@/code/coarse/block-charge-tower'
 import { experiment } from '@/test/scaffold/suite'
@@ -29,7 +29,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   solved: boolean
 } {
   const L = input?.L ?? 8192
-  const rng = makeRng({ seed: 6 })
+  const rng = makeWeyl({ start: 6 })
   const tone = new Int8Array(L)
 
   for (let i = 0; i < L; i++) {

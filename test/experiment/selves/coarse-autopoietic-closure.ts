@@ -17,7 +17,7 @@ import {
   beat,
   largestPositiveCluster,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 import { jaccardDistance } from '@/code/measure/point-set'
 
 function maintain(input: {
@@ -32,7 +32,7 @@ function maintain(input: {
 } {
   const { L, beats, cohesion, seed } = input
   const graph = flatGraph(L)
-  const rng = makeRng(seed)
+  const rng = makeStream(seed)
   const moved = new Uint8Array(graph.cellCount)
   // emerge the self with cohesion on, then test the maintenance phase at the given cohesion.
   const { tone, cluster } = emergeSelf(graph, rng, moved, {

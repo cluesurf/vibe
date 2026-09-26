@@ -7,7 +7,7 @@
 
 import { replicate } from '@/code/dynamics/replication'
 import { ternaryVector } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -21,7 +21,7 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const template = ternaryVector(64, makeRng({ seed: 90011 })).map(
+    const template = ternaryVector(64, makeWeyl({ start: 90011 })).map(
       v => (v === 0 ? 1 : v),
     )
 

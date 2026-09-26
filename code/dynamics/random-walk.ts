@@ -1,8 +1,8 @@
 // Random walks on a neighbors graph. A single charge taking uniform random steps along adjacency, the
 // simplest probe of how a perturbation spreads on the substrate. Core dynamics, used by the isotropy and
-// diffusion experiments. The caller supplies the Rng so the walk stays deterministic.
+// diffusion experiments. The caller supplies the Weyl so the walk stays deterministic.
 
-import { Rng, makeRng } from '@/code/tool/rng'
+import { Weyl, makeWeyl } from '@/code/tool/weyl'
 import { bfsShells } from '@/code/measure/shells'
 
 type Neighbors = readonly (readonly number[])[]
@@ -18,7 +18,7 @@ export function classicalWalkMSD(input: {
   const msd = new Float64Array(steps + 1)
 
   for (let r = 0; r < runs; r++) {
-    const rng = makeRng({ seed: r + 1 })
+    const rng = makeWeyl({ start: r + 1 })
 
     let x = 0
 
@@ -51,7 +51,7 @@ export function graphWalkMsdExponent(input: {
   const msd = new Float64Array(beats + 1)
 
   for (let run = 0; run < runs; run++) {
-    const rng = makeRng({ seed: 100 + run })
+    const rng = makeWeyl({ start: 100 + run })
 
     let cur = start
 
@@ -103,7 +103,7 @@ export function randomWalkEndpoint(input: {
   neighbors: Neighbors
   start: number
   steps: number
-  rng: Rng
+  rng: Weyl
 }): number {
   let cur = input.start
 
@@ -125,7 +125,7 @@ export function randomWalkPath(input: {
   neighbors: Neighbors
   start: number
   steps: number
-  rng: Rng
+  rng: Weyl
 }): number[] {
   const path = [input.start]
 
@@ -151,13 +151,13 @@ export function randomWalkPath(input: {
 // collision that acts as a Dirac mass). mix = 0 is a straight ballistic line
 // (displacement ~ steps), mix = 1 is a memoryless walk (displacement ~ sqrt(steps)).
 // Returns the mean Euclidean displacement over `runs` trials. The caller supplies
-// the Rng so the walk stays deterministic.
+// the Weyl so the walk stays deterministic.
 export function persistentWalkMeanDisplacement(input: {
   directions: number[][]
   mix: number
   steps: number
   runs: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const { directions, mix, steps, runs, rng } = input
   const dimension = directions[0]?.length ?? 0

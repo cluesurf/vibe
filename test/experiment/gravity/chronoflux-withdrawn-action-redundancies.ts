@@ -27,7 +27,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const C_H = 1
 const NU = 2.5
@@ -50,7 +50,7 @@ export default experiment({
   depth: 'L1',
   paper: true,
   run() {
-    const rng = makeRng({ seed: 7 })
+    const rng = makeWeyl({ start: 7 })
 
     // 1. the potential term -2 V'(H^2) H^mu on and off the constraint surface
     let worstOnShell = 0

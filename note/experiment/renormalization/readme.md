@@ -6,7 +6,7 @@ The claim is a tower. Run the rule, block the state, read the effective paramete
 
 Most experiments carry a control, a shuffle null or a broken rule where the tower should collapse, so a positive result cannot be an artifact of averaging. Several are negatives, no scale-free point where the theory needs one.
 
-15 experiments, grouped below into four sub-themes. Every code appears once.
+16 experiments, grouped below into four sub-themes. Every code appears once.
 
 ## The coarse-graining tower
 
@@ -43,6 +43,7 @@ What the effective theory actually is at the bottom of the tower.
 
 - **[`E-SCL-0006`](../../../test/experiment/renormalization/dirac-maxwell-propagators.ts)** - the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current (Ward) vertex match QED, broken by an anisotropic rule or a Proca photon.
 - **[`E-SCL-0008`](../../../test/experiment/renormalization/form-tower-3434.ts)** - coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the flat 3D {4,3,4} cusp, a coherence tower in three dimensions.
+- **[`E-SCL-0017`](../../../test/experiment/renormalization/knit-block-step.ts)** - (L2, fails two of three gates) one block step of the scatter weave. Its block sums keep exactly charge, P and the line sum, and not the count. The coarse rule they follow is predicted by the knit's lattice Boltzmann equation (`E-FLD-0030`) to 2 to 5 percent, but not to the knit's own precision at b = 2, where the knit's blocks forget about 4 percent faster than molecular chaos allows: a recollision correlation, within the noise by b = 3 and 4. The couplings climb from kinetic toward the hydrodynamic transport matrix as the block grows. Disclosed: the standard errors are too small for the streaming control.
 
 ## What it establishes
 

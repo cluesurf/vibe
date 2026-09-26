@@ -7,7 +7,7 @@
 // the genuine P2 dominance question. See note/questions/p2-p6-optimal-path.md.
 // Run: npx tsx code/experiment/p2-uniform.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -27,7 +27,7 @@ export default experiment({
       beta: 0,
       epsilon: 0.9,
       steps: 400000,
-      rng: makeRng({ seed: 6 }),
+      rng: makeWeyl({ start: 6 }),
     })
 
     const ok =

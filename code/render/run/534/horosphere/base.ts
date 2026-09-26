@@ -12,7 +12,7 @@
 // real horosphere, not a tidy lattice. Run: pnpm tsx code/gpu/render-horosphere.ts   (after `pnpm add webgpu`)
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { TONE_COLORS } from '@/code/draw/color'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
@@ -75,7 +75,7 @@ async function run(): Promise<void> {
   const { offsets, adj } = toCsr(g.neighbors)
 
   const seed = new Uint32Array(n)
-  const rng = makeRng({ seed: 2468013579 })
+  const rng = makeWeyl({ start: 2468013579 })
   const nextR = (): number => rng.next()
 
   for (let i = 0; i < n; i++) {

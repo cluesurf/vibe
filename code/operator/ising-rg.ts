@@ -10,7 +10,7 @@
 // correlation gives K') is sampled by Monte Carlo below. It obeys the exact recursion
 // tanh K' = tanh^2 K and also flows to the disordered fixed point K* = 0.
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 
 // Effective coupling K' after decimating the middle spin, by DIRECT summation.
 export function isingDecimationBySummation(coupling: number): number {
@@ -39,7 +39,7 @@ export function isingBetaFunction(coupling: number): number {
 export function sampleIsingChain(
   n: number,
   coupling: number,
-  rng: Rng,
+  rng: Weyl,
 ): Int8Array {
   const s = new Int8Array(n)
 
@@ -75,7 +75,7 @@ export function measuredBlockSpinCoupling(input: {
   seed: number
 }): number {
   const { length, coupling, samples, seed } = input
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   let acc = 0
 

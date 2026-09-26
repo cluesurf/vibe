@@ -5,7 +5,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -22,7 +22,7 @@ export function s534Dynamics(): {
   const N = g.cellCount
   const nb = g.neighbors
   // (1) directional streaming, each cell has up-to-12 directional charges, charge k -> neighbor k. Total conserved.
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
   const rnd = (): number => rng.next()
 
   let charge: number[][] = Array.from({ length: N }, (_, i) =>

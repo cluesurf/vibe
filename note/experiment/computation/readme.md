@@ -6,7 +6,7 @@ The strategy follows Margenstern's railway program. Universality on a tiling nee
 
 Every machine is deterministic and runs on the live dynamics, and each carries a control (a lossy constructor, a pinning table, a diffusive walk) that should break the result.
 
-14 experiments, grouped below into four sub-themes. Every code appears once.
+17 experiments, grouped below into five sub-themes. Every code appears once.
 
 ## Universality on the canonical {3,4,3,4}
 
@@ -49,3 +49,11 @@ The substrate **computes**. Universality is shown on the canonical {3,4,3,4} wit
 ## Added or first run by the 2026-08-31 audit
 
 - **[`E-CMP-0001`](../../../test/experiment/computation/computation-73.ts)** (L1) - COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})
+
+## Running the knit fast, added 2026-09-25
+
+Three exact engines for the knit, each checked bit for bit against the dense lattice gas.
+
+- **[`E-CMP-0015`](../../../test/experiment/computation/difference-engine.ts)** (L2) - the difference engine runs the knit only where it differs from its vacuum: bit-identical to the dense lattice gas on wrapping boxes and on the unbounded lattice, at a cost per differing dock that stays flat while the support grows a thousandfold. What it found: on an unbounded lattice a lone vibe's pattern either recurs exactly, shifted, as a traveler the stream keeps copying (7 of 24 directions on the committed knit, 8 of 24 on the combined knit) or dresses the vacuum without bound, growing about as t^5. The bounded dressing of `E-FRC-0125` was the side-9 box, which caps the support at its volume. The unbounded comparison gate was lowered from 20 beats to 2 after the first run, since no spreading seed reaches 20 on a box brute force can run, and the long runs rest on `E-CMP-0016` (disclosed).
+- **[`E-CMP-0016`](../../../test/experiment/computation/hash-life-knit.ts)** (L2) - HashLife on the knit: memoized space-time blocks on the D4 lattice gas, keyed by the schedule's phase, equal the dense gas and the difference engine bit for bit on both knits, and follow a traveler, a pattern the stream keeps copying, exactly to beat 2^40 - 1 in a root 2^41 docks on a side. The memo pays where space-time repeats (the vacuum, a crystal), and a dense disturbance defeats it.
+- **[`E-CMP-0017`](../../../test/experiment/computation/fear-dispersion.ts)** (L2) - the fear walk solved in momentum space. Its symbol has eigenvalues e^(i pi/3 +- i W(k)) with cos W = cos(k) / 2. A Chebyshev closed form gives every weight exactly at any beat and distance, bit for bit with the walk and at t = 10^5, where the walk would take 10^10 updates, and stationary phase gives the chance to 1e-5. A lone vibe's quantum motion is a free particle of rest mass sqrt 3 and top speed 1/2.

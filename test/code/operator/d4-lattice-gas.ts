@@ -17,7 +17,7 @@ import {
   d4Momentum,
 } from '@/code/operator/d4-lattice-gas'
 import { buildD4Torus } from '@/code/substrate/d4-torus'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const torus = buildD4Torus(2)
 const roots = torus.roots
@@ -27,7 +27,7 @@ const N = neigh.length
 
 // A deterministic occupancy: a 24-bit mask per cell.
 function fillOccupancy(seed: number): number[] {
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   return Array.from({ length: N }, () => {
     let o = 0

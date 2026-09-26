@@ -10,7 +10,7 @@
 // massive with these knobs and the rule itself would need a new process to be gapless.
 // Run: npx tsx code/experiment/p136-gapless-search.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
 import {
   correlationLengthFromDecay,
@@ -55,7 +55,7 @@ export function gaplessSearch(input?: {
   ): { range: number; xi: number; density: number } => {
     const tone = new Int8Array(L)
     const moved = new Uint8Array(L)
-    const rng = makeRng({ seed: 17 })
+    const rng = makeWeyl({ start: 17 })
 
     for (let i = 0; i < L; i++) {
       tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

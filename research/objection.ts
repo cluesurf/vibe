@@ -10,19 +10,27 @@ import type { Objection } from './type'
 export const OBJECTIONS: Objection[] = [
   {
     objection:
-      'the committed rule is a classical permutation with no amplitudes, so every quantum-walk result is imported',
+      'the committed knit is a classical permutation with no amplitudes, so every quantum-walk result is imported',
     measured:
-      'the empty state flashes with period 3, a seeded defect stays within 2 slots over 4 beats, and two defects add with 0 overlap, where a coined walk spreads to 5 sites with cross term 0.357',
+      'under the pair table the empty state flashes with period 3 (the committed turning weave recurs at beat 24, E-FND-0118), a seeded defect stays within 2 slots over 4 beats, and two defects add with 0 overlap, where a coined walk spreads to 5 sites with cross term 0.357. The signed weight on the role grid carries a quantum part (72 loves and 18 fears in the singlet, E-FRC-0120, an exact beat closing to su(9), E-FRC-0127), measured apart from the knit',
     verdict: 'stands',
-    source: 'E-FND-0080, R-FND-0001',
+    source: 'E-FND-0080, R-FND-0001, R-FRC-0005',
   },
   {
     objection:
-      'SU(3) color is absent from the rule, including under coarse-graining',
+      'SU(3) color is absent from the committed knit, including under coarse-graining',
     measured:
       '2 of 9 u(3) generators kept, 1 of 995,328 schedule symmetries, 0 of 32 triangles inside a block, and 84 to 88 percent of the breaking kept at the whole-mesh scale',
     verdict: 'stands',
     source: 'E-FRC-0093 to E-FRC-0097, R-FRC-0003',
+  },
+  {
+    objection:
+      'the classical color group of the adopted three-trit model does not reach the continuum',
+    measured:
+      'with a Re Tr U^2 term Sigma(648) matches SU(3) at the N_t = 4 transition (chi(2, 2) 0.375 against 0.378, chi(3, 3) 0.262 against 0.278), and on the trajectories measured its spacing stops shrinking there',
+    verdict: 'stands',
+    source: 'E-FRC-0103, R-FRC-0006',
   },
   {
     objection:
@@ -31,6 +39,42 @@ export const OBJECTIONS: Objection[] = [
       'the bare rule drifts -0.3748 toward a resource on one side and +0.3749 toward one on the other, no consistent approach, while the added valence layer shows a differential of 24.381',
     verdict: 'stands',
     source: 'E-SLF-0154',
+  },
+  {
+    objection: 'the committed knit does not conserve momentum',
+    measured:
+      'charge is conserved at every beat of every run, while the charge-signed momentum along x drifts by 830 over 48 beats from a hash start. The hop is 96 percent of the loss, and create, flip and annihilate move no particle momentum (E-FLD-0021). A rule in the family keeps it only with no hop, and every such rule dresses more (E-FLD-0022), the momentum weave at 108,080 slots against 1,508 (E-FLD-0023). A four-line scatter block on the head-on turn weave keeps P with momentum exchange and passes every committed gate (E-FLD-0024), and a wider scattering reaches hydrodynamics (nu = 0.47, E-FLD-0026), but not with the committed dressing. The committed knit itself still breaks it',
+    verdict: 'stands',
+    source: 'E-FLD-0020 to E-FLD-0026',
+  },
+  {
+    objection:
+      'a knot alone is not bound, and under the committed orientation a lone color cannot come back',
+    measured:
+      'under the committed knit a color-neutral triple reaches as far in 6 beats as one of its members alone, 8.5 against 8.5, so nothing binds it (E-FRC-0111). Color-local moves keep a lone vibe in its sign class, and the committed class is one of the 192 of 4,096 line orientations that form an open half-space (E-FRC-0130). Binding is shown only with a paid string, on a line and on the D4 lattice with matter that waits in docks (E-FRC-0129, E-FRC-0131). In the committed slot architecture a bouncing crossing binds and the pair is stuck, 0.7 docks in 600 beats against 34 (E-FRC-0133). Steering onto the string frees it on a new schedule, 510 of 576 headings, not on the committed couples, 88 of 576 (E-FRC-0147)',
+    verdict: 'stands',
+    source: 'E-FRC-0111, E-FRC-0130, E-FRC-0133, E-FRC-0147, R-FRC-0006',
+  },
+  {
+    objection: 'spin one half is not carried by the committed knit',
+    measured:
+      'the turn lifts after four beats to (-1, +1) in SU(2)_L x SU(2)_R, and the palindromic schedule nets +1 over its period, where the rejected cyclic one nets -1. The coin directions are a 2T torsor. The fermion sign lives only in the signed weight, 72 loves and 18 fears in the fermion pair',
+    verdict: 'stands',
+    source: 'E-SPN-0044, E-SPN-0045, open problem OP-08',
+  },
+  {
+    objection: 'dropping the hop for local color spreads a lone disturbance about twice as wide',
+    measured:
+      'the color weave dresses 1.7 to 2.3 times wider than the committed knit (E-FRC-0125). The color turn weave, another hop-free table, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (love 31, 115, 265, 507 against 33, 160, 565, 1,508 at side 9). Its full battery passes for both signs at sides 7, 9 and 11, and a rule written before the numbers chooses it (E-FRC-0148). The answer is a comparison at one box size, not a bound: those supports are capped by the side-9 box, and on an unbounded lattice most lone vibes dress without bound under the committed knit as under the color-local ones (E-CMP-0015)',
+    verdict: 'answered',
+    source: 'E-FRC-0125, E-FRC-0136, E-FRC-0137, E-FRC-0148, E-CMP-0015',
+  },
+  {
+    objection: 'a lone vibe dresses the vacuum without bound',
+    measured:
+      'the bounded dressing read in E-FRC-0125 and E-FRC-0136 was the side-9 box, which caps the support at its volume. The difference engine runs the knit exactly on an unbounded lattice: there most lone vibes dress without bound, growing about as t^5, and only 7 of 24 directions on the committed knit and 8 of 24 on the combined knit recur exactly, shifted, as travelers the stream keeps copying (E-CMP-0015). In the viscous scatter weave the dressing is pair creation, a front of new pairs at the vibe speed sqrt 2 (E-FLD-0029)',
+    verdict: 'stands',
+    source: 'E-CMP-0015, E-CMP-0016, E-FLD-0029',
   },
   {
     objection: 'willpower is added as a scalar, not derived',
@@ -42,7 +86,7 @@ export const OBJECTIONS: Objection[] = [
   {
     objection: 'attractor memory fails on the bare reversible rule',
     measured:
-      'recall 0 on the bare rule against 1 on a dissipative Hopfield layer, chance 0.167, 6 patterns, 256 cells',
+      'recall 0 on the bare rule against 1 on a dissipative Hopfield layer, chance 0.167, 6 patterns, 256 docks',
     verdict: 'stands',
     source: 'E-MMR-0007',
   },
@@ -56,7 +100,7 @@ export const OBJECTIONS: Objection[] = [
   },
   {
     objection:
-      'the published papers labelled results more strongly than the code supports',
+      'the published papers labeled results more strongly than the code supports',
     measured:
       '9 passages, listed as errata with what each cited experiment does',
     verdict: 'stands',
@@ -64,7 +108,7 @@ export const OBJECTIONS: Objection[] = [
   },
   {
     objection:
-      'the greedy-routing result is labelled {3,4,3,4} but runs on the {5,4} plane tiling',
+      'the greedy-routing result is labeled {3,4,3,4} but runs on the {5,4} plane tiling',
     measured:
       'the experiment builds hyperbolicTiling({ p: 5, q: 4 }), at most 2,500 vertices',
     verdict: 'stands',
