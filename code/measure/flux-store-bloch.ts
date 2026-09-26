@@ -728,12 +728,77 @@ export function branchReader(b: Bloch, L: number): (v: Vec) => BranchReading {
 // representative of E mod 2 pi nearest to its reference energy E_ref = (its kinetic energy read as particles) +
 // (2 pi c / M) <l> (its string's cost). Only levels of the particle sector count (weight at least 1/2 on an even
 // number of antiparticle-branch tokens). The lightest is the particle-sector level of least unwrapped energy.
-export type LightReading = { level: Level; unwrapped: number; reference: number; reading: BranchReading; nextUnwrapped: number; particleLevels: number; worstOffset: number }
+export type LightReading = { level: Level; unwrapped: number; reference: number; reading: BranchReading; nextUnwrapped: number; particleLevels: number; worstOffset: number; compactestMean: number }
+
+// the meetings' energy: each meeting is 1 off one eigenspace and omega on it (like vibes: the exchange-antisymmetric
+// pair; a love and a fear on one dock under 'dock': the singlet Phi), read at its principal value -2 pi / 3 times
+// that eigenspace's weight on the shared docks
+export function contactEnergy(b: Bloch, v: Vec): number {
+  const { n, q, spec } = b
+
+  if (spec.meet === false) return 0
+
+  let e = 0
+  const total = weightOf(v)
+
+  for (let a = 0; a < n; a++) {
+    for (let c = a + 1; c < n; c++) {
+      const like = spec.kinds[a] === spec.kinds[c]
+
+      if (!like && spec.unlike === 'knit') continue
+
+      for (let ci = 0; ci < b.configs.length; ci++) {
+        const d = b.configs[ci]!
+
+        if (d[a] !== d[c]) continue
+
+        for (let r = 0; r < b.labelCount; r++) {
+          const j = digitsOf(r, n, q)
+
+          if (like) {
+            // |(psi(j) - psi(j with a, c swapped)) / 2|^2 summed over all j: the antisymmetric weight
+            const sw = j.slice()
+
+            sw[a] = j[c]!
+            sw[c] = j[a]!
+
+            const i1 = b.index(ci, r)
+            const i2 = b.index(ci, codeOf(sw, q))
+            const xr = (v.re[i1]! - v.re[i2]!) / 2
+            const xi = (v.im[i1]! - v.im[i2]!) / 2
+
+            e += (-2 * Math.PI) / 3 * (xr * xr + xi * xi)
+          } else if (j[a] === 0 && j[c] === 0) {
+            // the singlet on (a, c) with the other labels fixed: sum_k psi(k k) / sqrt 3
+            let sr = 0
+            let si = 0
+
+            for (let k = 0; k < q; k++) {
+              const t = j.slice()
+
+              t[a] = k
+              t[c] = k
+
+              const i = b.index(ci, codeOf(t, q))
+
+              sr += v.re[i]!
+              si += v.im[i]!
+            }
+
+            e += (-2 * Math.PI) / 3 * ((sr * sr + si * si) / 3)
+          }
+        }
+      }
+    }
+  }
+
+  return e / total
+}
 
 export function lightestUnwrapped(b: Bloch, ls: readonly Level[], L: number): LightReading {
   const read = branchReader(b, L)
   const sigma = (2 * Math.PI * b.spec.cost) / b.spec.root
-  const rows: { k: number; unwrapped: number; reference: number; reading: BranchReading }[] = []
+  const rows: { k: number; unwrapped: number; reference: number; reading: BranchReading; mean: number }[] = []
   let worstOffset = 0
 
   ls.forEach((lv, k) => {
@@ -741,11 +806,12 @@ export function lightestUnwrapped(b: Bloch, ls: readonly Level[], L: number): Li
 
     if (reading.even < 0.5) return
 
-    const reference = reading.kinetic + sigma * stringMoments(b, lv.vector).mean
+    const mean = stringMoments(b, lv.vector).mean
+    const reference = reading.kinetic + sigma * mean + contactEnergy(b, lv.vector)
     const unwrapped = lv.energy + 2 * Math.PI * Math.round((reference - lv.energy) / (2 * Math.PI))
 
     worstOffset = Math.max(worstOffset, Math.abs(unwrapped - reference))
-    rows.push({ k, unwrapped, reference, reading })
+    rows.push({ k, unwrapped, reference, reading, mean })
   })
 
   if (rows.length === 0) throw new Error('flux-store-bloch: no particle-sector level')
@@ -754,7 +820,16 @@ export function lightestUnwrapped(b: Bloch, ls: readonly Level[], L: number): Li
 
   const best = rows[0]!
 
-  return { level: ls[best.k]!, unwrapped: best.unwrapped, reference: best.reference, reading: best.reading, nextUnwrapped: rows[1]?.unwrapped ?? Number.NaN, particleLevels: rows.length, worstOffset }
+  return {
+    level: ls[best.k]!,
+    unwrapped: best.unwrapped,
+    reference: best.reference,
+    reading: best.reading,
+    nextUnwrapped: rows[1]?.unwrapped ?? Number.NaN,
+    particleLevels: rows.length,
+    worstOffset,
+    compactestMean: Math.min(...rows.map(r => r.mean)),
+  }
 }
 
 // overlap |<u, v>| in the full basis

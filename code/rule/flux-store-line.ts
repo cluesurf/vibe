@@ -126,6 +126,24 @@ export function gaussHolds(s: FluxStoreSpec, r: FluxRegisters): boolean {
   return true
 }
 
+// the registers of tokens placed on a short arc that does not cross the ring's seam (dock L - 1 to dock 0): the
+// Gauss flux with none outside the arc, the store full less the string, sigma = D - l
+export function placedRegisters(s: FluxStoreSpec, x: readonly number[], j: readonly number[]): FluxRegisters {
+  const f = new Array<number>(s.ring).fill(0)
+  let cum = 0
+
+  for (let l = 0; l < s.ring; l++) {
+    s.kinds.forEach((k, t) => {
+      if (x[t] === l) cum += chargeOf(k)
+    })
+    f[l] = mod(cum, 3)
+  }
+
+  if (f[s.ring - 1] !== 0) throw new Error('flux-store-line: the placed tokens are not a center singlet')
+
+  return { x: x.slice(), j: j.slice(), f, sigma: s.depth - stringCount(f) }
+}
+
 const FLIP = [1, 0, 2] as const
 
 // the stream with the store's bounce, as a map of register configurations

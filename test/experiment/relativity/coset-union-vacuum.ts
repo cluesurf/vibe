@@ -28,7 +28,8 @@
 //      construction. The four parts share no slot at any beat, so the union RUNS as four independent hub vacua.
 // THE ORIENTATION (found after a probe, disclosed): the four translated orientations keep only 24 elements (no forcing);
 // oriented instead under 2T and one more element (code/measure/dense-hub orientedUnion, the least extra element, 37),
-// the union keeps 72 elements and forces the husk scalars but not the shear (E-RLT-0094 proves no orientation does).
+// the union keeps 72 elements and forces the husk scalars but not the shear (E-RLT-0094 proves no orientation does;
+// its measured transport is isotropic anyway, shear 2.03).
 // This oriented union is the candidate.
 //
 // (1b) IS FORCED TO FAIL UNDER L, a theorem stated before the run. LINE LOCALITY: under L a dock holding at most one
@@ -65,6 +66,19 @@
 // on every start but G1b does not; fail otherwise.
 // Beside, never gates: the free star; the seed cone and lone wake under K (the isometric map) and B; the translate
 // union's own group; the beat by which the descent covers the husk; the pair tallies.
+//
+// FIRST RUN (148 s, tmp/rlt093-run1.log): partial, as predicted, no gate moved. Every number is identical over the 17
+// starts. U0 holds (0 double-stored units, 0 frame mismatches, 0 (Z) failures, the four parts reproduce the union with
+// 0 mismatches and 0 shared slots over 48 beats, 4,096 of 4,096 docks and 512 of 512 husk columns hold a vibe, 0
+// replay mismatches). U1 holds (the hub vacuum reads 65 and 61 through these readers). G1a 17 of 17: 1 husk component
+// for every seed, all 512 husk docks descend from the seed by beat 10. G1b 0 of 17: the cone is 61 husk docks (85
+// bulk), EXACTLY the free star (61), with 0 empty beats and 0 erased docks over 648 changes: line locality, as proved.
+// G3 17 of 17: the vacuum makes and unmakes 393,216 pairs over 96 beats (12,288 units, 32 makes each), a lone vibe
+// changes the tally in 8 of 24 directions. G4 17 of 17: lone wakes 15 to 16 trits per period on side 8 (committed
+// 26 to 214) and 21 to 22 on side 12 (committed 27 to 988), 0 trits off the vibe's line. Beside: under K the cone is
+// 512 of 512 (4,096 bulk) and the lone wake 39,924 to 40,214 trits per period with 55,219,847 trit-beats off the
+// line; under B the cone is 61 and the wake 16. The four translated orientations keep 24 elements. Title written
+// after the run.
 //
 // DETERMINISM: no random numbers. Seeds are every center slot and every change of the center dock; starts are
 // E-MTH-0028's family. Every count is an exact integer. Depth L2. Physics read on the husk first.
@@ -201,7 +215,8 @@ function wakeReading(side: number, kind: CollisionKind, which: StoreKind, tone: 
 export default experiment({
   id: 'relativity/coset-union-vacuum',
   code: 'E-RLT-0093',
-  title: 'the coset-union hub vacuum (placeholder title, written after the run)',
+  title:
+    "the coset-union hub vacuum, partial as predicted: the hub pattern's three empty norm-4 classes are its own hub class translated, so the union of the four translates by L' / 2 D4 (every L' dock a hub, every root dock storing its frame's four lines, oriented under 2T and one element, 72 kept) fills every dock and runs as four independent hub vacua (0 mismatches, 0 shared slots); on all 17 starts the husk is ONE causal component with every column descending from the seed by beat 10, pairs are made and unmade (393,216 over 96 beats), and a lone wake is 15 to 16 trits per period on side 8 (22 on side 12) with 0 off its line; but the seed's dependence cone is 61 of 512 husk docks, exactly the free star, as line locality forces under L on any vacuum; K fills the cone (512) with a wake of 40,214",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',

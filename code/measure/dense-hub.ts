@@ -6,8 +6,10 @@
 // nonzero classes of L' / 2 D4, where L' = { v in D4 : all coordinates of one parity } is the sublattice of index 4)
 // hold nothing and receive nothing. A vacuum unit at dock h + r streams its two vibes to h + r - r and h + r + r, both
 // in the class of h, so the vibes of a 2-beat pair exchange visit exactly the classes {0} and the 12 root classes: 13
-// of 16. The three norm-4 classes are 3 / 16 of the bulk, 768 of 4,096 docks on the side-8 box, and they are the
-// only docks over the husk columns whose three husk coordinates are all odd (64 of 512): the 64 empty columns.
+// of 16. The three norm-4 classes are 3 / 16 of the bulk, 768 of 4,096 docks on the side-8 box. A column whose three
+// husk coordinates are all odd holds only all-odd vectors (the fourth coordinate is odd too, the sum being even), which
+// lie in the two odd norm-4 classes: 4^3 = 64 of the 512 columns hold no hub and no root dock, the 64 empty columns of
+// E-RLT-0089 (derived; the class 2 e1 lies in the all-even columns, beside the hubs).
 //
 // WHY THEY ARE EMPTY, AND WHY THEY ARE HUBS. D4 / L' = Z2 x Z2 has four cosets: L' itself (the hub class and the
 // three norm-4 classes) and the three triality frames F1, F2, F3 of D4 (each 4 mutually orthogonal lines: e.g.
@@ -17,10 +19,13 @@
 // class rho, the lines of rho - c for c in L' / 2 D4: four distinct lines, exactly the four lines of rho's frame. So
 // the four translates never store the same unit twice, and every dock of L' is a hub.
 //
-// THE ORIENTATION. Translate k carries the hub vacuum's orientation translated by c_k. An element g of the hub's
-// 576-element point group (about hub 0, no charge conjugation) keeps the hub orientation o, so it carries translate
-// c's orientation T_c o to T_(g c) g o = T_(g c) o: the union is kept by the same 576 linear parts (with translations
-// of period 4 D4). The forcing theorems that make the hub vacuum's husk transport isotropic apply unchanged.
+// THE ORIENTATION, and a first guess that was wrong. Translate c carries the hub orientation o translated, T_c o. An
+// element g of the hub's 576-element group keeps o and carries T_c o to T_(g c) o, but the union holds T_(c') o with
+// c' the chosen representative of g c mod 2 D4, and o has period 4 D4, not 2 D4: T_(g c) o and T_(c') o differ. So
+// the four translated orientations keep only 24 elements (measured, E-RLT-0093), and force nothing. orientedUnion
+// orients the union afresh, under 2T and one more element (72 kept, forcing the husk scalars but not the shear), and
+// E-RLT-0094 shows that no orientation of the union is kept by a group forcing the shear, and measures its husk
+// transport isotropic all the same (charge 3.99, trace 4.14, sound 4.04, shear 2.03).
 //
 // NOTHING MOVES: this file builds stores and reads classes; the stream copies values one dock along.
 
@@ -31,6 +36,7 @@ import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
 import { makeBounceKernel, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
 import { bounceLawMatrices } from '@/code/measure/bounce-transport'
+import { conjugated } from '@/code/measure/varying-transport'
 import { binaryTetrahedralIndices, boxMaps, coinData, orientedHubStore, pointGenerator, type AffineGenerator, type CoinData } from '@/code/measure/varying-vacuum'
 import { closure, groupTable } from '@/code/measure/color-isotropy-bound'
 import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
@@ -225,12 +231,17 @@ export function orientedUnionStore(coins: CoinData, side: number, hub: readonly 
   return store
 }
 
-// per dock of a store with any number of stored lines: its two collision matrices (code/measure/bounce-transport
-// bounceLawMatrices, which takes a sign per line), one computation per distinct stored row. MEASUREMENT (floats).
-export function multiLineDockMatrices(kind: CollisionKind, store: Int8Array, cells: number): { even: Float64Array[]; odd: Float64Array[]; distinct: number } {
+// per dock of a store with any number of stored lines: its two collision matrices. One exact linearization
+// (code/measure/bounce-transport bounceLawMatrices, which takes a sign per line) per W(F4) orbit of stored rows, carried
+// to every other row of the orbit by the covariance C_(g rho) = P_g C_rho P_g^T (code/measure/varying-transport
+// conjugated), as bounce-transport's dockMatrices does for one line. A row's image under g stores line lineImage[l]
+// with sign lineSign[l] times its own. MEASUREMENT (floats).
+export function multiLineDockMatrices(kind: CollisionKind, store: Int8Array, cells: number, coins: CoinData = coinsOnce()): { even: Float64Array[]; odd: Float64Array[]; distinct: number; orbits: number } {
   const cache = new Map<string, [Float64Array, Float64Array]>()
+  const reps: { row: number[]; pair: [Float64Array, Float64Array] }[] = []
   const even: Float64Array[] = []
   const odd: Float64Array[] = []
+  const n = coins.table.permutations.length
 
   for (let x = 0; x < cells; x++) {
     const row = Array.from(store.subarray(x * 12, x * 12 + 12))
@@ -238,7 +249,29 @@ export function multiLineDockMatrices(kind: CollisionKind, store: Int8Array, cel
     let pair = cache.get(key)
 
     if (!pair) {
-      pair = bounceLawMatrices(kind, row)
+      for (const rep of reps) {
+        for (let g = 0; g < n && !pair; g++) {
+          const li = coins.lineImage[g] as Int8Array
+          const ls = coins.lineSign[g] as Int8Array
+          const image = new Array<number>(12).fill(0)
+
+          for (let l = 0; l < 12; l++) if (rep.row[l] !== 0) image[li[l] as number] = (ls[l] as number) * (rep.row[l] as number)
+
+          if (image.join(',') === key) {
+            const perm = coins.table.permutations[g] as readonly number[]
+
+            pair = [conjugated(rep.pair[0], perm), conjugated(rep.pair[1], perm)]
+          }
+        }
+
+        if (pair) break
+      }
+
+      if (!pair) {
+        pair = bounceLawMatrices(kind, row)
+        reps.push({ row, pair })
+      }
+
       cache.set(key, pair)
     }
 
@@ -246,7 +279,7 @@ export function multiLineDockMatrices(kind: CollisionKind, store: Int8Array, cel
     odd.push(pair[1])
   }
 
-  return { even, odd, distinct: cache.size }
+  return { even, odd, distinct: cache.size, orbits: reps.length }
 }
 
 export type DenseFresh = {
