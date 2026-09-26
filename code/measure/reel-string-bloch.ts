@@ -616,6 +616,39 @@ export function reelContactEnergy(b: ReelBloch, v: Vec): number {
   return e / weightOf(v)
 }
 
+// the weight of a level by how many like tokens share a dock: [none share, exactly one pair, all three on one dock]
+export function dockSharing(b: ReelBloch, v: Vec): { apart: number; pair: number; triple: number } {
+  let apart = 0
+  let pair = 0
+  let triple = 0
+
+  for (let i = 0; i < b.size; i++) {
+    const p = v.re[i]! ** 2 + v.im[i]! ** 2
+
+    if (p === 0) continue
+
+    const d = b.positions[Math.floor(i / b.labelCount)]!
+    let shared = 0
+
+    for (let a = 0; a < d.length; a++) for (let c = a + 1; c < d.length; c++) if (d[a] === d[c]) shared++
+
+    if (shared === 0) apart += p
+    else if (shared === 1) pair += p
+    else triple += p
+  }
+
+  const w = apart + pair + triple
+
+  return { apart: apart / w, pair: pair / w, triple: triple / w }
+}
+
+// the meetings' energy read PER DOCK (a reading added after E-SPN-0082's first run, disclosed): the meetings on one
+// dock multiply to omega^(number of like pairs there), read at the principal value of that product, so a lone pair
+// is -2 pi / 3 and three loves on one dock (omega^3 = 1) are 0; for antisymmetric three-love states
+export function dockContactEnergy(b: ReelBloch, v: Vec): number {
+  return ((-2 * Math.PI) / 3) * dockSharing(b, v).pair
+}
+
 // the particle-branch vector and energy of one token at momentum k (U(k) = S(k) C), as flux-store-bloch
 function branch(spec: ReelBlochSpec, t: number, k: number): { vec: C[]; energy: number } {
   const backward = spec.kinds[t] === 'fear' && spec.convention === 'Cprime'
@@ -845,7 +878,7 @@ export type LightReading = { level: Level; unwrapped: number; reference: number;
 // THE LIGHTEST LEVEL, E-SPN-0076's definition unchanged: each particle-sector level's E unwrapped to the
 // representative nearest its reference energy (kinetic as particles + the string's cost + the meetings' energy);
 // the lightest is the least
-export function reelLightest(b: ReelBloch, ls: readonly Level[], L: number): LightReading {
+export function reelLightest(b: ReelBloch, ls: readonly Level[], L: number, contact: (b: ReelBloch, v: Vec) => number = reelContactEnergy): LightReading {
   const read = reelBranchReader(b, L)
   const sigma = (2 * Math.PI * b.spec.cost) / b.spec.root
   const rows: { k: number; unwrapped: number; reference: number; reading: BranchReading }[] = []
@@ -857,7 +890,7 @@ export function reelLightest(b: ReelBloch, ls: readonly Level[], L: number): Lig
     if (reading.even < 0.5) return
 
     const mean = reelStringMoments(b, lv.vector).mean
-    const reference = reading.kinetic + sigma * mean + reelContactEnergy(b, lv.vector)
+    const reference = reading.kinetic + sigma * mean + contact(b, lv.vector)
     const unwrapped = lv.energy + 2 * Math.PI * Math.round((reference - lv.energy) / (2 * Math.PI))
 
     worstOffset = Math.max(worstOffset, Math.abs(unwrapped - reference))

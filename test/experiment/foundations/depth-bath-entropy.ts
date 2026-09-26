@@ -66,6 +66,14 @@
 // after the first run: the same identity grid moves on a dense depth-invariant vacuum (every line of every dock stored,
 // every store point 0), to see whether a dense control separates the two fills where the dilute one could not.
 //
+// SECOND RUN (289 s, the record): fail on D4 and D5 with the first run's numbers unchanged, D3 holding with the corrected
+// sign (gap 1.0947 to 1.1046). Arm C: its depth-uniform fill keeps 0 mismatches at every beat with husk Fano 11.97 to
+// 12.0 times 1 - f, its depth-broken fill is Gibbs (Fano 0.997 to 1.004 of 1 - f, binomial to 0.0031, fill 0.57), and
+// the late coarse deficit is 10.6 to 13.2 times higher in the sector than with the depth broken (near L = 12); both
+// reach a tenth of D(0) by beat 7. Its thermometer gap is 0.034 to 0.042, not (1/2) ln 9: every store point is 0 and the
+// identity grid moves never change a point, so the 9-fold point degeneracy is not explored there. Title written after
+// the runs.
+//
 // E-SPN-0057, honestly: this file does not rescue it. 0057's gate failed on the warped layer clock, a stand-in this file
 // does not use; the flat box here has no warp. What this file can say is that on the adopted knit the husk needs no
 // stand-in to reach the bath, because the knit itself breaks the depth step. Whether the warped cusp freezes deep
@@ -94,7 +102,8 @@ type Run = { exact: boolean; law: LawReading; lateMismatch: number; mismatchMax:
 export default experiment({
   id: 'foundations/depth-bath-entropy',
   code: 'E-FND-0148',
-  title: 'the depth as the husk heat bath on the adopted knit',
+  title:
+    'the depth as the husk heat bath, fail as gated (D4, D5 on the dilute control; one D3 sign moved after run 1, disclosed): on the adopted knit (coset-union vacuum, lone bounce, side 12, 17 starts) the vacuum store (31,104 lines off its depth image) and the link start break the depth step, so a depth-uniform fill leaves its sector and both fills reach the husk exclusive-slot Gibbs law (Fano 0.994 to 1.005 of 1 - f, binomial to 0.0036) with the slot and store thermometers apart by 1.095 to 1.105 against (1/2) ln 9 = 1.099 once the 9 role points are counted, beta = 3.898 per unit (T = 0.257); in a control where the depth step is exact the depth-uniform fill stays in its sector at every beat with husk Fano 12 times Fermi-Dirac (L = 12); on the dilute empty-vacuum control the depth-broken fill is not Gibbs either (1.67 to 1.76), so D4 and D5 fail, while on a dense all-line control (reported, added after run 1) it is (0.997 to 1.004) and the coarse floor is 10.6 to 13.2 times higher without the depth; the depth does not make the rise faster (tenfold at beat 4 and 7 either way)',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

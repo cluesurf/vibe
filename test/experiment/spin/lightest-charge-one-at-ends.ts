@@ -34,6 +34,26 @@
 //    s = 1 .. 20, while four loves at a dock and a fear s away carry a string of s.
 //
 // Gates, fixed with the predictions: T1 .. T6, E-SPN-0077's own. Status pass if all hold.
+//
+// FIRST RUN (2026-09-26, 284 s), recorded: FAIL on T2 and T3; T1, T4, T5, T6 pass. The lightest level's role [2,1]
+// share is 0.707, 0.293, 0.305 at D = 1, 2, 3 (the port store's 0.965, 0.980, 0.983 at the same D), and it sits
+// with all three loves on one dock at weight 0.66, 0.49, 0.48, which E-SPN-0077's tokens can never do. The band
+// is 0.021 and 0.026 wide (pass), but its group velocity is 0.013 at D = 2 (under 0.02, fail) and 0.021 at D = 3.
+// No gate was moved.
+// WHY (argued after the run). Three identical fermions on one dock hold the antisymmetric part of (doublet (x) reel)
+// cubed. By Schur-Weyl duality that is [3] (x) [1,1,1] plus [2,1] (x) [2,1]: the role in spin three halves with
+// the reels totally antisymmetric (possible once a reel has 3 or more values), or the role in [2,1] with the reels
+// mixed. With no reel (E-SPN-0077) it is the antisymmetric cube of a doublet, which is zero: three loves never share
+// a dock, and two on a dock must be a role singlet. That is the Pauli structure E-SPN-0071 used to make the lightest
+// level the natural spin one half. A per-token count of 2D + 1 >= 3 values is a flavor: it lets two loves share a
+// dock with symmetric roles and three share one in spin three halves, and the meeting (omega per like pair on
+// every antisymmetric state) no longer sees the roles at all. So the reel removes the port but also removes the
+// Pauli lock on the role.
+// Two readings were ADDED after the first run, disclosed, REPORTED and not gated: the lightest level's dock sharing
+// (weight with no two loves on a dock, one pair, all three), and the lightest under a per-dock reading of the
+// meetings (the meetings on one dock multiply to omega^(pairs there), read at the principal value of the product,
+// so three loves on one dock read 0 rather than E-SPN-0076's three times -2 pi / 3), which asks whether the failure
+// is only E-SPN-0076's definition. A disclosed probe (tmp/reel-probe2.ts) read both before they were added.
 // REPORTED, not gated: the lightest level's unwrapped energy, <l>, its weight at the capacity, its reel use,
 // particle share and meeting energy; and, as a paired control, E-SPN-0077's port-store readings at the same D.
 // HUSK: one husk line, every number a husk number; the reels are the bulk columns under the tokens' slots.
@@ -45,6 +65,8 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
+  dockContactEnergy,
+  dockSharing,
   maxSpan,
   reelBlochColumn,
   reelBlochSpace,
@@ -207,7 +229,26 @@ function unitaryOf(k: number): M3 {
   return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
 }
 
-type LightRow = { D: number; dim: number; energy: number; raw: number; mean: number; atCapacity: number; spinHalf: number; even: number; contact: number; gapNext: number; reelMean: number; reelEdge: number; residual: number; level: Level }
+type Sharing = { apart: number; pair: number; triple: number }
+type LightRow = {
+  D: number
+  dim: number
+  energy: number
+  raw: number
+  mean: number
+  atCapacity: number
+  spinHalf: number
+  even: number
+  contact: number
+  gapNext: number
+  reelMean: number
+  reelEdge: number
+  residual: number
+  level: Level
+  sharing: Sharing
+  // the per-dock reading (added after the first run, reported)
+  dock: { energy: number; spinHalf: number; mean: number; sharing: Sharing; gapNext: number }
+}
 
 function lightestThree(D: number): LightRow {
   const spec = threeSpec(D)
@@ -226,8 +267,17 @@ function lightestThree(D: number): LightRow {
   }
 
   const use = reelUse(r.bloch, lp.level.vector)
+  const dp = reelLightest(r.bloch, r.all, gridOf(spec), dockContactEnergy)
 
   return {
+    sharing: dockSharing(r.bloch, lp.level.vector),
+    dock: {
+      energy: dp.unwrapped,
+      spinHalf: 1 - reelQuartetShare(r.bloch, dp.level.vector),
+      mean: reelStringMoments(r.bloch, dp.level.vector).mean,
+      sharing: dockSharing(r.bloch, dp.level.vector),
+      gapNext: dp.nextUnwrapped - dp.unwrapped,
+    },
     D,
     dim: r.dim,
     energy: lp.unwrapped,
@@ -294,7 +344,7 @@ function portLightest(D: number): { spinHalf: number; mean: number; energy: numb
 export default experiment({
   id: 'spin/lightest-charge-one-at-ends',
   code: 'E-SPN-0082',
-  title: "the lightest bound charge-one state with the string held at its ends, a STAND-IN on locked tokens on a husk line: with each token's own column as its reel and nothing read past one link, three loves stay the lightest charge-one state, the line sector stays closed (N = 3, 2 pi sign -1), and the lightest level is read for spin, size and travel against E-SPN-0077's gates over the 17-start family",
+  title: "the lightest bound charge-one state with the string held at its ends, a STAND-IN on locked tokens on a husk line, fail: with each token's own column as its reel and nothing read past one link, three loves stay the lightest charge-one state and the line sector stays closed (N = 3, 2 pi sign -1), but the reel is a flavor that lifts Pauli's lock on the role, three loves share a dock, and the lightest level is not the natural spin one half (E-SPN-0077's result is lost), and it travels slower",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -399,7 +449,7 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `with the string held at its ends (each token's own column its reel, nothing read past one link), four loves and a fear still part into three loves and a neutral pair at no string cost (0 at every separation 1 to 20), and the beat moves no weight onto the line (worst ${Math.max(...leaks.map(l => l.leak)).toExponential(1)}), so N = 3 and the 2 pi sign is -1; the lightest three-love level has role [2,1] share ${rows.map(r => r.spinHalf.toFixed(3)).join(', ')} at D = 1 to 3 (port store: ${port.map(p => p.spinHalf.toFixed(3)).join(', ')}), <l> ${rows.map(r => r.mean.toFixed(2)).join(', ')} against a capacity of ${rows.map(r => maxSpan(threeSpec(r.D))).join(', ')} (weight at the capacity ${rows.map(r => r.atCapacity.toFixed(3)).join(', ')}), unwrapped energy ${rows.map(r => r.energy.toFixed(3)).join(', ')}; its band is ${bands.map(b => b.bandwidth.toFixed(3)).join(', ')} wide with group velocity up to ${bands.map(b => b.velocity.toFixed(3)).join(', ')} docks per beat at D = 2, 3 (min overlap ${bands.map(b => b.minOverlap.toFixed(3)).join(', ')}); the Bloch operator is the ring rule (${agreeThree.gap.toExponential(1)}, ${agreePair.gap.toExponential(1)}), and over the 17 link starts the costed runs keep the no-field positions (worst ${Math.max(...ensemble.map(e => e.gap)).toExponential(1)})`,
+      claim: `with the string held at its ends (each token's own column its reel, nothing read past one link), four loves and a fear still part into three loves and a neutral pair at no string cost (0 at every separation 1 to 20), and the beat moves no weight onto the line (worst ${Math.max(...leaks.map(l => l.leak)).toExponential(1)}), so N = 3 and the 2 pi sign is -1; the lightest three-love level has role [2,1] share ${rows.map(r => r.spinHalf.toFixed(3)).join(', ')} at D = 1 to 3 (port store: ${port.map(p => p.spinHalf.toFixed(3)).join(', ')}; per-dock reading of the meetings, added after the run: ${rows.map(r => r.dock.spinHalf.toFixed(3)).join(', ')}), so it is not the natural spin one half: the reel is a flavor, and the level holds all three loves on one dock at weight ${rows.map(r => r.sharing.triple.toFixed(3)).join(', ')}, which Pauli forbids without it; <l> ${rows.map(r => r.mean.toFixed(2)).join(', ')} against a capacity of ${rows.map(r => maxSpan(threeSpec(r.D))).join(', ')} (weight at the capacity ${rows.map(r => r.atCapacity.toFixed(3)).join(', ')}), unwrapped energy ${rows.map(r => r.energy.toFixed(3)).join(', ')}; its band is ${bands.map(b => b.bandwidth.toFixed(3)).join(', ')} wide with group velocity up to ${bands.map(b => b.velocity.toFixed(3)).join(', ')} docks per beat at D = 2, 3 (min overlap ${bands.map(b => b.minOverlap.toFixed(3)).join(', ')}); the Bloch operator is the ring rule (${agreeThree.gap.toExponential(1)}, ${agreePair.gap.toExponential(1)}), and over the 17 link starts the costed runs keep the no-field positions (worst ${Math.max(...ensemble.map(e => e.gap)).toExponential(1)})`,
       metrics: {
         gate_T1: t1 ? 1 : 0,
         gate_T2: t2 ? 1 : 0,
@@ -422,6 +472,9 @@ export default experiment({
             [`three_D${r.D}_reelAtEdge`, r.reelEdge],
             [`three_D${r.D}_dim`, r.dim],
             [`three_D${r.D}_eigenResidual`, r.residual],
+            [`three_D${r.D}_sharedApart`, r.sharing.apart],
+            [`three_D${r.D}_sharedPair`, r.sharing.pair],
+            [`three_D${r.D}_sharedTriple`, r.sharing.triple],
           ]),
         ),
         ...Object.fromEntries(bands.flatMap(b => [[`band_D${b.D}_width`, b.bandwidth], [`band_D${b.D}_velocity`, b.velocity], [`band_D${b.D}_minOverlap`, b.minOverlap]])),
@@ -435,9 +488,18 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: {
+        ...Object.fromEntries(
+          rows.flatMap(r => [
+            [`perDock_D${r.D}_spinHalfShare`, r.dock.spinHalf],
+            [`perDock_D${r.D}_energy`, r.dock.energy],
+            [`perDock_D${r.D}_meanString`, r.dock.mean],
+            [`perDock_D${r.D}_sharedTriple`, r.dock.sharing.triple],
+            [`perDock_D${r.D}_gapNext`, r.dock.gapNext],
+          ]),
+        ),
         ...Object.fromEntries(port.flatMap(p => [[`port_D${p.D}_spinHalfShare`, p.spinHalf], [`port_D${p.D}_meanString`, p.mean], [`port_D${p.D}_energy`, p.energy]])),
       },
-      notes: `L2, a STAND-IN (locked tokens on one husk line; the store now on the charges, stand-in (b) removed). Gates T1 ${t1}, T2 ${t2}, T3 ${t3}, T4 ${t4}, T5 ${t5}, T6 ${t6}. Lightest three-love level by depth: ${rows.map(r => `D ${r.D} (dim ${r.dim}, capacity ${maxSpan(threeSpec(r.D))}): E ${r.energy.toFixed(5)} (raw ${r.raw.toFixed(5)}), <l> ${r.mean.toFixed(3)}, at capacity ${r.atCapacity.toFixed(3)}, spin one half ${r.spinHalf.toFixed(4)}, particle ${r.even.toFixed(3)}, meeting energy ${r.contact.toFixed(3)}, next +${r.gapNext.toFixed(4)}, mean |reel| ${r.reelMean.toFixed(3)}, weight with a reel at its edge ${r.reelEdge.toFixed(3)}, residual ${r.residual.toExponential(1)}`).join('; ')}. Bands (K = 0 to pi in 12 steps): ${bands.map(b => `D ${b.D}: ${b.energies.map(e => e.toFixed(3)).join(' ')} (min overlap ${b.minOverlap.toFixed(3)})`).join('; ')}. Port-store control (E-SPN-0077's rule, same D): ${port.map(p => `D ${p.D} spin one half ${p.spinHalf.toFixed(4)}, <l> ${p.mean.toFixed(3)}, E ${p.energy.toFixed(4)}`).join('; ')}. Line leak by (D, K): ${leaks.map(l => `(${l.D}, ${l.K}) ${l.leak.toExponential(1)} over ${l.columns} columns`).join(', ')}. Ring agreement: three loves ${agreeThree.gap.toExponential(1)} (outside ${agreeThree.outside.toExponential(1)}), pair ${agreePair.gap.toExponential(1)} (outside ${agreePair.outside.toExponential(1)}). Start members: ${ensemble.map(e => `${e.member} ${e.gap.toExponential(1)}`).join(', ')}. D = 4 not run (about 3,500 dimensions, beyond the dense solver in this machine's memory). What this is not: an electron of the knit. The tokens are locked stand-ins (E-SPN-0081: the knit's own vibes have classical positions, and the lock is the one covariant rule that would give them amplitudes); the line is one husk line, not the 3D husk (three tokens with their strings in 2D or 3D need the flux as a register on every link, beyond exact diagonalization here); and alpha stays a knob.`,
+      notes: `L2, a STAND-IN (locked tokens on one husk line; the store now on the charges, stand-in (b) removed). Gates T1 ${t1}, T2 ${t2}, T3 ${t3}, T4 ${t4}, T5 ${t5}, T6 ${t6}. FIRST RUN (recorded, 284 s): fail on T2 and T3 with the same gated numbers as this run; no gate moved; the dock-sharing and per-dock readings were added after it (disclosed, reported). Dock sharing of the lightest level (apart, one pair, three on a dock): ${rows.map(r => `D ${r.D} ${r.sharing.apart.toFixed(3)}, ${r.sharing.pair.toFixed(3)}, ${r.sharing.triple.toFixed(3)}`).join('; ')}. Per-dock reading (a dock's meetings at the principal value of their product, three on a dock read 0): ${rows.map(r => `D ${r.D} E ${r.dock.energy.toFixed(4)}, spin one half ${r.dock.spinHalf.toFixed(4)}, <l> ${r.dock.mean.toFixed(3)}, three on a dock ${r.dock.sharing.triple.toFixed(3)}, next +${r.dock.gapNext.toFixed(4)}`).join('; ')}: the lightest is not the natural spin one half under either reading, so the loss is the reel's, not E-SPN-0076's definition's (which does misread three loves on one dock as -2 pi of binding, an artifact that could not arise before). WHY: three identical fermions on one dock hold [3] (x) [1,1,1] + [2,1] (x) [2,1] of (role doublet) (x) (reel); without a reel this is zero, with a reel of 2D + 1 >= 3 values both the spin three halves and the doublet are open, and two loves on a dock no longer need a role singlet. The reel is a flavor, and the Pauli lock on the role, which made E-SPN-0071's natural spin one half, is gone. Lightest three-love level by depth: ${rows.map(r => `D ${r.D} (dim ${r.dim}, capacity ${maxSpan(threeSpec(r.D))}): E ${r.energy.toFixed(5)} (raw ${r.raw.toFixed(5)}), <l> ${r.mean.toFixed(3)}, at capacity ${r.atCapacity.toFixed(3)}, spin one half ${r.spinHalf.toFixed(4)}, particle ${r.even.toFixed(3)}, meeting energy ${r.contact.toFixed(3)}, next +${r.gapNext.toFixed(4)}, mean |reel| ${r.reelMean.toFixed(3)}, weight with a reel at its edge ${r.reelEdge.toFixed(3)}, residual ${r.residual.toExponential(1)}`).join('; ')}. Bands (K = 0 to pi in 12 steps): ${bands.map(b => `D ${b.D}: ${b.energies.map(e => e.toFixed(3)).join(' ')} (min overlap ${b.minOverlap.toFixed(3)})`).join('; ')}. Port-store control (E-SPN-0077's rule, same D): ${port.map(p => `D ${p.D} spin one half ${p.spinHalf.toFixed(4)}, <l> ${p.mean.toFixed(3)}, E ${p.energy.toFixed(4)}`).join('; ')}. Line leak by (D, K): ${leaks.map(l => `(${l.D}, ${l.K}) ${l.leak.toExponential(1)} over ${l.columns} columns`).join(', ')}. Ring agreement: three loves ${agreeThree.gap.toExponential(1)} (outside ${agreeThree.outside.toExponential(1)}), pair ${agreePair.gap.toExponential(1)} (outside ${agreePair.outside.toExponential(1)}). Start members: ${ensemble.map(e => `${e.member} ${e.gap.toExponential(1)}`).join(', ')}. D = 4 not run (about 3,500 dimensions, beyond the dense solver in this machine's memory). MEANING: moving the count off the port onto the charges makes the rule local but gives each token a flavor, and the flavor costs the spin one half: E-SPN-0077's result does not survive stand-in (b)'s removal this way. The other local placements fail differently (E-SPN-0081's notes): a count held at the string's two end ports keeps r_L - r_R - (x_L + x_R) fixed, which pins the cluster's centre to a window of 2D docks, so nothing travels. So a local count that keeps both Pauli and travel must be carried ALONG the string between its ends, a field on the string's links, which is a new part. What this is not: an electron of the knit. The tokens are locked stand-ins (E-SPN-0081: the knit's own vibes have classical positions, and the lock is the one covariant rule that would give them amplitudes); the line is one husk line, not the 3D husk (three tokens with their strings in 2D or 3D need the flux as a register on every link, beyond exact diagonalization here); and alpha stays a knob.`,
     })
   },
 })

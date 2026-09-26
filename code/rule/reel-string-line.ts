@@ -27,7 +27,9 @@
 // why the unit is a half-link. Every decision reads one link's flux, the tokens on its two docks and their reels.
 //
 // KEPT: sum of reels + 2 l, exactly, on every copy. From contact (every reel calm, no flux) the reels hold -2 l in
-// total, each at least -D, so l <= floor(n D / 2): the columns are the string's capacity, held at its ends.
+// total, each at least -D, so l <= floor(n D / 2): the columns are the string's capacity, held at its ends. A lone
+// end pays a whole link (two half-links), so it pulls floor(D / 2) links: a love-fear pair reaches 2 floor(D / 2),
+// three loves (two of which can cross together, a half-link each) reach floor(3D / 2) (E-SPN-0081).
 //
 // THE COST AND THE MEETINGS are code/rule/flux-store-line's, unchanged: the light's drift zeta_M^(-c l) per beat
 // (each link with flux contributes its own factor, so it is local), two loves on one dock meet through 2U, a love

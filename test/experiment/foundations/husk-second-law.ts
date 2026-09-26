@@ -46,6 +46,12 @@
 // confirmations here. On the empty vacuum (probe 2, not this file) the stream's recurrence at t = 8, 16, 24, 32, 40 on
 // side 8 is visible and decays by about 2 per box crossing.
 //
+// FIRST RUN (263 s): pass, every gate, recorded as is. Its bulk reader (reported, not gated) split each husk block in
+// three by v4 mod 2L, which is not defined on the box (the period L (0, 0, 1, 1) shifts it by L), so its three parts held
+// unequal dock counts and the bulk deficit stayed at 0.67 of its start. The second run (357 s, the record) splits by v4
+// mod L in two halves of equal size; every gate and husk number is identical, and the bulk late ratio is 0.0021 to
+// 0.0024. Title written after the runs.
+//
 // Depth L2: a theorem (bijection) plus its measurement on the adopted knit's own gas, read on the husk.
 // DETERMINISM: Weyl fills and the 17 link starts; nothing is drawn. NOTHING MOVES: the stream copies.
 
@@ -146,7 +152,8 @@ function branch(box: ArrowBox, bulk: Int32Array, start: Reduced, direction: 1 | 
 export default experiment({
   id: 'foundations/husk-second-law',
   code: 'E-FND-0146',
-  title: 'the second law on the adopted knit, read on the husk',
+  title:
+    'the second law on the adopted knit, read on the husk, pass: on the coset-union vacuum under the lone bounce collision (side 12, 27 husk blocks, 17 starts) a start with 12,288 extra vibes in one husk block (deficit ln 27 - H = 0.0664) relaxes to 0.0010 to 0.0012 of that deficit over the last 60 of 240 beats, a tenth of it by beat 4, and the rule\'s exact inverse from the same start does the same (0.0010 to 0.0012, beat 4): the arrow is the start, not the rule; energy and charge exact, both runs return the start bit for bit, the deficit rises on 105 to 121 of 240 beats (fluctuations); 32 starts under one rule stay 32 distinct states at every beat (fine-grained entropy ln 32 exactly) while their mean deficit falls 860-fold; bulk halves beside 0.0021 to 0.0024; exact recurrence on the side-4 box: 6 beats (vacuum), 360 (one vibe), 18,000 (two to four), over 524,288 (six and eight)',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

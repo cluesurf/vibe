@@ -69,6 +69,25 @@
 //    with square proportional to 1 (to 1e-12).
 //
 // Gates, fixed with the predictions: H1 .. H7. Status pass if all hold.
+//
+// FIRST RUN (2026-09-26, 5 s), recorded: FAIL on H3 and H5, every other gate passing. H5's formula was wrong for the
+// pair: a lone end crossing a link pays a whole link, two half-links, from a column of 2D + 1 half-link values, so
+// an end alone pulls floor(D / 2) links and the pair reaches 2 floor(D / 2) (0, 2, 2, 4 at D = 1 to 4, predicted
+// 1, 2, 3, 4); three loves reach floor(3D / 2) as predicted (1, 3, 4), because two loves crossing together pay one
+// half-link each. H3 failed on the two D = 1 cases only: the pair (by the same fact) never separates and three
+// loves reach a span of 1, so no token is ever 2 docks from another and the test had nothing to check; every
+// informative case reads 0 far changes that matter. No gate was moved. The claim and title were rewritten after the run to state the range that holds,
+// and the corrected range (2 floor(D / 2) for a pair of lone ends, floor(3D / 2) for three loves) is REPORTED
+// beside the gate, not gated.
+// AFTER E-SPN-0082 (disclosed, reported, not gated): the reel turned out to be a flavor that lifts Pauli's lock on
+// the role (E-SPN-0082 loses the natural spin one half). The other local placement, the END-PORT store (each end's
+// reserve at the string's end port, copied with the end), is argued and read here: a growing end must pay from its
+// own reserve because it cannot know what the far end did in the same beat, so r_L grows by the left end's step
+// and r_R falls by the right end's, and r_L - r_R - (x_L + x_R) is kept while the string has a link. Three loves
+// always have one (with no reel they never share a dock), so with every reserve in -D .. D their centre stays
+// within about D docks of its start: the charge-one cluster cannot travel (a love-fear pair escapes only through
+// contact). A BFS over every label sequence on the infinite line reads the farthest centre for both placements. THEOREM 3 is therefore sharpened: a husk-local count sits on the
+// tokens (a flavor), at the end ports (a pinned centre), or is carried along the string (a new part).
 // START FAMILY: nothing here reads a color link (E-SPN-0082 runs the 17 starts where the field enters). HUSK: one
 // husk line, every number a husk number; the reels are the bulk columns under the tokens' slots.
 // THE FEAR'S STREAM SIGN: C (the user's choice, 2026-09-26) only; three loves hold no fear.
@@ -93,6 +112,7 @@ import {
 } from '@/code/rule/reel-string-line'
 import { stepTable, type Vibe } from '@/code/rule/locked-token-line'
 import { antisymmetrizedReels, reelExactCheck } from '@/code/measure/reel-exact'
+import { reelStreamLine, type ReelBlochSpec } from '@/code/measure/reel-string-bloch'
 import { unitRotations } from '@/code/measure/token-gates'
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
@@ -526,6 +546,73 @@ function lineLock(axis: number): { dimension: number; lineWorst: number; involut
   return { dimension: basis.length / 2, lineWorst, involutionGap, traceGap, units: units.length }
 }
 
+// ---- REPORTED after the first runs (disclosed): does three loves' centre travel? ----
+// On the infinite line, under every label sequence, the farthest the centre (x_min + x_max) / 2 of three loves
+// reaches, up to a cap, from two loves on dock 0 and one on dock 1. The END-PORT store: each end's reserve held at
+// the string's end port and copied with the end, whole links, the left reserve paying for the left end's moves and
+// the right for the right's (a growing end cannot know in the same beat what the far end did); a move that would
+// overdraw or overfill a reserve is not made. With no reel, three loves never share a dock (the antisymmetric cube
+// of a doublet is zero), so such images carry no amplitude and are skipped: the reach read is a superset of the
+// support. While l >= 1 an end changes only when its outermost link does, so this is also the flux-based rule.
+// The reels (E-SPN-0081's rule) are read beside it, three on a dock allowed as their flavor allows.
+function centreReach(kind: 'end-port' | 'reel', D: number, cap: number): { states: number; farthest: number; capped: boolean; conservedBroken: number } {
+  const spec: ReelBlochSpec = { kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', depth: D, cost: 0, root: 3, labels: 2 }
+  const key = (s: number[]): string => s.join(',')
+  // positions, then the reels (per token) or the reserves (left, right, and an unused 0)
+  const start = kind === 'reel' ? [0, 0, 1, 0, -1, -1] : [0, 0, 1, 0, -1, 0]
+  const seen = new Set<string>([key(start)])
+  const queue = [start]
+  let farthest = 0
+  let capped = false
+  let conservedBroken = 0
+  const q0 = 0 - -1 - (0 + 1)
+
+  while (queue.length > 0) {
+    const s = queue.pop()!
+    const x = s.slice(0, 3)
+
+    for (let c = 0; c < 8; c++) {
+      const j = [c & 1, (c >> 1) & 1, (c >> 2) & 1]
+      let next: number[]
+
+      if (kind === 'reel') {
+        const out = reelStreamLine(spec, x, s.slice(3, 6), j)
+
+        next = [...out.y, ...out.r]
+      } else {
+        const y = x.map((v, t) => v + (j[t] === 0 ? 1 : -1))
+
+        if (y[0] === y[1] && y[1] === y[2]) continue
+
+        const rl = s[3]! + (Math.min(...y) - Math.min(...x))
+        const rr = s[4]! - (Math.max(...y) - Math.max(...x))
+
+        next = rl < -D || rl > D || rr < -D || rr > D ? s.slice() : [...y, rl, rr, 0]
+
+        if (next[3]! - next[4]! - (Math.min(...next.slice(0, 3)) + Math.max(...next.slice(0, 3))) !== q0) conservedBroken++
+      }
+
+      const centre = Math.abs(Math.min(...next.slice(0, 3)) + Math.max(...next.slice(0, 3))) / 2
+
+      if (centre > cap) {
+        capped = true
+        continue
+      }
+
+      farthest = Math.max(farthest, centre)
+
+      const k = key(next)
+
+      if (!seen.has(k)) {
+        seen.add(k)
+        queue.push(next)
+      }
+    }
+  }
+
+  return { states: seen.size, farthest, capped, conservedBroken }
+}
+
 const reelSpec = (ring: number, kinds: Vibe[], depth: number, cost = false): ReelSpec => {
   const N = 2 * depth + 1
 
@@ -537,7 +624,7 @@ const portSpec = (ring: number, kinds: Vibe[], depth: number): portStore.FluxSto
 export default experiment({
   id: 'spin/string-held-at-ends',
   code: 'E-SPN-0081',
-  title: "where the string's store can live, a STAND-IN on locked tokens on a husk line: no bound on a link's own registers confines at a range (Gauss makes every string show the same windows), the port store's bounce reads the string's far end in the same beat, so a husk-local count must sit on the charges: each token's own column is its reel, the tokens crossing a link pay its change in equal half-links, and the rule is local, reversible, integer, Gauss exact and confines at floor(n D / 2); the knit's own vibe is not a locked token (its positions are classical), and the lock is the unique covariant way to make it one",
+  title: "where the string's store can live, a STAND-IN on locked tokens on a husk line: no bound on a link's own registers confines at a range (Gauss makes every string show the same windows), the port store's bounce reads the string's far end in the same beat, so a husk-local count must sit on the charges: each token's own column is its reel, the tokens crossing a link pay its change in equal half-links, and the rule is local, reversible, integer, Gauss exact and confines at a range set by the ends' columns (the pair 2 floor(D / 2), three loves floor(3D / 2), the gate's formula missed the pair); read after the runs, every local placement pays: on the tokens the count is a flavor (E-SPN-0082), at the end ports it pins the centre, between them it needs a stream of its own; the knit's own vibe is not a locked token (its positions are classical), and the lock is the unique covariant way to make it one",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -618,12 +705,21 @@ export default experiment({
 
     log('h7')
 
+    // REPORTED after the first runs: the end-port store pins the centre, the reels do not
+    const centres = [1, 2, 3, 4].map(D => ({ D, endPort: centreReach('end-port', D, 40), reel: centreReach('reel', D, 40) }))
+
+    log('centres')
+
     const ok = h1 && h2 && h3 && h4 && h5 && h6 && h7
     const pairPort = portRows.filter(r => r.pair)
+    // REPORTED after the first run: the range that holds (a lone end pays whole links from a half-link column)
+    const rangeOf = (n: number, D: number): number => (n === 2 ? 2 * Math.floor(D / 2) : Math.floor((3 * D) / 2))
+    const rangeHolds = reelRows.every(r => r.maxString === rangeOf(r.n, r.D))
+    const informative = reelRows.filter(r => r.checked > 0)
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `no bound on a link's own registers confines at a range: over every predicate on w-link windows (${windows.map(w => `${w.name}: ${w.predicates}`).join(', ')}) the allowed string lengths never change once the length reaches w (${windows.reduce((a, w) => a + w.violations, 0)} violations), because Gauss shows every long string the same windows; E-SPN-0075's port store is not husk-local: a token's copy changes with the label of a token 2 or more docks away on ${portRows.map(r => r.witnesses.toLocaleString('en-US')).join(', ')} checks (${portRows.map(r => r.name).join(', ')}), the pair's farthest at ${pairPort.map(r => r.farthest).join(', ')} = 2D; held on the charges instead, as each token's own column (its reel, the tokens crossing a link paying its change in equal half-links), the rule reads nothing past one link (0 of ${(reelRows.reduce((a, r) => a + r.checked, 0) + sectorLocality.reduce((a, r) => a + r.checked, 0)).toLocaleString('en-US')} far changes matter), permutes every Gauss sector tried (${sectors.map(w => w.states.toLocaleString('en-US')).join(', ')} states, flip . stream . flip its inverse, Gauss and sum r + 2 l kept), confines at exactly floor(n D / 2) (${reelRows.map(r => r.maxString).join(', ')}), and runs exactly in Eisenstein integers with the cost (${exactPair.gap.toExponential(1)}, ${exactThree.gap.toExponential(1)}, norm and reversal ${exactPair.norm && exactPair.reverses && exactThree.norm && exactThree.reverses}); a role-reading copy covariant under a husk line's own ${locks[0]!.units} units has a generator of dimension ${locks.map(l => l.dimension).join(', ')}, zero on the line (${Math.max(...locks.map(l => l.lineWorst)).toExponential(1)}) and a traceless involution on the doublet: the locked token is the only way the knit's vibe can move with amplitudes, and the adopted knit does not run it`,
+      claim: `no bound on a link's own registers confines at a range: over every predicate on w-link windows (${windows.map(w => `${w.name}: ${w.predicates}`).join(', ')}) the allowed string lengths never change once the length reaches w (${windows.reduce((a, w) => a + w.violations, 0)} violations), because Gauss shows every long string the same windows; E-SPN-0075's port store is not husk-local: a token's copy changes with the label of a token 2 or more docks away on ${portRows.map(r => r.witnesses.toLocaleString('en-US')).join(', ')} checks (${portRows.map(r => r.name).join(', ')}), the pair's farthest at ${pairPort.map(r => r.farthest).join(', ')} = 2D; held on the charges instead, as each token's own column (its reel, the tokens crossing a link paying its change in equal half-links), the rule reads nothing past one link (${(reelRows.reduce((a, r) => a + r.witnesses, 0) + sectorLocality.reduce((a, r) => a + r.witnesses, 0)).toLocaleString('en-US')} of ${(reelRows.reduce((a, r) => a + r.checked, 0) + sectorLocality.reduce((a, r) => a + r.checked, 0)).toLocaleString('en-US')} far changes matter; the H3 gate fails only on the two D = 1 cases, where no token is ever 2 docks from another, so there is nothing to check), permutes every Gauss sector tried (${sectors.map(w => w.states.toLocaleString('en-US')).join(', ')} states, flip . stream . flip its inverse, Gauss and sum r + 2 l kept), confines at the range the ends' columns set (${reelRows.map(r => `${r.name} ${r.maxString}`).join(', ')}: a lone end pays whole links from its half-link column, so the pair reaches 2 floor(D / 2), not the gate's floor(D), and three loves floor(3D / 2)), and runs exactly in Eisenstein integers with the cost (${exactPair.gap.toExponential(1)}, ${exactThree.gap.toExponential(1)}, norm and reversal ${exactPair.norm && exactPair.reverses && exactThree.norm && exactThree.reverses}); a role-reading copy covariant under a husk line's own ${locks[0]!.units} units has a generator of dimension ${locks.map(l => l.dimension).join(', ')}, zero on the line (${Math.max(...locks.map(l => l.lineWorst)).toExponential(1)}) and a traceless involution on the doublet: the locked token is the only way the knit's vibe can move with amplitudes, and the adopted knit does not run it; read after the runs, the end-port store pins three loves' centre within ${centres.map(c => c.endPort.farthest).join(', ')} docks at D = 1 to 4 while the reels let it reach ${centres.map(c => c.reel.farthest).join(', ')} (cap 40), and the reels lift Pauli (E-SPN-0082), so every local placement of the count pays`,
       metrics: {
         gate_H1: h1 ? 1 : 0,
         gate_H2: h2 ? 1 : 0,
@@ -646,11 +742,15 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: {
+        ...Object.fromEntries(centres.flatMap(c => [[`endPort_D${c.D}_farthestCentre`, c.endPort.farthest], [`endPort_D${c.D}_capped`, c.endPort.capped ? 1 : 0], [`endPort_D${c.D}_conservedBroken`, c.endPort.conservedBroken], [`reel_D${c.D}_farthestCentre`, c.reel.farthest], [`reel_D${c.D}_capped`, c.reel.capped ? 1 : 0]])),
+        reportedRangeHolds: rangeHolds ? 1 : 0,
+        reportedInformativeLocalityCases: informative.length,
+        reportedInformativeLocalityWitnesses: informative.reduce((a, r) => a + r.witnesses, 0),
         ...Object.fromEntries(sectorLocality.map(r => [`sectorLocality_${r.name.replace(/ /g, '_')}_checked`, r.checked])),
         portLocalityChecked: portRows.reduce((a, r) => a + r.checked, 0),
         reelLocalityChecked: reelRows.reduce((a, r) => a + r.checked, 0),
       },
-      notes: `L1 for theorems 1, 2, 4; the reel rule L2, a STAND-IN (locked tokens on one husk line). Gates H1 ${h1}, H2 ${h2}, H3 ${h3}, H4 ${h4}, H5 ${h5}, H6 ${h6}, H7 ${h7}. Windows: ${windows.map(w => `${w.name} ${w.predicates} predicates, ${w.violations} violations, ${w.confineWithin} confine only inside the window, ${w.allowAll} allow every length (per orientation)`).join('; ')}. Port store (E-SPN-0075): ${portRows.map(r => `${r.name}: ${r.states} reached, max l ${r.maxString}, ${r.witnesses} of ${r.checked} far label changes move another token's copy, farthest ${r.farthest}`).join('; ')}. Reel rule: ${reelRows.map(r => `${r.name}: ${r.states} reached, max l ${r.maxString} (floor(nD/2) = ${Math.floor((r.n * r.D) / 2)}), ${r.witnesses} of ${r.checked} far changes matter, ${r.unsplit} unsplit groups, store broken ${r.storeBroken}, Gauss broken ${r.gaussBroken}`).join('; ')}; whole Gauss sectors: ${sectorLocality.map(r => `${r.name} ${r.witnesses} of ${r.checked}`).join(', ')}. Permutation: ${sectors.map(w => `${w.name} ${w.states} states, permutation ${w.permutation}, inverse ${w.inverse}, Gauss broken ${w.gaussBroken}, store broken ${w.storeBroken}, states with an unsplittable group ${w.unsplitStates} (these bounce; they are states whose flux wraps the ring)`).join('; ')}. Exact: pair ${JSON.stringify(exactPair)}, three loves ${JSON.stringify(exactThree)}. Line lock: ${locks.map(l => `axis ${l.axis}: ${l.units} units, dimension ${l.dimension}, line ${l.lineWorst.toExponential(1)}, involution ${l.involutionGap.toExponential(1)}, trace ${l.traceGap.toExponential(1)}`).join('; ')}. MEANING: stand-in (b) is removed. The store does not need a port, and it cannot be dropped: Gauss makes the flux local and blind to length, so a local count is required, and the only husk-local place for it is on the charges. Each token's own column is its reel, the ends trade string only through its length (the yo-yo), and every decision reads one link. The range is floor(n D / 2), set by the columns under the ends (E-SPN-0075's 2D came from one column of 2D + 1 values counting whole links; here each end's column counts half-links, because two identical tokens crossing together must share). Stand-in (a) is not removed, and cannot be by reading: the adopted knit's positions are classical in every history (its stream reads slots, the fear beat reads the classical record and writes none of it, E-SPN-0067), so its vibes cannot form a bound level; the one covariant rule that gives a vibe's position amplitudes from its role is the doublet lock, dimension 1 on a husk line's own stabilizer. The locked token is therefore the unique candidate, one named rule ("a vibe's copy direction is its role's doublet") from the knit, not a derivation from it. No background vacuum is used: the construction runs on a husk line with no knit vacuum, and the obstruction to (a) is a property of the stream and the fear beat on every vacuum, including the coset-union vacuum of E-RLT-0093.`,
+      notes: `L1 for theorems 1, 2, 4; the reel rule L2, a STAND-IN (locked tokens on one husk line). Gates H1 ${h1}, H2 ${h2}, H3 ${h3}, H4 ${h4}, H5 ${h5}, H6 ${h6}, H7 ${h7}. FIRST RUN (recorded, 5 s): fail on H3 and H5 with the same numbers as this run; no gate moved. H5's formula floor(nD/2) was wrong for the pair: a lone end pays a whole link (two half-links) from its column of 2D + 1 half-link values, so it pulls floor(D/2) links and the pair reaches 2 floor(D/2); three loves reach floor(3D/2) because two loves crossing together pay a half-link each. Reported after the run: that range holds on every case (${rangeHolds}). H3 failed only because at D = 1 no token is ever 2 docks from another (the pair never separates, three loves reach a span of 1: 0 checks); the ${informative.length} informative cases read ${informative.reduce((a, r) => a + r.witnesses, 0)} far changes that matter. Windows: ${windows.map(w => `${w.name} ${w.predicates} predicates, ${w.violations} violations, ${w.confineWithin} confine only inside the window, ${w.allowAll} allow every length (per orientation)`).join('; ')}. Port store (E-SPN-0075): ${portRows.map(r => `${r.name}: ${r.states} reached, max l ${r.maxString}, ${r.witnesses} of ${r.checked} far label changes move another token's copy, farthest ${r.farthest}`).join('; ')}. Reel rule: ${reelRows.map(r => `${r.name}: ${r.states} reached, max l ${r.maxString} (floor(nD/2) = ${Math.floor((r.n * r.D) / 2)}), ${r.witnesses} of ${r.checked} far changes matter, ${r.unsplit} unsplit groups, store broken ${r.storeBroken}, Gauss broken ${r.gaussBroken}`).join('; ')}; whole Gauss sectors: ${sectorLocality.map(r => `${r.name} ${r.witnesses} of ${r.checked}`).join(', ')}. Permutation: ${sectors.map(w => `${w.name} ${w.states} states, permutation ${w.permutation}, inverse ${w.inverse}, Gauss broken ${w.gaussBroken}, store broken ${w.storeBroken}, states with an unsplittable group ${w.unsplitStates} (these bounce; they are states whose flux wraps the ring)`).join('; ')}. Exact: pair ${JSON.stringify(exactPair)}, three loves ${JSON.stringify(exactThree)}. Line lock: ${locks.map(l => `axis ${l.axis}: ${l.units} units, dimension ${l.dimension}, line ${l.lineWorst.toExponential(1)}, involution ${l.involutionGap.toExponential(1)}, trace ${l.traceGap.toExponential(1)}`).join('; ')}. AFTER THE RUNS (added, disclosed, reported, not gated). E-SPN-0082 found the reel costs the spin one half: a per-token count of 3 or more values is a flavor, and Pauli no longer locks the role (three loves can share a dock). The other local placement was then read: the end-port store (each end's reserve at the string's end port, copied with the end, each end paying for its own moves, since a growing end cannot know in the same beat what the far end did) keeps r_L - r_R - (x_L + x_R) fixed while the string has a link, and three loves always have one (without a reel they never share a dock), so their centre is held within about D docks of where it started (every label sequence, from two loves on dock 0 and one on dock 1): ${centres.map(c => `D ${c.D}: end-port farthest centre ${c.endPort.farthest} (capped ${c.endPort.capped}, conservation broken ${c.endPort.conservedBroken}), reels ${c.reel.farthest}${c.reel.capped ? ' (reached the cap of 40)' : ''}`).join('; ')}. A love-fear pair escapes only through contact, where no end link changes. So every local placement pays: on the tokens, a flavor that lifts Pauli (E-SPN-0082); at the ends' ports, a pinned centre for the charge-one cluster (it cannot travel); in between, only a count carried along the string by a stream of its own, which is a new part. MEANING: stand-in (b) is removable only at one of those costs. The store does not need a port, and it cannot be dropped: Gauss makes the flux local and blind to length, so a local count is required, and it must sit within one dock of each growing end: on the charges, at the end ports, or carried between them. Built here: on the charges. Each token's own column is its reel, the ends trade string only through its length (the yo-yo), and every decision reads one link. The range is set by the columns under the ends: each end's column counts half-links (two identical tokens crossing together must share, so the unit is half a link), a lone end pays a whole link, and so the pair reaches 2 floor(D/2) and three loves floor(3D/2), where E-SPN-0075's one column of 2D + 1 whole-link values reached 2D. The halving is the price of locality with equal shares, and an odd D leaves a lone end one unusable half-link. Stand-in (a) is not removed, and cannot be by reading: the adopted knit's positions are classical in every history (its stream reads slots, the fear beat reads the classical record and writes none of it, E-SPN-0067), so its vibes cannot form a bound level; the one covariant rule that gives a vibe's position amplitudes from its role is the doublet lock, dimension 1 on a husk line's own stabilizer. The locked token is therefore the unique candidate, one named rule ("a vibe's copy direction is its role's doublet") from the knit, not a derivation from it. No background vacuum is used: the construction runs on a husk line with no knit vacuum, and the obstruction to (a) is a property of the stream and the fear beat on every vacuum, including the coset-union vacuum of E-RLT-0093.`,
     })
   },
 })

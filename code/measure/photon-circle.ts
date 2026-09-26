@@ -96,7 +96,9 @@ export type MemberReading = {
   halfTurns: number
   // plaquette-beats where the rule's branch differs from the Villain branch of its own shadow
   branchOffLight: number
-  // string moves in the Villain reference, and the largest |shadow plaquette flux| the rule reached
+  // string moves of the rule (its branch n_t changing on a plaquette between beats) and of the Villain reference, and
+  // the largest |shadow plaquette flux| the rule reached
+  ruleStringMoves: number
   referenceStringMoves: number
   peakShadowFlux: number
   // worst |E~ - reference| over links and beats
@@ -189,6 +191,7 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
   const linearA = Float64Array.from(shadowA)
   const linearE = Float64Array.from(shadowE)
   const villainN = new Int32Array(P)
+  const ruleN = new Int32Array(P)
   const newer = new Float64Array(L)
   const older = new Float64Array(L)
   const lawForce = new Float64Array(L)
@@ -228,6 +231,7 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
   let halfTurns = 0
   let branchOffLight = 0
   let referenceStringMoves = 0
+  let ruleStringMoves = 0
   let peakShadowFlux = 0
   let shadowFromVillain = 0
   let shadowFromLinear = 0
@@ -318,6 +322,12 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
       const nearest = Math.round(nt)
 
       branchNonInteger = Math.max(branchNonInteger, Math.abs(nt - nearest))
+
+      if (t > 1 && nearest !== ruleN[pl]) {
+        ruleStringMoves++
+      }
+
+      ruleN[pl] = nearest
       branchOffLight += nearest === villainBranch(shadowFlux, N) ? 0 : 1
       peakShadowFlux = Math.max(peakShadowFlux, Math.abs(shadowFlux - N * villainBranch(shadowFlux, N)))
 
@@ -363,6 +373,7 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
     branchNonInteger,
     halfTurns,
     branchOffLight,
+    ruleStringMoves,
     referenceStringMoves,
     peakShadowFlux,
     shadowFromVillain,

@@ -376,7 +376,9 @@ export function sampleHuskLaw(box: ArrowBox, law: HuskLaw, s: Reduced): void {
       if (v > 0) law.plus++
       else law.minus++
 
-      count[c * HUSK_DIRECTIONS + (HUSK_DIRECTION[d] as number)]++
+      const mode = c * HUSK_DIRECTIONS + (HUSK_DIRECTION[d] as number)
+
+      count[mode] = (count[mode] as number) + 1
     }
 
     for (let l = 0; l < 12; l++) {
