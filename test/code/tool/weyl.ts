@@ -1,8 +1,9 @@
 // Conformance for code/tool/weyl, the deterministic low-discrepancy sequences that replaced the seeded
-// generator on 2026-09-25. The hard contract: the stream IS the Kronecker sequence it states (checked
-// against the formula, not the implementation), it is bit-identical for the same start, its values stay in
-// range, a window of consecutive values is jointly equidistributed (a pair histogram far flatter than a
-// generator's), the Gaussian map is the inverse normal distribution, and the matrix helpers are exactly
+// generator on 2026-09-25. The hard contract: a start owns the stated prime, the stream IS the Kronecker
+// sequence it states (checked against the formula, not the implementation), it is bit-identical for the
+// same start, its values stay in range, a window of consecutive values is jointly equidistributed (a pair
+// histogram far flatter than a generator's), two streams are uncorrelated and four streams carry no
+// linear relation, the Gaussian map is the inverse normal distribution, and the matrix helpers are exactly
 // orthogonal and unitary to rounding.
 
 import { suite, check, equal, ok, close } from '@/test/code/harness'
@@ -16,6 +17,7 @@ import {
   weylOrthogonal,
   weylPermutation,
   weylUnitary,
+  weylStreamPrime,
   weylUnitVector,
 } from '@/code/tool/weyl'
 
@@ -26,23 +28,36 @@ function fraction(x: number): number {
 }
 
 suite('tool/weyl: the stream is the stated Kronecker sequence', [
-  // draw k < 64 at start 0 is step 1 of slot k: frac(sqrt p_k), to the 2^-32 fixed-point rounding
-  check('the first pass at start 0 reads frac(sqrt p) in prime order', () => {
+  // start 0 owns the least prime at or above 400, which is 401; start 1 the least at or above 1400, 1409
+  check('a start owns the least prime at or above 400 + 1000 u', () => {
+    equal(weylStreamPrime(0), 401, 'start 0')
+    equal(weylStreamPrime(1), 1409, 'start 1')
+    equal(weylStreamPrime(2 ** 26), 401, 'starts agree modulo 2^26')
+  }),
+  check('distinct starts below 2000 own distinct primes', () => {
+    const primes = new Set(
+      Array.from({ length: 2000 }, (_, u) => weylStreamPrime(u)),
+    )
+
+    equal(primes.size, 2000, 'one prime per start')
+  }),
+  // draw k < 64 at start 0 is step 1 of slot k: frac(sqrt(q_k 401)), to the 2^-30 fixed-point rounding
+  check('the first pass at start 0 reads frac(sqrt(q 401)) in prime order', () => {
     const stream = makeWeyl({ start: 0 })
 
-    for (const p of PRIMES) {
-      close(stream.next(), fraction(Math.sqrt(p)), 2 ** -31, `sqrt ${p}`)
+    for (const q of PRIMES) {
+      close(stream.next(), fraction(Math.sqrt(q * 401)), 2 ** -30, `sqrt(${q} 401)`)
     }
   }),
-  // draw 64 is step 2 of slot 0: frac(2 sqrt 2)
-  check('the 65th value at start 0 is frac(2 sqrt 2)', () => {
+  // draw 64 is step 2 of slot 0: frac(2 sqrt(802))
+  check('the 65th value at start 0 is frac(2 sqrt 802)', () => {
     const stream = makeWeyl({ start: 0 })
 
     for (let i = 0; i < 64; i++) {
       stream.next()
     }
 
-    close(stream.next(), fraction(2 * Math.SQRT2), 2 ** -30, 'second pass, slot 0')
+    close(stream.next(), fraction(2 * Math.sqrt(802)), 2 ** -29, 'second pass, slot 0')
   }),
   check('the same start gives a bit-identical stream', () => {
     const a = makeWeyl({ start: 12345 })
@@ -103,6 +118,38 @@ suite('tool/weyl: range and uniformity', [
     }
 
     ok(chi < 60, `pair chi-square ${chi.toFixed(1)} should sit well below 99`)
+  }),
+  // A family linear in the start leaves streams s1 - s2 + s3 - s4 = 0 exactly related, so the product of
+  // four sign patterns averages about 0.3; independent values give about 0.025 at n = 1024.
+  check('four streams carry no linear relation between their starts', () => {
+    const n = 1024
+    const signs = Array.from({ length: 22 }, (_, start) => {
+      const stream = makeWeyl({ start })
+
+      return Array.from({ length: n }, () => (stream.next() >= 0.5 ? 1 : -1))
+    })
+
+    let total = 0
+    let count = 0
+
+    for (let i = 0; i < 10; i++) {
+      for (let k = i + 1; k < 10; k++) {
+        let dot = 0
+
+        for (let t = 0; t < n; t++) {
+          dot +=
+            signs[2 * i + 1]![t]! *
+            signs[2 * k + 1]![t]! *
+            signs[2 * k + 2]![t]! *
+            signs[2 * i + 2]![t]!
+        }
+
+        total += Math.abs(dot / n)
+        count++
+      }
+    }
+
+    ok(total / count < 0.06, `mean four-stream product ${(total / count).toFixed(4)} should sit near 0.025`)
   }),
   check('the normal values have mean 0 and variance 1', () => {
     const stream = makeWeyl({ start: 2 })

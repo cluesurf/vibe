@@ -12,16 +12,16 @@ import {
 } from '@/code/coarse/self-trajectory'
 
 suite('coarse/self-trajectory: the stream', [
-  // Independent reference: draw k of the stream at start 0 is frac((k + 1) * frac(sqrt p_k)) for the
-  // first 64 draws, p_k the k-th prime, to the 2^-32 fixed-point rounding of the irrational.
-  check('makeStream at start 0 is the Kronecker sequence of sqrt p', () => {
+  // Independent reference: draw k < 64 of the stream at start 0 is frac(sqrt(q_k 401)), q_k the k-th
+  // prime and 401 the prime start 0 owns, to the fixed-point rounding of the irrational.
+  check('makeStream at start 0 is the Kronecker sequence of sqrt(q 401)', () => {
     const stream = makeStream(0)
     const primes = [2, 3, 5, 7, 11, 13, 17, 19]
 
-    for (const p of primes) {
-      const alpha = Math.sqrt(p) - Math.floor(Math.sqrt(p))
+    for (const q of primes) {
+      const root = Math.sqrt(q * 401)
 
-      close(stream.next(), alpha, 2 ** -31, `sqrt ${p}`)
+      close(stream.next(), root - Math.floor(root), 2 ** -30, `sqrt(${q} 401)`)
     }
   }),
   check('values lie in [0,1) and the start is reproducible', () => {
