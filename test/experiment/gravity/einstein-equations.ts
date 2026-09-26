@@ -18,7 +18,7 @@
 // plugged-in operator, not evidence that the substrate generates general relativity.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p32-einstein-equations.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   einsteinOp,
   gravitonFromAction,
@@ -34,7 +34,7 @@ export function bianchiResidual(input: {
   samples: number
   seed: number
 }): number {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   let worst = 0
 

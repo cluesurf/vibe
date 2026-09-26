@@ -15,7 +15,7 @@
 // same integration logic that makes a cluster a genuine higher vibe (P57, P58).
 // Run: npx tsx code/experiment/p59-nested-selves.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { modularMesh } from '@/code/substrate/modular-mesh'
 import { experiment } from '@/test/scaffold/suite'
@@ -34,7 +34,7 @@ export function nestedSelves(input: { seed: number }): {
 } {
   const numCells = 30
   const cellSize = 24
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const { g, fills, cellOf } = modularMesh({
     numCells,
     cellSize,
@@ -51,7 +51,7 @@ export function nestedSelves(input: { seed: number }): {
     fills,
     init: base,
     sweeps: 40,
-    rng: makeRng({ seed: input.seed + 1 }),
+    rng: makeWeyl({ start: input.seed + 1 }),
   }).state
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
@@ -71,8 +71,8 @@ export function nestedSelves(input: { seed: number }): {
     for (let c = 0; c < numCells; c++) {
       const mem = members[c] ?? []
       const k = Math.max(1, Math.round(fraction * mem.length))
-      const pr = makeRng({
-        seed: input.seed + 1000 * c + Math.round(fraction * 100),
+      const pr = makeWeyl({
+        start: input.seed + 1000 * c + Math.round(fraction * 100),
       })
 
       const perturbed = Int8Array.from(base)

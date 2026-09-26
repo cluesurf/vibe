@@ -7,6 +7,7 @@
 // spectral gap), self-trajectory.ts (the micro source).
 
 import { countMatrix } from '@/code/coarse/transition-matrix'
+import { weylPermutation } from '@/code/tool/weyl'
 
 // A row-stochastic transition matrix fit from a label trajectory at lag tau, with add-alpha (Laplace)
 // smoothing so a held-out transition never has probability zero. alpha is a small pseudo-count.
@@ -150,29 +151,14 @@ export function forwardAccuracy(input: {
 
 // Time-shuffle a label trajectory, destroying the temporal order while preserving the marginal. The control,
 // a surrogate fit to this has no real dynamics to learn, so it cannot out-predict the marginal baseline.
+// The permutation is the deterministic Weyl permutation at `start` (code/tool/weyl). Until 2026-09-25 it
+// was a Fisher-Yates shuffle from a local linear congruential generator seeded by the caller.
 export function timeShuffle(input: {
   trajectory: number[]
-  seed: number
+  start: number
 }): number[] {
-  const { trajectory, seed } = input
+  const { trajectory, start } = input
+  const order = weylPermutation({ size: trajectory.length, start })
 
-  let s = seed >>> 0
-
-  const next = (): number => {
-    s = (Math.imul(s, 1664525) + 1013904223) >>> 0
-
-    return s / 4294967296
-  }
-
-  const out = trajectory.slice()
-
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(next() * (i + 1))
-    const tmp = out[i]!
-
-    out[i] = out[j]!
-    out[j] = tmp
-  }
-
-  return out
+  return order.map(i => trajectory[i]!)
 }

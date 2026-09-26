@@ -5,7 +5,7 @@
 // estimates traces of spectral functions, like Tr|H| for a Dirac-sea energy.
 
 import { Cx, newCx, dotR } from '@/code/algebra/linear/complex-vector'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A Hermitian operator as a matrix-vector product: writes H applied to `input`
 // into `output`.
@@ -100,7 +100,9 @@ export function spectralBound(input: {
 }): number {
   const { operator, dim } = input
   const v = newCx(dim)
-  const rng = makeRng({ seed: 1 })
+  // the power-iteration start: the Weyl stream at start 1 (code/tool/weyl), no generator. The bound it
+  // converges to does not depend on the start, only on its overlap with the top eigenvector
+  const rng = makeWeyl({ start: 1 })
 
   for (let i = 0; i < dim; i++) {
     v.re[i] = rng.next() - 0.5

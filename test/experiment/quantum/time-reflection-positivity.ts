@@ -16,7 +16,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import {
   hankelMatrix,
@@ -103,7 +103,7 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   // reach the reversible steady state, then record a long trajectory of the observable
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
 
   for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

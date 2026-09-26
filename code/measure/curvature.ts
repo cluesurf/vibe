@@ -1,7 +1,7 @@
 // Combinatorial curvature. A simplified Forman-Ricci curvature per edge, from
 // degrees and shared neighbors, and its mean over the substrate's edges.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
 // BFS hop distances from a source over an undirected adjacency.
@@ -165,7 +165,7 @@ export function shellGrowthCurvature(input: {
 export function gromovDelta(input: {
   substrate: Substrate
   samples: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const { substrate, samples, rng } = input
   const adj = undirectedAdjacency({ substrate })

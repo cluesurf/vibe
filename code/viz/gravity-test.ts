@@ -11,9 +11,9 @@
 
 import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 // the cohesive perception rule (P106), so the lumps are stable selves rather than instantly dissolving
 function beat(
@@ -21,7 +21,7 @@ function beat(
   edges: number[][],
   neighbors: number[][],
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrow: number,
 ): void {
   moved.fill(0)
@@ -263,7 +263,7 @@ export function gravityTest(input?: {
     const lumpB = makeLump(neighbors, centerB, lumpSize, n)
 
     const tone = new Int8Array(n)
-    const rng = makeRng({ seed: 7 })
+    const rng = makeWeyl({ start: 7 })
 
     // matter, balanced charges so the lumps are neutral mass (not driven by net charge)
     for (const i of lumpA) {

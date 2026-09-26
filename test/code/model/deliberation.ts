@@ -25,7 +25,7 @@ import {
   selfCoherence,
   consensusStep,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 suite('model/deliberation: elementary maps', [
   check('oneStepGuess is the sign of the urge', () => {
@@ -140,7 +140,7 @@ suite('model/deliberation: construction stays ternary', [
   check(
     'ternaryVector and makeSelf produce ternary patterns of the right shape',
     () => {
-      const v = ternaryVector(50, makeRng({ seed: 1 }))
+      const v = ternaryVector(50, makeWeyl({ start: 1 }))
 
       equal(v.length, 50)
 

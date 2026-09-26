@@ -26,7 +26,7 @@ import {
   State,
 } from '@/code/dynamics/uniform-sampler'
 import { makeBitMatrix, setBit, BitMatrix } from '@/code/tool/bitset'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // The full transitive future of a chain 0 < 1 < ... < n-1 (every i < j related).
 function chainFuture(n: number): BitMatrix {
@@ -130,7 +130,7 @@ suite('dynamics/uniform-sampler: determinism', [
         beta: 0,
         epsilon: 0.2,
         steps: 400,
-        rng: makeRng({ seed: 12345 }),
+        rng: makeWeyl({ start: 12345 }),
       })
 
     const a = run()

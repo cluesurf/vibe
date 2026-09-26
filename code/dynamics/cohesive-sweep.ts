@@ -1,5 +1,4 @@
-import { Rng } from '@/code/tool/rng'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { Weyl, weylCell } from '@/code/tool/weyl'
 
 // Count neighbors of cell `i` that carry tone `q`, ignoring `except` (the partner
 // across the active edge). The local same-tone company of a cell.
@@ -39,7 +38,7 @@ export function cohesiveEdgeSweep(input: {
   offsets: Int32Array
   adj: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   annihilate: boolean
   arrow: number
   escapeProbability?: number
@@ -151,7 +150,7 @@ export function cohesiveEdgeSweepHashed(input: {
       if (
         agreeCount(tone, offsets, adj, e, q, c) >=
           agreeCount(tone, offsets, adj, c, q, e) ||
-        hashRand(k, beat, 1) < escapeProbability
+        weylCell(k, beat, 1) < escapeProbability
       ) {
         tone[e] = q
         tone[c] = 0
@@ -159,8 +158,8 @@ export function cohesiveEdgeSweepHashed(input: {
         moved[w] = 1
       }
     } else if (arrow > 0 && a === 0 && b === 0) {
-      if (hashRand(k, beat, 2) < arrow) {
-        if (hashRand(k, beat, 3) < 0.5) {
+      if (weylCell(k, beat, 2) < arrow) {
+        if (weylCell(k, beat, 3) < 0.5) {
           tone[v] = 1
           tone[w] = -1
         } else {

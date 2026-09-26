@@ -28,7 +28,7 @@ import { flatGraph } from '@/code/model/self-kit'
 import { plusCount } from '@/code/coarse/two-self'
 import { edgesFromCsr, csrMultiSourceDistance } from '@/code/tool/graph'
 import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -121,7 +121,7 @@ function runRoute(input: { aware: boolean; withHazard: boolean }): {
   stampBody(tone)
 
   const bodySize = plusCount(tone)
-  const rng = makeRng({ seed: SEED })
+  const rng = makeWeyl({ start: SEED })
 
   for (let b = 0; b < BEATS; b++) {
     // the standing hazard is re-clamped every beat, a fixed decohering region

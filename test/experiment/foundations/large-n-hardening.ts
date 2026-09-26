@@ -8,7 +8,7 @@
 // continuum-limit error keeps shrinking, hardening the continuum claim at scale.
 // Run: npx tsx code/experiment/p54-large-n-hardening.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { dimensionFromOrderingFraction } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -18,7 +18,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function sprinkleCoords(input: {
   dimension: number
   count: number
-  rng: Rng
+  rng: Weyl
 }): Float64Array {
   const d = input.dimension
   const spaceDim = d - 1
@@ -67,7 +67,7 @@ export function sampledDimension(input: {
   seed: number
 }): number {
   const d = input.dimension
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const coords = sprinkleCoords({
     dimension: d,
     count: input.count,

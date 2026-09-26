@@ -16,7 +16,7 @@ import {
   spectralGap,
   quantileLabels,
 } from '@/code/coarse/transition-matrix'
-import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
+import { selfTrajectory, makeStream } from '@/code/coarse/self-trajectory'
 import { shuffled as shuffledItems } from '@/code/tool/shuffle'
 
 export default experiment({
@@ -50,7 +50,7 @@ export default experiment({
     const lambdaReal = spectralGap(transitionEigenvalues(real)).lambda2
 
     const control = countMatrix({
-      trajectory: shuffledItems({ items: labels, rng: makeRng(999) }),
+      trajectory: shuffledItems({ items: labels, rng: makeStream(999) }),
       stateCount: bins,
       lag,
     })

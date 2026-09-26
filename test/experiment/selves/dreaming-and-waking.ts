@@ -12,7 +12,7 @@
 // Same mesh, same rule, same memories. The only difference is whether the shared external
 // constraint is imposed. Run: npx tsx code/experiment/p65-dreaming-and-waking.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   storedPatterns,
   hebbianFills,
@@ -33,7 +33,7 @@ export function dreamingAndWaking(input: { seed: number }): {
 } {
   const size = 120
   const K = 4
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const patterns = storedPatterns(K, size, rng)
   const J = hebbianFills(patterns, size)
   const zeroBias = new Float64Array(size)
@@ -42,7 +42,7 @@ export function dreamingAndWaking(input: { seed: number }): {
   // and holds. We track the nearest stored pattern over time.
   const cuePattern = patterns[0] ?? new Int8Array(size)
   const clamp = new Int8Array(size)
-  const cr = makeRng({ seed: input.seed + 1 })
+  const cr = makeWeyl({ start: input.seed + 1 })
 
   for (let i = 0; i < size; i++) {
     if (cr.next() < 0.4) {

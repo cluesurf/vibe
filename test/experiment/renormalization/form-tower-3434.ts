@@ -3,7 +3,7 @@
 // autocorrelation) RISES with coarse scale and beats a spatial-shuffle null, a coherence tower in 3D. Ported
 // from the throwaway probe. Run: npx tsx code/experiment/p197-form-tower-3434.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { lagAutocorrelation } from '@/code/measure/persistence'
 import { perceptionMatchingSweep3d } from '@/code/rule/perception-permutation'
 import {
@@ -22,12 +22,15 @@ export function formTower(): {
   tower: boolean
 } {
   const N = L * L * L
-  const rng = makeRng({ seed: 12345 })
+  // the stream only feeds the spatial-shuffle null; the sweep reads its schedule from the beat
+  const rng = makeWeyl({ start: 12345 })
   const tone = new Int8Array(N),
     m = new Uint8Array(N)
 
+  let beat = 0
+
   const step = (): void =>
-    perceptionMatchingSweep3d({ tone, matched: m, length: L, rng })
+    perceptionMatchingSweep3d({ tone, matched: m, length: L, beat: beat++ })
 
   for (let f = 0; f < 60; f++) {
     step()
@@ -104,7 +107,7 @@ export default experiment({
         nullCoarsePersistence: r.nul[r.nul.length - 1] ?? 0,
       },
       notes:
-        'L2 with a spatial-shuffle control. The persistence is measured from the dynamics and the shuffle null guards against plain averaging, which is the strength. But the run uses a random fill and a random update order, so this is a STATISTICAL ensemble claim, not a property of a deterministic rule, and robustness should come from varying SIZE rather than the seed. Not yet a clean emergent self, the asymmetric update and the randomness keep it L2.',
+        'L2 with a spatial-shuffle control. The persistence is measured from the dynamics and the shuffle null guards against plain averaging, which is the strength. The start is the empty tone and the update order is a Weyl schedule of (cell, beat), with no generator and no seed anywhere, so the persistence is a property of this deterministic sweep. The shuffle null is drawn from a Weyl stream. Not yet a clean emergent self, the asymmetric update keeps it L2.',
     })
   },
 })

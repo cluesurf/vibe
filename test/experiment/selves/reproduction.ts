@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p112-reproduction.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import {
   csrBallNodes,
   csrDistances,
@@ -31,7 +31,7 @@ const beat = (
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
 ): void =>
   cohesiveEdgeSweep({
     tone,
@@ -104,7 +104,7 @@ export function reproduction(input?: { n?: number }): {
     sign: 'positive',
   })
 
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
 
   for (let b = 0; b < 30; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng)

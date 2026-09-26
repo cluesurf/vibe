@@ -5,7 +5,7 @@
 // sqrt(V) action fluctuation gives delta-Lambda ~ 1 / sqrt(V), the dark-energy magnitude. The exponent
 // minus one is the implied Lambda-fluctuation exponent.
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { Action } from '@/code/dynamics/action'
 import { logLogSlope } from '@/code/measure/regression'
@@ -27,7 +27,7 @@ export function actionFluctuationExponent(input: {
       const poset = sprinkleMinkowski({
         dimension: input.dimension,
         count: n,
-        rng: makeRng({ seed: n * seedMultiplier + r }),
+        rng: makeWeyl({ start: n * seedMultiplier + r }),
       })
 
       samples.push(input.action.value({ poset }))

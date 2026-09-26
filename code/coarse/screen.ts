@@ -21,12 +21,12 @@ import { Will, cloneWill, makeWill } from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
 import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import {
   blockToneFractions,
   cellToneCounts,
   meanBlockDistance,
 } from '@/code/coarse/tone-population'
+import { weylCell } from '@/code/tool/weyl'
 
 // The slot indices of every block, in a fixed order: cells of the block by (x, y, z, w) lexicographic
 // within the block, and within a cell its directions in order. blocks[b] lists block b's slots.
@@ -220,17 +220,17 @@ export function profiledStart(input: {
           continue
         }
 
-        if (hashRand(i, 0, salt) < active) {
-          const sign = hashRand(i, 1, salt) < 0.5 ? 1 : -1
+        if (weylCell(i, 0, salt) < active) {
+          const sign = weylCell(i, 1, salt) < 0.5 ? 1 : -1
 
           will.data[i] = sign
           will.data[cell * degree + other] = -sign
         }
       } else if (
         d !== input.emptySlot &&
-        hashRand(i, 0, salt) < active
+        weylCell(i, 0, salt) < active
       ) {
-        will.data[i] = hashRand(i, 1, salt) < 0.5 ? 1 : -1
+        will.data[i] = weylCell(i, 1, salt) < 0.5 ? 1 : -1
       }
     }
   }

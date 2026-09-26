@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p129-criticality-scan.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { linearFit } from '@/code/measure/regression'
@@ -40,7 +40,7 @@ export function criticalityScan(input?: { n?: number }): {
 
   for (const arrow of arrows) {
     const tone = new Int8Array(N)
-    const rng = makeRng({ seed: 3 })
+    const rng = makeWeyl({ start: 3 })
 
     for (let i = 0; i < N; i++) {
       tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0

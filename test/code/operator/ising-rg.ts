@@ -15,7 +15,7 @@ import {
   nearestNeighborCorrelation,
   measuredBlockSpinCoupling,
 } from '@/code/operator/ising-rg'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 suite('operator/ising-rg: exact decimation', [
   check(
@@ -77,7 +77,7 @@ suite('operator/ising-rg: correlation', [
   }),
   check('a sampled chain correlation approaches tanh K', () => {
     const k = 0.6
-    const rng = makeRng({ seed: 2 })
+    const rng = makeWeyl({ start: 2 })
 
     let acc = 0
 

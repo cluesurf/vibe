@@ -10,7 +10,7 @@
 //   Rung 5  the vibe model, run on it (ternary rule, Lorentz-safe, determined)
 // See the integer-ladder analysis. Run: npx tsx code/experiment/p51-full-ladder.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { modularGraph } from '@/code/substrate/modular-group'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { Graph } from '@/code/tool/graph'
@@ -45,7 +45,7 @@ export function fullLadder(input: {
   const aniso = lorentzIsotropy({
     substrate: g,
     samples: 3000,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const model = runModel(g, input.seed + 1)

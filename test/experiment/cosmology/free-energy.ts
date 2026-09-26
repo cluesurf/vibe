@@ -13,7 +13,7 @@
 // The manifold phase dominates where Delta logZ > 0. See note/questions/next-version.md (P12).
 // Run: npx tsx code/experiment/p12-free-energy.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { kleitmanRothschildOrder } from '@/code/substrate/layered-order'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
@@ -43,7 +43,7 @@ function phaseAction(input: {
         ? sprinkleMinkowski({
             dimension: 2,
             count: input.size,
-            rng: makeRng({ seed: input.size * 31 + r }),
+            rng: makeWeyl({ start: input.size * 31 + r }),
           })
         : kleitmanRothschildOrder({ size: input.size })
 
@@ -77,7 +77,7 @@ function crossingStudy(input: {
     beta: 0,
     epsilon: input.epsilon,
     steps: input.steps * 2,
-    rng: makeRng({ seed: n * 7 + 1 }),
+    rng: makeWeyl({ start: n * 7 + 1 }),
     sampleEvery: 20,
   })
 

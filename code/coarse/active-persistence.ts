@@ -12,8 +12,8 @@ import {
   flatGraph,
   largestPositiveCluster,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
-import type { Graph, Rng } from '@/code/model/self-kit'
+import { makeWeyl } from '@/code/tool/weyl'
+import type { Graph, Weyl } from '@/code/model/self-kit'
 
 export type PersistenceResult = {
   // the surviving plus cluster with the refuge source masked out (the audit shows it is the refuge halo).
@@ -42,7 +42,7 @@ function labeledBeat(
   label: Uint8Array,
   g: Graph,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   cohesion: number,
 ): void {
   const { offsets, adj } = g
@@ -121,7 +121,7 @@ export function activePersistence(input: {
   const decayPeriod = input.decayPeriod ?? 6
   const refugeWidth = input.refugeWidth ?? 6
   const graph = flatGraph(L)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const moved = new Uint8Array(graph.cellCount)
   const tone = new Int8Array(graph.cellCount)
   const label = new Uint8Array(graph.cellCount)

@@ -15,7 +15,7 @@ import {
   impliedTimescale,
   quantileLabels,
 } from '@/code/coarse/transition-matrix'
-import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
+import { selfTrajectory, makeStream } from '@/code/coarse/self-trajectory'
 import { shuffled } from '@/code/tool/shuffle'
 
 function timescales(
@@ -91,7 +91,7 @@ export default experiment({
       ).lambda2
 
     const lambdaReal = eigOf(labels)
-    const lambdaShuffled = eigOf(shuffled({ items: labels, rng: makeRng(321) }))
+    const lambdaShuffled = eigOf(shuffled({ items: labels, rng: makeStream(321) }))
 
     // two signals together, the timescale is flat across the large lags (a real Markov plateau), and the
     // slow eigenvalue at the plateau lag clearly exceeds the time-shuffled control.

@@ -14,9 +14,9 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 // where the browser page reads the replay from (the clue.surf home site public dir)
 const OUTPUT_PATH =
@@ -30,7 +30,7 @@ function beat(
   edges: number[][],
   neighbors: number[][],
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrowProb: number,
 ): void {
   moved.fill(0)
@@ -344,7 +344,7 @@ export function exportHorosphere(input?: {
     }
   }
 
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
 
   for (let b = 0; b < warmup; b++) {
     beat(tone, edges, g.neighbors, moved, rng, arrowProb)

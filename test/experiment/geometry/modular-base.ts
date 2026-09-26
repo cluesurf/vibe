@@ -13,7 +13,7 @@
 //      base to the golden ratio that recurs across the substrate work.
 // See the choosing-the-base analysis. Run: npx tsx code/experiment/p48-modular-base.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import {
   modularGraph,
@@ -41,7 +41,7 @@ export function modularBase(input: { seed: number }): {
   const aniso = lorentzIsotropy({
     substrate: g,
     samples: 3000,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   // Continued-fraction addressing: reconstruct several rationals from their CF.

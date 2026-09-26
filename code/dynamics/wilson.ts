@@ -10,7 +10,7 @@ import {
   linkPhase,
   edgeKey,
 } from '@/code/tool/gauge-field'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // Above this triangle count we skip the (more numerous) 4-cycle enumeration to
 // keep plaquette discovery bounded; triangles alone are a valid plaquette set.
@@ -189,7 +189,7 @@ export function heatBathSweep(input: {
   field: GaugeField
   plaquettes: PlaquetteSet
   beta: number
-  rng: Rng
+  rng: Weyl
 }): void {
   const field = input.field
   const q = field.group.q

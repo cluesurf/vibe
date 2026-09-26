@@ -4,7 +4,7 @@
 // note/research/vibe/notes/theory-v0.7.0/plans/associative-engine-architecture.md.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   makeAssociativeMemory,
   ternaryWord,
@@ -42,7 +42,7 @@ export function associativeExactRecall(input?: {
   const falsePositive = falsePositiveRate({
     mem,
     trials: 2000,
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
 
   return {

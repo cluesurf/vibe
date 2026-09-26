@@ -13,7 +13,7 @@
 // chains do not change it (it is a phase, not a convergence artifact). L1, a known causal-set
 // Monte Carlo construction with a seeded ensemble, labeled as such.
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { manifoldLikeness } from '@/code/measure/manifoldlike'
@@ -31,7 +31,7 @@ export function manifoldLikenessAt(beta: number): number {
     action,
     beta,
     steps: STEPS,
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
     observe: ({ poset }) => manifoldLikeness({ poset }).score,
   }).meanObservable
 }

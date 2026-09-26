@@ -14,7 +14,7 @@
 // If only Q is conserved AND no spontaneous order appears, momentum does NOT emerge from the bare rule and
 // must be added. Run: npx tsx code/experiment/p146-second-conservation-search.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { relativeStandardDeviation as relStd } from '@/code/measure/statistics'
 import { ringEdges } from '@/code/substrate/ring'
@@ -25,7 +25,7 @@ function beat(
   tone: Int8Array,
   ring: { eu: Int32Array; ev: Int32Array },
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrow: number,
 ): void {
   conservingEdgeSweep({
@@ -54,7 +54,7 @@ export function secondConservationSearch(input?: { L?: number }): {
   // (A) which quantities are conserved
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
 
   for (let i = 0; i < L; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0
@@ -124,7 +124,7 @@ export function secondConservationSearch(input?: { L?: number }): {
   for (const arrow of [0.4, 0.1, 0.02, 0.005]) {
     const tn = new Int8Array(L)
     const mv = new Uint8Array(L)
-    const r2 = makeRng({ seed: 9 })
+    const r2 = makeWeyl({ start: 9 })
 
     for (let i = 0; i < L; i++) {
       tn[i] = r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0

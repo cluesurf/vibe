@@ -8,7 +8,7 @@
 // vibe-mesh-to-quantum-field ladder. Run: npx tsx code/experiment/p123-sliver-transport.ts
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
 import { powerLawExponent } from '@/code/measure/regression'
@@ -68,7 +68,7 @@ export function sliverTransport(input?: {
 
     tone[start] = 1
 
-    const rng = makeRng({ seed: 1000 + run })
+    const rng = makeWeyl({ start: 1000 + run })
 
     let cur = start
 

@@ -22,7 +22,7 @@ import {
   hammingFraction,
   ternaryVector,
 } from '@/code/model/deliberation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -39,7 +39,7 @@ export function irreducibility(input: { n: number; trials: number }): {
 
   // determinism: one self and urge, settled twice, compared site by site
   const selfA = makeSelf({ n, patterns: 2, seed: 1 })
-  const urgeA = ternaryVector(n, makeRng({ seed: 2 }))
+  const urgeA = ternaryVector(n, makeWeyl({ start: 2 }))
   const first = settle({
     patterns: selfA,
     coupling: 1,
@@ -64,7 +64,7 @@ export function irreducibility(input: { n: number; trials: number }): {
 
   for (let k = 0; k < input.trials; k++) {
     const self = makeSelf({ n, patterns: 2, seed: 100 + k })
-    const urge = ternaryVector(n, makeRng({ seed: 5000 + k }))
+    const urge = ternaryVector(n, makeWeyl({ start: 5000 + k }))
     const guess = oneStepGuess(urge)
 
     // with a real self: structure pulls the outcome away from the bare urge

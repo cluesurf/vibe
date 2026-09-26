@@ -2,7 +2,7 @@
 // rung of the integer ladder. Returns whether it is reproducible (determined) and that it evolves
 // (the model actually runs, not a trivial fixed point from the start).
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { Graph } from '@/code/tool/graph'
 
 export function runModel(
@@ -13,7 +13,7 @@ export function runModel(
   evolves: boolean
   nonzeroFraction: number
 } {
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
 

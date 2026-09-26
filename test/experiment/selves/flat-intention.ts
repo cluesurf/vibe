@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p157-flat-intention.ts
 
 import { flatWilledDriftSweep } from '@/code/dynamics/flat-willed-drift-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -32,7 +32,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
   ): { drift: number; spread: number; c0: number } => {
     const tone = new Int8Array(L * L)
     const moved = new Uint8Array(L * L)
-    const rng = makeRng({ seed: 5 })
+    const rng = makeWeyl({ start: 5 })
     // a self = a disk of + charge near the left-center (so it has room to move toward the +x goal)
     const cx = Math.floor(L * 0.3)
     const cy = Math.floor(L / 2)

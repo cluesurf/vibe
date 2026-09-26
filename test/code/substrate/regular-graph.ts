@@ -12,20 +12,20 @@ import {
   exactArray,
 } from '@/test/code/harness'
 import { buildRegularGraph } from '@/code/substrate/regular-graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 suite('substrate/regular-graph: determinism', [
   check('the same seed yields an identical graph', () => {
     const a = buildRegularGraph({
       n: 200,
       degree: 4,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     const b = buildRegularGraph({
       n: 200,
       degree: 4,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     exactArray(a.eu, b.eu, 'eu identical')
@@ -37,13 +37,13 @@ suite('substrate/regular-graph: determinism', [
     const a = buildRegularGraph({
       n: 200,
       degree: 4,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     const c = buildRegularGraph({
       n: 200,
       degree: 4,
-      rng: makeRng({ seed: 8 }),
+      rng: makeWeyl({ start: 8 }),
     })
 
     let differs = false
@@ -64,7 +64,7 @@ suite('substrate/regular-graph: structural invariants', [
     const g = buildRegularGraph({
       n: 300,
       degree: 6,
-      rng: makeRng({ seed: 11 }),
+      rng: makeWeyl({ start: 11 }),
     })
 
     for (let e = 0; e < g.eu.length; e++) {
@@ -83,7 +83,7 @@ suite('substrate/regular-graph: structural invariants', [
       const g = buildRegularGraph({
         n: 150,
         degree: 4,
-        rng: makeRng({ seed: 3 }),
+        rng: makeWeyl({ start: 3 }),
       })
 
       // total CSR entries = 2 * edge count.

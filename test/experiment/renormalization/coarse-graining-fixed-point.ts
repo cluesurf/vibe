@@ -11,7 +11,7 @@
 // decimation is kept as a secondary fact (a coarse-graining invariant), no longer the headline.
 // Run: npx tsx code/experiment/p53-coarse-graining-fixed-point.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { decimate } from '@/code/dynamics/coarsegrain'
 import { measuredBlockSpinCoupling } from '@/code/operator/ising-rg'
@@ -78,7 +78,7 @@ export function coarseGrainingFixedPoint(input: {
   sizes: number[]
   dimensionInvariant: boolean
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   let poset = sprinkleMinkowski({
     dimension: input.dimension,

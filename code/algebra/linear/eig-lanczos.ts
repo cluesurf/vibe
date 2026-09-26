@@ -5,6 +5,7 @@
 import { LinearOperator } from '@/code/algebra/linear/sparse'
 import { makeDense, denseSet } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { makeWeyl } from '@/code/tool/weyl'
 
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
@@ -25,23 +26,16 @@ function axpy(
   }
 }
 
-// A small deterministic PRNG (mulberry32) for the Lanczos start vector. Using a
-// fixed-seed generator instead of Math.random makes the spectrum reproducible run
-// to run (a fully constant start vector is unsafe: all-ones is exactly the
-// Laplacian null eigenvector). Callers may still pass their own rng.
+// The Lanczos start vector's entries: the Weyl stream at start 0 (code/tool/weyl), so the
+// spectrum is reproducible run to run with no generator behind it. A fully constant start
+// vector is unsafe (all-ones is exactly the Laplacian null eigenvector); the Kronecker values
+// are irrational-spread and overlap every eigenvector except on a measure-zero set. Until
+// 2026-09-25 this was a fixed-seed mulberry32 generator. Callers may still pass their own
+// value source.
 function deterministicRand(): () => number {
-  let a = 0x9e3779b9 >>> 0
+  const stream = makeWeyl({ start: 0 })
 
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-
-    let t = a
-
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
+  return () => stream.next()
 }
 
 // Lowest `count` eigenvalues (ascending). `steps` is the Krylov dimension.

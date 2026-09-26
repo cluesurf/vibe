@@ -86,7 +86,7 @@ export default experiment({
         seriesA: quantileLabels({ series: live.interior, bins }),
         seriesB: timeShuffle({
           trajectory: shuffledEnvironment,
-          seed: 99,
+          start: 99,
         }),
         stateCount: bins,
         lag,

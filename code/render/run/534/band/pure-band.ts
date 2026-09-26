@@ -7,7 +7,7 @@
 // Run: pnpm tsx code/gpu/render-pure-band-anim.ts   then task/render-video.sh
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { writeFrame } from '@/code/draw/animation'
 import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -180,7 +180,7 @@ function run(): void {
 
   // seed: mostly peace plus a balanced sprinkle of charges
   const tone = new Uint8Array(n)
-  const r = makeRng({ seed: 987654321 })
+  const r = makeWeyl({ start: 987654321 })
   const rr = () => r.next()
 
   for (let i = 0; i < n; i++) {

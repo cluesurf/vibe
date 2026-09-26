@@ -4,7 +4,7 @@
 // symmetric couplings (the same value on both half-edges of an undirected edge)
 // this is the perception rule of the committed vibe model, run synchronously.
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 
 type Neighbors = readonly ArrayLike<number>[]
 
@@ -14,7 +14,7 @@ type Neighbors = readonly ArrayLike<number>[]
 // the edge from v to its k-th neighbour.
 export function symmetricEdgeFills(input: {
   neighbors: Neighbors
-  rng: Rng
+  rng: Weyl
 }): Int8Array[] {
   const { neighbors, rng } = input
   const n = neighbors.length
@@ -104,7 +104,7 @@ export function runAsynchronousSignedMajority(input: {
 } {
   const { neighbors, beats } = input
   const n = neighbors.length
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {

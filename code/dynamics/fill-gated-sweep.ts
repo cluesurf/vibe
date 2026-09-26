@@ -1,5 +1,4 @@
-import { Rng } from '@/code/tool/rng'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { Weyl, weylCell } from '@/code/tool/weyl'
 
 // One beat of the conserved exchange on a ternary tone field with per-EDGE fills (the
 // perception substrate where the note carries a fill state). Each edge i carries a
@@ -15,7 +14,7 @@ export function fillGatedSweep(input: {
   tone: Int8Array
   edges: readonly (readonly [number, number])[]
   fill: Int8Array
-  rng: Rng
+  rng: Weyl
 }): void {
   const { tone, edges, fill, rng } = input
   const moved = new Uint8Array(tone.length)
@@ -65,8 +64,9 @@ export function fillGatedSweep(input: {
 }
 
 // The DETERMINISTIC version of fillGatedSweep: the two tie-breaks (the polarize sign, the hop) are
-// decided by the stateless hash hashRand(edge index, beat, salt) instead of an RNG. A fixed rule, no
-// seed, no hidden state, varying per edge and per beat.
+// decided by the Kronecker value weylCell(edge index, beat, salt) (code/tool/weyl) instead of a stream.
+// A fixed rule, no seed, no hidden state, varying per edge and per beat. Until 2026-09-25 the value was
+// the hash hashRand.
 export function fillGatedSweepHashed(input: {
   tone: Int8Array
   edges: readonly (readonly [number, number])[]
@@ -90,7 +90,7 @@ export function fillGatedSweepHashed(input: {
 
     if (f === -1) {
       if (tv === 0 && tw === 0) {
-        if (hashRand(i, beat, 1) < 0.5) {
+        if (weylCell(i, beat, 1) < 0.5) {
           tone[v] = 1
           tone[w] = -1
         } else {
@@ -109,7 +109,7 @@ export function fillGatedSweepHashed(input: {
         moved[w] = 1
       } else if (
         (tv === 0) !== (tw === 0) &&
-        hashRand(i, beat, 2) < 0.5
+        weylCell(i, beat, 2) < 0.5
       ) {
         const tmp = tone[v]!
 

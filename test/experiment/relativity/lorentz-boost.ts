@@ -16,7 +16,7 @@
 // unchanged under an actual boost of the coordinates).
 // Run: npx tsx code/experiment/p84-lorentz-boost.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { causalLattice } from '@/code/substrate/causal-lattice'
 import { histogramFlatness } from '@/code/measure/histogram'
@@ -43,7 +43,7 @@ export function lorentzBoost(input: { seed: number }): {
   boostCovariant: boolean
   solved: boolean
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const poset = sprinkleMinkowski({ dimension: 2, count: 4000, rng })
   const coords = poset.embedding?.coords ?? new Float64Array(0)
   const band = { lo: 0.25, hi: 0.75 }

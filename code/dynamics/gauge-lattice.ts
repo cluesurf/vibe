@@ -19,7 +19,7 @@
 //
 // Every draw comes from a seeded generator, so a run is a pure function of (seed, parameters).
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Hypercubic, makeHypercubic } from '@/code/tool/hypercubic'
 import {
   MatrixSlot,
@@ -84,7 +84,7 @@ export function makeGaugeLattice(input: {
   group: GaugeGroup
   lengths: readonly number[]
   start: 'cold' | 'hot'
-  rng: Rng
+  rng: Weyl
 }): GaugeLattice {
   const n = GROUP_SIZE[input.group]
   const geometry = makeHypercubic({ lengths: input.lengths })
@@ -231,7 +231,7 @@ export function stapleInto(input: {
 // inversion for small alpha. Both are exact.
 export function sampleSu2HeatbathWeight(input: {
   alpha: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const { alpha, rng } = input
 
@@ -269,7 +269,7 @@ export function sampleSu2HeatbathWeight(input: {
 // One draw of an angle from the von Mises density exp(kappa cos theta), by Best and Fisher (1979).
 export function sampleVonMises(input: {
   kappa: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const { kappa, rng } = input
 
@@ -408,7 +408,7 @@ function updateLink(input: {
   product: MatrixSlot
   beta: number
   mode: 'heatbath' | 'overrelax'
-  rng: Rng
+  rng: Weyl
 }): void {
   const { lattice, link, product, beta, mode, rng } = input
   const { n } = lattice
@@ -495,7 +495,7 @@ function sweep(input: {
   lattice: GaugeLattice
   beta: number
   mode: 'heatbath' | 'overrelax'
-  rng: Rng
+  rng: Weyl
 }): void {
   const { lattice } = input
   const { n, geometry } = lattice
@@ -533,7 +533,7 @@ export function gaugeUpdate(input: {
   lattice: GaugeLattice
   beta: number
   overrelaxation: number
-  rng: Rng
+  rng: Weyl
 }): void {
   sweep({
     lattice: input.lattice,
@@ -562,7 +562,7 @@ export function sampleGaugeEnsemble<Sample>(input: {
   measurements: number
   separation: number
   overrelaxation: number
-  rng: Rng
+  rng: Weyl
   measure: (lattice: GaugeLattice) => Sample
 }): Sample[] {
   const { lattice, beta, overrelaxation, rng } = input

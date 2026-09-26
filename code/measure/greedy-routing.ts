@@ -1,5 +1,5 @@
 import { Graph } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // Greedy geometric routing, the local-only physical walkway. A walker who knows only its own
 // coordinate, its neighbors' coordinates, and the target's coordinate can reach any target by
@@ -112,7 +112,7 @@ export function scramblePermutation(
   seed: number,
 ): number[] {
   const permutation = Array.from({ length: size }, (unused, i) => i)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   for (let i = size - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))

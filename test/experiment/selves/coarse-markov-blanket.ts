@@ -20,7 +20,7 @@ import {
   regionPartition,
   blanketScreening,
 } from '@/code/coarse/self-criteria'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 
 function sumTone(tone: Int8Array, cells: number[]): number {
   let s = 0
@@ -45,7 +45,7 @@ export default experiment({
     const L = 64
     const beats = 160
     const graph = flatGraph(L)
-    const rng = makeRng(8675309)
+    const rng = makeStream(8675309)
     const moved = new Uint8Array(graph.cellCount)
     const { tone } = emergeSelf(graph, rng, moved, {
       beats: 60,

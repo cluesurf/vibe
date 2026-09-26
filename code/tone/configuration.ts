@@ -6,7 +6,7 @@ import {
   slotsPerElement,
   randomValue,
 } from '@/code/tone/alphabet'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 export type Configuration = {
   readonly form: 'configuration'
@@ -19,7 +19,7 @@ export type Configuration = {
 export function makeConfiguration(input: {
   alphabet: Alphabet
   size: number
-  rng?: Rng
+  rng?: Weyl
 }): Configuration {
   const slots = slotsPerElement(input.alphabet)
   const values = new Int32Array(input.size * slots)

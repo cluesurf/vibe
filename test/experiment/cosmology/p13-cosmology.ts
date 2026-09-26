@@ -7,7 +7,7 @@
 // geometry). See note/questions/next-version.md (P13).
 // Run: npx tsx code/experiment/p13-cosmology.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { growCsg } from '@/code/substrate/grow-csg'
 import { getBit } from '@/code/tool/bitset'
 import { Poset } from '@/code/tool/poset'
@@ -48,7 +48,7 @@ export function csgCosmology(input: {
   const poset = growCsg({
     size: input.size,
     couplings: Float64Array.from([input.p]),
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const n = input.size

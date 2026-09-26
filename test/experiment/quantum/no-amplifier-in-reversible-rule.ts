@@ -56,7 +56,6 @@ import {
   perturbationGrowth,
   settledSignedPointer,
 } from '@/code/dynamics/measurement'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import {
   makeSelfPattern,
   settle,
@@ -65,6 +64,7 @@ import {
 } from '@/code/model/deliberation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { weylCell } from '@/code/tool/weyl'
 
 // a deterministic GENERIC (non-symmetric) ready state: a well-mixed ternary fill from the
 // stateless hash, a fixed function of position, no randomness and no imposed symmetry.
@@ -75,7 +75,7 @@ function genericWill(
   const will = makeWill(mesh)
 
   for (let i = 0; i < will.data.length; i++) {
-    const r = hashRand(i, 0, salt)
+    const r = weylCell(i, 0, salt)
 
     will.data[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }

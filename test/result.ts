@@ -13,7 +13,7 @@
 // compare their own run against it. Capsules are only written on `--commit`.
 //
 // A result's `checks` in research/result.ts are what it claims in numbers. Reproduce runs the
-// experiments at seed 1, reads each named metric from the verdict, and compares it to the
+// experiments (there is no seed, every experiment is deterministic), reads each named metric from the verdict, and compares it to the
 // recorded expectation within the recorded tolerance, so a record that drifts from the code
 // fails here rather than on a web page. The exit status is 1 when any check fails.
 
@@ -31,8 +31,6 @@ import {
 } from '@/research/index'
 import type { Check, Result } from '@/research/index'
 import '@/test/experiment/all'
-
-const SEED = 1
 
 const [command, ...rest] = process.argv.slice(2)
 
@@ -85,7 +83,7 @@ function runExperiments(
     }
 
     const started = Date.now()
-    const [run] = runSuite([experiment], { seed: SEED })
+    const [run] = runSuite([experiment], {})
 
     verdicts.set(code, {
       verdict: run!.verdict,
@@ -196,7 +194,7 @@ function audit({
       platform: process.platform,
       arch: process.arch,
     },
-    inputs: { seed: SEED, scale: 1 },
+    inputs: { scale: 1 },
     files: files.map(file => ({
       file,
       sha256: createHash('sha256')

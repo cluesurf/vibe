@@ -1,6 +1,6 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { coxeterPoincareGraph } from '@/code/substrate/coxeter/embedding'
 import { greedyRoutingSuccess } from '@/code/measure/navigation'
 import { withScrambledEmbedding } from '@/code/tool/graph'
@@ -36,14 +36,14 @@ export default experiment({
       const greedy = greedyRoutingSuccess({
         graph,
         trials: 150,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
         maxHops: 200,
       })
 
       const scrambled = greedyRoutingSuccess({
         graph: withScrambledEmbedding(graph),
         trials: 150,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
         maxHops: 200,
       })
 

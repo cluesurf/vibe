@@ -7,7 +7,7 @@
 // unified, not a pile of one-offs. Run: npx tsx code/experiment/p155-unified-model.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { totalCharge as sumQ } from '@/code/measure/tone-census'
@@ -35,7 +35,7 @@ export function unifiedModel(input?: { n?: number }): {
 
   // ONE canonical run
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
 
   for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0
@@ -60,7 +60,7 @@ export function unifiedModel(input?: { n?: number }): {
   const alive = density(tone) > 0.05
   // (2b) dead without the arrow, a control run with arrow=0 relaxes toward peace
   const dead = new Int8Array(N)
-  const rngD = makeRng({ seed: 7 })
+  const rngD = makeWeyl({ start: 7 })
 
   for (let i = 0; i < N; i++) {
     dead[i] = rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
@@ -104,8 +104,8 @@ export function unifiedModel(input?: { n?: number }): {
 
   s2[center] = s2[center] === 0 ? 1 : 0
 
-  const ra = makeRng({ seed: 99 })
-  const rb = makeRng({ seed: 99 })
+  const ra = makeWeyl({ start: 99 })
+  const rb = makeWeyl({ start: 99 })
   const T = 4
 
   for (let t = 0; t < T; t++) {

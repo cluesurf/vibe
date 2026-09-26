@@ -19,7 +19,6 @@
 // suffice. Charge Q is conserved throughout (fills never touch tones). Run: npx tsx code/experiment/p97-self-emergence.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import {
@@ -31,6 +30,7 @@ import { fillGatedSweepHashed } from '@/code/dynamics/fill-gated-sweep'
 import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { weylCell } from '@/code/tool/weyl'
 
 export function selfEmergence(input?: { scale?: number }): {
   cells: number
@@ -65,13 +65,13 @@ export function selfEmergence(input?: { scale?: number }): {
   const fill0 = new Int8Array(edges.length)
 
   for (let i = 0; i < n; i++) {
-    const r = hashRand(i, 0, 1)
+    const r = weylCell(i, 0, 1)
 
     tone0[i] = r < 0.4 ? 1 : r < 0.7 ? -1 : 0 // a net-positive charge so domains can persist
   }
 
   for (let i = 0; i < edges.length; i++) {
-    const r = hashRand(i, 0, 2)
+    const r = weylCell(i, 0, 2)
 
     fill0[i] = r < 0.34 ? 1 : r < 0.67 ? -1 : 0
   }
@@ -167,7 +167,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'AUDIT 2026-08-31, the scale check: the status is a knife edge on the largest-patch criterion. Adaptive-fill coherence reaches 1.0 at every size, but the largest sharing patch in 1316 cells is 10 cells and grows to 15, which is not strictly more than 1.5 times 10, so the default fails. At 1792 cells (scale 1.5) it grows 10 to 17 and the verdict passes, at 709 cells (scale 0.5) 8 to 11 and it fails. The patch measure is at its integer floor at these sizes and the threshold has not been moved to make it pass. RESOLVED 2026-09-02: the growth factor is set to 1.4 with the integer-floor reason stated in the code (10 to 15 cells is exactly 1.5x and coherence reaches 1.0 at every size), which the scale sweep supports (1.7x at scale 1.5), so the criterion now measures the phenomenon rather than the floor.',
       claim:
         'fixed fills do not self-organize coherent patches while adaptive Hebbian fills do, so durable selves need an adaptive fill-dynamics rule',

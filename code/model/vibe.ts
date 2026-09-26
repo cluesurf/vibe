@@ -10,7 +10,7 @@
 //   const world = model.build().run(40)            // build the mesh, run 40 beats
 //   console.log(world.read())                      // emergent structures read off the mesh
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
@@ -147,11 +147,11 @@ export class VibeWorld {
   private neighbors: readonly Uint32Array[]
   private tone: Int8Array
   private fills: Int8Array[]
-  private rng: Rng
+  private rng: Weyl
 
   constructor(cfg: VibeConfig) {
     this.cfg = cfg
-    this.rng = makeRng({ seed: cfg.seed })
+    this.rng = makeWeyl({ start: cfg.seed })
     this.substrate = buildSubstrate(cfg, this.rng)
     this.neighbors = undirectedAdjacency({ substrate: this.substrate })
 
@@ -220,7 +220,7 @@ export class VibeWorld {
     const aniso = lorentzIsotropy({
       substrate: this.substrate,
       samples: 2000,
-      rng: makeRng({ seed: this.cfg.seed + 11 }),
+      rng: makeWeyl({ start: this.cfg.seed + 11 }),
     })
 
     // Ball growth from the most-connected node (a central one).
@@ -338,7 +338,7 @@ function countHigherVibes(
   return count
 }
 
-function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
+function buildSubstrate(cfg: VibeConfig, rng: Weyl): Substrate {
   if (cfg.mesh === 'hyperbolic') {
     return hyperbolicGraph({
       count: cfg.size,
@@ -380,7 +380,7 @@ function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
 function buildFills(
   neighbors: readonly Uint32Array[],
   cfg: VibeConfig,
-  rng: Rng,
+  rng: Weyl,
 ): Int8Array[] {
   const n = neighbors.length
   const fills = neighbors.map(row => new Int8Array(row.length))

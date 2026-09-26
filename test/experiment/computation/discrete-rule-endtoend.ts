@@ -18,7 +18,7 @@ import {
   stream as streamRaw,
   streamInverse as streamInverseRaw,
 } from '@/code/operator/directional-lattice-gas'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -36,7 +36,7 @@ export function discreteRuleEndToEnd(): {
   reversible: boolean
   smooth: boolean
 } {
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const rnd = (): number => rng.next()
   const init: State = {
     E: new Int8Array(N),

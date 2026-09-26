@@ -9,7 +9,7 @@
 // sharp action is the contrast. See note/questions/frontier-spec.md (Front 2).
 // Run: npx tsx code/experiment/p2-transition.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { Poset } from '@/code/tool/poset'
 import {
   Action,
@@ -38,7 +38,7 @@ function equilibratedHeightRatio(input: {
     action: input.action,
     beta: input.beta,
     steps: STEPS,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
     start: input.start,
   })
@@ -70,7 +70,7 @@ export default experiment({
     const sprinkle = sprinkleMinkowski({
       dimension: 2,
       count: 72,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     const layered = kleitmanRothschildOrder({ size: 72 })

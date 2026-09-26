@@ -29,7 +29,7 @@ import {
 import { makeWill, Will } from '@/code/tone/will'
 import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 const SIDE = 64
 const BEATS = 40
@@ -63,7 +63,7 @@ function beamSurvival(input: {
     const x = cell % SIDE
     const base = cell * mesh.degree
 
-    if (x >= 8 && x <= 23 && hashRand(cell, 1, 55) < input.fill) {
+    if (x >= 8 && x <= 23 && weylCell(cell, 1, 55) < input.fill) {
       will.data[base + plus] = 1
       launched++
     }
@@ -72,7 +72,7 @@ function beamSurvival(input: {
       input.counterCloud &&
       x >= 40 &&
       x <= 55 &&
-      hashRand(cell, 2, 55) < input.fill
+      weylCell(cell, 2, 55) < input.fill
     ) {
       will.data[base + minus] = 1
       launched++

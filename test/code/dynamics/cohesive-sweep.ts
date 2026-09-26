@@ -8,7 +8,7 @@ import {
   cohesiveEdgeSweep,
   agreeCount,
 } from '@/code/dynamics/cohesive-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const N = 36
 
@@ -84,7 +84,7 @@ suite('dynamics/cohesive-sweep: conservation', [
       const tone = makeTone(N)
       const q0 = charge(tone)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 1 })
+      const rng = makeWeyl({ start: 1 })
 
       for (let b = 0; b < 40; b++) {
         cohesiveEdgeSweep({
@@ -109,7 +109,7 @@ suite('dynamics/cohesive-sweep: conservation', [
       const plus0 = countSign(tone, 1)
       const minus0 = countSign(tone, -1)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 2 })
+      const rng = makeWeyl({ start: 2 })
 
       for (let b = 0; b < 30; b++) {
         cohesiveEdgeSweep({
@@ -135,7 +135,7 @@ suite('dynamics/cohesive-sweep: determinism', [
     const run = (): Int8Array => {
       const tone = makeTone(N)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 5 })
+      const rng = makeWeyl({ start: 5 })
 
       for (let b = 0; b < 20; b++) {
         cohesiveEdgeSweep({

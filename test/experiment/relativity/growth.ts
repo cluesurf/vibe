@@ -7,7 +7,7 @@
 // stable, growing vibe mesh. See note/questions/roadmap.md (A2).
 // Run: npx tsx code/experiment/p3-growth.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { meanDegree } from '@/code/tool/graph'
 import {
@@ -47,7 +47,7 @@ function snapshot(input: { size: number; base: number }): Row {
   // base radius 5.7 reproduces the both-worlds density (mean degree ~11) at the
   // smallest size, and grows to 7.0 at N=1500, matching the static study.
   const radius = 5.7 + Math.log(input.size / input.base)
-  const rng = makeRng({ seed: 4000 + input.size })
+  const rng = makeWeyl({ start: 4000 + input.size })
   const graph = hyperbolicGraph({
     count: input.size,
     radius,

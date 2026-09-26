@@ -57,7 +57,7 @@ suite('algebra/linear/power-iteration: lowest eigenpairs', [
         operator: op,
         count: 1,
         shift: 5, // above max eigenvalue 3
-        seed: 1,
+        start: 1,
       })
 
       close(pair!.energy, 1, 1e-6, 'lowest energy')
@@ -89,7 +89,7 @@ suite('algebra/linear/power-iteration: lowest eigenpairs', [
         operator: op,
         count: 2,
         shift: 7, // above max eigenvalue 5
-        seed: 2,
+        start: 2,
       })
 
       close(pairs[0]!.energy, 1, 1e-6, 'first energy')

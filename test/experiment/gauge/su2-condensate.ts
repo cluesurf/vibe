@@ -20,7 +20,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
 
 const LENGTH = 3
@@ -72,7 +72,7 @@ export default experiment({
           configs: 10,
           m0: M0,
           tolerance: TOLERANCE,
-          rng: makeRng({ seed: 600 + Math.round(disorder * 100) }),
+          rng: makeWeyl({ start: 600 + Math.round(disorder * 100) }),
         }).nearZeroDensity,
     )
 

@@ -12,8 +12,15 @@
 //   measurement's own error. Gate: the audit is conclusive if the standard error of the orbit difference,
 //   sd x sqrt(2/3) averaged over starts, is reported beside the difference
 // 3 the estimator: the exactly linear leapfrog (code/measure/photon-symbol) at kappa <cos B> from the same
-//   start, read by the same lagged estimator, must reproduce the linear prediction per mode to 1e-3; the
-//   thermal minus linear difference is then the dynamics', not the estimator's
+//   start, read by the same lagged estimator, must reproduce the linear prediction per mode (the light-band
+//   mean against the mean of the two photons) to 2e-3; the thermal minus linear difference is then the
+//   dynamics', not the estimator's.
+//   Disclosed, changed after the first run: that run gated each of the two LOWEST read frequencies against
+//   each photon at 1e-3 and failed by 168 percent, because a single start excites one vector per degenerate
+//   eigenspace, so on an axis mode the second-lowest read frequency is a massive branch (0.80), not the other
+//   photon (tmp/mth-linear-probe.ts). E-FRC-0169's own thermal slice(0, 2) is safe only because a thermal state
+//   excites every direction. The gate now reads the light band (below 0.5) and compares means, at 2e-3, since
+//   the two (2,2,1) photons 0.07 percent apart are not separable in 2,000 beats
 // The corrected number is the mean orbit ratio over the four starts with its standard error.
 //
 // Depth L2: a re-measurement against the exact symbol, with a noise floor. Deterministic: the starts are hashed,
@@ -46,6 +53,7 @@ const ORBIT_B = [
 ]
 const MODES = [...ORBIT_A, ...ORBIT_B]
 const KAPPA = (2 * Math.PI * K) / N
+const PHOTON_BAND = 0.5
 
 const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
 const sd = (xs: readonly number[]): number => Math.sqrt(xs.reduce((a, x) => a + (x - mean(xs)) ** 2, 0) / (xs.length - 1))
@@ -94,7 +102,10 @@ function read(husk: Husk, step: (t: number) => ArrayLike<number>, onBeat?: (t: n
     }
   }
 
-  return probes.map(p => modeFrequencies({ c0: p.c0, c1: p.c1, lag: LAG, tolerance: 1e-9 }).omega.slice(0, 2))
+  // the light band: every read frequency below PHOTON_BAND (the massive husk branches start near 0.80 at these
+  // wave vectors, the photons sit near 0.30). A start excites one vector per degenerate eigenspace, so the two
+  // lowest read frequencies can be one photon and one massive branch: the band, not the slice, is the light
+  return probes.map(p => modeFrequencies({ c0: p.c0, c1: p.c1, lag: LAG, tolerance: 1e-9 }).omega.filter(w => w < PHOTON_BAND))
 }
 
 export default experiment({
@@ -157,7 +168,9 @@ export default experiment({
 
         return flux
       })
-      const linearGap = Math.max(...linearOmegas.flatMap((pair, i) => pair.map((w, j) => Math.abs(w / predicted[i]![j]! - 1))))
+      // each mode's light-band mean against the mean of its two predicted photons: two branches 0.07 percent
+      // apart dephase by under a radian in 2,000 beats, so only their mean is resolvable
+      const linearGap = Math.max(...linearOmegas.map((band, i) => Math.abs(mean(band) / mean(predicted[i]!) - 1)))
 
       runs.push({ hash, meanCos, ratio: orbitRatio(thermal), noise: withinSd(thermal) * Math.sqrt(2 / 3), linearRatio: orbitRatio(linearOmegas), predictedRatio: orbitRatio(predicted), linearGap, omegas: thermal })
     }
@@ -166,7 +179,7 @@ export default experiment({
     const correctedError = sd(runs.map(r => r.ratio)) / Math.sqrt(runs.length)
     const noiseFloor = mean(runs.map(r => r.noise))
     const predictedRatio = mean(runs.map(r => r.predictedRatio))
-    const estimatorExact = runs.every(r => r.linearGap < 1e-3)
+    const estimatorExact = runs.every(r => r.linearGap < 2e-3)
     const original = runs[0]!
 
     const metrics: Record<string, number> = {

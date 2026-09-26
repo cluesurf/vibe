@@ -8,7 +8,7 @@
 // ternary edges in parallel), never from non-ternary fills, and bus widths DECREASE
 // downstream so each gate's margin exceeds the feedback it receives.
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import type { Bit } from '@/code/operator/logic-gate'
 
 export type SubstrateCircuit = {
@@ -113,7 +113,7 @@ export function settle(
   }
 
   const free = [...Array(c.size).keys()].filter(i => !c.clamp.has(i))
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   const stepCell = (i: number): number => {
     let s = 0

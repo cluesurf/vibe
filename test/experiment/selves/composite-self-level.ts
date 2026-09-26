@@ -29,7 +29,7 @@ import {
 } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 export default experiment({
   id: 'selves/composite-self-level',
@@ -118,14 +118,14 @@ export default experiment({
       ),
       fine,
       macroCount,
-      rng: makeRng({ seed: 4242 }),
+      rng: makeWeyl({ start: 4242 }),
     })
 
     const dispersing = emergenceGain({
       series: centroidSeries(passThrough),
       fine,
       macroCount,
-      rng: makeRng({ seed: 4242 }),
+      rng: makeWeyl({ start: 4242 }),
     })
 
     const compositeGain = composite.eiSpatial - composite.eiRandom

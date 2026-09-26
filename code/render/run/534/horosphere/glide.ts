@@ -8,7 +8,7 @@
 // Run: npx tsx code/gpu/render-horosphere-glide-534.ts.
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { writeFrame } from '@/code/draw/animation'
@@ -172,7 +172,7 @@ async function run(): Promise<void> {
   // GPU: evolve the DISCRETE base rule (BULK_STEP) on the slab; seed a localized charge column
   const { offsets, adj } = toCsr(slab.neighbors)
   const seed = new Uint32Array(n)
-  const rng = makeRng({ seed: 99194853 })
+  const rng = makeWeyl({ start: 99194853 })
   const nextR = (): number => rng.next()
   const seedRadius = ext * SEED_FRACTION
 

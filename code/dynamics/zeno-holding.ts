@@ -1,5 +1,5 @@
 import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // The quantum-Zeno holding measure (Stapp). A localized packet of charge on a ring diffuses under
 // the committed conserving transport (the hop rule), so left alone it spreads out. An "effort"
@@ -90,7 +90,7 @@ export function zenoHoldSpread(input: {
   }
 
   const moved = new Uint8Array(length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   let spreadSum = 0
 

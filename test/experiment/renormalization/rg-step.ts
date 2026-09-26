@@ -9,7 +9,7 @@
 // total charge is conserved. Run: npx tsx code/experiment/p122-rg-step.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { csrVoronoiBlocks } from '@/code/dynamics/renormalization-blocks'
@@ -40,7 +40,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   const moved = new Uint8Array(N)
 
   // block the crystal, build the block adjacency graph
-  const seedRng = makeRng({ seed: 17 })
+  const seedRng = makeWeyl({ start: 17 })
   const { blockOf, numBlocks } = csrVoronoiBlocks({
     offsets: g.offsets,
     adj: g.adj,
@@ -109,7 +109,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
   for (let run = 0; run < R; run++) {
     const tone = new Int8Array(N)
-    const rng = makeRng({ seed: 100 + run })
+    const rng = makeWeyl({ start: 100 + run })
 
     for (let i = 0; i < N; i++) {
       const grad = 0.25 * (1 - distP[i]! / (maxd + 1)) // dilute +1 gas, denser near the pole

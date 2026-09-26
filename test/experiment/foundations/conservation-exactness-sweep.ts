@@ -25,7 +25,7 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const RING_LENGTH = 200
 const BEATS = 300
@@ -52,7 +52,7 @@ function survivalUnderLeak(leak: number): number {
   } // the self, a gathered blob of charge
 
   const moved = new Uint8Array(RING_LENGTH)
-  const rng = makeRng({ seed: SEED })
+  const rng = makeWeyl({ start: SEED })
   const initial = totalCharge(tone)
 
   for (let t = 0; t < BEATS; t++) {

@@ -30,7 +30,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   FiniteGroup,
   finiteHeatbathSweep,
@@ -77,7 +77,7 @@ function plaquette(input: {
   sweeps: number
   seed: number
 }): number {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeFiniteGaugeLattice({
     group: input.group,
     lengths: [4, 4, 4, 4],
@@ -106,7 +106,7 @@ function plaquette(input: {
 }
 
 function su3Plaquette(beta: number): number {
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
   const lattice = makeGaugeLattice({
     group: 'su3',
     lengths: [4, 4, 4, 4],
@@ -162,7 +162,7 @@ function polyakov(
   beta: number,
   beta1: number,
 ): number {
-  const rng = makeRng({ seed: 23 })
+  const rng = makeWeyl({ start: 23 })
   const lattice = makeFiniteGaugeLattice({
     group,
     lengths: [8, 8, 8, 4],
@@ -227,7 +227,7 @@ function finiteCreutz(
   beta: number,
   beta1: number,
 ): Creutz {
-  const rng = makeRng({ seed: 29 })
+  const rng = makeWeyl({ start: 29 })
   const lattice = makeFiniteGaugeLattice({
     group,
     lengths: [8, 8, 8, 8],
@@ -252,7 +252,7 @@ function finiteCreutz(
 }
 
 function su3Creutz(): Creutz {
-  const rng = makeRng({ seed: 29 })
+  const rng = makeWeyl({ start: 29 })
   const lattice = makeGaugeLattice({
     group: 'su3',
     lengths: [8, 8, 8, 8],

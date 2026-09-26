@@ -13,7 +13,7 @@ import {
   getBit,
   setBit,
 } from '@/code/tool/bitset'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // The 2D smeared Benincasa-Dowker kernel (inlined to avoid Poset construction).
 function smearedKernel2D(n: number, eps: number): number {
@@ -244,7 +244,7 @@ export function sampleUniform(input: {
   beta: number
   epsilon: number
   steps: number
-  rng: Rng
+  rng: Weyl
   sampleEvery?: number
   startFuture?: BitMatrix
 }): {

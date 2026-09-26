@@ -6,7 +6,7 @@
 // each N. See note/questions/next-version.md (P12). Run:
 // npx tsx code/experiment/p12-wang-landau.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   wangLandauHeight,
   entropyGap,
@@ -31,7 +31,7 @@ export function wangLandauCrossing(input: {
     epsilon: 0.9,
     minHeight: 2,
     maxHeight: Math.round(1.8 * Math.sqrt(input.size)),
-    rng: makeRng({ seed: input.size * 101 + 5 }),
+    rng: makeWeyl({ start: input.size * 101 + 5 }),
     maxSteps: input.maxSteps,
     coverThreshold: 1500,
     burnInFraction: 0.5,

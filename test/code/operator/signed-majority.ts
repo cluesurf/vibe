@@ -11,7 +11,7 @@ import {
   signedMajorityStep,
   runAsynchronousSignedMajority,
 } from '@/code/operator/signed-majority'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A periodic ring of 4 cells, each linked to its two neighbours.
 const ring4: number[][] = [
@@ -27,7 +27,7 @@ suite('operator/signed-majority: symmetric edge fills', [
     () => {
       const fills = symmetricEdgeFills({
         neighbors: ring4,
-        rng: makeRng({ seed: 4 }),
+        rng: makeWeyl({ start: 4 }),
       })
 
       for (let v = 0; v < ring4.length; v++) {
@@ -49,7 +49,7 @@ suite('operator/signed-majority: symmetric edge fills', [
   check('every coupling is ternary', () => {
     const fills = symmetricEdgeFills({
       neighbors: ring4,
-      rng: makeRng({ seed: 99 }),
+      rng: makeWeyl({ start: 99 }),
     })
 
     for (const row of fills) {

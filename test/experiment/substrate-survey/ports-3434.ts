@@ -3,7 +3,7 @@
 // (P101), (3) two opposite selves ANNIHILATE on contact (P110). Ported from the throwaway probes.
 // Run: npx tsx code/experiment/p193-ports-3434.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { parityBlockBeat3D } from '@/code/operator/ternary-permutation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -95,7 +95,7 @@ export function ports(): {
   const lc = lightcone()
 
   // churn from a small symmetry-breaking seed
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(L * L * L)
 

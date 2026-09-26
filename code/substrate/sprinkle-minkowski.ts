@@ -2,7 +2,7 @@
 // Uniform-by-volume sampling makes the process Poisson, hence Lorentz invariant:
 // the thing a regular lattice cannot be.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
 import { Poset, makePosetFromRelation } from '@/code/tool/poset'
 
@@ -16,7 +16,7 @@ import { Poset, makePosetFromRelation } from '@/code/tool/poset'
 export function sprinkleMinkowski(input: {
   dimension: number
   count: number
-  rng: Rng
+  rng: Weyl
   halfDiamond?: boolean
 }): Poset {
   const d = input.dimension

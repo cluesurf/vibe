@@ -9,7 +9,7 @@ import { suite, check, equal } from '@/test/code/harness'
 import { parallelTempering } from '@/code/dynamics/parallel-tempering'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
 import { relationCount, Poset } from '@/code/tool/poset'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const action = benincasaDowkerAction({ epsilon: 1, dimension: 2 })
 const observe = ({ poset }: { poset: Poset }): number =>
@@ -24,7 +24,7 @@ suite('dynamics/parallel-tempering: swap acceptance', [
       sweeps: 8,
       movesPerSweep: 2,
       observe,
-      rng: makeRng({ seed: 5 }),
+      rng: makeWeyl({ start: 5 }),
     })
 
     equal(
@@ -41,7 +41,7 @@ suite('dynamics/parallel-tempering: swap acceptance', [
       sweeps: 8,
       movesPerSweep: 2,
       observe,
-      rng: makeRng({ seed: 5 }),
+      rng: makeWeyl({ start: 5 }),
     })
 
     equal(
@@ -62,7 +62,7 @@ suite('dynamics/parallel-tempering: determinism', [
         sweeps: 10,
         movesPerSweep: 2,
         observe,
-        rng: makeRng({ seed: 777 }),
+        rng: makeWeyl({ start: 777 }),
       })
 
     const a = run()

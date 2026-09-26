@@ -1,10 +1,7 @@
-import {
-  conservingEdgeListSweepPumped,
-  hashRand,
-} from '@/code/dynamics/conserving-sweep'
+import { conservingEdgeListSweepPumped } from '@/code/dynamics/conserving-sweep'
 import { edgesOf } from '@/code/tool/graph'
 import { totalCharge } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl, weylCell } from '@/code/tool/weyl'
 
 // The genesis dynamics: the conserving perception rule run from a chosen initial tone, recording how much
 // charge (life) exists after each beat. From an all-peace start (the void, Q = 0) with arrow > 0 this is the
@@ -45,7 +42,7 @@ export function chargeTrajectory(input: {
   const tone = initial.slice()
   const edges = edgesOf(neighbors)
   const moved = new Uint8Array(tone.length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const qStart = totalCharge(tone)
   const trajectory: number[] = [chargedCount(tone)]
 
@@ -140,7 +137,7 @@ export function wakeDrivenSweep(input: {
       const charged = a === 0 ? w : v
       const empty = a === 0 ? v : w
 
-      if (hashRand(key, beat, 1) < 0.5) {
+      if (weylCell(key, beat, 1) < 0.5) {
         tone[empty] = tone[charged]!
         tone[charged] = 0
         moved[v] = 1
@@ -150,7 +147,7 @@ export function wakeDrivenSweep(input: {
       a === 0 &&
       b === 0 &&
       (depth[v] ?? 0) !== (depth[w] ?? 0) &&
-      hashRand(key, beat, 0) < rate
+      weylCell(key, beat, 0) < rate
     ) {
       const outer = (depth[v] ?? 0) > (depth[w] ?? 0) ? v : w
       const inner = outer === v ? w : v
@@ -244,7 +241,7 @@ export function firstDistinction(input: {
   const tone = new Int8Array(cells)
   const edges = edgesOf(neighbors)
   const moved = new Uint8Array(cells)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   for (let b = 0; b < maxBeats; b++) {
     conservingEdgeListSweepPumped({
@@ -334,8 +331,8 @@ export function differenceTrajectory(input: {
   const edges = edgesOf(neighbors)
   const movedA = new Uint8Array(a.length)
   const movedB = new Uint8Array(b.length)
-  const rngA = makeRng({ seed })
-  const rngB = makeRng({ seed })
+  const rngA = makeWeyl({ start: seed })
+  const rngB = makeWeyl({ start: seed })
 
   const diff = (): number => {
     let d = 0
@@ -461,7 +458,7 @@ export function growingMeshGenesis(input: {
         const empty = a === 0 ? v : w
         const doHop = integerHop
           ? ((v + w + b) & 1) === 0
-          : hashRand(v * 131071 + w, b, 1) < 0.5
+          : weylCell(v * 131071 + w, b, 1) < 0.5
 
         if (doHop) {
           tone[empty] = tone[charged]!
@@ -529,7 +526,7 @@ export function oneBeat(input: {
     tone: out,
     edges: input.edges,
     moved,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
     arrow: input.arrow,
     pump: null,
   })

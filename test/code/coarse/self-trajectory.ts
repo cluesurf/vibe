@@ -1,42 +1,38 @@
 // Conformance for code/coarse/self-trajectory: the micro source for the coarse-graining experiments.
-// The local LCG (makeRng) is re-derived against an independent reference implementation of the same
-// recurrence; positionBin is the fixed-width bin of the positive-charge centroid; and the stochastic
-// trajectory builders are checked for reproducibility (same seed -> identical) and label range, the
-// determinism the methodology requires (claims are L2, robustness comes from size not seeds).
+// The stream (makeStream) is re-derived against the Kronecker formula it states; positionBin is the
+// fixed-width bin of the positive-charge centroid; and the trajectory builders are checked for
+// reproducibility and label range.
 
 import { suite, check, equal, close, ok } from '@/test/code/harness'
 import {
-  makeRng,
+  makeStream,
   positionBin,
   selfTrajectory,
   selfUnitTrajectory,
 } from '@/code/coarse/self-trajectory'
 
-suite('coarse/self-trajectory: the LCG', [
-  // Independent reference: s' = (s * 1664525 + 1013904223) mod 2^32, return s'/2^32. This re-derives
-  // the documented recurrence rather than the implementation.
-  check('makeRng matches the reference LCG recurrence', () => {
-    const rng = makeRng(12345)
+suite('coarse/self-trajectory: the stream', [
+  // Independent reference: draw k of the stream at start 0 is frac((k + 1) * frac(sqrt p_k)) for the
+  // first 64 draws, p_k the k-th prime, to the 2^-32 fixed-point rounding of the irrational.
+  check('makeStream at start 0 is the Kronecker sequence of sqrt p', () => {
+    const stream = makeStream(0)
+    const primes = [2, 3, 5, 7, 11, 13, 17, 19]
 
-    let s = 12345 >>> 0
+    for (const p of primes) {
+      const alpha = Math.sqrt(p) - Math.floor(Math.sqrt(p))
 
-    for (let i = 0; i < 20; i++) {
-      s = (Math.imul(s, 1664525) + 1013904223) >>> 0
-
-      const expected = s / 4294967296
-
-      close(rng.next(), expected, 0, `draw ${i}`)
+      close(stream.next(), alpha, 2 ** -31, `sqrt ${p}`)
     }
   }),
-  check('draws lie in [0,1) and the seed is reproducible', () => {
-    const a = makeRng(7)
-    const b = makeRng(7)
+  check('values lie in [0,1) and the start is reproducible', () => {
+    const a = makeStream(7)
+    const b = makeStream(7)
 
     for (let i = 0; i < 50; i++) {
       const x = a.next()
 
-      ok(x >= 0 && x < 1, 'draw in [0,1)')
-      close(b.next(), x, 0, 'same seed, same sequence')
+      ok(x >= 0 && x < 1, 'value in [0,1)')
+      close(b.next(), x, 0, 'same start, same sequence')
     }
   }),
 ])

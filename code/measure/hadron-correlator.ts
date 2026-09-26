@@ -13,7 +13,7 @@
 // vector per site. The origin is the source, and time is the last axis.
 
 import { Hypercubic, siteCoordinates } from '@/code/tool/hypercubic'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import {
   GaugeLattice,
   gaugeUpdate,
@@ -91,7 +91,7 @@ export function sampleQuenchedHadrons(input: {
   overrelaxation: number
   tolerance: number
   maxIterations: number
-  rng: Rng
+  rng: Weyl
 }): HadronCorrelators[] {
   const { lattice, beta, overrelaxation, rng } = input
 

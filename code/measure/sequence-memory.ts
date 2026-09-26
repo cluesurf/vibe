@@ -1,4 +1,4 @@
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A repeating thought as an attracting limit cycle. Associations chain one state to the next, and a
 // thought that loops back on itself is a closed chain: A leads to B leads to C leads back to A. An
@@ -24,7 +24,7 @@ export function buildSequenceMemory(input: {
   seed: number
 }): SequenceMemory {
   const { size, length, seed } = input
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const patterns: number[][] = []
 
   for (let i = 0; i < length; i++) {
@@ -120,7 +120,7 @@ export function convergesToCycle(input: {
   seed: number
 }): boolean {
   const { memory, noiseFraction, scramble, seed } = input
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   let state = memory.patterns[0]!.map(value =>
     rng.next() < noiseFraction ? -value : value,

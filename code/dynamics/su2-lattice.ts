@@ -5,7 +5,7 @@
 // as an area law for Wilson loops, measured by the Creutz ratio (the string
 // tension).
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // An SU(2) element as a unit quaternion (q0 + q1 i + q2 j + q3 k). The matrix is
 // q0 I + i (q . sigma), so (1/2) Tr U = q0.
@@ -51,7 +51,7 @@ function normalize(a: Quat): Quat {
 
 // A random SU(2) near the identity: identity perturbed by a small rotation. eps
 // sets the Metropolis step size.
-function randomNear(input: { eps: number; rng: Rng }): Quat {
+function randomNear(input: { eps: number; rng: Weyl }): Quat {
   const e = input.eps
 
   return normalize([
@@ -62,7 +62,7 @@ function randomNear(input: { eps: number; rng: Rng }): Quat {
   ])
 }
 
-function randomSu2(input: { rng: Rng }): Quat {
+function randomSu2(input: { rng: Weyl }): Quat {
   return normalize([
     input.rng.nextGaussian(),
     input.rng.nextGaussian(),
@@ -85,7 +85,7 @@ export function makeSu2Lattice(input: {
   dim: number
   length: number
   hot: boolean
-  rng: Rng
+  rng: Weyl
 }): Su2Lattice {
   const dim = input.dim
   const L = input.length
@@ -215,7 +215,7 @@ export function metropolisSweep(input: {
   lattice: Su2Lattice
   beta: number
   eps: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const lat = input.lattice
 

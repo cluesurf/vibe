@@ -21,7 +21,7 @@ import {
 import { makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
 import { relationCount, Poset } from '@/code/tool/poset'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const action = benincasaDowkerAction({ epsilon: 1, dimension: 2 })
 const observe = ({ poset }: { poset: Poset }): number =>
@@ -60,7 +60,7 @@ suite('dynamics/mcmc: acceptance at beta = 0', [
           action,
           beta,
           steps: 300,
-          rng: makeRng({ seed: 4 }),
+          rng: makeWeyl({ start: 4 }),
           observe,
         }).acceptanceRate
 
@@ -84,7 +84,7 @@ suite('dynamics/mcmc: determinism', [
         action,
         beta: 1.5,
         steps: 300,
-        rng: makeRng({ seed: 2024 }),
+        rng: makeWeyl({ start: 2024 }),
         observe,
       })
 

@@ -1,4 +1,4 @@
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // A random degree-regular graph via the CONFIGURATION MODEL, returned as a flat
 // edge list (eu, ev) plus CSR adjacency (offsets, adj). Every node starts with
@@ -9,7 +9,7 @@ import { Rng } from '@/code/tool/rng'
 export function buildRegularGraph(input: {
   n: number
   degree: number
-  rng: Rng
+  rng: Weyl
 }): {
   eu: Int32Array
   ev: Int32Array

@@ -12,7 +12,7 @@
 // integer-ladder analysis and note/roadmap.md.
 // Run: npx tsx code/experiment/p56-eternal-ladder.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { modularGraph } from '@/code/substrate/modular-group'
 import { runModel } from '@/code/compute/run-model'
@@ -32,7 +32,7 @@ function evaluate(g: Graph, seed: number): Epoch {
   const aniso = lorentzIsotropy({
     substrate: g,
     samples: 2500,
-    rng: makeRng({ seed }),
+    rng: makeWeyl({ start: seed }),
   })
 
   const m = runModel(g, seed + 1)

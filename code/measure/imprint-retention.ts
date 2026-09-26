@@ -8,7 +8,7 @@
 
 import { csrBallNodes } from '@/code/tool/graph'
 import { perceptionEdgeBeat } from '@/code/dynamics/perception-edge-beat'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 type StoredGraph = {
   cellCount: number
@@ -27,7 +27,7 @@ export function imprintRetention(input: {
   const n = g.cellCount
   const tone = new Int8Array(n)
   const moved = new Uint8Array(n)
-  const rngWarm = makeRng({ seed: 9 })
+  const rngWarm = makeWeyl({ start: 9 })
 
   for (let b = 0; b < 30; b++) {
     perceptionEdgeBeat({
@@ -60,7 +60,7 @@ export function imprintRetention(input: {
     blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
 
   const start = meanBlob()
-  const rng2 = makeRng({ seed: 31 })
+  const rng2 = makeWeyl({ start: 31 })
 
   for (let b = 0; b < 30; b++) {
     perceptionEdgeBeat({

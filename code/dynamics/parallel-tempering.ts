@@ -6,7 +6,7 @@
 // and escape basins, giving true equilibrium. See p2-p6-optimal-path.md.
 
 import { Poset, makePosetFromFuture } from '@/code/tool/poset'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Action } from '@/code/dynamics/action'
 import {
   State,
@@ -32,7 +32,7 @@ function localMove(input: {
   size: number
   beta: number
   action: Action
-  rng: Rng
+  rng: Weyl
 }): void {
   const { replica, size, beta, action, rng } = input
   const a = rng.nextInt({ max: size })
@@ -84,7 +84,7 @@ export function parallelTempering(input: {
   sweeps: number
   movesPerSweep: number
   observe: (input: { poset: Poset }) => number
-  rng: Rng
+  rng: Weyl
   start?: Poset
 }): { samplesByBeta: number[][]; swapAcceptance: number } {
   const n = input.size

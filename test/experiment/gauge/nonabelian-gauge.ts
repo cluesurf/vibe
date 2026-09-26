@@ -6,7 +6,7 @@
 // (a non-abelian flux) is GAUGE-INVARIANT, (2) the holonomy is a non-trivial rotation (curvature), (3) it is
 // NON-ABELIAN (order matters, two paths differ). Run: npx tsx code/experiment/p234-nonabelian-gauge.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   Matrix3 as M3,
   multiply3 as mul,
@@ -22,7 +22,7 @@ export function nonabelianGauge(): {
   curvedFlux: boolean
   nonAbelian: boolean
 } {
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
   const rnd = (): number => rng.next()
   const rr = (): M3 =>
     rot([rnd() - 0.5, rnd() - 0.5, rnd() - 0.5], rnd() * 2) // random SO(3) link

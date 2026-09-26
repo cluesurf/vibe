@@ -10,7 +10,7 @@
 
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 import { Configuration } from '@/code/tone/configuration'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // Pick the highest-degree node as the seed of the candidate region.
 function highestDegreeNode(adjacency: readonly Uint32Array[]): number {
@@ -266,7 +266,7 @@ export function toneIntegration(input: {
   adjacency: readonly Uint32Array[]
   region: number[]
   fillOf?: (a: number, b: number) => number
-  rng: Rng
+  rng: Weyl
   samples?: number
   bipartitions?: number
 }): number {

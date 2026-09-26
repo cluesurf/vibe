@@ -6,7 +6,7 @@
 
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 import { coordOf } from '@/code/tool/embedding'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { latticeDispersion } from '@/code/measure/dispersion'
 import { groupSpeedAnisotropy } from '@/code/measure/group-speed'
 import { nearestLinkHarmonicAnisotropy } from '@/code/measure/isotropy'
@@ -22,7 +22,7 @@ const HARMONICS = [2, 3, 4, 6]
 export function lorentzIsotropy(input: {
   substrate: Substrate
   samples: number
-  rng: Rng
+  rng: Weyl
 }): { preferredFrame: boolean; anisotropy: number } {
   const embedding = input.substrate.embedding
 
@@ -167,7 +167,7 @@ export function latticeAnisotropy(kMag: number): {
 
 function sprinklePoints(input: {
   count: number
-  rng: Rng
+  rng: Weyl
 }): { x: number; y: number }[] {
   return Array.from({ length: input.count }, () => ({
     x: input.rng.next(),
@@ -189,7 +189,7 @@ function latticePoints(side: number): { x: number; y: number }[] {
 
 export function lorentzSafety(): { sprinkle: number; lattice: number } {
   const sprinkle = nearestLinkHarmonicAnisotropy({
-    points: sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }),
+    points: sprinklePoints({ count: 900, rng: makeWeyl({ start: 1 }) }),
   })
 
   const lattice = nearestLinkHarmonicAnisotropy({

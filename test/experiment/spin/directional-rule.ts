@@ -6,7 +6,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { persistentWalkMeanDisplacement } from '@/code/dynamics/random-walk'
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { coordinateAxes } from '@/code/measure/probe-directions'
@@ -23,7 +23,7 @@ function walk(
     mix,
     steps: T,
     runs: trials,
-    rng: makeRng({ seed }),
+    rng: makeWeyl({ start: seed }),
   })
 }
 

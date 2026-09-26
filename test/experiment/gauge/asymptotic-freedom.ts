@@ -37,7 +37,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GaugeGroup,
   groupSize,
@@ -110,7 +110,7 @@ function runningRates(input: {
   }
 
   couplings.forEach((gSquared, index) => {
-    const rng = makeRng({ seed: input.seed + index })
+    const rng = makeWeyl({ start: input.seed + index })
     const lattice = makeGaugeLattice({
       group,
       lengths: [BOX, BOX, BOX, BOX],
