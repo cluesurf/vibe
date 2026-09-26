@@ -215,7 +215,7 @@ function hermitianFrom(u: readonly number[]): Complex3 {
 
 // the see-saw on the pure Schmidt state from `starts` golden Weyl starts: the largest value found, and the
 // observables that found it
-export function pureSeeSaw(p: readonly number[], starts: number): { value: number; a0: Complex3; a1: Complex3 } {
+export function pureSeeSaw(p: readonly number[], starts: number, steps = 400): { value: number; a0: Complex3; a1: Complex3 } {
   let best = { value: Number.NEGATIVE_INFINITY, a0: zero3(), a1: zero3() }
   // eighteen Weyl rates: frac(sqrt q) for the primes 2 .. 61
   const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
@@ -227,7 +227,7 @@ export function pureSeeSaw(p: readonly number[], starts: number): { value: numbe
     let a1 = sign3(hermitianFrom(u.slice(9, 18)))
     let value = aliceValue(p, a0, a1)
 
-    for (let step = 0; step < 400; step++) {
+    for (let step = 0; step < steps; step++) {
       const b0 = sign3(sandwich(p, add3(a0, a1, 1)))
       const b1 = sign3(sandwich(p, add3(a0, a1, -1)))
 
@@ -287,7 +287,7 @@ function meets(rho: Density9, x: Complex3, side: 'bob' | 'alice'): Complex3 {
 
 // the see-saw on a general two-role density from `starts` Weyl starts: Bob and Alice in turn take the sign
 // of the operator their partner's observables leave them, which never lowers the value
-export function densitySeeSaw(rho: Density9, starts: number): number {
+export function densitySeeSaw(rho: Density9, starts: number, steps = 400): number {
   let best = Number.NEGATIVE_INFINITY
   const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
   const rates = primes.map(q => Math.sqrt(q) % 1)
@@ -299,7 +299,7 @@ export function densitySeeSaw(rho: Density9, starts: number): number {
     let a1 = sign3(hermitianFrom(u.slice(9, 18)))
     let value = valueOf(a0, a1)
 
-    for (let step = 0; step < 400; step++) {
+    for (let step = 0; step < steps; step++) {
       const b0 = sign3(meets(rho, add3(a0, a1, 1), 'bob'))
       const b1 = sign3(meets(rho, add3(a0, a1, -1), 'bob'))
 
@@ -334,6 +334,166 @@ export function pureChshExact(schmidt: readonly number[]): number {
   const [a = 0, b = 0, c = 0] = [...schmidt].sort((x, y) => y - x)
 
   return 2 * Math.sqrt((a + b) ** 2 + 4 * a * b) + 2 * c
+}
+
+// THE ATTAINING OBSERVABLES, explicitly, for a pure density: psi is its top eigenvector, M its 3 x 3
+// coefficient matrix, a_k the eigenvectors of M M^dagger (weights p1 >= p2 >= p3) and b_k = M^T conj(a_k) /
+// sqrt p_k, so psi = sum sqrt(p_k) |a_k>|b_k>. On the block (a1, a2) x (b1, b2) the state is
+// sqrt p1 |00> + sqrt p2 |11>, and Horodecki's settings A0 = Z, A1 = X, B = cos(t) Z +- sin(t) X with
+// tan t = 2 sqrt(p1 p2) / (p1 + p2) reach 2 sqrt((p1 + p2)^2 + 4 p1 p2) on it; every observable is +1 on
+// a3 and on b3, which adds 2 p3. The value is read off the density itself, Tr[B rho].
+export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }): number {
+  const m = zero3()
+
+  for (let i = 0; i < 9; i++) {
+    m.re[i] = top.re[i] ?? 0
+    m.im[i] = top.im[i] ?? 0
+  }
+
+  // rho_A = M M^dagger
+  const ra = zero3()
+
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      let re = 0
+      let im = 0
+
+      for (let k = 0; k < 3; k++) {
+        const xr = m.re[3 * i + k] ?? 0
+        const xi = m.im[3 * i + k] ?? 0
+        const yr = m.re[3 * j + k] ?? 0
+        const yi = -(m.im[3 * j + k] ?? 0)
+
+        re += xr * yr - xi * yi
+        im += xr * yi + xi * yr
+      }
+
+      ra.re[3 * i + j] = re
+      ra.im[3 * i + j] = im
+    }
+  }
+
+  const eig = hermitian3(ra)
+  const order = [2, 1, 0]
+  const p = order.map(k => Math.max(0, eig.values[k] ?? 0))
+  const a = order.map(k => eig.vectors[k]!)
+
+  if ((p[1] ?? 0) < 1e-14) {
+    return 2
+  }
+
+  // b_k = M^T conj(a_k) / sqrt p_k for k = 1, 2, and b3 = conj(b1 x b2)
+  const b = [0, 1].map(k => {
+    const s = Math.sqrt(p[k] ?? 1)
+    const re: number[] = []
+    const im: number[] = []
+
+    for (let j = 0; j < 3; j++) {
+      let xr = 0
+      let xi = 0
+
+      for (let i = 0; i < 3; i++) {
+        const mr = m.re[3 * i + j] ?? 0
+        const mi = m.im[3 * i + j] ?? 0
+        const ar = a[k]!.re[i] ?? 0
+        const ai = -(a[k]!.im[i] ?? 0)
+
+        xr += mr * ar - mi * ai
+        xi += mr * ai + mi * ar
+      }
+
+      re.push(xr / s)
+      im.push(xi / s)
+    }
+
+    return { re, im }
+  })
+  const cross = (u: { re: number[]; im: number[] }, v: { re: number[]; im: number[] }): { re: number[]; im: number[] } => {
+    const re: number[] = []
+    const im: number[] = []
+
+    for (let i = 0; i < 3; i++) {
+      const j = (i + 1) % 3
+      const k = (i + 2) % 3
+      // u_j v_k - u_k v_j, then conjugated
+      const r = (u.re[j] ?? 0) * (v.re[k] ?? 0) - (u.im[j] ?? 0) * (v.im[k] ?? 0) - ((u.re[k] ?? 0) * (v.re[j] ?? 0) - (u.im[k] ?? 0) * (v.im[j] ?? 0))
+      const q = (u.re[j] ?? 0) * (v.im[k] ?? 0) + (u.im[j] ?? 0) * (v.re[k] ?? 0) - ((u.re[k] ?? 0) * (v.im[j] ?? 0) + (u.im[k] ?? 0) * (v.re[j] ?? 0))
+
+      re.push(r)
+      im.push(-q)
+    }
+
+    return { re, im }
+  }
+
+  b.push(cross(b[0]!, b[1]!))
+
+  // |x><y| + ... as a 3 x 3
+  const outer = (terms: [number, { re: number[]; im: number[] }, { re: number[]; im: number[] }][]): Complex3 => {
+    const o = zero3()
+
+    for (const [c, x, y] of terms) {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          o.re[3 * i + j] = (o.re[3 * i + j] ?? 0) + c * ((x.re[i] ?? 0) * (y.re[j] ?? 0) + (x.im[i] ?? 0) * (y.im[j] ?? 0))
+          o.im[3 * i + j] = (o.im[3 * i + j] ?? 0) + c * ((x.im[i] ?? 0) * (y.re[j] ?? 0) - (x.re[i] ?? 0) * (y.im[j] ?? 0))
+        }
+      }
+    }
+
+    return o
+  }
+  const [a1, a2, a3] = a as [{ re: number[]; im: number[] }, { re: number[]; im: number[] }, { re: number[]; im: number[] }]
+  const [b1, b2, b3] = b as [{ re: number[]; im: number[] }, { re: number[]; im: number[] }, { re: number[]; im: number[] }]
+  const t = Math.atan2(2 * Math.sqrt((p[0] ?? 0) * (p[1] ?? 0)), (p[0] ?? 0) + (p[1] ?? 0))
+  const c = Math.cos(t)
+  const s = Math.sin(t)
+  const a0 = outer([
+    [1, a1, a1],
+    [-1, a2, a2],
+    [1, a3, a3],
+  ])
+  const a1x = outer([
+    [1, a1, a2],
+    [1, a2, a1],
+    [1, a3, a3],
+  ])
+  const bOf = (sign: number): Complex3 =>
+    outer([
+      [c, b1, b1],
+      [-c, b2, b2],
+      [sign * s, b1, b2],
+      [sign * s, b2, b1],
+      [1, b3, b3],
+    ])
+  const b0 = bOf(1)
+  const b1o = bOf(-1)
+  const expect = (x: Complex3, y: Complex3): number => {
+    // Tr[(x (x) y) rho] = sum x_ik y_jl rho_(k l),(i j), real part
+    let re = 0
+
+    for (let i = 0; i < 3; i++) {
+      for (let k = 0; k < 3; k++) {
+        for (let j = 0; j < 3; j++) {
+          for (let l = 0; l < 3; l++) {
+            const xr = x.re[3 * i + k] ?? 0
+            const xi = x.im[3 * i + k] ?? 0
+            const yr = y.re[3 * j + l] ?? 0
+            const yi = y.im[3 * j + l] ?? 0
+            const pr = xr * yr - xi * yi
+            const pi = xr * yi + xi * yr
+            const at = (3 * k + l) * 9 + (3 * i + j)
+
+            re += pr * (rho.re[at] ?? 0) - pi * (rho.im[at] ?? 0)
+          }
+        }
+      }
+    }
+
+    return re
+  }
+
+  return expect(a0, b0) + expect(a0, b1o) + expect(a1x, b0) - expect(a1x, b1o)
 }
 
 // the pairing form of code/measure/bell-gates, the best Schmidt-aligned block choice

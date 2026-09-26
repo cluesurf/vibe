@@ -17,7 +17,8 @@ import {
 } from '@/code/rule/fear-weave'
 import { makeSigmaLinks } from '@/code/rule/sigma-links'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { phaseSpaceAction, type Matrix3 } from '@/code/measure/qutrit-phase-space'
+import { phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
+import { type Matrix3 } from '@/code/dynamics/finite-gauge'
 
 const rule = makeSigmaLinks({ side: 3, kappa: 0, tension: 0, capacity: 0 })
 const grid = gridMoves()

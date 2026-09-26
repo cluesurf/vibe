@@ -58,11 +58,26 @@
 // count over starts can equal (Veitch, Ferrie, Gross and Emerson 2012). The Born rule of this model is the
 // SIGNED count, loves minus fears, and the non-negative part of it fails exactly where mana is made.
 //
+// CONVENTION UPDATE (2026-09-26, E-QTM-0123 and 0124, gates unchanged). The knot's weights are held on the
+// phase index 3 a + b and a grid move acts on them through sigma-links' identification (fear-weave
+// phaseMove), and the color mode now rewrites a coordinate in its token's new frame when the token changed
+// sign between meetings. The hidden points follow both: each crossing moves them by phaseMove of the grid
+// move (they were moved by the raw grid table, which is the transposed move on the phase index and so no
+// longer the knot's own), and each frame rewrite reflects them as it reflects the weights; the physical
+// reading is physicalKnot's frame-aware one. On a history with a flip the hidden point is then the whole's
+// classical point, not fearBeat's closed-token point, which keeps no frame. Right after the convention change
+// and before this update, I1 failed on 1,223 of 3,000 beats (found by another agent's rerun): the instrument
+// read the old convention. RUN AFTER THE UPDATE (1 s): status fail as registered, I1 to I3 pass (0 of 3,000
+// Liouville mismatches, Weyl slope -0.92), H1 to H3 fail. The numbers move with the convention: the hidden
+// count misses on 2,634 of 3,000 beats (was 2,304), the love count on 2,526 by up to 0.304 (was 1,892, 0.268),
+// the flat swap run still makes 1/4, 3/4, 1, and the Weyl limit misses the weight by 2/9 at the reading beat
+// (was 1/12).
+//
 // Depth L2. Substrate-independent: the readings are roles on the grid.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { fearKernels, meetingKernel, swapPhase, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import { CONJUGATE_POINT, fearKernels, meetingKernel, phaseMove, swapPhase, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { advanceKnot, bellHistories, lineKnot, physicalKnot, qtm0100Histories, type KnotHistory } from '@/code/measure/knot-histories'
 import { GOLDEN } from '@/code/tool/weyl'
@@ -168,26 +183,41 @@ export default experiment({
 
       for (let t = 0; t < h.records.length; t++) {
         const record = h.records[t]!
+        const framesBefore = on.frame ?? [0, 0]
 
         on = advanceKnot(h, on, record)
         offWhole = advanceKnot(off, offWhole, record)
+
+        // the hidden points follow the knot's frames (E-QTM-0123): where a meeting rewrote a coordinate in its
+        // token's new frame, the hidden coordinate is rewritten the same way, before the crossings
+        const framesAfter = on.frame ?? [0, 0]
+
+        for (const c of [0, 1]) {
+          const before = framesBefore[c] ?? 0
+          const after = framesAfter[c] ?? 0
+
+          if (before !== 0 && after !== 0 && before !== after) {
+            hidden = hidden.map(p => (c === 0 ? [CONJUGATE_POINT[p[0]] ?? p[0], p[1]] : [p[0], CONJUGATE_POINT[p[1]] ?? p[1]]) as [number, number])
+          }
+        }
 
         for (const [tk, g] of record.crossings) {
           const c = coordinate.get(tk)
 
           if (c !== undefined) {
-            const act = h.weave.moves.act[g] ?? []
+            // the grid move as a permutation of the phase index the points are held in (E-QTM-0124)
+            const act = phaseMove(h.weave.moves.act[g] ?? [])
 
             hidden = hidden.map(p => (c === 0 ? [act[p[0]] ?? p[0], p[1]] : [p[0], act[p[1]] ?? p[1]]) as [number, number])
           }
         }
 
-        // the hidden-point count, read in the physical convention like the weights
+        // the hidden-point count, read in the physical convention like the weights (physicalKnot's rule)
         const countNum = new Array<bigint>(9).fill(0n)
+        const reflect = [0, 1].map(c => (framesAfter[c] ?? 0) === -1 || ((framesAfter[c] ?? 0) === 0 && c === 1 && h.conjugated))
 
         for (const [x, y] of hidden) {
-          const i = x * 9 + y
-          const physical = h.conjugated ? x * 9 + (3 * Math.floor(y / 3) + ((3 - (y % 3)) % 3)) : i
+          const physical = (reflect[0] ? (CONJUGATE_POINT[x] ?? x) : x) * 9 + (reflect[1] ? (CONJUGATE_POINT[y] ?? y) : y)
 
           countNum[readingOf(physical)] = (countNum[readingOf(physical)] ?? 0n) + 1n
         }
@@ -250,7 +280,7 @@ export default experiment({
 
       for (let t = 0; t <= reading; t++) {
         for (const [tk, g] of liveSwap.records[t]!.crossings) {
-          const act = liveSwap.weave.moves.act[g] ?? []
+          const act = phaseMove(liveSwap.weave.moves.act[g] ?? [])
 
           if (coordinate.get(tk) === 0) {
             x = act[x] ?? x

@@ -73,7 +73,7 @@ function jacobi(a: number[][]): { values: number[]; vectors: number[][] } {
 }
 
 // the sign of a 3 x 3 Hermitian matrix (eigenvalues sent to +1 or -1), through its 6 x 6 real form
-function signOf(h: Hermitian): Hermitian {
+export function signOf(h: Hermitian): Hermitian {
   const z = Array.from({ length: 6 }, () => new Array<number>(6).fill(0))
 
   for (let i = 0; i < 3; i++) {
@@ -90,6 +90,14 @@ function signOf(h: Hermitian): Hermitian {
 
   const { values, vectors } = jacobi(z)
   const out: Hermitian = { re: new Float64Array(9), im: new Float64Array(9) }
+  // Every eigenvalue of the real 6 x 6 form comes twice (the complex i pairs the two copies), and the result
+  // is the real form of a complex matrix only when both copies take the same sign. A zero eigenvalue came out
+  // of Jacobi as +1e-17 and -1e-17, split across the pair, which made S neither Hermitian nor an involution
+  // (|S^2 - 1| up to 0.94) and let roleChsh read above the true maximum (fixed 2026-09-26). An eigenvalue
+  // within rounding of zero now takes +1 on both copies: any sign there gives a valid +-1 observable, and one
+  // sign keeps the pair together.
+  const scale = Math.max(1, ...values.map(v => Math.abs(v)))
+  const tolerance = 1e-10 * scale
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
@@ -97,7 +105,7 @@ function signOf(h: Hermitian): Hermitian {
       let im = 0
 
       for (let k = 0; k < 6; k++) {
-        const sign = (values[k] ?? 0) >= 0 ? 1 : -1
+        const sign = (values[k] ?? 0) >= -tolerance ? 1 : -1
 
         re += sign * (vectors[i]?.[k] ?? 0) * (vectors[j]?.[k] ?? 0)
         im += sign * (vectors[i + 3]?.[k] ?? 0) * (vectors[j]?.[k] ?? 0)

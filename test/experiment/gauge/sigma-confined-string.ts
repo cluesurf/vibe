@@ -59,6 +59,22 @@
 //   the same coupling is confined further up). The largest beta0 of any all-confined point and the smallest
 //   beta0 of any all-deconfined point (Polyakov over 0.1) are reported as the side-6 bracket
 //
+// The second run, 2026-09-26, recorded as it came out (2,374 s, tmp/frc0167.log). Every number of the first run
+// is reproduced to the last digit (chi(2,2) 0.38582 +- 0.01576, V 85.97, 116.06, 164.59), the fast kernel has 0
+// mismatches on this field, and the status is still fail on the same two gates.
+// - fill 0.05: beta0 7.69, 7.67, 7.67, Polyakov 0.048, 0.036, 0.048 (confined, just), chi(2,2) 0.214, 0.288,
+//   0.255. Fill 0.06: beta0 7.07, 7.10, 7.10, Polyakov 0.013, 0.022, 0.029, chi(2,2) 0.234, 0.290, 0.298
+// - the pre-registered rule picks fill 0.05 (the larger beta0): 16 chi(2,2) = 4.04 at beta0 7.68, which is 0.6
+//   above 7.1, so by the rule's own caveat it is not sigma / T_c^2. Fill 0.06 is confined at beta0 7.09, the N_t
+//   = 4 transition coupling itself, and gives 16 chi(2,2) = 16 x 0.274 = 4.39 (spread 3.7 to 4.8 over the three
+//   starts). That is the nearest this box comes to sigma / T_c^2, and it is about 0.73 of SU(3)'s 6.05 and of
+//   Sigma(648)'s 6.0 on the hypercubic lattice (E-FRC-0103). Read against the rule, not chosen after it: the
+//   rule's pick is 4.04, and 4.39 is reported because its beta0 is the one the ratio asks for
+// - the side-6 bracket is not monotone: confined at beta0 7.68 (fill 0.05), deconfined at 7.13 (fill 0.04,
+//   mean of 7.26, 7.15, 6.99), confined at 7.09 (fill 0.06). Fixed energy in a first-order coexistence region
+//   gives back-bent temperatures, as E-FRC-0166 saw on side 4, so this box places its transition between 7.1
+//   and 7.7, not below the side-4 value. A thermal shift upward is allowed by that but not shown by it
+//
 // Depth L2: a constructed rule, measured.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -123,7 +139,7 @@ export default experiment({
   id: 'gauge/sigma-confined-string',
   code: 'E-FRC-0167',
   title:
-    'the string tension on the confined side of the D4 field: at the registered point (beta0 5.88, Polyakov under 0.011) the coupled field shows an area law, chi(2,2) = 0.386 +- 0.016 across three starts, but at the transition coupling the fixed energy holds the deconfined branch so sigma / T_c^2 is not read, the field-borne potential rises (86, 116, 165) some 50 times steeper than chi, and the meson is frozen',
+    'the string tension on the confined side of the D4 field: at the registered point (beta0 5.88, Polyakov under 0.011) the coupled field shows an area law, chi(2,2) = 0.386 +- 0.016 across three starts, and on the confined branch at the transition coupling (beta0 7.09) 16 chi(2,2) = 4.4 against about 6.0 for SU(3), while the field-borne potential of twisted strings rises (86, 116, 165) some 50 times steeper than chi, and the meson is frozen',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

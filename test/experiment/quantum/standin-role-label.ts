@@ -27,6 +27,15 @@
 //
 // Depth L1 for the count, L2 for the atoms. A stand-in result: it says what the role would do as the
 // electron's label, not what the electron is.
+//
+// The first run, 2026-09-26, recorded as it came out (667.4 s, tmp/standin-runs/standin-role-label.log): fail,
+// on the hypothesis, as the status rule says. Gate 1 holds exactly: spin 2, 1, 0 and role 3, 3, 1, 0. Filled
+// three per orbital, the ionization energies read 1.55, 4.47, 6.36 Ry at Z = 1, 2, 3, then 0.96 at Z = 4 (the
+// fourth stand-in into 2s): the first closure is at 3, not 2, so Z = 2 is not a maximum and gate 3 fails.
+// Gate 2 holds at 3 and 15 (1.50 Ry, against 1.34 at 14 and 0.67 at 16) and fails at 27 (0.58 against 0.51 at 26
+// and 0.69 at 28), where the fourth shell's order is the same husk-core defect E-MTR-0010 found (Z 28 puts its
+// last stand-ins in 3d before 3p) and 26, 27, 28 missed the density tolerance. The role fills like quarks, three
+// per orbital, and so cannot stand where spin stands.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

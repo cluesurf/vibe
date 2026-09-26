@@ -57,6 +57,25 @@
 // 551,584 pairs that offset clears two errors. The contact g was 0.98 and 1.08 (husk), 1.11 and 1.06 (bulk).
 // The ESTIMATOR was changed after that run, disclosed here: g(R) is now normalized on the far shells (R at
 // least 5), and the pooled excess over the window with its error is reported whatever its sign. No gate moved.
+//
+// The second run, 2026-09-26, recorded as it came out (164.8 s, tmp/frc0196-second.log; the typed singletPieces
+// of code/measure/nucleon-gas, checked piece for piece against the first version on 4,000 snapshots, made it 7
+// times faster): fail, and the failure stands on two counts.
+// - G0 fails again at fill 0.03 on the confined share alone (0.862 against 0.9). Energy, Gauss's law and the
+//   kernel hold at both fills
+// - the bulk shows no residual: pooled excess over R 2 to 4.5 of -0.0011 +- 0.0027 (fill 0.025) and -0.0040 +-
+//   0.0035 (0.03), no shell above two errors, so no rate. The prediction e^(-2 m1 R) with bulk m1 = 1.81 puts
+//   the residual near 7e-4 at R = 2, under what 40,000 beats resolve: a null, consistent with the history form
+//   and unable to test it
+// - the husk shows a pooled excess of +0.027 +- 0.002 and +0.031 +- 0.002 (15 and 13 errors), but it RISES with
+//   R (fitted rates -0.32 and -0.28, negative), the shape of an estimator effect and not of a force: the husk
+//   length drops the depth coordinate, so its shells near half the period (4.5) are the corners of the box's
+//   minimal image, and the far-shell normalization at R 5 and beyond reads only those. The bulk, which reads the
+//   same pairs with no projection, shows nothing. The husk residual is therefore NOT read as physics
+// So E-FRC-0196 measured the meson's own profile (husk rates 1.53 and 1.30, bulk 1.81 and 1.54) and bounded the
+// residual between two singlets under 0.006 (two errors, bulk) at R 2 to 4.5. The Yukawa question is not settled
+// by this estimator; it needs the static free energy, which this rule cannot hold (see E-FRC-0199 for the
+// Polyakov-line reading on the Sigma(648) field).
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -280,7 +299,7 @@ export default experiment({
         mesons: MESONS,
       },
       notes:
-        'L2, exact integers, no random numbers: starts and demon fills are golden and silver Weyl sequences. The nucleons are stand-ins (mesons: color singlets without three quarks or spin). Static sources are impossible in this rule (no pair is made, so pinned singlets freeze), so the residual is read between dynamical singlets. g(R) is normalized to the whole box, the ideal reference counts link pairs sharing no dock, and midpoint distances near half a period are read through one minimal-image rule for both. A singlet is read afresh from each snapshot: nothing moves, and no meson keeps its love from one beat to the next.',
+        'L2, exact integers, no random numbers: starts and demon fills are golden and silver Weyl sequences. The nucleons are stand-ins (mesons: color singlets without three quarks or spin). Static sources are impossible in this rule (no pair is made, so pinned singlets freeze), so the residual is read between dynamical singlets. g(R) is normalized on the far shells (R at least 5, changed after the first run, which normalized to the whole box), the ideal reference counts link pairs sharing no dock, and midpoint distances near half a period are read through one minimal-image rule for both. A singlet is read afresh from each snapshot: nothing moves, and no meson keeps its love from one beat to the next.',
     })
   },
 })

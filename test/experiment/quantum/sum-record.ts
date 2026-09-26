@@ -13,7 +13,8 @@
 // knot's loves and fears ride along unchanged.
 //
 // THE MEASUREMENT. The system is token A of each of the six Bell histories (code/measure/knot-histories),
-// at every one of 480 beats, read in the physical convention (physicalKnot). The record is a fresh token
+// at every one of 480 beats, read in the physical convention (sum-record's physicalFrame, which reads the
+// whole's per-coordinate frames of E-QTM-0123). The record is a fresh token
 // opened on role line 0 (the points 0, 1, 2: the role-0 stabilizer state). SUM acts with A as control.
 //
 // Gates, fixed before the first run:
@@ -56,7 +57,19 @@
 //   - the center flux of code/rule/center-links changes by -v at a hop (line 198), the vibe and never the
 //     role point: it records the vibe mod 3, not the role (a code reading, stated).
 //
-// FIRST RUN: see the notes in the verdict and the header below once written.
+// FIRST RUN (2026-09-26, 2.8 s): every gate and control as fixed, every prediction held. 2,880 states, 1,208
+// with a fear on token A and 1,813 with a non-uniform tilt before the record: copy, reads-without-writing,
+// flatness, agreement and all 4 class readers at 0 mismatches. The model's own record disagrees with or
+// writes A's role on 2,843 of 2,880. Frame covariance: 2 of 216 grid moves commute with SUM (identity and
+// -1, as predicted: SUM(s, s) = (s, s) forces no shift, and commuting with the copy forces a diagonal
+// linear part). Commutants: dimension 2 for C x C and 2 for C x C* over Sigma(648), so the only meetings
+// that commute with every frame change are U(phi) (and the singlet phase), and ||[U(2 pi / 3), Z x 1]|| =
+// 3.674: the fear beat moves every role. Color: SUM changes the dock's color content in 288 of 324 cases,
+// exactly the ones with a1 != 0 or b2 != 0, since dQ = w2 (a1, 0) + w1 (0, -b2). Flow: 93,312 slot-beats,
+// 0 mismatches, all 9 residue pairs seen.
+// SECOND RUN (same day, 2.8 s), after the shared fear weave changed under this session (E-QTM-0123 frames,
+// E-QTM-0124 grid-move convention) and the physical reading moved to sum-record's physicalFrame: every
+// number above repeats exactly. No gate was changed.
 //
 // Depth L2 (a known gate, SUM, placed on the knit's grid and its measurement read exactly). The husk is not
 // read: SUM acts on roles, never on where a vibe is, so every number is a role-grid number; the flow check
@@ -67,13 +80,14 @@ import { verdict } from '@/test/scaffold/verdict'
 import { meetWhole, meetingKernel, swapPhase, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
 import { makeColorWeave, colorBeat } from '@/code/rule/color-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { advanceKnot, bellHistories, lineKnot, physicalKnot } from '@/code/measure/knot-histories'
+import { advanceKnot, bellHistories, lineKnot } from '@/code/measure/knot-histories'
 import {
   LINE_CLASSES,
   lineSums,
   marginalOne,
   openToken,
   permuteTwo,
+  physicalFrame,
   pointVector,
   readerPermutation,
   sumPermutation,
@@ -264,7 +278,7 @@ export default experiment({
       for (const record of h.records) {
         w = advanceKnot(h, w, record)
 
-        const state = physicalKnot(h, w)
+        const state = physicalFrame(w, h.conjugated)
         // opening a token on 3 points triples the units, so every before is read times 3
         const beforeA = marginalOne(state, 0).map(x => 3n * x)
         const beforeB = marginalOne(state, 1).map(x => 3n * x)

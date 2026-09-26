@@ -62,6 +62,9 @@
 // coefficient by coefficient, every coefficient below 2^53). The failure was the rounding of a 729-term float
 // sum, not the identity, and an identity is better settled exactly than by a tolerance. The float numbers are
 // still reported beside it (floatWithinTolerance). The gate's threshold did not move.
+// The second run, 2026-09-26 (46.5 s, tmp/frc0195-second.log): pass. The exact check holds on all 243 charge
+// patterns with 0 coefficient mismatches and 0 imaginary mismatches; the float numbers are unchanged (4.4e-12,
+// floatWithinTolerance 0), and every other number repeats the first run to the last digit.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

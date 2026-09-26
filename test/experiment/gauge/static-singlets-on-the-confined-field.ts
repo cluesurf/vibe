@@ -51,6 +51,30 @@
 // Errors: 10 blocks of the measurement per start, 30 blocks in all, the standard error of their means.
 //
 // Depth L2: a constructed rule, measured, with stand-in nucleons.
+//
+// The first run, 2026-09-26, recorded as it came out (706 s, tmp/frc0199.log): fail. G0 holds (energy exact,
+// fast kernel 0 mismatches, 216 lines partition the docks, Polyakov 0.003, 0.005, 0.004, beta0 5.89).
+// - the Polyakov lines are Haar-random to the eye: <|Tr P|^2> / 9 = 0.1113 against 1/9 for a uniform element.
+//   The quark-antiquark correlator at the first shell is 2.72e-4 +- 0.38e-4 (7 errors), a free energy of 1.37 in
+//   lattice units (8.2 T), where the area law alone would give 6 x 0.386 x 1.22 = 2.8 T. So most of that cost is
+//   the two lines' own self energy, not string. Past the first shell every value is within 3 errors of 0. The
+//   fitted rate 0.95 (4 shells) is a noise fit, not a tension: TENSION fails
+// - the residual between two static singlets is zero at every shell: -4.1e-4 +- 6.8e-4 at the first, and no
+//   shell out of 14 above 3 errors (largest 1.1 errors). No rate can be fitted: ATTRACTION and STRINGS fail. What
+//   this does show is a bound: |F_2| under 3.4e-4 in lattice units (2 errors) at the closest separation, against
+//   the 1.37 one quark-antiquark pair costs. The prediction C ~ G1^2 puts the residual near 7e-8, far below the
+//   reach of 3,600 beats, so the null is what the prediction expected, not a refutation of it
+// - the static baryon is at noise: 2.2e-7 +- 8.0e-6 at the close triangles, 6.1e-6 +- 5.5e-6 stretched.
+//   BARYON fails. baryonFreeEnergyNearest and its ratio to the pair's (1.87 against the Delta law's 1.5) read
+//   the log of a noise value and mean nothing
+// - SATURATION reads as held (F_4 / 4 over F_2 / 2 = 1.26), but every F_N is zero within its error (F_2 0.7e-4
+//   +- 1.1e-4, F_3 0.4e-4 +- 2.6e-4, F_4 1.8e-4 +- 5.3e-4): the ratio of two noise values, a vacuous pass. It
+//   carries no weight
+// The honest reading: on this confined field the static color singlets do not interact at any separation the
+// box resolves, to 5e-4 of their own weight. Confinement is strong enough (beta0 5.89 on N_t = 6) that one
+// Polyakov line is already a 7-error signal at the closest pair, and the two-string exchange a singlet residual
+// needs is its square. A residual would need a smaller N_t (a hotter box nearer the transition, where G1 is
+// larger) or a variance-reduction method (multilevel averaging), not more beats.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -111,7 +135,7 @@ export default experiment({
   id: 'gauge/static-singlets-on-the-confined-field',
   code: 'E-FRC-0199',
   title:
-    'nuclei on the confined point of the D4 field: static color singlets (stand-ins for nucleons) read through Polyakov lines on the coupled Sigma(648) rule at fill 0.08, the quark-antiquark rate against the area law, the residual between two static singlets against twice that rate, a static three-quark baryon, and saturation for two to four singlets',
+    'nuclei on the confined point of the D4 field, read through Polyakov lines: two static color singlets (stand-ins for nucleons) on the coupled Sigma(648) rule at fill 0.08 show no residual at any of 14 separations (under 5e-4 of their weight), the quark-antiquark pair is a 7-error signal only at the closest separation, the static baryon and the saturation readings are at noise, a substrate reading',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

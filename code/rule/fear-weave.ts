@@ -37,6 +37,10 @@
 // a love's role to a fear's while commuting with the links (the reflection is antisymplectic, so it is
 // antiunitary), and leaving the stored point in place applied a partial conjugation to entangled wholes.
 //
+// Since 2026-09-26 the fear beat is the COMOVING one, by the user's decision (see advanceWhole): every meeting's
+// kernel is read about the two coordinates' own role points, which the whole carries as `own`. The fixed-frame
+// beat before it is `comoving: false`.
+//
 // Grid moves act on the whole through sigma-links' identification of the phase point (a, b), index 3 a + b,
 // with the grid point x = a, y = b, index a + 3 b (moveCoordinate, GRID_OF_PHASE; E-QTM-0124).
 //
@@ -415,12 +419,22 @@ export function fearBeatBack(input: {
 // the whole: open tokens (coordinate order, most significant first) and loves minus fears at each of
 // their 9^k joint role points. The color mode also carries, per coordinate, the FRAME its role is written
 // in (+1 a love's, -1 a fear's reflected point, 0 not yet met) and, for the backward beat, the frames it
-// held before each of its meetings (see advanceWhole)
+// held before each of its meetings (see advanceWhole). Every mode carries each coordinate's OWN role point, the
+// point the comoving fear beat reads its meetings about (see advanceWhole); a whole without one has every
+// coordinate's own point at the origin, where a whole built from role basis states is centered
 export type Whole = {
   readonly tokens: readonly number[]
   readonly weight: readonly bigint[]
   readonly frame?: readonly number[]
   readonly trail?: readonly (readonly number[])[]
+  // each coordinate's own role point, in the PHASE index 3 a + b
+  readonly own?: readonly number[]
+}
+
+// a whole with its coordinates' own role points set (phase index 3 a + b), for a whole built about points
+// other than the origin
+export function withOwn(whole: Whole, own: readonly number[]): Whole {
+  return { ...whole, own: [...own] }
 }
 
 export function wholeUnits(whole: Whole): bigint {
@@ -495,6 +509,74 @@ export function moveCoordinate(whole: Whole, coordinate: number, grid: ArrayLike
   return movePhaseCoordinate(whole, coordinate, phaseMove(grid))
 }
 
+// grid moves as permutations of the phase index, cached per table: how an own point moves at a crossing
+const PHASE_MOVES = new WeakMap<object, number[]>()
+
+export function phasePermOf(grid: ArrayLike<number>): number[] {
+  const known = PHASE_MOVES.get(grid as object)
+
+  if (known) {
+    return known
+  }
+
+  const made = phaseMove(grid)
+
+  PHASE_MOVES.set(grid as object, made)
+
+  return made
+}
+
+// a phase point (index 3 a + b) minus another, componentwise mod 3
+export function phaseMinus(p: number, v: number): number {
+  const a = (Math.floor(p / 3) - Math.floor(v / 3) + 3) % 3
+  const b = ((p % 3) - (v % 3) + 3) % 3
+
+  return 3 * a + b
+}
+
+// A meeting kernel (in whole numbers on the 81 joint phase points of two coordinates, index 9 x + y) read in the
+// two coordinates' own frames: K'(x, y; x0, y0) = K(x - pa, y - pb; x0 - pa, y0 - pb). Translating a coordinate is
+// conjugating it by a displacement, a Clifford move, so K' has the same divisor, is still unital and
+// weight-keeping, and its inverse is the inverse kernel translated the same way (E-SPN-0062)
+export function translatedKernel(kernel: readonly (readonly number[])[], pa: number, pb: number): number[][] {
+  return Array.from({ length: 81 }, (_, r) => {
+    const rx = phaseMinus(Math.floor(r / 9), pa)
+    const ry = phaseMinus(r % 9, pb)
+    const row = kernel[9 * rx + ry] ?? []
+
+    return Array.from({ length: 81 }, (__, c) => row[9 * phaseMinus(Math.floor(c / 9), pa) + phaseMinus(c % 9, pb)] ?? 0)
+  })
+}
+
+// translatedKernel cached per kernel table and pair of points; the kernel itself where the points coincide at
+// the origin
+const TRANSLATED = new WeakMap<object, (number[][] | undefined)[]>()
+
+export function translatedOf(kernel: readonly (readonly number[])[], pa: number, pb: number): readonly (readonly number[])[] {
+  if (pa === 0 && pb === 0) {
+    return kernel
+  }
+
+  let row = TRANSLATED.get(kernel)
+
+  if (!row) {
+    row = new Array<number[][] | undefined>(81).fill(undefined)
+    TRANSLATED.set(kernel, row)
+  }
+
+  const known = row[9 * pa + pb]
+
+  if (known) {
+    return known
+  }
+
+  const made = translatedKernel(kernel, pa, pb)
+
+  row[9 * pa + pb] = made
+
+  return made
+}
+
 // move two coordinates of the whole by a kernel on their 81 joint points, given as 4 K in whole numbers.
 // fixed: keep the units and return null where a fraction would be needed. Otherwise multiply the units
 // by 4 and reduce.
@@ -567,6 +649,24 @@ export function meetWhole(input: {
 
 // apply one beat's record to the whole: meetings then crossings going forward, crossings then meetings
 // going back (the record of fearBeatBack already lists them in that beat's backward order)
+//
+// THE COMOVING FEAR BEAT, adopted by the user 2026-09-26 (E-SPN-0062, E-SPN-0063, E-SPN-0066), the default.
+// Each meeting's kernel is read in the two coordinates' OWN frames: with the coordinates in kernel order (love
+// first at a love-fear meeting) and their own points pa and pb, K is replaced by translatedKernel(K, pa, pb).
+// The own point is each coordinate's role point, carried beside the weights as `own` (phase index): it moves
+// exactly as its coordinate's weights move, by the grid move of every crossing, and it is reflected with them
+// whenever the color mode rewrites the coordinate into its token's new frame. So it is a function of the classical
+// record alone, never of the weights, and it is what the knit already holds at the dock (a closed token's
+// classical role point moves by the same table). The kernel then depends only on pa - pb and is the model's
+// wherever the two points coincide, which is every meeting on a pure-gauge field; on live links it keeps the
+// role's fermion number at every meeting (E-SPN-0063: 831 of 831), where the fixed-frame beat breaks it.
+//
+// Where it applies: the color mode with frames, and the grain mode (one kernel4 for every meeting). Two things
+// are left as they were, stated: a kernel the caller chooses per meeting (`kernelOf`) is applied as given, since
+// such a caller builds its own kernel (E-SPN-0062 hands in kernels already translated), and the color mode with
+// `frames: false` stays the law before 2026-09-26, the control E-QTM-0123 keeps. `comoving: false` is the fear
+// beat before the adoption, kept so earlier experiments can be reproduced. The own points are tracked in every
+// mode either way.
 export function advanceWhole(input: {
   weave: ColorWeave
   whole: Whole
@@ -585,9 +685,16 @@ export function advanceWhole(input: {
   // the color mode's frame tracking (on unless false). Off is the law before 2026-09-26, kept as the
   // control of E-QTM-0123: it is not a physical law, since it leaves non-states
   frames?: boolean
+  // the comoving fear beat (on unless false); off is the fixed-frame beat before 2026-09-26, the control
+  comoving?: boolean
 }): Whole | null {
   const { weave, record, fixed, forward, color } = input
+  const comoving = input.comoving !== false
   const signs = record.signs ?? []
+  // each coordinate's own point, carried through the beat and attached to the whole it returns
+  const own: number[] = input.whole.own ? [...input.whole.own] : new Array<number>(input.whole.tokens.length).fill(0)
+  const about = (kernel: readonly (readonly number[])[], c0: number, c1: number): readonly (readonly number[])[] =>
+    comoving ? translatedOf(kernel, own[c0] ?? 0, own[c1] ?? 0) : kernel
   let meetingIndex = 0
   const kernelOf =
     input.kernelOf ??
@@ -629,6 +736,7 @@ export function advanceWhole(input: {
 
     if (from !== 0 && to !== 0 && from !== to) {
       whole = movePhaseCoordinate(whole as Whole, c, CONJUGATE_POINT)
+      own[c] = CONJUGATE_POINT[own[c] ?? 0] ?? 0
     }
 
     state.frame[c] = to
@@ -654,11 +762,13 @@ export function advanceWhole(input: {
         }
 
         const chosen = (kernelOf as NonNullable<typeof kernelOf>)(ta, tb)
+        const c0 = coordinate.get(chosen.order[0]) ?? 0
+        const c1 = coordinate.get(chosen.order[1]) ?? 0
         const met: Whole | null = meetWhole({
           whole: whole as Whole,
-          a: coordinate.get(chosen.order[0]) ?? 0,
-          b: coordinate.get(chosen.order[1]) ?? 0,
-          kernel4: chosen.kernel,
+          a: c0,
+          b: c1,
+          kernel4: about(chosen.kernel, c0, c1),
           divisor: chosen.divisor,
           fixed,
         })
@@ -690,7 +800,10 @@ export function advanceWhole(input: {
           fixed,
         })
       } else {
-        whole = meetWhole({ whole, a: coordinate.get(ta) ?? 0, b: coordinate.get(tb) ?? 0, kernel4, fixed })
+        const ca = coordinate.get(ta) ?? 0
+        const cb = coordinate.get(tb) ?? 0
+
+        whole = meetWhole({ whole, a: ca, b: cb, kernel4: about(kernel4, ca, cb), fixed })
       }
     }
   }
@@ -704,7 +817,10 @@ export function advanceWhole(input: {
       const c = coordinate.get(tk)
 
       if (c !== undefined && g !== weave.moves.identity) {
-        whole = moveCoordinate(whole, c, weave.moves.act[g] ?? [])
+        const table = weave.moves.act[g] ?? []
+
+        whole = moveCoordinate(whole, c, table)
+        own[c] = phasePermOf(table)[own[c] ?? 0] ?? 0
       }
     }
   }
@@ -717,7 +833,7 @@ export function advanceWhole(input: {
     meet()
   }
 
-  return whole
+  return whole ? { ...(whole as Whole), own } : null
 }
 
 // The color mode's kernels, the three-trit color law adopted: the swap phase where like vibes meet (two

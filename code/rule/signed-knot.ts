@@ -16,7 +16,7 @@
 // kernel's divisor at every meeting inside the knot and are reduced over both parts together.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { type BeatRecord } from '@/code/rule/fear-weave'
+import { CONJUGATE_POINT, type BeatRecord } from '@/code/rule/fear-weave'
 import { advanceDeparture, conjugateIndex, mergeDepartures, type Departure } from '@/code/rule/calm-weave'
 
 export type KnotRule = 'sign' | 'center' | 'label'
@@ -30,6 +30,9 @@ export type SignedKnot = {
   readonly units: bigint
   readonly sign: number
   readonly charge: number
+  // each coordinate's own role point (phase index), which the comoving fear beat reads meetings about
+  // (code/rule/calm-weave advanceDeparture); absent, the origin
+  readonly own?: readonly number[]
 }
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
@@ -77,7 +80,7 @@ export function knotOf(input: { departure: Departure; rule: KnotRule; sign: numb
         ? timesOmega(departure.delta, zero, charge)
         : { re: [...departure.delta], om: zero }
 
-  return { rule, tokens: departure.tokens, ...stored, units: departure.units, sign, charge }
+  return { rule, tokens: departure.tokens, ...stored, units: departure.units, sign, charge, ...(departure.own ? { own: departure.own } : {}) }
 }
 
 // the departure a knot reads as: the factor divided out. null when what is left is not real (the stored
@@ -90,7 +93,7 @@ export function readKnot(k: SignedKnot): Departure | null {
         ? timesOmega(k.re, k.om, -k.charge)
         : { re: [...k.re], om: [...k.om] }
 
-  return plain.om.every(x => x === 0n) ? { tokens: k.tokens, delta: plain.re, units: k.units } : null
+  return plain.om.every(x => x === 0n) ? { tokens: k.tokens, delta: plain.re, units: k.units, ...(k.own ? { own: k.own } : {}) } : null
 }
 
 // the sum of the stored weights, re + om omega, over the units
@@ -119,21 +122,24 @@ export function mirrorKnot(k: SignedKnot): SignedKnot {
   const moved = (w: readonly bigint[]): bigint[] => w.map((_, i) => w[conjugateIndex(i, n)] ?? 0n)
   const re = moved(k.re)
   const om = moved(k.om)
+  // C moves the own points with the weights
+  const own = k.own ? { own: k.own.map(p => CONJUGATE_POINT[p] ?? 0) } : {}
 
   if (k.rule === 'sign') {
-    return { ...k, re: re.map(x => -x), om: om.map(x => -x), sign: -k.sign, charge: -k.charge }
+    return { ...k, re: re.map(x => -x), om: om.map(x => -x), sign: -k.sign, charge: -k.charge, ...own }
   }
 
   if (k.rule === 'center') {
-    return { ...k, re: re.map((x, i) => x - (om[i] ?? 0n)), om: om.map(x => -x), charge: -k.charge }
+    return { ...k, re: re.map((x, i) => x - (om[i] ?? 0n)), om: om.map(x => -x), charge: -k.charge, ...own }
   }
 
-  return { ...k, re, om, charge: -k.charge }
+  return { ...k, re, om, charge: -k.charge, ...own }
 }
 
 // one beat on a knot's stored weights, never reading its labels: the kernel's whole-number form applied to
 // re and om alike, the units multiplied by the divisor at each meeting inside the knot (grain) or kept with
-// a refusal where a fraction is needed (fixed)
+// a refusal where a fraction is needed (fixed). The fear beat is the comoving one (calm-weave advanceDeparture),
+// the knot's own points carried beside its weights; `comoving: false` is the fixed-frame control
 export function advanceKnot(input: {
   weave: ColorWeave
   knot: SignedKnot
@@ -143,22 +149,39 @@ export function advanceKnot(input: {
   fixed: boolean
   forward: boolean
   moveOf?: (g: number) => ArrayLike<number>
+  comoving?: boolean
 }): SignedKnot | null {
-  const { weave, knot, record, kernel, divisor, fixed, forward, moveOf } = input
+  const { weave, knot, record, kernel, divisor, fixed, forward, moveOf, comoving } = input
   const inside = new Set(knot.tokens)
   const meetings = record.meetings.filter(([a, b]) => inside.has(a) && inside.has(b)).length
-  const step = (w: readonly bigint[]): bigint[] | null =>
-    advanceDeparture({ weave, departure: { tokens: knot.tokens, delta: w, units: 1n }, record, kernel, divisor: fixed ? divisor : 1, fixed: true, forward, moveOf })?.delta.slice() ?? null
+  let own: readonly number[] | undefined = knot.own
+  const step = (w: readonly bigint[]): bigint[] | null => {
+    const d = advanceDeparture({
+      weave,
+      departure: { tokens: knot.tokens, delta: w, units: 1n, ...(knot.own ? { own: knot.own } : {}) },
+      record,
+      kernel,
+      divisor: fixed ? divisor : 1,
+      fixed: true,
+      forward,
+      moveOf,
+      comoving,
+    })
+
+    own = d?.own ?? own
+
+    return d?.delta.slice() ?? null
+  }
 
   if (fixed) {
     const re = step(knot.re)
     const om = step(knot.om)
 
-    return re && om ? { ...knot, re, om } : null
+    return re && om ? { ...knot, re, om, ...(own ? { own } : {}) } : null
   }
 
   const re = step(knot.re)!
   const om = step(knot.om)!
 
-  return reduceKnot({ ...knot, re, om, units: knot.units * BigInt(divisor) ** BigInt(meetings) })
+  return reduceKnot({ ...knot, re, om, units: knot.units * BigInt(divisor) ** BigInt(meetings), ...(own ? { own } : {}) })
 }

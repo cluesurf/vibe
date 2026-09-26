@@ -204,8 +204,11 @@ The suite is meant to grow. To add one:
 4. **Register it.** Add the row to `test/registry.csv`, import it in the barrel
    `test/experiment/all.ts`, and regenerate `test/catalog.ts`. Update the arena
    count in this map and add the one-line to the arena doc.
-5. **Keep it deterministic.** No `Math.random`. Vary size, not seeds. Surface
-   the negatives.
+5. **Keep it deterministic.** No `Math.random`, no seed, no generator, no
+   hash used as a draw (E-MTH-0015 fails the file). Starts and nulls come from
+   enumeration or `code/tool/weyl` (`makeWeyl({ start })`, `weylPoint`). A
+   probability is a count over deterministic histories. Vary size and the
+   enumerated starts. Surface the negatives.
 
 ## Where the code lives
 

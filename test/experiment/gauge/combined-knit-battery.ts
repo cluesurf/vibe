@@ -52,6 +52,13 @@
 // turn, which no coin element carries; those now read -1 and 0.
 //
 // Depth L2: constructed rules against stated gates, with the committed rule and the fear-off rule as controls.
+//
+// RERUN 2026-09-26 under the adopted COMOVING fear beat (code/rule/fear-weave advanceWhole's default, E-SPN-0063),
+// and under the 2026-09-26 frame and phase-index conventions (E-QTM-0123, E-QTM-0124) its first numbers predate.
+// "On" is now the comoving beat. Two instrument changes, made before the rerun and touching no gate's rule: the
+// frame change moves each coordinate's own point with its weights (the comoving beat reads the own points, so
+// they are part of the state a frame change acts on), and the dephased stand-in keeps the own points (it drops
+// the frames, as before). Both are exactly E-SPN-0063's harness.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -67,6 +74,7 @@ import {
   fearKernels,
   makeLattice,
   moveCoordinate,
+  phasePermOf,
   reduceWhole,
   swapPhase,
   wholeKernel,
@@ -334,7 +342,8 @@ function dephase(whole: Whole): Whole {
     role[readingOf(i)] = (role[readingOf(i)] ?? 0n) + w
   })
 
-  return { tokens: whole.tokens, weight: whole.weight.map((_, i) => role[readingOf(i)] ?? 0n) }
+  // the frames are dropped, the own points kept (the comoving beat reads them, E-SPN-0063's dephasing)
+  return { tokens: whole.tokens, weight: whole.weight.map((_, i) => role[readingOf(i)] ?? 0n), ...(whole.own ? { own: whole.own } : {}) }
 }
 
 const chance = (whole: Whole, reading: number): number =>
@@ -536,18 +545,24 @@ function quantum(spec: CombinedKnitSpec, mode: 'on' | 'off'): { gates: QuantumGa
   // the frame change on the vacuum and matter pairs
   const { frame, links: gaugeLinks } = frameOf(knit)
   const gauged = withLinks(knit, gaugeLinks)
+  // every coordinate moved by its dock's frame, and its own point with it (the comoving beat reads the own
+  // points, so they are part of the state the frame change acts on)
   const transform = (state: CombinedState, whole: Whole): Whole => {
     const at = new Map<number, number>()
 
     state.token.forEach((tk, s) => at.set(tk, Math.floor(s / 24)))
 
     let moved = whole
+    const own = whole.own ? [...whole.own] : new Array<number>(whole.tokens.length).fill(0)
 
     whole.tokens.forEach((tk, c) => {
-      moved = moveCoordinate(moved, c, moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? [])
+      const table = moves.act[frame[at.get(tk) ?? 0] ?? moves.identity] ?? []
+
+      moved = moveCoordinate(moved, c, table)
+      own[c] = phasePermOf(table)[own[c] ?? 0] ?? 0
     })
 
-    return moved
+    return { ...moved, own }
   }
   const frameMismatch = (background: { vibe: Int8Array; point: Int8Array }, tokens: number[], k: FearKernels, start: Whole): number => {
     const open = openOf(tokens)

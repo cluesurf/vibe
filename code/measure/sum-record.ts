@@ -26,7 +26,7 @@
 
 import { operator, multiplyOperators, type Operator } from '@/code/measure/grid-weights'
 import { displacementOperators } from '@/code/measure/qutrit-clifford'
-import { wignerKernel, type Whole } from '@/code/rule/fear-weave'
+import { CONJUGATE_POINT, movePhaseCoordinate, wignerKernel, type Whole } from '@/code/rule/fear-weave'
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 const KERNEL_TOLERANCE = 1e-9
@@ -201,6 +201,25 @@ export function readerPermutation(direction: readonly [number, number]): { perm:
   }
 
   throw new Error('no reader for this direction')
+}
+
+// A whole read in the physical convention, every coordinate as a role point. Since E-QTM-0123 a whole in the
+// color mode carries each coordinate's frame, the sign it is written in: a coordinate written as a fear
+// (frame -1) holds its role at the reflected point (a, -b), and is reflected back here. A coordinate with no
+// frame yet is read as the history stored it: `conjugated` names the second coordinate of a history whose
+// start stores a fear there (code/measure/knot-histories physicalKnot, which predates the frames).
+export function physicalFrame(whole: Whole, conjugated: boolean): Whole {
+  let out: Whole = { tokens: whole.tokens, weight: whole.weight }
+
+  whole.tokens.forEach((_, c) => {
+    const frame = whole.frame?.[c] ?? 0
+
+    if (frame < 0 || (frame === 0 && conjugated && c === 1)) {
+      out = movePhaseCoordinate(out, c, CONJUGATE_POINT)
+    }
+  })
+
+  return out
 }
 
 // the whole with one more token, `token`, opened on a set of grid points (weight 1 on each, times the

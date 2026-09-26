@@ -32,6 +32,20 @@
 // Status pass if all hold, partial if the binding gate holds and a level ratio misses, fail otherwise.
 //
 // Depth L2: a constructed rule, measured against an exact count.
+//
+// The first run, 2026-09-26, recorded as it came out (98.9 s, tmp/frc0197.log): fail, on both gates.
+// - energy, Gauss's law and the kernel exact
+// - the levels: every measured ratio sits BELOW the count, never above. Meson P(2)/P(1) 0.427 against 0.441
+//   (-3.2 percent) and 0.611 against 0.641 (-4.7); P(3)/P(1) 0.174 against 0.195 (-10.4) and 0.371 against 0.410
+//   (-9.7); baryon P(3)/P(2) 0.938 against 1.010 (-7.1) and 1.386 against 1.466 (-5.4). Six of six below, the
+//   deficit growing with the level: the sign of what the count leaves out, excluded volume (other singlets and a
+//   finite box forbid some chains), not of a wrong degeneracy. The 5 percent gate fails on four of six
+// - the baryon holds: 0.986 and 0.944 of the baryon loves sit in three-love pieces, at mean husk spread 2.36 and
+//   2.91 (bulk 2.66 and 3.30). But the gate's control is broken: with tension 0 the strings cost nothing, the
+//   whole gas merges into pieces with as many fears as loves, and no three-love piece exists to measure
+//   (control spread 0, held share 0). "Under a tenth of 0" cannot hold, so the binding gate fails by the
+//   design of its control, not by a reading of the baryon. The number that stands is the held share: a paid Z3
+//   string keeps three loves one singlet where E-FRC-0171 found no triple held on the unpaid knits.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -140,7 +154,7 @@ export default experiment({
   id: 'gauge/nucleon-spectrum',
   code: 'E-FRC-0197',
   title:
-    'the lightest color-singlet levels of the paid-string rule on the D4 box against their exact count, and a three-love baryon (a stand-in proton) that binds where E-FRC-0171 found no triple bound without a paid string',
+    'the lightest color-singlet levels of the paid-string rule on the D4 box against their exact count (every measured ratio 3 to 10 percent below it, the excluded-volume sign), and a three-love baryon (a stand-in proton) held as one singlet in 94 to 99 percent of readings where E-FRC-0171 found no triple held without a paid string, its tensionless control empty',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

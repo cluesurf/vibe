@@ -272,12 +272,31 @@ export function advanceKnot(history: KnotHistory, whole: Whole, record: BeatReco
     : advanceWhole({ weave, whole, record, kernel4: [], color: kernels.color, fixed: false, forward: true })!
 }
 
-// a two-token knot read in the physical convention: the second token taken back from the reflected point
-// when the history stores it there (the color mode's fear), unchanged otherwise
+// a two-token knot read in the physical convention. Since 2026-09-26 the color mode carries each
+// coordinate's frame (code/rule/fear-weave, E-QTM-0123): a coordinate whose frame is a fear's (-1) is taken
+// back from the reflected point, one in a love's frame (+1) is read as it is, and one not yet met (0) keeps
+// the history's fixed rule, the second token reflected when the history stores it there. On a history where
+// no token changes sign this is the old reading exactly
 export function physicalKnot(history: KnotHistory, whole: Whole): Whole {
-  return history.conjugated
-    ? { tokens: whole.tokens, weight: whole.weight.map((_, i) => whole.weight[Math.floor(i / 9) * 9 + (CONJUGATE_POINT[i % 9] ?? 0)] ?? 0n) }
-    : whole
+  const reflect = [0, 1].map(c => {
+    const f = whole.frame?.[c] ?? 0
+
+    return f === -1 || (f === 0 && c === 1 && history.conjugated)
+  })
+
+  if (!reflect[0] && !reflect[1]) {
+    return { tokens: whole.tokens, weight: whole.weight }
+  }
+
+  return {
+    tokens: whole.tokens,
+    weight: whole.weight.map((_, i) => {
+      const a = reflect[0] ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0) : Math.floor(i / 9)
+      const b = reflect[1] ? (CONJUGATE_POINT[i % 9] ?? 0) : i % 9
+
+      return whole.weight[a * 9 + b] ?? 0n
+    }),
+  }
 }
 
 // the product knot of two role lines (weight 1 on each of the 9 joint points of line a x line b)

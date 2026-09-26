@@ -36,6 +36,19 @@
 // nucleon-gas (six docks along direction 0) wraps onto itself on a line of period 5 and breaks Gauss's law at
 // the start (a probe, tmp/pieces-check.ts, read exact = false with one baryon pair and true without). Side 6
 // holds the six docks exactly once round the line. No gate was written against a number.
+//
+// The first run, 2026-09-26, recorded as it came out (312.2 s, tmp/frc0198.log): fail. Energy, Gauss's law and
+// the kernel exact.
+// - NO DEUTERON. Two mesons are in contact 0.0515 +- 0.0025 of the time against 0.0508 for the ideal gas of the
+//   same singlets (fill 0.02) and 0.0556 +- 0.0021 against 0.0549 (fill 0.03): R = 1.013 and 1.012, each within
+//   0.3 errors of 1. The free energy per singlet is -0.0016 and -0.0017 tension units, zero within error. With
+//   E-FRC-0195's theorem (zero binding in energy for any number of singlets) and its ideal-gas identity, the
+//   rule gives two singlets no well in energy and none in free energy that this run resolves
+// - saturation is a ratio of zeros: three mesons R = 1.11 +- 0.13 and 0.98 +- 0.07, four 1.03 +- 0.21 and 0.78
+//   +- 0.08; the gate fails and says nothing either way
+// - the baryon-meson pair (reported, not gated): contact 0.044 +- 0.016 against 0.072 ideal at fill 0.02 (R 0.61,
+//   1.7 errors below 1). At fill 0.03 the ideal share is 0 because the lone-baryon run recorded no three-love
+//   piece to lay down, so its ratio (Infinity) is undefined, not a result
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -86,7 +99,7 @@ export default experiment({
   id: 'gauge/nucleon-deuteron',
   code: 'E-FRC-0198',
   title:
-    'a deuteron and saturation for color singlets (stand-ins for nucleons) of the paid-string rule: zero bound levels in energy by theorem, and the contact free energy of two, three and four singlets against an ideal gas of the same singlets',
+    'no deuteron for color singlets (stand-ins for nucleons) of the paid-string rule: zero bound levels in energy by theorem, and two mesons in contact 1.01 times as often as an ideal gas of the same singlets at two fills (zero free energy within error), with saturation unreadable',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

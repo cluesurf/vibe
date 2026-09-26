@@ -157,13 +157,15 @@ export function runWhole(input: {
   records: readonly BeatRecord[]
   kernel4: readonly (readonly number[])[]
   color?: FearKernels
+  // the comoving fear beat (the default since 2026-09-26); false for the fixed-frame beat before it
+  comoving?: boolean
 }): WholeStep[] {
-  const { weave, start, records, kernel4, color } = input
+  const { weave, start, records, kernel4, color, comoving } = input
   let whole: Whole = start
   const out: WholeStep[] = []
 
   for (const record of records) {
-    const next = advanceWhole({ weave, whole, record, kernel4, color, fixed: false, forward: true })
+    const next = advanceWhole({ weave, whole, record, kernel4, color, fixed: false, forward: true, comoving })
 
     if (!next) {
       throw new Error('a grain-mode whole was refused, which advanceWhole never does')

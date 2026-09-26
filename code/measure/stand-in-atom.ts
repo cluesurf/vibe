@@ -521,6 +521,7 @@ export function actOn(g: Signed, v: Float64Array, side: number, out: Float64Arra
 // pattern with one odd or one even axis, the swap of the other two ('swap', its sign). Every row below holds
 // exactly one irrep, which projectRow's check on the characters confirms (rowCheck)
 export type PermutationRule =
+  | { readonly kind: 'none' }
   | { readonly kind: 'trivial' }
   | { readonly kind: 'sign' }
   | { readonly kind: 'standard' }
@@ -564,6 +565,11 @@ export function projectRow(row: Row, v: Float64Array, side: number, scratch: Flo
     const g: Signed = { perm: [0, 1, 2], sign: [axis === 0 ? -1 : 1, axis === 1 ? -1 : 1, axis === 2 ? -1 : 1] }
     const p = row.parity[axis]!
 
+    // 0: the row keeps no parity on this axis (a field that breaks the reflection)
+    if (p === 0) {
+      continue
+    }
+
     actOn(g, v, side, scratch)
 
     for (let i = 0; i < v.length; i++) {
@@ -582,6 +588,10 @@ export function projectRow(row: Row, v: Float64Array, side: number, scratch: Flo
     for (let i = 0; i < v.length; i++) {
       v[i] = (v[i]! + sign * scratch[i]!) / 2
     }
+  }
+
+  if (rule.kind === 'none') {
+    return
   }
 
   if (rule.kind === 'swap') {
@@ -669,7 +679,13 @@ export type Atom = {
 
 const BANDS = new Map<string, Float64Array>()
 
-export function makeAtom(input: { kind: AtomKind; side: number; a: number; potential?: Float64Array }): Atom {
+// the height of the spherical wall, far above the band top (4 pi / 3 on the husk, 2 pi on the control)
+export const WALL_HEIGHT = 40
+
+// an atom on a side^3 torus; with `wall`, every dock farther than `wall` from the source is raised to
+// WALL_HEIGHT, a spherical cavity whose only anisotropy is the lattice sphere's own, so that a confinement
+// shift is the same for every row of one l, where the torus's cube is not
+export function makeAtom(input: { kind: AtomKind; side: number; a: number; potential?: Float64Array; wall?: number }): Atom {
   const { kind, side, a } = input
   const alpha = 1 / (kind.mass * a)
   const key = `${kind.lattice}:${side}`
@@ -680,6 +696,22 @@ export function makeAtom(input: { kind: AtomKind; side: number; a: number; poten
     BANDS.set(key, band)
   }
 
+  const potential = input.potential ?? coulombBox(kind, side, alpha)
+
+  if (input.wall !== undefined) {
+    const h = side / 2
+
+    for (let z = 0; z < side; z++) {
+      for (let y = 0; y < side; y++) {
+        for (let x = 0; x < side; x++) {
+          if (Math.hypot(x - h, y - h, z - h) > input.wall) {
+            potential[x + side * (y + side * z)] = WALL_HEIGHT
+          }
+        }
+      }
+    }
+  }
+
   return {
     kind,
     side,
@@ -687,7 +719,7 @@ export function makeAtom(input: { kind: AtomKind; side: number; a: number; poten
     alpha,
     rydberg: 1 / (2 * kind.mass * a * a),
     band,
-    potential: input.potential ?? coulombBox(kind, side, alpha),
+    potential,
     re: new Float64Array(side ** 3),
     im: new Float64Array(side ** 3),
   }
@@ -760,11 +792,20 @@ export type Levels = {
 
 // the lowest `count` levels of H in one row, by block LOBPCG with the kinetic preconditioner. Starts are
 // r^j e^(-r / (scale a)) times the row's angular factor, j = 0, 1, ..., fixed functions of position
-export function lowestLevels(input: { atom: Atom; row: Row; count: number; extra?: number; tolerance?: number; maxIterations?: number; scale?: number }): Levels {
+export function lowestLevels(input: {
+  atom: Atom
+  row: Row
+  count: number
+  extra?: number
+  tolerance?: number
+  maxIterations?: number
+  scale?: number
+  onIteration?: (iteration: number, values: number[], residuals: number[]) => void
+}): Levels {
   const { atom, row, count } = input
   const extra = input.extra ?? 2
   const b = count + extra
-  const tolerance = input.tolerance ?? 1e-9
+  const tolerance = input.tolerance ?? 1e-7
   const maxIterations = input.maxIterations ?? 400
   const side = atom.side
   const size = side ** 3
@@ -832,6 +873,7 @@ export function lowestLevels(input: { atom: Atom; row: Row; count: number; extra
     })
 
     residuals = R.map(r => Math.sqrt(dot(r, r)))
+    input.onIteration?.(iterations, values, residuals)
 
     if (residuals.slice(0, count).every(r => r < tolerance)) {
       break
@@ -851,6 +893,29 @@ export function lowestLevels(input: { atom: Atom; row: Row; count: number; extra
       if (j + 1 < b) {
         projectRow(row, w2, side, scratch, sum)
         W.push(w2)
+      }
+    }
+
+    // unit W and P columns keep the trial space's Gram matrix well conditioned as the residuals shrink
+    for (const v of [...W, ...P]) {
+      const n = Math.sqrt(dot(v, v))
+
+      if (n > 0) {
+        const f = 1 / n
+
+        for (let i = 0; i < size; i++) {
+          v[i] = v[i]! * f
+        }
+
+        const j = P.indexOf(v)
+
+        if (j >= 0) {
+          const hp = HP[j]!
+
+          for (let i = 0; i < size; i++) {
+            hp[i] = hp[i]! * f
+          }
+        }
       }
     }
 
@@ -986,6 +1051,41 @@ export function lowestLevels(input: { atom: Atom; row: Row; count: number; extra
   }
 }
 
+// an orthonormal basis of the multiplet a level's vector spans under O_h: the 48 images, Gram-Schmidt with
+// the images already in the span dropped (its size is the irrep's dimension)
+export function multipletBasis(v: Float64Array, side: number): Float64Array[] {
+  const out: Float64Array[] = []
+  const image = new Float64Array(v.length)
+
+  for (const g of OH) {
+    actOn(g, v, side, image)
+
+    const w = Float64Array.from(image)
+
+    for (let pass = 0; pass < 2; pass++) {
+      for (const u of out) {
+        const c = dot(u, w)
+
+        for (let i = 0; i < w.length; i++) {
+          w[i] = w[i]! - c * u[i]!
+        }
+      }
+    }
+
+    const n = Math.sqrt(dot(w, w))
+
+    if (n > 1e-6) {
+      for (let i = 0; i < w.length; i++) {
+        w[i] = w[i]! / n
+      }
+
+      out.push(w)
+    }
+  }
+
+  return out
+}
+
 // Gram-Schmidt, twice
 export function orthonormal(vs: Float64Array[]): Float64Array[] {
   const out: Float64Array[] = []
@@ -1065,7 +1165,201 @@ export function positionElement(side: number, u: Float64Array, v: Float64Array, 
   return s
 }
 
+// ---------------------------------------------------------------------------------------------------------
+// the band stand-in's own beat: psi <- e^(-i T(p)) e^(-i V(x)) psi, the band-projected token run in time (the
+// kinetic step by FFT, exact per beat; the potential's phase at every dock)
+
+export type BandWalk = {
+  readonly side: number
+  readonly kineticCos: Float64Array
+  readonly kineticSin: Float64Array
+  readonly potentialCos: Float64Array
+  readonly potentialSin: Float64Array
+}
+
+export function makeBandWalk(input: { kind: AtomKind; side: number; potential: Float64Array }): BandWalk {
+  const band = kindBandGrid(input.kind, input.side)
+
+  return {
+    side: input.side,
+    kineticCos: Float64Array.from(band, Math.cos),
+    kineticSin: Float64Array.from(band, e => -Math.sin(e)),
+    potentialCos: Float64Array.from(input.potential, Math.cos),
+    potentialSin: Float64Array.from(input.potential, v => -Math.sin(v)),
+  }
+}
+
+// one beat in place on (re, im)
+export function bandBeat(walk: BandWalk, re: Float64Array, im: Float64Array): void {
+  const { potentialCos: pc, potentialSin: ps, kineticCos: kc, kineticSin: ks } = walk
+
+  for (let i = 0; i < re.length; i++) {
+    const r = re[i]!
+    const m = im[i]!
+
+    re[i] = r * pc[i]! - m * ps[i]!
+    im[i] = r * ps[i]! + m * pc[i]!
+  }
+
+  fft3(re, im, walk.side, false)
+
+  for (let i = 0; i < re.length; i++) {
+    const r = re[i]!
+    const m = im[i]!
+
+    re[i] = r * kc[i]! - m * ks[i]!
+    im[i] = r * ks[i]! + m * kc[i]!
+  }
+
+  fft3(re, im, walk.side, true)
+}
+
+// the chance-weighted mean offset from the torus center of a complex field
+export function centerOf(side: number, re: Float64Array, im: Float64Array): number[] {
+  const h = side / 2
+  const out = [0, 0, 0]
+  let total = 0
+
+  for (let z = 0; z < side; z++) {
+    for (let y = 0; y < side; y++) {
+      for (let x = 0; x < side; x++) {
+        const i = x + side * (y + side * z)
+        const p = re[i]! ** 2 + im[i]! ** 2
+
+        total += p
+        out[0] = out[0]! + p * (x - h)
+        out[1] = out[1]! + p * (y - h)
+        out[2] = out[2]! + p * (z - h)
+      }
+    }
+  }
+
+  return out.map(v => v / total)
+}
+
+// the gradient of a band at any k, by a symmetric difference
+export function bandGradientAt(band: (k: readonly number[]) => number, k: readonly number[], step = 1e-5): number[] {
+  return k.map((_, a) => {
+    const up = k.map((x, b) => (a === b ? x + step : x))
+    const down = k.map((x, b) => (a === b ? x - step : x))
+
+    return (band(up) - band(down)) / (2 * step)
+  })
+}
+
+// One tone in a series: the least-squares fit of y(t) = c + d t + A cos(W t) + B sin(W t), W by golden-section
+// search in [low, high] on the residual. Returns W, the amplitude sqrt(A^2 + B^2) and the rms residual
+export function refineTone(series: ArrayLike<number>, low: number, high: number): { omega: number; amplitude: number; residual: number } {
+  const n = series.length
+  const fit = (w: number): { amplitude: number; residual: number } => {
+    // normal equations for [1, t, cos, sin]
+    const basis = (t: number): number[] => [1, t / n, Math.cos(w * t), Math.sin(w * t)]
+    const m = [0, 1, 2, 3].map(() => [0, 0, 0, 0])
+    const r = [0, 0, 0, 0]
+
+    for (let t = 0; t < n; t++) {
+      const b = basis(t)
+
+      for (let i = 0; i < 4; i++) {
+        r[i] = r[i]! + b[i]! * (series[t] ?? 0)
+
+        for (let j = 0; j < 4; j++) {
+          m[i]![j] = m[i]![j]! + b[i]! * b[j]!
+        }
+      }
+    }
+
+    // Gaussian elimination
+    for (let i = 0; i < 4; i++) {
+      let pivot = i
+
+      for (let j = i + 1; j < 4; j++) {
+        if (Math.abs(m[j]![i]!) > Math.abs(m[pivot]![i]!)) {
+          pivot = j
+        }
+      }
+
+      ;[m[i], m[pivot]] = [m[pivot]!, m[i]!]
+      ;[r[i], r[pivot]] = [r[pivot]!, r[i]!]
+
+      for (let j = i + 1; j < 4; j++) {
+        const f = m[j]![i]! / m[i]![i]!
+
+        for (let k = i; k < 4; k++) {
+          m[j]![k] = m[j]![k]! - f * m[i]![k]!
+        }
+
+        r[j] = r[j]! - f * r[i]!
+      }
+    }
+
+    const x = [0, 0, 0, 0]
+
+    for (let i = 3; i >= 0; i--) {
+      let s = r[i]!
+
+      for (let k = i + 1; k < 4; k++) {
+        s -= m[i]![k]! * x[k]!
+      }
+
+      x[i] = s / m[i]![i]!
+    }
+
+    let residual = 0
+
+    for (let t = 0; t < n; t++) {
+      const b = basis(t)
+      const e = (series[t] ?? 0) - b.reduce((s, v, i) => s + v * x[i]!, 0)
+
+      residual += e * e
+    }
+
+    return { amplitude: Math.hypot(x[2]!, x[3]!), residual: Math.sqrt(residual / n) }
+  }
+
+  let a = low
+  let b = high
+  const g = (Math.sqrt(5) - 1) / 2
+
+  for (let it = 0; it < 80; it++) {
+    const c = b - g * (b - a)
+    const d = a + g * (b - a)
+
+    if (fit(c).residual < fit(d).residual) {
+      b = d
+    } else {
+      a = c
+    }
+  }
+
+  const omega = (a + b) / 2
+
+  return { omega, ...fit(omega) }
+}
+
 // the continuum hydrogen energy of shell n in Rydbergs
 export function hydrogenLevel(n: number): number {
   return -1 / (n * n)
+}
+
+// THE FIRST LATTICE CORRECTION, derived. The line's band is e1(q) = q^2 / (2 sqrt 3) - q^4 / (12 sqrt 3) + O(q^6)
+// (expand cos(pi / 3 + e) = cos(q) / 2 twice), and on the husk (1/6) sum_h w_h (k . u_h)^4 = |k|^4 exactly, so
+// T(k) = k^2 / (2 m) - k^4 / (12 sqrt 3): the relativistic -p^4 / (8 m^3 c^2) with m = sqrt 3 and c^2 = 1/2.
+// First order in it, with hydrogen's <p^4>, gives the fine-structure form (no spin)
+//   Delta E_nl / Ry = -(4 n / (l + 1/2) - 3) / (6 a^2 n^4)
+// The lattice Coulomb potential's first correction is a contact term (1 / lambda(k) = (1 / 6k^2)(1 + k^2 / 12
+// + ...) on the husk: a delta function), which moves only l = 0. So for l >= 1 this is the whole first-order
+// prediction, with no fitted number in it
+export function kineticShift(n: number, l: number, a: number): number {
+  return -((4 * n) / (l + 0.5) - 3) / (6 * a * a * n ** 4)
+}
+
+// the continuum mean radius <r>_nl = (a / 2)(3 n^2 - l (l + 1))
+export function hydrogenRadius(n: number, l: number, a: number): number {
+  return (a / 2) * (3 * n * n - l * (l + 1))
+}
+
+// the quantum defect of a level: E = -Ry / (n - delta)^2
+export function quantumDefect(n: number, energyOverRydberg: number): number {
+  return n - 1 / Math.sqrt(-energyOverRydberg)
 }

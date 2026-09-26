@@ -40,6 +40,7 @@ import { HUSK_VECTORS, HUSK_WEIGHTS, makeHusk, projectLinks } from '@/code/measu
 import { curlSymbol, huskSymbol, plaquetteShapes, readStencil } from '@/code/measure/photon-symbol'
 import { photonLatticeD4, type PhotonLattice } from '@/code/rule/photon-links'
 import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import { hermitianEigen } from '@/code/measure/photon-modes'
 
 // the E-FRC-0164 coupling, the one the rule runs at: kappa = 2 pi K / N
 export const HUSK_N = 8192
@@ -826,11 +827,14 @@ export function goldenRule(input: { symbol: Symbolizer; couplings: readonly Coup
           const slope = (muAt(r, s + h, b) - muAt(r, s - h, b)) / (2 * h)
           const domega = (kappa / (2 * Math.sin(omega))) * slope
           const k = r.map(x => x * s)
-          const eig = eigenSmall(symbol.matrix(k))
+          // the photon eigenvector from hermitianEigen (the degenerate-safe solver, E-FRC-0178), its columns
+          // put in ascending order of value
+          const eig = hermitianEigen(symbol.matrix(k))
+          const order = Array.from(eig.values, (_, j) => j).sort((p, q) => (eig.values[p] ?? 0) - (eig.values[q] ?? 0))
           const measure = ((grid.weights[ray] ?? 0) * s ** (d - 1)) / Math.abs(domega)
 
           couplings.forEach((coupling, c) => {
-            const [gr, gi] = modeCoupling({ symbol, coupling, k, ure: eig.re, uim: eig.im, column: b })
+            const [gr, gi] = modeCoupling({ symbol, coupling, k, ure: eig.vectorsRe, uim: eig.vectorsIm, column: order[b] ?? b })
 
             rates[c] = (rates[c] ?? 0) + (measure * (gr * gr + gi * gi)) / (2 * Math.sin(omega))
           })

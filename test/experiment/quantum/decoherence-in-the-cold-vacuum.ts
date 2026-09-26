@@ -69,12 +69,25 @@
 // observable, so every meeting hands the token a quarter of the gas token's role and the memory of the
 // start decays by a fixed factor per meeting in every basis alike.
 //
+// CONVENTION UPDATE (2026-09-26, E-QTM-0123 and 0124, gates unchanged, no reading added but the per-density
+// count of frame rewrites). The pair's weights are on the phase index 3 a + b and the knit's classical points
+// on the grid index x + 3 y; a gas token's role is the phase point's first coordinate, so it is now read
+// through GRID_OF_PHASE (it was read as floor(grid / 3), the grid y, which is the tilt). The pair's own link
+// crossings go through moveCoordinate, which now applies each grid move by sigma-links' identification. And
+// the pair carries the color mode's frames: before a meeting a coordinate whose token changed sign is
+// reflected into its new frame. THIRD RUN, after the update (3 s): status fail, the same gates (G4, G7) fail
+// and the rest pass. The pair's tokens never change sign here (0 frame rewrites at every density), so the
+// frames change nothing; the role reading and the grid convention move the numbers: gas meetings 207, 72,
+// 55 as before, gas kernels make +70.16, +33.65, +22.78 and traces take -70.07, -33.53, -22.42, late mana
+// 0.19, 0.25, 0.21 (was 0.14, 0.20, 0.23), rates per gas meeting 4.6e-4, 3.7e-3, -1.3e-2, and the 12 pointer
+// starts still end in one whole, now at purity 0.7797 and mana 0.1903. The title's numbers are updated to it.
+//
 // Depth L2. Positions are bulk dock positions of a side-3 D4 box; the husk is not read, since nothing here
 // depends on where a meeting happens, only on how many and of which kind: the numbers are role-grid numbers.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { fearKernels, meetWhole, moveCoordinate, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
+import { CONJUGATE_POINT, fearKernels, GRID_OF_PHASE, meetWhole, moveCoordinate, movePhaseCoordinate, wholeLovesAndFears, type Whole } from '@/code/rule/fear-weave'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { COLD_FIRSTS, COLD_OPPOSITE } from '@/code/rule/cold-quaternion-knit'
 import { coldRecords, coldStart, lineKnot } from '@/code/measure/knot-histories'
@@ -145,7 +158,7 @@ export default experiment({
   id: 'quantum/decoherence-in-the-cold-vacuum',
   code: 'E-QTM-0114',
   title:
-    'decoherence of a fear-weave pair in the cold vacuum, read as mana: isolated, the pair stays pure; in a gas of lone vibes (the collision model) mana is made at every gas kernel and lost at every trace, links never touch it, it settles at 0.14 to 0.23 and never dies, the purity does not follow the meeting rate, and no pointer basis is selected, because the fear beat replaces a token instead of dephasing it',
+    'decoherence of a fear-weave pair in the cold vacuum, read as mana: isolated, the pair stays pure; in a gas of lone vibes (the collision model) mana is made at every gas kernel and lost at every trace, links never touch it, it settles at 0.19 to 0.25 and never dies, the purity does not follow the meeting rate, and no pointer basis is selected, because the fear beat replaces a token instead of dephasing it',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -200,6 +213,7 @@ export default experiment({
       let whole = start
       let gas = 0
       let repeats = 0
+      let rewrites = 0
       let instrumentBad = 0
       const purity: number[] = []
       const fearShare: number[] = []
@@ -207,11 +221,29 @@ export default experiment({
       // the mana ledger by step kind: the pair's own meetings, the gas meeting's kernel, the trace, the links
       const ledger = { own: 0, gasKernel: 0, trace: 0, links: 0, traceRaises: 0, linkChanges: 0 }
 
+      // each kept coordinate's frame, the color mode's (E-QTM-0123): before a meeting a coordinate whose token
+      // now carries the other sign is rewritten in the new frame (reflected), the role unchanged. A reflection
+      // permutes the weights, so it moves neither mana nor purity
+      const frame = keep.map(() => 0)
+      const reframe = (c: number | undefined, s: number): void => {
+        if (c === undefined) return
+
+        if ((frame[c] ?? 0) !== 0 && frame[c] !== s) {
+          whole = movePhaseCoordinate(whole, c, CONJUGATE_POINT)
+          rewrites++
+        }
+
+        frame[c] = s
+      }
+
       for (const record of records) {
         record.meetings.forEach(([ta, tb], m) => {
           const [sa, sb] = record.signs?.[m] ?? [1, 1]
           const ca = coordinate.get(ta)
           const cb = coordinate.get(tb)
+
+          reframe(ca, sa)
+          reframe(cb, sb)
 
           if (ca !== undefined && cb !== undefined) {
             const before = manaOf(whole)
@@ -236,7 +268,9 @@ export default experiment({
             const step = gasMeeting({
               whole,
               c: coordinate.get(mine) ?? 0,
-              role: Math.floor((hidden[other] ?? 0) / 3),
+              // the gas token's classical point is a GRID index (x + 3 y, the knit's classical layer); its role is
+              // the phase point's first coordinate a = x, read through GRID_OF_PHASE (E-QTM-0124)
+              role: Math.floor((GRID_OF_PHASE[hidden[other] ?? 0] ?? 0) / 3),
               kernel: like ? kernels.like : kernels.unlike,
               divisor: like ? kernels.likeDivisor : kernels.unlikeDivisor,
               loveFirst: like || mySign > 0,
@@ -280,7 +314,7 @@ export default experiment({
         mana.push(manaOf(whole))
       }
 
-      return { gas, repeats, purity, fearShare, mana, ledger, instrumentBad, final: whole }
+      return { gas, repeats, rewrites, purity, fearShare, mana, ledger, instrumentBad, final: whole }
     }
 
     const pairStart = lineKnot(pairLine, [0, 1, 2], [0, 1, 2])
@@ -302,6 +336,7 @@ export default experiment({
 
       per[`${tag}_gasMeetings`] = s.gas
       per[`${tag}_repeatGasMeetings`] = s.repeats
+      per[`${tag}_frameRewrites`] = s.rewrites
       per[`${tag}_gasPerBeat`] = s.gas / BEATS
       per[`${tag}_purityFinal`] = s.purity[s.purity.length - 1] ?? -1
       per[`${tag}_purityMin`] = Math.min(...s.purity)
@@ -387,7 +422,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the love-fear pair of E-RLT-0055 in the cold vacuum meets no gas and stays exactly pure, with mana 0.66 late; in a golden gas of lone vibes, each gas meeting opened and traced, its purity falls but not at a rate set by the meeting rate (at f = 1/4 it rises again), mana falls to 0.14 to 0.23 and never dies, because every gas meeting is itself a magic gate on a fresh stabilizer token (+73.4 made at gas kernels against -73.3 lost at traces at f = 1/16, links exactly 0, no trace ever raises it), and no pointer basis is selected: after 69 gas meetings all 12 grid-line starts end in one whole, identical at double precision, since the fear beat is a partial swap with the gas token that replaces the token\'s state rather than dephasing it',
+        'the love-fear pair of E-RLT-0055 in the cold vacuum meets no gas and stays exactly pure, with mana 0.66 late; in a golden gas of lone vibes, each gas meeting opened and traced, its purity falls but not at a rate set by the meeting rate (at f = 1/4 it rises again), mana falls to 0.19 to 0.25 and never dies, because every gas meeting is itself a magic gate on a fresh stabilizer token (+70.2 made at gas kernels against -70.1 lost at traces at f = 1/16, links exactly 0, no trace ever raises it), and no pointer basis is selected: after 69 gas meetings all 12 grid-line starts end in one whole, identical at double precision, since the fear beat is a partial swap with the gas token that replaces the token\'s state rather than dephasing it',
       metrics: {
         pairFirst: pa,
         pairSecond: pb,
