@@ -13,7 +13,7 @@ import {
   algebraicConnectivity,
   toneIntegration,
 } from '@/code/measure/integration'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // Build a readonly Uint32Array[] adjacency from a plain neighbor list.
 function adjacency(rows: number[][]): Uint32Array[] {
@@ -79,7 +79,7 @@ suite('measure/integration: toneIntegration (Phi)', [
       const phi = toneIntegration({
         adjacency: adj,
         region: [0, 1, 2, 3, 4],
-        rng: makeRng({ seed: 11 }),
+        rng: makeWeyl({ start: 11 }),
         samples: 64,
       })
 
@@ -91,7 +91,7 @@ suite('measure/integration: toneIntegration (Phi)', [
     const phi = toneIntegration({
       adjacency: adj,
       region: [0, 1, 2, 3],
-      rng: makeRng({ seed: 11 }),
+      rng: makeWeyl({ start: 11 }),
       samples: 64,
     })
 
@@ -101,7 +101,7 @@ suite('measure/integration: toneIntegration (Phi)', [
     const phi = toneIntegration({
       adjacency: completeGraph(4),
       region: [0, 1, 2, 3],
-      rng: makeRng({ seed: 5 }),
+      rng: makeWeyl({ start: 5 }),
       samples: 64,
     })
 

@@ -18,12 +18,10 @@ import {
   csrFarthestNode,
   edgesFromCsr,
 } from '@/code/tool/graph'
-import {
-  conservingEdgeSweepSteeredHashed,
-  hashRand,
-} from '@/code/dynamics/conserving-sweep'
+import { conservingEdgeSweepSteeredHashed } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { weylCell } from '@/code/tool/weyl'
 
 export function recursion(input?: { n?: number }): {
   n: number
@@ -134,7 +132,7 @@ export function recursion(input?: { n?: number }): {
     for (let t = 0; t < T; t++) {
       for (let s = 0; s < K; s++) {
         // deterministic well-mixed telegraph (hashRand flips ~6% per beat like the original, no seed)
-        if (hashRand(s, t, 5) < 0.06) {
+        if (weylCell(s, t, 5) < 0.06) {
           sigs[s] = -sigs[s]!
         }
       }
@@ -247,7 +245,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'self two forms a hub that represents self one hub, a model of a model, tracking it above the raw world and far above a shuffle',
       metrics: {

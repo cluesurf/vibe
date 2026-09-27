@@ -12,7 +12,7 @@
 // anisotropy decreases. Run: npx tsx code/experiment/p125-lorentz-flow.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { dot } from '@/code/algebra/vector'
 import { innermostCell } from '@/code/substrate/radial-tree'
 import { angularAnisotropy } from '@/code/measure/isotropy'
@@ -47,7 +47,7 @@ export function lorentzFlow(input?: {
   const c0 = g.coords[origin]!
 
   // a fixed set of probe axes (unit vectors): coordinate axes plus random directions
-  const axRng = makeRng({ seed: 1 })
+  const axRng = makeWeyl({ start: 1 })
   const axes: number[][] = [
     [1, 0, 0],
     [0, 1, 0],
@@ -77,7 +77,7 @@ export function lorentzFlow(input?: {
 
     for (let run = 0; run < runs; run++) {
       // single charge random walk from the origin cell for k steps
-      const rng = makeRng({ seed: 7000 + run * 17 + k })
+      const rng = makeWeyl({ start: 7000 + run * 17 + k })
       const cur = randomWalkEndpoint({
         neighbors: g.neighbors,
         start: origin,

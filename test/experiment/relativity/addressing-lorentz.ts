@@ -3,7 +3,7 @@
 // a Minkowski sprinkling on reach (ball growth) and Lorentz isotropy.
 // Run: npx tsx code/experiment/p3-addressing-lorentz.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { Substrate } from '@/code/tool/substrate'
 import { tilingPQ } from '@/code/substrate/tiling-pq'
 import { lattice } from '@/code/substrate/lattice'
@@ -23,7 +23,7 @@ function evaluate(input: { name: string; substrate: Substrate }): {
   anisotropy: number
   preferredFrame: boolean
 } {
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const growth = ballGrowth({
     substrate: input.substrate,
     center: 0,
@@ -55,7 +55,7 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const rng = makeRng({ seed: 3 })
+    const rng = makeWeyl({ start: 3 })
     const latticeRow = evaluate({
       name: 'lattice (lorentzian)',
       substrate: lattice({

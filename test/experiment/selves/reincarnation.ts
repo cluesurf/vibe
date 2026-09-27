@@ -12,7 +12,7 @@
 // The vibes are never destroyed, only the pattern dissolves and re-forms, which is the model's
 // sense in which a self is independent of its substrate. Run: npx tsx code/experiment/p66-reincarnation.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   storedPatterns,
   hebbianFills,
@@ -46,7 +46,7 @@ export function reincarnation(input: { seed: number }): {
   solved: boolean
 } {
   const size = 120
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const P = storedPatterns(1, size, rng)[0] ?? new Int8Array(size)
   const J = hebbianFills([P], size)
 
@@ -55,7 +55,7 @@ export function reincarnation(input: { seed: number }): {
   let state = Int8Array.from(P)
 
   const seen = new Set<number>()
-  const tr = makeRng({ seed: input.seed + 1 })
+  const tr = makeWeyl({ start: input.seed + 1 })
 
   let rounds = 0
 

@@ -81,6 +81,7 @@ export default experiment({
 // A2, the Coxeter seed: reflection closure of the F4 simple roots rebuilds the dock and its dual.
 experiment({
   id: 'foundations/generator-coxeter-closure',
+  code: 'E-FND-0150',
   title:
     'reflecting the four F4 simple roots rebuilds the 24-cell dock and its dual (48 roots)',
   category: 'foundations',
@@ -129,6 +130,7 @@ experiment({
 // A3, the octonion seed: SO(8) / octonion triality splits the dock into a vector and two spinor octets.
 experiment({
   id: 'foundations/generator-octonion-triality',
+  code: 'E-FND-0152',
   title:
     'octonion (SO(8)) triality splits the dock into 8v + 8s + 8c, a vector and two spinors',
   category: 'foundations',

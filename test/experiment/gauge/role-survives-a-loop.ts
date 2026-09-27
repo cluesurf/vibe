@@ -25,7 +25,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   finitePlaquette,
   generateGroup,
@@ -88,7 +88,7 @@ export default experiment({
         group,
         lengths: [4, 4, 4, 4],
         start: 'cold',
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
       const demons = new Int32Array(lattice.links.length)
 

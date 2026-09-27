@@ -3,10 +3,8 @@
 // the rule (the amplifier that turns a microstate into a macroscopic record, or the eraser that
 // scrambles a coherent record) reads the one measure instead of re-rolling the fit.
 
-import {
-  conservingEdgeSweepHashed,
-  hashRand,
-} from '@/code/dynamics/conserving-sweep'
+import { conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 // A deterministic generic microstate: a fixed ternary fill (about 30 percent minus, 30 percent
 // plus, 40 percent peace) from the stateless position hash, varied by `salt` (a different
@@ -20,7 +18,7 @@ export function deterministicMicrostate(input: {
   const tone = new Int8Array(size)
 
   for (let i = 0; i < size; i++) {
-    const r = hashRand(i, 0, salt)
+    const r = weylCell(i, 0, salt)
 
     tone[i] = r < 0.3 ? -1 : r < 0.6 ? 1 : 0
   }

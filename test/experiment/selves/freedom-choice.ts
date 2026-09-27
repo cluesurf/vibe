@@ -15,14 +15,14 @@
 //      response to the urge, so it must be lived out, not read off.
 // Run: npx tsx code/experiment/p43-freedom-choice.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { toneOverlap as overlap } from '@/code/operator/hopfield'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Tone = -1 | 0 | 1
 
-function ternaryVector(n: number, rng: Rng): Int8Array {
+function ternaryVector(n: number, rng: Weyl): Int8Array {
   const v = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
@@ -38,7 +38,7 @@ function makeSelf(input: {
   patterns: number
   seed: number
 }): Int8Array[] {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   return Array.from({ length: input.patterns }, () =>
     ternaryVector(input.n, rng),
@@ -123,7 +123,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
 } {
   const n = input.n
   const init = new Int8Array(n) // neutral start, all zero
-  const urge = ternaryVector(n, makeRng({ seed: input.seed + 100 }))
+  const urge = ternaryVector(n, makeWeyl({ start: input.seed + 100 }))
 
   // 1. Determinism: same self and urge, run twice, identical.
   const selfA = makeSelf({ n, patterns: 2, seed: input.seed + 1 })
@@ -186,7 +186,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
   let urgeCanFlip = false
 
   for (let k = 0; k < 8; k++) {
-    const u2 = ternaryVector(n, makeRng({ seed: input.seed + 500 + k }))
+    const u2 = ternaryVector(n, makeWeyl({ start: input.seed + 500 + k }))
     const c2 = settle({
       patterns: selfA,
       coupling: 1,
@@ -239,7 +239,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
 
   for (let k = 0; k < 8; k++) {
     const s = selves[k % selves.length]!
-    const u = ternaryVector(n, makeRng({ seed: input.seed + 900 + k }))
+    const u = ternaryVector(n, makeWeyl({ start: input.seed + 900 + k }))
     const res = settle({
       patterns: s,
       coupling: 2,

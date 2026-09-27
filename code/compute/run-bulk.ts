@@ -5,7 +5,7 @@
 // Run: pnpm tsx code/gpu/run-bulk.ts   (after `pnpm add webgpu`). See note/plan/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 
@@ -70,7 +70,7 @@ async function run(): Promise<void> {
 
   // a deterministic pseudo-random initial field, both tone slots filled so the second-order rule has history
   const seed = new Uint32Array(n)
-  const r = makeRng({ seed: 987654321 })
+  const r = makeWeyl({ start: 987654321 })
   const nextR = (): number => r.next()
 
   for (let i = 0; i < n; i++) {

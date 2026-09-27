@@ -30,7 +30,7 @@ The coarse-graining and selves layer. It sits above the dynamics in the pipeline
 | `self-criteria.ts` | `regionPartition`, `blanketScreening`, `partialCorrelation`, `correlation`, `distancesFrom` | the Markov-blanket and light-cone primitives, interior/shell/exterior screening |
 | `binding-margin.ts` | `bindingMargin`, `ballAtRadius` | the Hearst individuation margin, internal versus boundary coupling |
 | `individuality.ts` | `fitnessVariancePartition` | the Price-equation between-group versus within-group variance test |
-| `self-trajectory.ts` | `selfTrajectory`, `selfUnitTrajectory`, `driftingSelfTrajectory`, `positionBin`, `makeRng` | emerge a self and record its position-bin trajectory and tone snapshots |
+| `self-trajectory.ts` | `selfTrajectory`, `selfUnitTrajectory`, `driftingSelfTrajectory`, `positionBin`, `makeStream` | emerge a self and record its position-bin trajectory and tone snapshots |
 
 ### Persistence and interaction
 
@@ -49,7 +49,7 @@ The coarse-graining and selves layer. It sits above the dynamics in the pipeline
 - `effectiveInformation(tpm): number` is the causal power at a grain (Hoel, in bits). `coarseGrainTpm({ tpm, groups })` lifts a micro matrix to a macro one. `emergenceGain({ series, fine, macroCount, rng }): { eiMicro, eiSpatial, eiRandom }` runs the three-way test, a level emerges when the structured coarse EI beats both the micro EI and the random-coarse control.
 - `commutingSquareError({ states, microStep, coarseMap, macroStep }): number` is the fraction of steps where coarse-then-evolve disagrees with evolve-then-coarse, zero is a perfect effective rule. `mostProbableNext(tpm)` is the deterministic skeleton macro rule.
 - `regionPartition({ cluster, graph }): { interior, shell, exterior }` splits a region, `blanketScreening({ interior, shell, exterior }): { raw, screened, reduction }` measures whether the shell screens the inside from the outside (reduction near 1 means a clean Markov blanket).
-- `selfTrajectory({ L, beats, bins, seed })` is the shared micro source, it emerges a self and returns `{ labels, centroids, snapshots, meanSelfSize }`.
+- `selfTrajectory({ L, beats, bins, seed })` is the shared micro source (the `seed` field is the start of its Kronecker stream, `makeStream`, not a random seed; the name is a leftover), it emerges a self and returns `{ labels, centroids, snapshots, meanSelfSize }`.
 - `effectiveVibeCount({ topUnits, levels })` is the scale accounting, `isCleanLevel({ level, errorBound? })` gates a level on real compression and a commuting effective rule.
 
 ## Used by

@@ -12,7 +12,7 @@ import {
   correlationLengthFromDecay,
   connectedCorrelationByDistance,
 } from '@/code/measure/connected-correlation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const TIGHT = 1e-9
 
@@ -84,7 +84,7 @@ suite('measure/connected-correlation: connectedCorrelationByDistance', [
         size: 4,
         maxRadius: 2,
         samples: 8,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       close(c[0]!, 1, TIGHT) // on-site variance of +/-1 is exactly 1

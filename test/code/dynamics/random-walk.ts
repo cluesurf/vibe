@@ -13,7 +13,7 @@ import {
   persistentWalkMeanDisplacement,
   graphWalkMsdExponent,
 } from '@/code/dynamics/random-walk'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 function ringNeighbors(n: number): number[][] {
   return Array.from({ length: n }, (_, i) => [
@@ -79,14 +79,14 @@ suite('dynamics/random-walk: determinism', [
       neighbors,
       start: 0,
       steps: 100,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     const e2 = randomWalkEndpoint({
       neighbors,
       start: 0,
       steps: 100,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     equal(e1, e2, 'endpoint reproducible')
@@ -95,14 +95,14 @@ suite('dynamics/random-walk: determinism', [
       neighbors,
       start: 0,
       steps: 30,
-      rng: makeRng({ seed: 9 }),
+      rng: makeWeyl({ start: 9 }),
     })
 
     const p2 = randomWalkPath({
       neighbors,
       start: 0,
       steps: 30,
-      rng: makeRng({ seed: 9 }),
+      rng: makeWeyl({ start: 9 }),
     })
 
     equal(p1.length, 31, 'path includes the start')
@@ -140,7 +140,7 @@ suite('dynamics/random-walk: persistent walk limits', [
         mix: 0,
         steps: 50,
         runs: 8,
-        rng: makeRng({ seed: 3 }),
+        rng: makeWeyl({ start: 3 }),
       })
 
       close(d, 50, 1e-9, 'straight line of unit steps')
@@ -161,7 +161,7 @@ suite('dynamics/random-walk: persistent walk limits', [
         mix: 1,
         steps: 400,
         runs: 200,
-        rng: makeRng({ seed: 5 }),
+        rng: makeWeyl({ start: 5 }),
       })
 
       ok(d < 100, `diffusive displacement ${d} << ballistic 400`)
@@ -181,7 +181,7 @@ suite('dynamics/random-walk: persistent walk limits', [
         mix: 0.5,
         steps: 80,
         runs: 20,
-        rng: makeRng({ seed: 11 }),
+        rng: makeWeyl({ start: 11 }),
       })
 
     equal(run(), run(), 'reproducible')

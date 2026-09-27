@@ -17,14 +17,14 @@
 //   - hyperbolic: treated as a Riemannian (spacelike) slab; we apply the flat
 //     timelike test on coordinate 0 as a stand-in causal direction.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
 import { Poset, makePosetFromRelation } from '@/code/tool/poset'
 
 export function sprinkleCurved(input: {
   manifold: ManifoldSpec
   count: number
-  rng: Rng
+  rng: Weyl
 }): Poset {
   const d = input.manifold.dimension
   const n = input.count
@@ -107,7 +107,7 @@ export function sprinkleCurved(input: {
 function sampleBall(input: {
   dimension: number
   radius: number
-  rng: Rng
+  rng: Weyl
 }): Float64Array {
   const dim = input.dimension
   const out = new Float64Array(dim)

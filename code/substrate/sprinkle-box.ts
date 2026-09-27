@@ -4,7 +4,7 @@
 // a rectangular region, used for trajectory studies where a particle walks forward
 // through a wide spatial extent.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 export type SprinkledPoint = {
   t: number
@@ -15,7 +15,7 @@ export function sprinkleBox(input: {
   density: number
   tMax: number
   xMax: number
-  rng: Rng
+  rng: Weyl
 }): SprinkledPoint[] {
   const area = input.tMax * 2 * input.xMax
   const n = Math.round(input.density * area)

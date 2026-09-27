@@ -6,7 +6,7 @@
 // not just the eigenvalues the Lanczos routine returns.
 
 import { LinearOperator } from '@/code/algebra/linear/sparse'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
@@ -32,13 +32,15 @@ export type Eigenpair = {
 }
 
 // The lowest `count` eigenpairs (ascending) of `operator`. `shift` is the spectral upper bound c
-// so that cI - H is positive (callers compute it from the operator's diagonal / band). `seed`
-// seeds the deterministic start vectors; `iterations` is the power-iteration count per pair.
+// so that cI - H is positive (callers compute it from the operator's diagonal / band). `start`
+// picks the Weyl streams (code/tool/weyl) the start vectors are read from, pair j from the
+// stream at start + 7919 j; `iterations` is the power-iteration count per pair. A converged pair
+// does not depend on the start vector, only on its overlap with the eigenvector being nonzero.
 export function lowestEigenpairs(input: {
   operator: LinearOperator
   count: number
   shift: number
-  seed: number
+  start: number
   iterations?: number
 }): Eigenpair[] {
   const { operator, count, shift } = input
@@ -49,7 +51,7 @@ export function lowestEigenpairs(input: {
   for (let j = 0; j < count; j++) {
     let phi = new Float64Array(n)
 
-    const rng = makeRng({ seed: input.seed + j * 7919 })
+    const rng = makeWeyl({ start: input.start + j * 7919 })
 
     for (let r = 0; r < n; r++) {
       phi[r] = rng.next() - 0.5

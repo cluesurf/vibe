@@ -7,7 +7,7 @@
 // and measure how far the difference can reach by each beat.
 // See note/the-model.md. Run: npx tsx code/experiment/p37-one-rule-propagation.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import {
   Graph,
@@ -36,7 +36,7 @@ export function propagation(input: {
   lightConeHolds: boolean
   frontAdvances: boolean
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const g = hyperbolicGraph({
     count: input.count,
     radius: 7,
@@ -46,7 +46,7 @@ export function propagation(input: {
 
   const fills = symmetricEdgeFills({
     neighbors: g.neighbors,
-    rng: makeRng({ seed: input.seed + 1 }),
+    rng: makeWeyl({ start: input.seed + 1 }),
   })
 
   // A central source (most-connected node).

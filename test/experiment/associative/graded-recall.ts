@@ -11,20 +11,20 @@ import {
 } from '@/code/operator/associative-memory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeWeyl } from '@/code/tool/weyl'
 
-// a REDUNDANT distributed word, each slot is an independent ternary hash of the cell index, so the cell's
-// identity is spread evenly across all slots rather than packed into the low ones. This is the human-like
-// distributed representation, any subset of slots carries partial identity, so a partial cue degrades
-// gracefully instead of crossing a sharp information-capacity cliff. Deterministic, no rng.
+// a REDUNDANT distributed word, each slot a ternary symbol read off the Weyl stream at start index + 1
+// (code/tool/weyl), so the cell's identity is spread evenly across all slots rather than packed into the low
+// ones. This is the human-like distributed representation, any subset of slots carries partial identity, so a
+// partial cue degrades gracefully instead of crossing a sharp information-capacity cliff. Deterministic, no
+// generator: until 2026-09-25 the symbols came from an iterated integer avalanche hash, a generator in all but
+// name.
 function distributedWord(index: number, wordBits: number): Int8Array {
+  const stream = makeWeyl({ start: index + 1 })
   const word = new Int8Array(wordBits)
 
-  let h = Math.imul(index + 1, 2654435761) >>> 0
-
   for (let k = 0; k < wordBits; k++) {
-    h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0
-    // read the well-mixed high byte, so each slot is an independent ternary symbol
-    word[k] = (h >>> 24) % 3
+    word[k] = stream.nextInt({ max: 3 })
   }
 
   return word

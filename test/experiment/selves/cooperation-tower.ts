@@ -14,7 +14,7 @@
 // Run: npx tsx code/experiment/p92-cooperation-tower.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -104,7 +104,7 @@ export function cooperationTower(): {
 
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
 
   // initial charges, mean zero so the total is zero (conserved target)
   const charge0 = new Array<number>(n)

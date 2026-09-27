@@ -10,7 +10,7 @@
 //     stable structured states from the dynamics, and the arrow of accumulation.
 // See note/the-model.md. Run: npx tsx code/experiment/p34-capstone.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, meanDegree } from '@/code/tool/graph'
 import { symmetricEdgeFills } from '@/code/operator/signed-majority'
@@ -27,7 +27,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // asynchronous signed-majority update. Returns the flip fraction per sweep (its
 // decline is convergence to a stable structured state) and whether tones stayed
 // strictly ternary.
-function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
+function runDynamics(input: { g: Graph; sweeps: number; rng: Weyl }): {
   flipFractions: number[]
   allTernary: boolean
 } {
@@ -98,7 +98,7 @@ export function capstone(input: { count: number; seed: number }): {
   laplacianBoundedBelow: boolean
   arrowMonotone: boolean
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const g = hyperbolicGraph({
     count: input.count,
     radius: 7,
@@ -111,7 +111,7 @@ export function capstone(input: { count: number; seed: number }): {
   const aniso = lorentzIsotropy({
     substrate: g,
     samples: 2000,
-    rng: makeRng({ seed: input.seed + 1 }),
+    rng: makeWeyl({ start: input.seed + 1 }),
   })
 
   let center = 0
@@ -133,7 +133,7 @@ export function capstone(input: { count: number; seed: number }): {
   const dyn = runDynamics({
     g,
     sweeps: 40,
-    rng: makeRng({ seed: input.seed + 2 }),
+    rng: makeWeyl({ start: input.seed + 2 }),
   })
 
   const finalFlip = dyn.flipFractions[dyn.flipFractions.length - 1] ?? 1
@@ -158,7 +158,7 @@ export function capstone(input: { count: number; seed: number }): {
       count: c,
       radius: 7,
       connectThreshold: 3.0,
-      rng: makeRng({ seed: input.seed + 7 }),
+      rng: makeWeyl({ start: input.seed + 7 }),
     })
 
     let edges = 0

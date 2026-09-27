@@ -1,7 +1,7 @@
-// Conformance for code/rule/gauge: a Metropolis sweep over Z_q link phases on triangle plaquettes. The sweep is
-// stochastic, so we check the EXACT structural invariants rather than a sampled value: the tone configuration
-// passes through untouched, every link stays a valid Z_q element in [0, q), a triangle-FREE graph admits no move
-// (links never leave the identity), and a fixed seed gives a reproducible sweep.
+// Conformance for code/rule/gauge: a Metropolis-shaped sweep over Z_q link phases on triangle plaquettes, its
+// proposals and thresholds the Kronecker values of (link, beat). We check the EXACT structural invariants: the
+// tone configuration passes through untouched, every link stays a valid Z_q element in [0, q), a triangle-FREE
+// graph admits no move (links never leave the identity), and the same beat gives the same sweep.
 
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { makeGraph } from '@/code/tool/graph'
@@ -11,7 +11,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 import { gaugeRule } from '@/code/rule/gauge'
 
 // A triangle 0-1-2: each edge lies on one plaquette, so moves are possible.
@@ -58,7 +57,6 @@ suite('rule/gauge: structural invariants of a sweep', [
       substrate: triangle,
       configuration: config,
       beat: 0,
-      rng: makeRng({ seed: 7 }),
     })
 
     equal(
@@ -89,7 +87,6 @@ suite('rule/gauge: structural invariants of a sweep', [
           size: 3,
         }),
         beat: sweep,
-        rng: makeRng({ seed: sweep + 1 }),
       })
     }
 
@@ -112,7 +109,6 @@ suite('rule/gauge: structural invariants of a sweep', [
           size: 4,
         }),
         beat: 0,
-        rng: makeRng({ seed: 3 }),
       })
 
       for (const k of field.link) {
@@ -123,7 +119,7 @@ suite('rule/gauge: structural invariants of a sweep', [
 ])
 
 suite('rule/gauge: determinism', [
-  check('the same seed produces the same sweep', () => {
+  check('the same beat produces the same sweep', () => {
     const run = (): number[] => {
       const field = makeGaugeField({
         graph: triangle,
@@ -137,7 +133,6 @@ suite('rule/gauge: determinism', [
           size: 3,
         }),
         beat: 0,
-        rng: makeRng({ seed: 99 }),
       })
 
       return Array.from(field.link)
@@ -146,7 +141,7 @@ suite('rule/gauge: determinism', [
     equal(
       JSON.stringify(run()),
       JSON.stringify(run()),
-      'reproducible under a fixed seed',
+      'reproducible at a fixed beat',
     )
   }),
 ])

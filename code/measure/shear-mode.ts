@@ -21,9 +21,9 @@ import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { coordAlong } from '@/code/measure/hydrodynamics'
 import { coinLines } from '@/code/measure/sound-wave'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { pairGasFill } from '@/code/measure/density-front'
 import { linearFit } from '@/code/measure/regression'
+import { weylCell } from '@/code/tool/weyl'
 
 // the fixed hash salt for carrier placement, distinct from the background pair salt
 export const CARRIER_SALT = 97
@@ -84,7 +84,7 @@ export function shearGasSetup(input: {
 
       if (
         eligible &&
-        hashRand(cell, line, CARRIER_SALT) < Math.abs(bias)
+        weylCell(cell, line, CARRIER_SALT) < Math.abs(bias)
       ) {
         const positiveSlot = momComponent > 0 ? a : o
         const negativeSlot = momComponent > 0 ? o : a

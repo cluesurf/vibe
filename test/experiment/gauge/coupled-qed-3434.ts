@@ -12,7 +12,7 @@
 // {3,4,3,4} rule. Frontier 1 is SOLVABLE.
 // Run: npx tsx code/experiment/p260-coupled-qed-3434.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -154,7 +154,7 @@ export function coupledQED(): {
   const gaussLaw = gaussErr < 1e-9
 
   // (3) gauge invariance: hopping term psi*_n e^{i theta_n} psi_{n+1} invariant under psi_n -> e^{i a_n} psi_n, theta_n -> theta_n + a_n - a_{n+1}
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
   const rnd = (): number => rng.next() * 2 * Math.PI
   const a = Array.from({ length: L }, () => rnd())
 

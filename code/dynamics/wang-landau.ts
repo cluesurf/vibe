@@ -13,7 +13,7 @@
 // modification factor to 1/t for the rest, which converges reliably where pure
 // halving stalls. The per-height action is measured in the converged 1/t regime.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { makeBitMatrix, setBit } from '@/code/tool/bitset'
 import {
   makeState,
@@ -56,7 +56,7 @@ export function wangLandauHeight(input: {
   epsilon: number
   minHeight?: number
   maxHeight: number
-  rng: Rng
+  rng: Weyl
   maxSteps: number
   coverThreshold?: number // min visits per height to declare the shape covered
   burnInFraction?: number // fraction of steps before measuring the per-height action
@@ -217,7 +217,7 @@ export function windowedWangLandau(input: {
   maxHeight: number
   windowSize: number
   overlap: number
-  rng: Rng
+  rng: Weyl
   stepsPerWindow: number
   coverThreshold?: number
   burnInFraction?: number

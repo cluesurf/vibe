@@ -1,9 +1,10 @@
 // The claim graph's foundations: assumptions, definitions, lemmas, imported methods and
 // observations. Results and experiments are nodes too, built from result.ts.
 //
-// The five assumptions are the whole of the program. A result that rests on none of them says
-// nothing about the program, however well it matches nature, which is why the lattice QCD
-// results are reproductions and not evidence for the rule.
+// The five assumptions are the program's committed choices. A2 states the three-trit slot adopted
+// on 2026-09-25, which the adopted knit carries and the older turning weave does not. A result that rests on
+// none of them says nothing about the program, however well it matches nature, which is why the
+// lattice QCD results are reproductions and not evidence for the knit.
 
 import type { Node } from './type'
 
@@ -12,7 +13,7 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A1',
     kind: 'assumption',
     statement:
-      'space is the four-dimensional hyperbolic honeycomb {3,4,3,4}, whose cells are 24-cells, with 24 directions per cell',
+      'space is the four-dimensional hyperbolic honeycomb {3,4,3,4}, whose docks are 24-cells, with 24 slots per dock, one per direction. The package runs the knit on the flat D4 lattice and on small D4 boxes, which have the same 24 directions per dock, not on {3,4,3,4} itself',
     standing: 'holds',
     depends: [],
   },
@@ -20,7 +21,7 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A2',
     kind: 'assumption',
     statement:
-      'each direction of each cell holds one value from {-1, 0, +1}, and nothing else is stored',
+      'each slot holds a vibe, fear, calm or love (-1, 0, +1), and a role point: a role (take, hold, free) and a tilt, one point of the 3 x 3 grid. Each link holds one of the 216 grid moves and a flow, the net vibe that has crossed it, whose value mod 3 is the center that makes the pair a Sigma(648) element. Adopted on 2026-09-25 as the three-trit model. The adopted knit carries the role points with the held color exact while it makes pairs (E-RLT-0067). The turning weave in code/rule/collision.ts, the knit before this model, moves the vibe alone',
     standing: 'holds',
     depends: [],
   },
@@ -28,7 +29,7 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A3',
     kind: 'assumption',
     statement:
-      'one update per step: a fixed nine-state collision table applied to each opposite pair of slots, then streaming each slot to its neighbour, on a fixed 24-beat turning schedule',
+      'the knit: one update per beat, a collision in every dock and then streaming each slot to its neighbor. The adopted knit is the isometric family, W(F4) as its exact symmetry (E-RLT-0061): its pair-making form with a store that hands an unmade pair its own tokens back carries the held color (E-RLT-0067), the lone bounce collision on the coset-union vacuum is the form the later experiments run (E-RLT-0084, E-RLT-0093), and the comoving fear beat is its one non-Clifford gate (E-SPN-0063). The committed knit of the earlier experiments, and of the browser simulation, is the turning weave (code/rule/collision.ts), built on the nine-state pair table of each line of opposite slots on a schedule that repeats every 24 beats',
     standing: 'holds',
     depends: [],
   },
@@ -36,14 +37,14 @@ export const ASSUMPTIONS: Node[] = [
     id: 'A4',
     kind: 'assumption',
     statement:
-      'the update is a bijection of the state (reversible) and conserves the sum of the values (charge)',
+      'the knit is a bijection of the state (reversible) and conserves love minus fear, the sum of the vibes',
     standing: 'holds',
     depends: [],
   },
   {
     id: 'A5',
     kind: 'assumption',
-    statement: 'the update draws no random number',
+    statement: 'the knit draws no random number',
     standing: 'holds',
     depends: [],
   },
@@ -62,7 +63,7 @@ export const DEFINITIONS: Node[] = [
     id: 'D2',
     kind: 'definition',
     statement:
-      'boundary share: the fraction of the cells within graph radius r of a cell that lie at exactly radius r',
+      'boundary share: the fraction of the docks within graph radius r of a dock that lie at exactly radius r',
     standing: 'holds',
     depends: [],
   },
@@ -70,7 +71,7 @@ export const DEFINITIONS: Node[] = [
     id: 'D3',
     kind: 'definition',
     statement:
-      'coverage radius: the smallest radius at which a breadth-first spread from a cell reaches every stored cell',
+      'coverage radius: the smallest radius at which a breadth-first spread from a dock reaches every stored dock',
     standing: 'holds',
     depends: [],
   },
@@ -108,6 +109,14 @@ export const LEMMAS: Node[] = [
       'on a graph whose shells grow by a factor lambda, the outer shell holds (lambda - 1) / lambda of the ball in the limit',
     standing: 'holds',
     depends: ['D2'],
+  },
+  {
+    id: 'L5',
+    kind: 'lemma',
+    statement:
+      'the finite subgroups of SU(3) are classified (Miller, Blichfeldt and Dickson 1916. Fairbairn, Fulton and Klink 1964. Grimus and Ludl 2012). The Hessian group Sigma(648) is primitive, and no finite subgroup of SU(3) contains it properly, since the only larger primitive one, Sigma(1080), has an order 648 does not divide. So Sigma(648) with any element of SU(3) outside it generates an infinite group, whose closure is all of SU(3): the identity component of the closure is normalized by a primitive group, and in SU(3) only SU(3) itself is',
+    standing: 'holds',
+    depends: ['I7'],
   },
 ]
 

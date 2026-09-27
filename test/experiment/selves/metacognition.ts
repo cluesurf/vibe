@@ -12,9 +12,9 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { weylCell } from '@/code/tool/weyl'
 
 function fullBeat(
   tone: Int8Array,
@@ -45,7 +45,7 @@ function fullBeat(
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
 
-      if (hashRand(k, beat, 1) < 0.5) {
+      if (weylCell(k, beat, 1) < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
         moved[v] = 1
@@ -312,7 +312,7 @@ export default experiment({
         peripheralPredict: r.peripheralPredict,
       },
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'this is a usable forward model, full recursion (a model of the model) would need added structure',
     })
   },

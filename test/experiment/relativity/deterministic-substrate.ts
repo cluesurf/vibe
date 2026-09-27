@@ -7,7 +7,7 @@
 // it against the random sprinkle on the same isotropy and reach tests.
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p39-deterministic-substrate.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   hyperbolicGraph,
   hyperbolicSunflower,
@@ -38,7 +38,7 @@ function evaluate(
   const aniso = lorentzIsotropy({
     substrate: g,
     samples: 3000,
-    rng: makeRng({ seed }),
+    rng: makeWeyl({ start: seed }),
   })
 
   const growth = ballGrowth({
@@ -67,7 +67,7 @@ export function deterministicSubstrate(input: {
       count: input.count,
       radius: 7,
       connectThreshold: 3.0,
-      rng: makeRng({ seed: input.seed }),
+      rng: makeWeyl({ start: input.seed }),
     }),
     input.seed + 1,
   )

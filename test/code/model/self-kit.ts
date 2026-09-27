@@ -23,7 +23,7 @@ import {
   countLargeSameSignComponents,
   emergeSelf,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 suite('model/self-kit: graph construction', [
   // flatGraph(2): the four cells of a 2x2 triangular patch have degrees 2,3,3,2 (corner cells reach two
@@ -103,7 +103,7 @@ suite('model/self-kit: charge conservation', [
   check('the passive beat conserves total charge', () => {
     const g = flatGraph(12)
     const tone = new Int8Array(g.cellCount)
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
 
     for (let i = 0; i < tone.length; i++) {
       tone[i] = i % 5 === 0 ? 1 : i % 7 === 0 ? -1 : 0
@@ -220,7 +220,7 @@ suite('model/self-kit: emergence reproducibility', [
       const g = flatGraph(24)
       const moved = new Uint8Array(g.cellCount)
 
-      return emergeSelf(g, makeRng({ seed: 9 }), moved, { beats: 20 })
+      return emergeSelf(g, makeWeyl({ start: 9 }), moved, { beats: 20 })
         .tone
     }
 

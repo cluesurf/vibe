@@ -21,7 +21,7 @@ import {
   crossingBeta,
   WangLandauResult,
 } from '@/code/dynamics/wang-landau'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A hand result on N=4 (sqrt N = 2): heights 1,2 are layered, height 3 is manifold.
 // Flat log g, and a manifold action of -1 so higher beta favours the manifold phase.
@@ -90,7 +90,7 @@ suite('dynamics/wang-landau: determinism', [
         epsilon: 0.2,
         minHeight: 2,
         maxHeight: 3,
-        rng: makeRng({ seed: 31 }),
+        rng: makeWeyl({ start: 31 }),
         maxSteps: 1500,
       })
 
@@ -107,7 +107,7 @@ suite('dynamics/wang-landau: determinism', [
       epsilon: 0.2,
       minHeight: 2,
       maxHeight: 3,
-      rng: makeRng({ seed: 31 }),
+      rng: makeWeyl({ start: 31 }),
       maxSteps: 500,
     })
 

@@ -50,6 +50,7 @@ export default experiment({
 
 experiment({
   id: 'foundations/naturalness-separation-decay',
+  code: 'E-FND-0154',
   title: 'the CHSH violation decays with measurement separation',
   category: 'foundations',
   substrates: 'any',

@@ -12,7 +12,7 @@
 //      reimposes its urge.
 // Run: npx tsx code/experiment/p64-subtle-layer-urges.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -31,7 +31,7 @@ function twoScale(input: {
   fastCount: number
   fastDegree: number
   coupling: number
-  rng: Rng
+  rng: Weyl
 }): TwoScale {
   const { slowCount, fastCount, fastDegree, coupling, rng } = input
   const n = slowCount + fastCount
@@ -85,7 +85,7 @@ function settleFast(
   slowState: Int8Array,
   fastInit: Int8Array,
   sweeps: number,
-  rng: Rng,
+  rng: Weyl,
 ): Int8Array {
   const t = new Int8Array(ts.n)
 
@@ -146,10 +146,10 @@ export function subtleLayerUrges(input: { seed: number }): {
       fastCount,
       fastDegree: 6,
       coupling,
-      rng: makeRng({ seed: seed + coupling }),
+      rng: makeWeyl({ start: seed + coupling }),
     })
 
-    const dr = makeRng({ seed: seed + 100 })
+    const dr = makeWeyl({ start: seed + 100 })
     const deepA = Int8Array.from(
       { length: slowCount },
       () => dr.nextInt({ max: 3 }) - 1,
@@ -166,7 +166,7 @@ export function subtleLayerUrges(input: { seed: number }): {
       deepA,
       fastInit,
       40,
-      makeRng({ seed: seed + 1 }),
+      makeWeyl({ start: seed + 1 }),
     )
 
     const fb = settleFast(
@@ -174,7 +174,7 @@ export function subtleLayerUrges(input: { seed: number }): {
       deepB,
       fastInit,
       40,
-      makeRng({ seed: seed + 1 }),
+      makeWeyl({ start: seed + 1 }),
     )
 
     return { coupling, steering: differ(fa, fb) }
@@ -194,10 +194,10 @@ export function subtleLayerUrges(input: { seed: number }): {
     fastCount,
     fastDegree: 3,
     coupling: 9,
-    rng: makeRng({ seed: seed + 4 }),
+    rng: makeWeyl({ start: seed + 4 }),
   })
 
-  const dr = makeRng({ seed: seed + 200 })
+  const dr = makeWeyl({ start: seed + 200 })
   const deep = Int8Array.from(
     { length: slowCount },
     () => dr.nextInt({ max: 3 }) - 1,
@@ -213,7 +213,7 @@ export function subtleLayerUrges(input: { seed: number }): {
     deep,
     init,
     40,
-    makeRng({ seed: seed + 5 }),
+    makeWeyl({ start: seed + 5 }),
   )
 
   const disordered = Int8Array.from(
@@ -226,7 +226,7 @@ export function subtleLayerUrges(input: { seed: number }): {
     deep,
     disordered,
     40,
-    makeRng({ seed: seed + 6 }),
+    makeWeyl({ start: seed + 6 }),
   )
 
   const reassertion = 1 - differ(settled, recovered) // how much the surface returns to its deep-shaped pattern

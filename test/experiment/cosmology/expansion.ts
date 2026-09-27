@@ -9,7 +9,7 @@
 // deepest open cosmological problem. See note/questions/next-version.md (P13).
 // Run: npx tsx code/experiment/p13-expansion.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleDeSitter } from '@/code/substrate/sprinkle-desitter'
 import { causalSliceWidths } from '@/code/measure/order-stats'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
@@ -31,7 +31,7 @@ export function deSitterExpansion(input: {
     hubble: input.hubble,
     properTime: 4,
     comovingWidth: 1.0,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const widths = causalSliceWidths({ poset })

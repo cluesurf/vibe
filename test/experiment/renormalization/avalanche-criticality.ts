@@ -10,7 +10,7 @@
 // not, the dynamics lacks clean avalanche criticality. Run: npx tsx code/experiment/p138-avalanche-criticality.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { settledAvalancheSizes } from '@/code/measure/avalanche'
@@ -34,7 +34,7 @@ function avalanches(
     settleSeed: 5,
     perturbSeed: 7000,
     streamSeed: 222,
-    makeRng: seed => makeRng({ seed }),
+    makeStream: seed => makeWeyl({ start: seed }),
     relax: (state, rng) =>
       conservingEdgeSweep({
         tone: state,

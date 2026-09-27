@@ -14,7 +14,7 @@
 //     solve by astronomically-unlikely chance (~2^K), the gap between aimless and intentional, quantified.
 // The target is a pattern of K cells, the gap is the Hamming distance to it. Run: npx tsx code/experiment/p147-direction-intention.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   solveGoalDirected,
   solveUndirected,
@@ -36,7 +36,7 @@ export function directionIntention(): {
 } {
   const Ks = [10, 20, 30]
   const budget = 200000
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const scan = Ks.map(K => {
     const target = new Int8Array(K)
 

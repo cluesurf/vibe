@@ -2,23 +2,20 @@
 // experiment. Key-value bindings are bound (elementwise product) and bundled (superposed) into one memory
 // vector of dimension `dim`, then each value is recalled by unbinding and cleaning up to the nearest stored
 // value. The recall capacity scales with the dimension, which on a hyperbolic tessellation is the cell count
-// in a radius, exponential in the radius. The vectors are a fixed integer hash, so the measurement is
-// deterministic (no randomness, vary `dim`, not a seed). References, Plate 1995, Kanerva 2009.
+// in a radius, exponential in the radius. Vector `id` is the sign pattern of the Weyl stream at start `id`
+// (code/tool/weyl): +1 where the value is at least one half. Two streams differ by an irrational offset in
+// each of the 64 slots, so two vectors agree on about half their entries, the near-orthogonality the
+// memory needs, with no generator behind it. Until 2026-09-25 the vectors were an integer avalanche hash of
+// (id, index). References, Plate 1995, Kanerva 2009.
 
-const hashBit = (id: number, index: number): number => {
-  let h = (id ^ Math.imul(index + 1, 0x9e3779b9)) >>> 0
-
-  h = Math.imul(h ^ (h >>> 16), 0x21f0aaad) >>> 0
-  h = Math.imul(h ^ (h >>> 15), 0x735a2d97) >>> 0
-
-  return ((h ^ (h >>> 15)) & 1) === 1 ? 1 : -1
-}
+import { makeWeyl } from '@/code/tool/weyl'
 
 const bipolar = (id: number, dim: number): Int8Array => {
+  const stream = makeWeyl({ start: id })
   const v = new Int8Array(dim)
 
   for (let i = 0; i < dim; i++) {
-    v[i] = hashBit(id, i)
+    v[i] = stream.next() >= 0.5 ? 1 : -1
   }
 
   return v

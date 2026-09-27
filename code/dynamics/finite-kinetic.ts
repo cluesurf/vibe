@@ -19,7 +19,7 @@
 //
 // The seeded heatbath of the same quantized action is the reference.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import {
   FiniteGaugeLattice,
   FiniteGroup,
@@ -294,7 +294,7 @@ export function quantizedHeatbathSweep(input: {
   lattice: FiniteGaugeLattice
   levels: Int32Array
   beta: number
-  rng: Rng
+  rng: Weyl
 }): void {
   const { lattice, levels, beta, rng } = input
   const { group, geometry, links } = lattice
@@ -350,7 +350,7 @@ export function microcanonicalSweep(input: {
   levels: Int32Array
   demons: Int32Array
   capacity: number
-  rng: Rng
+  rng: Weyl
 }): void {
   const { lattice, levels, demons, capacity, rng } = input
   const { group, geometry, links } = lattice

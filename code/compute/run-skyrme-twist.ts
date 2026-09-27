@@ -7,7 +7,7 @@
 // n(x,y) = (sin(qx), -cos(qx)sin(qy), cos(qx)cos(qy)), unit, periodic for q = 2*pi*k/L, Skyrme density ~ q^4.
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 Object.assign(globalThis, globals)
 
@@ -332,7 +332,7 @@ async function run(): Promise<void> {
   const dMuD = Ks.map(() => new Float64Array(MCHEB)),
     dMuH = Ks.map(() => new Float64Array(MCHEB))
 
-  const rng = makeRng({ seed: 271 })
+  const rng = makeWeyl({ start: 271 })
 
   console.log(
     `GPU Skyrme twist (double + helix control), L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, a=${A.toFixed(2)}`,

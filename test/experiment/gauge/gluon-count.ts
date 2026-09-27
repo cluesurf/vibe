@@ -34,7 +34,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GaugeGroup,
   groupSize,
@@ -52,7 +52,7 @@ function meanMoments(input: {
   measurements: number
   seed: number
 }): number[] {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeGaugeLattice({
     group: input.group,
     lengths: [6, 6, 6, 6],

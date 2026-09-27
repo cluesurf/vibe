@@ -5,7 +5,7 @@
 
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import type { Rng } from '@/code/tool/rng'
+import type { Weyl } from '@/code/tool/weyl'
 
 export function perceptionEdgeBeat(input: {
   tone: Int8Array
@@ -14,7 +14,7 @@ export function perceptionEdgeBeat(input: {
   offsets: Int32Array
   adj: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
   cohesive: boolean
   temperature: number

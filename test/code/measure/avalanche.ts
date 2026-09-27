@@ -37,7 +37,7 @@ suite('measure/avalanche: avalancheSizes (identity dynamics)', [
         trials: 3,
         perturbSeed: 0,
         streamSeed: 0,
-        makeRng: makeZeroRng,
+        makeStream: makeZeroRng,
         relax: identityRelax,
         mode: 'final',
       })
@@ -52,7 +52,7 @@ suite('measure/avalanche: avalancheSizes (identity dynamics)', [
       trials: 2,
       perturbSeed: 0,
       streamSeed: 0,
-      makeRng: makeZeroRng,
+      makeStream: makeZeroRng,
       relax: identityRelax,
       mode: 'peak',
     })
@@ -71,7 +71,7 @@ suite('measure/avalanche: settledAvalancheSizes', [
       settleSeed: 1,
       perturbSeed: 0,
       streamSeed: 0,
-      makeRng: makeZeroRng,
+      makeStream: makeZeroRng,
       relax: identityRelax,
       mode: 'final',
     })

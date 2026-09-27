@@ -18,7 +18,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   makeGaugeLattice,
   sampleGaugeEnsemble,
@@ -44,7 +44,7 @@ function tensionAt(input: { beta: number; seed: number }): {
   value: number
   error: number
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeGaugeLattice({
     group: 'su2',
     lengths: [LENGTH, LENGTH, LENGTH],

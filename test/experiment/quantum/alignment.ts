@@ -10,7 +10,7 @@
 // note/experiment/results/p7-naturalness.md.
 // Run: npx tsx code/experiment/p7-alignment.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { mutualInformationBits } from '@/code/measure/statistics'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -53,7 +53,7 @@ export function measureChshAndDependence(input: {
   trials: number
   seed: number
 }): { s: number; mutualInfo: number } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const sum = [0, 0, 0, 0]
   const count = [0, 0, 0, 0]
   // joint histogram of (setting-A bit, lambda bin) for the mutual information.

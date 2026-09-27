@@ -10,7 +10,7 @@ import {
   coarseGrainTpm,
   emergenceGain,
 } from '@/code/coarse/causal-emergence'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const TOL = 1e-12
 
@@ -122,7 +122,7 @@ suite('coarse/causal-emergence: structured vs random gain', [
         series,
         fine: 8,
         macroCount: 4,
-        rng: makeRng({ seed: 5 }),
+        rng: makeWeyl({ start: 5 }),
       })
 
     const a = run()

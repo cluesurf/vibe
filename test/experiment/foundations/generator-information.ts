@@ -62,6 +62,7 @@ export default experiment({
 // B2, the binary-code seed: the even-weight code gives D4 by Construction A, whose minimal vectors are the dock.
 experiment({
   id: 'foundations/generator-binary-code',
+  code: 'E-FND-0149',
   title:
     'the even-weight binary code gives the D4 lattice (Construction A) whose minimal vectors are the dock',
   category: 'foundations',

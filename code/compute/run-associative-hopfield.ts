@@ -6,7 +6,7 @@
 // and recovers the prototype, and (3) benchmarks at scale. Run: pnpm tsx code/compute/run-associative-hopfield.ts.
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { storedPatterns, toneOverlap } from '@/code/operator/hopfield'
 import {
   HOPFIELD_OVERLAP_WGSL,
@@ -221,7 +221,7 @@ function buildPatterns(
   p: number,
   seed: number,
 ): { flat: Int32Array; list: Int8Array[] } {
-  const list = storedPatterns(p, n, makeRng({ seed }))
+  const list = storedPatterns(p, n, makeWeyl({ start: seed }))
   const flat = new Int32Array(n * p)
 
   for (let mu = 0; mu < p; mu++) {
@@ -285,7 +285,7 @@ async function run(): Promise<void> {
   const p = CHECK_PATTERNS
   const { flat, list } = buildPatterns(n, p, 1)
   const prototype = list[Math.floor(p / 2)]!
-  const cue = corrupt(prototype, 0.2, makeRng({ seed: 2 }))
+  const cue = corrupt(prototype, 0.2, makeWeyl({ start: 2 }))
 
   const cpu = cpuDenseRecall(flat, cue, n, p, POWER, ITERS)
   const gpu = await gpuDenseRecall({
@@ -326,7 +326,7 @@ async function run(): Promise<void> {
   const cueB = corrupt(
     big.list[Math.floor(pb / 2)]!,
     0.2,
-    makeRng({ seed: 4 }),
+    makeWeyl({ start: 4 }),
   )
 
   const bench = await gpuDenseRecall({

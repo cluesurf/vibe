@@ -14,7 +14,7 @@ import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { coordAlong } from '@/code/measure/hydrodynamics'
 import { coinLines } from '@/code/measure/sound-wave'
 import { meshOpposites } from '@/code/tool/mesh'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 // the fixed hash salt for the background pair placement, so every gas built from the
 // same mesh is the same deterministic state
@@ -37,7 +37,7 @@ export function pairGasFill(input: {
     const base = cell * mesh.degree
 
     for (let line = 0; line < lines.length; line++) {
-      if (hashRand(cell, line, PAIR_SALT) < pairFill) {
+      if (weylCell(cell, line, PAIR_SALT) < pairFill) {
         const [a, o] = lines[line]!
 
         will.data[base + a] = 1

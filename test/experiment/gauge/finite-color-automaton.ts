@@ -42,7 +42,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   finitePlaquette,
   generateGroup,
@@ -88,7 +88,7 @@ function automaton(input: {
     group,
     lengths: LENGTHS,
     start: 'cold',
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
   const demons = new Int32Array(lattice.links.length)
 
@@ -164,7 +164,7 @@ function mixedRun(
     group,
     lengths: LENGTHS,
     start: 'cold',
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
   const demons = new Int32Array(lattice.links.length)
 
@@ -203,10 +203,10 @@ function mixedRun(
     group,
     lengths: LENGTHS,
     start: 'cold',
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
   const microDemons = Int32Array.from(startDemons)
-  const microRng = makeRng({ seed: seed + 30 })
+  const microRng = makeWeyl({ start: seed + 30 })
   const microSamples: number[] = []
 
   let microDemonSum = 0
@@ -262,7 +262,7 @@ function mixedRun(
     start: 'ground' | 'cold' | 'hot',
     k: number,
   ): number => {
-    const rng = makeRng({ seed: seed + k })
+    const rng = makeWeyl({ start: seed + k })
     const heat = makeFiniteGaugeLattice({
       group,
       lengths: LENGTHS,
@@ -308,7 +308,7 @@ function heatbath(
   seed: number,
   start: 'cold' | 'hot',
 ): { value: number; error: number } {
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const lattice = makeFiniteGaugeLattice({
     group,
     lengths: LENGTHS,
@@ -343,7 +343,7 @@ function reversesExactly(
     group,
     lengths: [4, 4, 4, 4],
     start: 'cold',
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
   const demons = new Int32Array(lattice.links.length)
 

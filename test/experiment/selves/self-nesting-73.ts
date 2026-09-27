@@ -4,7 +4,7 @@
 // low-dimensional to host skyrmion-selves. So {7,3} is poor for selfhood, the opposite of its strength
 // (computation, P204). Ported to {7,3}. Run: npx tsx code/experiment/p203-self-nesting-73.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
@@ -77,7 +77,7 @@ export function selfNesting73(): {
     prev = new Int8Array(N),
     nxt = new Int8Array(N)
 
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
   const rnd = (): number => rng.next()
 
   for (let i = 0; i < N; i++) {

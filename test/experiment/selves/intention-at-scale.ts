@@ -9,11 +9,11 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 export function intentionAtScale(input?: { n?: number }): {
   n: number
@@ -96,7 +96,7 @@ export function intentionAtScale(input?: { n?: number }): {
     tone: Int8Array,
     willRegion: Uint8Array,
     bias: number,
-    rng: Rng,
+    rng: Weyl,
   ): void => {
     moved.fill(0)
 
@@ -192,7 +192,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
   const dt0 = meanDT(tone, () => true)
   const sp0 = spread(tone)
-  const rng1 = makeRng({ seed: 3 })
+  const rng1 = makeWeyl({ start: 3 })
 
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0.45, rng1)
@@ -203,7 +203,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
   tone = initSelf()
 
-  const rng1b = makeRng({ seed: 3 })
+  const rng1b = makeWeyl({ start: 3 })
 
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0, rng1b)
@@ -222,7 +222,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
   tone = initSelf()
 
-  const rng2 = makeRng({ seed: 7 })
+  const rng2 = makeWeyl({ start: 7 })
 
   for (let t = 0; t < T; t++) {
     beat(tone, hub, 0.45, rng2)
@@ -232,7 +232,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
   tone = initSelf()
 
-  const rng2b = makeRng({ seed: 7 })
+  const rng2b = makeWeyl({ start: 7 })
 
   for (let t = 0; t < T; t++) {
     beat(tone, hub, 0, rng2b)
@@ -245,7 +245,7 @@ export function intentionAtScale(input?: { n?: number }): {
   // CHECK 3: persistence, intend, perturb (scatter charge), keep intending, does the drift resume?
   tone = initSelf()
 
-  const rng3 = makeRng({ seed: 9 })
+  const rng3 = makeWeyl({ start: 9 })
 
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0.45, rng3)

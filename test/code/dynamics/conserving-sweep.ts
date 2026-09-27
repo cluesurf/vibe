@@ -14,21 +14,8 @@ import {
   ok,
   exactArray,
 } from '@/test/code/harness'
-import {
-  conservingEdgeSweep,
-  conservingEdgeSweepTunable,
-  conservingChainSweep,
-  conservingRingSweep,
-  evolveConservingRing,
-  conservingRingSweepTunable,
-  conservingHopSweep,
-  conservingEdgeListSweep,
-  conservingEdgeListSweepPumped,
-  conservingEdgeSweepSteered,
-  conservingEdgeSweepHashed,
-  hashRand,
-} from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { conservingEdgeSweep, conservingEdgeSweepTunable, conservingChainSweep, conservingRingSweep, evolveConservingRing, conservingRingSweepTunable, conservingHopSweep, conservingEdgeListSweep, conservingEdgeListSweepPumped, conservingEdgeSweepSteered, conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
+import { makeWeyl, weylCell } from '@/code/tool/weyl'
 
 const N = 40
 
@@ -79,7 +66,7 @@ suite(
         const tone = makeTone(N)
         const q0 = charge(tone)
         const moved = new Uint8Array(N)
-        const rng = makeRng({ seed: 1 })
+        const rng = makeWeyl({ start: 1 })
 
         for (let b = 0; b < 50; b++) {
           conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0.2 })
@@ -91,7 +78,7 @@ suite(
       const tone = makeTone(N)
       const q0 = charge(tone)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 2 })
+      const rng = makeWeyl({ start: 2 })
 
       for (let b = 0; b < 40; b++) {
         conservingEdgeSweepTunable({
@@ -113,7 +100,7 @@ suite(
         const chain = makeTone(N)
         const q0 = charge(chain)
         const moved = new Uint8Array(N)
-        const rng = makeRng({ seed: 3 })
+        const rng = makeWeyl({ start: 3 })
 
         for (let b = 0; b < 30; b++) {
           conservingChainSweep({
@@ -148,7 +135,7 @@ suite(
         const tone = makeTone(N)
         const q0 = charge(tone)
         const moved = new Uint8Array(N)
-        const rng = makeRng({ seed: 4 })
+        const rng = makeWeyl({ start: 4 })
 
         for (let b = 0; b < 30; b++) {
           conservingRingSweepTunable({
@@ -170,7 +157,7 @@ suite(
           tone: evolved,
           beats: 25,
           arrow: 0.3,
-          rng: makeRng({ seed: 5 }),
+          rng: makeWeyl({ start: 5 }),
         })
 
         equal(
@@ -193,7 +180,7 @@ suite(
         const hashed = makeTone(N)
         const qH = charge(hashed)
         const moved = new Uint8Array(N)
-        const rng = makeRng({ seed: 6 })
+        const rng = makeWeyl({ start: 6 })
         const pumpField = Int32Array.from({ length: N }, (_, i) =>
           Math.abs(i - N / 2),
         )
@@ -250,7 +237,7 @@ suite('dynamics/conserving-sweep: sign counts and minting limits', [
     const plus0 = countSign(tone, 1)
     const minus0 = countSign(tone, -1)
     const moved = new Uint8Array(N)
-    const rng = makeRng({ seed: 7 })
+    const rng = makeWeyl({ start: 7 })
 
     for (let b = 0; b < 30; b++) {
       conservingHopSweep({ tone, eu, ev, moved, rng })
@@ -263,7 +250,7 @@ suite('dynamics/conserving-sweep: sign counts and minting limits', [
     () => {
       const tone = new Int8Array(N) // all peace, net charge 0
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 8 })
+      const rng = makeWeyl({ start: 8 })
 
       for (let b = 0; b < 20; b++) {
         conservingEdgeSweep({
@@ -293,7 +280,7 @@ suite('dynamics/conserving-sweep: determinism and equivalences', [
     const run = (): Int8Array => {
       const tone = makeTone(N)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 99 })
+      const rng = makeWeyl({ start: 99 })
 
       for (let b = 0; b < 20; b++) {
         conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0.3 })
@@ -312,8 +299,8 @@ suite('dynamics/conserving-sweep: determinism and equivalences', [
       const b = makeTone(N)
       const movedA = new Uint8Array(N)
       const movedB = new Uint8Array(N)
-      const rngA = makeRng({ seed: 21 })
-      const rngB = makeRng({ seed: 21 })
+      const rngA = makeWeyl({ start: 21 })
+      const rngB = makeWeyl({ start: 21 })
 
       for (let t = 0; t < 20; t++) {
         conservingEdgeListSweep({
@@ -343,9 +330,9 @@ suite('dynamics/conserving-sweep: determinism and equivalences', [
       [10, 5, 0],
       [99, 7, 3],
     ] as const) {
-      const v = hashRand(k, beat, salt)
+      const v = weylCell(k, beat, salt)
 
-      equal(v, hashRand(k, beat, salt), 'reproducible')
+      equal(v, weylCell(k, beat, salt), 'reproducible')
       ok(v >= 0 && v < 1, `in range (${v})`)
     }
   }),

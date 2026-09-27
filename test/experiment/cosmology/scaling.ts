@@ -8,7 +8,7 @@
 // note/questions/remaining-frontier-spec.md (B1) and p2-uniform.md.
 // Run: npx tsx code/experiment/p2-scaling.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { experiment } from '@/test/scaffold/suite'
@@ -20,7 +20,7 @@ function gapAtSize(n: number): number {
     beta: 2,
     epsilon: 0.9,
     steps: 40000,
-    rng: makeRng({ seed: 10 + n }),
+    rng: makeWeyl({ start: 10 + n }),
     sampleEvery: Math.max(1, Math.floor(n / 2)),
   })
 
@@ -29,12 +29,12 @@ function gapAtSize(n: number): number {
     beta: 2,
     epsilon: 0.9,
     steps: 40000,
-    rng: makeRng({ seed: 20 + n }),
+    rng: makeWeyl({ start: 20 + n }),
     sampleEvery: Math.max(1, Math.floor(n / 2)),
     startFuture: sprinkleMinkowski({
       dimension: 2,
       count: n,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     }).future,
   })
 

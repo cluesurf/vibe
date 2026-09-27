@@ -7,7 +7,7 @@
 // instead of Fibonacci addressing.
 // Run: npx tsx code/experiment/p3-study.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { Substrate, substrateMeanDegree } from '@/code/tool/substrate'
 import { Graph } from '@/code/tool/graph'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
@@ -38,7 +38,7 @@ function evaluate(input: {
   substrate: Substrate
   graph?: Graph
 }): Row {
-  const rng = makeRng({ seed: 17 })
+  const rng = makeWeyl({ start: 17 })
   const growth = ballGrowth({
     substrate: input.substrate,
     center: 0,
@@ -84,7 +84,7 @@ export default experiment({
       count: 1500,
       radius: 7,
       connectThreshold: 1.6,
-      rng: makeRng({ seed: 116 }),
+      rng: makeWeyl({ start: 116 }),
     })
 
     const candidate = evaluate({

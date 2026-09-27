@@ -1,6 +1,6 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 // DS5 (experiments/16). Cayley DHT. A key lookup routes by reducing the address distance, up to the common
@@ -33,7 +33,7 @@ export default experiment({
   run() {
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 4000 })
     const cells = a.address.length
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
     const pairs = 400
 
     let sumHops = 0

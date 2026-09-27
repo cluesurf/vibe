@@ -18,7 +18,7 @@ import {
   hopfieldStep,
   toneOverlap,
 } from '@/code/operator/hopfield'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -28,7 +28,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function corrupt(input: {
   pattern: Int8Array
   fraction: number
-  rng: ReturnType<typeof makeRng>
+  rng: ReturnType<typeof makeWeyl>
 }): Int8Array {
   const { pattern, fraction, rng } = input
   const out = Int8Array.from(pattern)
@@ -122,7 +122,7 @@ export function hopfieldEmergentRecall(input?: {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
   const size = g.cellCount
 
-  const patternRng = makeRng({ seed: 1 })
+  const patternRng = makeWeyl({ start: 1 })
   const patterns = storedPatterns(patternCount, size, patternRng)
   const J = hebbianFills(patterns, size)
   const chance = 1 / patternCount
@@ -139,7 +139,7 @@ export function hopfieldEmergentRecall(input?: {
 
   for (let m = 0; m < patternCount; m++) {
     for (let k = 0; k < trials; k++) {
-      const cueRng = makeRng({ seed: 100 + m * 17 + k })
+      const cueRng = makeWeyl({ start: 100 + m * 17 + k })
       const cue = corrupt({
         pattern: patterns[m]!,
         fraction,
@@ -208,7 +208,7 @@ export default experiment({
       },
       control: { bareRecall: r.bareRecall, chance: r.chance },
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'the bare-rule recall near chance IS the honest negative, the reversible rule conserves charge and has no energy descent, so it has no attractors and cannot clean a noisy cue',
     })
   },

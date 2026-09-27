@@ -17,7 +17,7 @@ import {
   largestPositiveCluster,
 } from '@/code/model/self-kit'
 import { distancesFrom } from '@/code/coarse/self-criteria'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 
 function perturbAndWatch(input: {
   graph: ReturnType<typeof flatGraph>
@@ -42,8 +42,8 @@ function perturbAndWatch(input: {
 
   for (let t = 0; t < beats; t++) {
     // identical rng streams, so the dynamics is the same except where the flip propagates.
-    beat(control, graph, movedA, makeRng(seed + t), 0.01, 0.22)
-    beat(perturbed, graph, movedB, makeRng(seed + t), 0.01, 0.22)
+    beat(control, graph, movedA, makeStream(seed + t), 0.01, 0.22)
+    beat(perturbed, graph, movedB, makeStream(seed + t), 0.01, 0.22)
 
     let count = 0
     let maxR = 0
@@ -84,7 +84,7 @@ export default experiment({
   run() {
     const L = 64
     const graph = flatGraph(L)
-    const rng = makeRng(192837)
+    const rng = makeStream(192837)
     const moved = new Uint8Array(graph.cellCount)
     const { tone } = emergeSelf(graph, rng, moved, {
       beats: 60,

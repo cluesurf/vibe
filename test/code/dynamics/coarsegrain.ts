@@ -7,7 +7,7 @@
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { decimate } from '@/code/dynamics/coarsegrain'
 import { makePosetFromRelation, precedes } from '@/code/tool/poset'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // a total order (chain) 0 < 1 < ... < n-1
 const chain = (n: number): ReturnType<typeof makePosetFromRelation> =>
@@ -18,7 +18,7 @@ suite('dynamics/coarsegrain: keep extremes', [
     const out = decimate({
       poset: chain(20),
       keepProbability: 1,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     equal(out.size, 20, 'all kept')
@@ -27,7 +27,7 @@ suite('dynamics/coarsegrain: keep extremes', [
     const out = decimate({
       poset: chain(20),
       keepProbability: 0,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     equal(out.size, 0, 'none kept')
@@ -41,7 +41,7 @@ suite('dynamics/coarsegrain: induced order', [
       const out = decimate({
         poset: chain(30),
         keepProbability: 0.5,
-        rng: makeRng({ seed: 4 }),
+        rng: makeWeyl({ start: 4 }),
       })
 
       ok(out.size <= 30, 'survivors are a subset')
@@ -60,13 +60,13 @@ suite('dynamics/coarsegrain: determinism', [
     const a = decimate({
       poset: chain(40),
       keepProbability: 0.5,
-      rng: makeRng({ seed: 11 }),
+      rng: makeWeyl({ start: 11 }),
     })
 
     const b = decimate({
       poset: chain(40),
       keepProbability: 0.5,
-      rng: makeRng({ seed: 11 }),
+      rng: makeWeyl({ start: 11 }),
     })
 
     equal(a.size, b.size, 'same survivor count')

@@ -13,7 +13,6 @@
 // throughout (the maintenance is conserving). Run: npx tsx code/experiment/p107-permanent-memory.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { targetFidelity } from '@/code/measure/agreement'
@@ -21,6 +20,7 @@ import { conservingMaintainToTarget } from '@/code/operator/maintain-to-target'
 import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { weylCell } from '@/code/tool/weyl'
 
 const beat = (
   tone: Int8Array,
@@ -64,7 +64,7 @@ export function permanentMemory(input?: { n?: number }): {
   const target = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
-    target[i] = hashRand(i, 0, 5) < 0.5 ? 1 : -1
+    target[i] = weylCell(i, 0, 5) < 0.5 ? 1 : -1
   }
 
   // balance to Q = 0
@@ -149,7 +149,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'an actively maintained spatial codeword stays at full fidelity indefinitely while an unmaintained one erodes, conserving charge, at a measured maintenance cost',
       metrics: {

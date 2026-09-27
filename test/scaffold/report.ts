@@ -1,5 +1,5 @@
 // Scan reporter. Writes a machine JSON and a human-readable markdown table for a
-// ScanResult, both stamped with the seed. Per the house rule, the markdown uses
+// ScanResult, both stamped with the Weyl start of its repeats. Per the house rule, the markdown uses
 // human framing and never raw ISO timestamps.
 
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -43,12 +43,12 @@ export function writeReport(input: {
   const result = input.result
   const jsonPath = join(
     input.outDir,
-    `${result.name}-${result.seed}.json`,
+    `${result.name}-${result.start}.json`,
   )
 
   const markdownPath = join(
     input.outDir,
-    `${result.name}-${result.seed}.md`,
+    `${result.name}-${result.start}.md`,
   )
 
   // Machine output: the full ScanResult verbatim.
@@ -61,7 +61,7 @@ export function writeReport(input: {
   lines.push(`# Scan: ${result.name}`)
   lines.push('')
   lines.push(
-    `Seed ${result.seed}. ${result.points.length} parameter points.`,
+    `Weyl start ${result.start}. ${result.points.length} parameter points.`,
   )
   lines.push('')
   lines.push(

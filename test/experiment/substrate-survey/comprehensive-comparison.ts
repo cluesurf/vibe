@@ -18,7 +18,7 @@ import {
   totalDirectionalCharge,
 } from '@/code/operator/directional-charge-stream'
 import { churnCount } from '@/code/measure/churn'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -102,7 +102,7 @@ function battery(s: Sub): Record<string, string> {
 
   const spinorHook = degree === 24 || s.sym.join(',').includes('3,4,3') // 24-cell / D4 coin
   // rule, charge conservation under directional streaming
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
   const rnd = (): number => rng.next()
   const charge0: number[][] = Array.from({ length: N }, (_, i) =>
     nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),

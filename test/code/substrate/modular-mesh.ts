@@ -12,7 +12,7 @@ import {
   exactArray,
 } from '@/test/code/harness'
 import { modularMesh } from '@/code/substrate/modular-mesh'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const cfg = {
   numCells: 5,
@@ -27,7 +27,7 @@ suite('substrate/modular-mesh: structure', [
     () => {
       const { g, cellOf } = modularMesh({
         ...cfg,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       equal(g.size, cfg.numCells * cfg.cellSize, 'node count')
@@ -48,7 +48,7 @@ suite('substrate/modular-mesh: structure', [
     () => {
       const { g, fills } = modularMesh({
         ...cfg,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       const sets = g.neighbors.map(row => new Set(row))
@@ -70,8 +70,8 @@ suite('substrate/modular-mesh: structure', [
 
 suite('substrate/modular-mesh: determinism', [
   check('the same seed reproduces the same mesh', () => {
-    const a = modularMesh({ ...cfg, rng: makeRng({ seed: 99 }) })
-    const b = modularMesh({ ...cfg, rng: makeRng({ seed: 99 }) })
+    const a = modularMesh({ ...cfg, rng: makeWeyl({ start: 99 }) })
+    const b = modularMesh({ ...cfg, rng: makeWeyl({ start: 99 }) })
 
     for (let i = 0; i < a.g.size; i++) {
       exactArray(

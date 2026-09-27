@@ -10,7 +10,7 @@
 // Run: npx tsx code/experiment/p108-selves-dynamics.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
@@ -24,7 +24,7 @@ const beat = (
   offsets: Int32Array,
   adj: Int32Array,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrowProb: number,
 ): void =>
   cohesiveEdgeSweep({
@@ -139,7 +139,7 @@ export function selvesDynamics(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const q0 = sumTone(tone)
   const moved = new Uint8Array(N)
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
 
   // warm up to a populated balance, then watch the patches evolve
   for (let b = 0; b < 30; b++) {

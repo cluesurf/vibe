@@ -7,7 +7,7 @@
 // Run: pnpm tsx --max-old-space-size=8192 code/gpu/run-pure-rule.ts
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 
 Object.assign(globalThis, globals)
@@ -160,7 +160,7 @@ async function run(): Promise<void> {
 
   // seed: mostly peace plus a balanced sprinkle of charges (deterministic pseudo-random), net charge fixed
   const seed = new Uint32Array(N)
-  const r = makeRng({ seed: 987654321 })
+  const r = makeWeyl({ start: 987654321 })
   const nextR = (): number => r.next()
 
   for (let i = 0; i < N; i++) {

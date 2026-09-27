@@ -6,7 +6,7 @@
 // `pnpm add webgpu`), then ffmpeg the frames. See note/plan/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { PLEASURE, PAIN } from '@/code/draw/color'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
@@ -153,7 +153,7 @@ async function run(): Promise<void> {
   // GPU bulk pipeline
   const { offsets, adj } = toCsr(g.neighbors)
   const seed = new Uint32Array(n)
-  const rng = makeRng({ seed: 1357924680 })
+  const rng = makeWeyl({ start: 1357924680 })
   const nextR = (): number => rng.next()
 
   for (let i = 0; i < n; i++) {

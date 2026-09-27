@@ -14,7 +14,7 @@
 // is Sorkin's everpresent prediction evaluated at the observed 4-volume, adopted, not independently
 // derived here. Run: npx tsx code/experiment/p46-everpresent-dynamical.ts
 
-import { makeRng, poissonSample } from '@/code/tool/rng'
+import { makeWeyl, poissonSample } from '@/code/tool/weyl'
 import { logLogSlope } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -29,7 +29,7 @@ export function everpresentDynamical(input: {
   rms: number[]
   exponent: number
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const rms = input.volumes.map(v => {
     let sumSq = 0
 

@@ -15,9 +15,9 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 const OUTPUT_PATH =
   '/Users/lancepollard/base/crew/cluesurf/mesh/site/clue.surf/home/public/vibe/maintenance.json'
@@ -27,7 +27,7 @@ function beat(
   tone: Int8Array,
   edges: number[][],
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrow: number,
 ): void {
   moved.fill(0)
@@ -153,7 +153,7 @@ export function exportMaintenance(input?: {
     target[region[k]!] = k % 2 === 0 ? 1 : -1
   }
 
-  const shuffleRng = makeRng({ seed: 4 })
+  const shuffleRng = makeWeyl({ start: 4 })
 
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(shuffleRng.next() * (i + 1))
@@ -291,7 +291,7 @@ export function exportMaintenance(input?: {
   ])
 
   // seed the two copies identically, region = identity, medium = sparse charges
-  const seed = (tone: Int8Array, r: Rng): void => {
+  const seed = (tone: Int8Array, r: Weyl): void => {
     tone.fill(0)
 
     for (const i of region) {
@@ -308,12 +308,12 @@ export function exportMaintenance(input?: {
   const maintained = new Int8Array(N)
   const free = new Int8Array(N)
 
-  seed(maintained, makeRng({ seed: 5 }))
-  seed(free, makeRng({ seed: 5 }))
+  seed(maintained, makeWeyl({ start: 5 }))
+  seed(free, makeWeyl({ start: 5 }))
 
   const moved = new Uint8Array(N)
-  const rngA = makeRng({ seed: 11 })
-  const rngB = makeRng({ seed: 11 })
+  const rngA = makeWeyl({ start: 11 })
+  const rngB = makeWeyl({ start: 11 })
 
   const framesMaintained: number[][] = []
   const framesUnmaintained: number[][] = []

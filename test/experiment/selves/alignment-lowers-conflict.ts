@@ -18,7 +18,7 @@ import {
   meanPairwiseConflict,
   decisiveness,
 } from '@/code/measure/alignment'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -60,7 +60,7 @@ export function alignmentConflict(input: {
     // a dense plus-or-minus-one shared pattern (no rest sites), so agreement and opposition are clean
     const base = ternaryVector(
       input.n,
-      makeRng({ seed: 11000 + k }),
+      makeWeyl({ start: 11000 + k }),
     ).map(v => (v === 0 ? 1 : v))
 
     // aligned: every part is a lightly noisy copy of the one shared pattern

@@ -1,48 +1,18 @@
 // The D4 and F4 root systems, the symmetry algebra of the coin. D4 gives the 24
 // directions of the {3,4,3,4} cell and, with the tone axis adjoined, grows to D5
 // and the SO(10) grand-unified group. F4 is the full symmetry of the 24-cell.
+//
+// This file is the REAL-VALUED face of the root systems: half-integer coordinates as floats, the
+// icosahedron's golden ratio, normalized probe directions, a rounded key. The integer root systems (D_n,
+// A_{n-1}, D4, B4) come from code/algebra/group/integer-roots, which also holds every half-integer system
+// here in doubled integer coordinates with an exact integer reflection. The committed knit imports that
+// file, not this one (E-MTH-0027).
 
-// The general D_n root system: all (+-1, +-1, 0, ..., 0), the 2n(n-1) roots of
-// norm squared 2. rootsD4() is rootsDn(4).
-export function rootsDn(n: number): number[][] {
-  const roots: number[][] = []
+import { rootsAn, rootsB4, rootsD4, rootsDn } from '@/code/algebra/group/integer-roots'
 
-  for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
-      for (const si of [1, -1]) {
-        for (const sj of [1, -1]) {
-          const v = new Array<number>(n).fill(0)
-
-          v[i] = si
-          v[j] = sj
-          roots.push(v)
-        }
-      }
-    }
-  }
-
-  return roots
-}
-
-// The A_{n-1} roots embedded in R^n: all e_i - e_j with i != j, the n(n-1)
-// vectors of su(n).
-export function rootsAn(n: number): number[][] {
-  const roots: number[][] = []
-
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      if (i !== j) {
-        const v = new Array<number>(n).fill(0)
-
-        v[i] = 1
-        v[j] = -1
-        roots.push(v)
-      }
-    }
-  }
-
-  return roots
-}
+// The general D_n root system (+-1, +-1, 0, ..., 0), the A_{n-1} roots e_i - e_j, the 24 D4 roots and the
+// 32 B4 roots, all integer, defined in code/algebra/group/integer-roots.
+export { rootsAn, rootsB4, rootsD4, rootsDn }
 
 // Euclidean dot product of two coordinate vectors.
 export function dotVec(a: number[], b: number[]): number {
@@ -153,48 +123,6 @@ export function halfIntegerWeights(n: number): number[][] {
   build([])
 
   return weights
-}
-
-// D4, the 24 roots, all coordinate permutations of (+-1, +-1, 0, 0). These are
-// the 24 directions of the cell, each of norm squared 2.
-export function rootsD4(): number[][] {
-  const roots: number[][] = []
-
-  for (let first = 0; first < 4; first++) {
-    for (let second = first + 1; second < 4; second++) {
-      for (const signFirst of [1, -1]) {
-        for (const signSecond of [1, -1]) {
-          const root = [0, 0, 0, 0]
-
-          root[first] = signFirst
-          root[second] = signSecond
-          roots.push(root)
-        }
-      }
-    }
-  }
-
-  return roots
-}
-
-// B4, the 32 roots of so(9): the 24 long D4 roots (+-1, +-1, 0, 0), norm squared 2,
-// plus the 8 short axis roots (+-1, 0, 0, 0) and permutations, norm squared 1. This
-// is a TWO-SPEED coin, a long step moves two coordinates per beat, a short step moves
-// one, which is what a moving bound state needs (a slow centre of mass with fast
-// internal parts). All roots are integer, so the lattice mesh stays exact.
-export function rootsB4(): number[][] {
-  const roots: number[][] = rootsD4()
-
-  for (let axis = 0; axis < 4; axis++) {
-    for (const sign of [1, -1]) {
-      const root = [0, 0, 0, 0]
-
-      root[axis] = sign
-      roots.push(root)
-    }
-  }
-
-  return roots
 }
 
 // The hypercubic axis directions in `dimension` dimensions: the 2*dimension unit vectors +-e_i. This is the

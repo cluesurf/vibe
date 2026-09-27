@@ -5,7 +5,7 @@
 // sets each cell to the sign of its local field (the Hebbian recall plus an optional
 // bias), with clamped cells held fixed and ties keeping the current tone.
 
-import { Rng, makeRng } from '@/code/tool/rng'
+import { Weyl, makeWeyl } from '@/code/tool/weyl'
 
 export const sign = (h: number): -1 | 0 | 1 =>
   h > 0 ? 1 : h < 0 ? -1 : 0
@@ -14,7 +14,7 @@ export const sign = (h: number): -1 | 0 | 1 =>
 export function storedPatterns(
   count: number,
   size: number,
-  rng: Rng,
+  rng: Weyl,
 ): Int8Array[] {
   return Array.from({ length: count }, () =>
     Int8Array.from({ length: size }, () => (rng.next() < 0.5 ? -1 : 1)),
@@ -68,7 +68,7 @@ export function toneOverlap(a: Int8Array, b: Int8Array): number {
 export function mutatePattern(input: {
   pattern: Int8Array
   rate: number
-  rng: Rng
+  rng: Weyl
 }): Int8Array {
   const { pattern, rate, rng } = input
   const out = Int8Array.from(pattern)
@@ -164,8 +164,8 @@ export function runHopfieldPair(input: {
   const { size, pA, pB, modeSeq } = input
   const Ja = hebbianFills(pA, size)
   const Jb = hebbianFills(pB, size)
-  const ra = makeRng({ seed: input.seed })
-  const rb = makeRng({ seed: input.seed + 1 })
+  const ra = makeWeyl({ start: input.seed })
+  const rb = makeWeyl({ start: input.seed + 1 })
 
   let a = Int8Array.from(
     { length: size },

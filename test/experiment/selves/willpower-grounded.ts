@@ -22,7 +22,7 @@ import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { pumpedReserveSweep } from '@/code/dynamics/pumped-reserve-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 export function willpowerGrounded(): {
   cells: number
@@ -159,7 +159,7 @@ export function willpowerGrounded(): {
     const t = makeSelf()
     const q0 = sumTone(t)
     const core0 = coreCharge(t)
-    const rng = makeRng({ seed: 3 })
+    const rng = makeWeyl({ start: 3 })
     const maxBeats = 200
 
     let beats = maxBeats

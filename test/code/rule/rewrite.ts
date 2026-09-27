@@ -9,7 +9,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 import { rewriteRule } from '@/code/rule/rewrite'
 import { Substrate } from '@/code/tool/substrate'
 
@@ -54,7 +53,6 @@ suite('rule/rewrite: first-match, single rewrite', [
       substrate: graph,
       configuration: makeConfig(),
       beat: 0,
-      rng: makeRng({ seed: 1 }),
     })
 
     equal(applied.length, 1, 'exactly one rewrite per step')
@@ -71,7 +69,6 @@ suite('rule/rewrite: first-match, single rewrite', [
       substrate: graph,
       configuration: config,
       beat: 0,
-      rng: makeRng({ seed: 1 }),
     })
 
     ok(

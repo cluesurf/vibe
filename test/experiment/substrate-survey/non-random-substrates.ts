@@ -8,7 +8,7 @@
 // hyperbolic curvature scrambles the global directions a flat lattice would line up.
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p40-non-random-substrates.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   hyperbolicGraph,
   hyperbolicSunflower,
@@ -37,7 +37,7 @@ function evaluate(
   const aniso = lorentzIsotropy({
     substrate: s,
     samples: 3000,
-    rng: makeRng({ seed }),
+    rng: makeWeyl({ start: seed }),
   })
 
   return {
@@ -61,7 +61,7 @@ export function nonRandomSubstrates(input: { seed: number; scale?: number }): Re
       count: 1500,
       radius: 7,
       connectThreshold: 3.0,
-      rng: makeRng({ seed: input.seed }),
+      rng: makeWeyl({ start: input.seed }),
     }),
     'sunflower (golden angle)': hyperbolicSunflower({
       count: 1500,
@@ -146,7 +146,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'random, sunflower, halton, and the regular hyperbolic tilings are all Lorentz-safe while the flat lattice is not, so regularity does not break Lorentz invariance once the space is curved',
       metrics: {

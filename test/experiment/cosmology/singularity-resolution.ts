@@ -10,7 +10,7 @@
 // discreteness. See note/questions/frontiers.md. Run:
 // npx tsx code/experiment/p28-singularity-resolution.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -23,7 +23,7 @@ function sprinkle(input: {
   density: number
   tMax: number
   xMax: number
-  rng: Rng
+  rng: Weyl
 }): Point[] {
   const n = Math.round(input.density * input.tMax * 2 * input.xMax)
 
@@ -48,7 +48,7 @@ export function minimumInterval(input: {
     density: input.density,
     tMax: 8,
     xMax: 8,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const lengths: number[] = []

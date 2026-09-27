@@ -17,7 +17,7 @@
 //
 // so the momentum equation gains dP / dt = -(i s / 4) (W - (Tr W / N) 1), W = Z - Z^dag.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { GaugeLattice, linkSlot } from '@/code/dynamics/gauge-lattice'
 import {
   StaggeredOperator,
@@ -92,7 +92,7 @@ export function fermionAction(input: {
 export function refreshPseudofermion(input: {
   operator: StaggeredOperator
   mass: number
-  rng: Rng
+  rng: Weyl
 }): Float64Array {
   const { operator, mass, rng } = input
   const n = operator.lattice.n
@@ -340,7 +340,7 @@ export function hmcTrajectory(input: {
   step: number
   steps: number
   tolerance: number
-  rng: Rng
+  rng: Weyl
 }): HmcResult {
   const { lattice, beta, mass, rng } = input
   const generators = suGenerators({ n: lattice.n })

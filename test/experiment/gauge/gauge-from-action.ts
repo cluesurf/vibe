@@ -8,7 +8,7 @@
 // shrinking the field and showing the Wilson action converges to the Maxwell form.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p23-gauge-from-action.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   gridPlaquettes,
   gridWilsonAction as wilsonAction,
@@ -24,7 +24,7 @@ export function gaugeFromAction(input: { side: number }): {
   const L = input.side
   const plaqs = gridPlaquettes(L)
   const dof = 3 * L * L * L
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const base = new Float64Array(dof)
 
   for (let i = 0; i < dof; i++) {

@@ -13,4 +13,51 @@ import LINT from '@cluesurf/wash/lint'
 // Spread rather than `LINT.push(...)`: ESLint loads this config through jiti,
 // whose ESM interop can hand `LINT` back wrapped, so mutating it in place is
 // unreliable. Building a fresh array from the spread is stable.
-export default [...LINT, { ignores: ['test/site/**', '**/*.tsx'] }]
+//
+// The determinism rule (2026-09-25): nothing in code/, test/ or research/ may
+// call Math.random or import the retired seeded generator code/tool/rng, or the
+// retired hash generator hashRand. Every spread-out value comes from
+// code/tool/weyl. E-MTH-0015 holds the same rule as an experiment, so it is
+// enforced whether or not the lint runs. The retired generator's own old
+// conformance file is exempt until it is deleted.
+const DETERMINISM = {
+  files: ['code/**/*.ts', 'test/**/*.ts', 'research/**/*.ts'],
+  ignores: ['code/tool/rng.ts', 'test/code/tool/rng.ts'],
+  rules: {
+    'no-restricted-properties': [
+      'error',
+      {
+        object: 'Math',
+        property: 'random',
+        message:
+          'no random numbers: read a Weyl sequence from @/code/tool/weyl',
+      },
+    ],
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['@/code/tool/rng', '**/tool/rng'],
+            message:
+              'code/tool/rng is retired: use makeWeyl from @/code/tool/weyl',
+          },
+        ],
+        paths: [
+          {
+            name: '@/code/dynamics/conserving-sweep',
+            importNames: ['hashRand'],
+            message:
+              'hashRand is retired: use weylCell from @/code/tool/weyl',
+          },
+        ],
+      },
+    ],
+  },
+}
+
+export default [
+  ...LINT,
+  { ignores: ['test/site/**', '**/*.tsx'] },
+  DETERMINISM,
+]

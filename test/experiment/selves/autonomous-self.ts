@@ -22,7 +22,7 @@ import {
   sameSignNeighbors,
   type Graph,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -92,7 +92,7 @@ export function autonomousSelf(input?: {
   const threshold = input?.threshold ?? 4
   const g = bulkGraph(n)
   const moved = new Uint8Array(g.cellCount)
-  const rng = makeRng({ seed: emergeSeed })
+  const rng = makeWeyl({ start: emergeSeed })
   const { tone, cluster } = emergeSelf(g, rng, moved)
   const emergent = cluster.length
 
@@ -102,7 +102,7 @@ export function autonomousSelf(input?: {
   ): { fidelity: number; work: number; q: number } => {
     const t2 = tone.slice()
     const q0 = totalCharge(t2)
-    const rng2 = makeRng({ seed: decaySeed })
+    const rng2 = makeWeyl({ start: decaySeed })
 
     let work = 0
 

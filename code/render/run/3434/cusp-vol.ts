@@ -6,7 +6,7 @@
 // legible. Run: pnpm tsx code/gpu/render-cusp-3434-vol.ts   then task/render-video.sh
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { PLEASURE, PAIN } from '@/code/draw/color'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { writeFrame } from '@/code/draw/animation'
@@ -107,7 +107,7 @@ async function run(): Promise<void> {
   // a central blob of random tones, the wave expands from it as rich 3D shells
   const seed = new Uint32Array(N)
   const c = L >> 1
-  const rr = makeRng({ seed: 12345 })
+  const rr = makeWeyl({ start: 12345 })
   const rnd = (): number => rr.next()
   const B = 6
 

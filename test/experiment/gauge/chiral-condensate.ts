@@ -21,7 +21,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   gaugeUpdate,
   makeGaugeLattice,
@@ -53,7 +53,7 @@ function condensateRun(input: {
   configurations: number
   seed: number
 }): Condensate {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeGaugeLattice({
     group: 'su3',
     lengths: input.lengths,
@@ -152,7 +152,7 @@ export default experiment({
           group: 'su3',
           lengths: freeLengths,
           start: 'cold',
-          rng: makeRng({ seed: 1 }),
+          rng: makeWeyl({ start: 1 }),
         }),
       }),
       masses: MASSES,

@@ -6,7 +6,7 @@
 // faithfully as a causal order. This reweights by the de Sitter proper volume (unlike the conformal-box
 // sprinkleCurved), so it is the proper-volume de Sitter sprinkling.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
 import { makePosetFromFuture, Poset } from '@/code/tool/poset'
 
@@ -15,7 +15,7 @@ export function sprinkleDeSitter(input: {
   hubble: number
   properTime: number
   comovingWidth: number
-  rng: Rng
+  rng: Weyl
 }): { poset: Poset; tau: number[] } {
   const n = input.count
   const H = input.hubble

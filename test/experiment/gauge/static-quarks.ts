@@ -36,7 +36,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GaugeGroup,
   makeGaugeLattice,
@@ -109,7 +109,7 @@ function ensemble(input: {
     return cached
   }
 
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeGaugeLattice({
     group: input.group,
     lengths: [10, 10, 10, 10],
@@ -270,7 +270,7 @@ let glueSamples: number[][][] | undefined
 
 function glueballEnsemble(): number[][][] {
   if (glueSamples === undefined) {
-    const rng = makeRng({ seed: 873 })
+    const rng = makeWeyl({ start: 873 })
     const lattice = makeGaugeLattice({
       group: 'su3',
       lengths: [10, 10, 10, 10],

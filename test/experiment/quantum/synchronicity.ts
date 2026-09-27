@@ -15,7 +15,7 @@
 // overlap at every point. So the correlation is inherited, not transmitted.
 // Run: npx tsx code/experiment/p67-synchronicity.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   storedPatterns,
   mutatePattern,
@@ -44,9 +44,9 @@ export function synchronicity(input: { seed: number }): {
   const size = 120
   const K = 4
   const windows = 16
-  const root = storedPatterns(K, size, makeRng({ seed: input.seed }))
+  const root = storedPatterns(K, size, makeWeyl({ start: input.seed }))
   const modeSeq = Array.from({ length: windows }, (_, i) =>
-    makeRng({ seed: input.seed + 7 + i }).nextInt({ max: K }),
+    makeWeyl({ start: input.seed + 7 + i }).nextInt({ max: K }),
   )
 
   const sweep = [0, 0.15, 0.3, 0.5, 0.75].map(d => {
@@ -54,7 +54,7 @@ export function synchronicity(input: { seed: number }): {
       mutatePattern({
         pattern: p,
         rate: d,
-        rng: makeRng({ seed: input.seed + 100 + i }),
+        rng: makeWeyl({ start: input.seed + 100 + i }),
       }),
     )
 
@@ -62,7 +62,7 @@ export function synchronicity(input: { seed: number }): {
       mutatePattern({
         pattern: p,
         rate: d,
-        rng: makeRng({ seed: input.seed + 200 + i }),
+        rng: makeWeyl({ start: input.seed + 200 + i }),
       }),
     )
 
@@ -85,13 +85,13 @@ export function synchronicity(input: { seed: number }): {
   const uA = storedPatterns(
     K,
     size,
-    makeRng({ seed: input.seed + 300 }),
+    makeWeyl({ start: input.seed + 300 }),
   )
 
   const uB = storedPatterns(
     K,
     size,
-    makeRng({ seed: input.seed + 400 }),
+    makeWeyl({ start: input.seed + 400 }),
   )
 
   const unrelatedCorrelation = runPair({

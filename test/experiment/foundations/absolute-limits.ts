@@ -11,7 +11,7 @@
 // Run: npx tsx code/experiment/p162-absolute-limits.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { totalCharge as totalQ } from '@/code/measure/tone-census'
@@ -35,7 +35,7 @@ export function absoluteLimits(input?: { n?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   const arrow = 0.1
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
 
   // blocks for coarse-graining, each cell's block = itself rounded into a ball of radius 1 around seeds
   const block = new Int32Array(N).fill(-1)
@@ -135,8 +135,8 @@ export function absoluteLimits(input?: { n?: number }): {
 
   s2[center] = s2[center] === 0 ? 1 : 0
 
-  const ra = makeRng({ seed: 31 })
-  const rb = makeRng({ seed: 31 })
+  const ra = makeWeyl({ start: 31 })
+  const rb = makeWeyl({ start: 31 })
   const T = 5
 
   for (let t = 0; t < T; t++) {

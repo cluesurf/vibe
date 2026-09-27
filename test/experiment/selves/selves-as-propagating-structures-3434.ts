@@ -18,7 +18,7 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import {
@@ -183,7 +183,7 @@ function vibeChurn(): {
     return s
   }
 
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
   const frame0 = occupied()
   const rg0 = radiusOfGyrationOfCellSet(frame0)
 

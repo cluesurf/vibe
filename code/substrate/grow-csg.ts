@@ -4,7 +4,7 @@
 // covariance (the label order is unphysical). This is a transitive-percolation
 // variant of the CSG model.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import {
   BitMatrix,
   makeBitMatrix,
@@ -16,7 +16,7 @@ import { Poset, makePosetFromFuture } from '@/code/tool/poset'
 export function growCsg(input: {
   size: number
   couplings: Float64Array
-  rng: Rng
+  rng: Weyl
 }): Poset {
   const n = input.size
 

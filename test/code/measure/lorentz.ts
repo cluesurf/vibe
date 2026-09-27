@@ -12,7 +12,7 @@ import {
 } from '@/code/measure/lorentz'
 import { makeGraph, Graph } from '@/code/tool/graph'
 import { Embedding } from '@/code/tool/embedding'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A square lattice L x L (node = y*L + x), 4-connected, carrying a Riemannian
 // embedding with the integer grid coordinates (x, y).
@@ -66,7 +66,7 @@ suite('measure/lorentz: lorentzIsotropy', [
       const out = lorentzIsotropy({
         substrate: squareLattice(12),
         samples: 144,
-        rng: makeRng({ seed: 3 }),
+        rng: makeWeyl({ start: 3 }),
       })
 
       // Every nearest link is axis-aligned (theta a multiple of pi/2), so the m=4
@@ -90,7 +90,7 @@ suite('measure/lorentz: lorentzIsotropy', [
       const out = lorentzIsotropy({
         substrate: g,
         samples: 4,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       equal(out.preferredFrame, false)
@@ -116,7 +116,7 @@ suite('measure/lorentz: lorentzIsotropy', [
     const out = lorentzIsotropy({
       substrate: g,
       samples: 4,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     equal(out.preferredFrame, false)

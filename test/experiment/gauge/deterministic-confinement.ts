@@ -31,7 +31,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   finitePlaquette,
   finiteWilsonLoops,
@@ -148,7 +148,7 @@ function summarize(samples: Sample[]): Summary {
 }
 
 function automaton(group: FiniteGroup, levels: Int32Array, capacity: number, fill: number): Summary & { beta: number; drift: number } {
-  const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'cold', rng: makeRng({ seed: 1 }) })
+  const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'cold', rng: makeWeyl({ start: 1 }) })
   const demons = new Int32Array(lattice.links.length)
 
   for (let i = 0; i < demons.length; i++) {
@@ -183,7 +183,7 @@ function automaton(group: FiniteGroup, levels: Int32Array, capacity: number, fil
 }
 
 function heatbath(group: FiniteGroup, levels: Int32Array, beta: number, seed: number): Summary {
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'hot', rng })
   const samples: Sample[] = []
 

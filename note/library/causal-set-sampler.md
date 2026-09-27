@@ -48,7 +48,7 @@ counts are the raw material of the action.
 | file                              | role                                                                                                 |
 |:--- |:--- |
 | `tool/poset.ts`                   | the causal-set type, `makePosetFromRelation`, `relationCount`, `intervalSize`, `pastMatrix`          |
-| `substrate/sprinkle-minkowski.ts` | `sprinkleMinkowski`, the seeded Poisson sprinkling of a causal diamond                               |
+| `substrate/sprinkle-minkowski.ts` | `sprinkleMinkowski`, the sprinkling of a causal diamond, its points read from a Weyl stream           |
 | `dynamics/action.ts`              | `benincasaDowkerAction`, `smearedBenincasaDowker`, the smeared kernels, the dimension-target control |
 | `dynamics/uniform-sampler.ts`     | `sampleUniform`, the correct uniform-measure MCMC over 2-orders (the flagship)                       |
 | `dynamics/mcmc.ts`                | `sampleCausalSets`, the closure-repair Metropolis chain (modest N, any action)                       |
@@ -65,15 +65,16 @@ correct measure.
 ### Sprinkle, then sample, then read the dimension
 
 ```ts
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { dimensionFromOrderingFraction } from '@/code/measure/dimension'
 
-const rng = makeRng({ seed: 7 })
+// the Kronecker stream (code/tool/weyl): deterministic, no seed, the start picks the sequence
+const rng = makeWeyl({ start: 7 })
 
-// 1. Seed a 2D causal diamond. The poset's future relation warm-starts the chain.
-const seed = sprinkleMinkowski({ dimension: 2, count: 64, rng })
+// 1. Sprinkle a 2D causal diamond. The poset's future relation warm-starts the chain.
+const sprinkled = sprinkleMinkowski({ dimension: 2, count: 64, rng })
 
 // 2. Walk the uniform measure, weighted by e^{-beta S} with the smeared 2D action.
 const r = sampleUniform({
@@ -82,7 +83,7 @@ const r = sampleUniform({
   epsilon: 0.5,
   steps: 200000,
   rng,
-  startFuture: seed.future,
+  startFuture: sprinkled.future,
 })
 
 // r.manifoldFraction      -> fraction of samples in the manifold phase (height ratio > 1)
@@ -193,9 +194,12 @@ What it handles,
 
 The caveats,
 
-- **It relies on a random sprinkling.** The seed comes from a Poisson
-  process. Every claim here is a STATISTICAL claim about an ensemble of
-  orders, not a property of the deterministic base rule. The vibe
+- **It relies on a sprinkling.** The start is a sprinkling of the diamond
+  whose coordinates are read from the Kronecker stream (`makeWeyl`), a
+  quasi-random point set, not a draw, and the chain runs on a Weyl schedule, so it is a deterministic
+  dynamics rather than a Markov chain. Every claim here is still a claim
+  about an ensemble of orders, not a property of the deterministic base
+  rule. The vibe
   substrate is deterministic. This sampler is a separate, comparative
   testbed.
 - **The naive sampler is biased.** `sampleCausalSets` (the

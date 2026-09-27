@@ -19,7 +19,7 @@ import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { conservingEdgeListSweepPumped } from '@/code/dynamics/conserving-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -86,7 +86,7 @@ export function perceptionDynamics(): {
   // ARROW CREATES LIFE: from all-peace, the arrow makes charge appear and settle to a balance
   const life = new Int8Array(n) // all 0
   const qLife = sumTone(life)
-  const rngL = makeRng({ seed: 9 })
+  const rngL = makeWeyl({ start: 9 })
   const lifeStart = nonzero(life)
 
   let balanceMid = 0
@@ -112,7 +112,7 @@ export function perceptionDynamics(): {
 
   // NO ARROW RELAXES TO PEACE: a balanced charged start, no creation, relaxes toward peace
   const death = new Int8Array(n)
-  const rngD0 = makeRng({ seed: 14 })
+  const rngD0 = makeWeyl({ start: 14 })
 
   for (let i = 0; i < n; i++) {
     const r = rngD0.next()
@@ -135,7 +135,7 @@ export function perceptionDynamics(): {
 
   const qDeath = sumTone(death)
   const deathStart = nonzero(death)
-  const rngD = makeRng({ seed: 14 })
+  const rngD = makeWeyl({ start: 14 })
 
   for (let b = 0; b < 300; b++) {
     conservingEdgeListSweepPumped({
@@ -200,7 +200,7 @@ export function perceptionDynamics(): {
   const diff = makePocket()
   const qDiff = sumTone(diff)
   const absChargeStart = absInR0(diff)
-  const rngDi = makeRng({ seed: 5 })
+  const rngDi = makeWeyl({ start: 5 })
 
   for (let b = 0; b < 80; b++) {
     conservingEdgeListSweepPumped({
@@ -219,7 +219,7 @@ export function perceptionDynamics(): {
 
   const pump = makePocket()
   const qPump = sumTone(pump)
-  const rngPu = makeRng({ seed: 5 })
+  const rngPu = makeWeyl({ start: 5 })
 
   for (let b = 0; b < 80; b++) {
     conservingEdgeListSweepPumped({

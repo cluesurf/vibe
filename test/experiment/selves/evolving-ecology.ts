@@ -8,11 +8,11 @@
 // a HARDER task (wider barriers) evolves a LARGER horizon than an EASY one. Intelligence that evolves and
 // adapts, from the base. Run: npx tsx code/experiment/p165-evolving-ecology.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 // a task = a SEQUENCE of barriers with INCREASING span requirements (later barriers need more foresight).
 // This is the P140/P143 mechanism, an agent crosses a barrier iff its lookahead horizon spans it. Increasing
@@ -50,7 +50,7 @@ function agentReach(reqs: number[], horizon: number): number {
 function evolvePopulation(
   reqs: number[],
   cost: number,
-  rng: Rng,
+  rng: Weyl,
 ): {
   meanFitnessByGen: number[]
   finalMeanHorizon: number
@@ -115,8 +115,8 @@ export function evolvingEcology(): {
   const cost = 0.003
   const easyReqs = makeBarriers(3, 2, 2) // easy, 3 barriers needing horizon 2, 4, 6
   const hardReqs = makeBarriers(6, 3, 3) // hard, 6 barriers needing horizon 3, 6, 9, 12, 15, 18
-  const easy = evolvePopulation(easyReqs, cost, makeRng({ seed: 12 }))
-  const hard = evolvePopulation(hardReqs, cost, makeRng({ seed: 21 }))
+  const easy = evolvePopulation(easyReqs, cost, makeWeyl({ start: 12 }))
+  const hard = evolvePopulation(hardReqs, cost, makeWeyl({ start: 21 }))
 
   const startFitness = hard.meanFitnessByGen[0]!
   const endFitness =

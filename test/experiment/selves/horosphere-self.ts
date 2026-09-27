@@ -31,10 +31,10 @@ import {
   ball,
   type Graph,
 } from '@/code/model/self-kit'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { scaled } from '@/test/scaffold/scale'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { weylCell } from '@/code/tool/weyl'
 
 // boundary-to-volume of balls of growing radius around a central cell
 function ballScaling(
@@ -131,7 +131,7 @@ export function horosphereSelf(input?: {
   const toneB = new Int8Array(bigCells)
 
   for (let i = 0; i < bigCells; i++) {
-    const r = hashRand(i, 0, 7)
+    const r = weylCell(i, 0, 7)
 
     toneB[i] = r < 0.1 ? 1 : r < 0.13 ? -1 : 0
   }
@@ -197,7 +197,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       notes:
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013.',
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013.',
       claim:
         'the boundary-to-volume ratio falls on the flat horosphere so selves can be compact, the same self leaks less and persists far better there than in the bulk, and the flat surface is built directly about a thousand times larger',
       metrics: {

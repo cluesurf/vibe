@@ -6,7 +6,7 @@
 // {3,4,3,4} directional rule with collisions. Run: pnpm tsx code/gpu/run-gas-24dir.ts
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 Object.assign(globalThis, globals)
 
@@ -126,7 +126,7 @@ async function run(): Promise<void> {
 
   // random ternary initial populations
   const init = new Int32Array(SZ)
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
 
   for (let i = 0; i < SZ; i++) {
     init[i] = rng.nextInt({ max: 3 }) - 1

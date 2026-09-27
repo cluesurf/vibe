@@ -19,7 +19,7 @@ The point: one place where the real numbers live, so any experiment claim ("we p
 | [particles.csv](particles.csv) | every Standard Model particle: mass, electric charge, spin, color, weak isospin. |
 | [sm-parameters.csv](sm-parameters.csv) | the roughly 26 free parameters of the Standard Model, each tagged with its vibe origin status. |
 | [mixing.csv](mixing.csv) | the CKM (quark) and PMNS (neutrino) mixing angles, phases, and the neutrino mass-squared splittings. |
-| [theory-targets.csv](theory-targets.csv) | the geometric and group-theory numbers the model derives (ternary 3, the 24 of the cell, octonion 8, F4 order 1152, sin^2 theta_W = 3/8, Tsirelson, Born exponent), with whether the model matches. |
+| [theory-targets.csv](theory-targets.csv) | the geometric and group-theory numbers the model derives (ternary 3, the 24 of the 24-cell, octonion 8, F4 order 1152, sin^2 theta_W = 3/8, Tsirelson, Born exponent), with whether the model matches. |
 | [experiment-metrics.csv](experiment-metrics.csv) | the curated map of which experiment compares to which reference value, with target, tolerance, and intended status. |
 | [reference.json](reference.json) | the same data as one machine-readable object, with the citation map embedded. |
 | [sources.md](sources.md) | the bibliography: every `source` tag expanded to a full citation with a link, plus the verification change-log. |

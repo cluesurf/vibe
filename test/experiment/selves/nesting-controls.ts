@@ -4,7 +4,7 @@
 // MULTI-SCALE, do several scales carry coherence at once. Run: npx tsx code/experiment/p208-nesting-controls.ts
 
 import { pearson } from '@/code/measure/statistics'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -24,7 +24,7 @@ const DIRS = [
   [0, 0, -1],
 ]
 
-const rng = makeRng({ seed: 7 })
+const rng = makeWeyl({ start: 7 })
 const rnd = (): number => rng.next()
 
 const shuf = <T>(a: T[]): T[] => {
