@@ -69,6 +69,16 @@
 // beats) and the three vacuum paths (side 8, 96 beats) had 0 mixes; the box 12 one-line basis has 576 configurations.
 // No probe read a gate, the cluster's survival or a compressed level.
 //
+// FIRST RUN (tmp/spn95-exp2.log, 1645 s, the record; an earlier run, tmp/spn95-exp1.log, was stopped part way with
+// no verdict): fail on M1 and M3, no gate moved. M1 fails on G6 alone, on the Born and exchange paths: the lone wake
+// reaches 39,720 trits a period against the bound of 32. That bound was E-RLT-0105's, measured while every lone vibe
+// stayed on its line, and a wake that leaves the line is what G is for, so G6 as written could not hold with G on;
+// the prediction above missed this. G1 to G5, Q2 and Q3 hold on 17 of 17 on every path, and G moves 0 on the vacuum
+// paths, as predicted. The wake also leaves the lone vibe's frame (27 million off-frame trits on Born), so over 96
+// beats the vacuum's vibes carry a disturbance between frames: frame locality holds for a lone vibe on the empty mesh
+// and in the first 6 beats, not for its wake. M3 fails as predicted (return 0.454, longest-lived level 0.558, share
+// 0.438). M2 and M5 hold. M4 fails on M4b as predicted. Title written after the run.
+//
 // DETERMINISM: no random numbers; starts are E-MTH-0028's family; the path choices are integer Weyl numbers of the key.
 // The rule is exact in Z[w][1/2]; the weights, Schmidt weights, CHSH and the compressed spectrum are floats
 // (measurement). Depth L2. HUSK FIRST: G4 and M4a are read on husk columns; the rest are bulk identities or counts that
@@ -288,7 +298,7 @@ export default experiment({
   id: 'spin/frame-mixed-vacuum',
   code: 'E-SPN-0095',
   title:
-    "the frame mixer G of E-SPN-0094 added to the working vacuum with no other change: whether the vacuum still holds, whether a lone vibe now leaves its line (and how far), whether E-SPN-0093's one-line electron still binds, whether g becomes readable, and whether the rule stays exact and reversible",
+    "the frame mixer G in the working vacuum: a lone vibe leaves its line and the vacuum's laws hold, but the one-line electron no longer binds and a lone vibe's wake no longer stays small, fail on M1 (G6 alone) and M3, as predicted for M3: with G added and nothing else changed, G never acts on the vacuum's own history (0 moves on the keep, Born and exchange paths and on the like pair), so the laws, reversal, C, one causal component and made = unmade hold on 17 of 17 starts on every path and the knot reads 3/4, 1/4, CHSH sqrt 7 on 17 of 17; a lone love leaves its line (0.373 off it by beat 4 on the empty mesh, on exactly the 4 lines of its frame and 0 off the frame; 0.563 to 0.564 in the vacuum by beat 6 on 17 of 17; the coin alone keeps 0), and its husk shadow leaves its husk line (0.331, rank 3); but on the Born and exchange paths its wake over 96 beats reaches 39,720 trits a period (the gate, E-RLT-0105's line-bound calibration, was 32; the keep path, where G never fires, reads 15) and leaves its frame, so vibes carry it between frames through the vacuum; E-SPN-0093's electron (E 0.33002, share 0.98236) returns with probability 0.454 after one exact beat with G, and the longest-lived one-line level keeps 0.558 a beat with no overlap with it: it is not a stationary one-line state, and a bound state over the whole frame is not computed here; g is not read; exact and reversible on 20 of 20 lone runs",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
