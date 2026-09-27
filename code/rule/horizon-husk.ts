@@ -196,7 +196,11 @@ export type HorizonDepth = {
   checked: number
 }
 
-export function horizonDepth(mesh: OpenMesh, step: ArrayLike<number>, horizon: Uint8Array): HorizonDepth {
+// which links are torn for a horizon (the torn husk's by default: a husk lateral link with EITHER end on it; the
+// continuous horizon of code/rule/wave-horizon tears only a link with BOTH ends on it)
+export type TornTest = (mesh: OpenMesh, horizon: Uint8Array, m: number) => boolean
+
+export function horizonDepth(mesh: OpenMesh, step: ArrayLike<number>, horizon: Uint8Array, torn: TornTest = tornLink): HorizonDepth {
   const twice = new Float64Array(mesh.docks)
   const seen = new Uint8Array(mesh.docks)
   const queue = new Int32Array(mesh.docks)
@@ -210,7 +214,7 @@ export function horizonDepth(mesh: OpenMesh, step: ArrayLike<number>, horizon: U
     for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
       const m = mesh.incLink[j]!
 
-      if (tornLink(mesh, horizon, m)) continue
+      if (torn(mesh, horizon, m)) continue
 
       const out = mesh.incSign[j]! > 0
       const z = out ? mesh.head[m]! : mesh.tail[m]!
@@ -229,7 +233,7 @@ export function horizonDepth(mesh: OpenMesh, step: ArrayLike<number>, horizon: U
   let checked = 0
 
   for (let m = 0; m < mesh.links; m++) {
-    if (tornLink(mesh, horizon, m) || mesh.head[m]! < 0) continue
+    if (torn(mesh, horizon, m) || mesh.head[m]! < 0) continue
     checked++
     if (twice[mesh.tail[m]!]! - twice[mesh.head[m]!]! !== (2 / mesh.weight[m]!) * step[m]!) curl++
   }

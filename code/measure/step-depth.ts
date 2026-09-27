@@ -271,7 +271,7 @@ export type Compressed = { content: Int32Array; line: Int8Array; seconds: number
 // M units placed one at a time, each at the dock nearest the center (ties by dock index) from which a unit line can still
 // reach a sink with room (breadth first backward over the links with room), and routed there: the densest lump the lines'
 // capacity allows. The sinks: the M docks farthest from the center, one unit each (tmp/step-field-probe), or the M docks
-// given (one unit each: E-GRV-0110's sinks spread over the far husk, spreadSinks)
+// given (one unit each: E-GRV-0111's sinks spread over the far husk, spreadSinks)
 export function compressLump(mesh: RadionMesh, center: readonly number[], m: number, capacity: number, sinks?: readonly number[]): Compressed {
   const t0 = Date.now()
   const inc = incidence(mesh)

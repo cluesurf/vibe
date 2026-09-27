@@ -64,6 +64,9 @@ export type SpanMedium = Medium & {
   // per triangle: q_P and M_P = q_P^2
   readonly count: Int32Array
   readonly square: Int32Array
+  // the HEADROOM rates (makeHeadroomSpanMedium): per link and per triangle, the metric register's remaining room in
+  // counts of `base`. Absent on every other medium, where the beat is unchanged bit for bit
+  readonly rate?: { readonly link: Int32Array; readonly tri: Int32Array; readonly base: number }
 }
 
 export function makeSpanMedium(sides: readonly [number, number, number], depthAt: (x: number, y: number, z: number) => number, p = 1): SpanMedium {
@@ -119,6 +122,72 @@ export function makeMetricSpanMedium(sides: readonly [number, number, number], r
   return { ...base, span, count, square, resolution, metricDepth: metric.dockDepth }
 }
 
+// THE HEADROOM LIGHT (test/experiment/gravity/headroom-horizon-temperature). The metric register holds the found
+// excess e below a cap; its REMAINING ROOM k = C - e_count, in counts of C per cap, is the rate at which the light's
+// two metric parts run: h = k / C, 0 exactly where the register is full. The resolution is fixed at D0 everywhere
+// (E-FRC-0257), and so is every divisor: the drift radix R = q0 C and the kick's M = q0^2 C^2, q0 = 2 D0 + 1. Only
+// the rates read gravity:
+//   the link step     A2 = R A + r takes k_l times the flux each beat (y = r + k_l e): the remainder is an
+//                     accumulator over the headroom whose overflow is the angle's carry, so the drift runs at k_l / C
+//                     of the flat light's, carried and never rounded
+//   the kick          N_P = n_P p k_P (R B_P + (C W r)_P) over M, and every shaped level's spatial term
+//                     s_i = n_P p k_P (C W diag(k_l) C^T C_i)_P over M
+// With the shadow A2~ = A2 + diag(k_l) C^T f_t and U~ = U - (f_t - f_(t-1)) (f the carried fraction, as in
+// E-FRC-0214) the rule runs the linear leapfrog A2~_(t+1) = A2~_t + diag(k_l) (S - C^T U~_t),
+// U~_(t+1) = U~_t + (n p k_P / M) (C W A2~_(t+1)) exactly, up to the last level's residual: a medium of permittivity
+// C / k_l and permeability C / k_P (self-adjoint in the weight W diag(1 / k_l)), impedance matched where k_l = k_P, of
+// index C / k and speed c0 k / C. Every divisor is one number, so a boundary between two headrooms needs no radix
+// choice (the 3.8 percent drift of makeSpanMedium's slab has no counterpart here).
+// WHICH ROOM A LINK OR TRIANGLE READS: the smallest among its docks. A link or triangle touching a full register stops,
+// so a dock whose register is full passes nothing; the half-dock bias this puts on the staircase is disclosed by the
+// callers.
+// A rate of 0 stops the part: the link step takes y = r (c = 0), the kick's numerator and spatial terms are 0; both
+// still invert. Reversal, Gauss and gauge covariance hold as for makeMetricSpanMedium (the flux is untouched, every
+// window is the fixed resolution's, each step inverts given its divisor alone).
+// Magnitudes: M = (q0 C)^2 must stay under 2^31 / 4 for the potential's window, and the spatial terms reach
+// |C_i| k_l k_P times a few, held exactly in doubles while M C^2 stays far under 2^53 (checked at construction).
+export function makeHeadroomSpanMedium(sides: readonly [number, number, number], resolution: number, base: number, roomAt: (x: number, y: number, z: number) => number, p = 1): SpanMedium {
+  const m = makeMedium(sides, () => resolution, p)
+  const g = m.geometry
+  const [sx, sy] = sides
+  const q0 = 2 * resolution + 1
+  const radix = q0 * base
+  const big = radix * radix
+
+  if (!Number.isInteger(base) || base < 1 || base % 2 === 0) throw new Error('makeHeadroomSpanMedium: the base is an odd whole count')
+  if (big * 4 >= 2 ** 31 || big * base * base * 64 >= 2 ** 53) throw new Error('makeHeadroomSpanMedium: the base is too large for exact integers')
+
+  const dock = new Int32Array(g.huskDocks)
+
+  for (let y = 0; y < g.huskDocks; y++) {
+    const k = roomAt(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
+
+    if (!Number.isInteger(k) || k < 0 || k > base) throw new Error(`makeHeadroomSpanMedium: room ${k} outside 0 .. ${base}`)
+    dock[y] = k
+  }
+
+  const link = Int32Array.from({ length: g.huskLinks }, (_, l) => Math.min(dock[Math.floor(l / 9)]!, dock[g.huskNeighbour[l]!]!))
+  const tri = Int32Array.from({ length: g.triangles }, (_, t) => {
+    let k = base
+
+    for (let j = t * 3; j < t * 3 + 3; j++) {
+      const l = g.triLinks[j]!
+
+      k = Math.min(k, dock[Math.floor(l / 9)]!, dock[g.huskNeighbour[l]!]!)
+    }
+
+    return k
+  })
+
+  return {
+    ...m,
+    span: new Int32Array(g.huskLinks).fill(radix),
+    count: new Int32Array(g.triangles).fill(radix),
+    square: new Int32Array(g.triangles).fill(big),
+    rate: { link, tri, base },
+  }
+}
+
 // the light's state with the shaped levels and the per-link remainder
 export type SpanState = HuskLightState & {
   readonly upper: Int32Array[]
@@ -162,16 +231,18 @@ export const spanRest = (s: SpanState): Int32Array[] => [s.potential, s.counter,
 
 export const sameSpan = (a: SpanState, b: SpanState): boolean => a.angle.every((v, i) => v === b.angle[i]) && spanRest(a).every((x, j) => x.every((v, i) => v === spanRest(b)[j]![i]))
 
-export type SpanScratch = { flux: Int32Array; numerator: Int32Array; curl: Int32Array[]; spatial: Int32Array[] }
+// the numerators, curls and spatial terms are held in doubles: whole numbers, exact under 2^53 (the headroom medium's
+// spatial terms pass 2^31)
+export type SpanScratch = { flux: Int32Array; numerator: Float64Array; curl: Float64Array[]; spatial: Float64Array[] }
 
 export function makeSpanScratch(m: SpanMedium, levels: number): SpanScratch {
   const g = m.geometry
 
   return {
     flux: new Int32Array(g.huskLinks),
-    numerator: new Int32Array(g.triangles),
-    curl: Array.from({ length: levels }, () => new Int32Array(g.huskLinks)),
-    spatial: Array.from({ length: levels }, () => new Int32Array(g.triangles)),
+    numerator: new Float64Array(g.triangles),
+    curl: Array.from({ length: levels }, () => new Float64Array(g.huskLinks)),
+    spatial: Array.from({ length: levels }, () => new Float64Array(g.triangles)),
   }
 }
 
@@ -190,7 +261,7 @@ export function spanFlux(m: SpanMedium, s: SpanState, out: Int32Array): void {
   }
 }
 
-function curlWeighted(m: SpanMedium, x: Int32Array, p: number): number {
+function curlWeighted(m: SpanMedium, x: ArrayLike<number>, p: number): number {
   const g = m.geometry
   const b = p * 3
   const l0 = g.triLinks[b]!
@@ -200,7 +271,7 @@ function curlWeighted(m: SpanMedium, x: Int32Array, p: number): number {
   return g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! + g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! + g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
 }
 
-function curlT(m: SpanMedium, x: Int32Array, out: Int32Array): void {
+function curlT(m: SpanMedium, x: Int32Array, out: Float64Array): void {
   const g = m.geometry
 
   out.fill(0)
@@ -219,6 +290,7 @@ function curlT(m: SpanMedium, x: Int32Array, out: Int32Array): void {
 function numerators(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: number, which: 'now' | 'lag', wraps?: Wraps): void {
   const g = m.geometry
   const pp = m.p
+  const rate = m.rate
 
   for (let p = 0; p < g.triangles; p++) {
     const nb = 4 * m.triDepth[p]!
@@ -226,7 +298,7 @@ function numerators(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: n
     const b = mod(raw + nb / 2, nb) - nb / 2
 
     if (wraps && b !== raw) wraps.field++
-    scratch.numerator[p] = g.multiplicity[p]! * pp * (m.count[p]! * b + curlWeighted(m, s.remainder, p))
+    scratch.numerator[p] = g.multiplicity[p]! * pp * (m.count[p]! * b + curlWeighted(m, s.remainder, p)) * (rate ? rate.tri[p]! : 1)
   }
 
   for (let i = 1; i <= levels; i++) {
@@ -236,7 +308,9 @@ function numerators(m: SpanMedium, s: SpanState, scratch: SpanScratch, levels: n
 
     curlT(m, c, curl)
 
-    for (let p = 0; p < g.triangles; p++) out[p] = g.multiplicity[p]! * pp * curlWeighted(m, curl, p)
+    if (rate) for (let l = 0; l < g.huskLinks; l++) curl[l] = curl[l]! * rate.link[l]!
+
+    for (let p = 0; p < g.triangles; p++) out[p] = g.multiplicity[p]! * pp * curlWeighted(m, curl, p) * (rate ? rate.tri[p]! : 1)
   }
 }
 
@@ -249,10 +323,12 @@ export function spanBeat(m: SpanMedium, s: SpanState, scratch: SpanScratch, leve
 
   spanFlux(m, s, scratch.flux)
 
-  // the link step: A2 = Q A + r takes the flux whole
+  const rate = m.rate
+
+  // the link step: A2 = Q A + r takes the flux whole (on the headroom medium, k_l times the flux)
   for (let l = 0; l < g.huskLinks; l++) {
     const q = m.span[l]!
-    const y = s.remainder[l]! + scratch.flux[l]!
+    const y = s.remainder[l]! + (rate ? rate.link[l]! * scratch.flux[l]! : scratch.flux[l]!)
     const c = floorDiv(y + (q >> 1), q)
 
     s.remainder[l] = y - q * c
@@ -342,9 +418,11 @@ export function spanBeatBack(m: SpanMedium, s: SpanState, scratch: SpanScratch, 
 
   spanFlux(m, s, scratch.flux)
 
+  const rate = m.rate
+
   for (let l = 0; l < g.huskLinks; l++) {
     const q = m.span[l]!
-    const e = scratch.flux[l]!
+    const e = rate ? rate.link[l]! * scratch.flux[l]! : scratch.flux[l]!
     const after = s.remainder[l]!
     const c = floorDiv(e - after - (q >> 1) + q - 1, q)
 

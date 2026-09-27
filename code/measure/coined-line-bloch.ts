@@ -43,7 +43,15 @@ export type Flavors = readonly [number, number, number]
 // `lift` (E-SPN-0097, with `mix`): the lifted mixer Gamma(G) (code/rule/coined-locked-knit liftBranch) compressed the
 // same way: a lone love as `mix`, and a full line (a frame of two of one content) kept with 1/2 (Gamma(G)'s keep,
 // (4 - n)/4), its twelve one-vibe hops leaving the sector.
-export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean; readonly lift?: boolean }
+// `slant` (E-SPN-0106): the drift cost read after the coin, a gap's links not charged on a beat when its two end docks
+// each hold one love with the same coined label (code/rule/bound-line-pieces slantLinks, on the line's span).
+// `area` (E-SPN-0106): the cost split into half before the coin (the span before the beat) and half after the stream
+// (the span after it): the trapezoid a string sweeps in one beat. It is V^(1/2) U' V^(1/2) where the plain cost is
+// U' V, a conjugate, so it has the same spectrum; it is the instrument's check of that.
+// `fine` (E-SPN-0107): the fine coin of code/rule/fine-coin, zeta = e^(2 pi i/(3 fine)) in place of w in the coin: keep
+// (1 + zeta)/2, cross (1 - zeta)/2, det C zeta (the meeting keeps its own w). fine = 1 is the working coin. Not with `mix`.
+// `fullDock` (E-SPN-0108, with `fine`): the full-dock correction (code/rule/fine-coin), det C on a full dock kept at w.
+export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean; readonly lift?: boolean; readonly slant?: boolean; readonly area?: boolean; readonly fine?: number; readonly fullDock?: boolean }
 
 // the contact unit a sector uses: its own, or its statistics' default
 export const contactUnit = (sector: LineSector): number => sector.unit ?? (sector.statistics === 'fermion' ? 3 : 0)
@@ -61,6 +69,12 @@ const CROSS: C = [0.75, -SQ / 2]
 // the coin after the compressed mixer on a lone love: keep 3/4 KEEP - 1/4 CROSS, cross 3/4 CROSS - 1/4 KEEP
 const MIX_KEEP: C = [0.75 * KEEP[0] - 0.25 * CROSS[0], 0.75 * KEEP[1] - 0.25 * CROSS[1]]
 const MIX_CROSS: C = [0.75 * CROSS[0] - 0.25 * KEEP[0], 0.75 * CROSS[1] - 0.25 * KEEP[1]]
+// the fine coin's entries (code/rule/fine-coin): keep (1 + zeta)/2, cross (1 - zeta)/2, det zeta, zeta = e^(2 pi i/(3n))
+export const fineCoin = (n: number): { keep: C; cross: C; det: C } => {
+  const z: C = [Math.cos((2 * Math.PI) / (3 * n)), Math.sin((2 * Math.PI) / (3 * n))]
+
+  return { keep: [(1 + z[0]) / 2, z[1] / 2], cross: [(1 - z[0]) / 2, -z[1] / 2], det: z }
+}
 
 // the order of one flavor's modes: by position, and at one dock the back slot (label 1) first
 const keyOf = (t: Token): number => 2 * t.x + (t.j === 0 ? 1 : 0)
@@ -70,6 +84,23 @@ const canonical = (ts: Token[]): Token[] => ts.slice().sort((p, q) => p.f - q.f 
 const keyString = (ts: readonly Token[]): string => ts.map(t => `${t.x},${t.j},${t.f}`).join('|')
 
 const spanOf = (ts: readonly Token[]): number => Math.max(...ts.map(t => t.x)) - Math.min(...ts.map(t => t.x))
+
+// the span's links charged by the slant cost: every gap between consecutive occupied positions, except a gap whose two
+// end positions each hold one token and the two carry the same (coined) label
+function slantSpan(ts: readonly Token[]): number {
+  const xs = [...new Set(ts.map(t => t.x))].sort((a, b) => a - b)
+  let n = 0
+
+  for (let i = 0; i + 1 < xs.length; i++) {
+    const a = ts.filter(t => t.x === xs[i])
+    const b = ts.filter(t => t.x === xs[i + 1])
+    const comove = a.length === 1 && b.length === 1 && a[0]!.j === b[0]!.j
+
+    if (!comove) n += xs[i + 1]! - xs[i]!
+  }
+
+  return n
+}
 
 // the parity of the reordering each flavor's modes undergo when every token i moves from `before[i]` to `after[i]`
 function reorderSign(before: readonly Token[], after: readonly Token[]): number {
@@ -139,8 +170,8 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
   const N = lightN(sector.D)
   let amp: C = [1, 0]
 
-  if (withCost) {
-    const th = (-Math.PI * spanOf(ts)) / N
+  if (withCost && !sector.slant) {
+    const th = ((sector.area ? -0.5 : -1) * Math.PI * spanOf(ts)) / N
 
     amp = [Math.cos(th), Math.sin(th)]
   }
@@ -156,7 +187,7 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
     if (partner < 0) lone.push(p)
     else if (p < partner) {
       // det C, the meeting, the flip
-      amp = cmul(amp, OMEGA)
+      amp = cmul(amp, sector.fine === undefined || sector.fullDock ? OMEGA : fineCoin(sector.fine).det)
       amp = cmul(amp, OMEGA)
 
       const u = contactUnit(sector) % 6
@@ -168,8 +199,10 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
   }
 
   const out: { ts: Token[]; amp: C }[] = []
-  const keep = sector.mix ? MIX_KEEP : KEEP
-  const cross = sector.mix ? MIX_CROSS : CROSS
+  if (sector.mix && sector.fine !== undefined) throw new Error('coined-line-bloch: the fine coin is not written with the mixer')
+
+  const keep = sector.mix ? MIX_KEEP : sector.fine === undefined ? KEEP : fineCoin(sector.fine).keep
+  const cross = sector.mix ? MIX_CROSS : sector.fine === undefined ? CROSS : fineCoin(sector.fine).cross
 
   for (let mask = 0; mask < 1 << lone.length; mask++) {
     const next = ts.map(t => ({ ...t }))
@@ -181,6 +214,12 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
         a = cmul(a, cross)
       } else a = cmul(a, keep)
     })
+
+    if (withCost && sector.slant) {
+      const th = (-Math.PI * slantSpan(next)) / N
+
+      a = cmul(a, [Math.cos(th), Math.sin(th)])
+    }
 
     out.push({ ts: next, amp: a })
   }
@@ -201,6 +240,12 @@ export function lineColumn(basis: LineBasis, K: number, col: number, withCost = 
     let a = amp
 
     if (spanOf(moved) > S) moved = ts.map(t => ({ ...t, j: 1 - t.j }))
+
+    if (withCost && sector.area && !sector.slant) {
+      const th = (-0.5 * Math.PI * spanOf(moved)) / lightN(sector.D)
+
+      a = cmul(a, [Math.cos(th), Math.sin(th)])
+    }
 
     if (signed(sector)) {
       const s = reorderSign(ts, moved)
@@ -527,6 +572,31 @@ function levelReading(basis: LineBasis, b: Bloch, read: ReturnType<typeof branch
 // E-SPN-0076's lightest level on a sector's subspace at K = 0: levels of the particle sector (branch reading at least
 // 1/2 even), each unwrapped to the representative nearest its reference energy (kinetic + sigma <l> + contact)
 export function lineLightest(basis: LineBasis, sub: SubBasis): LineLightest {
+  const all = lineLevels(basis, sub)
+  let best: LineLevel | undefined
+  let next = Number.NaN
+  let worstOffset = 0
+
+  for (const level of all.levels) {
+    const { unwrapped } = level
+
+    worstOffset = Math.max(worstOffset, Math.abs(unwrapped - level.reference))
+
+    if (!best || unwrapped < best.unwrapped) {
+      if (best) next = Number.isNaN(next) ? best.unwrapped : Math.min(next, best.unwrapped)
+      best = level
+    } else if (Number.isNaN(next) || unwrapped < next) next = unwrapped
+  }
+
+  if (!best) throw new Error('coined-line-bloch: no particle-sector level')
+
+  return { lightest: best, next, particleLevels: all.levels.length, worstOffset, dim: all.dim, residual: all.residual, leak: all.leak, unitarity: all.unitarity }
+}
+
+// every particle-sector level at K = 0 (branch reading at least 1/2 even), in the eigensolver's order, each unwrapped as
+// lineLightest unwraps it (E-SPN-0107 reads the most tightly held one, the least mean string, where the unwrapping's
+// reference, written for the working coin, no longer ranks the levels)
+export function lineLevels(basis: LineBasis, sub: SubBasis): { levels: LineLevel[]; dim: number; residual: number; leak: number; unitarity: number } {
   const red = lineReduced(basis, sub, 0)
   const eig = unitaryEigen(red.dim, red.re, red.im)
   const b = readingBloch(basis.sector)
@@ -534,10 +604,7 @@ export function lineLightest(basis: LineBasis, sub: SubBasis): LineLightest {
   const N = lightN(basis.sector.D)
   const sigma = Math.PI / N
   const ec = contactEnergy(basis.sector)
-  let best: LineLevel | undefined
-  let next = Number.NaN
-  let particleLevels = 0
-  let worstOffset = 0
+  const levels: LineLevel[] = []
 
   eig.phases.forEach((ph, k) => {
     const cv = eig.vectors[k]!
@@ -562,20 +629,10 @@ export function lineLightest(basis: LineBasis, sub: SubBasis): LineLightest {
     const reference = r.kinetic + sigma * r.mean + ec * r.contact
     const unwrapped = energy + 2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
 
-    particleLevels++
-    worstOffset = Math.max(worstOffset, Math.abs(unwrapped - reference))
-
-    const level: LineLevel = { unwrapped, energy, reference, even: r.even, spinHalf: r.spinHalf, mean: r.mean, tailN: r.tailN, contact: r.contact, cre, cim }
-
-    if (!best || unwrapped < best.unwrapped) {
-      if (best) next = Number.isNaN(next) ? best.unwrapped : Math.min(next, best.unwrapped)
-      best = level
-    } else if (Number.isNaN(next) || unwrapped < next) next = unwrapped
+    levels.push({ unwrapped, energy, reference, even: r.even, spinHalf: r.spinHalf, mean: r.mean, tailN: r.tailN, contact: r.contact, cre, cim })
   })
 
-  if (!best) throw new Error('coined-line-bloch: no particle-sector level')
-
-  return { lightest: best, next, particleLevels, worstOffset, dim: red.dim, residual: eig.residual, leak: red.leak, unitarity: red.unitarity }
+  return { levels, dim: red.dim, residual: eig.residual, leak: red.leak, unitarity: red.unitarity }
 }
 
 // the whole spectrum's quasi-energies at K, sorted (for the calibration against E-SPN-0087's operator)

@@ -1,4 +1,4 @@
-// The clock horizon, static (E-GRV-0110): the torn husk of E-GRV-0108 with its horizon joined by a bound on the CLOCK
+// The clock horizon, static (E-GRV-0111): the torn husk of E-GRV-0108 with its horizon joined by a bound on the CLOCK
 // instead of the FIELD (code/rule/clock-horizon; its header gives the criterion, the reference and the derivations). A
 // husk dock joins when the depth found by summing steps exceeds that of a reference dock by the metric register's cap:
 // its clock can run no slower, and its links tear as in E-GRV-0108 (the tear, the stored bit, the vertical routing are
@@ -37,17 +37,20 @@
 // torn statics written into the registers (placeStatics: the depth to the nearest register unit, steps its gradient,
 // torn links 0, rates and remainders 0), and the rule then run with the criterion read by the rule on its own found
 // depth after EVERY beat. So C1 is the criterion's law on the statics, which the rule then holds; the rule forming a
-// horizon itself is E-GRV-0111.
+// horizon itself is E-GRV-0112.
 //
 // DISCLOSED PROBES (instrument only, before this file; tmp/clock-probe1 .. 4): the free statics' excess profiles and
 // radii for caps 1 .. 4 with the corner sinks (probe 1) and the spread sinks (probe 2); the from-rest runs (probe 3);
 // the growth orders (probe 4). The lumps and the cap were chosen from probe 2: at CAP = 3/2 the compressed M >= 600 and
-// the spread M >= 800 leave no content outside their horizons.
+// the 4-a-dock spread M >= 600 leave no content outside their horizons.
 //
 // THE LUMPS, side 24, center (12, 12, 12), sinks spread from 9: COMPRESSED, E-GRV-0090's densest lumps
 // (code/measure/step-depth compressLump, capacity 1) M = 600, 800, 1200, 1600, line saturated in the core; SPREAD, 4
-// units a dock on the nearest docks (clock-horizon spreadLump, lines placed on the husk by placeOpenLines) M = 800,
-// 1200, 1600, never line saturated, so the field criterion never fires on them.
+// units a dock on the nearest docks (clock-horizon spreadLump, lines placed on the husk by placeOpenLines) M = 600,
+// 800, 1200, not line saturated, so the field criterion should not fire on them. (The file was first written with
+// spread M = 800, 1200, 1600, and that run stopped in setup before any gate was read: 1600 unit lines cannot leave a
+// 4-a-dock ball of radius 4.58 on the husk, whose surface has about 4 pi r^2 sigma = 1,515 links. The spread family was
+// moved to 600, 800, 1200, whose horizons probe 2 put outside their matter.)
 //
 // GATES, fixed before the first run of this file. D 16, three digits, bulk window 81, the warped shrinking stack of 3
 // layers, CAP 3/2, the reference dock 0. Each lump run 1024 beats from its placed statics, the Hann average, then back.
@@ -60,13 +63,35 @@
 //     docks the rule joined) reversed bit for bit, the horizon's bits included.
 //  C3 the far field: (a) the rule reads its statics: the Hann average's husk force along the axes equals the torn linear
 //     solve's (held steps as sources) within 1e-3 at every r = 7 .. 11, on every lump; (b) Gauss counts the whole
-//     content: the M = 1600 lumps (both families) carried onto a side-96 stack of 5 layers with their horizons (linear
+//     content: each family's largest lump carried onto a side-96 stack of 5 layers with its horizon (linear
 //     solves, the M farthest docks as sinks, E-GRV-0108's), the force torn over free within 1 percent at every
 //     r = 24 .. 40 and closer to 1 at 40 than at 24.
 // REPORTED: the docks the rule joined after placement; the step at the edge against 3 / r_h; the infinite stack's radius
 // (stackDepthRadius) and its slope; the SAME criterion read on the statics of a side-96 stack of 5 layers (sinks spread
 // from 9, reference its dock 0, 83 docks away), whose slope says how much of C1's shortfall is the box.
 // Verdict: pass if C1 to C3 hold with K1; partial if K1 fails; fail otherwise.
+//
+// FIRST RUN (tmp/clock-static-run2.log, 187 s, the record; run 1 stopped in setup, above; run under the provisional
+// code E-GRV-0110, renumbered 0111 before registration because another experiment took 0110): fail on C1, as stated before
+// the run; no gate moved. C1: the horizon's radius 3.16, 3.74, 5.10, 5.83 for the compressed M = 600 .. 1600 (slope
+// 0.644) and 3.16, 3.61, 4.69 for the spread M = 600 .. 1200 (slope 0.574), both more than 0.15 from 1. K1 holds: the
+// field criterion's slope on the same compressed lumps is 0.467, and it finds 0 docks on every spread lump, where the
+// clock criterion finds 127, 200, 461. WHERE THE SHORTFALL COMES FROM (reported): the same criterion on a side-96 stack's
+// statics gives slopes 0.760 and 0.727, and on the infinite stack (reference at infinity) 0.877 and 0.866, radius 3.38 ..
+// 7.98. So about half the gap to 1 is the box (a reference 21 docks away) and the rest is the stack's massive modes,
+// which make the depth fall faster than 1/r at 3 .. 8 docks: r ~ M holds only where the depth is the zero mode's 1/r,
+// past about 1 / 0.141 = 7 docks, which needs a bigger lump in a bigger box than this run. The clock bound does move the
+// law from the field criterion's 0.47 toward 1 on the same lumps. C2 holds on every lump: 1024 beats, 0 wraps, Gauss 0
+// off, curl 0 on about 2.4 to 2.5 million live link checks each (252,288 vertical), every remainder in its window,
+// energy drift 2e-12 to 1.1e-11 of the statics, reversal bit for bit; the rule's own read joined 0 docks at placement
+// and 0 over the run, so the placed horizon is the rule's fixed point. The husk's largest step 0.35 .. 0.44 on the
+// compressed lumps (the edge step, against the derived 3 / r_h = 0.51 .. 0.95, so the derivation is an upper bound
+// here) and 0.86 on spread M = 600, whose horizon (3.16) stops inside its matter (lump radius 3.32, 4 units a dock left
+// outside); the verticals 18.0 compressed, 4.0 to 4.5 spread. C3 holds: the rule's husk force equals its statics to
+// 3.3e-9 at r = 7 .. 11; on side 96 the torn over the free force is 0.9909 .. 0.9970 (compressed 1600) and 0.9928 ..
+// 0.9978 (spread 1200) at r = 24 .. 40, rising with r. While it ran, the held steps of a dock the rule joins were
+// changed to be read from the final state rather than the Hann mean (they are equal for a held link); no dock joined, so
+// no number of this run depends on it. Title written after the run.
 //
 // Depth L1 for C1 (the criterion's radius law read on linear statics, a derivation checked), L2 for C2 and C3 (a known
 // construction held exactly by an integer reversible rule on bounded registers, the tear and the cap added by hand).
@@ -97,14 +122,13 @@ const BEATS = 1024
 const SINKS_FROM = 9
 const PER = 4
 const COMPRESSED: readonly number[] = [600, 800, 1200, 1600]
-const SPREAD: readonly number[] = [800, 1200, 1600]
+const SPREAD: readonly number[] = [600, 800, 1200]
 const SLOPE_TOLERANCE = 0.15
 const ENERGY_TOLERANCE = 1e-4
 const STATIC_TOLERANCE = 1e-3
 const STATIC_R: readonly number[] = [7, 8, 9, 10, 11]
 const BIG = 96
 const BIG_LAYERS = 5
-const FAR_M = 1600
 const FAR_R: readonly number[] = [24, 26, 28, 30, 32, 34, 36, 38, 40]
 const FAR_TOLERANCE = 0.01
 const CENTER = [12, 12, 12]
@@ -174,9 +198,11 @@ function runLump(mesh: OpenMesh, rule: ClockHorizonRule, family: Family, m: numb
 
   for (let l = 0; l < mesh.links; l++) {
     if (!tornLink(mesh, horizon, l) || statics.horizon[mesh.tail[l]!] || statics.horizon[mesh.head[l]!]) continue
-    // a link torn during the run holds the value it had at its join; the mean is that value (it takes no new one)
-    held[mesh.tail[l]!] = held[mesh.tail[l]!]! - run.mean[l]!
-    held[mesh.head[l]!] = held[mesh.head[l]!]! + run.mean[l]!
+    // a link torn during the run holds the value it had at its join, which is its value at the end
+    const v = run.finalStep[l]! / rule.unit
+
+    held[mesh.tail[l]!] = held[mesh.tail[l]!]! - v
+    held[mesh.head[l]!] = held[mesh.head[l]!]! + v
   }
 
   const source = Float64Array.from(rho, (v, y) => v + held[y]!)
@@ -233,8 +259,9 @@ const slopeOf = (ms: readonly number[], rs: readonly number[]): number => linear
 
 export default experiment({
   id: 'gravity/clock-horizon-static',
-  code: 'E-GRV-0110',
-  title: 'TITLE AFTER THE RUN',
+  code: 'E-GRV-0111',
+  title:
+    "joining the horizon where a husk dock's found depth exceeds the reference's by the metric register's cap (the clock stops) moves the radius law from the field criterion's M^0.47 to M^0.64 on the same lumps, but not to Schwarzschild's M, fail on C1: radius 3.16 .. 5.83 for compressed M = 600 .. 1600 (slope 0.644) and 3.16 .. 4.69 for spread lumps the line criterion never tears (slope 0.574), because on this side-24 box the depth is read against a dock 21 away and the stack's massive modes make it fall faster than 1/r (the same criterion reads 0.76 on a side-96 stack and 0.88 on the infinite one); every placed lump runs 1024 beats with 0 wraps, curl 0, energy to 1e-11 and exact reversal, the rule joins no dock the statics did not, the husk's step at the edge is 0.35 .. 0.44, and the far pull is the untorn lump's to 0.9 percent at r = 24 .. 40",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -273,9 +300,10 @@ export default experiment({
     // C3 (b): the M = 1600 lumps on a side-96 stack
     const big = warpClock(openMesh(BIG, BIG_LAYERS, 'shrink'))
     const far = (['compressed', 'spread'] as const).map(f => {
-      const l = family(f).find(v => v.m === FAR_M)!
+      // each family's largest lump
+      const l = family(f)[family(f).length - 1]!
       const source = Float64Array.from({ length: mesh.huskDocks }, (_, y) => Math.max(l.rho[y]!, 0) + l.held[y]!)
-      const carried = carryLump(mesh, big, source, l.horizon, CENTER, FAR_M, 'far')
+      const carried = carryLump(mesh, big, source, l.horizon, CENTER, l.m, 'far')
       const free = greenSolve(big, carried.rho, 1e-10)
       const torn = greenSolve(tornMesh(big, carried.horizon), carried.rho, 1e-10)
       const fitR = Array.from({ length: 17 }, (_, i) => 24 + i)
@@ -283,7 +311,7 @@ export default experiment({
 
       log(`far ${f}`)
 
-      return { family: f, ratio: FAR_R.map(r => axisForce(big, torn.x, carried.center, r) / axisForce(big, free.x, carried.center, r)), kFree: k(free.x), kTorn: k(torn.x) }
+      return { family: f, m: l.m, ratio: FAR_R.map(r => axisForce(big, torn.x, carried.center, r) / axisForce(big, free.x, carried.center, r)), kFree: k(free.x), kTorn: k(torn.x) }
     })
     const ruleVsSolve = Math.max(...lumps.map(l => l.ruleVsSolve))
     const farOff = Math.max(...far.map(f => Math.max(...f.ratio.map(v => Math.abs(v - 1)))))
@@ -367,9 +395,9 @@ export default experiment({
       metrics[`${p}infiniteRadius`] = l.family === 'compressed' ? infiniteCompressed[COMPRESSED.indexOf(l.m)]! : infiniteSpread[SPREAD.indexOf(l.m)]!
     })
     far.forEach(fr => {
-      FAR_R.forEach((r, j) => (metrics[`${fr.family}${FAR_M}_farRatio_r${r}`] = fr.ratio[j]!))
-      metrics[`${fr.family}${FAR_M}_kFree`] = fr.kFree
-      metrics[`${fr.family}${FAR_M}_kTorn`] = fr.kTorn
+      FAR_R.forEach((r, j) => (metrics[`${fr.family}${fr.m}_farRatio_r${r}`] = fr.ratio[j]!))
+      metrics[`${fr.family}${fr.m}_kFree`] = fr.kFree
+      metrics[`${fr.family}${fr.m}_kTorn`] = fr.kTorn
     })
 
     const radiiOf = (fam: Family): string => family(fam).map(l => f(l.horizonRadius)).join(', ')

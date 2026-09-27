@@ -139,8 +139,9 @@ export type SpanRun = {
   seconds: number
 }
 
-// a packet forward `window` beats, the detectors read after each beat, then back to the start bit for bit
-export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly number[], window: number, every = 64): SpanRun {
+// a packet forward `window` beats, the detectors read after each beat, then back to the start bit for bit; `read`
+// turns a detector's trace into its arrival (the half-maximum centroid unless given)
+export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly number[], window: number, every = 64, read: (trace: Float64Array) => number = halfMaxCentroid): SpanRun {
   const t0 = Date.now()
   const levels = start.upper.length + 1
   const s = copySpan(start)
@@ -164,7 +165,7 @@ export function runSpan(m: SpanMedium, start: SpanState, detectors: readonly num
   for (let t = 0; t < window; t++) spanBeatBack(m, s, scratch, levels)
 
   return {
-    arrival: trace.map(halfMaxCentroid),
+    arrival: trace.map(read),
     weight: trace.map(r => r.reduce((a, v) => a + v, 0)),
     wraps,
     gauss,

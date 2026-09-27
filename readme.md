@@ -386,7 +386,48 @@ realizes. **Open:**
    ([`E-GRV-0108`](test/experiment/gravity/torn-husk-static.ts)), but it
    grows as √M, not M, because the linear depth field does not source
    itself, and a growing lump leaks its history back out
-   ([`E-GRV-0109`](test/experiment/gravity/torn-husk-growth.ts))
+   ([`E-GRV-0109`](test/experiment/gravity/torn-husk-growth.ts)).
+   Joining where the found depth reaches a cap, where the clock stops,
+   ends the slip and moves the scaling to M^0.64 on this box (M^0.88 on
+   an infinite stack). But a dock that tears mid-growth keeps its step,
+   so the settled outside field is 36% off a placed lump's
+   ([`E-GRV-0111`](test/experiment/gravity/clock-horizon-static.ts),
+   [`E-GRV-0112`](test/experiment/gravity/clock-horizon-growth.ts)).
+   Keeping only the count of lines that went down makes it bald and
+   exact, but each tear jolts the outside and the horizon runs away
+   ([`E-GRV-0113`](test/experiment/gravity/count-horizon-growth.ts)).
+   The slope rises with the box, 0.670 to 0.738 from side 24 to 48
+   ([`E-GRV-0114`](test/experiment/gravity/count-horizon-scaling.ts)).
+   A share-passing horizon has no jolt, but its rim slips
+   ([`E-GRV-0115`](test/experiment/gravity/wave-horizon-growth.ts)).
+   The held rule is already bald to 1.4% across every growth order
+   without slips, so what it misses is a gap between a grown lump and a
+   placed one, not a record of how it grew. That gap is flux sent into
+   the bulk: a placed horizon sends all its lines down, a grown one
+   holds 58% of them on the husk through its rim. The exterior is M
+   plus that one fraction, to 2%
+   ([`E-GRV-0116`](test/experiment/gravity/horizon-flux-budget.ts)).
+   The slope's short-range-mode term matches its formula to 0.006, but
+   the closed box costs half again what the formula says, and a slope of
+   0.95 needs a husk 149 to 767 docks across
+   ([`E-GRV-0117`](test/experiment/gravity/horizon-slope-modes.ts)).
+   With the box taken out exactly (the periodic correction predicts
+   those slopes to 0.0046), the slope is 0.994 to 1.012 at r_h ≥ 5ℓ:
+   the horizon grows as M
+   ([`E-GRV-0118`](test/experiment/gravity/horizon-slope-box.ts)).
+   It is a horizon for the field lines, not yet for light: the clock
+   there runs at 0.956, so light crosses it and there is no
+   temperature, though the surface gravity scales as 1/M to 1.5%
+   ([`E-GRV-0120`](test/experiment/gravity/clock-horizon-temperature.ts)).
+   With the clock set to the register's room, which runs to 0 at its
+   bound, the horizon traps light, sits at 2GM, and keeps bending at
+   1.9985 and α flat. The thermal window is cut off at the dock and
+   grows as ½ ln M, 1.2 e-folds at r_h = 48
+   ([`E-GRV-0122`](test/experiment/gravity/headroom-horizon-temperature.ts)).
+   At r_h 800 and 1600 the redshift runs at 0.98 and 0.97 κ and T·M is
+   flat to 1.7%, Hawking's scaling. The window then stops at the clock
+   register, ½ ln C e-folds, 1.85 at the largest C held exactly
+   ([`E-GRV-0123`](test/experiment/gravity/deep-headroom-horizon.ts))
 5. matter that holds its energy in place: the rule carries its own
    energy's Gauss lines exactly, but a seeded lump's energy spreads
    ([`E-GRV-0106`](test/experiment/gravity/energy-lines.ts),
@@ -396,7 +437,33 @@ realizes. **Open:**
    the drift cost and the fermion sign that bound it. Its depth is 0.47
    of a held lump's
    ([`E-SPN-0102`](test/experiment/spin/held-cluster-vacuum.ts),
-   [`E-GRV-0110`](test/experiment/gravity/held-cluster-depth.ts))
+   [`E-GRV-0110`](test/experiment/gravity/held-cluster-depth.ts)).
+   With both pieces added exactly, it binds on flat links (fidelity
+   0.999)
+   ([`E-SPN-0103`](test/experiment/spin/held-cluster-pieces.ts)).
+   On the mesh it spread only because its loves were placed in
+   different frames. Placed in one frame along the line, the rule holds
+   it for 128 beats
+   ([`E-SPN-0104`](test/experiment/spin/permutation-meeting.ts)), and
+   its energy sources the lump's 1/r to 0.95 to 1.00
+   ([`E-GRV-0119`](test/experiment/gravity/framed-cluster-depth.ts)).
+   The drift cost confines a lone love, and the neutral trio leaves no
+   string outside itself. Boosted, it holds at every momentum up to
+   π/2 and moves at its band's speed, with its pull moving with it
+   ([`E-SPN-0105`](test/experiment/spin/moving-level.ts),
+   [`E-GRV-0121`](test/experiment/gravity/moving-level-depth.ts)). But
+   its inertia is not its energy. A lone love is already off by
+   tan(π/3)/(π/3) = 1.654, because the coin gives it a mass of a third
+   of the lattice scale, and the binding adds a further 4.2
+   ([`E-SPN-0106`](test/experiment/spin/slant-string.ts)). Falling alike
+   for composites needs particles light against the lattice.
+   Taking the coin's phase w as its n-th part, carried exactly by a
+   count that wraps into w, gives a lone love m*/E_rest 1.006 and top
+   speed 0.991 at n = 8, while a coin acting every n-th beat keeps
+   1.654 at every n. But no three-love level holds under it at
+   n = 2, 4, 8, because it also changes the full dock's phase that
+   bound the trio, and n is a new free input
+   ([`E-SPN-0107`](test/experiment/spin/fine-coin.ts))
 6. matter smaller than a dock, which does not fall alike
 7. the 3.8% energy drift at a depth boundary on the span light
 8. whether the husk's bending is a full spin-2 field, and the field's

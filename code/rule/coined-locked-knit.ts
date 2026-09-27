@@ -44,7 +44,7 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { lockedBeat, lockedBeatBack, mergeBranches, times, type Branch, type Configuration, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
 import { vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+export const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
 
 export type CoinOptions = { readonly fermion: boolean }
 

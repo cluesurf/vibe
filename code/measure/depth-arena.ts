@@ -231,6 +231,13 @@ export function waveArrival(depthOf: (x: number) => number, form: WaveForm, x0: 
 export function restRate(depth: number, m: number, amp: number, beats: number, form: WaveForm = 'clock'): { rate: number; closed: number; reversed: boolean } {
   const mesh = radionMesh([4, 2, 2])
   const rule = clockWaveRule(mesh, () => depth, m, form, RADION_DEPTH)
+
+  return { ...ruleRestRate(mesh, rule, amp, beats), closed: Math.acos(1 - m / (2 * 9 * (2 * depth + 1))) }
+}
+
+// the rest rate of a uniform lump under any wave rule on a small uniform mesh: upward zero crossings of X at dock 0
+// (placed linearly between beats), 2 pi over their mean spacing; and the reversal, bit for bit
+export function ruleRestRate(mesh: RadionMesh, rule: ClockWaveRule, amp: number, beats: number): { rate: number; reversed: boolean } {
   const s = emptyClockWave(mesh)
 
   s.now.fill(amp)
@@ -254,7 +261,7 @@ export function restRate(depth: number, m: number, amp: number, beats: number, f
 
   const period = (ups[ups.length - 1]! - ups[0]!) / (ups.length - 1)
 
-  return { rate: (2 * Math.PI) / period, closed: Math.acos(1 - m / (2 * 9 * (2 * depth + 1))), reversed: sameClockWave(s, start) }
+  return { rate: (2 * Math.PI) / period, reversed: sameClockWave(s, start) }
 }
 
 // ---------------------------------------------------------------------------------------------------------

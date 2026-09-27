@@ -11,7 +11,7 @@
 
 import { newStepTally, type StepTally } from '@/code/rule/step-depth'
 import { duplicateOpen, emptyOpen, HUSK_LATERAL, layerOf, openDivisor, openRestLow, sameOpen, VERTICAL, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
-import { horizonBeat, horizonBeatBack, horizonDepth, horizonOf, horizonScratch, joinHorizon, leaveHorizon, tornLink, type HorizonRule } from '@/code/rule/horizon-husk'
+import { horizonBeat, horizonBeatBack, horizonDepth, horizonOf, horizonScratch, joinHorizon, leaveHorizon, tornLink, type HorizonRule, type HorizonScratch } from '@/code/rule/horizon-husk'
 import { huskDistance, type StackMode } from '@/code/measure/open-husk'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
@@ -154,9 +154,9 @@ function gaussAfterBeat(divLine: Float64Array, rho: Int32Array): number {
 // the static run: from zero field with the lines placed, T beats (the Hann average of the steps), the energy checked
 // every `every` beats against its start, then T back and compared bit for bit
 
-export type HorizonStatic = { mean: Float64Array; horizon: Uint8Array; energy0: number; energyEnd: number; joins: number; joinedBeats: number[] }
+export type HorizonStatic = { mean: Float64Array; horizon: Uint8Array; energy0: number; energyEnd: number; joins: number; joinedBeats: number[]; finalStep: Float64Array }
 
-// a placed start (E-GRV-0110): the state and horizon to begin from instead of zero field and the lines' horizon, and a
+// a placed start (E-GRV-0111): the state and horizon to begin from instead of zero field and the lines' horizon, and a
 // read after every beat that may join docks (code/rule/clock-horizon clockJoin); a join is an event for the energy, its
 // docks recorded by beat and cleared when that beat is undone
 export type PlacedStart = { state: OpenState; horizon: Uint8Array; afterBeat?: (s: OpenState, horizon: Uint8Array) => number[] }
@@ -211,6 +211,8 @@ export function horizonStaticRun(mesh: OpenMesh, rule: HorizonRule, rho: Int32Ar
     weight += w
   }
 
+  const finalStep = Float64Array.from(s.step)
+
   for (let t = beats; t >= 1; t--) {
     leaveHorizon(horizon, joinedAfter.get(t) ?? [])
     horizonBeatBack(mesh, rule, s, horizon, scratch)
@@ -224,7 +226,7 @@ export function horizonStaticRun(mesh: OpenMesh, rule: HorizonRule, rho: Int32Ar
 
   for (const joined of joinedAfter.values()) for (const y of joined) finalHorizon[y] = 1
 
-  return { mean, horizon: finalHorizon, energy0: e0, energyEnd: eEnd, joins, joinedBeats: [...joinedAfter.keys()] }
+  return { mean, horizon: finalHorizon, energy0: e0, energyEnd: eEnd, joins, joinedBeats: [...joinedAfter.keys()], finalStep }
 }
 
 // the depth found by summing a real step field over the live links (whole steps)
@@ -241,19 +243,36 @@ export type GrowthSample = { beat: number; units: number; horizonDocks: number; 
 
 export type GrowthRun = { final: OpenState; horizon: Uint8Array; rho: Int32Array; reversed: boolean; samples: GrowthSample[]; eventEnergy: number[] }
 
+// the beat a growth run drives, its inverse and its kept energy, for a fixed horizon (the torn husk's by default; the
+// horizon with no hair's is code/measure/count-horizon countEngine). The scratch's divLine holds div f after a beat.
+export type HorizonEngine<S extends HorizonScratch = HorizonScratch> = {
+  scratch(): S
+  beat(s: OpenState, horizon: Uint8Array, scratch: S, tally?: StepTally): void
+  back(s: OpenState, horizon: Uint8Array, scratch: S): void
+  energy(s: OpenState, horizon: Uint8Array): number
+}
+
+export const tornEngine = (mesh: OpenMesh, rule: HorizonRule): HorizonEngine => ({
+  scratch: () => horizonScratch(mesh),
+  beat: (s, horizon, scratch, tally) => horizonBeat(mesh, rule, s, horizon, scratch, tally),
+  back: (s, horizon, scratch) => horizonBeatBack(mesh, rule, s, horizon, scratch),
+  energy: (s, horizon) => horizonEnergy(mesh, rule, s, horizon).energy,
+})
+
 // from zero field with no content, `beats` beats; each addition applied after its beat, the horizon read from the lines
 // after every event; the energy checked on EVERY beat against its value just after the last event (the beat keeps it
 // between events); then every beat and event undone back to the start and compared bit for bit. With `afterBeat` (the
 // clock horizon, code/rule/clock-horizon clockJoin) the horizon is ALSO read after every beat, the docks it joins
 // recorded by beat and cleared when that beat is undone; a join is an event for the energy (its jump is recorded).
-export function growthRun(mesh: OpenMesh, rule: HorizonRule, additions: readonly Addition[], beats: number, record: HorizonRecord, center: readonly number[], sampleEvery: number, keep?: (t: number, s: OpenState, horizon: Uint8Array, rho: Int32Array) => void, tear = true, afterBeat?: (s: OpenState, horizon: Uint8Array) => number[]): GrowthRun {
+// `engine` is the beat driven (the torn husk's by default).
+export function growthRun(mesh: OpenMesh, rule: HorizonRule, additions: readonly Addition[], beats: number, record: HorizonRecord, center: readonly number[], sampleEvery: number, keep?: (t: number, s: OpenState, horizon: Uint8Array, rho: Int32Array) => void, tear = true, afterBeat?: (s: OpenState, horizon: Uint8Array) => number[], engine: HorizonEngine = tornEngine(mesh, rule)): GrowthRun {
   const s = emptyOpen(mesh)
   const start = duplicateOpen(s)
-  const scratch = horizonScratch(mesh)
+  const scratch = engine.scratch()
   const rho = new Int32Array(mesh.docks)
   const horizon = new Uint8Array(mesh.huskDocks)
   const startHorizon = Uint8Array.from(horizon)
-  let eRef = horizonEnergy(mesh, rule, s, horizon).energy
+  let eRef = engine.energy(s, horizon)
   const samples: GrowthSample[] = []
   const eventEnergy: number[] = []
   // the docks each event's beat set in the horizon (undone with it), by beat
@@ -298,17 +317,17 @@ export function growthRun(mesh: OpenMesh, rule: HorizonRule, additions: readonly
       changed = true
     }
     if (changed) {
-      eventEnergy.push(horizonEnergy(mesh, rule, s, horizon).energy - eRef)
+      eventEnergy.push(engine.energy(s, horizon) - eRef)
       if (tear) joinedAt.set(t, joinHorizon(mesh, s.line, horizon))
-      eRef = horizonEnergy(mesh, rule, s, horizon).energy
+      eRef = engine.energy(s, horizon)
     }
 
-    horizonBeat(mesh, rule, s, horizon, scratch, record.wraps)
+    engine.beat(s, horizon, scratch, record.wraps)
     record.beats++
     record.gaussOff += gaussAfterBeat(scratch.divLine, rho)
     record.gaussChecks++
 
-    const e = horizonEnergy(mesh, rule, s, horizon)
+    const e = { energy: engine.energy(s, horizon) }
 
     record.energyDrift = Math.max(record.energyDrift, Math.abs(e.energy - eRef))
     record.energyChecks++
@@ -318,7 +337,7 @@ export function growthRun(mesh: OpenMesh, rule: HorizonRule, additions: readonly
       if (joined.length > 0) {
         joinedAfter.set(t, joined)
 
-        const after = horizonEnergy(mesh, rule, s, horizon).energy
+        const after = engine.energy(s, horizon)
 
         eventEnergy.push(after - e.energy)
         eRef = after
@@ -339,7 +358,7 @@ export function growthRun(mesh: OpenMesh, rule: HorizonRule, additions: readonly
   next = additions.length - 1
   for (let t = beats; t >= 1; t--) {
     leaveHorizon(horizon, joinedAfter.get(t) ?? [])
-    horizonBeatBack(mesh, rule, s, horizon, scratch)
+    engine.back(s, horizon, scratch)
 
     while (next >= 0 && additions[next]!.beat === t - 1) {
       const add = additions[next]!

@@ -1,4 +1,4 @@
-// The clock horizon (E-GRV-0110, 0111): the torn husk of code/rule/horizon-husk with its horizon joined by a bound on the
+// The clock horizon (E-GRV-0111, 0112): the torn husk of code/rule/horizon-husk with its horizon joined by a bound on the
 // CLOCK instead of the FIELD (note/research/vibe/roadmap/discrete-gravity.md, "Why sqrt(M), and the fix: bound the clock,
 // not the field"). A STAND-IN, as the torn husk is: nothing in the model makes the depth read any state (E-GRV-0071).
 //
@@ -35,7 +35,7 @@
 // rule.
 
 import type { OpenMesh, OpenState } from '@/code/rule/open-husk'
-import { horizonDepth, type HorizonRule } from '@/code/rule/horizon-husk'
+import { horizonDepth, type HorizonRule, type TornTest } from '@/code/rule/horizon-husk'
 
 export type ClockHorizonRule = HorizonRule & {
   // the metric register's cap on the found depth's excess, in whole steps (a multiple of 1 / 2)
@@ -55,8 +55,8 @@ export function clockHorizonRule(rule: HorizonRule, cap: number, reference = 0):
 }
 
 // the found depth's excess over the reference, 2 e per dock in register units (exact integers), read over the live links
-export function foundExcess(mesh: OpenMesh, rule: ClockHorizonRule, step: ArrayLike<number>, horizon: Uint8Array): Float64Array {
-  const d = horizonDepth(mesh, step, horizon)
+export function foundExcess(mesh: OpenMesh, rule: ClockHorizonRule, step: ArrayLike<number>, horizon: Uint8Array, torn?: TornTest): Float64Array {
+  const d = horizonDepth(mesh, step, horizon, torn)
   const ref = d.twice[rule.reference]!
 
   return d.twice.map(t => t - ref)
@@ -64,8 +64,8 @@ export function foundExcess(mesh: OpenMesh, rule: ClockHorizonRule, step: ArrayL
 
 // the read after a beat: every husk dock off the horizon whose metric register is full (e >= CAP) joins; returns the
 // docks that joined (the record that undoing the beat clears, code/rule/horizon-husk leaveHorizon)
-export function clockJoin(mesh: OpenMesh, rule: ClockHorizonRule, s: OpenState, horizon: Uint8Array): number[] {
-  const excess = foundExcess(mesh, rule, s.step, horizon)
+export function clockJoin(mesh: OpenMesh, rule: ClockHorizonRule, s: OpenState, horizon: Uint8Array, torn?: TornTest): number[] {
+  const excess = foundExcess(mesh, rule, s.step, horizon, torn)
   const joined: number[] = []
 
   for (let y = 0; y < mesh.huskDocks; y++) if (!horizon[y] && y !== rule.reference && excess[y]! >= rule.capTwice) (horizon[y] = 1), joined.push(y)

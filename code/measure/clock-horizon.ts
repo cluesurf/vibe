@@ -1,4 +1,4 @@
-// Measurement for the clock horizon (E-GRV-0110, 0111): code/rule/clock-horizon. Real numbers live here only.
+// Measurement for the clock horizon (E-GRV-0111, 0112): code/rule/clock-horizon. Real numbers live here only.
 //
 // THE SINKS. A closed shrinking stack needs a sink for every unit of content (code/rule/open-husk SHRINK). E-GRV-0090,
 // 0108 and 0109 put them on the M husk docks farthest from the lump, which on the periodic husk is ONE cluster at the

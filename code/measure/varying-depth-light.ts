@@ -365,6 +365,28 @@ export function halfMaxCentroid(r: Float64Array): number {
   return s > 0 ? st / s : Number.NaN
 }
 
+// the half-maximum centroid of the FIRST passage (NaN if r is never above 0): from the first beat r reaches half its
+// largest value, over the beats at or above half, until r first falls below a fifth of it. A packet that passes a
+// detector and later comes back (a reflection) is read on its first passage only; the fifth, not the half, ends the
+// passage, so jitter at the half level does not cut it short
+export function firstLobeCentroid(r: Float64Array): number {
+  const top = r.reduce((a, v) => Math.max(a, v), 0)
+  let st = 0
+  let s = 0
+
+  if (top <= 0) return Number.NaN
+
+  for (let t = 0; t < r.length; t++) {
+    if (s > 0 && r[t]! < top / 5) break
+    if (r[t]! >= top / 2) {
+      st += t * r[t]!
+      s += r[t]!
+    }
+  }
+
+  return st / s
+}
+
 export type Run = {
   // per detector, the arrival centroid in beats
   readonly arrival: number[]
