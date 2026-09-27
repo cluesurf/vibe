@@ -467,7 +467,11 @@ realizes. **Open:**
    Putting the full-dock contact back does not bind a light trio: a
    light love passes through a potential that acts only on its phase,
    the Klein effect
-   ([`E-SPN-0108`](test/experiment/spin/full-dock-contact.ts))
+   ([`E-SPN-0108`](test/experiment/spin/full-dock-contact.ts)).
+   Letting the string's flux set the coin fails too, because a lone
+   love drags its own string and looks locally like a trio's end
+   ([`E-SPN-0109`](test/experiment/spin/string-bag.ts)). What must be
+   light is a neutral composite many docks across, not a lone love
 6. not a requirement: matter smaller than a dock falls by its own
    lattice ray, but real particles are about 10^20 docks across if a
    dock is Planck-sized. That is a Planck-scale prediction, not a gap.

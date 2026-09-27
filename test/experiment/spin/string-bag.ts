@@ -90,6 +90,19 @@
 //  DERIVED IDENTITY (measured, not a gate): touch at n = 2, 4, 8 equals the working rule bit for bit on the window start
 //     over 2 beats.
 //
+// RUN 1 (1362 s, peak 2.7 GB, tmp/bag-run1.log, the record; no probe was run before it): fail, as predicted, no gate
+// moved; every control holds. touch: P false (a lone love's density off the fine walk's by 0.56, 0.75, 0.92), B1 true
+// (E-SPN-0105's level at every n: E(0) 0.330019, m* 24.1164, ring least fidelity 0.99999), B2 false (m*/E_rest 6.947,
+// 12.69, 21.62, 33.37, and 6.947 at every n against the heavy zero), B3 false (top 0.02965 at every n); touch equals the
+// working rule bit for bit at n = 2, 4, 8. inside: P true (register off 0, exact bit for bit), B1 false (no level inside
+// at n = 2, 4, 8: least tail 0.292, 0.437, 0.417, mean string 4.68, 6.63, 7.27, contact 0.17, 0.27, 0.14, looser than
+// the drift cost alone, 0.223, 0.189, 0.094), B2 and B3 unread. rim (measured, P false): n = 1 the level; n = 2 none in
+// the box (least tail 0.0049); n = 4 and 8 a level in the box (tail 1.7e-4, 1.6e-5, contact 0.92, 0.91) whose band
+// overlap is 0.959 and 0.889 and whose m* is 10.85 and 151.8 (m*/E_rest 9.70, 208.7): held by the heavy rim, but not a
+// clean band and not light. Controls: n = 1 is E-SPN-0105 under both readings (bit for bit), the drift-cost-only tails
+// exactly as recorded, the unbound unit holds nothing, the windows equal the ring form to 2e-17, reversed, exercised
+// (0.15 to 0.76). No GRV check was run: no reading held B1 and B2.
+//
 // Depth L2: the lattice Dirac walk with a position-dependent mass read from a Z_3 flux, a known construction (bag and
 // flux-tube confinement); what could fail is whether a bound light level exists. DETERMINISM: no random numbers. The rule
 // is exact per count in Z[w][1/2]; the band, the placement's floats and every reading are measurement. NOTHING MOVES: the
@@ -146,7 +159,8 @@ type Level = { basis: ReturnType<typeof lineBasis>; inside: LineLevel[]; candida
 export default experiment({
   id: 'spin/string-bag',
   code: 'E-SPN-0109',
-  title: 'the string setting the coin (a bag of heavy mass inside the string) does not hold a light trio',
+  title:
+    "the string setting the coin does not hold a light trio, fail: the coin read from a dock's own two flux trits is exact, unitary and reversible (a controlled unitary on untouched positions and cut trit; windows equal the ring form to 2e-17, reversed, 0 leak, 0 vacuum disturbed, in the cone), but by Gauss every occupied dock touches flux, so reading 'touch' makes every love heavy: the working rule bit for bit at n = 2, 4, 8, E-SPN-0105's level held (E 0.330019, m* 24.116, top speed 0.0297 at every n), m*/E_rest 6.95, 12.69, 21.62, 33.37 rising, and a lone love heavy; reading 'inside' (both links carry flux) keeps a lone love the fine walk bit for bit, but a trio's end love reads its links as a lone love does, so the ends stay light and no level is held at n = 2, 4, 8 (least tail 0.29, 0.44, 0.42, looser than the drift cost alone); the mirror 'rim' holds a heavy, narrow level at n = 4, 8 (m* 10.8, 152) with a heavy lone love; no local flux reading can make a lone love light and a trio's ends heavy",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
