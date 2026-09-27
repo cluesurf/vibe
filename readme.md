@@ -372,116 +372,92 @@ than a dock, bends light by 2 and keeps α constant, held in bounded
 registers with the depth found by summing. It is graded L2: the step
 field is an added part of the rule, and the factor 2 follows from the
 span change by construction, which the runs show the integer rule
-realizes. **Open:**
+realizes.
 
-1. the vacuum does not make the depth. The steps are a register added
-   to the rule, not a product of the working vacuum
-2. Randall and Sundrum's short-range number, which needs about 8 bulk
-   layers per doubling of scale and distances well past the curvature
-   length: the one-layer stacks hold about a fifth of their own continuum
-   limit ([`E-GRV-0105`](test/experiment/gravity/lapse-husk-static.ts))
-3. a smooth-layer prediction that runs 3% above the lattice stacks
-4. a horizon that scales like Schwarzschild's: a dense lump now has a
-   clean static edge where its flux goes down into the bulk
-   ([`E-GRV-0108`](test/experiment/gravity/torn-husk-static.ts)), but it
-   grows as √M, not M, because the linear depth field does not source
-   itself, and a growing lump leaks its history back out
-   ([`E-GRV-0109`](test/experiment/gravity/torn-husk-growth.ts)).
-   Joining where the found depth reaches a cap, where the clock stops,
-   ends the slip and moves the scaling to M^0.64 on this box (M^0.88 on
-   an infinite stack). But a dock that tears mid-growth keeps its step,
-   so the settled outside field is 36% off a placed lump's
-   ([`E-GRV-0111`](test/experiment/gravity/clock-horizon-static.ts),
-   [`E-GRV-0112`](test/experiment/gravity/clock-horizon-growth.ts)).
-   Keeping only the count of lines that went down makes it bald and
-   exact, but each tear jolts the outside and the horizon runs away
-   ([`E-GRV-0113`](test/experiment/gravity/count-horizon-growth.ts)).
-   The slope rises with the box, 0.670 to 0.738 from side 24 to 48
-   ([`E-GRV-0114`](test/experiment/gravity/count-horizon-scaling.ts)).
-   A share-passing horizon has no jolt, but its rim slips
-   ([`E-GRV-0115`](test/experiment/gravity/wave-horizon-growth.ts)).
-   The held rule is already bald to 1.4% across every growth order
-   without slips, so what it misses is a gap between a grown lump and a
-   placed one, not a record of how it grew. That gap is flux sent into
-   the bulk: a placed horizon sends all its lines down, a grown one
-   holds 58% of them on the husk through its rim. The exterior is M
-   plus that one fraction, to 2%
-   ([`E-GRV-0116`](test/experiment/gravity/horizon-flux-budget.ts)).
-   The slope's short-range-mode term matches its formula to 0.006, but
-   the closed box costs half again what the formula says, and a slope of
-   0.95 needs a husk 149 to 767 docks across
-   ([`E-GRV-0117`](test/experiment/gravity/horizon-slope-modes.ts)).
-   With the box taken out exactly (the periodic correction predicts
-   those slopes to 0.0046), the slope is 0.994 to 1.012 at r_h ≥ 5ℓ:
-   the horizon grows as M
-   ([`E-GRV-0118`](test/experiment/gravity/horizon-slope-box.ts)).
-   It is a horizon for the field lines, not yet for light: the clock
-   there runs at 0.956, so light crosses it and there is no
-   temperature, though the surface gravity scales as 1/M to 1.5%
-   ([`E-GRV-0120`](test/experiment/gravity/clock-horizon-temperature.ts)).
-   With the clock set to the register's room, which runs to 0 at its
-   bound, the horizon traps light, sits at 2GM, and keeps bending at
-   1.9985 and α flat. The thermal window is cut off at the dock and
-   grows as ½ ln M, 1.2 e-folds at r_h = 48
-   ([`E-GRV-0122`](test/experiment/gravity/headroom-horizon-temperature.ts)).
-   At r_h 800 and 1600 the redshift runs at 0.98 and 0.97 κ and T·M is
-   flat to 1.7%, Hawking's scaling. The window then stops at the clock
-   register, ½ ln C e-folds, 1.85 at the largest C held exactly
-   ([`E-GRV-0123`](test/experiment/gravity/deep-headroom-horizon.ts))
-5. matter that holds its energy in place: the rule carries its own
-   energy's Gauss lines exactly, but a seeded lump's energy spreads
-   ([`E-GRV-0106`](test/experiment/gravity/energy-lines.ts),
-   [`E-GRV-0107`](test/experiment/gravity/energy-line-depth.ts)).
-   The three-love bound level runs exactly in the working vacuum but
-   spreads at a lone love's top speed, because the working rule lacks
-   the drift cost and the fermion sign that bound it. Its depth is 0.47
-   of a held lump's
-   ([`E-SPN-0102`](test/experiment/spin/held-cluster-vacuum.ts),
-   [`E-GRV-0110`](test/experiment/gravity/held-cluster-depth.ts)).
-   With both pieces added exactly, it binds on flat links (fidelity
-   0.999)
-   ([`E-SPN-0103`](test/experiment/spin/held-cluster-pieces.ts)).
-   On the mesh it spread only because its loves were placed in
-   different frames. Placed in one frame along the line, the rule holds
-   it for 128 beats
-   ([`E-SPN-0104`](test/experiment/spin/permutation-meeting.ts)), and
-   its energy sources the lump's 1/r to 0.95 to 1.00
-   ([`E-GRV-0119`](test/experiment/gravity/framed-cluster-depth.ts)).
-   The drift cost confines a lone love, and the neutral trio leaves no
-   string outside itself. Boosted, it holds at every momentum up to
-   π/2 and moves at its band's speed, with its pull moving with it
-   ([`E-SPN-0105`](test/experiment/spin/moving-level.ts),
-   [`E-GRV-0121`](test/experiment/gravity/moving-level-depth.ts)). But
-   its inertia is not its energy. A lone love is already off by
-   tan(π/3)/(π/3) = 1.654, because the coin gives it a mass of a third
-   of the lattice scale, and the binding adds a further 4.2
-   ([`E-SPN-0106`](test/experiment/spin/slant-string.ts)). Falling alike
-   for composites needs particles light against the lattice.
-   Taking the coin's phase w as its n-th part, carried exactly by a
-   count that wraps into w, gives a lone love m*/E_rest 1.006 and top
-   speed 0.991 at n = 8, while a coin acting every n-th beat keeps
-   1.654 at every n. But no three-love level holds under it at
-   n = 2, 4, 8, because it also changes the full dock's phase that
-   bound the trio, and n is a new free input
-   ([`E-SPN-0107`](test/experiment/spin/fine-coin.ts)).
-   Putting the full-dock contact back does not bind a light trio: a
-   light love passes through a potential that acts only on its phase,
-   the Klein effect
-   ([`E-SPN-0108`](test/experiment/spin/full-dock-contact.ts)).
-   Letting the string's flux set the coin fails too, because a lone
-   love drags its own string and looks locally like a trio's end
-   ([`E-SPN-0109`](test/experiment/spin/string-bag.ts)). What must be
-   light is a neutral composite many docks across, not a lone love
-6. not a requirement: matter smaller than a dock falls by its own
-   lattice ray, but real particles are about 10^20 docks across if a
-   dock is Planck-sized. That is a Planck-scale prediction, not a gap.
-   The requirement is n ≫ 1, which is item 5
-7. the 3.8% energy drift at a depth boundary on the span light
-8. whether the husk's bending is a full spin-2 field, and the field's
-   pull on itself that a Schwarzschild horizon needs
-9. whether the step trits are the flux lines vibes already drag: the
-   energy lines are, with exact Gauss, but their circulation is
-   unbounded unless only the curl-free part (the steps) is kept
+**Settled in the last rounds:**
+
+1. **a horizon at 2GM.** Where the clock register runs out of room,
+   time stops and light is trapped, exactly. Its radius grows as M once
+   the box is taken out, bending stays 1.9985 and α flat
+   ([`E-GRV-0118`](test/experiment/gravity/horizon-slope-box.ts),
+   [`E-GRV-0122`](test/experiment/gravity/headroom-horizon-temperature.ts)).
+   It is bald far out, with one short-range number near it
+   ([`E-GRV-0116`](test/experiment/gravity/horizon-flux-budget.ts))
+2. **Hawking's scaling.** Light leaving a large horizon is redshifted
+   at 0.97 to 0.98 κ, T·M flat to 1.7%, over a window capped at ½ ln C
+   by the clock register
+   ([`E-GRV-0123`](test/experiment/gravity/deep-headroom-horizon.ts)). A
+   forming horizon makes particles, exactly counted, with a power-law
+   spectrum at the register sizes run
+   ([`E-GRV-0132`](test/experiment/gravity/forming-headroom-horizon.ts))
+3. **an area law.** Carrying the infall onto the horizon's own surface
+   registers hides 18.18 nats per cut link at every size and every
+   stage of growth. A horizon forms only while what fell in fits on its
+   surface, which is Bekenstein's bound as dynamics. S/(A/4G) is a flat
+   1.44 to 1.47
+   ([`E-GRV-0131`](test/experiment/gravity/membrane-horizon-entropy.ts),
+   [`E-GRV-0135`](test/experiment/gravity/balanced-membrane-growth.ts)).
+   The torn husk alone gives a volume law
+   ([`E-GRV-0124`](test/experiment/gravity/headroom-horizon-entropy.ts))
+4. **source and field.** The confining string is the energy-line
+   register mod 3, with Gauss exact
+   ([`E-GRV-0127`](test/experiment/gravity/trio-energy-line-depth.ts)).
+   No local move on a closed register turns those lines into the 1/r
+   depth within a run
+   ([`E-GRV-0130`](test/experiment/gravity/trio-line-plaquette-depth.ts),
+   [`E-GRV-0133`](test/experiment/gravity/trio-stack-plaquette-depth.ts)),
+   so the step field is gravity's own field, as the Coulomb field is
+   light's, sourced by the rule's energy
+5. **matter that stays put, and falls alike.** The rule holds the
+   three-love level with a one-trit drift cost and a consistent fermion
+   sign, and its energy sources the 1/r
+   ([`E-SPN-0104`](test/experiment/spin/permutation-meeting.ts),
+   [`E-GRV-0119`](test/experiment/gravity/framed-cluster-depth.ts)).
+   Inertia over energy is two factors:
+   - the walk goes to 1 as a love gets light against a dock (1.006 at
+     n = 8, [`E-SPN-0107`](test/experiment/spin/fine-coin.ts))
+   - the binding goes to 1 as a string-bound love-fear pair's string
+     loosens (1.018 at D 30), with its size growing as the predicted cube
+     root ([`E-SPN-0112`](test/experiment/spin/moving-binding.ts))
+
+   The trio does not, because it is held by contact at a full dock, 2.2
+   docks across at every tension
+   ([`E-SPN-0111`](test/experiment/spin/loose-string.ts))
+6. **spin 2.** One depth per line class fixes a full metric, and with
+   linearized general relativity as the coupling it carries exactly two
+   polarizations at c
+   ([`E-GRV-0125`](test/experiment/gravity/line-class-spin-two.ts))
+7. **the 3.8% drift** was the wrong energy being read. The headroom
+   light keeps the right one to 2.9e-14 and bends by 2.0069
+   ([`E-GRV-0128`](test/experiment/gravity/headroom-slab-window.ts))
+
+**Still open:**
+
+1. light composites at speed: along the joint limit a meson's inertia
+   over energy falls to 1.003 at rest
+   ([`E-SPN-0113`](test/experiment/spin/meson-joint-limit.ts)), but at
+   momenta about half its rest energy another pair level crosses its
+   band ([`E-SPN-0114`](test/experiment/spin/meson-scaled-step.ts))
+2. moving in 3d: a pair bound across crossing lines holds but cannot
+   move, because nothing turns flux around a loop
+   ([`E-SPN-0110`](test/experiment/spin/crossing-lines.ts))
+3. a temperature: a forming horizon's spectrum stays a power law at
+   every register size run (C 13 to 49), so what shows is the growth's
+   quench
+   ([`E-GRV-0134`](test/experiment/gravity/forming-horizon-register-scan.ts)).
+   Read late, a settled horizon makes nothing (1e-7 of the burst): it is
+   a static wall with its redshift capped at ½ ln C, so a bounded clock
+   predicts a formation burst and no steady evaporation unless
+   ln C ≫ 4π
+   ([`E-GRV-0136`](test/experiment/gravity/forming-horizon-late-slow.ts))
+4. spin 2 from the rule: the coupling is chosen, not derived, and the
+   husk's square faces have no dock at their crossing
+5. Randall and Sundrum's short-range number, which needs about 8 bulk
+   layers per doubling of scale
+   ([`E-GRV-0105`](test/experiment/gravity/lapse-husk-static.ts))
+
+The full record is note/research/vibe/roadmap/remaining-pieces.md and
+discrete-gravity.md in the ClueSurf notes.
 
 **Where the previous readme read otherwise.** It gave gravity as solved: the
 area-law potential giving Newton and the factor two

@@ -1,4 +1,6 @@
-// DOES A LOOSER STRING, SET BY THE LIGHT'S OWN D, BRING THE HELD TRIO'S INERTIA TO ITS ENERGY (E-SPN-0110)?
+// DOES A LOOSER STRING, SET BY THE LIGHT'S OWN D, BRING THE HELD TRIO'S INERTIA TO ITS ENERGY (E-SPN-0111)?
+// RENUMBERED: run 1 was made under E-SPN-0110 and its log (tmp/loose-run1.log) prints that code; 0110 was registered
+// meanwhile by spin/crossing-lines, so this file took 0111 before registering. Nothing else changed.
 // E-SPN-0105's held three-love level has m*/E_rest 6.947 against the lone love's tan m/m 1.654 (R 4.200, E-SPN-0106,
 // 0108). It is 2.2 docks across, at the cutoff. The drift cost is zeta_(2N)^(-span), a tension sigma = pi/N per link
 // with N = 2D + 1 and D the light's trit-column depth (code/measure/drift-cost-bloch lightN), so the string's tension is
@@ -47,6 +49,24 @@
 // smaller than N, unreadable. tmp/loose-b.log: D 4 n 1 box 18 (337 s) inside 9, E 0.49877, mean 1.85, contact 0.413, m*
 // 10.542, R 1.751. The D 4 candidate's contact (0.41 against 0.92 at D 3) and smaller mean are why FAMILY is read.
 //
+// RUN 1 (4587 s, tmp/loose-run1.log, the record): fail on L2, L3 and L4, no gate moved; L1 and both controls hold.
+// n = 1, per D (box, candidate E, mean span, contact, m*, E_rest, R, family):
+//   D 3 (14)  0.330018   2.188  0.918  24.117  3.4716  4.200  the contact family
+//   D 4 (18)  0.498769   1.847  0.413  10.542  3.6404  1.751  NOT the contact family (largest contact inside 0.481, R 2.820)
+//   D 5 (22)  -0.025833  2.197  0.911  25.697  3.1158  4.986  the contact family
+//   D 6 (26)  -0.122469  2.204  0.907  25.290  3.0191  5.065  the contact family
+// L1: held at every D (band overlap at least 0.9995); box 20 at D 4 gives the same candidate, E gap 7.6e-10. L2: R does
+// not fall (4.200, 1.751, 4.986, 5.065). L3: R at D 6 5.065; R - 1 = 5.145 - 20.34/N, intercept 5.1, worst residual
+// 2.1. L4: no level inside at n = 2 (least tail 0.117 at D 4, 0.029 at D 5). The contact family's mean span stays
+// 2.19 to 2.20 at every D: the looser string does not widen it, and its R RISES slowly (4.20, 4.99, 5.06), since E(0)
+// falls (0.330, -0.026, -0.122) and so E_rest falls while m* holds near 25. sigma/alpha 37.31, 38.69, 39.57, 40.18.
+// Controls: (a) E 0.33001851839229956, m* 24.116350860705534, R 4.199992; (b) the unbound unit has nothing inside at
+// boxes 12 and 14 (least tail 1.57e-3).
+// PROBE AFTER RUN 1 (tmp/loose-family-probe.ts, tmp/loose-family1.log, disclosed, no gate read on it): at D 4 box 18
+// the contact family IS present, E 0.112933, mean 2.255, contact 0.910, but its tail beyond N is 1.76e-3, over the
+// 1e-3 cut (D 3 5.6e-4, D 5 1.4e-6, D 6 3.0e-8), so the reading rule took the next level; R 1.751 at D 4 is a change of
+// family, not a looser string lightening the trio. Its energy fits the family's run (0.330, 0.113, -0.026, -0.122).
+//
 // Depth L2: a lattice Dirac walk bound by a linear string on the rule's own line, a known construction; what could fail
 // is whether the looser string's level is held and grows covariant. DETERMINISM: no random numbers; the band and every
 // reading are float measurement of the stand-in, whose ring form E-SPN-0104/0105 checked against the exact rule at D 3.
@@ -89,8 +109,9 @@ type Point = { D: number; n: number; box: number; unit: number; dim: number; ins
 
 export default experiment({
   id: 'spin/loose-string',
-  code: 'E-SPN-0110',
-  title: 'a looser string set by the light\'s own D, read before the run',
+  code: 'E-SPN-0111',
+  title:
+    "loosening the string with the light's own D does not bring the held trio's inertia toward its energy, fail on L2, L3 and L4: with the drift cost's tension pi/(2D + 1) a three-love level is held at every D 3 to 6 (boxes 14, 18, 22, 26; box 20 at D 4 gives the same level to 8e-10), but its mean span stays 2.19 to 2.20 and R = (m*/E_rest)/(tan m/m) reads 4.200, 1.751, 4.986, 5.065, not falling; R - 1 fitted on 1/N has intercept 5.1, not 0; the 1.751 at D 4 is a change of level, the contact family (contact 0.91) there having tail 1.8e-3 beyond N, just over the 1e-3 cut, so the next level (contact 0.41) was taken; at fine n = 2 no level is held at D 4 or 5 (least tail 0.117, 0.029); sigma/alpha is 37.3 to 40.2, a consequence of two closed forms in D; E-SPN-0105's R 4.200 reproduced and the unbound unit holds nothing",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

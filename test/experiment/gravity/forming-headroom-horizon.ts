@@ -1,4 +1,4 @@
-// Does a FORMING headroom horizon make particles at Hawking's temperature (remaining-pieces idea 5)? E-GRV-0122 and 0123
+// Does a FORMING headroom horizon make particles at Hawking's temperature (E-GRV-0132, remaining-pieces idea 5)? E-GRV-0122 and 0123
 // read the static horizon's redshift: it runs at kappa, and the register caps it at ln z = ln(C) / 2. Here the lump
 // GROWS: its excess M(t) u(r) fills each dock's register one count at a time, and each count is a sudden change of that
 // dock's rate, a small quench that can mix positive and negative frequency. The light is linear, so the Bogoliubov
@@ -73,6 +73,32 @@
 // the band's Planck extrapolation; the control's weight left in the zone that is not flat at t_0; the rule's wraps;
 // the float chain's round trip on the replica; the rule-vs-shadow tracking through the quenches (the carried fraction
 // jumps by (k' - k) C^T f at a quench, an amplitude-independent term).
+//
+// FIRST RUN (tmp/hawk-run1.log, the record, 1113 s, 1.5 GB peak): FAIL on P1 and P2; no gate moved.
+//  - THE GROWTH MAKES PARTICLES: 3016 dock changes, and every out packet comes back with a negative-frequency part.
+//    |beta / alpha|^2 at 4, 5.5, 7, 8.5, 10, 11.5, 13 T: 3.63e-2, 2.34e-2, 1.65e-2, 1.24e-2, 9.64e-3, 7.82e-3, 6.51e-3.
+//  - P1 fails on T: the Planck form fits the band well (rms 0.023) but at T 9.60 x kappa / 2 pi (0.01396 a beat, 1.53
+//    kappa); the plain slope of ln |beta / alpha|^2 on omega reads 5.33 x. Over the band the ratio falls as omega^-1.46,
+//    a power law, not e^(-omega / T). The negative part sits at only 4.7 .. 2.0 x the out frequency in the vacuum
+//    (its blueshift), against the C = 25 the register allows: the modes are not traced deep, as the 0.26-thermal-time
+//    window predicted. 99.9 percent of it is in the acoustic pair.
+//  - THE PREDICTED CUTOFF IS NOT SEEN: past omega_C (15.56 T) the ratio reads 2.79e-3 at 1.25 omega_C and 1.84e-3 at
+//    1.6 omega_C, 1.02 and 1.26 of the band's Planck fit. The log slope steepens only from -1.46 to -1.95. A mode above
+//    omega_C cannot reach the room-1 dock, and it makes particles anyway: the quenches that matter sit on docks of room
+//    3 and up, not only at the register's last count.
+//  - P2 fails narrowly: the static lump reads 1.92e-24 at 4 T (bound 1e-24, |beta / alpha| 1.4e-12) and 6.4e-26 at 13 T.
+//    1.5e-16 of the 4 T packet's weight is still in the zone that is not flat at t_0, where the flat split is not exact
+//    (probe7 read 2e-21 there after t_f beats; 6144 beats further it reads 1.5e-16, not the projected 1e-25, and why is
+//    not checked: the packet's leading tail nears the ring's far side, 8192 docks round, by then). With no growth
+//    the ratio is 22 orders under the growth's: the static lump makes nothing at the 1e-12 amplitude level.
+//  - P3 holds: the integer rule through all 18,432 beats of the replica's growth reverses bit for bit, 0 Gauss
+//    violations, 0 wraps. K1 holds: the chain equals the full L x 2 x 2 float shadow to 9.8e-13 through 17 quenches. K2
+//    holds: N+ - N- = 1 to 4.5e-14 on every packet. Out packets: tail in the zone 4.3e-21, norm to 7.8e-15.
+//  - THE RULE AGAINST ITS SHADOW: at amplitude 0.1 on the C 25 replica (R = q0 C = 125) the integer rule ends the growth
+//    0.79 of its largest value away from the float shadow; the float chain's own round trip is 7.6e-11. Between quenches
+//    the two are one map (probe2, 1.7e-13); at each quench the carried fraction jumps by (k' - k) C^T f, which is O(1)
+//    in A2 units whatever the amplitude, and at R = 125 that is not small. The Bogoliubov numbers are the LINEAR
+//    shadow's, which is the rule's large-amplitude limit; at this register and amplitude the rule is not in that limit.
 //
 // Depth L2: a known construction (Bogoliubov coefficients of a time-dependent linear medium) on the exact light of
 // E-GRV-0122 over a background placed from the rule's linear statics; the room coupling and the growth law are placed by
@@ -164,8 +190,9 @@ function planckFit(omegas: readonly number[], ratios: readonly number[], guess: 
 
 export default experiment({
   id: 'gravity/forming-headroom-horizon',
-  code: 'E-GRV-0129',
-  title: 'particle production on a forming headroom horizon: exact Bogoliubov projection (first run pending)',
+  code: 'E-GRV-0132',
+  title:
+    "a forming headroom horizon makes particles but not at Hawking's temperature, fail on P1 and P2: a lump grown at dM/dt = M_f / 16384 to r_h 12.5 (C 25, T = kappa / 2 pi 1.454e-3) gives, by exact projection of out packets back to the flat vacuum, |beta / alpha|^2 3.63e-2 .. 6.51e-3 over 4 .. 13 T, a power law omega^-1.46 whose Planck fit reads T 9.60 x kappa / 2 pi (rms 0.023); the register's cutoff omega_C = 15.56 T is not seen (1.02 and 1.26 of the fit at 1.25 and 1.6 omega_C); the negative part is blueshifted only 2 .. 4.7 x, not the C the register allows; the static lump reads 1.9e-24 (bound 1e-24) and 6.4e-26, 1.5e-16 of the packet still in the zone that is not flat; the integer rule reverses bit for bit through the growth, the chain equals the full shadow to 1e-12, KG conserved to 5e-14, but at amplitude 0.1 and R 125 the rule ends 0.79 off its linear shadow",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
