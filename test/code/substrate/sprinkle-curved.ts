@@ -6,7 +6,7 @@
 import { suite, check, ok, notOk, equal } from '@/test/code/harness'
 import { sprinkleCurved } from '@/code/substrate/sprinkle-curved'
 import { precedes } from '@/code/tool/poset'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { ManifoldSpec } from '@/code/tool/embedding'
 
 const manifold: ManifoldSpec = { form: 'minkowski', dimension: 2 }
@@ -18,7 +18,7 @@ suite('substrate/sprinkle-curved: the causal order', [
       const p = sprinkleCurved({
         manifold,
         count: 50,
-        rng: makeRng({ seed: 4 }),
+        rng: makeWeyl({ start: 4 }),
       })
 
       for (let i = 0; i < p.size; i++) {
@@ -53,13 +53,13 @@ suite('substrate/sprinkle-curved: determinism', [
     const a = sprinkleCurved({
       manifold,
       count: 40,
-      rng: makeRng({ seed: 13 }),
+      rng: makeWeyl({ start: 13 }),
     })
 
     const b = sprinkleCurved({
       manifold,
       count: 40,
-      rng: makeRng({ seed: 13 }),
+      rng: makeWeyl({ start: 13 }),
     })
 
     equal(a.size, b.size, 'same element count')

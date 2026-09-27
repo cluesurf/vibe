@@ -10,7 +10,7 @@
 // P114), whose particles may sit at the band edge. Run: npx tsx code/experiment/p130-reflection-positivity.ts
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import {
   hankelMatrix,
@@ -74,7 +74,7 @@ export function reflectionPositivity(input?: {
   }
 
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
 
   for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0

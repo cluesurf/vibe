@@ -8,14 +8,14 @@
 // (0 means a fixed point was reached).
 
 import { Graph } from '@/code/tool/graph'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 export function settleAsync(input: {
   graph: Graph
   fills: Int8Array[]
   init: Int8Array
   sweeps: number
-  rng: Rng
+  rng: Weyl
 }): { state: Int8Array; finalFlip: number } {
   const { graph, fills, init, sweeps, rng } = input
   const n = graph.size

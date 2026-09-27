@@ -12,13 +12,13 @@
 // No patch is ever drawn by hand. Charge Q is conserved by the dynamics. Run: npx tsx code/experiment/p106-selves-at-scale.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { cohesiveEdgeSweepHashed } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { scaled } from '@/test/scaffold/scale'
+import { weylCell } from '@/code/tool/weyl'
 
 // cohesive perception rule, one beat (conserving)
 const beat = (
@@ -148,7 +148,7 @@ export function selvesAtScale(input?: { n?: number }): {
   const shuffled = tone.slice()
 
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(hashRand(i, 0, 2) * (i + 1))
+    const j = Math.floor(weylCell(i, 0, 2) * (i + 1))
     const t = shuffled[i]!
 
     shuffled[i] = shuffled[j]!
@@ -216,7 +216,7 @@ export default experiment({
       control: { largestRandom: r.largestRandom },
       notes:
         'AUDIT 2026-08-31 (perturbation): at half size (30000 cells) the verdict fails with one patch over fifty against five at 60000 and six at 90000, so the claim has a measured size floor between 30000 and 60000 cells; it holds at 60000 and 90000. ' +
-        'AUDIT 2026-08-31: the initial condition here is a hashed or seeded pseudo-random fill (hashRand, makeRng or a sprinkling), which the methodology does not admit as a foundational initial condition. Read this as an ensemble-style claim whose robustness comes from the size sweep, not from varying seeds. Replacing the fill with a structured pattern is roadmap item 0013. ' +
+        'AUDIT 2026-08-31, revised 2026-09-25: the initial condition here is a deterministic Weyl fill or a Weyl-driven sprinkling (code/tool/weyl), with no generator and no seed, but it is still a spread-out fill rather than a structured pattern, which the methodology does not admit as a foundational initial condition. Robustness comes from the size sweep. Replacing the fill with a structured pattern is roadmap item 0013. ' +
         'uses a cohesion maintenance term that is not one of the five base things, a mid-layer result not pure substrate emergence',
     })
   },

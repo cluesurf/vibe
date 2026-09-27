@@ -5,7 +5,7 @@
 // algebra or the sampler is wrong, every experiment above is suspect. Lifted
 // verbatim out of the old monolithic driver.
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   makeBitMatrix,
   setBit,
@@ -390,7 +390,7 @@ export function runConformance(): { passed: number; failed: number } {
 
   // 3. sprinkle Minkowski recovers dimension near 2
   {
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
     const poset = sprinkleMinkowski({ dimension: 2, count: 1500, rng })
     const d = myrheimMeyerDimension({ poset })
 
@@ -405,7 +405,7 @@ export function runConformance(): { passed: number; failed: number } {
   //    so use 3D Minkowski: a 2D spatial slice where a square lattice is 4-fold
   //    anisotropic and a sprinkling is rotationally uniform).
   {
-    const rng = makeRng({ seed: 2 })
+    const rng = makeWeyl({ start: 2 })
     const latIso = lorentzIsotropy({
       substrate: lattice({
         dimension: 3,
@@ -431,7 +431,7 @@ export function runConformance(): { passed: number; failed: number } {
 
   // 5. CHSH with independent settings respects the classical bound
   {
-    const rng = makeRng({ seed: 4 })
+    const rng = makeWeyl({ start: 4 })
     const r = chsh({
       drawHidden: ({ rng: r2 }) => r2.next() * Math.PI,
       settingCorrelation: 0,
@@ -495,7 +495,7 @@ export function runConformance(): { passed: number; failed: number } {
   // 8. SU(2) gauge: a cold lattice is ordered (plaquette 1); strong coupling
   // disorders it (plaquette toward 0). Validates the non-Abelian gauge machinery.
   {
-    const rng = makeRng({ seed: 6 })
+    const rng = makeWeyl({ start: 6 })
     const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
     const cold = averagePlaquette({ lattice: lat })
 
@@ -595,7 +595,7 @@ export function runConformance(): { passed: number; failed: number } {
   // 13. An expanding hyperbolic mesh stays Lorentz-safe: a grown snapshot (the
   // both-worlds substrate at a larger radius) keeps low anisotropy.
   {
-    const rng = makeRng({ seed: 4800 })
+    const rng = makeWeyl({ start: 4800 })
     const graph = hyperbolicGraph({
       count: 800,
       radius: 6.39,
@@ -688,7 +688,7 @@ export function runConformance(): { passed: number; failed: number } {
       sweeps: 150,
       movesPerSweep: 15,
       observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
-      rng: makeRng({ seed: 3 }),
+      rng: makeWeyl({ start: 3 }),
     })
 
     const cold = result.samplesByBeta[3] ?? []
@@ -745,7 +745,7 @@ export function runConformance(): { passed: number; failed: number } {
       beta: 0,
       epsilon: 0.9,
       steps: 200000,
-      rng: makeRng({ seed: 6 }),
+      rng: makeWeyl({ start: 6 }),
     })
 
     check({
@@ -762,14 +762,14 @@ export function runConformance(): { passed: number; failed: number } {
       length: 5,
       disorder: 0,
       configs: 4,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     const gauged = chiralCondensateSignal({
       length: 5,
       disorder: 0.6,
       configs: 6,
-      rng: makeRng({ seed: 2 }),
+      rng: makeWeyl({ start: 2 }),
     })
 
     check({
@@ -788,14 +788,14 @@ export function runConformance(): { passed: number; failed: number } {
       length: 4,
       disorder: 0,
       configs: 3,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     const gauged = chiralCondensateSignalSU2({
       length: 4,
       disorder: 0.4,
       configs: 5,
-      rng: makeRng({ seed: 2 }),
+      rng: makeWeyl({ start: 2 }),
     })
 
     check({
@@ -2404,7 +2404,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const groups: GaugeGroup[] = ['u1', 'su2', 'su3']
 
     for (const group of groups) {
-      const rng = makeRng({ seed: 91 })
+      const rng = makeWeyl({ start: 91 })
       const gauge = makeGaugeLattice({
         group,
         lengths: [4, 4, 4, 4],
@@ -2461,7 +2461,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the SU(2) heatbath weight sqrt(1 - h^2) exp(alpha h) has mean I2(alpha) / I1(alpha), on both
     // sampling branches, and the von Mises density exp(kappa cos) has mean cosine I1 / I0
     const draws = 40000
-    const rng = makeRng({ seed: 92 })
+    const rng = makeWeyl({ start: 92 })
 
     const sampleMean = (draw: () => number): number => {
       let total = 0
@@ -2798,7 +2798,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           group: 'su3',
           lengths: [3, 3, 3, 3],
           start: 'cold',
-          rng: makeRng({ seed: 1 }),
+          rng: makeWeyl({ start: 1 }),
         })
         const momenta = makeMomenta({ lattice })
 
@@ -3329,7 +3329,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         group: hessian,
         lengths: [3, 3, 3, 3],
         start: 'cold',
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
       const polyakov = finitePolyakovLoop({ lattice: cold })
       const loops = finiteWilsonLoops({ lattice: cold, max: 2 })
@@ -3355,7 +3355,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         set,
         lengths: [3, 3, 3, 3],
         start: 'cold',
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       check({
@@ -3377,11 +3377,11 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         group: delta,
         lengths: [3, 3, 3, 3],
         start: 'hot',
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
       const microStartLinks = Int16Array.from(micro.links)
       const microDemons = new Int32Array(micro.links.length).fill(4)
-      const microRng = makeRng({ seed: 2 })
+      const microRng = makeWeyl({ start: 2 })
       const microEnergy = (): number =>
         quantizedEnergy({ lattice: micro, levels: microLevels }) +
         microDemons.reduce((a, b) => a + b, 0)

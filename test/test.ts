@@ -2,7 +2,7 @@
 // assert harness, runnable with `npx tsx code/test.ts`. Exits nonzero on
 // failure. The science is only as trustworthy as these checks.
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   makeBitMatrix,
   setBit,
@@ -334,7 +334,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
 // 3. sprinkle Minkowski recovers dimension near 2
 {
-  const rng = makeRng({ seed: 1 })
+  const rng = makeWeyl({ start: 1 })
   const poset = sprinkleMinkowski({ dimension: 2, count: 1500, rng })
   const d = myrheimMeyerDimension({ poset })
 
@@ -349,7 +349,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 //    so use 3D Minkowski: a 2D spatial slice where a square lattice is 4-fold
 //    anisotropic and a sprinkling is rotationally uniform).
 {
-  const rng = makeRng({ seed: 2 })
+  const rng = makeWeyl({ start: 2 })
   const latIso = lorentzIsotropy({
     substrate: lattice({
       dimension: 3,
@@ -375,7 +375,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 
 // 5. CHSH with independent settings respects the classical bound
 {
-  const rng = makeRng({ seed: 4 })
+  const rng = makeWeyl({ start: 4 })
   const r = chsh({
     drawHidden: ({ rng: r2 }) => r2.next() * Math.PI,
     settingCorrelation: 0,
@@ -439,7 +439,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // 8. SU(2) gauge: a cold lattice is ordered (plaquette 1); strong coupling
 // disorders it (plaquette toward 0). Validates the non-Abelian gauge machinery.
 {
-  const rng = makeRng({ seed: 6 })
+  const rng = makeWeyl({ start: 6 })
   const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
   const cold = averagePlaquette({ lattice: lat })
 
@@ -539,7 +539,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // 13. An expanding hyperbolic mesh stays Lorentz-safe: a grown snapshot (the
 // both-worlds substrate at a larger radius) keeps low anisotropy.
 {
-  const rng = makeRng({ seed: 4800 })
+  const rng = makeWeyl({ start: 4800 })
   const graph = hyperbolicGraph({
     count: 800,
     radius: 6.39,
@@ -685,7 +685,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     sweeps: 150,
     movesPerSweep: 15,
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
-    rng: makeRng({ seed: 3 }),
+    rng: makeWeyl({ start: 3 }),
   })
 
   const cold = result.samplesByBeta[3] ?? []
@@ -736,7 +736,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     beta: 0,
     epsilon: 0.9,
     steps: 200000,
-    rng: makeRng({ seed: 6 }),
+    rng: makeWeyl({ start: 6 }),
   })
 
   check({
@@ -753,14 +753,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     length: 5,
     disorder: 0,
     configs: 4,
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
 
   const gauged = chiralCondensateSignal({
     length: 5,
     disorder: 0.6,
     configs: 6,
-    rng: makeRng({ seed: 2 }),
+    rng: makeWeyl({ start: 2 }),
   })
 
   check({
@@ -779,14 +779,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     length: 4,
     disorder: 0,
     configs: 3,
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
 
   const gauged = chiralCondensateSignalSU2({
     length: 4,
     disorder: 0.4,
     configs: 5,
-    rng: makeRng({ seed: 2 }),
+    rng: makeWeyl({ start: 2 }),
   })
 
   check({
@@ -829,7 +829,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const sprinkle = sprinkleMinkowski({
     dimension: 2,
     count: 96,
-    rng: makeRng({ seed: 1 }),
+    rng: makeWeyl({ start: 1 }),
   })
 
   const r = sampleUniform({
@@ -837,7 +837,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     beta: 1,
     epsilon: 0.9,
     steps: 30000,
-    rng: makeRng({ seed: 31 }),
+    rng: makeWeyl({ start: 31 }),
     sampleEvery: 48,
     startFuture: sprinkle.future,
   })
@@ -944,7 +944,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     epsilon: 0.9,
     minHeight: 2,
     maxHeight: 9,
-    rng: makeRng({ seed: 20 }),
+    rng: makeWeyl({ start: 20 }),
     maxSteps: 3_000_000,
     coverThreshold: 1200,
     burnInFraction: 0.5,

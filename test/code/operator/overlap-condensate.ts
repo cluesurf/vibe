@@ -10,7 +10,7 @@
 
 import { suite, check, ok, equal } from '@/test/code/harness'
 import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 suite('operator/overlap-condensate: signal sanity', [
   check('the near-zero density is a fraction in [0, 1]', () => {
@@ -18,7 +18,7 @@ suite('operator/overlap-condensate: signal sanity', [
       length: 3,
       disorder: 0.5,
       configs: 1,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     ok(Number.isFinite(result.nearZeroDensity), 'finite')
@@ -34,14 +34,14 @@ suite('operator/overlap-condensate: signal sanity', [
         length: 3,
         disorder: 0,
         configs: 1,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       const b = chiralCondensateSignal({
         length: 3,
         disorder: 0,
         configs: 1,
-        rng: makeRng({ seed: 999 }),
+        rng: makeWeyl({ start: 999 }),
       })
 
       equal(
@@ -58,14 +58,14 @@ suite('operator/overlap-condensate: signal sanity', [
         length: 3,
         disorder: 0,
         configs: 1,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       const three = chiralCondensateSignal({
         length: 3,
         disorder: 0,
         configs: 3,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       equal(

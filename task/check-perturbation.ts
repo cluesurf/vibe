@@ -65,7 +65,7 @@ for (const candidate of allExperiments()) {
     const started = Date.now()
 
     try {
-      const v = candidate.run({ seed: 1, scale })
+      const v = candidate.run({ scale })
 
       statuses.push(`${scale}: ${v.status} ${Date.now() - started}ms`)
     } catch (error) {

@@ -5,7 +5,7 @@
 
 import { Poset, makePosetFromFuture } from '@/code/tool/poset'
 import { BitMatrix, makeBitMatrix, getBit } from '@/code/tool/bitset'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Action } from '@/code/dynamics/action'
 import {
   makeState,
@@ -65,7 +65,7 @@ export function sampleCausalSets(input: {
   action: Action
   beta: number
   steps: number
-  rng: Rng
+  rng: Weyl
   observe: (input: { poset: Poset }) => number
   // Optional warm start: begin from this order rather than the antichain. Its
   // labelling must be topological (a precedes b implies a < b), as sprinklings and

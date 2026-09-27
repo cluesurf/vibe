@@ -20,7 +20,7 @@ import {
   metropolisSweep,
   Quat,
 } from '@/code/dynamics/su2-lattice'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A complex number as [re, im], and a 2x2 complex matrix as four of them.
 type C = [number, number]
@@ -119,7 +119,7 @@ suite('dynamics/su2-lattice: cold-lattice observables', [
       dim: 3,
       length: 2,
       hot: false,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     close(averagePlaquette({ lattice }), 1, TOL, 'cold plaquette = 1')
@@ -129,7 +129,7 @@ suite('dynamics/su2-lattice: cold-lattice observables', [
       dim: 3,
       length: 3,
       hot: false,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     close(wilsonLoop({ lattice, r: 1, t: 1 }), 1, TOL, 'W(1,1) = 1')
@@ -140,7 +140,7 @@ suite('dynamics/su2-lattice: cold-lattice observables', [
       dim: 3,
       length: 3,
       hot: false,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     close(
@@ -158,7 +158,7 @@ suite('dynamics/su2-lattice: links and determinism', [
       dim: 2,
       length: 3,
       hot: true,
-      rng: makeRng({ seed: 7 }),
+      rng: makeWeyl({ start: 7 }),
     })
 
     for (let i = 0; i < lattice.links.length; i += 4) {
@@ -180,7 +180,7 @@ suite('dynamics/su2-lattice: links and determinism', [
           dim: 3,
           length: 2,
           hot: false,
-          rng: makeRng({ seed: 11 }),
+          rng: makeWeyl({ start: 11 }),
         })
 
       const a = make()
@@ -189,14 +189,14 @@ suite('dynamics/su2-lattice: links and determinism', [
         lattice: a,
         beta: 2.3,
         eps: 0.3,
-        rng: makeRng({ seed: 99 }),
+        rng: makeWeyl({ start: 99 }),
       })
 
       const accB = metropolisSweep({
         lattice: b,
         beta: 2.3,
         eps: 0.3,
-        rng: makeRng({ seed: 99 }),
+        rng: makeWeyl({ start: 99 }),
       })
 
       equal(accA, accB, 'acceptance must match across identical seeds')

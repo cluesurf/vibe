@@ -3,7 +3,7 @@
 // structure that nested selves and integrated information are built on: a cell is strongly bound
 // inside and weakly coupled to other cells.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { makeGraph, Graph } from '@/code/tool/graph'
 
 export function modularMesh(input: {
@@ -11,7 +11,7 @@ export function modularMesh(input: {
   cellSize: number
   intraDegree: number
   interPerCell: number
-  rng: Rng
+  rng: Weyl
 }): {
   g: Graph
   fills: Int8Array[]

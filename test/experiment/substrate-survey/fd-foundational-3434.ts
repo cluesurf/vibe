@@ -5,7 +5,7 @@
 // FD1/FD6 it is deterministic and the streaming is a conflict-free permutation of slots.
 // Run: npx tsx code/experiment/p245-fd-foundational-3434.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildD4Torus } from '@/code/substrate/d4-torus'
 import {
   D4_DIRECTIONS,
@@ -66,7 +66,7 @@ export function fdFoundational(): {
     collide(streamD4Inverse({ occupancy: occ, neigh, opp }))
 
   // deterministic pseudo-random initial state (a fixed seed, integer)
-  const rng = makeRng({ seed: 12345 })
+  const rng = makeWeyl({ start: 12345 })
   const rnd = (): number => rng.next()
   const occ0 = new Array(N).fill(0).map(() => {
     let o = 0

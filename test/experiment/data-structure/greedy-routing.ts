@@ -1,6 +1,6 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { greedyRoutingSuccess } from '@/code/measure/navigation'
 import { withScrambledEmbedding } from '@/code/tool/graph'
@@ -36,7 +36,7 @@ export default experiment({
     const geometric = greedyRoutingSuccess({
       graph,
       trials,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
       maxHops,
     })
 
@@ -44,7 +44,7 @@ export default experiment({
     const scrambled = greedyRoutingSuccess({
       graph: withScrambledEmbedding(graph),
       trials,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
       maxHops,
     })
 

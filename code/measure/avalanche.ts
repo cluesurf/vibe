@@ -32,7 +32,7 @@ export function settledAvalancheSizes<
   settleSeed: number
   perturbSeed: number
   streamSeed: number
-  makeRng: (seed: number) => R
+  makeStream: (seed: number) => R
   relax: (state: Int8Array, rng: R) => void
   mode: 'final' | 'peak'
 }): { sizes: number[]; background: number } {
@@ -44,13 +44,13 @@ export function settledAvalancheSizes<
     settleSeed,
     perturbSeed,
     streamSeed,
-    makeRng,
+    makeStream,
     relax,
     mode,
   } = input
 
   const base = new Int8Array(size)
-  const settleRng = makeRng(settleSeed)
+  const settleRng = makeStream(settleSeed)
 
   for (let t = 0; t < settleSteps; t++) {
     relax(base, settleRng)
@@ -63,7 +63,7 @@ export function settledAvalancheSizes<
     trials,
     perturbSeed,
     streamSeed,
-    makeRng,
+    makeStream,
     relax,
     mode,
   })
@@ -79,7 +79,7 @@ export function avalancheSizes<
   trials: number
   perturbSeed: number
   streamSeed: number
-  makeRng: (seed: number) => R
+  makeStream: (seed: number) => R
   relax: (state: Int8Array, rng: R) => void
   mode: 'final' | 'peak'
 }): number[] {
@@ -89,7 +89,7 @@ export function avalancheSizes<
     trials,
     perturbSeed,
     streamSeed,
-    makeRng,
+    makeStream,
     relax,
     mode,
   } = input
@@ -100,13 +100,13 @@ export function avalancheSizes<
   for (let tr = 0; tr < trials; tr++) {
     const s = base.slice()
     const s2 = base.slice()
-    const pr = makeRng(perturbSeed + tr)
+    const pr = makeStream(perturbSeed + tr)
     const cell = Math.floor(pr.next() * N)
 
     s2[cell] = s2[cell] === 0 ? 1 : 0
 
-    const ra = makeRng(streamSeed + tr)
-    const rb = makeRng(streamSeed + tr)
+    const ra = makeStream(streamSeed + tr)
+    const rb = makeStream(streamSeed + tr)
 
     let peak = 0
 

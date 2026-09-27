@@ -6,7 +6,7 @@
 import { suite, check, equal, exactArray } from '@/test/code/harness'
 import { perceptionEdgeBeat } from '@/code/dynamics/perception-edge-beat'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const N = 36
 
@@ -54,8 +54,8 @@ suite('dynamics/perception-edge-beat: delegation', [
       const viaSweep = makeTone(N)
       const movedA = new Uint8Array(N)
       const movedB = new Uint8Array(N)
-      const rngA = makeRng({ seed: 7 })
-      const rngB = makeRng({ seed: 7 })
+      const rngA = makeWeyl({ start: 7 })
+      const rngB = makeWeyl({ start: 7 })
 
       for (let b = 0; b < 20; b++) {
         perceptionEdgeBeat({
@@ -96,7 +96,7 @@ suite('dynamics/perception-edge-beat: charge conservation', [
       const tone = makeTone(N)
       const q0 = charge(tone)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 1 })
+      const rng = makeWeyl({ start: 1 })
 
       for (let b = 0; b < 30; b++) {
         perceptionEdgeBeat({

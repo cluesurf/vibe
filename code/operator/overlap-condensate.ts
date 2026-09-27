@@ -15,7 +15,7 @@ import {
   hermitianMatrixSign,
   eigHermitian,
 } from '@/code/algebra/linear/eig-hermitian'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Block, addComplexBlock } from '@/code/operator/block'
 
 const I_MINUS_SX: Block = { re: [1, -1, -1, 1], im: [0, 0, 0, 0] }
@@ -32,7 +32,7 @@ function site(n1: number, n2: number, L: number): number {
 function randomLinks(input: {
   length: number
   disorder: number
-  rng: Rng
+  rng: Weyl
 }): {
   u1: Float64Array
   u2: Float64Array
@@ -140,7 +140,7 @@ export function chiralCondensateSignal(input: {
   configs: number
   m0?: number
   tolerance?: number
-  rng: Rng
+  rng: Weyl
 }): { nearZeroDensity: number } {
   const L = input.length
   const m0 = input.m0 ?? 1

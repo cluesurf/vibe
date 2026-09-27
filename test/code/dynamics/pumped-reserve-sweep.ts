@@ -4,7 +4,7 @@
 
 import { suite, check, equal } from '@/test/code/harness'
 import { pumpedReserveSweep } from '@/code/dynamics/pumped-reserve-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const N = 40
 const edges = (n: number): [number, number][] =>
@@ -48,7 +48,7 @@ suite('dynamics/pumped-reserve-sweep: conservation', [
       const q0 = charge(tone)
       const p0 = countSign(tone, 1)
       const m0 = countSign(tone, -1)
-      const rng = makeRng({ seed: 1 })
+      const rng = makeWeyl({ start: 1 })
 
       for (let b = 0; b < 40; b++) {
         pumpedReserveSweep({
@@ -70,7 +70,7 @@ suite('dynamics/pumped-reserve-sweep: conservation', [
     const tone = makeTone(N)
     const { inSelf, distC } = selfAndDist(N)
     const q0 = charge(tone)
-    const rng = makeRng({ seed: 2 })
+    const rng = makeWeyl({ start: 2 })
 
     for (let b = 0; b < 30; b++) {
       pumpedReserveSweep({
@@ -92,7 +92,7 @@ suite('dynamics/pumped-reserve-sweep: determinism', [
     const run = (): Int8Array => {
       const tone = makeTone(N)
       const { inSelf, distC } = selfAndDist(N)
-      const rng = makeRng({ seed: 8 })
+      const rng = makeWeyl({ start: 8 })
 
       for (let b = 0; b < 20; b++) {
         pumpedReserveSweep({

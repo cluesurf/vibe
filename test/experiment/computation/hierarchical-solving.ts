@@ -14,7 +14,7 @@ import {
   conservingEdgeSweepHashed,
 } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -36,7 +36,7 @@ function solveTime(n: number): {
   const moved = new Uint8Array(N)
   const arrow = 0.1
   const base = new Int8Array(N)
-  const rng0 = makeRng({ seed: 5 })
+  const rng0 = makeWeyl({ start: 5 })
 
   for (let i = 0; i < N; i++) {
     base[i] = rng0.next() < 0.15 ? (rng0.next() < 0.5 ? 1 : -1) : 0

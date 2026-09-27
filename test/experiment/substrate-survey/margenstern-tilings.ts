@@ -7,7 +7,7 @@
 // all Lorentz-safe.
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p41-margenstern-tilings.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
 import { Graph, meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
@@ -70,7 +70,7 @@ export function margensternTilings(input: { seed: number }): Record<
     const aniso = lorentzIsotropy({
       substrate: g,
       samples: 3000,
-      rng: makeRng({ seed: input.seed }),
+      rng: makeWeyl({ start: input.seed }),
     })
 
     out[t.name] = {

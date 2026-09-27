@@ -17,7 +17,10 @@ Full citations for every value in this folder. Each data row carries a **source 
 **NuFIT collaboration.** I. Esteban, M. C. Gonzalez-Garcia, M. Maltoni, T. Schwetz, et al., "NuFIT 6.0: updated global analysis of three-flavor neutrino oscillations," *JHEP* **12** (2024) 216; arXiv:2410.05380. http://www.nu-fit.org. The current release (October 2024), superseding NuFIT 5.2 (2022). Covers the PMNS angles, the CP phase, and the neutrino mass-squared splittings. Values here are the standard reference column **without** Super-Kamiokande atmospheric data, normal ordering. The 2026-06-24 verification updated all PMNS values from NuFIT 5.2 to 6.0. (The nu-fit.org site returned a TLS error during the check, so values were cross-read from the arXiv paper.)
 
 ### Planck-2018
-**Planck Collaboration.** N. Aghanim et al., "Planck 2018 results. VI. Cosmological parameters," *Astron. Astrophys.* **641**, A6 (2020); erratum *A&A* **652**, C4 (2021). Covers the Hubble constant, the dark-energy and matter density fractions, and (with COBE/FIRAS for T_CMB: Fixsen, *ApJ* **707**, 916, 2009) the cosmological numbers. The competing local Hubble value is SH0ES: A. G. Riess et al., *ApJ Lett.* **934**, L7 (2022).
+**Planck Collaboration.** N. Aghanim et al., "Planck 2018 results. VI. Cosmological parameters," *Astron. Astrophys.* **641**, A6 (2020); erratum *A&A* **652**, C4 (2021). Covers the Hubble constant, the dark-energy and matter density fractions, and (with COBE/FIRAS for T_CMB: Fixsen, *ApJ* **707**, 916, 2009) the cosmological numbers. The competing local Hubble value is SH0ES, cited under its own tag below.
+
+### SH0ES-2022
+**SH0ES collaboration.** A. G. Riess et al., "A Comprehensive Measurement of the Local Value of the Hubble Constant with 1 km/s/Mpc Uncertainty from the Hubble Space Telescope and the SH0ES Team," *ApJ Lett.* **934**, L7 (2022); arXiv:2112.04510. Covers the distance-ladder Hubble constant, 73.04 ± 1.04 km/s/Mpc.
 
 ## Mathematical sources (for the derived structure)
 

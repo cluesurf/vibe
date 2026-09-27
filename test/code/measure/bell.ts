@@ -10,7 +10,7 @@
 
 import { suite, check, close, equal, ok } from '@/test/code/harness'
 import { chsh, chshShared } from '@/code/measure/bell'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // The CHSH-optimal angle quartet (a, a', b, b').
 const OPTIMAL = {
@@ -31,7 +31,7 @@ suite('measure/bell: chsh (local hidden variable)', [
         outcomeB: () => 1,
         angles: OPTIMAL,
         trials: 4000,
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
 
       close(out.correlators.ab, 1, 1e-12)
@@ -49,7 +49,7 @@ suite('measure/bell: chsh (local hidden variable)', [
         settingCorrelation: 0,
         angles: OPTIMAL,
         trials: 20000,
-        rng: makeRng({ seed: 12345 }),
+        rng: makeWeyl({ start: 12345 }),
       })
 
       // A deterministic local model can saturate but never cross 2; allow only finite-

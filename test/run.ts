@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   // The conformance battery first: the library primitives the experiments stand on.
   const conformance = runConformance()
 
-  const context = { seed: 1 }
+  const context = {}
 
   let pass = 0
   let fail = 0

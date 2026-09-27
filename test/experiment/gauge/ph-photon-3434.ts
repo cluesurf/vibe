@@ -6,7 +6,7 @@
 // (omega -> |k| = c|k|), unlike a massive mode, with D-2 = 2 transverse polarizations in 4D.
 // Run: npx tsx code/experiment/p249-ph-photon-3434.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GridGauge,
   plaquetteFlux,
@@ -27,7 +27,7 @@ export function phPhoton(): {
 
   const wrap = (x: number, L: number): number => ((x % L) + L) % L
   // U(1) link phases on a periodic 2D plaquette lattice (the gauge field, the 8v sector)
-  const rng = makeRng({ seed: 999 })
+  const rng = makeWeyl({ start: 999 })
   const rnd = (): number => rng.next() * 2 * Math.PI
   const Ax: number[][] = Array.from({ length: Lx }, () =>
     Array.from({ length: Ly }, () => rnd()),

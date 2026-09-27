@@ -8,7 +8,7 @@
 
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { margolusStep } from '@/code/operator/margolus-billiard'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const at = (length: number, x: number, y: number): number =>
   (((y % length) + length) % length) * length +
@@ -16,7 +16,7 @@ const at = (length: number, x: number, y: number): number =>
 
 function fillBits(length: number, seed: number): Uint8Array {
   const g = new Uint8Array(length * length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   for (let i = 0; i < g.length; i++) {
     g[i] = rng.next() < 0.5 ? 1 : 0

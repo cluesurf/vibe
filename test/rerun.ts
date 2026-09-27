@@ -42,7 +42,7 @@ const chosen = experiments.filter(
 
 for (const experiment of chosen) {
   const started = Date.now()
-  const [result] = runSuite([experiment], { seed: 1 })
+  const [result] = runSuite([experiment], {})
   const seconds = ((Date.now() - started) / 1000).toFixed(1)
   const { verdict } = result!
 

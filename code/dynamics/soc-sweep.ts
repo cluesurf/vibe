@@ -1,4 +1,4 @@
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // Local activity around an edge: the fraction of nonzero cells among the two
 // endpoints' combined neighborhoods. The drive signal for demand-driven creation.
@@ -45,7 +45,7 @@ export function socEdgeSweep(input: {
   eu: Int32Array
   ev: Int32Array
   moved: Uint8Array
-  rng: Rng
+  rng: Weyl
   arrow: number
   uniform: boolean
   quietThreshold?: number

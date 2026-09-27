@@ -17,7 +17,7 @@
 //      spectrum is exactly TWO massless modes at eigenvalue (1/2)|k|^2 (the graviton polarizations).
 // Run: npx tsx code/experiment/p24-graviton-from-action.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { pastMatrix } from '@/code/tool/poset'
 import { benincasaDowkerDalembertian } from '@/code/operator/benincasa-dowker'
@@ -89,7 +89,7 @@ export function bdSignature(input: {
     const p = sprinkleMinkowski({
       dimension: 2,
       count: input.count,
-      rng: makeRng({ seed: input.seed + r }),
+      rng: makeWeyl({ start: input.seed + r }),
     })
 
     const coords = p.embedding?.coords ?? new Float64Array(0)

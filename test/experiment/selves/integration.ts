@@ -4,7 +4,7 @@
 // framework's terms, it does not claim to capture experience itself.
 // Run: npx tsx code/experiment/p9-integration.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { makeConfiguration } from '@/code/tone/configuration'
 import { integrationCorrelates } from '@/code/measure/integration'
@@ -15,7 +15,7 @@ function study(): {
   markovBlanketScore: number
   integrationPhi: number
 } {
-  const rng = makeRng({ seed: 13 })
+  const rng = makeWeyl({ start: 13 })
   const substrate = hyperbolicGraph({
     count: 400,
     radius: 5,

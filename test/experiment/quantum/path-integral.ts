@@ -3,7 +3,7 @@
 // of the sampled orders, the tractable end of the sum over histories.
 // Run: npx tsx code/experiment/p6-path-integral.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
@@ -11,7 +11,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): { meanDimension: number; acceptance: number } {
-  const rng = makeRng({ seed: 11 })
+  const rng = makeWeyl({ start: 11 })
   const action = benincasaDowkerAction({ epsilon: 1, dimension: 2 })
   const r = sampleCausalSets({
     size: 48,

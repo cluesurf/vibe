@@ -10,7 +10,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 import { synchronousRule } from '@/code/rule/synchronous'
 import { LocalMap } from '@/code/rule/rule'
 
@@ -50,7 +49,6 @@ function stepOnce(local: LocalMap, values: number[]): number[] {
     substrate: graph,
     configuration: configFrom(values),
     beat: 0,
-    rng: makeRng({ seed: 1 }),
   })
 
   return readAll(out.configuration)
@@ -81,7 +79,6 @@ suite('rule/synchronous: simultaneous update from the input state', [
       substrate: graph,
       configuration: input,
       beat: 0,
-      rng: makeRng({ seed: 1 }),
     })
 
     equal(

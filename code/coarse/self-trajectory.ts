@@ -5,27 +5,23 @@
 //
 // On determinism, the self-kit hashed beat carries a stateless well-mixed hop, so this is a single fully
 // determined realization, not one draw from a random ensemble. Robustness comes from varying the lattice
-// size L. The seed argument is retained for the callers' interface but no longer feeds any randomness.
+// size L. The seed argument is retained for the callers' interface but no longer feeds anything.
+//
+// makeStream is the stream the coarse-graining controls (shuffles, surrogates) read: the Weyl stream of
+// code/tool/weyl at the given start. Until 2026-09-25 it was a local linear congruential generator
+// (s = 1664525 s + 1013904223 mod 2^32) named makeRng.
 
 import {
   flatGraph,
   emergeSelfHashed,
   beatHashed,
   type Graph,
-  type Rng,
 } from '@/code/model/self-kit'
 import { extractUnits, meanUnitSize } from '@/code/coarse/macro-unit'
+import { makeWeyl, type Weyl } from '@/code/tool/weyl'
 
-export function makeRng(seed: number): Rng {
-  let s = seed >>> 0
-
-  return {
-    next() {
-      s = (Math.imul(s, 1664525) + 1013904223) >>> 0
-
-      return s / 4294967296
-    },
-  }
+export function makeStream(start: number): Weyl {
+  return makeWeyl({ start })
 }
 
 // The global positive-charge centroid x, the mean column of all plus-tone cells. A smooth observable that

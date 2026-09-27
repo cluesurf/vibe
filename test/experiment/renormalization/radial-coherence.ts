@@ -14,7 +14,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { busemann, idealDirection } from '@/code/substrate/horosphere'
 import { toCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { lagAutocorrelation } from '@/code/measure/persistence'
 import { coarseFieldByGroup } from '@/code/coarse/group-field'
 import { perceptionMatchingSweepCsr } from '@/code/rule/perception-permutation'
@@ -87,7 +87,7 @@ export function radialCoherence(input?: {
   }
 
   // radial groupings per scale, and matched-size RANDOM null groupings
-  const rng = makeRng({ seed: 5 })
+  const rng = makeWeyl({ start: 5 })
   const radialGroup: Int32Array[] = []
   const nullGroup: Int32Array[] = []
   const groupCounts: number[] = []

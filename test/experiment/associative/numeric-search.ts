@@ -3,7 +3,7 @@
 // associative operations, the basis for nearest-value search and responder ranking.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   maxIndex,
   minIndex,
@@ -29,7 +29,7 @@ export function associativeNumericSearch(input?: {
   const maxCells = input?.maxCells ?? 1500
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
   const n = g.cellCount
-  const rng = makeRng({ seed: 1 })
+  const rng = makeWeyl({ start: 1 })
   const range = 1 << 16
   const field = new Int32Array(n)
 

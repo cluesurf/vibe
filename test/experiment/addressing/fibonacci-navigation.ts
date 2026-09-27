@@ -9,7 +9,7 @@
 // recurrence, the signature of the heptagrid. See note/deterministic-substrate.md.
 // Run: npx tsx code/experiment/p42-fibonacci-navigation.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
 import {
   buildAddressedTree,
@@ -47,7 +47,7 @@ export function fibonacciNavigation(input: {
   // Adjacency sets for an honest validity check of each route.
   const adj = g.neighbors.map(row => new Set<number>(Array.from(row)))
 
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   let delivered = 0
   let hopSum = 0

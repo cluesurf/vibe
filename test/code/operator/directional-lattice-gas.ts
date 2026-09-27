@@ -18,12 +18,12 @@ import {
   latticeMomentum,
   LatticeGasState,
 } from '@/code/operator/directional-lattice-gas'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // A deterministic ternary fill of every slot, exercising both collide cases.
 function fillGas(length: number, seed: number): LatticeGasState {
   const s = makeLatticeGas(length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   for (let i = 0; i < s.E.length; i++) {
     s.E[i] = rng.nextInt({ max: 3 }) - 1

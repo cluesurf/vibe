@@ -11,7 +11,7 @@ import {
   positiveClusters,
   type Graph,
 } from '@/code/model/self-kit'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 
 export type SelfShape = {
   // cell offsets (dx, dy) of the self's plus-charge cells relative to its centroid.
@@ -29,7 +29,7 @@ export function emergeSelfShape(input: {
 }): SelfShape {
   const { L, seed } = input
   const graph = flatGraph(L)
-  const rng = makeRng(seed)
+  const rng = makeStream(seed)
   const moved = new Uint8Array(graph.cellCount)
   const { tone } = emergeSelf(graph, rng, moved, {
     beats: input.beats ?? 80,
@@ -133,7 +133,7 @@ export function runTwoSelfAnnihilation(input: {
     sign: rightSign,
   })
 
-  const rng = makeRng(seed)
+  const rng = makeStream(seed)
   const moved = new Uint8Array(L * L)
   const counts = [plusCount(tone)]
 
@@ -214,7 +214,7 @@ export function runTwoSelf(input: {
     py: cy,
   })
 
-  const rng = makeRng(seed)
+  const rng = makeStream(seed)
   const moved = new Uint8Array(L * L)
   const seps = [twoSelfSeparation({ tone, graph, L, minSize })]
 

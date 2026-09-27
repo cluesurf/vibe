@@ -14,13 +14,13 @@
 // Run: npx tsx code/experiment/p94-conserved-dynamics.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/measure/tone-census'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 // One beat of the conserved exchange. fillSign sets every note's fill. If pump is given, hops are
 // directed (+ toward lower distance, - toward higher), otherwise hops are an unbiased random walk.
@@ -29,7 +29,7 @@ function beat(
   tone: Int8Array,
   edges: [number, number][],
   fillSign: number,
-  rng: Rng,
+  rng: Weyl,
   pump: Int32Array | null,
 ): void {
   const moved = new Uint8Array(tone.length)
@@ -146,7 +146,7 @@ export function conservedDynamics(): {
   // a balanced charged pocket near the center (equal + and -, so Q = 0)
   function makePocket(seed: number): Int8Array {
     const t = new Int8Array(n)
-    const rng = makeRng({ seed })
+    const rng = makeWeyl({ start: seed })
     const inner: number[] = []
 
     for (let i = 0; i < n; i++) {
@@ -198,7 +198,7 @@ export function conservedDynamics(): {
   const diff = makePocket(1)
   const q0diff = sumTone(diff)
   const absChargeStart = absInR0(diff)
-  const rngD = makeRng({ seed: 11 })
+  const rngD = makeWeyl({ start: 11 })
 
   for (let b = 0; b < 80; b++) {
     beat(diff, edges, 1, rngD, null)
@@ -211,7 +211,7 @@ export function conservedDynamics(): {
   // PUMPING: biased hops pull + toward center, push - out, concentrating net charge
   const pump = makePocket(1)
   const q0pump = sumTone(pump)
-  const rngP = makeRng({ seed: 11 })
+  const rngP = makeWeyl({ start: 11 })
 
   for (let b = 0; b < 80; b++) {
     beat(pump, edges, 1, rngP, distC)
@@ -223,7 +223,7 @@ export function conservedDynamics(): {
   // PAIRS: from all-peace, polarizing fills create pairs, then sharing fills annihilate them
   const pair = new Int8Array(n) // all 0
   const q0pair = sumTone(pair)
-  const rngC = makeRng({ seed: 7 })
+  const rngC = makeWeyl({ start: 7 })
 
   for (let b = 0; b < 40; b++) {
     beat(pair, edges, -1, rngC, null)

@@ -22,7 +22,7 @@ Bohr radius,a_0,5.29177210544e-11,0.00000000082e-11,m,measured,CODATA-2022,2026-
 electron magnetic moment anomaly,a_e,1.15965218046e-3,0.00000000018e-3,dimensionless,measured,CODATA-2022,2026-06-24,(g-2)/2 for the electron (CODATA-2022; was ...18059)
 muon magnetic moment anomaly,a_mu,1.16592062e-3,0.00000041e-3,dimensionless,measured,CODATA-2022,2026-06-24,(g-2)/2 for the muon (CODATA-2022; was ...2059); shows tension with theory
 Hubble constant (Planck CMB),H_0,67.4,0.5,km/s/Mpc,measured,Planck-2018,2026-06-24,in tension with local distance-ladder 73.04 (SH0ES Riess 2022)
-local Hubble constant (SH0ES),H_0,73.04,1.04,km/s/Mpc,measured,Planck-2018,2026-06-24,Riess et al. 2022 distance-ladder; ~5 sigma above Planck (the Hubble tension)
+local Hubble constant (SH0ES),H_0,73.04,1.04,km/s/Mpc,measured,SH0ES-2022,2026-06-24,Riess et al. 2022 distance-ladder; ~5 sigma above Planck (the Hubble tension)
 dark energy density fraction,Omega_Lambda,0.6889,0.0056,dimensionless,measured,Planck-2018,2026-06-24,Planck 2018 VI Table 2 (TT,TE,EE+lowE+lensing)
 matter density fraction,Omega_m,0.3111,0.0056,dimensionless,measured,Planck-2018,2026-06-24,Planck 2018 VI Table 2
 CMB temperature,T_CMB,2.72548,0.00057,K,measured,Planck-2018,2026-06-24,COBE/FIRAS (Fixsen 2009)

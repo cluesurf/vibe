@@ -11,7 +11,7 @@ import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
 import { toCSR, beat } from '@/code/model/self-kit'
 import { writeFrame } from '@/code/draw/animation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -125,7 +125,7 @@ function run(): void {
   const surroundR = radii[Math.floor(radii.length * 0.85)]!
 
   // seed, the five things only, a dense pleasure MASS at the centre, sparse matter in the surround
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const tone = new Int8Array(n)
   const isSurround = new Uint8Array(n)
 

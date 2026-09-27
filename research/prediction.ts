@@ -17,16 +17,16 @@ export const CANDIDATES: Candidate[] = [
       'correlation through a shared ancestor in the interior decays as a power of boundary distance',
     stands: 'argued (R-HLG-0002). The exponent is not measured',
     needs:
-      'the exponent from the committed rule, then the physical system whose correlations it predicts',
+      'the exponent from the committed knit, then the physical system whose correlations it predicts',
     problem: 'OP-11',
   },
   {
     id: 'PC-02',
     candidate: 'a smallest stable remnant halts black-hole evaporation',
     stands:
-      'E-GRV-0051 finds a remnant at mass $1/(4\\omega_{\\max})$, but from the cutoff of the coined walk, which is imported (R-FND-0001)',
+      'E-GRV-0051 finds a remnant at mass $1/(4\\omega_{\\max})$, but from the cutoff of the coined walk, which is imported (R-FND-0001). A lone vibe\'s motion under the one-third turn, apart from the committed knit, is measured (E-QTM-0103) and could replace the walk\'s cutoff',
     needs:
-      'a remnant mass derived from the committed rule, and an observable that bounds it',
+      'a remnant mass derived from the committed knit, and an observable that bounds it',
     problem: null,
   },
   {

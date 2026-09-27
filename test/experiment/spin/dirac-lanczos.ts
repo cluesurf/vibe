@@ -9,7 +9,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
 import {
   largestEigenvalueOfSquare,
@@ -23,7 +23,7 @@ type ApplyH = ReturnType<typeof makeDirac>['applyH']
 
 // largest eigenvalue of H^2 by power iteration (for the fold constant)
 function lambdaMaxH2(applyH: ApplyH): number {
-  const rng = makeRng({ seed: 1 })
+  const rng = makeWeyl({ start: 1 })
 
   return largestEigenvalueOfSquare({
     apply: applyH,
@@ -38,7 +38,7 @@ function lowestAbsEig(
   Cfold: number,
   m: number,
 ): number[] {
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
 
   return lowestAbsoluteEigenvalues({
     apply: applyH,

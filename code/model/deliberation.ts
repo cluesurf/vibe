@@ -14,14 +14,14 @@
 // bias field) used to exhibit the compatibilist structure of choice. It is NOT a claim that
 // selves emerge from the five base things, which is the separate, harder self-emergence work.
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { toneOverlap } from '@/code/operator/hopfield'
 
 export type Tone = -1 | 0 | 1
 
 // a fixed ternary pattern of length n, drawn from a seeded source (a structured initial
 // condition, deterministic given the seed)
-export function ternaryVector(n: number, rng: Rng): Int8Array {
+export function ternaryVector(n: number, rng: Weyl): Int8Array {
   const v = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
@@ -71,7 +71,7 @@ export function makeSelf(input: {
   patterns: number
   seed: number
 }): Int8Array[] {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   return Array.from({ length: input.patterns }, () =>
     ternaryVector(input.n, rng),

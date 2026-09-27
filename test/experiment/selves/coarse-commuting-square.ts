@@ -20,7 +20,7 @@ import { beat } from '@/code/model/self-kit'
 import {
   selfTrajectory,
   positionBin,
-  makeRng,
+  makeStream,
 } from '@/code/coarse/self-trajectory'
 
 export default experiment({
@@ -54,12 +54,12 @@ export default experiment({
     const learned = mostProbableNext(tpm)
 
     // a random effective rule on the same coarse map, the control.
-    const rng = makeRng(4321)
+    const rng = makeStream(4321)
     const random = Array.from({ length: bins }, () =>
       Math.floor(rng.next() * bins),
     )
 
-    const stepRng = makeRng(2468)
+    const stepRng = makeStream(2468)
     const graph = traj.graph
     const moved = new Uint8Array(graph.cellCount)
 

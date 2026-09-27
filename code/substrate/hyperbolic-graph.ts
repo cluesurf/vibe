@@ -5,7 +5,7 @@
 // Both sprinkle the hyperbolic disc by the hyperbolic area measure, then connect by
 // hyperbolic proximity. See note/deterministic-substrate.md.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
 import { polarCoshFromParts } from '@/code/geometry/distance'
 import { Graph, makeGraph } from '@/code/tool/graph'
@@ -93,7 +93,7 @@ export function hyperbolicGraph(input: {
   count: number
   radius: number
   connectThreshold: number
-  rng: Rng
+  rng: Weyl
 }): Graph {
   const n = input.count
   const coshRminus1 = Math.cosh(input.radius) - 1

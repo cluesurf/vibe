@@ -3,7 +3,7 @@
 // radius) is the Euclidean analogue of a spatial sprinkling; the square lattice is
 // the anisotropic control with a preferred set of axes.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 export type Mesh = {
   size: number
@@ -16,7 +16,7 @@ export type Mesh = {
 export function randomGeometricMesh(input: {
   count: number
   radius: number
-  rng: Rng
+  rng: Weyl
 }): Mesh {
   const n = input.count
   const coords = new Float64Array(n * 2)

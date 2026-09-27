@@ -6,7 +6,7 @@
 // Run: pnpm tsx code/gpu/render-lightcone.ts   then assemble with ffmpeg
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { writeFrame } from '@/code/draw/animation'
 import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -178,7 +178,7 @@ function run(): void {
   const A = new Uint8Array(n),
     B = new Uint8Array(n)
 
-  const r = makeRng({ seed: 987654321 })
+  const r = makeWeyl({ start: 987654321 })
   const rr = () => r.next()
 
   for (let i = 0; i < n; i++) {

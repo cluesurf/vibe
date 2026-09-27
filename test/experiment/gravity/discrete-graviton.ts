@@ -14,7 +14,7 @@
 // All three are read off the discrete operator on the lattice, so this is the genuinely discrete
 // graviton, not the continuum operator. Run: npx tsx code/experiment/p73-discrete-graviton.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GRAVITON_DIMENSION as D,
   linearizedEinstein,
@@ -39,7 +39,7 @@ export function discreteGraviton(input: { seed: number }): {
   solved: boolean
 } {
   const L = 8
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
 
   // 1. Gauge invariance: h = d_mu xi_nu + d_nu xi_mu for a smooth random xi. G[h] should vanish.
   const xi: Float64Array[] = Array.from(

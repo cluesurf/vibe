@@ -91,6 +91,7 @@ export default experiment({
 // hard-to-reach dock from a weak optimizer. E-FND-0079 then measures the shape of the basin.
 experiment({
   id: 'foundations/generator-self-assembly',
+  code: 'E-FND-0153',
   title:
     'a generic start does not self-assemble the dock under local energy minimization (honest open)',
   category: 'foundations',
@@ -132,6 +133,7 @@ experiment({
 // is NOT the 4D 24-regular dock.
 experiment({
   id: 'foundations/generator-graph-rewrite',
+  code: 'E-FND-0151',
   title:
     'a content-free graph rewrite gives a definite geometry but not the dock (the long shot, honest open)',
   category: 'foundations',

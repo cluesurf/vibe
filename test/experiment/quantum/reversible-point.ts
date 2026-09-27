@@ -11,7 +11,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { detailedBalanceViolation } from '@/code/coarse/transition-matrix'
 import { experiment } from '@/test/scaffold/suite'
@@ -28,7 +28,7 @@ function dbViolation(
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   const tone = new Int8Array(N)
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
 
   for (let i = 0; i < N; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

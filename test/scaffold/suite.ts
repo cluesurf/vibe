@@ -26,8 +26,10 @@ export type Category =
 
 export type Depth = 'L0' | 'L1' | 'L2' | 'L3'
 
+// What the runner hands an experiment. There is no seed: every experiment is a fixed function of its
+// code and this context, with every spread-out value read off code/tool/weyl. Until 2026-09-25 the context
+// carried `seed: 1`, which no experiment read.
 export type Context = {
-  seed: number
   // A multiplier on the experiment's lattice sizes, 1 by default. The perturbation check
   // (task/check-perturbation.ts) runs every experiment that declares `scales: true` at 0.5, 1 and 1.5 and
   // requires the verdict to hold at all three. An experiment that ignores it is not perturbed.

@@ -23,7 +23,7 @@
 // - centerHeatbathSweep: the seeded reference, each link drawn from its exact conditional
 //   distribution.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { Hypercubic, makeHypercubic } from '@/code/tool/hypercubic'
 
 export type CenterLattice = {
@@ -451,7 +451,7 @@ export function demonBeta(input: {
 export function centerHeatbathSweep(input: {
   lattice: CenterLattice
   beta: number
-  rng: Rng
+  rng: Weyl
 }): void {
   const { lattice, beta, rng } = input
   const { dim, sites } = lattice.geometry

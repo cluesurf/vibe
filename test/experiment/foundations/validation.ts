@@ -2,7 +2,7 @@
 // the per-problem experiments. Each prints a PASS or FAIL against a stated
 // prediction. Run: npx tsx code/experiment/validation.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { lattice } from '@/code/substrate/lattice'
 import { makeConfiguration } from '@/code/tone/configuration'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
@@ -43,7 +43,7 @@ export default experiment({
       signature: 'riemannian',
     })
 
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
     const configuration = makeConfiguration({
       alphabet: { form: 'boolean' },
       size: substrate.size,

@@ -1,5 +1,5 @@
 import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // Structural-rhyme probes: three measurables suggested by monist emanation cosmologies (the shape a
 // single substance unfolding by internal differentiation, a balancing triad, only balanced structure
@@ -64,7 +64,7 @@ export function evolveCluster(input: {
 
   const initialCharge = totalCharge(tone)
   const moved = new Uint8Array(length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
 
   for (let t = 0; t < beats; t++) {
     conservingRingSweepTunable({
@@ -98,7 +98,7 @@ function netChargeTrace(input: {
   const { tone, length, beats, share, seed, flipSink } = input
   const state = tone.slice()
   const moved = new Uint8Array(length)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const trace: number[] = []
 
   for (let t = 0; t < beats; t++) {
@@ -147,7 +147,7 @@ export function chargeConjugationAsymmetry(input: {
 }): number {
   const { length, beats, share, seed, asymmetric } = input
   const base = new Int8Array(length)
-  const rng = makeRng({ seed: seed + 1 })
+  const rng = makeWeyl({ start: seed + 1 })
 
   for (let i = 0; i < length; i++) {
     const draw = rng.next()
@@ -218,7 +218,7 @@ export function nestedGarmentIdentity(input: {
   seed: number
 }): { worstWearingError: number; identityRetained: number } {
   const { length, blocks, beats, leak, seed } = input
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const tone = new Int8Array(length)
 
   for (let i = 0; i < length; i++) {
@@ -229,7 +229,7 @@ export function nestedGarmentIdentity(input: {
 
   const initialCharge = totalCharge(tone)
   const moved = new Uint8Array(length)
-  const stepRng = makeRng({ seed: seed + 1 })
+  const stepRng = makeWeyl({ start: seed + 1 })
 
   let worstWearingError = 0
 

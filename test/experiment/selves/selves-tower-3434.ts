@@ -22,7 +22,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 
@@ -182,7 +182,7 @@ function cuspTower(): {
     })
   }
 
-  const rng = makeRng({ seed: 11 })
+  const rng = makeWeyl({ start: 11 })
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
@@ -208,7 +208,7 @@ function cuspTower(): {
         offsets,
         adj,
         grp,
-        makeRng({ seed: 5 }),
+        makeWeyl({ start: 5 }),
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
@@ -219,7 +219,7 @@ function cuspTower(): {
         offsets,
         adj,
         grp,
-        makeRng({ seed: 5 }),
+        makeWeyl({ start: 5 }),
         { lag: 8, frames: 24, step: stepDiffusion },
       ),
     )
@@ -230,7 +230,7 @@ function cuspTower(): {
         offsets,
         adj,
         shuffledGroups(grp, rng),
-        makeRng({ seed: 5 }),
+        makeWeyl({ start: 5 }),
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
@@ -282,7 +282,7 @@ function bulkTower(): {
     })
   }
 
-  const rng = makeRng({ seed: 13 })
+  const rng = makeWeyl({ start: 13 })
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {
@@ -307,7 +307,7 @@ function bulkTower(): {
         offsets,
         adj,
         grp,
-        makeRng({ seed: 5 }),
+        makeWeyl({ start: 5 }),
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )
@@ -318,7 +318,7 @@ function bulkTower(): {
         offsets,
         adj,
         grp,
-        makeRng({ seed: 5 }),
+        makeWeyl({ start: 5 }),
         { lag: 8, frames: 24, step: stepDiffusion },
       ),
     )
@@ -329,7 +329,7 @@ function bulkTower(): {
         offsets,
         adj,
         shuffledGroups(grp, rng),
-        makeRng({ seed: 5 }),
+        makeWeyl({ start: 5 }),
         { lag: 8, frames: 24, step: stepPerception },
       ),
     )

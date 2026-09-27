@@ -1,6 +1,6 @@
 # code/dynamics
 
-The time-evolution, sampling, and search layer, above the base rule and below coarse-graining in the pipeline (`substrate -> tone -> rule -> dynamics -> coarse -> model`). Where `code/rule` is the one committed reversible law, this folder is everything else you can run on a substrate: Monte Carlo samplers over causal orders, quantum and classical walks, reversible wave fields, lattice gauge sweeps, gravity and cosmology integrators, order-parameter field relaxations, conserving-charge sweeps with tunable biases, quantum measurement and decoherence models, and the genesis and morphogenesis studies. About sixty modules, each a self-contained runnable with explicit RNG seeding, never implicit randomness. This is the widest layer, so it is organized by theme below rather than by single entry point.
+The time-evolution, sampling, and search layer, above the base rule and below coarse-graining in the pipeline (`substrate -> tone -> rule -> dynamics -> coarse -> model`). Where `code/rule` is the one committed reversible law, this folder is everything else you can run on a substrate: Monte Carlo samplers over causal orders, quantum and classical walks, reversible wave fields, lattice gauge sweeps, gravity and cosmology integrators, order-parameter field relaxations, conserving-charge sweeps with tunable biases, quantum measurement and decoherence models, and the genesis and morphogenesis studies. About sixty modules, each a self-contained runnable driven by an explicit Kronecker stream (`code/tool/weyl`, a stated start), never a random number, a seed or a generator; a sampler here is a deterministic dynamics with a quasi-random schedule, not a Markov chain, and where the model has a deterministic dynamics of its own (the kinetic demon of `finite-kinetic`, E-FRC-0110) it is preferred. This is the widest layer, so it is organized by theme below rather than by single entry point.
 
 ## Sampling and Monte Carlo
 
@@ -86,7 +86,7 @@ The tunable non-reversible sweeps the selves and transport studies use. Each mov
 
 | file | key exports | one-line |
 |:--- |:--- |:--- |
-| `conserving-sweep.ts` | `conservingEdgeSweep`, `conservingEdgeSweepTunable`, `conservingRingSweep`, `conservingHopSweep`, `conservingEdgeSweepSteered`, `conservingEdgeSweepHashed`, `hashRand`, `makeHashRng`, `hashedTone` | the baseline annihilate-hop-create matching sweeps, tunable and steerable, and the counter-indexed hash stream the deterministic fills draw from |
+| `conserving-sweep.ts` | `conservingEdgeSweep`, `conservingEdgeSweepTunable`, `conservingRingSweep`, `conservingHopSweep`, `conservingEdgeSweepSteered`, `conservingEdgeSweepHashed`, `conservingHopSweepHashed`, `conservingEdgeSweepSteeredHashed`, `hashedTone` | the baseline annihilate-hop-create matching sweeps, tunable and steerable, and the position-indexed forms that read a fixed Kronecker value `weylCell(edge, beat, salt)` per edge and beat (the hash `hashRand` they read before 2026-09-25 is removed) |
 | `cohesive-sweep.ts` | `cohesiveEdgeSweep`, `agreeCount` | demand-driven hopping, charges cluster with an optional escape |
 | `soc-sweep.ts` | `socEdgeSweep`, `localActivity` | self-organized criticality, creation suppressed in busy regions |
 | `fill-gated-sweep.ts` | `fillGatedSweep` | a per-edge fill gates local moves (polarize, share, insulate) |

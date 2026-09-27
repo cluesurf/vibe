@@ -13,7 +13,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 
 // The finite state space of `cells` elements over an alphabet. The full space
 // has dimension valueCount(alphabet)^cells, so callers keep `cells` small.
@@ -59,7 +58,6 @@ export function permutationOfRule(input: {
   const cells = space.cells
   // The encoder assumes each element stores a single slot. Spinor alphabets are
   // multi-slot and are out of scope for this small-space enumeration.
-  const rng = makeRng({ seed: 1 })
 
   // Map a stored tone value to a canonical 0..base-1 digit and back. boolean and
   // clock store 0..base-1 directly. ternary / spinor store -1..+1, offset by 1.
@@ -91,7 +89,6 @@ export function permutationOfRule(input: {
       substrate: input.substrate,
       configuration: config,
       beat: 0,
-      rng,
     })
 
     // Encode the result.

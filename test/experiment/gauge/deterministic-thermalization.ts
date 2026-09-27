@@ -28,7 +28,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   cloneGaugeLattice,
   makeGaugeLattice,
@@ -109,7 +109,7 @@ export default experiment({
         group: 'su3',
         lengths: LENGTHS,
         start: 'cold',
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
       const momenta = makeMomenta({ lattice })
 
@@ -262,7 +262,7 @@ export default experiment({
 
     // the canonical reference at the predicted coupling, and at the naive one
     const reference = (beta: number, seed: number) => {
-      const rng = makeRng({ seed })
+      const rng = makeWeyl({ start: seed })
       const lattice = makeGaugeLattice({
         group: 'su3',
         lengths: LENGTHS,

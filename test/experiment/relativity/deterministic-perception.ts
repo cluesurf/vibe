@@ -12,7 +12,7 @@
 // The Margolus alternating partition gives left- AND right-movers (set by parity), so charges propagate
 // ballistically and can collide. Run: npx tsx code/experiment/p149-deterministic-perception.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { powerLawExponent } from '@/code/measure/regression'
 import { differenceRmsWidthRing } from '@/code/measure/front-speed'
 import { totalCharge } from '@/code/measure/tone-census'
@@ -46,7 +46,7 @@ export function deterministicPerception(input?: {
 } {
   const L = input?.L ?? 2000
   const beats = input?.beats ?? 90
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
 
   // (1) charge conservation over a run
   const tone = new Int8Array(L)
@@ -65,7 +65,7 @@ export function deterministicPerception(input?: {
 
   // (2) reversibility: forward T beats then backward T beats recovers the initial state exactly
   const init = new Int8Array(L)
-  const r2 = makeRng({ seed: 3 })
+  const r2 = makeWeyl({ start: 3 })
 
   for (let i = 0; i < L; i++) {
     init[i] = r2.next() < 0.4 ? (r2.next() < 0.5 ? 1 : -1) : 0
@@ -95,7 +95,7 @@ export function deterministicPerception(input?: {
   // (3) transport: a localized perturbation spreads BALLISTICALLY (RMS width ~ t), the butterfly method
   // isolates the perturbation from the deterministic vacuum oscillation
   const center = Math.floor(L / 2)
-  const r3 = makeRng({ seed: 11 })
+  const r3 = makeWeyl({ start: 11 })
   const base = new Int8Array(L)
 
   for (let i = 0; i < L; i++) {

@@ -84,10 +84,30 @@ In priority order, each tied to its ledger row:
    the continuum limit of the dressed traveller. The spectrum above gives the
    dictionary entries (masses, speeds, vertices) the bridge must reproduce.
 5. LORENTZ INVARIANCE. Speed root 2 along D4 directions only, anisotropy at the
-   lattice scale, expected and stated. Needs the coarse isotropy measurement.
+   lattice scale, expected and stated. The coarse isotropy measurement is now
+   run, and rotation symmetry does not come back: the committed knit keeps only
+   {I, -I}, which forces nothing, and the rank-2 response of long charge waves
+   stays anisotropic from side 9 to 17 (kernel 1.60, 1.34, 1.31), keeping 0.82
+   and 1.10 of itself where a lattice correction would keep 0.53 or 0.28
+   (E-RLT-0045). The knit's handedness is lattice-scale only: 4.12 times more
+   self-dual at the lattice scale, within a factor of 1.46 and with no stable
+   sign in the long waves (E-RLT-0046, partial). Needs a knit whose symmetry
+   acts irreducibly on rank 2.
 6. DYNAMICAL SCALAR (Higgs). The breather is a localized massive mode and the
-   clock condensate is a phase field with history-selected vacua. Missing: the
-   doublet structure, and the breather-to-condensate coupling.
+   clock condensate is a phase field with history-selected vacua. Measured
+   (E-FRC-0143): the vacuum is a period-24 condensate that leaves the same 2
+   lines empty at all 24 birth phases and is invariant under the knit's
+   reversal. Only 2 of 9! two-vibe maps respect SU(2), and all 144 rule blocks
+   respect only the charge U(1), so the arrow breaks SU(2) explicitly: a
+   Higgs-like vacuum without a Higgs mechanism. The only free lone vibes are the
+   2 leading ends of the empty lines. On top of that the knit tells left from
+   right (E-FRC-0142): of 1152 x 6 x 24 candidates it keeps only the identity
+   and C with reversal, none orientation reversing, and its lone-love response
+   is 4.1 and 4.7 times more self-dual than anti-self-dual at sides 9 and 13,
+   which adds chirality to the total rotation breaking of item 5. Still open:
+   the doublet, a massive vector, Yukawa couplings, and coarse rotation
+   restoration with the chirality surviving, which E-RLT-0045 and E-RLT-0046
+   now say the committed knit does not have.
 7. MULTI-PARTICLE STRUCTURE. Wave packets, the uncertainty bound saturated
    dynamically, bound states of two or more excitations (the nuclear ladder for
    `bbn_abundances` and `periodic_table_shell_structure`).

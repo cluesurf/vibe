@@ -14,7 +14,7 @@ import {
   buildDodecagrid,
   buildSliver,
 } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { greedyEdgeColoring } from '@/code/tool/graph'
 import {
   PERCEPTION_FORWARD as FWD,
@@ -55,7 +55,7 @@ export function unifiedWave(input?: {
   })
 
   // (1) charge conservation + (2) reversibility on a random crystal state
-  const rng = makeRng({ seed: 12345 })
+  const rng = makeWeyl({ start: 12345 })
   const tone = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
@@ -108,7 +108,7 @@ export function unifiedWave(input?: {
     }
   }
 
-  const rng2 = makeRng({ seed: 999 })
+  const rng2 = makeWeyl({ start: 999 })
   const baseS = new Int8Array(sN)
 
   for (let i = 0; i < sN; i++) {

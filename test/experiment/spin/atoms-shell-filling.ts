@@ -90,7 +90,7 @@ export default experiment({
       },
       count: LEVELS,
       shift: 2 * 2 * T + V0 + 1,
-      seed: 1,
+      start: 1,
     })
 
     const energies = eigenpairs.map(e => e.energy).sort((a, b) => a - b)

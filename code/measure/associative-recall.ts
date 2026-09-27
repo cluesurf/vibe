@@ -2,7 +2,7 @@
 // latency. Built on the engine in operator/associative-memory and the shell BFS in measure/shells. See
 // note/research/vibe/notes/theory-v0.7.0/experiments/associative-engine-experiments.md.
 
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { bfsShells } from '@/code/measure/shells'
 import {
   AssociativeMemory,
@@ -42,7 +42,7 @@ export function exactRecallRate(mem: AssociativeMemory): number {
 export function nearestRecallRate(input: {
   mem: AssociativeMemory
   corruptionFraction: number
-  rng: Rng
+  rng: Weyl
   sample?: number[]
 }): number {
   const { mem, corruptionFraction, rng } = input
@@ -73,7 +73,7 @@ export function nearestRecallRate(input: {
 export function falsePositiveRate(input: {
   mem: AssociativeMemory
   trials: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const { mem, trials, rng } = input
 

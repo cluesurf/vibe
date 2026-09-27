@@ -13,7 +13,7 @@ import {
   coherentFills,
 } from '@/code/dynamics/renormalization-blocks'
 import { makeGraph, Graph } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const N = 60
 
@@ -46,7 +46,7 @@ suite('dynamics/renormalization-blocks: partition validity', [
       adj,
       size: N,
       targetSize: 6,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
     })
 
     for (let c = 0; c < N; c++) {
@@ -58,7 +58,7 @@ suite('dynamics/renormalization-blocks: partition validity', [
   }),
   check('geometricBlocks assigns every cell a block', () => {
     const { g } = ring()
-    const { cl, K } = geometricBlocks(g, 6, makeRng({ seed: 2 }))
+    const { cl, K } = geometricBlocks(g, 6, makeWeyl({ start: 2 }))
 
     ok(K >= 2, 'at least two blocks')
 
@@ -94,7 +94,7 @@ suite(
     }),
     check('coherentFills are symmetric across each edge', () => {
       const { g } = ring()
-      const fills = coherentFills(g, 0.7, makeRng({ seed: 3 }))
+      const fills = coherentFills(g, 0.7, makeWeyl({ start: 3 }))
 
       for (let v = 0; v < N; v++) {
         const row = g.neighbors[v]!
@@ -122,7 +122,7 @@ suite('dynamics/renormalization-blocks: determinism', [
       adj,
       size: N,
       targetSize: 6,
-      rng: makeRng({ seed: 9 }),
+      rng: makeWeyl({ start: 9 }),
     }).blockOf
 
     const b = csrVoronoiBlocks({
@@ -130,7 +130,7 @@ suite('dynamics/renormalization-blocks: determinism', [
       adj,
       size: N,
       targetSize: 6,
-      rng: makeRng({ seed: 9 }),
+      rng: makeWeyl({ start: 9 }),
     }).blockOf
 
     for (let c = 0; c < N; c++) {

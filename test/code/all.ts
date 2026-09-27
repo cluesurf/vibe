@@ -337,7 +337,7 @@ import '@/test/code/tool/grid-gauge'
 import '@/test/code/tool/integer'
 import '@/test/code/tool/mesh'
 import '@/test/code/tool/poset'
-import '@/test/code/tool/rng'
+import '@/test/code/tool/weyl'
 import '@/test/code/tool/substrate'
 
 // total suites files: 325

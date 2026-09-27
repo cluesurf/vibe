@@ -6,7 +6,7 @@
 // gauge-invariant), (3) the static sector is the 1/r Coulomb potential (p224, div E = rho from the Gauss law).
 // So the discrete charge rule yields emergent ELECTROMAGNETISM. Run: npx tsx code/experiment/p232-emergent-u1-gauge.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GridGauge as Gauge,
   makeGridGrid,
@@ -35,7 +35,7 @@ export function emergentU1Gauge(): {
   wilsonInvariant: boolean
   aharonovBohm: boolean
 } {
-  const rng = makeRng({ seed: 13 })
+  const rng = makeWeyl({ start: 13 })
   const rnd = (): number => rng.next()
   // VORTEX gauge field, A winds around the plaquette (fx,fy) so its curl = Phi there and 0 elsewhere
   const Phi = 0.7,

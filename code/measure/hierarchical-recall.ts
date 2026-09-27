@@ -1,4 +1,4 @@
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // Recalling a memory as a coarse-to-fine walk down the bulk hierarchy. Memories are stored at the
 // leaves of the bulk tree, and each tree level owns a disjoint block of the pattern coordinates: a
@@ -24,7 +24,7 @@ export function buildRecallModel(input: {
   seed: number
 }): RecallModel {
   const { depth, blockSize, seed } = input
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const feature: number[][][] = []
 
   for (let level = 0; level < depth; level++) {
@@ -72,7 +72,7 @@ export function recall(input: {
   const { depth, blockSize, feature } = model
 
   const target = leafPattern(model, leaf)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const cue = target.map(value =>
     rng.next() < noiseFraction ? -value : value,
   )

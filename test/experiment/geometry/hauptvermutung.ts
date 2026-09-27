@@ -1,9 +1,9 @@
 // P5: the Hauptvermutung (does geometry recover uniquely).
-// Sprinkle the same Minkowski region with many seeds, recover the dimension each
-// time, and report the spread. Low variance is empirical support.
+// Sprinkle the same Minkowski region from many Weyl streams (starts 0 to 7), recover the
+// dimension each time, and report the spread. Low variance is empirical support.
 // Run: npx tsx code/experiment/p5-hauptvermutung.ts
 
-import { makeRng, deriveSeed } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import {
@@ -20,7 +20,7 @@ function study(): { mean: number; std: number; samples: number[] } {
   const dims: number[] = []
 
   for (let i = 0; i < trials; i++) {
-    const rng = makeRng({ seed: deriveSeed({ base: 42, index: i }) })
+    const rng = makeWeyl({ start: i })
     const poset = sprinkleMinkowski({
       dimension: targetDimension,
       count,

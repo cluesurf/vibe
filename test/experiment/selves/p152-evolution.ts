@@ -10,9 +10,9 @@
 // fitness RISES to the optimum with selection, stays flat without it (drift), and that offspring are
 // HERITABLE. Run: npx tsx code/experiment/p152-evolution.ts
 
-import { makeHashRng } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeWeyl } from '@/code/tool/weyl'
 
 type Rng = { next: () => number }
 
@@ -139,10 +139,10 @@ export function evolution(input?: { M?: number }): {
   const P = 60
   const G = 50
   const mu = 0.06
-  const rng = makeHashRng({ salt: 0 })
+  const rng = makeWeyl({ start: 0 })
   const target = randomBalanced(M, rng)
-  const sel = evolve(true, M, P, G, mu, target, makeHashRng({ salt: 0 }))
-  const drift = evolve(false, M, P, G, mu, target, makeHashRng({ salt: 0 }))
+  const sel = evolve(true, M, P, G, mu, target, makeWeyl({ start: 0 }))
+  const drift = evolve(false, M, P, G, mu, target, makeWeyl({ start: 0 }))
 
   const startMean = sel.meanByGen[0]!
   const selectedFinal = sel.meanByGen[sel.meanByGen.length - 1]!

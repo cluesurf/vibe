@@ -13,7 +13,7 @@ import {
   spectralGap,
   quantileLabels,
 } from '@/code/coarse/transition-matrix'
-import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
+import { selfTrajectory, makeStream } from '@/code/coarse/self-trajectory'
 import { shuffled as shuffledItems } from '@/code/tool/shuffle'
 
 function lambda2(labels: number[], bins: number, lag: number): number {
@@ -52,7 +52,7 @@ export default experiment({
 
       const labels = quantileLabels({ series: traj.centroids, bins })
       const real = lambda2(labels, bins, lag)
-      const shuffled = lambda2(shuffledItems({ items: labels, rng: makeRng(7 * L + 1) }), bins, lag)
+      const shuffled = lambda2(shuffledItems({ items: labels, rng: makeStream(7 * L + 1) }), bins, lag)
 
       metrics[`real_L${L}`] = real
       metrics[`shuffled_L${L}`] = shuffled

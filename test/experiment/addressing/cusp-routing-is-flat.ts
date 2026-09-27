@@ -78,7 +78,6 @@ import {
 } from '@/code/rule/collision'
 import { beat, growingBeat } from '@/code/rule/lattice-gas'
 import { Will, makeWill } from '@/code/tone/will'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
 import {
   buildHyperbolicBall,
   bulkDistance,
@@ -109,6 +108,7 @@ import {
   pointKey,
   toPoincare,
 } from '@/code/substrate/coxeter/minkowski'
+import { weylCell } from '@/code/tool/weyl'
 
 const RADIUS = 4
 const BEATS = 8
@@ -125,7 +125,7 @@ const RELABELLINGS = 12
 
 function hashBackground(will: Will, cells: number, salt = SALT): void {
   for (let i = 0; i < cells * will.mesh.degree; i++) {
-    const r = hashRand(i, 0, salt)
+    const r = weylCell(i, 0, salt)
 
     will.data[i] = r < 1 / 3 ? -1 : r < 2 / 3 ? 1 : 0
   }

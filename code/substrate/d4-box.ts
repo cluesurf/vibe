@@ -13,80 +13,47 @@
 //
 // A cell is stored by its coordinates c in the basis b1 = (1, -1, 0, 0), b2 = (0, 1, -1, 0),
 // b3 = (0, 0, 1, -1), b4 = (0, 0, 1, 1) of D4, each taken mod L, index c1 + L c2 + L^2 c3 + L^3 c4.
+//
+// Since 2026-09-26 (E-MTH-0027) the box itself is built in integers only, in
+// code/substrate/d4-box-integer: the basis inverted by its integer adjugate, W(F4) held doubled, no
+// half-integer, rounding or tolerance. That file is what the committed knit imports. This file re-exports
+// it unchanged and adds the REAL readouts, which measurement uses: the Euclidean distance between two
+// cells and the W(F4) matrices with their halves as floats. E-MTH-0027 proves every output here equal to
+// the half-integer implementation it replaced.
 
-import { Mesh } from '@/code/tool/mesh'
-import { rootsD4 } from '@/code/algebra/group/root-system'
+import {
+  boxCellMapDoubled,
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4BoxDistanceSquared,
+  d4BoxMesh,
+  d4Coordinates,
+  d4Vector,
+  linearMapOfDoubled,
+  transformState,
+} from '@/code/substrate/d4-box-integer'
 
-const BASIS: readonly (readonly number[])[] = [
-  [1, -1, 0, 0],
-  [0, 1, -1, 0],
-  [0, 0, 1, -1],
-  [0, 0, 1, 1],
-]
-
-// the inverse of the basis matrix (columns b1..b4), rows as written, so c = INVERSE v
-const INVERSE: readonly (readonly number[])[] = [
-  [1, 0, 0, 0],
-  [1, 1, 0, 0],
-  [0.5, 0.5, 0.5, -0.5],
-  [0.5, 0.5, 0.5, 0.5],
-]
-
-const ROOTS = rootsD4()
-const OPPOSITE = ROOTS.map(root =>
-  ROOTS.findIndex(other =>
-    other.every((x, k) => x === -(root[k] ?? 0)),
-  ),
-)
+export {
+  boxCellMapDoubled,
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4BoxDistanceSquared,
+  d4BoxMesh,
+  d4Coordinates,
+  d4Vector,
+  linearMapOfDoubled,
+  transformState,
+}
 
 function modulo(value: number, side: number): number {
   return ((value % side) + side) % side
 }
 
-// the basis coordinates of a D4 vector (exact integers for a lattice vector)
-export function d4Coordinates(vector: readonly number[]): number[] {
-  return INVERSE.map(row =>
-    Math.round(
-      row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0),
-    ),
-  )
-}
-
-// a D4 vector from basis coordinates
-export function d4Vector(coordinates: readonly number[]): number[] {
-  return [0, 1, 2, 3].map(axis =>
-    BASIS.reduce(
-      (sum, b, k) => sum + (b[axis] ?? 0) * (coordinates[k] ?? 0),
-      0,
-    ),
-  )
-}
-
-export function d4BoxCell(input: {
-  coordinates: readonly number[]
-  side: number
-}): number {
-  const { coordinates, side } = input
-
-  return coordinates.reduce(
-    (index, c, k) => index + modulo(c, side) * side ** k,
-    0,
-  )
-}
-
-export function d4BoxCoordinates(input: {
-  cell: number
-  side: number
-}): number[] {
-  const { cell, side } = input
-
-  return [0, 1, 2, 3].map(k => Math.floor(cell / side ** k) % side)
-}
-
 // The distance between two cells of the box: the shortest of the vectors between them over the
 // periods L D4. Wrapping each basis coordinate on its own is not enough, since the basis is skewed,
 // and it overstates distances near half a period, so the shift by each combination of -1, 0 and 1
-// periods along b1..b4 is tried and the shortest kept.
+// periods along b1..b4 is tried and the shortest kept. A real readout (a Euclidean length):
+// d4BoxDistanceSquared is the exact integer it is the root of.
 export function d4BoxDistance(input: {
   a: number
   b: number
@@ -115,108 +82,27 @@ export function d4BoxDistance(input: {
   return best
 }
 
-// The D4 lattice mod L D4, with the 24 D4 roots as directions in the order of rootsD4.
-export function d4BoxMesh(input: { side: number }): Mesh {
-  const { side } = input
-  const rootCoordinates = ROOTS.map(d4Coordinates)
-
-  return {
-    id: `d4-box-${side}`,
-    degree: 24,
-    cellCount: side ** 4,
-    neighbour(cell, direction) {
-      const c = d4BoxCoordinates({ cell, side })
-      const step = rootCoordinates[direction] ?? [0, 0, 0, 0]
-
-      return d4BoxCell({
-        coordinates: c.map((x, k) => x + (step[k] ?? 0)),
-        side,
-      })
-    },
-    opposite(direction) {
-      return OPPOSITE[direction] ?? direction
-    },
-  }
-}
-
 // The 4 x 4 linear map (rows) that a permutation of the 24 roots is, read from four independent roots
-// (b1..b4 are roots). Undefined when the permutation is not linear.
+// (b1..b4 are roots), with its half-integer entries as floats: linearMapOfDoubled halved. Undefined when
+// the permutation is not linear.
 export function linearMapOf(
   permutation: readonly number[],
 ): number[][] | undefined {
-  const indexOf = (vector: readonly number[]): number =>
-    ROOTS.findIndex(r => r.every((x, k) => x === vector[k]))
-  // images of the basis vectors, as columns
-  const images = BASIS.map(
-    b => ROOTS[permutation[indexOf(b)] ?? 0] ?? [0, 0, 0, 0],
-  )
-  // M = images * INVERSE_BASIS, M[i][j] = sum_k images[k][i] INVERSE[k][j]
-  const matrix = [0, 1, 2, 3].map(i =>
-    [0, 1, 2, 3].map(j =>
-      images.reduce(
-        (sum, image, k) =>
-          sum + (image[i] ?? 0) * (INVERSE[k]?.[j] ?? 0),
-        0,
-      ),
-    ),
-  )
-  const linear = ROOTS.every((root, d) => {
-    const image = matrix.map(row =>
-      row.reduce((sum, x, k) => sum + x * (root[k] ?? 0), 0),
-    )
-    const target = ROOTS[permutation[d] ?? 0] ?? []
-
-    return image.every((x, k) => Math.abs(x - (target[k] ?? 0)) < 1e-9)
-  })
-
-  return linear ? matrix : undefined
+  return linearMapOfDoubled(permutation)?.map(row => row.map(x => x / 2))
 }
 
 // The permutation of cells a linear map of R^4 induces on the box, or undefined when some cell is not
-// sent to a cell (the map does not preserve D4, or not L D4).
+// sent to a cell (the map does not preserve D4, or not L D4). A map that preserves D4 has half-integer
+// entries, so twice it is an integer matrix; one that does not is refused before any cell is read.
 export function boxCellMap(input: {
   matrix: readonly (readonly number[])[]
   side: number
 }): number[] | undefined {
-  const { matrix, side } = input
-  const cells = side ** 4
-  const map: number[] = []
+  const doubled = input.matrix.map(row => row.map(x => 2 * x))
 
-  for (let cell = 0; cell < cells; cell++) {
-    const vector = d4Vector(d4BoxCoordinates({ cell, side }))
-    const image = matrix.map(row =>
-      row.reduce((sum, x, k) => sum + x * (vector[k] ?? 0), 0),
-    )
-    const raw = INVERSE.map(row =>
-      row.reduce((sum, x, k) => sum + x * (image[k] ?? 0), 0),
-    )
-
-    if (raw.some(x => Math.abs(x - Math.round(x)) > 1e-9)) {
-      return undefined
-    }
-
-    map.push(d4BoxCell({ coordinates: raw.map(Math.round), side }))
+  if (doubled.some(row => row.some(x => !Number.isInteger(x)))) {
+    return undefined
   }
 
-  return new Set(map).size === cells ? map : undefined
-}
-
-// A symmetry acting on a state: the tone in slot (cell, d) moves to (cellMap[cell], permutation[d]).
-export function transformState(input: {
-  data: Int8Array
-  cellMap: readonly number[]
-  permutation: readonly number[]
-  degree: number
-}): Int8Array {
-  const { data, cellMap, permutation, degree } = input
-  const out = new Int8Array(data.length)
-
-  for (let cell = 0; cell < cellMap.length; cell++) {
-    for (let d = 0; d < degree; d++) {
-      out[(cellMap[cell] ?? 0) * degree + (permutation[d] ?? 0)] =
-        data[cell * degree + d] ?? 0
-    }
-  }
-
-  return out
+  return boxCellMapDoubled({ doubled, side: input.side })
 }

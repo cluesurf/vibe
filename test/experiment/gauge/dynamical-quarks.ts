@@ -24,7 +24,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GaugeLattice,
   centerTransformTimeSlice,
@@ -60,7 +60,7 @@ function run(input: {
   trajectories: number
   seed: number
 }): Run {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeGaugeLattice({
     group: 'su3',
     lengths: [input.spatial, input.spatial, input.spatial, 2],
@@ -208,7 +208,7 @@ export default experiment({
         group: 'su3',
         lengths: [4, 4, 4, 2],
         start: 'cold',
-        rng: makeRng({ seed: 1 }),
+        rng: makeWeyl({ start: 1 }),
       })
     const heavy = 64
     const rotatedProbe = cloneGaugeLattice({ lattice: probe })

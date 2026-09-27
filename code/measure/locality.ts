@@ -16,27 +16,22 @@ import {
   setTone,
 } from '@/code/tone/configuration'
 import { valueCount } from '@/code/tone/alphabet'
-import { Rng, makeRng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 import { graphDistance } from '@/code/measure/distance'
 
-// Build a fresh deterministic Rng from a seed, so a baseline run and a perturbed
-// run share an identical random stream and differ only by the perturbation.
-function rngFromSeed(seed: number): Rng {
-  return makeRng({ seed })
-}
-
-// Apply one rule step to a configuration, returning the next configuration.
+// Apply one rule step to a configuration at a beat, returning the next configuration. A rule is a fixed
+// function of (substrate, configuration, beat), so a baseline run and a perturbed run at the same beat
+// differ only by the perturbation.
 function stepOnce(input: {
   rule: Rule
   substrate: Substrate
   configuration: Configuration
-  rng: Rng
+  beat: number
 }): Configuration {
   const out = input.rule.step({
     substrate: input.substrate,
     configuration: input.configuration,
-    beat: 0,
-    rng: input.rng,
+    beat: input.beat,
   })
 
   return out.configuration
@@ -44,13 +39,14 @@ function stepOnce(input: {
 
 // Estimate the effective interaction radius averaged over sampled perturbations.
 // 1 means strictly nearest-neighbor influence. Returns 0 if no perturbation ever
-// changed the outcome (an inert rule) or the substrate is empty.
+// changed the outcome (an inert rule) or the substrate is empty. The perturbed
+// centers are read off the caller's Weyl stream, a deterministic spread of sites.
 export function ruleLocalityRange(input: {
   rule: Rule
   substrate: Substrate
   configuration: Configuration
   sampleSize: number
-  rng: Rng
+  rng: Weyl
 }): number {
   const size = input.substrate.size
 
@@ -67,15 +63,12 @@ export function ruleLocalityRange(input: {
   for (let s = 0; s < sampleCount; s++) {
     const center = input.rng.nextInt({ max: size })
 
-    // Both paired runs must share an identical random stream so they differ
-    // only by the perturbation, not by rule-internal randomness. Draw one seed
-    // and build two independent Rngs from it.
-    const stepSeed = Math.floor(input.rng.next() * 0xffffffff) >>> 0
+    // Both paired runs step at the same beat, so they differ only by the perturbation.
     const baselineNext = stepOnce({
       rule: input.rule,
       substrate: input.substrate,
       configuration: input.configuration,
-      rng: rngFromSeed(stepSeed),
+      beat: s,
     })
 
     // Perturb the center: flip every slot to a different value.
@@ -92,7 +85,7 @@ export function ruleLocalityRange(input: {
       rule: input.rule,
       substrate: input.substrate,
       configuration: perturbed,
-      rng: rngFromSeed(stepSeed),
+      beat: s,
     })
 
     // Find the farthest node whose next tone differs between the two runs.

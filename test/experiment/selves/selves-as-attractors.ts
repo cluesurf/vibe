@@ -8,7 +8,7 @@
 //   - capacity: how many selves a mesh can hold, and that the count grows with size.
 // Run: npx tsx code/experiment/p75-selves-as-attractors.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   storedPatterns,
   hebbianFills,
@@ -40,7 +40,7 @@ function perturb(
   seed: number,
 ): Int8Array {
   const out = Int8Array.from(p)
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const k = Math.round(fraction * p.length)
   const idx = Array.from({ length: p.length }, (_, i) => i)
 
@@ -63,7 +63,7 @@ function recoveryAt(
   fraction: number,
   seed: number,
 ): number {
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const patterns = storedPatterns(k, size, rng)
   const J = hebbianFills(patterns, size)
 
@@ -114,7 +114,7 @@ export function selvesAsAttractors(input: { seed: number }): {
   }
 
   // Identity over time: settle to a self, run many more beats, confirm it stays itself.
-  const rng = makeRng({ seed: input.seed + 1 })
+  const rng = makeWeyl({ start: input.seed + 1 })
   const patterns = storedPatterns(k, size, rng)
   const J = hebbianFills(patterns, size)
   const self0 = patterns[0] ?? new Int8Array(size)

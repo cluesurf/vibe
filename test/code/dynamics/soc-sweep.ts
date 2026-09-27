@@ -4,7 +4,7 @@
 
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { socEdgeSweep, localActivity } from '@/code/dynamics/soc-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const N = 36
 
@@ -71,7 +71,7 @@ suite('dynamics/soc-sweep: conservation', [
     const tone = makeTone(N)
     const q0 = charge(tone)
     const moved = new Uint8Array(N)
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
 
     for (let b = 0; b < 40; b++) {
       socEdgeSweep({
@@ -92,7 +92,7 @@ suite('dynamics/soc-sweep: conservation', [
     const tone = makeTone(N)
     const q0 = charge(tone)
     const moved = new Uint8Array(N)
-    const rng = makeRng({ seed: 2 })
+    const rng = makeWeyl({ start: 2 })
 
     for (let b = 0; b < 30; b++) {
       socEdgeSweep({
@@ -116,7 +116,7 @@ suite('dynamics/soc-sweep: determinism', [
     const run = (): Int8Array => {
       const tone = makeTone(N)
       const moved = new Uint8Array(N)
-      const rng = makeRng({ seed: 9 })
+      const rng = makeWeyl({ start: 9 })
 
       for (let b = 0; b < 20; b++) {
         socEdgeSweep({

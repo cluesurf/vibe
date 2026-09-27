@@ -17,7 +17,7 @@ import {
   type Graph,
 } from '@/code/model/self-kit'
 import { writeFrame } from '@/code/draw/animation'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -208,7 +208,7 @@ function run(): void {
   }
 
   // seed, background churn everywhere, plus the self forced to +1 in maintained mode
-  const rng = makeRng({ seed: 7 })
+  const rng = makeWeyl({ start: 7 })
   const tone = new Int8Array(n)
 
   for (let i = 0; i < n; i++) {

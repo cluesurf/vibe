@@ -116,7 +116,7 @@ suite('coarse/surrogate: prediction beats the baseline', [
 suite('coarse/surrogate: time shuffle is a permutation', [
   check('time-shuffle preserves the label multiset', () => {
     const traj = [0, 1, 2, 3, 4, 5, 6, 7]
-    const shuffled = timeShuffle({ trajectory: traj, seed: 9 })
+    const shuffled = timeShuffle({ trajectory: traj, start: 9 })
 
     exactArray(
       shuffled.slice().sort((a, b) => a - b),
@@ -124,12 +124,12 @@ suite('coarse/surrogate: time shuffle is a permutation', [
       'shuffle is a permutation',
     )
   }),
-  check('time-shuffle is deterministic in its seed', () => {
+  check('time-shuffle is deterministic in its start', () => {
     const traj = [4, 1, 1, 0, 2, 3, 3, 2, 0, 1]
-    const a = timeShuffle({ trajectory: traj, seed: 42 })
-    const b = timeShuffle({ trajectory: traj, seed: 42 })
+    const a = timeShuffle({ trajectory: traj, start: 42 })
+    const b = timeShuffle({ trajectory: traj, start: 42 })
 
-    exactArray(a, b, 'same seed gives the same shuffle')
+    exactArray(a, b, 'same start gives the same shuffle')
   }),
 ])
 

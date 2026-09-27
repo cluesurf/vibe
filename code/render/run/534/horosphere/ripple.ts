@@ -5,7 +5,7 @@
 // a pond. Tones: blue = +1, red = -1, black = 0. Run: npx tsx code/gpu/render-horosphere-ripple-534.ts.
 
 import { create, globals } from 'webgpu'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { writeFrame } from '@/code/draw/animation'
@@ -150,7 +150,7 @@ async function run(): Promise<void> {
   // vertical column near the centre, and the band always catches its spreading footprint as an expanding
   // ripple on the flat sheet.
   const seed = new Uint32Array(n) // all zero = peace
-  const rng = makeRng({ seed: 99194853 })
+  const rng = makeWeyl({ start: 99194853 })
   const nextR = (): number => rng.next()
   const seedRadius = halfExtent * SEED_FRACTION
 

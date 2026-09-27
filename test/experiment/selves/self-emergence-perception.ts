@@ -20,7 +20,7 @@ import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { conservingEdgeListSweep } from '@/code/dynamics/conserving-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -53,7 +53,7 @@ export function selfEmergencePerception(): {
   // run to the dynamic balance from all-peace
   const t = new Int8Array(n)
   const q0 = sumTone(t)
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
 
   for (let b = 0; b < 80; b++) {
     conservingEdgeListSweep({
@@ -120,7 +120,7 @@ export function selfEmergencePerception(): {
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
 
   const start = meanBlob(imp)
-  const rng2 = makeRng({ seed: 31 })
+  const rng2 = makeWeyl({ start: 31 })
 
   for (let b = 0; b < 40; b++) {
     conservingEdgeListSweep({

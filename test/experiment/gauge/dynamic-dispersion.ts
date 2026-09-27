@@ -9,7 +9,7 @@
 // / sound / relativistic mode (omega ~ c |k|, a massless relativistic particle, the photon-like mode we
 // want). This decides whether the gapless mode is relativistic. Run: npx tsx code/experiment/p137-dynamic-dispersion.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
 import { logLogSlope } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
@@ -19,7 +19,7 @@ function beat(
   tone: Int8Array,
   L: number,
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrow: number,
 ): void {
   conservingChainSweep({ tone, length: L, moved, rng, arrow })
@@ -61,7 +61,7 @@ export function dynamicDispersion(input?: {
 
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
-  const rng = makeRng({ seed: 19 })
+  const rng = makeWeyl({ start: 19 })
 
   for (let i = 0; i < L; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

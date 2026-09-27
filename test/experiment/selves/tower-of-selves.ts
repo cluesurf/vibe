@@ -15,7 +15,7 @@
 // reduces to a single self at the top, but only because the mesh was constructed that way.
 // Run: npx tsx code/experiment/p60-tower-of-selves.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { makeGraph, Graph } from '@/code/tool/graph'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
 import {
@@ -37,7 +37,7 @@ function hierarchicalMesh(input: {
   branching: number
   depth: number
   cellSize: number
-  rng: Rng
+  rng: Weyl
 }): {
   g: Graph
   fills: Int8Array[]
@@ -104,7 +104,7 @@ export function towerOfSelves(input: { seed: number }): {
   const b = 3
   const depth = 4
   const cellSize = 12
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const { g, fills, unitAtLevel, countAtLevel } = hierarchicalMesh({
     branching: b,
     depth,
@@ -114,7 +114,7 @@ export function towerOfSelves(input: { seed: number }): {
 
   // A hierarchically structured self: tones assigned top-down, each level mostly following
   // its parent with a small chance to differ, so there is real structure at every scale.
-  const ir = makeRng({ seed: input.seed + 1 })
+  const ir = makeWeyl({ start: input.seed + 1 })
   const tone = new Int8Array(g.size)
   // assign per top-down: precompute a tone for each unit at the top, then refine downward
   const topTone = 1
@@ -151,7 +151,7 @@ export function towerOfSelves(input: { seed: number }): {
     fills,
     init: tone,
     sweeps: 60,
-    rng: makeRng({ seed: input.seed + 2 }),
+    rng: makeWeyl({ start: input.seed + 2 }),
   }).state
 
   const names = ['cells', 'tissues', 'organs', 'systems', 'body']

@@ -4,7 +4,7 @@
 
 import { suite, check, equal, exactArray } from '@/test/code/harness'
 import { fillGatedSweep } from '@/code/dynamics/fill-gated-sweep'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const N = 36
 const edges = (n: number): [number, number][] =>
@@ -29,7 +29,7 @@ suite('dynamics/fill-gated-sweep: charge conservation', [
     const fill = makeFill(N)
     const e = edges(N)
     const q0 = charge(tone)
-    const rng = makeRng({ seed: 1 })
+    const rng = makeWeyl({ start: 1 })
 
     for (let b = 0; b < 50; b++) {
       fillGatedSweep({ tone, edges: e, fill, rng })
@@ -45,7 +45,7 @@ suite('dynamics/fill-gated-sweep: charge conservation', [
       tone,
       edges: edges(N),
       fill,
-      rng: makeRng({ seed: 2 }),
+      rng: makeWeyl({ start: 2 }),
     })
     exactArray(tone, before, 'insulating edges do nothing')
   }),
@@ -57,7 +57,7 @@ suite('dynamics/fill-gated-sweep: determinism', [
       const tone = makeTone(N)
       const fill = makeFill(N)
       const e = edges(N)
-      const rng = makeRng({ seed: 7 })
+      const rng = makeWeyl({ start: 7 })
 
       for (let b = 0; b < 20; b++) {
         fillGatedSweep({ tone, edges: e, fill, rng })

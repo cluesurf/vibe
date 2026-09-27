@@ -7,7 +7,7 @@
 // Lorentz isotropy against a flat 3D cubic lattice. See note/deterministic-substrate.md.
 // Run: npx tsx code/experiment/p45-dodecagrid.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { lattice } from '@/code/substrate/lattice'
 import {
@@ -49,7 +49,7 @@ export function dodecagrid(input: { seed: number }): {
   const ga = lorentzIsotropy({
     substrate: g,
     samples: 3000,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   const L = lattice({
@@ -61,7 +61,7 @@ export function dodecagrid(input: { seed: number }): {
   const la = lorentzIsotropy({
     substrate: L,
     samples: 3000,
-    rng: makeRng({ seed: input.seed }),
+    rng: makeWeyl({ start: input.seed }),
   })
 
   return {

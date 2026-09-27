@@ -15,11 +15,11 @@ import {
   exactArray,
 } from '@/test/code/harness'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { precedes, relationCount } from '@/code/tool/poset'
 
 const sprinkle = (seed: number, count = 120, dimension = 3) =>
-  sprinkleMinkowski({ dimension, count, rng: makeRng({ seed }) })
+  sprinkleMinkowski({ dimension, count, rng: makeWeyl({ start: seed }) })
 
 suite('substrate/sprinkle-minkowski: determinism', [
   check('the same seed produces an identical sprinkle', () => {
@@ -93,7 +93,7 @@ suite('substrate/sprinkle-minkowski: the causal relation', [
       const p = sprinkleMinkowski({
         dimension: d,
         count: n,
-        rng: makeRng({ seed: 11 }),
+        rng: makeWeyl({ start: 11 }),
       })
 
       const coords = p.embedding!.coords

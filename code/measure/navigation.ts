@@ -6,7 +6,7 @@
 
 import { Graph } from '@/code/tool/graph'
 import { poincareCoshFromParts } from '@/code/geometry/distance'
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // Distance used by greedy routing. For a hyperbolic (Poincare-disc) embedding we
 // use the true hyperbolic disc distance; otherwise Euclidean in the coordinates.
@@ -102,7 +102,7 @@ export function greedyRouteHops(input: {
 export function greedyRoutingSuccess(input: {
   graph: Graph
   trials: number
-  rng: Rng
+  rng: Weyl
   maxHops?: number
   countDisconnectedAsFailure?: boolean
 }): { successRate: number; meanStretch: number; trials: number } {
@@ -210,7 +210,7 @@ export function greedyRoutingSuccess(input: {
 export function routingWithBacktrack(input: {
   graph: Graph
   trials: number
-  rng: Rng
+  rng: Weyl
   maxSteps?: number
 }): { successRate: number; meanStretch: number; trials: number } {
   const graph = input.graph

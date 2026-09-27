@@ -1,4 +1,4 @@
-import { Rng } from '@/code/tool/rng'
+import { Weyl } from '@/code/tool/weyl'
 
 // One beat of conserved hops over an edge list with a self-vs-field PUMP/LEAK structure (the
 // "willpower reserve" dynamics). Each edge with exactly one neutral and one charged endpoint is a
@@ -16,7 +16,7 @@ export function pumpedReserveSweep(input: {
   edges: readonly (readonly [number, number])[]
   inSelf: Uint8Array
   distC: Int32Array
-  rng: Rng
+  rng: Weyl
   fieldLeak: number
   pump: boolean
   farValue?: number

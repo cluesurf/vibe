@@ -22,7 +22,7 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   GaugeGroup,
   makeGaugeLattice,
@@ -51,7 +51,7 @@ function creutzStudy(input: {
   ratio: number
   ratioError: number
 } {
-  const rng = makeRng({ seed: input.seed })
+  const rng = makeWeyl({ start: input.seed })
   const lattice = makeGaugeLattice({
     group: input.group,
     lengths: [8, 8, 8, 8],

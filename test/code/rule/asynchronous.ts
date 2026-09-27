@@ -1,7 +1,7 @@
 // Conformance for code/rule/asynchronous: one element at a time, each reading the RUNNING (partially updated)
 // state, so earlier updates in a sweep influence later ones. We compare a sequential sweep against the by-hand
-// result computed WITH running state (which differs from the synchronous result), confirm a random sweep is
-// deterministic under a fixed seed, and confirm the identity map is a no-op.
+// result computed WITH running state (which differs from the synchronous result), confirm the Weyl order is a
+// fixed function of the beat, and confirm the identity map is a no-op.
 
 import { suite, check, equal, ok } from '@/test/code/harness'
 import { makeGraph } from '@/code/tool/graph'
@@ -10,7 +10,6 @@ import {
   getTone,
   setTone,
 } from '@/code/tone/configuration'
-import { makeRng } from '@/code/tool/rng'
 import { asynchronousRule } from '@/code/rule/asynchronous'
 import { synchronousRule } from '@/code/rule/synchronous'
 import { LocalMap } from '@/code/rule/rule'
@@ -44,17 +43,16 @@ const sumLocal: LocalMap = ({ neighborhood }) =>
 const identityLocal: LocalMap = ({ self }) => self
 
 function stepAsync(
-  order: 'sequential' | 'random',
+  order: 'sequential' | 'weyl',
   values: number[],
-  seed: number,
+  beat: number,
   local: LocalMap = sumLocal,
 ): number[] {
   const rule = asynchronousRule({ name: 'test', local, order })
   const out = rule.step({
     substrate: graph,
     configuration: configFrom(values),
-    beat: 0,
-    rng: makeRng({ seed }),
+    beat,
   })
 
   return readAll(out.configuration)
@@ -87,7 +85,6 @@ suite('rule/asynchronous: running-state sequential sweep', [
           substrate: graph,
           configuration: configFrom([1, 0, 0, 1]),
           beat: 0,
-          rng: makeRng({ seed: 1 }),
         })
 
         return readAll(out.configuration)
@@ -109,15 +106,21 @@ suite('rule/asynchronous: running-state sequential sweep', [
   }),
 ])
 
-suite('rule/asynchronous: random order is deterministic per seed', [
-  check('same seed gives the same result', () => {
-    const a = stepAsync('random', [1, 0, 1, -1], 42)
-    const b = stepAsync('random', [1, 0, 1, -1], 42)
+suite('rule/asynchronous: the Weyl order is a function of the beat', [
+  check('the same beat gives the same result', () => {
+    const a = stepAsync('weyl', [1, 0, 1, -1], 42)
+    const b = stepAsync('weyl', [1, 0, 1, -1], 42)
 
     equal(
       JSON.stringify(a),
       JSON.stringify(b),
-      'reproducible under a fixed seed',
+      'reproducible at a fixed beat',
+    )
+  }),
+  check('the identity local map is a no-op in any order', () => {
+    equal(
+      JSON.stringify(stepAsync('weyl', [1, -1, 0, 1], 7, identityLocal)),
+      JSON.stringify([1, -1, 0, 1]),
     )
   }),
 ])

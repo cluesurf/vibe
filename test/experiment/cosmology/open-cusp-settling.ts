@@ -9,7 +9,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { busemann, idealDirection } from '@/code/substrate/horosphere'
 import { toCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -35,7 +35,7 @@ export default experiment({
 
     const cur = new Int8Array(n)
     const prev = new Int8Array(n)
-    const rng = makeRng({ seed: 7 })
+    const rng = makeWeyl({ start: 7 })
 
     for (let i = 0; i < n; i++) {
       cur[i] = rng.nextInt({ max: 3 })

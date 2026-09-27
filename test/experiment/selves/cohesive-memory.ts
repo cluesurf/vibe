@@ -18,11 +18,11 @@ import { pearson } from '@/code/measure/statistics'
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
 
@@ -51,7 +51,7 @@ function beat(
   tone: Int8Array,
   edges: [number, number][],
   neighbors: number[][],
-  rng: Rng,
+  rng: Weyl,
   arrowProb: number,
   cohesive: boolean,
   temp: number,
@@ -130,7 +130,7 @@ function measure(cohesive: boolean): {
 
   const t = new Int8Array(n)
   const q0 = sumTone(t)
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
 
   for (let b = 0; b < 100; b++) {
     beat(t, edges, neighbors, rng, ARROW, cohesive, TEMP)
@@ -175,7 +175,7 @@ function measure(cohesive: boolean): {
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
 
   const start = meanBlob(imp)
-  const rng2 = makeRng({ seed: 31 })
+  const rng2 = makeWeyl({ start: 31 })
 
   for (let b = 0; b < 40; b++) {
     beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)

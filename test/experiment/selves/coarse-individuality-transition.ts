@@ -14,7 +14,7 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { fitnessVariancePartition } from '@/code/coarse/individuality'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 
 // Population WITHOUT group selection or a bottleneck. Members vary independently, groups are incidental
 // labels, so the variance is within groups and each member is an independent replicator.
@@ -24,7 +24,7 @@ function withoutTransition(input: {
   seed: number
 }): number[][] {
   const { groups, members, seed } = input
-  const rng = makeRng(seed)
+  const rng = makeStream(seed)
 
   return Array.from({ length: groups }, () =>
     Array.from({ length: members }, () => rng.next()),
@@ -41,7 +41,7 @@ function withTransition(input: {
   seed: number
 }): number[][] {
   const { groups, members, seed } = input
-  const rng = makeRng(seed)
+  const rng = makeStream(seed)
 
   return Array.from({ length: groups }, () => {
     const founder = rng.next() // group selection has spread founders across the range.

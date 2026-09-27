@@ -12,14 +12,14 @@
 // builder reaches each (the gap closes) and active maintenance holds each, so the model can realize
 // whatever structure is asked for, not just one. Run: npx tsx code/experiment/p161-arbitrary-structure.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
+type Weyl = { next: () => number }
 
 // an arbitrary balanced target structure of M cells (net charge zero, an information pattern)
-function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
+function makeTarget(M: number, kind: number, rng: Weyl): Int8Array {
   const t = new Int8Array(M)
   const half = Math.floor(M / 2)
 
@@ -51,7 +51,7 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
 }
 
 // goal-directed construction (P147), fix wrong cells toward the target; returns steps to build it
-function construct(target: Int8Array, rng: Rng): number {
+function construct(target: Int8Array, rng: Weyl): number {
   const M = target.length
   const s = new Int8Array(M)
 
@@ -84,7 +84,7 @@ function construct(target: Int8Array, rng: Rng): number {
 }
 
 // active maintenance against scrambling, re-write wrong cells; returns final fidelity
-function maintain(target: Int8Array, rng: Rng): number {
+function maintain(target: Int8Array, rng: Weyl): number {
   const M = target.length
   const s = target.slice()
 
@@ -129,7 +129,7 @@ export function arbitraryStructure(input?: { M?: number }): {
   solved: boolean
 } {
   const M = input?.M ?? 60
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
   const kinds = ['blocks', 'stripes', 'random']
   const cases = kinds.map((kind, k) => {
     const target = makeTarget(M, k, rng)

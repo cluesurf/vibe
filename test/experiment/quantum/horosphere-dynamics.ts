@@ -17,7 +17,7 @@ import {
   buildCellGraph,
   buildHorosphere,
 } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeWeyl, Weyl } from '@/code/tool/weyl'
 import { bfsShells } from '@/code/measure/shells'
 import { graphWalkMsdExponent } from '@/code/dynamics/random-walk'
 import { conservingEdgeListSweep } from '@/code/dynamics/conserving-sweep'
@@ -43,7 +43,7 @@ function fieldBeat(
   tone: Int8Array,
   edges: [number, number][],
   moved: Uint8Array,
-  rng: Rng,
+  rng: Weyl,
   arrow: number,
 ): void {
   conservingEdgeListSweep({ tone, edges, moved, rng, arrow })
@@ -90,7 +90,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   const maxR = Math.min(8, Math.max(...Array.from(dCenter)))
   const tone = new Int8Array(hg.length)
   const moved = new Uint8Array(hg.length)
-  const rng = makeRng({ seed: 3 })
+  const rng = makeWeyl({ start: 3 })
 
   for (let i = 0; i < hg.length; i++) {
     tone[i] = rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0

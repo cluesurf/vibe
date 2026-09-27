@@ -32,7 +32,7 @@ import {
 } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
-import { makeRng } from '@/code/coarse/self-trajectory'
+import { makeStream } from '@/code/coarse/self-trajectory'
 
 // the observable, the charge-weighted mean x-coordinate of the gas, recorded once per beat. This is a SPATIAL
 // coordinate, so adjacent quantile bins are genuine dynamical neighbours (a packet drifts and scatters between
@@ -133,14 +133,14 @@ export default experiment({
       series: mobileSeries,
       fine,
       macroCount,
-      rng: makeRng(7777),
+      rng: makeStream(7777),
     })
 
     const pinningEi = emergenceGain({
       series: pinningSeries,
       fine,
       macroCount,
-      rng: makeRng(7777),
+      rng: makeStream(7777),
     })
 
     const gainMobile = mobileEi.eiSpatial - mobileEi.eiRandom

@@ -63,7 +63,7 @@ export default experiment({
     })
 
     const shuffled = fitMarkovSurrogate({
-      trajectory: timeShuffle({ trajectory: train, seed: 321 }),
+      trajectory: timeShuffle({ trajectory: train, start: 321 }),
       stateCount: bins,
       lag,
     })

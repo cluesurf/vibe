@@ -4,7 +4,7 @@
 // differs from {5,3,4}/{3,4,3,4}, but charge is still conserved.) Run: npx tsx code/experiment/s73-dynamics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   streamDirectionalCharge,
   totalDirectionalCharge,
@@ -22,7 +22,7 @@ export function s73Dynamics(): {
   const N = g.cellCount,
     nb = g.neighbors
 
-  const rng = makeRng({ seed: 9 })
+  const rng = makeWeyl({ start: 9 })
   const rnd = (): number => rng.next()
   const charge0: number[][] = Array.from({ length: N }, (_, i) =>
     nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),

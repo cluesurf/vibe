@@ -1,3 +1,7 @@
+// RETIRED 2026-09-25: nothing in the repo that follows the no-seed rule imports this file, and
+// E-MTH-0015 fails on any file that does. It is kept only until it is deleted by hand. The
+// replacement is code/tool/weyl, deterministic low-discrepancy sequences with no seed.
+//
 // Seeded deterministic PRNG. Reproducibility is a hard requirement of the
 // testbed: the whole system is a pure function of (seed, parameters).
 

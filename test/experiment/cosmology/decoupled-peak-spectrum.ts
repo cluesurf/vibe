@@ -30,7 +30,7 @@ import { makeWill, Will } from '@/code/tone/will'
 import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { coinLines } from '@/code/measure/sound-wave'
-import { hashRand } from '@/code/dynamics/conserving-sweep'
+import { weylCell } from '@/code/tool/weyl'
 
 const SIDE = 48
 const AMP = 0.25
@@ -49,7 +49,7 @@ function perturbedGas(k: number): Will {
     const base = cell * mesh.degree
 
     for (let li = 0; li < lines.length; li++) {
-      if (hashRand(cell, li, 99) < fill) {
+      if (weylCell(cell, li, 99) < fill) {
         const [a, o] = lines[li]!
 
         will.data[base + a] = 1

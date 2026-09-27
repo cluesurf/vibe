@@ -1,4 +1,4 @@
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 
 // The scramble control: a degree-preserving rewiring of a neighbors graph that
 // keeps the node count and the exact degree of every node, but destroys the
@@ -53,7 +53,7 @@ export function scrambleNeighbors(input: {
   }
 
   const edgeCount = edges.length
-  const rng = makeRng({ seed })
+  const rng = makeWeyl({ start: seed })
   const swaps = passes * edgeCount
 
   for (let step = 0; step < swaps; step++) {

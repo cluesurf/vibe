@@ -4,7 +4,7 @@
 // fragment. Base-layer (a nearest-content search, no attractor relaxation needed).
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { makeWeyl } from '@/code/tool/weyl'
 import {
   makeAssociativeMemory,
   ternaryWord,
@@ -48,7 +48,7 @@ export function associativeNoisyRecall(input?: {
     nearestRecallRate({
       mem,
       corruptionFraction: f,
-      rng: makeRng({ seed: 1 }),
+      rng: makeWeyl({ start: 1 }),
       sample,
     })
 
