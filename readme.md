@@ -464,7 +464,10 @@ realizes. **Open:**
    n = 2, 4, 8, because it also changes the full dock's phase that
    bound the trio, and n is a new free input
    ([`E-SPN-0107`](test/experiment/spin/fine-coin.ts))
-6. matter smaller than a dock, which does not fall alike
+6. not a requirement: matter smaller than a dock falls by its own
+   lattice ray, but real particles are about 10^20 docks across if a
+   dock is Planck-sized. That is a Planck-scale prediction, not a gap.
+   The requirement is n ≫ 1, which is item 5
 7. the 3.8% energy drift at a depth boundary on the span light
 8. whether the husk's bending is a full spin-2 field, and the field's
    pull on itself that a Schwarzschild horizon needs
