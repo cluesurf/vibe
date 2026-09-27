@@ -374,9 +374,17 @@ export function openGaussOff(mesh: OpenMesh, line: Int8Array, content: Int32Arra
 // the far end of link m seen from a dock with sign sg (GROUND for a floor link's head)
 const across = (mesh: OpenMesh, m: number, sg: number): number => (sg > 0 ? mesh.head[m]! : mesh.tail[m]!)
 
-// one unit of line from `from` to the nearest (breadth first over links with room) dock of negative supply or the
-// ground; applied to `line` if found. `stamp` / `prev` are scratch of mesh.docks entries, `mark` a fresh stamp value.
-function routeUnit(mesh: OpenMesh, line: Int8Array, supply: Int32Array, sources: readonly number[], capacity: number, stamp: Int32Array, prev: Int32Array, queue: Int32Array, mark: number): number {
+// which links a line may use (every link when absent): huskOnly keeps content's lines on the husk's lateral links
+export type LinkAllow = (m: number) => boolean
+
+export const huskOnly =
+  (mesh: OpenMesh): LinkAllow =>
+  (m: number): boolean =>
+    mesh.kind[m] === HUSK_LATERAL
+
+// one unit of line from `from` to the nearest (breadth first over allowed links with room) dock of negative supply or
+// the ground; applied to `line` if found. `stamp` / `prev` are scratch of mesh.docks entries, `mark` a fresh stamp value.
+function routeUnit(mesh: OpenMesh, line: Int8Array, supply: Int32Array, sources: readonly number[], capacity: number, stamp: Int32Array, prev: Int32Array, queue: Int32Array, mark: number, allow?: LinkAllow): number {
   let tail = 0
 
   for (const y of sources) (stamp[y] = mark), (prev[y] = -1), (queue[tail++] = y)

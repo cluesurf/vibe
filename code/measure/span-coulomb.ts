@@ -22,9 +22,14 @@
 // DETERMINISM: every start is placed; nothing is drawn.
 
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
-import { coulombFlux } from '@/code/measure/trit-hop-light'
-import { solvePotential } from '@/code/measure/trit-kinetic-light'
-import { spanFlux, type SpanMedium, type SpanState } from '@/code/rule/depth-span-light'
+import { makeHuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
+import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedBeat, shapedBeatBack, type ShapedState } from '@/code/rule/trit-husk-shaped'
+import { fieldNumerators, makeFieldScratch, makeMatter } from '@/code/rule/trit-kinetic'
+import { coulombFlux, huskGreenDifference } from '@/code/measure/trit-hop-light'
+import { addStringPath, huskGaussFailures, relaxStart, solvePotential } from '@/code/measure/trit-kinetic-light'
+import { noWraps } from '@/code/measure/varying-depth-light'
+import { exactWalkRun, floatWalkRun, type PeierlsSetting } from '@/code/measure/peierls-reading'
+import { copySpan, emptySpan, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack, spanFlux, type SpanMedium, type SpanState } from '@/code/rule/depth-span-light'
 
 const G = [2, 2, 2, 1, 1, 1, 1, 1, 1]
 
@@ -64,8 +69,7 @@ export function spanGaussFailures(m: SpanMedium, s: SpanState, rho: Float64Array
 }
 
 // the uniform (harmonic) part of a flux on the torus, axis by axis
-export function harmonicPart(m: SpanMedium, flux: ArrayLike<number>): Float64Array {
-  const g = m.geometry
+export function harmonicPart(g: HuskGeometry, flux: ArrayLike<number>): Float64Array {
   const out = new Float64Array(g.huskLinks)
 
   for (let axis = 0; axis < 3; axis++) {
@@ -105,7 +109,7 @@ export function spanRelaxStart(m: SpanMedium, s: SpanState): SpanRelaxed {
 
   const levels = 1 + s.upper.length
   const long = coulombFlux(g, stringCharge(m, s))
-  const harmonic = harmonicPart(m, s.string)
+  const harmonic = harmonicPart(g, s.string)
   const t = new Float64Array(g.huskLinks)
 
   for (let l = 0; l < g.huskLinks; l++) t[l] = s.string[l]! - long[l]! - harmonic[l]!
@@ -243,4 +247,344 @@ export function spanEnergyWeighted(m: SpanMedium, s: SpanState, w: SpanShadowScr
   }
 
   return e
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// E-FRC-0254: Coulomb on the spanned light beside the unspanned one. Fixed before the gated run
+
+export const COULOMB_SIDE = 8
+export const COULOMB_DEPTHS: readonly number[] = [4, 16, 32]
+// the unspanned light is hot at D 4 (E-FRC-0252's probes; tmp/span-coul-probe1.log: its growth off by 7.05), so the
+// side-by-side ratio is read from this depth up
+export const COULOMB_COMPARE_FROM = 16
+export const COULOMB_SEPARATIONS: readonly number[] = [2, 4]
+export const COULOMB_BEATS = 256
+export const COULOMB_LEVELS = 3
+export const COULOMB_EVERY = 16
+
+export type CoulombReading = {
+  depth: number
+  r: number
+  // the spanned light from the relaxed start: Gauss failures, wraps, reversal, the shadow flux's largest departure
+  // from the static field over every beat (over the field's largest value), and the shadow angle's growth per beat
+  gauss: number
+  wraps: number
+  reversed: boolean
+  fluxOff: number
+  // on links holding at least a twentieth of the largest static field: the largest relative departure of the spanned
+  // growth from E / Q and of the unspanned growth from E, and the unspanned over the spanned growth (mean, spread)
+  growthOff: number
+  oldGrowthOff: number
+  ratioMean: number
+  ratioSpread: number
+  oldGauss: number
+  oldReversed: boolean
+  // the spanned invariant's electric term on the Coulomb flux, over the Green's difference (G(0) - G(r)) / q
+  energyOverGreen: number
+  // a strung start (the strings' transverse part left as free light): the drift of the spanned invariant (weight
+  // 1 / Q) and of the same sum with the unspanned weight
+  strungDrift: number
+  strungWrongDrift: number
+  strungReversed: boolean
+  residual: number
+}
+
+export function coulombReading(depth: number, r: number): CoulombReading {
+  const side = COULOMB_SIDE
+  const levels = COULOMB_LEVELS
+  const beats = COULOMB_BEATS
+  const m = makeSpanMedium([side, side, side], () => depth)
+  const g = m.geometry
+  const q = 2 * depth + 1
+  const place = (s: ShapedState): void => addStringPath(s, g, [0, 0, 0], [r, 0, 0], 1)
+
+  // the spanned light, relaxed
+  const s = emptySpan(m, levels)
+
+  place(s)
+
+  const relaxed = spanRelaxStart(m, s)
+  const start = copySpan(s)
+  const rho = stringCharge(m, s)
+  const scratch = makeSpanScratch(m, levels)
+  const w = makeSpanShadowScratch(m)
+  const angle = new Float64Array(g.huskLinks)
+  const flux = new Float64Array(g.huskLinks)
+  const wraps = noWraps()
+  const top = relaxed.field.reduce((a, v) => Math.max(a, Math.abs(v)), 0)
+  let gauss = spanGaussFailures(m, s, rho, w.flux)
+  let fluxOff = 0
+
+  for (let t = 1; t <= beats; t++) {
+    spanBeat(m, s, scratch, levels, wraps)
+    gauss += spanGaussFailures(m, s, rho, w.flux)
+    spanShadow(m, s, w, angle, flux)
+
+    for (let l = 0; l < g.huskLinks; l++) fluxOff = Math.max(fluxOff, Math.abs(flux[l]! - relaxed.field[l]!) / top)
+  }
+
+  const growth = Float64Array.from(angle, v => v / beats)
+
+  for (let t = 0; t < beats; t++) spanBeatBack(m, s, scratch, levels)
+
+  const reversed = sameSpan(s, start)
+
+  // the unspanned light (code/rule/trit-husk-shaped), relaxed from the same strings
+  const e = makeHuskEngine(g, depth)
+  const o = emptyShaped(g, levels)
+  const options = { levels, cyclic: false }
+
+  place(o)
+
+  const matter = makeMatter({
+    mass: 1,
+    charges: [
+      { charge: 1, moving: false, dock: [0, 0, 0] },
+      { charge: -1, moving: false, dock: [r, 0, 0] },
+    ],
+  })
+
+  relaxStart(e, o, matter, harmonicPart(g, o.string))
+
+  const oldStart = shapedArrays(copyShaped(o))
+  const oldScratch = makeShapedScratch(g, levels)
+  const f = makeFieldScratch(e)
+  const oldFlux = new Int32Array(g.huskLinks)
+  let oldGauss = huskGaussFailures(e, o, matter, false, oldFlux)
+
+  for (let t = 1; t <= beats; t++) {
+    shapedBeat(e, o, oldScratch, options)
+    oldGauss += huskGaussFailures(e, o, matter, false, oldFlux)
+  }
+
+  fieldNumerators(e, o, options, f)
+
+  const oldGrowth = Float64Array.from(o.angle, (v, l) => (v + f.aShift[l]! / q ** levels) / beats)
+
+  for (let t = 0; t < beats; t++) shapedBeatBack(e, o, oldScratch, options)
+
+  const oldEnd = shapedArrays(o)
+  const oldReversed = oldEnd.every((x, k) => x.every((v, i) => v === oldStart[k]![i]))
+
+  let growthOff = 0
+  let oldGrowthOff = 0
+  const ratios: number[] = []
+
+  for (let l = 0; l < g.huskLinks; l++) {
+    const field = relaxed.field[l]!
+
+    if (Math.abs(field) < top / 20) continue
+    growthOff = Math.max(growthOff, Math.abs((growth[l]! * m.span[l]!) / field - 1))
+    oldGrowthOff = Math.max(oldGrowthOff, Math.abs(oldGrowth[l]! / field - 1))
+    ratios.push(oldGrowth[l]! / growth[l]!)
+  }
+
+  const ratioMean = ratios.reduce((a, v) => a + v, 0) / ratios.length
+  const ratioSpread = ratios.reduce((a, v) => Math.max(a, Math.abs(v - ratioMean)), 0)
+  let longEnergy = 0
+
+  for (let l = 0; l < g.huskLinks; l++) longEnergy += ((g.weight[l % 9]! / 4) * relaxed.long[l]! ** 2) / m.span[l]!
+
+  // the strung start
+  const u = emptySpan(m, levels)
+
+  place(u)
+
+  const uStart = copySpan(u)
+  const e0 = spanEnergyWeighted(m, u, w, 1)
+  const w0 = spanEnergyWeighted(m, u, w, 0)
+  let strungDrift = 0
+  let strungWrongDrift = 0
+
+  for (let t = 1; t <= beats; t++) {
+    spanBeat(m, u, scratch, levels)
+
+    if (t % COULOMB_EVERY === 0) {
+      strungDrift = Math.max(strungDrift, Math.abs(spanEnergyWeighted(m, u, w, 1) / e0 - 1))
+      strungWrongDrift = Math.max(strungWrongDrift, Math.abs(spanEnergyWeighted(m, u, w, 0) / w0 - 1))
+    }
+  }
+
+  for (let t = 0; t < beats; t++) spanBeatBack(m, u, scratch, levels)
+
+  return {
+    depth,
+    r,
+    gauss,
+    wraps: wraps.angle + wraps.field + wraps.potential,
+    reversed,
+    fluxOff,
+    growthOff,
+    oldGrowthOff,
+    ratioMean,
+    ratioSpread,
+    oldGauss,
+    oldReversed,
+    energyOverGreen: longEnergy / (huskGreenDifference(side, [r, 0, 0]) / q),
+    strungDrift,
+    strungWrongDrift,
+    strungReversed: sameSpan(u, uStart),
+    residual: relaxed.residual,
+  }
+}
+
+// alpha = C / c with C = s / (12 N) (E-FRC-0242: the drift's phase per unit of e^2 / 2 is 2 pi s / N, times the husk
+// Green's function 1 / (24 pi r)) and N = q the column's Weyl pair (hbar kept): the unspanned light has s = 1 and
+// c = 2 / sqrt(3 q); the spanned light divides its drift by Q = q, so s = 1 / q, and c = 2 / (q sqrt 3)
+export const alphaUnspanned = (depth: number): number => {
+  const q = 2 * depth + 1
+
+  return 1 / (12 * q) / (2 / Math.sqrt(3 * q))
+}
+
+export const alphaSpanned = (depth: number): number => {
+  const q = 2 * depth + 1
+
+  return 1 / (12 * q * q) / (2 / (q * Math.sqrt(3)))
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// E-FRC-0255: E-FRC-0252's test charge on the spanned light. Fixed before the gated run
+
+export const PEIERLS: PeierlsSetting = { side: 24, depth: 32, order: 1024, pack: 16 }
+export const PEIERLS_BEATS = 512
+export const PEIERLS_RS: readonly number[] = [4, 5, 6, 7, 8]
+export const PEIERLS_LEVELS = 3
+// E-FRC-0252's source, and the spanned run's: q times it, so the integer angle a = (A2 - r) / Q moves as E-FRC-0252's did
+export const PEIERLS_SOURCE = 4
+export const PEIERLS_SCALED = PEIERLS_SOURCE * (2 * PEIERLS.depth + 1)
+
+// strings of `units` from the origin to (side / 2, side / 2, side / 2) along x, then y, then z, stepping `dir`
+export function addStringWay(s: ShapedState, g: HuskGeometry, units: number, dir: number): void {
+  const side = g.side
+  const at = [0, 0, 0]
+  const mod = (x: number, n: number): number => ((x % n) + n) % n
+
+  for (let axis = 0; axis < 3; axis++) {
+    for (let i = 0; i < side / 2; i++) {
+      const tail = dir > 0 ? [...at] : at.map((v, k) => (k === axis ? v - 1 : v))
+      const dock = mod(tail[0]!, side) + side * mod(tail[1]!, side) + side * side * mod(tail[2]!, side)
+
+      s.string[dock * 9 + axis] = s.string[dock * 9 + axis]! + dir * units
+      at[axis] = mod(at[axis]! + dir, side)
+    }
+  }
+}
+
+export type SpanLightRecord = {
+  source: number
+  // per beat t = 1 .. beats: the integer axis angle and the shadow angle on the line's x-links (x, 0, 0)
+  line: Int32Array[]
+  shadow: Float64Array[]
+  // the static field on those links (S - C^T u of the relaxed start)
+  staticLine: Float64Array
+  gauss: number
+  wraps: number
+  reversed: boolean
+  harmonic: number
+  residual: number
+  seconds: number
+}
+
+export function spanPeierlsLight(source: number, log?: (what: string) => void): SpanLightRecord {
+  const started = Date.now()
+  const { side, depth } = PEIERLS
+  const levels = PEIERLS_LEVELS
+  const m = makeSpanMedium([side, side, side], () => depth)
+  const g = m.geometry
+  const s = emptySpan(m, levels)
+
+  addStringWay(s, g, source / 2, 1)
+  addStringWay(s, g, source / 2, -1)
+
+  const relaxed = spanRelaxStart(m, s)
+  const start = copySpan(s)
+  const rho = stringCharge(m, s)
+  const scratch = makeSpanScratch(m, levels)
+  const w = makeSpanShadowScratch(m)
+  const angle = new Float64Array(g.huskLinks)
+  const flux = new Float64Array(g.huskLinks)
+  const wraps = noWraps()
+  const lineLinks = Array.from({ length: side }, (_, x) => x * 9)
+  const line: Int32Array[] = []
+  const shadow: Float64Array[] = []
+  let gauss = spanGaussFailures(m, s, rho, w.flux)
+
+  for (let t = 1; t <= PEIERLS_BEATS; t++) {
+    spanBeat(m, s, scratch, levels, wraps)
+    gauss += spanGaussFailures(m, s, rho, w.flux)
+    spanShadow(m, s, w, angle, flux)
+    line.push(Int32Array.from(lineLinks, l => s.angle[l]!))
+    shadow.push(Float64Array.from(lineLinks, l => angle[l]!))
+
+    if (t % 64 === 0) log?.(`light ${source} beat ${t} ${(Date.now() - started) / 1000}s`)
+  }
+
+  for (let t = 0; t < PEIERLS_BEATS; t++) spanBeatBack(m, s, scratch, levels)
+
+  return {
+    source,
+    line,
+    shadow,
+    staticLine: Float64Array.from(lineLinks, l => relaxed.field[l]!),
+    gauss,
+    wraps: wraps.angle + wraps.field + wraps.potential,
+    reversed: sameSpan(s, start),
+    harmonic: relaxed.harmonic.reduce((a, v) => Math.max(a, Math.abs(v)), 0),
+    residual: relaxed.residual,
+    seconds: (Date.now() - started) / 1000,
+  }
+}
+
+export type WalkReading = { r: number; love: number; fear: number; neutral: number; electric: number; staticRef: number; shadowRef: number; ratio: number }
+
+// the walkers of charge +1, -1 and 0 at every r over a recorded light; the static reference reads A(t) = t E / Q
+export function walkReadings(light: SpanLightRecord, rs: readonly number[], charges: readonly number[], back: (r: number, q: number) => boolean): { readings: WalkReading[]; normOk: boolean; backOk: boolean } {
+  const q = 2 * PEIERLS.depth + 1
+  let normOk = true
+  let backOk = true
+  const readings = rs.map(r => {
+    const move = new Map<number, number>()
+
+    for (const c of charges) {
+      const x = exactWalkRun(PEIERLS, r, c, light.line, back(r, c))
+
+      move.set(c, x.move)
+      normOk &&= x.normOk
+      backOk &&= x.backOk
+    }
+
+    const st = (c: number): number => floatWalkRun(PEIERLS, r, c, PEIERLS_BEATS, (t, x) => ((t + 1) * light.staticLine[x]!) / q)
+    const sh = (c: number): number => floatWalkRun(PEIERLS, r, c, PEIERLS_BEATS, (t, x) => light.shadow[t]![x]!)
+    const neutral = move.get(0) ?? 0
+    const electric = (move.get(1)! - move.get(-1)!) / 2
+    const staticRef = (st(1) - st(-1)) / 2
+
+    return { r, love: move.get(1)! - neutral, fear: move.get(-1)! - neutral, neutral, electric, staticRef, shadowRef: (sh(1) - sh(-1)) / 2, ratio: electric / staticRef }
+  })
+
+  return { readings, normOk, backOk }
+}
+
+export type CoulombSurvey = { readings: CoulombReading[]; seconds: number }
+
+let coulombCache: CoulombSurvey | undefined
+
+export function spanCoulombSurvey(log?: (what: string) => void): CoulombSurvey {
+  if (coulombCache) return coulombCache
+
+  const started = Date.now()
+  const readings = COULOMB_DEPTHS.flatMap(depth =>
+    COULOMB_SEPARATIONS.map(r => {
+      const x = coulombReading(depth, r)
+
+      log?.(`D ${depth} r ${r} ${(Date.now() - started) / 1000}s`)
+
+      return x
+    }),
+  )
+
+  coulombCache = { readings, seconds: (Date.now() - started) / 1000 }
+
+  return coulombCache
 }

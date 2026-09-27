@@ -77,7 +77,8 @@ import { huskGaussFailures, relaxStart } from '@/code/measure/trit-kinetic-light
 import { fieldNumerators, makeFieldScratch, makeMatter } from '@/code/rule/trit-kinetic'
 import { dockAt } from '@/code/measure/trit-hop-light'
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
-import { copyWalk, gaugeWalk, makeWalk, normTrace, probabilities, sameWalk, walkBeat, walkBeatBack, type PeierlsWalk } from '@/code/rule/husk-peierls-walk'
+import { copyWalk, gaugeWalk, makeWalk, sameWalk, walkBeat, type PeierlsWalk } from '@/code/rule/husk-peierls-walk'
+import { exactWalkRun, floatWalkRun, packetAt, type PeierlsSetting } from '@/code/measure/peierls-reading'
 
 const SIDE = 24
 const DEPTH = 32
@@ -89,7 +90,6 @@ const RS = [4, 5, 6, 7, 8]
 const SOURCE = 4
 const PACK = 16
 const mod = (x: number, m: number): number => ((x % m) + m) % m
-const binomial = (n: number, k: number): number => (k < 0 || k > n ? 0 : k === 0 ? 1 : (binomial(n, k - 1) * (n - k + 1)) / k)
 
 type LightRecord = {
   // per beat t = 1 .. BEATS, the integer angle and the shadow angle on the line's 24 x-links
@@ -208,76 +208,10 @@ function runLight(): LightRecord {
   return { line, shadow, gaugedLine, staticLine, gaussFailures, reversed, gaugeLinkOff, gaugeOtherOff, seconds: (Date.now() - started) / 1000 }
 }
 
-const startOf = (r: number): number[] => Array.from({ length: SIDE }, (_, x) => binomial(PACK, mod(x - r + PACK / 2 + SIDE / 2, SIDE) - SIDE / 2))
-
-// the centroid relative to r, on the ring
-function centroid(p: ArrayLike<number>, r: number): number {
-  let c = 0
-
-  for (let x = 0; x < SIDE; x++) c += p[x]! * (mod(x - r + SIDE / 2, SIDE) - SIDE / 2)
-
-  return c
-}
-
-function exactRun(r: number, q: number, angles: Int32Array[], back = false): { move: number; normOk: boolean; backOk: boolean } {
-  const w = makeWalk({ order: ORDER, depth: DEPTH, sites: SIDE, start: startOf(r) })
-  const first = copyWalk(w)
-  const norm0 = normTrace(w)
-
-  for (let t = 0; t < BEATS; t++) walkBeat(w, angles[t]!, q)
-
-  const normOk = normTrace(w) === norm0 * 4n ** BigInt(BEATS * 2)
-  const move = centroid(probabilities(w), r) - centroid(probabilities(first), r)
-  let backOk = true
-
-  if (back) {
-    const v = copyWalk(w)
-
-    for (let t = BEATS - 1; t >= 0; t--) walkBeatBack(v, angles[t]!, q)
-
-    backOk = sameWalk(v, first, 4n ** BigInt(BEATS * 2))
-  }
-
-  return { move, normOk, backOk }
-}
-
-// the same walk in doubles, reading real angles
-function floatRun(r: number, q: number, angle: (t: number, x: number) => number): number {
-  const re = Float64Array.from(startOf(r))
-  const im = new Float64Array(SIDE)
-  const th = (2 * Math.PI) / ORDER
-  const c = Math.cos(th)
-  const sn = Math.sin(th)
-  const p0 = Float64Array.from(re, v => v * v)
-  const total = p0.reduce((a, b) => a + b, 0)
-
-  for (let t = 0; t < BEATS; t++) {
-    for (const parity of [0, 1]) {
-      for (let x = parity; x < SIDE; x += 2) {
-        const y = (x + 1) % SIDE
-        const ph = (-2 * Math.PI * q * angle(t, x)) / (4 * DEPTH)
-        // (T psi)_y = e^(i ph) psi_x, (T psi)_x = e^(-i ph) psi_y; V = c + i s T
-        const txr = Math.cos(-ph) * re[y]! - Math.sin(-ph) * im[y]!
-        const txi = Math.sin(-ph) * re[y]! + Math.cos(-ph) * im[y]!
-        const tyr = Math.cos(ph) * re[x]! - Math.sin(ph) * im[x]!
-        const tyi = Math.sin(ph) * re[x]! + Math.cos(ph) * im[x]!
-        const nxr = c * re[x]! - sn * txi
-        const nxi = c * im[x]! + sn * txr
-        const nyr = c * re[y]! - sn * tyi
-        const nyi = c * im[y]! + sn * tyr
-
-        re[x] = nxr
-        im[x] = nxi
-        re[y] = nyr
-        im[y] = nyi
-      }
-    }
-  }
-
-  const p = Float64Array.from(re, (v, i) => (v * v + im[i]! * im[i]!) / total)
-
-  return centroid(p, r) - centroid(Float64Array.from(p0, v => v / total), r)
-}
+const SETTING: PeierlsSetting = { side: SIDE, depth: DEPTH, order: ORDER, pack: PACK }
+const startOf = (r: number): number[] => packetAt(SETTING, r)
+const exactRun = (r: number, q: number, angles: Int32Array[], back = false): { move: number; normOk: boolean; backOk: boolean } => exactWalkRun(SETTING, r, q, angles, back)
+const floatRun = (r: number, q: number, angle: (t: number, x: number) => number): number => floatWalkRun(SETTING, r, q, BEATS, angle)
 
 export default experiment({
   id: 'gauge/peierls-test-charge',

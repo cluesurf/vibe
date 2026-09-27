@@ -34,6 +34,20 @@
 // Verdict: pass if D1 to D4 hold; fail otherwise. (No control of its own: E-GRV-0094's B0 holds the construction to
 // E-GRV-0090's rule bit for bit.)
 //
+// FIRST RUN (tmp/grv95-run1.log, 1,473 s, the record): fail on D2, no gate moved. D1 holds: 15 hops of 4 units over
+// 4,096 beats, Gauss 0 off on every dock of husk and bulk on 4,096 beats, curl 0, 0 wraps, reversal bit for bit; the
+// largest husk step per 256 beats is 0.48, then 0.72, 0.72, 0.72 and slowly DOWN to 0.66 .. 0.69 (E-GRV-0091 climbed
+// 0.63, 1.00 .. 1.50 and wrapped), while the husk's share of the field energy falls from 0.51 to 0.24: the kicks'
+// radiation goes into the bulk and stays diluted there. D2: nothing changes on the next beat, the first change comes 2,
+// 3, 4, 6, 9, 12 beats after (inside the cone), but the front is SLOW: the radial step's half maximum at 25, 30, 34, 45,
+// 50, 68 beats reads 0.54 c, its first 25 percent 0.64 c, its first 10 percent 0.61 c (the cone rho / c is 12.7 ..
+// 37.4). A husk wave feeds its 8 down-links on every beat, and the first layer's waves cross a husk dock in two of its
+// own links, so the husk signal is dragged toward the bulk's slower speed in husk units: the open husk's front is not
+// the light's. D3 holds: -6.01994e-5 per unit content for a 1-love and a 3-fear lump, alike to 6.2e-10, the linear
+// solve's to the digit, a tenth of E-GRV-0080's closed husk (the screening). D4 holds: drift 7.1e3, 9.2e-2, 5.6e-5 of
+// the static energy at 1 .. 3 digits, field part >= 0, found and local source terms 6.2e-16 apart, the husk holding
+// about half the field energy of a switched-on lump (0.54 .. 0.50). Title written after the run.
+//
 // Depth L2: the radion's known construction on bounded registers in a layered bulk. DETERMINISM: every start and
 // source is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule; a hop is a scheduled
 // event.
@@ -84,7 +98,8 @@ const slopeOf = (ys: readonly number[], xs: readonly number[]): number => {
 export default experiment({
   id: 'gravity/open-husk-moving',
   code: 'E-GRV-0095',
-  title: 'the open husk, moving',
+  title:
+    "opening the husk into a growing bulk drains a hopping source's radiation so the trit window no longer fills, but the pull's front slows to about 0.6 c, fail on D2: 15 hops of 4 units over 4,096 beats keep Gauss on husk and bulk, curl 0, 0 wraps and reverse bit for bit, the largest husk step settling at 0.66 .. 0.72 (E-GRV-0091's closed husk climbed to 1.50 and wrapped) as the husk's share of the field energy falls from 0.51 to 0.24; after a hop nothing changes on the next beat and the first change stays inside the cone, but the radial step's half maximum reads 0.54 c and its first 25 percent 0.64 c; lumps fall alike to 6.2e-10 at -6.02e-5 per unit content (a tenth of the closed husk's, the screening); energy of husk plus bulk drifts 5.6e-5 of the static at three digits",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

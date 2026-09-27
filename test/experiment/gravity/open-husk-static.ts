@@ -49,6 +49,20 @@
 //     the largest static step the linear solve demands of it.
 // Verdict: pass if B1 to B4 hold with the control B0; partial if B0 fails; fail otherwise.
 //
+// FIRST RUN (tmp/grv94-run1.log, 383 s, the record): fail on B3 and B4, no gate moved. B0: 256 of 256 beats equal
+// E-GRV-0090's rule bit for bit. B1: every line reaches the ground, Gauss 0 off on 1,536 beat checks over all 126,144
+// docks, curl 0. B2: 0 wraps, largest step 0.269, every run reverses. B3: the pull is attractive and rising, W =
+// -1.06e-2, -2.18e-3, -5.27e-4, -1.45e-4, -4.58e-5, -2.54e-5 at r = 1 .. 6 (the linear solve to 1.3e-3, the energy
+// method to 6.6e-4), but SCREENED, as predicted: its force is 0.457, 0.242, 0.116, 0.054, 0.019 of E-GRV-0090's (spread
+// 12.6 on r = 2 .. 5, gate 1.25), a Yukawa length 1.03 docks against the geometry's 0.92, and the 1/r fit gives k =
+// -1.1e-3 (E-GRV-0090 0.0418). The husk depth follows the net step down its column (correlation 0.9996). The shrinking
+// bulk (the RS II direction) keeps a long-range pull at 0.90 .. 0.64 of the husk alone's, falling toward the smooth
+// limit 1 / 1.75 = 0.57. B4: the densest lumps of 100, 400, 1600 units have radius 1.00, 1.73, 3.00, exactly the
+// volume count (8 down-links a dock), not E-GRV-0090's area law 1.41, 2.24, 4.69, and 40, 48, 59 percent of their lines
+// leave down through their own docks; but the linear solve demands a step of 2.30 at the M = 400 lump, past the window's
+// 3/2, and the field run wraps 79,283 times, curl 589, energy from 0 to 374 (8.2 of the static 45.4): the slipping shell
+// is still there, reversible and not conservative. Title written after the run.
+//
 // Depth L2: a known construction (a massless scalar in a layered hyperbolic bulk with a boundary, run as an integer
 // reversible rule), with a control. DETERMINISM: every start and source is placed; nothing is drawn. NOTHING MOVES:
 // each value takes its new value by the rule.
@@ -120,7 +134,8 @@ function core(mesh: OpenMesh, m: number, order: readonly number[], dist: Float64
 export default experiment({
   id: 'gravity/open-husk-static',
   code: 'E-GRV-0094',
-  title: 'the open husk, static',
+  title:
+    "a bulk that grows below the husk takes every content line with no sink placed, and screens the husk's pull to a Yukawa of about one dock, fail on B3 and B4: with 2 layers of 8 times the docks and a floor, Gauss is exact on husk and bulk, the depth summed from the ground is path independent and no register wraps, but the force of a content-4 source falls to 0.46, 0.24, 0.12, 0.054, 0.019 of E-GRV-0090's 1/r at r = 1 .. 5 (Yukawa length 1.03 against the geometry's 0.92), where a shrinking bulk keeps a 1/r pull at 0.6 .. 0.9 of the husk's; a dense lump's radius follows its volume (1.00, 1.73, 3.00 for 100, 400, 1600 units) not its area, and the M = 400 lump still demands a step of 2.30 and slips 79,283 times, energy 0 to 374",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
