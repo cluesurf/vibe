@@ -93,8 +93,16 @@ function readTemplates(): Template[] {
 }
 
 export function huskGeometry(side: number): HuskGeometry {
-  if (side % 2 !== 0) throw new Error('the husk side must be even')
+  return huskGeometryBox(side, side, side)
+}
 
+// the same tiling on a box of sides (sx, sy, sz), each even (E-GRV-0070): the rule is translation invariant, so a
+// box with a short side runs the states that are periodic along it exactly as a larger box would. `side` is sx.
+// The cube (sx = sy = sz) is huskGeometry, triangle for triangle in the same order
+export function huskGeometryBox(sx: number, sy: number, sz: number): HuskGeometry {
+  if (sx % 2 !== 0 || sy % 2 !== 0 || sz % 2 !== 0) throw new Error('every husk side must be even')
+
+  const side = sx
   const all = readTemplates()
   const byParity: Template[][] = Array.from({ length: 8 }, () => [])
   const seen = new Set<string>()
@@ -109,15 +117,15 @@ export function huskGeometry(side: number): HuskGeometry {
     byParity[t.parity]!.push(t)
   }
 
-  const huskDocks = side ** 3
+  const huskDocks = sx * sy * sz
   const huskLinks = huskDocks * 9
   const huskNeighbour = new Int32Array(huskLinks)
-  const at = (a: number, b: number, c: number): number => mod(a, side) + side * mod(b, side) + side * side * mod(c, side)
+  const at = (a: number, b: number, c: number): number => mod(a, sx) + sx * mod(b, sy) + sx * sy * mod(c, sz)
 
   for (let y = 0; y < huskDocks; y++) {
-    const a = y % side
-    const b = Math.floor(y / side) % side
-    const c = Math.floor(y / (side * side))
+    const a = y % sx
+    const b = Math.floor(y / sx) % sy
+    const c = Math.floor(y / (sx * sy))
 
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h] ?? []
@@ -129,7 +137,7 @@ export function huskGeometry(side: number): HuskGeometry {
   let count = 0
 
   for (let y = 0; y < huskDocks; y++) {
-    const par = (y % side) % 2 + 2 * ((Math.floor(y / side) % side) % 2) + 4 * (Math.floor(y / (side * side)) % 2)
+    const par = (y % sx) % 2 + 2 * ((Math.floor(y / sx) % sy) % 2) + 4 * (Math.floor(y / (sx * sy)) % 2)
 
     count += byParity[par]!.length
   }
@@ -141,9 +149,9 @@ export function huskGeometry(side: number): HuskGeometry {
   let p = 0
 
   for (let y = 0; y < huskDocks; y++) {
-    const a = y % side
-    const b = Math.floor(y / side) % side
-    const c = Math.floor(y / (side * side))
+    const a = y % sx
+    const b = Math.floor(y / sx) % sy
+    const c = Math.floor(y / (sx * sy))
     const par = (a % 2) + 2 * (b % 2) + 4 * (c % 2)
 
     for (const t of byParity[par]!) {
