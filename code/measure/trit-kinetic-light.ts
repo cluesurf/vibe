@@ -89,7 +89,7 @@ export function addStringPath(s: ShapedState, g: HuskGeometry, from: number[], t
 // C W C^T u = C W t, conjugate gradients over the triangles: the leftover t - C^T u then has no curl under the
 // light's weights (C W (t - C^T u) = 0), which is what keeps B at zero. An unweighted solve leaves a curl the
 // light turns into a growing B (found in tmp/force-probe2.log, fixed before any gated run)
-function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
+export function solvePotential(g: HuskGeometry, t: Float64Array): Float64Array {
   const n = g.triangles
   const weight = (l: number): number => 2 / (G[l % 9] ?? 1)
   const apply = (u: Float64Array, out: Float64Array, work: Float64Array): void => {
