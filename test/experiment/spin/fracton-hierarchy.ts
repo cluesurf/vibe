@@ -49,6 +49,8 @@
 //    for beat for these seeds; 434 and 436 of 528 two-vibe seeds reach off their lines, largest wake 62 and 61 (old key
 //    442 and 59, reproduced); 'bounce' reaches no line.
 // The rerun adds the old key's lone love to the report (not a gate), to show the immobility on the record it came from.
+// SECOND RUN (the record, tmp/fk-fracton-hierarchy.log): every gated number equal to the first; the old key's lone love
+// stays within 2 steps (wake at most 3), and its 6+8 cluster has reached only 5 of its 10 lines by beat 16.
 //
 // Depth L2: a known structure (a fracton hierarchy) read on the rule's own runs. DETERMINISM: no random numbers; paths
 // are integer Weyl offsets of the key. NOTHING MOVES.
@@ -232,7 +234,8 @@ const sameRows = (p: Trace, q: Trace): boolean => p.rows.every((r, t) => {
 export default experiment({
   id: 'spin/fracton-hierarchy',
   code: 'E-SPN-0100',
-  title: 'TITLE',
+  title:
+    "the lowest fracton rung was the frozen key's: on a full-period key a lone vibe is already a lineon, fail on F1 and F5: with no mixer on two full-key paths (side 16) a lone love stays on its one mesh line but runs 8 dock steps, half the box (on the registered key it stays within 2, wake at most 3); two meeting loves stay on their two lines and run 8 steps, 'pass' and 'bounce' agreeing beat for beat; 434 and 436 of 528 two-vibe seeds reach lines off their own on side 8, quiet (largest wake 62 and 61; old key 442 and 59); the 6+8 and 14+18 clusters stay bounded for 128 beats (wake at most 105) on exactly 10 lines off their own, but reach them over about 48 beats, not by beat 16 (old key: 5 of 10 by beat 16, so 'by beat 7' was never the record); on 'bounce' no line is reached",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

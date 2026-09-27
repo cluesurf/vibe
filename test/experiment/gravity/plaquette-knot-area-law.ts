@@ -46,6 +46,19 @@
 // they were); pass if K1 to K4 hold; partial otherwise. PREDICTED from the argument: K0 holds, K1, K2 and K3 fail, and
 // the plaquette S equals E-GRV-0083's on every region; K4 fails: fail.
 //
+// FIRST RUN (tmp/grv87-run1.log, 660 s, the record): fail on K1, K2, K3 and K4, as predicted, no gate moved; K0 holds
+// (the line rule through the new code path equals E-GRV-0083's network on every region, the plaquette network's
+// occupation is the rule's keep path on 48 of 48 beats, exactly normed, reversed exactly, 0 half-open lines). K1: 0 of 48
+// beats hold a component on two mesh lines, largest component 4 tokens, one line, as under the line rule; every
+// equilibrium region's S equals the line rule's exactly (0 nats apart). K2: the area fit's rms 916 against the volume
+// fit's 579 (r2 0.723 against 0.889), E-GRV-0083's numbers to the digit; the equal-area slabs read 1,770, 3,254, 4,404,
+// 5,472. K3: eta_1 8.435, 12.65, 16.87 on sides 8, 12, 16, ratio 2.000. K4: the lump's core is the line rule's (241.6
+// against 243.9 at r = 0, 21.5 against 21.6 at r = 1), but its tail is 2 to 3.4 times higher (7.4, 10.0, 3.1 at r = 2 to 4
+// against 4.1, 4.4, 2.0) and the path totals are 2.5 times the line rule's (about 10,000 against 4,000): the units delay
+// the pair's disturbance into more of the vacuum, so the best exponential range widens from 0.5 to 1; a + k/r (k 20.3,
+// rms 2.34) still loses to it (rms 2.21), and the shells rise again at r = 13, 14 (3.2, 7.6), the box wrapping. Title
+// written after the run.
+//
 // DETERMINISM: no random numbers; the state is exact in Z[w][1/2]; entropies and fits are floats (measurement). Depth
 // L2: a known quantity (region entanglement against area) read off the rule's exact state, with controls that could
 // fail (the volume fit, the line rule). HUSK FIRST: every region is a set of husk columns with everything in their bulk
@@ -123,7 +136,8 @@ const rmsOf = (fit: { residual: number }, n: number): number => Math.sqrt(fit.re
 export default experiment({
   id: 'gravity/plaquette-knot-area-law',
   code: 'E-GRV-0087',
-  title: 'the knots of the plaquette vacuum, its area law, and its lump response (title written after the run)',
+  title:
+    "plaquette stores leave the vacuum's knots as rings along single lines, so its entanglement is still a volume law and its eta still grows with bulk depth, fail on K1 to K4 with the instrument exact: the knot network run on the plaquette rule (occupation equal to the rule's on 48 of 48 beats, normed, reversed) has 0 components on two mesh lines in 48 beats (largest 4 tokens) and every region's S equal to the line vacuum's exactly (area rms 916 against volume 579, eta_1 8.435, 12.65, 16.87 on sides 8, 12, 16); a 6+8 pair's disturbance over 24 full-key paths keeps the line rule's core (241.6 at r = 0, 21.5 at 1) with a tail 2 to 3 times higher, best exponential range 1 against 0.5, and no 1/r (rms 2.34 against 2.21)",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
