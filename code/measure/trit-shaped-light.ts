@@ -46,7 +46,8 @@ export function carriedFractions(engine: HuskEngine, s: ShapedState): { now: Flo
   return { now, next }
 }
 
-function curlT(g: HuskGeometry, x: Float64Array, out: Float64Array): void {
+// out = C^T x on real triangle values
+export function curlT(g: HuskGeometry, x: Float64Array, out: Float64Array): void {
   out.fill(0)
 
   for (let p = 0; p < g.triangles; p++) {
