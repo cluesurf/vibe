@@ -17,7 +17,7 @@
 import { newStepTally, type StepRule, type StepTally } from '@/code/rule/step-depth'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { applyOpenPath, duplicateOpen, emptyOpen, HUSK_LATERAL, openBeat, openBeatBack, openDepth, openFittingPath, openHopPaths, openScratch, placeOpenLines, sameOpen, type LinkAllow, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
+import { applyOpenPath, duplicateOpen, emptyOpen, HUSK_LATERAL, openBeat, openBeatBack, openDepth, openDivisor, openFittingPath, openRestLow, openHopPaths, openScratch, placeOpenLines, sameOpen, type LinkAllow, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -78,7 +78,8 @@ export function openEnergy(mesh: OpenMesh, rule: StepRule, s: OpenState, rho: In
   let sourceLocal = 0
 
   for (let y = 0; y < mesh.docks; y++) {
-    const k = (s.rate[y]! / u) ** 2
+    // the warped clock's dock carries kappa / 4^k: its kinetic part is 4^k v^2 / kappa
+    const k = (s.rate[y]! / u) ** 2 * (mesh.inertia ? mesh.inertia[y]! : 1)
 
     kinetic += k
     if (y < mesh.huskDocks) huskKinetic += k
@@ -131,16 +132,22 @@ export type OpenRecord = {
   maxStep: number
   maxRate: number
   maxRest: number
+  // dock checks where the remainder lay outside its own window (its divisor's, code/rule/open-husk openDivisor)
+  restOff: number
   beats: number
 }
 
-export const newOpenRecord = (): OpenRecord => ({ runs: 0, reversed: true, gaussOff: 0, gaussChecks: 0, curl: 0, curlChecks: 0, wraps: newStepTally(), maxStep: 0, maxRate: 0, maxRest: 0, beats: 0 })
+export const newOpenRecord = (): OpenRecord => ({ runs: 0, reversed: true, gaussOff: 0, gaussChecks: 0, curl: 0, curlChecks: 0, wraps: newStepTally(), maxStep: 0, maxRate: 0, maxRest: 0, restOff: 0, beats: 0 })
 
-function observe(rule: StepRule, s: OpenState, record: OpenRecord): void {
+function observe(mesh: OpenMesh, rule: StepRule, s: OpenState, record: OpenRecord): void {
   for (let m = 0; m < s.step.length; m++) record.maxStep = Math.max(record.maxStep, Math.abs(s.step[m]!) / rule.unit)
   for (let y = 0; y < s.rate.length; y++) {
+    const q = openDivisor(mesh, rule, y)
+    const low = openRestLow(q)
+
     record.maxRate = Math.max(record.maxRate, Math.abs(s.rate[y]!) / rule.unit)
     record.maxRest = Math.max(record.maxRest, Math.abs(s.rest[y]!))
+    if (s.rest[y]! < -low || s.rest[y]! > q - 1 - low || !Number.isInteger(s.rest[y]!)) record.restOff++
   }
 }
 
@@ -176,7 +183,7 @@ export function openStaticRun(mesh: OpenMesh, rule: StepRule, rho: Int32Array, b
     if (t % 64 === 0 || t === beats) {
       record.curl += openDepth(mesh, s.step).curl
       record.curlChecks++
-      observe(rule, s, record)
+      observe(mesh, rule, s, record)
     }
 
     const w = Math.sin((Math.PI * t) / beats) ** 2
@@ -305,7 +312,7 @@ export function openHopRun(mesh: OpenMesh, rule: StepRule, rho0: Int32Array, hop
     if (t % 64 === 0 || t === beats) {
       record.curl += openDepth(mesh, s.step).curl
       record.curlChecks++
-      observe(rule, s, record)
+      observe(mesh, rule, s, record)
     }
     keep?.(t, s, rho)
   }
@@ -374,13 +381,51 @@ export function linkDistance(mesh: OpenMesh, from: readonly number[]): Int32Arra
 //   G(r) = sum_n w_n e^(-m_n r) / (4 pi r),
 // with m_0 = 0 and w_0 = 1 / sum_k s_k: the zero mode, whose share of the husk alone's 1/r is s_0 / sum_k s_k.
 
+//
+// THE WARP (E-GRV-0102, 0103). Per husk dock, layer k's lateral stiffness s_k, the vertical conductance c_k between k and
+// k + 1, and the inertia m_k (the kinetic weight at the dock density, in units of the husk's 1 / kappa), with
+// lambda_k = side_k / side_0 (2^-k on a shrinking stack):
+//  'none'   every dock beats one clock: s_k = 6 lambda_k, c_k = lambda_k^3, m_k = lambda_k^3 (shrinking). The static
+//           weights of hyperbolic 4-space (e^(-ky) laterally, e^(-3ky) vertically); layer k's waves run at 2^k c.
+//  'clock'  the warped clock of code/rule/open-husk warpClock: m_k = lambda_k^3 / lambda_k^2 = lambda_k; s_k and c_k are
+//           'none''s, so the STATICS ARE 'none''s. The inertia is now proportional to the stiffness layer by layer
+//           (s_k = 6 m_k), so every mode of the stack obeys omega^2 = c^2 (p^2 + mass^2) with the static masses: the zero
+//           mode runs at c exactly and every massive mode slower. No wave on the husk outruns light.
+//  'lapse'  THEORY ONLY (no rule runs it): the lapse inside the link weights as well, as in Randall-Sundrum's action
+//           sqrt(-g) g^ab: s_k = 6 lambda_k^2, c_k = lambda_k^3 (lambda_k lambda_k+1)^(1/2) (the lapse at the vertical
+//           link's middle), m_k = lambda_k^2: AdS_5's static weights e^(-2ky), e^(-4ky), and s_k = 6 m_k again.
+export type Warp = 'none' | 'clock' | 'lapse'
+
+export type StackLayers = { stiff: number[]; conduct: number[]; inertia: number[] }
+
+export function stackLayers(sides: readonly number[], warp: Warp = 'none'): StackLayers {
+  const docks = sides.map(s => s ** 3)
+  const lapse = sides.map(s => s / sides[0]!)
+
+  if (warp !== 'none' && lapse.some((l, k) => k > 0 && l >= lapse[k - 1]!)) throw new Error('stackLayers: a warp needs a shrinking stack')
+
+  const inLinks = warp === 'lapse' ? lapse : lapse.map(() => 1)
+  const stiff = sides.map((s, k) => 6 * (docks[k]! / docks[0]!) * (sides[0]! / s) ** 2 * inLinks[k]!)
+  const conduct = sides.slice(0, -1).map((_, k) => (Math.max(docks[k]!, docks[k + 1]!) / docks[0]!) * Math.sqrt(inLinks[k]! * inLinks[k + 1]!))
+  const inertia = sides.map((_, k) => (docks[k]! / docks[0]!) * (warp === 'clock' ? lapse[k]! ** -2 : warp === 'lapse' ? lapse[k]! ** -1 : 1))
+
+  return { stiff, conduct, inertia }
+}
+
+// the continuum speeds, in units of the husk's c: each layer's lateral waves, sqrt(s_k / 6 m_k), and the zero mode
+// (every layer moving together), sqrt(sum s_k / 6 sum m_k)
+export function stackSpeeds(sides: readonly number[], warp: Warp = 'none'): { layer: number[]; zeroMode: number } {
+  const { stiff, inertia } = stackLayers(sides, warp)
+  const sum = (x: readonly number[]): number => x.reduce((a, v) => a + v, 0)
+
+  return { layer: stiff.map((s, k) => Math.sqrt(s / (6 * inertia[k]!))), zeroMode: Math.sqrt(sum(stiff) / (6 * sum(inertia))) }
+}
+
 export type StackMode = { mass: number; weight: number }
 
-export function stackModes(sides: readonly number[]): StackMode[] {
+export function stackModes(sides: readonly number[], warp: Warp = 'none'): StackMode[] {
   const n = sides.length
-  const docks = sides.map(s => s ** 3)
-  const stiff = sides.map((s, k) => 6 * (docks[k]! / docks[0]!) * (sides[0]! / s) ** 2)
-  const conduct = sides.slice(0, -1).map((_, k) => Math.max(docks[k]!, docks[k + 1]!) / docks[0]!)
+  const { stiff, conduct } = stackLayers(sides, warp)
   // S^-1/2 C S^-1/2, symmetric
   const b = makeDense({ rows: n, cols: n })
   const add = (i: number, j: number, v: number): void => {

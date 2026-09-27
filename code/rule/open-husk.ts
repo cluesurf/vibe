@@ -29,6 +29,18 @@
 // THE BEAT is code/rule/step-depth's, read on any links: X = a (Q^L div f - div F), w = floor((X + R + H) / Q),
 // R <- X + R - Q w, v <- wrap(v + w), then F <- wrap(F + g (v_tail - v_head)) with v_ground = 0. With no bulk layers
 // and no floor it is stepBeat bit for bit (the control E-GRV-0094 B0). REVERSIBLE: openBeatBack inverts it bit for bit.
+//
+// THE WARPED CLOCK (E-GRV-0102, 0103; warpClock below). SHRINK only: a dock of layer k is 2^k husk docks across, and
+// its proper time is made to run 2^-k as fast as the husk's, so the lapse falls with depth exactly as the scale grows
+// (Randall-Sundrum's warp: space and time rescaled together). THE SCHEDULE: every dock still beats every husk beat, but
+// a layer-k dock's one division is by Q 4^k instead of Q, its remainder carried in a window of Q 4^k values
+// (-floor(Q 4^k / 2) .. Q 4^k - 1 - floor(Q 4^k / 2)). WHY THIS IS THE CLOCK: with tau = t / 2^k the dock's equation
+// d^2 x / d tau^2 = kappa (rho - div F) is d^2 x / dt^2 = (kappa / 4^k)(rho - div F), the same equation read in husk
+// beats. WHY NOT a literal tick every 2^k beats: that samples the same equation at the dock's own step but makes the beat
+// a multi-rate leapfrog, which has no exactly kept energy; this schedule is one leapfrog with a diagonal inertia, so the
+// energy is kept as the one-clock stack's is. Exactly reversible (the remainder is carried, never dropped) and bounded
+// (the largest remainder window is Q 4^K). The LINK WEIGHTS ARE UNTOUCHED, so the static field (v = 0: div F = rho,
+// F / g a gradient) is the one-clock stack's exactly: the clock enters the waves and not the statics.
 // DETERMINISM: every start and source is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the
 // rule; a unit of content's hop is a scheduled event.
 
@@ -70,7 +82,25 @@ export type OpenMesh = {
   readonly treeLink: Int32Array
   readonly treeOrder: Int32Array
   readonly hasGround: boolean
+  // the warped clock (warpClock): per dock, the multiple of Q its one division is by (absent: 1 on every dock)
+  readonly inertia?: Int32Array
 }
+
+// the warped clock on a shrinking stack: a layer-k dock divides by Q 4^k (its proper time runs 2^-k as fast)
+export function warpClock(mesh: OpenMesh): OpenMesh {
+  if (mesh.growth !== 'shrink') throw new Error('warpClock: a shrinking stack only')
+
+  const inertia = new Int32Array(mesh.docks)
+
+  mesh.sides.forEach((s, k) => inertia.fill((mesh.side / s) ** 2, mesh.offset[k]!, mesh.offset[k]! + s ** 3))
+
+  return { ...mesh, inertia }
+}
+
+// the divisor of dock y's one division, and the low end of its remainder's window (for an odd divisor, the balanced
+// window -H .. H of code/rule/step-depth)
+export const openDivisor = (mesh: OpenMesh, rule: StepRule, y: number): number => (mesh.inertia ? rule.q * mesh.inertia[y]! : rule.q)
+export const openRestLow = (divisor: number): number => Math.floor(divisor / 2)
 
 // the dock of layer k at (a, b, c)
 export const layerDock = (mesh: OpenMesh, k: number, a: number, b: number, c: number): number => {
@@ -282,12 +312,15 @@ export function openBeat(mesh: OpenMesh, rule: StepRule, s: OpenState, scratch: 
   openDivergence(mesh, s.line, scratch.divLine)
   openDivergence(mesh, s.step, scratch.divStep)
 
+  const inertia = mesh.inertia
+
   for (let y = 0; y < mesh.docks; y++) {
     const x = a * (unit * scratch.divLine[y]! - scratch.divStep[y]!)
-    const w = floorDiv(x + s.rest[y]! + h, q)
+    const qy = inertia ? q * inertia[y]! : q
+    const w = floorDiv(x + s.rest[y]! + (inertia ? openRestLow(qy) : h), qy)
     const raw = s.rate[y]! + w
 
-    s.rest[y] = x + s.rest[y]! - q * w
+    s.rest[y] = x + s.rest[y]! - qy * w
     s.rate[y] = wrapInto(rule, raw)
     if (tally && s.rate[y] !== raw) tally.vWraps++
   }
@@ -316,11 +349,15 @@ export function openBeatBack(mesh: OpenMesh, rule: StepRule, s: OpenState, scrat
   openDivergence(mesh, s.line, scratch.divLine)
   openDivergence(mesh, s.step, scratch.divStep)
 
+  const inertia = mesh.inertia
+
   for (let y = 0; y < mesh.docks; y++) {
     const x = a * (unit * scratch.divLine[y]! - scratch.divStep[y]!)
-    const w = floorDiv(x - s.rest[y]! + h, q)
+    const qy = inertia ? q * inertia[y]! : q
+    // the one w that puts the old remainder back in its window (q - 1 - h = h for an odd q)
+    const w = floorDiv(x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h), qy)
 
-    s.rest[y] = s.rest[y]! - x + q * w
+    s.rest[y] = s.rest[y]! - x + qy * w
     s.rate[y] = wrapInto(rule, s.rate[y]! - w)
   }
 }
