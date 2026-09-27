@@ -182,22 +182,30 @@ export const energyDrift = (energy: readonly number[]): number => energy.reduce(
 
 export const gaugeEta = (a: number, b: number, c: number): number => mod(3 * a + 5 * b + 7 * c + a * b, 3) - 1
 
-export function gaugeShift(m: SpanMedium): Int32Array {
+// a WIDE map, eta in -h .. h: axis angles move by up to 4h, so with h = D0 most gauged angles cross their window at
+// the start (the test that the rule's windows and field modulus agree, code/rule/depth-span-light, fixed resolution)
+export const wideGaugeEta =
+  (h: number) =>
+  (a: number, b: number, c: number): number =>
+    mod(3 * a + 5 * b + 7 * c + a * b, 2 * h + 1) - h
+
+export function gaugeShift(m: SpanMedium, etaAt: (a: number, b: number, c: number) => number = gaugeEta): Int32Array {
   const g = m.geometry
   const [sx, sy] = m.sides
-  const eta = (y: number): number => gaugeEta(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
+  const eta = (y: number): number => etaAt(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
 
   return Int32Array.from({ length: g.huskLinks }, (_, l) => (l % 9 < 3 ? 2 : 1) * (eta(g.huskNeighbour[l]!) - eta(Math.floor(l / 9))))
 }
 
-export type GaugeReading = { plaquette: number; covariantBeats: number; beats: number; shifted: number }
+// `crossed`: the links whose gauged start angle crossed its window (0 for the narrow map on a quiet start)
+export type GaugeReading = { plaquette: number; covariantBeats: number; beats: number; shifted: number; crossed: number }
 
 // the gauged and ungauged runs side by side: after every beat the gauged angles equal the ungauged plus the map
 // (wrapped), and every other array is equal
-export function gaugeReading(m: SpanMedium, start: SpanState, beats: number): GaugeReading {
+export function gaugeReading(m: SpanMedium, start: SpanState, beats: number, etaAt: (a: number, b: number, c: number) => number = gaugeEta): GaugeReading {
   const g = m.geometry
   const levels = start.upper.length + 1
-  const lambda = gaugeShift(m)
+  const lambda = gaugeShift(m, etaAt)
   const wrapped = (l: number, v: number): number => mod(v + m.linkWindow[l]! / 2, m.linkWindow[l]!) - m.linkWindow[l]! / 2
   let plaquette = 0
 
@@ -211,7 +219,13 @@ export function gaugeReading(m: SpanMedium, start: SpanState, beats: number): Ga
   const a = copySpan(start)
   const b = copySpan(start)
 
-  for (let l = 0; l < g.huskLinks; l++) b.angle[l] = wrapped(l, a.angle[l]! + lambda[l]!)
+  let crossed = 0
+
+  for (let l = 0; l < g.huskLinks; l++) {
+    b.angle[l] = wrapped(l, a.angle[l]! + lambda[l]!)
+
+    if (b.angle[l] !== a.angle[l]! + lambda[l]!) crossed++
+  }
 
   const sa = makeSpanScratch(m, levels)
   const sb = makeSpanScratch(m, levels)
@@ -228,7 +242,7 @@ export function gaugeReading(m: SpanMedium, start: SpanState, beats: number): Ga
     if (angles && ra.every((x, j) => x.every((v, i) => v === rb[j]![i]))) covariantBeats++
   }
 
-  return { plaquette, covariantBeats, beats, shifted: lambda.reduce((c, v) => c + (v === 0 ? 0 : 1), 0) }
+  return { plaquette, covariantBeats, beats, shifted: lambda.reduce((c, v) => c + (v === 0 ? 0 : 1), 0), crossed }
 }
 
 // ---------------------------------------------------------------------------------------------------------

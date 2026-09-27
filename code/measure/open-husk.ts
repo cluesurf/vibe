@@ -15,7 +15,9 @@
 // rule.
 
 import { newStepTally, type StepRule, type StepTally } from '@/code/rule/step-depth'
-import { applyOpenPath, duplicateOpen, emptyOpen, HUSK_LATERAL, openBeat, openBeatBack, openDepth, openFittingPath, openHopPaths, openScratch, placeOpenLines, sameOpen, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
+import { makeDense } from '@/code/algebra/linear/dense'
+import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { applyOpenPath, duplicateOpen, emptyOpen, HUSK_LATERAL, openBeat, openBeatBack, openDepth, openFittingPath, openHopPaths, openScratch, placeOpenLines, sameOpen, type LinkAllow, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -156,10 +158,10 @@ export type OpenStatic = { mean: Float64Array; depth: Float64Array; energy: numb
 
 // from zero field with the lines placed (routed to the ground, or to the sinks given), T beats forward (the Hann
 // average of the steps), then T back, compared bit for bit
-export function openStaticRun(mesh: OpenMesh, rule: StepRule, rho: Int32Array, beats: number, record: OpenRecord): OpenStatic {
+export function openStaticRun(mesh: OpenMesh, rule: StepRule, rho: Int32Array, beats: number, record: OpenRecord, allow?: LinkAllow): OpenStatic {
   const s = emptyOpen(mesh)
 
-  s.line.set(placeOpenLines(mesh, rho))
+  s.line.set(placeOpenLines(mesh, rho, 1, allow))
 
   const start = duplicateOpen(s)
   const scratch = openScratch(mesh)
@@ -262,10 +264,10 @@ export type OpenHopRun = { final: OpenState; paths: OpenPath[][]; reversed: bool
 // from zero field with the lines of rho0 placed, `beats` beats; each hop applied after beat hop.beat, unit by unit along
 // the first fitting path; Gauss checked on every dock of husk and bulk after every beat; then everything undone back to
 // the start and compared bit for bit. `keep` sees the state after each beat.
-export function openHopRun(mesh: OpenMesh, rule: StepRule, rho0: Int32Array, hops: readonly OpenHop[], beats: number, record: OpenRecord, keep?: (t: number, s: OpenState, rho: Int32Array) => void): OpenHopRun {
+export function openHopRun(mesh: OpenMesh, rule: StepRule, rho0: Int32Array, hops: readonly OpenHop[], beats: number, record: OpenRecord, keep?: (t: number, s: OpenState, rho: Int32Array) => void, allow?: LinkAllow): OpenHopRun {
   const s = emptyOpen(mesh)
 
-  s.line.set(placeOpenLines(mesh, rho0))
+  s.line.set(placeOpenLines(mesh, rho0, 1, allow))
 
   const start = duplicateOpen(s)
   const scratch = openScratch(mesh)
@@ -280,7 +282,7 @@ export function openHopRun(mesh: OpenMesh, rule: StepRule, rho0: Int32Array, hop
 
       const y = huskDock(mesh, hop.from)
       const z = huskDock(mesh, hop.to)
-      const candidates = openHopPaths(mesh, y, z)
+      const candidates = openHopPaths(mesh, y, z, allow)
       const used: OpenPath[] = []
 
       for (let k = 0; k < hop.units; k++) {
@@ -338,3 +340,63 @@ export function huskMaxStep(mesh: OpenMesh, rule: StepRule, s: OpenState): numbe
 
   return top / rule.unit
 }
+
+// the fewest links from any of `from` to every dock, over every link of husk and bulk (the one-link-a-beat cone of the
+// rule: a value can differ at a dock no sooner than this many beats after a change at `from`)
+export function linkDistance(mesh: OpenMesh, from: readonly number[]): Int32Array {
+  const dist = new Int32Array(mesh.docks).fill(-1)
+  const queue = new Int32Array(mesh.docks)
+  let tail = 0
+
+  for (const y of from) (dist[y] = 0), (queue[tail++] = y)
+  for (let at = 0; at < tail; at++) {
+    const y = queue[at]!
+
+    for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
+      const m = mesh.incLink[j]!
+      const z = mesh.incSign[j]! > 0 ? mesh.head[m]! : mesh.tail[m]!
+
+      if (z < 0 || dist[z] !== -1) continue
+      dist[z] = dist[y]! + 1
+      queue[tail++] = z
+    }
+  }
+
+  return dist
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// the layered stack's husk Green's function, the prediction (theory, not the rule): each layer smooth in its plane,
+// discrete in depth. Per husk dock, layer k has lateral stiffness s_k = 6 (docks_k / docks_0)(side_0 / side_k)^2 (the
+// husk mesh's 6 |p|^2 on a mesh of spacing side_0 / side_k, at its dock density), and the vertical links between
+// layer k and k + 1 give a conductance c_k = max(docks_k, docks_k+1) / docks_0 (one link a pair, g = 1). The static
+// field of a unit on the husk at momentum p is [(p^2 S + C)^-1]_00 = sum_n w_n / (p^2 + m_n^2), so on the husk
+//   G(r) = sum_n w_n e^(-m_n r) / (4 pi r),
+// with m_0 = 0 and w_0 = 1 / sum_k s_k: the zero mode, whose share of the husk alone's 1/r is s_0 / sum_k s_k.
+
+export type StackMode = { mass: number; weight: number }
+
+export function stackModes(sides: readonly number[]): StackMode[] {
+  const n = sides.length
+  const docks = sides.map(s => s ** 3)
+  const stiff = sides.map((s, k) => 6 * (docks[k]! / docks[0]!) * (sides[0]! / s) ** 2)
+  const conduct = sides.slice(0, -1).map((_, k) => Math.max(docks[k]!, docks[k + 1]!) / docks[0]!)
+  // S^-1/2 C S^-1/2, symmetric
+  const b = makeDense({ rows: n, cols: n })
+  const add = (i: number, j: number, v: number): void => {
+    b.data[i * n + j] = b.data[i * n + j]! + v / Math.sqrt(stiff[i]! * stiff[j]!)
+  }
+
+  conduct.forEach((c, k) => {
+    add(k, k, c)
+    add(k + 1, k + 1, c)
+    add(k, k + 1, -c)
+    add(k + 1, k, -c)
+  })
+
+  const eig = eigSymmetric({ matrix: b })
+
+  return Array.from({ length: n }, (_, j) => ({ mass: Math.sqrt(Math.max(0, eig.values[j]!)), weight: eig.vectors[j]! ** 2 / stiff[0]! }))
+}
+
+export const stackGreen = (modes: readonly StackMode[], r: number): number => modes.reduce((t, m) => t + m.weight * Math.exp(-m.mass * r), 0) / (4 * Math.PI * r)

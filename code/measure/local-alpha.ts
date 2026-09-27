@@ -36,7 +36,7 @@ import { huskGreenDifference } from '@/code/measure/trit-hop-light'
 import { addStringPath, huskGaussFailures, relaxStart } from '@/code/measure/trit-kinetic-light'
 import { noWraps } from '@/code/measure/varying-depth-light'
 import { harmonicPart, makeSpanShadowScratch, spanGaussFailures, spanRelaxStart, spanShadow, stringCharge } from '@/code/measure/span-coulomb'
-import { copySpan, emptySpan, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack } from '@/code/rule/depth-span-light'
+import { copySpan, emptySpan, makeMetricSpanMedium, makeSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack } from '@/code/rule/depth-span-light'
 import { restRate } from '@/code/measure/depth-arena'
 import { clockWaveBeat, clockWaveBeatBack, clockWaveFrom, clockWaveRule, emptyClockWave, sameClockWave, type WaveForm } from '@/code/rule/depth-clock-wave'
 import { radionMesh } from '@/code/rule/trit-radion'
@@ -78,16 +78,20 @@ export const lightSpeed = (light: LightKind, depth: number): number => {
 
 // the closed forms the header of E-FRC-0256 derives: alpha = kappa K / (24 pi c) with K = 2 / Q the growth potential
 // per unit of G(0) - G(r) (the axis flux is 2 grad phi, and a pair doubles it)
-export const alphaClosed = (light: LightKind, depth: number): number => {
+// `resolution` is the depth that sets the angle's window and so the Peierls root (code/rule/depth-span-light,
+// fixed resolution); it is `depth` on both lights of E-FRC-0256
+export const alphaClosed = (light: LightKind, depth: number, resolution = depth): number => {
   const q = 2 * depth + 1
   const k = light === 'span' ? 2 / q : 2
 
-  return (peierlsPhase(depth) * k) / (24 * Math.PI * lightSpeed(light, depth))
+  return (peierlsPhase(resolution) * k) / (24 * Math.PI * lightSpeed(light, depth))
 }
 
 export type PairReading = {
   light: LightKind
+  // the metric depth (the divisors) and the resolution depth (the windows and the Peierls root)
   depth: number
+  resolution: number
   r: number
   // Phi(r): the measured line integral of the angle's growth, harmonic part removed; and the static field's line
   // integral over the growth divisor, its expected value
@@ -105,16 +109,22 @@ export type PairReading = {
   green: number
 }
 
-// the pair +1 at the origin, -1 at (r, 0, 0), relaxed to its static field, run LOCAL_BEATS forward and back
-export function pairReading(light: LightKind, depth: number, r: number, levels = LOCAL_LEVELS): PairReading {
+// the pair +1 at the origin, -1 at (r, 0, 0), relaxed to its static field, run LOCAL_BEATS forward and back. On the
+// spanned light a given `resolution` runs the fixed-resolution medium (makeMetricSpanMedium: windows of D0 =
+// resolution, the divisors of the metric depth), even where the two are equal; the unchanged light has one depth only
+export function pairReading(light: LightKind, depth: number, r: number, levels = LOCAL_LEVELS, fixedResolution?: number): PairReading {
+  const resolution = fixedResolution ?? depth
+
   const side = LOCAL_SIDE
   const beats = LOCAL_BEATS
   const green = huskGreenDifference(side, [r, 0, 0])
   const line = Array.from({ length: r }, (_, x) => x * 9)
   const place = (s: ShapedState, g: Parameters<typeof addStringPath>[1]): void => addStringPath(s, g, [0, 0, 0], [r, 0, 0], 1)
 
+  if (light === 'clock' && fixedResolution !== undefined) throw new Error('the unchanged light has one depth: its windows and its divisor are one count')
+
   if (light === 'span') {
-    const m = makeSpanMedium([side, side, side], () => depth)
+    const m = fixedResolution === undefined ? makeSpanMedium([side, side, side], () => depth) : makeMetricSpanMedium([side, side, side], fixedResolution, () => depth)
     const g = m.geometry
     const s = emptySpan(m, levels)
 
@@ -152,7 +162,7 @@ export function pairReading(light: LightKind, depth: number, r: number, levels =
 
     for (let l = 0; l < g.huskLinks; l++) energy += ((g.weight[l % 9]! / 4) * relaxed.long[l]! ** 2) / m.span[l]!
 
-    return { light, depth, r, phi, phiStatic, energy, gauss, wraps: wraps.angle + wraps.field + wraps.potential, turns: unwrapped.turns, reversed: sameSpan(s, start), residual: relaxed.residual, green }
+    return { light, depth, resolution, r, phi, phiStatic, energy, gauss, wraps: wraps.angle + wraps.field + wraps.potential, turns: unwrapped.turns, reversed: sameSpan(s, start), residual: relaxed.residual, green }
   }
 
   const m = makeSpanMedium([side, side, side], () => depth)
@@ -204,7 +214,7 @@ export function pairReading(light: LightKind, depth: number, r: number, levels =
 
   for (let l = 0; l < g.huskLinks; l++) energy += (g.weight[l % 9]! / 4) * (relaxed.field[l]! - harmonic[l]!) ** 2
 
-  return { light, depth, r, phi, phiStatic, energy, gauss, wraps: 0, turns: unwrapped.turns, reversed, residual: relaxed.residual, green }
+  return { light, depth, resolution, r, phi, phiStatic, energy, gauss, wraps: 0, turns: unwrapped.turns, reversed, residual: relaxed.residual, green }
 }
 
 // the integer angle on a set of links followed through its compact window: each beat's change is read centered in
@@ -325,7 +335,7 @@ export type LocalAlpha = {
 }
 
 export function localAlpha(pair: PairReading, units: LocalUnits): LocalAlpha {
-  const omega = (peierlsPhase(pair.depth) * pair.phi) / 2
+  const omega = (peierlsPhase(pair.resolution) * pair.phi) / 2
   const energyLocal = omega / units.rest
   const greenLocal = pair.green * units.compton
   const alphaLocal = energyLocal / (units.cLocal * 24 * Math.PI * greenLocal)
@@ -338,7 +348,7 @@ export function localAlpha(pair: PairReading, units: LocalUnits): LocalAlpha {
     greenLocal,
     alphaLocal,
     alphaCoordinate: omega / (24 * Math.PI * lightSpeed(pair.light, pair.depth) * pair.green),
-    alphaClosed: alphaClosed(pair.light, pair.depth),
+    alphaClosed: alphaClosed(pair.light, pair.depth, pair.resolution),
     noteProduct: pair.energy / units.rest / (24 * Math.PI * greenLocal),
     hbarInvariant: pair.energy / omega,
   }

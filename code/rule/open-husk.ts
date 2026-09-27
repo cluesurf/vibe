@@ -400,7 +400,7 @@ function routeUnit(mesh: OpenMesh, line: Int8Array, supply: Int32Array, sources:
       const m = mesh.incLink[j]!
       const sg = mesh.incSign[j]!
 
-      if (sg * line[m]! >= capacity) continue
+      if (sg * line[m]! >= capacity || (allow && !allow(m))) continue
 
       const z = across(mesh, m, sg)
 
@@ -440,9 +440,9 @@ function routeUnit(mesh: OpenMesh, line: Int8Array, supply: Int32Array, sources:
 }
 
 // lines for a content map: each unit from the docks with content left to the nearest dock with a sink left or to the
-// ground (successive augmenting paths, one line a link). Gauss's law holds exactly when every unit is routed. Throws if
-// one cannot be.
-export function placeOpenLines(mesh: OpenMesh, content: Int32Array, capacity = 1): Int8Array {
+// ground (successive augmenting paths, one line a link, over the allowed links only when `allow` is given). Gauss's law
+// holds exactly when every unit is routed. Throws if one cannot be.
+export function placeOpenLines(mesh: OpenMesh, content: Int32Array, capacity = 1, allow?: LinkAllow): Int8Array {
   const line = new Int8Array(mesh.links)
   const supply = Int32Array.from(content)
   const stamp = new Int32Array(mesh.docks)
@@ -456,7 +456,7 @@ export function placeOpenLines(mesh: OpenMesh, content: Int32Array, capacity = 1
 
     for (let y = 0; y < mesh.docks; y++) if (supply[y]! > 0) sources.push(y)
 
-    const from = routeUnit(mesh, line, supply, sources, capacity, stamp, prev, queue, ++mark)
+    const from = routeUnit(mesh, line, supply, sources, capacity, stamp, prev, queue, ++mark, allow)
 
     if (from === -2) throw new Error(`placeOpenLines: unit ${unit} of ${total} cannot be routed`)
     supply[from]!--
@@ -500,12 +500,13 @@ export function compressOpen(mesh: OpenMesh, order: readonly number[], m: number
 export type OpenPath = readonly (readonly [number, number])[]
 
 // the candidate paths for a unit line from z to y (a unit hopping from y to its neighbor z): the direct links first,
-// then the two-link detours through each common neighbor in dock order (code/rule/step-depth hopPaths, on any links)
-export function openHopPaths(mesh: OpenMesh, y: number, z: number): OpenPath[] {
+// then the two-link detours through each common neighbor in dock order (code/rule/step-depth hopPaths, on any links, or
+// on the allowed links only when `allow` is given)
+export function openHopPaths(mesh: OpenMesh, y: number, z: number, allow?: LinkAllow): OpenPath[] {
   const links = (p: number, r: number): [number, number][] => {
     const out: [number, number][] = []
 
-    for (let j = mesh.incStart[p]!; j < mesh.incStart[p + 1]!; j++) if (across(mesh, mesh.incLink[j]!, mesh.incSign[j]!) === r) out.push([mesh.incLink[j]!, mesh.incSign[j]!])
+    for (let j = mesh.incStart[p]!; j < mesh.incStart[p + 1]!; j++) if (across(mesh, mesh.incLink[j]!, mesh.incSign[j]!) === r && (!allow || allow(mesh.incLink[j]!))) out.push([mesh.incLink[j]!, mesh.incSign[j]!])
 
     return out
   }

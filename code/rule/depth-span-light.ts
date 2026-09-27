@@ -76,6 +76,49 @@ export function makeSpanMedium(sides: readonly [number, number, number], depthAt
   return { ...base, span, count, square }
 }
 
+// THE FIXED RESOLUTION (minimal coupling; test/experiment/gauge/fixed-resolution-alpha and
+// test/experiment/gravity/fixed-resolution-lens). makeSpanMedium lets one number D do two jobs: the
+// gauge field's RESOLUTION (the angle windows 4D and 2D, the field modulus 4D_P, and so the Peierls root zeta_(4D) a
+// charge reads the angle through) and the METRIC (the kick's divisor q_P^2 and the span's Q_l). E-FRC-0256 found that
+// this ties alpha to the depth (hbar = D / pi in the light's units). This medium keeps them apart: the resolution is a
+// baseline D0 everywhere, and only the metric counts read the gravity field's depth D_m(x):
+//   windows 4 D0 (axis), 2 D0 (diagonal), field modulus 4 D0;   q_P = 2 D_m(P) + 1, M_P = q_P^2, Q_l = D_m(y) + D_m(z) + 1
+// with D_m(P) the start dock of P's first link, as before. The beat (spanBeat, spanBeatBack) is unchanged: it already
+// reads the windows and the divisors from separate arrays.
+// What survives, derived before any run:
+//  - Gauss: the flux S - C^T U is untouched, so its divergence is the strings' charge for any U, whatever divides.
+//  - reversal: the link step inverts given Q_l alone, each kick level given M_P alone, the potential given its window
+//    n_P (M_P - 1) / 2 alone; no step uses Q_l = 2 D + 1 or M_P = (2 D + 1)^2 against a window, so every inverse holds.
+//    q_P is odd for any integer D_m, so M_P is odd and its centered window -h .. h exists.
+//  - gauge covariance, now EXACT THROUGH WRAPS: the map moves axis angles by 2 d eta and diagonals by d eta, so
+//    C W lambda = 0; a wrap moves an angle by its window, which moves the field by w_l times it, 1 x 4 D0 on an axis and
+//    2 x 2 D0 on a diagonal, both 4 D0, the field modulus of every triangle. On makeSpanMedium's varying depth a wrap
+//    on a link whose start column is deeper or shallower than its triangle's moves the field by 4 D_l, not a multiple of
+//    4 D_P: that light is covariant only while no angle crosses its window (E-GRV-0092 used a map that never wraps).
+//  - the remainder and the counters: the divisor is no longer the column's trit count, so a counter level (range q_P^2)
+//    and a link's remainder (range Q_l) are not columns of the D0-deep bulk: they are registers of the metric (held
+//    here as integers, as the stand-in medium holds every register). Nothing in the rule needs them to be columns.
+//  - what the resolution is read by: only a window crossing (an angle wrap, a field's centering). Where no value
+//    crosses a window, the light on a uniform metric D_m is makeSpanMedium's light at depth D_m bit for bit, whatever
+//    D0 is (so: E-GRV-0092's light with q replaced by q_m, at fixed resolution), and the fix acts on matter through
+//    the root zeta_(4 D0) a charge reads the angle with.
+export type MetricSpanMedium = SpanMedium & {
+  // the resolution depth D0, and each dock's metric depth D_m
+  readonly resolution: number
+  readonly metricDepth: Int32Array
+}
+
+export function makeMetricSpanMedium(sides: readonly [number, number, number], resolution: number, metricAt: (x: number, y: number, z: number) => number, p = 1): MetricSpanMedium {
+  const base = makeMedium(sides, () => resolution, p)
+  const metric = makeMedium(sides, metricAt, p, base.geometry)
+  const g = base.geometry
+  const span = Int32Array.from({ length: g.huskLinks }, (_, l) => metric.dockDepth[Math.floor(l / 9)]! + metric.dockDepth[g.huskNeighbour[l]!]! + 1)
+  const count = Int32Array.from(metric.triDepth, d => 2 * d + 1)
+  const square = Int32Array.from(count, q => q * q)
+
+  return { ...base, span, count, square, resolution, metricDepth: metric.dockDepth }
+}
+
 // the light's state with the shaped levels and the per-link remainder
 export type SpanState = HuskLightState & {
   readonly upper: Int32Array[]
