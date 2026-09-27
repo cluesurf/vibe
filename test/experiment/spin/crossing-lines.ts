@@ -76,6 +76,26 @@
 // PREDICTED (items 3 and 5, and the probes below): M1 holds, M2 and M3 fail: the pair is held at X, v about 0, dE
 // about 0 against a predicted 0.2 at pi/2.
 //
+// FIRST RUN (850 s, tmp/move3d-exp-run1.log, the record): PARTIAL, by the rule above, no gate moved. M1 holds, M2 and
+// M3 fail as predicted, the control and every check hold, but calibration (a) FAILED: the one-line pair packet's
+// least-squares velocity over 256 beats is -0.00765 docks a beat, 1.96 docks against the 3 required, although it
+// travels (reach 5.52 docks; -0.0206 a beat over the probe's 64 beats). The packet is not one level, and its parts
+// drift back, so the slope reading chosen for M2 could not say yes on it. M2's failure is not close either way:
+// g60 a = b = -2.2e-5 a beat (0.0056 docks over 256 beats, reach 0.76) against 0.171 each predicted; g90 -4.5e-5
+// (reach 0.54) against 0.146. M1: the exchange-symmetric level (E 0.822112, one-vibe level -2.730537 at mean string
+// 0.65, 8 one-vibe levels held within N) holds with tail at most 7.19e-5 and fidelity 1 - 1.2e-13 over 256 beats on
+// both geometries, while the plain product under the contact falls to fidelity 0.33 (g60) and 0.40 (g90) and the
+// antisymmetric sum to 0.06: the contact is real and the symmetric level is exact, as item 5 said. M3: dE stays
+// within 9e-4 of 0 (g60 -0.0001, -0.0002, -0.0006, -0.0003 against 0.0166, 0.0655, 0.1441, 0.2487; g90 against
+// 0.0111 to 0.1696), and along each line's direction likewise (-0.0009 against 0.2056 at pi/2): no dispersion. The
+// same spectral reading on two free vibes gives every prediction within 1.1 percent (calibration (b) holds). Control:
+// with the cost off the tail reaches 0.993. Checks: census exact (dot 1 keep 192, dot 0 swap 144, dot -1 swap 192,
+// both kind pairs), two loves 0 flux assignments and a love and a fear 9, Gauss on every start entry, box 4e-16,
+// residual 9e-13, separability 1 - 1e-13. 3b: the class average's energy agrees over axis, face and body to 1.3e-6,
+// 6.6e-5, 1.9e-3 at K = pi/8, pi/4, pi/2 (a K^6 residue: moments 2 and 4 equal, 6 unequal), and the twelve branches'
+// velocities spread sqrt 3 = 1.732 times their mean drift at every K: the average moves isotropically and falls apart
+// faster than it moves. Title written after the run.
+//
 // DISCLOSED PROBES (instrument only): tmp/move3d-probe2.log (one-vibe levels: 8 held within N, the nearest at mean
 // string 0.65, box independent), tmp/move3d-probe3.log (the plain product: contact off exact, contact on fidelity
 // 0.31, tail 4.6e-3; boosted v about 1e-3; the one-line packet moves at 0.021 docks a beat, the crossing packet
@@ -144,7 +164,8 @@ const predicted = (kA: number, kB: number): number => loneBand(kA).energy - lone
 export default experiment({
   id: 'spin/crossing-lines',
   code: 'E-SPN-0110',
-  title: 'PENDING',
+  title:
+    "two vibes on crossing mesh lines bound by the drift cost's string are held at the crossing and cannot move, partial (M1 holds, M2 and M3 fail, one calibration failed): the rule writes a link only where a vibe copies across it, so the string's path between two lines is frozen and its cost separates into one term per line (n_A(s_A) + n_B(s_B), no term in the separation), and the pair is held at the dock where the string meets both lines; two loves admit no flux at all (Z_3 charge 2: 0 assignments against a love and a fear's 9), and at the crossing the working bounce swaps two vibes whose roots meet at 90 or 120 degrees and keeps them at 60; in the stand-in (rings of 28, explicit flux, the committed bounce table) the exchange-symmetric level holds exactly (tail 7.2e-5, fidelity 1 - 1e-13 over 256 beats, g60 and g90), but boosted along the bisector to pi/2 it moves 2e-5 docks a beat against 0.17 predicted and its energy stays within 9e-4 against a predicted rise to 0.25, while the same reading on two free vibes follows the prediction to 1.1 percent; the one-line pair calibration moved 5.5 docks but its least-squares slope reached 1.96 of the 3 docks required; spreading over the twelve line classes averages to an energy isotropic through K^4 (D4 is a 5-design) but its branches separate at sqrt 3 times the mean drift",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

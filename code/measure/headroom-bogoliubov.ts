@@ -733,6 +733,78 @@ export function weightCenter(chain: UniformChain, s: ChainBatch, re: number, im:
 }
 
 // ---------------------------------------------------------------------------------------------------------
+// the full L x 2 x 2 float shadow (the machinery's check on the chain) and the integer rule's shadow
+
+// one beat of the float shadow on the whole medium: A <- A - K C^T U, U <- U + G C W A (A in A2 units)
+export function fullShadowBeat(m: SpanMedium, A: Float64Array, U: Float64Array): void {
+  const g = m.geometry
+  const rate = m.rate
+
+  if (!rate) throw new Error('fullShadowBeat: not a headroom medium')
+
+  for (let p = 0; p < g.triangles; p++) {
+    const u = U[p]!
+
+    if (u === 0) continue
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      const l = g.triLinks[j]!
+
+      A[l] = A[l]! - rate.link[l]! * g.triSigns[j]! * u
+    }
+  }
+
+  for (let p = 0; p < g.triangles; p++) {
+    let f = 0
+
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      const l = g.triLinks[j]!
+
+      f += g.triSigns[j]! * g.weight[l % 9]! * A[l]!
+    }
+
+    U[p] = U[p]! + (g.multiplicity[p]! * m.p * rate.tri[p]! * f) / m.square[p]!
+  }
+}
+
+// y = C^T U on every link
+export function curlOfPotential(m: SpanMedium, U: ArrayLike<number>): Float64Array {
+  const g = m.geometry
+  const out = new Float64Array(g.huskLinks)
+
+  for (let p = 0; p < g.triangles; p++) for (let j = p * 3; j < p * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! + g.triSigns[j]! * U[p]!
+
+  return out
+}
+
+// the integer rule's shadow on every link, A2 + k_l (C^T f_t)_l, f_t the carried fraction held in the lags
+// (sum_i lag_i / M^i): the value the float shadow runs (tmp/hawk-probe2)
+export function ruleShadow(m: SpanMedium, s: { angle: Int32Array; remainder: Int32Array; lag: Int32Array; upperLag: Int32Array[] }): Float64Array {
+  const g = m.geometry
+  const rate = m.rate
+
+  if (!rate) throw new Error('ruleShadow: not a headroom medium')
+
+  const f = new Float64Array(g.triangles)
+
+  for (let p = 0; p < g.triangles; p++) {
+    const big = m.square[p]!
+    let scale = big
+    let v = s.lag[p]! / big
+
+    for (const up of s.upperLag) {
+      scale *= big
+      v += up[p]! / scale
+    }
+
+    f[p] = v
+  }
+
+  const ct = curlOfPotential(m, f)
+
+  return Float64Array.from({ length: g.huskLinks }, (_, l) => m.span[l]! * s.angle[l]! + s.remainder[l]! + rate.link[l]! * ct[l]!)
+}
+
+// ---------------------------------------------------------------------------------------------------------
 // the integer rule under changing rooms
 
 // set the rooms of a headroom medium in place (every dock's room read at its x), as makeHeadroomSpanMedium sets them:
