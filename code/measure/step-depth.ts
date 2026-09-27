@@ -270,8 +270,9 @@ export type Compressed = { content: Int32Array; line: Int8Array; seconds: number
 
 // M units placed one at a time, each at the dock nearest the center (ties by dock index) from which a unit line can still
 // reach a sink with room (breadth first backward over the links with room), and routed there: the densest lump the lines'
-// capacity allows. The sinks: the M docks farthest from the center, one unit each (tmp/step-field-probe)
-export function compressLump(mesh: RadionMesh, center: readonly number[], m: number, capacity: number): Compressed {
+// capacity allows. The sinks: the M docks farthest from the center, one unit each (tmp/step-field-probe), or the M docks
+// given (one unit each: E-GRV-0110's sinks spread over the far husk, spreadSinks)
+export function compressLump(mesh: RadionMesh, center: readonly number[], m: number, capacity: number, sinks?: readonly number[]): Compressed {
   const t0 = Date.now()
   const inc = incidence(mesh)
   const dist = Float64Array.from({ length: mesh.docks }, (_, y) => torusDistance(mesh, y, center))
@@ -281,7 +282,8 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
   const demand = new Int32Array(mesh.docks)
   const sink = new Uint8Array(mesh.docks)
 
-  for (const y of order.slice(mesh.docks - m)) (demand[y] = 1), (sink[y] = 1), (content[y] = -1)
+  if (sinks && sinks.length !== m) throw new Error('compressLump: one sink a unit')
+  for (const y of sinks ?? order.slice(mesh.docks - m)) (demand[y] = 1), (sink[y] = 1), (content[y] = -1)
 
   const reach = new Uint8Array(mesh.docks)
   const queue = new Int32Array(mesh.docks)

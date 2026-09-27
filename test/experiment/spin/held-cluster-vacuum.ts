@@ -1,4 +1,4 @@
-// DOES BOUND MATTER STAY PUT IN THE WORKING VACUUM (CODE-SPN)? E-SPN-0093 found the one bound state the rule is known
+// DOES BOUND MATTER STAY PUT IN THE WORKING VACUUM (E-SPN-0102)? E-SPN-0093 found the one bound state the rule is known
 // to have: three loves on one husk line under the passing contact, E 0.33002, spin one half share 0.98236, compact (tail
 // 5.6e-4), travelling at 0.0303. It was computed on the one-line operator: the stand-in token's (flat links, equal
 // points, the canonical fermion sign, and the drift cost the husk flux would charge), never in the working vacuum.
@@ -71,7 +71,23 @@
 //  Verdict: partial if the control holds B1 and B3; otherwise pass if B1, B2, B3 hold, fail if any does not.
 // PREDICTED: B2 passes; B1 and B3 fail on W, from the missing sign and the links; the control fails B3.
 //
-// FIRST RUN: not yet run.
+// FIRST RUN (584 s, tmp/bsrc-spn-run1.log, the record): fail on B1 and B3, as predicted, no gate moved. B2 holds: both
+// exact windows keep the norm exactly and run back to the start exactly (side 8: 36, 224, 520, 972 branches; side 12:
+// 100, 688), no leak, no branch's vacuum disturbed, the point-carrying ring form equal to the rule to 1.9e-16 and the
+// energy excess per column equal to the love density to 3.3e-15 (the line's 16 docks hold no store, and a lone love
+// passes every vacuum dock untouched, as code/rule/bounce-pair-knit derives). THE CLUSTER DOES NOT HOLD: in W the 90%
+// radius goes 1, 2, 3, 2, 3, 4, ... 7 by beat 12 (about half a dock a beat, the lone coined love's top speed 0.5, not the
+// band's 0.03) and stays at 7 to 8, the whole ring of 16; the density at beat 128 is flat at 0.32 to 0.44 on every even
+// dock; the fidelity with the level is 0.36 after one beat and 0.03 to 0.07 from beat 16 (least 0.0285); the share
+// 0.70 to 0.72; the overlap phase reads 2.76, no level. A, the stand-in's own packet, holds fidelity 1, share 0.98236,
+// energy 0.33002, R90 1 to 5 over 128 beats (its momenta dephase). The steps: Fb (the knit's fermion sign, flat, no drift
+// cost) already departs from the level (fidelity 0.74 to 0.93, share 0.83 to 0.94, R90 7 by 128): without the drift
+// cost the level is not stationary; Nf (no sign,
+// flat) R90 7 by beat 16, fidelity 0.20 to 0.67; W (the mesh's links) is Nf's spread with the points split at every
+// unequal-point meeting (the state reaches 211,680 point entries). CONTROL N (the bounce's unit) fails B1 and B3, so
+// the gates can refuse. What it means: the vacuum does not break the cluster (the exact windows show it untouched on
+// every branch); the working vacuum's RULE does not bind it, since it lacks both the stand-in's drift cost and (where a
+// store is held) the fermion sign, and each step away from the stand-in costs fidelity. Title written after the run.
 //
 // Depth L2: the rule's own superposed dynamics on a placed state, with instruments checked against it and a control that
 // can fail. DETERMINISM: no random numbers. The rule is exact in Z[w][1/2]; the level, the placement's floats and every
@@ -136,8 +152,9 @@ function gatesOf(run: Track, reference: Track): Gates {
 
 export default experiment({
   id: 'spin/held-cluster-vacuum',
-  code: 'E-SPN-XXXX',
-  title: "E-SPN-0093's one-line cluster placed in the working vacuum and run by the superposed rule: does it hold its energy in place",
+  code: 'E-SPN-0102',
+  title:
+    "E-SPN-0093's bound one-line cluster does not stay put in the working vacuum, fail on B1 and B3: placed on the side-16 axis line and run by the working vacuum's own superposed rule, the vacuum is never touched (exact windows on sides 8 and 12: norm and reversal exact, 0 branches disturbed, 0 leak, the ring form equal to the rule to 2e-16), but the rule itself does not bind the three loves: the 90% radius goes from 1 to 7 of the ring's 8 by beat 12 (about half a dock a beat, not the band's 0.03), the fidelity with the level falls to 0.36 after one beat and 0.03 to 0.07 from beat 16, the share to 0.71, the energy reads 2.76 against 0.33; the stand-in's own packet holds (fidelity 1, share 0.98236, energy 0.33002); dropping its drift cost alone already costs fidelity (0.74), dropping the fermion sign (0.20), and the mesh's links split the points; the unbound control (the bounce's unit) is refused",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

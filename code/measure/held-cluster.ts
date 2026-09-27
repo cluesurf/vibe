@@ -1,4 +1,4 @@
-// A ONE-LINE CLUSTER PLACED IN A MESH (E-SPN-0102, E-GRV-0108). E-SPN-0093's one-line three-love cluster is a level of
+// A ONE-LINE CLUSTER PLACED IN A MESH (E-SPN-0102, E-GRV-0110). E-SPN-0093's one-line three-love cluster is a level of
 // the one-line operator (code/measure/coined-line-bloch), read at total momentum K = 0 in relative coordinates. Here it
 // is PLACED: its relative amplitudes put on one axis mesh line of a D4 box with its least position at one dock (a
 // localized packet, every K at once), and run by the exact superposed rule, or by the line's ring form for long runs.

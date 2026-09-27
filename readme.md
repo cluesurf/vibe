@@ -390,7 +390,13 @@ realizes. **Open:**
 5. matter that holds its energy in place: the rule carries its own
    energy's Gauss lines exactly, but a seeded lump's energy spreads
    ([`E-GRV-0106`](test/experiment/gravity/energy-lines.ts),
-   [`E-GRV-0107`](test/experiment/gravity/energy-line-depth.ts))
+   [`E-GRV-0107`](test/experiment/gravity/energy-line-depth.ts)).
+   The three-love bound level runs exactly in the working vacuum but
+   spreads at a lone love's top speed, because the working rule lacks
+   the drift cost and the fermion sign that bound it. Its depth is 0.47
+   of a held lump's
+   ([`E-SPN-0102`](test/experiment/spin/held-cluster-vacuum.ts),
+   [`E-GRV-0110`](test/experiment/gravity/held-cluster-depth.ts))
 6. matter smaller than a dock, which does not fall alike
 7. the 3.8% energy drift at a depth boundary on the span light
 8. whether the husk's bending is a full spin-2 field, and the field's

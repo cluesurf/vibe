@@ -644,7 +644,7 @@ export function followLine(basis: LineBasis, sub: SubBasis, start: LineLevel, st
 // ---- the mixed sector (E-SPN-0095): one beat on a vector, the survival of a level, the longest-lived level ----
 
 // one beat of the Bloch operator at K on a configuration vector (the sector's own images; with `mix` the part that
-// leaves the bulk line is dropped; `withCost` false leaves out the drift cost, the stand-in's string, E-GRV-0108)
+// leaves the bulk line is dropped; `withCost` false leaves out the drift cost, the stand-in's string, E-SPN-0102)
 export function lineImage(basis: LineBasis, K: number, cre: Float64Array, cim: Float64Array, withCost = true): { re: Float64Array; im: Float64Array } {
   const re = new Float64Array(basis.configs.length)
   const im = new Float64Array(basis.configs.length)

@@ -1,12 +1,12 @@
-// DOES A HELD CLUSTER'S ENERGY SOURCE THE DEPTH (CODE-GRV)? E-GRV-0106 showed that the rule's conserved energy E = count
+// DOES A HELD CLUSTER'S ENERGY SOURCE THE DEPTH (E-GRV-0110)? E-GRV-0106 showed that the rule's conserved energy E = count
 // + 2 sum |tau| carries its Gauss law for free, and E-GRV-0107 that the depth follows the energy only where the energy
 // stays: a sparse love+fear pair spreads, so it sources no lump. E-SPN-0093's one-line three-love cluster is the one
 // bound state known. This is the chain with nothing placed by hand: the rule's own energy, held in place by the rule's
-// own bound state (CODE-SPN runs it in the working vacuum), as the source of E-GRV-0090's bounded static step field.
+// own bound state (E-SPN-0102 runs it in the working vacuum), as the source of E-GRV-0090's bounded static step field.
 // note/research/vibe/roadmap/discrete-gravity.md, Part 5e.
 //
-// THE SOURCE. CODE-SPN's placed packet on the side-16 working vacuum's axis line, run by the working vacuum's rule (the
-// point-carrying ring form, code/measure/held-cluster pointBeat, which CODE-SPN checks equal to the exact superposed rule
+// THE SOURCE. E-SPN-0102's placed packet on the side-16 working vacuum's axis line, run by the working vacuum's rule (the
+// point-carrying ring form, code/measure/held-cluster pointBeat, which E-SPN-0102 checks equal to the exact superposed rule
 // with the vacuum untouched), for WINDOW beats; its expected energy excess per husk column (one unit a love, which the
 // exact check below re-reads on a side-8 box: the rule's expected dock energy minus the vacuum's, per column, equals the
 // ring form's love density there) averaged over the window. The vacuum's background is subtracted by construction: the
@@ -19,9 +19,9 @@
 // total energy on that column (E-GRV-0090's for the same total energy, the lump the chain should reproduce).
 //
 // THE WINDOW: 64 beats, about 3.4 of the level's periods 2 pi / 0.33. Chosen on the reference alone (tmp/bsrc-probe7.log,
-// E-SPN-0093's own operator's packet, run A of CODE-SPN): averaged over 16, 32, 64, 128 beats its profile reads 0.992 to
+// E-SPN-0093's own operator's packet, run A of E-SPN-0102): averaged over 16, 32, 64, 128 beats its profile reads 0.992 to
 // 1.000, 0.983 to 1.000, 0.952 to 1.000 and 0.865 to 0.998 of the point lump's at r = 2 .. 6 (k 0.0307 against 0.0324 at
-// 64), because even the bound state's packet spreads along its line as its 16 momenta dephase (CODE-SPN). No probe read
+// 64), because even the bound state's packet spreads along its line as its 16 momenta dephase (E-SPN-0102). No probe read
 // the working vacuum's run as a source.
 //
 // GATES, fixed before the first run of this file.
@@ -34,10 +34,20 @@
 //  CONTROL+: the stand-in operator's packet (run A) averaged the same way passes D1 and D2 (the gate can see a held
 //     source). CONTROL-: the point lump moved 4 columns along the line misses D1 (the gate can tell a lump elsewhere).
 //  Verdict: partial if a control fails; pass if E0, D1, D2 hold; fail otherwise.
-// PREDICTED: fail on D1 and D2 (CODE-SPN predicts the cluster does not hold in the working vacuum), E0 and both controls
+// PREDICTED: fail on D1 and D2 (E-SPN-0102 predicts the cluster does not hold in the working vacuum), E0 and both controls
 // hold.
 //
-// FIRST RUN: not yet run.
+// FIRST RUN (115 s, tmp/bsrc-grv-run1.log, the record): fail on D1, no gate moved. E0 holds (4.4e-16, 0 disturbed).
+// The working vacuum's source is not a lump: averaged over 64 beats it lies 0.16 to 0.25 on every column of its husk
+// line (R90 7, the whole ring), so it is a line source, and its depth x(r) - x(8) reads 0.0207, 0.0097, 0.0060, 0.0042,
+// 0.0027, 0.0017, 0.0009 at r = 0 .. 6 against the point lump's 0.1522, 0.0259, 0.0118, 0.0067, 0.0039, 0.0021, 0.0010:
+// ratio 0.37, 0.51, 0.62, 0.69, 0.79, 0.90 at r = 1 .. 6, k 0.0151 against 0.0324 (0.47). D2 PASSES VACUOUSLY: the core
+// (6) is under the source's R90 + 1 = 8 only because the source fills the ring, so D2 says nothing here. Both controls
+// hold: the stand-in's packet (R90 3) reads 0.83, 0.95, 0.99, 0.99, 1.00, 1.00 with k 0.0307 (0.95) and core 2, and the
+// moved lump misses (0.14, 0.32, 0.60 at r = 1 .. 3). What it means: the chain works for a held source (the stand-in's
+// packet gives the lump's 1/r within 5 percent outside its core), but the working vacuum's rule does not hold the
+// cluster (E-SPN-0102), so its energy spreads along the line and sources a line's depth, not a lump's. Title written
+// after the run.
 //
 // Depth L2. DETERMINISM: no random numbers. The rule in the exact window is exact in Z[w][1/2]; the ring form, the
 // averages, the Poisson solve and the fits are floats (measurement, never read by the rule). NOTHING MOVES. HUSK FIRST:
@@ -74,8 +84,9 @@ function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; 
 
 export default experiment({
   id: 'gravity/held-cluster-depth',
-  code: 'E-GRV-XXXX',
-  title: "E-SPN-0093's cluster in the working vacuum as the source of E-GRV-0090's static depth: does the rule's own held energy give the lump's 1/r",
+  code: 'E-GRV-0110',
+  title:
+    "the working vacuum's rule does not hold E-SPN-0093's cluster, so its energy sources a line's depth and not a lump's, fail on D1: averaged over 64 beats the cluster's 3 units lie 0.16 to 0.25 on every column of its husk line (the rule's expected energy excess equals the ring form's love density to 4e-16, the vacuum untouched), and E-GRV-0090's static field of that source reads 0.37 to 0.90 of the same-energy point lump's at r = 1 .. 6, k 0.0151 against 0.0324; the stand-in's own held packet gives the lump's 1/r (0.95 to 1.00 at r = 2 .. 6, k 0.0307, core 2), so the chain holds where the source holds; the core gate passes only vacuously (the source fills the ring)",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
