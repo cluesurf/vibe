@@ -225,11 +225,12 @@ export function waveArrival(depthOf: (x: number) => number, form: WaveForm, x0: 
   return { arrival: trace.map(halfMaxCentroid), weight: trace.map(r => r.reduce((a, v) => a + v, 0)), reversed: sameClockWave(s, start) }
 }
 
-// the rest rate of the uniform lump at one depth: the clock form on a small box with every dock equal, the upward zero
+// the rest rate of the uniform lump at one depth: the clock form (or the span form, whose closed rate is the same) on
+// a small box with every dock equal, the upward zero
 // crossings of X (placed linearly between beats) over `beats`, and 2 pi over their mean spacing; and the reversal
-export function restRate(depth: number, m: number, amp: number, beats: number): { rate: number; closed: number; reversed: boolean } {
+export function restRate(depth: number, m: number, amp: number, beats: number, form: WaveForm = 'clock'): { rate: number; closed: number; reversed: boolean } {
   const mesh = radionMesh([4, 2, 2])
-  const rule = clockWaveRule(mesh, () => depth, m, 'clock', RADION_DEPTH)
+  const rule = clockWaveRule(mesh, () => depth, m, form, RADION_DEPTH)
   const s = emptyClockWave(mesh)
 
   s.now.fill(amp)

@@ -22,6 +22,14 @@
 //                                                 mu^2 q / q0), the time and space parts equal as in general
 //                                                 relativity's weak field. Waves run at c0 q0 / q; the rest rate
 //                                                 sqrt(m / 9q) falls as q^(-1/2), as the clock form's does
+//   span     Q = 9 q^2,  a = 2,       m_y = m q    the matter of the spanned light (code/rule/depth-span-light):
+//                                                 the clock form with the same change made to its
+//                                                 links, a link's stiffness divided by its count. Divided through
+//                                                 by q it reads 9 q X'' = -(2 / q) A X - m X: inertia q, stiffness
+//                                                 2 / q, a rest term that reads no depth. It is the metric form at
+//                                                 a = 2, so its waves run at 2 / (q sqrt 3), the spanned light's
+//                                                 own speed at every depth (the metric form's a = 2 q0 runs
+//                                                 sqrt(q0) faster), and its rest rate is the clock form's
 //
 // THE INTEGER RULE (no rounding: the one division's remainder is CARRIED). With H_y = (Q_y - 1) / 2 (Q_y odd) and R_y in
 // -H_y .. H_y, per dock:  s = - a (A X)_y - m_y X_y + R_y,  K = floor((s + H_y) / Q_y),  R_y <- s - Q_y K,
@@ -44,7 +52,7 @@ import { laplacian, type RadionMesh } from '@/code/rule/trit-radion'
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
 
-export type WaveForm = 'clock' | 'column' | 'metric'
+export type WaveForm = 'clock' | 'column' | 'metric' | 'span'
 
 export type ClockWaveRule = {
   readonly form: WaveForm
@@ -64,7 +72,7 @@ export function clockWaveRule(mesh: RadionMesh, depth: (dock: number) => number,
 
   for (let y = 0; y < mesh.docks; y++) {
     const q = 2 * depth(y) + 1
-    const big = form === 'metric' ? 9 * q * q : 9 * q
+    const big = form === 'metric' || form === 'span' ? 9 * q * q : 9 * q
 
     inertia[y] = big
     half[y] = (big - 1) / 2
