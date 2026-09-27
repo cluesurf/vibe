@@ -170,9 +170,10 @@ export const SINK_COLUMN: readonly number[] = [6, 6, 6]
 // an integer gauge function, fixed polynomial in the dock index (no draw)
 export const gaugeFunction = (docks: number): Int32Array => Int32Array.from({ length: docks }, (_, y) => mod(5 * y * y + 3 * y + 1, 11) - 5)
 
-type Placement = { at: readonly number[]; to: readonly number[]; units: number }
+export type Placement = { at: readonly number[]; to: readonly number[]; units: number }
 
-function placedState(m: Medium, placements: readonly Placement[]): { state: HuskLightState; rho: Int32Array } {
+// the state of placed strings (E starts as S, every other field 0) and the source map they give div S
+export function placedState(m: Medium, placements: readonly Placement[]): { state: HuskLightState; rho: Int32Array } {
   const s = emptyState(m)
   const rho = new Int32Array(m.geometry.huskDocks)
 

@@ -26,12 +26,21 @@
 import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
 import { blochSpace, branchReader, quartetShare, stringMoments, type Bloch } from '@/code/measure/flux-store-bloch'
 import { boxSpec, inverseIterate, lightN, tailWeight } from '@/code/measure/drift-cost-bloch'
+import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
 
 export type Statistics = 'fermion' | 'native' | 'token'
 export type Flavors = readonly [number, number, number]
 // `unit` (E-SPN-0093): the like contact's lift on a full line as the sixth root e^(i pi unit / 3), in place of the
 // statistics' own (fermion: 3, the bounce's -1; native and token: 0). The passing knit is 'fermion' with unit 0.
-export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number }
+// `mix` (E-SPN-0095): the frame mixer G of E-SPN-0094 (code/rule/coined-locked-knit mixBranch) COMPRESSED to the
+// sector. A love alone on its dock is alone in its frame (a parallel line never shares a dock), so G acts on it: it is
+// kept with 3/4, taken to the other slot of its line with -1/4, and taken to each of the six orthogonal slots with
+// -1/4, which leave the sector and are dropped; a full line (two loves of one flavor) is a frame of two and is left
+// alone. G and the coin are both diagonal on the line's P+- (G: 1/2 and 1 there), so their order does not matter. The
+// operator is then NOT unitary: its norm loss is what leaves the bulk line. A lone love needs at least three mixer
+// steps to come back to its own bulk line (off to an orthogonal line, back to the opposite slot of it, back onto the
+// line), so the compression is the exact rule for the first two beats of any run.
+export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean }
 
 // the contact unit a sector uses: its own, or its statistics' default
 export const contactUnit = (sector: LineSector): number => sector.unit ?? (sector.statistics === 'fermion' ? 3 : 0)
@@ -46,6 +55,9 @@ const cmul = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] *
 const OMEGA: C = [-0.5, SQ]
 const KEEP: C = [0.25, SQ / 2]
 const CROSS: C = [0.75, -SQ / 2]
+// the coin after the compressed mixer on a lone love: keep 3/4 KEEP - 1/4 CROSS, cross 3/4 CROSS - 1/4 KEEP
+const MIX_KEEP: C = [0.75 * KEEP[0] - 0.25 * CROSS[0], 0.75 * KEEP[1] - 0.25 * CROSS[1]]
+const MIX_CROSS: C = [0.75 * CROSS[0] - 0.25 * KEEP[0], 0.75 * CROSS[1] - 0.25 * KEEP[1]]
 
 // the order of one flavor's modes: by position, and at one dock the back slot (label 1) first
 const keyOf = (t: Token): number => 2 * t.x + (t.j === 0 ? 1 : 0)
@@ -152,6 +164,8 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
   }
 
   const out: { ts: Token[]; amp: C }[] = []
+  const keep = sector.mix ? MIX_KEEP : KEEP
+  const cross = sector.mix ? MIX_CROSS : CROSS
 
   for (let mask = 0; mask < 1 << lone.length; mask++) {
     const next = ts.map(t => ({ ...t }))
@@ -160,8 +174,8 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
     lone.forEach((p, n) => {
       if ((mask >> n) & 1) {
         next[p]!.j = 1 - next[p]!.j
-        a = cmul(a, CROSS)
-      } else a = cmul(a, KEEP)
+        a = cmul(a, cross)
+      } else a = cmul(a, keep)
     })
 
     out.push({ ts: next, amp: a })
@@ -484,6 +498,28 @@ const wrapE = (phase: number): number => {
   return e
 }
 
+export type LevelReading = { even: number; kinetic: number; spinHalf: number; mean: number; tailN: number; contact: number }
+
+// the first-quantized readings of one configuration vector: the particle reading (even) and its kinetic energy, the
+// spin one half share, the mean string, the tail beyond N, and the weight on full docks (the vector need not be
+// normalized; the contact weight is divided by its norm, the others are E-SPN-0087's readers)
+function levelReading(basis: LineBasis, b: Bloch, read: ReturnType<typeof branchReader>, cre: Float64Array, cim: Float64Array): LevelReading {
+  const v = firstQuantized(basis, b, cre, cim)
+  const reading = read(v)
+  let contact = 0
+  let total = 0
+
+  basis.configs.forEach((ts, i) => {
+    const p = cre[i]! ** 2 + cim[i]! ** 2
+
+    total += p
+    contact += p * fullDocks(ts)
+  })
+  contact /= total
+
+  return { even: reading.even, kinetic: reading.kinetic, spinHalf: 1 - quartetShare(b, v), mean: stringMoments(b, v).mean, tailN: tailWeight(b, v, lightN(basis.sector.D)), contact }
+}
+
 // E-SPN-0076's lightest level on a sector's subspace at K = 0: levels of the particle sector (branch reading at least
 // 1/2 even), each unwrapped to the representative nearest its reference energy (kinetic + sigma <l> + contact)
 export function lineLightest(basis: LineBasis, sub: SubBasis): LineLightest {
@@ -514,31 +550,18 @@ export function lineLightest(basis: LineBasis, sub: SubBasis): LineLightest {
       })
     })
 
-    const v = firstQuantized(basis, b, cre, cim)
-    const reading = read(v)
+    const r = levelReading(basis, b, read, cre, cim)
 
-    if (reading.even < 0.5) return
-
-    let contact = 0
-    let total = 0
-
-    basis.configs.forEach((ts, i) => {
-      const p = cre[i]! ** 2 + cim[i]! ** 2
-
-      total += p
-      contact += p * fullDocks(ts)
-    })
-    contact /= total
+    if (r.even < 0.5) return
 
     const energy = wrapE(ph)
-    const mean = stringMoments(b, v).mean
-    const reference = reading.kinetic + sigma * mean + ec * contact
+    const reference = r.kinetic + sigma * r.mean + ec * r.contact
     const unwrapped = energy + 2 * Math.PI * Math.round((reference - energy) / (2 * Math.PI))
 
     particleLevels++
     worstOffset = Math.max(worstOffset, Math.abs(unwrapped - reference))
 
-    const level: LineLevel = { unwrapped, energy, reference, even: reading.even, spinHalf: 1 - quartetShare(b, v), mean, tailN: tailWeight(b, v, N), contact, cre, cim }
+    const level: LineLevel = { unwrapped, energy, reference, even: r.even, spinHalf: r.spinHalf, mean: r.mean, tailN: r.tailN, contact: r.contact, cre, cim }
 
     if (!best || unwrapped < best.unwrapped) {
       if (best) next = Number.isNaN(next) ? best.unwrapped : Math.min(next, best.unwrapped)
@@ -612,4 +635,82 @@ export function followLine(basis: LineBasis, sub: SubBasis, start: LineLevel, st
   for (let s = 1; s < energies.length; s++) velocity = Math.max(velocity, Math.abs(energies[s]! - energies[s - 1]!) / (Math.PI / steps))
 
   return { energies, bandwidth: Math.max(...energies) - Math.min(...energies), velocity, minOverlap, worstResidual }
+}
+
+// ---- the mixed sector (E-SPN-0095): one beat on a vector, the survival of a level, the longest-lived level ----
+
+// one beat of the Bloch operator at K on a configuration vector (the sector's own images; with `mix` the part that
+// leaves the bulk line is dropped)
+export function lineImage(basis: LineBasis, K: number, cre: Float64Array, cim: Float64Array): { re: Float64Array; im: Float64Array } {
+  const re = new Float64Array(basis.configs.length)
+  const im = new Float64Array(basis.configs.length)
+
+  for (let i = 0; i < basis.configs.length; i++) {
+    const zr = cre[i]!
+    const zi = cim[i]!
+
+    if (zr === 0 && zi === 0) continue
+
+    for (const img of lineColumn(basis, K, i)) {
+      re[img.index] = re[img.index]! + zr * img.re - zi * img.im
+      im[img.index] = im[img.index]! + zr * img.im + zi * img.re
+    }
+  }
+
+  return { re, im }
+}
+
+export type Survival = { amplitude: [number, number]; returned: number; onLine: number; energy: number }
+
+// a level of an unmixed sector under one beat of `mixed` (the same flavors and box, so the same configuration basis):
+// its return amplitude <v|U v> / <v|v>, the return probability |.|^2, the weight left in the sector ||U v||^2 / <v|v>,
+// and the return phase's energy, unwrapped to the representative nearest the level's
+export function lineSurvival(mixed: LineBasis, level: LineLevel): Survival {
+  const w = lineImage(mixed, 0, level.cre, level.cim)
+  let n = 0
+  let r = 0
+  let i = 0
+  let out = 0
+
+  for (let k = 0; k < mixed.configs.length; k++) {
+    const vr = level.cre[k]!
+    const vi = level.cim[k]!
+
+    n += vr * vr + vi * vi
+    r += vr * w.re[k]! + vi * w.im[k]!
+    i += vr * w.im[k]! - vi * w.re[k]!
+    out += w.re[k]! ** 2 + w.im[k]! ** 2
+  }
+
+  const e = wrapE(Math.atan2(i, r))
+
+  return { amplitude: [r / n, i / n], returned: (r * r + i * i) / (n * n), onLine: out / n, energy: e + 2 * Math.PI * Math.round((level.unwrapped - e) / (2 * Math.PI)) }
+}
+
+export type LongestLived = { dim: number; modulus: number; energy: number; unwrapped: number; next: number; reading: LevelReading; overlap: number }
+
+// the eigenvalue of largest modulus of the (compressed, not unitary) operator at K = 0, whole basis: its modulus (the
+// amplitude kept per beat), its energy (unwrapped nearest `near`), the next largest modulus, its eigenvector's readings,
+// and its overlap |<u|v>| with a given level
+export function lineLongestLived(basis: LineBasis, near: number, level: LineLevel): LongestLived {
+  const red = lineReduced(basis, wholeBasis(basis), 0)
+  const eig = complexEigenvalues({ re: red.re, im: red.im, n: red.dim })
+  const order = eig.re.map((x, k) => ({ k, m: Math.hypot(x, eig.im[k]!) })).sort((p, q) => q.m - p.m)
+  const top = order[0]!
+  const value: [number, number] = [eig.re[top.k]!, eig.im[top.k]!]
+  const u = complexEigenvector({ re: red.re, im: red.im, n: red.dim, value })
+  const e = wrapE(Math.atan2(value[1], value[0]))
+  const b = readingBloch(basis.sector)
+  const read = branchReader(b, 2 * basis.sector.box + 6)
+  let r = 0
+  let i = 0
+  let nv = 0
+
+  for (let k = 0; k < red.dim; k++) {
+    r += u.re[k]! * level.cre[k]! + u.im[k]! * level.cim[k]!
+    i += u.re[k]! * level.cim[k]! - u.im[k]! * level.cre[k]!
+    nv += level.cre[k]! ** 2 + level.cim[k]! ** 2
+  }
+
+  return { dim: red.dim, modulus: top.m, energy: e, unwrapped: e + 2 * Math.PI * Math.round((near - e) / (2 * Math.PI)), next: order[1]?.m ?? 0, reading: levelReading(basis, b, read, u.re, u.im), overlap: Math.hypot(r, i) / Math.sqrt(nv) }
 }
