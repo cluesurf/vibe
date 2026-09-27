@@ -40,7 +40,10 @@ export type Flavors = readonly [number, number, number]
 // operator is then NOT unitary: its norm loss is what leaves the bulk line. A lone love needs at least three mixer
 // steps to come back to its own bulk line (off to an orthogonal line, back to the opposite slot of it, back onto the
 // line), so the compression is the exact rule for the first two beats of any run.
-export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean }
+// `lift` (E-SPN-0097, with `mix`): the lifted mixer Gamma(G) (code/rule/coined-locked-knit liftBranch) compressed the
+// same way: a lone love as `mix`, and a full line (a frame of two of one content) kept with 1/2 (Gamma(G)'s keep,
+// (4 - n)/4), its twelve one-vibe hops leaving the sector.
+export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean; readonly lift?: boolean }
 
 // the contact unit a sector uses: its own, or its statistics' default
 export const contactUnit = (sector: LineSector): number => sector.unit ?? (sector.statistics === 'fermion' ? 3 : 0)
@@ -160,6 +163,7 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
 
       if (u === 3) amp = [-amp[0], -amp[1]]
       else if (u !== 0) amp = cmul(amp, [Math.cos((Math.PI * u) / 3), Math.sin((Math.PI * u) / 3)])
+      if (sector.mix && sector.lift) amp = [amp[0] / 2, amp[1] / 2]
     }
   }
 

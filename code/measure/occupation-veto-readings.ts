@@ -21,7 +21,7 @@ import { cloneConfiguration, lockedTables, streamConfiguration, type Configurati
 import { collideVeto, type VetoKind } from '@/code/rule/occupation-veto-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
 import { exchangeAt, lockedFresh, pathMeet, streamInto, tritsApart, newPathTally, SILVER_RATE, THRESHOLD_KEEP, type LockedFresh, type PathRunner, type PathTally } from '@/code/measure/doublet-locked-readings'
-import { FRAME_OF_LINE, FRAME_SLOTS, loneFrames } from '@/code/rule/coined-locked-knit'
+import { FRAME_OF_LINE, FRAME_SLOTS, liftFrames, loneFrames } from '@/code/rule/coined-locked-knit'
 import { type Replay } from '@/code/measure/causal-components'
 import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
 
@@ -122,8 +122,10 @@ export function pathCoin(tables: LockedTables, c: Configuration, threshold: numb
 // (1/16 each: the opposite slot, then the six orthogonal ones), target frame slot q XOR o. G's heaviest term is the
 // keep, so the keep path (threshold 0) keeps always and every other threshold reads the Born bins. Each outcome is an
 // involution of the frame's slots and the lone condition is kept, so the same call undoes it. Returns the moves.
+export const mixBin = (cells: number, t: number, x: number, f: number): number => Math.floor(((((t * cells + x) * 3 + f) * SILVER_RATE + 12345) % 65536) / 4096)
+
 export const mixOutcome = (cells: number, t: number, x: number, f: number): number => {
-  const bin = Math.floor(((((t * cells + x) * 3 + f) * SILVER_RATE + 12345) % 65536) / 4096)
+  const bin = mixBin(cells, t, x, f)
 
   return bin < 9 ? 0 : bin - 8
 }
@@ -154,7 +156,117 @@ export function pathMix(tables: LockedTables, c: Configuration, threshold: numbe
   return moved
 }
 
-export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, phase = 0, coin = false, mix = false): PathRunner & { crossed: () => number; mixed: () => number } {
+// THE LIFTED MIXER ON A PATH (E-SPN-0097): Gamma(G) (code/rule/coined-locked-knit liftBranch) on a frame of n vibes of
+// one content keeps with weight (4 - n)^2 / 16 and takes one vibe to one empty frame slot with 1/16 for each of the
+// n (8 - n) hops, so the same 16 bins of the key serve: on the frame's occupation (an 8-bit mask of frame slots) bin b
+// applies the permutation LIFT_PATH[b]; bins 0 to (4 - n)^2 - 1 keep, the other n (8 - n) bins are a decomposition of
+// the one-hop graph on n-subsets into permutations, each hop in exactly one bin (Konig: a regular bipartite graph is a
+// union of perfect matchings; found here by augmenting paths in a fixed order). For n = 1 the bins are E-SPN-0095's
+// (9 keep, bin 9 + j takes q to q XOR (j + 1)), for n = 7 the same on the hole. The keep path reads bin 0 (the keep,
+// except a frame of four, which has no keep term). The inverse applies the inverse permutations.
+function liftPathTables(): { forward: Int16Array[]; inverse: Int16Array[] } {
+  const forward = Array.from({ length: 16 }, () => Int16Array.from({ length: 256 }, (_, m) => m))
+  const pop = (m: number): number => m.toString(2).split('').filter(x => x === '1').length
+
+  for (let n = 1; n <= 7; n++) {
+    const keeps = (4 - n) * (4 - n)
+    const subsets = Array.from({ length: 256 }, (_, m) => m).filter(m => pop(m) === n)
+
+    if (n === 1 || n === 7) {
+      for (let j = 0; j < 7; j++) {
+        for (const m of subsets) {
+          const q = n === 1 ? Math.log2(m) : Math.log2(255 ^ m)
+          const r = q ^ (j + 1)
+
+          ;(forward[keeps + j] as Int16Array)[m] = n === 1 ? 1 << r : 255 ^ (1 << r)
+        }
+      }
+
+      continue
+    }
+
+    // the one-hop graph: S -> S - {a} + {c}
+    const left = new Map<number, number[]>()
+
+    for (const m of subsets) {
+      const out: number[] = []
+
+      for (let a = 0; a < 8; a++) for (let c = 0; c < 8; c++) if ((m >> a) & 1 && !((m >> c) & 1)) out.push(m ^ (1 << a) ^ (1 << c))
+      left.set(m, out.sort((p, q) => p - q))
+    }
+
+    for (let round = 0; round < n * (8 - n); round++) {
+      const matchR = new Map<number, number>()
+
+      const augment = (s: number, seen: Set<number>): boolean => {
+        for (const t of left.get(s) as number[]) {
+          if (seen.has(t)) continue
+          seen.add(t)
+
+          const owner = matchR.get(t)
+
+          if (owner === undefined || augment(owner, seen)) {
+            matchR.set(t, s)
+
+            return true
+          }
+        }
+
+        return false
+      }
+
+      for (const s of subsets) if (!augment(s, new Set())) throw new Error('occupation-veto-readings: no perfect matching in a regular one-hop graph')
+
+      for (const [t, s] of matchR) {
+        ;(forward[keeps + round] as Int16Array)[s] = t
+        left.set(s, (left.get(s) as number[]).filter(x => x !== t))
+      }
+    }
+  }
+
+  const inverse = forward.map(p => {
+    const inv = new Int16Array(256)
+
+    p.forEach((t, s) => (inv[t] = s))
+
+    return inv
+  })
+
+  return { forward, inverse }
+}
+
+export const LIFT_PATH = liftPathTables()
+
+export function pathLift(tables: LockedTables, c: Configuration, threshold: number, t: number, inverse = false): number {
+  let moved = 0
+
+  for (const { base, frame, held } of liftFrames(tables.cells, c)) {
+    const bin = threshold === THRESHOLD_KEEP ? 0 : mixBin(tables.cells, t, base / 24, frame)
+    const mask = held.reduce((m, q) => m | (1 << q), 0)
+    const next = (inverse ? LIFT_PATH.inverse : LIFT_PATH.forward)[bin]![mask] as number
+
+    if (next === mask) continue
+
+    const ss = FRAME_SLOTS[frame] as readonly number[]
+    const from = base + (ss[Math.log2(mask & ~next)] as number)
+    const to = base + (ss[Math.log2(next & ~mask)] as number)
+
+    c.vibe[to] = c.vibe[from] as number
+    c.point[to] = c.point[from] as number
+    c.open[to] = c.open[from] as number
+    c.vibe[from] = 0
+    c.point[from] = 0
+    c.open[from] = 0
+    moved++
+  }
+
+  return moved
+}
+
+// `mix`: false (no mixer), true (E-SPN-0095's G on lone frames), 'lift' (E-SPN-0097's Gamma(G))
+export type MixKind = boolean | 'lift'
+
+export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, phase = 0, coin = false, mix: MixKind = false): PathRunner & { crossed: () => number; mixed: () => number } {
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let t = phase
@@ -168,7 +280,8 @@ export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Conf
     crossed: () => crossed,
     mixed: () => mixed,
     beat: (tally?: PathTally) => {
-      if (mix) mixed += pathMix(tables, a, threshold, t)
+      if (mix === 'lift') mixed += pathLift(tables, a, threshold, t)
+      else if (mix) mixed += pathMix(tables, a, threshold, t)
       if (coin) crossed += pathCoin(tables, a, threshold, t)
       pathMeet(tables, a, threshold, t, tally)
       col.made = 0
@@ -196,20 +309,22 @@ export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Conf
       collideVeto(kind, tables, a, t, true)
       pathMeet(tables, a, threshold, t)
       if (coin) pathCoin(tables, a, threshold, t)
-      if (mix) pathMix(tables, a, threshold, t)
+      if (mix === 'lift') pathLift(tables, a, threshold, t, true)
+      else if (mix) pathMix(tables, a, threshold, t)
     },
   }
 }
 
 // a path as a replay for code/measure/causal-components causalRun
-export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, coin = false, mix = false): Replay & { state: () => Configuration } {
+export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, coin = false, mix: MixKind = false): Replay & { state: () => Configuration } {
   let c = cloneConfiguration(start)
 
   return {
     cells: tables.cells,
     state: () => c,
     collide(t) {
-      if (mix) pathMix(tables, c, threshold, t)
+      if (mix === 'lift') pathLift(tables, c, threshold, t)
+      else if (mix) pathMix(tables, c, threshold, t)
       if (coin) pathCoin(tables, c, threshold, t)
       pathMeet(tables, c, threshold, t)
       collideVeto(kind, tables, c, t, false)
@@ -242,7 +357,7 @@ export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Conf
 }
 
 // the vacuum's path history, one configuration per beat after the stream
-export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Configuration, threshold: number, beats: number, coin = false, mix = false): { states: Configuration[]; tally: PathTally } {
+export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Configuration, threshold: number, beats: number, coin = false, mix: MixKind = false): { states: Configuration[]; tally: PathTally } {
   const v = vetoPathRunner(kind, tables, vacuum, threshold, 0, coin, mix)
   const tally = newPathTally()
   const states: Configuration[] = []
@@ -257,7 +372,7 @@ export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Conf
 
 // the lone wake along a path (E-RLT-0084's B6): worst trits apart per 24-beat period, trits off the seed's line, and
 // (E-SPN-0095) trits off the seed's frame
-export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacuum: Configuration; track: readonly Configuration[]; seedSlot: number; tone: number; threshold: number; beats: number; coin?: boolean; mix?: boolean }): { worst: number[]; offLine: number; offFrame: number } {
+export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacuum: Configuration; track: readonly Configuration[]; seedSlot: number; tone: number; threshold: number; beats: number; coin?: boolean; mix?: MixKind }): { worst: number[]; offLine: number; offFrame: number } {
   const { kind, tables, vacuum, track, seedSlot, tone, threshold, beats, coin = false, mix = false } = input
   const start = cloneConfiguration(vacuum)
 

@@ -390,6 +390,154 @@ export function mixedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedStat
   return { branches: mergeBranches(out) }
 }
 
+// ---- the frame mixer lifted to a frame's whole occupation ----
+//
+// THE LIFT (E-SPN-0096, E-SPN-0097). G = I - 2 |u><u| on one vibe; on a frame's fermion occupation (the knit's own
+// statistics: one vibe a slot, the coin's full line kept with its determinant) its second-quantized lift is
+// Gamma(G) = 1 - (1/4) sum_(i, j in the frame) c_i^dag c_j = (-1)^(N_u), N_u the occupation of the frame's uniform mode.
+// On a frame of n vibes: keep with (4 - n)/4, or take ONE vibe to one empty slot of the frame with -1/4 times the
+// fermion sign of the hop ((-1)^(occupied modes strictly between the two slots in the knit's mode order, modeIndex)).
+// No term moves two vibes (u ^ u = 0), so a moving vibe takes its value, point and open bit with it. n = 1 is G itself;
+// n = 4 is never kept; a full frame is kept with -1.
+//
+// WHERE IT ACTS: every frame whose vibes are all open and all carry ONE content (value and point). E-SPN-0096: on a
+// frame of two contents the content-carrying lift is not unitary, the species-by-species lift leaves the knit's space
+// (two vibes on one slot) and the unitary rank-labelled lift is not covariant, so a frame of two contents (the
+// vacuum's love and fear, or two loves of unequal points) and a frame with a closed vibe are left alone. The condition
+// is kept by the lift (it moves one vibe inside its frame) and by every W(F4) map.
+//
+// NOTHING MOVES: a vibe's value, point and open bit are taken by an empty slot of its own frame on its own dock.
+
+export type LiftFrame = { base: number; frame: number; held: number[] }
+
+export type LiftTally = { lifts: number; hops: number }
+
+export const newLiftTally = (): LiftTally => ({ lifts: 0, hops: 0 })
+
+// the frames the lift acts on: every (dock, frame) holding at least one vibe, all open, all of one value and point,
+// with the frame slots q it holds
+export function liftFrames(cells: number, c: Configuration): LiftFrame[] {
+  const out: LiftFrame[] = []
+
+  for (let x = 0; x < cells; x++) {
+    const base = x * 24
+
+    for (let f = 0; f < 3; f++) {
+      const ss = FRAME_SLOTS[f] as readonly number[]
+      const held: number[] = []
+      let acts = true
+
+      for (let q = 0; q < 8 && acts; q++) {
+        const i = base + (ss[q] as number)
+
+        if (c.vibe[i] === 0) continue
+        if (!c.open[i]) acts = false
+        else if (held.length > 0) {
+          const j = base + (ss[held[0] as number] as number)
+
+          if (c.vibe[i] !== c.vibe[j] || c.point[i] !== c.point[j]) acts = false
+        }
+
+        held.push(q)
+      }
+
+      if (acts && held.length > 0) out.push({ base, frame: f, held })
+    }
+  }
+
+  return out
+}
+
+// the fermion sign of taking the vibe on `from` to the empty `to` of one dock: (-1)^(occupied modes strictly between)
+export function hopSign(c: Configuration, base: number, from: number, to: number): number {
+  const a = modeIndex(from)
+  const b = modeIndex(to)
+  const lo = Math.min(a, b)
+  const hi = Math.max(a, b)
+  let between = 0
+
+  for (let d = 0; d < 24; d++) {
+    if (c.vibe[base + d] === 0) continue
+
+    const m = modeIndex(base + d)
+
+    if (m > lo && m < hi) between++
+  }
+
+  return between % 2 === 0 ? 1 : -1
+}
+
+// Gamma(G) on one branch: the list of branches it becomes
+export function liftBranch(cells: number, br: Branch, tally?: LiftTally): Branch[] {
+  const frames = liftFrames(cells, br)
+
+  if (frames.length === 0) return [br]
+  if (tally) tally.lifts += frames.length
+
+  let branches: Branch[] = [br]
+
+  for (const { base, frame, held } of frames) {
+    const ss = FRAME_SLOTS[frame] as readonly number[]
+    const n = held.length
+    const next: Branch[] = []
+
+    for (const b of branches) {
+      if (n !== 4) {
+        const k = cloneBranch(b)
+
+        times(k, BigInt(4 - n), 0n)
+        k.k += 2
+        next.push(k)
+      }
+
+      for (const q of held) {
+        for (let r = 0; r < 8; r++) {
+          if (held.includes(r)) continue
+
+          const from = base + (ss[q] as number)
+          const to = base + (ss[r] as number)
+          const k = cloneBranch(b)
+          const sign = hopSign(k, base, from, to)
+
+          k.vibe[to] = k.vibe[from] as number
+          k.point[to] = k.point[from] as number
+          k.open[to] = k.open[from] as number
+          k.vibe[from] = 0
+          k.point[from] = 0
+          k.open[from] = 0
+          times(k, BigInt(-sign), 0n)
+          k.k += 2
+          next.push(k)
+          if (tally) tally.hops++
+        }
+      }
+    }
+
+    branches = next
+    if (branches.length > 1 << 18) throw new Error(`coined-locked-knit: the lift makes ${branches.length} branches of one, over the guard 2^18`)
+  }
+
+  return branches
+}
+
+// THE WORKING VACUUM WITH THE LIFTED MIXER: Gamma(G), then the coin, then the no-veto beat. The inverse: the coined
+// inverse, then Gamma(G) (real, symmetric, an involution: its own adjoint).
+export function liftedVetoBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally, coinTally?: CoinTally, liftTally?: LiftTally): LockedState {
+  const lifted: Branch[] = []
+
+  for (const br of s.branches) lifted.push(...liftBranch(t.cells, cloneBranch(br), liftTally))
+
+  return coinedVetoBeat(kind, t, { branches: mergeBranches(lifted) }, beat, tally, coinTally)
+}
+
+export function liftedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number): LockedState {
+  const out: Branch[] = []
+
+  for (const br of coinedVetoBeatBack(kind, t, s, beat).branches) out.push(...liftBranch(t.cells, cloneBranch(br)))
+
+  return { branches: mergeBranches(out) }
+}
+
 export function coinedBeatBack(t: LockedTables, s: LockedState, beat: number, options: CoinOptions): LockedState {
   let back = lockedBeatBack(t, s, beat)
 

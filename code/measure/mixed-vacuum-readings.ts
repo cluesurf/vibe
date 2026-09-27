@@ -14,15 +14,17 @@ import { boxHusk, causalRun, streamTarget } from '@/code/measure/causal-componen
 import { centerOf } from '@/code/measure/wall-reading'
 import { cloneConfiguration, lockedNorm, lockedState, norm, sameConfiguration, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
 import { toWords, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { coinedVetoBeat, coinedVetoBeatBack, FRAME_OF_LINE, mixedVetoBeat, mixedVetoBeatBack, newMixTally } from '@/code/rule/coined-locked-knit'
+import { coinedVetoBeat, coinedVetoBeatBack, FRAME_OF_LINE, liftedVetoBeat, liftedVetoBeatBack, mixedVetoBeat, mixedVetoBeatBack, newLiftTally, newMixTally } from '@/code/rule/coined-locked-knit'
 import { laws, newPathTally, vacuumConfiguration, type LockedFresh } from '@/code/measure/doublet-locked-readings'
-import { contactFresh, vetoPathReplay, vetoPathRunner, vetoPathTrack, vetoPathWake } from '@/code/measure/occupation-veto-readings'
+import { contactFresh, vetoPathReplay, vetoPathRunner, vetoPathTrack, vetoPathWake, type MixKind } from '@/code/measure/occupation-veto-readings'
 import { d4BoxCoordinates, d4Vector } from '@/code/substrate/d4-box-integer'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsD4()
 
-export type Flags = { readonly coin: boolean; readonly mix: boolean }
+// `mix`: false, true (E-SPN-0095's G on lone frames) or 'lift' (E-SPN-0097's Gamma(G), code/rule/coined-locked-knit
+// liftBranch, on paths occupation-veto-readings pathLift)
+export type Flags = { readonly coin: boolean; readonly mix: MixKind }
 
 export const wordVacuum = (f: { cells: number; layout: Int8Array }, store: Int8Array): Configuration => toWords(vacuumConfiguration({ cells: f.cells, store, layout: f.layout }, 'all'))
 
@@ -209,7 +211,7 @@ export type LoneRun = { beats: LoneBeat[]; final: LockedState; mixes: number }
 
 // one open love (or fear) at `slot` of `start`, run `beats` beats of the mixed rule (or the coined rule when `mix` is
 // false), read every beat
-export function loneRun(input: { kind: VetoKind; tables: LockedTables; start: Configuration; slot: number; beats: number; mix: boolean; side: number; husk: readonly number[][] }): LoneRun {
+export function loneRun(input: { kind: VetoKind; tables: LockedTables; start: Configuration; slot: number; beats: number; mix: MixKind; side: number; husk: readonly number[][] }): LoneRun {
   const { kind, tables, start, slot, beats, mix, side, husk } = input
   const seedLine = LINE_OF[slot % 24] as number
   const seedFrame = FRAME_OF_LINE[seedLine] as number
@@ -227,11 +229,12 @@ export function loneRun(input: { kind: VetoKind; tables: LockedTables; start: Co
     return false
   }
   const mt = newMixTally()
+  const lt = newLiftTally()
   let s: LockedState = lockedState(start)
   const out: LoneBeat[] = []
 
   for (let t = 0; t < beats; t++) {
-    s = mix ? mixedVetoBeat(kind, tables, s, t, undefined, undefined, mt) : coinedVetoBeat(kind, tables, s, t)
+    s = mix === 'lift' ? liftedVetoBeat(kind, tables, s, t, undefined, undefined, lt) : mix ? mixedVetoBeat(kind, tables, s, t, undefined, undefined, mt) : coinedVetoBeat(kind, tables, s, t)
 
     const n = lockedNorm(s)
     let offLine = 0
@@ -264,15 +267,15 @@ export function loneRun(input: { kind: VetoKind; tables: LockedTables; start: Co
     out.push({ branches: s.branches.length, offLine, offFrame, offHuskLine, lines: lines.size, huskRank: rank3([...displacements.values()]), normExact: n.total === n.unit })
   }
 
-  return { beats: out, final: s, mixes: mt.mixes }
+  return { beats: out, final: s, mixes: mix === 'lift' ? lt.lifts : mt.mixes }
 }
 
 // the exact inverse of a lone run: true when it returns the start as one branch of amplitude 1
-export function loneRunsBack(input: { kind: VetoKind; tables: LockedTables; start: Configuration; final: LockedState; beats: number; mix: boolean }): boolean {
+export function loneRunsBack(input: { kind: VetoKind; tables: LockedTables; start: Configuration; final: LockedState; beats: number; mix: MixKind }): boolean {
   const { kind, tables, start, final, beats, mix } = input
   let back = final
 
-  for (let t = beats - 1; t >= 0; t--) back = mix ? mixedVetoBeatBack(kind, tables, back, t) : coinedVetoBeatBack(kind, tables, back, t)
+  for (let t = beats - 1; t >= 0; t--) back = mix === 'lift' ? liftedVetoBeatBack(kind, tables, back, t) : mix ? mixedVetoBeatBack(kind, tables, back, t) : coinedVetoBeatBack(kind, tables, back, t)
 
   const b0 = back.branches[0]
 
