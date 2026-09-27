@@ -84,7 +84,7 @@ export default experiment({
   code: 'E-SPN-0071',
   title: 'the spin-statistics mismatch is a love on the scalar line: the 2 pi sign of any role cluster is (-1)^N, N the doublet count (the model\'s fermion number), which differs from the vibe count by the line count; with every role locked into its doublet, as a moving token must be, every charge-one cluster is spinorial and its Pauli ground under any role-blind binding is the natural spin one half',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

@@ -63,7 +63,7 @@ export default experiment({
   title:
     'does composite light thermalize to Planck: the pair modes of two free fear walks keep their occupations exactly, so a bilinear photon relaxes neither to Bose-Einstein nor to Rayleigh-Jeans, and a walk has no Gibbs state to relax to',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

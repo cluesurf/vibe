@@ -40,6 +40,20 @@
 // REPORTED: the half and the tenth on each mesh, the plateau, the one-clock control.
 // Verdict: pass if F0 to F2 hold; fail otherwise.
 //
+// FIRST RUN (tmp/rod-front-run1.log; 79 s, the record): fail on F2 by a hair, on the slow side; no gate moved. F1 holds:
+// the husk alone reads 1.0023 c (half 0.988, tenth 1.040), its line 0.055 beats off the cone. F2: the warped stack reads
+// 0.9798 c, 2.02 percent under c against 2 (never above 1.02 c holds; half 0.947, tenth 1.038). Its third arrives later
+// than the husk alone's at every d, 0.1 beats at d = 2 growing to 2.4 beats at d = 24: the pull through the warped bulk
+// runs at or under light, never ahead of it. THE CAUSE OF THE 2 PERCENT, read in the same run: the header's claim that
+// the stack's front carries the husk's full height is wrong on the mesh. Behind the warped stack's front the level is
+// 0.65 of the husk's height at d = 2 falling to 0.55 at d = 24 (the husk alone 0.95 .. 1.06): the massive modes' wakes
+// pull the level down within beats of the front, not after it, so a third of the husk's height is a larger share of the
+// stack's own step and is reached later, the more so as the front widens with d. A witness taking a third of each mesh's
+// OWN step would remove it; that is a new gate for a new run, not this one. THE CONTROL does what it should: the
+// one-clock stack reads 1.126 c (tenth 1.28 c), its third ahead of the husk alone's from d = 5 on by up to 10.7 beats,
+// so the witness sees a superluminal bulk where there is one. F0 holds: Gauss 0 off in 1,152 beat checks, 0 wraps, every
+// remainder in its window, all six runs reverse bit for bit. Title written after the run.
+//
 // Depth L2: a known construction (a scalar front on a lattice, read by the Airy one-third point) on bounded registers.
 // DETERMINISM: every start and source is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the
 // rule; the rod's hop is a scheduled event.
@@ -69,7 +83,8 @@ const exact = (record: OpenRecord, front: RodFront): boolean => record.gaussOff 
 export default experiment({
   id: 'gravity/rod-front',
   code: 'E-GRV-0104',
-  title: 'TITLE AFTER THE RUN',
+  title:
+    "a front witness calibrated on the husk alone, the time the change behind a hopping rod reaches a third of the front's height (the Airy point, where a dispersive front's smear drops out), reads the husk alone at 1.0023 c where fractions of a maximum read 1.17 to 1.40 c, and reads the warped stack at 0.980 c, never above c but 2.02 percent under against a 2 percent gate, fail on F2 by a hair: the stack's level behind the front is only 0.55 to 0.65 of the husk's height, so a third of the husk's height comes later; the one-clock control reads 1.126 c, so the witness sees a superluminal bulk where there is one; every run exact and reversed bit for bit",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

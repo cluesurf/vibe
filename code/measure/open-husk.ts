@@ -501,9 +501,10 @@ export const stackGreen = (modes: readonly StackMode[], r: number): number => mo
 // d^(1/3) drift that a straight line reads as a speed: the fractions of a MAXIMUM of E-GRV-0101 and 0103 (1.17 c and
 // 1.40 c on the husk alone) are that drift, on a near-field pulse whose maximum itself moves.
 // THE HEIGHT is the husk's static field of the content that left, u / (24 pi d) in depth (the husk mesh's L = 6 p^2).
-// On a stack the front carries every mode (each mode's front is sharp at c, its wake then pulls the level down to the
-// stack's static e^(-m r) / r), so its height is the husk's too; a height off by a fraction e moves the crossing by
-// about e sigma, a d^(1/3) drift of under e / 30 of the speed over d = 4 .. 20.
+// On a stack the continuum argument (each mode's front sharp at c, its wake pulling the level down after it) says the
+// height is the husk's too, BUT MEASURED (E-GRV-0104) the warped stack's level behind the front is only 0.55 .. 0.65 of
+// the husk's: the wakes act within beats. A height off by a fraction e moves the crossing by about e sigma, so the
+// stack's third reads about 2 percent slow; `plateau` reports the level so the reader can see it.
 // THE READING: the change in depth at (-d, 0, 0) is the sum of the change in rate over the beats since the hop (the
 // depth takes the rate each beat; both runs start from the same state), the crossing time is interpolated between
 // beats, and v is 1 / the slope of those times against d.

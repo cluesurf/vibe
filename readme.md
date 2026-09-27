@@ -350,17 +350,24 @@ built since, in order:
 | a growing bulk | lines and radiation drain into a bulk with 8 times the docks per layer, but the pull becomes a Yukawa (cut off exponentially) of range 1.03 docks, because a growing bulk is a leak to ground | [`E-GRV-0094`](test/experiment/gravity/open-husk-static.ts), [`E-GRV-0095`](test/experiment/gravity/open-husk-moving.ts) fail |
 | a shrinking bulk | the $\lbrace3,4,3,4\rbrace$ seen from its husk shrinks inward, as in Randall and Sundrum. 1/r survives at 0.549 of the husk alone's strength (the zero mode's share is 16/31 = 0.516), with a positive short-range correction of 0.34, 0.15, 0.083 at r = 4, 8, 12, with no free number but not Randall and Sundrum's shape (log slope 1.16 against 1.87) | [`E-GRV-0100`](test/experiment/gravity/shrink-husk-static.ts) partial, [`E-GRV-0101`](test/experiment/gravity/shrink-husk-moving.ts) fail |
 | the bulk's clock warped | a layer beats once every $2^\ell$ husk beats. Exact, bounded, same static pull (to 5.0e-5), because a static field has no rate. Randall and Sundrum's shape needs the lapse (the clock-rate factor) inside the link weights as well | [`E-GRV-0102`](test/experiment/gravity/warp-husk-static.ts), [`E-GRV-0103`](test/experiment/gravity/warp-husk-moving.ts) fail |
+| the lapse in the link weights | layer-$\ell$ links store their step $2^\ell$ times finer, so no new register. Exact (force equal to the linear solve to 7.1e-5). 1/r kept at 0.726 of the husk alone's k against 0.751 predicted: the smooth-layer model runs 3% above the lattice on every stack, more than the correction, so the correction's shape is not readable on this box | [`E-GRV-0105`](test/experiment/gravity/lapse-husk-static.ts) fail |
 
-**The front speed on the shrinking bulk is not yet read cleanly.**
-[`E-GRV-0101`](test/experiment/gravity/shrink-husk-moving.ts) read the
-pull's front at 1.26 c and 1.40 c, which GW170817 would rule out.
+**The pull travels at light's speed.**
+[`E-GRV-0101`](test/experiment/gravity/shrink-husk-moving.ts) first read
+the front at 1.26 c and 1.40 c, which GW170817 would rule out, and
 [`E-GRV-0103`](test/experiment/gravity/warp-husk-moving.ts) found the
-husk alone, with no bulk, reads 1.17 c and 1.40 c by the same method,
-so the excess is the method's near-field bias and not a path through
-the bulk. A witness that reads c on the husk alone first is still owed.
+husk alone reads the same by that method: a near-field bias of the
+reading. A calibrated witness
+([`E-GRV-0104`](test/experiment/gravity/rod-front.ts)) sends a rod of 8
+content units one dock, so one front leaves behind it, and times the
+arrival at one third of the static height, the point the husk's
+dispersion leaves exactly at t = d/c. It reads the husk alone at
+1.0023 c, the warped stack at 0.9798 c (never above light), the lapse
+stack at 1.003 c, and the unwarped stack at 1.126 c, so it does catch a
+faster bulk where there is one.
 
 **What this is, stated plainly.** A pull that attracts as 1/r with no
-chosen sign, is causal on the husk, is the same on everything larger
+chosen sign, travels at the speed of light, is the same on everything larger
 than a dock, bends light by 2 and keeps α constant, held in bounded
 registers with the depth found by summing. It is graded L2: the step
 field is an added part of the rule, and the factor 2 follows from the
@@ -369,16 +376,28 @@ realizes. **Open:**
 
 1. the vacuum does not make the depth. The steps are a register added
    to the rule, not a product of the working vacuum
-2. a clean front-speed witness on the shrinking bulk
-3. Randall and Sundrum's short-range shape, which needs the lapse in the
-   link weights (derived, not run)
-4. a clean horizon: a dense lump saturates its step window and slips
-   rather than holding a horizon
-5. matter smaller than a dock, which does not fall alike
-6. the 3.8% energy drift at a depth boundary on the span light
-7. whether the husk's bending is a full spin-2 field
-8. whether the step trits are the content half of flux strings every
-   vibe already drags, which would make gravity no new object
+2. Randall and Sundrum's short-range number, which needs about 8 bulk
+   layers per doubling of scale and distances well past the curvature
+   length: the one-layer stacks hold about a fifth of their own continuum
+   limit ([`E-GRV-0105`](test/experiment/gravity/lapse-husk-static.ts))
+3. a smooth-layer prediction that runs 3% above the lattice stacks
+4. a horizon that scales like Schwarzschild's: a dense lump now has a
+   clean static edge where its flux goes down into the bulk
+   ([`E-GRV-0108`](test/experiment/gravity/torn-husk-static.ts)), but it
+   grows as √M, not M, because the linear depth field does not source
+   itself, and a growing lump leaks its history back out
+   ([`E-GRV-0109`](test/experiment/gravity/torn-husk-growth.ts))
+5. matter that holds its energy in place: the rule carries its own
+   energy's Gauss lines exactly, but a seeded lump's energy spreads
+   ([`E-GRV-0106`](test/experiment/gravity/energy-lines.ts),
+   [`E-GRV-0107`](test/experiment/gravity/energy-line-depth.ts))
+6. matter smaller than a dock, which does not fall alike
+7. the 3.8% energy drift at a depth boundary on the span light
+8. whether the husk's bending is a full spin-2 field, and the field's
+   pull on itself that a Schwarzschild horizon needs
+9. whether the step trits are the flux lines vibes already drag: the
+   energy lines are, with exact Gauss, but their circulation is
+   unbounded unless only the curl-free part (the steps) is kept
 
 **Where the previous readme read otherwise.** It gave gravity as solved: the
 area-law potential giving Newton and the factor two

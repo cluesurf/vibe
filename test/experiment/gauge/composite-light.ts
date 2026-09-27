@@ -38,7 +38,7 @@ export default experiment({
   title:
     'composite light from two fear walks: the pair sector of two free linear walks at total momentum K is the continuum of differences theta(p + K) - theta(p), so a bilinear photon dephases within about one period instead of carrying two transverse modes with a linear dispersion',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

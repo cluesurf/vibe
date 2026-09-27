@@ -155,7 +155,7 @@ export default experiment({
   title:
     "the electron's label is the doublet, tested with stand-ins: two spinor tokens on the husk under the slot's exclusion, with no exchange symmetry put in, against the hypothesis that the moving token's two-valued label and the slot together are Pauli's principle (the whole antisymmetric sector kept, the symmetric one cut, two per orbital)",
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -81,7 +81,7 @@ export default experiment({
   title:
     'Pauli fixes the lightest charge-one cluster, and it is not spin one half: with the loves identical fermions and any binding that does not read the role, a role state of symmetric-group irrep mu pairs only with space mu^T; four qutrits have no antisymmetric state, so (4, 1) is lowest in space [3,1] with role [2,1,1], which holds only a one-dimensional character (2 pi sign +1), and (3, 0) is lowest in space [3] with the role determinant (+1); the natural doublet of (4, 1) sits in role and space [2,2], one oscillator quantum higher and above [3,1] on a ring at every coupling (Lieb-Mattis, checked by Lanczos): the lightest Q = 1 state has odd fermion number and the rotation sign of a boson',
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {

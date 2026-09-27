@@ -38,7 +38,7 @@ export default experiment({
   title:
     'the candidate knit does not work with everything, fail: over 21 properties against the committed and combined knit it gains 6 (all 1,152 coin maps, an energy law, spontaneous rather than explicit breaking, 48 of 48 free lone vibes, the one omega, isotropic husk transport), loses 2 (6 of 14 quantum gates unreadable because its vacuum holds no meeting, no handedness), leaves 3 open (a bounded 82-trit wake, CHSH 2.361 on matter only, 15 of 16 A2 planes split on the hot vacuum), and against H newly fails 10 battery gates and newly passes none',
   category: 'relativity',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -262,7 +262,11 @@ export function shells(mesh: RadionMesh, line: Int8Array, content: Int32Array, c
   })
 }
 
-export type Compressed = { content: Int32Array; line: Int8Array; seconds: number }
+// each unit in the order it was placed: its dock, the sink its line ends at, and the line's links with the sign each
+// changed by (applied in order from no lines, they give `line`: the lump grown one unit at a time, E-GRV-0109)
+export type CompressedUnit = { at: number; sink: number; path: [number, number][] }
+
+export type Compressed = { content: Int32Array; line: Int8Array; seconds: number; units: CompressedUnit[] }
 
 // M units placed one at a time, each at the dock nearest the center (ties by dock index) from which a unit line can still
 // reach a sink with room (breadth first backward over the links with room), and routed there: the densest lump the lines'
@@ -282,6 +286,7 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
   const reach = new Uint8Array(mesh.docks)
   const queue = new Int32Array(mesh.docks)
   const prev = new Int32Array(mesh.docks)
+  const units: CompressedUnit[] = []
   const other = (l: number, sg: number): number => (sg > 0 ? mesh.neighbour[l]! : Math.floor(l / 9))
 
   for (let unit = 0; unit < m; unit++) {
@@ -341,20 +346,23 @@ export function compressLump(mesh: RadionMesh, center: readonly number[], m: num
     }
 
     let z = found
+    const path: [number, number][] = []
 
     while (prev[z] !== -1) {
       const y = Math.floor(prev[z]! / 18)
       const k = prev[z]! % 18
 
       line[inc.link[y * 18 + k]!] = line[inc.link[y * 18 + k]!]! + inc.sign[y * 18 + k]!
+      path.push([inc.link[y * 18 + k]!, inc.sign[y * 18 + k]!])
       z = y
     }
 
     demand[found]!--
     content[from]!++
+    units.push({ at: from, sink: found, path })
   }
 
-  return { content, line, seconds: (Date.now() - t0) / 1000 }
+  return { content, line, seconds: (Date.now() - t0) / 1000, units }
 }
 
 // the distinct torus distances of docks from `center` up to `limit`, ascending

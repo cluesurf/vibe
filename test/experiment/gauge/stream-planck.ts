@@ -293,7 +293,7 @@ export default experiment({
   title:
     "Planck from a light in the signed whole: a STAND-IN ladder mode meeting a thermal stream of STAND-IN emitters through the fear beat's weights reaches Bose-Einstein occupations exactly by detailed balance, because the meeting emits into an empty mode (Einstein's A); the semiclassical light makes no light at all",
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {

@@ -119,7 +119,7 @@ export default experiment({
   title:
     "what forces the spinor token's g = 2, a STAND-IN: exactly, in Eisenstein integers, over every schedule of up to 16 beats, neither the husk's turns (a covariant schedule is massless), nor isotropy, nor CPT with the shortest period fixes g (isotropic classes read g = 4, 0, 4/3, 2, 1, the shortest g = 4 at 7 beats); the Dirac square root, no ordering term T = 0, forces g = 2 by theorem, and with CPT and the shortest period it forces the schedule: the 16-beat nested palindrome, the one class",
   category: 'spin',
-  substrates: ['3434'],
+  substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
