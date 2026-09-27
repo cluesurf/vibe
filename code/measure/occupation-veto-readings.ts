@@ -7,24 +7,127 @@
 // (beat, dock, line), code/measure/doublet-locked-readings exchangeAt: threshold 0 keeps always (the old history), 65536
 // exchanges always (the heaviest single term), 49152 exchanges at the Born rate 3/4. A path is one term of the sum.
 //
+// WITH THE COIN (E-RLT-0104, E-RLT-0105): `coin` true runs the covariant coin of code/rule/coined-locked-knit on the
+// path before the meeting, as that rule orders its beat. A line holding one OPEN vibe and an empty slot keeps it or
+// hands it to the line's other slot, and the path decides which by the same keyed Weyl number as the meeting
+// (exchangeAt on beat, dock, line): the coin's cross weight |(1 - w)/2|^2 is 3/4 and its keep weight 1/4, the meeting's
+// own, so threshold 0 keeps always, 49152 crosses at the Born rate and 65536 always. A line is half full or full at
+// one beat, never both, so the coin and the meeting never read one key twice. With `coin` false (the default) every
+// reading here is the one it was before.
+//
 // NOTHING MOVES: every reading compares values the stream took.
 
-import { cloneConfiguration, streamConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import { cloneConfiguration, lockedTables, streamConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
 import { collideVeto, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { pathMeet, streamInto, tritsApart, newPathTally, type PathRunner, type PathTally } from '@/code/measure/doublet-locked-readings'
+import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
+import { exchangeAt, lockedFresh, pathMeet, streamInto, tritsApart, newPathTally, THRESHOLD_KEEP, type LockedFresh, type PathRunner, type PathTally } from '@/code/measure/doublet-locked-readings'
 import { type Replay } from '@/code/measure/causal-components'
-import { LINE_OF } from '@/code/rule/isometric-knit'
+import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
 
-export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, phase = 0): PathRunner {
+// the fresh vacuum weave with the rule's tables on a chosen like contact: 'lone' (the knit's own bounce, u = -1) or
+// 'pass' (E-SPN-0092, u = +1)
+export function contactFresh(side: number, contact: CollisionKind, anchor = 0): LockedFresh {
+  const f = lockedFresh(side, anchor)
+
+  return { ...f, tables: lockedTables(f.weave, contact) }
+}
+
+// The two vacuum vibes of the rule's OWN first like meeting with unequal points (E-RLT-0102, E-RLT-0103), named without
+// an id run: the classical history of `vacuum` (no open vibe, the keep path, which is the no-open rule) is scanned for
+// the first line of two like vibes with unequal points; those two are marked open and the rule is run back to beat 0,
+// where the exact inverse leaves the two marks on the stored pairs they came from. So the pick is the rule's own, even
+// where its history is not the old knit's. `clean` says the run back returned the vacuum's occupation and words exactly.
+export function likePairStart(kind: VetoKind, tables: LockedTables, vacuum: Configuration, search: number): { start: Configuration; beat: number; clean: boolean } | undefined {
+  const run = vetoPathRunner(kind, tables, vacuum, THRESHOLD_KEEP)
+
+  for (let t = 0; t <= search; t++) {
+    const c = run.state()
+
+    for (let x = 0; x < tables.cells; x++) {
+      for (let l = 0; l < 12; l++) {
+        const i = x * 24 + (LINE_FIRSTS[l] as number)
+        const j = x * 24 + (OPPOSITE[LINE_FIRSTS[l] as number] as number)
+
+        if (c.vibe[i] === 0 || c.vibe[i] !== c.vibe[j] || c.point[i] === c.point[j]) continue
+
+        const marked = cloneConfiguration(c)
+
+        marked.open.fill(0)
+        marked.sopen.fill(0)
+        marked.open[i] = 1
+        marked.open[j] = 1
+
+        const back = vetoPathRunner(kind, tables, marked, THRESHOLD_KEEP, t)
+
+        for (let k = 0; k < t; k++) back.back()
+
+        const start = cloneConfiguration(back.state())
+        let clean = true
+        let marks = 0
+
+        for (let s = 0; s < start.vibe.length && clean; s++) clean = start.vibe[s] === vacuum.vibe[s]
+        for (let s = 0; s < start.store.length && clean; s++) {
+          clean = start.store[s] === vacuum.store[s] && (start.store[s] === 0 || start.spoint[s] === vacuum.spoint[s])
+          const o = start.sopen[s] as number
+
+          marks += (o & 1) + (o >> 1)
+        }
+
+        return { start, beat: t, clean: clean && marks === 2 }
+      }
+    }
+
+    run.beat()
+  }
+
+  return undefined
+}
+
+// the coin on a path at beat t: every line of one open vibe and an empty slot hands the vibe (value, point, open bit)
+// to the other slot where the path's key says cross; its own inverse (the line stays half full). Returns the crosses.
+export function pathCoin(tables: LockedTables, c: Configuration, threshold: number, t: number): number {
+  let crossed = 0
+
+  for (let x = 0; x < tables.cells; x++) {
+    for (let l = 0; l < 12; l++) {
+      const i = x * 24 + (LINE_FIRSTS[l] as number)
+      const j = x * 24 + (OPPOSITE[LINE_FIRSTS[l] as number] as number)
+      const hi = c.vibe[i] !== 0
+      const hj = c.vibe[j] !== 0
+
+      if (hi === hj) continue
+
+      const from = hi ? i : j
+      const to = hi ? j : i
+
+      if (!c.open[from] || !exchangeAt(threshold, tables.cells, t, x, l)) continue
+
+      c.vibe[to] = c.vibe[from] as number
+      c.point[to] = c.point[from] as number
+      c.open[to] = c.open[from] as number
+      c.vibe[from] = 0
+      c.point[from] = 0
+      c.open[from] = 0
+      crossed++
+    }
+  }
+
+  return crossed
+}
+
+export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, phase = 0, coin = false): PathRunner & { crossed: () => number } {
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let t = phase
+  let crossed = 0
   const col = { made: 0, unmade: 0, vetoed: 0, likeMeetings: 0, splitMeetings: 0, phaseMeetings: 0, unlikeMeetings: 0, merged: 0 }
 
   return {
     state: () => a,
     time: () => t,
+    crossed: () => crossed,
     beat: (tally?: PathTally) => {
+      if (coin) crossed += pathCoin(tables, a, threshold, t)
       pathMeet(tables, a, threshold, t, tally)
       col.made = 0
       col.unmade = 0
@@ -50,18 +153,20 @@ export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Conf
       streamConfiguration(tables, a, true)
       collideVeto(kind, tables, a, t, true)
       pathMeet(tables, a, threshold, t)
+      if (coin) pathCoin(tables, a, threshold, t)
     },
   }
 }
 
 // a path as a replay for code/measure/causal-components causalRun
-export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number): Replay & { state: () => Configuration } {
+export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, coin = false): Replay & { state: () => Configuration } {
   let c = cloneConfiguration(start)
 
   return {
     cells: tables.cells,
     state: () => c,
     collide(t) {
+      if (coin) pathCoin(tables, c, threshold, t)
       pathMeet(tables, c, threshold, t)
       collideVeto(kind, tables, c, t, false)
     },
@@ -93,8 +198,8 @@ export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Conf
 }
 
 // the vacuum's path history, one configuration per beat after the stream
-export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Configuration, threshold: number, beats: number): { states: Configuration[]; tally: PathTally } {
-  const v = vetoPathRunner(kind, tables, vacuum, threshold)
+export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Configuration, threshold: number, beats: number, coin = false): { states: Configuration[]; tally: PathTally } {
+  const v = vetoPathRunner(kind, tables, vacuum, threshold, 0, coin)
   const tally = newPathTally()
   const states: Configuration[] = []
 
@@ -107,14 +212,14 @@ export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Conf
 }
 
 // the lone wake along a path (E-RLT-0084's B6): worst trits apart per 24-beat period, and trits off the seed's line
-export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacuum: Configuration; track: readonly Configuration[]; seedSlot: number; tone: number; threshold: number; beats: number }): { worst: number[]; offLine: number } {
-  const { kind, tables, vacuum, track, seedSlot, tone, threshold, beats } = input
+export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacuum: Configuration; track: readonly Configuration[]; seedSlot: number; tone: number; threshold: number; beats: number; coin?: boolean }): { worst: number[]; offLine: number } {
+  const { kind, tables, vacuum, track, seedSlot, tone, threshold, beats, coin = false } = input
   const start = cloneConfiguration(vacuum)
 
   start.vibe[seedSlot] = tone
   start.open[seedSlot] = 1
 
-  const s = vetoPathRunner(kind, tables, start, threshold)
+  const s = vetoPathRunner(kind, tables, start, threshold, 0, coin)
   const line = LINE_OF[seedSlot % 24] as number
   const worst = [0, 0, 0, 0]
   let offLine = 0
@@ -242,4 +347,80 @@ export function readVetoWall(input: {
   for (let x = 0; x < cells; x++) endCount += end[x] as number
 
   return { windows, endDocks: endCount, ...out, frozen, passes: out.outside.every(v => v === 0) && out.grew.every(v => v === 0) }
+}
+
+// ---- one dock on its own (E-RLT-0102): the collision reads and writes one dock only, so a dock is a configuration ----
+
+const SLOT_SIDE: readonly number[] = LINE_OF.map((l, d) => (LINE_FIRSTS[l] === d ? 0 : 1))
+
+// dock x of a configuration as a one-dock configuration
+export function dockOf(c: Configuration, x: number): Configuration {
+  return {
+    vibe: c.vibe.slice(x * 24, x * 24 + 24),
+    point: c.point.slice(x * 24, x * 24 + 24),
+    open: c.open.slice(x * 24, x * 24 + 24),
+    store: c.store.slice(x * 12, x * 12 + 12),
+    spoint: c.spoint.slice(x * 12, x * 12 + 12),
+    sopen: c.sopen.slice(x * 12, x * 12 + 12),
+  }
+}
+
+// a dock's content as a key (held points and stored words only: an empty slot's stale point is not content)
+export function dockKey(c: Configuration): string {
+  const parts: number[] = []
+
+  for (let d = 0; d < 24; d++) parts.push(c.vibe[d] === 0 ? 0 : (c.vibe[d] as number) * 32 + (c.point[d] as number) * 2 + (c.open[d] as number))
+  for (let l = 0; l < 12; l++) parts.push(c.store[l] === 0 ? 0 : (c.store[l] as number) * 1024 + (c.spoint[l] as number) * 4 + (c.sopen[l] as number))
+
+  return parts.join(',')
+}
+
+export const sameDock = (a: Configuration, b: Configuration): boolean => dockKey(a) === dockKey(b)
+
+// a coin map g (a permutation of the 24 slots) on a dock: every slot's vibe, point and open bit to slot g[d]; a line's
+// stored pair to the image line, and where g carries the line's first slot onto the image's second the stored unit is
+// read from the other side: its trit negates, its two points swap in the word, its two open bits swap
+export function slotMapDock(c: Configuration, g: readonly number[]): Configuration {
+  const out: Configuration = { vibe: new Int8Array(24), point: new Int8Array(24), open: new Uint8Array(24), store: new Int8Array(12), spoint: new Int8Array(12), sopen: new Uint8Array(12) }
+
+  for (let d = 0; d < 24; d++) {
+    const e = g[d] as number
+
+    out.vibe[e] = c.vibe[d] as number
+    out.point[e] = c.point[d] as number
+    out.open[e] = c.open[d] as number
+  }
+
+  for (let l = 0; l < 12; l++) {
+    const e = g[LINE_FIRSTS[l] as number] as number
+    const m = LINE_OF[e] as number
+    const flipped = SLOT_SIDE[e] === 1
+    const w = c.spoint[l] as number
+    const o = c.sopen[l] as number
+
+    out.store[m] = flipped ? -(c.store[l] as number) : (c.store[l] as number)
+    out.spoint[m] = flipped ? 9 * (w % 9) + ((w / 9) | 0) : w
+    out.sopen[m] = flipped ? ((o & 1) << 1) | (o >> 1) : o
+  }
+
+  return out
+}
+
+// charge conjugation on a dock: every vibe and store trit negated, points and words kept
+export function conjugateDock(c: Configuration): Configuration {
+  const out = cloneConfiguration(c)
+
+  for (let d = 0; d < 24; d++) out.vibe[d] = -(c.vibe[d] as number)
+  for (let l = 0; l < 12; l++) out.store[l] = -(c.store[l] as number)
+
+  return out
+}
+
+// the collision of beat `beat` (or its inverse) on a one-dock configuration, a fresh copy
+export function collideDock(kind: VetoKind, tables: LockedTables, c: Configuration, beat: number, inverse: boolean, tally?: { made: number; unmade: number; vetoed: number; likeMeetings: number; splitMeetings: number; phaseMeetings: number; unlikeMeetings: number; merged: number }): Configuration {
+  const out = cloneConfiguration(c)
+
+  collideVeto(kind, { ...tables, cells: 1 }, out, beat, inverse, tally)
+
+  return out
 }

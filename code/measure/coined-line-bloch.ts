@@ -29,7 +29,12 @@ import { boxSpec, inverseIterate, lightN, tailWeight } from '@/code/measure/drif
 
 export type Statistics = 'fermion' | 'native' | 'token'
 export type Flavors = readonly [number, number, number]
-export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number }
+// `unit` (E-SPN-0093): the like contact's lift on a full line as the sixth root e^(i pi unit / 3), in place of the
+// statistics' own (fermion: 3, the bounce's -1; native and token: 0). The passing knit is 'fermion' with unit 0.
+export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number }
+
+// the contact unit a sector uses: its own, or its statistics' default
+export const contactUnit = (sector: LineSector): number => sector.unit ?? (sector.statistics === 'fermion' ? 3 : 0)
 
 // a token: position, label (0 forward, 1 back), flavor
 type Token = { x: number; j: number; f: number }
@@ -138,7 +143,11 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
       // det C, the meeting, the flip
       amp = cmul(amp, OMEGA)
       amp = cmul(amp, OMEGA)
-      if (sector.statistics === 'fermion') amp = [-amp[0], -amp[1]]
+
+      const u = contactUnit(sector) % 6
+
+      if (u === 3) amp = [-amp[0], -amp[1]]
+      else if (u !== 0) amp = cmul(amp, [Math.cos((Math.PI * u) / 3), Math.sin((Math.PI * u) / 3)])
     }
   }
 
@@ -448,6 +457,12 @@ export function contactPhase(statistics: Statistics): number {
   return statistics === 'fermion' ? Math.PI / 3 : (-2 * Math.PI) / 3
 }
 
+// the same for a sector with its contact unit: the principal value of -(2 pi/3 + pi unit/3) (fermion: pi/3, token and
+// native: -2 pi/3, as contactPhase)
+export function contactEnergy(sector: LineSector): number {
+  return wrapE((2 * Math.PI) / 3 + (Math.PI * contactUnit(sector)) / 3)
+}
+
 function fullDocks(ts: readonly Token[]): number {
   let n = 0
 
@@ -478,7 +493,7 @@ export function lineLightest(basis: LineBasis, sub: SubBasis): LineLightest {
   const read = branchReader(b, 2 * basis.sector.box + 6)
   const N = lightN(basis.sector.D)
   const sigma = Math.PI / N
-  const ec = contactPhase(basis.sector.statistics)
+  const ec = contactEnergy(basis.sector)
   let best: LineLevel | undefined
   let next = Number.NaN
   let particleLevels = 0

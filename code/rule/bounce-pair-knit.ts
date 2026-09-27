@@ -70,7 +70,11 @@ const OPPOSITE_SLOT = Int32Array.from(OPPOSITE)
 
 // 'bounce': B on every dock. 'lone': B on a dock holding at most one single line, K on every other dock.
 // 'isometric': K (the living-pair knit, the control and the reference)
-export type CollisionKind = 'bounce' | 'lone' | 'isometric'
+// 'pass' (E-SPN-0092): 'lone' with one change, on B's docks a full line holding two LIKE vibes (two loves or two fears)
+// keeps its slots (+1) where B turns it (-1). A love and a fear on a full line still turn. The occupation (and the
+// charge on every slot) is B's exactly; only which of two like vibes sits on which slot differs, which is the
+// fermion sign's business and, where the two carry different points, the points'. K's docks are unchanged.
+export type CollisionKind = 'bounce' | 'lone' | 'isometric' | 'pass'
 
 // The dock permutation of B (or of K) for the dock's occupation (vibe[base .. base + 23], read as held or not),
 // written into `out` (out[d] is the slot slot d is copied to). Returns 0 when the permutation is the identity, 1 when
@@ -107,7 +111,7 @@ export function bouncePermutation(table: MomentumTable, kind: CollisionKind, vib
 
   const w = table[momentumKey([p0, p1, p2, p3])]
 
-  if (kind === 'isometric' || (kind === 'lone' && singles > 1)) {
+  if (kind === 'isometric' || ((kind === 'lone' || kind === 'pass') && singles > 1)) {
     if (!w) return 0
 
     for (let d = 0; d < 24; d++) out[d] = w[d] as number
@@ -127,8 +131,9 @@ export function bouncePermutation(table: MomentumTable, kind: CollisionKind, vib
 
   for (let d = 0; d < 24; d++) {
     const l = LINE_OF_SLOT[d] as number
+    const passes = kind === 'pass' && vibe[base + d] === vibe[base + (OPPOSITE_SLOT[d] as number)]
 
-    out[d] = (full >> l) & 1 ? (OPPOSITE_SLOT[d] as number) : w && keeps ? (w[d] as number) : d
+    out[d] = (full >> l) & 1 ? (passes ? d : (OPPOSITE_SLOT[d] as number)) : w && keeps ? (w[d] as number) : d
   }
 
   return w && keeps ? 1 : 2

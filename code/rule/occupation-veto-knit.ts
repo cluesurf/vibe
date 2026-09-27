@@ -47,7 +47,8 @@ import { cloneConfiguration, mergeBranches, streamConfiguration, times, type Bra
 
 const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
 
-export type VetoKind = 'point' | 'occupation' | 'pairing'
+// 'none' (no veto at all, the two-point store) is a probe of E-RLT-0101's lead, not one of the two candidates
+export type VetoKind = 'point' | 'occupation' | 'pairing' | 'none'
 
 export const VETO_KINDS: readonly VetoKind[] = ['point', 'occupation', 'pairing']
 
@@ -72,7 +73,7 @@ const FEARS = new Int32Array(9)
 
 // true when the pair move may act at dock x (the per-line point test of the old veto is applied inside the move)
 export function dockAllows(kind: VetoKind, c: Configuration, x: number): boolean {
-  if (kind === 'point') return true
+  if (kind === 'point' || kind === 'none') return true
 
   const base = x * 24
   const lineBase = x * 12

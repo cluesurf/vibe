@@ -28,6 +28,10 @@
 // runs with the sign on). A dock whose collision makes or unmakes a pair would need the store's sign convention, which
 // is not written; the code refuses rather than guess.
 //
+// THE CONTACT (E-SPN-0092, 0093): with tables built on collision 'pass' (code/rule/bounce-pair-knit) a full line of two
+// like vibes keeps its slots instead of turning, so under the fermion sign its lift is +1 where the bounce's is -1, and
+// the like contact costs the meeting's w alone. Nothing in this file changes: the sign reads the tables' collision.
+//
 // ONE BEAT t: the coin, then the locked knit's beat (meetings, collision, stream), with the fermion sign of the
 // collision and stream of each branch. The inverse: the locked knit's inverse beat, the same sign, the adjoint coin.
 //
@@ -37,6 +41,7 @@
 import { LINE_FIRSTS, LINE_OF, OPPOSITE, SIDE } from '@/code/rule/isometric-knit'
 import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
 import { lockedBeat, lockedBeatBack, mergeBranches, times, type Branch, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
+import { vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
 
 const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
 
@@ -212,6 +217,26 @@ export function coinedBeat(t: LockedTables, s: LockedState, beat: number, option
   if (options.fermion) mid = signed(t, mid)
 
   return lockedBeat(t, mid, beat, tally)
+}
+
+// THE COIN ON THE NO-VETO STORE (E-RLT-0104, E-RLT-0105): the same composition with the beat of code/rule/
+// occupation-veto-knit (a chosen veto, 'none' for the working vacuum) in place of the locked knit's, so the coin, then
+// the meetings, the veto's collision and the stream. No fermion sign: it is not written for a configuration holding a
+// store (fermionSign refuses), so this is the configuration code plus the coin ('native' in E-SPN-0091).
+export function coinedVetoBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally, coinTally?: CoinTally): LockedState {
+  const coined: Branch[] = []
+
+  for (const br of s.branches) coined.push(...coinBranch(t.cells, cloneBranch(br), false, coinTally))
+
+  return vetoBeat(kind, t, { branches: mergeBranches(coined) }, beat, tally)
+}
+
+export function coinedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number): LockedState {
+  const out: Branch[] = []
+
+  for (const br of vetoBeatBack(kind, t, s, beat).branches) out.push(...coinBranch(t.cells, cloneBranch(br), true))
+
+  return { branches: mergeBranches(out) }
 }
 
 export function coinedBeatBack(t: LockedTables, s: LockedState, beat: number, options: CoinOptions): LockedState {

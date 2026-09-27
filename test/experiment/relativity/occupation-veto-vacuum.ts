@@ -40,6 +40,19 @@
 // and holds Q2, Q3, Q4, Q7 on every start; partial if some veto keeps the vacuum but loses one of Q2, Q3, Q4, Q7; fail if
 // no veto keeps the vacuum. PREDICTED: partial (A keeps the vacuum and loses Q4; B keeps neither).
 //
+// FIRST RUN (7,360 s on a shared machine, tmp/rlt101-run1.log): fail, no gate moved. Occupation veto: G1 to G5 and G7
+// on 51 of 51 (made = unmade = 393,216, vetoed 147,456, identical on every path and start, as the theorem says), G6 on
+// 0 of 51 (wake about 41,000 trits a period, about 1.4e8 off the line, the same on every path: the wake is a
+// classical failure of the veto, not a branch effect); Q2 17, Q3 17, Q4 0 (as predicted), Q7 17 (the keep term reads
+// 1/4, 1/16, 1/16 after its 1st, 2nd and 3rd meeting, 31/64 on integer+11). Pairing veto: G1 to G4 on 51, G5 and G7 on
+// the keep path only (17 of 51), G6 on 0 of 51; Q2, Q3, Q4 on 17 (up to 6,917 occupations), Q7 on 0 (the keep term
+// reads exactly 1/4, 1/16, 1/64). G6 was NOT predicted to fail under A. Calibration after the run (tmp/ov-probe3,
+// integer+0, 4 directions): the same wake reader reads 13 to 15 trits, 0 off the line, under the point veto, and under
+// A the wake grows 12, 16, 97, 126, 150, 385, 638, 797 trits in the first eight beats. A lead, probed after the run and
+// NOT gated (tmp/ov-probe4, integer+0): with no veto at all and the two-point store the occupation is again one history
+// on every path, the vacuum makes 466,944 pairs and unmakes 466,944 (not the old vacuum's 393,216), and the lone wake is
+// 13 to 15 trits with 0 off the line, love and fear. Title written after the run.
+//
 // DETERMINISM: no random numbers; starts are E-MTH-0028's family; path choices are integer Weyl numbers of the key. The
 // rule is exact in Z[w]; the Schmidt weights and CHSH are floats (measurement). Depth L2. Husk first: G4 and G7 are read
 // on husk columns; the rest are bulk identities or counts that hold on every column by holding on every dock.
@@ -345,7 +358,8 @@ function likeStudy(kind: VetoKind, f: LockedFresh): Study {
 export default experiment({
   id: 'relativity/occupation-veto-vacuum',
   code: 'E-RLT-0101',
-  title: 'the coset-union vacuum and the quantum readings under the exchange-blind vetoes (title written after the first run)',
+  title:
+    'the coset-union vacuum under the two exchange-blind vetoes, fail: the occupation veto keeps the vacuum on every term (one occupation history on the keep, Born and exchange paths, pairs made = unmade = 393,216, 0 free vibes, frozen C walls, laws, reversal, C and one causal component, 51 of 51) but a single charged vibe melts it (the lone wake grows 12, 16, 97, 126 trits in four beats to about 41,000, 1.4e8 off its line, on every path and start), because a lone vibe charges its dock, the frozen pair move leaves an unmatched vibe, and that charges the next dock; the pairing veto melts the vacuum on the Born and exchange paths as the old one did (13,409 made against 1,165 unmade) and melts on a lone vibe too; the quantum readings split: the like knot is sqrt 7 and the rule exact under both, but under the occupation veto positions carry no amplitude (1 occupation, 17 of 17, the price the autonomy theorem names) while the keep term still interferes (1/16 after three meetings against the dephased 1/64), and under the pairing veto positions carry amplitude (up to 6,917 occupations) but the keep term reads exactly the dephased (1/4)^m',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
