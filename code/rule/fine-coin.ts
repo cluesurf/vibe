@@ -34,8 +34,30 @@
 // = 1). It commutes with the fine coin (the coin keeps every line's occupation) and moves nothing, so the line law
 // and the light cone are the fine coin's.
 //
+// THE STRING SETS THE COIN (E-SPN-0109, `heavy`). A dock whose lines take the heavy coin w in place of zeta: on the count
+// a heavy line steps u by n where a fine one steps it by 1, so its keep is half at u and half at u + n (one wrap: (1 +
+// w)/2), its cross (1 - w)/2 and a full heavy line's det C one wrap, w. The coins are one family, C(beta) = P+ + beta P-,
+// with C(zeta)^n = C(w), so the heavy coin is the fine coin's n-th power on the same count. Which docks are heavy is read
+// by the caller from the string's flux trits (bagHeavy below, code/rule/bound-line-pieces bagPositions), which the coin
+// never changes: it keeps every dock's occupation and writes no trit. So on each configuration the coin is a fixed
+// product of per-dock unitaries (a controlled unitary, the control diagonal and untouched), and its inverse reads the
+// same docks and takes each one's adjoint. At n = 1 heavy and fine are one coin.
+//
 // NOTHING MOVES: the coin copies a vibe to the other slot of its own line on its own dock; the count is a register the
 // coin writes. Exact in Z[w][1/2] per count, no float, no rounding, no random number.
+
+// how a dock's two string links set its coin (E-SPN-0109), each link read as "carries nonzero flux":
+//   touch   heavy when either link carries flux (a love's own string touches it)
+//   inside  heavy when both links carry flux (the dock strictly inside the string)
+//   rim     heavy unless both links carry flux (the mirror: light inside the string, heavy at its ends and beyond)
+export type Bag = 'touch' | 'inside' | 'rim'
+
+export function bagHeavy(bag: Bag, left: boolean, right: boolean): boolean {
+  if (bag === 'touch') return left || right
+  if (bag === 'inside') return left && right
+
+  return !(left && right)
+}
 
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { LINE_SECONDS } from '@/code/rule/coined-locked-knit'
@@ -61,16 +83,18 @@ export function carry(b: Branch, u: number, step: number, n: number): number {
 }
 
 // the fine coin (or its adjoint) on one branch at count u: the branches it becomes, each with its count; with
-// `fullDock` the full-dock correction D is taken with it (a full line steps u by n, one wrap, in place of 1)
-export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, adjoint: boolean, fullDock = false): { b: Branch; u: number }[] {
+// `fullDock` the full-dock correction D is taken with it (a full line steps u by n, one wrap, in place of 1); every
+// line on a dock in `heavy` (E-SPN-0109) takes the heavy coin w, n steps in place of 1
+export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, adjoint: boolean, fullDock = false, heavy?: ReadonlySet<number>): { b: Branch; u: number }[] {
   if (!Number.isInteger(n) || n < 1) throw new Error(`fine-coin: n must be a positive integer, got ${n}`)
 
   const dir = adjoint ? -1 : 1
-  const halves: { from: number; to: number }[] = []
-  let full = 0
+  const halves: { from: number; to: number; step: number }[] = []
+  let fullSteps = 0
 
   for (let x = 0; x < cells; x++) {
     const base = x * 24
+    const step = heavy !== undefined && heavy.has(x) ? n : 1
 
     for (let l = 0; l < 12; l++) {
       const i = base + (LINE_FIRSTS[l] as number)
@@ -79,12 +103,12 @@ export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, 
       const hj = br.vibe[j] !== 0
 
       if (hi && hj) {
-        if (br.open[i] && br.open[j]) full++
+        if (br.open[i] && br.open[j]) fullSteps += fullDock ? n : step
         continue
       }
 
-      if (hi && br.open[i]) halves.push({ from: i, to: j })
-      else if (hj && br.open[j]) halves.push({ from: j, to: i })
+      if (hi && br.open[i]) halves.push({ from: i, to: j, step })
+      else if (hj && br.open[j]) halves.push({ from: j, to: i, step })
     }
   }
 
@@ -92,10 +116,10 @@ export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, 
 
   const out: { b: Branch; u: number }[] = []
 
-  // per half-full line two bits: crossed, and stepped (the zeta term)
+  // per half-full line two bits: crossed, and stepped (the zeta term, or w on a heavy dock)
   for (let mask = 0; mask < 1 << (2 * halves.length); mask++) {
     const b = copyBranch(br)
-    let steps = fullDock ? full * n : full
+    let steps = fullSteps
     let negative = false
 
     halves.forEach((h, m) => {
@@ -112,7 +136,7 @@ export function fineCoinBranch(cells: number, br: Branch, u: number, n: number, 
       }
 
       if (stepped) {
-        steps++
+        steps += h.step
         if (crossed) negative = !negative
       }
     })

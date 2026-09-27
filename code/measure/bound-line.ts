@@ -20,7 +20,8 @@
 import { lockedNorm, norm, sameConfiguration, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
 import { coinedVetoBeat } from '@/code/rule/coined-locked-knit'
 import { toWords } from '@/code/rule/occupation-veto-knit'
-import { boundBeat, boundBeatBack, boundStart, CLOCK, cutCrossing, fluxLinks, lineSign, slantLinks, type BoundOptions, type BoundState } from '@/code/rule/bound-line-pieces'
+import { bagPositions, boundBeat, boundBeatBack, boundStart, CLOCK, cutCrossing, fluxLinks, lineSign, slantLinks, type BoundOptions, type BoundState } from '@/code/rule/bound-line-pieces'
+import { bagHeavy } from '@/code/rule/fine-coin'
 import { fineCoin, ringKey } from '@/code/measure/coined-line-bloch'
 import { dockEnergies } from '@/code/measure/energy-lines'
 import { boxHusk, type BoxHusk } from '@/code/measure/causal-components'
@@ -84,12 +85,17 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
   const L = ring.docks.length
   const out: CutState = new Map()
   // the coin's entries: the working coin's, or the fine coin's (E-SPN-0107), a full dock kept at w by the full-dock
-  // correction (E-SPN-0108)
+  // correction (E-SPN-0108), or chosen per dock by the string's flux (E-SPN-0109: the heavy coin w where `bag` says)
   const fine = options.fine === undefined ? undefined : fineCoin(options.fine)
-  const coin = fine === undefined ? { keep: KEEP, cross: CROSS, det: W } : options.fullDock ? { ...fine, det: W } : fine
+  const light = fine === undefined ? { keep: KEEP, cross: CROSS, det: W } : options.fullDock ? { ...fine, det: W } : fine
+  const heavy = { keep: KEEP, cross: CROSS, det: W }
+
+  if (options.bag !== undefined && fine === undefined) throw new Error('bound-line: the bag needs `fine`')
 
   for (const { ts, c, amp } of state.values()) {
     let start = amp
+    const heavyAt = options.bag === undefined ? undefined : bagPositions(L, ts, c, options.bag)
+    const coinOf = (x: number): typeof light => (heavyAt !== undefined && heavyAt.has(x) ? heavy : light)
 
     if (options.cost && !options.slant) {
       const th = (-2 * Math.PI * fluxLinks(L, ts, c)) / CLOCK
@@ -102,6 +108,7 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
     for (const x of [...new Set(ts.map(t => t.x))]) {
       const at = ts.map((t, i) => (t.x === x ? i : -1)).filter(i => i >= 0)
       const next: typeof pieces = []
+      const coin = coinOf(x)
 
       for (const piece of pieces) {
         if (at.length === 1) {
@@ -157,7 +164,7 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
 
       if (options.sign && lineSign(L, piece.ts) < 0) a = [-a[0], -a[1]]
 
-      const c1 = options.cost ? (((c + cutCrossing(L, piece.ts)) % 3) + 3) % 3 : c
+      const c1 = options.cost || options.bag !== undefined ? (((c + cutCrossing(L, piece.ts)) % 3) + 3) % 3 : c
       const moved = piece.ts.map(t => {
         const slot = (ring.docks[t.x] as number) * 24 + (t.j === 0 ? ring.first : ring.second)
 
@@ -421,10 +428,18 @@ export function fluxStart(L: number, loves: readonly { ts: readonly (readonly [n
   return out
 }
 
+// with `fine` the fine coin (a full dock at w under `fullDock`), and with `bag` (E-SPN-0109) the heavy coin w on a dock
+// whose two links' trits, read from the full register, say so (code/rule/fine-coin bagHeavy)
 export function fluxBeat(options: BoundOptions, L: number, state: FluxState): FluxState {
   const out: FluxState = new Map()
+  const fine = options.fine === undefined ? undefined : fineCoin(options.fine)
+  const light = fine === undefined ? { keep: KEEP, cross: CROSS, det: W } : options.fullDock ? { ...fine, det: W } : fine
+  const heavy = { keep: KEEP, cross: CROSS, det: W }
+
+  if (options.bag !== undefined && fine === undefined) throw new Error('bound-line: the bag needs `fine`')
 
   for (const { ts, f, amp } of state.values()) {
+    const coinOf = (x: number): typeof light => (options.bag !== undefined && bagHeavy(options.bag, f[(x - 1 + L) % L] !== 0, f[x] !== 0) ? heavy : light)
     let start = amp
 
     if (options.cost) {
@@ -442,19 +457,20 @@ export function fluxBeat(options: BoundOptions, L: number, state: FluxState): Fl
     for (const x of [...new Set(ts.map(t => t.x))]) {
       const at = ts.map((t, i) => (t.x === x ? i : -1)).filter(i => i >= 0)
       const next: typeof pieces = []
+      const coin = coinOf(x)
 
       for (const piece of pieces) {
         if (at.length === 2) {
-          next.push({ ts: piece.ts, amp: cm(cm(piece.amp, W), W) })
+          next.push({ ts: piece.ts, amp: cm(cm(piece.amp, coin.det), W) })
           continue
         }
 
         const i = at[0] as number
         const crossed = piece.ts.map(t => ({ ...t }))
 
-        next.push({ ts: piece.ts, amp: cm(piece.amp, KEEP) })
+        next.push({ ts: piece.ts, amp: cm(piece.amp, coin.keep) })
         crossed[i]!.j = 1 - crossed[i]!.j
-        next.push({ ts: crossed, amp: cm(piece.amp, CROSS) })
+        next.push({ ts: crossed, amp: cm(piece.amp, coin.cross) })
       }
 
       pieces = next

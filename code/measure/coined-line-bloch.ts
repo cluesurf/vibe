@@ -27,6 +27,8 @@ import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
 import { blochSpace, branchReader, quartetShare, stringMoments, type Bloch } from '@/code/measure/flux-store-bloch'
 import { boxSpec, inverseIterate, lightN, tailWeight } from '@/code/measure/drift-cost-bloch'
 import { complexEigenvalues, complexEigenvector } from '@/code/algebra/linear/complex-eigen'
+import { bagPositions } from '@/code/rule/bound-line-pieces'
+import { type Bag } from '@/code/rule/fine-coin'
 
 export type Statistics = 'fermion' | 'native' | 'token'
 export type Flavors = readonly [number, number, number]
@@ -51,7 +53,12 @@ export type Flavors = readonly [number, number, number]
 // `fine` (E-SPN-0107): the fine coin of code/rule/fine-coin, zeta = e^(2 pi i/(3 fine)) in place of w in the coin: keep
 // (1 + zeta)/2, cross (1 - zeta)/2, det C zeta (the meeting keeps its own w). fine = 1 is the working coin. Not with `mix`.
 // `fullDock` (E-SPN-0108, with `fine`): the full-dock correction (code/rule/fine-coin), det C on a full dock kept at w.
-export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean; readonly lift?: boolean; readonly slant?: boolean; readonly area?: boolean; readonly fine?: number; readonly fullDock?: boolean }
+// `bag` (E-SPN-0109, with `fine`): the string sets the coin, a dock taking the working coin w (keep, cross and det)
+// where the flux on its two links says so (code/rule/fine-coin bagHeavy). On this open line with no winding the flux
+// on link l is Q(l) mod 3 (Q the loves at or before l), which for three loves is nonzero exactly on the span's links;
+// read by code/rule/bound-line-pieces bagPositions on a ring long enough that nothing wraps. Flavors [0, 0, 0] only (the
+// flux counts every love), and not in the ring form below (its positions wrap).
+export type LineSector = { readonly flavors: Flavors; readonly statistics: Statistics; readonly D: number; readonly box: number; readonly unit?: number; readonly mix?: boolean; readonly lift?: boolean; readonly slant?: boolean; readonly area?: boolean; readonly fine?: number; readonly fullDock?: boolean; readonly bag?: Bag }
 
 // the contact unit a sector uses: its own, or its statistics' default
 export const contactUnit = (sector: LineSector): number => sector.unit ?? (sector.statistics === 'fermion' ? 3 : 0)
@@ -176,6 +183,13 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
     amp = [Math.cos(th), Math.sin(th)]
   }
 
+  // the bag's heavy docks (E-SPN-0109), read on a ring of span + 3 with every position one along, so nothing wraps
+  if (sector.bag !== undefined && (sector.fine === undefined || ts.some(t => t.f !== ts[0]!.f))) throw new Error('coined-line-bloch: the bag needs `fine` and one flavor')
+
+  const lo = Math.min(...ts.map(t => t.x))
+  const heavyAt = sector.bag === undefined ? undefined : bagPositions(spanOf(ts) + 3, ts.map(t => ({ x: t.x - lo + 1 })), 0, sector.bag)
+  const heavy = (x: number): boolean => heavyAt !== undefined && heavyAt.has(x - lo + 1)
+
   // docks holding two loves of one flavor
   const lone: number[] = []
 
@@ -187,7 +201,7 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
     if (partner < 0) lone.push(p)
     else if (p < partner) {
       // det C, the meeting, the flip
-      amp = cmul(amp, sector.fine === undefined || sector.fullDock ? OMEGA : fineCoin(sector.fine).det)
+      amp = cmul(amp, sector.fine === undefined || sector.fullDock || heavy(ts[p]!.x) ? OMEGA : fineCoin(sector.fine).det)
       amp = cmul(amp, OMEGA)
 
       const u = contactUnit(sector) % 6
@@ -209,10 +223,12 @@ function preStream(sector: LineSector, ts: readonly Token[], withCost: boolean):
     let a = amp
 
     lone.forEach((p, n) => {
+      const h = heavy(ts[p]!.x)
+
       if ((mask >> n) & 1) {
         next[p]!.j = 1 - next[p]!.j
-        a = cmul(a, cross)
-      } else a = cmul(a, keep)
+        a = cmul(a, h ? CROSS : cross)
+      } else a = cmul(a, h ? KEEP : keep)
     })
 
     if (withCost && sector.slant) {
@@ -275,6 +291,8 @@ export type RingState = Map<string, { ts: Token[]; amp: C }>
 
 export function ringBeat(sector: LineSector, L: number, state: RingState): RingState {
   const out: RingState = new Map()
+
+  if (sector.bag !== undefined) throw new Error('coined-line-bloch: the bag is read on an open line; the ring form is code/measure/bound-line pointBeatWith')
 
   for (const { ts, amp } of state.values()) {
     for (const piece of preStream(sector, ts, false)) {

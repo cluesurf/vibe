@@ -52,7 +52,7 @@
 // copies. Exact in Z[w][1/2] per slice, no float, no rounding, no random number.
 
 import { coinBranch } from '@/code/rule/coined-locked-knit'
-import { fineCoinBranch } from '@/code/rule/fine-coin'
+import { bagHeavy, fineCoinBranch, type Bag } from '@/code/rule/fine-coin'
 import { mergeBranches, type Branch, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
 import { vetoBeat, vetoBeatBack } from '@/code/rule/occupation-veto-knit'
 import { meetingBeat, meetingBeatBack, type Meeting } from '@/code/rule/permutation-meeting'
@@ -70,7 +70,12 @@ export const CLOCK = 14
 // otherwise, so every start is a count-0 start). fine = 1 is the working coin bit for bit
 // `fullDock` (E-SPN-0108, with `fine`): the full-dock correction of code/rule/fine-coin, a full line's phase kept at the
 // working coin's w while a lone love takes the fine coin. The identity at fine = 1
-export type BoundOptions = { readonly cost: boolean; readonly sign: boolean; readonly meeting?: Meeting; readonly slant?: boolean; readonly fine?: number; readonly fullDock?: boolean }
+// `bag` (E-SPN-0109, with `fine`): the string sets the coin. A dock holding a love takes the heavy coin w where the
+// string's flux on its two links says so (code/rule/fine-coin bagHeavy, read by bagPositions), the fine coin zeta
+// otherwise. The flux is c + Q(l), so the cut trit c is carried whenever the bag is on, with or without the cost. The
+// coin reads the positions and c before the stream, which the coin keeps, so the inverse reads them again after the
+// stream is undone. The identity at fine = 1
+export type BoundOptions = { readonly cost: boolean; readonly sign: boolean; readonly meeting?: Meeting; readonly slant?: boolean; readonly fine?: number; readonly fullDock?: boolean; readonly bag?: Bag }
 
 // the line the pieces read: its docks in stream order, its two slots, each dock's position
 export type BoundLine = { readonly docks: readonly number[]; readonly first: number; readonly second: number; readonly position: ReadonlyMap<number, number> }
@@ -110,6 +115,29 @@ export function fluxLinks(L: number, loves: readonly LineLove[], c: number): num
   }
 
   return n
+}
+
+// THE BAG'S HEAVY POSITIONS (E-SPN-0109): the occupied positions whose two links (l = x - 1 and l = x, ring order) carry
+// the flux that `bag` names, link l holding c + Q(l) mod 3 as in fluxLinks. A function of the positions and c only, so
+// the coin, which keeps both, reads the same set before and after it acts
+export function bagPositions(L: number, loves: readonly { x: number }[], c: number, bag: Bag): Set<number> {
+  const q = new Int32Array(L)
+
+  for (const t of loves) q[t.x]!++
+
+  const flux = new Uint8Array(L)
+  let Q = 0
+
+  for (let l = 0; l < L; l++) {
+    Q += q[l] as number
+    flux[l] = (((c + Q) % 3) + 3) % 3 !== 0 ? 1 : 0
+  }
+
+  const out = new Set<number>()
+
+  for (let x = 0; x < L; x++) if ((q[x] as number) > 0 && bagHeavy(bag, flux[(x - 1 + L) % L] === 1, flux[x] === 1)) out.add(x)
+
+  return out
 }
 
 // THE SLANT COST (E-SPN-0106). The loves' docks cut the ring into gaps; every link of one gap holds the same trit
@@ -202,9 +230,20 @@ function put(out: Map<string, Group>, e: number, c: number, b: Branch, u = 0): v
   else out.set(k, { e, c, u, list: [b] })
 }
 
+// whether the cut trit is carried: by the cost, or by the bag that reads the flux
+const carriesTrit = (options: BoundOptions): boolean => options.cost || options.bag !== undefined
+
+// the cells whose coin is heavy under the bag (none without one), read from the loves' positions and c
+function heavyCells(options: BoundOptions, line: BoundLine, loves: readonly LineLove[], c: number): ReadonlySet<number> | undefined {
+  if (options.bag === undefined) return undefined
+  if (options.fine === undefined) throw new Error('bound-line-pieces: the bag chooses between the fine coin and w; it needs `fine`')
+
+  return new Set([...bagPositions(line.docks.length, loves, c, options.bag)].map(x => line.docks[x] as number))
+}
+
 // the coin the options name, on one branch at count u (forward or adjoint)
-function coinAt(options: BoundOptions, cells: number, br: Branch, u: number, adjoint: boolean): { b: Branch; u: number }[] {
-  return options.fine === undefined ? coinBranch(cells, br, adjoint).map(b => ({ b, u })) : fineCoinBranch(cells, br, u, options.fine, adjoint, options.fullDock === true)
+function coinAt(options: BoundOptions, cells: number, br: Branch, u: number, adjoint: boolean, heavy?: ReadonlySet<number>): { b: Branch; u: number }[] {
+  return options.fine === undefined ? coinBranch(cells, br, adjoint).map(b => ({ b, u })) : fineCoinBranch(cells, br, u, options.fine, adjoint, options.fullDock === true, heavy)
 }
 
 function sliced(options: BoundOptions, acc: Map<string, Group>): BoundState {
@@ -236,9 +275,10 @@ export function boundBeat(options: BoundOptions, t: LockedTables, line: BoundLin
       const groups = new Map<string, Group>()
 
       for (const br of branches.slice(i, i + chunk)) {
-        const e0 = options.cost && !options.slant ? mod(e - fluxLinks(L, lineLoves(line, br), c), CLOCK) : e
+        const before = lineLoves(line, br)
+        const e0 = options.cost && !options.slant ? mod(e - fluxLinks(L, before, c), CLOCK) : e
 
-        for (const { b, u: u1 } of coinAt(options, t.cells, clone(br), u, false)) {
+        for (const { b, u: u1 } of coinAt(options, t.cells, clone(br), u, false, heavyCells(options, line, before, c))) {
           const loves = lineLoves(line, b)
           const e1 = options.cost && options.slant ? mod(e0 - slantLinks(L, loves, c), CLOCK) : e0
 
@@ -247,7 +287,7 @@ export function boundBeat(options: BoundOptions, t: LockedTables, line: BoundLin
             b.b = -b.b
           }
 
-          put(groups, e1, options.cost ? mod(c + cutCrossing(L, loves), 3) : c, b, u1)
+          put(groups, e1, carriesTrit(options) ? mod(c + cutCrossing(L, loves), 3) : c, b, u1)
         }
       }
 
@@ -274,7 +314,7 @@ export function boundBeatBack(options: BoundOptions, t: LockedTables, line: Boun
 
       for (const b of back.branches) {
         const loves = lineLoves(line, b)
-        const c0 = options.cost ? mod(c - cutCrossing(L, loves), 3) : c
+        const c0 = carriesTrit(options) ? mod(c - cutCrossing(L, loves), 3) : c
 
         if (options.sign && lineSign(L, loves) < 0) {
           b.a = -b.a
@@ -283,7 +323,7 @@ export function boundBeatBack(options: BoundOptions, t: LockedTables, line: Boun
 
         const eb = options.cost && options.slant ? mod(e + slantLinks(L, loves, c0), CLOCK) : e
 
-        for (const { b: v, u: u0 } of coinAt(options, t.cells, clone(b), u, true)) put(acc, options.cost && !options.slant ? mod(eb + fluxLinks(L, lineLoves(line, v), c0), CLOCK) : eb, c0, v, u0)
+        for (const { b: v, u: u0 } of coinAt(options, t.cells, clone(b), u, true, heavyCells(options, line, loves, c0))) put(acc, options.cost && !options.slant ? mod(eb + fluxLinks(L, lineLoves(line, v), c0), CLOCK) : eb, c0, v, u0)
       }
     }
   }

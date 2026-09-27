@@ -67,8 +67,8 @@
 //     love at one dock of the side-8 ring, 4 beats of the exact rule at n = 2, 4, 8, is the same with and without the
 //     correction bit for bit every beat, and the corrected window keeps the norm, disturbs no vacuum branch and reaches
 //     t docks at beat t. Verdict: partial if a control fails; pass if F1 and F2 hold; fail otherwise.
-// PREDICTED: fail on F1 (probe 1: no level inside box 12 at n = 2, 4, 8 with the correction), F2 unread; every control
-// holds.
+// PREDICTED (written after probes 1 and 2, before run 1): fail on F1 (probe 1: no level inside box 12 at n = 2, 4, 8
+// with the correction), F2 unread; every control holds.
 //
 // DISCLOSED PROBES (instrument only, no gate read on them). tmp/fdock-probe1.log: the corrected stand-in at box 12: n = 1
 // is E-SPN-0104's level (E 0.330019, m* 24.1164, R 4.2000); at n = 2, 4, 8 no level inside (least tail 0.187, 0.197,
@@ -82,6 +82,18 @@
 // piece (112 entries) still peaked at 29 GB over 2 beats at n = 8 (2,420 branches, the ring form matched to 7e-17 and
 // it ran back); its 8 heaviest entries peaked at 12.7 GB over 2 beats and at most 2.3 GB over 1 (72 branches). Control
 // (d) was then cut to that piece and 1 beat. No gate and no reading rule changed.
+//
+// RUN 2 (1917 s, tmp/fdock-run2.log, the record): fail on F1, as predicted, F2 therefore false, no gate moved; every
+// control holds. F1: n = 1 held (E 0.330019, band overlap 0.9995, ring least fidelity 0.99999); n = 2, 4, 8 no particle
+// level inside the box (least tail 0.187, 0.197, 0.050; mean string 5.0, 6.6, 4.2; contact 0.23, 0.08, 0.06). F2 at
+// n = 1 only: m* 24.1164, E_rest 3.4716, m*/E_rest 6.9467 against tan m/m 1.6540, R 4.2000. F3 at n = 1 only: top
+// speed 0.02965 on the ring (band 0.02966). M: the least tail at boxes 12, 16, 20 is 0.19, 0.31, 0.24 (n = 2), 0.20,
+// 0.34, 0.58 (n = 4), 0.05, 0.24, 0.59 (n = 8): the candidate spreads to fill a larger box, so it is not a level wider
+// than box 12 but no bound level. Controls: (a) E 0.3300185183922997, m* 24.116350864579758 (1.6e-10 off), R
+// 4.199993, bit for bit true; (b) uncorrected tails 0.22285364400810195, 0.18927228196350146, 0.09437235837021223, as
+// recorded; (c) the unbound unit has no level inside at any n; (d) point gap 3.5e-18, energy gap 2.1e-17, reversed, and
+// the correction exercised (1 - overlap^2 = 0.999 at every n); (e) the lone love the same bit for bit with and without
+// the correction. Title written after the run. No GRV check was run: no light trio held.
 //
 // Depth L2: the lattice Dirac walk's mass and a contact phase on the rule's own line, a known construction; what could
 // fail is whether a bound level survives the separation. DETERMINISM: no random numbers. The rule is exact per count in
@@ -124,7 +136,8 @@ type Level = { basis: ReturnType<typeof lineBasis>; levels: LineLevel[]; inside:
 export default experiment({
   id: 'spin/full-dock-contact',
   code: 'E-SPN-0108',
-  title: 'TITLE WRITTEN AFTER THE RUN',
+  title:
+    "keeping a full dock's contact at w while a lone love takes the fine coin does not hold a light trio, fail on F1: the full-dock correction D = (w zeta^(-1))^F (F the lines holding two open loves, one whole wrap of the fine count per full line) is exact, diagonal, unitary and reversible, the identity at n = 1 (the working rule bit for bit) and on a lone love (bit for bit at n = 2, 4, 8), and keeps the exact window equal to the ring form (2e-17) with nothing leaked or outside the cone; n = 1 is E-SPN-0105's level (m* 24.1164, E_rest 3.4716, m*/E_rest 6.947 against tan m/m 1.654, R 4.2000, top speed 0.0297), but at n = 2, 4, 8 no level is held in the box-12 stand-in (least tail 0.187, 0.197, 0.050, against 0.223, 0.189, 0.094 without the correction), and the least tail grows with the box (to 0.24, 0.58, 0.59 at box 20): restoring the contact's phase does not restore the turn, since a split love turns round only with sin(pi/(3n)) and the drift cost, a diagonal phase, cannot turn it; the unbound unit holds nothing at any n",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

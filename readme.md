@@ -463,7 +463,11 @@ realizes. **Open:**
    1.654 at every n. But no three-love level holds under it at
    n = 2, 4, 8, because it also changes the full dock's phase that
    bound the trio, and n is a new free input
-   ([`E-SPN-0107`](test/experiment/spin/fine-coin.ts))
+   ([`E-SPN-0107`](test/experiment/spin/fine-coin.ts)).
+   Putting the full-dock contact back does not bind a light trio: a
+   light love passes through a potential that acts only on its phase,
+   the Klein effect
+   ([`E-SPN-0108`](test/experiment/spin/full-dock-contact.ts))
 6. not a requirement: matter smaller than a dock falls by its own
    lattice ray, but real particles are about 10^20 docks across if a
    dock is Planck-sized. That is a Planck-scale prediction, not a gap.
