@@ -51,6 +51,19 @@
 //
 // PROBES before this file, disclosed: none beyond E-SLF-0177's.
 //
+// FIRST RUN (374 s, tmp/slf178-run1.log): pass, no gate moved. I1 and I2 hold ({A | B} Phi 0.9167 on both knits,
+// {A | C} exactly 0). Every chosen component is integrated on 17 of 17 starts (working vacuum Phi 0.7917 to 0.8646,
+// old knit 0.9167 to 0.9375) and every random-equivalent grouping of the same husk spread reads Phi exactly 0 (17 of
+// 17, both knits). The leak separates them sharply: removing half of a component changes 0 vibes outside it, and
+// removing half of a random group changes 12 vibes outside it (the rest of the four components it was drawn from). So
+// the narrow components are CLOSED: each runs as a world of its own, blind to every other, and a cut inside it reaches
+// every part of it. A half-cut component (2 units) reads 0.6042 to 0.8333 (old knit 0.875 to 0.9375) and leaks 4 vibes
+// (its own component's other half). MEANING, after the run: these are four stored units exchanging vibes along one
+// root line of the side-8 torus, so the integration is the line locality of E-RLT-0093 read as a cut, not a new
+// structure; and the broad relation that joined everything in E-SLF-0177 over-reads a meeting, since a dock's
+// permutation reads every slot yet a component's absence changes nothing on the other lines. Title written after the
+// run.
+//
 // DETERMINISM: no random numbers; group choices are integer Weyl streams; starts are E-MTH-0028's family. Depth L2.
 // Husk first: halves and spreads are read on husk columns.
 
@@ -243,7 +256,8 @@ function readKnit(knit: Knit): { breaks: number; components: Cut[]; random: Cut[
 export default experiment({
   id: 'selves/shared-origin-integration',
   code: 'E-SLF-0178',
-  title: 'integration of the components of shared history: not yet run',
+  title:
+    'the closed line components of shared history are integrated and closed, pass: cutting a narrow component (four stored units meeting on one root line, 8 vibes on 4 husk columns at the largest distance of side 8) into two husk halves and removing one changes 79 to 86 percent of the other half\'s places over 24 beats on the working vacuum (92 to 94 percent on the old knit), 17 of 17 starts, while random groupings of the same size and spread read exactly 0 and leak 12 vibes into the components they were drawn from; a component\'s cut leaks 0 vibes outside it, so each is a world of its own: integration by the cut is real but it is the rule\'s line locality, four units on one line of the torus, not a new self',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

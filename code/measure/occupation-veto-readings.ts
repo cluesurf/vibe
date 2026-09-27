@@ -20,7 +20,8 @@
 import { cloneConfiguration, lockedTables, streamConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
 import { collideVeto, type VetoKind } from '@/code/rule/occupation-veto-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { exchangeAt, lockedFresh, pathMeet, streamInto, tritsApart, newPathTally, THRESHOLD_KEEP, type LockedFresh, type PathRunner, type PathTally } from '@/code/measure/doublet-locked-readings'
+import { exchangeAt, lockedFresh, pathMeet, streamInto, tritsApart, newPathTally, SILVER_RATE, THRESHOLD_KEEP, type LockedFresh, type PathRunner, type PathTally } from '@/code/measure/doublet-locked-readings'
+import { FRAME_OF_LINE, FRAME_SLOTS, loneFrames } from '@/code/rule/coined-locked-knit'
 import { type Replay } from '@/code/measure/causal-components'
 import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
 
@@ -115,18 +116,59 @@ export function pathCoin(tables: LockedTables, c: Configuration, threshold: numb
   return crossed
 }
 
-export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, phase = 0, coin = false): PathRunner & { crossed: () => number } {
+// THE FRAME MIXER ON A PATH (E-SPN-0095): a frame of a dock holding one open vibe and seven empty slots keeps it or
+// hands it to another slot of its frame (code/rule/coined-locked-knit mixBranch), the outcome read from the key of
+// (beat, dock, frame) cut into 16 bins of the Born weights: bins 0 to 8 keep (9/16), bin 9 + j takes outcome j + 1
+// (1/16 each: the opposite slot, then the six orthogonal ones), target frame slot q XOR o. G's heaviest term is the
+// keep, so the keep path (threshold 0) keeps always and every other threshold reads the Born bins. Each outcome is an
+// involution of the frame's slots and the lone condition is kept, so the same call undoes it. Returns the moves.
+export const mixOutcome = (cells: number, t: number, x: number, f: number): number => {
+  const bin = Math.floor(((((t * cells + x) * 3 + f) * SILVER_RATE + 12345) % 65536) / 4096)
+
+  return bin < 9 ? 0 : bin - 8
+}
+
+export function pathMix(tables: LockedTables, c: Configuration, threshold: number, t: number): number {
+  if (threshold === THRESHOLD_KEEP) return 0
+
+  let moved = 0
+
+  for (const { base, frame, q } of loneFrames(tables.cells, c)) {
+    const o = mixOutcome(tables.cells, t, base / 24, frame)
+
+    if (o === 0) continue
+
+    const ss = FRAME_SLOTS[frame] as readonly number[]
+    const from = base + (ss[q] as number)
+    const to = base + (ss[q ^ o] as number)
+
+    c.vibe[to] = c.vibe[from] as number
+    c.point[to] = c.point[from] as number
+    c.open[to] = c.open[from] as number
+    c.vibe[from] = 0
+    c.point[from] = 0
+    c.open[from] = 0
+    moved++
+  }
+
+  return moved
+}
+
+export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, phase = 0, coin = false, mix = false): PathRunner & { crossed: () => number; mixed: () => number } {
   let a = cloneConfiguration(start)
   let b = cloneConfiguration(start)
   let t = phase
   let crossed = 0
+  let mixed = 0
   const col = { made: 0, unmade: 0, vetoed: 0, likeMeetings: 0, splitMeetings: 0, phaseMeetings: 0, unlikeMeetings: 0, merged: 0 }
 
   return {
     state: () => a,
     time: () => t,
     crossed: () => crossed,
+    mixed: () => mixed,
     beat: (tally?: PathTally) => {
+      if (mix) mixed += pathMix(tables, a, threshold, t)
       if (coin) crossed += pathCoin(tables, a, threshold, t)
       pathMeet(tables, a, threshold, t, tally)
       col.made = 0
@@ -154,18 +196,20 @@ export function vetoPathRunner(kind: VetoKind, tables: LockedTables, start: Conf
       collideVeto(kind, tables, a, t, true)
       pathMeet(tables, a, threshold, t)
       if (coin) pathCoin(tables, a, threshold, t)
+      if (mix) pathMix(tables, a, threshold, t)
     },
   }
 }
 
 // a path as a replay for code/measure/causal-components causalRun
-export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, coin = false): Replay & { state: () => Configuration } {
+export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Configuration, threshold: number, coin = false, mix = false): Replay & { state: () => Configuration } {
   let c = cloneConfiguration(start)
 
   return {
     cells: tables.cells,
     state: () => c,
     collide(t) {
+      if (mix) pathMix(tables, c, threshold, t)
       if (coin) pathCoin(tables, c, threshold, t)
       pathMeet(tables, c, threshold, t)
       collideVeto(kind, tables, c, t, false)
@@ -198,8 +242,8 @@ export function vetoPathReplay(kind: VetoKind, tables: LockedTables, start: Conf
 }
 
 // the vacuum's path history, one configuration per beat after the stream
-export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Configuration, threshold: number, beats: number, coin = false): { states: Configuration[]; tally: PathTally } {
-  const v = vetoPathRunner(kind, tables, vacuum, threshold, 0, coin)
+export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Configuration, threshold: number, beats: number, coin = false, mix = false): { states: Configuration[]; tally: PathTally } {
+  const v = vetoPathRunner(kind, tables, vacuum, threshold, 0, coin, mix)
   const tally = newPathTally()
   const states: Configuration[] = []
 
@@ -211,18 +255,21 @@ export function vetoPathTrack(kind: VetoKind, tables: LockedTables, vacuum: Conf
   return { states, tally }
 }
 
-// the lone wake along a path (E-RLT-0084's B6): worst trits apart per 24-beat period, and trits off the seed's line
-export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacuum: Configuration; track: readonly Configuration[]; seedSlot: number; tone: number; threshold: number; beats: number; coin?: boolean }): { worst: number[]; offLine: number } {
-  const { kind, tables, vacuum, track, seedSlot, tone, threshold, beats, coin = false } = input
+// the lone wake along a path (E-RLT-0084's B6): worst trits apart per 24-beat period, trits off the seed's line, and
+// (E-SPN-0095) trits off the seed's frame
+export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacuum: Configuration; track: readonly Configuration[]; seedSlot: number; tone: number; threshold: number; beats: number; coin?: boolean; mix?: boolean }): { worst: number[]; offLine: number; offFrame: number } {
+  const { kind, tables, vacuum, track, seedSlot, tone, threshold, beats, coin = false, mix = false } = input
   const start = cloneConfiguration(vacuum)
 
   start.vibe[seedSlot] = tone
   start.open[seedSlot] = 1
 
-  const s = vetoPathRunner(kind, tables, start, threshold, 0, coin)
+  const s = vetoPathRunner(kind, tables, start, threshold, 0, coin, mix)
   const line = LINE_OF[seedSlot % 24] as number
+  const frame = FRAME_OF_LINE[line] as number
   const worst = [0, 0, 0, 0]
   let offLine = 0
+  let offFrame = 0
 
   for (let t = 0; t < beats; t++) {
     s.beat()
@@ -233,11 +280,24 @@ export function vetoPathWake(input: { kind: VetoKind; tables: LockedTables; vacu
 
     worst[period] = Math.max(worst[period] ?? 0, tritsApart(a, b))
 
-    for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] && LINE_OF[i % 24] !== line) offLine++
-    for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] && i % 12 !== line) offLine++
+    for (let i = 0; i < a.vibe.length; i++) {
+      if (a.vibe[i] === b.vibe[i]) continue
+
+      const l = LINE_OF[i % 24] as number
+
+      if (l !== line) offLine++
+      if (FRAME_OF_LINE[l] !== frame) offFrame++
+    }
+
+    for (let i = 0; i < a.store.length; i++) {
+      if (a.store[i] === b.store[i]) continue
+
+      if (i % 12 !== line) offLine++
+      if (FRAME_OF_LINE[i % 12] !== frame) offFrame++
+    }
   }
 
-  return { worst, offLine }
+  return { worst, offLine, offFrame }
 }
 
 export type VetoWallReading = { readonly windows: number; readonly endDocks: number; readonly departing: number[]; readonly outside: number[]; readonly outsideColumns: number[]; readonly grew: number[]; readonly frozen: boolean; readonly passes: boolean }

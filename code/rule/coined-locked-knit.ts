@@ -40,7 +40,8 @@
 
 import { LINE_FIRSTS, LINE_OF, OPPOSITE, SIDE } from '@/code/rule/isometric-knit'
 import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { lockedBeat, lockedBeatBack, mergeBranches, times, type Branch, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import { lockedBeat, lockedBeatBack, mergeBranches, times, type Branch, type Configuration, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
 import { vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
 
 const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
@@ -235,6 +236,156 @@ export function coinedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedSta
   const out: Branch[] = []
 
   for (const br of vetoBeatBack(kind, t, s, beat).branches) out.push(...coinBranch(t.cells, cloneBranch(br), true))
+
+  return { branches: mergeBranches(out) }
+}
+
+// ---- the frame mixer ----
+//
+// THE FRAME MIXER (E-SPN-0094, E-SPN-0095): the one piece that lets a vibe change its line. E-SPN-0094 classifies the
+// covariant unitaries on a dock's single-vibe space with entries in Z[w][1/2]: none reaches a line at inner product
+// +-1, and the ones that mix lines move a vibe only to the six slots orthogonal to its root, the other three lines of
+// its FRAME (four mutually orthogonal lines, three frames a dock). The simplest is G = I - 2 |u><u| on each frame, u
+// the frame's uniform vector: a vibe on slot s is kept with 3/4 and taken to each of the other seven slots of its frame
+// with -1/4 (the opposite slot and the six orthogonal ones). G is real, an involution, and its own adjoint.
+//
+// AS THE COIN IS ADDED, ON A LONE VIBE: it acts on a frame of a dock holding exactly one vibe, open, and seven empty
+// slots; every other frame is untouched (a frame of two or more vibes, a closed vibe, stores). The condition is kept by
+// G and by every W(F4) map, so the piece is unitary and covariant. The frame slot q = 2 (the line's place in its frame)
+// + (0 first slot, 1 second), so the target of outcome o (0 to 7) is q XOR o: o = 0 keeps, o = 1 is the opposite slot,
+// o = 2 to 7 the six orthogonal ones, and each outcome is an involution of the frame's slots.
+//
+// NOTHING MOVES: the vibe's value, point and open bit are taken by another slot of its own frame on its own dock.
+
+const ROOTS = rootsD4()
+const dotRoots = (d: number, e: number): number => (ROOTS[d] as number[]).reduce((s, x, k) => s + x * ((ROOTS[e] as number[])[k] as number), 0)
+
+function frameTables(): { lines: number[][]; slots: number[][]; frameOfSlot: number[]; frameOfLine: number[] } {
+  const lines: number[][] = []
+  const seen = new Set<number>()
+
+  for (let l = 0; l < 12; l++) {
+    if (seen.has(l)) continue
+
+    const frame = [l]
+
+    for (let m = l + 1; m < 12; m++) if (frame.every(n => dotRoots(LINE_FIRSTS[n] as number, LINE_FIRSTS[m] as number) === 0)) frame.push(m)
+
+    frame.forEach(m => seen.add(m))
+    lines.push(frame)
+  }
+
+  if (lines.length !== 3 || lines.some(f => f.length !== 4)) throw new Error('coined-locked-knit: the lines do not fall into three frames of four')
+
+  const slots = lines.map(f => f.flatMap(m => [LINE_FIRSTS[m] as number, LINE_SECONDS[m] as number]))
+  const frameOfSlot = new Array<number>(24).fill(-1)
+  const frameOfLine = new Array<number>(12).fill(-1)
+
+  slots.forEach((ss, f) => ss.forEach(d => (frameOfSlot[d] = f)))
+  lines.forEach((ls, f) => ls.forEach(l => (frameOfLine[l] = f)))
+
+  return { lines, slots, frameOfSlot, frameOfLine }
+}
+
+const FRAMES = frameTables()
+
+// the three frames' lines (in line order) and slots (frame slot q = 2 place + side), and each slot's and line's frame
+export const FRAME_LINES: readonly (readonly number[])[] = FRAMES.lines
+export const FRAME_SLOTS: readonly (readonly number[])[] = FRAMES.slots
+export const FRAME_OF_SLOT: readonly number[] = FRAMES.frameOfSlot
+export const FRAME_OF_LINE: readonly number[] = FRAMES.frameOfLine
+
+export type MixTally = { mixes: number }
+
+export const newMixTally = (): MixTally => ({ mixes: 0 })
+
+// the lone frames of a configuration: every (dock, frame) holding exactly one vibe, open, with its frame slot
+export function loneFrames(cells: number, c: Configuration): { base: number; frame: number; q: number }[] {
+  const out: { base: number; frame: number; q: number }[] = []
+
+  for (let x = 0; x < cells; x++) {
+    const base = x * 24
+
+    for (let f = 0; f < 3; f++) {
+      const ss = FRAME_SLOTS[f] as readonly number[]
+      let held = 0
+      let at = -1
+
+      for (let q = 0; q < 8; q++) {
+        if (c.vibe[base + (ss[q] as number)] !== 0) {
+          held++
+          at = q
+        }
+      }
+
+      if (held === 1 && c.open[base + (ss[at] as number)]) out.push({ base, frame: f, q: at })
+    }
+  }
+
+  return out
+}
+
+// G on one branch: the list of branches it becomes (keep 3/4, each of the other seven frame slots -1/4)
+export function mixBranch(cells: number, br: Branch, tally?: MixTally): Branch[] {
+  const lone = loneFrames(cells, br)
+
+  if (lone.length === 0) return [br]
+  if (lone.length > 4) throw new Error(`coined-locked-knit: ${lone.length} lone frames in one branch, over the guard 4`)
+  if (tally) tally.mixes += lone.length
+
+  const out: Branch[] = []
+
+  for (let code = 0; code < 8 ** lone.length; code++) {
+    const b = cloneBranch(br)
+    let rest = code
+
+    for (const { base, frame, q } of lone) {
+      const o = rest % 8
+      const ss = FRAME_SLOTS[frame] as readonly number[]
+
+      rest = (rest - o) / 8
+
+      if (o === 0) {
+        times(b, 3n, 0n)
+        continue
+      }
+
+      const from = base + (ss[q] as number)
+      const to = base + (ss[q ^ o] as number)
+
+      b.vibe[to] = b.vibe[from] as number
+      b.point[to] = b.point[from] as number
+      b.open[to] = b.open[from] as number
+      b.vibe[from] = 0
+      b.point[from] = 0
+      b.open[from] = 0
+      times(b, -1n, 0n)
+    }
+
+    b.k += 2 * lone.length
+    out.push(b)
+  }
+
+  return out
+}
+
+// THE WORKING VACUUM WITH THE FRAME MIXER: G, then the coin, then the no-veto beat (coinedVetoBeat). The inverse: the
+// coined inverse, then G (its own adjoint). With `coin` false the coin is left out (the mixer alone, a control).
+export function mixedVetoBeat(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally, coinTally?: CoinTally, mixTally?: MixTally, coin = true): LockedState {
+  const mixed: Branch[] = []
+
+  for (const br of s.branches) mixed.push(...mixBranch(t.cells, cloneBranch(br), mixTally))
+
+  const state: LockedState = { branches: mergeBranches(mixed) }
+
+  return coin ? coinedVetoBeat(kind, t, state, beat, tally, coinTally) : vetoBeat(kind, t, state, beat, tally)
+}
+
+export function mixedVetoBeatBack(kind: VetoKind, t: LockedTables, s: LockedState, beat: number, coin = true): LockedState {
+  const back = coin ? coinedVetoBeatBack(kind, t, s, beat) : vetoBeatBack(kind, t, s, beat)
+  const out: Branch[] = []
+
+  for (const br of back.branches) out.push(...mixBranch(t.cells, cloneBranch(br)))
 
   return { branches: mergeBranches(out) }
 }

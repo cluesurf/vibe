@@ -49,6 +49,21 @@
 //     reference's electric part
 // Verdict: pass if all hold; fail if P1 and P2 hold and P3 fails; partial if P1 or P2 fails.
 //
+// FIRST RUN (tmp/frc0252-run1.log, 406 s, the record): pass, no gate moved. P1 and P2 exact (Gauss 0 failures,
+// the light and both walkers reversed, every norm trace exact, gauged light 0 links and 0 other entries off, gauged
+// walkers exact). The electric move is 0.568, 0.435, 0.317, 0.205, 0.121 docks at r = 4 .. 8 against the static
+// reference 0.538, 0.387, 0.270, 0.185, 0.126 (ratio 1.056, 1.124, 1.173, 1.108, 0.959); the love moves away and
+// the fear toward at every r. The shadow reference equals the static one to 2e-8: the carries hold the field
+// exactly. POST-RUN PROBE (tmp/frc252-post1.log, disclosed, gates unchanged): (a) the integer angle on the line
+// is nonzero on 207 to 507 of 512 beats and its time mean follows the shadow's (r = 4: 1.480 against 1.348, r = 8:
+// 0.254 against 0.306); it reads 0 at beat 512 at every r = 4 .. 8 by its own oscillation (range -2 .. 6), so the
+// 48-beat probe's zeros were early beats, not a blind coupling. (b) The charge-blind part of the walk (0.314 at r =
+// 4 to 0.017 at r = 8) is in the float static reference too (0.323 to 2.9e-4): the band's non-parabolic response,
+// even in q E, of a test vibe in a smooth field, not a force from neutral content. r^2 times the electric move is
+// 9.1, 10.9, 11.4, 10.0, 7.7: the packet (width 2 docks) averages a field that varies as 1/r^2 over it, and the
+// torus field turns over at r = 12, so the reference, not Newton at the center, is the gate. Title written after
+// the run.
+//
 // Reported, not gated: the shadow reference's electric part; Newton's q (2 pi / 128) E_static(r) T^2 / (2 m)
 // beside it; r^2 times the electric part; the charge-blind part; the integer angle's lag behind the shadow on the
 // line. DETERMINISM: no start is drawn. Depth: L2 for P3 (the rule's own light against the lattice Coulomb
@@ -267,7 +282,8 @@ function floatRun(r: number, q: number, angle: (t: number, x: number) => number)
 export default experiment({
   id: 'gauge/peierls-test-charge',
   code: 'E-FRC-0252',
-  title: 'matter reads the light: a Peierls hop on the husk light integer angle (title written after the first run)',
+  title:
+    "matter reads the light, pass: a test vibe whose hop carries the Peierls phase zeta_128^(-q A) of the shaped husk light's integer angle (D 32, side 24, exact over Z[zeta_1024], 512 beats) is pushed by a +4 source: the love moves away and the fear toward at every r = 4 .. 8, electric move 0.568, 0.435, 0.317, 0.205, 0.121 docks at 1.056, 1.124, 1.173, 1.108, 0.959 of the same walk in the static lattice Coulomb field; Gauss exact, the light and the walks reverse exactly, norms exact, and a gauge map moves the light's angles and the walker's phases exactly (0 entries off); the integer angle carries the field in its time mean, not in each beat; a test vibe does not source the light and hops on one husk line (stand-ins)",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
