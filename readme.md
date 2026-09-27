@@ -431,17 +431,31 @@ realizes.
    light keeps the right one to 2.9e-14 and bends by 2.0069
    ([`E-GRV-0128`](test/experiment/gravity/headroom-slab-window.ts))
 
+8. **a composite at speed.** Along the joint limit a love-fear meson's
+   inertia over energy falls to 1.003 at rest
+   ([`E-SPN-0113`](test/experiment/spin/meson-joint-limit.ts)). The
+   levels crossing its band are the Klein channel, pair tunnelling
+   through the string, sorted by an exact love-fear exchange symmetry.
+   Read through them, the meson stays one particle to momentum equal to
+   its rest energy, with c within 0.14% of the walk's at n = 16, as a
+   resonance of width 1e-7 of its mass
+   ([`E-SPN-0115`](test/experiment/spin/meson-crossing.ts))
+9. **spin 2's structure from the rule's own redundancy.** Sliding the
+   unlabeled docks forces linearized Einstein–Hilbert
+   ([`E-GRV-0138`](test/experiment/gravity/slide-invariant-spin-two.ts)),
+   and a spacetime slide forces the lapse and shift to be Lagrange
+   multipliers with DeWitt's kinetic term
+   ([`E-GRV-0139`](test/experiment/gravity/spacetime-slide-spin-two.ts)).
+   At cubic order the full slide fixes the wave speed at exactly c and
+   λ at 1, which a foliation-preserving slide leaves free
+   ([`E-GRV-0141`](test/experiment/gravity/cubic-slide-speed.ts))
+
 **Still open:**
 
-1. light composites at speed: along the joint limit a meson's inertia
-   over energy falls to 1.003 at rest
-   ([`E-SPN-0113`](test/experiment/spin/meson-joint-limit.ts)), but at
-   momenta about half its rest energy another pair level crosses its
-   band ([`E-SPN-0114`](test/experiment/spin/meson-scaled-step.ts))
-2. moving in 3d: a pair bound across crossing lines holds but cannot
+1. moving in 3d: a pair bound across crossing lines holds but cannot
    move, because nothing turns flux around a loop
    ([`E-SPN-0110`](test/experiment/spin/crossing-lines.ts))
-3. a temperature: a forming horizon's spectrum stays a power law at
+2. a temperature: a forming horizon's spectrum stays a power law at
    every register size run (C 13 to 49), so what shows is the growth's
    quench
    ([`E-GRV-0134`](test/experiment/gravity/forming-horizon-register-scan.ts)).
@@ -450,11 +464,14 @@ realizes.
    predicts a formation burst and no steady evaporation unless
    ln C ≫ 4π
    ([`E-GRV-0136`](test/experiment/gravity/forming-horizon-late-slow.ts))
-4. spin 2 from the rule: the coupling is chosen, not derived, and the
-   husk's square faces have no dock at their crossing
-5. Randall and Sundrum's short-range number, which needs about 8 bulk
-   layers per doubling of scale
-   ([`E-GRV-0105`](test/experiment/gravity/lapse-husk-static.ts))
+3. Randall and Sundrum's short-range number: finer layering takes the
+   scalar to 3/4 of theirs
+   ([`E-GRV-0137`](test/experiment/gravity/rs-layering.ts)), and the
+   spin-2 tower reaches 0.971 of it
+   ([`E-GRV-0142`](test/experiment/gravity/tensor-layering.ts)), with
+   the 4/3 derived from a slide along the bulk's depth
+   ([`E-GRV-0143`](test/experiment/gravity/bulk-slide-depth.ts)). Left:
+   the warp, the radion's stabilization and brane bending
 
 The full record is note/research/vibe/roadmap/remaining-pieces.md and
 discrete-gravity.md in the ClueSurf notes.
