@@ -476,6 +476,22 @@ function hopSurvey(mesh: RadionMesh, rule: RadionRule): HopSurvey {
   return { firstChange, halfArrival, finalChange, instantChange, reversed: sameRadion(b, emptyRadion(mesh, rule.levels)) }
 }
 
+// the depth levels a field x sets: the count of half-level thresholds it crosses, +j for x >= j - 1/2 and -j for
+// x < -(j - 1/2) (the value the rule's own phi register holds at that field, its fraction in -1/2 .. 1/2 carried)
+export function halfLevelCount(v: number): number {
+  let j = 0
+
+  if (v >= 0) {
+    while (v >= j + 0.5) j++
+
+    return j
+  }
+
+  while (v < -(j + 0.5)) j++
+
+  return -j
+}
+
 function lensSurvey(rule: RadionRule, log?: (what: string) => void): LensSurvey {
   const mesh = radionMesh(LENS_LINE)
   const [sx, sy, sz] = LENS_LINE
@@ -495,21 +511,7 @@ function lensSurvey(rule: RadionRule, log?: (what: string) => void): LensSurvey 
 
     return (sx / 48) * (1 - (4 * u) / sx)
   })
-  // the half-level thresholds: +j for x >= j - 1/2, -j for x < -(j - 1/2)
-  const count = (v: number): number => {
-    let j = 0
-
-    if (v >= 0) {
-      while (v >= j + 0.5) j++
-
-      return j
-    }
-
-    while (v < -(j + 0.5)) j++
-
-    return -j
-  }
-  const depth = field.map(v => RADION_DEPTH + count(v))
+  const depth = field.map(v => RADION_DEPTH + halfLevelCount(v))
 
   log?.(`lens field ${run.energy}`)
 
