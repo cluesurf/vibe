@@ -84,6 +84,8 @@ export type OpenMesh = {
   readonly hasGround: boolean
   // the warped clock (warpClock): per dock, the multiple of Q its one division is by (absent: 1 on every dock)
   readonly inertia?: Int32Array
+  // the lapse in the links (lapseLinks): per link and per dock, the layer e whose lapse 2^-e it carries (absent: 0)
+  readonly lapse?: { readonly link: Uint8Array; readonly dock: Uint8Array }
 }
 
 // the warped clock on a shrinking stack: a layer-k dock divides by Q 4^k (its proper time runs 2^-k as fast)
@@ -96,6 +98,54 @@ export function warpClock(mesh: OpenMesh): OpenMesh {
 
   return { ...mesh, inertia }
 }
+
+// THE LAPSE IN THE LINKS (E-GRV-0105). Randall-Sundrum's action carries the lapse N = 2^-k inside every spatial
+// gradient term (sqrt(-g) g^ij), not only in the clock, so on a shrinking stack a layer-k link's weight is its mesh
+// weight g times 2^-k and a layer-k dock's inertia is 2^k (warpClock's 4^k clock over the same 2^-k). A VERTICAL link
+// from layer k to k + 1 carries its UPPER dock's lapse, 2^-k: the midpoint's 2^-(k + 1/2) is not a ratio of integers.
+// HOW IT STAYS IN INTEGERS: a lapsed link stores its step in units 2^e times finer, F~ = 2^e F, so F~ takes the step
+// of the unlapsed mesh weight g exactly (F~ <- F~ + g (v_tail - v_head)) and F~ / g is still the depth's difference
+// (openDepth unchanged). At a layer-e dock the beat multiplies its equation through by 2^e:
+//   v <- v + kappa 2^-e (rho - div F)  =  v + (kappa / 4^e) (2^e rho - sum_links sign F~ 2^(e - e_link)),
+// every 2^(e - e_link) a whole number (1, or 2 on the link up to the layer above), and the one division is by Q 4^e,
+// warpClock's divisor, its remainder carried in the same window. So the lapse costs no new register, stays exactly
+// reversible (openBeatBack), and bounded (a stored step is the unlapsed mesh's step for the same depth difference).
+// THE ENERGY (code/measure/open-husk openEnergy): a link's part F~1 F~0 2^-e / g, a dock's kinetic part 2^e v^2 / kappa.
+export function lapseLinks(mesh: OpenMesh): OpenMesh {
+  const clocked = warpClock(mesh)
+  const dock = new Uint8Array(mesh.docks)
+  const link = new Uint8Array(mesh.links)
+
+  mesh.sides.forEach((s, k) => dock.fill(k, mesh.offset[k]!, mesh.offset[k]! + s ** 3))
+  // a lateral link is its tail's layer; a vertical link's tail is its upper dock
+  for (let m = 0; m < mesh.links; m++) link[m] = dock[mesh.tail[m]!]!
+
+  return { ...clocked, lapse: { link, dock } }
+}
+
+// 2 ^ (the dock's lapse layer less the link's): the whole-number factor of a lapsed link's step at one of its docks
+const lapseFactor = (mesh: OpenMesh, y: number, m: number): number => (mesh.lapse ? 2 ** (mesh.lapse.dock[y]! - mesh.lapse.link[m]!) : 1)
+
+// div F as the beat reads it: out minus in at each dock, each lapsed step times 2^(e_dock - e_link) (openDivergence
+// without a lapse)
+export function openStepDivergence(mesh: OpenMesh, step: ArrayLike<number>, out: Float64Array): void {
+  if (!mesh.lapse) return openDivergence(mesh, step, out)
+
+  out.fill(0)
+
+  const { tail, head } = mesh
+
+  for (let m = 0; m < mesh.links; m++) {
+    const v = step[m]!
+
+    if (v === 0) continue
+    out[tail[m]!] = out[tail[m]!]! + v * lapseFactor(mesh, tail[m]!, m)
+    if (head[m]! >= 0) out[head[m]!] = out[head[m]!]! - v * lapseFactor(mesh, head[m]!, m)
+  }
+}
+
+// the content's multiplier in the beat at dock y: 2^e on a lapsed dock, 1 otherwise
+const contentFactor = (mesh: OpenMesh, y: number): number => (mesh.lapse ? 2 ** mesh.lapse.dock[y]! : 1)
 
 // the divisor of dock y's one division, and the low end of its remainder's window (for an odd divisor, the balanced
 // window -H .. H of code/rule/step-depth)
@@ -310,12 +360,12 @@ export function openBeat(mesh: OpenMesh, rule: StepRule, s: OpenState, scratch: 
   const { a, q, h, unit } = rule
 
   openDivergence(mesh, s.line, scratch.divLine)
-  openDivergence(mesh, s.step, scratch.divStep)
+  openStepDivergence(mesh, s.step, scratch.divStep)
 
   const inertia = mesh.inertia
 
   for (let y = 0; y < mesh.docks; y++) {
-    const x = a * (unit * scratch.divLine[y]! - scratch.divStep[y]!)
+    const x = a * (unit * contentFactor(mesh, y) * scratch.divLine[y]! - scratch.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
     const w = floorDiv(x + s.rest[y]! + (inertia ? openRestLow(qy) : h), qy)
     const raw = s.rate[y]! + w
@@ -347,12 +397,12 @@ export function openBeatBack(mesh: OpenMesh, rule: StepRule, s: OpenState, scrat
   }
 
   openDivergence(mesh, s.line, scratch.divLine)
-  openDivergence(mesh, s.step, scratch.divStep)
+  openStepDivergence(mesh, s.step, scratch.divStep)
 
   const inertia = mesh.inertia
 
   for (let y = 0; y < mesh.docks; y++) {
-    const x = a * (unit * scratch.divLine[y]! - scratch.divStep[y]!)
+    const x = a * (unit * contentFactor(mesh, y) * scratch.divLine[y]! - scratch.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
     // the one w that puts the old remainder back in its window (q - 1 - h = h for an odd q)
     const w = floorDiv(x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h), qy)

@@ -61,6 +61,16 @@
 //     25 percent of RS's at every r = 4 .. 11. PREDICTED TO FAIL (above).
 // Verdict: pass if W0 to W3RS hold; fail otherwise.
 //
+// FIRST RUN (tmp/warp-static-run1.log; 1,046 s, the record): fail on W3RS, as derived; no gate moved. W0 holds: the
+// warped stack's force equals the one-clock stack's to 5.0e-5 at every r and the linear solve's to 1.2e-4 (one clock
+// 1.6e-4), so the clock leaves the statics alone. W1 holds: Gauss 0 off in 6,144 beat checks, no line off the husk, curl
+// 0, 0 wraps, every remainder in its window (widest used 38,008 of 76,032), largest step 0.452, all three runs reverse
+// bit for bit. W2 holds on the stated knife edge: k = 0.02272, 0.5489 of the husk alone's 0.04139 against 0.5655, 2.94
+// percent off against 3 (the one-clock stack 0.5489 too). W3 holds: delta positive at every r, 0.3375, 0.1504, 0.0826 at
+// r = 4, 8, 12 against the prediction's 0.3634, 0.1793, 0.1124, within 24.0 percent on r = 4 .. 11. W3RS fails: log
+// slope 1.165 (the one-clock stack's 1.165, the prediction's 1.020) against RS's 1.865, size 0.27 .. 0.54 of RS's on
+// r = 4 .. 11 (off by up to 73 percent). Title written after the run.
+//
 // Depth L2: a known construction (a massless scalar on a brane backed by a layered bulk) run as an integer reversible
 // rule on bounded registers, with a comparison run. DETERMINISM: every start and source is placed; nothing is drawn.
 // NOTHING MOVES: each value takes its new value by the rule.
@@ -126,7 +136,8 @@ const worst = (a: readonly number[], b: readonly number[], rs: readonly number[]
 export default experiment({
   id: 'gravity/warp-husk-static',
   code: 'E-GRV-0102',
-  title: 'PENDING',
+  title:
+    "warping the bulk's clock with its scale leaves the static pull exactly as it was, so the short-range correction keeps hyperbolic 4-space's shape and not Randall-Sundrum II's, fail on W3RS as derived: a static field has no rate, so it solves the link weights' Laplacian whatever divides the rate, and the warped stack's force equals the one-clock stack's to 5.0e-5 and the linear solve's to 1.2e-4; exact and bounded (Gauss 0 off, no line off the husk, curl 0, 0 wraps, every remainder in its window, reversal bit for bit); k is 0.549 of the husk alone's against the prediction's 0.566 (2.9 percent, gate 3); the correction is positive, 0.34 and 0.15 at r = 4 and 8 (within 24 percent of the prediction), log slope 1.16 against RS's 1.87 and 0.27 to 0.54 of RS's size; RS's shape needs the lapse inside the link weights as well (theory: slope 1.51)",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

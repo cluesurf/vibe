@@ -17,7 +17,8 @@
 import { newStepTally, type StepRule, type StepTally } from '@/code/rule/step-depth'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { applyOpenPath, duplicateOpen, emptyOpen, HUSK_LATERAL, openBeat, openBeatBack, openDepth, openDivisor, openFittingPath, openRestLow, openHopPaths, openScratch, placeOpenLines, sameOpen, type LinkAllow, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
+import { linearFit } from '@/code/measure/regression'
+import { applyOpenPath, duplicateOpen, emptyOpen, HUSK_LATERAL, huskOnly, openBeat, openBeatBack, openDepth, openDivisor, openFittingPath, openRestLow, openHopPaths, openScratch, placeOpenLines, sameOpen, type LinkAllow, type OpenMesh, type OpenPath, type OpenState } from '@/code/rule/open-husk'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
@@ -62,6 +63,11 @@ export function previousOpenStep(mesh: OpenMesh, rule: StepRule, s: OpenState): 
   return out
 }
 
+// the lapse in the links (code/rule/open-husk lapseLinks): a link's weight is its mesh weight times 2^-e, a dock's
+// kinetic weight is its clock's divisor multiple times 2^-e (1 on both without a lapse)
+export const linkLapse = (mesh: OpenMesh, m: number): number => (mesh.lapse ? 2 ** -mesh.lapse.link[m]! : 1)
+export const dockLapse = (mesh: OpenMesh, y: number): number => (mesh.lapse ? 2 ** -mesh.lapse.dock[y]! : 1)
+
 export type OpenEnergy = { energy: number; free: number; huskFree: number; sourceFound: number; sourceLocal: number; curl: number }
 
 export function openEnergy(mesh: OpenMesh, rule: StepRule, s: OpenState, rho: Int32Array): OpenEnergy {
@@ -78,8 +84,9 @@ export function openEnergy(mesh: OpenMesh, rule: StepRule, s: OpenState, rho: In
   let sourceLocal = 0
 
   for (let y = 0; y < mesh.docks; y++) {
-    // the warped clock's dock carries kappa / 4^k: its kinetic part is 4^k v^2 / kappa
-    const k = (s.rate[y]! / u) ** 2 * (mesh.inertia ? mesh.inertia[y]! : 1)
+    // the warped clock's dock carries kappa / 4^k: its kinetic part is 4^k v^2 / kappa (with the lapse in the links
+    // too, 2^k v^2 / kappa: code/rule/open-husk lapseLinks)
+    const k = (s.rate[y]! / u) ** 2 * (mesh.inertia ? mesh.inertia[y]! : 1) * dockLapse(mesh, y)
 
     kinetic += k
     if (y < mesh.huskDocks) huskKinetic += k
@@ -88,7 +95,8 @@ export function openEnergy(mesh: OpenMesh, rule: StepRule, s: OpenState, rho: In
 
   for (let m = 0; m < mesh.links; m++) {
     const g = mesh.weight[m]!
-    const p = ((s.step[m]! / u) * (f0[m]! / u)) / g
+    // a lapsed link stores F~ = 2^e F against a weight g 2^-e: F F / (g 2^-e) = F~ F~ 2^-e / g
+    const p = (((s.step[m]! / u) * (f0[m]! / u)) / g) * linkLapse(mesh, m)
 
     links += p
     if (mesh.kind[m] === HUSK_LATERAL) huskLinks += p
@@ -112,7 +120,7 @@ export function openStaticFunctional(mesh: OpenMesh, rule: StepRule, step: Float
   let quad = 0
   let source = 0
 
-  for (let m = 0; m < mesh.links; m++) quad += step[m]! ** 2 / mesh.weight[m]!
+  for (let m = 0; m < mesh.links; m++) quad += (step[m]! ** 2 / mesh.weight[m]!) * linkLapse(mesh, m)
   for (let y = 0; y < mesh.docks; y++) if (rho[y] !== 0) source += rho[y]! * x[y]!
 
   return (Math.PI / rule.depth) * (quad / 2 - source)
@@ -214,7 +222,7 @@ export function greenSolve(mesh: OpenMesh, rho: ArrayLike<number>, tolerance = 1
 
     for (let m = 0; m < mesh.links; m++) {
       const z = mesh.head[m]!
-      const d = mesh.weight[m]! * (p[mesh.tail[m]!]! - (z >= 0 ? p[z]! : 0))
+      const d = mesh.weight[m]! * linkLapse(mesh, m) * (p[mesh.tail[m]!]! - (z >= 0 ? p[z]! : 0))
 
       out[mesh.tail[m]!] = out[mesh.tail[m]!]! + d
       if (z >= 0) out[z] = out[z]! - d
@@ -394,7 +402,11 @@ export function linkDistance(mesh: OpenMesh, from: readonly number[]): Int32Arra
 //  'lapse'  THEORY ONLY (no rule runs it): the lapse inside the link weights as well, as in Randall-Sundrum's action
 //           sqrt(-g) g^ab: s_k = 6 lambda_k^2, c_k = lambda_k^3 (lambda_k lambda_k+1)^(1/2) (the lapse at the vertical
 //           link's middle), m_k = lambda_k^2: AdS_5's static weights e^(-2ky), e^(-4ky), and s_k = 6 m_k again.
-export type Warp = 'none' | 'clock' | 'lapse'
+//  'lapse_upper'  the lapse in the links AS THE RULE BUILDS IT (code/rule/open-husk lapseLinks): 'lapse' with each
+//           vertical link carrying its UPPER dock's lapse, c_k = lambda_k^3 lambda_k = 16^-k, since a weight of
+//           2^-(k + 1/2) is not a ratio of integers. It is RS's profile e^(-2ky), e^(-4ky) sampled at the upper face of
+//           each slab, with the one-clock stack's layer spacing sqrt 6 (warpedLayering below with one slab a doubling).
+export type Warp = 'none' | 'clock' | 'lapse' | 'lapse_upper'
 
 export type StackLayers = { stiff: number[]; conduct: number[]; inertia: number[] }
 
@@ -404,12 +416,30 @@ export function stackLayers(sides: readonly number[], warp: Warp = 'none'): Stac
 
   if (warp !== 'none' && lapse.some((l, k) => k > 0 && l >= lapse[k - 1]!)) throw new Error('stackLayers: a warp needs a shrinking stack')
 
-  const inLinks = warp === 'lapse' ? lapse : lapse.map(() => 1)
+  const lapsed = warp === 'lapse' || warp === 'lapse_upper'
+  const inLinks = lapsed ? lapse : lapse.map(() => 1)
+  const vertical = (k: number): number => (warp === 'lapse_upper' ? inLinks[k]! : Math.sqrt(inLinks[k]! * inLinks[k + 1]!))
   const stiff = sides.map((s, k) => 6 * (docks[k]! / docks[0]!) * (sides[0]! / s) ** 2 * inLinks[k]!)
-  const conduct = sides.slice(0, -1).map((_, k) => (Math.max(docks[k]!, docks[k + 1]!) / docks[0]!) * Math.sqrt(inLinks[k]! * inLinks[k + 1]!))
-  const inertia = sides.map((_, k) => (docks[k]! / docks[0]!) * (warp === 'clock' ? lapse[k]! ** -2 : warp === 'lapse' ? lapse[k]! ** -1 : 1))
+  const conduct = sides.slice(0, -1).map((_, k) => (Math.max(docks[k]!, docks[k + 1]!) / docks[0]!) * vertical(k))
+  const inertia = sides.map((_, k) => (docks[k]! / docks[0]!) * (warp === 'clock' ? lapse[k]! ** -2 : lapsed ? lapse[k]! ** -1 : 1))
 
   return { stiff, conduct, inertia }
+}
+
+// Randall-Sundrum's static profile cut into slabs (theory): lateral e^(-2 k y), vertical e^(-4 k y), sampled at each
+// slab's upper face y_j = j l, with `perDoubling` slabs for each halving of the lateral scale (k l = ln 2 /
+// perDoubling), down to where the lateral weight falls under `floor`. Isotropic at the husk: s_0 = 6 (the husk mesh's
+// own) and c_0 = s_0 / l^2. With perDoubling = 1, curvature = ln 2 / sqrt 6 and five slabs it is stackLayers(sides,
+// 'lapse_upper') exactly; as perDoubling grows at a fixed curvature it tends to the continuum RS II bulk.
+export function warpedLayering(curvature: number, perDoubling: number, floor: number): { stiff: number[]; conduct: number[] } {
+  const spacing = Math.LN2 / perDoubling / curvature
+  const stiff: number[] = []
+  const conduct: number[] = []
+
+  for (let j = 0; Math.exp(-2 * curvature * j * spacing) >= floor; j++) stiff.push(6 * Math.exp(-2 * curvature * j * spacing))
+  for (let j = 0; j + 1 < stiff.length; j++) conduct.push((6 / spacing ** 2) * Math.exp(-4 * curvature * j * spacing))
+
+  return { stiff, conduct }
 }
 
 // the continuum speeds, in units of the husk's c: each layer's lateral waves, sqrt(s_k / 6 m_k), and the zero mode
@@ -424,8 +454,14 @@ export function stackSpeeds(sides: readonly number[], warp: Warp = 'none'): { la
 export type StackMode = { mass: number; weight: number }
 
 export function stackModes(sides: readonly number[], warp: Warp = 'none'): StackMode[] {
-  const n = sides.length
   const { stiff, conduct } = stackLayers(sides, warp)
+
+  return layeredModes(stiff, conduct)
+}
+
+// the modes of any layered stack, from its per-husk-dock lateral stiffnesses and the vertical conductances between them
+export function layeredModes(stiff: readonly number[], conduct: readonly number[]): StackMode[] {
+  const n = stiff.length
   // S^-1/2 C S^-1/2, symmetric
   const b = makeDense({ rows: n, cols: n })
   const add = (i: number, j: number, v: number): void => {
@@ -445,3 +481,127 @@ export function stackModes(sides: readonly number[], warp: Warp = 'none'): Stack
 }
 
 export const stackGreen = (modes: readonly StackMode[], r: number): number => modes.reduce((t, m) => t + m.weight * Math.exp(-m.mass * r), 0) / (4 * Math.PI * r)
+
+// ---------------------------------------------------------------------------------------------------------
+// THE ROD FRONT (E-GRV-0104): a witness for the speed of the pull that reads the husk alone at c.
+//
+// WHY A ROD. One unit hopping one dock is a dipole: at any dock its two fronts (the content leaving, the content
+// arriving) are at most one dock (5 beats) apart, inside each other's smear, so no single threshold sees one front.
+// A ROD of content along +x, every unit hopping one dock +x in the same beat, changes the content by -u at the rod's
+// first dock and +u one past its last, and nothing between: by linearity the change behind the rod, at (-d, 0, 0), is
+// one monopole front (the content leaving the origin) with the arriving front `rod` docks further off. Each hop is a
+// neighbor hop of the rule; nothing is added.
+//
+// WHY ONE THIRD (the husk's dispersion). The husk's waves are subluminal at short wavelength (group velocity
+// c cos(p / 2) along an axis to leading order, omega = c p (1 - gamma p^2)), so a front switched on at t0 reaches a
+// dock at distance d smeared over a width sigma ~ (3 gamma d)^(1/3) that grows with d, its value at d the switched
+// height times the integral of the Airy function up to (c (t - t0) - d) / sigma. At c (t - t0) = d that integral is
+// exactly 1/3 whatever sigma is, so the time the change reaches ONE THIRD of the front's height is t0 + d / c with no
+// term in sigma, and a line through those times reads c. Any other fraction x crosses at s_x sigma(d) off the cone, a
+// d^(1/3) drift that a straight line reads as a speed: the fractions of a MAXIMUM of E-GRV-0101 and 0103 (1.17 c and
+// 1.40 c on the husk alone) are that drift, on a near-field pulse whose maximum itself moves.
+// THE HEIGHT is the husk's static field of the content that left, u / (24 pi d) in depth (the husk mesh's L = 6 p^2).
+// On a stack the front carries every mode (each mode's front is sharp at c, its wake then pulls the level down to the
+// stack's static e^(-m r) / r), so its height is the husk's too; a height off by a fraction e moves the crossing by
+// about e sigma, a d^(1/3) drift of under e / 30 of the speed over d = 4 .. 20.
+// THE READING: the change in depth at (-d, 0, 0) is the sum of the change in rate over the beats since the hop (the
+// depth takes the rate each beat; both runs start from the same state), the crossing time is interpolated between
+// beats, and v is 1 / the slope of those times against d.
+export type RodFrontSpec = { rod: number; units: number; hopAt: number; window: number; distances: readonly number[]; fit: readonly number[] }
+
+export type RodFront = {
+  // beats after the hop at which |change| first reaches `share` of the height, per distance (interpolated), and v
+  third: number[]
+  half: number[]
+  tenth: number[]
+  speedThird: number
+  speedHalf: number
+  speedTenth: number
+  // the fitted intercept of the third's line (beats after the hop)
+  offset: number
+  // the change in depth over the height, averaged over the 16 beats before the arriving front can reach the dock
+  plateau: number[]
+  // the change at each distance, per beat after the hop (for the notes)
+  change: number[][]
+  reversed: boolean
+}
+
+export function crossing(series: readonly number[], level: number): number {
+  for (let t = 0; t < series.length; t++) {
+    const now = Math.abs(series[t]!)
+
+    if (now < level) continue
+    if (t === 0) return 1
+
+    const was = Math.abs(series[t - 1]!)
+
+    return t + (level - was) / (now - was)
+  }
+
+  return NaN
+}
+
+export function rodFront(mesh: OpenMesh, rule: StepRule, spec: RodFrontSpec, record: OpenRecord, c: number): RodFront {
+  const allow = huskOnly(mesh)
+  const s = mesh.side
+  const sink = [s / 2, s / 2, s / 2]
+  const rho0 = openContent(
+    mesh,
+    Array.from({ length: spec.rod }, (_, i) => ({ at: [i, 0, 0], units: spec.units, to: sink })),
+  )
+  const docks = spec.distances.map(d => huskDock(mesh, [-d, 0, 0]))
+  const beats = spec.hopAt + spec.window
+  const trace = (hops: OpenHop[]): { rates: number[][]; reversed: boolean } => {
+    const rates: number[][] = []
+    const run = openHopRun(
+      mesh,
+      rule,
+      rho0,
+      hops,
+      beats,
+      record,
+      (t, st) => {
+        if (t > spec.hopAt) rates.push(docks.map(y => st.rate[y]!))
+      },
+      allow,
+    )
+
+    return { rates, reversed: run.reversed }
+  }
+  const still = trace([])
+  // the far end first, so each unit hops onto a dock its neighbor has just left
+  const moved = trace(Array.from({ length: spec.rod }, (_, j) => ({ beat: spec.hopAt, from: [spec.rod - 1 - j, 0, 0], to: [spec.rod - j, 0, 0], units: spec.units })))
+  const change = spec.distances.map((_, i) => {
+    let x = 0
+
+    return still.rates.map((r, k) => (x += (moved.rates[k]![i]! - r[i]!) / rule.unit))
+  })
+  const height = spec.distances.map(d => spec.units / (24 * Math.PI * d))
+  const at = (share: number): number[] => change.map((series, i) => crossing(series, share * height[i]!))
+  const third = at(1 / 3)
+  const half = at(1 / 2)
+  const tenth = at(1 / 10)
+  const fitIndex = spec.fit.map(d => spec.distances.indexOf(d))
+  const line = (times: number[]): { slope: number; intercept: number } => linearFit({ xs: fitIndex.map(i => spec.distances[i]!), ys: fitIndex.map(i => times[i]!) })
+  const plateau = spec.distances.map((d, i) => {
+    // the arriving front starts d + rod docks off; average the 16 beats before it could be within 2 sigma
+    const end = Math.min(change[i]!.length, Math.floor((d + spec.rod - 2) / c))
+    const from = Math.max(0, end - 16)
+    const slice = change[i]!.slice(from, end)
+
+    return slice.reduce((t, v) => t + Math.abs(v), 0) / Math.max(1, slice.length) / height[i]!
+  })
+
+  return {
+    third,
+    half,
+    tenth,
+    speedThird: 1 / line(third).slope,
+    speedHalf: 1 / line(half).slope,
+    speedTenth: 1 / line(tenth).slope,
+    offset: line(third).intercept,
+    plateau,
+    change,
+    reversed: still.reversed && moved.reversed,
+  }
+}

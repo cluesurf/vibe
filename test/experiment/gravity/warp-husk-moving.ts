@@ -51,6 +51,20 @@
 //     part >= 0 at every sample; the found and local source terms agree to 1e-9.
 // Verdict: pass if D1 to D4 hold; fail otherwise. (The one-clock stack, E-GRV-0101, is the case where D2 said no.)
 //
+// FIRST RUN (tmp/warp-moving-run1.log; 243 s, the record): fail on D2; no gate moved. D1 holds: 15 hops over 4,096 beats,
+// Gauss 0 off in 4,096 checks, curl 0, 0 wraps, every remainder in its window, reversal bit for bit, the largest husk
+// step per window 0.60 then 0.85 .. 0.89, the husk holding 0.88 .. 0.95 of the field energy. D2: nothing changes on the
+// next beat, the first change (2, 3, 4, 5, 9, 13, 14, 18, 18, 26, 29 beats at d = 2 .. 12) is inside the link cone
+// (2 .. 7), but the first 10 percent reads 1.140 c and the first 25 percent 1.229 c (half maximum 1.242 c), over the
+// 1.05 c bound. THE CALIBRATION reads the husk ALONE, with no bulk at all, at 1.166 c (10 percent) and 1.397 c (25
+// percent) by the same method, on nearly the same beats (10, 13, 19, 20, 26, 29, 33, 38, 43, 47, 52 for the 10 percent,
+// against the stack's 10, 13, 19, 20, 26, 29, 33, 38, 43, 48, 53). So the stack's front is at or under the husk alone's,
+// and the excess over c is the method's (the threshold of a change that is mostly the near field's static shift, fitted
+// on d = 3 .. 12), not a path through the bulk; E-GRV-0101's 1.26 and 1.40 c sit on the same bias. D3 holds: -5.0448e-4
+// per unit content for a 1-love and a 3-fear lump, alike to 2.2e-11, the linear solve's to 3e-9 (the one-clock stack's
+// value, as the statics are). D4 holds: drift 2.6e2, 3.5e-3, 8.0e-6 of the static energy at 1 .. 3 digits, field part
+// >= 0, found and local source terms 6.4e-16 apart. Title written after the run.
+//
 // Depth L2: the radion's known construction on bounded registers in a layered bulk with a warped clock. DETERMINISM:
 // every start and source is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule; a hop
 // is a scheduled event.
@@ -170,7 +184,8 @@ function front(mesh: OpenMesh, rule: ReturnType<typeof stepRule>, record: OpenRe
 export default experiment({
   id: 'gravity/warp-husk-moving',
   code: 'E-GRV-0103',
-  title: 'PENDING',
+  title:
+    "with the bulk's clock warped every layer and the zero mode run at c in the derivation, and the pull's front on the husk reads 1.14 c (first 10 percent) and 1.23 c (first 25 percent), fail on D2, but the husk alone with no bulk reads 1.17 c and 1.40 c by the same method on nearly the same beats, so the excess is the front method's near-field bias and not a path through the bulk (E-GRV-0101's 1.26 and 1.40 c sit on it too); nothing changes on the next beat and the first change stays inside the link cone; 15 hops over 4,096 beats keep Gauss, curl 0, 0 wraps, every remainder in its window and reverse bit for bit, the largest husk step 0.85 .. 0.89; lumps fall alike to 2.2e-11 at -5.04e-4 per unit content, the one-clock stack's value; energy drifts 8.0e-6 of the static at three digits",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

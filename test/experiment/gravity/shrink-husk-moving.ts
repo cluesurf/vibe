@@ -1,3 +1,8 @@
+// CORRECTION (read with E-GRV-0103): the front readings below (1.26 c, 1.40 c) are the front witness's near-field bias,
+// not a path through the bulk. The husk ALONE, with no bulk, reads 1.166 c and 1.397 c by the same method (E-GRV-0103),
+// and the warped stack reads at or under it. Any line of this header that blames the fast front on the unwarped bulk
+// clock is superseded by that calibration. The gate D2 still fails as it was written; the record is unchanged.
+//
 // The shrinking husk, moving (E-GRV-0101): E-GRV-0095's dynamics gates on E-GRV-0100's geometry, the husk backed by
 // layers that shrink inward (code/rule/open-husk growth 'shrink': the {3,4,3,4}'s orientation and Randall-Sundrum II's),
 // content lines on the husk only and closed on a sink at the antipode (E-GRV-0100's header gives the geometry, the

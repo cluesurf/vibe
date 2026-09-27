@@ -21,22 +21,20 @@
 
 ## The goal
 
-**Find the discrete base of the universe.** The working answer is the
-four-dimensional hyperbolic honeycomb **$\lbrace3,4,3,4\rbrace$**: a
-crystal of 24-cells, twenty-four directions at every cell, carrying a
-ternary tone (-1, 0, +1) per direction and updated by one deterministic,
-reversible, conserving local rule. Everything else (space and its
-dimension, the arrow of time, relativity, spin, gauge fields, the
-quantum, gravity, selves) has to EMERGE from that base through one to
-three middle layers, or the base is wrong. This repository is where that
-is tested, one measurable claim at a time, with the negatives kept.
+**Find the discrete base of the universe.** The working answer is a 4d
+hyperbolic mesh, the honeycomb **$\lbrace3,4,3,4\rbrace$**, whose every
+site holds 24 ternary values, updated by one deterministic, reversible,
+integer rule. Space and its dimension, time's arrow, relativity, spin,
+light, the quantum, gravity and selves each have to come out of that
+base, or the base is wrong. This repository tests that one measurable
+claim at a time, and keeps every result that said no.
 
-The program is heavily inspired by Maurice Margenstern's work on
-cellular automata in hyperbolic spaces: the $\lbrace7,3\rbrace$
-heptagrid and the $\lbrace5,3,4\rbrace$ dodecagrid, Fibonacci-tree
-addressing and navigation, and the proofs that these grids host
-universal computation. Those results are the reference points the
-substrate survey and the computation experiments are measured against.
+The program draws on Maurice Margenstern's work on cellular automata in
+hyperbolic spaces: the $\lbrace7,3\rbrace$ heptagrid and the
+$\lbrace5,3,4\rbrace$ dodecagrid, Fibonacci-tree addressing and
+navigation, and the proofs that these grids host universal computation.
+The substrate survey and the computation experiments are measured
+against those results.
 
 ## The companion pieces
 
@@ -44,568 +42,736 @@ substrate survey and the computation experiments are measured against.
 - [Vibe (Book)](https://www.amazon.com/dp/1951702743)
 - [Vibe Theory: A Discrete Hyperbolic Substrate for the Emerging Conscious Universe](https://doi.org/10.5281/zenodo.20694262)
 
-## What it found
+## The model, term by term
 
-This is not a sketch of a theory. It is a working discrete universe with
-results you can rerun, and some of them are startling:
+Each term is defined before it is used, with the reason it is this and
+not something else.
 
-- **Empty space is a clock.** Run the one rule on nothing and the vacuum
-  ticks with a three-beat cycle that cancels exactly, and that hidden
-  clock turns out to be where quantum phase lives.
-- **Quantum mechanics assembles itself.** A single added clause makes a
-  particle: speed one, exact superposition, interference that lands on
-  the complex-number arithmetic to fourteen decimal places, and
-  measurement as something a domain wall physically does.
-- **Nature's strangest fingerprint, reproduced.** The committed rule has
-  exact CPT symmetry while violating C and CP, the precise pattern the
-  weak interaction shows and no one ordered.
-- **The Cabibbo angle from pure geometry.** The mixing angle between the
-  first two particle generations comes out within four percent of the
-  measured value, from a growth rate of the honeycomb, with zero
-  adjustable numbers.
-- **Half of electromagnetism costs nothing.** No magnetic monopoles and
-  Faraday induction are exact identities of the model's fields, and both
-  are measured to one part in a trillion.
-- **A complete particle table, read off the rule.** Every one of the 24
-  directions is measured into exactly one band: massless matter at the
-  light speed, massive particles at rest that tick with an exact
-  internal clock (mass IS oscillation here, and you can watch it), and
-  an interacting band that radiates and scatters. Antiparticles are the
-  negative tone, conjugate to the particle exactly, and two excitations
-  can never share a slot, so exclusion is built into the state itself.
-- **One interaction for every species, with nature's symmetry kept.**
-  The rule's interaction was confined to one sector until the couple
-  pairing was set turning on a palindromic 24-beat schedule, found by
-  exhaustive search: the one construction that connects all twelve
-  species into a single interaction structure while keeping CPT exact,
-  and the matching cyclic schedule fails CPT everywhere, measured as the
-  control. Gauge universality, the fact that one photon talks to every
-  charged particle, stops being a mystery input and becomes a theorem
-  about mirror schedules.
-- **The gas is a near-perfect fluid, in graphene's band.** Deriving the
-  model's Planck constant from its own measured phase-kick law and
-  forming the viscosity-to-entropy ratio lands at eight times the
-  conjectured quantum bound: above it, within one order, exactly the
-  band where the graphene Dirac fluid measures and where water misses by
-  a factor of four hundred. Nothing was tuned to land there.
-- **Matter from nothing, quantized.** A growing edge charges the matter
-  sector out of the exactly symmetric empty state, in whole crystal
-  sheets, with the total exactly conserved, the model's own version of
-  why there is more matter than antimatter, satisfying all three of
-  Sakharov's conditions measurably.
-- **The measurement rule of quantum mechanics, taken apart.** The
-  model's detector was measured to be exactly a photon counter: it
-  weighs by NUMBER, is exactly blind to phase, and responds exactly
-  linearly per quantum. The wall that converts phase into countable
-  number, the interferometer's job, was measured too, and single
-  outcomes turn out to be deterministic per tick of the vacuum clock and
-  distributed over its ensemble. Where quantum randomness lives, and
-  what a detector actually is, both become mechanisms you can rerun.
-- **Mass is a flip rate, and you can count it.** The bare quantum always
-  moves at exactly light speed, measured beat by beat, and only its
-  DIRECTION flips. A century-old result of Kac says a walk like that
-  obeys the relativistic wave equation with mass equal to the flip rate,
-  so the model's masses come from counting flips: the massless species
-  count exactly zero, particle and antiparticle count identically to the
-  integer (the equality CPT demands), and every interacting species
-  lands near one universal value, the interaction's fairness showing up
-  as a mass.
-- **Two frontier questions, answered by measurement.** Where the mass
-  hierarchy comes from, and whether a single quantum's phase coherence
-  lives on the substrate: both were chased to their ends. The chase
-  found an exact localization law (a species that pins precisely where
-  it is born, at every position tested) and an exact locking law (a
-  dressed particle's phase and number cannot be changed independently),
-  and then closed both questions honestly: the hierarchy's magnitude is
-  a free input here exactly as in the Standard Model (while WHICH
-  flavors may couple at all, the texture, comes out as a derived law:
-  species that keep content at their creation site couple to every other
-  keeper through that shared origin, exactly, and who keeps depends on
-  birth epoch, with conjugate pairs keeping in mutual complement), and
-  interference coherence between paths is exact while a composite's
-  phase can never be steered independently of its number, which converts
-  into the model's sharpest technological stake: quantum computers, at
-  scale, should hit a number-organized error floor in the
-  composite-steering channel if this substrate is real.
-- **Who may couple is decided at birth, and symmetry breaks in clock
-  quanta.** The flavor texture turned out to be epochal: a species'
-  ability to couple through its origin depends on the beat it was born,
-  conjugate pairs keep in mutual complement, and the conjugate symmetry
-  of the full birth cycle forms a measured ladder, from a bound-state
-  pair that kept its origin at every epoch at two lattice sizes (with
-  sparse lapses appearing at a third), through one pair exactly
-  mirror-symmetric, down to pairs whose balance breaks by exactly three
-  beats, the clock quantum. Where symmetry fails in this universe, it
-  fails in exact steps, and a pre-registered bet on a cleaner law was
-  falsified and recorded on the way.
-- **A beautiful wrong answer, executed by its own test.** A
-  factorization of the electron-muon-tau mass hierarchy fit perfectly,
-  matched independent structure, and carried a pre-committed number that
-  would kill it. Sharper data arrived, the number fired, and the account
-  is dead, recorded in full. That is the point of the method: this model
-  earns its right results by how it treats its wrong ones.
-- **A public scoreboard with nothing hidden.** Seventy-four observed
-  features of nature, every one accounted for: zero open, zero blocked,
-  and the failures that happened along the way are kept in the record,
-  because every claim carries a control that could have said no.
+| term | what it is | why |
+| :--- | :--- | :--- |
+| **tone** | one trit: +1, 0 or −1. The whole state is tones | three is the smallest alphabet with an empty value and a sign flip (charge conjugation) ([`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts)) |
+| **vibe** | a slot holding +1 (a **love**) or −1 (a **fear**). A slot holding 0 is **calm** | the two signs are particle and antiparticle. **Charge** is love minus fear, **content** is love plus fear |
+| **dock** | one site of space: 24 **slots**, one per root of the D4 root system, which are the 24 vertices of a 24-cell. Opposite slots pair into 12 **lines** | D4 is the one 4d root system with triality ([`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts)), and its 24 directions carry the spinor double cover, so a 2π turn gives −1 ([`E-SPN-0042`](test/experiment/spin/spinor-double-cover.ts)) |
+| **mesh** | the space of docks. In the model it is the $\lbrace3,4,3,4\rbrace$ honeycomb: 24-cells whose vertex figure is the flat cubic honeycomb $\lbrace4,3,4\rbrace$. In the experiments it is a flat periodic D4 box of side 8, 16 or 24, a disclosed stand-in | the box has the same 24 directions per dock and is finite and exact. The honeycomb unfolds from one 24-cell in shells of 1, 24, 456, 8,376 and 153,192 docks, a ratio settling at 18.278 ([`E-GMT-0027`](test/experiment/geometry/mesh-unfolds-exactly.ts)) |
+| **beat** | one tick of time. Every dock applies the rule at once | the rule is synchronous and deterministic, so a run is reproducible bit for bit |
+| **take** | how anything gets anywhere: each beat a slot takes its neighbor's value along its direction (the **stream**). Nothing moves | a value is read and written, never carried, so the stream is a permutation and runs backward exactly |
+| **husk** | the 3d surface on which physics is read: the depth-even half of the 4d box, exactly closed ([`E-FRC-0168`](test/experiment/gauge/photon-husk.ts)). In the honeycomb it is the flat horosphere at a cusp | the vertex figure $\lbrace4,3,4\rbrace$ is flat 3d, so the mesh has flat 3d surfaces at infinity, and a spectral dimension near 3 is read there ([`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts)) |
+| **bulk**, **depth** | the 4d mesh behind the husk. A **husk column** is the stack of bulk docks behind one husk dock, and its size D is its **depth** | every husk field is a column sum of bulk trits, so the depth sets how finely the husk counts ([`E-FRC-0207`](test/experiment/gauge/trit-column-light.ts)) |
+| **role**, **link** | each vibe carries a point on a 3 by 3 grid (its role, a qutrit). A **link** between two docks holds a grid move, one of the 648 elements of the qutrit Clifford group Σ(648) | the links are exactly that group ([`E-QTM-0117`](test/experiment/quantum/links-are-the-clifford-group.ts)). A link stores no matter: it is the relation between the vibes on it |
+| **store** | a dock line's held love and fear pair, made from an empty line and released back to it | this is how the vacuum makes and unmakes pairs while its charge stays 0 |
+| **amplitude** | the state is a finite sum of classical configurations, each weighted by an exact number in $\mathbb{Z}[\omega][1/2]$, $\omega = e^{2\pi i/3}$ | every three in the model (charge in thirds, the knot $1 + \omega + \omega^2 = 0$) lives in this one ring, and it needs no rounding |
+| **path** | one measurement record of the quantum rule: at every split one branch, chosen by a deterministic key | a path is what one observer would record. A path can scramble while the sum it samples stays linear, so fields are read as averages over paths |
 
-**What this means.** If it holds up, the deepest postulates of physics
-stop being postulates. The quantum amplitude is not an axiom here, it is
-a clock you can watch tick. Measurement and collapse are not a mystery,
-they are what a wall does. The matter-antimatter asymmetry is not an
-unexplained initial condition, its three required ingredients sit in the
-rule itself. And space, time, gravity, and particles are not separate
-furniture, they are one crystal seen at different scales.
+## The rule, as it stands
 
-**What it is for, today.** Three concrete uses, none of them requiring
-belief in the big claim: it makes hard PREDICTIONS that could kill it
-(free magnetic monopoles are exactly impossible, the vacuum-angle part
-of the neutron's electric dipole moment is exactly zero, CPT is exact),
-it is a fully reproducible laboratory for quantum foundations (every
-collapse, interference, and Bell result here reruns deterministically on
-a laptop, which nothing in a physics lab can offer), and its method,
-every claim gated by a control that could say no with corrections
-published in place, is a working template for how to do machine-assisted
-science without fooling yourself.
+Each beat applies the coin, then the meetings, then the collision, then
+the stream. Every piece is an exact, reversible map in
+$\mathbb{Z}[\omega][1/2]$, with no float, no rounding and no random
+number, and runs backward piece by piece.
 
-Everything above is deterministic and reruns from one command. The
-committed rule is the palindromic turning weave (`turningWeave`),
-adopted 2026-09-02 after clearing the same public acceptance discipline
-twice: first as the static weave (`lineWeave`, now the previous
-committed rule and the turning weave's frozen-schedule sector,
-[`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts)
-through
-[`E-FND-0111`](test/experiment/foundations/dressed-traveller.ts)), then
-as the turning schedule itself
-([`E-FND-0113`](test/experiment/foundations/weave-species-spectrum.ts)
-through
-[`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts)). The
-two arcs that led the open research are now closed by measurement: the
-Born programme's counter, port, per-quantum law and ensemble halves are
-complete (E-FND-0123 through E-FND-0127), the substrate-level coherence
-question is answered by the phase-number locking law (E-FND-0140), and
-the mass programme ends with the mechanisms measured and the hierarchy
-magnitude honestly free (E-FND-0131 through E-FND-0139). What the
-programme carries forward is its planted stakes: the number-organized
-error floor that quantum hardware at scale would show if this substrate
-is real, and the registered graphene channel prediction. The method that
-got here is three enforced rules born from corrected claims: a bound is
-only as good as the beats and sizes it was watched for, a violation
-claim is only as good as the group swept, and a boundedness claim is
-only as good as the sampling phases tried. The quantum sector map is
-[note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
+| piece | what it does | why this one | code |
+| :--- | :--- | :--- | :--- |
+| the knit | the pieces below, keeping W(F4), the full symmetry of the dock (1,152 elements) | a knit that keeps all of W(F4) exists and keeps CPT, so no direction of the dock is preferred | [`E-RLT-0061`](test/experiment/relativity/isometric-knit.ts) |
+| the collision | a dock's full lines turn as −1 and a lone vibe goes straight through | a lone vibe's wake stays on its own line, the free particle's straight path | [`E-RLT-0084`](test/experiment/relativity/lone-bounce-collision.ts) |
+| the doublet lock | a vibe's take direction along its line is its role's spin doublet | the only way a vibe can move with amplitudes and stay covariant (a theorem), and what makes every charge-one state a spinor | [`E-RLT-0097`](test/experiment/relativity/doublet-locked-knit.ts), [`E-SPN-0071`](test/experiment/spin/locked-spin-statistics.ts) |
+| the meeting | a love and a fear on one line pass unchanged. Two like vibes keep their points (weight 1/4) or exchange them (3/4), leaving a **knot** with CHSH √7 | the love and fear case is the identity by the conjugation convention, which is helicity suppression | [`E-RLT-0099`](test/experiment/relativity/doublet-locked-quantum.ts) |
+| the contact | two like vibes on a full line keep their slots (the **pass**, phase +1) instead of bouncing (−1) | of the six phases the ring allows, only the bounce and the pass add no new number, and only the pass binds the electron | [`E-SPN-0092`](test/experiment/spin/contact-rule-theorem.ts), [`E-SPN-0093`](test/experiment/spin/passing-contact-cluster.ts) |
+| the store | pairs made and released with no veto, each stored pair holding two points | the only vacuum measured that holds under the pass | [`E-RLT-0102`](test/experiment/relativity/no-veto-store-build.ts), [`E-RLT-0103`](test/experiment/relativity/no-veto-store-vacuum.ts) |
+| the coin | on a line holding one open vibe (a vibe that carries amplitude), $2C = (1 + \omega) I + (1 - \omega) X$ on its two slots | it gives a lone vibe a mass (gap 2π/3, top speed 1/2 a beat). Its cost is exact lattice momentum, the one symmetry that forbids a mass | [`E-SPN-0090`](test/experiment/spin/covariant-coin-theorem.ts), [`E-SPN-0091`](test/experiment/spin/coined-knit-electron.ts) |
 
-## How the model works
+**The light** runs beside the knit on the links: every husk angle, flux
+and counter is a column sum of bulk trits, with coupling
+$\kappa = 2/(2D + 1)$ ([`E-FRC-0207`](test/experiment/gauge/trit-column-light.ts)).
+A bounded, reversible column of $2D + 1$ values is a circle, so the
+light is compact U(1) exactly
+([`E-FRC-0244`](test/experiment/gauge/photon-seam-law.ts),
+[`E-FRC-0245`](test/experiment/gauge/photon-circle-light.ts)).
 
-The whole model, in one walk-through you can hold in your mind's eye.
+**Where the quantum comes from.** Without the meeting (the fear beat)
+the knit is Clifford and can be simulated classically. The meeting is
+the one gate outside the Clifford group
+([`E-QTM-0118`](test/experiment/quantum/fear-beat-is-magic.ts)). Under
+the lock, motion adds a second source: no locked direction is a
+stabilizer state, so a moving vibe carries a fixed fear share of 0.164
+([`E-RLT-0099`](test/experiment/relativity/doublet-locked-quantum.ts)).
+A static vibe is classical and a moving one is quantum (chosen
+2026-09-26).
 
-**The stage.** Picture a crystal built from 24-cells, packed so that
-every cell touches exactly 24 neighbors, one along each direction of the
-D4 root system. That crystal is the $\lbrace3,4,3,4\rbrace$ honeycomb.
-There is no space underneath it. It IS space.
+**The working vacuum** (chosen 2026-09-26) is the no-veto store under
+the pass, with the coin on, and one C domain with no walls. Frozen
+domain walls were dropped because in cosmology they are a liability,
+not a fact to reproduce. On 51 of 51 gated cases
+([`E-RLT-0105`](test/experiment/relativity/coined-store-vacuum.ts)):
 
-**The state.** Each of a cell's 24 directions holds one tone: -1, 0, or
-+1. That is the entire state of the universe. No fields, no positions,
-no wavefunctions. Tones on directions.
+- the vacuum keeps its conservation laws, because no vacuum vibe is ever
+  alone on its line, so the coin acts on it 0 times on every path
+- the run reverses exactly, charge conjugation (C) holds, and every husk
+  dock is one causal world
+- pairs made equal pairs unmade, 466,944 each, on a cycle of 12 beats
+  ([`E-GRV-0072`](test/experiment/gravity/shared-history-distance.ts))
+- a lone vibe's wake stays on its line, at most 16 trits a period
+- a lone love spreads over 105 to 124 occupations by beat 16 on 17 of
+  17 starts, so positions carry amplitude, at no cost to the vacuum
+- not held: the kept branch of a like meeting does not interfere (the
+  lone love reads the dephased 1/4, 1/16, 1/64). Whether any quantum
+  result needs it is open
 
-**The beat.** Time advances in ticks. Each tick, every cell applies the
-one local rule to its own 24 slots (the turning weave: the directions
-pair into lines, the lines couple across planes, five couples run a
-fixed 9-state clock table and one carries the particle-making swap, and
-the pairing itself walks out and back under a fixed crystal symmetry on
-a palindromic 24-beat schedule, so every couple takes its turn carrying
-the swap), and then every tone slides one cell along its direction. The
-rule is exactly reversible and conserves total charge. Run it backward
-and the past returns bit for bit.
+**The rule has changed often, and old results stay tied to their
+rule.** Earlier committed rules include `pairCollision`, `lineWeave`,
+the turning weave (`turningWeave`, adopted 2026-09-02), the fear weave
+and the combined knit
+([`E-FRC-0159`](test/experiment/gauge/combined-knit-battery.ts)). Most
+pieces above were chosen on 2026-09-26. Every experiment states the
+rule it ran on, and many held results ran on an earlier rule and have
+not been rerun on this one.
 
-**The vacuum.** Run the rule on emptiness and the emptiness flashes: a
-balanced pair appears, turns, and cancels, every three beats, in every
-cell, in step. The vacuum is a clock. Averaged over its cycle it cancels
-exactly, which is why emptiness looks empty.
+## Where it stands
 
-**Time's arrow.** The universe grows at its edge. A region born two
-beats late ticks two beats behind, forever, because nothing in a
-reversible rule can forget. So growth writes a phase onto every region
-of space, the phases tile the universe into domains, and the walls
-between domains are real surface objects, their content quantized in
-whole cross-sectional sheets, breathing with an exact short period and
-thinning as the lattice grows. That tiling is the model's condensate,
-and the arrow of time is what wound it.
+The working ledger (kept beside this repository, not in it) lists 191
+facts the model must produce, from the Born rule to the specious
+present, each graded under one set of rules: read on the 3d husk, the
+rule integer and reversible, a stand-in labeled and never graded as a
+derivation, a numerical match counted only through a pre-registered
+null ([`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts)),
+and the verdict judged over 17 link starts
+([`E-MTH-0028`](test/experiment/method/multi-start-robustness.ts)).
 
-**Matter.** A lone tone is a particle. It moves at speed one along its
-line, holds exactly one slot forever, superposes with other particles to
-machine precision, and carries a fixed phase class of its own. In the
-densely tiled vacuum it travels dressed: a finite cloud of medium
-excitation rides with it, saturating rather than growing, and three
-walls cost it no more dressing than one.
+| status | meaning | facts |
+| :--- | :--- | ---: |
+| held | measured on the rule itself, with a control, over the start family | 36 |
+| partial | measured, but on a stand-in, one sector, one start, or with a gate failing | 52 |
+| stand-in | only a textbook calculation or a hand-built object the rule has not produced | 45 |
+| open | worked on and not reached | 26 |
+| none | not started | 32 |
 
-**Interactions.** The knit wires every particle's line to a partner
-plane, and that wiring is the particle's polarization: it feels exactly
-the walls whose axis lies in its wire plane, and it passes through every
-other wall untouched, one slot, no wake. Crossing a wall it does feel
-kicks its phase by exactly one clock unit and sets the wall ringing,
-which is emission. Different wirings feel different walls, so one rule
-carries many species, some blind to what detects another. And because
-the pairing turns, every species is wired to every other over one
-schedule period: the interaction structure is one connected web, which
-is what gauge universality demands, and a few directions ride through
-protected, their motion never meeting the swap window, a species that
-interacts with almost nothing.
+By area:
 
-**Measurement.** A wall two beats out of step is a detector: it
-amplifies the phase class it rejects past a hundred cells and stays
-exactly quiet on the class it accepts. Selection and amplification, the
-working parts of collapse, are things a wall does. The outcome weights
-come out by counting.
+| area | held | partial | stand-in | open | none |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| quantum foundations | 12 | 7 | 3 | 5 | 6 |
+| special relativity | 3 | 4 | 0 | 1 | 2 |
+| spin and statistics | 4 | 4 | 0 | 0 | 3 |
+| light and charge | 6 | 9 | 0 | 1 | 3 |
+| atoms and chemistry | 0 | 3 | 7 | 0 | 1 |
+| the strong force and nuclei | 0 | 3 | 3 | 2 | 1 |
+| the weak force and the Standard Model | 0 | 2 | 6 | 3 | 1 |
+| gravity and spacetime | 1 | 0 | 11 | 1 | 0 |
+| cosmology | 0 | 1 | 5 | 4 | 6 |
+| heat, statistics and time | 2 | 3 | 1 | 0 | 1 |
+| matter in bulk and fluids | 1 | 0 | 1 | 2 | 2 |
+| the vacuum and walls | 4 | 0 | 0 | 0 | 0 |
+| the classical world | 1 | 0 | 2 | 1 | 0 |
+| information and computation | 0 | 0 | 2 | 0 | 2 |
+| the numbers nature fixes | 1 | 1 | 4 | 2 | 1 |
+| experience, selves and consciousness | 1 | 12 | 0 | 2 | 3 |
+| the whole, consistent | 0 | 3 | 0 | 2 | 0 |
 
-**Interference.** Superposed branches never mix as configurations (the
-rule is a permutation), but their coarse clock amplitudes add as complex
-numbers, exactly: two aligned branches double, a kicked branch against a
-free one cancels down to the sixty-degree cosine. The quantum arithmetic
-lives one level up from the tones, and it is exact there.
+The gravity rows count the depth register below as a stand-in, since it
+is a part added to the rule rather than one the rule produces.
 
-**Everything else is a coarse view.** Entropy is what the coarse
-description loses while the microstate stays perfect. Sound is the gas's
-standing waves. Gravity is the varying clock rate read as an optical
-metric, with lensing and refraction one mechanism. Expansion is growth.
-The Cabibbo angle is the shell geometry. The scoreboard below tracks all
-of it, row by row, against what nature shows.
+## What holds on the current rule
+
+| fact | measured | code |
+| :--- | :--- | :--- |
+| Bell violation | CHSH above 2 on exact algebraic values, never 2 on 17 of 17 starts | [`E-QTM-0140`](test/experiment/quantum/bell-values-exact.ts) |
+| Tsirelson's bound | the exact largest CHSH of a knot in closed form, and 2√2 reached by a finite history | [`E-QTM-0132`](test/experiment/quantum/tsirelson-closed-form.ts), [`E-QTM-0133`](test/experiment/quantum/tsirelson-reached-exactly.ts) |
+| contextuality is the fear | a knot is contextual for the model's own readings exactly when it holds a fear, with total deficit $18(e^{\text{mana}} - 1)$ | [`E-QTM-0149`](test/experiment/quantum/stabilizer-contextuality-is-fear.ts), [`E-QTM-0150`](test/experiment/quantum/state-independent-contextuality.ts) |
+| no-cloning, teleportation, GHZ | no beat duplicates an unknown signed state, a love and fear pair met once teleports and swaps exactly on 17 of 17 starts | [`E-QTM-0151`](test/experiment/quantum/no-cloning-on-the-knit.ts), [`E-QTM-0152`](test/experiment/quantum/teleportation-and-swapping.ts), [`E-QTM-0153`](test/experiment/quantum/ghz-mermin-and-monogamy.ts) |
+| spin statistics | a full turn is $(-1)^N$ with N the doublet count, so turn sign equals exchange sign | [`E-SPN-0071`](test/experiment/spin/locked-spin-statistics.ts) |
+| Pauli exclusion | one vibe per slot, in the base and in the dynamics | [`E-SPN-0045`](test/experiment/spin/exchange-fear-and-slot-exclusion.ts), [`E-SPN-0047`](test/experiment/spin/exclusion-in-the-dynamics.ts) |
+| Coulomb's law | a charge's potential is $1/(24\pi r)$ with no $1/r^3$ term, the quartic isotropic by an integer identity | [`E-FRC-0241`](test/experiment/gauge/husk-coulomb-green.ts) |
+| charge in whole units | counted locally on every beat, pair creation included | [`E-FRC-0243`](test/experiment/gauge/charge-count-every-beat.ts) |
+| two polarizations of light | exactly two per momentum on the husk, the bulk's third killed by the projection | [`E-FRC-0179`](test/experiment/gauge/photon-symbol.ts) |
+| isotropic transport | charge, trace, sound and shear equal in every direction, because the medium is blind to store signs | [`E-RLT-0094`](test/experiment/relativity/covering-vacuum-isotropy.ts), [`E-RLT-0096`](test/experiment/relativity/charge-blind-shear.ts) |
+| the second law and the arrow | coarse entropy rises a thousandfold forward and under the exact inverse alike, fine-grained entropy exactly constant, 17 starts | [`E-FND-0146`](test/experiment/foundations/husk-second-law.ts), [`E-FND-0147`](test/experiment/foundations/husk-arrow-records.ts) |
+| one causal world | every husk dock descends from the seed by beat 10, 17 of 17 starts | [`E-RLT-0093`](test/experiment/relativity/coset-union-vacuum.ts) |
+| the working vacuum | balanced, bounded, reversible, covariant, 51 of 51 cases | [`E-RLT-0105`](test/experiment/relativity/coined-store-vacuum.ts) |
+
+**Partial, and the step each needs.** The electron binds on one husk
+line as three loves under the pass (binding 1.079, spin one half share
+0.982, travelling at 0.030 a beat,
+[`E-SPN-0093`](test/experiment/spin/passing-contact-cluster.ts)), but
+not yet across lines, and g is unread. Matter reads the light as an exact
+Peierls phase, likes pushed apart at 0.96 to 1.17 of the static Coulomb
+prediction, on one line with no back-action
+([`E-FRC-0252`](test/experiment/gauge/peierls-test-charge.ts)). An atom's
+first lifetime decays at 0.975 to 1.000 of the golden rule, on a
+stand-in atom ([`E-FRC-0240`](test/experiment/gauge/polaron-golden-rule.ts)).
+
+## This week: the vacuum is a bundle of lines
+
+Work of 2026-09-26 and 27, after the working vacuum was chosen. It
+started from four blocked problems (the electron off its line, a
+bounded self, gravity's reach, and measurement) that all waited on a
+vibe leaving its line, and ended with one reading of all four.
+
+- **The line law** ([`E-SPN-0098`](test/experiment/spin/line-law.ts),
+  pass). With no mixer, the tone on every straight mesh line is
+  conserved: 6,144 of 6,144 lines on side 8 over 48 beats. Every piece
+  of the rule acts inside one line, so the knit is 6,144 1d worlds that
+  never touch, in the vacuum's orbit. The mixer G below breaks all
+  6,144. A mixer of stores breaks 41,699 of 49,152, every break made by
+  the collision's bounce piece once a moved pair creates a dock where it
+  acts across lines.
+- **Line locality is momentum conservation.** A lone vibe's momentum is
+  its root, so it cannot change line without changing momentum. That is
+  Newton's first law, not a defect. The lifted mixer changes a dock's
+  momentum on 407,664 of 415,856 hops
+  ([`E-SPN-0096`](test/experiment/spin/frame-lift-theorem.ts)), while
+  the collision K (two lone vibes meeting in a dock, its lines turned by
+  the dock's momentum) keeps it by construction and stays quiet.
+- **Every mixer cascades** ([`E-SPN-0094`](test/experiment/spin/line-mixing-theorem.ts)
+  to [`E-SPN-0099`](test/experiment/spin/mixer-cascade.ts)). Exactly
+  one covariant, real, reversible way off a line exists in the rule's
+  ring: G, Grover's step on a frame of four orthogonal lines (keep 3/4,
+  hand −1/4 to each other slot). Added to the working vacuum, a lone
+  vibe leaves its line (0.37 off by beat 4) and its wake grows to 39,720
+  trits a period against 15 without it, and the one-line electron comes
+  apart (return probability 0.454 after one beat,
+  [`E-SPN-0095`](test/experiment/spin/frame-mixed-vacuum.ts)). No mixer
+  in the ring fixes the vacuum and still mixes, a theorem about the
+  ring ([`E-SPN-0096`](test/experiment/spin/frame-lift-theorem.ts)).
+  The lifted mixer cascades faster, 0.618 a beat against 0.155
+  ([`E-SPN-0097`](test/experiment/spin/lifted-mixer-vacuum.ts)). Every
+  move rate from 7/64 to 42/64 scrambles the box, growth 1.276 to 1.473
+  a beat, so the prediction that the ω mixer (21/64) sits at a critical
+  point failed: it reads 1.382, not 1
+  ([`E-SPN-0099`](test/experiment/spin/mixer-cascade.ts)). The relay is
+  the vacuum: a moved vibe breaks a vacuum pair, which leaves a lone
+  vibe, which the mixer moves again. The rule's own gates on pair making
+  scramble a lone vibe too, where the working vacuum holds its wake at
+  27 ([`E-RLT-0106`](test/experiment/relativity/veto-scatter.ts)).
+- **The path-key flaw, and its fix**
+  ([`E-MTH-0029`](test/experiment/method/full-period-key.ts), pass).
+  The registered key read the beat as t times the dock count, which is
+  0 mod 2^16 on side 16, so on that box every beat made the same choice
+  at each dock, and on sides 8 and 24 the choice repeated every 4 beats.
+  Every exchange-path reading was a special, periodic record. The named
+  full-period key takes 64 values in 64 beats on every line. Rerun on
+  it, the findings hold and are slightly stronger: 16 pairs scramble on
+  side 16 (576,000 trits) where the old key's run was only turning
+  (17,544).
+- **The fracton rungs** ([`E-SPN-0100`](test/experiment/spin/fracton-hierarchy.ts),
+  fail on F1 and F5). On the full-period key a lone love stays on its
+  line but runs 8 dock steps, half the box. The immobile rung was the
+  frozen key's. Two lone vibes that meet reach other lines quietly on
+  434 and 436 of 528 seeds (largest wake 62), and a 12-line cluster
+  stays bounded for 128 beats.
+- **The reach across lines was the vacuum's**
+  ([`E-SPN-0101`](test/experiment/spin/partial-contact.ts), pass). A
+  contact that never turns a vacuum line keeps the vacuum, is quiet at
+  every density (about 18 trits a pair), and reaches 0 lines. So under
+  the pass the 10 lines a pair reaches are vacuum lines it disturbed.
+  Sparse disturbances heal and overlapping ones break the vacuum.
+- **Density scrambles, and the threshold falls with the box**
+  ([`E-GRV-0085`](test/experiment/gravity/cluster-density.ts), pass).
+  Two quiet clusters interact with no fall with distance (far over near
+  0.98 and 0.86, where 1/r would give 0.46), and 16 pairs scramble side
+  16 while 40 scramble side 24. A threshold that falls with box size
+  has no infinite-volume limit.
+- **The averaged response has no 1/r**
+  ([`E-GRV-0086`](test/experiment/gravity/vacuum-response-average.ts),
+  pass). Averaged over 24 distinct full-key records, one sparse pair
+  leaves a core of range half a dock and a tail nearer $1/r^2$ than
+  $1/r$: vibes streaming out along lines, not a static field.
+- **The entanglement runs along lines**
+  ([`E-GRV-0083`](test/experiment/gravity/knot-area-law.ts),
+  [`E-GRV-0084`](test/experiment/gravity/knot-first-law.ts), both
+  fail). Held exactly, the vacuum's knot entanglement is an area law
+  only at its first meeting, with η = 8.435, 12.65, 16.87 nats a husk
+  plaquette on sides 8, 12, 16, growing with depth. At equilibrium it
+  is a volume law (1,770 to 5,472 nats for equal-area slabs of width 1
+  to 4). A lump lowers the entanglement near it with no first law.
+  Jacobson's route to Newton's constant needs the area law, so it fails
+  here.
+- **Stores cannot join lines, as a class**
+  ([`E-RLT-0107`](test/experiment/relativity/plaquette-store-vacuum.ts),
+  [`E-GRV-0087`](test/experiment/gravity/plaquette-knot-area-law.ts)).
+  Storing two lines of a frame as one unit gives a sound rule whose
+  vacuum is the line vacuum relabeled. A store piece that is an
+  involution must return every vibe to the slot it took it from, so no
+  store of any kind moves a vibe onto another line.
+
+**One property behind all of it: the vacuum is correlated without limit
+along each line and not at all across lines.** A 3d vacuum has to be
+correlated the same way in every direction. So no 1/r response, no area
+law and no quiet reach across lines are one fact. Three ways to fix it
+are closed: a mixer (it breaks momentum), a cost on releasing a pair
+through the rule's own vetoes (they scramble), and a new store (an
+involution returns every vibe to its line). A released pair that costs
+energy through a new energy ledger is untested.
+
+## Gravity
+
+**What a gravity must do**, each a measured fact about the world:
+
+| requirement | why it is required | what it forces on a field |
+| :--- | :--- | :--- |
+| falls as 1/r | Newton's law holds from millimeters to galaxies | the field is massless |
+| only attracts | no two masses repel | the field has even spin, 0 or 2. Odd spin (light) repels like sources |
+| the same on everything | a feather and a hammer fall alike to 1 part in 10^15 | the source is blind to charge and kind |
+| changes arrive at c | gravitational waves arrived 1.7 s after the light of GW170817, across 130 million light years | the field is retarded |
+| bends light by 2 | 1.75 arcseconds at the Sun's limb, twice the falling-particle count | clock and space stretch in equal measure (spin 0 alone gives 0 or 1) |
+| positive energy | the world does not run away | attraction lives in the static part, waves carry positive energy |
+
+**Closed routes.** Everything read off the rule and its light failed:
+entropic pull, time dilation near a held knot, occupancy-gated takes, a
+neutral lump in the depth, growth, shared information and shared
+history ([`E-GRV-0056`](test/experiment/gravity/knot-entropic-drift.ts)
+to [`E-GRV-0073`](test/experiment/gravity/shared-history-curvature.ts)),
+the light's second-order residue, which is van der Waals at $r^{-6.5}$
+([`E-FRC-0253`](test/experiment/gauge/induced-neutral-residue.ts)), and
+the vacuum's response and entanglement (this week, above). A second
+light sourced by content is charge-blind with the right $1/(24\pi r)$
+shape, but like sources repel, as spin 1 must
+([`E-GRV-0074`](test/experiment/gravity/even-field.ts)). Counting its
+static energy negative gives Newton to 0.37% but a pull that acts at
+once ([`E-GRV-0076`](test/experiment/gravity/even-sign.ts) to
+[`E-GRV-0078`](test/experiment/gravity/even-fall-carried.ts)).
+
+**The route that works: the husk's depth.** A husk column's depth, as a
+spin-0 wave sourced by content (the **radion**), attracts as 1/r with
+no chosen sign, is causal, falls alike and bends light toward mass
+([`E-GRV-0079`](test/experiment/gravity/radion-static.ts),
+[`E-GRV-0080`](test/experiment/gravity/radion-causal.ts)). Why depth:
+a deeper column holds more docks, so the same count slows a clock and
+lengthens a span, which is the arena changing rather than a force on a
+charge, and that is what makes it the same on everything. What was
+built since, in order:
+
+| step | result | codes |
+| :--- | :--- | :--- |
+| depth as a register | light bends by Newton's 1, not 2, for every coupling, because depth entered only the light's inertia (its clock), not its span | [`E-GRV-0088`](test/experiment/gravity/depth-arena-prediction.ts), [`E-GRV-0089`](test/experiment/gravity/depth-arena-light.ts) |
+| depth found, not stored | one trit a link (step up, level, step down). Steps out minus steps in equals content at every dock, so a lump's lines thin as $1/r^2$ and the summed depth falls as $1/r$ by geometry. No depth register exists. Gauss exact on 43,008 checks, the summed depth equal to the radion to 5.6e-17, k = 0.0418217 | [`E-GRV-0090`](test/experiment/gravity/step-depth-static.ts) pass, [`E-GRV-0091`](test/experiment/gravity/step-depth-moving.ts) fail |
+| depth sets span as well as clock | a link divides by the depth count of the columns it joins ($q = 2D + 1$), so light's index is q, matter's clock slows as $q^{-1/2}$ and space stretches as $q^{1/2}$: factor 1.999 and 1.995 read from the exponents, and 2.258 through a lens against the general-relativity control's 2.338 and the clock-only control's 1.091 | [`E-GRV-0092`](test/experiment/gravity/depth-span-rule.ts), [`E-GRV-0093`](test/experiment/gravity/depth-span-lens.ts) |
+| α was not constant | read in local units, $\alpha = \sqrt3/(48D)$, coupling to the potential with slope 2.10, where atomic clocks allow about 1e-6. The prediction that local units would cancel it failed, because ħ in the light's units is $D/\pi$ | [`E-FRC-0256`](test/experiment/gauge/local-alpha.ts) fail |
+| α held flat | fix the gauge field's resolution at one depth $D_0$ everywhere and let only the metric divisors read gravity, as general relativity's minimal coupling does. α flat to 2.8e-8 (slope 7e-9), light still bends by 2.258, and gauge covariance now survives 2,120 window crossings where the unfixed light broke on every beat | [`E-FRC-0257`](test/experiment/gauge/fixed-resolution-alpha.ts), [`E-GRV-0099`](test/experiment/gravity/fixed-resolution-lens.ts) |
+| universal fall | two span lumps fall alike to 0.9% at one point and 6.1% at the mirror, against a 3% gate. The cause is the mesh: the integer depth staircase reflects slow heavy lumps, and a lump smaller than a dock falls by its own lattice ray, which differs by mass. Real matter is far larger than a dock | [`E-GRV-0096`](test/experiment/gravity/span-fall.ts) fail |
+| a growing bulk | lines and radiation drain into a bulk with 8 times the docks per layer, but the pull becomes a Yukawa (cut off exponentially) of range 1.03 docks, because a growing bulk is a leak to ground | [`E-GRV-0094`](test/experiment/gravity/open-husk-static.ts), [`E-GRV-0095`](test/experiment/gravity/open-husk-moving.ts) fail |
+| a shrinking bulk | the $\lbrace3,4,3,4\rbrace$ seen from its husk shrinks inward, as in Randall and Sundrum. 1/r survives at 0.549 of the husk alone's strength (the zero mode's share is 16/31 = 0.516), with a positive short-range correction of 0.34, 0.15, 0.083 at r = 4, 8, 12, with no free number but not Randall and Sundrum's shape (log slope 1.16 against 1.87) | [`E-GRV-0100`](test/experiment/gravity/shrink-husk-static.ts) partial, [`E-GRV-0101`](test/experiment/gravity/shrink-husk-moving.ts) fail |
+| the bulk's clock warped | a layer beats once every $2^\ell$ husk beats. Exact, bounded, same static pull (to 5.0e-5), because a static field has no rate. Randall and Sundrum's shape needs the lapse (the clock-rate factor) inside the link weights as well | [`E-GRV-0102`](test/experiment/gravity/warp-husk-static.ts), [`E-GRV-0103`](test/experiment/gravity/warp-husk-moving.ts) fail |
+
+**The front speed on the shrinking bulk is not yet read cleanly.**
+[`E-GRV-0101`](test/experiment/gravity/shrink-husk-moving.ts) read the
+pull's front at 1.26 c and 1.40 c, which GW170817 would rule out.
+[`E-GRV-0103`](test/experiment/gravity/warp-husk-moving.ts) found the
+husk alone, with no bulk, reads 1.17 c and 1.40 c by the same method,
+so the excess is the method's near-field bias and not a path through
+the bulk. A witness that reads c on the husk alone first is still owed.
+
+**What this is, stated plainly.** A pull that attracts as 1/r with no
+chosen sign, is causal on the husk, is the same on everything larger
+than a dock, bends light by 2 and keeps α constant, held in bounded
+registers with the depth found by summing. It is graded L2: the step
+field is an added part of the rule, and the factor 2 follows from the
+span change by construction, which the runs show the integer rule
+realizes. **Open:**
+
+1. the vacuum does not make the depth. The steps are a register added
+   to the rule, not a product of the working vacuum
+2. a clean front-speed witness on the shrinking bulk
+3. Randall and Sundrum's short-range shape, which needs the lapse in the
+   link weights (derived, not run)
+4. a clean horizon: a dense lump saturates its step window and slips
+   rather than holding a horizon
+5. matter smaller than a dock, which does not fall alike
+6. the 3.8% energy drift at a depth boundary on the span light
+7. whether the husk's bending is a full spin-2 field
+8. whether the step trits are the content half of flux strings every
+   vibe already drags, which would make gravity no new object
+
+**Where the previous readme read otherwise.** It gave gravity as solved: the
+area-law potential giving Newton and the factor two
+([`E-GRV-0012`](test/experiment/gravity/emergent-metric.ts)), and an
+area-law invariant
+([`E-GRV-0002`](test/experiment/gravity/area-law-from-knit-walk.ts)).
+Both ran on a hand-written walk and a hand-built metric, graded
+stand-in. On the working vacuum the entanglement is a volume law at
+equilibrium ([`E-GRV-0083`](test/experiment/gravity/knot-area-law.ts)).
+It also read gravity as the clock rate alone, which bends light by 1,
+not 2 ([`E-GRV-0088`](test/experiment/gravity/depth-arena-prediction.ts)).
+
+## Other open problems
+
+| problem | where it stands | codes |
+| :--- | :--- | :--- |
+| one light speed | a locked vibe's top speed is 1/2 a beat, and every stable husk light is capped at $c \le 1/\sqrt6 = 0.408$. No integer coin gives matter less than 1/2, so the two speeds disagree by a theorem on each side | [`E-FRC-0250`](test/experiment/gauge/one-light-split.ts), [`E-SPN-0090`](test/experiment/spin/covariant-coin-theorem.ts) |
+| composite light | a bound love and fear pair is massive by a theorem, with one polarization on the husk, not two. Light stays its own field | [`E-FRC-0246`](test/experiment/gauge/composite-locked-light.ts), [`E-FRC-0247`](test/experiment/gauge/composite-light-husk.ts) |
+| the electron in 3d, and g | bound on one husk line only. A general direction is a superposition over lines. g needs its coupling to the light, not a mixer | [`E-SPN-0093`](test/experiment/spin/passing-contact-cluster.ts), [`E-SPN-0089`](test/experiment/spin/knit-cluster-landau.ts) |
+| measurement | a frame-covariant rule depolarizes every basis at one rate, so a pointer basis must come from the environment, never the rule (a 2-design theorem) | [`E-QTM-0154`](test/experiment/quantum/pointer-basis-theorem.ts) |
+| the weak force | the locked rule keeps P, C, T, CP and CPT exactly under all 48 husk parities, and bulk chirality never reaches the husk (a theorem). It needs a spin apart from the slot and an orientation in depth | [`E-FRC-0248`](test/experiment/gauge/locked-parity-ledger.ts), [`E-FRC-0249`](test/experiment/gauge/locked-parity-count.ts) |
+| the value of α | $\alpha = (s/24)\sqrt{3\kappa/2}$ per vibe, with s the drift's share of the light's coupling κ. No depth gives 1/137, and nothing is read off | [`E-FRC-0242`](test/experiment/gauge/split-coulomb-coupling.ts), [`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts) |
+| a bounded self | shared history gives one component of all 24,576 vibes or closed components of exactly 8 on one line, nothing in between | [`E-SLF-0177`](test/experiment/selves/shared-origin-components.ts), [`E-SLF-0178`](test/experiment/selves/shared-origin-integration.ts) |
+| one rule for every row | the working vacuum and the electron share one rule. Most older rows ran on earlier rules | the ledger's section Q |
+
+## Results on earlier rules
+
+The previous readme led with results from the turning weave and the
+rules before it. They stand as results about those rules, and each
+reads differently now:
+
+- **CP violation with CPT exact** was measured on the turning weave. The
+  locked rule keeps C, P and CP exactly
+  ([`E-FRC-0248`](test/experiment/gauge/locked-parity-ledger.ts)), so
+  CP violation is open on the current rule, and with it the Sakharov
+  account of matter over antimatter.
+- **The Cabibbo angle within four percent** was never tested against a
+  pre-registered null. The ledger grades it stand-in, and the geometric
+  mixing angles themselves come out degenerate
+  ([`E-FRC-0070`](test/experiment/gauge/mixing-angles-not-geometric.ts)).
+- **No magnetic monopoles** was an identity of the earlier light's link
+  potentials. The light adopted since is compact U(1)
+  ([`E-FRC-0244`](test/experiment/gauge/photon-seam-law.ts)), which
+  admits heavy monopoles, so exact absence is no longer a prediction.
+- **The vacuum clock of period three** belonged to the charge rule. The
+  working vacuum's cycle is 12 beats.
+- **A factorization of the lepton mass hierarchy** fit, carried a
+  pre-committed number that would kill it, and was killed by sharper
+  data. It stays recorded.
 
 ## The scoreboard
 
 Every commonly observed feature of nature the model must account for,
-and where it stands. One row per feature, generated from the working
-ledger (see the Development section for the regeneration command, never
-edit it by hand). The experiment codes resolve in
-[test/catalog.csv](test/catalog.csv).
+one row per feature, generated from the working ledger's observation
+table (see Development for the command, never edit it by hand). The
+experiment codes resolve in [test/catalog.csv](test/catalog.csv). Its
+marks are coarser than the 191-fact ledger above: many ✅ rows rest on
+stand-ins the ledger does not count as held, and the gravity rows rest
+on the depth register, an added part of the rule.
 
 <!-- sm-scoreboard:start -->
 
-| mark | meaning                          | count |
-| :--- | :------------------------------- | :---- |
-| 🟢   | emergent from the rule           | 4     |
-| ✅   | reproduced on the model          | 49    |
-| 🔵   | structure derived, dynamics open | 20    |
-| 📌   | free input, not predicted        | 1     |
-| ❌   | open                             | 0     |
-| ⛔   | blocked on a base decision       | 0     |
+| mark | meaning | count |
+| :--- | :--- | :--- |
+| 🟢 | emergent from the rule | 4 |
+| ✅ | reproduced on the model | 50 |
+| 🔵 | structure derived, dynamics open | 20 |
+| 📌 | free input, not predicted | 1 |
+| ❌ | open | 0 |
+| ⛔ | blocked on a base decision | 0 |
 
-| observation                            |     | note                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| :------------------------------------- | :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **quantum**                            |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| quantum amplitude at the base          | 🔵  | The weave is ADOPTED as the committed knit (2026-09-02): the discrete quantum kinematics is complete on the base, and what remains is the coarse bridge derivation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FND-0107`](test/experiment/foundations/two-path-interference.ts), [`E-FND-0106`](test/experiment/foundations/unit-kick-phase-law.ts), [`E-FND-0105`](test/experiment/foundations/wire-polarization-law.ts), [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0103`](test/experiment/foundations/palindrome-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0123`](test/experiment/foundations/born-discriminator.ts), [`E-FND-0124`](test/experiment/foundations/number-operator-law.ts), [`E-FND-0125`](test/experiment/foundations/port-conversion.ts), [`E-FND-0126`](test/experiment/foundations/linear-port-law.ts), [`E-FND-0127`](test/experiment/foundations/born-ensemble.ts) |
-| Born rule                              | ✅  | Counting weights at the domain wall give the Born statistics.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-QTM-0012`](test/experiment/quantum/envariance-born.ts), [`E-QTM-0091`](test/experiment/quantum/collapse-is-not-the-weight.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| entanglement and Bell                  | ✅  | Bell violation is reproduced on the model walk.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                        |     | [`E-QTM-0011`](test/experiment/quantum/entanglement-bell.ts), [`E-QTM-0038`](test/experiment/quantum/tsirelson-forced-by-coin.ts), [`E-QTM-0057`](test/experiment/quantum/no-signaling-nonlocality.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| measurement and definite outcome       | 🟢  | The domain wall projects and amplifies one outcome, from the rule.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|                                        |     | [`E-QTM-0085`](test/experiment/quantum/arrow-is-the-amplifier.ts), [`E-QTM-0090`](test/experiment/quantum/holder-derived-from-the-rule.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0123`](test/experiment/foundations/born-discriminator.ts), [`E-FND-0124`](test/experiment/foundations/number-operator-law.ts), [`E-FND-0125`](test/experiment/foundations/port-conversion.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| QFT vacuum and reflection positivity   | ✅  | The free clock field and the thermal gas are positive semidefinite on a non-trivial estimator, and the amplifying wake violates positivity exactly as it must.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                                        |     | [`E-QTM-0096`](test/experiment/quantum/clock-field-positivity.ts), [`E-QTM-0025`](test/experiment/quantum/reflection-positivity.ts), [`E-QTM-0017`](test/experiment/quantum/near-critical-rp.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| path integral                          | ✅  | The sum over walk paths reproduces the propagator.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|                                        |     | [`E-QTM-0018`](test/experiment/quantum/path-integral.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| quantum error correction               | ✅  | The clock code protects the phase and corrects single errors.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-QTM-0095`](test/experiment/quantum/qutrit-toric-code-from-the-mesh.ts), [`E-QTM-0055`](test/experiment/quantum/conservation-as-stabilizer.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| double slit interference               | ✅  | Two-path interference with the cosine cross term holds on the model, in the walk and in the domain clock.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                        |     | [`E-QTM-0018`](test/experiment/quantum/path-integral.ts), [`E-FND-0085`](test/experiment/foundations/birth-beat-interference.ts), [`E-FLD-0014`](test/experiment/fluids/sound-superposition-interference.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| quantum tunneling                      | ✅  | The exponential tunneling law and Klein tunneling hold on the walk.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-QTM-0056`](test/experiment/quantum/tunneling-law.ts), [`E-QTM-0073`](test/experiment/quantum/klein-tunneling.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| uncertainty principle                  | 🔵  | The position-momentum bound is confirmed as the Fourier identity on the lattice.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|                                        |     | [`E-QTM-0059`](test/experiment/quantum/uncertainty-principle.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| casimir effect                         | ✅  | Two boundaries in the model vacuum attract by mode exclusion.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-SLF-0018`](test/experiment/selves/casimir-vacuum-attraction.ts), [`E-SLF-0017`](test/experiment/selves/casimir-capture-mobile.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **gauge**                              |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| gauge group SU(3) SU(2) U(1)           | 🔵  | The group and its embedding fall out of the octonions on the 24-cell, exactly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                                        |     | [`E-FND-0021`](test/experiment/foundations/gauge-group-from-octonions.ts), [`E-FRC-0022`](test/experiment/gauge/gauge-embedding.ts), [`E-FRC-0025`](test/experiment/gauge/gauge-from-coin-tone.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Weinberg angle 3 8                     | 🔵  | The 3/8 tree-level angle is derived, running it down to the measured value is standard.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|                                        |     | [`E-FRC-0055`](test/experiment/gauge/weinberg-angle-geometric.ts), [`E-FRC-0054`](test/experiment/gauge/weak-angle-prediction.ts), [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| hypercharge and fractional charges     | 🔵  | The quark and lepton charges come out of one representation, exactly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|                                        |     | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| anomaly cancellation                   | 🔵  | The anomaly sums cancel across one generation, exactly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|                                        |     | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| dynamical gauge field                  | 🔵  | A carrier exists with a measured unit coupling, the emission vertex is measured (the interacting band radiates matter-to-wire conversion, E-FND-0113), and under the adopted turning weave the interaction structure connects all twelve species (E-FND-0117). The remaining work (the gauge algebra of the carrier, the fast photon sector) is open research. The kick generator is charge-signed (E-FND-0128), the abelian coupling measured.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                        |     | [`E-FND-0100`](test/experiment/foundations/wall-launched-carrier.ts), [`E-FND-0104`](test/experiment/foundations/wall-mode-matter-coupling.ts), [`E-FND-0108`](test/experiment/foundations/unit-coupling-absorption.ts), [`E-FND-0113`](test/experiment/foundations/weave-species-spectrum.ts), [`E-FND-0117`](test/experiment/foundations/palindromic-turning-weave.ts), [`E-FND-0128`](test/experiment/foundations/charge-signed-kick.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts), [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-FRC-0073`](test/experiment/gauge/fills-gate-transport.ts)                                                                                                                                                                                                                                                                   |
-| photon and Maxwell                     | ✅  | The Ward identity and the Maxwell spectrum hold on the substrate gauge sector.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                                        |     | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| nonabelian gauge and confinement       | ✅  | Wilson loops show the area law and confinement on the mesh.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|                                        |     | [`E-FRC-0039`](test/experiment/gauge/nonabelian-gauge.ts), [`E-FRC-0007`](test/experiment/gauge/confinement.ts), [`E-FRC-0045`](test/experiment/gauge/schwinger.ts), [`E-FRC-0048`](test/experiment/gauge/su2-condensate.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| running couplings and unification      | ✅  | The one-loop running and the near-crossing of the couplings are reproduced.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|                                        |     | [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| fine structure constant value          | 🔵  | The base has provably no coupling knob (the bare vertex is unity, measured), so alpha is a coarse quantity: how rarely carrier and matter meet.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                        |     | [`E-FND-0108`](test/experiment/foundations/unit-coupling-absorption.ts), [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts), [`E-FRC-0019`](test/experiment/gauge/fine-structure-not-geometric.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| QED precision g factor                 | ✅  | The g-factor structure holds, the 0.00116 radiative shift is unaccounted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                        |     | [`E-FRC-0021`](test/experiment/gauge/g-factor-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| strong CP problem                      | ✅  | Theta has no continuum to live in (the clock vacuum is three exact points) and the measured T-symmetry of the charge knit picks zero.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|                                        |     | [`E-FRC-0079`](test/experiment/gauge/strong-cp-discrete-theta.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **electromagnetism**                   |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Maxwell equations and light            | ✅  | The Ward identity, the photon mode and the emergent U(1) hold on the substrate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                        |     | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-FRC-0041`](test/experiment/gauge/ph-photon-3434.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Coulomb law                            | ✅  | Two charges bind with the inverse-square structure.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FRC-0049`](test/experiment/gauge/two-charge-binding.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| magnetostatics and g factor            | ✅  | Magnetism and the Landau g-factor hold on the substrate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|                                        |     | [`E-FRC-0040`](test/experiment/gauge/ph-magnetism-3434.ts), [`E-FRC-0021`](test/experiment/gauge/g-factor-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Aharonov Bohm flux quantization        | ✅  | The flux period quantizes on the walk around a plaquette.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                        |     | [`E-QTM-0062`](test/experiment/quantum/flux-period.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Faraday induction                      | ✅  | The loop EMF equals minus the flux rate to fourteen decimals at every step, an exactness of the potential formulation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|                                        |     | [`E-FRC-0077`](test/experiment/gauge/faraday-induction.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ohmic conduction                       | ✅  | Impurity scattering gives Drude relaxation, resistivity linear in impurity density.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| refraction and dielectrics             | ✅  | Snell and total internal reflection hold on the clock-rate step to a hundredth of a degree.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|                                        |     | [`E-FRC-0074`](test/experiment/gauge/snell-refraction.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| magnetic monopole absence              | ✅  | Every link potential has exactly zero flux out of every cube, so monopoles are forbidden identically, not merely rare.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|                                        |     | [`E-FRC-0076`](test/experiment/gauge/monopole-absence.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **matter**                             |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| spinors and the double cover           | 🔵  | The binary tetrahedral double cover lives in the 24 directions, exactly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|                                        |     | [`E-SPN-0029`](test/experiment/spin/rotation-2pi.ts), [`E-SPN-0042`](test/experiment/spin/spinor-double-cover.ts), [`E-SPN-0031`](test/experiment/spin/sp1-spin-double-cover.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Dirac equation                         | ✅  | The Dirac walk gives the right dispersion and Zitterbewegung on the mesh.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                        |     | [`E-SPN-0009`](test/experiment/spin/dirac-3plus1-3434.ts), [`E-SPN-0030`](test/experiment/spin/sp-spinor-field-3434.ts), [`E-QTM-0094`](test/experiment/quantum/ehrenfest-theorem.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| chiral fermions no doubling            | ✅  | The fermion doubling obstruction is dodged on the substrate walk.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-|                                        |     | [`E-SPN-0043`](test/experiment/spin/chiral-fermion-no-doubling.ts), [`E-SPN-0004`](test/experiment/spin/chirality.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Pauli exclusion and spin statistics    | 🔵  | Exclusion follows from the spinor sign structure as algebra, and the substrate adds a structural half: a slot holds one tone of the ternary alphabet, so two same-mode excitations cannot coexist (E-FND-0115). The spin-statistics THEOREM remains Hilbert-space mathematics.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                                        |     | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-QTM-0064`](test/experiment/quantum/fock-structure.ts), [`E-FND-0115`](test/experiment/foundations/weave-antiparticle-conjugation.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| one generation representation content  | 🔵  | One generation of states matches the derived representation, exactly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|                                        |     | [`E-FND-0020`](test/experiment/foundations/fermions-from-octonions.ts), [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| three generations count                | 🔵  | Triality gives three, the count is algebra and not yet dynamics.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|                                        |     | [`E-FRC-0017`](test/experiment/gauge/exceptional-jordan-generations.ts), [`E-SPN-0016`](test/experiment/spin/generations-f4-jordan.ts), [`E-SPN-0015`](test/experiment/spin/generation-family-symmetry-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| distinct generation masses             | 🔵  | The hierarchy scale and ratios are derived and the growth-written condensate is an asymmetric vacuum the model already produces, so the open dynamics is the triality-to-shell tie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-SPN-0039`](test/experiment/spin/three-generations-breaking-search.ts), [`E-FND-0098`](test/experiment/foundations/clock-condensate-symmetry-breaking.ts), [`E-FRC-0033`](test/experiment/gauge/mass-hierarchy-localization.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| mass hierarchy mechanism               | 🟢  | Warped localization on the mesh produces exponential mass ratios, with controls.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|                                        |     | [`E-FRC-0031`](test/experiment/gauge/mass-hierarchy.ts), [`E-FRC-0032`](test/experiment/gauge/mass-hierarchy-floor.ts), [`E-FRC-0033`](test/experiment/gauge/mass-hierarchy-localization.ts), [`E-FRC-0053`](test/experiment/gauge/warped-cusp-hierarchy.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Koide relation                         | 🔵  | The Koide two-thirds appears from the derived angle structure.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                                        |     | [`E-FRC-0057`](test/experiment/gauge/koide-lepton-relation.ts), [`E-FRC-0059`](test/experiment/gauge/koide-coupling-f4-angle.ts), [`E-FRC-0060`](test/experiment/gauge/koide-chirality-octonion.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| CKM and PMNS mixing                    | ✅  | The Cabibbo angle comes out of the shell growth rate within four percent with zero free parameters.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FRC-0075`](test/experiment/gauge/ckm-from-shell-overlap.ts), [`E-FRC-0070`](test/experiment/gauge/mixing-angles-not-geometric.ts), [`E-FRC-0020`](test/experiment/gauge/flavor-mixing-pattern.ts), [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| neutrino masses and seesaw             | ✅  | The seesaw structure is reproduced on the model.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|                                        |     | [`E-FRC-0037`](test/experiment/gauge/neutrino-seesaw.ts), [`E-FRC-0035`](test/experiment/gauge/neutrino-mass-ladder.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| hydrogen spectrum and atomic structure | ✅  | The hydrogen level structure comes out on the model Coulomb problem.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|                                        |     | [`E-SPN-0018`](test/experiment/spin/hydrogen-spectrum.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| periodic table shell structure         | 🔵  | Exclusion plus the level structure give the shell filling, chemistry itself is unposed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|                                        |     | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-SPN-0018`](test/experiment/spin/hydrogen-spectrum.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| nuclear binding and stability          | ✅  | The binding-energy curve and the valley of stability follow the Bethe-Weizsacker form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|                                        |     | [`E-SPN-0024`](test/experiment/spin/nuclear-binding-curve.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| neutrino oscillations                  | ✅  | Flavor oscillation with the TM2 pattern is reproduced on the model.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| CP violation                           | ✅  | The palindrome traveller candidate has exactly nature's pattern: C and CP violated over the whole swept group with CPT exact.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts), [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| superfluidity                          | ✅  | The gas shows the superfluid signatures, no wavelength-independent damping among them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|                                        |     | [`E-FLD-0007`](test/experiment/fluids/superfluid-signatures.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| quantum hall quantization              | ✅  | The plateau staircase is measured: the invariant pins at integers against a continuous knob, steps at the gap closing, and the critical point reads the midpoint.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-|                                        |     | [`E-QTM-0097`](test/experiment/quantum/hall-plateau-staircase.ts), [`E-QTM-0077`](test/experiment/quantum/topological-winding.ts), [`E-QTM-0080`](test/experiment/quantum/topological-protection.ts), [`E-QTM-0079`](test/experiment/quantum/bulk-boundary-correspondence.ts), [`E-QTM-0078`](test/experiment/quantum/cyclotron-orbits.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| superconductivity                      | ✅  | Flux expulsion with the exact lattice London depth follows on the model's operator once carriers are dissipationless, which the gas measures.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-FRC-0078`](test/experiment/gauge/meissner-screening.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts), [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **higgs**                              |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Higgs doublet and custodial symmetry   | 🔵  | The doublet and the custodial symmetry exist as algebra.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|                                        |     | [`E-FND-0027`](test/experiment/foundations/higgs-from-octonions.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| electroweak boson masses               | ✅  | The W to Z mass ratio is reproduced from the derived angle.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|                                        |     | [`E-FRC-0012`](test/experiment/gauge/electroweak-boson-masses.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| electroweak symmetry breaking dynamics | ✅  | The Z_3 clock is a condensate whose phase is picked by growth history, with an exact commensurability law for the wall network.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                        |     | [`E-FND-0098`](test/experiment/foundations/clock-condensate-symmetry-breaking.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **spacetime**                          |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Lorentz invariance                     | 🟢  | A propagating mode with the Lorentz cone emerges, with computed control.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|                                        |     | [`E-RLT-0018`](test/experiment/relativity/lorentz-bound-3434.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| CPT                                    | ✅  | CPT is exact for the adopted weave (verified at zero on generic states) and for the clock sector it contains.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| dimensions 3 plus 1                    | 🔵  | The 3 plus 1 split is selected by the algebra, not yet by dynamics.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| gravity and Einstein equations         | ✅  | The area-law potential gives Newton's law and the Eddington factor two.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|                                        |     | [`E-GRV-0012`](test/experiment/gravity/emergent-metric.ts), [`E-GRV-0031`](test/experiment/gravity/propagating-curved-gravity.ts), [`E-GRV-0003`](test/experiment/gravity/area-law-universality.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **gravitation**                        |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| black hole thermodynamics              | ✅  | Bekenstein-Hawking entropy, an analog Hawking flux and the shadow, on models.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-GRV-0014`](test/experiment/gravity/gr-black-hole-thermo.ts), [`E-GRV-0026`](test/experiment/gravity/hawking.ts), [`E-GRV-0004`](test/experiment/gravity/black-hole-shadow.ts), [`E-GRV-0001`](test/experiment/gravity/analog-hawking.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| classic GR tests                       | ✅  | Light bending, time dilation and the Schwarzschild form are reproduced on the emergent metric.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|                                        |     | [`E-GRV-0012`](test/experiment/gravity/emergent-metric.ts), [`E-GRV-0037`](test/experiment/gravity/time-dilation-optical.ts), [`E-GRV-0033`](test/experiment/gravity/schwarzschild-from-bootstrap.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| gravitational waves                    | ✅  | Propagating quadrupole waves at the right speed on the model.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-GRV-0017`](test/experiment/gravity/gravitational-wave.ts), [`E-GRV-0043`](test/experiment/gravity/quadrupole-radiation-structure.ts), [`E-GRV-0044`](test/experiment/gravity/quadrupole-amplitude-scale.ts), [`E-GRV-0045`](test/experiment/gravity/quadrupole-coefficient-closure.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| frame dragging                         | ✅  | A rotating well drags prograde and retrograde rays apart by Fresnel drag, linear and odd in the spin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|                                        |     | [`E-GRV-0055`](test/experiment/gravity/frame-dragging-fresnel.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| equivalence principle                  | ✅  | Bodies of every mass fall at the same rate down the field gradient, with the flat-field control unmoving.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                        |     | [`E-SLF-0046`](test/experiment/selves/equivalence-principle.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **dark sector**                        |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| dark matter phenomena                  | 🔵  | The candidate exists and is measured: a persistent thin wall the matter particle crosses without scattering, with the bullet separation mechanism banked.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                                        |     | [`E-CSM-0057`](test/experiment/cosmology/dark-wall-candidate.ts), [`E-CSM-0053`](test/experiment/cosmology/bullet-separation-mechanism.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Hubble tension                         | 🔵  | Expansion is measured linear in age, so H is a local clock of domain age and two honest ladders disagree when they sample regions of different age.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-CSM-0027`](test/experiment/cosmology/growth-expansion.ts), [`E-CSM-0020`](test/experiment/cosmology/expansion-rate.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **cosmology**                          |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| dark energy                            | ✅  | Uniform growth reads as a small positive lambda.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|                                        |     | [`E-CSM-0006`](test/experiment/cosmology/cosmological-constant.ts), [`E-CSM-0010`](test/experiment/cosmology/dark-energy-smeared.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| proton stability                       | ✅  | The proton is protected by the conserved charges.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-|                                        |     | [`E-FRC-0043`](test/experiment/gauge/proton-lifetime.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| CMB acoustic peaks                     | ✅  | The spectrum itself alternates ten to one at decoupling and the null moves into a peak on the coherent schedule, which incoherent noise cannot do.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|                                        |     | [`E-CSM-0056`](test/experiment/cosmology/decoupled-peak-spectrum.ts), [`E-CSM-0052`](test/experiment/cosmology/acoustic-peaks-mechanism.ts), [`E-CSM-0051`](test/experiment/cosmology/cmb-low-l-suppression.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| BBN abundances                         | 🔵  | The freeze-out race is measured and the matter sector is now settled by the adoption, so the nuclear network is open research rather than a blocked decision.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-CSM-0055`](test/experiment/cosmology/freeze-out-vs-expansion.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| baryon asymmetry                       | ✅  | All three Sakharov conditions are measured on the committed rule: a growth quench charges the matter sector from the exactly C-symmetric empty state, quantized in whole hypersheets, with the total tone sum exactly conserved (the B minus L analog) and the commensurate quench an exact null. The observed magnitude (ten to the minus ten) is not derived and needs the coarse dilution story.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                                        |     | [`E-FND-0116`](test/experiment/foundations/weave-sakharov-asymmetry.ts), [`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts), [`E-FND-0115`](test/experiment/foundations/weave-antiparticle-conjugation.ts), [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| inflation and flatness                 | ✅  | Growth gives flatness and a horizon without a tuned inflaton.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-CSM-0028`](test/experiment/cosmology/inflation.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts), [`E-CSM-0046`](test/experiment/cosmology/plateau-inflation-tensor.ts), [`E-CSM-0049`](test/experiment/cosmology/horosphere-flatness.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Hubble expansion and redshift          | 🟢  | Growth gives expansion and redshift from the rule with computed control.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|                                        |     | [`E-CSM-0027`](test/experiment/cosmology/growth-expansion.ts), [`E-CSM-0019`](test/experiment/cosmology/expansion.ts), [`E-CSM-0020`](test/experiment/cosmology/expansion-rate.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| large scale structure formation        | ✅  | Gravitational instability runs on the model's own loop: bodies source the well, fall down it, and a seed clump collapses by a factor near five.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                                        |     | [`E-CSM-0054`](test/experiment/cosmology/structure-formation-instability.ts), [`E-CSM-0002`](test/experiment/cosmology/attractor-signature.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **thermodynamics**                     |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| second law thermalization              | ✅  | Coarse entropy climbs to near maximum while the microstate stays exactly reversible.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|                                        |     | [`E-FLD-0016`](test/experiment/fluids/second-law-coarse-entropy.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| blackbody planck spectrum              | ✅  | Planck comes out of exact counting on the measured harmonic dispersion, and the classical branch alone gives the catastrophe.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-|                                        |     | [`E-QTM-0098`](test/experiment/quantum/planck-spectrum-from-counting.ts), [`E-FLD-0018`](test/experiment/fluids/thermal-spectrum-equipartition.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **inputs**                             |     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| absolute masses and couplings          | 📌  | The absolute scales are inputs, as in every framework.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|                                        |     | [`E-FRC-0067`](test/experiment/gauge/absolute-yukawa-not-a-ladder.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| observation | | note |
+| :--- | :--- | :--- |
+| **quantum** | | |
+| quantum amplitude at the base | 🔵 | The bare knit has no amplitudes: a defect never spreads and two add exactly as sets (E-FND-0080). The quantum part is the signed weight on the role grid, fear: the singlet is 72 loves and 18 fears on 54 units (E-FRC-0120), and the cube-root swap phase is an exact reversible beat whose gates close to su(9) (E-FRC-0127). It runs in the adopted knit as the fear beat, the one gate outside the Clifford group (E-FRC-0159, E-SPN-0063, E-QTM-0118), and gives amplitudes to roles, not positions (E-SPN-0081). The turning weave's vacuum clock carries a discrete phase kinematics, listed below. |
+| | | [`E-FND-0080`](test/experiment/foundations/rule-has-no-amplitudes.ts), [`E-FRC-0120`](test/experiment/gauge/fear-is-negativity.ts), [`E-FRC-0122`](test/experiment/gauge/fear-resolution.ts), [`E-FRC-0127`](test/experiment/gauge/fear-beat.ts), [`E-FND-0107`](test/experiment/foundations/two-path-interference.ts), [`E-FND-0106`](test/experiment/foundations/unit-kick-phase-law.ts), [`E-FND-0105`](test/experiment/foundations/wire-polarization-law.ts), [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0103`](test/experiment/foundations/palindrome-knit.ts), [`E-FND-0096`](test/experiment/foundations/traveller-slab-window.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), [`E-FND-0123`](test/experiment/foundations/born-discriminator.ts), [`E-FND-0124`](test/experiment/foundations/number-operator-law.ts), [`E-FND-0125`](test/experiment/foundations/port-conversion.ts), [`E-FND-0126`](test/experiment/foundations/linear-port-law.ts), [`E-FND-0127`](test/experiment/foundations/born-ensemble.ts) |
+| Born rule | ✅ | Counting weights at the domain wall give the Born statistics. |
+| | | [`E-QTM-0012`](test/experiment/quantum/envariance-born.ts), [`E-QTM-0091`](test/experiment/quantum/collapse-is-not-the-weight.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts) |
+| entanglement and Bell | ✅ | Bell violation is reproduced on the model walk. |
+| | | [`E-QTM-0011`](test/experiment/quantum/entanglement-bell.ts), [`E-QTM-0038`](test/experiment/quantum/tsirelson-forced-by-coin.ts), [`E-QTM-0057`](test/experiment/quantum/no-signaling-nonlocality.ts), `E-QTM-0100`, `E-QTM-0111`, `E-QTM-0140`, `E-QTM-0141`, `E-QTM-0143`, `E-RLT-0055` |
+| measurement and definite outcome | 🟢 | The domain wall projects and amplifies one outcome, from the rule. |
+| | | [`E-QTM-0085`](test/experiment/quantum/arrow-is-the-amplifier.ts), [`E-QTM-0090`](test/experiment/quantum/holder-derived-from-the-rule.ts), [`E-FND-0091`](test/experiment/foundations/wall-measures-the-clock.ts), [`E-FND-0123`](test/experiment/foundations/born-discriminator.ts), [`E-FND-0124`](test/experiment/foundations/number-operator-law.ts), [`E-FND-0125`](test/experiment/foundations/port-conversion.ts) |
+| QFT vacuum and reflection positivity | ✅ | The free clock field and the thermal gas are positive semidefinite on a non-trivial estimator, and the amplifying wake violates positivity exactly as it must. |
+| | | [`E-QTM-0096`](test/experiment/quantum/clock-field-positivity.ts), [`E-QTM-0025`](test/experiment/quantum/reflection-positivity.ts), [`E-QTM-0017`](test/experiment/quantum/near-critical-rp.ts) |
+| path integral | ✅ | The sum over walk paths reproduces the propagator. |
+| | | [`E-QTM-0018`](test/experiment/quantum/path-integral.ts) |
+| quantum error correction | ✅ | The clock code protects the phase and corrects single errors. |
+| | | [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-QTM-0095`](test/experiment/quantum/qutrit-toric-code-from-the-mesh.ts), [`E-QTM-0055`](test/experiment/quantum/conservation-as-stabilizer.ts) |
+| double slit interference | ✅ | Two-path interference with the cosine cross term holds on the model, in the walk and in the domain clock. |
+| | | [`E-QTM-0018`](test/experiment/quantum/path-integral.ts), [`E-FND-0085`](test/experiment/foundations/birth-beat-interference.ts), [`E-FLD-0014`](test/experiment/fluids/sound-superposition-interference.ts) |
+| quantum tunneling | ✅ | The exponential tunneling law and Klein tunneling hold on the walk. |
+| | | [`E-QTM-0056`](test/experiment/quantum/tunneling-law.ts), [`E-QTM-0073`](test/experiment/quantum/klein-tunneling.ts) |
+| uncertainty principle | 🔵 | The position-momentum bound is confirmed as the Fourier identity on the lattice. |
+| | | [`E-QTM-0059`](test/experiment/quantum/uncertainty-principle.ts) |
+| casimir effect | ✅ | Two boundaries in the model vacuum attract by mode exclusion. |
+| | | [`E-SLF-0018`](test/experiment/selves/casimir-vacuum-attraction.ts), [`E-SLF-0017`](test/experiment/selves/casimir-capture-mobile.ts) |
+| **gauge** | | |
+| gauge group SU(3) SU(2) U(1) | 🔵 | The group and its embedding fall out of the octonions on the 24-cell, exactly. |
+| | | [`E-FND-0021`](test/experiment/foundations/gauge-group-from-octonions.ts), [`E-FRC-0022`](test/experiment/gauge/gauge-embedding.ts), [`E-FRC-0025`](test/experiment/gauge/gauge-from-coin-tone.ts) |
+| Weinberg angle 3 8 | 🔵 | The 3/8 tree-level angle is derived, running it down to the measured value is standard. |
+| | | [`E-FRC-0055`](test/experiment/gauge/weinberg-angle-geometric.ts), [`E-FRC-0054`](test/experiment/gauge/weak-angle-prediction.ts), [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts) |
+| hypercharge and fractional charges | 🔵 | The quark and lepton charges come out of one representation, exactly. |
+| | | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
+| anomaly cancellation | 🔵 | The anomaly sums cancel across one generation, exactly. |
+| | | [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
+| dynamical gauge field | 🔵 | A carrier exists with a measured unit coupling, the emission vertex is measured (the interacting band radiates matter-to-wire conversion, E-FND-0113), and under the turning weave the interaction structure connects all twelve species (E-FND-0117). The remaining work (the gauge algebra of the carrier, the fast photon sector) is open research. The kick generator is charge-signed (E-FND-0128), the abelian coupling measured. In the adopted three-trit model, links hold grid moves and a flow with Gauss's law exact (E-FRC-0123), and they move by reflection with energy exact and every frame change a symmetry (E-FRC-0128), on variant rules. The adopted knit carries the links as Sigma(648) elements, with every dock's held color exact while it makes pairs (E-RLT-0067). |
+| | | [`E-FND-0100`](test/experiment/foundations/wall-launched-carrier.ts), [`E-FND-0104`](test/experiment/foundations/wall-mode-matter-coupling.ts), [`E-FND-0108`](test/experiment/foundations/unit-coupling-absorption.ts), [`E-FND-0113`](test/experiment/foundations/weave-species-spectrum.ts), [`E-FND-0117`](test/experiment/foundations/palindromic-turning-weave.ts), [`E-FND-0128`](test/experiment/foundations/charge-signed-kick.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts), [`E-QTM-0093`](test/experiment/quantum/toric-code-from-the-mesh.ts), [`E-FRC-0073`](test/experiment/gauge/fills-gate-transport.ts), [`E-FRC-0123`](test/experiment/gauge/vibe-weave.ts), [`E-FRC-0128`](test/experiment/gauge/roles-on-moving-links.ts), `E-FRC-0134`, `E-FRC-0135`, `E-FRC-0144`, `E-FRC-0145` |
+| photon and Maxwell | ✅ | The Ward identity and the Maxwell spectrum hold on the substrate gauge sector. |
+| | | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
+| nonabelian gauge and confinement | ✅ | Wilson loops show the area law and confinement on the mesh, and the classical color group Sigma(648) confines under a rule with no random number. |
+| | | [`E-FRC-0039`](test/experiment/gauge/nonabelian-gauge.ts), [`E-FRC-0007`](test/experiment/gauge/confinement.ts), [`E-FRC-0045`](test/experiment/gauge/schwinger.ts), [`E-FRC-0048`](test/experiment/gauge/su2-condensate.ts), [`E-FRC-0103`](test/experiment/gauge/finite-color-groups.ts), [`E-FRC-0110`](test/experiment/gauge/finite-color-automaton.ts), [`E-FRC-0126`](test/experiment/gauge/deterministic-confinement.ts), [`E-FRC-0129`](test/experiment/gauge/string-binds.ts), [`E-FRC-0131`](test/experiment/gauge/d4-string-binds.ts) |
+| running couplings and unification | ✅ | The one-loop running and the near-crossing of the couplings are reproduced. |
+| | | [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts) |
+| fine structure constant value | 🔵 | The base has provably no coupling knob (the bare vertex is unity, measured), so alpha is a coarse quantity: how rarely carrier and matter meet. |
+| | | [`E-FND-0108`](test/experiment/foundations/unit-coupling-absorption.ts), [`E-FRC-0044`](test/experiment/gauge/rg-unification.ts), [`E-FRC-0019`](test/experiment/gauge/fine-structure-not-geometric.ts) |
+| QED precision g factor | ✅ | The g-factor structure holds, the 0.00116 radiative shift is unaccounted. |
+| | | [`E-FRC-0021`](test/experiment/gauge/g-factor-3434.ts) |
+| strong CP problem | ✅ | Theta has no continuum to live in (the clock vacuum is three exact points) and the measured T-symmetry of the charge knit picks zero. |
+| | | [`E-FRC-0079`](test/experiment/gauge/strong-cp-discrete-theta.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| **electromagnetism** | | |
+| Maxwell equations and light | ✅ | The Ward identity, the photon mode and the emergent U(1) hold on the substrate. |
+| | | [`E-FRC-0072`](test/experiment/gauge/ward-identity-maxwell.ts), [`E-FRC-0041`](test/experiment/gauge/ph-photon-3434.ts), [`E-FRC-0016`](test/experiment/gauge/emergent-u1-gauge.ts) |
+| Coulomb law | ✅ | Two charges bind with the inverse-square structure. |
+| | | [`E-FRC-0049`](test/experiment/gauge/two-charge-binding.ts) |
+| magnetostatics and g factor | ✅ | Magnetism and the Landau g-factor hold on the substrate. |
+| | | [`E-FRC-0040`](test/experiment/gauge/ph-magnetism-3434.ts), [`E-FRC-0021`](test/experiment/gauge/g-factor-3434.ts) |
+| Aharonov Bohm flux quantization | ✅ | The flux period quantizes on the walk around a plaquette. |
+| | | [`E-QTM-0062`](test/experiment/quantum/flux-period.ts) |
+| Faraday induction | ✅ | The loop EMF equals minus the flux rate to fourteen decimals at every step, an exactness of the potential formulation. |
+| | | [`E-FRC-0077`](test/experiment/gauge/faraday-induction.ts) |
+| ohmic conduction | ✅ | Impurity scattering gives Drude relaxation, resistivity linear in impurity density. |
+| | | [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts) |
+| refraction and dielectrics | ✅ | Snell and total internal reflection hold on the clock-rate step to a hundredth of a degree. |
+| | | [`E-FRC-0074`](test/experiment/gauge/snell-refraction.ts) |
+| magnetic monopole absence | ✅ | Every link potential has exactly zero flux out of every cube, so monopoles are forbidden identically, not merely rare. |
+| | | [`E-FRC-0076`](test/experiment/gauge/monopole-absence.ts) |
+| **matter** | | |
+| spinors and the double cover | 🔵 | The binary tetrahedral double cover lives in the 24 directions, exactly. |
+| | | [`E-SPN-0029`](test/experiment/spin/rotation-2pi.ts), [`E-SPN-0042`](test/experiment/spin/spinor-double-cover.ts), [`E-SPN-0031`](test/experiment/spin/sp1-spin-double-cover.ts), `E-SPN-0044` |
+| Dirac equation | ✅ | The Dirac walk gives the right dispersion and Zitterbewegung on the mesh. |
+| | | [`E-SPN-0009`](test/experiment/spin/dirac-3plus1-3434.ts), [`E-SPN-0030`](test/experiment/spin/sp-spinor-field-3434.ts), [`E-QTM-0094`](test/experiment/quantum/ehrenfest-theorem.ts) |
+| chiral fermions no doubling | ✅ | The fermion doubling obstruction is dodged on the substrate walk. |
+| | | [`E-SPN-0043`](test/experiment/spin/chiral-fermion-no-doubling.ts), [`E-SPN-0004`](test/experiment/spin/chirality.ts) |
+| Pauli exclusion and spin statistics | 🔵 | Exclusion follows from the spinor sign structure as algebra, and the substrate adds a structural half: a slot holds one vibe of the ternary alphabet, so two same-mode excitations cannot coexist (E-FND-0115). The spin-statistics THEOREM remains Hilbert-space mathematics. |
+| | | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-QTM-0064`](test/experiment/quantum/fock-structure.ts), [`E-FND-0115`](test/experiment/foundations/weave-antiparticle-conjugation.ts), `E-SPN-0045` |
+| one generation representation content | 🔵 | One generation of states matches the derived representation, exactly. |
+| | | [`E-FND-0020`](test/experiment/foundations/fermions-from-octonions.ts), [`E-FRC-0002`](test/experiment/gauge/anomaly-cancellation-octonion.ts) |
+| three generations count | 🔵 | Triality gives three, the count is algebra and not yet dynamics. |
+| | | [`E-FRC-0017`](test/experiment/gauge/exceptional-jordan-generations.ts), [`E-SPN-0016`](test/experiment/spin/generations-f4-jordan.ts), [`E-SPN-0015`](test/experiment/spin/generation-family-symmetry-3434.ts), `E-FRC-0140`, `E-FRC-0141` |
+| distinct generation masses | 🔵 | The hierarchy scale and ratios are derived and the growth-written condensate is an asymmetric vacuum the model already produces, so the open dynamics is the triality-to-shell tie. |
+| | | [`E-SPN-0039`](test/experiment/spin/three-generations-breaking-search.ts), [`E-FND-0098`](test/experiment/foundations/clock-condensate-symmetry-breaking.ts), [`E-FRC-0033`](test/experiment/gauge/mass-hierarchy-localization.ts), `E-FRC-0141` |
+| mass hierarchy mechanism | 🟢 | Warped localization on the mesh produces exponential mass ratios, with controls. |
+| | | [`E-FRC-0031`](test/experiment/gauge/mass-hierarchy.ts), [`E-FRC-0032`](test/experiment/gauge/mass-hierarchy-floor.ts), [`E-FRC-0033`](test/experiment/gauge/mass-hierarchy-localization.ts), [`E-FRC-0053`](test/experiment/gauge/warped-cusp-hierarchy.ts) |
+| Koide relation | 🔵 | The Koide two-thirds appears from the derived angle structure. |
+| | | [`E-FRC-0057`](test/experiment/gauge/koide-lepton-relation.ts), [`E-FRC-0059`](test/experiment/gauge/koide-coupling-f4-angle.ts), [`E-FRC-0060`](test/experiment/gauge/koide-chirality-octonion.ts) |
+| CKM and PMNS mixing | ✅ | The Cabibbo angle comes out of the shell growth rate within four percent with zero free parameters. |
+| | | [`E-FRC-0075`](test/experiment/gauge/ckm-from-shell-overlap.ts), [`E-FRC-0070`](test/experiment/gauge/mixing-angles-not-geometric.ts), [`E-FRC-0020`](test/experiment/gauge/flavor-mixing-pattern.ts), [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts) |
+| neutrino masses and seesaw | ✅ | The seesaw structure is reproduced on the model. |
+| | | [`E-FRC-0037`](test/experiment/gauge/neutrino-seesaw.ts), [`E-FRC-0035`](test/experiment/gauge/neutrino-mass-ladder.ts) |
+| hydrogen spectrum and atomic structure | ✅ | The hydrogen level structure comes out on the model Coulomb problem. |
+| | | [`E-SPN-0018`](test/experiment/spin/hydrogen-spectrum.ts) |
+| periodic table shell structure | 🔵 | Exclusion plus the level structure give the shell filling, chemistry itself is unposed. |
+| | | [`E-SPN-0014`](test/experiment/spin/fermi-exclusion.ts), [`E-SPN-0018`](test/experiment/spin/hydrogen-spectrum.ts) |
+| nuclear binding and stability | ✅ | The binding-energy curve and the valley of stability follow the Bethe-Weizsacker form. |
+| | | [`E-SPN-0024`](test/experiment/spin/nuclear-binding-curve.ts) |
+| neutrino oscillations | ✅ | Flavor oscillation with the TM2 pattern is reproduced on the model. |
+| | | [`E-FRC-0036`](test/experiment/gauge/neutrino-oscillation-tm2.ts) |
+| CP violation | ✅ | The palindrome traveler candidate has exactly nature's pattern: C and CP violated over the whole swept group with CPT exact. |
+| | | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts), [`E-FRC-0066`](test/experiment/gauge/koide-phase-not-geometric.ts), `E-FRC-0142` |
+| superfluidity | ✅ | The gas shows the superfluid signatures, no wavelength-independent damping among them. |
+| | | [`E-FLD-0007`](test/experiment/fluids/superfluid-signatures.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts) |
+| quantum hall quantization | ✅ | The plateau staircase is measured: the invariant pins at integers against a continuous knob, steps at the gap closing, and the critical point reads the midpoint. |
+| | | [`E-QTM-0097`](test/experiment/quantum/hall-plateau-staircase.ts), [`E-QTM-0077`](test/experiment/quantum/topological-winding.ts), [`E-QTM-0080`](test/experiment/quantum/topological-protection.ts), [`E-QTM-0079`](test/experiment/quantum/bulk-boundary-correspondence.ts), [`E-QTM-0078`](test/experiment/quantum/cyclotron-orbits.ts) |
+| superconductivity | ✅ | Flux expulsion with the exact lattice London depth follows on the model's operator once carriers are dissipationless, which the gas measures. |
+| | | [`E-FRC-0078`](test/experiment/gauge/meissner-screening.ts), [`E-FLD-0015`](test/experiment/fluids/no-wavelength-independent-damping.ts), [`E-FLD-0017`](test/experiment/fluids/drude-conduction.ts) |
+| **higgs** | | |
+| Higgs doublet and custodial symmetry | 🔵 | The doublet and the custodial symmetry exist as algebra. |
+| | | [`E-FND-0027`](test/experiment/foundations/higgs-from-octonions.ts), `E-FRC-0143` |
+| electroweak boson masses | ✅ | The W to Z mass ratio is reproduced from the derived angle. |
+| | | [`E-FRC-0012`](test/experiment/gauge/electroweak-boson-masses.ts) |
+| electroweak symmetry breaking dynamics | ✅ | The Z_3 clock is a condensate whose phase is picked by growth history, with an exact commensurability law for the wall network. |
+| | | [`E-FND-0098`](test/experiment/foundations/clock-condensate-symmetry-breaking.ts), [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts), `E-FRC-0143` |
+| **spacetime** | | |
+| momentum conservation | ✅ | The adopted knit conserves momentum exactly: the isometric collision keeps charge, count and momentum on every dock state tested (E-RLT-0061), and the lone bounce collision keeps momentum with a lone vibe's wake confined to its own line (E-RLT-0084). The turning weave before it conserves love minus fear and not momentum: the charge-signed momentum along x drifts by 830 over 48 beats (E-FLD-0020), the hop 96 percent of the loss (E-FLD-0021). |
+| | | `E-RLT-0061`, `E-RLT-0084`, [`E-FLD-0020`](test/experiment/fluids/charge-mode-law.ts), `E-FLD-0021` |
+| Lorentz invariance | 🟢 | A propagating mode with the Lorentz cone emerges, with computed control. |
+| | | [`E-RLT-0018`](test/experiment/relativity/lorentz-bound-3434.ts), [`E-RLT-0030`](test/experiment/relativity/propagating-mode-3434.ts) |
+| CPT | ✅ | CPT is exact for the adopted weave (verified at zero on generic states) and for the clock sector it contains. |
+| | | [`E-FND-0102`](test/experiment/foundations/adoption-gate-sweep.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0011`](test/experiment/foundations/cpt-theorem.ts), [`E-SPN-0037`](test/experiment/spin/sy-discrete-symmetries.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| dimensions 3 plus 1 | 🔵 | The 3 plus 1 split is selected by the algebra, not yet by dynamics. |
+| | | [`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts) |
+| gravity and Einstein equations | ✅ | The husk's depth, found from one trit a link and never stored, pulls as 1/r, is causal and bends light by two; the earlier area-law route fails on the working vacuum. |
+| | | `E-GRV-0090`, `E-GRV-0092`, `E-GRV-0099`, `E-GRV-0100`, `E-GRV-0083`, [`E-GRV-0012`](test/experiment/gravity/emergent-metric.ts) |
+| **gravitation** | | |
+| black hole thermodynamics | ✅ | Bekenstein-Hawking entropy, an analog Hawking flux and the shadow, on models. |
+| | | [`E-GRV-0014`](test/experiment/gravity/gr-black-hole-thermo.ts), [`E-GRV-0026`](test/experiment/gravity/hawking.ts), [`E-GRV-0004`](test/experiment/gravity/black-hole-shadow.ts), [`E-GRV-0001`](test/experiment/gravity/analog-hawking.ts) |
+| classic GR tests | ✅ | Light bending by two on the husk light itself once depth sets both its clock and its span, time dilation and the Schwarzschild form on the emergent metric. |
+| | | `E-GRV-0093`, `E-GRV-0099`, `E-GRV-0088`, [`E-GRV-0012`](test/experiment/gravity/emergent-metric.ts), [`E-GRV-0037`](test/experiment/gravity/time-dilation-optical.ts), [`E-GRV-0033`](test/experiment/gravity/schwarzschild-from-bootstrap.ts) |
+| gravitational waves | ✅ | Propagating quadrupole waves at the right speed on the model. |
+| | | [`E-GRV-0017`](test/experiment/gravity/gravitational-wave.ts), [`E-GRV-0043`](test/experiment/gravity/quadrupole-radiation-structure.ts), [`E-GRV-0044`](test/experiment/gravity/quadrupole-amplitude-scale.ts), [`E-GRV-0045`](test/experiment/gravity/quadrupole-coefficient-closure.ts) |
+| frame dragging | ✅ | A rotating well drags prograde and retrograde rays apart by Fresnel drag, linear and odd in the spin. |
+| | | [`E-GRV-0055`](test/experiment/gravity/frame-dragging-fresnel.ts) |
+| equivalence principle | ✅ | Bodies of every mass and content fall alike down the field gradient, above the size of one dock; below it a body falls by its own lattice ray. |
+| | | [`E-SLF-0046`](test/experiment/selves/equivalence-principle.ts), `E-GRV-0090`, `E-GRV-0096` |
+| **dark sector** | | |
+| dark matter phenomena | 🔵 | The candidate exists and is measured: a persistent thin wall the matter particle crosses without scattering, with the bullet separation mechanism banked. |
+| | | [`E-CSM-0057`](test/experiment/cosmology/dark-wall-candidate.ts), [`E-CSM-0053`](test/experiment/cosmology/bullet-separation-mechanism.ts) |
+| Hubble tension | 🔵 | Expansion is measured linear in age, so H is a local clock of domain age and two honest ladders disagree when they sample regions of different age. |
+| | | [`E-CSM-0027`](test/experiment/cosmology/growth-expansion.ts), [`E-CSM-0020`](test/experiment/cosmology/expansion-rate.ts) |
+| **cosmology** | | |
+| dark energy | ✅ | Uniform growth reads as a small positive lambda. |
+| | | [`E-CSM-0006`](test/experiment/cosmology/cosmological-constant.ts), [`E-CSM-0010`](test/experiment/cosmology/dark-energy-smeared.ts) |
+| proton stability | ✅ | The proton is protected by the conserved charges. |
+| | | [`E-FRC-0043`](test/experiment/gauge/proton-lifetime.ts) |
+| CMB acoustic peaks | ✅ | The spectrum itself alternates ten to one at decoupling and the null moves into a peak on the coherent schedule, which incoherent noise cannot do. |
+| | | [`E-CSM-0056`](test/experiment/cosmology/decoupled-peak-spectrum.ts), [`E-CSM-0052`](test/experiment/cosmology/acoustic-peaks-mechanism.ts), [`E-CSM-0051`](test/experiment/cosmology/cmb-low-l-suppression.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts) |
+| BBN abundances | 🔵 | The freeze-out race is measured and the matter sector is now settled by the adoption, so the nuclear network is open research rather than a blocked decision. |
+| | | [`E-CSM-0055`](test/experiment/cosmology/freeze-out-vs-expansion.ts) |
+| baryon asymmetry | ✅ | All three Sakharov conditions are measured on the committed rule: a growth quench charges the matter sector from the exactly C-symmetric empty state, quantized in whole hypersheets, with the total vibe sum exactly conserved (the B minus L analog) and the commensurate quench an exact null. The observed magnitude (ten to the minus ten) is not derived and needs the coarse dilution story. |
+| | | [`E-FND-0116`](test/experiment/foundations/weave-sakharov-asymmetry.ts), [`E-FND-0119`](test/experiment/foundations/turning-weave-canon.ts), [`E-FND-0115`](test/experiment/foundations/weave-antiparticle-conjugation.ts), [`E-CSM-0004`](test/experiment/cosmology/baryogenesis.ts), [`E-FND-0101`](test/experiment/foundations/knit-symmetry-groups.ts), [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts) |
+| inflation and flatness | ✅ | Growth gives flatness and a horizon without a tuned inflaton. |
+| | | [`E-CSM-0028`](test/experiment/cosmology/inflation.ts), [`E-CSM-0044`](test/experiment/cosmology/spectral-index-tensor.ts), [`E-CSM-0046`](test/experiment/cosmology/plateau-inflation-tensor.ts), [`E-CSM-0049`](test/experiment/cosmology/horosphere-flatness.ts) |
+| Hubble expansion and redshift | 🟢 | Growth gives expansion and redshift from the rule with computed control. |
+| | | [`E-CSM-0027`](test/experiment/cosmology/growth-expansion.ts), [`E-CSM-0019`](test/experiment/cosmology/expansion.ts), [`E-CSM-0020`](test/experiment/cosmology/expansion-rate.ts) |
+| large scale structure formation | ✅ | Gravitational instability runs on the model's own loop: bodies source the well, fall down it, and a seed clump collapses by a factor near five. |
+| | | [`E-CSM-0054`](test/experiment/cosmology/structure-formation-instability.ts), [`E-CSM-0002`](test/experiment/cosmology/attractor-signature.ts) |
+| **thermodynamics** | | |
+| second law thermalization | ✅ | Coarse entropy climbs to near maximum while the microstate stays exactly reversible. |
+| | | [`E-FLD-0016`](test/experiment/fluids/second-law-coarse-entropy.ts) |
+| blackbody planck spectrum | ✅ | Planck comes out of exact counting on the measured harmonic dispersion, and the classical branch alone gives the catastrophe. |
+| | | [`E-QTM-0098`](test/experiment/quantum/planck-spectrum-from-counting.ts), [`E-FLD-0018`](test/experiment/fluids/thermal-spectrum-equipartition.ts) |
+| **inputs** | | |
+| absolute masses and couplings | 📌 | The absolute scales are inputs, as in every framework. |
+| | | [`E-FRC-0067`](test/experiment/gauge/absolute-yukawa-not-a-ladder.ts), [`E-FRC-0009`](test/experiment/gauge/coupling-not-fixed-3434.ts) |
 
 <!-- sm-scoreboard:end -->
 
 ## The reading, and what is falsifiable
 
-[Vibe Theory](https://doi.org/10.5281/zenodo.20694262) treats reality as
-one thing, a growing crystal of experience, and the image above is its
-simplest face, the hyperbolic $\lbrace7,3\rbrace$ tessellation, meant
-literally: each tile is a **vibe**, a unit of experience, its ternary
-tone is a felt charge (**red is pain, green is peace, blue is
-pleasure**), and touching tiles **note** (experience) one another. A
-tile is a quantum of experience, a patch of tiles is a thing or a mind,
-the whole crystal is the universe, and its ever-receding growing edge is
-the present. Physical reality is the thin skin at the crystal's cusp,
-worked from within: consciousness is the grid, the physical universe its
-projection.
+[Vibe Theory](https://doi.org/10.5281/zenodo.20694262) reads reality as
+one thing, a growing mesh of experience. The image above is its
+simplest drawable face, the hyperbolic $\lbrace7,3\rbrace$ tiling, meant
+literally: each tile is a **vibe**, a unit of experience, and its tone
+is a felt charge (**red is pain, green is peace, blue is pleasure**).
+Touching tiles **note** (experience) one another. A patch of tiles is a
+thing or a mind, the whole mesh is the universe, and its growing edge is
+the present. The $\lbrace7,3\rbrace$ stands in for the
+$\lbrace3,4,3,4\rbrace$, whose flat 3d cusp is the space we live in.
+Regular hyperbolic honeycombs run out by 5d, and $\lbrace3,4,3,4\rbrace$
+is the one whose docks are a crystallographic root system that carries
+spinors and whose cusp is flat 3d.
 
-The $\lbrace7,3\rbrace$ is the drawable face of the committed
-$\lbrace3,4,3,4\rbrace$, whose flat three-dimensional cusp is the space
-we live in. The dimension is not a free choice: regular hyperbolic
-honeycombs run out by the fifth dimension, and $\lbrace3,4,3,4\rbrace$
-is the one that is at once crystallographic, spinor-carrying, and
-three-dimensional where physics lives.
+**That the base IS experience is the one axiom, and it is
+unfalsifiable.** No reading can tell a felt universe from a structurally
+identical one. It is held as a frame, never offered as a result.
 
-That the base genuinely IS experience is the model's one **axiom**, and
-like every axiom it is unfalsifiable: no lab reading distinguishes a
-felt universe from an identical structural one. It is held as a frame,
-never as a result. Everything under the frame is a concrete discrete
-dynamical system, and that part is highly falsifiable: every deep claim
-carries a control where the answer should be no (the spinor that appears
-on $\lbrace3,4,3,4\rbrace$ and provably fails on $\lbrace5,3,4\rbrace$,
-the area-law exponent that had to land near 2, the isotropy that could
-have stayed anisotropic), negatives are kept, and a test that cannot
-fail counts for nothing. So "vibe theory is unfalsifiable" is half
-right: the axiom is, the physics under it is not, and the experiments
-confirm structure, never feeling.
+**Everything under the frame is a discrete dynamical system, and that
+part can be refuted.** Each deep claim carries a control where the
+answer should be no, and the failures are kept. From this week alone:
+
+- the light-bending factor could have read 2 on the depth register and
+  read 1 ([`E-GRV-0088`](test/experiment/gravity/depth-arena-prediction.ts))
+- α was predicted flat in local units and read a slope of 2.10
+  ([`E-FRC-0256`](test/experiment/gauge/local-alpha.ts))
+- the ω mixer was predicted critical and read 1.382, not 1
+  ([`E-SPN-0099`](test/experiment/spin/mixer-cascade.ts))
+- the knots were expected to give an area law and gave a volume law
+  ([`E-GRV-0083`](test/experiment/gravity/knot-area-law.ts))
+
+So "vibe theory is unfalsifiable" is half right: the axiom is, the
+physics under it is not, and the experiments test structure, never
+feeling.
 
 ## The invariants
 
-The structures the one base rule holds fixed, each measured with a
-control that could have failed. An invariant is anything that stays put:
-a conserved quantity, a structure the rule is forced to keep, or a
-number that survives when the substrate is varied. These are also the
-structures that keep recurring across other physics theories built from
-different starting points, worked out in
-[note/triangulating-invariants.md](note/triangulating-invariants.md)
+What the current rule holds fixed, each measured with a control that
+could have failed. The structures that recur across other physics
+theories built from different starting points are worked out in
+[note/triangulating-invariants.md](note/triangulating-invariants.md),
 with the per-theory maps in [note/link/](note/link/).
 
-| invariant                     | what stays fixed                                                                                                     | experiment&nbsp;&nbsp;&nbsp;&nbsp;                                                |
-| :---------------------------- | :------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
-| charge conservation           | the total charge is exactly constant, an integer the rule never changes                                              | [`E-FND-0008`](test/experiment/foundations/conserved-dynamics.ts)                 |
-| reversibility                 | run the rule forward then backward, the start returns bit for bit                                                    | [`E-FND-0049`](test/experiment/foundations/record-preserving-paths.ts)            |
-| the arrow of time             | the wake (the growing edge) keeps adding records and never erases one                                                | [`E-FND-0051`](test/experiment/foundations/record-accumulating-wake.ts)           |
-| the distinguishability metric | Fisher-Rao is the one distance measure no relabeling of the 24 directions can change                                 | [`E-FND-0057`](test/experiment/foundations/chentsov-forced-distinguishability.ts) |
-| the vacuum clock              | the charge rule's vacuum flashes with period three, and its coarse amplitude cancels exactly over the cycle          | [`E-FND-0084`](test/experiment/foundations/vacuum-clock-amplitude.ts)             |
-| the light cone                | a fixed top speed, the same in every direction, emerges from the discrete rule (Lorentz)                             | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts)                          |
-| gravity                       | entropy scales with a region's boundary area, not its volume (the area law)                                          | [`E-GRV-0002`](test/experiment/gravity/area-law-from-knit-walk.ts)                |
-| spacetime dimension           | the boundary reads a spatial dimension near 3, so space is 3D plus time                                              | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts)                            |
-| the growth ratio              | each new shell is larger than the last by a fixed factor near 18.28                                                  | [`E-GMT-0028`](test/experiment/geometry/warp-factor-needs-geometry.ts)            |
-| a chaos ceiling on records    | a coherent record holds only while the chaos rate stays below a threshold                                            | [`E-QTM-0092`](test/experiment/quantum/lyapunov-recordability-ceiling.ts)         |
-| clock-phase interference      | defects hosted by domains born in different beats interfere, cross term exactly 2\|A\|\|B\|cos of the relative phase | [`E-FND-0086`](test/experiment/foundations/growth-shifts-the-clock.ts)            |
-| no magnetic monopoles         | the flux out of every cube is exactly zero for every link potential, the lattice Bianchi identity                    | [`E-FRC-0076`](test/experiment/gauge/monopole-absence.ts)                         |
-| where CP violation lives      | the momentum knit conserves C, P, CP exactly while both clock knits violate them by measured amounts                 | [`E-FND-0097`](test/experiment/foundations/cp-structure-of-the-knits.ts)          |
+| invariant | what stays fixed | experiment |
+| :--- | :--- | :--- |
+| charge | counted in whole vibes, locally, on every beat, pair creation included | [`E-FRC-0243`](test/experiment/gauge/charge-count-every-beat.ts) |
+| reversibility | run forward then backward, the start returns bit for bit | [`E-FND-0049`](test/experiment/foundations/record-preserving-paths.ts) |
+| the symmetry | W(F4), all 1,152 elements, with CPT | [`E-RLT-0061`](test/experiment/relativity/isometric-knit.ts) |
+| the discrete symmetries | P, C, T, CP and CPT exact on the locked rule, under all 48 husk parities | [`E-FRC-0248`](test/experiment/gauge/locked-parity-ledger.ts) |
+| momentum | exact on the knit without the coin. The coin gives up exactly this, to make a mass | [`E-RLT-0084`](test/experiment/relativity/lone-bounce-collision.ts), [`E-SPN-0090`](test/experiment/spin/covariant-coin-theorem.ts) |
+| the line law | the tone on every straight mesh line, 6,144 of 6,144, while no mixer acts | [`E-SPN-0098`](test/experiment/spin/line-law.ts) |
+| the vacuum's cycle | a 12-beat cycle with pairs made equal to pairs unmade, 466,944 each | [`E-RLT-0105`](test/experiment/relativity/coined-store-vacuum.ts) |
+| the arrow of time | the same cone both ways, so the arrow is the low-entropy slice plus the coarse map | [`E-FND-0147`](test/experiment/foundations/husk-arrow-records.ts) |
+| the distinguishability metric | Fisher-Rao is the one distance no relabeling of the 24 directions can change | [`E-FND-0057`](test/experiment/foundations/chentsov-forced-distinguishability.ts) |
+| the light cone | a fixed top speed, the same in every direction | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts) |
+| spacetime dimension | the cusp reads a spectral dimension near 3, so space is 3d plus time | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts) |
+| the growth ratio | each shell of the mesh larger than the last by a factor settling at 18.278 | [`E-GMT-0027`](test/experiment/geometry/mesh-unfolds-exactly.ts) |
+| gravity's source | on the depth-step register (an added part), steps out minus steps in equals content at every dock, 0 off on 43,008 checks. There is no area law on the working vacuum ([`E-GRV-0083`](test/experiment/gravity/knot-area-law.ts)) | [`E-GRV-0090`](test/experiment/gravity/step-depth-static.ts) |
 
-Each is a measured consequence of the base rule, not an input. The first
-four are the invariants the rest are built on.
+Rows dropped since the last version, because they are no longer true
+of the current rule: the period-three vacuum clock and its clock-phase
+interference (the charge rule's), the chaos ceiling on records (it
+fails since a schedule fix), monopole absence (the light is now
+compact), and CP violation in the clock knits (the locked rule keeps CP).
 
 ## The experiments
 
-Everything is finite and deterministic, so every result is exactly
-reproducible. Real numbers appear only as measured outputs, never in the
-base, and much of the code was written with AI assistance, which changes
-nothing about trusting it: run it and verify. Each question is one
+Everything is finite and deterministic, so every result reproduces
+exactly. Real numbers appear only as measured outputs, never in the
+base. Much of the code was written with AI assistance, which changes
+nothing about trusting it: run it and check. Each question is one
 experiment in `test/experiment/<category>/`, a single `experiment`
 returning a structured verdict (status, metrics, control, claim), and
-every experiment self-grades by what it actually establishes, not by
-whether it prints PASSED:
+each grades itself by what it establishes, not by whether it passes:
 
-| level  | meaning                                                                                                                                                                     |
-| :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
-| **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                       |
-| **L1** | known math. Correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                              |
-| **L0** | circular. The answer is put in by hand, so it proves nothing on its own. Kept only as a consistency note, never as evidence.                                                |
+| level  | meaning |
+| :----- | :------ |
+| **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The target. |
+| **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone). |
+| **L1** | known math. Confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2π rotation gives −1). |
+| **L0** | circular. The answer is put in by hand, so it proves nothing. Kept as a consistency note, never as evidence. |
 
-L3 is the prize, L1 and L2 are necessary groundwork labeled as such, and
-L0 marks what is assumed. The full rubric and the rules the runner
-enforces (an L3 claim must carry a control) are in
+The full rubric and the rules the runner enforces (an L3 claim must
+carry a control) are in
 [`note/experimental-methodology`](note/experimental-methodology.md).
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
-per registered experiment, generated from the registry itself so the
-code and the catalog are one source of truth, sorted strongest first. As
-of the latest regeneration it holds **1,239 experiments across 18
-categories**:
+per experiment, generated from the registered experiments and sorted
+strongest first. It holds **1,386 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1239 |                 53 |              912 |           260 |          14 |                   604 |
+|  1386 |                 53 |             1043 |           276 |          14 |                   604 |
 
-The largest categories are gauge, selves, quantum, foundations,
-relativity and spin. The standing depth audit regrades overclaimed
-depths down (an earlier L3 count of 92 fell to 47 under it), and every
-correction is recorded in the experiment it corrects.
+The largest categories are gauge (256), selves (177), quantum (165),
+foundations (154), spin (110), relativity (110) and gravity (101). The
+first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
+no substrate, rule or coin in their import graph, and regraded them
+down. Every correction is recorded in the experiment it corrects.
 
-No one reads hundreds of experiments cold, so the
-**[experiment map](note/experiment/readme.md)** is the human way in:
-every arena distilled one line per experiment, the coverage matrix
-(which arenas are deep, which thin), a
-**[concepts cross-index](note/experiment/concepts.md)**, curated reading
-paths, and a guide for adding your own.
+The **[experiment map](note/experiment/readme.md)** is the human way
+in: every arena one line per experiment, the coverage matrix, a
+**[concepts cross-index](note/experiment/concepts.md)**, reading paths,
+and a guide for adding your own. The quantum sector map is
+[note/experiment/quantum-coverage.md](note/experiment/quantum-coverage.md).
 
 ## Development
 
 Every experiment lives in `test/experiment/<category>/<name>.ts` as one
-`experiment`, the suite runner (`test/run.ts`) imports them all through
+`experiment`. The suite runner (`test/run.ts`) imports them all through
 `test/experiment/all.ts`, the shared library is in `code/`, and the
 named batteries (conformance, paper) are in `test/suite/`. The build
 fails only on a code crash or a conformance failure, never on a
 scientific negative.
 
-Every command in the repo:
-
-| command                            | does                                                                                                                    |
-| :--------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
-| `pnpm install`                     | install dependencies                                                                                                    |
-| `pnpm test`                        | typecheck, then the full experiment registry plus the conformance battery (about half an hour)                          |
-| `pnpm test:full`                   | the registry run plus the legacy `test/test.ts` battery                                                                 |
-| `pnpm call <file>`                 | run one script under tsx (`pnpm call tmp/verdicts.ts <id> [...ids]` runs single experiments by id, the fast loop)       |
-| `pnpm call test/catalog.ts`        | regenerate [`test/catalog.csv`](test/catalog.csv) from the registry                                                     |
-| `pnpm check:labels`                | verify every experiment's `substrates` label against its import graph                                                   |
-| `pnpm check:constants`             | verify no typed constant reaches a verdict                                                                              |
-| `pnpm check:coverage`              | the coverage cross-check                                                                                                |
-| `pnpm check:perturbation`          | the perturbation (robustness) checks                                                                                    |
-| `pnpm lint`                        | eslint over `code/` and `test/`                                                                                         |
-| `pnpm format`                      | the formatter                                                                                                           |
-| `pnpm make`                        | compile the library to `host/`                                                                                          |
-| `pnpm host`                        | build and publish the package                                                                                           |
+| command | does |
+| :--- | :--- |
+| `pnpm test` | typecheck, then every registered experiment plus the conformance battery (about half an hour) |
+| `pnpm test:full` | the registry run plus the legacy `test/test.ts` battery |
+| `pnpm rerun <code or id> [...]` | run single experiments by code (`E-GRV-0090`) or id, and print every number the verdict holds, the fast loop |
+| `pnpm result <list, check, reproduce or audit>` | the results database: list it, check it against the registry, reproduce a result's experiments, or audit one into a capsule (writes only on `--commit`) |
+| `pnpm call <file>` | run one script under tsx |
+| `pnpm call test/catalog.ts` | regenerate [`test/catalog.csv`](test/catalog.csv) |
+| `pnpm check:labels` | verify every experiment's `substrates` label against its import graph |
+| `pnpm check:constants` | verify no typed constant reaches a verdict |
+| `pnpm check:coverage` | check the quantum coverage map against the catalog |
+| `pnpm check:perturbation` | the perturbation (robustness) checks |
+| `pnpm lint` | eslint over `code/` and `test/` |
+| `pnpm format` | the formatter |
+| `pnpm make` | compile the library to `host/` |
+| `pnpm host` | build and publish the package |
 | `pnpm make:sm-scoreboard --commit` | regenerate the scoreboard above from the observation ledger (run from the parent workspace, reports without `--commit`) |
 
 ## What is inside
 
 - **substrate**: regular `{p,q,...}` hyperbolic honeycombs through the
-  Coxeter engine, including the `$\lbrace3,4,3,4\rbrace$` cell graph
-  with `O(log n)` addressing, plus hyperbolic random graphs, regular
+  Coxeter engine, including the $\lbrace3,4,3,4\rbrace$ dock graph with
+  `O(log n)` addressing, plus hyperbolic random graphs, regular
   lattices, Minkowski and curved sprinklings, and classical sequential
   growth.
 - **tone**: the ternary alphabet and the directional fill carried on
-  each cell.
-- **rule**: the knits (`turningWeave`, the committed rule; `lineWeave`,
-  the previous committed rule, kept as the turning weave's
-  frozen-schedule sector; `pairCollision`, the earlier committed table
-  both contain as their clock sector; the superseded candidates
-  `lineHop` and `linePalindrome`; the momentum collision), streaming,
+  each dock.
+- **rule**: the current knit's pieces (`isometric-knit`,
+  `bounce-pair-knit` for the bounce and pass contacts,
+  `doublet-locked-knit`, `coined-locked-knit` for the coin,
+  `occupation-veto-knit` for the vetoes and the no-veto store), the
+  husk light (`trit-column`, `photon-shaped`), the gravity registers
+  (`trit-radion`, `step-depth`, `depth-span-light`, `open-husk`), and
+  the earlier rules kept as history and controls (`turningWeave`,
+  `lineWeave` and `pairCollision` in `collision`), with streaming,
   growth, and the discrete C, P, T transforms.
+- **measure**: dimension, distance, curvature, manifold-likeness,
+  Lorentz isotropy, streaming BFS shells, navigation, CHSH, locality,
+  Wilson loops, Aharonov-Bohm phase, the knot network, and the named
+  full-period path key (`full-key-paths`).
 - **operator**: graph Laplacian, Kahler-Dirac and overlap fermions, the
   gauge-covariant Dirac, the cellular-automaton Hamiltonian, and the
   gauge index.
@@ -613,9 +779,6 @@ Every command in the repo:
   and `F4` root systems, spinor and vector rotation, Clifford and
   exterior calculus, and the linear-algebra kernels (Lanczos lowest
   eigenvalues, the kernel-polynomial method, Bethe resolvents).
-- **measure**: dimension, distance, curvature, manifold-likeness,
-  Lorentz isotropy, streaming BFS shells, navigation, CHSH, locality,
-  integration, Wilson loops, and Aharonov-Bohm phase.
 - **dynamics**: the Benincasa-Dowker action, uniform-measure and
   Wang-Landau sampling, parallel tempering, coarse graining, and the
   Wilson heat bath.
@@ -623,11 +786,11 @@ Every command in the repo:
   something (the substrate or rule where the answer must be no).
 - **draw**, **render**, and **viz**: renderers and figures for the bulk,
   the cusp, gliders, gravity, and the nesting tower.
-- **test/experiment**: one `experiment` per question, grouped into 18
-  categories (foundations, geometry, relativity, spin, gauge, gravity,
-  cosmology, holography, quantum, fluids, renormalization, selves,
-  associative, computation, addressing, substrate-survey,
-  data-structure, method), run by the suite runner in `test/`.
+- **test/experiment**: one `experiment` per question, in 20 directories
+  (addressing, associative, computation, cosmology, data-structure,
+  fluids, foundations, gauge, general, geometry, gravity, holography,
+  matter, method, quantum, relativity, renormalization, selves, spin,
+  substrate-survey), run by the suite runner in `test/`.
 
 ## Documentation
 
@@ -635,36 +798,30 @@ All docs live in `note/`. The entry points:
 
 - **[The predictions](note/prediction/readme.md)**: the falsifiable
   calls, the technologies the mechanisms suggest, the frontier claims
-  people ask about assessed honestly inside the model, and the ordered
-  next steps.
-- **[The library guide](note/library/readme.md)** is how to USE the
+  people ask about assessed inside the model, and the next steps.
+- **[The library guide](note/library/readme.md)** is how to use the
   `code/` library. It opens with a
-  [features-at-a-glance](note/library/features.md) page (what the
-  library solves for in one scannable set of tables) and an
-  [overview](note/library/overview.md) of how it all fits together.
-  Under that are per-domain API guides (substrate, tone-and-rule,
-  operator, measure, dynamics, algebra, model, tool,
-  computing-and-data-structures, draw-and-render) and engine deep dives
-  explaining how each engine works inside (the Coxeter tessellation
+  [features-at-a-glance](note/library/features.md) page and an
+  [overview](note/library/overview.md) of how it fits together, then
+  per-domain API guides and engine deep dives (the Coxeter tessellation
   engine, the reversible rule, the Kahler-Dirac fermion, the spinor
   coin, the spectral methods, the causal-set sampler, the unitary
   evolution, the lattice gauge engine, the coarse-graining and selves
   engine, and the associative memory engine).
 - **[The math catalog](note/math.md)** lists every piece of math the
-  library runs: what each module implements, what it depends on, and
-  which experiments use it.
+  library runs, what each module depends on, and which experiments use
+  it.
 - **[Architecture](note/architecture.md)** is where code and tests live,
   and how to add an experiment.
 - **[Experimental methodology](note/experimental-methodology.md)** is
-  the standard every experiment is held to, the depth rubric, the
+  the standard every experiment is held to: the depth rubric, the
   control requirement, determinism, and the negatives.
 - **[Open problems](note/open/)** are the negatives written up in full.
   The hardest is
   **[spacelike Bell correlations](note/open/spacelike-bell-correlations.md)**:
-  what Bell's theorem actually proves, why a deterministic theory can
-  still match quantum mechanics (it drops measurement independence, not
-  determinism), the price vibe pays for that, and the measured
-  shared-past collapse that makes it hard.
+  what Bell's theorem proves, why a deterministic theory can still match
+  quantum mechanics (it drops measurement independence, not
+  determinism), and the price vibe pays for that.
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
   is how to write an experiment that runs against every regular
   hyperbolic tessellation at once.
@@ -680,12 +837,12 @@ those numbers live in one cited place:
   Model particle table, the roughly 26 free Standard Model parameters,
   the CKM and PMNS mixing matrices, the cosmological parameters, and the
   geometric and group-theory targets the model derives (the ternary 3,
-  the 24 of the cell, the octonion ceiling 8, F4 order 1152,
+  the 24 of the dock, the octonion ceiling 8, F4 order 1152,
   sin^2(theta_W) = 3/8, the Tsirelson bound, the Born exponent, and so
   on).
 - **What it contains.** Structured CSV plus a machine-readable
   `reference.json`, with a prose [readme](note/data/reference/readme.md)
-  and a [bibliography](note/data/reference/sources.md). Every single row
+  and a [bibliography](note/data/reference/sources.md). Every row
   carries a `source` tag and a `verified` date. The empirical values
   were fetched from and reconciled against their primary sources on
   2026-06-24 (CODATA 2022, PDG 2024, NuFIT 6.0, Planck 2018).
@@ -694,11 +851,10 @@ those numbers live in one cited place:
   the comparison-bearing experiments live and diffs each measured number
   against the reference value, recording a status per experiment in
   [`cross-check.csv`](note/data/reference/verification/cross-check.csv).
-  This is the double-and-triple-check rule applied to the data: it
-  confirmed the genuine matches (the quantum bounds, the 3/8 angle, F4,
-  the warp factor, the area law) and caught real problems (two mismapped
-  experiments, one circular result whose number was hardcoded, and one
-  result that is actually stronger than the table recorded).
+  It confirmed the matches (the quantum bounds, the 3/8 angle, F4, the
+  warp factor) and caught real problems (two mismapped experiments, one
+  circular result whose number was hardcoded, and one result stronger
+  than the table recorded).
 
 ## License
 
