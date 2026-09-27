@@ -645,7 +645,7 @@ export const multiply3 = mulM
 
 // the Hermitian eigenvalues of M M^dagger for a complex n x m matrix (rows, columns), through the real symmetric
 // 2n x 2n form and cyclic Jacobi
-function schmidtWeights(re: number[][], im: number[][]): number[] {
+export function schmidtWeights(re: number[][], im: number[][]): number[] {
   const n = re.length
   const m = re[0]?.length ?? 0
   const hr: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0))

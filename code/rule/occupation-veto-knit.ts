@@ -168,7 +168,9 @@ const SV = new Int8Array(24)
 const SP = new Int8Array(24)
 const SO = new Uint8Array(24)
 
-function coinPiece(t: LockedTables, c: Configuration, x: number): void {
+// the collision's second piece at one dock: the dock's whole occupation permuted by the bounce table (the contact's K
+// or B), exported so a reading can step it apart from the pair move (E-SPN-0098 attributes line breaks to it)
+export function coinPiece(t: LockedTables, c: Configuration, x: number): void {
   const base = x * 24
 
   if (bouncePermutation(BOUNCE_TABLE, t.collision, c.vibe, base, PERM) === 0) return
