@@ -1,4 +1,4 @@
-// SHAKING OR STRING BREAKING: READINGS FOR THE SLAB COMPOSITE UNDER THE MIXER (E-SPN-0140). E-SPN-0139 found three
+// SHAKING OR STRING BREAKING: READINGS FOR THE SLAB COMPOSITE UNDER THE MIXER (E-SPN-0141). E-SPN-0139 found three
 // holes on the slab bound by the Steiner string unbind under the frame mixer at every rate it tried (1/64 and up), and
 // not in the order the Klein gap predicts. Two readings remain: the mixer SHAKES the composite (a threshold angle that
 // tracks the binding gap), or the string BREAKS (the leaked weight is the composite plus pairs made from the sea). These

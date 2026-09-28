@@ -1,4 +1,4 @@
-// SHAKING OR STRING BREAKING: WHY THE SLAB COMPOSITE UNBINDS UNDER THE MIXER (E-SPN-0140). note/research/vibe/roadmap/
+// SHAKING OR STRING BREAKING: WHY THE SLAB COMPOSITE UNBINDS UNDER THE MIXER (E-SPN-0141). note/research/vibe/roadmap/
 // remaining-pieces.md, "Three holes on a 2d slab (E-SPN-0135)". E-SPN-0139 (test/experiment/spin/slab-hold-map) found
 // that three holes bound by the Steiner string on the slab hold only with the frame mixer off, and that the Klein-gap
 // criterion is wrong: at rate 1/64 the tail is 0.29, 0.077, 3.3e-3, 0.060 at D 1, 2, 3, 6. Two readings remain.
@@ -29,7 +29,9 @@
 //    reaches the reading's 0.01 is set by the binding gap: theta_c(D) / Delta(D) the same at D 3 and D 6.
 //    Delta(D), read before the run at rate 0 only (tmp/string-probe1.log; code/measure/coined-line-bloch lineLightest,
 //    one line, box 12, the loves' level whose image the holes are): the gap from the lightest level to the next,
-//    0.35043 rad at D 3 and DELTA6 at D 6, so predicted theta_c(6) / theta_c(3) = RATIO_PRED.
+//    0.35043 rad at D 3 and 0.41969 at D 6, so predicted theta_c(6) / theta_c(3) = 1.198. The weaker string's gap is the
+//    LARGER here (the Airy scaling of a nonrelativistic level would give 0.66 of D 3's), so (A) predicts D 6 holds to a
+//    larger angle than D 3, against E-SPN-0139's one point at 1/64 where D 6 did worse.
 //    Extrapolating E-SPN-0139's one point at 1/64 with slope 1 (disclosed: one point, which T1c tests): at D 3 the loss
 //    is 4.54 rate and the tail 0.21 rate + 4.5e-5, so the fidelity sets the threshold near rate 1/454 (theta_c about
 //    0.047 rad) and 1/512 is the largest scanned rate that holds; at D 6 the loss is 6.61 rate but the tail 3.85 rate,
@@ -75,6 +77,51 @@
 //  1e-10; held + escaped = 1 to 1e-10 and antisymmetry to 1e-12 at the end of every hold.
 // Verdict: partial if a control or check fails; pass if T1 and T2 hold (shaking, not breaking); fail otherwise.
 // PREDICTED: fail, on T1a at D 6 (the tail) and possibly T2s at D 6; T2r exact; T3 fails at D 6.
+// PROBE, disclosed (instrument only, rate 0): tmp/string-probe1.log, the two gaps above. Nothing at a mixer rate was run
+// before the gates were fixed; E-SPN-0139's record at 1/64 was known and is cited where it informed a prediction.
+//
+// FIRST RUN (tmp/string-exp-run1.log, 719 s): PARTIAL, on one check; no gate moved. Every control holds: CR (0.330017263726011
+// and -0.12246960716426848, equal), CF (E-SPN-0139's four numbers reproduced exactly), CP (the hole-and-fear start makes
+// a store on 4 of 4 paths). Checks: watchHold equals holdLevel bit for bit, leak identity 3.7e-13, norm 1.9e-13, but
+// ANTISYMMETRY 2.31e-12 against the 1e-12 carried over from E-SPN-0139 (which read 2.2e-13 over shorter work): float
+// roundoff, not a sign error, but the check as written fails, so the verdict is partial. (The control object was
+// flattened to numbers after run 1 started, for the typecheck; tmp/string-exp-run2.log, 472 s, reruns the final file and
+// every number is identical to the last digit.)
+//                    rate:   1/1024     1/512      1/256      1/128      1/64
+//   D 3 least fidelity       0.98983    0.99552 H  0.97985    0.98741    0.96385
+//       largest tail         5.7e-4     3.3e-4     2.0e-3     1.3e-3     5.3e-3
+//       missed / hole R 4    8.7e-4     5.3e-4     2.0e-3     1.4e-3     4.6e-3
+//   D 6 least fidelity       0.86577    0.11130    0.35529    0.82147    0.83496
+//       largest tail         1.1e-2     5.6e-2     5.8e-2     4.3e-2     6.0e-2
+//       missed / hole R 4    1.0e-2     4.6e-2     5.0e-2     3.8e-2     5.2e-2
+//  - T1 FAILS on all three clauses. (a) D 3 holds at 1/512 only (theta_c 0.0531 rad, 3.04 deg); D 6 holds nowhere, down
+//    to 1.79 deg. (b) not readable. (c) the loss is NOT a rate law: slope 0.49 at D 3 and 1.13 at D 6, and at D 3 it is
+//    not monotonic (1/1024 fails where 1/512 holds). The one-line gap does not set the scale: D 6 has the larger gap and
+//    does far worse. (A) as derived is not supported.
+//  - T2 HOLDS. (r) three holes in the rule stay three holes: 512 beats, holes off 0, fears 0, stores 0, register off 0.
+//    (s) the compact sectors carry 0.750 (D 3) and 0.663 (D 6) of the leak at 1/64, and the leak is almost all OFF the
+//    line: compact off-line 1.53e-2 of 2.55e-2 (D 3), 0.105 of 0.165 (D 6); at 1/1024 to 1/128 the off-line share is 70
+//    to 92 percent. The leaked weight is the same three holes, bent.
+//  - T3 FAILS (R 4, read from the rate-0 levels: 2.0e-4 and 1.2e-5 there): D 3 4.6e-3, D 6 5.2e-2 at 1/64. At D 3 the
+//    register witness holds at 1/1024 and 1/512 (8.7e-4, 5.3e-4) where the fidelity fails at 1/1024: the composite stays
+//    within 4 docks of its center while its fidelity to the line level dips. At D 6 a real part escapes the w 12 window
+//    (escaped 9.5e-3 by beat 128 at 1/1024, 5.0e-2 at 1/64).
+//  - READOUT: A not supported, B not supported (the rule makes no pair). Neither mechanism as posed.
+// PROBES AFTER THE RUN (diagnostic, gate nothing): tmp/string-probe2-3-1024.log and -6-1024.log, the followed 1/1024
+// level's fidelity over 256 beats and its own Ritz levels; tmp/string-probe3-3.log and -6.log, where the first-order
+// part of one mixer beat (U(1/1024) v - U(0) v) lands in the rate-0 spectrum.
+//  - The fidelity BEATS, it does not decay: D 3 between 0.988 and 0.998 with a slow drift, D 6 between 0.875 and 0.967,
+//    both recurring. The followed level vector is not an eigenvector (Ritz residual 0.068 at D 3, 0.045 at D 6), and at
+//    D 6 its own spectrum holds a partner 0.002 rad from it (-0.1063 against -0.1042), far inside the 120-beat Ritz
+//    resolution 2 pi / 120 = 0.052.
+//  - The first-order push has weight 0.89 theta^2 (D 3) and 0.82 theta^2 (D 6); about half of it is the level's own
+//    shift (the energy moves linearly, 0.63 theta at D 3), and 0.39 to 0.40 of it is OFF the line, landing on bent
+//    compact levels at 0.023 and 0.061 from the line level at D 3 (weights 1.3e-3, 2.1e-3), not at the one-line gap 0.35.
+//  So the line level at rate 0 sits in a dense set of bent compact three-hole levels that the mixer-off beat never
+//  couples (it keeps each hole's axis); any theta > 0 mixes them in, at a scale set by their spacing (hundredths of a
+//  radian), not by the one-line gap. The composite does not break (T2r) and at D 3 does not leave (the register holds to
+//  1/512); what E-SPN-0139's fidelity measures is the line level dissolving into the 2d composite's multiplet. At D 6 the
+//  2d composite is wider than the window as well.
 //
 // Depth L2: a stand-in (floats, the holes' beat derived from the rule's pieces, the register replaced by the Steiner
 // length, the geometry cut to a slab), with the rule itself read for the sectors (T2r, exact integers).
@@ -133,8 +180,9 @@ const ritz = (c: readonly C[]): Ritz[] => ritzLevels(c)
 
 export default experiment({
   id: 'spin/slab-string-break',
-  code: 'E-SPN-0140',
-  title: 'shaking or string breaking: why three holes on the slab unbind under the frame mixer (title written after the run)',
+  code: 'E-SPN-0141',
+  title:
+    "shaking or string breaking for three holes on the slab under the frame mixer, partial (antisymmetry 2.3e-12 against 1e-12; neither mechanism supported: T1 and T3 fail, T2 holds): no threshold tracks the one-line binding gap (D 3 holds only at rate 1/512, 3.0 deg, and fails at 1/1024; D 6, with the larger gap 0.42 against 0.35, holds nowhere down to 1.8 deg; the loss's slope on the rate is 0.49 and 1.13, not 1); the rule keeps three holes three holes over 512 beats (0 fears, 0 stores, register 3), so no pair is made from the sea; the leaked weight is the same three holes bent off the line (compact off-line 70 to 92 percent of it), the fidelity beats rather than decays, and the mixer's first-order push lands on bent compact levels 0.02 to 0.06 rad from the line level: the line level dissolves into the 2d composite's multiplet; a sea-aware register window (radius 4) holds at D 3 to rate 1/512 but not at 1/64 (4.6e-3) or anywhere at D 6 (1e-2 to 5e-2), where weight escapes the w 12 window",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -390,7 +438,7 @@ export default experiment({
       status,
       claim: `three holes on the slab (w ${CUT}, D 3 and 6) under the mixer at rates ${RATES.map(rateName).join(', ')}: held ${heldMap}; theta_c ${DS.map(D => `D ${D} ${Number.isNaN(th[D]!.theta) ? 'none' : th[D]!.theta.toFixed(4)}`).join(', ')} against gaps ${DS.map(D => (gap[D] as number).toFixed(4)).join(', ')} (T1a ${T1a}, T1b ${T1b}: measured ratio ${ratioMeasured.toFixed(3)} against ${ratioPredicted.toFixed(3)}), slope of the loss on the rate ${DS.map(D => (slope[D] as number).toFixed(3)).join(', ')} (T1c ${T1c}); the rule keeps three holes three holes (${rule.beats} beats, holes off ${rule.holesOff}, fears ${rule.fears}, stores ${rule.stores}, register off ${rule.registerOff}; T2r ${T2r}), compact share of the leak at 1/64 ${DS.map(D => compactShare(lastAt(D).sectors).toFixed(3)).join(', ')} (T2s ${T2s}); register witness R ${R ?? 'none'} missed ${DS.map(D => (R === undefined ? '-' : (lastAt(D).missed[R] as number).toExponential(2))).join(', ')} (T3 ${T3}); A ${A}, B ${Bsupported}; CR ${CR}, CF ${CF}, CP ${CP}`,
       metrics,
-      control: { recordD3: [record[3]!.minFidelity, record[3]!.maxTail], recordD6: [record[6]!.minFidelity, record[6]!.maxTail], rest: DS.map(D => rest[D]!.hold.level.energy), pairPaths },
+      control: { recordD3MinFidelity: record[3]!.minFidelity, recordD3MaxTail: record[3]!.maxTail, recordD6MinFidelity: record[6]!.minFidelity, recordD6MaxTail: record[6]!.maxTail, restD3Energy: rest[3]!.hold.level.energy, restD6Energy: rest[6]!.hold.level.energy, pairPaths },
       notes: `L2. Points: ${points.map(pointText).join('; ')}. Rest missed register per hole by R: ${DS.map(D => `D ${D} ${rest[D]!.missed.map(x => x.toExponential(1)).join(' ')}`).join('; ')}. Checks: watch equal ${watchSame}, leak identity ${leakGap.toExponential(2)}, norm ${normGap.toExponential(2)}, antisymmetry ${antiGap.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
