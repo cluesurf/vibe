@@ -452,9 +452,18 @@ realizes.
 
 **Still open:**
 
-1. moving in 3d: a pair bound across crossing lines holds but cannot
-   move, because nothing turns flux around a loop
-   ([`E-SPN-0110`](test/experiment/spin/crossing-lines.ts))
+1. moving in 3d, the fracton problem in exact form: every vibe is a
+   lineon. Parallel lines are independent
+   ([`E-SPN-0117`](test/experiment/spin/planon-lines.ts)), a pair on
+   crossing lines is held at the crossing
+   ([`E-SPN-0116`](test/experiment/spin/bent-string.ts)), and a
+   composite whose lines meet at one dock is pinned there at every order
+   ([`E-SPN-0118`](test/experiment/spin/bounce-mover.ts),
+   [`E-SPN-0119`](test/experiment/spin/hub-star.ts)). Two hubs cascade
+   through the vacuum even when bound by the string
+   ([`E-SPN-0120`](test/experiment/spin/two-hub-bound.ts)). Bound matter
+   moves freely only along a line class it wholly occupies, and free 3d
+   motion needs a change to the rule itself
 2. a temperature: a forming horizon's spectrum stays a power law at
    every register size run (C 13 to 49), so what shows is the growth's
    quench
