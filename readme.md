@@ -452,18 +452,61 @@ realizes.
 
 **Still open:**
 
-1. moving in 3d, the fracton problem in exact form: every vibe is a
-   lineon. Parallel lines are independent
-   ([`E-SPN-0117`](test/experiment/spin/planon-lines.ts)), a pair on
-   crossing lines is held at the crossing
-   ([`E-SPN-0116`](test/experiment/spin/bent-string.ts)), and a
-   composite whose lines meet at one dock is pinned there at every order
-   ([`E-SPN-0118`](test/experiment/spin/bounce-mover.ts),
-   [`E-SPN-0119`](test/experiment/spin/hub-star.ts)). Two hubs cascade
-   through the vacuum even when bound by the string
-   ([`E-SPN-0120`](test/experiment/spin/two-hub-bound.ts)). Bound matter
-   moves freely only along a line class it wholly occupies, and free 3d
-   motion needs a change to the rule itself
+1. **bound matter moving in 3d.** On the rule as it stands every vibe
+   is a lineon, and no composite can leave its lines
+   ([`E-SPN-0116`](test/experiment/spin/bent-string.ts) to
+   [`E-SPN-0120`](test/experiment/spin/two-hub-bound.ts)). Line-only
+   motion is excluded by observation, by about 17 orders of magnitude
+   ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts)). So the
+   rule has to change. A candidate change is tested, and it splits the
+   problem in two.
+
+   **Motion works under the candidate.** It has four parts:
+   - a filled love sea as the vacuum;
+   - a fermionic mixer over all 24 slots of a dock, which Pauli blocking
+     keeps inert on the sea
+     ([`E-SPN-0140`](test/experiment/spin/dock-mixer.ts));
+   - the swap coin, which keeps a vibe or crosses it with integer
+     entries;
+   - one new prime, 7, so the mass can be tuned
+     ([`E-SPN-0143`](test/experiment/spin/swap-cone.ts)).
+
+   Under it, a hole moves the same in every direction and obeys special
+   relativity, with R = tan(m)/m. Every excitation shares one top speed,
+   c* = c/2, and nothing exceeds it at any momentum. This holds in the
+   exact many-body rule, with the vacuum inert and gravity's sign kept
+   ([`E-SPN-0145`](test/experiment/spin/swap-many-body.ts),
+   [`E-GRV-0144`](test/experiment/gravity/normal-ordered-depth.ts)).
+   The graviton's slide holds at c* too, so matter and gravity can
+   share one c.
+
+   **Binding is what is still open.**
+   - A phase string leaks through the swap coin's flat bands
+     ([`E-SPN-0146`](test/experiment/spin/swap-string-meson.ts)).
+   - A mass string binds exactly and moves isotropically, but it needs
+     heavy members, reads the pair's separation nonlocally, and gives
+     R = 1.57 ([`E-SPN-0147`](test/experiment/spin/swap-mass-string.ts)).
+     No dock-local piece can fix it: that is a band-sum theorem
+     ([`E-SPN-0148`](test/experiment/spin/swap-odd-phase.ts)).
+   - On a line R → 1, with the lattice mass the only excess
+     ([`E-SPN-0149`](test/experiment/spin/line-flux-string.ts)). In 3d
+     a cost-only string misses the string's own transverse inertia.
+   - A Z3 flux register on the links records each member's path, so a
+     member walks a tree and cannot be light
+     ([`E-SPN-0150`](test/experiment/spin/swap-link-flux.ts)). A Z3
+     plaquette term cannot give light members and a confining string
+     at once ([`E-SPN-0151`](test/experiment/spin/flux-plaquette.ts)).
+   - The group the roots already form, 2T, freezes while the string is
+     still heavy. A register in the 4d bulk cannot confine continuously
+     for any group, so the string has to live on the husk
+     ([`E-SPN-0152`](test/experiment/spin/hurwitz-link-register.ts)).
+     On the husk, 2I, with the golden ratio in the ring, reaches SU(2)'s
+     scaling region before it freezes: its string tension there is
+     1.6e-18 of the strong-coupling value
+     ([`E-SPN-0153`](test/experiment/spin/icosian-husk-window.ts)). What
+     is left is dynamical: no ordered 2I state is kept by the beat, and
+     whether one survives long enough at small beat angle is the open
+     question
 2. a temperature: a forming horizon's spectrum stays a power law at
    every register size run (C 13 to 49), so what shows is the growth's
    quench
@@ -500,7 +543,7 @@ not 2 ([`E-GRV-0088`](test/experiment/gravity/depth-arena-prediction.ts)).
 
 | problem | where it stands | codes |
 | :--- | :--- | :--- |
-| one light speed | a locked vibe's top speed is 1/2 a beat, and every stable husk light is capped at $c \le 1/\sqrt6 = 0.408$. No integer coin gives matter less than 1/2, so the two speeds disagree by a theorem on each side | [`E-FRC-0250`](test/experiment/gauge/one-light-split.ts), [`E-SPN-0090`](test/experiment/spin/covariant-coin-theorem.ts) |
+| one light speed | a locked vibe's top speed is 1/2 a beat, and every stable husk light is capped at $c \le 1/\sqrt6 = 0.408$. No integer coin gives matter less than 1/2, so the two speeds disagree by a theorem on each side. Under the candidate swap coin and dock mixer, matter, its massless pair and the graviton share one c* = c/2, but the husk light has not been rerun on that rule | [`E-FRC-0250`](test/experiment/gauge/one-light-split.ts), [`E-SPN-0090`](test/experiment/spin/covariant-coin-theorem.ts), [`E-SPN-0143`](test/experiment/spin/swap-cone.ts) |
 | composite light | a bound love and fear pair is massive by a theorem, with one polarization on the husk, not two. Light stays its own field | [`E-FRC-0246`](test/experiment/gauge/composite-locked-light.ts), [`E-FRC-0247`](test/experiment/gauge/composite-light-husk.ts) |
 | the electron in 3d, and g | bound on one husk line only. A general direction is a superposition over lines. g needs its coupling to the light, not a mixer | [`E-SPN-0093`](test/experiment/spin/passing-contact-cluster.ts), [`E-SPN-0089`](test/experiment/spin/knit-cluster-landau.ts) |
 | measurement | a frame-covariant rule depolarizes every basis at one rate, so a pointer basis must come from the environment, never the rule (a 2-design theorem) | [`E-QTM-0154`](test/experiment/quantum/pointer-basis-theorem.ts) |
