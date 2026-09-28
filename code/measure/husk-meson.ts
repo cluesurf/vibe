@@ -400,7 +400,8 @@ export type ModelLevel = { E: number; converged: number; steps: number; psi: Flo
 // T_K(q) = eps_S(K/2 + q) + eps_S(K/2 - q) the two S members' band, D from the table (|y_i| <= N / 2 needs C >= N / 2).
 // E is the SHIFTED energy (the true one is E - alpha G(0)). Two-pass Lanczos from exp(-|y| / start) with `steps`
 // steps; `converged` is the change of the lowest Ritz value over the last 20 steps
-export function coulombModel(input: { m: number; alpha: number; table: GreenTable; N: number; K: readonly number[]; steps: number; start: number }): ModelLevel {
+// `hardCore` (a read, not the prediction) forbids contact: V(0) is raised to 1e6, the pair never on one dock
+export function coulombModel(input: { m: number; alpha: number; table: GreenTable; N: number; K: readonly number[]; steps: number; start: number; hardCore?: boolean }): ModelLevel {
   const { m, alpha, table, N, K, steps, start } = input
   const size = N * N * N
   const T = new Float64Array(size)
@@ -415,7 +416,7 @@ export function coulombModel(input: { m: number; alpha: number; table: GreenTabl
         const q = [w * a, w * b, w * c]
 
         T[i] = singletEpsClosed(m, [(K[0] as number) / 2 + (q[0] as number), (K[1] as number) / 2 + (q[1] as number), (K[2] as number) / 2 + (q[2] as number)]) + singletEpsClosed(m, [(K[0] as number) / 2 - (q[0] as number), (K[1] as number) / 2 - (q[1] as number), (K[2] as number) / 2 - (q[2] as number)])
-        V[i] = alpha * greenAt(table, img(a), img(b), img(c))
+        V[i] = input.hardCore && i === 0 ? 1e6 : alpha * greenAt(table, img(a), img(b), img(c))
       }
     }
   }
@@ -568,7 +569,8 @@ export function coulombModel(input: { m: number; alpha: number; table: GreenTabl
 
 export type FloquetSpace = { N: number; T: Float64Array; half: Float64Array; re: Float64Array; im: Float64Array }
 
-export function floquetSpace(input: { m: number; alpha: number; table: GreenTable; N: number; K: readonly number[] }): FloquetSpace {
+// `hardCore` (a read) removes the contact site: its half-phase is 0, so W is not unitary there and the level keeps none
+export function floquetSpace(input: { m: number; alpha: number; table: GreenTable; N: number; K: readonly number[]; hardCore?: boolean }): FloquetSpace {
   const { m, alpha, table, N, K } = input
   const size = N * N * N
   const T = new Float64Array(size)
@@ -584,8 +586,8 @@ export function floquetSpace(input: { m: number; alpha: number; table: GreenTabl
         const v = alpha * greenAt(table, img(a), img(b), img(c))
 
         T[i] = singletEpsClosed(m, [(K[0] as number) / 2 + (q[0] as number), (K[1] as number) / 2 + (q[1] as number), (K[2] as number) / 2 + (q[2] as number)]) + singletEpsClosed(m, [(K[0] as number) / 2 - (q[0] as number), (K[1] as number) / 2 - (q[1] as number), (K[2] as number) / 2 - (q[2] as number)])
-        half[2 * i] = Math.cos(-v / 2)
-        half[2 * i + 1] = Math.sin(-v / 2)
+        half[2 * i] = input.hardCore && i === 0 ? 0 : Math.cos(-v / 2)
+        half[2 * i + 1] = input.hardCore && i === 0 ? 0 : Math.sin(-v / 2)
       }
     }
   }

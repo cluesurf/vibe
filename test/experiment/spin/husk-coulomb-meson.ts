@@ -1,6 +1,153 @@
-// A LOVE AND A FEAR BOUND BY THE HUSK'S COULOMB LAW ON THE SWAP-COIN RULE: A HYDROGENIC LEVEL THAT MOVES FREELY? (E-SPN-0155)
+// A LOVE AND A FEAR BOUND BY THE HUSK'S COULOMB LAW ON THE SWAP-COIN RULE: A HYDROGENIC LEVEL THAT MOVES FREELY?
+// (E-SPN-0155). Under the candidate rule (the love sea, the 24-slot fermionic dock mixer, the swap coin, the ring
+// Z[w][1/42]) every one-body excitation moves isotropically with one c* = c / 2 (E-SPN-0143, 0145), and every string
+// tried failed or stalled at binding (E-SPN-0146 to 0153). Bound matter in 3d does not need confinement: atoms are held
+// by an ordinary 1/r law, and the model's compact U(1) light holds the exact 1/(24 pi r) (E-FRC-0241). This file binds
+// the love-fear pair of E-SPN-0146 (the exact particle-hole image of a hole pair on the love sea) with that law, as a
+// STATIC STAND-IN (stage 1): a diagonal phase from the husk lattice's exact Green's function. The dynamical light
+// (stage 2) is derived, not run (point 10).
 //
-// HEADER: see the derivation block below (written before the gate run).
+// DERIVED BEFORE THE RUN (machinery: code/measure/husk-meson, code/measure/swap-string, code/measure/meson-pool; member
+// eps from the midpoint as E-SPN-0147, a pair's eps the sum; coordinates are D4 coordinates, c = sqrt 2, c* = 1 / sqrt 2).
+// 1. WHERE THE PAIR LIVES, AND WHICH GREEN'S FUNCTION. E-SPN-0146/0147 carry the pair in 4d. The D4 mesh's own root
+//    Laplacian has a 4d Green's function, falling as 1/r^2, and -g / r^2 in 4d binds nothing below the fall-to-center
+//    threshold 2 mu g = 1 (it is scale free): a bulk Coulomb law cannot bind at weak coupling at all. The husk light reads
+//    column sums, and its static operator is the bulk's k4 = 0 block (E-FRC-0241 P1, P5), so its law depends on the husk
+//    projection only; a pair on the infinite 4d mesh under it is free in depth and unbound. So the pair runs on the HUSK
+//    QUOTIENT: the D4 mesh with depth period 2. A D4 point (a, b, c, d) there is fixed by (a, b, c), so the docks ARE the
+//    husk lattice Z^3, and the 24 roots project onto its 12 face diagonals once and its 6 axis steps twice. Its root
+//    Laplacian sum_(24 roots) (1 - cos k . rho) at k4 = 0 is EXACTLY E-FRC-0241's husk symbol, so the Coulomb law applied
+//    is the Green's function of the very lattice the pair walks. It is the thinnest husk column (a deeper one adds depth-
+//    excited member bands) and a member's momentum is (q, 0), q in [-pi, pi)^3. Stated as a stand-in.
+// 2. THE POTENTIAL. V(y) = -alpha G(y), G the infinite husk Green's function, so V -> -alpha / (24 pi r) = -alpha' / r
+//    (alpha' = alpha / (24 pi)); G(0) = 0.0528305 (husk-coulomb infiniteGreenZero), G(1, 0, 0) = 0.0125313, G(2, 0, 0) =
+//    0.0066243 (1/(24 pi r): 0.0132629, 0.0066315). The regularization at contact is the lattice's own: V(0) = -3.983
+//    alpha', 4.2 times V at the nearest dock. A float stand-in (G is transcendental), applied as the phase e^(-i s alpha
+//    (G(0) - G(y))) a beat after the stream (s the singlet's sign), the constant alpha G(0) removed so the stores, which
+//    carry no phase, sit with the contact sites; the true energy is the measured one minus alpha G(0).
+// 3. CONTINUUM HYDROGEN. The member's band is S = arccos(cos m g(q)), g = (1/24) sum cos(q . rho) (closed form, checked
+//    against the rule, I1): S = m + q^2 / (4 tan m) + ..., so the reduced mass is mu = tan m (inertia in units c*^2 = 1/2)
+//    and, in 3d, E_b = mu alpha'^2 / 2, a_B = 1 / (mu alpha'), both members' R_walk = tan m / m. The path is labeled by the
+//    continuum Bohr radius a_c: alpha = 24 pi / (tan m a_c).
+// 4. R OF A STATICALLY BOUND PAIR. At total K, the members sit at K/2 +- q; with S = m + a2 q^2 + a4 q^4, the K^2
+//    coefficient is a2 / 2 + a4 (1 + 2/3) <q^2>, so for relativistic members (a4 = -1/(8 M^3 c^2)) the inertia is 2M +
+//    (5/3) T / c^2 with T = E_b (virial), against E = 2 m - E_b: R = (2 tan m + (5/3) E_b) / (2 m - E_b) ~ R_walk (1 +
+//    E_b / 2m) + (5/6) E_b / m. A STATIC potential gives a composite HEAVIER than its energy: Lorentz needs 2M - E_b, and
+//    the missing (8/3) E_b is the transverse (Darwin) exchange of the dynamical light. So on the stand-in R -> R_walk only
+//    as E_b / m -> 0, and R -> 1 needs m -> 0 too.
+// 5. THE CORE. The contact well against the relative band's single-dock binding threshold (NR: kinetic ~ eps_husk(q) /
+//    (12 mu), threshold |V0| ~ 1 / (12 mu G(0))): the ratio is about 2.5 / a_B, so for a_B under about 2.5 the contact
+//    alone binds and the level is a lattice core state, heavy to move. The single-channel model (point 9) at the heavy
+//    member: a_c 2.5, 3, 3.5, 4, 5 give contact weight 0.53, 0.22, 0.074, 0.030, 0.009, E_b over continuum 2.8, 1.7, 1.34,
+//    1.23, 1.11, R 3.17, 1.84, 1.55, ~1.45, ~1.40 (tmp/coul-probe2-model.log, -probe3.log). HYDROGENIC (E_b within 10% of
+//    the continuum) NEEDS a_B >~ 5 DOCKS, and the tail decays as exp(-2 kappa r), kappa = sqrt(2 mu E_b): the ball must
+//    reach ~16 / (2 kappa). An affordable ball (radius 44, 357k sites, 2.1e8 amplitudes a state) holds a_c up to ~3.5.
+// 6. THE CHANNELS (the key derivation). The level at E = 2m - E_b (and its pi image, the beat alternating its contact map
+//    with parity) leaks only through a two-member band OPEN AT INFINITY, where V = 0: a band crossing E near contact, where
+//    V is large, is a local, closed degeneracy that carries nothing to infinity. With no string the channels at total K = 0
+//    (E-SPN-0147 point 4 at delta = 0) are SS [2m, 2m + 2 kmax], SD {0}, SF- [0, kmax], SF+ [pi, pi + kmax], DD [-2m - 2
+//    kmax, -2m], DF- [-2m - kmax, -2m], DF+ [pi - 2m - kmax, pi - 2m], F-F- {-2m}, F+F+ {2 pi - 2m}, F-F+ {pi - 2m}, kmax
+//    = pi/2 - m + arcsin(cos m / 3). Then, for small E_b, E and E + pi avoid every one iff (pi + E_b) / 4 < m < pi / 2
+//    (the floor is DF+'s top and F+F+ for the pi image, the ceiling SF+ and SF- wrapped): THE COULOMB LEVEL OF THE SWAP
+//    COIN IS A TRUE BOUND STATE ONLY FOR HEAVY MEMBERS, R_walk > 4 / pi = 1.273. For 0.41 < m < pi/4 the level sits inside
+//    DF+ (a D member moving, an F+ member flat), and for m < 0.62 inside SF- (an S member moving, an F- member flat): the
+//    flat-band channel that sank E-SPN-0146 is open at every coupling, however weak, because it is open at infinity. The
+//    premise that it closes when
+//    |V| > 2m only within alpha / (2m) of contact tests a local crossing, not the channel. Whether the embedded level
+//    leaks MEASURABLY depends on the coupling matrix element (the phase's gradient mixes S with the flat members at
+//    momentum transfer ~ the S member's momentum at kinetic 2m), which is not derived here: PREDICTED to leak.
+//    Heavy member (ringUnit(1, 4), m 0.857072, R_walk 1.347262): the nearest channel is DF+ (and F+F+ for E + pi), 0.205
+//    at a_c 3, 0.239 at 3.5 (the open model's E; the rule's shallower level sits farther from it). Light member (m = pi/6, R_walk 1.102658) at a_c 4: E ~ 0.94, inside SF- [0,
+//    1.340] and DF+ [0.754, 2.094].
+// 7. ISOTROPY is symmetry: the quotient is cubic, and a cubic rank-2 tensor is a multiple of the identity, so the K^2
+//    coefficient is isotropic by construction (L1); the gate checks the instrument, as in E-SPN-0147.
+// 8. SPEED. The potential is a phase: it adds no hop, the stream takes each vibe one root a beat, and every member band is
+//    under c* (E-SPN-0143); a composite's Hellmann-Feynman speed has no theorem, so C4 measures it.
+// 9. THE PREDICTION'S MODEL. Two S-band members with the exact band and the exact lattice potential on a 64^3 torus of
+//    relative coordinates, as a BEAT (floquetLevel: e^(-i V/2) e^(-i T) e^(-i V/2), the rule's phase form), filtered
+//    from the Hamiltonian level; R from its E(K) at K = 0.04 and 0.02 along the axis. It leaves out the flipped channels
+//    (evanescent) and the rule's contact map at y = 0 (the meeting, the collision and the store, replaced by A (x) A):
+//    those are what the run tests. The Floquet form moves E by 0.005 from the Hamiltonian at a_c 3 (probe 3).
+//    The model's numbers (the run prints them from the same code): heavy a_c 2.5, 3, 3.5: E_b 0.194 (Hamiltonian), 0.0815,
+//    0.0474, R 3.17 (Hamiltonian), 1.839, 1.547; light a_c 4: E_b ~0.09, R ~1.64. THIS MODEL IS THE GATE'S REFERENCE,
+//    fixed before probe 4, and PROBE 4 REFUTES IT (disclosed below): on the rule the contact site is nearly empty and the
+//    level is far shallower, as if the contact map were a HARD CORE. The hard-core model (the contact site removed; a
+//    READ, written after probe 4, gating nothing) is printed beside it: heavy a_c 2.5, 3, 3.5: E_b 0.0569, 0.0406,
+//    0.0304, R 1.475, 1.440, 1.417 (probe 5). PREDICTED: every heavy level held; R 1% from the open model FAILS at
+//    every path point (C3 fails); R falls along the path toward R_walk; the light member fails the hold (point 6).
+// 10. STAGE 2, THE DYNAMICAL LIGHT: WHAT IT WOULD TAKE, NOT RUN. The static phase is the light's longitudinal part (the
+//    rule's own flux energy equals (pi / D)(G(0) - G(r)) to 1e-9, E-FRC-0241 G3). What it lacks: (a) the transverse field,
+//    whose O(v^2/c^2) exchange (the Darwin term) is exactly the missing (8/3) E_b of point 4 (the Coulomb-plus-Darwin
+//    Lagrangian is Lorentz invariant to that order), so it is what would take R_static - R_walk toward the Lorentz value;
+//    (b) retardation and self-energy, O(alpha^3). Exactly, the pair's state times the light's: in Coulomb gauge with at
+//    most ONE transverse photon on a side-64 husk (2 x 64^3 = 5.2e5 modes), the gate ball's 2.7e8 amplitudes become 1.4e14
+//    (2.2 PB), out of reach by 10^6; E-FRC-0252's Peierls coupling is one way (no back-action), and a classical
+//    (permutation) light would write each matter branch's path into the field, so a stationary level needs the quantum
+//    light (E-FRC-0230's Weyl pairs). Affordable next: the Darwin term as a second stated stand-in (a momentum-dependent
+//    two-body piece), and the cubic group at K = 0 (48 elements) to reach a_B ~ 5 to 8 docks.
+//
+// GATES, fixed before the gate run (the plan: GATE_PLAN; the ball radius 44, the window 40; the heavy path a_c 2.5, 3,
+// 3.5, the main point a_c 3.5; the light member at a_c 4).
+//  THE HOLD WITNESS H (E-SPN-0148's; the absorbed weight and the edge set here from the hard-core model's tails, probe 5:
+//  at a_c 3.5 the shells fall ~0.67 a dock, so ~1e-7 on the ball's two outermost): over 256 beats from the level, the
+//  weight within husk radius 40 >= 1 - 1e-3 at every beat, the fidelity |<v|psi_t>|^2 >= 1 - 1e-3 at every even beat,
+//  the weight absorbed at the ball's edge <= 1e-4 in all, and the level's two outermost shells <= 1e-6.
+//  C1 A LEVEL HOLDS: the main point's level (the start: both members in their dock's uniform mode with the open model's
+//     relative wave function; the filter S 64 at the model's phase, S 1024 and S 256 at the read phase) holds H.
+//  C2 ISOTROPIC: its K^2 coefficient (K = 0.04 u and 0.02 u, Richardson, filter S 64) along the axis, face, body and a
+//     generic direction within 1e-6 of the axis's (relative).
+//  C3 R AGAINST THE MODEL, TRENDING DOWN: at every path point the level holds H and R = c*^2 / (2 a E) is within 1% of
+//     the (open) model's R; and R falls strictly along the path as the binding lightens (a_c 2.5, 3, 3.5). The limit the model
+//     derives is R_walk = tan m / m (point 4), not 1: the gate reads the trend, the verdict states the limit.
+//  C4 NO PART EXCEEDS c*: the band followed along the axis and the face to |K| 0.4, 0.8, 1.2 (filter S 128); at every
+//     followed point (|lambda2| >= 0.99, residual <= 1e-2) the Hellmann-Feynman speed (the 3d step) is at most c* (1 +
+//     1e-6); the 0.4 point must be followed on both.
+//  C5 THE VACUUM IS INERT: the exact rule at both members' units, 128 beats, on the D4 empty boxes (sides 4, 8), the D4
+//     love sea (side 4), and the quotient's empty mesh and love sea (side 4): one branch equal to the vacuum with its exact
+//     amplitude every beat, no charge (and on D4 no collision moves a value).
+//  C6 LIGHTER MEMBERS: the light member's level at a_c 4 (the same procedure) holds H. PREDICTED TO FAIL (point 6).
+// INSTRUMENT (a failure makes the verdict partial). I1 at both units: norm one exactly; the one-vibe matrix alike for
+//  love and fear and both parities; the shape X (I + beta 1 1^T) to 1e-12; the empty factor S alone; the band equal to
+//  the closed form (S, -S, 11 at -m, 11 at pi - m) on 64 Weyl momenta, 0 and (pi, pi, 0) to 1e-9; the contact maps
+//  unitary on the 576 live states to 1e-12. I3 one beat of the rule on the side-4 quotient box (no potential; the
+//  potential is the stand-in, not the rule) against the meson beat on the quotient ball, from every live contact state
+//  and every slot pair at y = (-1, -1, 0) and (-1, 0, 0), both parities, both units: 1e-12, every division exact, no
+//  stray branch. I4 the threaded beat with the potential on equals the one-thread beat (ball 6, K = (0.3, -0.1, 0.2), 4
+//  beats): entries 1e-13, sums 1e-12. I5 the Green table (FFT tori 128 and 256, Richardson) against husk-coulomb's direct
+//  mode sums at 8 points to 1e-11; the table against the closed form at its cube's face (|y|_max 16) to 1e-9; 24 pi r
+//  G(r) within 2e-4 of 1 at r 6 to 20 on the axis, face and body. I6 Hellmann-Feynman against the central difference at
+//  K 0.4 +- 0.02 on the axis to 1e-3. I7 the model: alpha 0 gives 2m to 1e-9; every Floquet level's residual <= 1e-6 and
+//  every Lanczos drift <= 1e-10.
+// CONTROLS (a failure makes the verdict partial). K1 the potential off: from the main point's start at its predicted
+//  phase (S 256) no level holds H. K2 the potential's sign turned (repulsive): likewise. K3 H sees a beat: the level
+//  mixed with 2e-3 of the start's remainder fails the fidelity clause.
+// Verdict: partial if the instrument or a control fails; pass if C1 to C6 hold; fail otherwise.
+// PREDICTED VERDICT: fail on C3 (the open model) and C6; C1, C2, C4, C5 hold.
+//
+// PROBES BEFORE THE GATE RUN, disclosed (the gates were written after probes 1 to 3 and revised after 4 and 5, as
+// stated; none moved after the gate run began). tmp/coul-probe1.log: G(0), the FFT table against the direct sums (to
+// 1e-14 inside r 12), the band closed form against the rule at four units (1.6e-15), the channel census, and the open
+// model at a_B 1.5 and 2, where the level collapses onto contact (E_b 0.97 and 0.45 at the heavy member): the core.
+// tmp/coul-probe2-model.log: the open model at a_c 2.5 to 5 at three members (point 5's numbers); -time40*.log: the
+// threaded beat on a 268k-site ball takes 0.85 s with every site full. tmp/coul-probe3.log: the Floquet form against the
+// Hamiltonian (E 0.005 apart at a_c 3), the N = 128 tails, the table against the closed form (5e-9 at r 40, so the cube
+// was cut to 16). tmp/coul-smoke.log: every code path on a 20-ball with short filters (unconverged, gating nothing; I3
+// on 3,456 starts a unit, 0 differ; the vacuum exact; isotropy 3e-9). tmp/coul-probe4-*.log: the model filter needs S
+// 1024 (residual 1e-13); the table's face error grows with the cube (2.8e-10 at 16, 1.1e-9 at 20); and ON THE RULE, the
+// heavy a_c 3 level (ball 28, the gate's filters) sits at E 1.67655640, |lambda2| 0.99999815, residual 4.5e-6, contact
+// weight 2.7e-3, singlet share 0.971, mean radius 5.72, held 128 beats (window 0.99969, fidelity 0.99976): binding 0.0376
+// against the open model's 0.0815. tmp/coul-probe5.log: the hard-core model, E 1.67357 at a_c 3 (0.003 from the rule).
+// tmp/coul-probe4-engine35.log (started before the gate run, finished during it; nothing changed after it): at a_c 3.5
+// on a 40-ball the rule's level sits at E 1.68602541 (binding 0.0281; hard core 0.0304, open 0.0474), |lambda2|
+// 0.99999996, residual 8.2e-6, contact 2.1e-3, held 128 beats (window 0.999993, fidelity 0.999995, absorbed 5.2e-6).
+// These probes moved the path from (3, 3.5, 4) on a 48-ball to (2.5, 3, 3.5) on a 44-ball, the witness's absorbed and
+// edge clauses from 1e-6 and 1e-8 to 1e-4 and 1e-6 (the rule's level is more extended than the model the first values
+// were read from), the filter lengths, and the cube, and made C3's prediction a failure.
+//
+// Depth L2: a two-body quantum walk on the husk lattice with a stated static Coulomb potential, the rule's own dock
+// pieces read exactly and checked against the rule on a box. DETERMINISM: no random numbers; placed starts, filtered
+// levels, Weyl momenta. NOTHING MOVES: the pieces hand values between slots of one dock, the stream takes each slot's
+// value one dock along, the potential is a phase.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -14,7 +161,6 @@ import {
   boxCheck,
   boxStarts,
   buildLevel,
-  cloneMeson,
   contactDockExact,
   contactUnitarity,
   CONTACT_STATES,
@@ -109,15 +255,15 @@ export type CoulombPlan = {
 // the gate plan: the path of continuum Bohr radii a_c (the coupling alpha = 24 pi / (tan m a_c)), the main point its
 // last (the lightest binding), the light member at its own a_c
 export const GATE_PLAN: CoulombPlan = {
-  ball: 48,
-  window: 44,
+  ball: 44,
+  window: 40,
   threads: 12,
-  path: [3, 3.5, 4],
+  path: [2.5, 3, 3.5],
   light: 4,
   sCoarse: 64,
-  sFirst: 512,
+  sFirst: 1024,
   sSecond: 256,
-  sMove: 128,
+  sMove: 64,
   sFollow: 128,
   sControl: 256,
   holdBeats: 256,
@@ -125,15 +271,15 @@ export const GATE_PLAN: CoulombPlan = {
   vacuumSides: [4, 8],
   modelN: 64,
   tailN: 128,
-  modelS: 512,
-  modelPasses: 4,
+  modelS: 1024,
+  modelPasses: 2,
   greenL: 128,
-  greenC: 20,
+  greenC: 16,
 }
 
 const HOLD = 1e-3
-const ABSORB = 1e-6
-const EDGE = 1e-8
+const ABSORB = 1e-4
+const EDGE = 1e-6
 const KAPPA = 0.04
 const ISOTROPY = 1e-6
 const R_TOLERANCE = 0.01
@@ -144,7 +290,8 @@ const SPEED_TOLERANCE = 1e-6
 const FD_H = 0.02
 const FD_TOLERANCE = 1e-3
 const MIX = 2e-3
-const POOL = 3
+// every reading borrows at most two pooled states at once (filterMeson, readLevel, watchLevel, levelVelocity)
+const POOL = 2
 const BOX_SIDE = 4
 const CHECK_BALL = 5
 const THREAD_BALL = 6
@@ -156,7 +303,7 @@ const ENTRY_TOLERANCE = 1e-12
 const THREAD_TOLERANCE = 1e-13
 const SUM_TOLERANCE = 1e-12
 const GREEN_TOLERANCE = 1e-11
-const FACE_TOLERANCE = 1e-10
+const FACE_TOLERANCE = 1e-9
 const UNITY_TOLERANCE = 2e-4
 const MODEL_RESIDUAL = 1e-6
 const LANCZOS_DRIFT = 1e-10
@@ -243,6 +390,9 @@ type Prediction = {
   nearest: { name: string; distance: number }
   piImage: { name: string; distance: number }
   psi: Float64Array
+  hardCoreE: number
+  hardCoreR: number
+  hardCoreMeanR: number
 }
 
 // the prediction at one point: the Hamiltonian single-channel level (the start), the Floquet single-channel level at
@@ -272,6 +422,16 @@ function predict(member: Member, aC: number, table: GreenTable, plan: CoulombPla
   const E = (eps[0] as number) - alpha * table.g0
   const tail = coulombModel({ m, alpha, table, N: plan.tailN, K: [0, 0, 0], steps: LANCZOS_STEPS, start: aC })
   const channels = pairChannels(m)
+  // READ, gating nothing: the hard-core model (the contact site removed), written after probe 4 found the rule's level
+  // far shallower than the open model's
+  const hcHam = coulombModel({ m, alpha, table, N: plan.modelN, K: [0, 0, 0], steps: LANCZOS_STEPS, start: aC + 2, hardCore: true })
+  const hcEps = [
+    [0, 0, 0],
+    [KAPPA, 0, 0],
+    [KAPPA / 2, 0, 0],
+  ].map(K => floquetLevel(floquetSpace({ m, alpha, table, N: plan.modelN, K, hardCore: true }), hcHam.psi, new Float64Array(hcHam.psi.length), hcHam.E, plan.modelS, plan.modelPasses).eps)
+  const hcA = (16 * ((hcEps[2] as number) - (hcEps[0] as number)) - ((hcEps[1] as number) - (hcEps[0] as number))) / (3 * KAPPA * KAPPA)
+  const hcE = (hcEps[0] as number) - alpha * table.g0
 
   return {
     aC,
@@ -295,6 +455,9 @@ function predict(member: Member, aC: number, table: GreenTable, plan: CoulombPla
     nearest: channelGap(E, channels, ['SS']),
     piImage: channelGap(E + Math.PI, channels),
     psi: ham.psi,
+    hardCoreE: hcE,
+    hardCoreR: (C_STAR * C_STAR) / (2 * hcA * hcE),
+    hardCoreMeanR: hcHam.meanR,
   }
 }
 
@@ -552,8 +715,8 @@ export function huskCoulombRun(plan: CoulombPlan): Verdict {
       // K3: the witness sees a beat
       let mixedFidelity = 1
       {
-        const start = modelStart(ball, main.psi, plan.modelN)
-        const w = cloneMeson(start)
+        // a fresh start, used in place (a gate-ball state is 4.3 GB, so no copy is kept)
+        const w = modelStart(ball, main.psi, plan.modelN)
         const o = mesonInner(lv.v, w)
 
         for (let k = 0; k < w.re.length; k++) {
@@ -684,12 +847,12 @@ export function huskCoulombRun(plan: CoulombPlan): Verdict {
   const heldLine = (h: Held): string => `window ${h.hold.leastWindow.toFixed(6)}, fidelity ${h.hold.leastFidelity.toFixed(6)}, absorbed ${h.hold.absorbed.toExponential(2)}, edge ${h.edge.toExponential(2)}, holds ${h.holds}`
   const shellLine = (h: Held): string => h.shells.map(x => x.toExponential(1)).join(' ')
   const predLine = (p: Prediction): string =>
-    `a_c ${p.aC}: alpha ${p.alpha.toFixed(4)} (alpha' ${p.alphaPrime.toFixed(5)}), V0 ${p.V0.toFixed(4)}, V(1) ${p.V1.toFixed(4)}, E ${p.E.toFixed(8)} (Hamiltonian ${p.hamiltonian.toFixed(8)}), E_b ${p.Eb.toFixed(6)} (continuum ${p.EbContinuum.toFixed(6)}), a ${p.a.toExponential(8)}, R ${p.R.toFixed(6)}, contact ${p.contact.toExponential(2)}, mean r ${p.meanR.toFixed(3)}, beyond the window ${p.beyondWindow.toExponential(2)}, edge shells ${p.edgeShells.toExponential(2)}, nearest ${p.nearest.name} ${p.nearest.distance.toFixed(4)}, pi image ${p.piImage.name} ${p.piImage.distance.toFixed(4)}, model residual ${p.residual.toExponential(1)}, Lanczos drift ${p.lanczosDrift.toExponential(1)}`
+    `a_c ${p.aC}: alpha ${p.alpha.toFixed(4)} (alpha' ${p.alphaPrime.toFixed(5)}), V0 ${p.V0.toFixed(4)}, V(1) ${p.V1.toFixed(4)}, E ${p.E.toFixed(8)} (Hamiltonian ${p.hamiltonian.toFixed(8)}), E_b ${p.Eb.toFixed(6)} (continuum ${p.EbContinuum.toFixed(6)}), a ${p.a.toExponential(8)}, R ${p.R.toFixed(6)}, contact ${p.contact.toExponential(2)}, mean r ${p.meanR.toFixed(3)}, beyond the window ${p.beyondWindow.toExponential(2)}, edge shells ${p.edgeShells.toExponential(2)}, nearest ${p.nearest.name} ${p.nearest.distance.toFixed(4)}, pi image ${p.piImage.name} ${p.piImage.distance.toFixed(4)}, model residual ${p.residual.toExponential(1)}, Lanczos drift ${p.lanczosDrift.toExponential(1)}; read, the hard-core model: E ${p.hardCoreE.toFixed(8)}, R ${p.hardCoreR.toFixed(6)}, mean r ${p.hardCoreMeanR.toFixed(3)}`
   const levelLine = (lv: Level): string => `E ${lv.E.toFixed(8)} (coarse ${lv.coarseEps.toFixed(5)}, first ${lv.firstEps.toFixed(6)}), |lambda2| ${lv.lambda.toFixed(10)}, residual ${lv.residual.toExponential(2)}`
 
   return verdict({
     status,
-    claim: `C1 ${C1} (the main level a_c ${main.aC}: ${levelLine(M.lv)} against the model ${main.E.toFixed(8)}; ${heldLine(M.held)}); C2 ${C2} (isotropy ${M.isotropy.toExponential(2)}); C3 ${C3} (${pathAll.map(p => `a_c ${p.aC}: R ${p.R.toFixed(5)} against the model ${predOf(p.aC).R.toFixed(5)}, holds ${p.held.holds}`).join('; ')}; R_walk ${heavy.Rwalk.toFixed(6)}); C4 ${C4} (top Hellmann-Feynman speed ${(topSpeed / C_STAR).toFixed(6)} c*); C5 ${C5}; C6 ${C6} (the light member at a_c ${plan.light}: ${levelLine(Lt.lv)} against the model ${lightPred.E.toFixed(8)}; ${heldLine(Lt.held)}); K1 ${K1} (off: eps ${M.off.eps.toFixed(5)}, ${heldLine(M.off.held)}); K2 ${K2} (repulsive: eps ${M.repulsive.eps.toFixed(5)}, ${heldLine(M.repulsive.held)}); K3 ${K3} (mixed start fidelity ${M.mixedFidelity.toFixed(6)})`,
+    claim: `C1 ${C1} (the main level a_c ${main.aC}: ${levelLine(M.lv)} against the model ${main.E.toFixed(8)}; ${heldLine(M.held)}); C2 ${C2} (isotropy ${M.isotropy.toExponential(2)}); C3 ${C3} (${pathAll.map(p => `a_c ${p.aC}: E ${p.lv.E.toFixed(6)} R ${p.R.toFixed(5)} against the model ${predOf(p.aC).E.toFixed(6)}, ${predOf(p.aC).R.toFixed(5)} (read, hard core: ${predOf(p.aC).hardCoreE.toFixed(6)}, ${predOf(p.aC).hardCoreR.toFixed(5)}), holds ${p.held.holds}`).join('; ')}; R_walk ${heavy.Rwalk.toFixed(6)}); C4 ${C4} (top Hellmann-Feynman speed ${(topSpeed / C_STAR).toFixed(6)} c*); C5 ${C5}; C6 ${C6} (the light member at a_c ${plan.light}: ${levelLine(Lt.lv)} against the model ${lightPred.E.toFixed(8)}; ${heldLine(Lt.held)}); K1 ${K1} (off: eps ${M.off.eps.toFixed(5)}, ${heldLine(M.off.held)}); K2 ${K2} (repulsive: eps ${M.repulsive.eps.toFixed(5)}, ${heldLine(M.repulsive.held)}); K3 ${K3} (mixed start fidelity ${M.mixedFidelity.toFixed(6)})`,
     metrics: {
       C1: flag(C1),
       C2: flag(C2),

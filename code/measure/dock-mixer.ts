@@ -474,6 +474,35 @@ export function bandAt(P: CMatrix, roots: readonly (readonly number[])[], K: rea
   return { phase, velocity }
 }
 
+// bandAt with each eigenvector's slot weights |psi_q|^2 as well (the velocity is sum_q weight_q r_q)
+export function bandSlots(P: CMatrix, roots: readonly (readonly number[])[], K: readonly number[]): { phase: number[]; velocity: number[][]; weight: Float64Array[] } {
+  const n = roots.length
+  const u = blochMatrix(P, roots, K)
+  const e = complexEigenvalues({ re: u.re, im: u.im, n })
+  const phase: number[] = []
+  const velocity: number[][] = []
+  const weight: Float64Array[] = []
+
+  e.re.forEach((x, i) => {
+    const y = e.im[i] as number
+    const psi = complexEigenvector({ re: u.re, im: u.im, n, value: [x, y] })
+    const w = new Float64Array(n)
+    const v = [0, 0, 0, 0]
+
+    for (let q = 0; q < n; q++) {
+      w[q] = (psi.re[q] as number) ** 2 + (psi.im[q] as number) ** 2
+
+      for (let k = 0; k < 4; k++) v[k]! += (w[q] as number) * ((roots[q] as readonly number[])[k] as number)
+    }
+
+    phase.push(Math.atan2(y, x))
+    velocity.push(v)
+    weight.push(w)
+  })
+
+  return { phase, velocity, weight }
+}
+
 export const wrap = (x: number): number => Math.atan2(Math.sin(x), Math.cos(x))
 const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] as number), 0)
 

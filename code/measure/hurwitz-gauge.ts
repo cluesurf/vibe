@@ -49,7 +49,8 @@ export type GaugeGroup = {
   quat: number[][] | null
 }
 
-const qmul = (a: readonly number[], b: readonly number[]): number[] => [
+// the Hamilton product of two quaternions (w, x, y, z)
+export const qmul = (a: readonly number[], b: readonly number[]): number[] => [
   (a[0] as number) * (b[0] as number) - (a[1] as number) * (b[1] as number) - (a[2] as number) * (b[2] as number) - (a[3] as number) * (b[3] as number),
   (a[0] as number) * (b[1] as number) + (a[1] as number) * (b[0] as number) + (a[2] as number) * (b[3] as number) - (a[3] as number) * (b[2] as number),
   (a[0] as number) * (b[2] as number) - (a[1] as number) * (b[3] as number) + (a[2] as number) * (b[0] as number) + (a[3] as number) * (b[1] as number),
