@@ -467,6 +467,73 @@ export function pairReader(m: Meson, L: number): (v: Vec) => PairReading {
   }
 }
 
+// THE POTENTIAL MODEL'S INERTIA on a level's own momentum content (E-SPN-0149). The level is read in relative momentum
+// p as pairReader reads it (token 0 at -p, token 1 at p, each on the lone walk's branches; a token in A at k is the
+// particle at k + pi). A boost P gives each token P/2, so E(P) = E_B(-p + P/2) + E_B(p + P/2) + (the string, which a
+// boost does not touch in this model): the first order cancels between -p and p, and E''(P) = (E_B''(-p) + E_B''(p)) /
+// 4. The model's inertia is 1 / <E''(P)> over the particle sector (the even count, renormalized), E_B'' by a symmetric
+// second difference of fineBranch's energy. It is the inertia a pair of free walkers with this momentum content would
+// carry under an instantaneous string: a READING to set beside the level's measured inertia, never a gate's input.
+export function pairModelInertia(m: Meson, L: number, v: Vec, h = 1e-3): { inertia: number; even: number } {
+  const { b } = m
+  const eB = (k: number): number => fineBranch(m.fine, k).energy
+  const curvature = (k: number): number => (eB(k + h) + eB(k - h) - 2 * eB(k)) / (h * h)
+  const rows = Array.from({ length: L }, (_, k) => fineBranch(m.fine, (2 * Math.PI * k) / L))
+  let total = 0
+  let even = 0
+  let second = 0
+
+  for (let k = 0; k < L; k++) {
+    const p = (2 * Math.PI * k) / L
+    const hat: C[] = [
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ]
+
+    b.configs.forEach((cfg, c) => {
+      const ph: C = [Math.cos(-p * cfg[1]!) / Math.sqrt(L), Math.sin(-p * cfg[1]!) / Math.sqrt(L)]
+
+      for (let r = 0; r < 4; r++) {
+        const w = cmul(ph, [v.re[b.index(c, r)]!, v.im[b.index(c, r)]!])
+
+        hat[r] = [hat[r]![0] + w[0], hat[r]![1] + w[1]]
+      }
+    })
+
+    const t0 = rows[(L - k) % L]!
+    const t1 = rows[k]!
+
+    for (let a = 0; a < 4; a++) {
+      const a0 = a >> 1
+      const a1 = a & 1
+      const v0 = a0 === 0 ? t0.B : t0.A
+      const v1 = a1 === 0 ? t1.B : t1.A
+      let s: C = [0, 0]
+
+      for (let r = 0; r < 4; r++) {
+        const w = cmul(cmul([v0[r >> 1]![0], -v0[r >> 1]![1]], [v1[r & 1]![0], -v1[r & 1]![1]]), hat[r]!)
+
+        s = [s[0] + w[0], s[1] + w[1]]
+      }
+
+      const wgt = s[0] ** 2 + s[1] ** 2
+
+      total += wgt
+      if (a0 !== a1) continue
+      even += wgt
+
+      // the particle momenta: -p and p on B, -p + pi and p + pi on A
+      const shift = a0 === 0 ? 0 : Math.PI
+
+      second += (wgt * (curvature(-p + shift) + curvature(p + shift))) / 4
+    }
+  }
+
+  return { inertia: even / second, even: even / total }
+}
+
 // `vector` in the full pair basis, `block` the same on its parity block
 export type PairLevel = { parity: Parity; energy: number; unwrapped: number; reference: number; even: number; kinetic: number; mean: number; tailN: number; contact: number; vector: Vec; block: Vec }
 
