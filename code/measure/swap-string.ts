@@ -1267,7 +1267,8 @@ export function buildLevel(engine: MesonEngine, start: MesonState, phase: number
 // any beat, the least fidelity |<v|psi_t>|^2 at the even beats (the level's period), and the weight absorbed
 export type Hold = { leastWindow: number; leastFidelity: number; absorbed: number; fidelity: number[] }
 
-export function watchLevel(engine: MesonEngine, v: MesonState, beats: number, window: number): Hold {
+// `within`, when given, reads the window weight in place of the string-length window (E-SPN-0155's husk radius)
+export function watchLevel(engine: MesonEngine, v: MesonState, beats: number, window: number, within?: (s: MesonState) => number): Hold {
   let a = borrowed(engine, v)
   let b = engine.borrow()
   let absorbed = 0
@@ -1278,7 +1279,7 @@ export function watchLevel(engine: MesonEngine, v: MesonState, beats: number, wi
   for (let t = 0; t < beats; t++) {
     absorbed += engine.beat(a, b, t)
     ;[a, b] = [b, a]
-    leastWindow = Math.min(leastWindow, weightWithin(engine.space.ball, a, window))
+    leastWindow = Math.min(leastWindow, within ? within(a) : weightWithin(engine.space.ball, a, window))
 
     if ((t + 1) % 2 === 0) {
       const f = mesonInner(v, a)
