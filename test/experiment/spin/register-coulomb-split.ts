@@ -59,7 +59,15 @@ export type SplitPoint = { name: string; aB: number; radius: number; filters: re
 export type SplitPlan = { points: readonly SplitPoint[]; hold: number; witnessCoord: number; witnessFull: number; sTorus: number; main: number; weak: number; strong: number }
 
 export const GATE_PLAN: SplitPlan = {
-  points: [],
+  points: [
+    { name: 'main-strang', aB: 3.5, radius: 14, filters: [128, 512, 2048], kFilter: 256, form: 'strang', dock: false },
+    { name: 'main-coulomb', aB: 3.5, radius: 14, filters: [128, 512, 2048], kFilter: 256, form: 'coulomb', dock: false },
+    { name: 'main-dock', aB: 3.5, radius: 14, filters: [128, 512, 2048], kFilter: 256, form: 'coulomb', dock: true },
+    { name: 'strong-strang', aB: 3, radius: 12, filters: [128, 512, 2048], kFilter: 256, form: 'strang', dock: false },
+    { name: 'strong-coulomb', aB: 3, radius: 12, filters: [128, 512, 2048], kFilter: 256, form: 'coulomb', dock: false },
+    { name: 'weak-strang', aB: 5, radius: 18, filters: [128, 512], kFilter: 128, form: 'strang', dock: false },
+    { name: 'weak-coulomb', aB: 5, radius: 18, filters: [128, 512], kFilter: 128, form: 'coulomb', dock: false },
+  ],
   hold: 64,
   witnessCoord: 7,
   witnessFull: 6,
@@ -233,7 +241,6 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
   {
     const ec = splitEngine(ball, u, Kg, count, 'coulomb')
     const ef = splitEngine(ball, u, Kg, count, 'factored')
-    const es = splitEngine(ball, u, Kg, count, 'strang')
     const s = genericState(ball, 3, 0.1)
     const a = clonePair(s)
     const b = clonePair(s)
@@ -243,9 +250,14 @@ export function partsRun(su: Setup, plan: SplitPlan, log: (what: string) => void
     sectorPiece(ef.pull, b, 'SS')
     splitCycle(ef, b)
     conjugacy = relativeGap(a, b)
+  }
 
-    // I3: the Strang cycle keeps the Gram norm (every piece unitary), one cycle
-    const c = clonePair(s)
+  // I3: the Strang cycle keeps the Gram norm (every piece unitary), one cycle, a generic start within radius 3 of a
+  // radius-14 ball (one Strang cycle reaches up to eight links: two pulls of two each and the free cycle between)
+  {
+    const b14 = huskRelBall(14)
+    const es = splitEngine(b14, u, Kg, coulombCounts(b14, table, alpha, theta), 'strang')
+    const c = genericState(b14, 3, 0.1)
     const n0 = norm2(es.free, c)
 
     splitCycle(es, c)
