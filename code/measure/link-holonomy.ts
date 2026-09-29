@@ -510,9 +510,7 @@ export function seaCounts(c: Configuration): {
   let holes = 0
   let stores = 0
 
-  for (let i = 0; i < c.vibe.length; i++) {
-    const v = c.vibe[i]!
-
+  for (const v of c.vibe) {
     if (v > 0) {
       loves++
     } else if (v < 0) {
@@ -522,8 +520,8 @@ export function seaCounts(c: Configuration): {
     }
   }
 
-  for (let s = 0; s < c.store.length; s++) {
-    if (c.store[s] !== 0) {
+  for (const s of c.store) {
+    if (s !== 0) {
       stores++
     }
   }

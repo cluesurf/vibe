@@ -388,21 +388,22 @@ export default experiment({
     }
 
     for (let gap = 0; gap <= RESIDUAL.gaps; gap++) {
-      metrics[`sameGap${gap}`] = nB.same[gap]?.value!
-      metrics[`sameGap${gap}Error`] = nB.same[gap]?.error!
+      // every gap 0 .. RESIDUAL.gaps has an entry: read() builds gaps + 1 of them
+      metrics[`sameGap${gap}`] = nB.same[gap]!.value
+      metrics[`sameGap${gap}Error`] = nB.same[gap]!.error
       metrics[`sameGap${gap}Exact`] = pnB.same[gap]!
       metrics[`sameGap${gap}ExactSpread`] = spreadB[gap]!
-      metrics[`flippedGap${gap}`] = nB.flipped[gap]?.value!
-      metrics[`flippedGap${gap}Error`] = nB.flipped[gap]?.error!
+      metrics[`flippedGap${gap}`] = nB.flipped[gap]!.value
+      metrics[`flippedGap${gap}Error`] = nB.flipped[gap]!.error
       metrics[`flippedGap${gap}Exact`] = pnB.flipped[gap]!
-      metrics[`oldRuleSameGap${gap}`] = oB.same[gap]?.value!
-      metrics[`oldRuleSameGap${gap}Error`] = oB.same[gap]?.error!
+      metrics[`oldRuleSameGap${gap}`] = oB.same[gap]!.value
+      metrics[`oldRuleSameGap${gap}Error`] = oB.same[gap]!.error
       metrics[`oldRuleSameGap${gap}ExactModThree`] = poB.same[gap]!
     }
 
     for (let gap = 0; gap < RESIDUAL.gaps; gap++) {
       metrics[`sameRatioLogGap${gap}`] = Math.log(
-        nB.same[gap]?.value! / nB.same[gap + 1]?.value!,
+        nB.same[gap]!.value / nB.same[gap + 1]!.value,
       )
 
       metrics[`sameRatioLogGap${gap}Exact`] = Math.log(
@@ -412,11 +413,11 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `with pairs born in both orientations the line's charges pass (lowest integer flux ${newA.lowestFlux}); at E-FRC-0189's coupling (beta ${nA.beta.toFixed(4)}) its charge density is ${(nA.charges / pnA.charges).toFixed(4)}, its paid fraction ${(nA.paid / pnA.paid).toFixed(4)} and its meson profile ${[1, 2, 3].map(d => (nA.profile[d]! / pnA.profile[d]!).toFixed(3)).join(', ')} of the mod-3 transfer matrix's, profile rate ${nA.profileRate.toFixed(3)} against ${pnA.profileRate.toFixed(3)}, where the old rule reads ${(oA.charges / poA.charges).toFixed(3)}; at mass 1, tension 1 (beta ${nB.beta.toFixed(4)}) the rule's own static-meson residual is ${RESIDUAL_GAPS.map(g => `${nB.same[g]?.value!.toExponential(3)} +- ${nB.same[g]?.error!.toExponential(1)}`).join(', ')} at gaps 0, 1, 2 against the exact ${RESIDUAL_GAPS.map(g => pnB.same[g]!.toExponential(3)).join(', ')}`,
+      claim: `with pairs born in both orientations the line's charges pass (lowest integer flux ${newA.lowestFlux}); at E-FRC-0189's coupling (beta ${nA.beta.toFixed(4)}) its charge density is ${(nA.charges / pnA.charges).toFixed(4)}, its paid fraction ${(nA.paid / pnA.paid).toFixed(4)} and its meson profile ${[1, 2, 3].map(d => (nA.profile[d]! / pnA.profile[d]!).toFixed(3)).join(', ')} of the mod-3 transfer matrix's, profile rate ${nA.profileRate.toFixed(3)} against ${pnA.profileRate.toFixed(3)}, where the old rule reads ${(oA.charges / poA.charges).toFixed(3)}; at mass 1, tension 1 (beta ${nB.beta.toFixed(4)}) the rule's own static-meson residual is ${RESIDUAL_GAPS.map(g => `${nB.same[g]!.value.toExponential(3)} +- ${nB.same[g]!.error.toExponential(1)}`).join(', ')} at gaps 0, 1, 2 against the exact ${RESIDUAL_GAPS.map(g => pnB.same[g]!.toExponential(3)).join(', ')}`,
       metrics,
       control: {
         oldRuleChargeOverPredicted: oA.charges / poA.charges,
-        oldRuleSameGap0: oB.same[0]?.value!,
+        oldRuleSameGap0: oB.same[0]!.value,
       },
       notes:
         "L2. Exact integers and exact reversal, no random numbers: seeds at golden Weyl positions, demons from the silver Weyl sequence through the truncated law q^d. The static mesons are read as the pair correlation of the [love, fear] pattern, which equals the connected ratio of two static mesons in the measure exactly (a charged free cell weighs y, a static one 1). The ring keeps its net charge at exactly 0 where the transfer matrix's trace counts every multiple of 3, a global constraint whose share of a local reading falls as one over the ring length. Nothing moves: a pattern is read afresh from each snapshot.",

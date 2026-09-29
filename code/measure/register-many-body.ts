@@ -342,7 +342,6 @@ export function registerExchange(R: number, F: number): QWMatrix {
 
 /** H' = N (N - 1) / 2 - O: the count of member pairs, weighted 1 - swap. Diagonal in N; integer valued. */
 export function exchangeCount(R: number, F: number): QWMatrix {
-  const n = R * F
   const O = registerExchange(R, F)
 
   return O.map((r, i) =>

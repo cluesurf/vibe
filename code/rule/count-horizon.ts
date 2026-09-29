@@ -102,7 +102,8 @@ export function countShares(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (horizon[y]) {
-      ;((count += divLine[y]!), docks++)
+      count += divLine[y]!
+      docks++
     }
   }
 

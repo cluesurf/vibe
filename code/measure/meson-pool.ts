@@ -28,7 +28,6 @@ import {
   type MesonEngine,
   type MesonSpace,
   type MesonState,
-  type Sparse,
 } from '@/code/measure/swap-string'
 
 const OPP: readonly number[] = ROOTS.map(r =>

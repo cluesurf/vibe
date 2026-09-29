@@ -118,7 +118,8 @@ export function quietStart(
     const b = mesh.head[m]!
 
     if (near[mesh.tail[m]!] || (b >= 0 && near[b])) {
-      ;((s.step[m] = 0), (s.line[m] = 0))
+      s.step[m] = 0
+      s.line[m] = 0
     }
   }
 
@@ -583,7 +584,8 @@ export function tornValues(
     if (ends === 1) {
       cut.push(s.step[m]!)
     } else if (ends === 2) {
-      ;(step.push(s.step[m]!), line.push(s.line[m]!))
+      step.push(s.step[m]!)
+      line.push(s.line[m]!)
     }
   }
 

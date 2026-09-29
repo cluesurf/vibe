@@ -130,8 +130,8 @@ const mean = (xs: readonly number[]): number =>
 function temperature(rule: PhotonRule, s: PhotonState): number {
   let sum = 0
 
-  for (let l = 0; l < s.flux.length; l++) {
-    sum += (s.flux[l] ?? 0) * (s.flux[l] ?? 0)
+  for (const f of s.flux) {
+    sum += f * f
   }
 
   return sum / (rule.lattice.links - rule.lattice.cells + 1)

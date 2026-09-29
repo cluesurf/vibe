@@ -42,7 +42,8 @@ const radix = (rule: HorizonRule, item: number): number =>
 // every item register of the plan set to 0 (the torn registers of a horizon that has no infall)
 export function clearItems(plan: MembranePlan, s: OpenState): void {
   for (const m of plan.interior) {
-    ;((s.step[m] = 0), (s.line[m] = 0))
+    s.step[m] = 0
+    s.line[m] = 0
   }
 
   for (const m of plan.cut) {

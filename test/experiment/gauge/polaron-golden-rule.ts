@@ -51,7 +51,6 @@ import { verdict } from '@/test/scaffold/verdict'
 import {
   loopSplit,
   ringCurl,
-  ringOmega,
   ringSpec,
   splitNear,
   type LoopSpec,

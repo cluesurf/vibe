@@ -84,6 +84,7 @@ export function seaEnergies(
 export const totalOf = (xs: ArrayLike<number>): number => {
   let s = 0
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- xs is ArrayLike, which is not iterable
   for (let k = 0; k < xs.length; k++) {
     s += xs[k]!
   }

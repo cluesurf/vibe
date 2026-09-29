@@ -112,7 +112,8 @@ export function joinHorizon(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (saturated[y] && !horizon[y]) {
-      ;((horizon[y] = 1), joined.push(y))
+      horizon[y] = 1
+      joined.push(y)
     }
   }
 

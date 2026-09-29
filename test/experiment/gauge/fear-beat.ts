@@ -157,11 +157,11 @@ function dyadicPower(k: number[][], limit: number): number {
 function beat(k4: number[][], n: number[]): number[] | null {
   const out: number[] = []
 
-  for (let x = 0; x < k4.length; x++) {
+  for (const row of k4) {
     let m = 0
 
     for (let y = 0; y < n.length; y++) {
-      m += (k4[x]?.[y] ?? 0) * (n[y] ?? 0)
+      m += (row[y] ?? 0) * (n[y] ?? 0)
     }
 
     if (m % 4 !== 0) {
@@ -496,7 +496,7 @@ export default experiment({
       const back = beat(k4Back, next)
 
       reverses =
-        reverses && back !== null && back.every((x, i) => x === n[i])
+        reverses && (back?.every((x, i) => x === n[i]) ?? false)
 
       const fearBefore = n.filter(x => x < 0).reduce((a, b) => a - b, 0)
       const fearAfter = next

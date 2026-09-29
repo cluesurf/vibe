@@ -181,8 +181,8 @@ function transform(
   const sign = inverse ? -1 : 1
   const list = k.starts[p]!
 
-  for (let s = 0; s < list.length; s++) {
-    const base = offset + list[s]!
+  for (const start of list) {
+    const base = offset + start
 
     for (let b = 0; b < n; b++) {
       let ar = 0

@@ -355,9 +355,10 @@ export function classOrbits(
 
     seen.add(k)
 
-    for (let i = 0; i < orbit.length; i++) {
+    // the array iterator re-reads the length each step, so it visits the entries pushed below, as the index did
+    for (const member of orbit) {
       for (const p of perms) {
-        const j = classImage(p, orbit[i]!)
+        const j = classImage(p, member)
 
         if (!seen.has(j)) {
           seen.add(j)

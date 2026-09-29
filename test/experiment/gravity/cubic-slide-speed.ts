@@ -78,7 +78,6 @@ import {
   type Poly,
 } from '@/code/algebra/jet-polynomial'
 import {
-  multiplyMod,
   primeBelow,
   rankMod,
 } from '@/code/algebra/linear/modular-linear'

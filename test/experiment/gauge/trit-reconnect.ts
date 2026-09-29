@@ -225,9 +225,7 @@ function sectionI(): {
     const n = bulk.multiplicity[table.husk[t] ?? 0] ?? 1
     const slot = kind + 2 * (n - 1)
 
-    if (chosen[slot] === undefined) {
-      chosen[slot] = t
-    }
+    chosen[slot] ??= t
   }
 
   for (const t of chosen) {

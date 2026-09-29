@@ -16,7 +16,6 @@
 //
 // Measurement code: it uses reals (characters, eigenvalues). It holds no rule of the model.
 
-import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
 import { makeDense, denseSet } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import {

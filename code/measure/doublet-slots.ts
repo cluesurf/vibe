@@ -200,7 +200,7 @@ export function roleEndCovariance(ends: RoleEnds): RoleCovariance {
 
   const minusI = lift.elements.find(
     e => e.grid.join(',') === '2,0,0,2',
-  )?.unitary!
+  )!.unitary
 
   let carried = 0
   let checks = 0

@@ -88,7 +88,6 @@ import {
   ringWidth,
   shiftRing,
   weightOf,
-  type BandPoint,
 } from '@/code/measure/moving-level'
 
 const BOX = 12

@@ -26,7 +26,7 @@
 import { makeComplexMatrix } from '@/code/algebra/linear/dense'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
-import { wrap, type CMatrix } from '@/code/measure/dock-mixer'
+import { wrap } from '@/code/measure/dock-mixer'
 import {
   slabApply,
   slabClasses,
@@ -436,9 +436,6 @@ export function levelsNearPi(
     const alpha: number[] = []
     const beta: number[] = []
 
-    // the residual norm after the last step: a Ritz pair's residual is |finalBeta| times its last component
-    let finalBeta = 0
-
     for (let j = 0; j < steps; j++) {
       basis.push(v)
 
@@ -458,8 +455,6 @@ export function levelsNearPi(
       }
 
       const bj = Math.sqrt(dotC(w, w)[0])
-
-      finalBeta = bj
 
       // a small residual means the deflated Krylov space is exhausted (an invariant subspace): normalizing it would turn
       // rounding noise into a basis vector (the flaw of the first deflated version, which gave Ritz values above 1)

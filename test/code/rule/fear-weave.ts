@@ -18,7 +18,6 @@ import {
 import { makeSigmaLinks } from '@/code/rule/sigma-links'
 import { gridMoves } from '@/code/rule/vibe-weave'
 import { phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
-import { type Matrix3 } from '@/code/dynamics/finite-gauge'
 
 const rule = makeSigmaLinks({
   side: 3,
@@ -100,15 +99,15 @@ suite('rule/fear-weave: grid moves act by sigma-links toGrid', [
     () => {
       let faults = 0
 
-      for (let g = 0; g < grid.act.length; g++) {
-        for (let h = 0; h < grid.act.length; h++) {
+      for (const actG of grid.act) {
+        for (const actH of grid.act) {
           const gh = Array.from(
             { length: 9 },
-            (_, p) => grid.act[g]?.[grid.act[h]?.[p] ?? 0] ?? 0,
+            (_, p) => actG[actH[p] ?? 0] ?? 0,
           )
           const lhs = phaseMove(gh)
-          const pg = phaseMove(grid.act[g] ?? [])
-          const ph = phaseMove(grid.act[h] ?? [])
+          const pg = phaseMove(actG)
+          const ph = phaseMove(actH)
 
           faults += lhs.every((x, q) => x === pg[ph[q] ?? 0]) ? 0 : 1
         }

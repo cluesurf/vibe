@@ -76,7 +76,6 @@ import {
   conjugateSecond,
   CONJUGATE_POINT,
   fearBeat,
-  fearBeatBack,
   makeLattice,
   carryCoordinate,
   reduceWhole,
@@ -100,10 +99,7 @@ import {
   type Departure,
 } from '@/code/rule/calm-weave'
 import { timesOmega } from '@/code/rule/signed-knot'
-import {
-  foldRoundRobin,
-  makeSteeredKnit,
-} from '@/code/rule/steered-knit'
+import { makeSteeredKnit } from '@/code/rule/steered-knit'
 import {
   combinedBeat,
   combinedBeatBack,

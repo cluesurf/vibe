@@ -518,8 +518,8 @@ export function seedCone(
     smallestHusk = Math.min(smallestHusk, h)
     smallestBulk = Math.min(smallestBulk, b)
 
-    for (let t = 0; t < c.sizes.length; t++) {
-      emptyBeats += c.sizes[t] === 0 ? 1 : 0
+    for (const size of c.sizes) {
+      emptyBeats += size === 0 ? 1 : 0
     }
 
     killed += c.killed

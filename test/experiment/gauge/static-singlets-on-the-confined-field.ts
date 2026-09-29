@@ -362,7 +362,7 @@ export default experiment({
             'flux',
           ] as const) {
             slow[key].forEach(
-              (v, i) =>
+              (v: number, i: number) =>
                 (fastKernelMismatches += v === fast[key][i] ? 0 : 1),
             )
           }

@@ -389,13 +389,13 @@ export function movedClass(
   move: readonly number[],
   cls: number,
 ): number {
-  const line = GRID_LINES.find(l => l.cls === cls)?.points!
+  const line = GRID_LINES.find(l => l.cls === cls)!.points
   const image = line.map(p => move[p]!)
 
   return (
     GRID_LINES.find(l => image.every(p => l.points.includes(p))) ??
-    GRID_LINES[0]
-  )?.cls!
+    GRID_LINES[0]!
+  ).cls
 }
 
 // the 3 x 3 joint net counts of the knot's lines of class `knotClass` against a partner's lines of class `envClass`

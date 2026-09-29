@@ -93,8 +93,8 @@ export function latticeQuotient(
         const q = Math.trunc((m[top]?.[j] ?? 0) / pivot)
 
         if (q !== 0) {
-          for (let i = 0; i < m.length; i++) {
-            m[i]![j] = (m[i]?.[j] ?? 0) - q * (m[i]?.[col] ?? 0)
+          for (const row of m) {
+            row[j] = (row[j] ?? 0) - q * (row[col] ?? 0)
           }
         }
 

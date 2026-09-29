@@ -52,16 +52,16 @@ export function seaCount(
   let fears = 0
   let stores = 0
 
-  for (let i = 0; i < c.vibe.length; i++) {
-    if (c.vibe[i] === 0) {
+  for (const vibe of c.vibe) {
+    if (vibe === 0) {
       holes++
-    } else if (c.vibe[i] === -1) {
+    } else if (vibe === -1) {
       fears++
     }
   }
 
-  for (let s = 0; s < c.store.length; s++) {
-    if (c.store[s] !== 0) {
+  for (const store of c.store) {
+    if (store !== 0) {
       stores++
     }
   }

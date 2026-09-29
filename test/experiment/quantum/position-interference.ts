@@ -111,7 +111,6 @@ import {
   walkBeat,
   walkStart,
   type ChanceState,
-  type Eisenstein,
   type WalkState,
 } from '@/code/rule/fear-walk'
 
@@ -802,7 +801,7 @@ export default experiment({
         .map(([k, v]) => `${k} ${v}`)
         .join(
           ', ',
-        )}. Empty box, trivial links, occupation L1 by beat: ${calibration.l1.map(r4).join(' ')}. Spread (sigma^2, exact against dephased): ${calibration.spread.join('; ')}. Symbol: rr ${calibration.sym.rr}, ll ${calibration.sym.ll}, lr ${calibration.sym.lr}, rl ${calibration.sym.rl}, W(0) ${calibration.w0}, imaginary residue ${calibration.residue.toExponential(2)}. Per start (vacuum open line: L1 occupation by beat | husk | branches | occupations | coin-off full L1; closed side 16 L1 by beat; empty-box rule against walk at beat ${E_BEATS}): ${perStart
+        )}. Empty box, trivial links, occupation L1 by beat: ${calibration.l1.map(r4).join(' ')}. Spread (sigma^2, exact against dephased): ${calibration.spread.join('; ')}. Symbol: rr ${calibration.sym.rr.join(',')}, ll ${calibration.sym.ll.join(',')}, lr ${calibration.sym.lr.join(',')}, rl ${calibration.sym.rl.join(',')}, W(0) ${calibration.w0}, imaginary residue ${calibration.residue.toExponential(2)}. Per start (vacuum open line: L1 occupation by beat | husk | branches | occupations | coin-off full L1; closed side 16 L1 by beat; empty-box rule against walk at beat ${E_BEATS}): ${perStart
         .map(
           p =>
             `${p.name} [${p.vacuum.l1.map(r4).join(' ')}] [${p.vacuum.husk.map(r4).join(' ')}] [${p.vacuum.branches.join(' ')}] [${p.vacuum.occupations.join(' ')}] [${p.vacuum.controlFull.map(r4).join(' ')}]; [${p.closed.map(r4).join(' ')}]; ${r4(p.empty.afterWrap)}`,

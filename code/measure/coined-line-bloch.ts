@@ -209,13 +209,13 @@ export function lineBasis(sector: LineSector): LineBasis {
   const configs: Token[][] = []
   const [f0, f1, f2] = sector.flavors
 
-  for (let a = 0; a < modes.length; a++) {
-    for (let b = 0; b < modes.length; b++) {
-      for (let c = 0; c < modes.length; c++) {
+  for (const ma of modes) {
+    for (const mb of modes) {
+      for (const mc of modes) {
         const ts: Token[] = [
-          { ...modes[a]!, f: f0 },
-          { ...modes[b]!, f: f1 },
-          { ...modes[c]!, f: f2 },
+          { ...ma, f: f0 },
+          { ...mb, f: f1 },
+          { ...mc, f: f2 },
         ]
 
         // one mode of one flavor holds one love
@@ -296,7 +296,7 @@ function preStream(
           sector.bag,
         )
   const heavy = (x: number): boolean =>
-    heavyAt !== undefined && heavyAt.has(x - lo + 1)
+    heavyAt?.has(x - lo + 1) === true
 
   // docks holding two loves of one flavor
   const lone: number[] = []

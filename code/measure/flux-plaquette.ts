@@ -659,7 +659,7 @@ export class TiedFlux {
     this.where.push([...x])
     this.cost.push(p.length)
     this.hop.push(new Int32Array(24).fill(-2))
-    this.mix.push(new Array(8).fill(null))
+    this.mix.push(Array.from({ length: 8 }, () => null))
 
     return this.patterns.length - 1
   }
@@ -667,7 +667,7 @@ export class TiedFlux {
   hopTarget(i: number, d: number): number {
     const h = this.hop[i]!
 
-    if (h[d]! === -2) {
+    if (h[d] === -2) {
       h[d] = this.intern(
         patternHop(this.patterns[i]!, this.where[i]!, d, -1),
         add(this.where[i]!, ROOTS[d] as number[]),

@@ -270,7 +270,9 @@ export default experiment({
         setOf(p.anti),
     )
     const leftOrbit = new Set(
-      left.map(p => setOf((triangles[0] ?? []).map(d => p[d] ?? -1))),
+      left.map(p =>
+        setOf((triangles[0] ?? []).map((d: number) => p[d] ?? -1)),
+      ),
     ).size
 
     // Sigma(648): order, center, and the triplet character's norm and invariant count
@@ -340,11 +342,8 @@ export default experiment({
     let roleMismatches = 0
     let roleRuns = 0
 
-    for (let g = 0; g < knit.weave.moves.act.length; g++) {
-      const moved = Int8Array.from(
-        basePoints,
-        p => knit.weave.moves.act[g]?.[p] ?? p,
-      )
+    for (const act of knit.weave.moves.act) {
+      const moved = Int8Array.from(basePoints, p => act[p] ?? p)
       const h = history(moved)
 
       roleRuns += 1

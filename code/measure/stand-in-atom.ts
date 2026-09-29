@@ -106,8 +106,8 @@ function rootNear(
   let up = TWO_PI
   let down = TWO_PI
 
-  for (let d = 0; d < theta.length; d++) {
-    const pole = BETA - theta[d]!
+  for (const angle of theta) {
+    const pole = BETA - angle
     const above = wrap(pole - guess)
 
     if (above > 0 && above < up) {

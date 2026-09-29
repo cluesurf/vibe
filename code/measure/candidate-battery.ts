@@ -190,12 +190,12 @@ function offVacuum(
 
   const v = vacuumStoreAt(tau, t)
 
-  for (let i = 0; i < s.vibe.length; i++) {
-    vibes += s.vibe[i] !== 0 ? 1 : 0
+  for (const x of s.vibe) {
+    vibes += x !== 0 ? 1 : 0
   }
 
-  for (let i = 0; i < s.store.length; i++) {
-    stores += s.store[i] !== v ? 1 : 0
+  for (const x of s.store) {
+    stores += x !== v ? 1 : 0
   }
 
   return { trits: vibes + stores, vibes }

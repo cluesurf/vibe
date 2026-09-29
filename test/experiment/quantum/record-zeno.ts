@@ -222,10 +222,11 @@ export default experiment({
                 const [on, u] = retained(s, wr, start.cls, t)
                 const [onN, uN] = retained(s, wn, start.cls, t)
                 // survival (3 r - 1) / 2 = lambda exactly: 3 on - u = 2 lambda u
-                const target = sa === sb ? [1n, 4n] : [2n, 3n]
+                const target: [bigint, bigint] =
+                  sa === sb ? [1n, 4n] : [2n, 3n]
                 const exact =
-                  (3n * on - u) * target[1]! === 2n * target[0]! * u &&
-                  (3n * onN - uN) * target[1]! === 2n * target[0]! * uN
+                  (3n * on - u) * target[1] === 2n * target[0] * u &&
+                  (3n * onN - uN) * target[1] === 2n * target[0] * uN
 
                 if (!exact) {
                   row.z2 = false

@@ -60,7 +60,6 @@ const APPROACH_MEETINGS = 20000
 const JOINT_MEETINGS = 20
 const CONTROL_MEETINGS = 100
 const MEAN_FIELD_STEPS = 400
-const STAY = 0.25
 const MOVE = 0.75
 
 // the population map, exact: p as numerators over a common denominator; x = xn / xd

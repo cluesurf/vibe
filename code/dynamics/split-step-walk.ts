@@ -92,14 +92,14 @@ export function meanChiralDisplacement(input: {
 
   for (let t = 0; t < steps; t++) {
     // symmetric-frame split step: R(θ1/2) T R(θ2) T R(θ1/2)
-    let [u, d] = applyCoin(up, down, theta1 / 2)
+    const [u1, d1] = applyCoin(up, down, theta1 / 2)
+    const [u2, d2] = applyShift(u1, d1)
+    const [u3, d3] = applyCoin(u2, d2, theta2)
+    const [u4, d4] = applyShift(u3, d3)
+    const [u5, d5] = applyCoin(u4, d4, theta1 / 2)
 
-    ;[u, d] = applyShift(u, d)
-    ;[u, d] = applyCoin(u, d, theta2)
-    ;[u, d] = applyShift(u, d)
-    ;[u, d] = applyCoin(u, d, theta1 / 2)
-    up = u
-    down = d
+    up = u5
+    down = d5
 
     // mean chiral displacement 2 * sum_x (x - x0) * <sigma_x>(x), with <sigma_x>(x) = 2 Re(up* . down)
     let chiral = 0

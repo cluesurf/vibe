@@ -46,7 +46,6 @@ import {
   makeCorrelator,
   modeFrequencies,
   modeReader,
-  type Correlator,
   type ModeVector,
 } from '@/code/measure/photon-modes'
 import {

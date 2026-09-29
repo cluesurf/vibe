@@ -31,9 +31,7 @@ import {
   colorLocalBeatBack,
   colorLocalCollision,
   colorLocalLeaks,
-  colorLocalSpec,
   makeColorLocalWeave,
-  PAIR_TABLE,
   type ColorLocalSpec,
 } from '@/code/rule/color-local-weave'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'

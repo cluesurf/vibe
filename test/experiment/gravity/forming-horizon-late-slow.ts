@@ -689,6 +689,7 @@ export default experiment({
     }
 
     BAND.forEach((w, i) => (metrics[`a1_slope_w${w}`] = slopes[i]!))
+
     ;[1, tg16 / TG].forEach((f, k) =>
       BAND.forEach(
         (w, i) =>

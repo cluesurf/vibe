@@ -1318,8 +1318,8 @@ export function pairVacuumRun(input: {
 
       let here = 0
 
-      for (let x = 0; x < state.vibe.length; x++) {
-        here += state.vibe[x] !== 0 ? 1 : 0
+      for (const v of state.vibe) {
+        here += v !== 0 ? 1 : 0
       }
 
       charges += here

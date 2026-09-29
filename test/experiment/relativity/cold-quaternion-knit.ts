@@ -392,7 +392,7 @@ function structure() {
     (m[2]?.[2] ?? 0) +
     (m[3]?.[3] ?? 0)
   const square = (m: number[][]): number[][] =>
-    m.map((row, i) =>
+    m.map(row =>
       row.map((_, j) =>
         row.reduce((s, x, k) => s + x * (m[k]?.[j] ?? 0), 0),
       ),
@@ -1426,6 +1426,8 @@ function wave(
     energyExact: coldQuaternionEnergy(s) === e0,
     counterShare: counters / e0,
     storeShare: stores / e0,
+    // a zero last reading must divide by 1 too, so this is || and not ??
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     frozenShare: frozen / (series[series.length - 1] || 1),
   }
 }
@@ -1790,7 +1792,7 @@ export default experiment({
     const metrics: Record<string, number> = {
       payerMaps: s.maps.length,
       ...Object.fromEntries(
-        s.perMap.flatMap((m, i) => [
+        s.perMap.flatMap((m, i): [string, number][] => [
           [`map${i}TwistedFailures`, m.failures.twisted],
           [`map${i}PlainFailures`, m.failures.plain],
           [`map${i}ThresholdFiredOf2000`, m.fired],
@@ -1946,6 +1948,7 @@ export default experiment({
     Object.entries(g10items).forEach(
       ([k, v]) => (metrics[`battery_${k}`] = v ? 1 : 0),
     )
+
     ;[g1, g2, g3, g4, g5, g6, g7, g8, g9, g10].forEach(
       (g, i) => (metrics[`gate${i + 1}`] = g ? 1 : 0),
     )

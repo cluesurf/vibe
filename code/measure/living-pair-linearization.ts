@@ -247,7 +247,7 @@ export function livingLinearization(input: {
     slotLaw(bg, v, -1),
   ])
   const lawOf = (v: number, side: number): [number, number, number] =>
-    lawCache[v + 1]?.[side === 1 ? 0 : 1]!
+    lawCache[v + 1]![side === 1 ? 0 : 1]!
   const nChance = [
     lineChance(bg, -1),
     lineChance(bg, 0),

@@ -57,8 +57,6 @@ import {
   fearBeat,
   makeLattice,
   meetingKernel,
-  meetWhole,
-  moveCoordinate,
   swapPhase,
   twoRolePoints,
   wholeLovesAndFears,

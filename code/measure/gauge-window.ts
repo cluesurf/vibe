@@ -111,7 +111,7 @@ export function hypercubicGauge(d: number): GaugeLattice {
 
       plaquettes.push(
         plaquette(links, 'square', 1, [
-          new Array(d).fill(0),
+          new Array<number>(d).fill(0),
           a,
           a.map((x, i) => x + b[i]!),
           b,
@@ -225,13 +225,13 @@ export function plaquettesPerLink(L: GaugeLattice): {
   weighted: number[]
   count: number[]
 } {
-  const weighted = new Array(L.links.length).fill(0)
-  const count = new Array(L.links.length).fill(0)
+  const weighted = new Array<number>(L.links.length).fill(0)
+  const count = new Array<number>(L.links.length).fill(0)
 
   for (const p of L.plaquettes) {
     for (const s of p.steps) {
-      weighted[s.link] += p.weight
-      count[s.link]++
+      weighted[s.link] = weighted[s.link]! + p.weight
+      count[s.link] = count[s.link]! + 1
     }
   }
 

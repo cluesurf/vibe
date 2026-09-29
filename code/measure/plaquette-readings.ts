@@ -201,12 +201,12 @@ export function plaquetteLaws(c: PlaquetteConfiguration): {
     }
   }
 
-  for (let l = 0; l < c.store.length; l++) {
-    count += c.store[l] !== 0 ? 2 : 0
+  for (const store of c.store) {
+    count += store !== 0 ? 2 : 0
   }
 
-  for (let u = 0; u < c.punit.length; u++) {
-    count += c.punit[u] !== 0 ? 4 : 0
+  for (const punit of c.punit) {
+    count += punit !== 0 ? 4 : 0
   }
 
   return { charge, count, momentum: momentum.join(',') }

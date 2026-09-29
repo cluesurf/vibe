@@ -170,7 +170,7 @@ export function linkField(
   const cells = tab.cells
   const elements = groupElements(group)
   const near = nearestElements(elements)
-  const link: SU2[] = Array(cells * N)
+  const link = new Array<SU2>(cells * N)
   const pick = (n: number): SU2 =>
     elements[
       Math.floor(weyl(n, offset) * elements.length) % elements.length

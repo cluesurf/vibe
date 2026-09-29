@@ -939,7 +939,7 @@ export function readCase(input: {
   let bulkDocks = 0
 
   for (let x = 0; x < box.cells; x++) {
-    bulkDocks += dist[x]! === -1 || dist[x]! >= bulkFrom ? 1 : 0
+    bulkDocks += dist[x] === -1 || dist[x]! >= bulkFrom ? 1 : 0
   }
 
   const out = {

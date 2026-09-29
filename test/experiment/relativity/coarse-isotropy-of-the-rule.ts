@@ -210,7 +210,7 @@ export default experiment({
         "the torus group forces rank 2 and not rank 4, W(F4) forces ranks 2 and 4 and not 6, and the committed rule's {I, -I} forces nothing; pure streaming reads under 0.1 at every side; and the committed rule's rank-2 kernel anisotropy and axis-shell spread sit more than ten times above that floor at sides 9, 13 and 17 and keep more than 0.7 and 0.8 of their side-9 values at side 17",
       metrics: {
         ...Object.fromEntries(
-          committed.flatMap(r => [
+          committed.flatMap((r): [string, number][] => [
             [
               `kernelAnisotropySide${r.side}`,
               Number(r.kernel.toFixed(4)),

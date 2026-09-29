@@ -148,8 +148,14 @@ export function lockstepFront(input: {
     keyedFermionMix(tables, p, key, t, mix, tally)
     starBeat(tables, a, b, key, THRESHOLD_BORN, t, events)
     starBeat(tables, p, q, key, THRESHOLD_BORN, t, events)
-    ;[a, b] = [b, a]
-    ;[p, q] = [q, p]
+
+    const aNext = b
+    const pNext = q
+
+    b = a
+    a = aNext
+    q = p
+    p = pNext
     out.push(frontReach(a, p, tables.cells, steps))
   }
 
@@ -214,6 +220,7 @@ export function dockCharges(
 export const sumOf = (xs: ArrayLike<number>): number => {
   let s = 0
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- an ArrayLike is not iterable
   for (let k = 0; k < xs.length; k++) {
     s += xs[k]!
   }
@@ -243,8 +250,8 @@ export function huskField(
 
   let e = 0
 
-  for (let k = 0; k < flux.length; k++) {
-    e += flux[k]! ** 2
+  for (const f of flux) {
+    e += f ** 2
   }
 
   return { flux, depth, energy: e / 2 }
@@ -254,6 +261,7 @@ export function huskField(
 export const largest = (f: ArrayLike<number>): number => {
   let m = 0
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- an ArrayLike is not iterable
   for (let k = 0; k < f.length; k++) {
     m = Math.max(m, Math.abs(f[k]!))
   }

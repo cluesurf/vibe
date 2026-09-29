@@ -84,8 +84,6 @@ function loneLove(): Will {
   return will
 }
 
-const size = (v: readonly number[]): number =>
-  v.reduce((s, x) => s + Math.abs(x), 0)
 const drift = (a: readonly number[], b: readonly number[]): number =>
   Math.max(...a.map((x, k) => Math.abs(x - (b[k] ?? 0))))
 

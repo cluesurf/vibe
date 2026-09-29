@@ -271,7 +271,7 @@ export default experiment({
         zeroAfter: false,
         waveWraps: 0,
         flowKinetic: [],
-        flowMean: Array(QUARTERS).fill(0),
+        flowMean: new Array<number>(QUARTERS).fill(0),
         dipole: Array.from({ length: QUARTERS }, () => [0, 0, 0]),
       }
 

@@ -90,9 +90,8 @@ export function generatedOrder(
 
   seen[identity] = 1
 
-  for (let i = 0; i < queue.length; i++) {
-    const x = queue[i] ?? identity
-
+  // the queue grows while it is walked, and for-of reads the live length
+  for (const x of queue) {
     for (const g of generators) {
       const y = product[x * order + g] ?? identity
 
@@ -139,8 +138,8 @@ export function extendIsomorphism(input: {
 
   map[source.identity] = target.identity
 
-  for (let i = 0; i < queue.length; i++) {
-    const x = queue[i] ?? source.identity
+  // the queue grows while it is walked, and for-of reads the live length
+  for (const x of queue) {
     const fx = map[x] ?? target.identity
 
     for (let k = 0; k < generators.length; k++) {

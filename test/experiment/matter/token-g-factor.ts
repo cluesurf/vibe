@@ -177,7 +177,7 @@ export default experiment({
       list: Reading[],
     ): Record<string, number> =>
       Object.fromEntries(
-        list.flatMap(t => [
+        list.flatMap((t): [string, number][] => [
           [`${name}L${t.side}_g`, Number(t.g.toFixed(6))],
           [`${name}L${t.side}_r`, Number(t.r.toFixed(6))],
           [`${name}L${t.side}_omega`, Number(t.omega.toFixed(6))],
@@ -191,7 +191,7 @@ export default experiment({
           ],
           ...t.levels
             .slice(0, 5)
-            .map((e, i) => [
+            .map((e, i): [string, number] => [
               `${name}L${t.side}_level${i}`,
               Number(e.toFixed(6)),
             ]),

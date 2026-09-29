@@ -361,8 +361,8 @@ export function sectorBeat(sector: Sector, spec: BeatSpec): Step[] {
 
     const move = sectorHop(sector, l)
 
-    for (let i = 0; i < move.length; i++) {
-      if (move[i]! < 0) {
+    for (const to of move) {
+      if (to < 0) {
         throw new Error(
           'lattice-qed: a recorded hop left the Gauss sector',
         )

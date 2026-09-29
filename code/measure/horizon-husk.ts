@@ -497,8 +497,8 @@ export function growthRun(
 
     for (let y = 0; y < mesh.huskDocks; y++) {
       if (horizon[y]) {
-        ;(docks++,
-          (radius = Math.max(radius, huskDistance(mesh, y, center))))
+        docks++
+        radius = Math.max(radius, huskDistance(mesh, y, center))
       }
     }
 
@@ -511,7 +511,11 @@ export function growthRun(
         vertical = Math.max(vertical, Math.abs(F))
 
         if (mesh.tail[m]! < mesh.huskDocks && horizon[mesh.tail[m]!]) {
-          F > 0 ? (down += F) : (up -= F)
+          if (F > 0) {
+            down += F
+          } else {
+            up -= F
+          }
         }
       }
     }

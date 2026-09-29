@@ -194,11 +194,8 @@ export default experiment({
 
         for (let y = 0; y < mesh.huskDocks; y++) {
           if (horizon[y]) {
-            ;(docks++,
-              (radius = Math.max(
-                radius,
-                huskDistance(mesh, y, CENTER),
-              )))
+            docks++
+            radius = Math.max(radius, huskDistance(mesh, y, CENTER))
           }
         }
 
@@ -482,9 +479,9 @@ export default experiment({
 
     run.samples.forEach(s => {
       if (s.beat % 512 === 0) {
-        ;((metrics[`t${s.beat}_horizonDocks`] = s.horizonDocks),
-          (metrics[`t${s.beat}_huskStep`] = s.huskStep),
-          (metrics[`t${s.beat}_upFlux`] = s.upFlux))
+        metrics[`t${s.beat}_horizonDocks`] = s.horizonDocks
+        metrics[`t${s.beat}_huskStep`] = s.huskStep
+        metrics[`t${s.beat}_upFlux`] = s.upFlux
       }
     })
 

@@ -75,14 +75,14 @@ export function switchBeat(
   const flux = state.flux
   const demon = state.demon
 
-  for (let k = 0; k < order.length; k++) {
+  for (const link of order) {
     step(
       from,
       to,
       vibe,
       flux,
       demon,
-      order[k]!,
+      link,
       mass,
       tension,
       capacity,
@@ -489,8 +489,8 @@ export function yukawaRun(input: {
 
     let here = 0
 
-    for (let x = 0; x < s.vibe.length; x++) {
-      here += s.vibe[x] !== 0 ? 1 : 0
+    for (const v of s.vibe) {
+      here += v !== 0 ? 1 : 0
     }
 
     charges += here

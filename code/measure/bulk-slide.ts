@@ -118,7 +118,7 @@ const unit = (D: number, axis: number): number[] =>
 // the depth components of a five-dimensional frame: A_m = H_m4 (m < 4) and phi = H_44
 export const depthFields = (frame: BulkFrame): number[] =>
   frame.D === 5
-    ? frame.comps.flatMap(([m, n], f) => (n === 4 ? [f] : []))
+    ? frame.comps.flatMap(([, n], f) => (n === 4 ? [f] : []))
     : []
 export const huskFields = (frame: BulkFrame): number[] =>
   frame.comps.flatMap(([m, n], f) => (m < 4 && n < 4 ? [f] : []))
@@ -142,7 +142,7 @@ export function bulkSlideAction(
   const { D, space, F, xi, index } = frame
   const { p } = spec
   const inv = spec.scales.map(s => inverseMod(s, p))
-  const out: Poly[] = Array.from({ length: F }, () => new Map())
+  const out = Array.from({ length: F }, (): Poly => new Map())
   const depthXi = xi[D - 1]!
 
   const add = (f: number, c: number, jets: number[]): void => {

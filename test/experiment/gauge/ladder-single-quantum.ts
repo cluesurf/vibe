@@ -337,15 +337,17 @@ export default experiment({
         }
       }
 
+      const embed = (s: number): number => full.embed(s)
+
       for (const start of startsOf(ladderSize(spec), spec.root)) {
         let a = start
-        let b = embedExact(start, full.embed)
+        let b = embedExact(start, embed)
 
         for (let t = 0; t < EXACT_BEATS; t++) {
           a = runExact(sectorSteps, a)
           b = runExact(fullSteps, b)
 
-          if (!exactEqual(embedExact(a, full.embed), b)) {
+          if (!exactEqual(embedExact(a, embed), b)) {
             mismatches++
           }
         }

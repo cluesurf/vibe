@@ -216,7 +216,8 @@ export function countStatics(
         y !== rule.reference &&
         x[y]! - x[rule.reference]! >= rule.cap
       ) {
-        ;((horizon[y] = 1), joined++)
+        horizon[y] = 1
+        joined++
       }
     }
 

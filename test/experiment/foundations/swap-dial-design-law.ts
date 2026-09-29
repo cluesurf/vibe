@@ -344,7 +344,7 @@ export default experiment({
     const quantumScales =
       quantum === 6 * 9 ** 3 &&
       side11.levels[0] === 6 * 11 ** 3 &&
-      side11.levels.every(v => v % side11.levels[0]! === 0) &&
+      side11.levels.every(v => (v % side11.levels[0]!) === 0) &&
       side11.period12
 
     const ok =

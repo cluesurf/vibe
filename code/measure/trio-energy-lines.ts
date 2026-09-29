@@ -36,7 +36,6 @@ import { LINE_FIRSTS, LINE_OF } from '@/code/rule/isometric-knit'
 import {
   lockedNorm,
   sameConfiguration,
-  type Branch,
   type LockedState,
   type LockedTables,
 } from '@/code/rule/doublet-locked-knit'

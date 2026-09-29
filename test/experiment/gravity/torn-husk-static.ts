@@ -213,11 +213,8 @@ function runLump(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (rho[y]! > 0) {
-      ;((lumpRadius = Math.max(
-        lumpRadius,
-        huskDistance(mesh, y, CENTER),
-      )),
-        (mostContent = Math.max(mostContent, rho[y]!)))
+      lumpRadius = Math.max(lumpRadius, huskDistance(mesh, y, CENTER))
+      mostContent = Math.max(mostContent, rho[y]!)
     }
 
     if (!horizon[y]) {
@@ -510,8 +507,8 @@ export default experiment({
       )
 
       if (l.control) {
-        ;((metrics[`${p}controlWraps`] = wrapsOf(l.control)),
-          (metrics[`${p}controlHuskStep`] = l.control.huskStep))
+        metrics[`${p}controlWraps`] = wrapsOf(l.control)
+        metrics[`${p}controlHuskStep`] = l.control.huskStep
       }
     })
 

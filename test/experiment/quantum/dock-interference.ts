@@ -451,7 +451,10 @@ export default experiment({
       ) &&
       committed.crossMax > 0
 
-    const report = (name: string, s: typeof committed) => [
+    const report = (
+      name: string,
+      s: typeof committed,
+    ): [string, number][] => [
       [`${name}SeedA`, s.seeds[0] ?? -1],
       [`${name}SeedB`, s.seeds[1] ?? -1],
       [`${name}ClassicalMismatch`, s.classicalMismatch],

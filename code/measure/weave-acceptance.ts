@@ -764,7 +764,10 @@ export function structuralAcceptance(
 ): Structural {
   const values: Record<string, number> = {}
 
+  // written once each below, after `done` has closed over them, so neither can be a const
+  // eslint-disable-next-line prefer-const -- assigned at the dressing gate, read through `done`
   let love: Dressing | undefined
+  // eslint-disable-next-line prefer-const -- assigned after the dressing gate, read through `done`
   let fear: Dressing | undefined
 
   const done = (failed: StagedGate | undefined): Structural => ({

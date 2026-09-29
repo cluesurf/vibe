@@ -45,7 +45,7 @@ import {
 import { sameRatio } from '@/code/measure/comoving-parity'
 import { makePairKnit } from '@/code/rule/pair-making-knit'
 import { kroneckerPairDock } from '@/code/measure/pair-knit-linearization'
-import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
+import { OPPOSITE } from '@/code/rule/isometric-knit'
 import {
   cloneStoreState,
   returns,
@@ -74,7 +74,6 @@ import {
 import { weyl, GOLDEN } from '@/code/tool/weyl'
 
 const ROOTS = rootsD4()
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
 const OMEGA = (2 * Math.PI) / 3
 const SIDE_LENGTH = 3
 const POINT_RATE = Math.sqrt(163) - Math.floor(Math.sqrt(163))

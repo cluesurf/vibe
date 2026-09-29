@@ -229,13 +229,13 @@ export default experiment({
         closedFormGap: closedGap,
         consistencyResidue: consistency,
         ...Object.fromEntries(
-          rows.map(r => [
+          rows.map((r): [string, number] => [
             `analyticG_mu${(Math.PI / r.mu).toFixed(0)}`,
             Number(r.general.g.toFixed(9)),
           ]),
         ),
         ...Object.fromEntries(
-          rows.map(r => [
+          rows.map((r): [string, number] => [
             `closedX_mu${(Math.PI / r.mu).toFixed(0)}`,
             Number(r.closed.x.toFixed(9)),
           ]),
@@ -251,11 +251,11 @@ export default experiment({
         twoStreamSaddles,
         twoStreamOther,
         ...Object.fromEntries(
-          witness.flatMap(w => [
+          witness.flatMap((w): [string, number][] => [
             [`${w.name}_analytic`, Number(w.analytic.toFixed(6))],
             [`${w.name}_zeroField`, Number(w.zeroField.toFixed(6))],
             [`${w.name}_miss`, Number(w.miss.toFixed(6))],
-            ...w.readings.map(r => [
+            ...w.readings.map((r): [string, number] => [
               `${w.name}_L${r.side}_gLo`,
               Number(r.gLo.toFixed(6)),
             ]),

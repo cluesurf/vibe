@@ -250,12 +250,10 @@ function chainCounts(graph: SmallGraph): Map<string, number[]> {
 
     divergence.fill(0)
 
-    for (let l = 0; l < links.length; l++) {
+    for (const [a, b] of links) {
       const v = c % 3
 
       c = Math.floor(c / 3)
-
-      const [a, b] = links[l] ?? [0, 0]
 
       support += v !== 0 ? 1 : 0
       divergence[a] = (divergence[a] ?? 0) + v

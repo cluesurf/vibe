@@ -254,14 +254,12 @@ export function gasRun(
       s.vibe.reduce((a, v) => a + v, 0) === total0 ? 0 : 1
   }
 
-  for (let x = 0; x < s.vibe.length; x++) {
-    out.fingerprint =
-      (Math.imul(out.fingerprint, 31) + (s.vibe[x] ?? 0) + 2) | 0
+  for (const v of s.vibe) {
+    out.fingerprint = (Math.imul(out.fingerprint, 31) + v + 2) | 0
   }
 
-  for (let x = 0; x < s.potential.length; x++) {
-    out.fingerprint =
-      (Math.imul(out.fingerprint, 31) + (s.potential[x] ?? 0) + 2) | 0
+  for (const v of s.potential) {
+    out.fingerprint = (Math.imul(out.fingerprint, 31) + v + 2) | 0
   }
 
   return out
@@ -459,14 +457,12 @@ export function knitRun(
     s = defect === 'none' ? next : { ...c, vibe: streamed }
   }
 
-  for (let i = 0; i < s.vibe.length; i++) {
-    out.fingerprint =
-      (Math.imul(out.fingerprint, 31) + (s.vibe[i] ?? 0) + 2) | 0
+  for (const v of s.vibe) {
+    out.fingerprint = (Math.imul(out.fingerprint, 31) + v + 2) | 0
   }
 
-  for (let i = 0; i < s.store.length; i++) {
-    out.fingerprint =
-      (Math.imul(out.fingerprint, 31) + (s.store[i] ?? 0) + 2) | 0
+  for (const v of s.store) {
+    out.fingerprint = (Math.imul(out.fingerprint, 31) + v + 2) | 0
   }
 
   return out

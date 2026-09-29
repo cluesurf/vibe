@@ -45,12 +45,12 @@ const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
 export function numberVibes(c: Configuration): { count: number } {
   let count = 0
 
-  for (let i = 0; i < c.vibe.length; i++) {
-    count += c.vibe[i] !== 0 ? 1 : 0
+  for (const vibe of c.vibe) {
+    count += vibe !== 0 ? 1 : 0
   }
 
-  for (let l = 0; l < c.store.length; l++) {
-    count += c.store[l] !== 0 ? 2 : 0
+  for (const store of c.store) {
+    count += store !== 0 ? 2 : 0
   }
 
   return { count }
@@ -182,8 +182,8 @@ function isPermutation(
     return true
   }
 
-  for (let i = 0; i < r.slot.length; i++) {
-    if (!mark(r.slot[i]!)) {
+  for (const slot of r.slot) {
+    if (!mark(slot)) {
       return false
     }
   }
@@ -252,7 +252,7 @@ function tally(r: Relation, count: number): void {
   }
 
   for (let i = 0; i < count; i++) {
-    if (size[i]! === 0) {
+    if (size[i] === 0) {
       continue
     }
 

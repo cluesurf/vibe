@@ -353,6 +353,7 @@ export function shearRun<S>(
     nu: fit.gamma / (w.k * w.k),
     gamma: fit.gamma,
     r2: fit.r2,
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a zero first reading falls back to 1 too, so the ratio never divides by zero
     left: (w.series[w.series.length - 1] ?? 0) / (w.series[0] || 1),
   }
 }
@@ -363,6 +364,7 @@ export function soundRun<S>(
   geometry: WaveGeometry,
 ): SoundReading {
   const w = waveRun(system, side, geometry, 144)
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a zero first reading falls back to 1 too, so the scale never divides by zero
   const s0 = w.series[0] || 1
   const fit = dampedCosineFit({ series: w.series.map(x => x / s0) })
 

@@ -375,8 +375,8 @@ export function stateEnergy(state: ColdState): number {
     }
   }
 
-  for (let i = 0; i < state.demon.length; i++) {
-    e += state.demon[i] ?? 0
+  for (const x of state.demon) {
+    e += x
   }
 
   return e
@@ -385,8 +385,8 @@ export function stateEnergy(state: ColdState): number {
 export function stateCharge(state: ColdState): number {
   let q = 0
 
-  for (let i = 0; i < state.vibe.length; i++) {
-    q += state.vibe[i] ?? 0
+  for (const x of state.vibe) {
+    q += x
   }
 
   return q

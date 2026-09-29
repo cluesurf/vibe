@@ -98,7 +98,6 @@ import {
   portsFromState,
   stateFromPorts,
   triangleHolonomies,
-  type HistoryState,
   type PortState,
 } from '@/code/rule/relational-links'
 import {

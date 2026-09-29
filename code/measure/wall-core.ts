@@ -568,7 +568,7 @@ export function controlsOf(
   const deep = new Uint8Array(box.cells)
   const deepAt = (() => {
     for (let x = 0; x < box.cells; x++) {
-      if (dist[x]! === deepest && end[x] !== 1) {
+      if (dist[x] === deepest && end[x] !== 1) {
         return x
       }
     }
@@ -786,7 +786,7 @@ export function readCore(input: {
   const end = endDocksOf(box, ideal.wallEdges)
   const dist = distanceToInterface(box, assigned)
   const isBulk = (x: number): boolean =>
-    dist[x]! === -1 || dist[x]! >= 3
+    dist[x] === -1 || dist[x]! >= 3
   const endColumn = new Uint8Array(mc.columns)
 
   let endDocks = 0

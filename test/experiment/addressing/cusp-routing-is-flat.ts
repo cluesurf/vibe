@@ -163,9 +163,8 @@ function distancesFrom(input: {
 
   distance[source] = 0
 
-  for (let head = 0; head < queue.length; head++) {
-    const c = queue[head]!
-
+  // the array iterator reads the length on every step, so cells pushed during the walk are visited
+  for (const c of queue) {
     for (let d = 0; d < mesh.degree; d++) {
       const n = mesh.neighbour(c, d)
 

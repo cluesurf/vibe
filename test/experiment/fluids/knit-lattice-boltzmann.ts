@@ -171,8 +171,8 @@ function averaged(
 function occupation(data: Int8Array): number {
   let n = 0
 
-  for (let i = 0; i < data.length; i++) {
-    n += data[i] !== 0 ? 1 : 0
+  for (const v of data) {
+    n += v !== 0 ? 1 : 0
   }
 
   return n / data.length

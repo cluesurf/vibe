@@ -24,7 +24,6 @@ import {
   circleBeatBackInPlace,
   circleBeatInPlace,
   makeCircleRule,
-  type CircleRule,
 } from '@/code/rule/photon-circle'
 import {
   copyShapedState,
@@ -43,7 +42,6 @@ import {
   photonLink,
   setHashedAngles,
   type PhotonLattice,
-  type PhotonRule,
   type PhotonState,
 } from '@/code/rule/photon-links'
 import {
@@ -207,8 +205,8 @@ export function curlCurlMax(lattice: PhotonLattice): number {
 
     let norm = 0
 
-    for (let l = 0; l < out.length; l++) {
-      norm += (out[l] ?? 0) ** 2
+    for (const x of out) {
+      norm += x ** 2
     }
 
     norm = Math.sqrt(norm)

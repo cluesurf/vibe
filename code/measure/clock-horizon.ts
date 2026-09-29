@@ -151,7 +151,8 @@ export function accretionOrder(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (content[y]! > 0) {
-      ;(docks.push(y), (most = Math.max(most, content[y]!)))
+      docks.push(y)
+      most = Math.max(most, content[y]!)
     }
   }
 
@@ -246,7 +247,8 @@ export function clockStatics(
         y !== rule.reference &&
         excessOf(torn, y) >= rule.cap
       ) {
-        ;((horizon[y] = 1), joined++)
+        horizon[y] = 1
+        joined++
       }
     }
 

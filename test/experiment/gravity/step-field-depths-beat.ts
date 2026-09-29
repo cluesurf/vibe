@@ -142,7 +142,6 @@ const STATIC: Slide = {
   shiftScale: 1,
   lapseScale: 1,
 }
-const DEPTH = 1
 
 const DIRECTIONS = [
   { name: 'axis', n: [0, 0, 1], a: [1, 0, 0], b: [0, 1, 0] },

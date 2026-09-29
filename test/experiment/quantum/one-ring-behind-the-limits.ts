@@ -457,11 +457,14 @@ export default experiment({
       metrics[`${tag}_coarseDips`] = r.coarseDips
       metrics[`${tag}_bestVisibility`] = r.bestVisibility
     })
-    ;[
+
+    const families: [string, Level[]][] = [
       ['like', like],
       ['loveFear', loveFear],
-    ].forEach(([name, levels]) => {
-      ;(levels as Level[]).forEach((l, k) => {
+    ]
+
+    families.forEach(([name, levels]) => {
+      levels.forEach((l, k) => {
         metrics[`${name}_meetings${k + 1}_states`] = l.states
         metrics[`${name}_meetings${k + 1}_bestChsh`] = l.best
         metrics[`${name}_meetings${k + 1}_gapToTsirelson`] =

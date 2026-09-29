@@ -654,9 +654,8 @@ export function actAutomorphism(
   const gauge = new Array<number>(V).fill(g.identity)
   const order: number[] = [0]
 
-  for (let i = 0; i < order.length; i++) {
-    const q = order[i]!
-
+  // the array iterator re-reads the length each step, so it visits the entries pushed below, as the index did
+  for (const q of order) {
     for (let v = 0; v < V; v++) {
       if (p.parent[v] !== q) {
         continue
@@ -1852,9 +1851,8 @@ export function fixFree(
   const gauge = new Array<number>(V).fill(g.identity)
   const order = [0]
 
-  for (let i = 0; i < order.length; i++) {
-    const q = order[i]!
-
+  // the array iterator re-reads the length each step, so it visits the entries pushed below, as the index did
+  for (const q of order) {
     for (let v = 0; v < V; v++) {
       if (p.parent[v] !== q) {
         continue

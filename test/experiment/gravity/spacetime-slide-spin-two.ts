@@ -80,7 +80,6 @@ import {
   spacetimeSlide,
   type ActionSpaces,
   type Slide,
-  type SignedSpace,
 } from '@/code/measure/spacetime-slide'
 import {
   classGeometry,
@@ -346,13 +345,13 @@ function analyse(v: Variant, p: number): Reads {
   spaces.potential.members.forEach((list, t) => {
     const [a0, b0, r0, sign0] = list[0]!
     const value =
-      ((eh.get(key3(spaces.potential.offsets[r0]!))?.[a0]![b0]! ?? 0) *
+      ((eh.get(key3(spaces.potential.offsets[r0]!))?.[a0]![b0] ?? 0) *
         sign0) %
       p
 
     for (const [a, b, r, sign] of list) {
       if (
-        ((eh.get(key3(spaces.potential.offsets[r]!))?.[a]![b]! ?? 0) *
+        ((eh.get(key3(spaces.potential.offsets[r]!))?.[a]![b] ?? 0) *
           sign -
           value) %
           p !==
@@ -588,7 +587,7 @@ export default experiment({
     const reggeClaim = PLAIN_SLOTS.every(([i, j], s) =>
       PLAIN_SLOTS.every(
         (__, t) =>
-          reggeBlock[s]![t]! ===
+          reggeBlock[s]![t] ===
           (s === t ? (i === j ? 1.5 : 2) : s < 3 && t < 3 ? 0.5 : 0),
       ),
     )

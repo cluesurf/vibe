@@ -76,12 +76,9 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
-  conjugateSecond,
   fearKernels,
   meetingKernel,
-  singletPhase,
   swapPhase,
-  wholeKernel,
   type Whole,
 } from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
@@ -392,8 +389,7 @@ export default experiment({
         let closest = Number.POSITIVE_INFINITY
 
         for (const s of frontier) {
-          for (let g = 0; g < moves.act.length; g++) {
-            const act = moves.act[g]!
+          for (const act of moves.act) {
             const moved = new Array<number>(81).fill(0)
 
             for (let i = 0; i < 81; i++) {

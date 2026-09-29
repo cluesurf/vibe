@@ -26,7 +26,7 @@ const trim = (p: BigPoly): BigPoly => {
 }
 
 export const multiplyPoly = (p: BigPoly, q: BigPoly): BigPoly => {
-  const out: bigint[] = Array(p.length + q.length - 1).fill(0n)
+  const out = new Array<bigint>(p.length + q.length - 1).fill(0n)
 
   p.forEach((a, i) =>
     q.forEach((c, j) => (out[i + j] = out[i + j]! + a * c)),
@@ -93,7 +93,7 @@ export function polyGcd(a0: BigPoly, b0: BigPoly): BigPoly {
 export function dividePoly(p: BigPoly, d: BigPoly): BigPoly {
   let r = trim([...p])
 
-  const q: bigint[] = Array(Math.max(1, r.length - d.length + 1)).fill(
+  const q = new Array<bigint>(Math.max(1, r.length - d.length + 1)).fill(
     0n,
   )
 

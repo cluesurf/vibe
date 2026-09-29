@@ -94,7 +94,9 @@ export function cutLinks(
       continue
     }
 
-    if (horizon[mesh.tail[m]!]! + horizon[mesh.head[m]!]! === 1) {
+    const inside = horizon[mesh.tail[m]!]! + horizon[mesh.head[m]!]!
+
+    if (inside === 1) {
       out.push(m)
     }
   }
@@ -129,9 +131,8 @@ export function surfaceDepth(
     }
   }
 
-  for (let at = 0; at < queue.length; at++) {
-    const y = queue[at]!
-
+  // the array iterator re-reads the length each step, so it visits the docks pushed below, as the index did
+  for (const y of queue) {
     for (let j = mesh.incStart[y]!; j < mesh.incStart[y + 1]!; j++) {
       const m = mesh.incLink[j]!
 

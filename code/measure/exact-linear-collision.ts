@@ -72,8 +72,8 @@ export function applyLayer(layer: Layer, state: Int8Array): void {
 
     let image = block.map[local] ?? local
 
-    for (let k = 0; k < block.slots.length; k++) {
-      state[block.slots[k] ?? 0] = (image % 3) - 1
+    for (const slot of block.slots) {
+      state[slot ?? 0] = (image % 3) - 1
       image = Math.floor(image / 3)
     }
   }
@@ -189,7 +189,7 @@ export function jointToTarget(input: {
   const { layers, d, target } = input
   const n = layers.length
   // relevant[l]: the slots at the input of layer l that the target can depend on
-  const relevant: Set<number>[] = new Array(n)
+  const relevant = new Array<Set<number>>(n)
 
   relevant[n - 1] = new Set(target.slots)
 

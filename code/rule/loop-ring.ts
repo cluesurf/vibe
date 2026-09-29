@@ -348,8 +348,8 @@ export function loopKernel(
 
     let e = 0
 
-    for (let l = 0; l < flux.length; l++) {
-      e += flux[l]! * flux[l]!
+    for (const f of flux) {
+      e += f * f
     }
 
     const t = (-2 * Math.PI * ((spec.drift * e) % root)) / root
@@ -438,8 +438,8 @@ function transformDigit(
   const sign = inverse ? -1 : 1
   const list = k.starts[p]!
 
-  for (let s = 0; s < list.length; s++) {
-    const base = offset + list[s]!
+  for (const start of list) {
+    const base = offset + start
 
     for (let b = 0; b < n; b++) {
       let ar = 0

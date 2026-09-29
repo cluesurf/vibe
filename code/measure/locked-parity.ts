@@ -428,7 +428,7 @@ export function quarterTurn(
     return [0, 1, 2].map(k => n[k]! * dot + sense * c[k]!).concat([0])
   })
   const matrix = [0, 1, 2, 3].map(i =>
-    [0, 1, 2, 3].map(j => columns[j]?.[i]!),
+    [0, 1, 2, 3].map(j => columns[j]![i]!),
   )
   const slots = slotPermutationOf(matrix)
 
@@ -491,7 +491,7 @@ export function chiralTwist(sense: number): DockTurn {
 
     const a = p.findIndex(v => v !== 0)
 
-    turnDock(c, x, turns[a]?.[p[a]! > 0 ? 0 : 1]!)
+    turnDock(c, x, turns[a]![p[a]! > 0 ? 0 : 1]!)
   }
 }
 

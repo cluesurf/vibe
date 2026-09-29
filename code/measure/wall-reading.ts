@@ -332,12 +332,12 @@ export type WallReading = {
 function hashOf(s: Reduced): number {
   let h = 0x811c9dc5
 
-  for (let i = 0; i < s.vibe.length; i++) {
-    h = Math.imul(h ^ (s.vibe[i]! + 2), 0x01000193)
+  for (const vibe of s.vibe) {
+    h = Math.imul(h ^ (vibe + 2), 0x01000193)
   }
 
-  for (let i = 0; i < s.store.length; i++) {
-    h = Math.imul(h ^ (s.store[i]! + 5), 0x01000193)
+  for (const store of s.store) {
+    h = Math.imul(h ^ (store + 5), 0x01000193)
   }
 
   return h >>> 0

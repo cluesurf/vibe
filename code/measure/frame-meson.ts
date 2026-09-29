@@ -201,9 +201,7 @@ const unit = (a: number, s: number): number[] =>
 function nextOf(space: FrameSpace, c: number, idx: number): number {
   const k = space.classes[c]!
 
-  if (!k.next) {
-    k.next = new Int32Array(64).fill(-2)
-  }
+  k.next ??= new Int32Array(64).fill(-2)
 
   const known = k.next[idx]!
 

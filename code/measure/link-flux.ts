@@ -46,7 +46,6 @@ import { seaConfiguration } from '@/code/measure/pauli-mixer'
 import {
   lockedState,
   sameConfiguration,
-  type Branch,
   type LockedState,
 } from '@/code/rule/doublet-locked-knit'
 import { swapMixedBeat, type RingUnit } from '@/code/rule/swap-mixer'
@@ -116,8 +115,8 @@ export function lineBeat(
     let l = 0
 
     if (b.flux) {
-      for (let k = 0; k < b.flux.length; k++) {
-        if (b.flux[k] !== 0) {
+      for (const f of b.flux) {
+        if (f !== 0) {
           l++
         }
       }

@@ -314,8 +314,8 @@ function wakeReading(
 
   let units = 0
 
-  for (let i = 0; i < h.store.length; i++) {
-    units += h.store[i] !== 0 ? 1 : 0
+  for (const x of h.store) {
+    units += x !== 0 ? 1 : 0
   }
 
   return {

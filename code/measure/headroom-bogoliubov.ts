@@ -220,8 +220,10 @@ export function makeUniformChain(
   )
 
   // CSR: group parts by row, then by column
-  const byRow: Map<number, { tri: number; coef: number }[]>[] =
-    Array.from({ length: links }, () => new Map())
+  const byRow = Array.from(
+    { length: links },
+    () => new Map<number, { tri: number; coef: number }[]>(),
+  )
 
   tris.forEach((t, i) => {
     for (const q of t.parts) {

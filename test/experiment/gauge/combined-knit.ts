@@ -678,8 +678,7 @@ export default experiment({
         differ(state.flux, allStart.flux) ===
       0
     const wholeReturns =
-      whole !== null &&
-      whole.weight.every((w, i) => w === whole0.weight[i])
+      whole?.weight.every((w, i) => w === whole0.weight[i]) ?? false
 
     const ok =
       baseVibes === 0 &&

@@ -73,7 +73,6 @@ import {
 import {
   dyadicMod,
   inverseMatrixMod,
-  mod,
   multiplyMod,
   nullSpaceMod,
   primeBelow,
@@ -252,10 +251,10 @@ function analyse(v: Variant, p: number): Counts {
 
   const theta = space.members.map(list => {
     const [a0, b0, r0] = list[0]!
-    const value = eh.get(key3(v.offsets[r0]!))?.[a0]![b0]! ?? 0
+    const value = eh.get(key3(v.offsets[r0]!))?.[a0]![b0] ?? 0
 
     for (const [a, b, r] of list) {
-      if ((eh.get(key3(v.offsets[r]!))?.[a]![b]! ?? 0) !== value) {
+      if ((eh.get(key3(v.offsets[r]!))?.[a]![b] ?? 0) !== value) {
         ehOrbitMismatch++
       }
     }
@@ -614,7 +613,7 @@ export default experiment({
       primary.ehLeadingInSpan &&
       primary.ehInFamily
     const U2 = primary.extrasDerivative === 0
-    const U3 = unit.plus === unit.cross && huskJ[0]! === 0
+    const U3 = unit.plus === unit.cross && huskJ[0] === 0
     const C1 = primary.freeMetricP2Leading > 1
     const C2 =
       primary.ehInFamily &&

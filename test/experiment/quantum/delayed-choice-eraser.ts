@@ -69,7 +69,6 @@ import {
   isZero,
   label,
   lineOfTwo,
-  norm,
   pointsOf,
   show,
   start,

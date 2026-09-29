@@ -129,7 +129,11 @@ export function vacuumBeat(
 
   for (let x = 0; x < tables.cells; x++) {
     for (const p of order) {
-      p === 'P' ? pairPiece('none', a, x) : coinPiece(tables, a, x)
+      if (p === 'P') {
+        pairPiece('none', a, x)
+      } else {
+        coinPiece(tables, a, x)
+      }
     }
   }
 
@@ -1104,9 +1108,11 @@ export function liquidBeat(
         }
 
         for (const p of order) {
-          p === 'P'
-            ? pairPiece('none', LOCAL, 0)
-            : coinPiece(L.tables, LOCAL, 0)
+          if (p === 'P') {
+            pairPiece('none', LOCAL, 0)
+          } else {
+            coinPiece(L.tables, LOCAL, 0)
+          }
         }
 
         post.set(LOCAL.vibe, k * 36)

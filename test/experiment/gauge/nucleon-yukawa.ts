@@ -271,7 +271,7 @@ export default experiment({
         return {
           pooled,
           pooledError: 1 / Math.sqrt(Math.max(1e-300, weight)),
-          nearest: excess.filter(p => p.r >= RESIDUAL_R_MIN)[0] ?? {
+          nearest: excess.find(p => p.r >= RESIDUAL_R_MIN) ?? {
             r: 0,
             g: 1,
             sigma: 0,

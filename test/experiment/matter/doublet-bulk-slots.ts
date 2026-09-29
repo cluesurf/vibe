@@ -400,8 +400,8 @@ export default experiment({
       metrics[`${name}HuskBlocksWithRemoved`] = h.filter(
         x => x.antisymmetricRemoved > 0,
       ).length
-      metrics[`${name}SingletContact`] = contacts[i]?.singlet!
-      metrics[`${name}TripletContact`] = contacts[i]?.triplet!
+      metrics[`${name}SingletContact`] = contacts[i]!.singlet
+      metrics[`${name}TripletContact`] = contacts[i]!.triplet
       metrics[`${name}ZeroGap`] = gaps[i]!
       metrics[`${name}WorstClosure`] = Math.max(
         ...[...b, ...h].map(x => x.closureResidual),

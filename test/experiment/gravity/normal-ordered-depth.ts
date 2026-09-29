@@ -202,7 +202,6 @@ export default experiment({
     }
 
     const love = seaConfiguration(cells, 1)
-    const empty = seaConfiguration(cells, 0)
     const starts: { name: string; c: Configuration }[] = [
       { name: 'sea', c: love },
       {

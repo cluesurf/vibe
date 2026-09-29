@@ -262,11 +262,8 @@ function observe(
   s: StepState,
   record: StepRecord,
 ): void {
-  for (let l = 0; l < s.step.length; l++) {
-    record.maxStep = Math.max(
-      record.maxStep,
-      Math.abs(s.step[l]!) / rule.unit,
-    )
+  for (const step of s.step) {
+    record.maxStep = Math.max(record.maxStep, Math.abs(step) / rule.unit)
   }
 
   for (let y = 0; y < s.rate.length; y++) {
@@ -340,8 +337,8 @@ export function staticStepRun(
 
   let tension = 0
 
-  for (let l = 0; l < s.line.length; l++) {
-    tension += Math.abs(s.line[l]!)
+  for (const line of s.line) {
+    tension += Math.abs(line)
   }
 
   return {
@@ -485,7 +482,9 @@ export function compressLump(
   }
 
   for (const y of sinks ?? order.slice(mesh.docks - m)) {
-    ;((demand[y] = 1), (sink[y] = 1), (content[y] = -1))
+    demand[y] = 1
+    sink[y] = 1
+    content[y] = -1
   }
 
   const reach = new Uint8Array(mesh.docks)
@@ -503,7 +502,8 @@ export function compressLump(
 
     for (let y = 0; y < mesh.docks; y++) {
       if (demand[y]! > 0) {
-        ;((reach[y] = 1), (queue[tail++] = y))
+        reach[y] = 1
+        queue[tail++] = y
       }
     }
 
@@ -972,10 +972,10 @@ export function horizonRun(
       }
 
       if (firstWrap === 0) {
-        ;((firstWrap = t),
-          (firstWrapDistances = [
-            ...new Set(wrapped.map(d => Math.round(d * 100) / 100)),
-          ].sort((p, q) => p - q)))
+        firstWrap = t
+        firstWrapDistances = [
+          ...new Set(wrapped.map(d => Math.round(d * 100) / 100)),
+        ].sort((p, q) => p - q)
       }
 
       for (const d of wrapped) {

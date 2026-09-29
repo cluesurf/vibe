@@ -272,7 +272,6 @@ export default experiment({
 
     const fit = { slope: main.exponent }
     const exponentError = main.exponentError
-    const rates = main.rates
     const rateMean = main.rateMean
     const rateSpread = main.rateRelativeSpread * rateMean
     const speedError = main.speedError

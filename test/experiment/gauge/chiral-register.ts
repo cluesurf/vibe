@@ -398,7 +398,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     mW.every(x => x >= 0n) &&
     mWplus.every(x => x >= 0n) &&
     firstDiff === PSEUDO_DEGREE &&
-    mWplus[PSEUDO_DEGREE]! - mW[PSEUDO_DEGREE]! === 1n &&
+    (mWplus[PSEUDO_DEGREE]! - mW[PSEUDO_DEGREE]!) === 1n &&
     mW[2] === 1n &&
     mW[4] === 1n &&
     mWplus[2] === 1n &&
@@ -437,7 +437,7 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
     unitNormExact(uZ) &&
     four.every(integer) &&
     four.every((x, i) => idem(x, scales[i]!)) &&
-    four.every((x, i) => trace(x) / scales[i]! === 4) &&
+    four.every((x, i) => (trace(x) / scales[i]!) === 4) &&
     zero(S48p, S48m) &&
     zero(S48p, D96p) &&
     zero(S48p, D96m) &&
@@ -847,7 +847,6 @@ export function chiralRegisterRun(plan: ChiralPlan): Verdict {
   const hard =
     A1 && A2 && A3 && A4 && B1 && B2 && B3 && B4 && S && D1 && D2
   const instrument = I1 && I2
-  const controls = C1 && C2 && C3
   const status = !hard ? 'fail' : 'partial'
   const censusLine = (c: Census): string =>
     `B* ${c.Bstar.toFixed(9)} x${c.crossings}, nearest at |q| ${Math.hypot(...c.at).toFixed(4)} (pair ${c.pair.map(x => x.toFixed(4)).join(', ')})`

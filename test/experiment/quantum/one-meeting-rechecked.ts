@@ -268,7 +268,8 @@ export default experiment({
   paper: false,
   run() {
     const table = cliffordTable()
-    const { group, perms, elementOf, translation } = table
+    const { group, perms } = table
+    const translation = (v: number) => table.translation(v)
     const stab = stabilizerStates(group)
     const single = phasePointOperators(1)
     // the twelve stabilizer roles' single weights times 3 (0 or 1 on a line)

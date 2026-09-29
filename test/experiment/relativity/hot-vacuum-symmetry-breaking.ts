@@ -89,7 +89,6 @@ import {
   matrixOfPermutation,
   type Matrix4,
 } from '@/code/measure/husk-transport-symmetry'
-import { kroneckerPairDock } from '@/code/measure/pair-knit-linearization'
 import { hermitianSpectrum } from '@/code/measure/qutrit-clifford'
 import { operator } from '@/code/measure/grid-weights'
 
@@ -519,7 +518,7 @@ export default experiment({
 
       starts.forEach(([d, sign], i) => {
         const run = loneRun(knit, gHot, g[d]!, sign)
-        const expected = transformPairState(lone[i]?.final!, cellMap, g)
+        const expected = transformPairState(lone[i]!.final, cellMap, g)
         const same =
           run.final.vibe.every((v, k) => v === expected.vibe[k]) &&
           run.final.store.every((v, k) => v === expected.store[k])
@@ -615,8 +614,8 @@ export default experiment({
           const gout = new Int8Array(24)
 
           for (let d = 0; d < 24; d++) {
-            gin[g[d]!] = inputs[i]?.[d]!
-            gout[g[d]!] = base[i]?.[d]!
+            gin[g[d]!] = inputs[i]![d]!
+            gout[g[d]!] = base[i]![d]!
           }
 
           const actual = outVibes(gin, store)

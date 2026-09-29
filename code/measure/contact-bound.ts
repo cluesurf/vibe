@@ -142,7 +142,6 @@ export function relativeSpectrum(input: {
 
     let near = 0
     let pr = 0
-    let pi = 0
 
     for (let r = 0; r < L; r++) {
       const dist = Math.min(r, L - r)
@@ -166,7 +165,6 @@ export function relativeSpectrum(input: {
           ])
 
           pr += a[0] * b[0] + a[1] * b[1]
-          pi += a[0] * b[1] - a[1] * b[0]
         }
       }
     }

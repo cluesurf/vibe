@@ -48,7 +48,6 @@ import {
   deflection,
   depthLumpSurvey,
   readingOf,
-  type ImpactReading,
 } from '@/code/measure/depth-lump'
 import { slope as fitSlope } from '@/code/measure/held-knot'
 

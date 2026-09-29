@@ -63,7 +63,6 @@ import {
   bulkFlux,
   bulkGaussViolations,
   columnSumLinks,
-  copyHuskLight,
   copyTritState,
   emptyTritState,
   floorDiv,

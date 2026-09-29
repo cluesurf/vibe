@@ -70,7 +70,6 @@ import {
   alternatingChsh,
   enumeratedChsh,
   gridLines,
-  marginal,
   marginalCounts,
   meetingObservables,
 } from '@/code/measure/bell-gates'
@@ -268,12 +267,8 @@ export default experiment({
             u: unitsOf(w),
           }))
 
-          for (let g = 0; g < moves.act.length; g++) {
-            const moved = moveCoordinate(
-              atReading,
-              1,
-              moves.act[g] ?? [],
-            )
+          for (const act of moves.act) {
+            const moved = moveCoordinate(atReading, 1, act ?? [])
 
             let changedAfterContact = false
 

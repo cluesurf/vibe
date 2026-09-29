@@ -181,7 +181,7 @@ export function pointBeatWith(
         ? undefined
         : bagPositions(L, ts, c, options.bag)
     const coinOf = (x: number): typeof light =>
-      heavyAt !== undefined && heavyAt.has(x) ? heavy : light
+      heavyAt?.has(x) ? heavy : light
 
     if (options.cost && !options.slant) {
       const th = (-2 * Math.PI * fluxLinks(L, ts, c)) / CLOCK

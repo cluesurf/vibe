@@ -218,9 +218,7 @@ export function notchCoefficient(
   let num = 0
   let den = 0
 
-  for (let i = 0; i < spectrum.lambda.length; i++) {
-    const lambda = spectrum.lambda[i]!
-
+  for (const lambda of spectrum.lambda) {
     if (lambda < 1e-9) {
       continue
     }
@@ -242,9 +240,7 @@ export function optimalTaps(
 ): number[] {
   const r = new Float64Array(order + 1)
 
-  for (let i = 0; i < spectrum.lambda.length; i++) {
-    const lambda = spectrum.lambda[i]!
-
+  for (const lambda of spectrum.lambda) {
     if (lambda < 1e-9) {
       continue
     }

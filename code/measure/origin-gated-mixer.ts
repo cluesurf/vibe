@@ -401,15 +401,13 @@ export function originMismatch(c: Configuration, o: Origins): number {
 export function matterBorn(o: Origins): number {
   let n = 0
 
-  for (let i = 0; i < o.slot.length; i++) {
-    if (o.slot[i] === MATTER_BORN) {
+  for (const slot of o.slot) {
+    if (slot === MATTER_BORN) {
       n++
     }
   }
 
-  for (let s = 0; s < o.store.length; s++) {
-    const w = o.store[s]!
-
+  for (const w of o.store) {
     if (w === 0) {
       continue
     }
@@ -626,9 +624,13 @@ export function originTrack(input: {
     )
     originBeat(tables, a, b, oa, ob, key, threshold, t, events)
     originBeat(tables, p, q, op, oq, key, threshold, t, vacuumEvents)
+
     ;[a, b] = [b, a]
+
     ;[p, q] = [q, p]
+
     ;[oa, ob] = [ob, oa]
+
     ;[op, oq] = [oq, op]
     writeFluxAfterStream(tables, a, flux)
     writeFluxAfterStream(tables, p, vacuumFlux)

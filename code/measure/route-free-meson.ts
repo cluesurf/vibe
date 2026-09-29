@@ -51,6 +51,7 @@ export const frameRoots = (frame: number): number[][] =>
 export const frameLength = (n: ArrayLike<number>): number => {
   let s = 0
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of -- n is ArrayLike, which is not iterable
   for (let i = 0; i < n.length; i++) {
     s += Math.abs(n[i]!)
   }

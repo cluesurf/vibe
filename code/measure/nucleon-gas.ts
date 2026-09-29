@@ -372,8 +372,7 @@ export function fastBeat(fast: FastGraph, state: GraphState): void {
   const flux = state.flux
   const demon = state.demon
 
-  for (let k = 0; k < order.length; k++) {
-    const l = order[k]!
+  for (const l of order) {
     const i = from[l]!
     const j = to[l]!
     const a = vibe[i]!

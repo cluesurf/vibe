@@ -419,7 +419,7 @@ export function lineOrbits(
     }
 
     const orbit = [
-      ...new Set(group.map(g => coins.lineImage[g]?.[l]!)),
+      ...new Set(group.map(g => coins.lineImage[g]![l]!)),
     ].sort((a, b) => a - b)
 
     for (const m of orbit) {

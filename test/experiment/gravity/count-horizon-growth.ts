@@ -229,7 +229,8 @@ export default experiment({
 
             for (let y = 0; y < mesh.huskDocks; y++) {
               if (horizon[y]) {
-                ;((inside += rho[y]!), (sum += shares.share[y]!))
+                inside += rho[y]!
+                sum += shares.share[y]!
               }
             }
 
@@ -267,7 +268,11 @@ export default experiment({
         const F = mean[vertical[y]!]!
 
         if (run.horizon[y]) {
-          F > 0 ? (downFlux += F) : upHorizon++
+          if (F > 0) {
+            downFlux += F
+          } else {
+            upHorizon++
+          }
         } else if (F < 0) {
           returnUp -= F
         }

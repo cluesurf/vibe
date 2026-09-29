@@ -122,7 +122,9 @@ export function membranePlan(
   let tail = 0
 
   for (const y of surface) {
-    ;((depth[y] = 0), (owner[y] = y), (queue[tail++] = y))
+    depth[y] = 0
+    owner[y] = y
+    queue[tail++] = y
   }
 
   for (let at = 0; at < tail; at++) {
@@ -356,7 +358,8 @@ export function membraneForm(
   }
 
   for (const m of plan.interior) {
-    ;((s.step[m] = 0), (s.line[m] = 0))
+    s.step[m] = 0
+    s.line[m] = 0
   }
 
   for (const m of plan.cut) {

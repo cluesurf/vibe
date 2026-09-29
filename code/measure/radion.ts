@@ -368,7 +368,7 @@ export function restingBump(
   w: number,
 ): RadionState {
   const s = emptyRadion(mesh, levels)
-  const [sx, sy, sz] = mesh.sides
+  const [sx, sy] = mesh.sides
 
   for (let y = 0; y < mesh.docks; y++) {
     const c = [

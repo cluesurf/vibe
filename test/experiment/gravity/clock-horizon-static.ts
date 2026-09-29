@@ -314,11 +314,8 @@ function runLump(
     }
 
     if (horizon[y]) {
-      ;(horizonDocks++,
-        (horizonRadius = Math.max(
-          horizonRadius,
-          huskDistance(mesh, y, CENTER),
-        )))
+      horizonDocks++
+      horizonRadius = Math.max(horizonRadius, huskDistance(mesh, y, CENTER))
     } else if (rho[y]! > 0) {
       contentOutside = Math.max(contentOutside, rho[y]!)
     }
@@ -343,11 +340,8 @@ function runLump(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (field[y]) {
-      ;(fieldDocks++,
-        (fieldRadius = Math.max(
-          fieldRadius,
-          huskDistance(mesh, y, CENTER),
-        )))
+      fieldDocks++
+      fieldRadius = Math.max(fieldRadius, huskDistance(mesh, y, CENTER))
     }
   }
 
@@ -410,13 +404,13 @@ export default experiment({
     const lumps: Lump[] = []
 
     for (const m of COMPRESSED) {
-      ;(lumps.push(runLump(mesh, rule, 'compressed', m)),
-        log(`compressed ${m}`))
+      lumps.push(runLump(mesh, rule, 'compressed', m))
+      log(`compressed ${m}`)
     }
 
     for (const m of SPREAD) {
-      ;(lumps.push(runLump(mesh, rule, 'spread', m)),
-        log(`spread ${m}`))
+      lumps.push(runLump(mesh, rule, 'spread', m))
+      log(`spread ${m}`)
     }
 
     const family = (f: Family): Lump[] =>

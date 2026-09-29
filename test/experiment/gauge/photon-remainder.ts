@@ -305,9 +305,9 @@ const differing = (
   return n
 }
 
-const allZero = (a: ArrayLike<number>): boolean => {
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== 0) {
+const allZero = (a: Iterable<number>): boolean => {
+  for (const v of a) {
+    if (v !== 0) {
       return false
     }
   }

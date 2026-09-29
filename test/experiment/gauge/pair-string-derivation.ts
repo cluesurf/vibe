@@ -133,7 +133,7 @@ export default experiment({
 
       let rest = code
 
-      for (let i = 0; i < PATCH.length; i++) {
+      for (const _ of PATCH) {
         pattern.push((rest % 4) - 1)
         rest = Math.floor(rest / 4)
       }

@@ -912,7 +912,6 @@ export function goldenRule(input: {
   const kappa = input.kappa ?? HUSK_KAPPA
   const scan = input.scan ?? 48
   const target = leapfrogMu(kappa, omega)
-  const n = symbol.size
   const d = symbol.dimension
   const rates = couplings.map(() => 0)
 

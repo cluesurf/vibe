@@ -140,12 +140,6 @@ const PY: [number, number][] = [
   [0, 1],
   [0, 0],
 ]
-const PZ: [number, number][] = [
-  [1, 0],
-  [0, 0],
-  [0, 0],
-  [-1, 0],
-]
 
 // the coin e^(i mu) e^(-i mu tau_x) on the slots
 export function coinOf(mu: number): Mat {
@@ -343,7 +337,7 @@ export function tokenG(input: {
 
   const sectors = [0, 1].map(spin => {
     const k = (a: number, b: number): [number, number] =>
-      element(kernel[a]?.[b]!, spin, spin)
+      element(kernel[a]![b]!, spin, spin)
     const kxx = k(0, 0)
     const kyy = k(1, 1)
     const kxy = k(0, 1)
@@ -353,7 +347,7 @@ export function tokenG(input: {
       offDiagonal,
       ...[0, 1].flatMap(a =>
         [0, 1].map(b =>
-          Math.hypot(...element(kernel[a]?.[b]!, spin, 1 - spin)),
+          Math.hypot(...element(kernel[a]![b]!, spin, 1 - spin)),
         ),
       ),
     )

@@ -171,9 +171,10 @@ export function quaternionGroup(
   const elements: number[][] = [[1, 0, 0, 0]]
   const index = new Map<string, number>([[key([1, 0, 0, 0]), 0]])
 
-  for (let i = 0; i < elements.length; i++) {
+  // the list grows while it is walked, and for-of reads the live length
+  for (const e of elements) {
     for (const g of generators) {
-      for (const p of [qmul(elements[i]!, g), qmul(g, elements[i]!)]) {
+      for (const p of [qmul(e, g), qmul(g, e)]) {
         const k = key(p)
 
         if (index.has(k)) {
@@ -1294,7 +1295,7 @@ export function hypercubicLattice(d: number): PlaquetteLattice {
     plaquettes: choose2,
     classes: [
       {
-        vector: [1, ...new Array(d - 1).fill(0)],
+        vector: [1, ...new Array<number>(d - 1).fill(0)],
         perLink: 2 * (d - 1),
         count: d,
       },

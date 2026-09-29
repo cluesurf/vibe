@@ -58,7 +58,6 @@ import {
   ringColumns,
   type AxisRing,
   type Placed,
-  type PointLove,
   type Relative,
 } from '@/code/measure/held-cluster'
 import {

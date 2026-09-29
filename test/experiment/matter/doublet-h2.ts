@@ -73,7 +73,6 @@ import {
   labeledHamiltonian,
   parabolaMinimum,
   productOverlaps,
-  type Level,
 } from '@/code/measure/doublet-chemistry'
 
 const SIDE = 64

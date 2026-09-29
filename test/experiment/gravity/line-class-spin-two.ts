@@ -352,7 +352,7 @@ function modes(
     if (space.value > 1e-10 * q2) {
       count.extra += space.basis.length
 
-      for (let i = 0; i < space.basis.length; i++) {
+      for (const _ of space.basis) {
         count.strayOmega.push(omegaOf(space.value) / (C * k))
       }
     }

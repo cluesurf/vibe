@@ -158,8 +158,8 @@ function toyCheck(): number {
 
             let image = b.map[local]!
 
-            for (let k = 0; k < b.slots.length; k++) {
-              s[b.slots[k]!] = (image % 3) - 1
+            for (const slot of b.slots) {
+              s[slot] = (image % 3) - 1
               image = Math.floor(image / 3)
             }
           }

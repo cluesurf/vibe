@@ -128,7 +128,7 @@ export function fineCoinBranch(
 
   for (let x = 0; x < cells; x++) {
     const base = x * 24
-    const step = heavy !== undefined && heavy.has(x) ? n : 1
+    const step = heavy?.has(x) ? n : 1
 
     for (let l = 0; l < 12; l++) {
       const i = base + LINE_FIRSTS[l]!

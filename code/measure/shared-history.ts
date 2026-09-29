@@ -67,16 +67,16 @@ export type Labeled = {
 
 // label every vibe of a configuration with no open vibe: stored halves first (line order), then slots (slot order)
 export function labelConfiguration(c: Configuration): Labeled {
-  for (let i = 0; i < c.open.length; i++) {
-    if (c.open[i]) {
+  for (const open of c.open) {
+    if (open) {
       throw new Error(
         'shared-history: an open vibe; the reading is written for the classical (closed) vacuum',
       )
     }
   }
 
-  for (let i = 0; i < c.sopen.length; i++) {
-    if (c.sopen[i]) {
+  for (const open of c.sopen) {
+    if (open) {
       throw new Error(
         'shared-history: an open stored pair; the reading is written for the classical (closed) vacuum',
       )
@@ -329,7 +329,9 @@ export function historyRun(input: {
   let sound = labelsSound(h)
 
   for (let t = 0; t < last; t++) {
-    labeledBeat(input.kind, input.tables, h, t, () => {})
+    labeledBeat(input.kind, input.tables, h, t, () => {
+      // no per-meeting callback is wanted on this pass
+    })
     state = vetoBeat(input.kind, input.tables, state, t, newTally())
     matchesRule =
       matchesRule &&

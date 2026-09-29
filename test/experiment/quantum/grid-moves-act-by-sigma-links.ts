@@ -48,7 +48,6 @@ import {
 import { makeSigmaLinks } from '@/code/rule/sigma-links'
 import { gridMoves } from '@/code/rule/vibe-weave'
 import { phaseSpaceAction } from '@/code/measure/qutrit-phase-space'
-import { type Matrix3 } from '@/code/dynamics/finite-gauge'
 import {
   classicalRecords,
   meetingPairs,
@@ -131,14 +130,14 @@ export default experiment({
     // 2. homomorphism
     let homomorphismFaults = 0
 
-    for (let g = 0; g < grid.act.length; g++) {
-      for (let h = 0; h < grid.act.length; h++) {
+    for (const actG of grid.act) {
+      for (const actH of grid.act) {
         const gh = Array.from(
           { length: 9 },
-          (_, p) => grid.act[g]?.[grid.act[h]?.[p] ?? 0] ?? 0,
+          (_, p) => actG?.[actH?.[p] ?? 0] ?? 0,
         )
-        const pg = phaseMove(grid.act[g] ?? [])
-        const ph = phaseMove(grid.act[h] ?? [])
+        const pg = phaseMove(actG ?? [])
+        const ph = phaseMove(actH ?? [])
 
         homomorphismFaults +=
           key(phaseMove(gh)) === key(ph.map(q => pg[q] ?? 0)) ? 0 : 1

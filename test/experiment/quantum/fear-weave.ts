@@ -1018,8 +1018,7 @@ export default experiment({
       }
 
       colorReverses =
-        whole !== null &&
-        whole.weight.every((w, i) => w === whole0.weight[i])
+        whole?.weight.every((w, i) => w === whole0.weight[i]) ?? false
     }
 
     const colorGauge = gaugeMismatch([], colorOn ?? undefined)

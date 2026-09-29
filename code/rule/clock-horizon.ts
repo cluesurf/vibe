@@ -98,7 +98,8 @@ export function clockJoin(
       y !== rule.reference &&
       excess[y]! >= rule.capTwice
     ) {
-      ;((horizon[y] = 1), joined.push(y))
+      horizon[y] = 1
+      joined.push(y)
     }
   }
 

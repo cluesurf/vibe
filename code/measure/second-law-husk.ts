@@ -377,9 +377,7 @@ export function lowEntropyStart(
   }
 
   if (input.depthUniform) {
-    for (let c = 0; c < seedDock.length; c++) {
-      const x0 = seedDock[c]!
-
+    for (const x0 of seedDock) {
       if (x0 < 0) {
         continue
       }
@@ -405,14 +403,14 @@ export function lowEntropyStart(
 export function energyOf(s: Reduced): number {
   let e = 0
 
-  for (let i = 0; i < s.vibe.length; i++) {
-    if (s.vibe[i] !== 0) {
+  for (const vibe of s.vibe) {
+    if (vibe !== 0) {
       e++
     }
   }
 
-  for (let i = 0; i < s.store.length; i++) {
-    if (s.store[i] !== 0) {
+  for (const store of s.store) {
+    if (store !== 0) {
       e += 2
     }
   }
@@ -423,8 +421,8 @@ export function energyOf(s: Reduced): number {
 export function chargeOf(s: Reduced): number {
   let q = 0
 
-  for (let i = 0; i < s.vibe.length; i++) {
-    q += s.vibe[i]!
+  for (const vibe of s.vibe) {
+    q += vibe
   }
 
   return q

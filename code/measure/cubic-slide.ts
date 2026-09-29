@@ -99,7 +99,7 @@ export type SlideSpec = {
 export function slideAction(spec: SlideSpec): Poly[] {
   const { p } = spec
   const cInv = inverse(spec.c, p)
-  const out: Poly[] = Array.from({ length: FIELDS }, () => new Map())
+  const out = Array.from({ length: FIELDS }, (): Poly => new Map())
 
   const add = (field: number, c: number, jets: number[]): void => {
     const nonlinearTime =

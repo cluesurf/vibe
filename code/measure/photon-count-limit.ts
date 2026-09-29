@@ -113,8 +113,6 @@ export function testVector(links: number, salt: number): bigint[] {
   )
 }
 
-const isZero = (v: readonly bigint[]): boolean => v.every(x => x === 0n)
-
 // the 2-adic valuation of a nonzero bigint
 function twos(x: bigint): number {
   let n = 0

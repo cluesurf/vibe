@@ -546,7 +546,8 @@ export default experiment({
     }
 
     for (const l of finalPlan.interior) {
-      ;((skip.step[l] = 1), (skip.line[l] = 1))
+      skip.step[l] = 1
+      skip.line[l] = 1
     }
 
     const moveAll = (s: OpenState): void => {
@@ -555,8 +556,8 @@ export default experiment({
       }
 
       for (const l of finalPlan.interior) {
-        ;((s.step[l] = shiftStep(rule, s.step[l]!)),
-          (s.line[l] = cycleLine(s.line[l]!)))
+        s.step[l] = shiftStep(rule, s.step[l]!)
+        s.line[l] = cycleLine(s.line[l]!)
       }
     }
 

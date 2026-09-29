@@ -9,7 +9,6 @@
 // with A the love pair's antisymmetrizer (roles 0 and 1) or the singlet projector on (role 0, antirole n). Both
 // commute with the color group, so they keep the neutral space. Measurement code.
 
-import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
 import {
   applyToCluster,
   binaryTetrahedralCharacters,

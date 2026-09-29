@@ -69,7 +69,6 @@ import {
   lastKick,
   makePhotonRule,
   photonBeatInPlace,
-  photonEnergy,
   photonLatticeD4,
   placePairAlong,
   plaquetteField,

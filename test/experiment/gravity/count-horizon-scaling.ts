@@ -97,8 +97,8 @@ function readHorizon(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (horizon[y]) {
-      ;(docks++,
-        (farthest = Math.max(farthest, huskDistance(mesh, y, center))))
+      docks++
+      farthest = Math.max(farthest, huskDistance(mesh, y, center))
     }
   }
 

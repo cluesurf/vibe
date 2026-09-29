@@ -217,7 +217,8 @@ export function horizonPieces(
         const z = mesh.incSign[j]! > 0 ? mesh.head[m]! : mesh.tail[m]!
 
         if (piece[z] === -1) {
-          ;((piece[z] = pieces), (queue[tail++] = z))
+          piece[z] = pieces
+          queue[tail++] = z
         }
       }
     }
@@ -257,8 +258,8 @@ export function waveRest(
 
   for (let y = 0; y < mesh.huskDocks; y++) {
     if (piece[y]! >= 0) {
-      ;((content[piece[y]!] = content[piece[y]!]! + rho[y]!),
-        (size[piece[y]!] = size[piece[y]!]! + 1))
+      content[piece[y]!] = content[piece[y]!]! + rho[y]!
+      size[piece[y]!] = size[piece[y]!]! + 1
     }
   }
 
@@ -362,7 +363,8 @@ export function waveStatics(
         y !== rule.reference &&
         rest.x[y]! - rest.x[rule.reference]! >= rule.cap
       ) {
-        ;((horizon[y] = 1), joined++)
+        horizon[y] = 1
+        joined++
       }
     }
 

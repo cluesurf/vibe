@@ -511,12 +511,15 @@ export default experiment({
         ...perPeriod('noSwapLove', ledger('noSwap').largest),
         noSwapVacuumComponents: noSwapComponents,
         firstStageMembers: firstStage.length,
-        ...Object.fromEntries([
-          ...SWEEPS.map(s => [`members_${s}`, familySweep(s).length]),
+        ...Object.fromEntries<number>([
+          ...SWEEPS.map((s): [string, number] => [
+            `members_${s}`,
+            familySweep(s).length,
+          ]),
           ['members_tablesCpt', cptTableSweep().length],
         ]),
-        ...Object.fromEntries(
-          [...firstFailure].map(([key, count]) => [
+        ...Object.fromEntries<number>(
+          [...firstFailure].map(([key, count]): [string, number] => [
             `firstFailure_${key}`,
             count,
           ]),

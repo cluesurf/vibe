@@ -250,8 +250,7 @@ export default experiment({
 
     let cyclicSurvivors = 0
 
-    for (let pi = 0; pi < dirPerms.length; pi++) {
-      const p = dirPerms[pi]!
+    for (const p of dirPerms) {
       const pInv = new Array<number>(24)
 
       for (let d = 0; d < 24; d++) {
